@@ -40,36 +40,42 @@ set whst=`(grep ".xml" $geomxml | sed "{s/'//g}" | sed '{s/,//g}' | sed '{s/ //g
 mkdir workarea
 #rm dcorig.out
 touch dcorig.out
-if ( -e "../../../DetectorDescription/Schema/DDLSchema.xsd" ) then
-#    echo "got here"
+#set the schema path
+if ( -e "${CMSSW_BASE}/src/DetectorDescription/Schema/DDLSchema.xsd" ) then
+    set schpath = `(echo "file://${CMSSW_BASE}/src/DetectorDescription/Schema/DDLSchema.xsd")`
+else
+    set schpath = `(echo "file://${CMSSW_RELEASE_BASE}/src/DetectorDescription/Schema/DDLSchema.xsd")`
+endif
+echo "Assuming the schema is here: " $schpath
+#prep schpath for feeding into sed.
+set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
+
     foreach l ( $whst )
 	if ( -e $CMSSW_BASE/src/$l ) then
 	    set dp = `(echo "${l}" | awk -F\/ '{print NF}')`
 	    set fn = `(echo "${l}" | awk -F\/ '{print $NF}')`
-	    if ( $dp == 5 ) then
-		cd workarea
-		ln -s ../dcorig.out .
-	    endif
 	    cp $CMSSW_BASE/src/$l .
+	    if ( $dp > 5 ) then
+		echo "ERROR: file " $fn " has a relative path too big for this script." 
+	    else
+		sed -i "{s/..\/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/g}" $fn
+	    endif
+	    sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" $fn
 	    DOMCount -v=always -n -s -f $fn >>& dcorig.out
 	    rm $fn
-	    if ( $dp == 5 ) then
-		cd ..
-	    endif
 	else
 	    if ( -e $CMSSW_RELEASE_BASE/src/$l ) then
 		set dp = `(echo "${l}" | awk -F\/ '{print NF}')`
 		set fn = `(echo "${l}" | awk -F\/ '{print $NF}')`
-		if ( $dp == 5 ) then
-		    cd workarea
-		    ln -s ../dcorig.out .
-		endif
 		cp $CMSSW_RELEASE_BASE/src/$l .
+		if ( $dp > 5 ) then
+		    echo "ERROR: file " $fn " has a relative path too big for this script." 
+		else
+		    sed -i "{s/..\/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/g}" $fn
+		endif
+		sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" $fn
 		DOMCount -v=always -n -s -f $fn >>& dcorig.out
 		rm $fn
-		if ( $dp == 5 ) then
-		    cd ..
-		endif
 	    else
 		echo "Error file " $l " not found in " $CMSSW_RELEASE_BASE "/src or " $CMSSW_BASE "/src" >>& dcorig.out
 	    endif
@@ -82,11 +88,11 @@ if ( -e "../../../DetectorDescription/Schema/DDLSchema.xsd" ) then
     else
 	echo "XML Schema violations can be seen in dcorig.out."
     endif
-else
-    echo "Missing ../../../DetectorDescription/Schema/DDLSchema.xsd..."
-    echo "If you are running in your own work area, please check out (addpkg) DetectorDescription/Schema in your src directory."
-    echo "ERROR: DOMCount validation not performed... others might still work below."
-endif
+#else
+#    echo "Missing ../../../DetectorDescription/Schema/DDLSchema.xsd..."
+#    echo "If you are running in your own work area, please check out (addpkg) DetectorDescription/Schema in your src directory."
+#    echo "ERROR: DOMCount validation not performed... others might still work below."
+#endif
 
 cd workarea
 
@@ -130,7 +136,9 @@ echo "Finish the write to the single BIG XML file."
 
 # STEP 4:
 # make sure fred.xml has appropriate relative path to DDLSchema.xsd
-sed -i '{s/..\/..\/..\/D/..\/..\/..\/..\/..\/D/g}' fred.xml
+
+#sed -i '{s/..\/..\/..\/D/..\/..\/..\/..\/..\/D/g}' fred.xml
+sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" fred.xml
 DOMCount -n -s -f -v=always fred.xml >& diffdom.out
 set diffout = `(diff diffdom.out ../../domcountBIG.ref)`
 if ( "$diffout" != "" ) then
