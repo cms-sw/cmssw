@@ -8,6 +8,7 @@
 SiPixelHistoryDQMService::SiPixelHistoryDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg)
 : DQMHistoryServiceBase::DQMHistoryServiceBase(iConfig, aReg), iConfig_(iConfig)
 {
+  //setSeperator("@@#@@"); // Change the seperator used in DB
   edm::LogInfo("SiPixelHistoryDQMService") <<  "[SiPixelHistoryDQMService::SiPixelHistoryDQMService]";
 }
 

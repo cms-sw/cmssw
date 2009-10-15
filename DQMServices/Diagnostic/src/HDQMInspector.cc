@@ -151,6 +151,56 @@ void  HDQMInspector::setBlackList(std::string const & ListItems)
   return;
 }
 
+void  HDQMInspector::setWhiteList(std::string const & ListItems)
+{
+
+  // Run over entire input string
+  for (std::string::const_iterator Pos = ListItems.begin(); Pos != ListItems.end(); ) {
+
+    // The rest of the string
+    std::string Remainder(Pos, ListItems.end());
+
+    // This entry will be from the beginning of the remainder to either a ","
+    // or the end of the string
+    std::string Entry = Remainder.substr(0, Remainder.find(","));
+
+    // If we find a "-" we know it's a whitelist range
+    if ( Entry.find("-") ) {
+
+      // Get the first and last runs from this range
+      int const FirstRun = atoi( Entry.substr(0, Entry.find("-")).c_str() );
+      int const LastRun  = atoi( Entry.substr(Entry.find("-")+1).c_str() );
+
+      // If you entered it stupidly we're going to stop here.
+      if (FirstRun > LastRun) {
+        std::cerr << "ERROR: FirstRun > LastRun in WhiteList" << std::endl;
+        exit(1);
+      }
+
+      // For now the simplest thing to do is fill in gaps including each end
+      for (int i = FirstRun; i <= LastRun; ++i) {
+        whiteList.push_back(i);
+      }
+
+    } else {
+      // If we didn't see a "-" just add it to the list
+      whiteList.push_back( atoi(Entry.c_str()) );
+    }
+
+    // This is to make sure we are in the correct position as we go on.
+    Pos += Entry.size();
+    if (Pos != ListItems.end()) {
+      Pos += 1;
+    }
+
+  }
+
+  // sort the list for faster searching later
+  std::sort(whiteList.begin(), whiteList.end());
+
+  return;
+}
+
 bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList)
 {
   // This routine expectes a sorted list and returns true if the run is in the list,
@@ -159,7 +209,7 @@ bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList
   // Binary search is much faster, but you MUST give it a sorted list.
   if (std::binary_search(vList.begin(), vList.end(), run)) {
     if(iDebug) {
-      std::cout << "\n Run "<< run << " is black listed !!\n" << std::endl;
+      std::cout << "\n Run "<< run << " is listed !!\n" << std::endl;
     }
     return true;
   }
@@ -266,9 +316,15 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
   }
   const HDQMSummary* reference;
   while((reference = Iterator->next())) { 
-   
-    if(Iterator->getStartTime()<firstRun || Iterator->getStartTime()>lastRun || isListed(reference->getRunNr(), blackList))
+
+
+    // Check the run and black and white lists
+    if(Iterator->getStartTime()<firstRun || Iterator->getStartTime()>lastRun || isListed(reference->getRunNr(), blackList)) {
       continue;
+    }
+    if (whiteList.size() > 0 && !isListed(reference->getRunNr(), whiteList)) {
+      continue;
+    }
 
     if(vDetIdItemListCut.size()){
       for(size_t ij=0;ij!=vDetIdItemListCut.size();++ij){

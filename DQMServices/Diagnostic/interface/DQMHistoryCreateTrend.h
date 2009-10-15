@@ -34,6 +34,9 @@ class DQMHistoryCreateTrend
   inline void setBlackList(const string & listItems) {
     inspector_->setBlackList(listItems);
   }
+  inline void setWhiteList(const string & listItems) {
+    inspector_->setWhiteList(listItems);
+  }
   inline void closeFile() {
     inspector_->closeFile();
   }

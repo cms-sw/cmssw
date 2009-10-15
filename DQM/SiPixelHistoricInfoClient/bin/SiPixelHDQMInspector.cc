@@ -11,6 +11,7 @@ using namespace std;
 
 string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
 string const BlackList = "";
+string const WhiteList = ""; // set a runs & range such as: "123,321,456,108000-109000";
 
 /**
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
@@ -28,6 +29,8 @@ void runSiPixelInspector( const string &tagName, const string & Password, const 
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
   makeTrend.setBlackList(BlackList);
+  makeTrend.setWhiteList(WhiteList);
+  //makeTrend.setSeparator("@@#@@");  // TO change the seperator
 
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;

@@ -76,6 +76,7 @@ class HDQMInspector
   void setDebug(int i){iDebug=i;}
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
+  void setWhiteList(std::string const& ListItems);
   void setSkip99s (bool const in) {
     fSkip99s = in;
     return;
@@ -124,6 +125,7 @@ private:
   
   std::vector<unsigned int> iovList;
   std::vector<unsigned int> blackList;
+  std::vector<unsigned int> whiteList;
   
   std::vector<unsigned int> vRun_;
   std::vector<float> vSummary_;
