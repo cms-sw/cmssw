@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.33 2009/09/29 17:39:40 srappocc Exp $
+// $Id: Jet.cc,v 1.34 2009/10/13 13:19:31 auterman Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -26,6 +26,9 @@ Jet::Jet() :
   jetID_.restrictedEMF = 0.;
   jetID_.nHCALTowers = 0;
   jetID_.nECALTowers = 0;  
+  jetID_.approximatefHPD = 0.;
+  jetID_.approximatefRBX = 0.;
+  jetID_.hitsInN90 = 0;
 }
 
 /// constructor from a reco::Jet
@@ -45,6 +48,9 @@ Jet::Jet(const reco::Jet & aJet) :
   jetID_.restrictedEMF = 0.;
   jetID_.nHCALTowers = 0;
   jetID_.nECALTowers = 0;
+  jetID_.approximatefHPD = 0.;
+  jetID_.approximatefRBX = 0.;
+  jetID_.hitsInN90 = 0;
   tryImportSpecific(aJet);
 }
 
@@ -65,6 +71,9 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   jetID_.restrictedEMF = 0.;
   jetID_.nHCALTowers = 0;
   jetID_.nECALTowers = 0;
+  jetID_.approximatefHPD = 0.;
+  jetID_.approximatefRBX = 0.;
+  jetID_.hitsInN90 = 0;
   tryImportSpecific(*aJetRef);
 }
 
@@ -85,6 +94,9 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   jetID_.restrictedEMF = 0.;
   jetID_.nHCALTowers = 0;
   jetID_.nECALTowers = 0;
+  jetID_.approximatefHPD = 0.;
+  jetID_.approximatefRBX = 0.;
+  jetID_.hitsInN90 = 0;
   tryImportSpecific(*aJetRef);
 }
 
