@@ -23,7 +23,7 @@ namespace reco
     {
     public:
       /* Constructors*/
-      CaloMET() {}
+      CaloMET() ;
       CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
