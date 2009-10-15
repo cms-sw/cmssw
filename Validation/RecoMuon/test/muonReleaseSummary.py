@@ -5,48 +5,56 @@ import sys
 import fileinput
 import string
 
+NewVersion='3_3_0'
+RefVersion='3_3_0_pre6'
+NewRelease='CMSSW_'+NewVersion
+RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
-NewRelease='CMSSW_3_3_0_pre5'
-RefRelease='CMSSW_3_3_0_pre4'
-
-samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
-#samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
-#samples= ['RelValTTbar','RelValZMM']
-#samples= ['RelValCosmics']
-
-#samples= ['ppMuXLoose', 'InclusiveMu5_Pt50', 'InclusiveMu5_Pt250', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
-#samples= ['InclusiveMu5_Pt50', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
-
-Submit=True
-Publish=False
-
-NewFastSim=True
-RefFastSim=True
-
-GetFilesFromCastor=False
-GetRefsFromCastor=True
-CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
-#CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
-#CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
-
-ValidateHLT=True
 
 NewCondition='MC'
 RefCondition='MC'
 #NewCondition='STARTUP'
 #RefCondition='STARTUP'
 
+NewFastSim=False
+RefFastSim=False
+
+if (NewCondition=='MC'):
+    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+    if (NewFastSim|RefFastSim):
+        samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
+elif (NewCondition=='STARTUP'):
+    samples= ['RelValTTbar','RelValZMM']
+    if (NewFastSim|RefFastSim):
+        samples= ['']
+# These are some of the (pre)production samples, to be included by hand:
+#samples= ['ppMuXLoose', 'InclusiveMu5_Pt50', 'InclusiveMu5_Pt250', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
+#samples= ['InclusiveMu5_Pt50', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
+
+Submit=True
+Publish=False
+
+GetFilesFromCastor=True
+GetRefsFromCastor=True
+CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
+#CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
+#CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
+#CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
+
+ValidateHLT=True
+
+
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'_31X_V8_FastSim-v1'
+    NewLabel=NewCondition+'_31X_V9_FastSim-v1'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_31X_V8-v1'
+    NewLabel=NewCondition+'_31X_V9-v1'
 #    NewLabel=NewCondition+'31X_V3_preproduction_312-v1'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'31X_V7-v1'
+        NewLabel=NewCondition+'31X_V8-v1'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
@@ -111,7 +119,15 @@ for sample in samples :
              # FOR SOME REASON THIS DOES NOT WORK: to be checked...
              print "New file found at: ",NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root'+' -> Use that one'
          elif (GetFilesFromCastor):
-             os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+             NEVT='9000'
+             if (sample=='RelValSingleMuPt10'):
+                 NEVT='25000'
+             elif(sample=='RelValZMM'):
+                 NEVT='8995'
+             elif((sample=='RelValTTbar')&(NewCondition=='STARTUP')):
+                  NEVT='34000'
+             os.system('rfcp '+CastorRepository+'/'+NewVersion+'/'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'/run_1/nevents_'+NEVT+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+#             os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
 #preprod-hegeman              os.system('rfcp '+CastorRepository+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
          elif (os.path.isfile(newSample)) :
              os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
