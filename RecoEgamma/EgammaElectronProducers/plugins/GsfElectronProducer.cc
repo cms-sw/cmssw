@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.22 2009/05/29 14:09:23 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.23 2009/05/31 15:58:20 chamont Exp $
 //
 //
 
@@ -74,11 +74,11 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("maxDeltaEtaEndcapsPflow"),
 		    iConfig.getParameter<double>("maxDeltaPhiBarrelPflow"),
 		    iConfig.getParameter<double>("maxDeltaPhiEndcapsPflow"),
-		    iConfig.getParameter<double>("hOverEConeSizePflow"),
-		    iConfig.getParameter<double>("hOverEPtMinPflow"),
-		    iConfig.getParameter<double>("maxHOverEDepth1BarrelPflow"),
-		    iConfig.getParameter<double>("maxHOverEDepth1EndcapsPflow"),
-		    iConfig.getParameter<double>("maxHOverEDepth2Pflow"),
+//		    iConfig.getParameter<double>("hOverEConeSizePflow"),
+//		    iConfig.getParameter<double>("hOverEPtMinPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth1BarrelPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth1EndcapsPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth2Pflow"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaBarrelPflow"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaEndcapsPflow"),
 		    iConfig.getParameter<double>("maxFbremBarrelPflow"),

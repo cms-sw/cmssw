@@ -11,12 +11,17 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
 
     # SC filtering
     SCEtCut = cms.double(4.0),
-    hcalRecHits = cms.InputTag("hbhereco"),
-    # H/E cut moved back to electron preselection
-    maxHOverE = cms.double(0.1),
+
+    # H/E
     hOverEConeSize = cms.double(0.15),
-    hOverEHBMinE = cms.double(0.7),
-    hOverEHFMinE = cms.double(0.8),
+    maxHOverE = cms.double(0.1),
+    # H/E rechits
+    hcalRecHits = cms.InputTag("hbhereco"), # OBSOLETE
+    hOverEHBMinE = cms.double(0.7),         # OBSOLETE
+    hOverEHFMinE = cms.double(0.8),         # OBSOLETE
+    # H/E towers
+    hcalTowers = cms.InputTag("towerMaker"),
+    hOverEPtMin = cms.double(0.),
     
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.),

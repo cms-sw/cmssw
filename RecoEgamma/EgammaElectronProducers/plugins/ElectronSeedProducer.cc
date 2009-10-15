@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.6 2009/05/18 16:50:18 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.7 2009/05/20 13:57:31 chamont Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 //#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
-//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -47,11 +47,11 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  :
    //conf_(iConfig),
-   seedFilter_(0),
-   caloGeomCacheId_(0),
-   hcalIso_(0),
+   seedFilter_(0)
+//   caloGeomCacheId_(0),
+//   hcalIso_(0),
    //doubleConeSel_(0),
-   mhbhe_(0)
+//   mhbhe_(0)
  {
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
@@ -61,14 +61,14 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   prefilteredSeeds_ = pset.getParameter<bool>("preFilteredSeeds") ;
 
   // for H/E
-  hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits") ;
+  hcalHelper_ = new ElectronHcalHelper(pset) ;
+//  hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits") ;
   maxHOverE_=pset.getParameter<double>("maxHOverE") ;
-  hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
-  hOverEHBMinE_=pset.getParameter<double>("hOverEHBMinE") ;
-  hOverEHFMinE_=pset.getParameter<double>("hOverEHFMinE") ;
+//  hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
+//  hOverEHBMinE_=pset.getParameter<double>("hOverEHBMinE") ;
+//  hOverEHFMinE_=pset.getParameter<double>("hOverEHFMinE") ;
 
   matcher_ = new ElectronSeedGenerator(pset) ;
-  //hcalHelper_ = new ElectronHcalHelper(pset) ;
 
   if (prefilteredSeeds_) seedFilter_ = new SeedFilter(pset) ;
 
@@ -83,35 +83,35 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 
 ElectronSeedProducer::~ElectronSeedProducer()
  {
-  //delete hcalHelper_ ;
+  delete hcalHelper_ ;
   delete matcher_ ;
   delete seedFilter_ ;
-  delete mhbhe_ ;
+//  delete mhbhe_ ;
   //delete doubleConeSel_ ;
-  delete hcalIso_ ;
+//  delete hcalIso_ ;
  }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
  {
   LogDebug("ElectronSeedProducer") <<"[ElectronSeedProducer::produce] entering " ;
 
-  //hcalHelper_->checkSetup(iSetup) ;
-  //hcalHelper_->readEvent(e) ;
+  hcalHelper_->checkSetup(iSetup) ;
+  hcalHelper_->readEvent(e) ;
 
-  // get calo geometry
-  if (caloGeomCacheId_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
-    iSetup.get<CaloGeometryRecord>().get(caloGeom_);
-    caloGeomCacheId_=iSetup.get<CaloGeometryRecord>().cacheIdentifier();
-  }
+//  // get calo geometry
+//  if (caloGeomCacheId_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
+//    iSetup.get<CaloGeometryRecord>().get(caloGeom_);
+//    caloGeomCacheId_=iSetup.get<CaloGeometryRecord>().cacheIdentifier();
+//  }
 
   matcher_->setupES(iSetup);
 
-  // get Hcal Rechit collection
-  edm::Handle<HBHERecHitCollection> hbhe ;
-  bool got = e.getByLabel(hcalRecHits_,hbhe) ;
-  delete mhbhe_;
-  if (got) { mhbhe_=  new HBHERecHitMetaCollection(*hbhe) ; }
-  else { mhbhe_ = 0 ; }
+//  // get Hcal Rechit collection
+//  edm::Handle<HBHERecHitCollection> hbhe ;
+//  bool got = e.getByLabel(hcalRecHits_,hbhe) ;
+//  delete mhbhe_;
+//  if (got) { mhbhe_=  new HBHERecHitMetaCollection(*hbhe) ; }
+//  else { mhbhe_ = 0 ; }
 
   // define cone for H/E
   //delete doubleConeSel_;
@@ -130,9 +130,9 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   ElectronSeedCollection *seeds= new ElectronSeedCollection;
 
-  // HCAL iso deposits
-  delete hcalIso_;
-  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,hOverEHBMinE_,hOverEHFMinE_,0.,0.,caloGeom_,mhbhe_) ;
+//  // HCAL iso deposits
+//  delete hcalIso_;
+//  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,hOverEHBMinE_,hOverEHFMinE_,0.,0.,caloGeom_,mhbhe_) ;
 
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++)
@@ -202,10 +202,10 @@ void ElectronSeedProducer::filterClusters
 //	     }
 //       }
 //      double HoE = hcalE/scl.energy() ;
-      //double hcalE = hcalHelper_->hcalESum(scl), HoE = hcalE/scl.energy() ;
-      double newHcalE = hcalIso_->getHcalESum(&scl), newHoE = newHcalE/scl.energy() ;
+      double hcalE = hcalHelper_->hcalESum(scl), HoE = hcalE/scl.energy() ;
+      //double newHcalE = hcalIso_->getHcalESum(&scl), newHoE = newHcalE/scl.energy() ;
       //std::cout << "[ElectronSeedProducer] HoE, maxHOverE_ " << newHoE << " " << HoE << " " << maxHOverE_ << std::endl ;
-      if (newHoE <= maxHOverE_)
+      if (HoE <= maxHOverE_)
        { sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i)) ; }
      }
    }
