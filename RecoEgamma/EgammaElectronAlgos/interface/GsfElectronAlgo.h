@@ -13,7 +13,7 @@
 
  ************************************************************/
 
-//class ElectronHcalHelper ;
+class ElectronHcalHelper ;
 class MultiTrajectoryStateTransform ;
 class MultiTrajectoryStateMode ;
 
@@ -70,9 +70,9 @@ class GsfElectronAlgo {
       double minEOverPBarrelPflow, double minEOverPEndcapsPflow,
       double maxDeltaEtaBarrelPflow, double maxDeltaEtaEndcapsPflow,
       double maxDeltaPhiBarrelPflow,double maxDeltaPhiEndcapsPflow,
-      double hOverEConeSizePflow, double hOverEPtMinPflow,
-      double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
-      double maxHOverEDepth2Pflow,
+//      double hOverEConeSizePflow, double hOverEPtMinPflow,
+//      double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
+//      double maxHOverEDepth2Pflow,
       double maxSigmaIetaIetaBarrelPflow, double maxSigmaIetaIetaEndcapsPflow,
       double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
       bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
@@ -173,7 +173,7 @@ class GsfElectronAlgo {
 
     // H/E evaluation
     //bool useHcalRecHits_ ;
-    //ElectronHcalHelper * hcalHelper_ ; // if use rechits
+    ElectronHcalHelper * hcalHelper_, * hcalHelperPflow_ ;
     //bool useHcalTowers_ ;
     edm::InputTag hcalTowers_;      // parameter if use towers
     double hOverEConeSize_;         // parameter if use towers

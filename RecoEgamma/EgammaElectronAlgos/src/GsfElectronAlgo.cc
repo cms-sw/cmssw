@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.79 2009/09/24 09:09:44 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.80 2009/10/10 09:09:18 chamont Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -97,9 +97,9 @@ GsfElectronAlgo::GsfElectronAlgo
    double minEOverPBarrelPflow, double minEOverPEndcapsPflow,
    double maxDeltaEtaBarrelPflow, double maxDeltaEtaEndcapsPflow,
    double maxDeltaPhiBarrelPflow,double maxDeltaPhiEndcapsPflow,
-   double hOverEConeSizePflow, double hOverEPtMinPflow,
-   double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
-   double maxHOverEDepth2Pflow,
+//   double hOverEConeSizePflow, double hOverEPtMinPflow,
+//   double maxHOverEDepth1BarrelPflow, double maxHOverEDepth1EndcapsPflow,
+//   double maxHOverEDepth2Pflow,
    double maxSigmaIetaIetaBarrelPflow, double maxSigmaIetaIetaEndcapsPflow,
    double maxFbremBarrelPflow, double maxFbremEndcapsPflow,
    bool isBarrelPflow, bool isEndcapsPflow, bool isFiducialPflow,
@@ -117,7 +117,7 @@ GsfElectronAlgo::GsfElectronAlgo
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps),
    maxDeltaPhiBarrel_(maxDeltaPhiBarrel),maxDeltaPhiEndcaps_(maxDeltaPhiEndcaps),
-   //hcalHelper_(0),
+   hcalHelper_(0), hcalHelperPflow_(0),
    maxSigmaIetaIetaBarrel_(maxSigmaIetaIetaBarrel), maxSigmaIetaIetaEndcaps_(maxSigmaIetaIetaEndcaps),
    maxFbremBarrel_(maxFbremBarrel), maxFbremEndcaps_(maxFbremEndcaps),
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
@@ -127,9 +127,9 @@ GsfElectronAlgo::GsfElectronAlgo
    minEOverPBarrelPflow_(minEOverPBarrelPflow), minEOverPEndcapsPflow_(minEOverPEndcapsPflow),
    maxDeltaEtaBarrelPflow_(maxDeltaEtaBarrelPflow), maxDeltaEtaEndcapsPflow_(maxDeltaEtaEndcapsPflow),
    maxDeltaPhiBarrelPflow_(maxDeltaPhiBarrelPflow),maxDeltaPhiEndcapsPflow_(maxDeltaPhiEndcapsPflow),
-   hOverEConeSizePflow_(hOverEConeSizePflow), hOverEPtMinPflow_(hOverEPtMinPflow),
-   maxHOverEDepth1BarrelPflow_(maxHOverEDepth1BarrelPflow), maxHOverEDepth1EndcapsPflow_(maxHOverEDepth1EndcapsPflow),
-   maxHOverEDepth2Pflow_(maxHOverEDepth2Pflow),
+//   hOverEConeSizePflow_(hOverEConeSizePflow), hOverEPtMinPflow_(hOverEPtMinPflow),
+//   maxHOverEDepth1BarrelPflow_(maxHOverEDepth1BarrelPflow), maxHOverEDepth1EndcapsPflow_(maxHOverEDepth1EndcapsPflow),
+//   maxHOverEDepth2Pflow_(maxHOverEDepth2Pflow),
    maxSigmaIetaIetaBarrelPflow_(maxSigmaIetaIetaBarrelPflow), maxSigmaIetaIetaEndcapsPflow_(maxSigmaIetaIetaEndcapsPflow),
    maxFbremBarrelPflow_(maxFbremBarrelPflow), maxFbremEndcapsPflow_(maxFbremEndcapsPflow),
    isBarrelPflow_(isBarrelPflow), isEndcapsPflow_(isEndcapsPflow), isFiducialPflow_(isFiducialPflow),
@@ -158,16 +158,20 @@ GsfElectronAlgo::GsfElectronAlgo
 //   { edm::LogError("GsfElectronAlgo")<<"useHcalTowers and useHcalRecHits parameters cannot be both true or both false" ; }
 //  if (useHcalRecHits_)
 //   {
-//	hcalHelper_ = new ElectronHcalHelper(conf) ;
+    hcalHelper_ = new ElectronHcalHelper(conf) ;
+    hcalHelperPflow_ = new ElectronHcalHelper(conf,true,true) ;
 //   }
 //  else
 //   {
-    hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ;
+    //hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ;
     hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
-    hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ;
+    //hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ;
     maxHOverEDepth1Barrel_ = conf.getParameter<double>("maxHOverEDepth1Barrel") ;
     maxHOverEDepth1Endcaps_ = conf.getParameter<double>("maxHOverEDepth1Endcaps") ;
     maxHOverEDepth2_ = conf.getParameter<double>("maxHOverEDepth2") ;
+    maxHOverEDepth1BarrelPflow_ = conf.getParameter<double>("maxHOverEDepth1BarrelPflow") ;
+    maxHOverEDepth1EndcapsPflow_ = conf.getParameter<double>("maxHOverEDepth1EndcapsPflow") ;
+    maxHOverEDepth2Pflow_ = conf.getParameter<double>("maxHOverEDepth2Pflow") ;
 //   }
 
   // get input collections
@@ -182,7 +186,8 @@ GsfElectronAlgo::GsfElectronAlgo
 GsfElectronAlgo::~GsfElectronAlgo() {
 	delete constraintAtVtx_;
 	delete mtsTransform_;
-//  delete hcalHelper_ ;
+  delete hcalHelper_ ;
+  delete hcalHelperPflow_ ;
 }
 
 void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
@@ -223,14 +228,15 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
   }
 
 //  if (useHcalRecHits_)
-//   { hcalHelper_->checkSetup(es) ; }
+//   {
+  hcalHelper_->checkSetup(es) ;
+  hcalHelperPflow_->checkSetup(es) ;
+//   }
  }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   // get the input
-  //edm::Handle<GsfTrackCollection> tracksH;
-  //e.getByLabel(tracks_,tracksH);
   edm::Handle<GsfElectronCoreCollection> coresH;
   e.getByLabel(gsfElectronCores_,coresH);
   edm::Handle<TrackCollection> ctfTracksH;
@@ -251,7 +257,10 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   // prepare access to hcal data
 //  if (useHcalRecHits_)
-//   { hcalHelper_->readEvent(e) ; }
+//   {
+  hcalHelper_->readEvent(e) ;
+  hcalHelperPflow_->readEvent(e) ;
+//   }
 
   // temporay array for electrons before preselection and before amb. solving
   GsfElectronPtrCollection tempEle, tempEle1;
@@ -373,9 +382,9 @@ void GsfElectronAlgo::process(
   ecalEndcapIsol04.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol04.setVetoClustered(vetoClustered_);
 
-  // HCAL isolation algo for H/E
-  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;
-  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;
+//  // HCAL isolation algo for H/E
+//  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;
+//  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;
 
   //const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   const GsfElectronCoreCollection * coreCollection = coresH.product() ;
@@ -412,11 +421,21 @@ void GsfElectronAlgo::process(
     // H/E
     double HoE1 = 0. ;
     double HoE2 = 0. ;
+    if (coreRef->ecalDrivenSeed())
+     {
+      HoE1 = hcalHelper_->hcalESumDepth1(theClus)/theClus.energy() ;
+      HoE2 = hcalHelper_->hcalESumDepth2(theClus)/theClus.energy() ;
+     }
+    else
+     {
+      HoE1 = hcalHelperPflow_->hcalESumDepth1(theClus)/theClus.energy() ;
+      HoE2 = hcalHelperPflow_->hcalESumDepth2(theClus)/theClus.energy() ;
+     }
 //    double HoE = 0. ;
 //    if (useHcalTowers_)
 //     {
-      HoE1 = towerIso1.getTowerESum(&theClus)/theClus.energy() ;
-      HoE2 = towerIso2.getTowerESum(&theClus)/theClus.energy() ;
+//      HoE1 = towerIso1.getTowerESum(&theClus)/theClus.energy() ;
+//      HoE2 = towerIso2.getTowerESum(&theClus)/theClus.energy() ;
 //     }
 //    else
 //     {
@@ -434,8 +453,8 @@ void GsfElectronAlgo::process(
     createElectron(coreRef,eleCharge,eleChargeInfo,
       elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
       hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-      ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,reducedEBRecHits,
-      reducedEERecHits,mva,outEle) ;
+      ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,
+      reducedEBRecHits,reducedEERecHits,mva,outEle) ;
 
      LogInfo("")<<"Constructed new electron with energy  "<< theClus.energy();
 
