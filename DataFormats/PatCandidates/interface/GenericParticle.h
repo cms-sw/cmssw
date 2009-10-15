@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.6 2008/11/28 19:02:15 lowette Exp $
+// $Id: GenericParticle.h,v 1.7 2009/10/15 17:20:09 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.6 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: GenericParticle.h,v 1.7 2009/10/15 17:20:09 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -202,15 +202,15 @@ namespace pat {
       } 
 
       // ---- specific getters ----
-      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(pat::TrackIso); }
-      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(pat::EcalIso ); }
-      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(pat::HcalIso ); }
+      const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }
+      const IsoDeposit * ecalIsoDeposit()  const { return isoDeposit(pat::EcalIso ); }
+      const IsoDeposit * hcalIsoDeposit()  const { return isoDeposit(pat::HcalIso ); }
       const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
 
       // ---- specific setters ----
-      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
-      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::EcalIso,  dep); }
-      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::HcalIso,  dep); }
+      void trackIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
+      void ecalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::EcalIso,  dep); }
+      void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso,  dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
       /// Vertex association (or associations, if any). Return null pointer if none has been set

@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.19 2009/10/15 14:24:42 rwolf Exp $
+// $Id: Lepton.h,v 1.20 2009/10/15 17:20:09 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.19 2009/10/15 14:24:42 rwolf Exp $
+  \version  $Id: Lepton.h,v 1.20 2009/10/15 17:20:09 rwolf Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -153,15 +153,15 @@ namespace pat {
       } 
 
       // ---- specific getters ----
-      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(pat::TrackIso); }
-      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(pat::EcalIso ); }
-      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(pat::HcalIso ); }
+      const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }
+      const IsoDeposit * ecalIsoDeposit()  const { return isoDeposit(pat::EcalIso ); }
+      const IsoDeposit * hcalIsoDeposit()  const { return isoDeposit(pat::HcalIso ); }
       const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
 
       // ---- specific setters ----
-      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso,dep); }
-      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::EcalIso, dep); }
-      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::HcalIso, dep); }
+      void trackIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso,dep); }
+      void ecalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::EcalIso, dep); }
+      void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso, dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
 

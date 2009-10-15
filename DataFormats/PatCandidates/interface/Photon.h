@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.21 2009/10/13 13:13:32 rwolf Exp $
+// $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.21 2009/10/13 13:13:32 rwolf Exp $
+  \version  $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -155,11 +155,11 @@ namespace pat {
           return 0;
       } 
       /// Return the tracker IsoDeposit
-      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(pat::TrackIso); }
+      const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }
       /// Return the ecal IsoDeposit
-      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(pat::EcalIso ); }
+      const IsoDeposit * ecalIsoDeposit()  const { return isoDeposit(pat::EcalIso ); }
       /// Return the hcal IsoDeposit
-      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(pat::HcalIso ); }
+      const IsoDeposit * hcalIsoDeposit()  const { return isoDeposit(pat::HcalIso ); }
       /// Return a specified user-level IsoDeposit
       const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
@@ -171,11 +171,11 @@ namespace pat {
           isoDeposits_.push_back(std::make_pair(key,dep));
       } 
       /// Sets tracker IsoDeposit
-      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
+      void trackIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
       /// Sets ecal IsoDeposit
-      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::EcalIso,  dep); }
+      void ecalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::EcalIso,  dep); }
       /// Sets hcal IsoDeposit
-      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::HcalIso,  dep); }
+      void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso,  dep); }
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
