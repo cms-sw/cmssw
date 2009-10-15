@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.3 2007/08/07 22:34:20 wmtan Exp $
+// $Id: TestFailuresAnalyzer.cc,v 1.4 2008/06/25 19:05:33 ewv Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/test/stubs/TestFailuresAnalyzer.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Utilities/interface/EDMException.h"
 //
 // class decleration
 //
@@ -48,13 +48,15 @@ enum {
    kBeginOfJob,
    kEvent,
    kEndOfJob,
-   kBeginOfJobBadXML
+   kBeginOfJobBadXML,
+   kEventCorruption
 };
 //
 // constructors and destructor
 //
 TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
-: whichFailure_(iConfig.getParameter<int>("whichFailure"))
+  : whichFailure_(iConfig.getParameter<int>("whichFailure")),
+    eventToThrow_(iConfig.getUntrackedParameter<unsigned>("eventToThrow", 2U))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){
@@ -98,12 +100,14 @@ TestFailuresAnalyzer::endJob()
 
 
 void
-TestFailuresAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */)
+TestFailuresAnalyzer::analyze(const edm::Event& e /* iEvent */, const edm::EventSetup& /* iSetup */)
 {
    if(whichFailure_ == kEvent){
       throw cms::Exception("Test") <<" event";
    }
-
+   if(whichFailure_ == kEventCorruption && eventToThrow_ == e.eventAuxiliary().event()) {
+      throw edm::Exception(edm::errors::EventCorruption, "testing exception handling");
+   }
 }
 
 //define this as a plug-in

@@ -9,6 +9,9 @@ cmsRun ${LOCAL_TEST_DIR}/CatchCmsExceptiontest_cfg.py &> CatchCmsException.log &
 
 grep -q WhatsItESProducer CatchCmsException.log || die 'Failed to find Producers name' $?
 
+echo running cmsRun testSkipEvent_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/testSkipEvent_cfg.py &> testSkipEvent.log || die 'Failed in using testSkipEvent_cfg.py' $? 
+
 popd
 
 #grep -w ESProducer CatcheStdException.log

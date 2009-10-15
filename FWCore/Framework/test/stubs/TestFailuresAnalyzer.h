@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestFailuresAnalyzer.h,v 1.1 2005/09/02 19:26:08 chrjones Exp $
+// $Id: TestFailuresAnalyzer.h,v 1.1 2005/12/14 01:34:21 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ public:
 private:
       // ----------member data ---------------------------
       int whichFailure_;
+      unsigned eventToThrow_;
 };
 
 
