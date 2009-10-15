@@ -36,7 +36,7 @@ type(pset.getParameter<int>("type"))
     }
 }
 
-void MuEnrichRenormalizer::beginJob( const EventSetup& )
+void MuEnrichRenormalizer::beginJob()
 {}
  
 void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )

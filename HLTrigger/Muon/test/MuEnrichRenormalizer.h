@@ -20,7 +20,7 @@ class MuEnrichRenormalizer : public edm::EDAnalyzer
                                    // as it'll be deleted upon closing TFile
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
  
       //     HepMC::GenEvent  *evt;

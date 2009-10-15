@@ -64,7 +64,7 @@ HLTMuonRateAnalyzerWithWeight::HLTMuonRateAnalyzerWithWeight(const ParameterSet&
 HLTMuonRateAnalyzerWithWeight::~HLTMuonRateAnalyzerWithWeight(){
 }
 
-void HLTMuonRateAnalyzerWithWeight::beginJob(const EventSetup& eventSetup){
+void HLTMuonRateAnalyzerWithWeight::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();

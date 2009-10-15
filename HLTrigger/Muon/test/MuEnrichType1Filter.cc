@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Fri Apr 27 17:05:15 CEST 2007
-// $Id: MuEnrichType1Filter.cc,v 1.2 2007/05/16 15:27:14 muriel Exp $
+// $Id: MuEnrichType1Filter.cc,v 1.3 2008/12/08 08:30:40 gruen Exp $
 //
 //
 
@@ -108,7 +108,7 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuEnrichType1Filter::beginJob(const edm::EventSetup&)
+MuEnrichType1Filter::beginJob()
 {
 }
 

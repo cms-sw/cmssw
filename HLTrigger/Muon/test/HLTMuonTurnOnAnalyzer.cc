@@ -58,7 +58,7 @@ HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
 HLTMuonTurnOnAnalyzer::~HLTMuonTurnOnAnalyzer(){
 }
 
-void HLTMuonTurnOnAnalyzer::beginJob(const EventSetup& eventSetup){
+void HLTMuonTurnOnAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();

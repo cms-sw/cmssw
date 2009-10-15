@@ -27,7 +27,7 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
 
 private:
