@@ -78,6 +78,9 @@ if ( -e "../../../DetectorDescription/Schema/DDLSchema.xsd" ) then
 else
     echo "Missing ../../../DetectorDescription/Schema/DDLSchema.xsd..."
     echo "If you are running in your own work area, please check out (addpkg) DetectorDescription/Schema in your src directory."
+    echo "ERROR: HALTING DetectorDescriptin and Geometry validation!!!"
+    # arbitrary exit number
+    exit 4
 endif
 
 set errcnt = `(grep --count "Error" dcorig.out)`
