@@ -6,87 +6,144 @@
 using namespace std;
 
 WPlusJetsEventSelector::WPlusJetsEventSelector( 
-    edm::InputTag const & muSrc, 
-    edm::InputTag const & eleSrc,
-    edm::InputTag const & jetSrc,
-    edm::InputTag const & metSrc,
+    edm::InputTag const & muonTag,
+    edm::InputTag const & electronTag,
+    edm::InputTag const & jetTag,
+    edm::InputTag const & metTag,
+    edm::InputTag const & trigTag,
     boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdTight,
     boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdTight,
     boost::shared_ptr<JetIDSelectionFunctor> & jetIdTight,
     boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdLoose,
     boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdLoose,
     boost::shared_ptr<JetIDSelectionFunctor> & jetIdLoose,
-    double muPtMin  ,
-    double elePtMin ,
-    double jetPtMin
-						) :
-  muSrc_( muSrc ), eleSrc_(eleSrc), jetSrc_(jetSrc), metSrc_(metSrc),
+    int minJets,
+    bool muPlusJets,
+    bool ePlusJets,
+    double muPtMin       , double muEtaMax,
+    double elePtMin      , double eleEtaMax,
+    double muPtMinLoose  , double muEtaMaxLoose,
+    double elePtMinLoose , double eleEtaMaxLoose,
+    double jetPtMin      , double jetEtaMax
+    ) :
+  muonTag_(muonTag),
+  electronTag_(electronTag),
+  jetTag_(jetTag),
+  metTag_(metTag),
+  trigTag_(trigTag),
   muonIdTight_(muonIdTight),
   electronIdTight_(electronIdTight),
   jetIdTight_(jetIdTight),
   muonIdLoose_(muonIdLoose),
   electronIdLoose_(electronIdLoose),
   jetIdLoose_(jetIdLoose),
-  muPtMin_(muPtMin),
-  elePtMin_(elePtMin),
-  jetPtMin_(jetPtMin)
+  minJets_(minJets),
+  muPlusJets_(muPlusJets),
+  ePlusJets_(ePlusJets),
+  muPtMin_(muPtMin), muEtaMax_(muEtaMax),
+  elePtMin_(elePtMin), eleEtaMax_(eleEtaMax),
+  muPtMinLoose_(muPtMinLoose), muEtaMaxLoose_(muEtaMaxLoose),
+  elePtMinLoose_(elePtMinLoose), eleEtaMaxLoose_(eleEtaMaxLoose),
+  jetPtMin_(jetPtMin), jetEtaMax_(jetEtaMax)
 {
   // make the bitset
   push_back( "Inclusive"      );
   push_back( "Trigger"        );
   push_back( ">= 1 Lepton"    );
   push_back( "== 1 Lepton"    );
-  push_back( ">= 1 Tight Jet" );
-  push_back( "MET > 20"       );
+  push_back( "Tight Jet Cuts", minJets );
+  push_back( "MET Cut"        );
   push_back( "Z Veto"         );
   push_back( "Conversion Veto");
   push_back( "Cosmic Veto"    );
+
+  // turn everything on by default
+  set( "Inclusive"      );
+  set( "Trigger"        );
+  set( ">= 1 Lepton"    );
+  set( "== 1 Lepton"    );
+  set( "Tight Jet Cuts" );
+  set( "MET Cut"        );
+  set( "Z Veto"         );
+  set( "Conversion Veto");
+  set( "Cosmic Veto"    );
 }
 
-bool WPlusJetsEventSelector::operator() (edm::EventBase const & t, std::strbitset & ret)
+bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::strbitset & ret)
 {
   selectedJets_.clear();
   selectedMuons_.clear();
   selectedElectrons_.clear();
+  looseMuons_.clear();
+  looseElectrons_.clear();
   selectedMETs_.clear();
 
+
   passCut( ret, "Inclusive");
-  edm::Handle< std::vector<pat::Jet> >       allJets;
-  edm::Handle< std::vector<pat::Muon> >      allMuons;
-  edm::Handle< std::vector<pat::Electron> >  allElectrons;
-  edm::Handle< std::vector<pat::MET> >       allMETs;
+  
+  edm::Handle< vector< pat::Electron > > electronHandle;
+  event.getByLabel (electronTag_, electronHandle);
+  if ( !electronHandle.isValid() ) return (bool)ret;
+  
+  edm::Handle< vector< pat::Muon > > muonHandle;
+  event.getByLabel (muonTag_, muonHandle);
+  if ( !muonHandle.isValid() ) return (bool)ret;
 
-  bool foundJets = t.getByLabel<std::vector<pat::Jet> >( jetSrc_, allJets);
-  bool foundMuons = t.getByLabel<std::vector<pat::Muon> >( muSrc_, allMuons);
-  bool foundElectrons = t.getByLabel<std::vector<pat::Electron> >( eleSrc_, allElectrons);
-  bool foundMET = t.getByLabel<std::vector<pat::MET> >( metSrc_, allMETs);
+  edm::Handle< vector< pat::Jet > > jetHandle;
+  event.getByLabel (jetTag_, jetHandle);
+  if ( !jetHandle.isValid() ) return (bool)ret;
 
-  if ( !foundJets || !foundMuons || !foundElectrons || !foundMET ||
-       !allJets.isValid() || !allMuons.isValid() || !allElectrons.isValid() || !allMETs.isValid() ) {
-    std::cout << "unable to find collections" << std::endl;
-    return false;
-  }
+  edm::Handle< vector< pat::MET > > metHandle;
+  event.getByLabel (metTag_, metHandle);
+  if ( !metHandle.isValid() ) return (bool)ret;  
 
-  for ( std::vector<pat::Muon>::const_iterator muonBegin = allMuons->begin(),
-	  muonEnd = allMuons->end(), imuon = muonBegin;
+  edm::Handle<pat::TriggerEvent> triggerEvent;
+  event.getByLabel(edm::InputTag("patTriggerEvent"), triggerEvent);
+  if (!triggerEvent.isValid() ) return (bool)ret;  
+
+
+
+  for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
+	  muonEnd = muonHandle->end(), imuon = muonBegin;
 	imuon != muonEnd; ++imuon ) {
-    std::strbitset iret = muonIdTight_->getBitTemplate();
-    if ( imuon->pt() > muPtMin_ && (*muonIdTight_)(*imuon, iret) ) {
-      selectedMuons_.push_back( *imuon );
+    if ( imuon->isGlobalMuon() ) {
+      // Tight cuts
+      std::strbitset iret = muonIdTight_->getBitTemplate();
+      if ( imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
+	   (*muonIdTight_)(*imuon, iret) ) {
+	selectedMuons_.push_back( *imuon );
+      } else {
+	// Loose cuts
+	std::strbitset iret = muonIdLoose_->getBitTemplate();
+	if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
+	     (*muonIdLoose_)(*imuon, iret) ) {
+	  looseMuons_.push_back( *imuon );
+	}
+      }
     }
   }
 
-  for ( std::vector<pat::Electron>::const_iterator electronBegin = allElectrons->begin(),
-	  electronEnd = allElectrons->end(), ielectron = electronBegin;
+
+  for ( std::vector<pat::Electron>::const_iterator electronBegin = electronHandle->begin(),
+	  electronEnd = electronHandle->end(), ielectron = electronBegin;
 	ielectron != electronEnd; ++ielectron ) {
+    // Tight cuts
     std::strbitset iret = electronIdTight_->getBitTemplate();
-    if ( ielectron->pt() > elePtMin_ && (*electronIdTight_)(*ielectron, iret) ) {
+    if ( ielectron->pt() > elePtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && 
+	 (*electronIdTight_)(*ielectron, iret) ) {
       selectedElectrons_.push_back( *ielectron );
+    } else {
+      // Loose cuts
+      std::strbitset iret = electronIdLoose_->getBitTemplate();
+      if ( ielectron->pt() > elePtMinLoose_ && fabs(ielectron->eta()) < eleEtaMaxLoose_ && 
+	   (*electronIdLoose_)(*ielectron, iret) ) {
+	looseElectrons_.push_back( *ielectron );
+      }
     }
   }
 
-  for ( std::vector<pat::Jet>::const_iterator jetBegin = allJets->begin(),
-	  jetEnd = allJets->end(), ijet = jetBegin;
+  for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
+	  jetEnd = jetHandle->end(), ijet = jetBegin;
 	ijet != jetEnd; ++ijet ) {
     std::strbitset iret = jetIdTight_->getBitTemplate();
     if ( ijet->pt() > jetPtMin_ && (*jetIdTight_)(*ijet, iret) ) {
@@ -94,51 +151,105 @@ bool WPlusJetsEventSelector::operator() (edm::EventBase const & t, std::strbitse
     }
   }
 
-  if ( true ) passCut(ret, "Trigger");
 
-  if ( (*this)[">= 1 Lepton"] || 
-       ( selectedMuons_.size() > 0 || selectedElectrons_.size() > 0 ) ){
-    passCut( ret, ">= 1 Lepton");
-  }
+  pat::TriggerEvent const * trig = &*triggerEvent;
 
-  if ( (*this)["== 1 Lepton"] || 
-       ( selectedMuons_.size() + selectedElectrons_.size() == 1 ) ){
-    passCut(ret, "== 1 Lepton");
-  }
+  bool passTrig = false;
 
-  if ( (*this)[">= 1 Tight Jet"] ||
-       selectedJets_.size() > 0 ){
-    passCut(ret,">= 1 Tight Jet");
-  }
+  if ( trig->wasRun() && trig->wasAccept() ) {
 
-  bool metCut = true;
-  if ( (*this)["MET > 20"] ||
-       metCut ) {
-    passCut( ret, "MET > 20" );
-  }
+    pat::TriggerPath const * muPath = trig->path("HLT_Mu9");
 
-  bool zVeto = true;
-  if ( selectedMuons_.size() == 2 ) {
-  }
-  if ( selectedElectrons_.size() == 2 ) {
-  }
-  if ( (*this)["Z Veto"] ||
-       zVeto ){
-    passCut(ret, "Z Veto");
-  }
+    pat::TriggerPath const * elePath = trig->path("HLT_Ele15_LW_L1R");
+
+    if ( muPlusJets_ && muPath != 0 && muPath->wasAccept() ) {
+      passTrig = true;    
+    }
+
+    if ( ePlusJets_ && elePath != 0 && elePath->wasAccept() ) {
+      passTrig = true;
+    }
+
+    if ( ignoreCut("Trigger") || 
+	 passTrig ) {
+      passCut(ret, "Trigger");
+
+      int nleptons = 0;
+      if ( muPlusJets_ )
+	nleptons += selectedMuons_.size();
+      
+      if ( ePlusJets_ ) 
+	nleptons += selectedElectrons_.size();
+
+      if ( ignoreCut(">= 1 Lepton") || 
+	   ( nleptons > 0 ) ){
+	passCut( ret, ">= 1 Lepton");
+
+	bool oneMuon = 
+	  ( selectedMuons_.size() == 1 && 
+	    looseMuons_.size() + selectedElectrons_.size() + looseElectrons_.size() == 0 
+	    );
+	bool oneElectron = 
+	  ( selectedElectrons_.size() == 1 &&
+	    selectedMuons_.size() + looseMuons_.size() == 0
+	    );
+
+	if ( ignoreCut("== 1 Lepton") || 
+	     ( (muPlusJets_ && oneMuon) ^ (ePlusJets_ && oneElectron )  )
+	     ) {
+	  passCut(ret, "== 1 Lepton");
+
+	  if ( ignoreCut("Tight Jet Cuts") ||
+	       static_cast<int>(selectedJets_.size()) >=  this->cut("Tight Jet Cuts", int()) ){
+	    passCut(ret,"Tight Jet Cuts");
+	  
+
+	    bool metCut = true;
+	    if ( ignoreCut("MET Cut") ||
+		 metCut ) {
+	      passCut( ret, "MET Cut" );
+	  
+
+	      bool zVeto = true;
+	      if ( selectedMuons_.size() == 2 ) {
+	      }
+	      if ( selectedElectrons_.size() == 2 ) {
+	      }
+	      if ( ignoreCut("Z Veto") ||
+		   zVeto ){
+		passCut(ret, "Z Veto");
+	    
   
-  bool conversionVeto = true;
-  if ( (*this)["Conversion Veto"] ||
-       conversionVeto ) {
-    passCut(ret,"Conversion Veto");
-  }
+		bool conversionVeto = true;
+		if ( ignoreCut("Conversion Veto") ||
+		     conversionVeto ) {
+		  passCut(ret,"Conversion Veto");
+		
 
 
-  bool cosmicVeto = true;
-  if ( (*this)["Cosmic Veto"] ||
-       cosmicVeto ) {
-    passCut(ret,"Cosmic Veto");
-  }
+		  bool cosmicVeto = true;
+		  if ( ignoreCut("Cosmic Veto") ||
+		       cosmicVeto ) {
+		    passCut(ret,"Cosmic Veto");
+
+		  
+		  } // end if cosmic veto
+		
+		} // end if conversion veto
+
+	      } // end if z veto
+
+	    } // end if met cut
+      
+	  } // end if 1 tight jet 
+	
+	} // end if == 1 lepton
+
+      } // end if >= 1 lepton
+    
+    } // end if trigger
+
+  } // end if event triggered
 
   return (bool)ret;
 }
