@@ -8,19 +8,19 @@ using namespace pat::helper;
 
 MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, bool cuts) {
     using pat::Flags;
-    if (conf.exists("tracker")) addIsolator(conf.getParameter<edm::ParameterSet>("tracker"), cuts, Flags::Isolation::Tracker, pat::TrackerIso);
-    if (conf.exists("ecal"))    addIsolator(conf.getParameter<edm::ParameterSet>("ecal"),    cuts, Flags::Isolation::ECal, pat::ECalIso);
-    if (conf.exists("hcal"))    addIsolator(conf.getParameter<edm::ParameterSet>("hcal"),    cuts, Flags::Isolation::HCal, pat::HCalIso);
+    if (conf.exists("tracker")) addIsolator(conf.getParameter<edm::ParameterSet>("tracker"), cuts, Flags::Isolation::Tracker, pat::TrackIso);
+    if (conf.exists("ecal"))    addIsolator(conf.getParameter<edm::ParameterSet>("ecal"),    cuts, Flags::Isolation::ECal, pat::EcalIso);
+    if (conf.exists("hcal"))    addIsolator(conf.getParameter<edm::ParameterSet>("hcal"),    cuts, Flags::Isolation::HCal, pat::HcalIso);
     if (conf.exists("calo"))    addIsolator(conf.getParameter<edm::ParameterSet>("calo"),    cuts, Flags::Isolation::Calo, pat::CaloIso);
     if (conf.exists("calo") && (conf.exists("ecal") || conf.exists("hcal"))) {
         throw cms::Exception("Configuration") << 
             "MultiIsolator: you can't specify both 'calo' isolation and 'ecal'/'hcal', " <<
             "as the 'calo' isolation flag is just the logical OR of 'ecal' and 'hcal'.\n";                            
     }
-    if (conf.exists("pfAllParticles"))  addIsolator(conf.getParameter<edm::ParameterSet>("pfAllParticles"), cuts,Flags::Isolation::Calo, pat::ParticleIso); 	 
-    if (conf.exists("pfChargedHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfChargedHadron"), cuts,Flags::Isolation::Calo, pat::ChargedParticleIso); 	 
-    if (conf.exists("pfNeutralHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfNeutralHadron"), cuts,Flags::Isolation::Calo, pat::NeutralParticleIso); 	 
-    if (conf.exists("pfGamma"))         addIsolator(conf.getParameter<edm::ParameterSet>("pfGamma"), cuts,Flags::Isolation::Calo, pat::GammaParticleIso);
+    if (conf.exists("pfAllParticles"))  addIsolator(conf.getParameter<edm::ParameterSet>("pfAllParticles"), cuts,Flags::Isolation::Calo, pat::PfAllParticleIso); 	 
+    if (conf.exists("pfChargedHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfChargedHadron"), cuts,Flags::Isolation::Calo, pat::PfChargedHadronIso); 	 
+    if (conf.exists("pfNeutralHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfNeutralHadron"), cuts,Flags::Isolation::Calo, pat::PfNeutralHadronIso); 	 
+    if (conf.exists("pfGamma"))         addIsolator(conf.getParameter<edm::ParameterSet>("pfGamma"), cuts,Flags::Isolation::Calo, pat::PfGammaIso);
     if (conf.exists("user")) {
    
         std::vector<edm::ParameterSet> psets = conf.getParameter<std::vector<edm::ParameterSet> >("user");
