@@ -218,9 +218,8 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
     edm::SimTrackContainer const* simtracks = simtracks_handle.product();
 
 	float vtxArray[7];
-	vtxArray[1] = 0;
-	vtxArray[6] = 0;
-    edm::SimTrackContainer::const_iterator isimtr;
+	for(int jj=0; jj<7; jj++)	vtxArray[jj] = 0;
+  edm::SimTrackContainer::const_iterator isimtr;
 	for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
 		if( (*simvertices)[(*isimtr).vertIndex()].position().z() > 2299 ){
 			vtxArray[1] = 1;
