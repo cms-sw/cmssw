@@ -3,7 +3,6 @@
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/TotemTestGem.h"
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-#include "SimG4CMS/Forward/interface/CastorShowerLibraryMaker.h"
 #include "SimG4CMS/Forward/interface/ZdcTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/BscTest.h"
 #include "SimG4CMS/Forward/interface/BscSD.h"
@@ -24,4 +23,3 @@ DEFINE_SIMWATCHER (CastorTestAnalysis);
 DEFINE_SIMWATCHER (ZdcTestAnalysis);
 DEFINE_SIMWATCHER (TotemTestGem);
 DEFINE_SIMWATCHER (BscTest);
-DEFINE_SIMWATCHER (CastorShowerLibraryMaker);

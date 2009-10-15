@@ -4,6 +4,7 @@
 <use name=SimG4Core/Notification> 
 <use name=SimG4Core/Application>
 <use name=SimG4CMS/Calo>
+<use name=SimG4CMS/Forward>
 <use name=DataFormats/Math>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
@@ -18,7 +19,6 @@
 <use name=rootmath>
 
 <library file="*.cc" name=SimG4CMSForwardPlugins>
-<use name=SimG4CMS/Forward>
 <flags EDM_PLUGIN=1>
 </library>
 
