@@ -75,20 +75,17 @@ if ( -e "../../../DetectorDescription/Schema/DDLSchema.xsd" ) then
 	    endif
 	endif
     end
+    set errcnt = `(grep --count "Error" dcorig.out)`
+    set warcnt = `(grep --count "Error" dcorig.out)`
+    if ($errcnt == 0 && $warcnt == 0) then
+	echo "No XML Schema violations in original xml files."
+    else
+	echo "XML Schema violations can be seen in dcorig.out."
+    endif
 else
     echo "Missing ../../../DetectorDescription/Schema/DDLSchema.xsd..."
     echo "If you are running in your own work area, please check out (addpkg) DetectorDescription/Schema in your src directory."
-    echo "ERROR: HALTING DetectorDescriptin and Geometry validation!!!"
-    # arbitrary exit number
-    exit 4
-endif
-
-set errcnt = `(grep --count "Error" dcorig.out)`
-set warcnt = `(grep --count "Error" dcorig.out)`
-if ($errcnt == 0 && $warcnt == 0) then
-    echo "No XML Schema violations in original xml files."
-else
-    echo "XML Schema violations can be seen in dcorig.out."
+    echo "ERROR: DOMCount validation not performed... others might still work below."
 endif
 
 cd workarea
