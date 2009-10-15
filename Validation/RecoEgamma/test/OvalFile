@@ -1,17 +1,15 @@
-The variables immediatly below are internal values for this test suite.
 
-<var name="TEST_OUTPUT_FILE" value="electronHistos.root">
 <var name="TEST_RELEASE" value="3_4_0_pre1">
 <var name="TEST_GLOBAL_TAG" value="MC_31X_V9">
 
-The difffile tag implies that after each run the eventual file electronHistos.root is automatically
-renamed as target.olog.electronHistos.root . This way, we can use the same output file
-name for all the cmsRun configurations, yet keeping a separate copy of each kind of
-execution.
+The difffile tag below implies that after each run the eventual file electronHistos.root is automatically
+renamed as "the-oval-target-name".olog.electronHistos.root . This way, we can use the same output file
+name for all the cmsRun configurations, yet keeping a separate copy of each kind of execution.
 
+<var name="TEST_OUTPUT_FILE" value="electronHistos.root">
 <difffile name="electronHistos.root">
 
-The DBS_* variables are configuration variables for dbs_discovery.py,
+The DBS_* variables are configuration variables for the script dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
@@ -23,22 +21,12 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="340pre1_new">
+<var name="VAL_NEW_RELEASE" value="340pre1new">
 <var name="VAL_REF_RELEASE" value="340pre1">
 
-%IMPORTANT% If we do not set specific VAL_REF_File values below, electronValidation.csh will
-%IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
-%IMPORTANT% a case, the VAL_REF_RELEASE just above must be given the value corresponding
-%IMPORTANT% to those ref file. We would like that the release of this file in the head
-%IMPORTANT% of CVS contains the rigth value for the corresponding head release of root
-%IMPORTANT% reference files. If you change the value of VAL_REF_RELEASE above and various
-%IMPORTANT% VAL_REF_FILE below for a specific validation with specific ref files, please
-%IMPORTANT% undo the changes before committing anything, so that CVS head always contains
-%IMPORTANT% a consistent default configuration
-
-The tags below are defining which are the output lines of reference, to be compared
-from one execution to another. Currently, for each TH1 histogram, we require a constant
-number of entries, and no more than 10% change on each histogram sum.
+Oval is able to check the output channel of an execution and compare it with a reference output.
+The tags below are defining which are lines to be compared. The currently specification is a
+first draft, and we do not yet check the differences that Oval could raise.
 
 <diffline expr="^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$">
 <diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$" tolerance="20%">
@@ -48,13 +36,16 @@ number of entries, and no more than 10% change on each histogram sum.
 <diffnumber expr="^h_\S+ has \d+ entries of mean value (\S+)$" tolerance="10%">
 <!diffvar name="HISTO" expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
 
+The file defined below is used by the script dbs_discovery.py when we want to analyze
+some RelVal reco files which have been regenerated locally.
+
 <file name="dbs_discovery.txt">
-/tmp/RelValSingleElectronPt10-RECO.root
-/tmp/RelValSingleElectronPt35-RECO.root
-/tmp/RelValTTbar-RECO.root
-/tmp/RelValZEE-MC-RECO.root
-/tmp/RelValZEE-STARTUP-RECO.root
-/tmp/RelValQCD_Pt_80_120-RECO.root
+/tmp/chamont/RelValSingleElectronPt10-RECO.root
+/tmp/chamont/RelValSingleElectronPt35-RECO.root
+/tmp/chamont/RelValTTbar-RECO.root
+/tmp/chamont/RelValZEE-MC-RECO.root
+/tmp/chamont/RelValZEE-STARTUP-RECO.root
+/tmp/chamont/RelValQCD_Pt_80_120-RECO.root
 </file>
   
 Here comes the concrete executables to run. They are split among few different
@@ -66,11 +57,13 @@ touch with changes in data catalog structure.
 
 <environment name="WorkflowCheck">
 
-This sequence of commands is meant to check if the automatic validation is working
-well. You can run it all with the command "oval run %Step%".
+This sequence of commands is meant to check if the automatic validation is performing
+well. You can run it all with the command "oval run %Step%". Until egammaValidation_cff.py
+is integrated into the official automatic sequence, one must check out Configuration/StandardSequences
+and add our egammaValidation_cff.py within.
 
   <environment name="Step1Pt35">
-    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1Pt35Raw_cfg.py --fileout=Step1Pt35Raw.root --mc --no_exec">
+    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1Pt35Raw_cfg.py --fileout=Step1Pt35Raw.root --mc --no_exec">
     <executable name="cmsRun" args="Step1Pt35Raw_cfg.py">
   </environment>
   
@@ -92,7 +85,7 @@ well. You can run it all with the command "oval run %Step%".
   </environment>
 
   <environment name="Step1Qcd">
-    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT -n 5 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1QcdRaw_cfg.py --fileout=Step1QcdRaw.root --mc --no_exec">
+    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 5 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1QcdRaw_cfg.py --fileout=Step1QcdRaw.root --mc --no_exec">
     <executable name="cmsRun" args="Step1QcdRaw_cfg.py">
   </environment>
   
@@ -116,6 +109,8 @@ well. You can run it all with the command "oval run %Step%".
 </environment>
   
 <environment name="FullSimStdStats">
+
+This set of targets is currently used for the validation
 
   <var name="DBS_COND" value="MC_31X_V9-v*">
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
