@@ -59,7 +59,7 @@ HLTmmkFilter::~HLTmmkFilter() {
 
 
 // ----------------------------------------------------------------------
-void HLTmmkFilter::beginJob(const edm::EventSetup&setup) {
+void HLTmmkFilter::beginJob() {
 
 }
 

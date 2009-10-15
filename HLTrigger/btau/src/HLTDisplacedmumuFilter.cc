@@ -64,7 +64,7 @@ HLTDisplacedmumuFilter::~HLTDisplacedmumuFilter()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedmumuFilter::beginJob(const edm::EventSetup&)
+void HLTDisplacedmumuFilter::beginJob()
 {
 
 }

@@ -36,7 +36,7 @@ class HLTmmkFilter : public HLTFilter {
   ~HLTmmkFilter();
   
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   virtual int overlap(const reco::Candidate&, const reco::Candidate&);
