@@ -10,13 +10,12 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 # Complete Skim analysis
 process.load('HiggsAnalysis/Skimming/higgsToZZ4Leptons_Sequences_cff')
 
-process.eca = cms.EDAnalyzer("EventContentAnalyzer")
-process.hTozzTo4leptonsSkimPath = cms.Path(process.higgsToZZ4LeptonsSequence+process.eca)
+process.hTozzTo4leptonsSkimPath = cms.Path(process.higgsToZZ4LeptonsSequence)
 
 
 # Output definition
@@ -37,7 +36,7 @@ process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
                             debugVebosity = cms.untracked.uint32(10),
                             # fileNames = cms.untracked.vstring('file:/home/llr/cms/ndefilip/RAW2DIGI_RECO_IDEAL_21_2e2mu.root'                            
-                            fileNames = cms.untracked.vstring('/store/user/ndefilip/comphep-bbll/CMSSW_2_2_3-bkg_RAW2DIGI_RECO_IDEAL/6e3420323cbcc78f83bfe627dc999a04/RAW2DIGI_RECO_IDEAL_998.root'
+                            fileNames = cms.untracked.vstring('file:/data3/data.polcms/FileMoverData/store/relval/CMSSW_3_2_6/RelValZmumuJets_Pt_20_300_GEN/GEN-SIM-RECO/MC_31X_V8_LowLumiPileUp-v1/0014/FE698689-5C9B-DE11-BFB7-001D09F23A07.root'
                              )
                            )
 
