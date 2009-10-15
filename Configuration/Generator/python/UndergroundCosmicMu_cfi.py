@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("CosMuoGenProducer",
+    ZCentrOfTarget = cms.double(0.0),
     MinP = cms.double(10.0),
     MinP_CMS = cms.double(-1.0), ##negative means MinP_CMS = MinP. Only change this if you know what you are doing!
     MaxP = cms.double(3000.0),
@@ -14,6 +15,8 @@ generator = cms.EDProducer("CosMuoGenProducer",
     PlugVz = cms.double(-14000.0),                
     MinEnu = cms.double(10.),                
     MaxEnu = cms.double(10000.),                
+    NuProdAlt = cms.double(7.5e6),                       
+    AcptAllMu = cms.bool(False), 
     ElossScaleFactor = cms.double(1.0),
     RadiusOfTarget = cms.double(8000.0),
     ZDistOfTarget = cms.double(15000.0),
