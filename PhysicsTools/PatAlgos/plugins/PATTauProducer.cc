@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.29 2009/07/02 12:31:58 cbern Exp $
+// $Id: PATTauProducer.cc,v 1.30 2009/10/13 14:23:57 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -98,9 +98,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     if ( depconf.exists("ecal")            ) isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
     if ( depconf.exists("hcal")            ) isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
     if ( depconf.exists("pfAllParticles")  ) isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
-    if ( depconf.exists("pfChargedHadron") ) isoDepositLabels_.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
-    if ( depconf.exists("pfNeutralHadron") ) isoDepositLabels_.push_back(std::make_pair(NeutralHadronIso,depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
-    if ( depconf.exists("pfGamma")         ) isoDepositLabels_.push_back(std::make_pair(PhotonIso, depconf.getParameter<edm::InputTag>("pfGamma")));
+    if ( depconf.exists("pfChargedHadron") ) isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
+    if ( depconf.exists("pfNeutralHadron") ) isoDepositLabels_.push_back(std::make_pair(NeutralParticleIso,depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
+    if ( depconf.exists("pfGamma")         ) isoDepositLabels_.push_back(std::make_pair(GammaParticleIso, depconf.getParameter<edm::InputTag>("pfGamma")));
     
     if ( depconf.exists("user") ) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
