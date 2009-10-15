@@ -10,7 +10,8 @@
 #include <boost/regex.hpp>
 
 DQMHistoryServiceBase::DQMHistoryServiceBase(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
- iConfig_(iConfig)
+ iConfig_(iConfig),
+ fSep("@")
 {
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::DQMHistoryServiceBase]";
 }
@@ -23,6 +24,11 @@ DQMHistoryServiceBase::~DQMHistoryServiceBase() {
 void DQMHistoryServiceBase::initialize(){
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::initialize]";
   fitME = new HDQMfitUtilities();
+}
+
+void DQMHistoryServiceBase::setSeparator (std::string const& in) {
+  fSep = in;
+  return;
 }
 
 bool DQMHistoryServiceBase::checkForCompatibility(std::string ss){
@@ -185,23 +191,23 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
  
 
 bool DQMHistoryServiceBase::setDBLabelsForLandau(std::string& keyName, std::vector<std::string>& userDBContent){ 
-  userDBContent.push_back(keyName+std::string("@")+std::string("landauPeak"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("landauPeakErr"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("landauSFWHM"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("landauChi2NDF"));
+  userDBContent.push_back(keyName+fSep+std::string("landauPeak"));
+  userDBContent.push_back(keyName+fSep+std::string("landauPeakErr"));
+  userDBContent.push_back(keyName+fSep+std::string("landauSFWHM"));
+  userDBContent.push_back(keyName+fSep+std::string("landauChi2NDF"));
   return true;
 }
 
 bool DQMHistoryServiceBase::setDBLabelsForGauss(std::string& keyName, std::vector<std::string>& userDBContent){ 
-  userDBContent.push_back(keyName+std::string("@")+std::string("gaussMean"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("gaussSigma"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("gaussChi2NDF"));
+  userDBContent.push_back(keyName+fSep+std::string("gaussMean"));
+  userDBContent.push_back(keyName+fSep+std::string("gaussSigma"));
+  userDBContent.push_back(keyName+fSep+std::string("gaussChi2NDF"));
   return true;
 }	
 bool DQMHistoryServiceBase::setDBLabelsForStat(std::string& keyName, std::vector<std::string>& userDBContent){ 
-  userDBContent.push_back(keyName+std::string("@")+std::string("entries"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("mean"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("rms"));
+  userDBContent.push_back(keyName+fSep+std::string("entries"));
+  userDBContent.push_back(keyName+fSep+std::string("mean"));
+  userDBContent.push_back(keyName+fSep+std::string("rms"));
   return true;
 }
 

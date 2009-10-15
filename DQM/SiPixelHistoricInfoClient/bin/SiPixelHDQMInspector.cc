@@ -22,6 +22,7 @@ void runSiPixelInspector( const string &tagName, const string & Password, const 
   DQMHistoryCreateTrend makeTrend(&PixelConfig);
 
   // Database and output configuration
+  //makeTrend.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
   makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);

@@ -69,8 +69,8 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 
 //Example on how to define an user function for the statistic extraction
 bool SiStripHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){
-  userDBContent.push_back(keyName+std::string("@")+std::string("userExample_XMax"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("userExample_mean"));
+  userDBContent.push_back(keyName+fSep+std::string("userExample_XMax"));
+  userDBContent.push_back(keyName+fSep+std::string("userExample_mean"));
   return true;
 }
 bool SiStripHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  ){

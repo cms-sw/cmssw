@@ -27,6 +27,8 @@ class DQMHistoryServiceBase {
   virtual void getObj(HDQMSummary* & obj){createSummary(); obj=obj_;}
 
   virtual void initialize();
+
+  virtual void setSeparator (std::string const&);
   
   protected:
 
@@ -52,6 +54,7 @@ class DQMHistoryServiceBase {
   edm::ParameterSet iConfig_;
   HDQMSummary* obj_;
   HDQMfitUtilities *fitME;
+  std::string fSep;
 };
 
 #endif //DQMServices_Diagnostic_DQMHistoryServiceBase_H

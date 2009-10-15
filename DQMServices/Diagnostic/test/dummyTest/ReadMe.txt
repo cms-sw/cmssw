@@ -35,8 +35,8 @@ cmsRun test_SiStripHistoryDQMService_cfg_69572.py
 
 #*** Upload summaries for pixels
 cmsRun test_SiPixelpHistoryDQMService_cfg_108521.py
-cmsRun test_SiPixelpHistoryDQMService_cfg_108562.py
 cmsRun test_SiPixelpHistoryDQMService_cfg_108526.py
+cmsRun test_SiPixelpHistoryDQMService_cfg_108562.py
 
  
 #****************

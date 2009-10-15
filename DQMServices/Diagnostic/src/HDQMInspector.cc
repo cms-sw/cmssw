@@ -354,7 +354,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     std::cout <<  "TkRegion " << vdetId_[i] << " " << vlistItems_[i] << std::endl;
 
     if(vlistItems_.at(i).find("Summary")!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find("Summary_"),8,"");
-    if(vlistItems_.at(i).find(fSep)!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find(fSep),1,"_");
+    if(vlistItems_.at(i).find(fSep)!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find(fSep),fSep.size(),"_");
     
  
     std::stringstream ss;
@@ -626,7 +626,7 @@ void HDQMInspector::unpackConditions( std::string& Conditions, std::vector<DetId
       DetIdItemList detiditemlist;
       std::string itemD(pch);
       detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
-      detiditemlist.items.push_back(itemD.substr(itemD.find(fSep)+1));
+      detiditemlist.items.push_back(itemD.substr(itemD.find(fSep)+fSep.size())); // dhidas update +.size instead of "1"
       if (iDebug) {
         std::cout << "Found a Condition " << detiditemlist.items.back() << " for detId " << detiditemlist.detid << std::endl;
       }
@@ -660,7 +660,10 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
       //sprintf(condCVal,"%g",vdetIdItemList[ic].values[jc]);
       sprintf(condCVal,"%f",vdetIdItemList[ic].values[jc]);
       sprintf(singleCondition,"%d%s%s",vdetIdItemList[ic].detid,fSep.c_str(),vdetIdItemList[ic].items[jc].c_str());
+      //printf("dhidas %d  %s  %s\n",vdetIdItemList[ic].detid,fSep.c_str(),vdetIdItemList[ic].items[jc].c_str());
+      //printf("dhidas %s %s\n", cConditions, singleCondition);
       char* fpos = strstr(cConditions,singleCondition);
+      //printf("dhidas %s %s %i\n", fpos, condCVal, strlen(condCVal));
       strncpy(fpos,condCVal,strlen(condCVal));
       memset(fpos+strlen(condCVal),' ',strlen(singleCondition)-strlen(condCVal));
       //std::cout << "fpos " << fpos << " len condCVal " << strlen(condCVal) << " strlen(singleCondition) " << strlen(singleCondition) << " len cConditions " << strlen(cConditions)<<std::endl;
@@ -697,7 +700,7 @@ void HDQMInspector::setItems(std::string itemD)
   DetIdItemList detiditemlist;
   detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
 
-  std::string item=itemD.substr(itemD.find(fSep)+1);
+  std::string item=itemD.substr(itemD.find(fSep)+fSep.size());
   detiditemlist.items.push_back(item);
 
   if(iDebug)
