@@ -129,9 +129,6 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
     for (i = store_->data_.begin(), e = store_->data_.end(); i != e; ++i)
     {
       const MonitorElement &me = *i;
-      if (! me.wasUpdated())
-	continue;
-
       fullpath.clear();
       fullpath += *me.data_.dirname;
       if (! me.data_.dirname->empty())
@@ -139,6 +136,10 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       fullpath += me.data_.objname;
 
       if (filter_ && filter_->search(fullpath) < 0)
+	continue;
+
+      seen.insert(fullpath);
+      if (! me.wasUpdated())
 	continue;
 
       o.hash = DQMNet::dqmhash(fullpath);
@@ -177,7 +178,6 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
 
       // Update.
       net_->updateLocalObject(o);
-      seen.insert(fullpath);
       updated = true;
     }
 
