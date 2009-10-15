@@ -241,7 +241,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     HFGflash = cms.PSet(
         BField          = cms.untracked.double(3.8),
         WatcherOn       = cms.untracked.bool(True),
-        GetPlots        = cms.untracked.bool(False)
+        FillHisto       = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
         useShowerLibrary               = cms.bool(False),
