@@ -41,6 +41,7 @@ class L1GtFdlWord;
 class L1GtPsbWord;
 class L1TcsWord;
 class L1GtTriggerMenu;
+class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 
 // class declaration
@@ -127,6 +128,16 @@ private:
     const L1GtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
+    /// prescale factors
+    const L1GtPrescaleFactors* m_l1GtPfAlgo;
+    unsigned long long m_l1GtPfAlgoCacheID;
+
+    const L1GtPrescaleFactors* m_l1GtPfTech;
+    unsigned long long m_l1GtPfTechCacheID;
+
+    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
+
     /// trigger masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
     unsigned long long m_l1GtTmAlgoCacheID;
@@ -154,36 +165,44 @@ private:
 
     /// FDL (0 for DAQ, 1 for EVM record)
     MonitorElement* m_fdlDataEmul[TotalBxInEvent][NumberOfGtRecords];
-
+    //
     MonitorElement* m_fdlDataAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-
+    MonitorElement* m_fdlDataAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-
-    MonitorElement* m_fdlDataEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-
     MonitorElement* m_fdlDataAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
+
+    MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
 
+    //
+    MonitorElement* m_fdlDataEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataEmulAlgoDecision_Err[NumberOfGtRecords];
+    MonitorElement* m_fdlDataEmul_Err[NumberOfGtRecords];
+
+    //
     MonitorElement* m_fdlDataTechDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
-
     MonitorElement* m_fdlDataTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlDataTechDecision_Err[NumberOfGtRecords];
+
+    MonitorElement* m_fdlEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+    MonitorElement* m_fdlEmulTechDecision_Err[NumberOfGtRecords];
 
     MonitorElement* m_fdlDataEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-
-    MonitorElement* m_fdlDataEmul_Err[NumberOfGtRecords];
-
-    MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecision_Err[NumberOfGtRecords];
-
-    MonitorElement* m_fdlDataTechDecision_Err[NumberOfGtRecords];
-    MonitorElement* m_fdlEmulTechDecision_Err[NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
 
     /// PSB

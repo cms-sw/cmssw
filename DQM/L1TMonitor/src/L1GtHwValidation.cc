@@ -38,6 +38,10 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
@@ -50,34 +54,34 @@
 L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
             //
             // input tag for the L1 GT hardware DAQ record
-            m_l1GtDataDaqInputTag(paramSet.getParameter<edm::InputTag> (
+            m_l1GtDataDaqInputTag(paramSet.getParameter<edm::InputTag>(
                     "L1GtDataDaqInputTag")),
             // input tag for the L1 GT hardware EVM record
-            m_l1GtDataEvmInputTag(paramSet.getParameter<edm::InputTag> (
+            m_l1GtDataEvmInputTag(paramSet.getParameter<edm::InputTag>(
                     "L1GtDataEvmInputTag")),
             // input tag for the L1 GT emulator DAQ record
-            m_l1GtEmulDaqInputTag(paramSet.getParameter<edm::InputTag> (
+            m_l1GtEmulDaqInputTag(paramSet.getParameter<edm::InputTag>(
                     "L1GtEmulDaqInputTag")),
             // input tag for the L1 GT emulator EVM record
-            m_l1GtEmulEvmInputTag(paramSet.getParameter<edm::InputTag> (
+            m_l1GtEmulEvmInputTag(paramSet.getParameter<edm::InputTag>(
                     "L1GtEmulEvmInputTag")),
             // input tag for the L1 GCT hardware record
-            m_l1GctDataInputTag(paramSet.getParameter<edm::InputTag> (
+            m_l1GctDataInputTag(paramSet.getParameter<edm::InputTag>(
                     "L1GctDataInputTag")),
             //
             m_dirName(paramSet.getUntrackedParameter("DirName", std::string(
                     "L1Trigger/L1ExtraDQM/source"))),
             // initialize counters
-            m_nrDataEventError(0), m_nrEmulEventError(0),
+            m_nrDataEventError(0),
+            m_nrEmulEventError(0),
             // cache
-            m_l1GtMenuCacheID(0ULL), m_l1GtTmAlgoCacheID(0ULL),
+            m_l1GtMenuCacheID(0ULL), m_l1GtPfAlgoCacheID(0ULL),
+            m_l1GtPfTechCacheID(0ULL), m_l1GtTmAlgoCacheID(0ULL),
             m_l1GtTmTechCacheID(0ULL),
             //
             m_dbe(0),
             //
-            m_nrEvJob(0),
-            m_nrEvRun(0)
-            {
+            m_nrEvJob(0), m_nrEvRun(0) {
 
     LogDebug("L1GtHwValidation")
             << "\nInput tag for the L1 GT DAQ hardware record:       "
@@ -93,10 +97,11 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
 
     m_dbe = edm::Service<DQMStore>().operator->();
     if (m_dbe == 0) {
-        edm::LogInfo("L1GtHwValidation") << "\n Unable to get DQMStore service.";
+        edm::LogInfo("L1GtHwValidation")
+                << "\n Unable to get DQMStore service.";
     } else {
 
-        if (paramSet.getUntrackedParameter<bool> ("DQMStore", false)) {
+        if (paramSet.getUntrackedParameter<bool>("DQMStore", false)) {
             m_dbe->setVerbose(0);
         }
 
@@ -142,12 +147,12 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtMenuCacheID =
-            evSetup.get<L1GtTriggerMenuRcd> ().cacheIdentifier();
+            evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
         edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-        evSetup.get<L1GtTriggerMenuRcd> ().get(l1GtMenu);
+        evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
         m_l1GtMenu = l1GtMenu.product();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
@@ -168,6 +173,10 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
             for (int iBxInEvent = 0; iBxInEvent < TotalBxInEvent; ++iBxInEvent) {
                 m_fdlDataAlgoDecision[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
+                m_fdlDataAlgoDecisionPrescaled[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
+                m_fdlDataAlgoDecisionUnprescaled[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
                 m_fdlDataAlgoDecisionMask[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
                 m_fdlDataAlgoDecision_NoMatch[iBxInEvent][iRec]->setBinLabel(
@@ -176,6 +185,10 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
                         algName, 1);
 
                 m_fdlEmulAlgoDecision[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
+                m_fdlEmulAlgoDecisionPrescaled[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
+                m_fdlEmulAlgoDecisionUnprescaled[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
                 m_fdlEmulAlgoDecisionMask[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
@@ -186,12 +199,82 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
 
                 m_fdlDataEmulAlgoDecision[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
+                m_fdlDataEmulAlgoDecisionPrescaled[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
+                m_fdlDataEmulAlgoDecisionUnprescaled[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
                 m_fdlDataEmulAlgoDecisionMask[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
                 m_fdlDataEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber
                         + 1, algName, 1);
             }
         }
+
+    }
+
+    // get / update the prescale factors from the EventSetup
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtPfAlgoCacheID = evSetup.get<
+            L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
+
+    if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
+
+        edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+        evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
+        m_l1GtPfAlgo = l1GtPfAlgo.product();
+
+        m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
+
+        m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
+
+    }
+
+    unsigned long long l1GtPfTechCacheID = evSetup.get<
+            L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
+
+    if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
+
+        edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
+        evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
+        m_l1GtPfTech = l1GtPfTech.product();
+
+        m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
+
+        m_l1GtPfTechCacheID = l1GtPfTechCacheID;
+
+    }
+
+    // get / update the trigger mask from the EventSetup
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtTmAlgoCacheID = evSetup.get<
+            L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
+
+    if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
+
+        edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
+        evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
+        m_l1GtTmAlgo = l1GtTmAlgo.product();
+
+        m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
+
+        m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
+
+    }
+
+    unsigned long long l1GtTmTechCacheID = evSetup.get<
+            L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
+
+    if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
+
+        edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
+        evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
+        m_l1GtTmTech = l1GtTmTech.product();
+
+        m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
+
+        m_l1GtTmTechCacheID = l1GtTmTechCacheID;
 
     }
 
@@ -206,17 +289,17 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     std::string recString;
     if (iRec == 0) {
         recString = "DAQ";
-    }
-    else {
+    } else {
         recString = "EVM";
     }
 
     if (gtfeBlockData == gtfeBlockEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE blocks: identical.\n";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE blocks: identical.\n";
         gtfeBlockData.print(m_myCoutStream);
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE blocks: different.\n";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE blocks: different.\n";
 
         m_myCoutStream << "\nData: GTFE block\n";
         gtfeBlockData.print(m_myCoutStream);
@@ -236,15 +319,16 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint16_t boardIdEmul = gtfeBlockEmul.boardId();
 
     if (boardIdData == boardIdEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE boardId identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE boardId identical.";
         m_myCoutStream << "\n boardId() = " << std::hex << "0x" << std::setw(4)
                 << std::setfill('0') << boardIdData << std::setfill(' ')
                 << std::dec;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE boardId different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE boardId different.";
         m_myCoutStream << "\n Data: boardId() = " << std::hex << "0x"
                 << std::setw(4) << std::setfill('0') << boardIdData
                 << std::setfill(' ') << std::dec;
@@ -261,13 +345,14 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint16_t recordLength1Emul = gtfeBlockEmul.recordLength1();
 
     if (recordLength1Data == recordLength1Emul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 1 identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE recordLength for alternative 1 identical.";
         m_myCoutStream << "\n recordLength1() = " << recordLength1Data;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 1 different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE recordLength for alternative 1 different.";
         m_myCoutStream << "\n Data: recordLength1() = " << recordLength1Data;
         m_myCoutStream << "\n Emul: recordLength1() = " << recordLength1Emul;
         m_myCoutStream << "\n";
@@ -280,13 +365,14 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint16_t recordLengthEmul = gtfeBlockEmul.recordLength();
 
     if (recordLengthData == recordLengthEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 0 identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE recordLength for alternative 0 identical.";
         m_myCoutStream << "\n recordLength() = " << recordLengthData;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 1 different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE recordLength for alternative 1 different.";
         m_myCoutStream << "\n Data: recordLength() = " << recordLengthData;
         m_myCoutStream << "\n Emul: recordLength() = " << recordLengthEmul;
         m_myCoutStream << "\n";
@@ -299,13 +385,14 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint16_t bxNrEmul = gtfeBlockEmul.bxNr();
 
     if (bxNrData == bxNrEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE bxNr identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE bxNr identical.";
         m_myCoutStream << "\n bxNr() = " << bxNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE bxNr different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE bxNr different.";
         m_myCoutStream << "\n Data: bxNr() = " << bxNrData;
         m_myCoutStream << "\n Emul: bxNr() = " << bxNrEmul;
         m_myCoutStream << "\n";
@@ -318,13 +405,14 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint32_t setupVersionEmul = gtfeBlockEmul.setupVersion();
 
     if (setupVersionData == setupVersionEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE setupVersion identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE setupVersion identical.";
         m_myCoutStream << "\n setupVersion() = " << setupVersionData;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE setupVersion different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE setupVersion different.";
         m_myCoutStream << "\n Data: setupVersion() = " << setupVersionData;
         m_myCoutStream << "\n Emul: setupVersion() = " << setupVersionEmul;
         m_myCoutStream << "\n";
@@ -337,15 +425,16 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint16_t activeBoardsEmul = gtfeBlockEmul.activeBoards();
 
     if (activeBoardsData == activeBoardsEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE activeBoards identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE activeBoards identical.";
         m_myCoutStream << "\n activeBoards() = " << std::hex << "0x"
                 << std::setw(4) << std::setfill('0') << activeBoardsData
                 << std::setfill(' ') << std::dec;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE activeBoards different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE activeBoards different.";
         m_myCoutStream << "\n Data: activeBoards() = " << std::hex << "0x"
                 << std::setw(4) << std::setfill('0') << activeBoardsData
                 << std::setfill(' ') << std::dec;
@@ -360,17 +449,18 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     ///     correlated with active boards
     ///     bit value is 0: take alternative 0
     ///     bit value is 1: take alternative 1
-    const boost::uint16_t altNrBxBoardData =  gtfeBlockData.altNrBxBoard();
-    const boost::uint16_t altNrBxBoardEmul =  gtfeBlockEmul.altNrBxBoard();
+    const boost::uint16_t altNrBxBoardData = gtfeBlockData.altNrBxBoard();
+    const boost::uint16_t altNrBxBoardEmul = gtfeBlockEmul.altNrBxBoard();
 
     if (altNrBxBoardData == altNrBxBoardEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE altNrBxBoard identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE altNrBxBoard identical.";
         m_myCoutStream << "\n altNrBxBoard() = " << altNrBxBoardData;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE altNrBxBoard different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE altNrBxBoard different.";
         m_myCoutStream << "\n Data: altNrBxBoard() = " << altNrBxBoardData;
         m_myCoutStream << "\n Emul: altNrBxBoard() = " << altNrBxBoardEmul;
         m_myCoutStream << "\n";
@@ -383,13 +473,14 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
     const boost::uint32_t totalTriggerNrEmul = gtfeBlockEmul.totalTriggerNr();
 
     if (totalTriggerNrData == totalTriggerNrEmul) {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE totalTriggerNr identical.";
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE totalTriggerNr identical.";
         m_myCoutStream << "\n totalTriggerNr() = " << totalTriggerNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
-        m_myCoutStream << "\n" << recString << " Data and emulated GTFE totalTriggerNr different.";
+    } else {
+        m_myCoutStream << "\n" << recString
+                << " Data and emulated GTFE totalTriggerNr different.";
         m_myCoutStream << "\n Data: totalTriggerNr() = " << totalTriggerNrData;
         m_myCoutStream << "\n Emul: totalTriggerNr() = " << totalTriggerNrEmul;
         m_myCoutStream << "\n";
@@ -415,8 +506,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     std::string recString;
     if (iRec == 0) {
         recString = "DAQ";
-    }
-    else {
+    } else {
         recString = "EVM";
     }
 
@@ -425,8 +515,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 << " Data and emulated FDL blocks: identical.\n";
         fdlBlockData.print(m_myCoutStream);
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL blocks: different.\n";
 
@@ -457,8 +546,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n";
         matchBxInEvent = true;
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL bxInEvent different.";
         m_myCoutStream << "\n Data: bxInEvent() = " << bxInEventData;
@@ -481,41 +569,6 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         validBxInEvent = true;
     }
 
-    // get / update the trigger mask from the EventSetup
-    // local cache & check on cacheIdentifier
-
-    unsigned long long l1GtTmAlgoCacheID =
-        evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
-
-    if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-
-        edm::ESHandle< L1GtTriggerMask > l1GtTmAlgo;
-        evSetup.get< L1GtTriggerMaskAlgoTrigRcd >().get( l1GtTmAlgo );
-        m_l1GtTmAlgo = l1GtTmAlgo.product();
-
-        m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
-
-        m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
-
-    }
-
-
-    unsigned long long l1GtTmTechCacheID =
-        evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
-
-    if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-
-        edm::ESHandle< L1GtTriggerMask > l1GtTmTech;
-        evSetup.get< L1GtTriggerMaskTechTrigRcd >().get( l1GtTmTech );
-        m_l1GtTmTech = l1GtTmTech.product();
-
-        m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
-
-        m_l1GtTmTechCacheID = l1GtTmTechCacheID;
-
-    }
-
-
     // loop over algorithms and increase the corresponding counters
 
     // get BoardId value
@@ -530,8 +583,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 << std::dec;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL boardId different.";
         m_myCoutStream << "\n Data: boardId() = " << std::hex << "0x"
@@ -544,8 +596,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(0);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(0);
         }
 
@@ -565,8 +616,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n bxNr() = " << bxNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL bxNr different.";
         m_myCoutStream << "\n Data: bxNr() = " << bxNrData;
@@ -575,8 +625,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(2);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(2);
         }
     }
@@ -595,8 +644,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n eventNr() = " << eventNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL eventNr different.";
         m_myCoutStream << "\n Data: eventNr() = " << eventNrData;
@@ -605,8 +653,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(3);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(3);
         }
 
@@ -626,10 +673,11 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
     TechnicalTriggerWord gtTechnicalTriggerWordDataMask(nTechBits);
     TechnicalTriggerWord gtTechnicalTriggerWordEmulMask(nTechBits);
-   
+
+    int prescaleFactor = 0;
     unsigned int triggerMask = 0;
-    unsigned int bitValue = 0; 
-    
+    unsigned int bitValue = 0;
+
     if (matchBxInEvent && validBxInEvent) {
         for (int iBit = 0; iBit < nTechBits; ++iBit) {
 
@@ -642,7 +690,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 bitValue = (triggerMask) ? 0 : 1;
                 gtTechnicalTriggerWordDataMask[iBit] = bitValue;
                 if (bitValue) {
-                    m_fdlDataTechDecisionMask[histIndex][iRec]->Fill(iBit);                    
+                    m_fdlDataTechDecisionMask[histIndex][iRec]->Fill(iBit);
                 }
             }
 
@@ -652,12 +700,11 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 bitValue = (triggerMask) ? 0 : 1;
                 gtTechnicalTriggerWordEmulMask[iBit] = bitValue;
                 if (bitValue) {
-                    m_fdlEmulTechDecisionMask[histIndex][iRec]->Fill(iBit);                    
+                    m_fdlEmulTechDecisionMask[histIndex][iRec]->Fill(iBit);
                 }
             }
         }
-    }
-    else {
+    } else {
         for (int iBit = 0; iBit < nTechBits; ++iBit) {
 
             if (gtTechnicalTriggerWordData[iBit]) {
@@ -676,8 +723,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         fdlBlockData.printGtTechnicalTriggerWord(m_myCoutStream);
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL gtTechnicalTriggerWord different.";
         m_myCoutStream << "\n Data: ";
@@ -688,8 +734,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(4);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(4);
         }
 
@@ -700,8 +745,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                     m_fdlDataEmulTechDecision[histIndex][iRec]->Fill(iBit);
                 }
             }
-        }
-        else {
+        } else {
             for (int iBit = 0; iBit < nTechBits; ++iBit) {
                 if (gtTechnicalTriggerWordData[iBit]
                         != gtTechnicalTriggerWordEmul.at(iBit)) {
@@ -720,8 +764,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 << " Data and emulated FDL gtTechnicalTriggerWord after mask identical.\n";
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL gtTechnicalTriggerWord after mask different.";
         m_myCoutStream << "\n Data: ";
@@ -730,8 +773,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(5);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(5);
         }
 
@@ -758,20 +800,39 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     DecisionWord gtDecisionWordDataMask(nAlgoBits);
     DecisionWord gtDecisionWordEmulMask(nAlgoBits);
 
+    // get the index of the prescale factor set from data
+    int iPfSet = fdlBlockData.gtPrescaleFactorIndexAlgo();
+
     if (matchBxInEvent && validBxInEvent) {
-        
+
+        const std::vector<int>& prescaleFactorsAlgoTrig =
+            (*m_prescaleFactorsAlgoTrig).at(iPfSet);
+
         for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
 
-            triggerMask = (m_triggerMaskAlgoTrig.at(iBit))
-                    & (1 << PhysicsPartition);
-            
+            triggerMask = (m_triggerMaskAlgoTrig.at(iBit)) & (1
+                    << PhysicsPartition);
+
+            prescaleFactor = prescaleFactorsAlgoTrig.at(iBit);
+
+            LogTrace("L1GtHwValidation") << "Bit " << iBit
+                    << ": prescale factor = " << prescaleFactor
+                    << " trigger mask = " << triggerMask << std::endl;
+
             if (gtDecisionWordData[iBit]) {
                 m_fdlDataAlgoDecision[histIndex][iRec]->Fill(iBit);
+
+                if (prescaleFactor == 1) {
+                    m_fdlDataAlgoDecisionUnprescaled[histIndex][iRec]->Fill(
+                            iBit);
+                } else {
+                    m_fdlDataAlgoDecisionPrescaled[histIndex][iRec]->Fill(iBit);
+                }
 
                 bitValue = (triggerMask) ? 0 : 1;
                 gtDecisionWordDataMask[iBit] = bitValue;
                 if (bitValue) {
-                    m_fdlDataAlgoDecisionMask[histIndex][iRec]->Fill(iBit);                    
+                    m_fdlDataAlgoDecisionMask[histIndex][iRec]->Fill(iBit);
                 }
             }
 
@@ -781,12 +842,11 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 bitValue = (triggerMask) ? 0 : 1;
                 gtDecisionWordEmulMask[iBit] = bitValue;
                 if (bitValue) {
-                    m_fdlEmulAlgoDecisionMask[histIndex][iRec]->Fill(iBit);                    
+                    m_fdlEmulAlgoDecisionMask[histIndex][iRec]->Fill(iBit);
                 }
             }
         }
-    }
-    else {
+    } else {
         for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
             if (gtDecisionWordData[iBit]) {
                 m_fdlDataAlgoDecision_Err[iRec]->Fill(iBit);
@@ -806,8 +866,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         fdlBlockData.printGtDecisionWord(m_myCoutStream);
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL gtDecisionWord different.";
         m_myCoutStream << "\n Data: ";
@@ -818,8 +877,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(6);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(6);
         }
 
@@ -828,14 +886,32 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 if (gtDecisionWordData[iBit] != gtDecisionWordEmul.at(iBit)) {
                     m_fdlDataEmulAlgoDecision[histIndex][iRec]->Fill(iBit);
                     if (gtDecisionWordData[iBit]) {
-                        m_fdlDataAlgoDecision_NoMatch[histIndex][iRec]->Fill(iBit);
+                        m_fdlDataAlgoDecision_NoMatch[histIndex][iRec]->Fill(
+                                iBit);
+
+                        if (prescaleFactor == 1) {
+                            m_fdlDataAlgoDecisionUnprescaled_NoMatch[histIndex][iRec]->Fill(
+                                    iBit);
+                        } else {
+                            m_fdlDataAlgoDecisionPrescaled_NoMatch[histIndex][iRec]->Fill(
+                                    iBit);
+                        }
+
                     } else {
-                        m_fdlEmulAlgoDecision_NoMatch[histIndex][iRec]->Fill(iBit);
+                        m_fdlEmulAlgoDecision_NoMatch[histIndex][iRec]->Fill(
+                                iBit);
+
+                        if (prescaleFactor == 1) {
+                            m_fdlEmulAlgoDecisionUnprescaled_NoMatch[histIndex][iRec]->Fill(
+                                    iBit);
+                        } else {
+                            m_fdlEmulAlgoDecisionPrescaled_NoMatch[histIndex][iRec]->Fill(
+                                    iBit);
+                        }
                     }
                 }
             }
-        }
-        else {
+        } else {
             for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
                 if (gtDecisionWordData[iBit] != gtDecisionWordEmul.at(iBit)) {
                     m_fdlDataEmulAlgoDecision_Err[iRec]->Fill(iBit);
@@ -850,8 +926,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 << " Data and emulated FDL gtDecisionWord after mask identical.";
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL gtDecisionWord after mask different.";
         m_myCoutStream << "\n Data: ";
@@ -860,14 +935,14 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(7);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(7);
         }
 
         if (matchBxInEvent && validBxInEvent) {
             for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
-                if (gtDecisionWordDataMask[iBit] != gtDecisionWordEmulMask.at(iBit)) {
+                if (gtDecisionWordDataMask[iBit] != gtDecisionWordEmulMask.at(
+                        iBit)) {
                     m_fdlDataEmulAlgoDecisionMask[histIndex][iRec]->Fill(iBit);
                 }
             }
@@ -887,8 +962,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         fdlBlockData.printGtDecisionWordExtended(m_myCoutStream);
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL gtDecisionWordExtended different.\n";
         m_myCoutStream << "\n Data: ";
@@ -899,8 +973,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(8);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(8);
         }
 
@@ -916,8 +989,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n noAlgo() = " << noAlgoData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL noAlgo different.";
         m_myCoutStream << "\n Data: noAlgo() = " << noAlgoData;
@@ -926,8 +998,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(9);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(9);
         }
 
@@ -945,8 +1016,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                 << std::dec;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL finalOR different.";
         m_myCoutStream << "\n Data: finalOR() = " << std::hex << "0x"
@@ -959,8 +1029,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(10);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(10);
         }
 
@@ -976,8 +1045,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n finalOR() = " << finalORPhysData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL finalOR for the physics partition  different.";
         m_myCoutStream << "\n Data: finalOR() = " << finalORPhysData;
@@ -986,8 +1054,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(11);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(11);
         }
 
@@ -1003,8 +1070,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
         m_myCoutStream << "\n localBxNr() = " << localBxNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated FDL localBxNr different.";
         m_myCoutStream << "\n Data: localBxNr() = " << localBxNrData;
@@ -1013,8 +1079,7 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             m_fdlDataEmul[histIndex][iRec]->Fill(12);
-        }
-        else {
+        } else {
             m_fdlDataEmul_Err[iRec]->Fill(12);
         }
 
@@ -1035,8 +1100,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
         m_myCoutStream << "\nData and emulated PSB blocks: identical.\n";
         psbBlockData.print(m_myCoutStream);
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB blocks: different.\n";
 
         m_myCoutStream << "\nData: PSB block\n";
@@ -1063,8 +1127,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
                 << std::dec;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB boardId different.";
         m_myCoutStream << "\n Data: boardId() = " << std::hex << "0x"
                 << std::setw(4) << std::setfill('0') << boardIdData
@@ -1085,8 +1148,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
         m_myCoutStream << "\n bxInEvent() = " << bxInEventData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB bxInEvent different.";
         m_myCoutStream << "\n Data: bxInEvent() = " << bxInEventData;
         m_myCoutStream << "\n Emul: bxInEvent() = " << bxInEventEmul;
@@ -1103,8 +1165,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
         m_myCoutStream << "\n bxNr() = " << bxNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB bxNr different.";
         m_myCoutStream << "\n Data: bxNr() = " << bxNrData;
         m_myCoutStream << "\n Emul: bxNr() = " << bxNrEmul;
@@ -1121,8 +1182,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
         m_myCoutStream << "\n eventNr() = " << eventNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB eventNr different.";
         m_myCoutStream << "\n Data: eventNr() = " << eventNrData;
         m_myCoutStream << "\n Emul: eventNr() = " << eventNrEmul;
@@ -1146,14 +1206,13 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
                     << std::setfill(' ') << std::dec;
             m_myCoutStream << "\n";
 
-        }
-        else {
+        } else {
             m_myCoutStream << "\nData and emulated PSB aData(" << iA
                     << ") different.";
             m_myCoutStream << "\n Data: aData(iA) = " << std::hex << "0x"
                     << std::setw(4) << std::setfill('0') << valData
                     << std::setfill(' ') << std::dec;
-            m_myCoutStream << "\n Emul: aData(iA) = "<< std::hex << "0x"
+            m_myCoutStream << "\n Emul: aData(iA) = " << std::hex << "0x"
                     << std::setw(4) << std::setfill('0') << valEmul
                     << std::setfill(' ') << std::dec;
             m_myCoutStream << "\n";
@@ -1175,14 +1234,13 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
                     << std::setfill(' ') << std::dec;
             m_myCoutStream << "\n";
 
-        }
-        else {
+        } else {
             m_myCoutStream << "\nData and emulated PSB bData(" << iB
                     << ") different.";
             m_myCoutStream << "\n Data: bData(iA) = " << std::hex << "0x"
                     << std::setw(4) << std::setfill('0') << valData
                     << std::setfill(' ') << std::dec;
-            m_myCoutStream << "\n Emul: bData(iA) = "<< std::hex << "0x"
+            m_myCoutStream << "\n Emul: bData(iA) = " << std::hex << "0x"
                     << std::setw(4) << std::setfill('0') << valEmul
                     << std::setfill(' ') << std::dec;
             m_myCoutStream << "\n";
@@ -1200,8 +1258,7 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
         m_myCoutStream << "\n localBxNr() = " << localBxNrData;
         m_myCoutStream << "\n";
 
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB localBxNr different.";
         m_myCoutStream << "\n Data: localBxNr() = " << localBxNrData;
         m_myCoutStream << "\n Emul: localBxNr() = " << localBxNrEmul;
@@ -1236,8 +1293,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     if (!gtReadoutRecordData.isValid()) {
         m_nrDataEventError++;
-    }
-    else {
+    } else {
         validData = true;
     }
 
@@ -1249,8 +1305,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     if (!gtReadoutRecordEmul.isValid()) {
         m_nrEmulEventError++;
-    }
-    else {
+    } else {
         validEmul = true;
     }
 
@@ -1291,8 +1346,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
             compareFDL(iEvent, evSetup, fdlBlockData, fdlBlockEmul, iRec);
         }
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated FDL vector size: different.\n";
         m_myCoutStream << "  Data: size = " << gtFdlVectorDataSize << std::endl;
         m_myCoutStream << "  Emul: size = " << gtFdlVectorEmulSize << std::endl;
@@ -1316,8 +1370,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
     if (gtPsbVectorDataSize == gtPsbVectorEmulSize) {
         m_myCoutStream << "\nData and emulated PSB vector size: identical.\n";
         m_myCoutStream << "  Size: " << gtPsbVectorDataSize << std::endl;
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated PSB vector size: different.\n";
         m_myCoutStream << "  Data: size = " << gtPsbVectorDataSize << std::endl;
         m_myCoutStream << "  Emul: size = " << gtPsbVectorEmulSize << std::endl;
@@ -1376,7 +1429,6 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
-
     // formal index for EVM record
     int iRec = 1;
 
@@ -1388,8 +1440,7 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
     if (!gtReadoutRecordData.isValid()) {
         m_nrDataEventError++;
-    }
-    else {
+    } else {
         validData = true;
     }
 
@@ -1401,8 +1452,7 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
     if (!gtReadoutRecordEmul.isValid()) {
         m_nrEmulEventError++;
-    }
-    else {
+    } else {
         validEmul = true;
     }
 
@@ -1443,14 +1493,12 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
             compareFDL(iEvent, evSetup, fdlBlockData, fdlBlockEmul, iRec);
         }
-    }
-    else {
+    } else {
         m_myCoutStream << "\nData and emulated FDL vector size: different.\n";
         m_myCoutStream << "  Data: size = " << gtFdlVectorDataSize << std::endl;
         m_myCoutStream << "  Emul: size = " << gtFdlVectorEmulSize << std::endl;
 
     }
-
 
     // FIXME compare TCS
 
@@ -1458,7 +1506,6 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
     m_myCoutStream.str("");
     m_myCoutStream.clear();
-
 
     edm::LogInfo("L1GtHwValidation") << m_myCoutStream.str() << std::endl;
 
@@ -1482,7 +1529,6 @@ void L1GtHwValidation::analyze(const edm::Event& iEvent,
 
     ++m_nrEvJob;
     ++m_nrEvRun;
-
 
     // L1 GT DAQ record comparison
     compareDaqRecord(iEvent, evSetup);
@@ -1511,8 +1557,7 @@ void L1GtHwValidation::bookHistograms() {
         std::string recString;
         if (iRec == 0) {
             recString = "Daq_";
-        }
-        else {
+        } else {
             recString = "Evm_";
         }
 
@@ -1523,8 +1568,8 @@ void L1GtHwValidation::bookHistograms() {
         histName = hName.c_str();
 
         // GTFE histograms
-        m_gtfeDataEmul[iRec] = m_dbe->book1D(histName, "GTFE data vs emul mismatch",
-                8, 0., 7.);
+        m_gtfeDataEmul[iRec] = m_dbe->book1D(histName,
+                "GTFE data vs emul mismatch", 8, 0., 7.);
         m_gtfeDataEmul[iRec]->setBinLabel(1, "BoardId", 1);
         m_gtfeDataEmul[iRec]->setBinLabel(2, "RecordLength1", 1);
         m_gtfeDataEmul[iRec]->setBinLabel(3, "RecordLength0", 1);
@@ -1534,15 +1579,13 @@ void L1GtHwValidation::bookHistograms() {
         m_gtfeDataEmul[iRec]->setBinLabel(7, "AltNrBxBoard", 1);
         m_gtfeDataEmul[iRec]->setBinLabel(8, "TotalTriggerNr", 1);
 
-
-
         // FDL histograms
 
         for (int iHist = 0; iHist < TotalBxInEvent; ++iHist) {
 
             // convert [0, TotalBxInEvent] to [-X, +X] and add to histogram name 
-            int iIndex = iHist - ((TotalBxInEvent + 1)/2 -1);
-            int hIndex = (iIndex + 16)%16;
+            int iIndex = iHist - ((TotalBxInEvent + 1) / 2 - 1);
+            int hIndex = (iIndex + 16) % 16;
 
             std::stringstream ss;
             std::string str;
@@ -1558,8 +1601,8 @@ void L1GtHwValidation::bookHistograms() {
 
             //
 
-            m_fdlDataEmul[iHist][iRec] = m_dbe->book1D(histName, histTitle,
-                    13, 0., 13.);
+            m_fdlDataEmul[iHist][iRec] = m_dbe->book1D(histName, histTitle, 13,
+                    0., 13.);
             m_fdlDataEmul[iHist][iRec]->setBinLabel(1, "BoardId", 1);
             m_fdlDataEmul[iHist][iRec]->setBinLabel(2, "BxInEvent", 1);
             m_fdlDataEmul[iHist][iRec]->setBinLabel(3, "BxNr", 1);
@@ -1595,13 +1638,68 @@ void L1GtHwValidation::bookHistograms() {
             m_fdlEmulAlgoDecision[iHist][iRec] = m_dbe->book1D(histName,
                     histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
 
+            // algorithm decision for prescaled algorithms
+            //   data
+            hName = recString + "Data_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data: prescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: prescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
+            // algorithm decision for unprescaled algorithms
+            //   data
+            hName = recString + "Data_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data: unprescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: unprescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
             // algorithm decision after masking (partition physics)
             //   data
             hName = recString + "Data_AlgoDecisionAfterMask_" + str;
             histName = hName.c_str();
 
-            hTitle = "Data, physics partition: algorithm decision word after mask for BxInEvent = "
-                    + str;
+            hTitle
+                    = "Data, physics partition: algorithm decision word after mask for BxInEvent = "
+                            + str;
             histTitle = hTitle.c_str();
 
             m_fdlDataAlgoDecisionMask[iHist][iRec] = m_dbe->book1D(histName,
@@ -1628,7 +1726,32 @@ void L1GtHwValidation::bookHistograms() {
                             + str;
             histTitle = hTitle.c_str();
 
-            m_fdlDataEmulAlgoDecision[iHist][iRec] = m_dbe->book1D(
+            m_fdlDataEmulAlgoDecision[iHist][iRec] = m_dbe->book1D(histName,
+                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data vs emul: prescaled algorithms with non-matching decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data vs emul: unprescaled algorithms with non-matching decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
                     histName, histTitle, numberAlgoTriggers, 0.,
                     numberAlgoTriggers);
 
@@ -1657,6 +1780,60 @@ void L1GtHwValidation::bookHistograms() {
             m_fdlEmulAlgoDecision_NoMatch[iHist][iRec] = m_dbe->book1D(
                     histName, histTitle, numberAlgoTriggers, 0.,
                     numberAlgoTriggers);
+
+            // prescaled algorithms
+            hName = recString + "Data_AlgoDecision_Prescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data: prescaled algorithms: non-matching algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionPrescaled_NoMatch[iHist][iRec]
+                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
+                            0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_Prescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: prescaled algorithms: non-matching algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionPrescaled_NoMatch[iHist][iRec]
+                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
+                            0., numberAlgoTriggers);
+
+
+            // unprescaled algorithms - non-matching
+            hName = recString + "Data_AlgoDecision_Unprescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data: unprescaled algorithms: non-matching algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionUnprescaled_NoMatch[iHist][iRec]
+                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
+                            0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_Unprescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: unprescaled algorithms: non-matching algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionUnprescaled_NoMatch[iHist][iRec]
+                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
+                            0., numberAlgoTriggers);
+
 
             // 
             hName = recString + "DataEmul_AlgoDecisionAfterMask_" + str;
@@ -1727,9 +1904,8 @@ void L1GtHwValidation::bookHistograms() {
                             + str;
             histTitle = hTitle.c_str();
 
-            m_fdlDataEmulTechDecision[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberTechTriggers, 0.,
-                    numberTechTriggers);
+            m_fdlDataEmulTechDecision[iHist][iRec] = m_dbe->book1D(histName,
+                    histTitle, numberTechTriggers, 0., numberTechTriggers);
 
             hName = recString + "DataEmul_TechDecisionAfterMask_" + str;
             histName = hName.c_str();
@@ -1748,8 +1924,11 @@ void L1GtHwValidation::bookHistograms() {
         hName = recString + "FdlDataEmul_Err";
         histName = hName.c_str();
 
-        m_fdlDataEmul_Err[iRec] = m_dbe->book1D(histName,
-                "FDL data vs emul mismatch for non-matching BxInEvent in FDL payload", 13, 0., 13.);
+        m_fdlDataEmul_Err[iRec]
+                = m_dbe->book1D(
+                        histName,
+                        "FDL data vs emul mismatch for non-matching BxInEvent in FDL payload",
+                        13, 0., 13.);
         m_fdlDataEmul_Err[iRec]->setBinLabel(1, "BoardId", 1);
         m_fdlDataEmul_Err[iRec]->setBinLabel(2, "BxInEvent", 1);
         m_fdlDataEmul_Err[iRec]->setBinLabel(3, "BxNr", 1);
@@ -1823,7 +2002,8 @@ void L1GtHwValidation::bookHistograms() {
     }
 }
 
-void L1GtHwValidation::endRun(const edm::Run& run, const edm::EventSetup& evSetup) {
+void L1GtHwValidation::endRun(const edm::Run& run,
+        const edm::EventSetup& evSetup) {
 
     LogDebug("L1GtHwValidation") << "\n\n endRun: " << run.id()
             << "\n  Number of events analyzed in this run:       " << m_nrEvRun
@@ -1844,4 +2024,4 @@ void L1GtHwValidation::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1GtHwValidation);
+DEFINE_FWK_MODULE( L1GtHwValidation);
