@@ -565,14 +565,15 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	return false;
       }
 
-      if (debug_)
-	logme()
-	  << "DEBUG: received message 'LIST BEGIN' from "
-	  << p->peeraddr << std::endl;
-
       // Get the update status: whether this is a full update.
       uint32_t flags;
       memcpy(&flags, data + 3*sizeof(uint32_t), sizeof(uint32_t));
+
+      if (debug_)
+	logme()
+	  << "DEBUG: received message 'LIST BEGIN "
+	  << (flags ? "FULL" : "INCREMENTAL")
+	  << "' from " << p->peeraddr << std::endl;
 
       // If we are about to receive a full list of objects, flag all
       // objects as possibly dead.  Subsequent object notifications
@@ -608,8 +609,9 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 
       if (debug_)
 	logme()
-	  << "DEBUG: received message 'LIST END' from "
-	  << p->peeraddr << std::endl;
+	  << "DEBUG: received message 'LIST END "
+	  << (flags ? "FULL" : "INCREMENTAL")
+	  << "' from " << p->peeraddr << std::endl;
 
       // Indicate we have received another update from this peer.
       // Also indicate we should flush to our clients.
