@@ -1,44 +1,52 @@
 #ifndef RecoMuon_MuonSeedGenerator_RPCSeedFinder_H
 #define RecoMuon_MuonSeedGenerator_RPCSeedFinder_H
 
+
 /** \class RPCSeedFinder
  *  
+ *   \author Haiyun.Teng - Peking University
  *
- *  \author D. Pagano - University of Pavia & INFN Pavia
- *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.1 $
  *  
  */
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
+#include <DataFormats/TrajectorySeed/interface/TrajectorySeed.h>
+#include <RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 #include <vector>
+#include <algorithm>
 
 namespace edm {class EventSetup;}
-class MagneticField;
 
-class RPCSeedFinder {
-public:
-  
-  RPCSeedFinder();
+class RPCSeedFinder 
+{
+    typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+    typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+    typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+    typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+    typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 
-  virtual ~RPCSeedFinder(){};
+    public:
+        RPCSeedFinder();
+        ~RPCSeedFinder();
+        void configure(const edm::ParameterSet& iConfig);
+        void setOutput(std::vector<weightedTrajectorySeed> *goodweightedRef, std::vector<weightedTrajectorySeed> *candidateweightedRef);
+        void setrecHits(ConstMuonRecHitContainer &recHits);
+        void setEventSetup(const edm::EventSetup& iSetup);
+        void seed();
 
-  void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
-  
-  std::vector<TrajectorySeed> seeds(const edm::EventSetup& eSetup) const;
-  MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
-  unsigned int nrhit() const { return  theRhits.size(); }
-  
-private:
-    
-  MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
- 
+    private:
+        // Signal for call fillLayers()
+        bool isrecHitsset;
+        bool isConfigured;
+        bool isOutputset;
+        bool isEventSetupset;
+        const edm::EventSetup *eSetup;
+        RPCSeedPattern oneSeed;
+        //ConstMuonRecHitContainer theRecHits;
+        std::vector<weightedTrajectorySeed> *goodweightedSeedsRef;
+        std::vector<weightedTrajectorySeed> *candidateweightedSeedsRef;
 };
 #endif
