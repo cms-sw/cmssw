@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BaseDir=/home/cmstacuser/historyDQM/Cron/Scripts
+BaseDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts
 
 ########################################################
 # THIS MUST BE SET OTHERWISE THE CRON WILL NOT HAVE IT #
@@ -8,7 +8,7 @@ BaseDir=/home/cmstacuser/historyDQM/Cron/Scripts
 CMS_PATH=/afs/cern.ch/cms
 
 # Define the release version to use
-CMSSW_version=/home/cmstacuser/historyDQM/CMSSW_Releases/CMSSW_3_2_5
+CMSSW_version=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/CMSSW_Releases/CMSSW_3_2_6
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 echo $CMSSW_version
 cd ${CMSSW_version}/src
@@ -20,17 +20,19 @@ source ${BaseDir}/UpdatePlots.sh
 # Start an endless loop
 while [ 1 = 1 ]
 do
-    # BaseDir=/home/cmstacuser/historyDQM/Cron/Scripts
     cd ${BaseDir}
 
     # -------------------- #
     # IMPORTANT PARAMETERS #
     # -------------------- #
 
-    AuthenticationPath="/home/cmstacuser/historyDQM/Cron/Scripts/Authentication"
-    # Database="oracle://cms_orcoff_prep/CMS_COND_STRIP"
+    AuthenticationPath="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts/Authentication"
     Database="oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE"
     # Database="sqlite_file:dbfile.db"
+
+    # This is the directory with the DQM root files.
+    # The root files in all subdirectories will be found and processed.
+    SourceDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express
 
     # The final tag name will be: TagName_DetName_TagVersion: e.g. HDQM_SiStrip_V1
     TagName="HDQM"
@@ -41,7 +43,10 @@ do
     LastRun=-1
 
     SubDets=(     "SiStrip" "SiPixel" "Tracking" "RPC")
-    TagVersions=( "V3"      "V3"      "V1"       "V1")
+    TagVersions=( "V4"      "V4"      "V2"       "V2")
+
+    # This is the directory where all the output will be copied
+    StorageDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/WWW
 
     # -------------------- #
     # -------------------- #
@@ -69,7 +74,7 @@ do
 	# echo ${CMSSW_version}
 	# echo
 
-	SubDetScript ${SubDet} ${TagName}_${SubDet}_${TagVersion} ${Database} ${AuthenticationPath} ${FirstRun} ${LastRun} ${CMSSW_version} ${BaseDir}/Templates
+	SubDetScript ${SubDet} ${TagName}_${SubDet}_${TagVersion} ${Database} ${AuthenticationPath} ${FirstRun} ${LastRun} ${CMSSW_version} ${BaseDir}/Templates ${SourceDir}
 	let "Update+=$?"
 
 	let "k+=1"
@@ -82,7 +87,7 @@ do
 	# This is needed to pass the array
 	argument1=`echo ${TagNames[@]}`
 	argument2=`echo ${SubDets[@]}`
-	UpdatePlots "${argument1}" "${argument2}" ${CMSSW_version}
+	UpdatePlots "${argument1}" "${argument2}" ${CMSSW_version} ${StorageDir}
     else
 	echo "Nothing changed, not redoing the plots."
     fi

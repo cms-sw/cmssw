@@ -1,7 +1,7 @@
 ###############################################################################
 # This function performs the actual writing to the database of the quantities.
 # It does a check for each run if it is in the specified range.
-# The check is done internally if because the extraction of the run number
+# The check is done internally because the extraction of the run number
 # from the directory and file name is also done internally.
 ###############################################################################
 

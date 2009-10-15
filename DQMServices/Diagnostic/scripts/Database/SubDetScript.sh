@@ -15,6 +15,7 @@ function SubDetScript ()
     local LastRun=$6
     local CMSSW_version=$7
     local TemplatesDir=$8
+    local SourceDir=$9
 
 
     # echo
@@ -27,8 +28,6 @@ function SubDetScript ()
     # echo "CMSSW_version=${CMSSW_version}"
     # echo
     # echo `pwd`
-
-    local SourceDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/
 
     if [ ! -d ${DetName} ]; then
 	mkdir ${DetName}

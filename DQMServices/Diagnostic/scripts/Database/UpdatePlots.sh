@@ -4,7 +4,7 @@ source ${BaseDir}/MakeAllPlots.sh
 
 function UpdatePlots ()
 {
-    local StorageDir=/storage/data2/SiStrip/historic_dqm/HistoryDQM
+    local StorageDir=$4
 
     if [ ! -e ${StorageDir}/backup ]; then
 	mkdir ${StorageDir}/backup
