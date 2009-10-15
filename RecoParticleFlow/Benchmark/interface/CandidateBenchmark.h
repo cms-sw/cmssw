@@ -19,7 +19,7 @@ class CandidateBenchmark : public Benchmark {
   void setup();
   
   /// fill histograms with all particle
-  void fill(const Collection& pfCandCollection );
+  void fill(const Collection& candCollection );
 
  protected:
   

@@ -53,8 +53,6 @@ class Benchmark{
 
   /// must be initialized in child EDAnalyzers. Otherwise: plain root mode
   DQMStore *DQM_; 
-  
-  
 
 };
 
