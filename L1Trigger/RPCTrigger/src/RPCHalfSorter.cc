@@ -116,7 +116,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr); // |
                                                    // iTC=0 - firstTrigger crate (no=1) 
                                                    //       - in hw it has sectorAddr=1
-        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+        //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
                                                    //      want to act same as hw
       }
     } // iter. over muons end
@@ -136,7 +136,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
       if ( secAddr != 0 && secAddr != 7  ){ 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
-        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+        //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
                                                    //      want to act same as hw
       }
     }
