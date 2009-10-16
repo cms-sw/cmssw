@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 hltMuonQualityTester = cms.EDFilter("QualityTester",
-    qtList = cms.untracked.FileInPath('HLTriggerOffline/Muon/data/QualityTests.xml'),
+    qtList = cms.untracked.FileInPath(
+        'HLTriggerOffline/Muon/data/HLTMuonQualityTests.xml'
+    ),
     reportThreshold         = cms.untracked.string('black'),
     prescaleFactor          = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
