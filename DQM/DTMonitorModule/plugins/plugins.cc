@@ -45,6 +45,10 @@ DEFINE_ANOTHER_FWK_MODULE(DTROMonitorFilter);
 #include <DQM/DTMonitorModule/src/DTTriggerEfficiencyTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTTriggerEfficiencyTask);
 
+#include <DQM/DTMonitorModule/src/DTLocalTriggerSynchTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerSynchTask);
+
+
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
