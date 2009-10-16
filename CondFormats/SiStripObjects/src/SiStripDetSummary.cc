@@ -2,6 +2,9 @@
 
 void SiStripDetSummary::add(const DetId & detid, const float & value)
 {
+
+  std::cout << "value = " << value << std::endl;
+
   int layer = 0;
   int stereo = 0;
   int detNum = 0;
@@ -69,9 +72,8 @@ void SiStripDetSummary::print(stringstream & ss, const bool mean) const
     int count = countIt->second;
     double mean = 0.;
     double rms = 0.;
-    if( count != 0 ) {
+    if( computeMean_ && count != 0 ) {
       mean = (meanIt->second)/count;
-      // if ( (rmsIt->second)/count - pow(mean,2) < 0 ) cout << "Error: negative value, meanIt->second = " << meanIt->second << " count = " << count << " rmsIt->second/count = " << (rmsIt->second)/count << " mean*mean = " << mean*mean << " pow = " << pow(mean,2) << endl;
       rms = (rmsIt->second)/count - mean*mean;
       if (rms <= 0)
 	rms = 0;
@@ -103,7 +105,7 @@ void SiStripDetSummary::print(stringstream & ss, const bool mean) const
     int stereo = countIt->first - layer*10 -(countIt->first)/1000*1000;
 
     ss << setw(15) << layer << setw(13) << stereo << setw(18);
-    if( mean ) ss << mean << " +- " << rms << endl;
+    if( computeMean_ ) ss << mean << " +- " << rms << endl;
     else ss << countIt->second << endl;
   }
 }

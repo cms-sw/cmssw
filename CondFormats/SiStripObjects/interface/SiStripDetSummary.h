@@ -21,9 +21,11 @@ using namespace std;
  * @date 26/3/2009
  * Class to compute and print summary information.
  *
- * It computes the mean value and rms of a given quantity and is able to print a summary divided by
- * layer/disk for each subdetector. Optionally it can also print the count insteand of mean+-rms.
- *
+ * If values are passed together with DetIds (method add( detId, value)), it computes the mean value and
+ * rms of a given quantity and is able to print a summary divided by layer/disk for each subdetector. <br>
+ * If instead only DetIds are passed (method add( detId )), it prints the count divided by layer/disk for
+ * each subdetector. <br>
+ * <br>
  * Note: consider the possibility to move this class inside SiStripBaseObject as a protected member class.
  *
  */
@@ -31,8 +33,16 @@ using namespace std;
 class SiStripDetSummary
 {
 public:
+  SiStripDetSummary() : computeMean_(true) {}
+
   /// Used to compute the mean value of the value variable divided by subdetector, layer and mono/stereo
-  void add(const DetId & detid, const float & value = 0.);
+  void add(const DetId & detid, const float & value);
+  /// Used to compute the number of entries divided by subdetector, layer and mono/stereo
+  inline void add(const DetId & detid)
+  {
+    computeMean_ = false;
+    add( detid, 0 );
+  }
 
   /**
    * Method used to write the output. By default mean == true and it writes the mean value. If mean == false
@@ -45,6 +55,7 @@ protected:
   map<int, double> meanMap_;
   map<int, double> rmsMap_;
   map<int, int> countMap_;
+  bool computeMean_;
 };
 
 #endif
