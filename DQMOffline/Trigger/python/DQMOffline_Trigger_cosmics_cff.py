@@ -50,7 +50,9 @@ from DQMOffline.Trigger.MuonOffline_Trigger_cosmics_cff import *
 from DQMOffline.Trigger.QuadJetAna_cfi import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*quadJetAna )
+from DQMOffline.Trigger.TnPEfficiency_cff import *
+
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*quadJetAna *TnPEfficiency)
 
 
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
