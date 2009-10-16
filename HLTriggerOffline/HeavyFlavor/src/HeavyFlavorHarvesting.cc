@@ -22,7 +22,7 @@ class HeavyFlavorHarvesting : public edm::EDAnalyzer, public TGraphAsymmErrors{
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorHarvesting();
     virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-    virtual void endJob();
+    virtual void endRun(const edm::Run &, const edm::EventSetup &);
   private:
     void calculateEfficiency(const ParameterSet& pset);
     void calculateEfficiency1D( TH1* num, TH1* den, string name );
@@ -38,13 +38,12 @@ HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset):
 {
 }
 
-void HeavyFlavorHarvesting::endJob(){
+void HeavyFlavorHarvesting::endRun(const edm::Run &, const edm::EventSetup &){
   dqmStore = Service<DQMStore>().operator->();
   if( !dqmStore ){
     LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
     return;
   }
-  dqmStore->setCurrentFolder(myDQMrootFolder);
   for(VParameterSet::const_iterator pset = efficiencies.begin(); pset!=efficiencies.end(); pset++){
     calculateEfficiency(*pset);
   }
@@ -64,7 +63,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   TH1 *num = numME->getTH1();
   //check compatibility of the histograms  
   if( den->GetNbinsX() != num->GetNbinsX() || den->GetNbinsY() != num->GetNbinsY() ||  den->GetNbinsZ() != num->GetNbinsZ() ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
     return;
   }
   //figure out the directory and efficiency name  
