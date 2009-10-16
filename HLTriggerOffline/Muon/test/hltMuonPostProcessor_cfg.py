@@ -7,7 +7,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 2000
 
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("HLTriggerOffline.Muon.hltMuonPostProcessors_cff")
+process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
+process.load("HLTriggerOffline.Muon.HLTMuonQualityTester_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -17,13 +18,17 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:hltMuonValidator.root')
 )
 
-process.hltMuonPostMain.outputFileName = cms.untracked.string(
+process.output = process.hltMuonPostMain.clone()
+process.output.outputFileName = cms.untracked.string(
     'hltMuonPostProcessor.root'
 )
 
+
 process.postprocessorpath = cms.Path(
     process.EDMtoMEConverter *
-    process.hltMuonPostProcessors
+    process.hltMuonPostProcessors *
+    process.hltMuonQualityTester *
+    process.output
 )
 
 process.DQMStore.referenceFileName = ''
