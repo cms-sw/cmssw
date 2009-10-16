@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/10/02 13:09:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/10/09 12:53:55 $
+ *  $Revision: 1.10 $
  */
 
 
@@ -387,12 +387,12 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
   // put in the phi parameters
   thePhiEtaParameters2d.push_back(10);
-  thePhiEtaParameters2d.push_back(-3.15);
-  thePhiEtaParameters2d.push_back(3.15);
+  thePhiEtaParameters2d.push_back(-2.2);
+  thePhiEtaParameters2d.push_back(2.2);
 
   thePhiEtaParameters2d.push_back(10);
-  thePhiEtaParameters2d.push_back(-3.5);
-  thePhiEtaParameters2d.push_back(3.5);
+  thePhiEtaParameters2d.push_back(-3.15);
+  thePhiEtaParameters2d.push_back(3.15);
   
   
   // theD0Parameters.push_back(25);
