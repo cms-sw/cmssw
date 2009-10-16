@@ -80,8 +80,7 @@ namespace edm
 		     Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
-  void checkAllDictionaries();
-  StringSet & missingTypes();
+  StringSet& missingTypes();
 
   void public_base_classes(const Reflex::Type& type,
                            std::vector<Reflex::Type>& baseTypes);

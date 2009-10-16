@@ -28,8 +28,8 @@ namespace edm {
     while (t.IsTypedef()) t = t.ToType();
     return t;
   }
-  
-  bool 
+
+  bool
   find_nested_type_named(std::string const& nested_type,
 			 Type const& type_to_search,
 			 Type& found_type) {
@@ -103,7 +103,7 @@ namespace edm {
 				   found_sequence_value_type)) {
 
       if (!if_edm_ptr_get_value_type(outer_value_type,
-		 		     found_sequence_value_type)) {
+				     found_sequence_value_type)) {
 
         if_edm_refToBase_get_value_type(outer_value_type,
 				        found_sequence_value_type);
@@ -122,7 +122,7 @@ namespace edm {
     if (primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
     }
-    return false;    
+    return false;
   }
 
   bool
@@ -139,7 +139,7 @@ namespace edm {
         return find_nested_type_named(val_type, ptrType, value_type);
       }
     }
-    return false;    
+    return false;
   }
 
   bool
@@ -152,7 +152,7 @@ namespace edm {
     if (primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
     }
-    return false;    
+    return false;
   }
 
   namespace {
@@ -178,7 +178,7 @@ namespace edm {
     hasCintDictionary(std::string const& name) {
       std::auto_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
         return (ci.get() && ci->IsLoaded());
-    } 
+    }
 
     // Checks if there is a Reflex dictionary for the Type t.
     // If noComponents is false, checks members and base classes recursively.
@@ -188,39 +188,43 @@ namespace edm {
 
       // The only purpose of this cache is to stop infinite recursion.
       // Reflex maintains its own internal cache.
-      static boost::thread_specific_ptr<StringSet> s_types;
-      if (0 == s_types.get()) {
-	s_types.reset(new StringSet);
+      static boost::thread_specific_ptr<StringSet> found_types;
+      if (0 == found_types.get()) {
+	found_types.reset(new StringSet);
       }
-  
+
       // ToType strips const, volatile, array, pointer, reference, etc.,
       // and also translates typedefs.
       // To be safe, we do this recursively until we either get a null type
       // or the same type.
       Type null;
       for (Type x = t.ToType(); x != null && x != t; t = x, x = t.ToType()) {}
-  
+
       std::string name = t.Name(SCOPED);
       boost::trim(name);
 
-      if (s_types->end() != s_types->find(name)) {
+      if (found_types->end() != found_types->find(name) || missingTypes().end() != missingTypes().find(name)) {
 	// Already been processed.  Prevents infinite loop.
 	return;
       }
-      s_types->insert(name);
-  
-      if (name.empty()) return;
-      if (t.IsFundamental()) return;
-      if (t.IsEnum()) return;
+
+      if (name.empty() || t.IsFundamental() || t.IsEnum()) {
+	found_types->insert(name);
+	return;
+      }
 
       if (!bool(t)) {
-	if (!hasCintDictionary(name)) {
-  	  missingTypes().insert(name);
+	if (hasCintDictionary(name)) {
+	  found_types->insert(name);
+	} else {
+	  missingTypes().insert(name);
 	}
 	return;
       }
+
+      found_types->insert(name);
       if (noComponents) return;
-  
+
       if (name.find("std::") == 0) {
 	if (t.IsTemplateInstance()) {
 	  std::string::size_type n = name.find('<');
@@ -229,7 +233,7 @@ namespace edm {
 	    cnt = 1;
 	  } else if (std::find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize) {
 	    cnt = 2;
-	  } 
+	  }
 	  for(int i = 0; i < cnt; ++i) {
 	    checkType(t.TemplateArgumentAt(i));
 	  }
@@ -266,29 +270,6 @@ namespace edm {
     }
     checkType(Type::ByName(name), noComponents);
   }
-
-  void checkAllDictionaries() {
-    if (!missingTypes().empty()) {
-      std::ostringstream ostr;
-      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
-	   it != itEnd; ++it) {
-	ostr << *it << "\n\n";
-      }
-      throw edm::Exception(edm::errors::DictionaryNotFound)
-	<< "No REFLEX data dictionary found for the following classes:\n\n"
-	<< ostr.str()
-	<< "Most likely each dictionary was never generated,\n"
-	<< "but it may be that it was generated in the wrong package.\n"
-	<< "Please add (or move) the specification\n"
-	<< "<class name=\"whatever\"/>\n"
-	<< "to the appropriate classes_def.xml file.\n"
-	<< "If the class is a template instance, you may need\n"
-	<< "to define a dummy variable of this type in classes.h.\n"
-	<< "Also, if this class has any transient members,\n"
-	<< "you need to specify them in classes_def.xml.";
-    }
-  }
-
 
   void public_base_classes(const Type& type,
                            std::vector<Type>& baseTypes) {
@@ -347,6 +328,6 @@ namespace edm {
 			std::type_info const& toType)
   {
     Object  obj(dynamicType, raw);
-    return obj.CastObject(Type::ByTypeInfo(toType)).Address();    
+    return obj.CastObject(Type::ByTypeInfo(toType)).Address();
   }
 }
