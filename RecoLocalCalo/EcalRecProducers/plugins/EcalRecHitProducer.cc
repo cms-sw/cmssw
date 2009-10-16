@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.6 2009/07/14 02:24:37 ferriff Exp $
- *  $Date: 2009/07/14 02:24:37 $
- *  $Revision: 1.6 $
+ *  $Id: EcalRecHitProducer.cc,v 1.7 2009/08/27 16:24:19 ferriff Exp $
+ *  $Date: 2009/08/27 16:24:19 $
+ *  $Revision: 1.7 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -61,6 +61,7 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 
 EcalRecHitProducer::~EcalRecHitProducer()
 {
+        delete workerRecover_;
 }
 
 void
