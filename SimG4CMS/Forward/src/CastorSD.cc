@@ -22,7 +22,7 @@
 #include "G4LogicalVolumeStore.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "Randomize.h"
+#include "Randomize.hh"
 #include "G4Poisson.hh"
 
 #define debugLog
