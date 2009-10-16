@@ -1,0 +1,17 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="MuonHLTDeadChannel">
+	 <TYPE>DeadChannel</TYPE>	 
+	 <PARAM name="error">0.10</PARAM>
+	 <PARAM name="warning">0.50</PARAM>
+     <!-- Fail If bin counts less than threshold -->
+	 <PARAM name="threshold">10</PARAM>
+</QTEST>
+
+
+
+<LINK name="HLT/Muon*recPhiVsRecEta_*">
+        <TestName activate="true">MuonHLTDeadChannel</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>
