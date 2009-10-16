@@ -28,6 +28,7 @@ ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
 ESRecHitProducer::~ESRecHitProducer()
 {
         //  delete algo_;
+        delete worker_;
 }
 
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)

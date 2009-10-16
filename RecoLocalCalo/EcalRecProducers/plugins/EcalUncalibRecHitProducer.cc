@@ -24,6 +24,7 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
 {
+        delete worker_;
 }
 
 void
