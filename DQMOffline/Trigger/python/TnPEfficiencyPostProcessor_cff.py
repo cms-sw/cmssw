@@ -12,7 +12,7 @@ JpsiPars = cms.untracked.PSet(
       SignalRangeHigh = cms.untracked.double(3.25)
 )
 
-JpsiClient = cms.EDAnalyzer("DQMGenericTnPClient",
+jpsiClient = cms.EDAnalyzer("DQMGenericTnPClient",
   MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions"),
   # Set this if you want to save info about each fit
   #SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
@@ -79,7 +79,7 @@ UpsilonPars = cms.untracked.PSet(
       SignalRangeHigh = cms.untracked.double(10.)
 )
 
-UpsilonClient = cms.EDAnalyzer("DQMGenericTnPClient",
+upsilonClient = cms.EDAnalyzer("DQMGenericTnPClient",
   MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions"),
   # Set this if you want to save info about each fit
   #SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
@@ -146,7 +146,7 @@ ZPars = cms.untracked.PSet(
     SignalRangeHigh = cms.untracked.double(101)
 )
 
-ZClient = cms.EDAnalyzer("DQMGenericTnPClient",
+zClient = cms.EDAnalyzer("DQMGenericTnPClient",
   MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions"),
   # Set this if you want to save info about each fit
   #SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
@@ -200,5 +200,5 @@ ZClient = cms.EDAnalyzer("DQMGenericTnPClient",
   )
 )
 
-TnPEfficiencyPostProcessor = cms.Sequence(JpsiClient*UpsilonClient*ZClient)
+tagAndProbeEfficiencyPostProcessor = cms.Sequence(jpsiClient*upsilonClient*zClient)
 
