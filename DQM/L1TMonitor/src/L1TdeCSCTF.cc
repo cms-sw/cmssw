@@ -29,9 +29,12 @@ using namespace std;
 using namespace edm;
 
 L1TdeCSCTF::L1TdeCSCTF(edm::ParameterSet const& pset):edm::EDAnalyzer(){
-	dataTrackProducer = pset.getUntrackedParameter<edm::InputTag>("dataTrackProducer",edm::InputTag("csctfDigis"));
-	emulTrackProducer = pset.getUntrackedParameter<edm::InputTag>("emulTrackProducer",edm::InputTag("simCsctfTrackDigis"));
-	lctProducer       = pset.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfDigis"));
+	dataTrackProducer = pset.getParameter<edm::InputTag>("dataTrackProducer");
+	emulTrackProducer = pset.getParameter<edm::InputTag>("emulTrackProducer");
+	lctProducer       = pset.getParameter<edm::InputTag>("lctProducer");
+	
+	m_dirName         = pset.getUntrackedParameter("DQMFolder", 
+                             std::string("L1TEMU/CSCTFexpert"));
 
 	ts=0;
 	eventNum = 0;
@@ -43,13 +46,16 @@ L1TdeCSCTF::L1TdeCSCTF(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	{
 		dbe = Service<DQMStore>().operator->();
 		dbe->setVerbose(0);
-		dbe->setCurrentFolder("L1T/L1tdeCSCTF");
+		dbe->setCurrentFolder(m_dirName);
 	}
 	
 	outFile = pset.getUntrackedParameter<string>("outFile", "");
 	if( outFile.size() != 0 )
 	{
-		cout << "L1T Monitoring histograms will be saved to " << outFile.c_str() << endl;
+	  edm::LogWarning("L1TdeCSCTF")
+	    << "L1T Monitoring histograms will be saved to " 
+	    << outFile.c_str() 
+	    << endl;
 	}
 	
 	bool disable = pset. getUntrackedParameter<bool>("disableROOToutput", false);
@@ -98,7 +104,7 @@ void L1TdeCSCTF::beginJob(edm::EventSetup const& es)
 	DQMStore * dbe = 0;
 	dbe = Service<DQMStore>().operator->();
 	if( dbe ){
-		dbe->setCurrentFolder("L1T/L1tdeCSCTF");
+		dbe->setCurrentFolder(m_dirName);
 		/////////////////////////////
 		// Define Monitor Elements //
 		/////////////////////////////
@@ -213,6 +219,16 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 	{
 		edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
 		e.getByLabel(lctProducer.label(),lctProducer.instance(), LCTs);
+
+		// check validity of input collection
+		if(!LCTs.isValid()) {
+		  edm::LogWarning("L1TdeCSCTF")
+		    << "\n No valid [lct] product found: "
+		    << " CSCCorrelatedLCTDigiCollection"
+		    << std::endl;
+		  return;
+		}
+
 		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=LCTs.product()->begin(); csc!=LCTs.product()->end(); csc++)
 		{
 			int lctId=0;
@@ -269,6 +285,17 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 	{
 		edm::Handle<L1CSCTrackCollection> tracks;
 		e.getByLabel(dataTrackProducer.label(),dataTrackProducer.instance(),tracks);
+
+		// check validity of input collection
+		if(!tracks.isValid()) {
+		  edm::LogWarning("L1TdeCSCTF")
+		    << "\n No valid [data tracks] product found: "
+		    << " L1CSCTrackCollection"
+		    << std::endl;
+		  return;
+		}
+
+
 		for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
 		{
 			bxData->Fill(trk->first.BX());
@@ -304,6 +331,16 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 	{
 		edm::Handle<L1CSCTrackCollection> tracks;
 		e.getByLabel(emulTrackProducer.label(),emulTrackProducer.instance(),tracks);
+
+		// check validity of input collection
+		if(!tracks.isValid()) {
+		  edm::LogWarning("L1TdeCSCTF")
+		    << "\n No valid [emulator tracks] product found: "
+		    << " L1CSCTrackCollection"
+		    << std::endl;
+		  return;
+		}
+
 		for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
 		{
 			bxEmu->Fill(trk->first.BX());

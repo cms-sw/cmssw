@@ -24,11 +24,13 @@ from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
-from DQM.L1TMonitor.l1GtHwValidation_cfi import *
-
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
-#from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
+from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
+l1decsctf.dataTrackProducer = cms.InputTag("csctfDigis")
+l1decsctf.emulTrackProducer = cms.InputTag("valCsctfTrackDigis")
+l1decsctf.lctProducer       = cms.InputTag("csctfDigis")
+from DQM.L1TMonitor.l1GtHwValidation_cfi import *
 
 #Note by Nuno: use of edm filters in dqm are discouraged
 #-offline they are strictly forbidden
@@ -42,9 +44,11 @@ p = cms.Path(
     cms.SequencePlaceholder("RawToDigi")
     *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
-      +l1demonecal+l1GtHwValidation
+      +l1demonecal
       +l1demongct
-      #+l1decsctf
+      +l1decsctf
+      +l1GtHwValidation
+      #filter goes in the end
       +hltTriggerTypeFilter*l1tderct
       )
     )

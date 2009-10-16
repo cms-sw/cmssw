@@ -62,6 +62,9 @@ private:
 	MonitorElement* mismatchDelPhi12, *mismatchDelPhi13, *mismatchDelPhi14, *mismatchDelPhi23, *mismatchDelPhi24, *mismatchDelPhi34;
 	MonitorElement* mismatchDelEta12, *mismatchDelEta13, *mismatchDelEta14, *mismatchDelEta23, *mismatchDelEta24, *mismatchDelEta34	;
 	
+	// dqm folder name
+	std::string m_dirName;
+	
 	std::string outFile;
 	
 	CSCSectorReceiverLUT *srLUTs_[2][6][5];

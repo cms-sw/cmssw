@@ -1,16 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-l1decsctf = cms.EDAnalyzer("CSCTFDataToEmuComparator",
-    outFile = cms.untracked.string(""),
+l1decsctf = cms.EDAnalyzer("L1TdeCSCTF",
+        outFile = cms.untracked.string(""),
 	DQMStore = cms.untracked.bool(True),
+        DQMFolder = cms.untracked.string("L1TEMU/CSCTFexpert"),
 	disableROOToutput = cms.untracked.bool(True),
-    dataTrackProducer = cms.string("csctfDigis"),
-	emulTrackProducer = cms.string("simCsctfTrackDigis"),
-	lctProducer = cms.string("csctfDigis"),
+        dataTrackProducer = cms.InputTag("csctfDigis"),
+	#emulTrackProducer = cms.InputTag("simCsctfTrackDigis"),
+	emulTrackProducer = cms.InputTag("valCsctfTrackDigis"),
+	lctProducer       = cms.InputTag("csctfDigis"),
 	PTLUT = cms.PSet(
 	    LowQualityFlag = cms.untracked.uint32(4),
 	    ReadPtLUT = cms.untracked.bool(False),
 	    PtMethod = cms.untracked.uint32(1),
     )
 )
-#TODO: please add input tags for interfacing with the hardware sequence
