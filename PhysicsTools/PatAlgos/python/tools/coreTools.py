@@ -16,15 +16,22 @@ def restrictInputToAOD(process,
     ------------------------------------------------------------------    
     """
     for obj in range(len(names)):
-        print "-----------------------------------------------------------------------------"
-        print "WARNING: the following additional information can only be used on RECO format"
+        print "---------------------------------------------------------------------"
+        print "WARNING: the following additional information can only be used on "
+        print "         RECO format:"
+        if( names[obj] == 'Photons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Photons"
+        if( names[obj] == 'Electrons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Electrons"            
+        if( names[obj] == 'Muons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Muons"            
+        if( names[obj] == 'Taus' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Taus"            
         if( names[obj] == 'Jets' or names[obj] == 'All' ):
-            print "          * jetID"
-            ## get allLayer1Jets module
-            jetProducer = getattr(process, 'allLayer1Jets')
-            jetProducer.addJetID = False
-            jetProducer.jetID = cms.PSet()
-    print "-----------------------------------------------------------------------------"
+            print "          * nothing needs to be done for Jets"            
+        if( names[obj] == 'METs' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for METs"            
+    print "---------------------------------------------------------------------"
     
 
 def removeMCMatching(process,
