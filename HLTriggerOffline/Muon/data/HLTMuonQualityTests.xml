@@ -32,7 +32,7 @@
 	<TestName activate="true">KolmogorovQTest0.3</TestName>
 </LINK>
 
-<LINK name="HLT/Muon/Summary/*">
+<LINK name="HLT/Muon/Summary/Efficiency_Summary">
 	<TestName activate="true">ContentsAbove0.8</TestName>
 </LINK>
 
