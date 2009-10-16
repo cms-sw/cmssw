@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/19 12:45:26 $
-//   $Revision: 1.8 $
+//   $Date: 2009/05/20 15:00:02 $
+//   $Revision: 1.9 $
 //
 //   Modifications:
 //
@@ -110,8 +110,23 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
 
-  // Fill collections.
-  {
+  if (!wireDigis.isValid()) {
+    edm::LogWarning("CSCTriggerPrimitivesProducer")
+      << "+++ Warning: Collection of wire digis with label "
+      << wireDigiProducer_.label()
+      << " requested in configuration, but not found in the event..."
+      << " Skipping production of CSC TP digis +++\n";
+  }
+  if (!compDigis.isValid()) {
+    edm::LogWarning("CSCTriggerPrimitivesProducer")
+      << "+++ Warning: Collection of comparator digis with label "
+      << compDigiProducer_.label()
+      << " requested in configuration, but not found in the event..."
+      << " Skipping production of CSC TP digis +++\n";
+  }
+
+  // Fill output collections if valid input collections are available.
+  if (wireDigis.isValid() && compDigis.isValid()) {
     //static TimingReport::Item & buildTimer =
     //  (*TimingReport::current())["CSCTriggerPrimitivesBuilder:build"];
     //TimeMe t(buildTimer, false);

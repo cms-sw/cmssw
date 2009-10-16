@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/01 16:10:23 $
-//   $Revision: 1.33 $
+//   $Date: 2009/05/20 15:01:34 $
+//   $Revision: 1.34 $
 //
 //   Modifications:
 //
@@ -168,6 +168,26 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
+
+    if (!alcts_data.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of ALCTs with label MuonCSCALCTDigi"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!clcts_data.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of CLCTs with label MuonCSCCLCTDigi"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!lcts_tmb_data.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of correlated LCTs with label"
+	<< " MuonCSCCorrelatedLCTDigi requested, but not found in the"
+	<< " event... Skipping the rest +++\n";
+      return;
+    }
   }
 
   // Emulator
@@ -176,6 +196,31 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerEmul_,              clcts_emul);
     ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
     ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+
+    if (!alcts_emul.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of emulated ALCTs"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!clcts_emul.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of emulated CLCTs"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!lcts_tmb_emul.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of emulated correlated LCTs"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!lcts_mpc_emul.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of emulated correlated LCTs (MPCs)"
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
   }
 
   // Fill histograms with reconstructed or emulated quantities.  If both are
@@ -1418,6 +1463,29 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
 		  compDigis);
     ev.getByLabel(simHitProducer_.label(), simHitProducer_.instance(),
 		  simHits);
+    if (!wireDigis.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of wire digis with label"
+	<< wireDigiProducer_.label()
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!compDigis.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of comparator digis with label"
+	<< compDigiProducer_.label()
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+    if (!simHits.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesReader")
+	<< "+++ Warning: Collection of SimHits with label"
+	<< simHitProducer_.label()
+	<< " requested, but not found in the event... Skipping the rest +++\n";
+      return;
+    }
+
+
     if (debug) LogTrace("CSCTriggerPrimitivesReader")
       << "   #CSC SimHits: " << simHits->size();
 
