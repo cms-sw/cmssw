@@ -19,9 +19,10 @@
 
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "Randomize.hh"
+#include "Randomize.h"
 #include "G4Poisson.hh"
 
 #define debugLog
@@ -30,7 +31,8 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 		   SensitiveDetectorCatalog & clg, 
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),
+  lvC3HF(0), lvC4EF(0), lvC4HF(0) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
   useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");                  // Add useSh... to PSet (WC)
@@ -48,6 +50,20 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
     << "*                                                 *\n"
     << "***************************************************";
     
+  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+  std::vector<G4LogicalVolume*>::const_iterator lvcite;
+  for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+    if (strcmp(((*lvcite)->GetName()).c_str(),"C3EF") == 0) lvC3EF = (*lvcite);
+    if (strcmp(((*lvcite)->GetName()).c_str(),"C3HF") == 0) lvC3HF = (*lvcite);
+    if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
+    if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
+    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0) break;
+  }
+  edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
+			     << lvC3EF << " for C3EF; " << lvC3HF 
+			     << " for C3HF; " << lvC4EF << " for C4EF; " 
+			     << lvC4HF << " for C4HF.";
+
   //  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library \n";
 
 }
@@ -79,19 +95,19 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     return 0;
   } else {
     // preStepPoint information *********************************************
-
+  
     G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
     G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
+    G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
     G4String           name   = currentPV->GetName();
     std::string        nameVolume;
     nameVolume.assign(name,0,4);
     
 #ifdef DebugLog
-    if(aStep->IsFirstStepInVolume()) {
+    if (aStep->IsFirstStepInVolume()) 
       LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
 			     << "\n IsFirstStepInVolume " ; 
-    }
 #endif
     
     // Get theTrack 
@@ -100,40 +116,41 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 #ifdef DebugLog
     if (useShowerLibrary) {
       edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
-                                 << "\n TrackID , ParentID , ParticleName ,"
-                                 << " eta , phi , z , time ,"
-                                 << " K , E , Mom " 
-                                 << "\n  TRACKINFO: " 
-                                 << theTrack->GetTrackID() 
-                                 << " , " 
-                                 << theTrack->GetParentID() 
-                                 << " , "
-                                 << theTrack->GetDefinition()->GetParticleName() 
-                                 << " , "
-                                 << theTrack->GetPosition().eta() 
-                                 << " , "
-                                 << theTrack->GetPosition().phi() 
-                                 << " , "
-                                 << theTrack->GetPosition().z() 
-                                 << " , "
-                                 << theTrack->GetGlobalTime() 
-                                 << " , "
-                                 << theTrack->GetKineticEnergy() 
-                                 << " , "
-                                 << theTrack->GetTotalEnergy() 
-                                 << " , "
+				 << "\n TrackID , ParentID , ParticleName ,"
+				 << " eta , phi , z , time ,"
+				 << " K , E , Mom " 
+				 << "\n  TRACKINFO: " 
+				 << theTrack->GetTrackID() 
+				 << " , " 
+				 << theTrack->GetParentID() 
+				 << " , "
+				 << theTrack->GetDefinition()->GetParticleName() 
+				 << " , "
+				 << theTrack->GetPosition().eta() 
+				 << " , "
+				 << theTrack->GetPosition().phi() 
+				 << " , "
+				 << theTrack->GetPosition().z() 
+				 << " , "
+				 << theTrack->GetGlobalTime() 
+				 << " , "
+				 << theTrack->GetKineticEnergy() 
+				 << " , "
+				 << theTrack->GetTotalEnergy() 
+				 << " , "
                                  << theTrack->GetMomentum().mag() ;
-      if(theTrack->GetTrackID() != 1) edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
-                                 << "\n CurrentStepNumber , VertexPosition ,"
-                                 << " LogicalVolumeAtVertex , CreatorProcess"
-                                 << "\n  TRACKINFO2: " 
-                                 << theTrack->GetCurrentStepNumber() 
-                                 << " , " 
-                                 << theTrack->GetVertexPosition() 
-                                 << " , "
-                                 << theTrack->GetLogicalVolumeAtVertex()->GetName() 
-                                 << " , " 
-                                 << theTrack->GetCreatorProcess()->GetProcessName() ;
+      if(theTrack->GetTrackID() != 1) 
+	edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
+				   << "\n CurrentStepNumber , VertexPosition ,"
+				   << " LogicalVolumeAtVertex , CreatorProcess"
+				   << "\n  TRACKINFO2: " 
+				   << theTrack->GetCurrentStepNumber() 
+				   << " , " 
+				   << theTrack->GetVertexPosition() 
+				   << " , "
+				   << theTrack->GetLogicalVolumeAtVertex()->GetName() 
+				   << " , " 
+				   << theTrack->GetCreatorProcess()->GetProcessName() ;
     } // end of if(useShowerLibrary)
 #endif
     
@@ -230,10 +247,11 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	    for tests with my own test geometry of HF (on ask of Gavrilov)
 	    C3TF, C4TF - for third release of CASTOR
       */
-      double meanNCherPhot;
+      double meanNCherPhot=0;
 
-      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" ||
-	 nameVolume == "C4HF") {
+      if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
+	  currentLV == lvC4HF) {
+	//      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
 
 	float bThreshold = 0.67;
 	float nMedium = 1.4925;
@@ -249,21 +267,22 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	/*   */
 	/* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
 	float effPMTandTransport = 0.15;
-	/* for test HF geometry volumes:   */
-	if(nameVolume == "GF2Q" || nameVolume == "GFNQ" || 
+	/* for test HF geometry volumes:   
+	   if(nameVolume == "GF2Q" || nameVolume == "GFNQ" || 
 	   nameVolume == "GR2Q" || nameVolume == "GRNQ")
-	  effPMTandTransport = 0.15;
+	   effPMTandTransport = 0.15;
+	*/
 
 	float thFullRefl = 23.;  /* 23.dergee */
 	float thFullReflRad = thFullRefl*pi/180.;
 
 	/* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
 	float thFibDir = 45.;  /* .dergee */
-	/* for test HF geometry volumes:   */
-	if(nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
+	/* for test HF geometry volumes:   
+	   if(nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
 	   nameVolume == "GR2Q" || nameVolume == "GRNQ")
-	  thFibDir = 0.0; /* .dergee */
-	/*   */
+	   thFibDir = 0.0; // .dergee
+	*/
 	float thFibDirRad = thFibDir*pi/180.;
 	/*   */
 	/*   */
@@ -465,7 +484,7 @@ void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
   if (scheme != 0) {
     edm::LogInfo("ForwardSim") << "CastorSD: updates numbering scheme for " 
-				  << GetName();
+			       << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
