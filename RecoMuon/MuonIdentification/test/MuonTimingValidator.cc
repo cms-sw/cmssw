@@ -13,7 +13,7 @@
 //
 // Original Author:  Adam A Everett
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.2 2009/09/23 12:25:22 ptraczyk Exp $
+// $Id: MuonTimingValidator.cc,v 1.3 2009/10/07 12:24:56 ptraczyk Exp $
 //
 //
 
@@ -188,12 +188,19 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     reco::MuonEnergy muonE;
-    if (imuon->isEnergyValid()) { 
+    if (imuon->isEnergyValid() && fabs(imuon->eta())<1.5) { 
       muonE = imuon->calEnergy();
-      if (muonE.emMax>0) {
-        hi_ecal_time->Fill(muonE.ecal_time);
-        if (muonE.emMax>1.) hi_ecal_time_ecut->Fill(muonE.ecal_time);
+      if (muonE.emMax>0.25) {
+        hi_ecal_time->Fill(muonE.ecal_time-1.);
+        if (muonE.emMax>1.) hi_ecal_time_ecut->Fill(muonE.ecal_time-1.);
         hi_ecal_energy->Fill(muonE.emMax);
+        
+        double emErr = 1.5/muonE.emMax;
+        
+        if (emErr>0.) {
+          hi_ecal_time_err->Fill(emErr);
+          hi_ecal_time_pull->Fill((muonE.ecal_time-1.)/emErr);
+        }
       }
     }
     
@@ -234,6 +241,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_dttime_vtx_err->Fill(timedt.timeAtIpInOutErr());
       hi_dttime_vtxr->Fill(timedt.timeAtIpOutIn());
       hi_dttime_vtxr_err->Fill(timedt.timeAtIpOutInErr());
+      hi_dttime_errdiff->Fill(timedt.timeAtIpInOutErr()-timedt.timeAtIpOutInErr());
 
       if (timedt.inverseBetaErr()>0.)
         hi_dttime_ibt_pull->Fill((timedt.inverseBeta()-1.)/timedt.inverseBetaErr());
@@ -245,7 +253,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         hi_dttime_vtxr_pull->Fill(timedt.timeAtIpOutIn()/timedt.timeAtIpOutInErr());
     }
 
-    if (timecsc.nDof()>0) {
+    if (timecsc.nDof()>10) {
 //      cout << "         CSC Time: " << timecsc.timeAtIpInOut() << endl;
       hi_csctime_ibt->Fill(timecsc.inverseBeta());
       hi_csctime_ibt_err->Fill(timecsc.inverseBetaErr());
@@ -328,6 +336,7 @@ MuonTimingValidator::beginJob(const edm::EventSetup&)
    hi_dttime_fib_pull = new TH1F("hi_dttime_fib_pull","DT Free Inverse Beta Pull",100,-5.,5.0);
    hi_dttime_vtx_pull = new TH1F("hi_dttime_vtx_pull","DT Time at Vertex Pull (inout)",100,-5.,5.0);
    hi_dttime_vtxr_pull = new TH1F("hi_dttime_vtxR_pull","DT Time at Vertex Pull (inout)",100,-5.,5.0);
+   hi_dttime_errdiff = new TH1F("hi_dttime_errdiff","DT Time at Vertex inout-outin error difference",100,-5.,5.0);
 
    hi_dttime_ndof = new TH1F("hi_dttime_ndof","Number of DT timing measurements",48,0.,48.0);
 
@@ -347,6 +356,8 @@ MuonTimingValidator::beginJob(const edm::EventSetup&)
    hi_csctime_ndof = new TH1F("hi_csctime_ndof","Number of CSC timing measurements",48,0.,48.0);
 
    hi_ecal_time = new TH1F("hi_ecal_time","Ecal Time at Vertex (inout)",100,-40.0,40.0);
+   hi_ecal_time_err = new TH1F("hi_ecal_time_err","Ecal Time at Vertex Error",100,0.,20.0);
+   hi_ecal_time_pull = new TH1F("hi_ecal_time_pull","Ecal Time at Vertex Pull",100,-7.0,7.0);
    hi_ecal_time_ecut = new TH1F("hi_ecal_time_ecut","Ecal Time at Vertex (inout) after energy cut",100,-20.0,20.0);
    hi_ecal_energy = new TH1F("hi_ecal_energy","Ecal max energy in 5x5 crystals",100,.0,5.0);
 
@@ -408,6 +419,7 @@ MuonTimingValidator::endJob() {
   hi_dttime_fib_pull->Write();
   hi_dttime_vtx_pull->Write();
   hi_dttime_vtxr_pull->Write();
+  hi_dttime_errdiff->Write();
   hi_dttime_ndof->Write();
 
   hFile->cd();
@@ -434,6 +446,8 @@ MuonTimingValidator::endJob() {
 
   hi_ecal_time->Write();
   hi_ecal_time_ecut->Write();
+  hi_ecal_time_err->Write();
+  hi_ecal_time_pull->Write();
   hi_ecal_energy->Write();
 
   hFile->Write();

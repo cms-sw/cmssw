@@ -4,8 +4,8 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2009/09/18 09:54:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/07 13:12:00 $
+ *  $Revision: 1.2 $
  *  \author P. Traczyk    CERN
  */
 
@@ -132,6 +132,7 @@ private:
   TH1F* hi_dttime_vtxr;
   TH1F* hi_dttime_vtxr_err;
   TH1F* hi_dttime_vtxr_pull;
+  TH1F* hi_dttime_errdiff;
   TH1F* hi_dttime_ndof;
 
   TH1F* hi_csctime_ibt;
