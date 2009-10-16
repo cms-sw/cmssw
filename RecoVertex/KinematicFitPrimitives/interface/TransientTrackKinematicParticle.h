@@ -5,7 +5,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicStatePropagator.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleKinematicLinearizedTrackStateFactory.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /**
  * Class representing KinematicParticle
@@ -70,6 +69,8 @@ public:
  * Kalman flter vertex fit. This implementation uses the ParticleLinearizedTrackStateFactory class.
  */					    
  RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const; 
+
+  virtual reco::TransientTrack refittedTransientTrack() const;
 
 private: 
 

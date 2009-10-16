@@ -1,5 +1,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 using namespace reco;
 
@@ -95,3 +96,8 @@ TransientTrackKinematicParticle::particleLinearizedTrackState(const GlobalPoint&
  return linFactory.linearizedTrackState(point,lp);
 }		      
 							
+reco::TransientTrack TransientTrackKinematicParticle::refittedTransientTrack() const
+{
+  TransientTrackFromFTSFactory factory;
+  return factory.build(currentState().freeTrajectoryState());
+}
