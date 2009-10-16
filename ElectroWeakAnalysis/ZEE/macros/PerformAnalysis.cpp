@@ -3,85 +3,67 @@
 #include "TTree.h"
 #include "TH1.h"
 #include "TF1.h" 
-#include "TCanvas.h"
 #include "TRandom3.h"	
+#include "TString.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-void PerformAnalysis() //int main()
+void PerformAnalysis(TString process, double eventweight, TString datapath)//, ofstream& results) //int main()
 {
+	cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%\%" << endl;
+	cout << "\% " << "Perform Analysis" << endl; 
+	cout << "\% " << process << endl;
+	cout << "\% " << "Event Weight = " << eventweight << endl;
+	cout << "\% " << "Data Path = " << datapath << endl;
+	cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%\%" << endl;
+
 	// Declare electron cut value variables	
-	double cMEt;
-	double cPt;
-	double cECALiso_EB, cECALiso_EE;
-	double cHCALiso_EB, cHCALiso_EE;
-	double cTrackiso_EB, cTrackiso_EE;
-	double cDeltaEta_EB, cDeltaEta_EE;
-	double cDeltaPhi_EB, cDeltaPhi_EE;
-	double csIhIh_EB, csIhIh_EE;
+	double cMEt = 30.;
+	double cPt = 30.;
+	double cECALiso_EB = 4.2, cECALiso_EE = 3.4;
+	double cHCALiso_EB = 2.0, cHCALiso_EE = 1.3;
+	double cTrackiso_EB = 2.2, cTrackiso_EE = 1.1;
+	double cDeltaEta_EB = 0.0040, cDeltaEta_EE = 0.0066;
+	double cDeltaPhi_EB = 0.025, cDeltaPhi_EE = 0.020;
+	double csIhIh_EB = 0.0099, csIhIh_EE = 0.0280;
 	// Declare neutrino cut value variables
-	double cHCAL;
-	double cHCALEt;
-	double cf1x5, cf2x5;
-	int celecmatch;
-	double cnusIhIh;
+	double cHCAL = 6.2;
+	double cHCALEt = 12;
+	double cf1x5 = 0.83, cf2x5 = 0.93;
+	int celecmatch = 0;
+	double cnusIhIh = 0.027;
 
-	cout << "Importing cut values ...\n" << endl;	
+	cout << "Cut Values:" << endl;	
 
-	// Import cut values from file
-	ifstream cuts;
-	cuts.open("CutValues.txt", ifstream::in);
-	cuts >> cMEt;
-	cout << "MEt cut " << cMEt << "\n" << endl;
-
+	cout << "MEt cut " << cMEt << endl;
+	
 	cout << "Electron selection cuts:" << endl;
-	cuts >> cPt;
 	cout << "Pt cut " << cPt << endl;
-	cuts >> cECALiso_EB;
 	cout << "ECAL Isolation cut (EB) " << cECALiso_EB << endl;
-	cuts >> cECALiso_EE;
 	cout << "ECAL Isolation cut (EE) " << cECALiso_EE << endl;
-	cuts >> cHCALiso_EB;
 	cout << "HCAL Isolation cut (EB) " << cHCALiso_EB << endl;
-	cuts >> cHCALiso_EE;
 	cout << "HCAL Isolation cut (EE) " << cHCALiso_EE << endl;
-	cuts >> cTrackiso_EB;
 	cout << "Track Isolation cut (EB) " << cTrackiso_EB << endl;
-	cuts >> cTrackiso_EE;
 	cout << "Track Isolation cut (EE) " << cTrackiso_EE << endl;
-	cuts >> cDeltaEta_EB;
 	cout << "Delta Eta cut (EB) " << cDeltaEta_EB << endl;
-	cuts >> cDeltaEta_EE;
 	cout << "Delta Eta cut (EE) " << cDeltaEta_EE << endl;
-	cuts >> cDeltaPhi_EB;
 	cout << "Delta Phi cut (EB) " << cDeltaPhi_EB << endl;
-	cuts >> cDeltaPhi_EE;
 	cout << "Delta Phi cut (EE) " << cDeltaPhi_EE << endl;
-	cuts >> csIhIh_EB;
 	cout << "Sigma iEta iEta cut (EB) " << csIhIh_EB << endl;
-	cuts >> csIhIh_EE;
-	cout << "Sigma iEta iEta cut (EE) " << csIhIh_EE << "\n" << endl;
+	cout << "Sigma iEta iEta cut (EE) " << csIhIh_EE  << endl;
 	
 	cout << "Probe selection cuts:" << endl;
-	cuts >> cHCAL;
 	cout << "HCAL Energy cut " << cHCAL << endl;
-	cuts >> cf1x5;
+	cout << "HCAL Transverse Energy cut " << cHCALEt << endl;
 	cout << "Fraction of energy in 1x5 cut " << cf1x5 << endl;
-	cuts >> cf2x5;
 	cout << "Fraction of energy in 2x5 cut " << cf2x5 << endl;
-	cuts >> celecmatch;
 	cout << "Require electron match " << celecmatch << endl;
-	cuts >> cnusIhIh;
 	cout << "Sigma iEta iEta cut " << cnusIhIh << endl;
-	cuts >> cHCALEt;
-	cout << "HCAL Transverse Energy cut " << cHCALEt << "\n" << endl;
-	cuts.close();
 	
-	cout << "Importing probe selection efficiencies ..." << endl;
-
+	cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%\%" << endl;
 	// Import probe selection efficiency weights
 	double nueff[345];
 	ifstream weightsin;
@@ -95,26 +77,36 @@ void PerformAnalysis() //int main()
 		nueff[eta] = weight;
 	}
 	weightsin.close();
-	
-	TFile* outfile = TFile::Open("results.root", "recreate");
+	cout << "Imported probe selection efficiencies" << endl;	
+
+	TString OutFileName = process+".root";
+	TFile* outfile = TFile::Open(OutFileName, "recreate");
+
+	cout << "Created output file \"" << OutFileName << "\"" << endl;
 
 	TH1F* h_dataWMEt_pass_EB = new TH1F("dataWMEt_pass_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_dataWMEt_pass_EE = new TH1F("dataWMEt_pass_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_dataWMEt_fail_EB = new TH1F("dataWMEt_fail_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_dataWMEt_fail_EE = new TH1F("dataWMEt_fail_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtin_pass_EB = new TH1F("mcWMEtin_pass_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtin_pass_EE = new TH1F("mcWMEtin_pass_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtin_fail_EB = new TH1F("mcWMEtin_fail_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtin_fail_EE = new TH1F("mcWMEtin_fail_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtout_pass_EB = new TH1F("mcWMEtout_pass_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtout_pass_EE = new TH1F("mcWMEtout_pass_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtout_fail_EB = new TH1F("mcWMEtout_fail_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
-//	TH1F* h_mcWMEtout_fail_EE = new TH1F("mcWMEtout_fail_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+
+	TH1F* h_mcWMEtin_pass_EB = new TH1F("mcWMEtin_pass_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtin_pass_EE = new TH1F("mcWMEtin_pass_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtin_fail_EB = new TH1F("mcWMEtin_fail_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtin_fail_EE = new TH1F("mcWMEtin_fail_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtout_pass_EB = new TH1F("mcWMEtout_pass_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtout_pass_EE = new TH1F("mcWMEtout_pass_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtout_fail_EB = new TH1F("mcWMEtout_fail_EB","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_mcWMEtout_fail_EE = new TH1F("mcWMEtout_fail_EE","W#rightarrow e#nu MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	
 	TH1F* h_ErsatzMEt_pass_EB = new TH1F("ErsatzMEt_pass_EB","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_pass_EE = new TH1F("ErsatzMEt_pass_EE","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_fail_EB = new TH1F("ErsatzMEt_fail_EB","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_fail_EE = new TH1F("ErsatzMEt_fail_EE","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+
+	TH1F* h_ErsatzMEt_pass_EB_peakfit = new TH1F("ErsatzMEt_pass_EB_peakfit","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_ErsatzMEt_pass_EE_peakfit = new TH1F("ErsatzMEt_pass_EE_peakfit","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_WMEt_pass_EB_peakfit = new TH1F("WMEt_pass_EB_peakfit","W MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_WMEt_pass_EE_peakfit = new TH1F("WMEt_pass_EE_peakfit","W MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 
 	TH1F* h_ErsatzMEt_pass_EB_shifted = new TH1F("ErsatzMEt_pass_EB_shifted","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_pass_EE_shifted = new TH1F("ErsatzMEt_pass_EE_shifted","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
@@ -131,6 +123,8 @@ void PerformAnalysis() //int main()
 	TH1F* h_ErsatzMEt_fail_EB_corr = new TH1F("ErsatzMEt_fail_EB_corr","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_fail_EE_corr = new TH1F("ErsatzMEt_fail_EE_corr","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	
+	cout << "Declared Histograms" << endl;	
+
 	vector<double> ErsatzMEt_pass_EB;
 	vector<double> ErsatzMEt_pass_EE;
 	vector<double> ErsatzMEt_fail_EB;
@@ -143,41 +137,14 @@ void PerformAnalysis() //int main()
 
 	TRandom3 r;
 	
-	TFile *fileW = TFile::Open("/tmp/rnandi/WenuTrue.root");
+	TString WFileName = datapath+"WenuTrue.root";
+	TFile *fileW = TFile::Open(WFileName);
+	cout << "Opened W Monte Carlo file" << endl;
 	TTree *t = (TTree*) fileW->Get("analyse/AnalysisData");
-	
-	long nEntries = t->GetEntries();
-	double requiredintLumi = 10.;
-	double fullmcintLumi = 1000.;
-	long nSample = long(nEntries*requiredintLumi/fullmcintLumi);
-	
-	cout << "Sampling " << requiredintLumi << "pb^{-1} of W data and performing selections..." << endl;
+	cout << "Got W TTree" << endl;
 
-	cout << "Total number of events = " << nEntries << endl;
-	cout << "Sample size = " << nSample << endl;
-	vector<int> VectorofNumbers;
-	vector<int> ChosenEvents;
-	for (long i = 0; i < nEntries; i++)
-	{
-		//if (i%100000==0) cout << i << endl;
-		VectorofNumbers.push_back(i);
-	}
-	cout << "Created Vector of Numbers" << endl;
-	for (int i=0; i < nSample; i++)
-	{
-		int random_number = int((nEntries - i)*r.Rndm());
-		ChosenEvents.push_back(VectorofNumbers[random_number]);	
-		//if (i%1000==0) cout << i << "\t" << random_number << endl;
-		VectorofNumbers.erase(VectorofNumbers.begin() + random_number);
-	}
-	//cout << nSample << endl;
-	sort(ChosenEvents.begin(), ChosenEvents.end());
-	//cout << "Chosen Events" << "\t" << ChosenEvents.size() << endl;
-	//cout << ChosenEvents[0] << "\t" << ChosenEvents[1] << "\t" << ChosenEvents[2] << endl;
-	//cout << "Done sorting" << endl;
-	//cout << "Last chosen event = " << ChosenEvents[nSample-1] << endl;
-	//cout << "Capacity = " << ChosenEvents.capacity() << endl;
-	//cout << "Max Size = " << ChosenEvents.max_size() << endl;
+	long nEntries = t->GetEntriesFast();
+	cout << "Total number of W events = " << nEntries << endl;
 
 	double elec_pt_W[4], elec_eta_W[4];
         double elec_trckIso_W[4]/*, elec_EcalIso_W[4], elec_HcalIso_W[4]*/;
@@ -231,16 +198,17 @@ void PerformAnalysis() //int main()
 //	bCalo_MEt30->SetAddress(&CaloMEt30);
 //	TBranch* bCalo_Mt = t->GetBranch("caloMt");
 //	bCalo_Mt->SetAddress(&CaloMt);
+	cout << "Set up branches" << endl;
 
 	//long nentries = t->GetEntries();
-	int index = 0;
+	//int index = 0;
 	int aaa = 0, bbb = 0, ccc = 0, ddd = 0;
 	for(long i = 0; i < nEntries; ++i)
 	{
 		if(i%100000 == 0) cout <<"Analysing event "<< i << endl;
-		if (i == ChosenEvents[index])
-		{
-		index++;
+		//if (i == ChosenEvents[index])
+		//{
+		//index++;
 		//bool iIsChosen = (i == ChosenEvents[index]);
 		t->GetEntry(i);
 		if(elec_pt_W[0] > cPt)
@@ -266,101 +234,73 @@ void PerformAnalysis() //int main()
 				{ 
 					if(inBarrel) 
 					{
-						//if(iIsChosen) 
-						//{
-							h_dataWMEt_pass_EB->Fill(CaloMEt_W); 
-							aaa++;
-						//}
-						//if(fabs(nu_eta_W) < 2.5) 
-						//{
-						//	h_mcWMEtin_pass_EB->Fill(CaloMEt_W);
-						//}else{ 
-						//	h_mcWMEtout_pass_EB->Fill(CaloMEt_W); 
-						//} 
+						h_dataWMEt_pass_EB->Fill(CaloMEt_W); 
+						h_WMEt_pass_EB_peakfit->Fill(CaloMEt_W);
+						aaa++;
+						if(fabs(nu_eta_W) < 2.5) 
+						{
+							h_mcWMEtin_pass_EB->Fill(CaloMEt_W);
+						}else{ 
+							h_mcWMEtout_pass_EB->Fill(CaloMEt_W); 
+						} 
 					}
 					if(inEndcap) 
 					{ 
-						//if(iIsChosen) 
-						//{
-							h_dataWMEt_pass_EE->Fill(CaloMEt_W);
-							bbb++;
-						//}
-						//if(fabs(nu_eta_W) < 2.5) 
-						//{
-						//	h_mcWMEtin_pass_EE->Fill(CaloMEt_W);
-						//}else{ 
-						//	h_mcWMEtout_pass_EE->Fill(CaloMEt_W); 
-						//} 
+						h_dataWMEt_pass_EE->Fill(CaloMEt_W);
+						h_WMEt_pass_EE_peakfit->Fill(CaloMEt_W);
+						bbb++;
+						if(fabs(nu_eta_W) < 2.5) 
+						{
+							h_mcWMEtin_pass_EE->Fill(CaloMEt_W);
+						}else{ 
+							h_mcWMEtout_pass_EE->Fill(CaloMEt_W); 
+						} 
 					}
 				}else
 				{
 					if(inBarrel) 
 					{ 
-						//if(iIsChosen) 
-						//{
-							h_dataWMEt_fail_EB->Fill(CaloMEt_W);
-							ccc++;
-						//}
-						//if(fabs(nu_eta_W) < 2.5) 
-						//{
-						//	h_mcWMEtin_fail_EB->Fill(CaloMEt_W);
-						//}else{ 
-						//	h_mcWMEtout_fail_EB->Fill(CaloMEt_W); 
-						//} 
+						h_dataWMEt_fail_EB->Fill(CaloMEt_W);
+						ccc++;
+						if(fabs(nu_eta_W) < 2.5) 
+						{
+							h_mcWMEtin_fail_EB->Fill(CaloMEt_W);
+						}else{ 
+							h_mcWMEtout_fail_EB->Fill(CaloMEt_W); 
+						} 
 					}
 					if(inEndcap) 
 					{ 
-						//if(iIsChosen) 
-						//{
-							h_dataWMEt_fail_EE->Fill(CaloMEt_W);
-							ddd++;
-						//}
-						//if(fabs(nu_eta_W) < 2.5) 
-						//{
-						//	h_mcWMEtin_fail_EE->Fill(CaloMEt_W);
-						//}else{ 
-						//	h_mcWMEtout_fail_EE->Fill(CaloMEt_W); 
-						//} 
+						h_dataWMEt_fail_EE->Fill(CaloMEt_W);
+						ddd++;
+						if(fabs(nu_eta_W) < 2.5) 
+						{
+							h_mcWMEtin_fail_EE->Fill(CaloMEt_W);
+						}else{ 
+							h_mcWMEtout_fail_EE->Fill(CaloMEt_W); 
+						} 
 					}
 				}
 			}
 		}
-		}
 	}
 	fileW->Close();
-	
-	cout << "Number of chosen events processed" << index << endl;
-	cout << "Total number in sample = " << ChosenEvents.size() << endl;
+	cout << "Closed W Monte Carlo file" << endl;
+
+	cout << "Number of W events passing selection cuts = " << aaa+bbb+ccc+ddd << endl;	
 	cout << "Number Pass EB = " << aaa << endl;	
 	cout << "Number Pass EE = " << bbb << endl;	
 	cout << "Number Fail EB = " << ccc << endl;	
 	cout << "Number Fail EE = " << ddd << endl;	
         
-	TFile *fileZ = TFile::Open("/tmp/rnandi/Zee.root");
-        t = (TTree*) fileZ->Get("ErsatzMEt/ErsatzMEt");
-	
+	TString ErsatzFileName = datapath+process+".root";
+	TFile *fileZ = TFile::Open(ErsatzFileName);
+        cout << "Opened Ersatz data file" << endl;
+	t = (TTree*) fileZ->Get("ErsatzMEt/ErsatzMEt");
+	cout << "Got ersatz TTree" << endl;	
 	nEntries = t->GetEntries();
-	requiredintLumi = 10.;
-	fullmcintLumi = 1000.;
-	nSample = int(nEntries*requiredintLumi/fullmcintLumi);
+	cout << "Total number of ersatz events = " << nEntries << endl;	
 
-	cout << "Sampling " << requiredintLumi << "pb^{-1} of Z data and performing selections..." << endl;
-
-	VectorofNumbers.resize(0);
-	ChosenEvents.resize(0);
-	for (long i = 0; i < nEntries; i++)
-	{
-		VectorofNumbers.push_back(i);
-	}
-	for (int i=0; i < nSample; i++)
-	{
-		int random_number = int((nEntries - i)*r.Rndm());
-		ChosenEvents.push_back(VectorofNumbers[random_number]);	
-		VectorofNumbers.erase(VectorofNumbers.begin() + random_number);
-	}
-	sort(ChosenEvents.begin(), ChosenEvents.end());
-	cout << ChosenEvents[0] << "\t" << ChosenEvents[1] << "\t" << ChosenEvents[2] << endl;
-	cout << "Chosen Events" << "\t" << ChosenEvents.size() << endl;	
 	int nErNu;
 	double tag_pt[4], tag_eta[4], tag_phi[4], probe_pt[4], probe_eta[4], probe_phi[4];
 	double ErsatzV1bMEt[4];
@@ -370,8 +310,7 @@ void PerformAnalysis() //int main()
 	double nu_e1x5[4], nu_e2x5[4], nu_e5x5[4], nu_sigIhIh[4];
 	double nu_HCALEt[4], nu_HCAL[4], nu_trckIso[4];
 	double caloMEt;
-	int nu_elec[4];
-	cout << "Declared Variables" << endl;
+	//int nu_elec[4];
 	
 	TBranch* bNum_ErNu = t->GetBranch("nProbes");
 	bNum_ErNu->SetAddress(&nErNu);
@@ -405,8 +344,8 @@ void PerformAnalysis() //int main()
 	bProbe_eta->SetAddress(&probe_eta);
 	TBranch* bProbe_phi = t->GetBranch("probe_phi");
 	bProbe_phi->SetAddress(&probe_phi);
-	TBranch* bProbe_elec = t->GetBranch("probe_elecMatch");
-	bProbe_elec->SetAddress(&nu_elec);
+	//TBranch* bProbe_elec = t->GetBranch("probe_elecMatch");
+	//bProbe_elec->SetAddress(&nu_elec);
 	TBranch* bProbe_trckIso = t->GetBranch("probe_isoTrack");
 	bProbe_trckIso->SetAddress(&nu_trckIso);
 	//TBranch* bProbe_ECALIso = t->GetBranch("probe_isoECAL");
@@ -439,10 +378,10 @@ void PerformAnalysis() //int main()
 	cout << "Set up Branches" << endl;
 
 	aaa=0, bbb=0, ccc=0, ddd=0;
-	for(int i=0; i < nSample; ++i)
+	for(int i=0; i < nEntries; ++i)
 	{
-		if(i%100000 == 0) cout <<"Processing event "<< i <<"."<< endl;
-		t->GetEntry(ChosenEvents[i]);
+		if(i%100000 == 0) cout <<"Processing event "<< i << endl;
+		t->GetEntry(i);
 		for(int j = 0; j < nErNu; ++j)
 		{ 
 			bool passEtCut = false;
@@ -493,36 +432,39 @@ void PerformAnalysis() //int main()
 						if(pass_nu_cuts)
 						{
 							int EtaInt = int((probe_eta[j] + 3.)/0.01739);
+							double weight = eventweight/nueff[EtaInt];
 							if(pass_trkiso_cut)
 							{
 								if(inBarrel) 
 								{
 									aaa++;	
 									ErsatzMEt_pass_EB.push_back(ErsatzV1bMEt[j]);
-									Weight_pass_EB.push_back(1./nueff[EtaInt]);
-									h_ErsatzMEt_pass_EB->Fill(ErsatzV1bMEt[j], 1./nueff[EtaInt]);
+									Weight_pass_EB.push_back(weight);
+									h_ErsatzMEt_pass_EB->Fill(ErsatzV1bMEt[j], weight);
+									h_ErsatzMEt_pass_EB_peakfit->Fill(ErsatzV1bMEt[j], weight);
 								}
 								if(inEndcap)
 								{
 									bbb++;
 									ErsatzMEt_pass_EE.push_back(ErsatzV1bMEt[j]);
-									Weight_pass_EE.push_back(1./nueff[EtaInt]);
-									h_ErsatzMEt_pass_EE->Fill(ErsatzV1bMEt[j], 1./nueff[EtaInt]);
+									Weight_pass_EE.push_back(weight);
+									h_ErsatzMEt_pass_EE->Fill(ErsatzV1bMEt[j], weight);
+									h_ErsatzMEt_pass_EE_peakfit->Fill(ErsatzV1bMEt[j], weight);
 								}	
 							}else{
 								if(inBarrel)
 								{
 									ccc++;
 									ErsatzMEt_fail_EB.push_back(ErsatzV1bMEt[j]);
-									Weight_fail_EB.push_back(1./nueff[EtaInt]);
-									h_ErsatzMEt_fail_EB->Fill(ErsatzV1bMEt[j], 1./nueff[EtaInt]);
+									Weight_fail_EB.push_back(weight);
+									h_ErsatzMEt_fail_EB->Fill(ErsatzV1bMEt[j], weight);
 								}
 								if(inEndcap)
 								{
 									ddd++;
 									ErsatzMEt_fail_EE.push_back(ErsatzV1bMEt[j]);
-									Weight_fail_EE.push_back(1./nueff[EtaInt]);
-									h_ErsatzMEt_fail_EE->Fill(ErsatzV1bMEt[j], 1./nueff[EtaInt]);
+									Weight_fail_EE.push_back(weight);
+									h_ErsatzMEt_fail_EE->Fill(ErsatzV1bMEt[j], weight);
 								}	
 							}
 						}		
@@ -532,8 +474,9 @@ void PerformAnalysis() //int main()
 		}
 	}
 	fileZ->Close();
+	cout << "Closed Ersatz data file" << endl;
 
-	cout << "Total number in sample = " << ChosenEvents.size() << endl;
+	cout << "Number of events passing selection cuts = " << aaa+bbb+ccc+ddd << endl;
 	cout << "Number Pass EB = " << aaa << endl;	
 	cout << "Number Pass EE = " << bbb << endl;	
 	cout << "Number Fail EB = " << ccc << endl;	
@@ -541,119 +484,42 @@ void PerformAnalysis() //int main()
         
 	cout << "Apply shift correction ..." << endl;
 
-	TCanvas* c0_EB = new TCanvas("c0_EB", "EB Shift", 800, 600);
-	//TCanvas* c0_Pass_EE = new TCanvas("c0_Pass_EE", "Before Shift", );
-	//TCanvas* c0_Fail_EB = new TCanvas("c0_Fail_EB", "Before Shift", );
-	//TCanvas* c0_Fail_EE = new TCanvas("c0_Fail_EE", "Before Shift", );
-	
-	//TCanvas* c1_Pass_EB = new TCanvas("c1_Pass_EB", "After Shift", );
-	//TCanvas* c1_Pass_EE = new TCanvas("c1_Pass_EE", "After Shift", );
-	//TCanvas* c1_Fail_EB = new TCanvas("c1_Fail_EB", "After Shift", );
-	//TCanvas* c1_Fail_EE = new TCanvas("c1_Fail_EE", "After Shift", );
-
 	int maxbin;
 
-	c0_EB->cd();
-	TH1F* h_W_EB = h_dataWMEt_pass_EB;
-	h_W_EB->Scale(1./h_W_EB->Integral(0,100));
-	h_W_EB->SetLineColor(2);
-	h_W_EB->Draw();
-	maxbin = h_W_EB->GetMaximumBin();
+	h_WMEt_pass_EB_peakfit->Scale(1./h_WMEt_pass_EB_peakfit->Integral(0,100));
+	maxbin = h_WMEt_pass_EB_peakfit->GetMaximumBin();
 	TF1 peakW_EB = TF1("peakW_EB", "gaus", maxbin-4, maxbin+4); 
-	h_W_EB->Fit("peakW_EB", "MR");
+	h_WMEt_pass_EB_peakfit->Fit("peakW_EB", "MR");
 	cout << "W MEt maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakW_EB.GetParameter(1) << endl;
+	h_WMEt_pass_EB_peakfit->Draw();
 	
-	TH1F* h_Z_EB = h_ErsatzMEt_pass_EB;
-	h_Z_EB->Scale(1./h_Z_EB->Integral(0,100));
-	h_Z_EB->SetLineColor(4);
-	h_Z_EB->Draw("same");
-	maxbin = h_Z_EB->GetMaximumBin();
+	h_ErsatzMEt_pass_EB_peakfit->Scale(1./h_ErsatzMEt_pass_EB_peakfit->Integral(0,100));
+	maxbin = h_ErsatzMEt_pass_EB_peakfit->GetMaximumBin();
 	TF1 peakZ_EB = TF1("peakZ_EB", "gaus", maxbin-4, maxbin+4); 
-	h_Z_EB->Fit("peakZ_EB", "MR");
+	h_ErsatzMEt_pass_EB_peakfit->Fit("peakZ_EB", "MR");
 	cout << "Ersatz maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakZ_EB.GetParameter(1) << endl; 
+	h_ErsatzMEt_pass_EB_peakfit->Draw();
 
 	double shift_EB = peakW_EB.GetParameter(1) - peakZ_EB.GetParameter(1);
 	cout << "EB Shift = " << shift_EB << endl;
 
-	c0_EB->SaveAs("Shift_EB.png");
-//	delete c0_EB;
-	
-	TCanvas* c0_EE = new TCanvas("c0_EE", "EE Shift", 800, 600);
-	
-	TH1F* h_W_EE = h_dataWMEt_pass_EE;
-	h_W_EE->Scale(1./h_W_EE->Integral(0,100));
-	h_W_EE->SetLineColor(2);
-	h_W_EE->Draw();
-	maxbin = h_W_EE->GetMaximumBin();
+	h_WMEt_pass_EE_peakfit->Scale(1./h_WMEt_pass_EE_peakfit->Integral(0,100));
+	maxbin = h_WMEt_pass_EE_peakfit->GetMaximumBin();
 	TF1 peakW_EE = TF1("peakW_EE", "gaus", maxbin-4, maxbin+4); 
-	h_W_EE->Fit("peakW_EE", "MR");
+	h_WMEt_pass_EE_peakfit->Fit("peakW_EE", "MR");
 	cout << "W MEt maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakW_EE.GetParameter(1) << endl;
+	h_WMEt_pass_EE_peakfit->Draw();
 	
-	TH1F* h_Z_EE = h_ErsatzMEt_pass_EE;
-	h_Z_EE->Scale(1./h_Z_EE->Integral(0,100));
-	h_Z_EE->SetLineColor(4);
-	h_Z_EE->Draw("same");
-	maxbin = h_Z_EE->GetMaximumBin();
+	h_ErsatzMEt_pass_EE_peakfit->Scale(1./h_ErsatzMEt_pass_EE_peakfit->Integral(0,100));
+	maxbin = h_ErsatzMEt_pass_EE_peakfit->GetMaximumBin();
 	TF1 peakZ_EE = TF1("peakZ_EE", "gaus", maxbin-4, maxbin+4); 
-	h_Z_EE->Fit("peakZ_EE", "MR");
+	h_ErsatzMEt_pass_EE_peakfit->Fit("peakZ_EE", "MR");
 	cout << "Ersatz maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakZ_EE.GetParameter(1) << endl; 
+	h_ErsatzMEt_pass_EE_peakfit->Draw();
 
 	double shift_EE = peakW_EE.GetParameter(1) - peakZ_EE.GetParameter(1);
 	cout << "EE Shift = " << shift_EE << endl;
 
-	c0_EE->SaveAs("Shift_EE.png");
-//	delete c0_EE;
-/*	
-	h_dataWMEt_fail_EB->Scale(1./h_dataWMEt_fail_EB->Integral(0,100));
-	maxbin = h_dataWMEt_fail_EB->GetMaximumBin();
-	TF1 peakW_fail_EB = TF1("peakW_fail_EB", "gaus", maxbin-4, maxbin+4); 
-	h_dataWMEt_fail_EB->Fit("peakW_fail_EB", "MR");
-	cout << "W MEt maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakW_fail_EB.GetParameter(1) << endl;
-	
-	h_ErsatzMEt_fail_EB->Scale(1./h_ErsatzMEt_fail_EB->Integral(0,100));
-	maxbin = h_ErsatzMEt_fail_EB->GetMaximumBin();
-	TF1 peakZ_fail_EB = TF1("peakZ_fail_EB", "gaus", maxbin-4, maxbin+4); 
-	h_ErsatzMEt_fail_EB->Fit("peakZ_fail_EB", "MR");
-	cout << "Ersatz maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakZ_fail_EB.GetParameter(1) << endl; 
-
-	double shift_fail_EB = peakW_fail_EB.GetParameter(1) - peakZ_fail_EB.GetParameter(1);
-	
-	h_dataWMEt_fail_EE->Scale(1./h_dataWMEt_fail_EE->Integral(0,100));
-	maxbin = h_dataWMEt_fail_EE->GetMaximumBin();
-	TF1 peakW_fail_EE = TF1("peakW_fail_EE", "gaus", maxbin-4, maxbin+4); 
-	h_dataWMEt_fail_EE->Fit("peakW_fail_EE", "MR");
-	cout << "W MEt maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakW_fail_EE.GetParameter(1) << endl;
-	
-	h_ErsatzMEt_fail_EE->Scale(1./h_ErsatzMEt_fail_EE->Integral(0,100));
-	maxbin = h_ErsatzMEt_fail_EE->GetMaximumBin();
-	TF1 peakZ_fail_EE = TF1("peakZ_fail_EE", "gaus", maxbin-4, maxbin+4); 
-	h_ErsatzMEt_fail_EE->Fit("peakZ_fail_EE", "MR");
-	cout << "Ersatz maximum bin = " << maxbin << "\tPeak of Gaussian = " << peakZ_fail_EE.GetParameter(1) << endl; 
-	
-	double shift_fail_EE = peakW_fail_EE.GetParameter(1) - peakZ_fail_EE.GetParameter(1);
-*/
-/*
-	for(vector<double>::const_iterator it = ErsatzMEt_pass_EB.begin(); it != ErsatzMEt_pass_EB.end(); ++it)
-	{
-		*it += shift_pass_EB;
-		//h_ErsatzMEt_pass_EB_shifted->Fill(*it);//fill with weight!!!!!!!
-	}
-	for(vector<double>::const_iterator it = ErsatzMEt_pass_EE.begin(); it != ErsatzMEt_pass_EE.end(); ++it)
-	{
-		*it += shift_pass_EE;
-		//h_ErsatzMEt_pass_EE_shifted->Fill(*it);
-	}
-	for(vector<double>::const_iterator it = ErsatzMEt_fail_EB.begin(); it != ErsatzMEt_fail_EB.end(); ++it)
-	{
-		*it += shift_fail_EB;
-		//h_ErsatzMEt_fail_EB_shifted->Fill(*it);
-	}
-	for(vector<double>::const_iterator it = ErsatzMEt_fail_EE.begin(); it != ErsatzMEt_fail_EE.end(); ++it)
-	{
-		*it += shift_fail_EE;
-		//h_ErsatzMEt_fail_EE_shifted->Fill(*it);
-	}
-*/	
 	for(unsigned int i=0; i < ErsatzMEt_pass_EB.size(); i++)
 	{
 		ErsatzMEt_pass_EB[i] += shift_EB;
@@ -677,93 +543,49 @@ void PerformAnalysis() //int main()
 
 	cout << "Apply acceptance correction ..." << endl;	
 	
-	TFile *fileMC = TFile::Open("mcWMEtHistograms.root");
-	TH1F* h_mcWMEtin_pass_EB = (TH1F*) fileMC->Get("mcWMEtin_pass_EB"); 
-	TH1F* h_mcWMEtin_pass_EE = (TH1F*) fileMC->Get("mcWMEtin_pass_EE");
-	TH1F* h_mcWMEtin_fail_EB = (TH1F*) fileMC->Get("mcWMEtin_fail_EB");
-	TH1F* h_mcWMEtin_fail_EE = (TH1F*) fileMC->Get("mcWMEtin_fail_EE");
-	TH1F* h_mcWMEtout_pass_EB = (TH1F*) fileMC->Get("mcWMEtout_pass_EB");
-	TH1F* h_mcWMEtout_pass_EE = (TH1F*) fileMC->Get("mcWMEtout_pass_EE");
-	TH1F* h_mcWMEtout_fail_EB = (TH1F*) fileMC->Get("mcWMEtout_fail_EB");
-	TH1F* h_mcWMEtout_fail_EE = (TH1F*) fileMC->Get("mcWMEtout_fail_EE");
-
 	TH1F* h_ones = new TH1F("ones", "Histogram of Ones;;", 100, 0., 100.);
-
 	for (int i=0; i<100; i++)
 	{
 		h_ones->Fill(i+0.5);
 	}
-	for (int i=0; i<100; i++)
-	{
-		double out = h_mcWMEtout_pass_EB->GetBinContent(i);
-		double in = h_mcWMEtin_pass_EB->GetBinContent(i);
-		cout << out << "\t" << in << "\t" << out/in << endl;
-	} 
+	
 	h_acceptance_correction_pass_EB->Divide(h_mcWMEtout_pass_EB, h_mcWMEtin_pass_EB);
 	h_acceptance_correction_pass_EB->Add(h_ones);
 	h_ErsatzMEt_pass_EB_corr->Multiply(h_ErsatzMEt_pass_EB_shifted, h_acceptance_correction_pass_EB);
-	//h_ErsatzMEt_pass_EB_corr->Add(h_ErsatzMEt_pass_EB_shifted, h_ErsatzMEt_pass_EB_corr);
-	cout << "Done pass EB" << endl;	
 	
-	for (int i=0; i<100; i++)
-	{
-		double out = h_mcWMEtout_pass_EE->GetBinContent(i);
-		double in = h_mcWMEtin_pass_EE->GetBinContent(i);
-		cout << out << "\t" << in << "\t" << out/in << endl;
-	} 
 	h_acceptance_correction_pass_EE->Divide(h_mcWMEtout_pass_EE, h_mcWMEtin_pass_EE);
 	h_acceptance_correction_pass_EE->Add(h_ones);
 	h_ErsatzMEt_pass_EE_corr->Multiply(h_ErsatzMEt_pass_EE_shifted, h_acceptance_correction_pass_EE);
-	//h_ErsatzMEt_pass_EE_corr->Add(h_ErsatzMEt_pass_EE_shifted, h_ErsatzMEt_pass_EE_corr);
-	cout << "Done pass EE" << endl;	
-
-	for (int i=0; i<100; i++)
-	{
-		double out = h_mcWMEtout_fail_EB->GetBinContent(i);
-		double in = h_mcWMEtin_fail_EB->GetBinContent(i);
-		cout << out << "\t" << in << "\t" << out/in << endl;
-	} 
+	
 	h_acceptance_correction_fail_EB->Divide(h_mcWMEtout_fail_EB, h_mcWMEtin_fail_EB);
 	h_acceptance_correction_fail_EB->Add(h_ones);
 	h_ErsatzMEt_fail_EB_corr->Multiply(h_ErsatzMEt_fail_EB_shifted, h_acceptance_correction_fail_EB);
-	//h_ErsatzMEt_fail_EB_corr->Add(h_ErsatzMEt_fail_EB_shifted, h_ErsatzMEt_fail_EB_corr);
-	cout << "Done fail EB" << endl;	
-
-	for (int i=0; i<100; i++)
-	{
-		double out = h_mcWMEtout_fail_EE->GetBinContent(i);
-		double in = h_mcWMEtin_fail_EE->GetBinContent(i);
-		cout << out << "\t" << in << "\t" << out/in << endl;
-	} 
+	
 	h_acceptance_correction_fail_EE->Divide(h_mcWMEtout_fail_EE, h_mcWMEtin_fail_EE);
 	h_acceptance_correction_fail_EE->Add(h_ones);
 	h_ErsatzMEt_fail_EE_corr->Multiply(h_ErsatzMEt_fail_EE_shifted, h_acceptance_correction_fail_EE);
-	//h_ErsatzMEt_fail_EB_corr->Add(h_ErsatzMEt_fail_EE_shifted, h_ErsatzMEt_fail_EE_corr);
-	cout << "Done fail EE" << endl;	
-
-	fileMC->Close();
 
 	cout << "Calculating f ..." << endl;
 
-	int N_pass_EB = int(h_ErsatzMEt_pass_EB_corr->Integral(0,100));
-	int A_EB = int(h_ErsatzMEt_pass_EB_corr->Integral(int(cMEt),100)); 
-	int B_EB = int(h_ErsatzMEt_pass_EB_corr->Integral(0,int(cMEt)));
-	int N_pass_EE = int(h_ErsatzMEt_pass_EE_corr->Integral(0,100));
-	int A_EE = int(h_ErsatzMEt_pass_EE_corr->Integral(int(cMEt),100)); 
-	int B_EE = int(h_ErsatzMEt_pass_EE_corr->Integral(0,int(cMEt)));
-	int N_fail_EB = int(h_ErsatzMEt_fail_EB_corr->Integral(0,100));
-	int D_EB = int(h_ErsatzMEt_fail_EB_corr->Integral(int(cMEt),100)); 
-	int C_EB = int(h_ErsatzMEt_fail_EB_corr->Integral(0,int(cMEt)));
-	int N_fail_EE = int(h_ErsatzMEt_fail_EE_corr->Integral(0,100));
-	int D_EE = int(h_ErsatzMEt_fail_EE_corr->Integral(int(cMEt),100)); 
-	int C_EE = int(h_ErsatzMEt_fail_EE_corr->Integral(0,int(cMEt)));
+	double N_pass_EB = h_ErsatzMEt_pass_EB_corr->Integral(0,100);
+	double A_EB = h_ErsatzMEt_pass_EB_corr->Integral(int(cMEt)+1,100); 
+	double B_EB = h_ErsatzMEt_pass_EB_corr->Integral(0,int(cMEt));
+	double N_pass_EE = h_ErsatzMEt_pass_EE_corr->Integral(0,100);
+	double A_EE = h_ErsatzMEt_pass_EE_corr->Integral(int(cMEt)+1,100); 
+	double B_EE = h_ErsatzMEt_pass_EE_corr->Integral(0,int(cMEt));
+	double N_fail_EB = h_ErsatzMEt_fail_EB_corr->Integral(0,100);
+	double D_EB = h_ErsatzMEt_fail_EB_corr->Integral(int(cMEt)+1,100); 
+	double C_EB = h_ErsatzMEt_fail_EB_corr->Integral(0,int(cMEt));
+	double N_fail_EE = h_ErsatzMEt_fail_EE_corr->Integral(0,100);
+	double D_EE = h_ErsatzMEt_fail_EE_corr->Integral(int(cMEt)+1,100); 
+	double C_EE = h_ErsatzMEt_fail_EE_corr->Integral(0,int(cMEt));
 
-	int A = A_EB + A_EE;
-	int B = B_EB + B_EE;
-	int C = C_EB + C_EE;
-	int D = D_EB + D_EE;
-	int N_pass = N_pass_EB + N_pass_EE;
-	int N_fail = N_fail_EB + N_fail_EE;
+	double A = A_EB + A_EE;
+	double B = B_EB + B_EE;
+	double C = C_EB + C_EE;
+	double D = D_EB + D_EE;
+	double N_pass = N_pass_EB + N_pass_EE;
+	double N_fail = N_fail_EB + N_fail_EE;
 	//int N = N_pass + N_fail;
 
 	double eff = 1.0*A/(A+B);
@@ -781,6 +603,8 @@ void PerformAnalysis() //int main()
 	
 	cout << "fprime\tfprimeerror\teffprime\teffprimeerror\tD\tC\tN_fail" << endl;
 	cout << fprime << "\t" << fprimeerror << "\t" << effprime << "\t" << effprimeerror << "\t" << D << "\t" << C << "\t" << N_fail << "\n" << endl; 
+
+//	results << process << "\t" << f << "\t" << ferror << "\t" << A << "\t" << B << "\t" << fprime << "\t" << fprimeerror << "\t" << D << "\t" << C << endl;
 
 	outfile->Write();
 	outfile->Close();
