@@ -51,6 +51,8 @@ class RPCSynchronizer
   void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
   RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
 
+  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+
  private:
 
   double resRPC;
@@ -65,10 +67,8 @@ class RPCSynchronizer
 
   bool cosmics;
 
-  //  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandGaussQ *gaussian_;
-  CLHEP::RandPoissonQ *poissonDistribution_;
-  CLHEP::RandFlat *flatDistribution_;
+  CLHEP::RandGaussQ *gauss1;
+  CLHEP::RandGaussQ *gauss2;
   RPCSimSetUp * theSimSetUp;
 
 };

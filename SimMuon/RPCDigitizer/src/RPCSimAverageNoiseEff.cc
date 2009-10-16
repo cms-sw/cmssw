@@ -50,7 +50,6 @@ using namespace std;
 RPCSimAverageNoiseEff::RPCSimAverageNoiseEff(const edm::ParameterSet& config) : 
   RPCSim(config)
 {
-  _rpcSync = new RPCSynchronizer(config);
 
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
@@ -78,22 +77,23 @@ RPCSimAverageNoiseEff::RPCSimAverageNoiseEff(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
+  _rpcSync = new RPCSynchronizer(config);
 
-  CLHEP::HepRandomEngine& rndEngine = rng->getEngine();
-  flatDistribution = new CLHEP::RandFlat(rndEngine);
+}
+
+void RPCSimAverageNoiseEff::setRandomEngine(CLHEP::HepRandomEngine& eng){
+  flatDistribution = new CLHEP::RandFlat(eng);
+  flatDistribution2 = new CLHEP::RandFlat(eng);
+  poissonDistribution_ = new CLHEP::RandPoissonQ(eng);
+  _rpcSync->setRandomEngine(eng);
 }
 
 RPCSimAverageNoiseEff::~RPCSimAverageNoiseEff()
 {
   //Deleting the distribution defined in the constructor
   delete flatDistribution;
+  delete flatDistribution2;
+  delete poissonDistribution_;
   delete _rpcSync;
 }
 
@@ -271,21 +271,6 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
       area = striplength*(xmax-xmin);
     }
 
-  //Defining a new engine local to this method for the two distributions defined below
-  edm::Service<edm::RandomNumberGenerator> rnd;
-  if ( ! rnd.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rnd->getEngine();
-  //Taking the flatDistribution out of the for loop since it does not depend on
-  //loop variables and deleting it outside or the larger for loop
-  //Renaming it since it has same name as the one defined in the constructor and
-  //used in getClSize and simulate methods.
-  flatDistribution2 = new CLHEP::RandFlat(engine, (nbxing*gate)/gate);
   for(unsigned int j = 0; j < vnoise.size(); ++j){
     
     if(j >= nstrips) break; 
@@ -293,20 +278,14 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
 
     double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
 
-    poissonDistribution_ = new CLHEP::RandPoisson(engine, ave);
-    N_hits = poissonDistribution_->fire();
+    N_hits = poissonDistribution_->fire(ave);
 
     for (int i = 0; i < N_hits; i++ ){
       
-      int time_hit = (static_cast<int>(flatDistribution2->fire())) - nbxing/2;
+      int time_hit = (static_cast<int>(flatDistribution2->fire((nbxing*gate)/gate))) - nbxing/2;
       std::pair<int, int> digi(j+1,time_hit);
       strips.insert(digi);
     }
-    //Deleting poissonDistribution_ that is reallocated at each loop iteration with different intervals
-    //causing a memory leak
-    delete poissonDistribution_;
   }
-  //Deleting also flatDistribution2
-  delete flatDistribution2;
 }
 

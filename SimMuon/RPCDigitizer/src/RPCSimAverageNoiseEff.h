@@ -39,6 +39,8 @@ class RPCSimAverageNoiseEff : public RPCSim
 
   void simulateNoise(const RPCRoll*);
 
+  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+
   int getClSize(float posX);
 
  private:
@@ -72,7 +74,7 @@ class RPCSimAverageNoiseEff : public RPCSim
   //Adding a second flatDistribution, since it was redefined 
   //in a method with different interval
   CLHEP::RandFlat* flatDistribution2;
-  CLHEP::RandPoisson *poissonDistribution_;
+  CLHEP::RandPoissonQ *poissonDistribution_;
 
 };
 #endif

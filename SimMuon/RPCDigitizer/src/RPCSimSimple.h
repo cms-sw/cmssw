@@ -29,6 +29,8 @@ class RPCSimSimple : public RPCSim
 
   void simulateNoise(const RPCRoll*);
 
+  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+
  private:
   void init(){};
 
@@ -38,8 +40,8 @@ class RPCSimSimple : public RPCSim
   double rate;
   double gate;
 
-  //  CLHEP::HepRandomEngine* rndEngine;
-  //  CLHEP::RandFlat* flatDistribution_;
-  //  CLHEP::RandPoissonQ *poissonDistribution_;
+  CLHEP::RandFlat* flatDistribution1;
+  CLHEP::RandFlat* flatDistribution2;
+  CLHEP::RandPoissonQ *poissonDistribution;
 };
 #endif

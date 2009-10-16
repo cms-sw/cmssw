@@ -16,6 +16,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <string>
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace edm{
   class ParameterSet;
@@ -28,7 +29,7 @@ class RPCDigitizer
 {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-  RPCDigitizer(const edm::ParameterSet& config);
+  RPCDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine&);
 
   ~RPCDigitizer();
 

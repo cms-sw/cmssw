@@ -28,16 +28,37 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
+//Random Number
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandomEngine.h"
 
-  theRPCSimSetUp =  new RPCSimSetUp(ps);
-  theDigitizer = new RPCDigitizer(ps);
+
+
+RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
 
   produces<RPCDigiCollection>();
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
   //Name of Collection used for create the XF 
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+   throw cms::Exception("Configuration")
+     << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+  }
+
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+
+  theRPCSimSetUp =  new RPCSimSetUp(ps);
+  theDigitizer = new RPCDigitizer(ps,engine);
+
+
 }
 
 RPCDigiProducer::~RPCDigiProducer() {

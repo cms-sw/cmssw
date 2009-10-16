@@ -57,25 +57,17 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   //signal propagation speed [cm/ns]
   sspeed=sspeed*cspeed;
 
+}
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  CLHEP::HepRandomEngine& rndEngine = rng->getEngine();
-  flatDistribution_ = new CLHEP::RandFlat(rndEngine);
-
+void RPCSynchronizer::setRandomEngine(CLHEP::HepRandomEngine& eng){
+  gauss1 = new CLHEP::RandGaussQ(eng);
+  gauss2 = new CLHEP::RandGaussQ(eng);
 }
 
 
 RPCSynchronizer::~RPCSynchronizer(){
-  delete flatDistribution_;
-  // if(gaussian_ != 0)  delete gaussian_; 
-  // if(poissonDistribution_ != 0) delete poissonDistribution_;
+  delete gauss1;
+  delete gauss2;
 }
 
 
@@ -89,21 +81,10 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-
-  //Defining a new engine local to this method for the two distributions defined below
-  edm::Service<edm::RandomNumberGenerator> rnd;
-  if ( ! rnd.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  CLHEP::HepRandomEngine& engine = rnd->getEngine();
   
   //automatic variable to prevent memory leak
-  CLHEP::RandGaussQ gaussian1(engine,0.,resEle);
   
-  float rr_el = gaussian1.fire();
+  float rr_el = gauss1->fire(0.,resEle);
   
   RPCDetId SimDetId(simhit->detUnitId());
 
@@ -146,10 +127,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
     float prop_time =  distanceFromEdge/sspeed;
 
-    //automatic variable to prevent memory leak
-    CLHEP::RandGaussQ gaussian2(engine,0.,resEle); 
-
-    double rr_tim1 = gaussian2.fire();
+    double rr_tim1 = gauss2->fire(0.,resEle);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
     
     // Bunch crossing assignment

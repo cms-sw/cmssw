@@ -39,6 +39,8 @@ class RPCSimAverageNoise : public RPCSim
 
   void simulateNoise(const RPCRoll*);
 
+  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+
   int getClSize(float posX); 
 
  private:

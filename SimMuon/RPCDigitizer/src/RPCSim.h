@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 class RPCRoll;
 class RPCGeometry;
@@ -36,6 +37,8 @@ class RPCSim
 			const edm::PSimHitContainer& rpcHits)=0;
 
   virtual void simulateNoise(const RPCRoll* roll)=0;
+
+  virtual void setRandomEngine(CLHEP::HepRandomEngine& eng)=0;
 
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
 
@@ -65,7 +68,6 @@ class RPCSim
   DetectorHitMap theDetectorHitMap;
   DigiSimLinks theDigiSimLinks;
   RPCDigiSimLinks theRpcDigiSimLinks;
-
   //--------------------------------
 
  protected:
