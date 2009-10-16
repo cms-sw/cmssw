@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/09/30 20:49:33 $
- *  $Revision:  $
+ *  $Date: 2009/10/15 19:58:08 $
+ *  $Revision: 1.1 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -147,10 +147,11 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   iEvent.getByLabel("hltL2MuonCandidates", handleCandsL2);
   iEvent.getByLabel("hltL3MuonCandidates", handleCandsL3);
   
-  l1extra::L1MuonParticleCollection candsL1 = * handleCandsL1;;
-  std::vector<reco::RecoChargedCandidateCollection> candsHlt;
-  candsHlt.push_back(* handleCandsL2);
-  candsHlt.push_back(* handleCandsL3);
+  L1MuonParticleCollection candsL1;
+  if (handleCandsL1.isValid()) candsL1 = * handleCandsL1;
+  vector<RecoChargedCandidateCollection> candsHlt(2);
+  if (handleCandsL2.isValid()) candsHlt[0] = * handleCandsL2;
+  if (handleCandsL3.isValid()) candsHlt[1] = * handleCandsL3;
   RecoChargedCandidateCollection & candsL2 = candsHlt[0];
   RecoChargedCandidateCollection & candsL3 = candsHlt[1];
 
