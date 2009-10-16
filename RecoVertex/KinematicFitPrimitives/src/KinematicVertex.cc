@@ -1,5 +1,8 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicTree.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 
 KinematicVertex::KinematicVertex()
 {vl = false;}
@@ -56,7 +59,7 @@ bool KinematicVertex::operator==(const KinematicVertex& other)const
  return res;
 }
 
-bool KinematicVertex::operator==(ReferenceCountingPointer<KinematicVertex> other)const
+bool KinematicVertex::operator==(const ReferenceCountingPointer<KinematicVertex> other)const
 {
  bool res = false;
  if(*this == *other) res = true;
@@ -97,11 +100,40 @@ KinematicTree *  KinematicVertex::correspondingTree() const
 {return tree;}
 
 void KinematicVertex::setTreePointer(KinematicTree * tr) const
-{tree = tr;}
+{ tree = tr;}
 
 ReferenceCountingPointer<KinematicVertex>  KinematicVertex::vertexBeforeConstraint() const
 {return pVertex;}
 
-VertexState KinematicVertex:: vertexState() const
+VertexState KinematicVertex::vertexState() const
 {return theState;}
+
+KinematicVertex::operator reco::Vertex() 
+{
+   //If the vertex is invalid, return an invalid TV !
+  if (!vertexIsValid() || tree==0) return reco::Vertex();
+
+//accessing the tree components, move pointer to top
+  if (!tree->findDecayVertex(this)) return reco::Vertex();
+  vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
+
+  reco::Vertex vertex(reco::Vertex::Point(theState.position()),
+// 	RecoVertex::convertError(theVertexState.error()), 
+	theState.error().matrix_new(), 
+	chiSquared(), degreesOfFreedom(), daughters.size() );
+
+  for (vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
+       i != daughters.end(); ++i) {
+
+    const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
+    if(ttkp != 0) {
+      const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack());
+      if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+	reco::TrackRef tr = ttt->persistentTrackRef();
+	vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
+      }
+    }
+  }
+  return vertex;
+}
 
