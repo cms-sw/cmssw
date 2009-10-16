@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.25 2009/05/19 16:05:59 rofierzy Exp $
+// $Id: HcalDbProducer.cc,v 1.26 2009/05/20 15:54:18 rofierzy Exp $
 //
 //
 
@@ -59,7 +59,8 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
-			  &HcalDbProducer::electronicsMapCallback 
+			  &HcalDbProducer::electronicsMapCallback &
+			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
   
@@ -220,6 +221,16 @@ void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecor
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Electronics Map set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::lutMetadataCallback (const HcalLutMetadataRcd& fRecord) {
+  edm::ESHandle <HcalLutMetadata> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL LUT Metadata set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
