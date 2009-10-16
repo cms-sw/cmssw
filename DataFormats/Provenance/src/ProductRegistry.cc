@@ -94,7 +94,6 @@ namespace edm {
   
   void
   ProductRegistry::setFrozen(bool initializeLookupInfo) const {
-    checkAllDictionaries();
     if(frozen()) return;
     frozen() = true;
     if (initializeLookupInfo) {
