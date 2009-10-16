@@ -15,7 +15,6 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
 
 makeAllLayer1Jets = cms.Sequence(
     # reco pre-production
-    recoJetId *
     patJetCharge *
     patJetCorrections *
     secondaryVertexNegativeTagInfos *
