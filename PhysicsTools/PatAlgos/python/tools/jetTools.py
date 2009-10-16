@@ -234,6 +234,14 @@ def switchJetCollection(process,
     doJetID          : run jet id for new jet collection and add it
                        to the new pat jet collection
     genJetCollection : GenJet collection to match to
+
+    doJetId          : add jetId variables to the added jet collection?
+
+    jetIsLabel       : specify the label prefix of the xxxJetID object;
+                       in general it is the jet collection tag like ak5,
+                       kt4 sc5, aso. For more informatrino have a look
+                       to SWGuidePATTools#switch_JetCollection
+                       
     ------------------------------------------------------------------        
     """
     ## save label of old jet collection
@@ -292,12 +300,8 @@ def switchJetCollection(process,
 
     if (doJetID):
         jetIdLabelNew = jetIdLabel + 'JetID'
-        print "Making new jet ID label with label " + jetIdLabel
-        process.load("RecoJets.JetProducers.ak5JetID_cfi")
-        setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetCollection))
         process.allLayer1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
-    else :
-        process.makeAllLayer1Jets.remove(process.recoJetId)
+    else:
         process.allLayer1Jets.addJetID = cms.bool(False)
 
 
@@ -379,6 +383,13 @@ def addJetCollection(process,
     doL1Counters     : copy also the filter modules that accept/reject
                        the event looking at the number of jets                       
     genJetCollection : GenJet collection to match to
+
+    doJetId          : add jetId variables to the added jet collection?
+
+    jetIsLabel       : specify the label prefix of the xxxJetID object;
+                       in general it is the jet collection tag like ak5,
+                       kt4 sc5, aso. For more informatrino have a look
+                       to SWGuidePATTools#add_JetCollection
 
     this takes the configuration from the already-configured jets as
     starting point; replaces before calling addJetCollection will
@@ -462,17 +473,8 @@ def addJetCollection(process,
         l1Jets.addBTagInfo = False
         
     if (doJetID):
-        jetIdLabelNew = jetIdLabel + 'JetID'
-        print "Making new jet ID label with label " + jetIdLabel
-        ## add new jetID to the makeAllLayer1Jets sequence
-        ## this does not work simply with addClone as we
-        ## use prefixes insterad of postfixes, so we have
-        ## to do it by hand here. Note that it is hooked
-        ## to the ak5 default
-        jetIdModuleNew = getattr( process, "ak5JetID").clone(src = jetCollection)
-        setattr(process, jetIdLabelNew, jetIdModuleNew)
-        process.makeAllLayer1Jets.replace(process.ak5JetID, process.ak5JetID*jetIdModuleNew)        
         l1Jets.addJetID = cms.bool(True)
+        jetIdLabelNew = jetIdLabel + 'JetID'
         l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else :
         l1Jets.addJetID = cms.bool(False)
@@ -514,16 +516,6 @@ def addJetCollection(process,
             addClone('metJESCorAK5CaloJetMuons', uncorMETInputTag = cms.InputTag("metJESCorAK5CaloJet"+postfixLabel))
             addClone('layer1METs', metSource = cms.InputTag("metJESCorAK5CaloJetMuons"+postfixLabel))
             l1MET = getattr(process, 'layer1METs'+postfixLabel)
-
-            ## find potential triggers for trigMatch             
-            ##mettriggers = MassSearchParamVisitor('src', process.layer1METs.metSource)
-            ##process.patTrigMatch.visit(mettriggers)
-            ##for mod in mettriggers.modules():
-            ##    if doTrigMatch:
-            ##        newmod = mod.clone(src = l1MET.metSource)
-            ##        setattr( process, mod.label()+postfixLabel, newmod )
-            ##        process.patTrigMatch.replace( mod, mod * newmod )
-            ##for it in l1MET.trigPrimMatch.value(): fixInputTag(it)
 
             ## add new met collections output to the pat summary
             process.allLayer1Summary.candidates += [ cms.InputTag('layer1METs'+postfixLabel) ]
