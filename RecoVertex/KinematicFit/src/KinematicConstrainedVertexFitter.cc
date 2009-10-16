@@ -37,12 +37,14 @@ void KinematicConstrainedVertexFitter::setParameters(const edm::ParameterSet& pS
 {
   theMaxDiff = pSet.getParameter<double>("maxDistance");
   theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");;
+  theMaxInitial = pSet.getParameter<double>("maxOfInitialValue");
 }
 
 void KinematicConstrainedVertexFitter::defaultParameters()
 {
   theMaxDiff = 0.0001;
   theMaxStep = 1000;
+  theMaxInitial = 9999.; //dummy value
 }
 
 RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedKinematicParticle> part,
@@ -131,6 +133,9 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
    AlgebraicVector cVal = cs->value(lStates, lPoint);
    for(int i = 1; i<cVal.num_row();++i)
    {eq += abs(cVal(i));}
+  }
+  if (nit == 0) {
+    if (eq>theMaxInitial) break;
   }
   refCCov = lRes.first.second;
   nit++;
