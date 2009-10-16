@@ -46,7 +46,7 @@ p = cms.Path(
     *(l1demon
       +l1demonecal
       +l1demongct
-      +l1decsctf
+      #+l1decsctf
       +l1GtHwValidation
       #filter goes in the end
       +hltTriggerTypeFilter*l1tderct
