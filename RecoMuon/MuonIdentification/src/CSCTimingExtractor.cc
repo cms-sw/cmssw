@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.3 2009/06/16 15:40:56 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.1 2009/07/30 09:59:56 ptraczyk Exp $
 //
 //
 
@@ -90,6 +90,7 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
 CSCTimingExtractor::~CSCTimingExtractor()
 {
   if (theService) delete theService;
+  if (theMatcher) delete theMatcher;
 }
 
 
@@ -204,7 +205,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
       diff=diff*diff*hitWeight.at(i);
       invbetaerr+=diff;
-      if (diff/totalWeight/totalWeight>chimax/100.) { 
+      if (diff/totalWeight>chimax) { 
 	tmmax=tms.begin()+i;
 	chimax=diff;
       }

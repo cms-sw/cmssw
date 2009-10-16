@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.2 2009/06/08 08:37:07 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.3 2009/06/16 15:40:56 ptraczyk Exp $
 //
 //
 
@@ -98,6 +98,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
 DTTimingExtractor::~DTTimingExtractor()
 {
   if (theService) delete theService;
+  if (theMatcher) delete theMatcher;
 }
 
 
@@ -298,7 +299,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
       diff=diff*diff*hitWeight.at(i);
       invbetaerr+=diff;
-      if (diff/totalWeight/totalWeight>chimax/100.) { 
+      if (diff/totalWeight>chimax) { 
 	tmmax=tms.begin()+hit_idx.at(i);
 	chimax=diff;
       }
