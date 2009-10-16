@@ -62,34 +62,30 @@ namespace evf{
     , monitorInfoSpace_(0) 
     , monitorInfoSpaceAlt_(0) 
     , monitorInfoSpaceLegend_(0) 
-    , scalersInfoSpace_(0) 
-    , localLsIncludingTimeOuts_(0)
+    , timeoutOnStop_(10)
+    , monSleepSec_(1)
+    , wlMonitoring_(0)
+    , asMonitoring_(0)
+    , wlMonitoringActive_(false)
+    , nbProcessed_(0)
+    , nbAccepted_(0)
+    , watching_(false)
     , lsTimeOut_(105)
+    , localLsIncludingTimeOuts_(0)
     , firstLsTimeOut_(200)
     , residualTimeOut_(0)
     , lastLsTimedOut_(false)
     , lastLsWithEvents_(0)
     , lastLsWithTimeOut_(0)
-    , timeoutOnStop_(10)
-    , monSleepSec_(1)
-    , wlMonitoring_(0)
-    , asMonitoring_(0)
-    , watching_(false)
-    , wlScalers_(0)
-    , asScalers_(0)
-    , wlMonitoringActive_(false)
-    , wlScalersActive_(false)
-    , nbProcessed_(0)
-    , nbAccepted_(0)
+    , allPastLumiProcessed_(0)
     , lsidTimedOutAsString_("")
-    , lsidAsString_("")
-    , psidAsString_("")
+    , lsid_(0)
+    , psid_(0)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
-    , lumiSectionsCtr_(lsRollSize_)
+    , lumiSectionsCtr_(lsRollSize_+1)
     , lumiSectionsTo_(lsRollSize_)
-    , allPastLumiProcessed_(0)
-    , rollingLsIndex_(lsRollSize_)
+    , rollingLsIndex_(lsRollSize_-1)
     , rollingLsWrap_(false)
     , rcms_(0)
   {
@@ -100,46 +96,54 @@ namespace evf{
     //some initialization of state data
     epMAltState_ = -1;
     epmAltState_ = -1;
+    residualTimeOut_ = lsTimeOut_.value_;
   }
 
   FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
 
-  void FWEPWrapper::publishConfigAndMonitorItems()
+  void FWEPWrapper::publishConfigAndMonitorItems(unsigned int nsub)
   {
 
     applicationInfoSpace_->fireItemAvailable("monSleepSec",             &monSleepSec_);
-    applicationInfoSpace_->fireItemAvailable("lsTimeOut",               &lsTimeOut_);
     applicationInfoSpace_->fireItemAvailable("timeoutOnStop",           &timeoutOnStop_);
+    applicationInfoSpace_->fireItemAvailable("lsTimeOut",               &lsTimeOut_);
 
-    monitorInfoSpace_->fireItemAvailable("epMacroStateInt",             &epMAltState_);
-    monitorInfoSpace_->fireItemAvailable("epMicroStateInt",             &epmAltState_);
-    monitorInfoSpace_->fireItemAvailable("macroStateLegend",            &macro_state_legend_);
-    monitorInfoSpace_->fireItemAvailable("microStateLegend",            &micro_state_legend_);
+    monitorInfoSpace_->fireItemAvailable("macroStateLegenda",            &macro_state_legend_);
+    monitorInfoSpace_->fireItemAvailable("microStateLegenda",            &micro_state_legend_);
 
     monitorInfoSpace_->fireItemAvailable("epMacroState",                &epMState_);
     monitorInfoSpace_->fireItemAvailable("epMicroState",                &epmState_);
 
-    monitorInfoSpace_->fireItemAvailable("nbProcessed",                 &nbProcessed_);
-    monitorInfoSpace_->fireItemAvailable("nbAccepted",                  &nbAccepted_);
-
-
     xdata::Table &stbl = trh_.getTable(); 
     scalersInfoSpace_->fireItemAvailable("scalersTable", &stbl);
+    scalersInfoSpace_->fireItemAvailable("scalersLegenda", trh_.getPathLegenda());
     scalersComplete_.addColumn("instance", "unsigned int 32");
     scalersComplete_.addColumn("lsid", "unsigned int 32");
     scalersComplete_.addColumn("psid", "unsigned int 32");
     scalersComplete_.addColumn("triggerReport", "table");  
-    
+    if(nsub==0) publishConfigAndMonitorItemsSP();
 
   }
 
-  void FWEPWrapper::init(unsigned char serviceMap, std::string &configString)
+  void FWEPWrapper::publishConfigAndMonitorItemsSP()
+  {
+    monitorInfoSpace_->fireItemAvailable("epSPMacroStateInt",             &epMAltState_);
+    monitorInfoSpace_->fireItemAvailable("epSPMicroStateInt",             &epmAltState_);
+
+    monitorInfoSpace_->fireItemAvailable("nbProcessed",                 &nbProcessed_);
+    monitorInfoSpace_->fireItemAvailable("nbAccepted",                  &nbAccepted_);
+  }
+
+
+  void FWEPWrapper::init(unsigned short serviceMap, std::string &configString)
   {
     hasPrescaleService_ = serviceMap & 0x1;
     hasModuleWebRegistry_ = serviceMap & 0x2;
     hasServiceWebRegistry_ = serviceMap & 0x4;
     bool instanceZero = serviceMap & 0x8;
-    bool hasSubProcesses = serviceMap & 0xa;
+    bool hasSubProcesses = serviceMap & 0x10;
+    std::cout << "this is the init call with service mask " << std::hex << (int)serviceMap << std::dec << std::endl;
+    std::cout << "InstanceZero is " << instanceZero << std::endl;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
     if (epInitialized_) {
@@ -169,9 +173,14 @@ namespace evf{
     // add default set of services
     if(!servicesDone_) {
       //DQMStore should not be created in the Master (MP case) since this poses problems in the slave
-      if(!hasSubProcesses)internal::addServiceMaybe(*pServiceSets,"DQMStore");
-      else internal::removeServiceMaybe(*pServiceSets,"DQMStore");
-
+      if(!hasSubProcesses){
+	internal::addServiceMaybe(*pServiceSets,"DQMStore");
+	internal::addServiceMaybe(*pServiceSets,"DQM");
+      }
+      else{
+	internal::removeServiceMaybe(*pServiceSets,"DQMStore");
+	internal::removeServiceMaybe(*pServiceSets,"DQM");
+      }
       internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
       internal::addServiceMaybe(*pServiceSets,"MicroStateService");
       if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
@@ -181,6 +190,7 @@ namespace evf{
       try{
 	serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
 	internal::addServiceMaybe(*pServiceSets,"DQMStore");
+	internal::addServiceMaybe(*pServiceSets,"DQM");
 	//	slaveServiceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
       }
       catch(cms::Exception &e) {
@@ -293,7 +303,7 @@ namespace evf{
     const edm::ParameterSet *prescaleSvcConfig = internal::findService(*pServiceSets,"PrescaleService");
     if(prescaleSvc_ != 0 && prescaleSvcConfig !=0) prescaleSvc_->reconfigure(*prescaleSvcConfig);
   
-    //fill macrostate legend information
+    //fill macrostate legenda information
     unsigned int i = 0;
     std::stringstream oss;
     for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
@@ -302,8 +312,12 @@ namespace evf{
 	statmod_.push_back(evtProcessor_->stateName((edm::event_processor::State) i));
       }
     monitorInfoSpace_->lock();
-    if(instanceZero) macro_state_legend_ = oss.str();
-    //fill microstate legend information
+    if(instanceZero) {
+      std::cout << "filling macrostate legenda" << std::endl;
+      macro_state_legend_ = oss.str();
+    }
+
+    //fill microstate legenda information
     descs_ = evtProcessor_->getAllModuleDescriptions();
 
     std::stringstream oss2;
@@ -337,10 +351,15 @@ namespace evf{
 	    mapmod_[outcount+modcount] = descs_[i]->moduleLabel();
 	  }
       }
-    if(instanceZero) micro_state_legend_ = oss2.str();
+    if(instanceZero){
+      std::cout << "filling macrostate legenda" << std::endl;
+      micro_state_legend_ = oss2.str();
+    }
     monitorInfoSpace_->unlock();
     LOG4CPLUS_INFO(log_," edm::EventProcessor configuration finished.");
-  
+    edm::TriggerReport tr;
+    evtProcessor_->getTriggerReport(tr);
+    trh_.formatReportTable(tr,descs_,instanceZero);
     epInitialized_ = true;
     //    startMonitoringWorkLoop();
     return;
@@ -351,25 +370,6 @@ namespace evf{
     edm::ServiceRegistry::Operate operate(serviceToken_);
   }
     
-  void FWEPWrapper::startScalersWorkLoop() throw (evf::Exception)
-  {
-    watching_ = true;
-    residualTimeOut_ = lsTimeOut_.value_;
-    try {
-      wlScalers_=
-	toolbox::task::getWorkLoopFactory()->getWorkLoop("Scalers",
-							 "waiting");
-      if (!wlScalers_->isActive()) wlScalers_->activate();
-      asScalers_ = toolbox::task::bind(this,&FWEPWrapper::scalers,
-				       "Scalers");
-      wlScalers_->submit(asScalers_);
-      wlScalersActive_ = true;
-    }
-    catch (xcept::Exception& e) {
-      std::string msg = "Failed to start workloop 'Scalers'.";
-      XCEPT_RETHROW(evf::Exception,msg,e);
-    }
-  }
 
   //______________________________________________________________________________
   edm::EventProcessor::StatusCode FWEPWrapper::stop()
@@ -458,91 +458,34 @@ namespace evf{
   void FWEPWrapper::startMonitoringWorkLoop() throw (evf::Exception)
   {
     pid_t pid = getpid();
-    std::cout << "process " << pid << " - Start Monitoring workloop" << std::endl;
+    nbProcessed_.value_ = 0;
+    nbAccepted_.value_ = 0;
     struct timezone timezone;
     gettimeofday(&monStartTime_,&timezone);
-    std::cout << "process " << pid << " - Start Monitoring workloop 1" << std::endl;
+
     std::ostringstream ost;
     ost << "Monitoring" << pid;
     try {
       wlMonitoring_=
 	toolbox::task::getWorkLoopFactory()->getWorkLoop(ost.str().c_str(),
 							 "waiting");
-      std::cout << "process " << pid << " - Start Monitoring workloop 2" << std::endl;
+
       if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
       asMonitoring_ = toolbox::task::bind(this,&FWEPWrapper::monitoring,
 					  ost.str().c_str());
-      std::cout << "process " << pid << " - Start Monitoring workloop 3" << std::endl;
+
       wlMonitoring_->submit(asMonitoring_);
       wlMonitoringActive_ = true;
-      std::cout << "process " << pid << " - Start Monitoring workloop 4" << std::endl;
+
     }
     catch (xcept::Exception& e) {
       std::string msg = "Failed to start workloop 'Monitoring'.";
-      std::cout << "process " << pid << " - Start Monitoring workloop catch" << std::endl;
+
       XCEPT_RETHROW(evf::Exception,msg,e);
     }
   }
 
 
-  //______________________________________________________________________________
-  bool FWEPWrapper::scalers(toolbox::task::WorkLoop* wl)
-  {
-    std::cout << "here 1 rcms_=" << (unsigned int)rcms_<< std::endl;
-    //    if(rcms_==0) return false;
-    std::cout << "here 2 " << std::endl;
-    ::sleep(1); //avoid synchronization issues at the start of the event loop
-    std::cout << "here 3 " << std::endl;
-    edm::ServiceRegistry::Operate operate(serviceToken_);
-    std::cout << "here 4 " << std::endl;
-    monitorInfoSpace_->lock();
-    std::cout << "here 5 " << std::endl;
-    if(evtProcessor_)
-      {
-	std::cout << "here 6 " << std::endl;
-	edm::event_processor::State st = evtProcessor_->getState();
-	std::cout << "here 7 " << std::endl;
-	monitorInfoSpace_->unlock();
-	std::cout << "here 8 " << std::endl;
-	if(st == edm::event_processor::sRunning)
-	  {
-	    std::cout << "here 9 " << std::endl;
-	    if(!getTriggerReport(true)) {
-	      std::cout << "here 10 " << std::endl;
-	      wlScalersActive_ = false;
-	      std::cout << "here 11 " << std::endl;
-	      return false;
-	    }
-	      std::cout << "here 12 " << std::endl;
-	    if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
-	    else lsidTimedOutAsString_ = "";
-	      std::cout << "here 13 " << std::endl;
-	    if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
-	      std::cout << "here 14 " << std::endl;
-// 	    if(!fireScalersUpdate()){
-// 	      std::cout << "here 15 " << std::endl;
-// 	      wlScalersActive_ = false;
-// 	      return false;
-//	    }
-	  }
-	else 
-	  {
-	    std::cout << "here 16 " << std::endl;
-	    wlScalersActive_ = false;
-	    return false;
-	  }
-      }
-    else
-      {
-	std::cout << "here 17 " << std::endl;
-	monitorInfoSpace_->unlock();
-	std::cout << "here 18 " << std::endl;
-	wlScalersActive_ = false;
-	return false;
-      }
-    //    squidPresent_ = squidnet_.check();
-    return true;
-  }
 
   //______________________________________________________________________________
   bool FWEPWrapper::monitoring(toolbox::task::WorkLoop* wl)
@@ -576,21 +519,21 @@ namespace evf{
 	try{
 	  xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
 	  if(lsid!=0){
-	    lsidAsString_ = lsid->toString();
+	    lsid_ = ((xdata::UnsignedInteger32*)lsid)->value_;
 	  }
 	}
 	catch(xdata::exception::Exception e){
-	  lsidAsString_ = "N/A";
+	  lsid_ = 0;
 	}
 	xdata::Serializable *psid = 0;
 	try{
 	  psid = applicationInfoSpace_->find("prescaleSetIndex");
 	  if(psid!=0) {
-	    psidAsString_ = psid->toString();
+	    psid_ = ((xdata::UnsignedInteger32*)psid)->value_;
 	  }
 	}
 	catch(xdata::exception::Exception e){
-	  psidAsString_ = "N/A";
+	  psid_ = 0;
 	}
 
       }
@@ -612,11 +555,11 @@ namespace evf{
 
   bool FWEPWrapper::getTriggerReport(bool useLock)
   {
-
+    edm::ServiceRegistry::Operate operate(serviceToken_);
     // Calling this method results in calling 
     // evtProcessor_->getTriggerReport, the value returned is encoded as
     // a xdata::Table.
-    std::cout << "entered gettriggerreport " << std::endl;
+
     LOG4CPLUS_DEBUG(log_,"getTriggerReport action invoked");
     if(inRecovery_) { return false;} //stop scalers loop if caught in the middle of recovery
 
@@ -645,20 +588,16 @@ namespace evf{
     timeval tv;
     if(useLock) {
       gettimeofday(&tv,0);
-      std::cout << "Calling openbackdoor with timeout " << residualTimeOut_ << std::endl;
       mwr->openBackDoor("DaqSource",residualTimeOut_);
-      //      string st = fsm_.stateName()->toString();
-      // why ?! 
-      /*      if(st!="Enabled" && st!="Configured" && st!="enabling" && st!="stopping") return false; */
       residualTimeOut_ = lsTimeOut_.value_ ;
     }
-    std::cout << "past lock " << std::endl;
+
     bool localTimeOut = false;
     try{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
       if(lsid) {
 	ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-	std::cout << "lumi section is " << ls << std::endl;
+
 	xdata::Boolean *to =  (xdata::Boolean*)applicationInfoSpace_->find("lsTimedOut");
 	if(to!=0)
 	  {
@@ -681,9 +620,12 @@ namespace evf{
 			  if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
 			  rollingLsIndex_--;
 			  lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-			  lumiSectionsCtr_[rollingLsIndex_] = std::pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
-											       evtProcessor_->totalEvents()-
-											       allPastLumiProcessed_);
+			  lsTriplet lst;
+			  lst.ls = localLsIncludingTimeOuts_.value_;
+			  lst.proc = evtProcessor_->totalEvents()-allPastLumiProcessed_;
+			  lst.acc = evtProcessor_->totalEventsPassed()-
+			    (rollingLsWrap_ ? lumiSectionsCtr_[0].acc : lumiSectionsCtr_[rollingLsIndex_+1].acc);
+			  lumiSectionsCtr_[rollingLsIndex_] = lst;
 			  it->setField("lsid", localLsIncludingTimeOuts_);
 			  fireScalersUpdate();
 			}
@@ -699,7 +641,7 @@ namespace evf{
 		lastLsTimedOut_ = false; 
 	      }
 	  }
-	std::cout << "past timeout business  " << std::endl;
+
 	it->setField("lsid", localLsIncludingTimeOuts_);
       }
       xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
@@ -718,26 +660,37 @@ namespace evf{
       return false;
     }
 
-    std::cout << "updating rolling index " << std::endl;
+    if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
+    else lsidTimedOutAsString_ = "";
+
+    if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
+
+
+
     if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
     rollingLsIndex_--;
     lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-    lumiSectionsCtr_[rollingLsIndex_] = std::pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
-									 evtProcessor_->totalEvents()-
-									 allPastLumiProcessed_);
+
+    lsTriplet lst;
+    lst.ls = localLsIncludingTimeOuts_.value_;
+    lst.proc = evtProcessor_->totalEvents()-allPastLumiProcessed_;
+    lst.acc = evtProcessor_->totalEventsPassed()-
+      (rollingLsWrap_ ? lumiSectionsCtr_[0].acc : lumiSectionsCtr_[rollingLsIndex_+1].acc);
+       lumiSectionsCtr_[rollingLsIndex_] = lst;
     allPastLumiProcessed_ = evtProcessor_->totalEvents();
 
-    std::cout << "getting edm trigger report" << std::endl;
+
     if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
+
     if(useLock){
       mwr->closeBackDoor("DaqSource");
     }  
 
-    trh_.formatReportTable(tr,descs_);
-    std::cout << "checking lumi section " << std::endl;
+    trh_.formatReportTable(tr,descs_,false);
+
+
     if(trh_.checkLumiSection(ls))
       {
-	std::cout << "updating tables " << std::endl;
 	trh_.triggerReportToTable(tr,ls,false);
 	trh_.packTriggerReport(tr);
       }
@@ -750,6 +703,7 @@ namespace evf{
 	    //send xmas message with data
 	  }
 	trh_.triggerReportToTable(tr,ls);
+	trh_.packTriggerReport(tr);
       }
     it->setField("triggerReport",trh_.getTable());
     // send xmas message with data
@@ -778,6 +732,8 @@ namespace evf{
 	//	localLog(e.what());
 	return false;
       }
+    //if there is no state listener then do not attempt to send to monitorreceiver
+    if(rcms_==0) return false;
     toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
     toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
     toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"/rcms/servlet/monitorreceiver");
@@ -851,6 +807,54 @@ namespace evf{
     delete ctxdsc;
     scalersUpdateCounter_++;
     return true;
+  }
+
+
+  //______________________________________________________________________________
+  void FWEPWrapper::summaryWebPage(xgi::Input *in, xgi::Output *out,const std::string &urn)
+  {
+    //    std::string urn = xappDesc_->getURN();
+
+    *out << "<table>"                                                  << std::endl;
+    
+    *out << "<tr valign=\"top\">"                                      << std::endl;
+    *out << "<td>" << std::endl;
+    
+    TriggerReportStatic *tr = (TriggerReportStatic *)(trh_.getPackedTriggerReport()->mtext);
+    // trigger summary table
+    *out << "<table border=1 bgcolor=\"#CFCFCF\">" << std::endl;
+    *out << "  <tr>"							<< std::endl;
+    *out << "    <th colspan=7>"						<< std::endl;
+    *out << "      " << "Trigger Summary"					<< std::endl;
+    *out << "    </th>"							<< std::endl;
+    *out << "  </tr>"							<< std::endl;
+    
+    *out << "  <tr >"							<< std::endl;
+    *out << "    <th >Path</th>"						<< std::endl;
+    *out << "    <th >Exec</th>"						<< std::endl;
+    *out << "    <th >Pass</th>"						<< std::endl;
+    *out << "    <th >Fail</th>"						<< std::endl;
+    *out << "    <th >Except</th>"					<< std::endl;
+    *out << "  </tr>"							<< std::endl;
+    
+    
+    for(unsigned int i=0; i<tr->trigPathsInMenu; i++) {
+      *out << "  <tr>" << std::endl;
+      *out << "    <td>"<< i << "</td>"		<< std::endl;
+      *out << "    <td>" << tr->trigPathSummaries[i].timesRun << "</td>"		<< std::endl;
+      *out << "    <td>" << tr->trigPathSummaries[i].timesPassed << "</td>"	<< std::endl;
+      *out << "    <td >" << tr->trigPathSummaries[i].timesFailed << "</td>"	<< std::endl;
+      *out << "    <td ";
+      if(tr->trigPathSummaries[i].timesExcept !=0)
+	*out << "bgcolor=\"red\""		      					<< std::endl;
+      *out << ">" << tr->trigPathSummaries[i].timesExcept << "</td>"		<< std::endl;
+      *out << "  </tr >"								<< std::endl;
+      
+      }
+    *out << "</table>" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "</tr>" << std::endl;
+    *out << "</table>" << std::endl;
   }
 
 
@@ -985,7 +989,7 @@ namespace evf{
 	*out << "    <td >";
 	if(mwr && mwr->checkWeb(descs_[idesc]->moduleName()))
 	  *out << "<a href=\"/" << urn 
-	       << "/moduleWeb?module=" 
+	       << "module=" 
 	       << descs_[idesc]->moduleName() << "\">" 
 	       << descs_[idesc]->moduleName() << "</a>";
 	else
@@ -1024,9 +1028,11 @@ namespace evf{
     Cgicc cgi(in);
     std::vector<FormEntry> el1;
     cgi.getElement("module",el1);
+    std::cout << "moduleWeb looking for module: size " << el1.size() << std::endl;
     if(evtProcessor_)  {
       if(el1.size()!=0) {
 	std::string mod = el1[0].getValue();
+	std::cout << "moduleWeb looking for module: " << mod << std::endl;
 	edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
 	ModuleWebRegistry *mwr = 0;
 	try{
@@ -1102,8 +1108,8 @@ namespace evf{
     *out << "<td>" << micro2 << "</td>";
     *out << "<td>" << nbAccepted_.value_ << "/" << nbProcessed_.value_  
 	 << " (" << float(nbAccepted_.value_)/float(nbProcessed_.value_)*100. <<"%)" << "</td>";
-    *out << "<td>" << lsidAsString_ << "/" << lsidTimedOutAsString_ << "</td>";
-    *out << "<td>" << psidAsString_ << "</td>";
+    *out << "<td>" << lsid_ << "/" << lsidTimedOutAsString_ << "</td>";
+    *out << "<td>" << psid_ << "</td>";
     
 
   }
@@ -1118,15 +1124,15 @@ namespace evf{
       {
 	for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
 	  *out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	       << ">" << lumiSectionsCtr_[i].first << "</td>" << std::endl;
+	       << ">" << lumiSectionsCtr_[i].ls << "</td>" << std::endl;
 	for(unsigned int i = 0; i < rollingLsIndex_; i++)
 	  *out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	       << ">" << lumiSectionsCtr_[i].first << "</td>" << std::endl;
+	       << ">" << lumiSectionsCtr_[i].ls << "</td>" << std::endl;
       }
     else
       for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
 	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	     << ">" << lumiSectionsCtr_[i].first << "</td>" << std::endl;
+	     << ">" << lumiSectionsCtr_[i].ls << "</td>" << std::endl;
     
     *out << "     </tr>"							<< std::endl;    
     *out << "     <tr>"							<< std::endl;
@@ -1134,14 +1140,46 @@ namespace evf{
     if(rollingLsWrap_)
       {
 	for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	  *out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << std::endl;
+	  *out << "<td>" << lumiSectionsCtr_[i].proc << "</td>" << std::endl;
 	for(unsigned int i = 0; i < rollingLsIndex_; i++)
-	  *out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << std::endl;
+	  *out << "<td>" << lumiSectionsCtr_[i].proc << "</td>" << std::endl;
       }
     else
       for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << std::endl;
+	*out << "<td>" << lumiSectionsCtr_[i].proc << "</td>" << std::endl;
+    *out << "     </tr>"							<< std::endl;    
+    *out << "     <tr>"							<< std::endl;
+    *out << "       <td> Acc </td>";
+    if(rollingLsWrap_)
+      {
+	for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
+	  *out << "<td>" << lumiSectionsCtr_[i].acc << "</td>" << std::endl;
+	for(unsigned int i = 0; i < rollingLsIndex_; i++)
+	  *out << "<td>" << lumiSectionsCtr_[i].acc << "</td>" << std::endl;
+      }
+    else
+      for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
+	*out << "<td>" << lumiSectionsCtr_[i].acc << "</td>" << std::endl;
     *out << "     </tr>"							<< std::endl;    
     *out << "</table>" << std::endl;
+  }
+
+
+  void FWEPWrapper::sumAndPackTriggerReport(MsgBuf &buf)
+  {
+    trh_.sumAndPackTriggerReport(buf);
+  }
+  void FWEPWrapper::updateRollingReport()
+  {
+    trh_.packedTriggerReportToTable();
+    if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
+    rollingLsIndex_--;
+    TriggerReportStatic *tr = trh_.getPackedTriggerReportAsStruct();
+    lsTriplet lst;
+    lst.ls = tr->lumiSection;
+    lst.proc = tr->eventSummary.totalEvents;
+    lst.acc = tr->eventSummary.totalEventsPassed;
+    lumiSectionsCtr_[rollingLsIndex_] = lst;
+
   }
 }

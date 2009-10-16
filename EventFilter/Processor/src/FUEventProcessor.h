@@ -20,6 +20,7 @@
 #include "xdata/String.h"
 #include "xdata/Integer.h"
 #include "xdata/Boolean.h"
+#include "xdata/Vector.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/ActionListener.h"
 #include "xdata/InfoSpaceFactory.h"
@@ -37,12 +38,20 @@
 
 namespace evf
 {
+
   /* to be filled in with summary from paths */
   struct filter {
 
   };
-  
-  
+  namespace internal{
+    
+    class MyCgi : public xgi::Input{
+    public:
+      MyCgi() : xgi::Input("",0){}
+      //      MyCgi(xgi::Input &b) : xgi::Input("",0) {environment_ = b.environment_;}
+      std::map<std::string, std::string, std::less<std::string> > &getEnvironment(){return environment_;}
+    };
+  }
   class FUEventProcessor : public xdaq::Application,
 			   public xdata::ActionListener
   {
@@ -107,6 +116,11 @@ namespace evf
     void startSupervisorLoop();
     void startReceivingLoop();
     void startReceivingMonitorLoop();
+    // calculate scalers information in separate thread
+    void startScalersWorkLoop() throw (evf::Exception);
+    bool scalers(toolbox::task::WorkLoop* wl);
+    bool summarize(toolbox::task::WorkLoop* wl);
+
     bool receiving(toolbox::task::WorkLoop* wl);
     bool receivingAndMonitor(toolbox::task::WorkLoop* wl);
     bool supervisor(toolbox::task::WorkLoop* wl);
@@ -116,7 +130,7 @@ namespace evf
     bool enableMPEPSlave(int);
     bool stopClassic();
     void stopSlavesAndAcknowledge();
-
+    void killHandler(int);
     //
     // member data
     //
@@ -197,6 +211,18 @@ namespace evf
     xdata::Serializable             *nbProcessed;
     xdata::Serializable             *nbAccepted;
 
+    // flahslist variables, scalers
+    xdata::InfoSpace                *scalersInfoSpace_;
+
+    //scalers workloop
+    toolbox::task::WorkLoop         *wlScalers_;      
+    toolbox::task::ActionSignature  *asScalers_;
+    bool                             wlScalersActive_;
+    int                              anonymousPipe_[2];
+    xdata::Vector<xdata::Integer>    spMStates_;
+    xdata::Vector<xdata::Integer>    spmStates_;
+    xdata::UnsignedInteger32         superSleepSec_; 
+    std::list<std::string>           names_;
   };
   
 } // namespace evf

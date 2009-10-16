@@ -7,6 +7,7 @@
 namespace evf{
   namespace utils{
     void procStat(std::ostringstream *);
+    void uptime(std::ostringstream *);
   }
 }
 #endif

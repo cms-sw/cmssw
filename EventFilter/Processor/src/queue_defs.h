@@ -7,7 +7,7 @@
  */
 
 #define QUEUE_ID 137      /* base ID of queue to generate.M->S = odd, S->M = even                         */
-#define MAX_MSG_SIZE 0x200000  /* size (in bytes) of largest message we'll send.   */
+#define MAX_MSG_SIZE 0x2000  /* size (in bytes) of largest message we'll send. This is the system max  */
 
 #define MSGQ_MESSAGE_TYPE_RANGE 0xfff
 
@@ -26,6 +26,12 @@
 #define MSQS_MESSAGE_TYPE_WEB  0x20a
 #define MSQS_MESSAGE_TYPE_TRR  0x20c
 
+#define NUMERIC_MESSAGE_SIZE 32
+
+#define PIPE_READ 0
+#define PIPE_WRITE 1
+#define MAX_PIPE_BUFFER_SIZE 0x1000
+
 #include <sys/msg.h> 
 //struct msgbuf
 //  {
@@ -35,6 +41,7 @@
 
 namespace evf{
   struct prg{
+    prg():ls(0),ps(0),nbp(0),nba(0),Ms(0),ms(0){}
     unsigned int ls;
     unsigned int ps;
     unsigned int nbp;

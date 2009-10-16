@@ -16,6 +16,8 @@ namespace evf{
       , pid_(-1)
       , alive_(-1)
       , restart_countdown_(0)
+      , save_nbp_(0)
+      , save_nba_(0)
       {
       }
     SubProcess(int ind, pid_t pid)
@@ -25,6 +27,8 @@ namespace evf{
       , mqm_(new MasterQueue(monitor_queue_offset_+ind))
       , mqs_(new MasterQueue(ind))
       , restart_countdown_(0)
+      , save_nbp_(0)
+      , save_nba_(0)
       {
 	std::cout << "subprocess " << ind << " create command queue" << std::endl;
 	std::cout << "subprocess " << ind << " done" << std::endl;
@@ -46,6 +50,8 @@ namespace evf{
 	alive_=b.alive_;
 	mqm_=b.mqm_;
 	mqs_=b.mqs_;
+	save_nbp_ = b.save_nbp_;
+	save_nba_ = b.save_nba_;
 	restart_countdown_=b.restart_countdown_;
 
 	std::cout << "subprocess " << ind_ << " in assignmentoperator" << std::endl;
@@ -59,40 +65,51 @@ namespace evf{
       {
 	mqs_->disconnect();
 	mqm_->disconnect();
+	save_nbp_ = 0;
+	save_nba_ = 0;
       }
+    void setStatus(int st){
+      alive_ = st;
+      if(alive_ != 1) //i.e. process is no longer alive
+	{
+	  //save counters after last update
+	  save_nbp_= prg_.nbp;
+	  save_nba_= prg_.nba;
+	}
+    }
     int queueId(){return (mqm_.get()!=0 ? mqm_->id() : 0);}
     int queueStatus(){return (mqm_.get() !=0 ? mqm_->status() : 0);}
     int queueOccupancy(){return (mqm_.get() !=0 ? mqm_->occupancy() : -1);}
     pid_t queuePidOfLastSend(){return (mqm_.get() !=0 ? mqm_->pidOfLastSend() : -1);}
     pid_t queuePidOfLastReceive(){return (mqm_.get() !=0 ? mqm_->pidOfLastReceive() : -1);}
     pid_t pid() const {return pid_;}
-    int &alive() {return alive_;}
+    int alive() const {return alive_;}
     struct prg &params(){return prg_;}
     void setParams(struct prg *p)
       {
 	prg_.ls  = p->ls;
 	prg_.ps  = p->ps;
-	prg_.nbp = p->nbp;
-	prg_.nba = p->nba;
+	prg_.nbp = p->nbp + save_nbp_;
+	prg_.nba = p->nba + save_nba_;
 	prg_.Ms  = p->Ms;
 	prg_.ms  = p->ms;
       }
     int post(MsgBuf &ptr, bool isMonitor)
       {
-	std::cout << "post called for sp " << ind_ 
-		  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	//	std::cout << "post called for sp " << ind_ << " type " << ptr->mtype 
+	//	  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
 	if(isMonitor) return mqm_->post(ptr); else return mqs_->post(ptr);
       }
     unsigned long rcv(MsgBuf &ptr, bool isMonitor)
       {
-	std::cout << "receive called for sp " << ind_ 
-		  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	//	std::cout << "receive called for sp " << ind_ << " type " << ptr->mtype 
+	//  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
 	if(isMonitor) return mqm_->rcv(ptr); else return mqs_->rcv(ptr);
       }
     unsigned long rcvNonBlocking(MsgBuf &ptr, bool isMonitor)
       {
-	std::cout << "receivenb called for sp " << ind_ 
-		  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	//	std::cout << "receivenb called for sp " << ind_ << " type " << ptr->mtype 
+	//	  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
 	if(isMonitor) 
 	  return mqm_->rcvNonBlocking(ptr); 
 	else 
@@ -127,6 +144,8 @@ namespace evf{
     struct prg prg_;
     unsigned int restart_countdown_;
     static const unsigned int monitor_queue_offset_ = 200;
+    int save_nbp_;
+    int save_nba_;
   };
 
 

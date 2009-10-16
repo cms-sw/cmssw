@@ -18,13 +18,25 @@ namespace evf{
     MasterQueue(unsigned int ind)
       {
 	
-	/* create a public message queue, with access only to the owning user. */
-	queue_id_ = msgget(QUEUE_ID+ind, IPC_CREAT | IPC_EXCL | 0600);
+	/* create or attach a public message queue, with read/write access to every user. */
+	queue_id_ = msgget(QUEUE_ID+ind, IPC_CREAT | 0666); 
 	if (queue_id_ == -1) {
 	  XCEPT_RAISE(evf::Exception, "failed to get message queue");
 	}
-	status_ = 1;
-	occup_ = 0;
+	// it may be necessary to drain the queue here if it already exists !!! 
+	status();
+	if(occup_>0)
+	  std::cout << "message queue contains " << occup_ << "leftover messages, going to drain " 
+		    << std::endl;
+	//drain the queue before using it
+	MsgBuf msg;
+	while(occup_>0)
+	  {
+	    msgrcv(queue_id_, msg.ptr_, msg.msize()+1, 0, 0);
+	    status();
+	    std::cout << "drained one message, occupancy now " << occup_ << std::endl;
+	  }
+	    
       }
     ~MasterQueue()
       {
@@ -76,9 +88,9 @@ namespace evf{
 	    occup_ = buf->msg_qnum;
 	    pidOfLastSend_ = buf->msg_lspid;
 	    pidOfLastReceive_ = buf->msg_lrpid;
-	    std::cout << "queue " << buf->msg_qnum << " " 
-		      << buf->msg_lspid << " " 
-		      << buf->msg_lrpid << std::endl;
+	    //	    std::cout << "queue " << buf->msg_qnum << " " 
+	    //	      << buf->msg_lspid << " " 
+	    //	      << buf->msg_lrpid << std::endl;
 	  }
 	return status_;
       }

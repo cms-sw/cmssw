@@ -22,7 +22,7 @@
 #include "log4cplus/logger.h"
 
 #include <string>
-
+#include "MsgBuf.h"
 
 namespace xdaq{
   class ApplicationDescriptor;
@@ -31,7 +31,12 @@ namespace xdaq{
 
 namespace evf{
 
-
+  struct lsTriplet{
+    lsTriplet(): ls(0), proc(0), acc(0){}
+    unsigned int ls;
+    unsigned int proc;
+    unsigned int acc;
+  };
   class FWEPWrapper : public toolbox::lang::Class{
 
   public:
@@ -42,6 +47,7 @@ namespace evf{
 
 
     void taskWebPage(xgi::Input *,xgi::Output *,const std::string &);
+    void summaryWebPage(xgi::Input *,xgi::Output *,const std::string &);
     void moduleWeb(xgi::Input *in,xgi::Output *out);
     void serviceWeb(xgi::Input *in,xgi::Output *out);
     void microState(xgi::Input *in,xgi::Output *out);
@@ -50,7 +56,7 @@ namespace evf{
     operator bool(){return epInitialized_;}
 
     // initialize the cmssw event processor
-    void init(unsigned char, std::string &);
+    void init(unsigned short, std::string &);
     void makeServicesOnly();
     void forceInitEventProcessorMaybe(){epInitialized_ = false;}
 
@@ -60,7 +66,7 @@ namespace evf{
     // stop and halt (check if stop done)
     void stopAndHalt();
 
-    // infospace pointers 
+    // infospace pointers transfer
     void setScalersInfoSpace(xdata::InfoSpace *is){scalersInfoSpace_ = is;}
     void setApplicationInfoSpace(xdata::InfoSpace *is){applicationInfoSpace_ = is;}
     void setMonitorInfoSpace(xdata::InfoSpace *is){monitorInfoSpace_ = is;}
@@ -69,25 +75,27 @@ namespace evf{
     void setRcms(xdaq::ApplicationDescriptor* rcms){rcms_ = rcms;}
     void setAppDesc(xdaq::ApplicationDescriptor *ad){xappDesc_ = ad;}
     void setAppCtxt(xdaq::ApplicationContext *ctx){xappCtxt_ = ctx;}
-    void publishConfigAndMonitorItems();
+
+
+    void publishConfigAndMonitorItems(unsigned int);
+    void publishConfigAndMonitorItemsSP();
+
     std::string wlMonitoring(){
       if(wlMonitoring_!=0 && wlMonitoring_->isActive()) return (wlMonitoringActive_ ? "active" : "inactive");
-      else return "not initialized"; 
-    }
-    std::string wlScalers(){
-      if(wlScalers_!=0 && wlScalers_->isActive()) return (wlScalersActive_ ? "active" : "inactive");
       else return "not initialized"; 
     }
     std::string const &configuration() const {return configuration_;}
     // calculate monitoring information in separate thread
     void startMonitoringWorkLoop() throw (evf::Exception);
     bool monitoring(toolbox::task::WorkLoop* wl);
-    // calculate scalers information in separate thread
-    void startScalersWorkLoop() throw (evf::Exception);
-    bool scalers(toolbox::task::WorkLoop* wl);
     // trigger report callback
     bool getTriggerReport(bool useLock);
-    bool fireScalersUpdate();
+    void updateRollingReport();
+
+    void sumAndPackTriggerReport(MsgBuf &buf);
+    void resetPackedTriggerReport(){trh_.resetPackedTriggerReport();}
+    MsgBuf &getPackedTriggerReport(){return trh_.getPackedTriggerReport();}
+    bool fireScalersUpdate(); 
     void lumiSumTable(xgi::Output *out);
     // some accessors for FUEventProcessor
     std::string const &moduleNameFromIndex(unsigned int i) const
@@ -100,6 +108,7 @@ namespace evf{
 	if(i<statmod_.size()) return statmod_[i];
 	else return unknown;
       }
+    lsTriplet &lastLumi(){return lumiSectionsCtr_[rollingLsIndex_];}
 
   private:
     static const std::string        unknown;
@@ -133,17 +142,6 @@ namespace evf{
     xdata::InfoSpace                *monitorInfoSpaceAlt_;
     xdata::InfoSpace                *monitorInfoSpaceLegend_;
 
-    // flahslist variables, scalers
-    xdata::InfoSpace                *scalersInfoSpace_;
-    xdata::Table                     scalersComplete_;
-    xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
-    xdata::UnsignedInteger32         lsTimeOut_;
-    unsigned int                     firstLsTimeOut_;
-    unsigned int                     residualTimeOut_;
-    bool                             lastLsTimedOut_; 
-    unsigned int                     lastLsWithEvents_;
-    unsigned int                     lastLsWithTimeOut_;
-    std::list<std::string>           names_;
     xdata::UnsignedInteger32         timeoutOnStop_; // in seconds
 
     std::vector<edm::ModuleDescription const*> descs_; //module description array
@@ -155,24 +153,17 @@ namespace evf{
     xdata::UnsignedInteger32         monSleepSec_;
     struct timeval                   monStartTime_;
 
-    // workloop / action signature for monitoring
-    toolbox::task::WorkLoop         *wlMonitoring_;      
-    toolbox::task::ActionSignature  *asMonitoring_;
-    bool                             watching_;
-
-    // workloop / action signature for scalerMonitor
-    toolbox::task::WorkLoop         *wlScalers_;      
-    toolbox::task::ActionSignature  *asScalers_;
-
-    bool                             wlMonitoringActive_;
-    bool                             wlScalersActive_;
-
-
     // flahslist variables
     xdata::String                    epMState_;
     xdata::String                    epmState_;
     xdata::UnsignedInteger32         nbProcessed_;
     xdata::UnsignedInteger32         nbAccepted_;
+
+    // workloop / action signature for monitoring
+    toolbox::task::WorkLoop         *wlMonitoring_;      
+    toolbox::task::ActionSignature  *asMonitoring_;
+    bool                             wlMonitoringActive_;
+    bool                             watching_;
 
     // flahslist variables, alt
     xdata::Integer                   epMAltState_;
@@ -183,15 +174,26 @@ namespace evf{
     xdata::String                    macro_state_legend_;
     xdata::String                    micro_state_legend_;
 
-
+    // LS stuff
+    unsigned int                     firstLsTimeOut_;
+    unsigned int                     residualTimeOut_;
+    bool                             lastLsTimedOut_; 
+    unsigned int                     lastLsWithEvents_;
+    unsigned int                     lastLsWithTimeOut_;
+    unsigned int                     allPastLumiProcessed_;
+    std::list<std::string>           names_;
     std::string                      lsidTimedOutAsString_;
-    std::string                      lsidAsString_;
-    std::string                      psidAsString_;
+    unsigned int                     lsid_;
+    unsigned int                     psid_;
+
+    xdata::InfoSpace                *scalersInfoSpace_;
+    xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
+    xdata::UnsignedInteger32         lsTimeOut_;
+    xdata::Table                     scalersComplete_;
     unsigned int                     scalersUpdateAttempted_;    
     unsigned int                     scalersUpdateCounter_;
-    std::vector<std::pair<unsigned int, unsigned int> > lumiSectionsCtr_;
+    std::vector<lsTriplet>           lumiSectionsCtr_;
     std::vector<bool>                lumiSectionsTo_;
-    unsigned int                     allPastLumiProcessed_;
     unsigned int                     rollingLsIndex_;
     bool                             rollingLsWrap_;
     static const unsigned int        lsRollSize_ = 20;
@@ -199,6 +201,7 @@ namespace evf{
     xdaq::ApplicationDescriptor*     xappDesc_;
     xdaq::ApplicationContext*        xappCtxt_;
     std::string                      configuration_;
+    friend class FUEventProcessor;
   };
 }
 #endif
