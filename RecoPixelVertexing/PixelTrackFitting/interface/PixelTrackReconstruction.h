@@ -25,7 +25,7 @@ public:
 private:
   edm::ParameterSet theConfig;
   const PixelFitter       * theFitter;
-  const PixelTrackFilter  * theFilter;
+        PixelTrackFilter  * theFilter;
         PixelTrackCleaner * theCleaner;
         OrderedHitsGenerator * theGenerator;
         TrackingRegionProducer* theRegionProducer;

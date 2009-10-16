@@ -84,6 +84,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
 
+  if (theFilter) theFilter->update(ev);
+
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
 
