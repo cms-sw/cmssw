@@ -35,10 +35,14 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
+}
+
+void CtfSpecialSeedGenerator::endRun(edm::Run &, edm::EventSetup const&){
     if (theSeedBuilder) delete theSeedBuilder;
+    if (theRegionProducer) delete theRegionProducer;
     std::vector<OrderedHitsGenerator*>::iterator iGen;	
     for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
-    delete (*iGen);
+        delete (*iGen);
     }
 }
 
