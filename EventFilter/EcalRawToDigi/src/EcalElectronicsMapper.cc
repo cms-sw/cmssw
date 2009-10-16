@@ -364,7 +364,7 @@ uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
  
   //error return
   if( ! DCCDataUnpacker::silentMode_ ){
-    edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found";
+    edm::LogError("IncorrectMapping") << "DCC requested for SM id: " << aSMId_ << " not found";
   }
   return 0;
 }
@@ -381,7 +381,7 @@ uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
 
   //error return
   if( ! DCCDataUnpacker::silentMode_ ){
-    edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found";
+    edm::LogError("IncorrectMapping") << "SM requested DCC id: " << aDCCId_ << " not found";
   }
   return 0;
 }

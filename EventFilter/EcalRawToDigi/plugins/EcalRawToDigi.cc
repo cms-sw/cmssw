@@ -74,7 +74,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     std::ostringstream output;
     output      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
 		<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
-    edm::LogError("EcalRawToDigi")<< output.str();
+    edm::LogError("IncorrectConfiguration")<< output.str();
     // todo : throw an execption
   }
   
@@ -82,7 +82,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     std::ostringstream output;
     output      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
 		<<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
-    edm::LogError("EcalRawToDigi")<< output.str();
+    edm::LogError("IncorrectConfiguration")<< output.str();
     // todo : throw an execption
   }
   
@@ -153,11 +153,15 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 
   // use two arrays from cfg to establish DCCId:FedId. If they are empy, than use hard coded correspondence 
   bool readResult = myMap_->makeMapFromVectors(orderedFedUnpackList_, orderedDCCIdList_);
-
+  // myMap::makeMapFromVectors() returns "true" always
+  // need to be fixed?
 
   if(!readResult){
-    edm::LogError("EcalRawToDigi")<<"\n unable to read file : "
-      <<conf.getParameter<std::string>("DCCMapFile");
+    edm::LogWarning("IncorrectConfiguration")
+      << "Arrays orderedFedList and orderedDCCIdList are emply. "
+         "Hard coded correspondence for DCCId:FedId will be used.";
+    // edm::LogError("EcalRawToDigi")<<"\n unable to read file : "
+    //   <<conf.getParameter<std::string>("DCCMapFile");
   }
   
   // Build a new ECAL DCC data unpacker

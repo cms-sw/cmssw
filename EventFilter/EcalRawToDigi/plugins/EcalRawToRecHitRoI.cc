@@ -50,7 +50,7 @@ EcalRawToRecHitRoI::CandJobPSet::CandJobPSet(edm::ParameterSet &cfg) : CalUnpack
   else if (type == "l1muon"){cType=l1muon;}
   else if (type == "l1jet"){cType=l1jet;}
   else {
-    edm::LogError("EcalRawToRecHitRoI")<<"\n\n could not interpret the cType: "<<type
+    edm::LogWarning("IncorrectConfiguration")<<"\n\n could not interpret the cType: "<<type
 				       <<"\n using edm::View< reco::Candidate > by default. expect your trigger path to be slow !\n\n";
     cType=view;}
 }
@@ -108,28 +108,30 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
   }
 
   if (!All_ && !Muon_ && !EGamma_ && !Jet_ && !Candidate_){
-    edm::LogError(category)<<"I have no specified type of work."
+    edm::LogError("IncorrectConfiguration")<<"I have no specified type of work."
 				       <<"\nI will produce empty list of FEDs."
 				       <<"\nI will produce an empty EcalRecHitRefGetter."
 				       <<"\n I am sure you don't want that.";
     //throw. this is a typo/omittion in a cfg.
   }
 
- produces<EcalListOfFEDS>();
- produces<EcalRecHitRefGetter>();
+  produces<EcalListOfFEDS>();
+  produces<EcalRecHitRefGetter>();
 
- if (pset.exists("doES")){
-   do_es_=pset.getParameter<bool>("doES");
-   if (do_es_){
-     LogDebug(category)<<"will also make the list of FEDs for the ES.";
-     sourceTag_es_=pset.getParameter<edm::InputTag>("sourceTag_es");
-     esinstance_=pset.getUntrackedParameter<std::string>("esInstance","es");
-     if (esinstance_=="") edm::LogError(category)<<" instance name for ES region and FED list cannot be empty. expect a fwk failure.";
-     produces<ESListOfFEDS>(esinstance_);
-     produces<EcalRecHitRefGetter>(esinstance_);
-   }
- }else do_es_=false;
-   
+  if (pset.exists("doES"))
+    do_es_ = pset.getParameter<bool>("doES");
+  else
+    do_es_ = false;
+  
+  if (do_es_) {
+    LogDebug(category)<<"will also make the list of FEDs for the ES.";
+    sourceTag_es_=pset.getParameter<edm::InputTag>("sourceTag_es");
+    esinstance_=pset.getUntrackedParameter<std::string>("esInstance","es");
+    if (esinstance_=="")
+      edm::LogError("IncorrectConfiguration")<<" instance name for ES region and FED list cannot be empty. expect a fwk failure.";
+    produces<ESListOfFEDS>(esinstance_);
+    produces<EcalRecHitRefGetter>(esinstance_);
+  }
 }
 
 
@@ -198,7 +200,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  e.getByLabel(sourceTag_, lgetter);
  if (lgetter.failedToGet())
    {
-     edm::LogError(category)<<" could not retrieve the lazy getter from: "<<sourceTag_;
+     edm::LogError("IncorrectConfiguration")<<" could not retrieve the lazy getter from: "<<sourceTag_;
      return;
    }
 
@@ -245,7 +247,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
    e.getByLabel(sourceTag_es_, lgetter_es);
    if (lgetter_es.failedToGet())
      {
-       edm::LogError(category)<<" could not retrieve the lazy getter from: "<<sourceTag_es_;
+       edm::LogError("IncorrectConfiguration")<<" could not retrieve the lazy getter from: "<<sourceTag_es_;
        return;
      }
 
@@ -297,7 +299,7 @@ void EcalRawToRecHitRoI::Cand(edm::Event& e, const edm::EventSetup& es , std::ve
       break;
       
     default:
-      edm::LogError(category)<<"cType not recognised: "<<CandSource_[ic].cType;
+      edm::LogError("IncorrectRecHit")<<"cType not recognised: "<<CandSource_[ic].cType;
     }
   }
 
@@ -341,7 +343,7 @@ void EcalRawToRecHitRoI::Egamma(edm::Event& e, const edm::EventSetup& es , std::
   uint ne=EmSource_.size();
   for (uint ie=0;ie!=ne;++ie){
     e.getByLabel(EmSource_[ie].Source,emColl);
-    if (!emColl.isValid()){edm::LogError(category)<<"L1Em Collection: "<<EmSource_[ie].Source<<" is not valid.";continue;}
+    if (!emColl.isValid()){edm::LogError("IncorrectConfiguration")<<"L1Em Collection: "<<EmSource_[ie].Source<<" is not valid.";continue;}
 
     Egamma_OneL1EmCollection(emColl,EmSource_[ie],l1CaloGeom,FEDs);
   }
@@ -361,7 +363,7 @@ void EcalRawToRecHitRoI::Muon(edm::Event& e, const edm::EventSetup& es, std::vec
   e.getByLabel(MuonSource_.Source, muColl);
   if (muColl.failedToGet())
    {
-     edm::LogError(category)<<" could not retrieve the l1 muon collection from: "<<MuonSource_.Source;
+     edm::LogError("IncorrectConfiguration")<<" could not retrieve the l1 muon collection from: "<<MuonSource_.Source;
      return;
    }
 
@@ -410,7 +412,10 @@ void EcalRawToRecHitRoI::Jet(edm::Event& e, const edm::EventSetup& es, std::vect
   uint nj=JetSource_.size();
   for (uint ij=0;ij!=nj;++ij){
     e.getByLabel(JetSource_[ij].Source,jetColl);
-    if (!jetColl.isValid()){edm::LogError(category)<<"L1Jet collection: "<<JetSource_[ij].Source<<" is not valid.";continue;}
+    if (!jetColl.isValid()) {
+      edm::LogError("IncorrectConfiguration") << "L1Jet collection: " << JetSource_[ij].Source << " is not valid.";
+      continue;
+    }
 
     Jet_OneL1JetCollection(jetColl,JetSource_[ij],FEDs);
   }

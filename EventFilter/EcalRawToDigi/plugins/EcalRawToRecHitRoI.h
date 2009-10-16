@@ -172,7 +172,10 @@ template <typename CollectionType> void EcalRawToRecHitRoI::OneCandCollection(co
   
   edm::Handle<CollectionType> candColl;
   e.getByLabel(cjpset.Source, candColl);
-  if (candColl.failedToGet()) {edm::LogError(category)<<"could not get: "<<cjpset.Source<<" of type: "<<cjpset.cType; return;}
+  if (candColl.failedToGet()) {
+    edm::LogError("IncorrectConfiguration")<<"could not get: "<<cjpset.Source<<" of type: "<<cjpset.cType;
+    return;
+  }
 
   typename CollectionType::const_iterator it = candColl->begin();
   typename CollectionType::const_iterator end= candColl->end();
@@ -196,8 +199,8 @@ template <typename CollectionType> void EcalRawToRecHitRoI::OneCandCollection(co
       GlobalVector vector(it->px(),it->py(),it->pz());
 
       if (point.mag()==0 && vector.mag()==0){
-	edm::LogWarning(category)<<" state of candidate is not valid. skipping.";
-	continue;
+        edm::LogWarning("IncorrectRecHit")<<" state of candidate is not valid. skipping.";
+        continue;
       }
 
       FreeTrajectoryState fts(point, vector, it->charge(), propH->magneticField());
@@ -211,7 +214,7 @@ template <typename CollectionType> void EcalRawToRecHitRoI::OneCandCollection(co
 	eta= point.eta();
 	phi= point.phi();
       }
-      else{edm::LogError(category)<<"I tried to be precise, but propagation failed. from:\n"<<fts;
+      else{edm::LogWarning("IncorrectRecHit")<<"I tried to be precise, but propagation failed. from:\n"<<fts;
 	continue;}
     }
     

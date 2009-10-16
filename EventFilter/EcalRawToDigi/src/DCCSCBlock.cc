@@ -44,7 +44,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
 
     if( ! DCCDataUnpacker::silentMode_ ){	 
-      edm::LogWarning("EcalRawToDigiChId")
+      edm::LogWarning("IncorrectBlock")
         <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
         <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
@@ -74,7 +74,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
 
       if( ! DCCDataUnpacker::silentMode_ ){
-        edm::LogWarning("EcalRawToDigiChId")
+        edm::LogWarning("IncorrectBlock")
           <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
           <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
@@ -106,7 +106,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  (stripId < lastStripId_))
 	{
 	  if( ! DCCDataUnpacker::silentMode_ ){ 
-            edm::LogWarning("EcalRawToDigiChId")
+            edm::LogWarning("IncorrectBlock")
               <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
               <<"\n Xtal id was expected to increase but it didn't. "
               <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
@@ -163,7 +163,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }
     
     bool isSaturation(true);
-    if(wrongGain){ 
+    if(wrongGain){
       
       // check whether the gain==0 has features of saturation or not 
       // gain==0 occurs either in case of data corruption or of ADC saturation 
@@ -192,10 +192,10 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if(firstGainZeroSampID<3) {isSaturation=false; }
 
     if( (! DCCDataUnpacker::silentMode_) ){
-      if (! isSaturation)       {edm::LogWarning("EcalRawToDigiGainZero")
+      if (! isSaturation)       {edm::LogWarning("IncorrectBlock")
 	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;}
-      else       {edm::LogWarning("EcalRawToDigiGainZero")
+      else       {edm::LogWarning("IncorrectBlock")
 	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId << " with features of saturation";}
     }
@@ -223,16 +223,17 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     short firstGainWrong=-1;
     short numGainWrong=0;
     
-    for (uint i=0; i<nTSamples_; i++ ) {
-      if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
-	numGainWrong++;
-	if (firstGainWrong == -1) { firstGainWrong=i;}
+    for (uint i=1; i<nTSamples_; i++ ) {
+      if (xtalGains_[i-1]>xtalGains_[i]) {
+        numGainWrong++;
+        
+        if (firstGainWrong == -1) { firstGainWrong=i;}
       }
     }
     
     if (numGainWrong>0) {
       if( ! DCCDataUnpacker::silentMode_ ){
-	edm::LogWarning("EcalRawToDigiGainSwitch")
+	edm::LogWarning("IncorrectBlock")
 	  <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	  <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
       }
@@ -251,7 +252,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   
   else{// in case EE did not exist
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiChId")
+      edm::LogWarning("IncorrectBlock")
 	<<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	<<"\n An EEDetId was requested that does not exist";    
     }
@@ -262,13 +263,12 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   data_ += numbDWInXtalBlock_;
   
   return BLOCK_UNPACKED;
-  
 }
 
 
 void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection){
 
-  int activeDCC = mapper_->getActiveSM();
+  const int activeDCC = mapper_->getActiveSM();
 
   if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
          (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) ){
@@ -276,7 +276,7 @@ void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollec
      (*errorColection)->push_back(*eleTp);
   }else{
      if( ! DCCDataUnpacker::silentMode_ ){
-       edm::LogWarning("EcalRawToDigiDevChId")
+       edm::LogWarning("IncorrectBlock")
          <<"\n For event "<<event_->l1A()<<" there's fed: "<< activeDCC
          <<" activeDcc: "<<mapper_->getActiveSM()
          <<" but that activeDcc is not valid in EE.";
@@ -284,8 +284,3 @@ void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollec
   }
 
 }
-
-
-
-
-

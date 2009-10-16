@@ -33,11 +33,11 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   data_    = *data;
   dwToEnd_ = dwToEnd;
   
-  uint activeDCC = mapper_->getActiveSM();
+  const uint activeDCC = mapper_->getActiveSM();
 
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTowerSize")
+      edm::LogWarning("IncorrectEvent")
         <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<activeDCC
         <<"\n The end of event was reached "
         <<"\n(or, previously, pointers intended to navigate outside of FedBlock (based on block sizes), and were stopped by setting dwToEnd_ to zero)"    ;
@@ -73,7 +73,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       expTowerID_ != towerId_ &&
       expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must be within range foreseen in the FED 
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTowerId")
+      edm::LogWarning("IncorrectBlock")
         <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
         <<"\n Expected FE_id is "<<expTowerID_<<" while "<<towerId_<<" was found "
         <<"\n => Skipping to next FE block...";
@@ -90,7 +90,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   else if( (!checkFeId_) && 
 	   towerId_ > mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must still be within range foreseen in the FED 
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTowerId")
+      edm::LogWarning("IncorrectBlock")
         <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()<<" (there's no check fe_id==dcc_channel)"
         <<"\n the FE_id found: "<<towerId_<<" exceeds max number of FE foreseen in fed"
         <<"\n => Skipping to next FE block...";
@@ -110,7 +110,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
     if( dccBx != bx_ || dccL1 != (l1_+1) ){
       if( ! DCCDataUnpacker::silentMode_ ){
-        edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+        edm::LogWarning("IncorrectBlock")
 	  <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()
 	  <<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
           <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
@@ -127,7 +127,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   // check number of samples
   if( nTSamples_ != expXtalTSamples_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+      edm::LogWarning("IncorrectBlock")
         <<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
         <<"\n Unable to unpack Tower Block "<<towerId_<<" for event L1A "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
@@ -144,7 +144,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   
   if((*dwToEnd_)<blockLength_){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+      edm::LogWarning("IncorrectEvent")
         <<"\n Unable to unpack Tower Block "<<towerId_<<" for event L1A "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<blockSize_<<" are needed!"
         <<"\n => Skipping to next fed block...";
@@ -158,7 +158,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 	 
     if ( unfilteredDataBlockLength_ != blockLength_ ){
       if( ! DCCDataUnpacker::silentMode_ ){ 
-        edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+        edm::LogWarning("IncorrectEvent")
           <<"\n For event L1A "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
           <<"\n => Skipping to next fed block...";
@@ -178,7 +178,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
      if ( unfilteredDataBlockLength_ != blockLength_ ){
       if( ! DCCDataUnpacker::silentMode_ ){ 
-        edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+        edm::LogWarning("IncorrectBlock")
           <<"\n For event L1A "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
           <<"\n => Keeps unpacking as the unpacker was forced to keep FR data (by configuration) ...";
@@ -190,7 +190,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   }
   else if( blockLength_ > unfilteredDataBlockLength_ || (blockLength_-1) < numbDWInXtalBlock_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+      edm::LogWarning("IncorrectEvent")
         <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
         <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
         <<"\n => Skipping to next fed block...";
@@ -237,7 +237,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     if (statusUnpackXtal== SKIP_BLOCK_UNPACKING)
       {
         if( ! DCCDataUnpacker::silentMode_ ){
-  	  edm::LogWarning("EcalRawToDigi")
+  	  edm::LogWarning("IncorrectBlock")
 	    <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
 	    <<"\n The tower "<<towerId_<<" won't be unpacked further";
         }

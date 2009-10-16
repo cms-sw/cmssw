@@ -154,7 +154,7 @@ MatacqProducer::addMatacqData(edm::Event& event){
       if(doOrbitOffset_){
         map<uint32_t,uint32_t>::iterator it = orbitOffset_.find(runNumber);
         if(it == orbitOffset_.end()){
-          LogWarning("Matacq") << "Orbit offset not found for run "
+          LogWarning("IncorrectLaserEvent") << "Orbit offset not found for run "
                                << runNumber
                                << ". No orbit correction will be applied.";
         } else{
@@ -173,7 +173,7 @@ MatacqProducer::addMatacqData(edm::Event& event){
           if(produceRaw_){
             uint32_t dataLen64 = matacq_.getParsedLen();
             if(dataLen64 > bufferSize*8 || matacq_.getDccLen()!= dataLen64){
-              LogWarning("Matacq") << " Error in Matacq event fragment length! "
+              LogWarning("IncorrectLaserEvent") << " Error in Matacq event fragment length! "
                                    << "DCC len: " << matacq_.getDccLen()
                                    << "*8 Bytes, Parsed len: "
                                    << matacq_.getParsedLen() << "*8 Bytes.  "
@@ -194,11 +194,11 @@ MatacqProducer::addMatacqData(edm::Event& event){
 	    ++stats_.nNonLaserEventsWithMatacq;
 	  }
         } else{
-          LogWarning("Matacq") << "No matacq data found for "
+          LogWarning("IncorrectLaserEvent") << "No matacq data found for "
                                << "run " << runNumber << " orbit " << orbitId;
         }
       } else{
-        LogWarning("Matacq") << "No matacq file found for event "
+        LogWarning("IncorrectLaserEvent") << "No matacq file found for event "
                              << event.id();
       }
     }
@@ -320,7 +320,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
 	}
       }
     } else{
-      LogWarning("Matacq") << "Failed to access file " << inFileName_ << ".";
+      LogWarning("IncorrectConfiguration") << "Failed to access file " << inFileName_ << ".";
     }
     if(pos>=0){
       if(verbosity_>2) cout << "[Matacq] jumping to estimated position "
@@ -498,7 +498,7 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
   }
   
   if(!mopen(fname)){
-    LogWarning("Matacq") << "Failed to open file " << fname << "\n";
+    LogWarning("IncorrectConfiguration") << "Failed to open file " << fname << "\n";
     openedFileRunNumber_ = 0;
     if(fileChange!=0) *fileChange = false;
     return false;
@@ -542,7 +542,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
       if(orbit!=0 && thisOrbit!=0 && abs(orbit-thisOrbit)>orbitTolerance_){
 	//throw cms::Exception("EventCorruption")
 	//  << "Orbit ID inconsitency in DCC headers";
-	LogWarning("EventCorruption")
+	LogWarning("IncorrectEvent")
 	  << "Orbit ID inconsitency in DCC headers";
 	orbit = 0;
 	break;
@@ -554,7 +554,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
   if(orbit==0){
     //    throw cms::Exception("NotFound")
     //  << "Failed to retrieve orbit ID of event "<< ev.id();
-    LogWarning("NotFound") << "Failed to retrieve orbit ID of event "
+    LogWarning("IncorrectEvent") << "Failed to retrieve orbit ID of event "
 				<< ev.id();
   }
   return orbit;
@@ -583,12 +583,12 @@ int MatacqProducer::getCalibTriggerType(edm::Event& ev) const{
   int tType = stat.result(&p);
   if(p<0){
     //throw cms::Exception("NotFound") << "No ECAL DCC data found\n";
-    LogWarning("NotFound")  << "No ECAL DCC data found\n";
+    LogWarning("IncorrectEvent")  << "No ECAL DCC data found\n";
     tType = -1;
   }
   if(p<.8){
     //throw cms::Exception("EventCorruption") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
-    LogWarning("EventCorruption") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
+    LogWarning("IncorrectEvent") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
     tType = -1;
   }
   return tType;
@@ -638,7 +638,7 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   mp->mseek(last, SEEK_SET, "Moving to beginning of last complete "
 	    "matacq event");
   if(!mp->mread((char*) data, headerSize, "Reading matacq header", true)){
-    LogWarning("Matacq") << "Fast matacq event retrieval failure. "
+    LogWarning("IncorrectLaserEvent") << "Fast matacq event retrieval failure. "
       "Falling back to safe retrieval mode.";
     orbitStepMean_ = 0;
   }
@@ -651,7 +651,7 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   
   //some consistency check
   if(lastLen!=eventLength_){
-    LogWarning("Matacq")
+    LogWarning("IncorrectLaserEvent")
       << "Fast matacq event retrieval failure: it looks like "
       "the matacq file contains events of different sizes. Falling back to "
       "safe retrieval mode.";
@@ -828,7 +828,7 @@ bool MatacqProducer::mopen(const std::string& name){
                                                       IOFlags::OpenRead));
     inFileName_ = name;
   } catch(cms::Exception& e){
-    LogWarning("Matacq") << e.what();
+    LogWarning("IncorrectConfiguration") << e.what();
     inFile_.reset();
     inFileName_ = "";
     return false;
