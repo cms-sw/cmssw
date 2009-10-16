@@ -15,6 +15,7 @@ public:
 
   virtual double operator() (double time) const;
 
+    virtual double       timeToRise()         const {return 33.;}
 protected:
   void computeShape();
 
