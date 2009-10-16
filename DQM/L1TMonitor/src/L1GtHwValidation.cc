@@ -674,14 +674,12 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     TechnicalTriggerWord gtTechnicalTriggerWordDataMask(nTechBits);
     TechnicalTriggerWord gtTechnicalTriggerWordEmulMask(nTechBits);
 
-    int prescaleFactor = 0;
-    unsigned int triggerMask = 0;
     unsigned int bitValue = 0;
 
     if (matchBxInEvent && validBxInEvent) {
         for (int iBit = 0; iBit < nTechBits; ++iBit) {
 
-            triggerMask = (m_triggerMaskTechTrig.at(iBit)) & (1
+            unsigned int triggerMask = (m_triggerMaskTechTrig.at(iBit)) & (1
                     << PhysicsPartition);
 
             if (gtTechnicalTriggerWordData[iBit]) {
@@ -802,18 +800,18 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
     // get the index of the prescale factor set from data
     int iPfSet = fdlBlockData.gtPrescaleFactorIndexAlgo();
+    const std::vector<int>& prescaleFactorsAlgoTrig =
+            (*m_prescaleFactorsAlgoTrig).at(iPfSet);
+
 
     if (matchBxInEvent && validBxInEvent) {
 
-        const std::vector<int>& prescaleFactorsAlgoTrig =
-            (*m_prescaleFactorsAlgoTrig).at(iPfSet);
-
         for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
 
-            triggerMask = (m_triggerMaskAlgoTrig.at(iBit)) & (1
+            unsigned int triggerMask = (m_triggerMaskAlgoTrig.at(iBit)) & (1
                     << PhysicsPartition);
 
-            prescaleFactor = prescaleFactorsAlgoTrig.at(iBit);
+            int prescaleFactor = prescaleFactorsAlgoTrig.at(iBit);
 
             LogTrace("L1GtHwValidation") << "Bit " << iBit
                     << ": prescale factor = " << prescaleFactor
@@ -883,8 +881,21 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
         if (matchBxInEvent && validBxInEvent) {
             for (int iBit = 0; iBit < nAlgoBits; ++iBit) {
+
+                int prescaleFactor = prescaleFactorsAlgoTrig.at(iBit);
+
                 if (gtDecisionWordData[iBit] != gtDecisionWordEmul.at(iBit)) {
+
                     m_fdlDataEmulAlgoDecision[histIndex][iRec]->Fill(iBit);
+
+                    if (prescaleFactor == 1) {
+                        m_fdlDataEmulAlgoDecisionUnprescaled[histIndex][iRec]->Fill(
+                                iBit);
+                    } else {
+                        m_fdlDataEmulAlgoDecisionPrescaled[histIndex][iRec]->Fill(
+                                iBit);
+                    }
+
                     if (gtDecisionWordData[iBit]) {
                         m_fdlDataAlgoDecision_NoMatch[histIndex][iRec]->Fill(
                                 iBit);
