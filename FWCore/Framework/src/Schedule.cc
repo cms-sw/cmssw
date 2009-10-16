@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -19,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
@@ -88,6 +90,48 @@ namespace edm {
       return ptr;
     }
 
+    void loadMissingDictionaries() {
+      std::string const prefix("LCGReflex/");
+      while(!missingTypes().empty()) {
+        StringSet missing(missingTypes());
+        for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end(); 
+  	   it != itEnd; ++it) {
+	  try {
+            edmplugin::PluginCapabilities::get()->load(prefix + *it);
+	  }
+	  // We don't want to fail if we can't load a plug-in.
+	  catch(...) {}
+        }
+	missingTypes().clear();
+        for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end(); 
+  	   it != itEnd; ++it) {
+	  checkDictionaries(*it);
+        }
+	if (missingTypes() == missing) {
+	  break;
+	}
+      }
+      if (missingTypes().empty()) {
+	return;
+      }
+      std::ostringstream ostr;
+      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
+	   it != itEnd; ++it) {
+	ostr << *it << "\n\n";
+      }
+      throw edm::Exception(edm::errors::DictionaryNotFound)
+  	<< "No REFLEX data dictionary found for the following classes:\n\n"
+  	<< ostr.str()
+  	<< "Most likely each dictionary was never generated,\n"
+  	<< "but it may be that it was generated in the wrong package.\n"
+  	<< "Please add (or move) the specification\n"
+  	<< "<class name=\"whatever\"/>\n"
+  	<< "to the appropriate classes_def.xml file.\n"
+  	<< "If the class is a template instance, you may need\n"
+  	<< "to define a dummy variable of this type in classes.h.\n"
+  	<< "Also, if this class has any transient members,\n"
+  	<< "you need to specify them in classes_def.xml.";
+    }
   }
 
   // -----------------------------
@@ -254,6 +298,7 @@ namespace edm {
     // Now that the output workers are filled in, set any output limits.
     limitOutput();
 
+    loadMissingDictionaries();
     prod_reg_->setFrozen();
 
     // Sanity check: make sure nobody has added a worker after we've
