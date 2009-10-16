@@ -78,6 +78,7 @@ namespace cms
   // Destructor
   SiPixelClusterProducer::~SiPixelClusterProducer() { 
     delete clusterizer_;
+    delete theSiPixelGainCalibration_;
   }  
 
   //void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) 

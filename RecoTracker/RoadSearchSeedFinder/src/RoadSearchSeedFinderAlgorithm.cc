@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/01/26 17:22:15 $
-// $Revision: 1.34 $
+// $Author: gpetrucc $
+// $Date: 2009/05/23 10:31:34 $
+// $Revision: 1.35 $
 //
 
 #include <vector>
@@ -159,7 +159,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
   //***top-bottom
   //TTRHBuilder
-      TkTransientTrackingRecHitBuilder* builder = new TkTransientTrackingRecHitBuilder(tracker_,0,0,0,false);
+  TkTransientTrackingRecHitBuilder builder(tracker_,0,0,0,false);
   //***
 
   // get magnetic field for 0,0,0 , approximation for minRadius calculation
@@ -310,7 +310,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	   ++hit ) {
 	seed.addHit(*hit);
 	//***top-bottom
-	double seedY = builder->build(*hit)->globalPosition().y();
+	double seedY = builder.build(*hit)->globalPosition().y();
 	if (seedY>0) allNegative = false;
 	if (seedY<0) allPositive = false;
 	//***
