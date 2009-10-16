@@ -15,7 +15,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
 
         maxD0Significance = cms.double(3.0), ## keep most primary tracks (was 5.0)
 
-        minPt = cms.double(1.0), ## better for softish events (was 0.0)
+        minPt = cms.double(0.0), ## better for softish events
 
         minPixelHits = cms.int32(2) ## pixel hits > 2 (was 2 for generalTracks)
 

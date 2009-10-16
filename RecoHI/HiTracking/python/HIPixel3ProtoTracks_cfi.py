@@ -34,7 +34,7 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
     # Filter
     useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
-      KinematicFilterBlock
+      HiProtoTrackFilterBlock
     ),
 	
     # Cleaner
