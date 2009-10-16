@@ -22,6 +22,13 @@ source = cms.Source("CosMuoGenSource",
     MinPhi = cms.double(0.0),
     PlugVx = cms.double(0.0),
     PlugVz = cms.double(-14000.0),                
+
+    MultiMuon = cms.bool(False),
+    # MultiMuon = cms.bool(True),
+    MultiMuonFileName = cms.string("CORSIKAmultiMuon.root"),
+    MultiMuonFileFirstEvent = cms.int32(1),
+    MultiMuonNmin = cms.int32(2),                
+
     MinEnu = cms.double(10.),                
     MaxEnu = cms.double(10000.),                
     NuProdAlt = cms.double(7.5e6),                       

@@ -6,31 +6,150 @@
 //
 
 // include files
+
+#include <CLHEP/Random/RandomEngine.h>
+#include <CLHEP/Random/JamesRandom.h>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include "TFile.h"
+#include "TTree.h"
+
+#include "GeneratorInterface/CosmicMuonGenerator/interface/sim.h"
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGENnorm.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGEN.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/SingleParticleEvent.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
+
+using namespace std;
+
 
 // class definitions
 class CosmicMuonGenerator{
 public:
   // constructor
-  CosmicMuonGenerator();
+  CosmicMuonGenerator() : delRanGen(false)
+    {
+      //initialize class which normalizes flux (added by P.Biallass 29.3.2006)
+      Norm = new CMSCGENnorm();
+      //initialize class which produces the cosmic muons  (modified by P.Biallass 29.3.2006)
+      Cosmics = new CMSCGEN();
+      // set default control parameters
+      NumberOfEvents = 100;
+      RanSeed = 135799468;
+      MinP =     3.;
+      MinP_CMS =     MinP;
+      MaxP =   3000.;
+      MinTheta =  0.*Deg2Rad;
+      //MaxTheta = 84.26*Deg2Rad;
+      MaxTheta = 89.0*Deg2Rad;
+      MinPhi =    0.*Deg2Rad;
+      MaxPhi =  360.*Deg2Rad;
+      MinT0  = -12.5;
+      MaxT0  =  12.5;
+      ElossScaleFactor = 1.0;
+      RadiusOfTarget = 8000.;
+      ZDistOfTarget = 15000.;
+      ZCentrOfTarget = 0.;
+      TrackerOnly = false;
+      MultiMuon = false;
+      MultiMuonFileName = "dummy.root";
+      MultiMuonFileFirstEvent = 0;
+      MultiMuonNmin = 2;
+      TIFOnly_constant = false;
+      TIFOnly_linear = false;
+      MTCCHalf = false;
+      EventRate = 0.;
+      rateErr_stat = 0.;
+      rateErr_syst = 0.;
+      
+      SumIntegrals = 0.;
+      Ngen = 0.;
+      Nsel = 0.;
+      Ndiced = 0.;
+      NotInitialized = true;
+      Target3dRadius = 0.;
+      SurfaceRadius = 0.;
+      //set plug as default onto PX56 shaft
+      PlugVx = PlugOnShaftVx;
+      PlugVz = PlugOnShaftVz;
+      
+      std::cout << std::endl;
+      std::cout << "*********************************************************" << std::endl;
+      std::cout << "*********************************************************" << std::endl;
+      std::cout << "***                                                   ***" << std::endl;
+      std::cout << "***  C O S M I C  M U O N  G E N E R A T O R  (vC++)  ***" << std::endl;
+      std::cout << "***                                                   ***" << std::endl;
+      std::cout << "*********************************************************" << std::endl;
+      std::cout << "*********************************************************" << std::endl;
+      std::cout << std::endl;
+    }
+  
   // destructor
-  ~CosmicMuonGenerator();
+  ~CosmicMuonGenerator()
+    {
+      if (delRanGen)
+	delete RanGen;
+      delete Norm; 
+      delete Cosmics;
+    }
+  
   // event with one particle
   //SingleParticleEvent OneMuoEvt;
   SingleParticleEvent OneMuoEvt;
+
+  double EventWeight; //for multi muon events
+  double Trials; //for multi muon events
+
+  int Id_at;
+  double Px_at; double Py_at; double Pz_at; 
+  double E_at; 
+  //double M_at;
+  double Vx_at; double Vy_at; double Vz_at; 
+  double T0_at;
+  double Theta_at;
+
+
+  vector<double> Px_mu; vector<double> Py_mu; vector<double> Pz_mu;
+  vector<double> P_mu;
+  vector<double> Vx_mu; vector<double> Vy_mu; vector<double> Vz_mu;
+  double Vxz_mu;
+  vector<double> Theta_mu;
+
+  vector<int> Id_sf;
+  vector<double> Px_sf; vector<double> Py_sf; vector<double> Pz_sf; 
+  vector<double> E_sf; 
+  //vector<double> M_sf;
+  vector<double> Vx_sf; vector<double> Vy_sf; vector<double> Vz_sf; 
+  vector<double> T0_sf;
+  
+  vector<int> Id_ug;
+  vector<double> Px_ug; vector<double> Py_ug; vector<double> Pz_ug;
+  vector<double> E_ug; 
+  //vector<double> M_ug;
+  vector<double> Vx_ug; vector<double> Vy_ug; vector<double> Vz_ug;
+  vector<double> T0_ug;
  
  
 
 private:
+
+  TFile* MultiIn; //file to be read in
+  TTree* MultiTree; //tree of file with multi muon events
+  sim* SimTree; //class to acces tree branches
+  ULong64_t SimTreeEntries;
+  ULong64_t SimTree_jentry;
+  int NcloseMultiMuonEvents;
+  int NskippedMultiMuonEvents;
+
+
   //initialize class which normalizes flux (added by P.Biallass 29.3.2006)
   CMSCGENnorm*  Norm ;
   //initialize class which produces the cosmic muons  (modified by P.Biallass 29.3.2006)
@@ -52,6 +171,10 @@ private:
   double ZDistOfTarget; // z-length of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
   double ZCentrOfTarget; // z-position of centre of target-cylinder which cosmics HAVE to hit [mm], default is Nominal Interaction Point (=0)
   bool   TrackerOnly; //if set to "true" detector with tracker-only setup is used, so no material or B-field outside is considerd
+  bool   MultiMuon; //read in multi-muon events from file instead of generating single muon events
+  std::string MultiMuonFileName; //file containing multi muon events, to be read in
+  int MultiMuonFileFirstEvent; //first multi muon event, to be read in
+  int MultiMuonNmin; //minimal number of multi muons per event reaching the cylinder surrounding CMS
   bool   TIFOnly_constant; //if set to "true" cosmics can also be generated below 2GeV with unphysical constant energy dependence
   bool   TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
   bool   MTCCHalf; //if set to "true" muons are sure to hit half of CMS important for MTCC, 
@@ -107,6 +230,10 @@ public:
   void setZDistOfTarget(double Z);
   void setZCentrOfTarget(double Z);
   void setTrackerOnly(bool Tracker);
+  void setMultiMuon(bool MultiMu);
+  void setMultiMuonFileName(std::string MultiMuonFileName);
+  void setMultiMuonFileFirstEvent(int MultiMuFile1stEvt);
+  void setMultiMuonNmin(int MultiMuNmin);
   void setTIFOnly_constant(bool TIF);
   void setTIFOnly_linear(bool TIF);
   void setMTCCHalf(bool MTCC);
@@ -128,5 +255,7 @@ public:
   double getRate();
   // generate next event/muon
   void nextEvent();
+  // generate next multi muon event
+  bool nextMultiEvent();
 };
 #endif

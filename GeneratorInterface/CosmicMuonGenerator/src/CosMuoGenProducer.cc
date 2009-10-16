@@ -26,6 +26,10 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   ZTarget(pset.getParameter<double>("ZDistOfTarget")),
   ZCTarget(pset.getParameter<double>("ZCentrOfTarget")),
   TrackerOnly(pset.getParameter<bool>("TrackerOnly")),
+  MultiMuon(pset.getParameter<bool>("MultiMuon")),
+  MultiMuonFileName(pset.getParameter<std::string>("MultiMuonFileName")),
+  MultiMuonFileFirstEvent(pset.getParameter<int>("MultiMuonFileFirstEvent")),
+  MultiMuonNmin(pset.getParameter<int>("MultiMuonNmin")),
   TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
   TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
@@ -70,6 +74,10 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setZDistOfTarget(ZTarget);
     CosMuoGen->setZCentrOfTarget(ZCTarget);
     CosMuoGen->setTrackerOnly(TrackerOnly);
+    CosMuoGen->setMultiMuon(MultiMuon);
+    CosMuoGen->setMultiMuonFileName(MultiMuonFileName);
+    CosMuoGen->setMultiMuonFileFirstEvent(MultiMuonFileFirstEvent);
+    CosMuoGen->setMultiMuonNmin(MultiMuonNmin);
     CosMuoGen->setTIFOnly_constant(TIFOnly_constant);
     CosMuoGen->setTIFOnly_linear(TIFOnly_linear);
     CosMuoGen->setMTCCHalf(MTCCHalf);
@@ -97,7 +105,8 @@ void edm::CosMuoGenProducer::endRun( Run &run, const EventSetup& es )
   std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
 
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
-  genRunInfo->setInternalXSec(cs);
+  if (MultiMuon) genRunInfo->setInternalXSec(0.);
+  else genRunInfo->setInternalXSec(cs);
   genRunInfo->setExternalXSecLO(extCrossSect);
   genRunInfo->setFilterEfficiency(extFilterEff);
 
@@ -111,28 +120,101 @@ void edm::CosMuoGenProducer::clear(){}
 void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
   // generate event
-  CosMuoGen->nextEvent();
+  if (!MultiMuon) {
+    CosMuoGen->nextEvent();
+  }
+  else {
+    bool success = CosMuoGen->nextMultiEvent();
+    if (!success) std::cout << "CosMuoGenProducer.cc: CosMuoGen->nextMultiEvent() failed!" 
+			    << std::endl;
+  }
 
-  // delete and re-create fEvt (memory)
-  // delete fEvt;
+  if (Debug) {
+    std::cout << "CosMuoGenSource.cc: CosMuoGen->EventWeight=" << CosMuoGen->EventWeight 
+	      << "  CosMuoGen: Nmuons=" << CosMuoGen->Id_sf.size() << std::endl; 
+    std::cout << "CosMuoGen->Id_at=" << CosMuoGen->Id_at
+	      << "  CosMuoGen->Vx_at=" << CosMuoGen->Vx_at 
+	      << "  CosMuoGen->Vy_at=" << CosMuoGen->Vy_at
+	      << "  CosMuoGen->Vz_at=" << CosMuoGen->Vz_at 
+	      << "  CosMuoGen->T0_at=" << CosMuoGen->T0_at << std::endl;
+    std::cout << "  Px=" << CosMuoGen->Px_at
+	      << "  Py=" << CosMuoGen->Py_at
+	      << "  Pz=" << CosMuoGen->Pz_at << std::endl;
+    for (unsigned int i=0; i<CosMuoGen->Id_sf.size(); ++i) {
+      std::cout << "Id_sf[" << i << "]=" << CosMuoGen->Id_sf[i]
+		<< "  Vx_sf[" << i << "]=" << CosMuoGen->Vx_sf[i]
+		<< "  Vy_sf=" << CosMuoGen->Vy_sf[i]
+		<< "  Vz_sf=" << CosMuoGen->Vz_sf[i]
+		<< "  T0_sf=" << CosMuoGen->T0_sf[i]
+		<< "  Px_sf=" << CosMuoGen->Px_sf[i]
+		<< "  Py_sf=" << CosMuoGen->Py_sf[i]
+		<< "  Pz_sf=" << CosMuoGen->Pz_sf[i] << std::endl;
+      std::cout << "phi_sf=" << atan2(CosMuoGen->Px_sf[i],CosMuoGen->Pz_sf[i]) << std::endl;
+      std::cout << "Id_ug[" << i << "]=" << CosMuoGen->Id_ug[i] 
+		<< "  Vx_ug[" << i << "]=" << CosMuoGen->Vx_ug[i] 
+		<< "  Vy_ug=" << CosMuoGen->Vy_ug[i]
+		<< "  Vz_ug=" << CosMuoGen->Vz_ug[i]
+		<< "  T0_ug=" << CosMuoGen->T0_ug[i]
+		<< "  Px_ug=" << CosMuoGen->Px_ug[i]
+		<< "  Py_ug=" << CosMuoGen->Py_ug[i]
+		<< "  Pz_ug=" << CosMuoGen->Pz_ug[i] << std::endl;
+      std::cout << "phi_ug=" << atan2(CosMuoGen->Px_ug[i],CosMuoGen->Pz_ug[i]) << std::endl;;
+    }
+  }
+
+
   fEvt = new HepMC::GenEvent();
-  HepMC::GenVertex* Vtx = new  HepMC::GenVertex(HepMC::FourVector(CosMuoGen->OneMuoEvt.vx(),
-								  CosMuoGen->OneMuoEvt.vy(),
-								  CosMuoGen->OneMuoEvt.vz(),
-								  CosMuoGen->OneMuoEvt.t0()));
-  HepMC::FourVector p_in(CosMuoGen->OneMuoEvt.px_in(),CosMuoGen->OneMuoEvt.py_in(),CosMuoGen->OneMuoEvt.pz_in(),CosMuoGen->OneMuoEvt.e_in());
-  HepMC::GenParticle* Part_in = 
-    new HepMC::GenParticle(p_in,CosMuoGen->OneMuoEvt.id_in(),3);//Comment mother particle
-  Vtx->add_particle_in(Part_in); 
+  
+  HepMC::GenVertex* Vtx_at = new  HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_at, //[mm]
+  							     CosMuoGen->Vy_at, //[mm]
+  							     CosMuoGen->Vz_at, //[mm]
+  							     CosMuoGen->T0_at)); //[mm]
+  //cout << "CosMuoGenSource.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
+  HepMC::FourVector p_at(CosMuoGen->Px_at,CosMuoGen->Py_at,CosMuoGen->Pz_at,CosMuoGen->E_at);
+  HepMC::GenParticle* Part_at =
+    new HepMC::GenParticle(p_at,CosMuoGen->Id_at, 3);//Comment mother particle in
+  Vtx_at->add_particle_in(Part_at);
 
-  HepMC::FourVector p(CosMuoGen->OneMuoEvt.px(),CosMuoGen->OneMuoEvt.py(),CosMuoGen->OneMuoEvt.pz(),CosMuoGen->OneMuoEvt.e());
-  HepMC::GenParticle* Part = 
-    new HepMC::GenParticle(p,CosMuoGen->OneMuoEvt.id(),1); //Final state daughter particle
-  Vtx->add_particle_out(Part); 
 
-  fEvt->add_vertex(Vtx);
+  //loop here in case of multi muon events (else just one iteration)
+  for (unsigned int i=0; i<CosMuoGen->Id_sf.size(); ++i) {
+
+    HepMC::FourVector p_sf(CosMuoGen->Px_sf[i],CosMuoGen->Py_sf[i],CosMuoGen->Pz_sf[i],CosMuoGen->E_sf[i]);
+    HepMC::GenParticle* Part_sf_in =
+      new HepMC::GenParticle(p_sf,CosMuoGen->Id_sf[i], 3); //Comment daughter particle
+    Vtx_at->add_particle_out(Part_sf_in);
+    
+    HepMC::GenVertex* Vtx_sf = new HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_sf[i],                             CosMuoGen->Vy_sf[i], CosMuoGen->Vz_sf[i], CosMuoGen->T0_sf[i])); //[mm]
+    HepMC::GenParticle* Part_sf_out =
+      new HepMC::GenParticle(p_sf,CosMuoGen->Id_sf[i], 3); //Comment daughter particle
+    
+    Vtx_sf->add_particle_in(Part_sf_in);
+    Vtx_sf->add_particle_out(Part_sf_out);
+    
+    fEvt->add_vertex(Vtx_sf); //one per muon
+
+    HepMC::GenVertex* Vtx_ug = new HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_ug[i],                             CosMuoGen->Vy_ug[i], CosMuoGen->Vz_ug[i], CosMuoGen->T0_ug[i])); //[mm]
+    
+    HepMC::FourVector p_ug(CosMuoGen->Px_ug[i],CosMuoGen->Py_ug[i],CosMuoGen->Pz_ug[i],CosMuoGen->E_ug[i]);
+    HepMC::GenParticle* Part_ug =
+      new HepMC::GenParticle(p_ug,CosMuoGen->Id_ug[i], 1);//Final state daughter particle
+
+    Vtx_ug->add_particle_in(Part_sf_out);
+    Vtx_ug->add_particle_out(Part_ug);
+
+    fEvt->add_vertex(Vtx_ug); //one per muon
+
+  }
+
+  fEvt->add_vertex(Vtx_at);
+  fEvt->set_signal_process_vertex(Vtx_at);
+
   fEvt->set_event_number(e.id().event());
   fEvt->set_signal_process_id(13);
+
+  fEvt->weights().push_back( CosMuoGen->EventWeight ); // just one event weight 
+  fEvt->weights().push_back( CosMuoGen->Trials ); // int Trials number (unweighted) 
+
 
   if (cmVerbosity_) fEvt->print();
 
@@ -142,4 +224,5 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
   e.put(genEventInfo);
+
 }

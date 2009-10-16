@@ -209,6 +209,42 @@ void SingleParticleEvent::subtractEloss(double waterEquivalents){
   Pz = Pz*newAbsMom/oldAbsMom;                  // updated pz
 }
 
+double SingleParticleEvent::Eloss(double waterEquivalents, double Energy){
+  double L10E = log10(Energy);
+  // parameters for standard rock (PDG 2004, page 230)
+  double A = (1.91514 + 0.254957*L10E)/1000.;                         // a [GeV g^-1 cm^2]
+  double B = (0.379763 + 1.69516*L10E - 0.175026*L10E*L10E)/1000000.; // b [g^-1 cm^2]
+  double EPS = A/B;                                                   // epsilon [GeV]
+  double newEnergy = (Energy + EPS)*exp(-B*waterEquivalents) - EPS; // updated energy
+  double EnergyLoss = Energy - newEnergy;
+  return EnergyLoss;
+}
+
+
+void SingleParticleEvent::setEug(double Eug) {
+  E_ug = Eug;
+}
+
+double SingleParticleEvent::Eug(){ return E_ug; }
+
+double SingleParticleEvent::deltaEmin(double E_sf) {
+  double dE = Eloss(waterEquivalents, E_sf);
+  return E_ug - (E_sf-dE);
+}
+
+
+void SingleParticleEvent::SurfProj(double Vx_in, double Vy_in, double Vz_in,
+				   double Px_in, double Py_in, double Pz_in,
+				   double& Vx_up, double& Vy_up, double& Vz_up) { 
+  //determine vertex of muon at Surface (+PlugWidth)
+  double dy = Vy_in - (SurfaceOfEarth+PlugWidth);
+  Vy_up = Vy_in - dy;
+  Vx_up = Vx_in - dy*Px_in/Py_in; 	
+  Vz_up = Vz_in - dy*Pz_in/Py_in;
+  if (Debug) std::cout << "Vx_up=" << Vx_up << " Vy_up=" 
+		       << Vy_up << " Vz_up=" << Vz_up << std::endl;	
+}
+
 double SingleParticleEvent::absVzTmp(){
   if(MTCC==true){
     return tmpVz; //need sign to be sure muon hits half of CMS with MTCC setup
@@ -264,6 +300,8 @@ double SingleParticleEvent::vy(){ return Vy; }
 double SingleParticleEvent::vz(){ return Vz; }
 
 double SingleParticleEvent::t0(){ return T0; }
+
+double SingleParticleEvent::WaterEquivalents() { return waterEquivalents; }
 
 double SingleParticleEvent::phi(){
   double phiXZ = atan2(Px,Pz);

@@ -47,12 +47,13 @@ private:
   double absVzTmp(); // |Vz| [mm]
   double rVxyTmp();  // R_XY [mm]
 
+
 public:
   // create (initialize) an event with a single particle
   void create(int id, double px, double py, double pz, double e, double m, double vx, double vy, double vz, double t0);
   // propagate particle to target area
   void propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, double Z_CentrTarget, bool TrackerOnly, bool MTCCHalf);
-
+  double Eloss(double waterEquivalents, double Energy); //return Eloss
   // particle has hit the target volume (during propagation)
   bool hitTarget();
   // event info (direct access)
@@ -67,6 +68,8 @@ public:
   double vy_in(); // [mm]
   double vz_in(); // [mm]
   double t0_in(); // [mm/c] with c = 299.792458 mm/ns
+  double WaterEquivalents(); //[g cm^-2]
+
   //final state daughter particles
   int    id(); // [HEP particle code]
   double px(); // [GeV/c]
@@ -85,7 +88,16 @@ public:
   double absVz(); // |Vz| [mm]
   double rVxy();  // R_XY [mm]
 
+  void setEug(double Eug); // [GeV]
+  double Eug(); // [GeV/c]
+  double deltaEmin(double Energy); // [GeV]
+  void SurfProj(double Vx_in, double Vy_in, double Vz_in,
+		double Px_in, double Py_in, double Pz_in,
+		double& Vx_up, double& Vy_up, double& Vz_up);
+
   double PlugVx;
   double PlugVz;
+  double waterEquivalents;
+  double E_ug;
 };
 #endif
