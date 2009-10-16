@@ -155,7 +155,7 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
 
     const reco::IsoDeposit *TID=0;
-    TID = elec->trackerIsoDeposit();
+    TID = elec->trackIsoDeposit();
    
     //Isolation Cone coordinates
     //double IsoCone_eta=TID->eta();
