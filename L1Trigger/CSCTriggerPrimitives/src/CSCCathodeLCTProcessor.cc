@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/19 12:49:12 $
-//   $Revision: 1.38 $
+//   $Date: 2009/05/19 15:29:23 $
+//   $Revision: 1.39 $
 //
 //   Modifications: 
 //
@@ -1969,7 +1969,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
   // Test beam version of TMB pretrigger and LCT sorting
   enum {max_lcts = 2};
   // 2 possible LCTs per CSC x 7 LCT quantities
-  int keystrip_data[max_lcts][7] = {0};
+  int keystrip_data[max_lcts][7] = {{0}};
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
 
   // Fire half-strip one-shots for hit_persist bx's (6 bx's by default).

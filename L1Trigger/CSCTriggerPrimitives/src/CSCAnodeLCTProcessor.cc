@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/15 16:29:52 $
-//   $Revision: 1.35 $
+//   $Date: 2009/05/19 12:49:12 $
+//   $Revision: 1.36 $
 //
 //   Modifications: 
 //
@@ -779,8 +779,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
 	  // Wait a drift_delay time later and look for layers hit in
 	  // the pattern.
-	  if ((pulse[this_layer][this_wire] >> 
-	       (first_bx[key_wire] + drift_delay)) & 1 == 1) {
+	  if (((pulse[this_layer][this_wire] >> 
+		(first_bx[key_wire] + drift_delay)) & 1) == 1) {
 
 	    // If layer has never had a hit before, then increment number
 	    // of layer hits.
