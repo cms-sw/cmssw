@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTMuonOfflineAnalysis")
 
-process.load("HLTriggerOffline.Muon.hltMuonValidator_cfi")
+process.load("HLTriggerOffline.Muon.HLTMuonVal_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 ##############################################################
@@ -49,6 +49,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.analyzerpath = cms.Path(
     process.hltMuonValidator *
+    process.relvalMuonBits *
     process.MEtoEDMConverter
 )
 
