@@ -19,12 +19,15 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/tmp/heavyFlavorValidation.root')
 )
 
-process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
+process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 process.dqmSaver.dirName = '/tmp/'
 #process.DQMStore.referenceFileName = '/tmp/DQM_V0001_R000000001__TProfile_3_1__CMSSW_X_Y_Z__RECO.root'
 #process.dqmSaver.referenceHandling = 'all'
 process.load('HLTriggerOffline/HeavyFlavor/heavyFlavorValidationHarvestingSequence_cff')
 
-process.path = cms.Path(process.EDMtoME * process.heavyFlavorValidationHarvestingSequence)
+process.edmtome_step = cms.Path(process.EDMtoME)
+process.validationHarvesting = cms.Path(process.heavyFlavorValidationHarvestingSequence)
+process.dqmsave_step = cms.Path(process.DQMSaver)
 
-process.endpath = cms.EndPath(process.DQMSaver)
+process.schedule = cms.Schedule(process.edmtome_step,process.validationHarvesting,process.dqmsave_step)
+
