@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 hiPixel3PrimTracks = cms.EDFilter("PixelTrackProducer",
 
@@ -10,48 +13,33 @@ hiPixel3PrimTracks = cms.EDFilter("PixelTrackProducer",
     RegionFactoryPSet = cms.PSet(
 	  ComponentName = cms.string("GlobalTrackingRegionWithVerticesProducer"),
 	  RegionPSet = cms.PSet(
-		ptMin         = cms.double(1.5),	  
-		originRadius  = cms.double(0.2),
-		nSigmaZ       = cms.double(3.0),		
-		beamSpot      = cms.InputTag("offlineBeamSpot"),
-		precise       = cms.bool(True),		
-		useFoundVertices = cms.bool(True),
-		VertexCollection = cms.InputTag("hiPixelAdaptiveVertex"),		
-		useFixedError = cms.bool(True),
-		fixedError    = cms.double(0.2),
-		sigmaZVertex  = cms.double(3.0),		
+                HiTrackingRegionWithVertexBlock
 	  )
     ),
      
-	# Ordered Hits
+    # Ordered Hits
     OrderedHitsFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "StandardHitTripletGenerator" ),
+          ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	  SeedingLayers = cms.string( "PixelLayerTriplets" ),
-      GeneratorPSet = cms.PSet( 
+          GeneratorPSet = cms.PSet( 
 		PixelTripletHLTGenerator
-      )
+          )
     ),
 	
-	# Fitter
+    # Fitter
     FitterPSet = cms.PSet( 
 	  ComponentName = cms.string('PixelFitterByHelixProjections'),
 	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
     ),
 	
-	# Filter
-	useFilterWithES = cms.bool( False ),
+    # Filter
+    useFilterWithES = cms.bool( True ),
     FilterPSet = cms.PSet( 
-      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-      nSigmaInvPtTolerance = cms.double( 0.0 ),
-      ptMin = cms.double( 1.5 ),
-      tipMax = cms.double( 0.2 ),
-	  chi2 = cms.double( 1000.0 )
+          HiFilterBlock
     ),
 	
-	# Cleaner
+    # Cleaner
     CleanerPSet = cms.PSet(  
-	  #ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) 
-	  ComponentName = cms.string( "none" )
-	)
+          ComponentName = cms.string( "TrackCleaner" )
+    )
 )

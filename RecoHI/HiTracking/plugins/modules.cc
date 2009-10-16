@@ -17,3 +17,8 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionProducer, "HITr
 
 #include "HITrackingRegionForPrimaryVtxProducer.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionForPrimaryVtxProducer, "HITrackingRegionForPrimaryVtxProducer");
+
+// Pixel track filter
+#include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+DEFINE_EDM_PLUGIN(PixelTrackFilterWithESFactory, HIPixelTrackFilter, "HIPixelTrackFilter");
