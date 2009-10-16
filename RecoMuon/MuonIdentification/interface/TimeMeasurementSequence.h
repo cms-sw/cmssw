@@ -7,7 +7,7 @@
  *
  * \author Piotr Traczyk, CERN
  *
- * \version $Id: TimeMeasurementSequence.h,v 1.1 2009/03/13 22:58:14 ptraczyk Exp $
+ * \version $Id: TimeMeasurementSequence.h,v 1.2 2009/03/27 02:26:41 ptraczyk Exp $
  *
  */
 
@@ -19,7 +19,7 @@ class TimeMeasurementSequence {
       std::vector <double> local_t0;
       std::vector <double> weight;
       
-      int totalWeight;
+      double totalWeight;
       
       TimeMeasurementSequence():
        totalWeight(0)

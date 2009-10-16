@@ -8,7 +8,7 @@
 // 
 /**\class MuonTimingFiller MuonTimingFiller.h RecoMuon/MuonIdentification/interface/MuonTimingFiller.h
 
- Description: <one line class summary>
+ Description: Class filling the DT, CSC and Combined MuonTimeExtra objects
 
  Implementation:
      <Notes on implementation>
@@ -16,10 +16,9 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.h,v 1.1 2009/03/27 02:26:41 ptraczyk Exp $
+// $Id: MuonTimingFiller.h,v 1.2 2009/07/30 09:59:56 ptraczyk Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,7 +36,6 @@
 #include "RecoMuon/MuonIdentification/interface/DTTimingExtractor.h"
 #include "RecoMuon/MuonIdentification/interface/CSCTimingExtractor.h"
 
-
 //
 // class decleration
 //
@@ -46,14 +44,21 @@ class MuonTimingFiller {
    public:
       MuonTimingFiller(const edm::ParameterSet&);
       ~MuonTimingFiller();
-      void fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, edm::Event& iEvent, const edm::EventSetup& iSetup );
+      void fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, 
+                    reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, 
+                    edm::Event& iEvent, const edm::EventSetup& iSetup );
 
    private:
       void fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime );
-      void rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy);
+      void rawFit(double &a, double &da, double &b, double &db, 
+                  const vector<double> hitsx, const vector<double> hitsy);
+      void addEcalTime( const reco::Muon& muon, TimeMeasurementSequence &cmbSeq );
+      void combineTMSequences( const reco::Muon& muon, TimeMeasurementSequence dtSeq, 
+                               TimeMeasurementSequence cscSeq, TimeMeasurementSequence &cmbSeq );
       
       DTTimingExtractor* theDTTimingExtractor_;
       CSCTimingExtractor* theCSCTimingExtractor_;
+      double errorDT_,errorCSC_,ecalEcut_;
 
 };
 
