@@ -14,7 +14,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 //   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.3 2008/05/06 13:14:26 fblekman Exp $
+// $Id: SiPixelDigitizer.cc,v 1.4 2008/06/30 17:56:42 fambrogl Exp $
 //
 //
 
@@ -61,6 +61,12 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+//Random Number
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandomEngine.h"
+
 //
 // constants, enums and typedefs
 //
@@ -78,9 +84,7 @@
 namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig):
-    conf_(iConfig),
-    _pixeldigialgo(iConfig)
-
+    conf_(iConfig)
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -91,17 +95,27 @@ namespace cms
     trackerContainers.clear();
     trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
     geometryType = iConfig.getParameter<std::string>("GeometryType");
-
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+        << "SiPixelDigitizer requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+    }
   
+    rndEngine       = &(rng->getEngine());
+    _pixeldigialgo = new SiPixelDigitizerAlgorithm(iConfig,(*rndEngine));
 
   }
 
   void SiPixelDigitizer::beginJob(const edm::EventSetup& es){
-    _pixeldigialgo.init(es);
+    _pixeldigialgo->init(es);
   }
   
-  SiPixelDigitizer::~SiPixelDigitizer()
-  {  edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";}
+  SiPixelDigitizer::~SiPixelDigitizer(){  
+    edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";
+    delete _pixeldigialgo;
+  }
 
 
   //
@@ -161,7 +175,7 @@ namespace cms
         
         
         collector.data=
-          _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+          _pixeldigialgo->run(SimHitMap[(*iu)->geographicalId().rawId()],
                              dynamic_cast<PixelGeomDetUnit*>((*iu)),
                              bfield);
         if (collector.data.size()>0){
@@ -169,7 +183,7 @@ namespace cms
           
           //digisimlink
           if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-              linkcollector.data=_pixeldigialgo.make_link();
+              linkcollector.data=_pixeldigialgo->make_link();
               if (linkcollector.data.size()>0) theDigiLinkVector.push_back(linkcollector);
           }
           

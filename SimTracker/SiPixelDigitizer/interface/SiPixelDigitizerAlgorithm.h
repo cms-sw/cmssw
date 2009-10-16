@@ -43,6 +43,7 @@
 
 // For the random numbers
 namespace CLHEP {
+  class HepRandomEngine;
   class RandGaussQ;
   class RandFlat;
 }
@@ -50,7 +51,7 @@ namespace CLHEP {
 class SiPixelDigitizerAlgorithm  {
  public:
   
-  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf);
+  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
   ~SiPixelDigitizerAlgorithm();
   
   //run the algorithm to digitize a single det
@@ -362,18 +363,19 @@ class SiPixelDigitizerAlgorithm  {
     void module_killing_DB();  // remove dead modules uisng the list in the DB
 
    // For random numbers
+    CLHEP::HepRandomEngine& rndEngine;
+
     CLHEP::RandFlat *flatDistribution_;
     CLHEP::RandGaussQ *gaussDistribution_;
-
+    
     // Threshold gaussian smearing:
     CLHEP::RandGaussQ *smearedThreshold_FPix_;
     CLHEP::RandGaussQ *smearedThreshold_BPix_;
-
-    CLHEP::RandGaussQ *smearedChargeDistribution_ ;
-
-  // the random generator
-  CLHEP::RandGaussQ* theGaussianDistribution;
     
+    CLHEP::RandGaussQ *smearedChargeDistribution_ ;
+    
+    // the random generator
+    CLHEP::RandGaussQ* theGaussianDistribution;
 };
 
 #endif

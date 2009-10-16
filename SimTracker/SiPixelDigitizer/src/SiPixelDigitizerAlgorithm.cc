@@ -113,13 +113,13 @@ void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
 }
 //=========================================================================
 
-SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
+SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
   use_ineff_from_db_(conf_.getParameter<bool>("useDB")),
   use_module_killing_(conf_.getParameter<bool>("killModules")), // boolean to kill or not modules
   use_deadmodule_DB_(conf_.getParameter<bool>("DeadModules_DB")), // boolean to access dead modules from DB
   use_LorentzAngle_DB_(conf_.getParameter<bool>("LorentzAngle_DB")), // boolean to access Lorentz angle from DB 
-  theSiPixelGainCalibrationService_(0)
+  theSiPixelGainCalibrationService_(0),rndEngine(eng)
 {
   using std::cout;
   using std::endl;
@@ -269,36 +269,22 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   } // end the pixel inefficiency part
 
   // Init the random number services  
-    if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if ( ! rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-        << "SiPixelDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
-    }
- 
-    CLHEP::HepRandomEngine& engine = rng->getEngine();
-    // Fillipo has: rndEngine = &(rng->getEngine()); LETS SEE IF BOTH WORK
-
-    // engine MUST be a reference here, if a pointer is used the
-    // distribution will destroy the engine in its destructor, a major
-    // problem because the service owns the engine and will destroy it
-    gaussDistribution_ = new CLHEP::RandGaussQ(engine, 0., theReadoutNoise);
-    flatDistribution_ = new CLHEP::RandFlat(engine, 0., 1.);
-
+  if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
+    gaussDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0., theReadoutNoise);
+    flatDistribution_ = new CLHEP::RandFlat(rndEngine, 0., 1.);
+    
     if(addNoise) { 
-      theNoiser = new GaussianTailNoiseGenerator(engine);
+      theNoiser = new GaussianTailNoiseGenerator(rndEngine);
     }
-
+    
     if(fluctuateCharge) {
-      fluctuate = new SiG4UniversalFluctuation(engine);
+      fluctuate = new SiG4UniversalFluctuation(rndEngine);
     }
 
     // Threshold smearing with gaussian distribution:
     if(addThresholdSmearing) {
-      smearedThreshold_FPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_FPix , theThresholdSmearing_FPix);
-      smearedThreshold_BPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_BPix , theThresholdSmearing_BPix);
+      smearedThreshold_FPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_FPix , theThresholdSmearing_FPix);
+      smearedThreshold_BPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix , theThresholdSmearing_BPix);
     }
 
     } //end Init the random number services
@@ -1142,9 +1128,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
     if(addChargeVCALSmearing) 
       {
 
-	edm::Service<edm::RandomNumberGenerator> rng;
-	CLHEP::HepRandomEngine& engine = rng->getEngine();
-	smearedChargeDistribution_ = new CLHEP::RandGaussQ(engine, 0. , theSmearedChargeRMS);
+	smearedChargeDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0. , theSmearedChargeRMS);
 	
 	if((*i).second < 3000)
 	  {

@@ -27,6 +27,10 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 //#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace cms
 {
   class SiPixelDigitizer : public edm::EDProducer 
@@ -42,7 +46,7 @@ namespace cms
     virtual void beginJob(const edm::EventSetup &es);
   private:
     edm::ParameterSet conf_;
-    SiPixelDigitizerAlgorithm  _pixeldigialgo;
+    SiPixelDigitizerAlgorithm*  _pixeldigialgo;
     typedef std::vector<std::string> vstring;
     vstring trackerContainers;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
@@ -51,6 +55,7 @@ namespace cms
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
     std::string geometryType;
+    CLHEP::HepRandomEngine* rndEngine;
     //   std::vector<PixelDigiSimLink> linkcollector;
 
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
