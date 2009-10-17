@@ -5,7 +5,8 @@ process = cms.Process("GeometryTest")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-process.load("Geometry.CaloEventSetup.calodbsqlitefile")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'MC_31X_V9::All' 
 
 process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
 
