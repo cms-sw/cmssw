@@ -470,11 +470,11 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
    h_diffs[histi][1]->Fill( dy ) ;
    h_diffs[histi][2]->Fill( dz ) ;
 
-   if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+   if( 1.6 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
 	     			<<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
-   if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+   if( 1.6 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
 	     			<<"***BIG DISAGREEMENT FOUND. DY="<<dy<<" microns"<<std::endl ;
-   if( 1.5 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+   if( 1.6 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
 					<<"***BIG DISAGREEMENT FOUND. DZ="<<dz<<" microns"<<std::endl ;
 
 
@@ -506,11 +506,11 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
       h_diffs[histi][j+4]->Fill( dy ) ;
       h_diffs[histi][j+5]->Fill( dz ) ;
 
-      if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+      if( 1.6 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
 					   <<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
-      if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+      if( 1.6 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
 					   <<"***BIG DISAGREEMENT FOUND. DY="<<dy<<" microns"<<std::endl ;
-      if( 1.5 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+      if( 1.6 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
 					   <<"***BIG DISAGREEMENT FOUND. DZ="<<dz<<" microns"<<std::endl ;
 
       fCor << std::fixed << std::setw(12) << std::setprecision(4)
