@@ -64,6 +64,6 @@ process.ZeeMcEleFilter = cms.EDFilter("MCParticlePairFilter",
 process.ZeeFilSeq = cms.Sequence(process.ZeeMcEleFilter)
 
 #process.p = cms.Path(process.ZeeFilSeq*process.egammaIsolationSequence*process.corMetType1Icone5*process.ErsatzMEt)
-process.p = cms.Path(process.ZeeFilSeq*process.egammaIsolationSequence*process.ErsatzMEt)
-#process.p = cms.Path(process.egammaIsolationSequence*process.ErsatzMEt)
-process.TFileService = cms.Service("TFileService", fileName = cms.string("Wenu.root"))
+#process.p = cms.Path(process.ZeeFilSeq*process.egammaIsolationSequence*process.ErsatzMEt)
+process.p = cms.Path(process.egammaIsolationSequence*process.ErsatzMEt)
+process.TFileService = cms.Service("TFileService", fileName = cms.string("Zee.root"))

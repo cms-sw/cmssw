@@ -115,18 +115,24 @@ Checkout packages from CVS:
 You need to checkout the following packages from CVS:
 DataFormats/RecoCandidate
 EgammaAnalysis/EgammaIsolationProducers
-HLTrigger/HLTCore
+HLTrigger/HLTcore
 PhysicsTools/IsolationAlgos
 RecoEcal/EgammaCoreTools
 RecoEgamma/EgammaIsolationAlgos
 
 To do this use:
 
-> cvs co [FirstName]/[SecondName]
+> cvs co -r CMSSW_3_1_4 [FirstName]/[SecondName]
 
 Checkout the Ersatz MET code from CVS:
 
 > cvs co ElectroWeakAnalysis/ZEE
+
+Create a python directory and put the parameter file ersatzmet_cfi.py in it so that it is seen in 
+the python path.
+
+> mkdir python
+> cp test/ersatzmet_cfi.py python/
 
 Build:
 
@@ -158,8 +164,9 @@ Create and submit CRAB jobs to the GRID:
 
 > crab -create -submit
 
-Also run the ErsatzAnalysis code in a similar way on W Monte Carlo data using the ersatzmet_cfg.py 
-config file.
+Also run the ErsatzAnalysis code in a similar way on W Monte Carlo data using the 
+analysisersatz_cfg.py config file. You will need to uncomment AnalysisErsatz.cc and comment out 
+ErsatzMEt.cc (or move it elsewhere) and rebuild.
 
 Once you have successfully run the code copy the output ROOT files to a /tmp/[username] directory. 
 You will need to hadd the root files first if there is more than one.
@@ -171,15 +178,14 @@ Setup ROOT environment:
 
 Once again you can write a script to do this so you don't have to type it in every time.
 
-PerformAnalysis.cpp is the Macro to run. You must also have the CutValues.txt and EtaWeights.txt 
-files available.
+PerformAnalysis.cpp is the Macro to run. You must also have the EtaWeights.txt file available. 
 
 Start ROOT, compile and run macro:
 > root -l
 [0] .L PerformAnalysis.cpp+
-[1] PerformAnalysis()
+[1] PerformAnalysis([process], [weight], [datapath])
 
-This creates a root file histograms.root with interesting plots. It also outputs f, fprime, 
+This creates a root file [process].root with interesting plots. It also outputs f, fprime, 
 efficiency, efficiencyprime, A, B, C, D and errors to screen.
 
 
@@ -191,4 +197,4 @@ Robin Nandi
 
 Robin.James.Nandi@Cern.ch
 
-14 October 2009
+17 October 2009

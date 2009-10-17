@@ -1,4 +1,4 @@
-#include "ElectroWeakAnalysis/ZEE/interface/AnalysisErsatz.h"
+/*#include "ElectroWeakAnalysis/ZEE/interface/AnalysisErsatz.h"
 AnalysisErsatz::AnalysisErsatz(const edm::ParameterSet& ps)
 {
 	MCTruthCollection_  = ps.getParameter<edm::InputTag>("MCTruthCollection");
@@ -578,3 +578,4 @@ void AnalysisErsatz::endJob() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AnalysisErsatz);
+*/
