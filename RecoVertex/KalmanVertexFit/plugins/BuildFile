@@ -1,11 +1,11 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/TrackingAnalysis>
+<use name=SimTracker/Records>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/TransientTrack>
 <use name=CommonTools/Statistics>
 <use name=RecoVertex/KalmanVertexFit>
-<use name=RecoVertex/KalmanVertexFit/test>
 <use name=SimTracker/TrackAssociation>
 <use name=clhep>
 <use name=boost>

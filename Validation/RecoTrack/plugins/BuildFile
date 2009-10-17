@@ -14,6 +14,7 @@
 <use name=MagneticField/Engine>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingAnalysis>
+<use name=SimTracker/Records>
 <use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=rootcintex>
 <use name=root>
