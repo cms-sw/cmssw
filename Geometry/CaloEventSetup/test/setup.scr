@@ -1,21 +1,23 @@
-gunzip data/*gz
-ln -sf data/eb.ctr oldeb.ctr
-ln -sf data/eb.cor oldeb.cor
-ln -sf data/ee.ctr oldee.ctr
-ln -sf data/ee.cor oldee.cor
-ln -sf data/es.ctr oldes.ctr
-ln -sf data/es.cor oldes.cor
-ln -sf data/hb.ctr oldhb.ctr
-ln -sf data/hb.cor oldhb.cor
-ln -sf data/ho.ctr oldho.ctr
-ln -sf data/ho.cor oldho.cor
-ln -sf data/he.ctr oldhe.ctr
-ln -sf data/he.cor oldhe.cor
-ln -sf data/hf.ctr oldhf.ctr
-ln -sf data/hf.cor oldhf.cor
-ln -sf data/zd.ctr oldzd.ctr
-ln -sf data/zd.cor oldzd.cor
-ln -sf data/ca.ctr oldca.ctr
-ln -sf data/ca.cor oldca.cor
-ln -sf data/ct.ctr oldct.ctr
-ln -sf data/ct.cor oldct.cor
+mkdir nominal
+cp ../data/*gz nominal
+gunzip nominal/*gz
+ln -sf nominal/eb.ctr oldeb.ctr
+ln -sf nominal/eb.cor oldeb.cor
+ln -sf nominal/ee.ctr oldee.ctr
+ln -sf nominal/ee.cor oldee.cor
+ln -sf nominal/es.ctr oldes.ctr
+ln -sf nominal/es.cor oldes.cor
+ln -sf nominal/hb.ctr oldhb.ctr
+ln -sf nominal/hb.cor oldhb.cor
+ln -sf nominal/ho.ctr oldho.ctr
+ln -sf nominal/ho.cor oldho.cor
+ln -sf nominal/he.ctr oldhe.ctr
+ln -sf nominal/he.cor oldhe.cor
+ln -sf nominal/hf.ctr oldhf.ctr
+ln -sf nominal/hf.cor oldhf.cor
+ln -sf nominal/zd.ctr oldzd.ctr
+ln -sf nominal/zd.cor oldzd.cor
+ln -sf nominal/ca.ctr oldca.ctr
+ln -sf nominal/ca.cor oldca.cor
+ln -sf nominal/ct.ctr oldct.ctr
+ln -sf nominal/ct.cor oldct.cor
