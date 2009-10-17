@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.7 2009/09/04 21:34:19 wdd Exp $
+// $Id: MultiChainEvent.h,v 1.8 2009/09/11 17:00:46 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -49,8 +49,12 @@ class MultiChainEvent: public EventBase
 {
 
    public:
+
+      typedef std::map<edm::EventID, Long64_t>   sec_file_index_map;
+
       MultiChainEvent(const std::vector<std::string>& iFileNames1, 
-		      const std::vector<std::string>& iFileNames2);
+		      const std::vector<std::string>& iFileNames2,
+		      bool useSecFileMap = false);
       virtual ~MultiChainEvent();
 
       const MultiChainEvent& operator++();
@@ -133,6 +137,9 @@ class MultiChainEvent: public EventBase
       boost::shared_ptr<ChainEvent> event1_;  // primary files
       boost::shared_ptr<ChainEvent> event2_;  // secondary files
       boost::shared_ptr<internal::MultiProductGetter> getter_;
+
+      // speed up secondary file access with a (run,event)_1 ---> index_2 map
+      sec_file_index_map    secFileMap_;
 };
 
 }

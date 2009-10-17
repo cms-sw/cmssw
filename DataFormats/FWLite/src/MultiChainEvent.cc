@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.5 2009/08/18 17:56:59 chrjones Exp $
+// $Id: MultiChainEvent.cc,v 1.6 2009/09/04 21:34:20 wdd Exp $
 //
 
 // system include files
@@ -52,7 +52,8 @@ private:
 // constructors and destructor
 //
   MultiChainEvent::MultiChainEvent(const std::vector<std::string>& iFileNames1,
-				   const std::vector<std::string>& iFileNames2)
+				   const std::vector<std::string>& iFileNames2,
+				   bool useSecFileMap)
 {
   event1_ = boost::shared_ptr<ChainEvent> ( new ChainEvent( iFileNames1 ) );
   event2_ = boost::shared_ptr<ChainEvent> ( new ChainEvent( iFileNames2 ) );
@@ -61,6 +62,21 @@ private:
 
   event1_->setGetter( getter_ );
   event2_->setGetter( getter_ );
+
+  // speed up secondary file access with a (run,event)_1 ---> index_2 map
+  for( event1_->toBegin();
+       ! event1_->atEnd();
+       ++(*event1_)) {
+    edm::EventID evid1 = event1_->event()->id();
+    bool found = event2_->to( evid1 );
+    if ( found ) {
+      secFileMap_[ evid1 ] = event2_->eventIndex();
+    } else {
+      std::cout << "Filenames are inconsistent for secondary files. I'm going to crash now. Ungracefully." << std::endl;
+      assert(0);
+    }
+  }
+
 }
 
 // MultiChainEvent::MultiChainEvent(const MultiChainEvent& rhs)
@@ -128,13 +144,19 @@ MultiChainEvent::toSec(Long64_t iIndex) {
 ///Go to event with event id "id"
 const MultiChainEvent& 
 MultiChainEvent::toSec(edm::EventID id) {
-  return toSec(id.run(), id.event());
+  sec_file_index_map::iterator found = secFileMap_.find( id );
+  if ( found == secFileMap_.end() ) {
+    std::cout << "Cannot find secondary file corresponding to run " << id.run() 
+	      << ", event " << id.event() << ", I will now exit. Ungracefully." << std::endl;
+    assert(0);
+  }
+  return toSec(found->second);
 }
-
+  
 ///Go to event with given run and event number
 const MultiChainEvent& 
 MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) {
-  event2_->to( run, event );
+  event2_->to( edm::EventID( run, event) );
   return *this;
 }
 
