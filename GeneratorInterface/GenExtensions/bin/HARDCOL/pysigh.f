@@ -8,6 +8,7 @@ C  Modifications implemented by Rikard Enberg, 2001-2003 and 2008.
 C  See http://www.isv.uu.se/thep/hardcol/      
 C
 C The modification for PYTHIA v6.420 was implemented by Sheila Amaral
+C Modified: 16 Oct 2009
 C=====================================================================
 
 C***********************************************************************
