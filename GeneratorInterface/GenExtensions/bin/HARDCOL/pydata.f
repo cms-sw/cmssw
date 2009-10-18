@@ -1,17 +1,19 @@
 C=====================================================================
-C  This routine was modified from the PYTHIA 6.418 code, which is
+C  This routine was modified from the PYTHIA 6.420 code, which is
 C              (C) Torbjorn Sjostrand, Lund 2008.
 C
 C  The modifications are part of the HARDCOL package for 
 C  hard color singlet exchange, and refer to PYTHIA version 6.418.
 C  Modifications implemented by Rikard Enberg, 2001-2003 and 2008.  
 C  See http://www.isv.uu.se/thep/hardcol/      
+C
+C The modification for PYTHIA v6.420 was implemented by Sheila Amaral
 C=====================================================================
- 
+
 C*********************************************************************
 C*********************************************************************
 C*                                                                  **
-C*                                                      June 2008   **
+C*                                                  February 2009   **
 C*                                                                  **
 C*                       The Lund Monte Carlo                       **
 C*                                                                  **
@@ -202,7 +204,9 @@ C  S   PYTECM   to calculate techni_rho/omega masses                 *
 C  S   PYXDIN   to initialize Universal Extra Dimensions             *
 C  S   PYUEDC   to compute UED mass radiative corrections            *
 C  S   PYXUED   to compute UED cross sections                        *
-C  S   PYGRAM   to generate UED graviton mass spectrum               *
+C  S   PYGRAM   to generate UED G* (excited graviton) mass spectrum  *
+C  F   PYGRAW   to compute UED partial widths to G*                  *
+C  F   PYWDKK   to compute UED differential partial widths to G*     *
 C  S   PYEICG   to calculate eigenvalues of a 4*4 complex matrix     *
 C  S   PYCMQR   auxiliary to PYEICG                                  *
 C  S   PYCMQ2   auxiliary to PYEICG                                  *
@@ -329,6 +333,7 @@ C  S   PYTIME   dummy routine for giving date and time               *
 C                                                                    *
 C*********************************************************************
  
+
 C...PYDATA
 C...Default values for switches and parameters,
 C...and particle, decay and process data.
@@ -507,9 +512,9 @@ C...UED singlet and doublet quarks, leptons, and KK g, gamma, Z, and W
 C...UED singlet and doublet quarks and leptons, and KK g, gamma, Z, and W.
      &6100001,6100002,6100003,6100004,6100005,6100006, 
      &5100001,5100002,5100003,5100004,5100005,5100006, 
-     &6100011,6100013,6100015, !
+     &6100011,6100013,6100015,
      &5100012,5100011,5100014,5100013,5100016,5100015, 
-     &5100021,5100022,5100023,5100024, 
+     &5100021,5100022,5100023,5100024,
      &25*0/ 
       DATA (PMAS(I,1),I=   1, 217)/2*0.33D0,0.5D0,1.5D0,4.8D0,175D0,    
      &2*400D0,2*0D0,0.00051D0,0D0,0.10566D0,0D0,1.777D0,0D0,400D0,      
@@ -654,7 +659,7 @@ C...UED
 C...UED
      %5001,5003,5005,5007,5009,5011,5013,5016,5019,5022,5025,5028,
      &5031,5032,5033,
-     &5034,5035,5036,5037,5038,5039,5040,5064,5065,5074,
+     &5034,5035,5036,5037,5038,5039,5040,5064,5065,5083,
      &25*0/
       DATA (MDCY(I,3),I=   1, 500)/5*8,15,2*10,2*0,4,2,5,2,54,2,5,3,    
      &2*0,9,12,16,20,79,6*0,22,0,23,86,83,27,3*0,9,1,40*0,1,4,9,16*0,2, 
@@ -668,7 +673,7 @@ C...UED
      &3*22,15,12,2*7,7*0,6*1,26,30,
      &81*0,
 C...UED
-     &6*2,6*3,9*1,24,1,9,6,25*0/                                 
+     &6*2,6*3,9*1,24,1,18,6,25*0/                                 
       DATA (MDME(I,1),I=   1,8000)/6*1,-1,7*1,-1,7*1,-1,7*1,-1,7*1,-1,  
      &7*1,-1,1,7*-1,8*1,2*-1,8*1,2*-1,73*1,-1,2*1,-1,5*1,0,2*-1,6*1,0,  
      &2*-1,3*1,-1,6*1,2*-1,6*1,2*-1,3*1,-1,3*1,-1,3*1,5*-1,3*1,-1,6*1,  
@@ -681,7 +686,7 @@ C...UED
      &649*0,
 C...UED
      &10*1,2*0,15*1,3*0,9*1,5*1,0,5*1,0,5*1,0,5*1,0,
-     &1,15*1,2921*0/
+     &1,24*1,2912*0/
       DATA (MDME(I,2),I=   1,8000)/43*102,4*0,102,0,6*53,3*102,4*0,102, 
      &2*0,3*102,4*0,102,2*0,6*102,42,6*102,2*42,2*0,8*41,2*0,36*41,     
      &8*102,0,102,0,102,2*0,21*102,8*32,8*0,16*32,4*0,8*32,9*0,62*53,   
@@ -699,7 +704,7 @@ C...UED
      &9*32,17*0,6*51,10*0,8*32,15*0,16*32,14*0,8*32,18*0,8*32,18*0,     
      &16*32,
 C...UED
-     &653*0,30*0,9*0,12*0,28*0,2921*0/
+     &653*0,30*0,9*0,12*0,37*0,2912*0/
       DATA (BRAT(I)  ,I=   1, 348)/43*0D0,0.00003D0,0.001765D0,         
      &0.998205D0,35*0D0,1D0,6*0D0,0.1783D0,0.1735D0,0.1131D0,0.2494D0,  
      &0.003D0,0.09D0,0.0027D0,0.01D0,0.0014D0,0.0012D0,2*0.00025D0,     
@@ -898,9 +903,10 @@ C....UED
      &9*1.D0,              
      &24*0.0416667,        
      &1.,                  
-     &3*0.D0,6*0.16667D0, 
+     &3*0.D0,6*0.08333D0, 
+     &3*0.D0,6*0.08333D0,
      &6*0.166667D0,        
-     &2921*0.D0/
+     &2912*0.D0/
       DATA (KFDP(I,1),I=   1, 377)/21,22,23,4*-24,25,21,22,23,4*24,25,  
      &21,22,23,4*-24,25,21,22,23,4*24,25,21,22,23,4*-24,25,21,22,23,    
      &4*24,25,37,1000022,1000023,1000025,1000035,1000021,1000039,21,22, 
@@ -1186,9 +1192,12 @@ C...UED
      &6100011,6100013,6100015,
      &5100011,5100013,5100015,
      %5100012,5100014,5100016,
+     &-6100011,-6100013,-6100015,
+     &-5100011,-5100013,-5100015,
+     %-5100012,-5100014,-5100016,
      &-5100011,-5100013,-5100015,
      &5100012,5100014,5100016,
-     &2921*0/
+     &2912*0/
       DATA (KFDP(I,2),I=   1, 339)/3*1,2,4,6,8,1,3*2,1,3,5,7,2,3*3,2,4, 
      &6,8,3,3*4,1,3,5,7,4,3*5,2,4,6,8,5,3*6,1,3,5,7,6,5,6*1000006,3*7,  
      &2,4,6,8,7,4,6,3*8,1,3,5,7,8,5,7,2*11,12,11,12,2*11,2*13,14,13,14, 
@@ -1409,8 +1418,9 @@ C...UED
      &1,2,3,4,5,6,1,2,3,4,5,6, 
      &22, 
      &-11,-13,-15,-11,-13,-15,-12,-14,-16,
+     &11,13,15,11,13,15,12,14,16,
      &12,14,16,-11,-13,-15, 
-     &2921*0/
+     &2912*0/
       DATA (KFDP(I,3),I=   1,1021)/81*0,14,6*0,2*16,2*0,6*111,310,130,  
      &2*0,3*111,310,130,321,113,211,223,221,2*113,2*211,2*223,2*221,    
      &2*113,221,2*113,2*213,-213,113,2*111,310,130,310,130,2*310,130,   
@@ -1621,7 +1631,7 @@ C...UED
      &'pi_diffr-',3*' ','n_diffrbar0','p_diffrbar-',7*' ','a_tc-',     
      &81*' ',
 C...UED
-     &'d*_Dbar','u*_Sbar','s*_Sbar','c*_Sbar','b*_Sbar','t*_Sbar',
+     &'d*_Sbar','u*_Sbar','s*_Sbar','c*_Sbar','b*_Sbar','t*_Sbar',
      &'d*_Dbar','u*_Dbar','s*_Dbar','c*_Dbar','b*_Dbar','t*_Dbar',
      &'e*_Sbar+','mu*_Sbar+','tau*_Sbar+',
      &'nu*_eDbar','e*_Dbar+',
@@ -1678,7 +1688,7 @@ C...Default values for main switches and parameters. Reset information.
      5  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
      6  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
      7  0,    2,    0,    0,    0,    0,    0,    0,    0,    0,
-     8  6,  418, 2008,   06,    9,    0,    0,    0,    0,    0,
+     8  6,  420, 2009,   02,   20,    0,    0,    0,    0,    0,
 C=====================================================================
 C BEGIN HARDCOL MODIFICATION
 C=====================================================================
@@ -2202,13 +2212,24 @@ C...Technicolor switches and parameters
      4  200D0, 48*0D0/
  
 C...UED switches and parameters.
-C... IUED(0,1) UED ON/OFF switch
-C... IUED(2) NDIM (delta=1, N=Ndim)
-C... IUED(3) NFLAVOURS (number of quark flavours),...
-C... RUED(0) RINV (1/R)
-C... RUED(1) GRINV (gravity mediated scale)
-      DATA IUED/0,0,6,5,96*0/
-      DATA RUED/1000D0,5000D0,98*0D0/
+C... IUED(0) empty IUED vector element
+C... IUED(1) UED ON(=1)/OFF(=0) switch
+C... IUED(2) ON(=1)/OFF(=0) switch for gravity mediated decays
+C... IUED(3) NFLAVOURS Number of KK excitation quark flavours
+C... IUED(4) N the number of large extra dimensions
+C... IUED(5) Selects whether the code takes Lambda (=0)
+C...         or Lambda*R (=1) as input.
+C... IUED(6) With radiative corrections to the masses (=1)
+C...         or without (=0)
+C...
+C... RUED(0) empty RUED vector element
+C... RUED(1) RINV (1/R) the curvature of the extra dimension
+C... RUED(2) XMD the (4+N)-dimensional Planck scale
+C... RUED(3) LAMUED (Lambda cutoff scale)
+C... RUED(4) LAMUED/RINV (feasible values are order of 10-20)
+C...
+      DATA IUED/0,0,0,5,6,0,1,93*0/
+      DATA RUED/0.D0,1000D0,5000D0,20000.,20.,95*0D0/
 
 C...Data for histogramming routines.
       DATA IHIST/1000,20000,55,1/
