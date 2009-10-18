@@ -770,7 +770,7 @@ void HcalDeadCellMonitor::fillNevents_occupancy(int checkN)
 		      if (fVerbosity>0) 
 			std::cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
 		      // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
-		      if (UnoccupiedDeadCellsByDepth.depth[depth]) UnoccupiedDeadCellsByDepth.depth[depth]->Fill(ieta,iphi,checkN);
+		      if (UnoccupiedDeadCellsByDepth.depth[depth]) UnoccupiedDeadCellsByDepth.depth[depth]->Fill(ieta,iphi,checkN*deadmon_prescale_);
 		    }
 		} // for (int subdet=1;subdet<=4;++subdet)
 	    } // for (int phi=0;...)
@@ -784,7 +784,7 @@ void HcalDeadCellMonitor::fillNevents_occupancy(int checkN)
 
   return;
 
-} // void HcalDeadCellMonitor::fillNevents_occupancy(void)
+} // void HcalDeadCellMonitor::fillNevents_occupancy(int checkN)
 
 
 
