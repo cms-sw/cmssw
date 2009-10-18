@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/08/13 13:53:04 $
-  * $Revision: 1.32 $
+  * $Date: 2009/10/12 08:47:49 $
+  * $Revision: 1.33 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -63,6 +63,7 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
                                      const HORecHitCollection& hoHits,
                                      const HFRecHitCollection& hfHits);
   void fillHotHistosAtEndRun();
+  void periodicReset();
 
  private:
   void fillNevents_neighbor();

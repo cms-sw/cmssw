@@ -939,9 +939,9 @@ void HcalDigiMonitor::fill_Nevents()
 			}
 		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
 						     baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta+zside, iPhi,
 							 badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+		      DigiErrorsUnpacker.depth[d]->Fill(iEta+zside, iPhi,
 							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
 						       baddigis[calcEta][phi][d]);
@@ -1002,6 +1002,7 @@ void HcalDigiMonitor::zeroCounters()
               baddigisize[i][j][k]=0;
               occupancyEtaPhi[i][j][k]=0;
               digierrorsdverr[i][j][k]=0;
+	      badFibBCNOff[i][j][k]=0;
 	      badunpackerreport[i][j][k]=0;
             }
         } // for (int j=0;j<72;++i)
@@ -1139,3 +1140,104 @@ void HcalDigiMonitor::UpdateHists(DigiHists& h)
     h.TS_sum_minus[i]->update();
 } //void HcalDigiMonitor::UpdateHists(DigiHists& h)
 
+
+void HcalDigiMonitor::periodicReset()
+{
+  // first reset base class objects
+  HcalBaseMonitor::periodicReset();
+
+  // then reset the temporary histograms
+  zeroCounters();
+  
+  // then reset the MonitorElements
+
+  DigiErrorsByDepth.Reset();
+  DigiErrorsBadCapID.Reset();
+  DigiErrorsDVErr.Reset();
+  DigiErrorsBadDigiSize.Reset();
+  DigiErrorsBadADCSum.Reset();
+  DigiErrorsUnpacker.Reset();
+  DigiErrorsBadFibBCNOff.Reset();
+  DigiOccupancyByDepth.Reset();
+  DigiErrorOccupancyByDepth.Reset();
+
+  DigiOccupancyEta->Reset();
+  DigiOccupancyPhi->Reset();
+  DigiOccupancyVME->Reset();
+  DigiOccupancySpigot->Reset();
+  DigiErrorVME->Reset();
+  DigiErrorSpigot->Reset();
+  
+  DigiBQ->Reset();
+  DigiBQFrac->Reset();
+  DigiUnpackerErrorCount->Reset();
+  DigiUnpackerErrorFrac->Reset();
+
+  DigiNum->Reset();
+
+  hbHists.shape->Reset();
+  hbHists.shapeThresh->Reset();
+  hbHists.presample->Reset();
+  hbHists.BQ->Reset();
+  hbHists.BQFrac->Reset();
+  hbHists.DigiFirstCapID->Reset();
+  hbHists.DVerr->Reset();
+  hbHists.CapID->Reset();
+  hbHists.ADC->Reset();
+  hbHists.ADCsum->Reset();
+  hbHists.fibBCNOff->Reset();
+  for (unsigned int i=0;i<hbHists.TS_sum_plus.size();++i)
+    hbHists.TS_sum_plus[i]->Reset();
+  for (unsigned int i=0;i<hbHists.TS_sum_minus.size();++i)
+    hbHists.TS_sum_minus[i]->Reset();
+
+  heHists.shape->Reset();
+  heHists.shapeThresh->Reset();
+  heHists.presample->Reset();
+  heHists.BQ->Reset();
+  heHists.BQFrac->Reset();
+  heHists.DigiFirstCapID->Reset();
+  heHists.DVerr->Reset();
+  heHists.CapID->Reset();
+  heHists.ADC->Reset();
+  heHists.ADCsum->Reset();
+  heHists.fibBCNOff->Reset();
+  for (unsigned int i=0;i<heHists.TS_sum_plus.size();++i)
+    heHists.TS_sum_plus[i]->Reset();
+  for (unsigned int i=0;i<heHists.TS_sum_minus.size();++i)
+    heHists.TS_sum_minus[i]->Reset();
+
+  hoHists.shape->Reset();
+  hoHists.shapeThresh->Reset();
+  hoHists.presample->Reset();
+  hoHists.BQ->Reset();
+  hoHists.BQFrac->Reset();
+  hoHists.DigiFirstCapID->Reset();
+  hoHists.DVerr->Reset();
+  hoHists.CapID->Reset();
+  hoHists.ADC->Reset();
+  hoHists.ADCsum->Reset();
+  hoHists.fibBCNOff->Reset();
+  for (unsigned int i=0;i<hoHists.TS_sum_plus.size();++i)
+    hoHists.TS_sum_plus[i]->Reset();
+  for (unsigned int i=0;i<hoHists.TS_sum_minus.size();++i)
+    hoHists.TS_sum_minus[i]->Reset();
+
+  hfHists.shape->Reset();
+  hfHists.shapeThresh->Reset();
+  hfHists.presample->Reset();
+  hfHists.BQ->Reset();
+  hfHists.BQFrac->Reset();
+  hfHists.DigiFirstCapID->Reset();
+  hfHists.DVerr->Reset();
+  hfHists.CapID->Reset();
+  hfHists.ADC->Reset();
+  hfHists.ADCsum->Reset();
+  hfHists.fibBCNOff->Reset();
+  for (unsigned int i=0;i<hfHists.TS_sum_plus.size();++i)
+    hfHists.TS_sum_plus[i]->Reset();
+  for (unsigned int i=0;i<hfHists.TS_sum_minus.size();++i)
+    hfHists.TS_sum_minus[i]->Reset();
+
+  return;
+}

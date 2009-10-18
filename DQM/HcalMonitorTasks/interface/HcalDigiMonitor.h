@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/08/30 17:15:02 $
-  * $Revision: 1.49 $
+  * $Date: 2009/10/11 16:16:13 $
+  * $Revision: 1.50 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -71,6 +71,7 @@ public:
   void reset();
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void fill_Nevents();
+  void periodicReset();
 
 private:  ///Methods, variables accessible only within class code
 

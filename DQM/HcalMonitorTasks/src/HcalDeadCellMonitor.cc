@@ -1098,12 +1098,6 @@ void HcalDeadCellMonitor::periodicReset()
   HcalDeadCellMonitor::zeroCounters(true);
 
   // now reset all the MonitorElements
-  if(ProblemsVsLB)     ProblemsVsLB->Reset();
-  if(ProblemsVsLB_HB)   ProblemsVsLB_HB->Reset();
-  if(ProblemsVsLB_HE)   ProblemsVsLB_HE->Reset();
-  if(ProblemsVsLB_HO)   ProblemsVsLB_HO->Reset();
-  if(ProblemsVsLB_HF)   ProblemsVsLB_HF->Reset();
-  
   if(NumberOfNeverPresentCells)     NumberOfNeverPresentCells->Reset();
   if(NumberOfNeverPresentCellsHB)   NumberOfNeverPresentCellsHB->Reset();
   if(NumberOfNeverPresentCellsHE)   NumberOfNeverPresentCellsHE->Reset();
@@ -1125,7 +1119,6 @@ void HcalDeadCellMonitor::periodicReset()
   //if (ProblemCells) ProblemCells->Reset();
 
   // now reset the display histograms
-  //ProblemCellsByDepth.Reset();
   UnoccupiedDeadCellsByDepth.Reset();
   DigiPresentByDepth.Reset();
   BelowEnergyThresholdCellsByDepth.Reset();

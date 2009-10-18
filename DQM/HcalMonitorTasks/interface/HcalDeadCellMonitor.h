@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/08/19 19:26:58 $
-  * $Revision: 1.35 $
+  * $Date: 2009/08/21 20:45:29 $
+  * $Revision: 1.36 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -42,10 +42,10 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
 
   void fillDeadHistosAtEndRun();
-  
+  void periodicReset();
+
  private:
   void zeroCounters(bool resetpresent=false);
-  void periodicReset();
 
   void processEvent_HBHEdigi(const HBHEDataFrame digi);
   template<class T> void process_Digi(T& digi);

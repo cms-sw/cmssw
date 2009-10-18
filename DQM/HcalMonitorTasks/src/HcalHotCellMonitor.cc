@@ -1236,8 +1236,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	} //for (int eta=0;...)
     } // for (int depth=0;...)
   
-  //cout <<"BAD = "<<NumBadHB<<" "<<NumBadHE<<" "<<NumBadHO<<" "<<NumBadHF<<endl;
-    // Fill number of problem cells
+  // Fill number of problem cells
   ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
   ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
   ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
@@ -1245,6 +1244,8 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
   ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
 
+  /*
+    // not yet sure we want this behavior
   if (Online_ && oldlumiblock<lumiblock)
     {
       for (int i=oldlumiblock+1;i<lumiblock;++i)
@@ -1260,7 +1261,8 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	  if (ProblemsVsLB_HF)
 	    ProblemsVsLB_HF->Fill(i,NumBadHF);
 	}
-    }
+	}
+  */
   oldlumiblock=lumiblock; // oldlumiblock keeps track of last block in which plot filled
 
 
@@ -1305,3 +1307,26 @@ void HcalHotCellMonitor::zeroCounters(void)
   return;
 
 } // void HcalHotCellMonitor::zeroCounters()
+
+
+void HcalHotCellMonitor::periodicReset()
+{
+
+  // first reset base class objects
+  HcalBaseMonitor::periodicReset();
+
+  // then reset the temporary histograms
+  HcalHotCellMonitor::zeroCounters();
+
+  // now reset all the MonitorElements
+
+  // resetting eta-phi histograms
+  if (hotmon_test_neighbor_)
+    AboveNeighborsHotCellsByDepth.Reset();
+  if (hotmon_test_energy_)
+    AboveEnergyThresholdCellsByDepth.Reset();
+  if (hotmon_test_persistent_)
+  AbovePersistentThresholdCellsByDepth.Reset();
+
+  return;
+}
