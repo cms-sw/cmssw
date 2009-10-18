@@ -65,6 +65,7 @@ class ElectronSeedProducer : public edm::EDProducer
 
     // H/E
   //  edm::InputTag hcalRecHits_;
+    bool applyHOverECut_ ;
     ElectronHcalHelper * hcalHelper_ ;
     double maxHOverE_ ;
   //  double hOverEConeSize_;

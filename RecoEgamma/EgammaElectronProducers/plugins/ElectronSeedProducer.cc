@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.7 2009/05/20 13:57:31 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.8 2009/10/15 13:28:05 chamont Exp $
 //
 //
 
@@ -47,7 +47,7 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  :
    //conf_(iConfig),
-   seedFilter_(0)
+   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
 //   caloGeomCacheId_(0),
 //   hcalIso_(0),
    //doubleConeSel_(0),
@@ -61,12 +61,17 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   prefilteredSeeds_ = pset.getParameter<bool>("preFilteredSeeds") ;
 
   // for H/E
-  hcalHelper_ = new ElectronHcalHelper(pset) ;
-//  hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits") ;
-  maxHOverE_=pset.getParameter<double>("maxHOverE") ;
-//  hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
-//  hOverEHBMinE_=pset.getParameter<double>("hOverEHBMinE") ;
-//  hOverEHFMinE_=pset.getParameter<double>("hOverEHFMinE") ;
+  if (pset.exists("applyHOverECut"))
+   { applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ; }
+  if (applyHOverECut_)
+   {
+    hcalHelper_ = new ElectronHcalHelper(pset,false) ;
+//    hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits") ;
+    maxHOverE_=pset.getParameter<double>("maxHOverE") ;
+//    hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
+//    hOverEHBMinE_=pset.getParameter<double>("hOverEHBMinE") ;
+//    hOverEHFMinE_=pset.getParameter<double>("hOverEHFMinE") ;
+   }
 
   matcher_ = new ElectronSeedGenerator(pset) ;
 
@@ -95,8 +100,11 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
  {
   LogDebug("ElectronSeedProducer") <<"[ElectronSeedProducer::produce] entering " ;
 
-  hcalHelper_->checkSetup(iSetup) ;
-  hcalHelper_->readEvent(e) ;
+  if (hcalHelper_)
+   {
+    hcalHelper_->checkSetup(iSetup) ;
+    hcalHelper_->readEvent(e) ;
+   }
 
 //  // get calo geometry
 //  if (caloGeomCacheId_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
@@ -181,32 +189,9 @@ void ElectronSeedProducer::filterClusters
     const SuperCluster & scl = (*superClusters)[i] ;
     if (scl.energy()/cosh(scl.eta())>SCEtCut_)
      {
-//      double hcalE = 0. ;
-//      if (mhbhe_)
-//       {
-//	    math::XYZPoint theCaloPosition = scl.position() ;
-//	    GlobalPoint pclu(theCaloPosition.x(),theCaloPosition.y(),theCaloPosition.z()) ;
-//	    std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_) ;
-//	    CaloRecHitMetaCollectionV::const_iterator i ;
-//	    for ( i=chosen->begin() ; i!=chosen->end() ; ++i )
-//	     {
-//	      double hcalHit_E = i->energy() ;
-//	      if ( i->detid().subdetId()==HcalBarrel && hcalHit_E > hOverEHBMinE_) hcalE += hcalHit_E; //HB case
-//	      //if ( i->detid().subdetId()==HcalBarrel) {
-//	      //std::cout << "[ElectronSeedProducer] HcalBarrel: hcalHit_E, hOverEHBMinE_ " << hcalHit_E << " " << hOverEHBMinE_ << std::endl;
-//	      //}
-//	      if ( i->detid().subdetId()==HcalEndcap && hcalHit_E > hOverEHFMinE_) hcalE += hcalHit_E; //HF case
-//	      //if ( i->detid().subdetId()==HcalEndcap) {
-//	      //std::cout << "[ElectronSeedProducer] HcalEndcap: hcalHit_E, hOverEHFMinE_ " << hcalHit_E << " " << hOverEHFMinE_ << std::endl;
-//	      //}
-//	     }
-//       }
-//      double HoE = hcalE/scl.energy() ;
-      double hcalE = hcalHelper_->hcalESum(scl), HoE = hcalE/scl.energy() ;
-      //double newHcalE = hcalIso_->getHcalESum(&scl), newHoE = newHcalE/scl.energy() ;
-      //std::cout << "[ElectronSeedProducer] HoE, maxHOverE_ " << newHoE << " " << HoE << " " << maxHOverE_ << std::endl ;
-      if (HoE <= maxHOverE_)
-       { sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i)) ; }
+      if ((applyHOverECut_==true)&&((hcalHelper_->hcalESum(scl)/scl.energy()) > maxHOverE_))
+       { continue ; }
+      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
      }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;

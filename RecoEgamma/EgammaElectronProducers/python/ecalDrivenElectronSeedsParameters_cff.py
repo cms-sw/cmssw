@@ -13,6 +13,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     SCEtCut = cms.double(4.0),
 
     # H/E
+    applyHOverECut = cms.bool(True),
     hOverEConeSize = cms.double(0.15),
     maxHOverE = cms.double(0.1),
     # H/E rechits
