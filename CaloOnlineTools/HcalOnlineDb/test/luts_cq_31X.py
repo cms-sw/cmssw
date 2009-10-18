@@ -53,7 +53,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
                --and 
                       --cq.VERSION=:2 
                AND 
-                      cq.interval_of_validity_begin<=:3 
+                      cq.interval_of_validity_begin<=:2 
                group by 
                       cq.channel_map_id 
                order by 
