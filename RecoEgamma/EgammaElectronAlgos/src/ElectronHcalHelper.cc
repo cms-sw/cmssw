@@ -16,6 +16,9 @@ ElectronHcalHelper::ElectronHcalHelper( const edm::ParameterSet & conf, bool use
   else
    { hOverEConeSize_ = conf.getParameter<double>("hOverEConeSizePflow") ; }
 
+  if (hOverEConeSize_==0)
+   { return ; }
+
   if (useTowers_)
    {
     hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
@@ -34,6 +37,9 @@ ElectronHcalHelper::ElectronHcalHelper( const edm::ParameterSet & conf, bool use
 
 void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
  {
+  if (hOverEConeSize_==0)
+   { return ; }
+
   if (!useTowers_)
    {
     unsigned long long newCaloGeomCacheId_
@@ -48,6 +54,9 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
 
 void ElectronHcalHelper::readEvent( edm::Event & evt )
  {
+  if (hOverEConeSize_==0)
+   { return ; }
+
   if (useTowers_)
    {
     delete towerIso1_ ; towerIso1_ = 0 ;
@@ -76,6 +85,8 @@ void ElectronHcalHelper::readEvent( edm::Event & evt )
 
 double ElectronHcalHelper::hcalESum( const SuperCluster & sc )
  {
+  if (hOverEConeSize_==0)
+   { return 0 ; }
   if (useTowers_)
    { return(hcalESumDepth1(sc)+hcalESumDepth2(sc)) ; }
   else
@@ -84,6 +95,8 @@ double ElectronHcalHelper::hcalESum( const SuperCluster & sc )
 
 double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc )
  {
+  if (hOverEConeSize_==0)
+   { return 0 ; }
   if (useTowers_)
    { return towerIso1_->getTowerESum(&sc) ; }
   else
@@ -92,6 +105,8 @@ double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc )
 
 double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc )
  {
+  if (hOverEConeSize_==0)
+   { return 0 ; }
   if (useTowers_)
    { return towerIso2_->getTowerESum(&sc) ; }
   else
@@ -100,6 +115,8 @@ double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc )
 
 ElectronHcalHelper::~ElectronHcalHelper()
  {
+  if (hOverEConeSize_==0)
+   { return ; }
   if (useTowers_)
    {
     delete towerIso1_ ;

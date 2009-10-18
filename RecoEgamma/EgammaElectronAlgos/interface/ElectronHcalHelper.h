@@ -29,11 +29,11 @@ class ElectronHcalHelper
 
   private:
 
-    // strategy
-    bool useTowers_ ;
-
     // common parameters
     double hOverEConeSize_ ;
+
+    // strategy
+    bool useTowers_ ;
 
     // specific parameters if use rechits
     edm::InputTag hcalRecHits_ ;
