@@ -13,6 +13,12 @@ C        -checks range of (y,q)
 C
 C    initialisation: reads tabularized values of cross section
 C
+
+C    Modified by Sheila Amaral, 16 Oct 2009
+C
+C    Implemented the file path using environment variable CMSSW_BASE
+C    The .dat files should be in data/ directory
+
       SUBROUTINE read_hcs_file
       IMPLICIT NONE   
 
