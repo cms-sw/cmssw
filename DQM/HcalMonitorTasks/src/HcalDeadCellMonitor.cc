@@ -1005,6 +1005,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
       ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
       ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
       ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+      /*
+	//Don't want to include this behavior yet
       if (Online_ && oldlumiblock<lumiblock)
 	{
 	  for (int i=oldlumiblock+1;i<lumiblock;++i)
@@ -1021,6 +1023,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
 		ProblemsVsLB_HF->Fill(i,NumBadHF);
 	    }
 	}
+      */
       oldlumiblock=lumiblock; // oldlumiblock keeps track of last block in which plot filled
 
       if (deadmon_test_occupancy_)
