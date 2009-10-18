@@ -50,8 +50,8 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
                       cms_hcl_hcal_cond.v_hcal_channel_quality cq 
                where 
                       tag_name=:1 
-               and 
-                      cq.VERSION=:2 
+               --and 
+                      --cq.VERSION=:2 
                AND 
                       cq.interval_of_validity_begin<=:3 
                group by 
