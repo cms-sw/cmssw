@@ -7,6 +7,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
                            AnalyzeOrbitGap = cms.untracked.bool(False),
                            Online = cms.untracked.bool(False), # control online/offline differences in code
+                           periodicReset = cms.untracked.int32(-1),
+                           
                            # eta runs from -43->+43  (-41 -> +41 for HCAL, plus ZDC, which we put at |eta|=43.
                            # add one empty bin beyond that for histogramming prettiness 
                            MaxEta = cms.untracked.double(44.5),

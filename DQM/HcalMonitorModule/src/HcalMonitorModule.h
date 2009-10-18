@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/08/24 11:21:51 $
- * $Revision: 1.50 $
+ * $Date: 2009/08/26 09:38:14 $
+ * $Revision: 1.51 $
  * \author W. Fisher
  *
 */
@@ -147,6 +147,9 @@ public:
   int prescaleLS_;     ///units of lumi sections
   int prescaleTime_;   ///units of minutes
   int prescaleUpdate_; ///units of "updates", TBD
+
+  // Reset histograms every N events
+  int periodicReset_;
 
   /// The name of the monitoring process which derives from this
   /// class, used to standardize filename and file structure

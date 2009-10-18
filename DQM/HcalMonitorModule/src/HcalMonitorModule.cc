@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/12 17:10:31 $
- * $Revision: 1.138 $
+ * $Date: 2009/10/12 17:22:06 $
+ * $Revision: 1.139 $
  * \author W Fisher
  * \author J Temple
  *
@@ -71,6 +71,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   
+  periodicReset_ = ps.getUntrackedParameter<int>("periodicReset",-1);
+
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
 
@@ -245,31 +247,31 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule()
 {
-  
   if (dbe_!=0)
     {    
       if(digiMon_!=0)   {  digiMon_->clearME();}
-     if(dfMon_!=0)     {  dfMon_->clearME();}
-     if(diTask_!=0)    {  diTask_->clearME();}
-     if(pedMon_!=0)    {  pedMon_->clearME();}
-     if(ledMon_!=0)    {  ledMon_->clearME();}
-     if(laserMon_!=0)  {  laserMon_->clearME();}
-     if(hotMon_!=0)    {  hotMon_->clearME();}
-     if(deadMon_!=0)   {  deadMon_->clearME();}
-     if(mtccMon_!=0)   {  mtccMon_->clearME();}
-     if(rhMon_!=0)     {  rhMon_->clearME();}
-     if (zdcMon_!=0)   {  zdcMon_->clearME();}
-  
-     //////////////////////////////////////////////
-     if(detDiagPed_!=0){  detDiagPed_->clearME();}
-     if(detDiagLed_!=0){  detDiagLed_->clearME();}
-     if(detDiagLas_!=0){  detDiagLas_->clearME();}
-     if(detDiagNoise_!=0){  detDiagNoise_->clearME();}
-     if(detDiagTiming_!=0){  detDiagTiming_->clearME();}
-     /////////////////////////////////////////////
-     
-     dbe_->setCurrentFolder(rootFolder_);
-     dbe_->removeContents();
+      if(dfMon_!=0)     {  dfMon_->clearME();}
+      if(diTask_!=0)    {  diTask_->clearME();}
+      if(pedMon_!=0)    {  pedMon_->clearME();}
+      if(ledMon_!=0)    {  ledMon_->clearME();}
+      if(laserMon_!=0)  {  laserMon_->clearME();}
+      if(hotMon_!=0)    {  hotMon_->clearME();}
+      if(deadMon_!=0)   {  deadMon_->clearME();}
+      if(mtccMon_!=0)   {  mtccMon_->clearME();}
+      if(rhMon_!=0)     {  rhMon_->clearME();}
+      if (zdcMon_!=0)   {  zdcMon_->clearME();}
+      if (beamMon_!=0) { beamMon_->clearME();}
+      
+      //////////////////////////////////////////////
+      if(detDiagPed_!=0){  detDiagPed_->clearME();}
+      if(detDiagLed_!=0){  detDiagLed_->clearME();}
+      if(detDiagLas_!=0){  detDiagLas_->clearME();}
+      if(detDiagNoise_!=0){  detDiagNoise_->clearME();}
+      if(detDiagTiming_!=0){  detDiagTiming_->clearME();}
+      /////////////////////////////////////////////
+      
+      dbe_->setCurrentFolder(rootFolder_);
+      dbe_->removeContents();
     }
   
   // I think setting pointers to NULL (0) after delete is unnecessary here,
@@ -340,7 +342,7 @@ HcalMonitorModule::~HcalMonitorModule()
     detDiagTiming_=0; 
     }
   ////////////////////////////////////////////  
-  
+
   if (evtSel_!=0) {delete evtSel_; evtSel_ = 0;
   }
 } //void HcalMonitorModule::~HcalMonitorModule()
@@ -356,6 +358,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   ievt_digi_=0;
   ievt_rechit_=0;
 
+  /*
   if ( dbe_ != NULL ){
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
    
@@ -449,6 +452,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
+
+  */
   return;
 } // HcalMonitorModule::beginJob(...)
 
@@ -462,13 +467,102 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   HOpresent_ = 0;
   HFpresent_ = 0;
   ZDCpresent_= 0;
-  // Should fill with 0 to start
-  meHB_->Fill(HBpresent_);
-  meHE_->Fill(HEpresent_);
-  meHO_->Fill(HOpresent_);
-  meHF_->Fill(HFpresent_);
-  meZDC_->Fill(ZDCpresent_);
   reset();
+
+  if ( dbe_ != NULL ){
+    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
+   
+    meIEVTALL_ = dbe_->bookInt("Events Processed");
+    meIEVTRAW_ = dbe_->bookInt("Events with Raw Data");
+    meIEVTDIGI_= dbe_->bookInt("Events with Digis");
+    meIEVTRECHIT_ = dbe_->bookInt("Events with RecHits");
+    meIEVTALL_->Fill(ievt_);
+    meIEVTRAW_->Fill(ievt_rawdata_);
+    meIEVTDIGI_->Fill(ievt_digi_);
+    meIEVTRECHIT_->Fill(ievt_rechit_);
+    meStatus_  = dbe_->bookInt("STATUS");
+    meRunType_ = dbe_->bookInt("RUN TYPE");
+    meEvtMask_ = dbe_->bookInt("EVT MASK");
+   
+    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
+    // process latency was (200,0,1), but that gave overflows
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
+    meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
+    // Store whether or not subdetectors are present
+    meHB_ = dbe_->bookInt("HBpresent");
+    meHE_ = dbe_->bookInt("HEpresent");
+    meHO_ = dbe_->bookInt("HOpresent");
+    meHF_ = dbe_->bookInt("HFpresent");
+    meZDC_ = dbe_->bookInt("ZDCpresent");
+    meStatus_->Fill(0);
+    meRunType_->Fill(-1);
+    meEvtMask_->Fill(-1);
+
+    // Should fill with 0 to start
+    meHB_->Fill(HBpresent_);
+    meHE_->Fill(HEpresent_);
+    meHO_->Fill(HOpresent_);
+    meHF_->Fill(HFpresent_);
+    meZDC_->Fill(ZDCpresent_);
+  }
+
+  edm::ESHandle<HcalDbService> pSetup;
+  c.get<HcalDbRecord>().get( pSetup );
+
+  readoutMap_=pSetup->getHcalMapping();
+  DetId detid_;
+  HcalDetId hcaldetid_; 
+
+  // Build a map of readout hardware unit to calorimeter channel
+  std::vector <HcalElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
+  uint32_t itsdcc    =0;
+  uint32_t itsspigot =0;
+  uint32_t itshtrchan=0;
+  
+  // by looping over all precision (non-trigger) items.
+  for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin();
+       eid != AllElIds.end();
+       eid++) {
+
+    //Get the HcalDetId from the HcalElectronicsId
+    detid_ = readoutMap_->lookup(*eid);
+    // NULL if illegal; ignore
+    if (!detid_.null()) {
+      if (detid_.det()!=4) continue; //not Hcal
+      if (detid_.subdetId()!=HcalBarrel &&
+	  detid_.subdetId()!=HcalEndcap &&
+	  detid_.subdetId()!=HcalOuter  &&
+	  detid_.subdetId()!=HcalForward) continue;
+
+      itsdcc    =(uint32_t) eid->dccid(); 
+      itsspigot =(uint32_t) eid->spigot();
+      itshtrchan=(uint32_t) eid->htrChanId();
+      hcaldetid_ = HcalDetId(detid_);
+
+      if (dfMon_)
+	dfMon_->stashHDI(dfMon_->hashup(itsdcc,itsspigot,itshtrchan),
+			 hcaldetid_);
+    } // if (!detid_.null()) 
+  } 
+
+  //get conditions
+  c.get<HcalDbRecord>().get(conditions_);
+
+  // fill reference pedestals with database values
+  // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
+  if (pedMon_!=NULL)
+    pedMon_->fillDBValues(*conditions_);
+  //if (deadMon_!=NULL)
+  //  deadMon_->createMaps(*conditions_);
+  if (hotMon_!=NULL)
+    hotMon_->createMaps(*conditions_);
+
+
+  edm::ESHandle<HcalChannelQuality> p;
+  c.get<HcalChannelQualityRcd>().get(p);
+  chanquality_= new HcalChannelQuality(*p.product());
+
+
 }
 
 //--------------------------------------------------------
@@ -1209,6 +1303,32 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       std::cout << "    LaserDigis ==> " << laserOK_ << std::endl;
     }
   
+
+  // Allow for periodic resets of histograms
+  if (periodicReset_>0 && ievt_%periodicReset_==0 && ievt_>0)
+    {
+      if(digiMon_!=0)   {  digiMon_->periodicReset();}
+      if(dfMon_!=0)     {  dfMon_->periodicReset();}
+      if(diTask_!=0)    {  diTask_->periodicReset();}
+      if(pedMon_!=0)    {  pedMon_->periodicReset();}
+      if(ledMon_!=0)    {  ledMon_->periodicReset();}
+      if(laserMon_!=0)  {  laserMon_->periodicReset();}
+      if(hotMon_!=0)    {  hotMon_->periodicReset();}
+      if(deadMon_!=0)   {  deadMon_->periodicReset();}
+      if(mtccMon_!=0)   {  mtccMon_->periodicReset();}
+      if(rhMon_!=0)     {  rhMon_->periodicReset();}
+      if (zdcMon_!=0)   {  zdcMon_->periodicReset();}
+      if (beamMon_!=0) { beamMon_->periodicReset();}
+      
+      //////////////////////////////////////////////
+      if(detDiagPed_!=0){  detDiagPed_->periodicReset();}
+      if(detDiagLed_!=0){  detDiagLed_->periodicReset();}
+      if(detDiagLas_!=0){  detDiagLas_->periodicReset();}
+      if(detDiagNoise_!=0){  detDiagNoise_->periodicReset();}
+      if(detDiagTiming_!=0){  detDiagTiming_->periodicReset();}
+      /////////////////////////////////////////////
+      
+    }
   return;
 }
 
@@ -1342,6 +1462,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 		HcalElectronicsId eid(fchan,fib,spigot,dccid-firstFED);
 		eid.setHTR(htr.readoutVMECrateId(),
 			   htr.htrSlot(),htr.htrTopBottom());
+		
 		DetId did=emap.lookup(eid);
 		if (!did.null()) 
 		  {
