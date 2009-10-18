@@ -74,15 +74,15 @@ void HcalDetDiagLaserMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
      
      name="HBHE Laser Energy Distribution";             hbheEnergy       = m_dbe->book1D(name,name,200,0,3000);
      name="HBHE Laser Timing Distribution";             hbheTime         = m_dbe->book1D(name,name,200,0,10);
-     name="HBHE Laser Energy RMS/Energy Distribution";  hbheEnergyRMS    = m_dbe->book1D(name,name,200,0,0.5);
+     name="HBHE Laser Energy RMS_div_Energy Distribution";  hbheEnergyRMS    = m_dbe->book1D(name,name,200,0,0.5);
      name="HBHE Laser Timing RMS Distribution";         hbheTimeRMS      = m_dbe->book1D(name,name,200,0,1);
      name="HO Laser Energy Distribution";               hoEnergy         = m_dbe->book1D(name,name,200,0,3000);
      name="HO Laser Timing Distribution";               hoTime           = m_dbe->book1D(name,name,200,0,10);
-     name="HO Laser Energy RMS/Energy Distribution";    hoEnergyRMS      = m_dbe->book1D(name,name,200,0,0.5);
+     name="HO Laser Energy RMS_div_Energy Distribution";    hoEnergyRMS      = m_dbe->book1D(name,name,200,0,0.5);
      name="HO Laser Timing RMS Distribution";           hoTimeRMS        = m_dbe->book1D(name,name,200,0,1);
      name="HF Laser Energy Distribution";               hfEnergy         = m_dbe->book1D(name,name,200,0,3000);
      name="HF Laser Timing Distribution";               hfTime           = m_dbe->book1D(name,name,200,0,10);
-     name="HF Laser Energy RMS/Energy Distribution";    hfEnergyRMS      = m_dbe->book1D(name,name,200,0,0.7);
+     name="HF Laser Energy RMS_div_Energy Distribution";    hfEnergyRMS      = m_dbe->book1D(name,name,200,0,0.7);
      name="HF Laser Timing RMS Distribution";           hfTimeRMS        = m_dbe->book1D(name,name,200,0,1);
      
      name="Laser Timing HBHEHF";                     Time2Dhbhehf   = m_dbe->book2D(name,name,87,-43,43,74,0,73);
@@ -91,8 +91,8 @@ void HcalDetDiagLaserMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
      name="Laser Energy HO";                         Energy2Dho     = m_dbe->book2D(name,name,33,-16,16,74,0,73);
      name="HBHEHF Laser (Timing-Ref)+1";             refTime2Dhbhehf   = m_dbe->book2D(name,name,87,-43,43,74,0,73);
      name="HO Laser (Timing-Ref)+1";                 refTime2Dho       = m_dbe->book2D(name,name,33,-16,16,74,0,73);
-     name="HBHEHF Laser Energy/Ref";                 refEnergy2Dhbhehf = m_dbe->book2D(name,name,87,-43,43,74,0,73);
-     name="HO Laser Energy/Ref";                     refEnergy2Dho     = m_dbe->book2D(name,name,33,-16,16,74,0,73);
+     name="HBHEHF Laser Energy_div_Ref";                 refEnergy2Dhbhehf = m_dbe->book2D(name,name,87,-43,43,74,0,73);
+     name="HO Laser Energy_div_Ref";                     refEnergy2Dho     = m_dbe->book2D(name,name,33,-16,16,74,0,73);
      char str[100];
      for(int i=0;i<56;i++){   
         sprintf(str,"RADDAM (%i %i)",RADDAM_CH[i].eta,RADDAM_CH[i].phi);                                             

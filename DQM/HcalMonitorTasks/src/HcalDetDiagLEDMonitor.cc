@@ -55,11 +55,11 @@ void HcalDetDiagLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
      
      name="HBHEHO LED Energy Distribution";               Energy         = m_dbe->book1D(name,name,200,0,3000);
      name="HBHEHO LED Timing Distribution";               Time           = m_dbe->book1D(name,name,200,0,10);
-     name="HBHEHO LED Energy RMS/Energy Distribution";    EnergyRMS      = m_dbe->book1D(name,name,200,0,0.2);
+     name="HBHEHO LED Energy RMS_div_Energy Distribution";    EnergyRMS      = m_dbe->book1D(name,name,200,0,0.2);
      name="HBHEHO LED Timing RMS Distribution";           TimeRMS        = m_dbe->book1D(name,name,200,0,0.4);
      name="HF LED Energy Distribution";               EnergyHF       = m_dbe->book1D(name,name,200,0,3000);
      name="HF LED Timing Distribution";               TimeHF         = m_dbe->book1D(name,name,200,0,10);
-     name="HF LED Energy RMS/Energy Distribution";    EnergyRMSHF    = m_dbe->book1D(name,name,200,0,0.5);
+     name="HF LED Energy RMS_div_Energy Distribution";    EnergyRMSHF    = m_dbe->book1D(name,name,200,0,0.5);
      name="HF LED Timing RMS Distribution";           TimeRMSHF      = m_dbe->book1D(name,name,200,0,0.4);
      name="LED Energy Corr(PinDiod) Distribution"; EnergyCorr     = m_dbe->book1D(name,name,200,0,10);
      name="LED Timing HBHEHF";                     Time2Dhbhehf   = m_dbe->book2D(name,name,87,-43,43,74,0,73);
