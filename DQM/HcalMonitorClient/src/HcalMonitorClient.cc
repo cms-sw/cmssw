@@ -32,7 +32,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if (dqm_db_)             delete dqm_db_;
   //if( dbe_ )               delete dbe_;
   */
-  if (debug_>1) std::cout <<"HcalMonitorClient: Finished destructor..."<<endl;
+  if (debug_>0) std::cout <<"HcalMonitorClient: Finished destructor..."<<endl;
 }
 
 //--------------------------------------------------------

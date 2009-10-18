@@ -683,6 +683,8 @@ void HcalSummaryClient::analyze(void)
   StatusVsLS->setBinContent(LS_,7,status_HFlumi_);
 
   // If running online, fill in any missing LS values with most recent values
+  // Don't want this feature yet?
+  /*
   if (Online_ && LS_!=oldLS_)
     {
       for (int subdet=1;subdet<=7;++subdet)
@@ -693,6 +695,7 @@ void HcalSummaryClient::analyze(void)
 	}
       oldLS_ = LS_;
     }
+  */
 
   dqmStore_->setCurrentFolder( rootFolder_);
 
