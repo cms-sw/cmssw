@@ -4,7 +4,7 @@
 /** \class DTCertificationSummary
  *  No description available.
  *
- *  $Date: 2008/12/12 18:04:17 $
+ *  $Date: 2009/03/02 17:03:50 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -39,6 +39,7 @@ private:
   DQMStore *theDbe;  
   
   MonitorElement*  totalCertFraction;
+  MonitorElement*  certMap;
   std::map<int, MonitorElement*> certFractions;
 
 };
