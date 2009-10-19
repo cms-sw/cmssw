@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/25 21:32:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/02 10:34:10 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -54,6 +54,11 @@ void DTDAQInfo::beginJob(const EventSetup& setup){
   totalDAQFraction = theDbe->bookFloat("DAQSummary");  
   totalDAQFraction->Fill(-1);
 
+  // map
+  daqMap = theDbe->book2D("DAQSummaryMap","DT Certification Summary Map",12,1,13,5,-2,3);
+  daqMap->setAxisTitle("sector",1);
+  daqMap->setAxisTitle("wheel",2);
+
 
   // Wheel "fractions" -> will be 0 or 1
   theDbe->setCurrentFolder("DT/EventInfo/DAQContents");
@@ -84,6 +89,7 @@ void DTDAQInfo::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSe
     daqFractions[1]->Fill(0.);
     daqFractions[2]->Fill(0.);
 
+    daqMap->Reset();
 
     //get fed summary information
     ESHandle<RunInfo> sumFED;
@@ -101,7 +107,7 @@ void DTDAQInfo::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSe
 	++fed) {
       // check if the fed is in the DT range
       if(!(*fed >= FEDIDmin && *fed <= FEDIDMax)) continue;
-      
+
       // check if the 12 channels are connected to any sector and fill the wheel percentage accordignly
       int wheel = -99;
       int sector = -99;
@@ -112,6 +118,7 @@ void DTDAQInfo::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSe
 	    << "FED: " << *fed << " Ch: " << ros << " wheel: " << wheel << " Sect: " << sector << endl;
 	  daqFractions[wheel]->Fill(daqFractions[wheel]->getFloatValue() + 1./12.);
 	  totalDAQFraction->Fill(totalDAQFraction->getFloatValue() + 1./60.);
+	  daqMap->Fill(sector,wheel);
 	}
       }
     }   

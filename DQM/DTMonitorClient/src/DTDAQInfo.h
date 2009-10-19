@@ -4,8 +4,8 @@
 /** \class DTDAQInfo
  *  No description available.
  *
- *  $Date: 2008/12/12 18:04:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/02 10:34:10 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -42,6 +42,7 @@ private:
   DQMStore *theDbe;  
   
   MonitorElement*  totalDAQFraction;
+  MonitorElement*  daqMap;
   std::map<int, MonitorElement*> daqFractions;
   edm::ESHandle<DTReadOutMapping> mapping;
 
