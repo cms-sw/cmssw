@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:34 $
+ *  $Date: 2009/03/25 16:38:34 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
@@ -73,16 +73,18 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Fit normalization = " << fit->GetParameter(0) << "\n"
                             << "                             Mean, Fit Mean    = " << residualHisto.GetMean()
                                                                                    << ", " << fit->GetParameter(1) << "\n"
-                            << "                             RMS, Fit RMS      = " << residualHisto.GetRMS()                                                                                                    << ", " << fit->GetParameter(2);
+                            << "                             RMS, Fit RMS      = " << residualHisto.GetRMS() << ", " << fit->GetParameter(2);
   }
 
-  double resTime = ((useFit_)?fitMean:(residualHisto.GetMean()))/vDrift;
+  double resTime = 0.;
+  if(vDrift != 0.) resTime = ((useFit_)?fitMean:(residualHisto.GetMean()))/vDrift;
 
   LogTrace("Calibration") << "[DTTTrigResidualCorrection]: vDrift from DB, correction to tTrig = " << vDrift << ", " << resTime;
 
   double corrMean = tTrigMean;
   double corrSigma = tTrigSigma;
-  double corrKFact = (kFactor*tTrigSigma + resTime)/tTrigSigma;
+  double corrKFact = 0.;
+  if(tTrigSigma != 0.) corrKFact = (kFactor*tTrigSigma + resTime)/tTrigSigma;
 
   return DTTTrigData(corrMean,corrSigma,corrKFact);  
 }
