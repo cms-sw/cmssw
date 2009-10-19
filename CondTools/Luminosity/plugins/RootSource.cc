@@ -24,11 +24,13 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
 const std::string
 lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result , bool allowForceFirstSince ){
   m_source->ls();
+  //TTree *runsummary = (TTree*)m_source->Get("RunSummary");
   TTree *hlxtree = (TTree*)m_source->Get("HLXData");
   TTree *l1tree = (TTree*)m_source->Get("L1Trigger");
   TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
   unsigned int runnumber=0;
   if(hlxtree && l1tree && hlttree){
+    //runsummary->Print();
     hlxtree->Print();
     l1tree->Print();
     hlttree->Print();
@@ -38,12 +40,21 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
     HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
     HCAL_HLX::LEVEL1_TRIGGER* l1data=0;
     HCAL_HLX::HLTRIGGER* hltdata=0;
+    //HCAL_HLX::RUN_SUMMARY* runsummarydata=0;
+    //runsummary->SetBranchAddress("RunSummary.",&runsummarydata);
     hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     hlxtree->SetBranchAddress("Header.",&lumiheader);
     hlxtree->SetBranchAddress("Summary.",&lumisummary);
     hlxtree->SetBranchAddress("Detail.",&lumidetail);
     l1tree->SetBranchAddress("L1Trigger.",&l1data);
-    
+
+    /**size_t nruns=runsummary->GetEntries();
+       for(size_t i=0;i<nruns;++i){
+       runsummary->GetEntry(i);
+       std::cout<<"current run : "<<runsummarydata->runNumber<<"\n";
+       std::cout<<"HLTConfigId : "<<runsummarydata->HLTConfigId<<"\n";
+       }
+    **/
     size_t nentries=hlxtree->GetEntries();
     std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
     size_t lumisecid=0;
@@ -51,6 +62,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
       hlttree->GetEntry(i);
+
       /*if(i==0){
 	std::cout<<"Time stamp : "<<lumiheader->timestamp<<"\n";
 	std::cout<<"Time stamp micro : "<<lumiheader->timestamp_micros<<"\n";
@@ -64,6 +76,11 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	std::cout<<"OC0 : "<<lumiheader->bOC0<<std::endl;
       }
       */
+      // if not cms daq LS, skip
+      if(!lumiheader->bCMSLive){
+	std::cout<<"skipping non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
+	continue;
+      }
       if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
 	runnumber=1;
 	lumisecid=1;
@@ -121,7 +138,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,l1data->GTTech[itrg].deadtimecount,l1data->GTTech[itrg].prescale);
 	triginfo.push_back(trgbit);
       }
-      //std::cout<<"bizzare cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
 
