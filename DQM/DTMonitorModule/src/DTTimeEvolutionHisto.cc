@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/11/24 09:13:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -42,15 +42,20 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
 
   // book the ME
-  histo = dbe->book1D(name, realTitle.str(), nBookedBins, 0, nBookedBins);
+  histo = dbe->book1D(name, realTitle.str(), nBookedBins, 1., nBookedBins+1.);
 
   // set the axis label
   if(sliding) {
     histo->setBinLabel(1,"avg. previous",1);
   } else {
     // loop over bins and 
-    for(int bin =1; bin != nBookedBins; ++bin) {    
-      stringstream label; label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
+    for(int bin =1; bin != nBookedBins+1; ++bin) {    
+      stringstream label;
+      if(theLSPrescale > 1) {
+	label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
+      } else {
+	label << "LS " << ((bin-1)*theLSPrescale)+1;
+      }
       histo->setBinLabel(bin, label.str(),1);
 
     }
@@ -130,6 +135,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 	value = valueLastTimeSlot;
       } else if(theMode == 2) {
 	value = nEventsInLastTimeSlot;
+      } else if(theMode == 3) {
+	value = valueLastTimeSlot/theLSPrescale;
       }
       setTimeSlotValue(value, nBookedBins);
       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
@@ -155,6 +162,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       value = valueLastTimeSlot;
     } else if(theMode == 2) {
       value = nEventsInLS;
+    } else if(theMode == 3) {
+      value = valueLastTimeSlot/theLSPrescale;
     }
     LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto] Update time-slot: "<< binN << " with value: " << value << endl;
