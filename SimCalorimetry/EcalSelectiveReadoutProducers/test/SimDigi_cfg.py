@@ -60,35 +60,38 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+process.RandomNumberGeneratorService= cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        VtxSmeared = cms.untracked.uint32(123456781),
         g4SimHits = cms.untracked.uint32(123456782),
-        simEcalUnsuppressedDigis = cms.untracked.uint32(123456784),
         ecalUnsuppressedDigis = cms.untracked.uint32(123456783),
-        VtxSmeared = cms.untracked.uint32(123456781)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
+        simEcalUnsuppressedDigis = cms.untracked.uint32(123456784),
+        generator = cms.untracked.uint32(123456785)
+    )
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        # you can request more than 1 particle
-        #vint32  PartID = {211,11}
-        #vint32 PartID = { 13 } 
-        PartID = cms.untracked.vint32(11),
-        MaxEta = cms.untracked.double(3.0),
-        MaxPhi = cms.untracked.double(3.141592653589793),
-        MinEta = cms.untracked.double(-3.0),
-        MinE = cms.untracked.double(99.99),
-        MinPhi = cms.untracked.double(-3.141592653589793), ## must be in radians
+process.source = cms.Source("EmptySource")
 
-        MaxE = cms.untracked.double(100.01)
-    ),
-    Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts
+#process.load("Configuration.GenProduction.PythiaUESettings_cfi")
 
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+  PGunParameters = cms.PSet(
+  # you can request more than 1 particle
+     PartID = cms.vint32(11),
+     MaxEta = cms.double(3.0),
+     MaxPhi = cms.double(3.141592653589793),
+     MinEta = cms.double(-3.0),
+     MinE = cms.double(99.99),
+     MinPhi = cms.double(-3.141592653589793), ## must be in radians
+
+     MaxE = cms.double(100.01)
+  ),
+  firstRun = cms.untracked.uint32(1),
+  AddAntiParticle = cms.bool(True),
+  Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts                                   
 )
 
 process.detSim = cms.Sequence(process.VtxSmeared*process.g4SimHits)
-process.p = cms.Path(process.detSim*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis)
+process.p = cms.Path(process.generator*process.detSim*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis)
 process.outpath = cms.EndPath(process.o1)
 
