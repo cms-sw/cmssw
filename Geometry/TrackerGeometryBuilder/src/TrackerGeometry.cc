@@ -2,6 +2,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -13,6 +14,11 @@
 #include <map>
 
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
+
+TrackerGeometry::~TrackerGeometry() {
+    for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete *it;
+    for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete *it;
+}
 
 GeometricDet const * TrackerGeometry::trackerDet() const {
   return  theTrackerDet;

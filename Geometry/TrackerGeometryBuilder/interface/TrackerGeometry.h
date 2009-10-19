@@ -28,6 +28,8 @@ public:
 
   explicit TrackerGeometry(GeometricDet const* gd=0);  
 
+  virtual ~TrackerGeometry() ;
+
   virtual const DetTypeContainer&  detTypes()         const;
   virtual const DetUnitContainer&  detUnits()         const;
   virtual const DetContainer&      dets()             const;
@@ -62,20 +64,20 @@ private:
   /// Aligner has access to map
   friend class GeometryAligner;
 
-  DetTypeContainer  theDetTypes;
-  DetUnitContainer  theDetUnits;
-  DetContainer      theDets;
+  DetTypeContainer  theDetTypes;  // owns the DetTypes
+  DetUnitContainer  theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
+  DetContainer      theDets;      // owns *ONLY* the GeomDet * corresponding to GluedDets.
   DetIdContainer    theDetUnitIds;
-  DetIdContainer    theDetIds;
-  mapIdToDetUnit    theMapUnit;
-  mapIdToDet        theMap;
+  DetIdContainer    theDetIds; 
+  mapIdToDetUnit    theMapUnit; // does not own GeomDetUnit *
+  mapIdToDet        theMap;     // does not own GeomDet *
 
-  DetContainer      thePXBDets;
-  DetContainer      thePXFDets;
-  DetContainer      theTIBDets;
-  DetContainer      theTIDDets;
-  DetContainer      theTOBDets;
-  DetContainer      theTECDets;
+  DetContainer      thePXBDets; // not owned: they're also in 'theDets'
+  DetContainer      thePXFDets; // not owned: they're also in 'theDets'
+  DetContainer      theTIBDets; // not owned: they're also in 'theDets'
+  DetContainer      theTIDDets; // not owned: they're also in 'theDets'
+  DetContainer      theTOBDets; // not owned: they're also in 'theDets'
+  DetContainer      theTECDets; // not owned: they're also in 'theDets'
 
 
 };

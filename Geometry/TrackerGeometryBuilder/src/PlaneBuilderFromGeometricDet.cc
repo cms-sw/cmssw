@@ -21,8 +21,10 @@
    detector element?  
 */
 
-PlaneBuilderFromGeometricDet::ResultType PlaneBuilderFromGeometricDet::plane(const GeometricDet* gd) const{
-  return ResultType( new BoundPlane( gd->positionBounds(), gd->rotationBounds(),gd-> bounds())); 
+PlaneBuilderFromGeometricDet::ResultType PlaneBuilderFromGeometricDet::plane(const GeometricDet* gd) const {
+  std::auto_ptr<const Bounds> bounds(gd->bounds());  // gd->bounds() returns a pointer owned by the caller!
+                                                     // BoundSurface's constructor clones, does *not* take ownership
+  return ResultType( new BoundPlane( gd->positionBounds(), gd->rotationBounds(), *bounds)); 
 }	      
 
 

@@ -64,9 +64,9 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
     std::string const & detName = gdv[i]->name().fullname();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
-
+      std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
       PixelTopology* t = 
-	theTopologyBuilder->buildPixel(gdv[i]->bounds(),
+	theTopologyBuilder->buildPixel(&*bounds,
 				       gdv[i]->pixROCRows(),
 				       gdv[i]->pixROCCols(),
 				       gdv[i]->pixROCx(),
@@ -96,9 +96,9 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
     std::string const & detName = gdv[i]->name().fullname();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
-
+       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
        StripTopology* t =
-	theTopologyBuilder->buildStrip(gdv[i]->bounds(),
+	theTopologyBuilder->buildStrip(&*bounds,
 				       gdv[i]->siliconAPVNum(),
 				       part);
       detTypeMap[detName] = new  StripGeomDetType( t,detName,det,

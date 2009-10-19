@@ -2,6 +2,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
 #include <algorithm>
 
@@ -18,15 +19,15 @@ PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::v
   
   Surface::RotationType rotation =  dets.front()->surface().rotation();
   //  Surface::RotationType rotation = computeRotation( dets, meanPos);
-  BoundPlane tmpPlane( meanPos, rotation);
+  BoundPlane::BoundPlanePointer tmpPlane = BoundPlane::build( meanPos, rotation, OpenBounds());
 
   // Take the medium properties from the first DetUnit 
   const MediumProperties* mp = dets.front()->surface().mediumProperties();
-  MediumProperties* newmp = 0; 
-  if (mp != 0) newmp = new MediumProperties( mp->radLen()*2.0,mp->xi()*2.0);
+  MediumProperties newmp(0,0);
+  if (mp != 0) newmp = MediumProperties( mp->radLen()*2.0,mp->xi()*2.0);
 
-  std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, tmpPlane);
-  return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
+  std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, *tmpPlane);
+  return new BoundPlane( meanPos+bo.second, rotation, bo.first, &newmp);
 }
 
 
