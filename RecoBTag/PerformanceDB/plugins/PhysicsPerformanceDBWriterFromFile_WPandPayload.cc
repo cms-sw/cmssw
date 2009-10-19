@@ -53,6 +53,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   //
 
   std::ifstream in;
+  std::cout << "Opening "<< inputTxtFile<<std::endl;
   in.open(inputTxtFile.c_str());
   std::string tagger;
   float cut;
@@ -126,6 +127,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
     std::cout <<" Table not well formed"<<std::endl;
   }
 
+  std::cout <<" CLOSING "<<std::endl;
   in.close();
 
 
