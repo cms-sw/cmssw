@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.3 2009/07/30 12:35:36 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.4 2009/10/16 09:34:46 ptraczyk Exp $
 //
 //
 
@@ -52,7 +52,14 @@ MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig)
    
    errorDT_ = iConfig.getParameter<double>("ErrorDT");
    errorCSC_ = iConfig.getParameter<double>("ErrorCSC");
+   errorEB_ = iConfig.getParameter<double>("ErrorEB");
+   errorEE_ = iConfig.getParameter<double>("ErrorEE");
    ecalEcut_ = iConfig.getParameter<double>("EcalEnergyCut");
+   
+   useDT_ = iConfig.getParameter<bool>("UseDT");
+   useCSC_ = iConfig.getParameter<bool>("UseCSC");
+   useECAL_ = iConfig.getParameter<bool>("UseECAL");
+   
 }
 
 
@@ -76,7 +83,7 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
     theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
     theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
   }
-     
+  
   // Fill DT-specific timing information block     
   if (dtTmSeq.totalWeight)
     fillTimeFromMeasurements(dtTmSeq, dtTime);
@@ -89,8 +96,8 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
   TimeMeasurementSequence combinedTmSeq;
   combineTMSequences(muon,dtTmSeq,cscTmSeq,combinedTmSeq);
   // add ECAL info
-  addEcalTime(muon,combinedTmSeq);
-          
+  if (useECAL_) addEcalTime(muon,combinedTmSeq);
+
   // Fill the master timing block
   if (combinedTmSeq.totalWeight>0.) 
     fillTimeFromMeasurements(combinedTmSeq, combinedTime);
@@ -148,8 +155,7 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
   muTime.setFreeInverseBeta(freeBeta);
   muTime.setFreeInverseBetaErr(freeBetaErr);
     
-  muTime.setNDof((int)tmSeq.totalWeight);
-
+  muTime.setNDof(tmSeq.dstnc.size());
 }
 
 void 
@@ -159,7 +165,7 @@ MuonTimingFiller::combineTMSequences( const reco::Muon& muon,
                                       TimeMeasurementSequence &cmbSeq ) {
   double hitWeight;
                                         
-  for (unsigned int i=0;i<dtSeq.dstnc.size();i++) {
+  if (useDT_) for (unsigned int i=0;i<dtSeq.dstnc.size();i++) {
     hitWeight=dtSeq.weight.at(i) / (errorDT_*errorDT_);
     
     cmbSeq.dstnc.push_back(dtSeq.dstnc.at(i));
@@ -169,7 +175,7 @@ MuonTimingFiller::combineTMSequences( const reco::Muon& muon,
     cmbSeq.totalWeight+=hitWeight;
   }
 
-  for (unsigned int i=0;i<cscSeq.dstnc.size();i++) {
+  if (useCSC_) for (unsigned int i=0;i<cscSeq.dstnc.size();i++) {
     hitWeight=1./(errorCSC_*errorCSC_);
  
     cmbSeq.dstnc.push_back(cscSeq.dstnc.at(i));
@@ -193,14 +199,14 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
   if (muonE.emMax<ecalEcut_ || fabs(muon.eta())>1.5) return;    
   
   // A simple parametrization of the error on the ECAL time measurement
-  double emErr = 1.5/muonE.emMax;
+  double emErr = errorEB_/muonE.emMax;
   double hitWeight = 1/(emErr*emErr);
         
   cmbSeq.local_t0.push_back(muonE.ecal_time);
   cmbSeq.weight.push_back(hitWeight);
 
   cmbSeq.dstnc.push_back(muonE.ecal_position.r());
-
+  
   cmbSeq.totalWeight+=hitWeight;
                                       
 }
