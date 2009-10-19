@@ -22,6 +22,12 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
                                                              ## (UseStripAPVFiberQualityDB must also be true for this to work)
     UseStripStripQualityDB      = cms.bool(True),            ## read Strip status from SiStripQuality
     DebugStripStripQualityDB    = cms.untracked.bool(False), ## dump out info om module status
+    badStripCuts  = cms.PSet(
+        TIB = cms.PSet( maxBad = cms.uint32(4), maxConsecutiveBad = cms.uint32(2) ),
+        TID = cms.PSet( maxBad = cms.uint32(4), maxConsecutiveBad = cms.uint32(2) ),
+        TOB = cms.PSet( maxBad = cms.uint32(4), maxConsecutiveBad = cms.uint32(2) ),
+        TEC = cms.PSet( maxBad = cms.uint32(4), maxConsecutiveBad = cms.uint32(2) ),
+    ),
 
     UsePixelModuleQualityDB   = cms.bool(True),            ## Use DB info at the module level (that is, detid level)
     DebugPixelModuleQualityDB = cms.untracked.bool(False), ## dump out info om module status

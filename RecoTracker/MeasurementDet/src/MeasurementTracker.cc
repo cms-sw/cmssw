@@ -410,6 +410,15 @@ MeasurementTracker::idToDet(const DetId& id) const
 }
 
 void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
+  TkStripMeasurementDet::BadStripCuts badStripCuts[4];
+  if (qualityFlags & BadStrips) {
+     edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
+     badStripCuts[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
+     badStripCuts[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
+     badStripCuts[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
+     badStripCuts[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
+  }
+
   if ((quality != 0) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0; 
@@ -456,6 +465,7 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
             for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
                 badStrips.push_back(quality->decode(*bit));
             }
+            (*i)->setBadStripCuts(badStripCuts[SiStripDetId(detid).subdetId()-3]);
        }
     }
     if (qualityDebugFlags & BadModules) {

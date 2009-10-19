@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TransientTrackingRecHit;
 
@@ -100,8 +101,18 @@ public:
   /** \brief Sets the status of a block of 128 strips (or all blocks if idx=-1) */
   void set128StripStatus(bool good, int idx=-1);
 
+  struct BadStripCuts {
+     BadStripCuts() : maxBad(9999), maxConsecutiveBad(9999) {}
+     BadStripCuts(const edm::ParameterSet &pset) :
+        maxBad(pset.getParameter<uint32_t>("maxBad")),
+        maxConsecutiveBad(pset.getParameter<uint32_t>("maxConsecutiveBad")) {}
+     uint16_t maxBad, maxConsecutiveBad;
+  };
+
   /** \brief return true if there are 'enough' good strips in the utraj +/- 3 uerr range.*/
   bool testStrips(float utraj, float uerr) const;
+
+  void setBadStripCuts(BadStripCuts cuts) { badStripCuts_ = cuts; }
 
   struct BadStripBlock {
       short first;
@@ -126,6 +137,8 @@ private:
   bool hasAny128StripBad_, maskBad128StripBlocks_;
   std::vector<BadStripBlock> badStripBlocks_;  
   int totalStrips_;
+  BadStripCuts badStripCuts_;
+ 
 
   // --- regional unpacking
   bool isRegional;

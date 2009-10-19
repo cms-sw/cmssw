@@ -12,6 +12,7 @@
 #include <typeinfo>
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      const StripClusterParameterEstimator* cpe,
@@ -272,8 +273,8 @@ TkStripMeasurementDet::set128StripStatus(bool good, int idx) {
 
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
-    int start = (int) (utraj - 3*uerr); if (start < 0) start = 0;
-    int end   = (int) (utraj + 3*uerr); if (end > totalStrips_) end = totalStrips_;
+    int16_t start = (int16_t) (utraj - 3*uerr); if (start < 0) start = 0;
+    int16_t end   = (int16_t) (utraj + 3*uerr); if (end > totalStrips_) end = totalStrips_;
 
     if (start >= end) { // which means either end <=0 or start >= totalStrips_
         /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
@@ -288,59 +289,27 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     typedef std::vector<BadStripBlock>::const_iterator BSBIT;
     BSBIT bsbc = badStripBlocks_.begin(), bsbe = badStripBlocks_.end();
 
-    int cur = start, curapv = start >> 7, good = 0;
-    while (cur < end) {
-        int nextapv = (cur & ~(127)) + 128;
-        if (bad128Strip_[curapv]) { 
-            cur = nextapv; continue;
-        }
-        int next = std::min(end, nextapv); // all before "next" is good for APVs and fibers 
-                                           // [*] next > cur by contract.
-        if (bsbc != bsbe) {  // are there any bad strips?
-            // skip all blocks to our left
-            while (bsbc->last < cur) { bsbc++; if (bsbc == bsbe) break; }
-            if ((bsbc != bsbe)) {
-                if (bsbc->first <= cur) { // in the block
-                    cur = bsbc->last+1; bsbc++;  continue;
-                } 
-                if (bsbc->first < next) { // there are bad strips before "next"
-                    next = bsbc->first;   // so we better stop at the beginning of that block
-                    // as we didn't fall in "if (bsbc->first <= cur)" we know
-                    // cur < bsbc->first, so [*] is still true
-                }
-            }
-        }
-        // because of [*] (next - cur) > 0
-        good += next - cur; // all strips up to next-1 are good
-        cur  = next;        // now reach for the unknown
-   }
-   
-   /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
-        " U = " << utraj << " +/- " << uerr << 
-        "; Range [" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
-        "= [" << start << "," << end << "]" <<
-        " total strips:" << (end-start) << ", good:" << good << ", bad:" << (end-start-good) << 
-        ". " << (good >= 1 ? "OK" : "NO"); */
-
-//#define RecoTracker_MeasurementDet_TkStripMeasurementDet_RECOUNT_IN_SLOW_AND_STUPID_BUT_SAFE_WAY
-// I can be dangerous to blindly trust some "supposed-to-be-smart" algorithm ...
-// ... expecially if I wrote it   (gpetrucc)
-#ifdef  RecoTracker_MeasurementDet_TkStripMeasurementDet_RECOUNT_IN_SLOW_AND_STUPID_BUT_SAFE_WAY
-    bsbc = badStripBlocks_.begin();
-    cur  = start;
-    int safegood = 0;
-    while (cur < end) {
-        if (bad128Strip_[cur >> 7]) { cur++; continue; }
-        // skip all blocks to our left
-        while ((bsbc != bsbe) && (bsbc->last < cur)) { bsbc++; }
-        if ((bsbc != bsbe) && (bsbc->first <= cur)) { cur++; continue; }
-        safegood++; cur++;
+    int16_t bad = 0, largestBadBlock = 0;
+    for (BSBIT bsbc = badStripBlocks_.begin(), bsbe = badStripBlocks_.end(); bsbc != bsbe; ++bsbc) {
+        if (bsbc->last  < start) continue;
+        if (bsbc->first > end)   break;
+        int16_t thisBad = std::min(bsbc->last, end) - std::max(bsbc->first, start);
+        if (thisBad > largestBadBlock) largestBadBlock = thisBad;
+        bad += thisBad;
     }
-    //LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<", "<<
-    //        " safegood = " << safegood << " while good = " << good <<
-    //        "; I am  " << (safegood == good ? "safe" : "STUPID"); // no offense to anyone, of course
-#endif // of #ifdef  RecoTracker_MeasurementDet_TkStripMeasurementDet_RECOUNT_IN_SLOW_AND_STUPID_BUT_SAFE_WAY
 
-    return (good >= 1); //to be tuned
+    bool ok = (bad < (end-start)) && 
+              (uint16_t(bad) <= badStripCuts_.maxBad) && 
+              (uint16_t(largestBadBlock) <= badStripCuts_.maxConsecutiveBad);
+
+//    if (bad) {   
+//       edm::LogWarning("TkStripMeasurementDet") << "Testing module " << id_ <<" (subdet: "<< SiStripDetId(id_).subdetId() << ")" <<
+//            " U = " << utraj << " +/- " << uerr << 
+//            "; Range [" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
+//            "= [" << start << "," << end << "]" <<
+//            " total strips:" << (end-start) << ", good:" << (end-start-bad) << ", bad:" << bad << ", largestBadBlock: " << largestBadBlock << 
+//            ". " << (ok ? "OK" : "NO"); 
+//    }
+    return ok;
 }
 
