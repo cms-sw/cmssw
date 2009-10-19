@@ -1,0 +1,24 @@
+
+[oval run] =================================================
+[oval run] USER : chamont
+[oval run] HOST : lxcmsf3.cern.ch
+[oval run] MY_GLOBAL_TAG = MC_31X_V9
+[oval run] run tool: scram
+[oval run] final instruction: cmsDriver.py SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root
+[oval run] =================================================
+
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 18-Oct-2009 23:27:34 CEST
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 18-Oct-2009 23:28:11 CEST
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 18-Oct-2009 23:28:18 CEST
+
+=============================================
+
+MessageLogger Summary
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+
