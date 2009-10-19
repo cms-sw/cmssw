@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.h,v 1.1 2007/05/01 18:18:29 dmytro Exp $
+// $Id: MuonCaloCompatibility.h,v 1.1 2007/05/12 22:18:14 dmytro Exp $
 //
 //
 
@@ -38,8 +38,8 @@ class MuonCaloCompatibility {
    std::string MuonfileName_;
    std::string PionfileName_;
    
-   TFile * pion_templates;
-   TFile * muon_templates;
+   boost::shared_ptr<TFile> pion_templates;
+   boost::shared_ptr<TFile> muon_templates;
    // used input templates for given eta
    TH2D * pion_template_em ;
    TH2D * pion_template_had;

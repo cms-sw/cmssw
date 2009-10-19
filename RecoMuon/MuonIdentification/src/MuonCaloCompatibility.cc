@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.cc,v 1.3 2007/10/03 16:13:30 ibloch Exp $
+// $Id: MuonCaloCompatibility.cc,v 1.4 2008/01/22 09:51:29 bellan Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
@@ -21,9 +21,8 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 {
    MuonfileName_ = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
    PionfileName_ = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
-   muon_templates = new TFile(MuonfileName_.c_str(),"READ");
-   pion_templates = new TFile(PionfileName_.c_str(),"READ");
-
+   muon_templates.reset( new TFile(MuonfileName_.c_str(),"READ") );
+   pion_templates.reset( new TFile(PionfileName_.c_str(),"READ") );
 
    pion_em_etaEmi  = (TH2D*) pion_templates->Get("em_etaEmi");
    pion_had_etaEmi = (TH2D*) pion_templates->Get("had_etaEmi");
