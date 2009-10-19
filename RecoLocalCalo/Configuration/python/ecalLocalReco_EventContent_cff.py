@@ -19,10 +19,16 @@ ecalLocalRecoFEVT = cms.PSet(
 ecalLocalRecoRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ecalPreshowerRecHit_*_*', 
-        'keep *_ecalRecHit_*_*')
+        'keep *_ecalRecHit_*_*',
+        'keep EBSrFlagsSorted_ecalDigis_*_*',
+        'keep EESrFlagsSorted_ecalDigis_*_*'
+        )
 )
 #AOD content
 ecalLocalRecoAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring(
+        'keep EBSrFlagsSorted_ecalDigis_*_*',
+        'keep EESrFlagsSorted_ecalDigis_*_*'
+        )
 )
 
