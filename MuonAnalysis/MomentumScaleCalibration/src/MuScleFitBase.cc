@@ -115,7 +115,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   TFile * ProbsFile;
   if ( theMuonType_!=2 ) {
     if( probabilitiesFile_ != "" ) {
-      ProbsFile = new TFile (probabilitiesFile_.c_str()); 
+      ProbsFile = new TFile (probabilitiesFile_.c_str());
       cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << endl;
     }
     else {
