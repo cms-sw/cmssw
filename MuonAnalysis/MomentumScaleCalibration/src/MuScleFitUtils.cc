@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/10/05 11:48:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/10/19 09:50:36 $
+ *  $Revision: 1.20 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -310,12 +310,20 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
       double pt2 = (*Muon2).p4().Pt();
       double eta1 = (*Muon1).p4().Eta();
       double eta2 = (*Muon2).p4().Eta();
-      if( pt1 > minMuonPt_ && pt2 > minMuonPt_ &&
-          pt1 < maxMuonPt_ && pt2 < maxMuonPt_ &&
-          eta1 > minMuonEtaFirstRange_ && eta2 > minMuonEtaFirstRange_ &&
-          eta1 < maxMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ &&
-          eta1 > minMuonEtaSecondRange_ && eta2 > minMuonEtaSecondRange_ &&
-          eta1 < maxMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
+      // cout << "eta1 = " << eta1 << ", eta2 = " << eta2 << ", minMuonEtaFirstRange_ = " << minMuonEtaFirstRange_ << ", maxMuonEtaFirstRange_ = " << maxMuonEtaFirstRange_ << ", minMuonEtaSecondRange_ = " << minMuonEtaSecondRange_ << ", maxMuonEtaSecondRange_ = " << maxMuonEtaSecondRange_ << endl;
+      // bool pt1Cut = (pt1 > minMuonPt_ && pt1 < maxMuonPt_);
+      // bool pt2Cut = (pt2 > minMuonPt_ && pt2 < maxMuonPt_);
+      // bool eta1CutFirstRange = (eta1 > minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_);
+      // bool eta2CutFirstRange = (eta2 > minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_);
+      // bool eta1CutSecondRange = (eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_);
+      // bool eta2CutSecondRange = (eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_);
+      // if( pt1Cut && pt2Cut && eta1CutFirstRange && eta2CutFirstRange && eta1CutSecondRange && eta2CutSecondRange ) {
+      if( pt1 > minMuonPt_ && pt1 < maxMuonPt_ &&
+          pt2 > minMuonPt_ && pt2 < maxMuonPt_ &&
+          eta1 > minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ &&
+          eta2 > minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ &&
+          eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
+          eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
         double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
         if (debug>1) {

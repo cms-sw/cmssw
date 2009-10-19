@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/07 13:13:51 $
-//  $Revision: 1.60 $
+//  $Date: 2009/10/11 09:11:43 $
+//  $Revision: 1.61 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -243,8 +243,12 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
 
   // Set the cuts on muons to be used in the fit
+  MuScleFitUtils::maxMuonPt_ = pset.getUntrackedParameter<double>("MaxMuonPt", 100000000.);
   MuScleFitUtils::minMuonPt_ = pset.getUntrackedParameter<double>("MinMuonPt", 0.);
-  MuScleFitUtils::maxMuonEta_ = pset.getUntrackedParameter<double>("MaxMuonEta", 6.);
+  MuScleFitUtils::minMuonEtaFirstRange_ = pset.getUntrackedParameter<double>("MinMuonEtaFirstRange", -6.);
+  MuScleFitUtils::maxMuonEtaFirstRange_ = pset.getUntrackedParameter<double>("MaxMuonEtaFirstRange", 6.);
+  MuScleFitUtils::minMuonEtaSecondRange_ = pset.getUntrackedParameter<double>("MinMuonEtaSecondRange", -100.);
+  MuScleFitUtils::maxMuonEtaSecondRange_ = pset.getUntrackedParameter<double>("MaxMuonEtaSecondRange", 100.);
 
   MuScleFitUtils::debugMassResol_ = pset.getUntrackedParameter<bool>("DebugMassResol", false);
   // MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
