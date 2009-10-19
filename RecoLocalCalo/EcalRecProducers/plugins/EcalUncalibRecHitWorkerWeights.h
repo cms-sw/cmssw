@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.6 2007/05/08 13:29:21 meridian Exp $
-  *  $Date: 2007/05/08 13:29:21 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalUncalibRecHitWorkerWeights.h,v 1.1 2008/12/10 01:52:42 ferriff Exp $
+  *  $Date: 2008/12/10 01:52:42 $
+  *  $Revision: 1.1 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -18,6 +18,11 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"   
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+
+
 
 namespace edm {
         class Event;
@@ -42,6 +47,7 @@ class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
                 edm::ESHandle<EcalTBWeights> wgts;
 
                 double pedVec[3];
+                double pedRMSVec[3];
                 double gainRatios[3];
 
                 const EcalWeightSet::EcalWeightMatrix* weights[2];
@@ -49,6 +55,10 @@ class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
 
                 EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> uncalibMaker_barrel_;
                 EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> uncalibMaker_endcap_;
+
+ 		const EEShape testbeamEEShape; // used in the chi2
+                const EBShape testbeamEBShape; // can be replaced by simple shape arrays of floats in the future (kostas)
+
 };
 
 #endif

@@ -51,6 +51,9 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         pedVec[0] = aped->mean_x12;
         pedVec[1] = aped->mean_x6;
         pedVec[2] = aped->mean_x1;
+        pedRMSVec[0] = aped->rms_x12;
+        pedRMSVec[1] = aped->rms_x6;
+        pedRMSVec[2] = aped->rms_x1;
         gainRatios[0] = 1.;
         gainRatios[1] = aGain->gain12Over6();
         gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
@@ -70,19 +73,25 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
 
         const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
         const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-        const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-        const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+//        const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+//        const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 
         weights[0] = &mat1;
         weights[1] = &mat2;
 
-        chi2mat[0] = &mat3;
-        chi2mat[1] = &mat4;
-
+//        chi2mat[0] = &mat3;
+//        chi2mat[1] = &mat4;
+/*
         if (detid.subdetId()==EcalEndcap) {
                 result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
         } else {
                 result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
+        }
+*/
+        if (detid.subdetId()==EcalEndcap) {
+                result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape));
+        } else {
+                result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape));
         }
         return true;
 }
