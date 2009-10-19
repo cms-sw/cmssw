@@ -64,56 +64,24 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     }
 
   if ( UseErrorsFromTemplates_ )
-    {
-      GlobalPoint center(0.0, 0.0, 0.0);
-      float field_magnitude = magfield_->inTesla( center ).mag();
-      
-      templID_ = -999;
-  
-      
-      if ( field_magnitude > 3.9 ) 
 	{
-	  templID_ = 4;
-	} 
-      else 
-	{
-	  if ( field_magnitude > 1.0 ) 
-	    {
-	      // old cosmic simulation 
-	      //templID_ = 15;
-	      
-	      // CRAFT 08
-	      //templID_ = 11;
-	    	      
-	      // this is for CRAFT09 and collisions
-	      templID_ = 13;
-	    } 
-	  else 
-	    {	 
-	      // CRAFT 09, B = 0 Tesla
-	      templID_ = 14;
-	    }
-	}
-      
-
-      if ( LoadTemplatesFromDB_ )
-	{
-	  // Initialize template store to the selected ID [Morris, 6/25/08]  
-	  if ( !templ_.pushfile( *templateDBobject_) )
-	    throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
-	      << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
-	      << ( *templateDBobject_ ).version() << "\n\n";
-	}
-      else 
-	{
-	  if ( !templ_.pushfile( templID_ ) )
-	    throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
-	      << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
-	}
-  
-      //cout << "templID_                     = " << templID_                     << endl;
-  
-    } // if ( UseErrorsFromTemplates_ )
+		templID_ = -999;
+		if ( LoadTemplatesFromDB_ )
+		{
+			// Initialize template store to the selected ID [Morris, 6/25/08]  
+			if ( !templ_.pushfile( *templateDBobject_) )
+				throw cms::Exception("InvalidCalibrationLoaded") 
+					<< "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
+					<< ( *templateDBobject_ ).version() << ". Template ID is " << templID_;
+		}
+		else 
+		{
+			if ( !templ_.pushfile( templID_ ) )
+				throw cms::Exception("InvalidCalibrationLoaded") 
+					<< "ERROR: Templates not loaded correctly from text file. Reconstruction will fail." << " Template ID is " << templID_;
+		}
+		
+	} // if ( UseErrorsFromTemplates_ )
   
   //cout << endl;
   //cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
@@ -148,8 +116,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
-  
-  if ( UseErrorsFromTemplates_ )
+	templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
+	if ( UseErrorsFromTemplates_ )
     {
       bool fpix;  //!< barrel(false) or forward(true)
       if ( thePart == GeomDetEnumerators::PixelBarrel )
@@ -180,7 +148,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
       dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
       
-      qBin_ = templ_.qbin( templID_, fpix, cotalpha_, cotbeta_, locBz, qclus,  // inputs
+      qBin_ = templ_.qbin( templID_, cotalpha_, cotbeta_, locBz, qclus,  // inputs
 			   pixmx,                                       // returned by reference
 			   sigmay, deltay, sigmax, deltax,              // returned by reference
 			   sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference

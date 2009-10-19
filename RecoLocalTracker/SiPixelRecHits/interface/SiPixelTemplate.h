@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v6.00)
+//  SiPixelTemplate.h (v7.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -36,6 +36,11 @@
 //  Remove assert from qbin method
 //  Replace asserts with exceptions in CMSSW
 //  Change calling sequence to interpolate method to handle cot(beta)<0 for FPix cosmics
+//  Add getter for pixelav Lorentz width estimates to qbin method
+//  Add check on template size to interpolate and qbin methods
+//  Add qbin population information, charge distribution information
+//
+//  V7.00 - Decouple BPix and FPix information into separate templates
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -95,9 +100,9 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float qmin2;             //!< tighter minimum cluster charge for valid hit (keeps 99.8% of simulated hits)
   float clsleny;           //!< cluster y-length in pixels at signal height symax/2
   float clslenx;           //!< cluster x-length in pixels at signal height sxmax/2
-//  float mpvvav;            //!< most probable charge in Vavilov distribution (not actually for larger kappa)
-//  float sigmavav;          //!< "sigma" scale fctor for Vavilov distribution
-//  float kappavav;          //!< kappa parameter for Vavilov distribution
+  float mpvvav;            //!< most probable charge in Vavilov distribution (not actually for larger kappa)
+  float sigmavav;          //!< "sigma" scale fctor for Vavilov distribution
+  float kappavav;          //!< kappa parameter for Vavilov distribution
   float ypar[2][5];        //!< projected y-pixel uncertainty parameterization 
   float ytemp[9][TYSIZE];  //!< templates for y-reconstruction (binned over 1 central pixel) 
   float xpar[2][5];        //!< projected x-pixel uncertainty parameterization 
@@ -136,8 +141,12 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float xrmsgen[4];        //!< generic algorithm: average x-rms of reconstruction binned in 4 charge bins 
   float xgx0gen[4];        //!< generic algorithm: average x0 from Gaussian fit binned in 4 charge bins 
   float xgsiggen[4];       //!< generic algorithm: average sigma_x from Gaussian fit binned in 4 charge bins 
-  float yspare[5];        //!< spare entries
-  float xspare[10];       //!< spare entries
+  float qbfrac[3];         //!< fraction of sample in qbin = 0-2 (>=3 is the complement)
+  float fracyone;          //!< fraction of sample with ysize = 1
+  float fracxone;          //!< fraction of sample with xsize = 1
+  float fracytwo;          //!< fraction of double pixel sample with ysize = 1
+  float fracxtwo;          //!< fraction of double pixel sample with xsize = 1
+  float spare[5];
 } ;
 
 
@@ -146,31 +155,30 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
 struct SiPixelTemplateHeader {           //!< template header structure 
   char title[80];         //!< template title 
   int ID;                 //!< template ID number 
-  int NBy;                //!< number of Barrel y entries 
-  int NByx;               //!< number of Barrel y-slices of x entries 
-  int NBxx;               //!< number of Barrel x entries in each slice
-  int NFy;                //!< number of FPix y entries 
-  int NFyx;               //!< number of FPix y-slices of x entries 
-  int NFxx;               //!< number of FPix x entries in each slice
-  float Bbias;            //!< Barrel bias potential in Volts 
-  float Fbias;            //!< Fpix bias potential in Volts 
+  int templ_version;      //!< Version number of the template to ensure code compatibility 
+  float Bfield;           //!< Bfield in Tesla
+  int NTy;                //!< number of Template y entries 
+  int NTyx;               //!< number of Template y-slices of x entries 
+  int NTxx;               //!< number of Template x-entries in each slice
+  int Dtype;              //!< detector type (0=BPix, 1=FPix)
+  float Vbias;            //!< detector bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
-  float qscale[2];           //!< Charge scaling to match cmssw and pixelav [0]=BPix, [1]=FPix
-  float s50[2];              //!< 1/2 of the readout threshold in ADC units [0]=BPix, [1]=FPix
-  int templ_version;      //!< Version number of the template to ensure code compatibility 
+  float qscale;           //!< Charge scaling to match cmssw and pixelav
+  float s50;              //!< 1/2 of the readout threshold in ADC units
+  float lorywidth;        //!< estimate of y-lorentz width from single pixel offset
+  float lorxwidth;        //!< estimate of x-lorentz width from single pixel offset
+  float xsize;            //!< pixel size (for future use in upgraded geometry)
+  float ysize;            //!< pixel size (for future use in upgraded geometry)
+  float zsize;            //!< pixel size (for future use in upgraded geometry)
 } ;
-
-
 
 
 
 struct SiPixelTemplateStore { //!< template storage structure 
   SiPixelTemplateHeader head;
-  SiPixelTemplateEntry entby[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px 
-  SiPixelTemplateEntry entbx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices
-  SiPixelTemplateEntry entfy[28];     //!< 28 FPix y templates spanning cluster lengths from -6.0px to 6.0px 
-  SiPixelTemplateEntry entfx[3][29];   //!< 29 FPix x templates spanning alpha angles from -1.14Rad to 1.14Rad in each of 3 slices
+  SiPixelTemplateEntry enty[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
+  SiPixelTemplateEntry entx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
 } ;
 
 
@@ -198,7 +206,7 @@ struct SiPixelTemplateStore { //!< template storage structure
 // ******************************************************************************************
 class SiPixelTemplate {
  public:
-  SiPixelTemplate() {id_current = -1; index_id = -1; cota_current = 0.; cotb_current = 0.; fpix_current=false;} //!< Default constructor
+  SiPixelTemplate() {id_current = -1; index_id = -1; cota_current = 0.; cotb_current = 0.;} //!< Default constructor
   bool pushfile(int filenum);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
@@ -208,10 +216,10 @@ class SiPixelTemplate {
   
 	
 // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
-  bool interpolate(int id, bool fpix, float cotalpha, float cotbeta, float locBz);
+  bool interpolate(int id, float cotalpha, float cotbeta, float locBz);
 	
 // overload for compatibility. 
-  bool interpolate(int id, bool fpix, float cotalpha, float cotbeta);
+  bool interpolate(int id, float cotalpha, float cotbeta);
   
   // retreive interpolated templates. 
   void ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE]);
@@ -234,12 +242,23 @@ class SiPixelTemplate {
   // Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
   
-  // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases. 
-  int qbin(int id, bool fpix, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
-  
+  // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm. 
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
+	
+  // Overload for backward compatibility. 
+	int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+			 float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+	
   // Overload to keep legacy interface 
-  int qbin(int id, bool fpix, float cotbeta, float qclus);
+  int qbin(int id, float cotbeta, float qclus);
+	
+  // Method to return template errors for fastsim
+  void temperrors(int id, float cotalpha, float cotbeta, int qBin, float& sigmay, float& sigmax, float& sy1, float& sy2, float& sx1, float& sx2);
+	
+  //Method to return qbin and size probabilities for fastsim
+  void qbin_dist(int id, float cotalpha, float cotbeta, float qbin_frac[4], float& ny1_frac, float& ny2_frac, float& nx1_frac, float& nx2_frac);
+
    
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
   float pixmax() {return ppixmax;}         //!< maximum pixel charge 
@@ -425,7 +444,6 @@ class SiPixelTemplate {
   float cota_current;       //!< current cot alpha
   float cotb_current;       //!< current cot beta
   float abs_cotb;           //!< absolute value of cot beta
-  bool fpix_current;        //!< current pix detector (false for BPix, true for FPix)
   bool success;             //!< true if cotalpha, cotbeta are inside of the acceptance (dynamically loaded)
   
   
@@ -493,8 +511,6 @@ class SiPixelTemplate {
   float pchi2xavgone;       //!< average x chi^2 for 1 pixel clusters
   float pchi2xminone;       //!< minimum of x chi^2 for 1 pixel clusters
   float pqmin2;             //!< tighter minimum cluster charge for valid hit (keeps 99.8% of simulated hits)
-  float pyspare[5];        //!< vector of 5 spares interpolated in beta only
-  float pxspare[10];        //!< vector of 10 spares interpolated in alpha and beta
   
   // The actual template store is a std::vector container
 

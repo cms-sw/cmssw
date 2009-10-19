@@ -51,42 +51,15 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
   
-  GlobalPoint center(0.0, 0.0, 0.0);
-  float field_magnitude = magfield_->inTesla(center).mag();
-  
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
- 
-  if ( field_magnitude > 3.9 ) 
-    {
-      templID_ = 4;
-    } 
-      else 
-	{
-	  if ( field_magnitude > 1.0 ) 
-	    {
-	      // old cosmic simulation 
-	      //templID_ = 15;
-	      
-	      // CRAFT 08
-	      //templID_ = 11;
-	      
-	      // this is for CRAFT09 and collisions
-	      templID_ = 13;
-	    } 
-	  else 
-	    {	 
-	      // CRAFT 09, B = 0 Tesla
-	      templID_ = 14;
-	    }
-	}
-  
   //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
   //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
   //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
   // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
+
   if ( LoadTemplatesFromDB_ )
 	{
 		// Initialize template store to the selected ID [Morris, 6/25/08]  
@@ -137,6 +110,7 @@ LocalPoint
 PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
 	setTheDet( det, cluster );
+	templID_ = templateDBobject_->getTemplateID(theDet->geographicalId());
 
   //int ierr;   //!< return status
   int ID = templID_; //!< take the template ID that was selected by the constructor [Morris, 6/25/2008]
@@ -265,7 +239,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   //cout << "locBz = " << locBz << endl;
     
   ierr =
-    PixelTempReco2D( ID, fpix, cotalpha_, cotbeta_,
+    PixelTempReco2D( ID, cotalpha_, cotbeta_,
 		     locBz, 
 		     clust_array_2d, ydouble, xdouble,
 		     templ_,
