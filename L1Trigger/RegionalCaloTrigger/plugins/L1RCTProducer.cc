@@ -208,9 +208,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	edm::Handle<EcalTrigPrimDigiCollection> ecal;
 	edm::Handle<HcalTrigPrimDigiCollection> hcal;
 
-	if (useEcal) { event.getByLabel(ecalDigis[sample], ecal); }
-	if (useHcal) {  }
-
 	EcalTrigPrimDigiCollection ecalIn;
 	HcalTrigPrimDigiCollection hcalIn;
 
