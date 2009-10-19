@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/10/08 10:09:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/08 11:03:31 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -47,6 +47,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+
+  /// Finish up a job
+  void endJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
@@ -120,7 +123,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _etThreshold;
 
   // JetID helper
-  reco::helper::JetIDHelper jetID;
+  reco::helper::JetIDHelper *jetID;
 
   //
   bool _allhist;

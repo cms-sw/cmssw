@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/07 18:19:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/10/08 10:14:54 $
+ *  $Revision: 1.15 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -75,6 +75,9 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
   _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
 
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
   // DQStore stuff
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";
   std::string DirName = "JetMET/MET/"+_source;
@@ -103,6 +106,13 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     }
   }
+
+}
+
+// ***********************************************************
+void CaloMETAnalyzer::endJob() {
+
+  delete jetID;
 
 }
 
@@ -446,16 +456,16 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bJetID=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
-    jetID.calculate(iEvent, *cal);
-    if (_verbose) std::cout << jetID.n90Hits() << " " 
-			    << jetID.restrictedEMF() << " "
+    jetID->calculate(iEvent, *cal);
+    if (_verbose) std::cout << jetID->n90Hits() << " " 
+			    << jetID->restrictedEMF() << " "
 			    << cal->pt() << std::endl;
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID.n90Hits()<2)  bJetID=false; 
-      if (jetID.fHPD()>=0.98) bJetID=false; 
-      //if (jetID.restrictedEMF()<0.01) bJetID=false; 
+      if (jetID->n90Hits()<2)  bJetID=false; 
+      if (jetID->fHPD()>=0.98) bJetID=false; 
+      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
@@ -478,11 +488,11 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bJetIDTight=bJetID;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
-    jetID.calculate(iEvent, *cal);
+    jetID->calculate(iEvent, *cal);
     if (cal->pt()>25.){
       //
       // for all regions
-      if (jetID.fHPD()>=0.95) bJetIDTight=false; 
+      if (jetID->fHPD()>=0.95) bJetIDTight=false; 
       //
       // for 1.0<|eta|<1.75
       if (fabs(cal->eta())>=1.00 && fabs(cal->eta())<1.75){

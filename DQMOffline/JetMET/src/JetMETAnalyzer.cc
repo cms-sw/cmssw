@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/27 07:40:18 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/10/08 10:14:36 $
+ *  $Revision: 1.25 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -241,9 +241,6 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
-  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob(iRun, iSetup, dbe);
-  //if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endJob(iRun, iSetup, dbe);
-  //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob(iRun, iSetup, dbe);
 
 }
 
@@ -511,5 +508,11 @@ void JetMETAnalyzer::endJob(void) {
     dbe->showDirStructure();
     dbe->save(outputFileName);
   }
+
+  if(theCaloMETAnalyzerFlag) theCaloMETAnalyzer->endJob();
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
+  //if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endJob();
+  //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
+
 }
 
