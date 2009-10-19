@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/09/08 09:56:33 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/10/05 11:48:05 $
+ *  $Revision: 1.19 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -204,7 +204,11 @@ bool MuScleFitUtils::scaleFitNotDone_ = true;
 bool MuScleFitUtils::sherpa_ = false;
 
 double MuScleFitUtils::minMuonPt_ = 0.;
-double MuScleFitUtils::maxMuonEta_ = 6.;
+double MuScleFitUtils::maxMuonPt_ = 100000000.;
+double MuScleFitUtils::minMuonEtaFirstRange_ = -6.;
+double MuScleFitUtils::maxMuonEtaFirstRange_ = 6.;
+double MuScleFitUtils::minMuonEtaSecondRange_ = -100.;
+double MuScleFitUtils::maxMuonEtaSecondRange_ = 100.;
 
 bool MuScleFitUtils::debugMassResol_;
 MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
@@ -293,10 +297,25 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
-      // Accept combinations only if both muons have |eta|<maxMuonEta_ and pt>minMuonPt_
-      // -------------------------------------------------------------------------------
-      if( (*Muon1).p4().Pt() > minMuonPt_ && (*Muon2).p4().Pt() > minMuonPt_ &&
-          fabs((*Muon1).p4().Eta()) < maxMuonEta_ && fabs((*Muon2).p4().Eta()) < maxMuonEta_ ) {
+      // // Accept combinations only if both muons have |eta|<maxMuonEta_ and pt>minMuonPt_
+      // // -------------------------------------------------------------------------------
+      // if( (*Muon1).p4().Pt() > minMuonPt_ && (*Muon2).p4().Pt() > minMuonPt_ &&
+      //     fabs((*Muon1).p4().Eta()) < maxMuonEta_ && fabs((*Muon2).p4().Eta()) < maxMuonEta_ ) {
+
+      // To allow the selection of ranges at negative and positive eta independently we define two
+      // ranges of eta: (minMuonEtaFirstRange_, maxMuonEtaFirstRange_) and (minMuonEtaSecondRange_, maxMuonEtaSecondRange_).
+      // If the interval selected is simmetric, one only needs to specify the first range. The second has
+      // default values that accept all muons (minMuonEtaSecondRange_ = -100., maxMuonEtaSecondRange_ = 100.).
+      double pt1 = (*Muon1).p4().Pt();
+      double pt2 = (*Muon2).p4().Pt();
+      double eta1 = (*Muon1).p4().Eta();
+      double eta2 = (*Muon2).p4().Eta();
+      if( pt1 > minMuonPt_ && pt2 > minMuonPt_ &&
+          pt1 < maxMuonPt_ && pt2 < maxMuonPt_ &&
+          eta1 > minMuonEtaFirstRange_ && eta2 > minMuonEtaFirstRange_ &&
+          eta1 < maxMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ &&
+          eta1 > minMuonEtaSecondRange_ && eta2 > minMuonEtaSecondRange_ &&
+          eta1 < maxMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
         double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
         if (debug>1) {

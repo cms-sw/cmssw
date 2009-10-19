@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/08/14 12:10:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/10/05 11:48:26 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -207,7 +207,11 @@ public:
 
   // Cuts on the muons to use in the fit
   static double minMuonPt_;
-  static double maxMuonEta_;
+  static double maxMuonPt_;
+  static double minMuonEtaFirstRange_;
+  static double maxMuonEtaFirstRange_;
+  static double minMuonEtaSecondRange_;
+  static double maxMuonEtaSecondRange_;
 
   static bool debugMassResol_;
   static struct massResolComponentsStruct
