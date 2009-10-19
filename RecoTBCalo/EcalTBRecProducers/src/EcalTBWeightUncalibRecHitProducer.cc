@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.12 2007/12/31 18:43:17 ratnik Exp $
-  *  $Date: 2007/12/31 18:43:17 $
-  *  $Revision: 1.12 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.13 2008/11/21 15:31:24 meridian Exp $
+  *  $Date: 2008/11/21 15:31:24 $
+  *  $Revision: 1.13 $
   *
   *  $Alex Zabi$
-  *  $Date: 2007/12/31 18:43:17 $
-  *  $Revision: 1.12 $
+  *  $Date: 2008/11/21 15:31:24 $
+  *  $Revision: 1.13 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -208,7 +208,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 }
 	 const EcalPedestals::Item& aped = (*pedIter);
 	 double pedVec[3];
+	 double pedRMSVec[3];
 	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
+	 pedRMSVec[0]=aped.rms_x12;pedRMSVec[1]=aped.rms_x6;pedRMSVec[2]=aped.rms_x1;
 
 	 // find gain ratios
 #ifdef DEBUG
@@ -311,7 +313,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
-	   EBalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
+	   EBalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape);
+	   //EBalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
 	 EBuncalibRechits->push_back( aHit );
 #ifdef DEBUG
 	 if(aHit.amplitude()>0.) {
@@ -349,7 +352,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 }
 	 const EcalPedestals::Item& aped = (*pedIter);
 	 double pedVec[3];
+	 double pedRMSVec[3];
 	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
+	 pedRMSVec[0]=aped.rms_x12;pedRMSVec[1]=aped.rms_x6;pedRMSVec[2]=aped.rms_x1;
 
 	 // find gain ratios
 #ifdef DEBUG
@@ -454,7 +459,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
+	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
+	   //EEalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
 	 EEuncalibRechits->push_back( aHit );
 #ifdef DEBUG
 	 if(aHit.amplitude()>0.) {

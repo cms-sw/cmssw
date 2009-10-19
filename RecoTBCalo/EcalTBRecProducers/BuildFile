@@ -8,6 +8,7 @@
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
+<use name=SimCalorimetry/EcalSimAlgos>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -22,5 +23,6 @@
   <use name=RecoLocalCalo/EcalRecAlgos>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/MessageService>
+  <use name=SimCalorimetry/EcalSimAlgos>
   <use name=clhep>
 </export>
