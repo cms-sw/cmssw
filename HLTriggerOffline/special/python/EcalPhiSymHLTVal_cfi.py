@@ -5,11 +5,11 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: EcalPhiSymHLTVal_cfi.py,v 1.2 2009/01/20 09:56:41 nuno Exp $
+# $Id: EcalPhiSymHLTVal_cfi.py,v 1.3 2009/09/22 13:31:05 beaucero Exp $
 #
 # \author Stefano Argiro
 #
-EcalPhiSymMon = cms.EDAnalyzer("HLTAlCaMonEcalPhiSym",
+RelValEcalPhiSymMon = cms.EDAnalyzer("HLTAlCaMonEcalPhiSym",
     # product to monitor
     AlCaStreamEBTag = cms.untracked.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEB"),
     SaveToFile = cms.untracked.bool(False),

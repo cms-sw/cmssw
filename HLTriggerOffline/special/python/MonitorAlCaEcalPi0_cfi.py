@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalPi0Mon = cms.EDFilter("HLTAlCaMonPi0",
+RelValEcalPi0Mon = cms.EDFilter("HLTAlCaMonPi0",
     prescaleFactor = cms.untracked.int32(1),
     FolderName = cms.untracked.string('HLT/AlCaEcalPi0'),
 
