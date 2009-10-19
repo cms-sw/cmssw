@@ -33,7 +33,7 @@ public:
     
   virtual void setEvent(const edm::Event&);
 
-  virtual const edm::Event *getEvent() const { return theEvent;}
+  const edm::Event *getEvent() const { return theEvent;}
 
 private:
 

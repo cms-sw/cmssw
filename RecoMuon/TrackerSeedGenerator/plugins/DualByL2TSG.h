@@ -25,7 +25,6 @@ class DualByL2TSG : public SeparatingTSG{
   std::string theCategory;
   edm::InputTag theL3CollectionLabelA;
   edm::Handle<reco::TrackCollection> l3muonH;
-  const edm::Event *theEvent;
 };
 
 #endif

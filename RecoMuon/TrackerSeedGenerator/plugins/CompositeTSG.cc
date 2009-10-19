@@ -50,8 +50,8 @@ void CompositeTSG::init(const MuonServiceProxy* service){
 }
 
 void CompositeTSG::setEvent(const edm::Event &event){
+  theEvent = &event;
   for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
     if(theTSGs[iTSG]) theTSGs[iTSG]->setEvent(event);
-    theEvent = &event;
   }
 }
