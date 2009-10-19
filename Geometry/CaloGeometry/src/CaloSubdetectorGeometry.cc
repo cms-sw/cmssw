@@ -224,7 +224,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 	 const double* pv ( &(*parVecVec()[ivv].begin() ) ) ;
 	 for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k )
 	 {
-	    ok = ok && ( par[k] == pv[k] ) ;
+	    ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
 	 }
 	 if( ok ) 
 	 {
