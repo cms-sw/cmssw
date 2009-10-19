@@ -35,9 +35,9 @@ bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron,
     if(tk_i == ctfidx && gsfElectron.shFracInnerHits() > minFracSharedHits)
       continue;
     
-    //look only in a cone of 0.5
+    //look only in a cone of 0.3
     double dR = deltaR(el_tk_p4, LorentzVector(tk->px(), tk->py(), tk->pz(), tk->p()));
-    if(dR > 0.5)
+    if(dR > 0.3)
       continue;
 
     int tk_q = tk->charge();
