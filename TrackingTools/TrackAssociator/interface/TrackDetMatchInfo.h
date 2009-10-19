@@ -40,6 +40,10 @@ class TrackDetMatchInfo {
    math::XYZPoint trkGlobPosAtHcal;
    math::XYZPoint trkGlobPosAtHO;
    
+  GlobalVector trkMomAtEcal;
+  GlobalVector trkMomAtHcal;
+  GlobalVector trkMomAtHO;
+   
    bool isGoodEcal;
    bool isGoodHcal;
    bool isGoodCalo;

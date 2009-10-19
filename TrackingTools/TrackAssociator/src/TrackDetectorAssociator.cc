@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.39 2009/09/06 16:39:12 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.40 2009/10/09 12:49:56 dmytro Exp $
 //
 //
 
@@ -249,6 +249,10 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    info.trkGlobPosAtEcal = getPoint( cachedTrajectory_.getStateAtEcal().position() );
    info.trkGlobPosAtHcal = getPoint( cachedTrajectory_.getStateAtHcal().position() );
    info.trkGlobPosAtHO  = getPoint( cachedTrajectory_.getStateAtHO().position() );
+   
+   info.trkMomAtEcal = cachedTrajectory_.getStateAtEcal().momentum();
+   info.trkMomAtHcal = cachedTrajectory_.getStateAtHcal().momentum();
+   info.trkMomAtHO   = cachedTrajectory_.getStateAtHO().momentum();
    
    // timers.pop_and_push("TrackDetectorAssociator::associate::fillInfo");
      
