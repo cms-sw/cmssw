@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 08:38:39 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/07/16 10:04:19 $
+ *  $Revision: 1.25 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -116,6 +116,7 @@ void DTSegmentAnalysisTask::endJob() {
  
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
 
+  delete hNevtPerLS;
   //theDbe->save("testMonitoring.root");
 
 }
