@@ -152,6 +152,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -187,6 +188,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -221,6 +223,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -255,6 +258,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -289,6 +293,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh[i],ch[i]);
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
    } 
@@ -321,6 +326,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -359,6 +365,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -393,6 +400,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -427,6 +435,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -461,6 +470,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -495,6 +505,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -528,6 +539,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -566,6 +578,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -600,6 +613,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -634,6 +648,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -668,6 +683,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -702,6 +718,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -735,6 +752,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -773,6 +791,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -807,6 +826,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -841,6 +861,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -875,6 +896,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -909,6 +931,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -942,6 +965,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -980,6 +1004,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1014,6 +1039,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1048,6 +1074,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1082,6 +1109,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1116,6 +1144,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1149,6 +1178,7 @@ void SiTrackerHitsComparePosition()
        leg.AddEntry(rh[i],rver , "l");
        leg.AddEntry(ch[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh[i],ch[i]);
 
      }
      if (ks[i] < 0.1) outfile << ch[i]->GetName() <<" KS probability = "<< ks[i] <<" "<<endl;
@@ -1192,4 +1222,10 @@ void SiTrackerHitsComparePosition()
 
 }
 
+void PrintEntries(TString subd, int index, TH1* h1, TH1* h2) {
+  double n1 = h1->GetEntries();
+  double n2 = h2->GetEntries();
+  if ( fabs(n1-n2)> 0.1*n1 ) std::cout << "*** "; 
+  std::cout << subd << ", " << index << ", entries in ref.: " << n1 << "; entries in cur.: " << n2 << std::endl;
+}
 

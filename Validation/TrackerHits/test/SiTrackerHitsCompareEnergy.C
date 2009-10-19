@@ -7,7 +7,8 @@ void SiTrackerHitsCompareEnergy()
  gStyle->SetStatW(0.35);
  
  char*  cfilename = "TrackerHitHisto.root"; //current
- char*  rfilename = "../TrackerHitHisto.root";  //reference
+ //char*  rfilename = "../TrackerHitHisto.root";  //reference
+ char*  rfilename = "TrackerHitHisto_pre5.root";  //reference
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(cfilename); 
@@ -120,11 +121,24 @@ void SiTrackerHitsCompareEnergy()
        buf<<"KS="<<ks1e[i]<<std::endl;
        buf>>value;
        te->DrawTextNDC(0.5,0.7, value.c_str());
+       /*
+       double r_entries = rh1e[i]->GetEntries();
+       double c_entries = ch1e[i]->GetEntries();
+       TString rlabel("ref. entries: ");
+       rlabel+=r_entries;
+       TString clabel("cur. entries: ");
+       clabel+=c_entries;
+       TPaveLabel* pave = new TPaveLabel();
+       pave->DrawPaveLabel(0.80,0.85,0.95,0.90,rlabel);
+       pave->DrawPaveLabel(0.80,0.90,0.95,0.95,clabel);
+       */
        hsum_TIB->Fill(ks1e[i]);
        leg.Clear();
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("TIB",i,rh1e[i],ch1e[i]);
+       //       std::cout << "TIB, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
 
      }
@@ -155,6 +169,8 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("TOB",i,rh1e[i],ch1e[i]);
+       //       std::cout << "TOB, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -183,6 +199,8 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("TID",i,rh1e[i],ch1e[i]);
+       //       std::cout << "TID, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -211,6 +229,8 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("TEC",i,rh1e[i],ch1e[i]);
+       //       std::cout << "TEC, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -239,6 +259,8 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("BPIX",i,rh1e[i],ch1e[i]);
+       //       std::cout << "BPIX, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -267,6 +289,8 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
+       PrintEntries("FPIX",i,rh1e[i],ch1e[i]);
+       //       std::cout << "FPIX, " << i << ", entries in ref.: " << rh1e[i]->GetEntries() << "; entries in cur.: " << ch1e[i]->GetEntries() << std::endl;
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -315,4 +339,11 @@ void SiTrackerHitsCompareEnergy()
  FPIX->Print("eloss_FPIX_KS.gif");
  s->Print("eloss_summary_KS.gif");  
 
+}
+
+void PrintEntries(TString subd, int index, TH1* h1, TH1* h2) {
+  double n1 = h1->GetEntries();
+  double n2 = h2->GetEntries();
+  if ( fabs(n1-n2)> 0.1*n1 ) std::cout << "*** "; 
+  std::cout << subd << ", " << index << ", entries in ref.: " << n1 << "; entries in cur.: " << n2 << std::endl;
 }
