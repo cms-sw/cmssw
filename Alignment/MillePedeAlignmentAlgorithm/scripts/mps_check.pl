@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.19 $ by $Author: parenti $
-#     $Date: 2009/09/07 14:22:59 $
+#     $Revision: 1.20 $ by $Author: parenti $
+#     $Date: 2009/09/07 14:56:39 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -161,7 +161,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	$pedeAbend = 1;
 	while ($line = <INFILE>) {
 	  # check if pede has reached its normal end
-	  if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
+#	  if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
+	  if (($line =~ m/Millepede II.* ending/) eq 1) { $pedeAbend = 0;}
 	}
 	# clean up if needed FIXME if using proper perl File/Temp!
 	system "rm /tmp/pede.dump" if ($eazeLog eq "/tmp/pede.dump");
