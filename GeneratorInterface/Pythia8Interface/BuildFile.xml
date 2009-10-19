@@ -8,7 +8,6 @@
 <use name="clhep"/>
 <use name="hepmc"/>
 <use name="lhapdf"/>
-<use name="pythia6"/>
 <use name="pythia8"/>
 <flags EDM_PLUGIN="1"/>
 <export>
