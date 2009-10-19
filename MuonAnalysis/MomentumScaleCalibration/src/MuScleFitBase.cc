@@ -114,25 +114,20 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   TH2D * GL[6];
   TFile * ProbsFile;
   if ( theMuonType_!=2 ) {
-    //edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
-    // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
-    edm::FileInPath file(probabilitiesFileInPath_.c_str());
-    // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_merge.root");
-
     if( probabilitiesFile_ != "" ) {
       ProbsFile = new TFile (probabilitiesFile_.c_str()); 
       cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << endl;
     }
     else {
+      // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
+      // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
+      // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_merge.root");
+      edm::FileInPath file(probabilitiesFileInPath_.c_str());
       ProbsFile = new TFile (file.fullPath().c_str());
       cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << endl;
     }
-
-    // ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    //cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
-    // cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_Horace_CTEQ_1000.root file" << endl;
-    // cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_merge.root file" << endl;
-  } else {
+  }
+  else {
     edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
     ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
     // ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
