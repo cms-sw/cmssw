@@ -68,19 +68,19 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
   for(int layer=1;layer<HistoNumber;++layer){
     folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
     tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
-    TProfile2D* h=new TProfile2D(fullName.c_str(),fullName.c_str(),
-				 nchX,lowX,highX,
-				 nchY,lowY,highY);
-    
+    MonitorElement* me  = dqmStore_->bookProfile2D(fullName.c_str(),fullName.c_str(),
+						   nchX,lowX,highX,
+						   nchY,lowY,highY,
+                                                   0.0, 0.0);
     //initialize bin content for the not assigned bins
     if(baseline!=0){
       for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)
 	for(size_t iy = 1;iy <= (unsigned int) nchY; ++iy)
 	  if(!tkdetmap_->getDetFromBin(layer,ix,iy))
-	    h->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
+	    me->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
     }
 
-    tkHistoMap_[layer]=dqmStore_->bookProfile2D(fullName,h);
+    tkHistoMap_[layer]=me;
     LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
   }
 }
