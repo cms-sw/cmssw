@@ -3,6 +3,8 @@
 <use name=FWCore/MessageLogger>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
+<use name=CalibTracker/Records>
+<use name=MagneticField/VolumeBasedEngine>
 
 <use name=boost>
 <export>
@@ -12,6 +14,8 @@
    <use name=FWCore/MessageLogger>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiPixelObjects>
-
+   <use name=CalibTracker/Records>	
+   <use name=MagneticField/VolumeBasedEngine>
+	
    <use name=boost>
 </export>
