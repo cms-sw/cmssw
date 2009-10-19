@@ -1409,7 +1409,6 @@ class resolutionFunctionType18 : public resolutionFunctionBase<T> {
   }
 };
 
-
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //
 // ---------------------------------- //
