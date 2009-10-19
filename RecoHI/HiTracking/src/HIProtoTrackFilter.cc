@@ -100,13 +100,14 @@ void HIProtoTrackFilter::update(edm::Event& ev)
   edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
   float estMult = theChosenHits.size();
   
-  float varPtCutoff = 2000; //cutoff
-  
   theVariablePtMin=thePtMin;
 
+  // parameterize ptMin such that a roughly constant number of selected prototracks passed are to vertexing
+  float varPtCutoff = 1500; //cutoff for variable ptMin
   if(estMult < varPtCutoff) {
     theVariablePtMin = 0.075;
-    if(estMult > 0) theVariablePtMin += estMult * (thePtMin - 0.075)/varPtCutoff;
+    if(estMult > 0) theVariablePtMin = (13. - (varPtCutoff/estMult) )/12.; 
+    if(theVariablePtMin<0.075) theVariablePtMin = 0.075; // don't lower the cut past 75 MeV
   }
   
   LogTrace("heavyIonHLTVertexing")<<"   [HIProtoTrackFilter: theVariablePtMin: " << theVariablePtMin << "]";

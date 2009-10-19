@@ -61,22 +61,22 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     
     int estMult = estimateMultiplicity(ev, es);
     
-    // fit from MC information
-    float aa = 1.90935e-04;
-    float bb = -2.90167e-01;
-    float cc = 3.86125e+02;
-    
+    // from MC relating first layer pixel hits to "findable" sim tracks with pt>1 GeV
+    float cc = -38.6447;
+    float bb = 0.0581765;
+    float aa = 1.34306e-06;
+
     float estTracks = aa*estMult*estMult+bb*estMult+cc;
     
     LogTrace("heavyIonHLTVertexing")<<"[HIVertexing]";
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: hits in the 1. layer:" << estMult << "]";
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: estimated number of tracks:" << estTracks << "]";
     
-    float regTracking = 1600.;  //if we have more tracks -> regional tracking (was 400)
+    float regTracking = 60.;  //if we have more tracks -> regional tracking
     float etaB = 10.;
     float phiB = TMath::Pi()/2.;
     
-    float decEta = estTracks/2400.; // (was 600)
+    float decEta = estTracks/90.;
     etaB = 2.5/decEta;
     
     if(estTracks>regTracking) {
@@ -87,10 +87,10 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     }
     
     float minpt = thePtMin;
-    float varPtCutoff = 2000; //cutoff
+    float varPtCutoff = 1500; //cutoff
     if(doVariablePtMin && estMult < varPtCutoff) {
       minpt = 0.075;
-      if(estMult > 0) minpt += estMult * (thePtMin - 0.075)/varPtCutoff;
+      if(estMult > 0) minpt += estMult * (thePtMin - 0.075)/varPtCutoff; // lower ptMin linearly with pixel hit multiplicity
     }
     
     // tracking region selection
