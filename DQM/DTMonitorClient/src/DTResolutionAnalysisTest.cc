@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 13:14:55 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/10/19 14:09:07 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -278,7 +278,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   string histoName =  "MeanSummaryRes_W" + wheel.str();
   stringstream meanRange; meanRange << (permittedMeanRange*10000);
   string histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
+  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
   wheelMeanHistos[wh]->setAxisTitle("Sector",1);
   wheelMeanHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(2,"MB1_SL2",2);
@@ -291,8 +291,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelMeanHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
-  wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-  wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
+//   wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+//   wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
   
 
 
@@ -300,7 +300,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   histoName =  "SigmaSummaryRes_W" + wheel.str();
   stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
   histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
+  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
   wheelSigmaHistos[wh]->setAxisTitle("Sector",1);
   wheelSigmaHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(2,"MB1_SL2",2);
@@ -313,8 +313,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-  wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-  wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
+//   wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+//   wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
 
 }
 
