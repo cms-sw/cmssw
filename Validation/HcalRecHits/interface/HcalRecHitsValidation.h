@@ -309,6 +309,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* RecHit_StatusWord_HB;
   MonitorElement* RecHit_StatusWord_HE;
   MonitorElement* RecHit_StatusWord_HF;
+  MonitorElement* RecHit_StatusWord_HF67;
   MonitorElement* RecHit_StatusWord_HO;
 
  // Filling vectors with essential RecHits data

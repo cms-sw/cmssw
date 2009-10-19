@@ -292,6 +292,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HF" ) ;
       RecHit_StatusWord_HF = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
 
+      sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HF67" ) ;
+      RecHit_StatusWord_HF67 = dbe_->book1D(histo, histo, 3 , 0.5, 3.5); 
+
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HO" ) ;
       RecHit_StatusWord_HO = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
 
@@ -876,7 +879,7 @@ void HcalRecHitsValidation::endJob() {
       RMS_seq_HF2->setBinContent(ibin, cnorm);
     }
 
-    //Status Word  
+    //Status Word
     nx = RecHit_StatusWord_HB->getNbinsX();    
     for (int ibin = 1;  ibin <= nx; ibin++) {
       cnorm = RecHit_StatusWord_HB->getBinContent(ibin) / (fev * 2592.);
@@ -890,6 +893,12 @@ void HcalRecHitsValidation::endJob() {
       
       cnorm = RecHit_StatusWord_HF->getBinContent(ibin) / (fev * 1728.);
       RecHit_StatusWord_HF->setBinContent(ibin,cnorm);
+    }
+    //HF 2-bit status word
+    nx = RecHit_StatusWord_HF67->getNbinsX();    
+    for (int ibin = 1;  ibin <= nx; ibin++) {
+      cnorm = RecHit_StatusWord_HF67->getBinContent(ibin) / (fev * 1728.);
+      RecHit_StatusWord_HF67->setBinContent(ibin,cnorm);
     }
 
   }
@@ -1194,21 +1203,26 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       if (depth == 4) ehcal_coneMC_4 += en; 
     }
     
-    //32-bit status word
-    
+    //32-bit status word  
     uint32_t statadd;
+    unsigned int isw67 = 0;
     for (unsigned int isw = 0; isw < 32; isw++){
       statadd = 0x1<<(isw);
       if (stwd & statadd){
 	if      (sub == 1) RecHit_StatusWord_HB->Fill(isw);
 	else if (sub == 2) RecHit_StatusWord_HE->Fill(isw);
 	else if (sub == 3) RecHit_StatusWord_HO->Fill(isw);
-	else if (sub == 4) RecHit_StatusWord_HF->Fill(isw);
+	else if (sub == 4){
+	  RecHit_StatusWord_HF->Fill(isw);
+	  if (isw == 6) isw67 += 1;
+	  if (isw == 7) isw67 += 2;
+	}
       }
     }
+    if (isw67 != 0) RecHit_StatusWord_HF67->Fill(isw67);
 
   } 
-
+ 
   //  std::cout << "*** 4-2" << std::endl; 
   
   if( subdet_ == 6) {               // ZS plots
