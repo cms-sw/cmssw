@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2009/05/07 08:17:49 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/05/20 16:08:50 $
+ *  $Revision: 1.25 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -128,9 +128,6 @@ private:
   // can be used for the selection of the debug stream
   bool eventErrorFlag;
 
-  // flag to toggle the creation of only the summaries (for HLT running)
-  bool hltMode;
-
 
 
   std::map<int, std::set<int> > rosBxIdsPerFED;
@@ -138,8 +135,8 @@ private:
   std::map<int, std::set<int> > rosL1AIdsPerFED;
 
 
-
-
+  // flag to toggle the creation of only the summaries (for HLT running)
+  int mode;
 
 };
 
