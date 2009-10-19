@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
 
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
@@ -176,13 +176,22 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
   if (first_) {
-
+   watcher_.check(es);
    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
    es.get< EcalMappingRcd >().get(ecalmapping);
-
    myMap_ -> setEcalElectronicsMapping(ecalmapping.product());
-
+   
    first_ = false;
+
+  }else{
+
+    if ( watcher_.check(es) ) {    
+      edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+      es.get< EcalMappingRcd >().get(ecalmapping);
+      myMap_ -> deletePointers();
+      myMap_ -> resetPointers();
+      myMap_ -> setEcalElectronicsMapping(ecalmapping.product());
+    }
 
   }
 
