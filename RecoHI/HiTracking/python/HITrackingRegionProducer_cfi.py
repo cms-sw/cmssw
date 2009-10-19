@@ -15,11 +15,12 @@ HiTrackingRegionWithVertexBlock = cms.PSet(
 
 HiTrackingRegionForPrimaryVertexBlock = cms.PSet( 
     ptMin = cms.double( 0.7 ),
+    doVariablePtMin = cms.bool ( True ),
     originRadius = cms.double( 0.1 ),	
     nSigmaZ = cms.double(3.0),
-    beamSpot = cms.InputTag("offlineBeamSpot"),			
+    beamSpot = cms.InputTag("offlineBeamSpot"),	
     precise = cms.bool( True ),
-    siPixelRecHits = cms.string( "siPixelRecHits" ),
+    siPixelRecHits = cms.InputTag( "siPixelRecHits" ),
     directionXCoord = cms.double( 1.0 ),
     directionYCoord = cms.double( 1.0 ),
     directionZCoord = cms.double( 0.0 )

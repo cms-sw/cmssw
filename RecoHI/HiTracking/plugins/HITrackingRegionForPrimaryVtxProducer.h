@@ -22,98 +22,107 @@
 #include "TMath.h"
 
 class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
-
-public:
-
+  
+ public:
+  
   HITrackingRegionForPrimaryVtxProducer(const edm::ParameterSet& cfg) { 
-
+    
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     thePtMin            = regionPSet.getParameter<double>("ptMin");
     theOriginRadius     = regionPSet.getParameter<double>("originRadius");
-	theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
-	theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
-	thePrecise          = regionPSet.getParameter<bool>("precise"); 
-	theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");  
-	double xDir         = regionPSet.getParameter<double>("directionXCoord");
+    theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
+    theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
+    thePrecise          = regionPSet.getParameter<bool>("precise"); 
+    theSiPixelRecHits   = regionPSet.getParameter<edm::InputTag>("siPixelRecHits");  
+    doVariablePtMin     = regionPSet.getParameter<bool>("doVariablePtMin"); 
+    double xDir         = regionPSet.getParameter<double>("directionXCoord");
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
-
+  
   virtual ~HITrackingRegionForPrimaryVtxProducer(){}
-
+  
   int estimateMultiplicity
-     (const edm::Event& ev, const edm::EventSetup& es) const
-  {
-    //rechits
-    edm::Handle<SiPixelRecHitCollection> recHitColl;
-    ev.getByLabel(theSiPixelRecHits, recHitColl);
-	  
-	std::vector<const TrackingRecHit*> theChosenHits; 	 
-	TrackerLayerIdAccessor acc; 	 
-	edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
-	return theChosenHits.size(); 	 
-	 
-  }
-
+    (const edm::Event& ev, const edm::EventSetup& es) const
+    {
+      //rechits
+      edm::Handle<SiPixelRecHitCollection> recHitColl;
+      ev.getByLabel(theSiPixelRecHits, recHitColl);
+      
+      std::vector<const TrackingRecHit*> theChosenHits; 	 
+      TrackerLayerIdAccessor acc; 	 
+      edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+      return theChosenHits.size(); 	 
+      
+    }
+  
   virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
-
+    
     int estMult = estimateMultiplicity(ev, es);
-
+    
     // fit from MC information
     float aa = 1.90935e-04;
     float bb = -2.90167e-01;
     float cc = 3.86125e+02;
-
+    
     float estTracks = aa*estMult*estMult+bb*estMult+cc;
-
+    
     LogTrace("heavyIonHLTVertexing")<<"[HIVertexing]";
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: hits in the 1. layer:" << estMult << "]";
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: estimated number of tracks:" << estTracks << "]";
-
+    
     float regTracking = 1600.;  //if we have more tracks -> regional tracking (was 400)
     float etaB = 10.;
     float phiB = TMath::Pi()/2.;
-
+    
     float decEta = estTracks/2400.; // (was 600)
     etaB = 2.5/decEta;
-
+    
     if(estTracks>regTracking) {
       LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Regional Tracking]";
       LogTrace("heavyIonHLTVertexing")<<"  [Regional Tracking: eta range: -" << etaB << ", "<< etaB <<"]";
       LogTrace("heavyIonHLTVertexing")<<"  [Regional Tracking: phi range: -" << phiB << ", "<< phiB <<"]";
       LogTrace("heavyIonHLTVertexing")<<"  [Regional Tracking: factor of decrease: " << decEta*2. << "]";  // 2:from phi
     }
-
+    
+    float minpt = thePtMin;
+    float varPtCutoff = 2000; //cutoff
+    if(doVariablePtMin && estMult < varPtCutoff) {
+      minpt = 0.075;
+      if(estMult > 0) minpt += estMult * (thePtMin - 0.075)/varPtCutoff;
+    }
+    
     // tracking region selection
-	std::vector<TrackingRegion* > result;
-	edm::Handle<reco::BeamSpot> bsHandle;
-	ev.getByLabel( theBeamSpotTag, bsHandle);
-	if(bsHandle.isValid()) {
-		  const reco::BeamSpot & bs = *bsHandle; 
-		  GlobalPoint origin(bs.x0(), bs.y0(), bs.z0()); 
-		  
+    std::vector<TrackingRegion* > result;
+    edm::Handle<reco::BeamSpot> bsHandle;
+    ev.getByLabel( theBeamSpotTag, bsHandle);
+    if(bsHandle.isValid()) {
+      const reco::BeamSpot & bs = *bsHandle; 
+      GlobalPoint origin(bs.x0(), bs.y0(), bs.z0()); 
+      
       if(estTracks>regTracking) {  // regional tracking
         result.push_back( 
-            new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, 0, thePrecise) );
+	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, 0, thePrecise) );
       }
       else {                       // global tracking
         LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
         result.push_back( 
-            new GlobalTrackingRegion(thePtMin, origin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), thePrecise) );
+	  new GlobalTrackingRegion(minpt, origin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), thePrecise) );
       }
-	} 
+    } 
     return result;
   }
-
-private:
+  
+ private:
   double thePtMin; 
   double theOriginRadius; 
   double theNSigmaZ;
   edm::InputTag theBeamSpotTag;	
   bool thePrecise;
   GlobalVector theDirection;
-  std::string theSiPixelRecHits;
+  edm::InputTag theSiPixelRecHits;
+  bool doVariablePtMin;
 };
 
 #endif 
