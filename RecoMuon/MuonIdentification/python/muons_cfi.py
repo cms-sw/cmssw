@@ -55,5 +55,8 @@ muons = cms.EDProducer("MuonIdProducer",
     minCaloCompatibility = cms.double(0.6)
 )
 
+muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
+    inputCollection = cms.InputTag("muons")
+)
 
 
