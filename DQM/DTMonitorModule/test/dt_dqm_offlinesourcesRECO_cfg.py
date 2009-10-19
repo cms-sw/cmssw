@@ -4,7 +4,7 @@ process = cms.Process("DTDQMOfflineSources")
 
 # the source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+                            fileNames = cms.untracked.vstring(
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/F8EA0C0B-8E7D-DE11-A114-001D09F23A6B.root',
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/F669FC3F-977D-DE11-BFB6-001D09F241B9.root',
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/EEA05855-927D-DE11-BDBC-000423D99B3E.root',
@@ -12,7 +12,8 @@ process.source = cms.Source("PoolSource",
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/EA01D71C-957D-DE11-B32D-001D09F2545B.root',
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/D6772604-937D-DE11-B191-000423D98834.root',
     '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/D4EEE43A-977D-DE11-90C3-001D09F2AD7F.root'
-    )
+    ),
+                            inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')                
 )
 
 process.maxEvents = cms.untracked.PSet(
