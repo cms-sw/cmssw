@@ -1,5 +1,16 @@
 #ifndef RecoEgamma_EgammaTools_ConversionFinder_h
 #define RecoEgamma_EgammaTools_ConversionFinder_h
+/** \class reco::ConversionFinder ConversionFinder.h RecoEgamma/EgammaTools/interface/ConversionFinder.h
+  *  
+  * Conversion finding and rejection code 
+  * Returns true or false given a GsfElectron and track collection
+  * Uses simple geometric methods to determine whether or not the 
+  * electron did indeed come from a conversion
+  * \author Puneeth Kalavase, University Of California, Santa Barbara
+  *
+  * \version $Id: BasicCluster.h,v 1.1 2009/10/9 09:53:06 kalavase Exp $
+  *
+  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
