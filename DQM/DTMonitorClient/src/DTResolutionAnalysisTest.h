@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/03/27 14:44:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/16 09:11:45 $
+ *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -72,6 +72,8 @@ private:
   // permitted test ranges
   double permittedMeanRange; 
   double permittedSigmaRange; 
+
+  bool doCalibAnalysis;
 
   edm::ESHandle<DTGeometry> muonGeom;
 

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 09:11:45 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/08/07 10:16:49 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,6 +47,8 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
   permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.01); 
   // top folder for the histograms in DQMStore
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
+
+  doCalibAnalysis = ps.getUntrackedParameter<bool>("doCalibAnalysis",false);
 }
 
 
@@ -389,12 +391,22 @@ string DTResolutionAnalysisTest::getMEName(const DTSuperLayerId & slID) {
     topHistoFolder + "/Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/";
+
+  if(doCalibAnalysis) folderName =
+	"DT/DTCalibValidation/Wheel" +  wheel.str() +
+	"/Station" + station.str() + "/Sector" + sector.str() + "/";
   
   string histoname = folderName + "hResDist" 
     + "_W" + wheel.str() 
     + "_St" + station.str() 
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
+
+  if(doCalibAnalysis) histoname = folderName + "hResDist_STEP3" 
+    + "_W" + wheel.str() 
+    + "_St" + station.str() 
+    + "_Sec" + sector.str() 
+    + "_SL" + superLayer.str();
   
   return histoname;
   
