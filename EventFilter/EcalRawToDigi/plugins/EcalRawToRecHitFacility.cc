@@ -82,9 +82,6 @@ EcalRawToRecHitFacility::beginRun(edm::Run &iRun, const edm::EventSetup& iSetup)
 
   edm::ESHandle<EcalUnpackerWorkerBase> worker;
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, worker);
-  worker->set(iSetup); 
-  LogDebug("EcalRawToRecHit|Facility")<<"worker set in beginJob."
-				      << watcher.lap();
 
 }
 
