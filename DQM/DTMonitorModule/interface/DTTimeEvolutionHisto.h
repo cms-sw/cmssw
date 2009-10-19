@@ -4,8 +4,8 @@
 /** \class DTTimeEvolutionHisto
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/11/24 09:13:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -26,8 +26,10 @@ public:
   ///    - # of LumiSections per bin <br>
   ///    - mode: <br> 
   ///         0 -> rate (over event) <br> 
+  ///              need to fill using accumulateValueTimeSlot and updateTimeSlot methods <br>
   ///         1 -> # of entries <br>
   ///         2 -> # of events <br>
+  ///         3 -> mean over LSs <br>
   DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
 		       const std::string& title,
 		       int nbins,
