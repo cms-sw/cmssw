@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/03/24 14:13:56 $
- * $Revision: 1.18 $
+ * $Date: 2009/03/26 14:07:54 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
 */
@@ -94,7 +94,7 @@ private:
   MonitorElement * m_rateMax;
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
-  std::set<unsigned int>  m_globBX;
+  std::set<unsigned long long int>  m_globBX;
   
   
   L1TRateHelper::L1TRateHelper m_rateHelper;
@@ -113,7 +113,7 @@ private:
   int m_rateUpdateTime;
   int m_rateBinSize;
   int m_rateNoOfBins;
-  int m_lastUsedBxInBxdiff;
+  long long int m_lastUsedBxInBxdiff;
   std::string output_dir_;
   struct BxDelays { int bx, eta_t, phi_p; };  
 

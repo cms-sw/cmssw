@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/03/26 14:07:54 $
- * $Revision: 1.28 $
+ * $Date: 2009/06/02 08:37:10 $
+ * $Revision: 1.29 $
  * \author J. Berryhill
  *
  */
@@ -265,7 +265,7 @@ void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
 
      // fixme, norm iteration would be better
      while (m_globBX.begin() !=  m_globBX.end() ) {
-        int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
+        long long int  diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
         m_bxDiff->Fill(diff);
         m_lastUsedBxInBxdiff = *m_globBX.begin();
         m_globBX.erase(m_globBX.begin());
@@ -399,7 +399,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     unsigned int globBx = e.orbitNumber()*3564+e.bunchCrossing();
     if (m_globBX.find(globBx)==m_globBX.end()) m_globBX.insert(globBx);
     if (m_globBX.size()>1020){
-      int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
+      long long int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
       m_bxDiff->Fill(diff);
       m_lastUsedBxInBxdiff = *m_globBX.begin();
       m_globBX.erase(m_globBX.begin());
