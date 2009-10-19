@@ -12,6 +12,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TpSrp")
+
 #Geometry
 #
 #include "Geometry/CMSCommonData/data/cmsSimIdealGeometryXML.cfi"
@@ -21,6 +22,10 @@ process.load("Geometry.EcalCommonData.EcalOnly_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
+process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
 
 process.load("SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi")
 
