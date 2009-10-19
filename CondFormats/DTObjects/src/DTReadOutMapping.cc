@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/26 14:11:00 $
+ *  $Revision: 1.20 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -852,6 +852,15 @@ void DTReadOutMapping::cacheMap() const {
         dduMLgr->push_back( ientry );
       }
 
+    }
+
+    std::map<int,std::vector<int>*>::const_iterator dduEntIter =
+                                                    dduEntries.begin();
+    std::map<int,std::vector<int>*>::const_iterator dduEntIend =
+                                                    dduEntries.end();
+    while ( dduEntIter != dduEntIend ) {
+      const std::pair<int,std::vector<int>*>& dduEntry = *dduEntIter++;
+      delete dduEntry.second;
     }
 
     DTDataBuffer<int,int>::dropBuffer( mNameRG );
