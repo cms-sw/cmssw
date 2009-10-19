@@ -227,6 +227,7 @@ int main(int argc, char** argv){
   RooRealVar Yield("Yield","Yield", 15000.,345.,3567890.)  ;
   RooRealVar nbkg_mutrk("nbkg_mutrk","background _mutrk fraction",500,0.,100000.) ; 
   RooRealVar nbkg_mumuNotIso("nbkg_mumuNotIso","background fraction",500,0.,100000.) ;
+  RooRealVar nbkg_musa("nbkg_musa","background fraction",50,0.,100000.) ;
   RooRealVar eff_tk("eff_tk","signal _mutrk fraction",.99,0.8,1.0) ;
   RooRealVar eff_sa("eff_sa","eff musta",0.99,0.8,1.0) ;
   RooRealVar eff_iso("eff_iso","eff mumuNotIso",.99,0.8,1.0) ;
@@ -239,7 +240,9 @@ int main(int argc, char** argv){
   RooRealVar b0 ("b0","coefficient 0", 1,-1000.,1000.) ;
   RooRealVar b1 ("b1","coefficient 1", -0.001,-1000,1000.) ;
   RooRealVar b2("b2","coefficient 2", 0.0,-1000.,1000.) ;
-  
+  RooRealVar gamma ("gamma","coefficient gamma", -0.01,-1000 , 1000. ) ;
+  RooRealVar c0 ("c0","coefficient 0", 1,-1000.,1000.) ;
+  RooRealVar c1 ("c1","coefficient 1", -0.001,-1000,1000.) ;
   // fit parameters setted from datacard 
   filebuf fb;
   fb.open ("zMuMuRooFit.txt",ios::in);
@@ -249,6 +252,7 @@ int main(int argc, char** argv){
   Yield.readFromStream(is.getline(line, 1000), kFALSE);  
   nbkg_mutrk.readFromStream(is.getline(line,1000), kFALSE);
   nbkg_mumuNotIso.readFromStream(is.getline(line,1000),  kFALSE);
+  nbkg_musa.readFromStream(is.getline(line,1000),  kFALSE);
   eff_tk.readFromStream(is.getline(line,1000),  kFALSE);
   eff_sa.readFromStream(is.getline(line,1000),  kFALSE);
   eff_iso.readFromStream(is.getline(line,1000),  kFALSE);
@@ -261,6 +265,9 @@ int main(int argc, char** argv){
   b0.readFromStream(is.getline(line,1000), kFALSE);  
   b1.readFromStream(is.getline(line,1000), kFALSE);  
   b2.readFromStream(is.getline(line,1000), kFALSE);  
+  gamma.readFromStream(is.getline(line,1000), kFALSE);
+  c0.readFromStream(is.getline(line,1000), kFALSE);  
+  c1.readFromStream(is.getline(line,1000), kFALSE);  
   fb.close();
   
   // scaling to lumi if toy is enabled...
@@ -303,9 +310,15 @@ int main(int argc, char** argv){
   RooAddPdf * model_mumuNotIso= new RooAddPdf("model_mumuNotIso","model_mumuNotIso",RooArgList(*ZmmNoIsoPdf,*bkg_mumuNotIso), RooArgList(zMuMuNoIsoEffTerm, nbkg_mumuNotIso)); 
   // z mu sta
   
-  RooGenericPdf model_musta("model_musta",  " ZmsPdf * zMuSaEffTerm ", RooArgSet( *ZmsPdf, zMuSaEffTerm)) ;
-  RooExtendPdf * eZmsSig= new RooExtendPdf("eZmsSig","extended signal p.d.f for zms ",*ZmsPdf,  zMuSaEffTerm ) ;
-  // z mu mu HLT
+  // RooGenericPdf model_musta("model_musta",  " ZmsPdf * zMuSaEffTerm ", RooArgSet( *ZmsPdf, zMuSaEffTerm)) ;
+  RooGenericPdf *bkg_musa = new RooGenericPdf("bkg_musa","zmusa bkg_model", "exp(gamma * mass) * (c0 + c1 * mass )", RooArgSet( *mass, gamma, c0, c1) );
+  // RooAddPdf * eZmsSig= new RooAddPdf("eZmsSig","eZmsSig",RooArgList(*,*bkg_mumuNotIso), RooArgList(zMuMuNoIsoEffTerm, nbkg_mumuNotIso)); 
+  RooAddPdf *eZmsSig = new RooAddPdf("eZmsSig","eZmsSig",RooArgList(*ZmsPdf,*bkg_musa),RooArgList(zMuSaEffTerm , nbkg_musa)) ;
+
+  //RooExtendPdf * eZmsSig= new RooExtendPdf("eZmsSig","extended signal p.d.f for zms ",*ZmsPdf,  zMuSaEffTerm ) ;
+ 
+
+ // z mu mu HLT
   
   // count ZMuMu Yield
   double nZMuMu = 0.;
@@ -365,7 +378,7 @@ int main(int argc, char** argv){
   RooChi2Var *chi2_mu2hlt = new RooChi2Var("chi2_mu2hlt","chi2_mu2hlt", *eZmm2hltSig, *zmm2hltMass,  Extended(kTRUE), DataError(RooAbsData::SumW2) ) ;  
   
   // adding the chi2
-  RooAddition totChi2("totChi2","chi2_mutrk + chi2_mumuNotIso + chi2_musta   + chi2_mu1hlt  +  chi2_mu2hlt " , RooArgSet(*chi2_mutrk   ,*chi2_mumuNotIso  , *chi2_musta  ,*chi2_mu1hlt  ,  *chi2_mu2hlt  )) ;
+  RooAddition totChi2("totChi2","chi2_mutrk + chi2_mumuNotIso  + chi2_musta   + chi2_mu1hlt  +  chi2_mu2hlt " , RooArgSet(*chi2_mutrk   ,*chi2_mumuNotIso  ,  *chi2_musta ,  *chi2_mu1hlt  ,  *chi2_mu2hlt  )) ;
   
   
   // printing out the model integral befor fitting
@@ -423,11 +436,11 @@ int main(int argc, char** argv){
   RooPlot * massFrame_mumu1hlt = mass->frame() ;
   RooPlot * massFrame_mumu2hlt = mass->frame() ;
   
-  TCanvas  * c1 = new TCanvas("canvas");
-  TCanvas  * c2 = new TCanvas("new_canvas");
-  c1->Divide(2,3);
-  c1->cd(1);
-  c1->SetLogy(kTRUE);
+  TCanvas  * canv1 = new TCanvas("canvas");
+  TCanvas  * canv2 = new TCanvas("new_canvas");
+  canv1->Divide(2,3);
+  canv1->cd(1);
+  canv1->SetLogy(kTRUE);
   zmtMass->plotOn(massFrame_mutrk, LineColor(kBlue)) ;
   model_mutrk->plotOn(massFrame_mutrk,LineColor(kRed)) ;
   model_mutrk->plotOn(massFrame_mutrk,Components(*bkg_mutrk),LineColor(kGreen)) ;
@@ -436,14 +449,14 @@ int main(int argc, char** argv){
   massFrame_mutrk->Draw();  
   gPad->SetLogy(1); 
   
-  c2->cd();
-  c2->SetLogy(kTRUE);
+  canv2->cd();
+  canv2->SetLogy(kTRUE);
   massFrame_mutrk->Draw();  
-  c2->SaveAs("LogZMuTk.eps"); 
-  c2->SetLogy(kFALSE);
-  c2->SaveAs("LinZMuTk.eps"); 
+  canv2->SaveAs("LogZMuTk.eps"); 
+  canv2->SetLogy(kFALSE);
+  canv2->SaveAs("LinZMuTk.eps"); 
   
-  c1->cd(2);
+  canv1->cd(2);
   zmmNotIsoMass->plotOn(massFrame_mumuNotIso, LineColor(kBlue)) ;
   model_mumuNotIso->plotOn(massFrame_mumuNotIso,LineColor(kRed)) ;
   model_mumuNotIso->plotOn(massFrame_mumuNotIso,Components(*bkg_mumuNotIso), LineColor(kGreen)) ;
@@ -451,59 +464,60 @@ int main(int argc, char** argv){
   massFrame_mumuNotIso->Draw(); 
   gPad->SetLogy(1); 
   
-  c2->cd();
-  c2->Clear();
-  c2->SetLogy(kTRUE);
+  canv2->cd();
+  canv2->Clear();
+  canv2->SetLogy(kTRUE);
   massFrame_mumuNotIso->Draw(); 
-  c2->SaveAs("LogZMuMuNotIso.eps");
-  c2->SetLogy(kFALSE);
-  c2->SaveAs("LinZMuMuNotIso.eps"); 
+  canv2->SaveAs("LogZMuMuNotIso.eps");
+  canv2->SetLogy(kFALSE);
+  canv2->SaveAs("LinZMuMuNotIso.eps"); 
   
-  c1->cd(3);
+  canv1->cd(3);
   zmsMass->plotOn(massFrame_musta, LineColor(kBlue)) ;
+  eZmsSig->plotOn(massFrame_musta,Components(*bkg_musa), LineColor(kGreen)) ;
   eZmsSig->plotOn(massFrame_musta,LineColor(kRed)) ;
   massFrame_musta->SetTitle("Z -> #mu sta");
   massFrame_musta->Draw(); 
   
-  c2->cd();
-  c2->Clear();
-  c2->SetLogy(kTRUE);
+  canv2->cd();
+  canv2->Clear();
+  canv2->SetLogy(kTRUE);
   massFrame_musta->Draw();  
-  c2->SaveAs("LogZMuSa.eps"); 
-  c2->SetLogy(kFALSE);
-  c2->SaveAs("LinZMuSa.eps"); 
+  canv2->SaveAs("LogZMuSa.eps"); 
+  canv2->SetLogy(kFALSE);
+  canv2->SaveAs("LinZMuSa.eps"); 
   
   
-  c1->cd(4);  
+  canv1->cd(4);  
   zmm1hltMass->plotOn(massFrame_mumu1hlt, LineColor(kBlue)) ;
   eZmm1hltSig->plotOn(massFrame_mumu1hlt,LineColor(kRed)) ;
   massFrame_mumu1hlt->SetTitle("Z -> #mu #mu 1hlt");
   massFrame_mumu1hlt->Draw(); 
-  c2->cd();
-  c2->Clear();
-  c2->SetLogy(kTRUE);
+  canv2->cd();
+  canv2->Clear();
+  canv2->SetLogy(kTRUE);
   massFrame_mumu1hlt->Draw();  
-  c2->SaveAs("LogZMuMu1Hlt.eps"); 
-  c2->SetLogy(kFALSE);
-  c2->SaveAs("LinZMuMu1Hlt.eps"); 
+  canv2->SaveAs("LogZMuMu1Hlt.eps"); 
+  canv2->SetLogy(kFALSE);
+  canv2->SaveAs("LinZMuMu1Hlt.eps"); 
   
 
 
-  c1->cd(5);
+  canv1->cd(5);
   zmm2hltMass->plotOn(massFrame_mumu2hlt, LineColor(kBlue)) ;
   eZmm2hltSig->plotOn(massFrame_mumu2hlt,LineColor(kRed)) ;
   massFrame_mumu2hlt->SetTitle("Z -> #mu #mu 2hlt");
   massFrame_mumu2hlt->Draw(); 
   
-  c1->SaveAs("mass.eps");
+  canv1->SaveAs("mass.eps");
   
-  c2->cd();
-  c2->Clear();
-  c2->SetLogy(kTRUE);
+  canv2->cd();
+  canv2->Clear();
+  canv2->SetLogy(kTRUE);
   massFrame_mumu2hlt->Draw();  
-  c2->SaveAs("LogZMuMu2Hlt.eps"); 
-  c2->SetLogy(kFALSE);
-  c2->SaveAs("LinZMuMu2Hlt.eps"); 
+  canv2->SaveAs("LogZMuMu2Hlt.eps"); 
+  canv2->SetLogy(kFALSE);
+  canv2->SaveAs("LinZMuMu2Hlt.eps"); 
   
 
   
