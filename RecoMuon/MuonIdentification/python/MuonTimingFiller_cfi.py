@@ -13,7 +13,15 @@ TimingFillerBlock = cms.PSet(
     ErrorCSC = cms.double(7.),
     
     # Ecal minimum energy cut
-    EcalEnergyCut = cms.double(0.4)
+    EcalEnergyCut = cms.double(0.4),
+    # Ecal error parametrization
+    ErrorEB = cms.double(2.085),
+    ErrorEE = cms.double(6.95),
+    
+    # On/off switches for combined time measurement
+    UseDT  = cms.bool(True),
+    UseCSC = cms.bool(True),
+    UseECAL= cms.bool(True)
   )
 )
 
