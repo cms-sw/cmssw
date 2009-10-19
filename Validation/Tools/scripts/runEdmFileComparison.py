@@ -8,17 +8,20 @@ import os
 import sys
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
-colonRE      = re.compile (r':+')
+#colonRE      = re.compile (r':+')
+nonAlphaRE   = re.compile (r'\W')
 commaRE      = re.compile (r',')
 queueCommand = '/uscms/home/cplager/bin/clpQueue.pl addjob %s'
 logDir       = 'logfiles'
 compRootDir  = 'compRoot'
 # Containers
-vectorRE      = re.compile (r'^vector<([^<>]+)>')
-detSetVecRE   = re.compile (r'^edm::DetSetVector<([^<>]+)>')
-edColRE       = re.compile (r'^edm::EDCollection<([^<>]+)>')
-sortedColRE   = re.compile (r'^edm::SortedCollection<([^<>]+),\S+?> >')
-containerList = [vectorRE, detSetVecRE, edColRE, sortedColRE]
+#vectorRE       = re.compile (r'^vector<(\S+)>')
+vectorRE       = re.compile (r'^vector<([^<>]+)>')
+detSetVecRE    = re.compile (r'^edm::DetSetVector<([^<>]+)>')
+edColRE        = re.compile (r'^edm::EDCollection<([^<>]+)>')
+sortedColRE    = re.compile (r'^edm::SortedCollection<([^<>]+),\S+?> >')
+singletonRE    = re.compile (r'^([\w:]+)$')
+containerList  = [vectorRE, detSetVecRE, edColRE, sortedColRE]
 
 class EdmObject (object):
 
@@ -71,6 +74,14 @@ if __name__ == "__main__":
                               action="store_true", default=False,
                               help="Run description step even if "\
                               "file already exists.")
+    describeGroup.add_option ("--singletons", dest="singletons",
+                              action="store_true", default=False,
+                              help="Describe singleton objects (" \
+                              "used only with --describeOnly option).")
+    describeGroup.add_option ("--privateMemberData", dest="privateMemberData",
+                              action="store_true", default=False,
+                              help="include private member data "\
+                              "(NOT for comparisons)")
     # precision options
     precisionGroup.add_option ("--precision", dest="precision", type="string",
                                help="Change precision use for floating "\
@@ -180,6 +191,14 @@ if __name__ == "__main__":
         options.verbose = True
     if options.verbose:
         print "files", filename1, filename2
+    if options.singletons and not options.describeOnly:
+        raise RuntimeError, "--singletons can only be used with "\
+              "--describeOnly option"
+    if options.privateMemberData and not options.describeOnly:
+        raise RuntimeError, "--privateMemberData can only be used with "\
+              "--describeOnly option"
+    if options.singletons:
+        containerList.append (singletonRE)
 
     #############################
     ## Run edmDumpEventContent ##
@@ -189,25 +208,43 @@ if __name__ == "__main__":
     for regex in options.regex:
         regexLine += ' "--regex=%s"' % regex
     dumpCommand = 'edmDumpEventContent %s %s' % (regexLine, filename1)
+    if options.verboseDebug:
+        print dumpCommand, '\n'
     output = commands.getoutput (dumpCommand).split("\n")
+    if not len(output):
+        raise RuntimeError, "No output from edmDumpEventContent."
     collection = {}
+    total = failed = skipped = useless = 0
     for line in output:
+        total += 1
         match = piecesRE.search(line)
         if match:
             obj = EdmObject( match.group(1,2,3,4) )
             if obj.bool:
                 collection.setdefault( obj.container, [] ).append(obj)
+            else:
+                skipped += 1
+        else:
+            skipped += 1
+
+   #########################################
+   ## Run useReflexToDescribeForGenObject ##
+   #########################################
     for key, value in sorted (collection.iteritems()):
         name      = value[0].name
-        prettyName = colonRE.sub('', name)
+        prettyName = nonAlphaRE.sub('', name)
         descriptionName = prettyName + '.txt'
-        if os.path.exists (descriptionName) and not options.forceDescribe:
+        if os.path.exists (descriptionName) \
+               and os.path.getsize (descriptionName) \
+               and not options.forceDescribe:
             if options.verbose:
                 print '%s exists.  Skipping' % descriptionName
             continue
         #print name, prettyName, key
         describeCmd = "%s %s %s useReflexToDescribeForGenObject.py %s '--type=%s'" \
-                  % (fullCommand, currentDir, logPrefix + prettyName, name,
+                  % (fullCommand, currentDir, logPrefix + prettyName,
+                     GenObject.encodeNonAlphanumerics (name),
+                     #name,
                      GenObject.encodeNonAlphanumerics (key))
         if options.precision:
             describeCmd += " --precision=" + options.precision
@@ -215,9 +252,20 @@ if __name__ == "__main__":
             print "describing %s" % name
         if options.verboseDebug:
             print describeCmd, '\n'
-        os.system (describeCmd)
-        #print describeCmd, '\n'
+        returnCode = os.system (describeCmd)
+        if returnCode:
+            # return codes are shifted by 8 bits:
+            if returnCode == GenObject.uselessRetCode << 8:
+                useless += 1
+            else:
+                print "Error trying to describe '%s'.  Continuing.\n" % \
+                      (returnCode, name)
+                failed += 1
     if options.describeOnly:
+        print "Total: %3d  Skipped: %3d   Failed: %3d  Useless: %3d" % \
+              (total, skipped, failed, useless)
+        if not options.noQueue:
+            print "Note: Failed not recorded when using queuing system."
         sys.exit()
 
     ##################################
@@ -228,7 +276,7 @@ if __name__ == "__main__":
         for obj in value:
             # print "  ", obj.label(),
             name = obj.name
-            prettyName = colonRE.sub('', name)
+            prettyName = nonAlphaRE.sub('', name)
             prettyLabel = commaRE.sub ('_', obj.label())
             compareCmd = 'edmOneToOneComparison.py %s %s %s --compare --label=reco^%s^%s' \
                           % (prettyName + '.txt',

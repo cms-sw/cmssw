@@ -79,6 +79,7 @@ class GenObject (object):
     _kitchenSinkDict   = {} # dictionary that holds everything else...
     _runEventList      = []
     _runEventListDone  = False
+    uselessReturnCode  = 1 << 7 # pick a unique return code
     
     ####################
     ## Compile Regexs ##

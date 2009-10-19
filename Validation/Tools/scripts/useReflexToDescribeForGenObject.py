@@ -54,14 +54,13 @@ event: event()
 
 """
 
-colonRE     = re.compile (r':')
-dotRE       = re.compile (r'\.')
-nonAlphaRE  = re.compile (r'\W')
-alphaRE     = re.compile (r'(\w+)')
-vetoedTypes = set()
+colonRE        = re.compile (r':')
+dotRE          = re.compile (r'\.')
+nonAlphaRE     = re.compile (r'\W')
+alphaRE        = re.compile (r'(\w+)')
+vetoedTypes    = set()
 
-
-def getObjectList (objectName, base):
+def getObjectList (objectName, base, verbose = False, memberData = False):
     """Get a list of interesting things from this object"""
     # The autoloader needs an object before it loads its dictionary.
     # So let's give it one.
@@ -73,15 +72,21 @@ def getObjectList (objectName, base):
     retval = []
     # Put the current class on the queue and start the while loop
     reflexList = [ ROOT.Reflex.Type.ByName (objectName) ]
+    if verbose: print reflexList
     while reflexList:
         reflex = reflexList.pop (0) # get first element
         print "Looking at %s" % reflex.Name (0xffffffff)
+        if verbose:
+            print "baseSize", reflex.BaseSize()
+            print "FunctionMemberSize", reflex.FunctionMemberSize()
         for baseIndex in range( reflex.BaseSize() ) :
             reflexList.append( reflex.BaseAt(baseIndex).ToType() )
         for index in range( reflex.FunctionMemberSize() ):
             funcMember = reflex.FunctionMemberAt (index)
             # if we've already seen this, don't bother again
             name = funcMember.Name()
+            if verbose:
+                print "name", name
             if name == 'eta':
                 etaFound = True
             elif name == 'phi':
@@ -91,14 +96,36 @@ def getObjectList (objectName, base):
             # make sure this is an allowed return type
             returnType = funcMember.TypeOf().ReturnType().Name (0xffffffff)
             goType     = root2GOtypeDict.get (returnType, None)
+            if verbose:
+                print "   type", returnType, goType
             if not goType:
                 vetoedTypes.add (returnType)
+                if verbose:
+                    print "     skipped"
                 continue
+            elif verbose:
+                print "     good"
             # only bother printout out lines where it is a const function
             # and has no input parameters.            
             if funcMember.IsConst() and not funcMember.FunctionParameterSize():
                 retval.append( ("%s.%s()" % (base, name), goType))
                 alreadySeenFunction.add( name )
+                if verbose:
+                    print "     added"
+            elif verbose:
+                print "      failed IsConst() and FunctionParameterSize()"
+        if not memberData:
+            continue
+        for index in range( reflex.DataMemberSize() ):
+            data = reflex.DataMemberAt( index );
+            name = data.Name()
+            dataType = data.MemberType().__class__.__name__
+            goType = root2GOtypeDict.get (dataType, None)
+            if not goType:
+                continue
+            if verbose:
+                print "name", name, "dataType", dataType, "goType", goType
+            retval.append ( ("%s.%s" % (base, name), goType) )
     retval.sort()
     return retval, etaFound and phiFound
 
@@ -161,12 +188,17 @@ if __name__ == "__main__":
     parser.add_option ('--precision', dest='precision', type='string',
                        default = '1e-5',
                        help="precision to use for floats (default %default)")
+    parser.add_option ('--privateMemberData', dest='privateMemberData',
+                       action='store_true',
+                       help='include private member data (NOT for comparisons)')
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
                        help="Tuple name (default '%default')")
     parser.add_option ('--type', dest='type', type='string',
                        default = 'dummyType',
                        help="Tell GO to set an type")
+    parser.add_option ('--verbose', dest='verbose', action='store_true',
+                       help='Verbose output')
     options, args = parser.parse_args()
     defsDict['float'] += options.precision
     from Validation.Tools.GenObject import GenObject
@@ -174,7 +206,7 @@ if __name__ == "__main__":
     if len (args) < 1:
         raise RuntimeError, "Need to provide object name."
     #
-    objectName = args[0]    
+    objectName = GenObject.decodeNonAlphanumerics (args[0])
     goName     = options.goName or colonRE.sub ('', objectName)
     outputFile = options.output or goName + '.txt'
     ROOT.gROOT.SetBatch()
@@ -183,7 +215,11 @@ if __name__ == "__main__":
     ROOT.gSystem.Load("libDataFormatsFWLite")   
     ROOT.gSystem.Load("libReflexDict")
     ROOT.AutoLibraryLoader.enable()
-    mylist, etaPhiFound = getObjectList (objectName, goName)
+    mylist, etaPhiFound = getObjectList (objectName, goName, options.verbose,
+                                         options.privateMemberData)
+    if not len (mylist):
+        print "There are no member functions that are useful for comparison."
+        sys.exit (GenObject.uselessRetCode)
     targetFile = open (outputFile, 'w')
     genDef, tupleDef = genObjectDef (mylist,
                                      options.tupleName,
