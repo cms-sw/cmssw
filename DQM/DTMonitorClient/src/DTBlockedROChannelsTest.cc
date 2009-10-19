@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/06/10 11:53:56 $
- * $Revision: 1.4 $
+ * $Date: 2009/10/19 14:04:13 $
+ * $Revision: 1.5 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -38,7 +38,7 @@ DTBlockedROChannelsTest::DTBlockedROChannelsTest(const ParameterSet& ps) : neven
   // prescale on the # of LS to update the test
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
-  offlineMode = ps.getUntrackedParameter<int>("offlineMode", true);
+  offlineMode = ps.getUntrackedParameter<bool>("offlineMode", true);
 }
 
 
@@ -80,7 +80,7 @@ void DTBlockedROChannelsTest::beginJob(const EventSetup& context) {
 
   if(!offlineMode) {
     hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-						 500, 5, true, 1);
+						 500, 5, true, 3);
   }
 
 }
@@ -168,14 +168,12 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   
 
   if(nevents == 0) { // hack to work also in offline DQM
-    cout << "[0] nevents: " << nevents << endl;
     MonitorElement *procEvt =  dbe->get("DT/EventInfo/processedEvents");
     if(procEvt != 0) {
       int procEvents = procEvt->getIntValue();
       nevents = procEvents - neventsPrev;
       neventsPrev = procEvents;
     }
-    cout << "[1] nevents: " << nevents << endl;
   }
 
   double totalPerc = prevTotalPerc;
@@ -209,10 +207,10 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       wheelHitos[chId.wheel()]->Fill(sectorForPlot, chId.station(),
 				     scale*chPercent);
       totalPerc += chPercent*scale*1./250.;
-      if(chPercent != 1.) {
-	cout << "Ch: " << (*chAndRobs).first << endl;
-	cout << "      perc: " << chPercent << endl;
-      }
+//       if(chPercent != 1.) {
+// 	cout << "Ch: " << (*chAndRobs).first << endl;
+// 	cout << "      perc: " << chPercent << endl;
+//       }
       // Fill the summary
       summaryHisto->Fill(sectorForPlot, chId.wheel(), 0.25*scale*chPercent);
     }
@@ -222,17 +220,18 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   // this part is executed even if no events were processed in order to include the last LS 
   if(offlineMode) { // save the results in a map and draw them in the end-run
     if(resultsPerLumi.size() == 0) { // the first 2 LS are analyzed together
-      cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
+//       cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
       resultsPerLumi[nLumiSegs] = totalPerc;
     } else {
-      cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
+//       cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
       resultsPerLumi[nLumiSegs] = prevTotalPerc;
     }
     prevTotalPerc = totalPerc;
     prevNLumiSegs = nLumiSegs;
 
   } else { // directly fill the histo
-    hSystFractionVsLS->setTimeSlotValue(totalPerc, -1);
+    hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
+    hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
     prevTotalPerc = totalPerc;
   }
 }
