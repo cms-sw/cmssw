@@ -14,10 +14,10 @@ queueCommand = '/uscms/home/cplager/bin/clpQueue.pl addjob %s'
 logDir       = 'logfiles'
 compRootDir  = 'compRoot'
 # Containers
-vectorRE      = re.compile (r'^vector<(\S+)>')
-detSetVecRE   = re.compile (r'^edm::DetSetVector<(\S+)>')
-edColRE       = re.compile (r'^edm::EDCollection<(\S+)>')
-sortedColRE   = re.compile (r'^edm::SortedCollection<(\S+),\S+?> >')
+vectorRE      = re.compile (r'^vector<([^<>]+)>')
+detSetVecRE   = re.compile (r'^edm::DetSetVector<([^<>]+)>')
+edColRE       = re.compile (r'^edm::EDCollection<([^<>]+)>')
+sortedColRE   = re.compile (r'^edm::SortedCollection<([^<>]+),\S+?> >')
 containerList = [vectorRE, detSetVecRE, edColRE, sortedColRE]
 
 class EdmObject (object):
@@ -51,8 +51,9 @@ if __name__ == "__main__":
                                     "\nFor more details, see\nhttps://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison")
     describeGroup  = optparse.OptionGroup (parser, "Description Options")
     precisionGroup = optparse.OptionGroup (parser, "Precision Options")
-    queueGroup     = optparse.OptionGroup (parser, "Queue Options")
     summaryGroup   = optparse.OptionGroup (parser, "Summary Options")
+    queueGroup     = optparse.OptionGroup (parser, "Queue Options")
+    verboseGroup   = optparse.OptionGroup (parser, "Verbose Options")
     # general optionos
     parser.add_option ("--compRoot", dest="compRoot",
                        action="store_true", default=False,
@@ -62,9 +63,6 @@ if __name__ == "__main__":
     parser.add_option ("--regex", dest='regex', action="append",
                        type="string", default=[],
                        help="Only run on branches containing regex")
-    parser.add_option ("--verbose", dest="verbose",
-                       action="store_true", default=False,
-                       help="Verbose output")
     # describe options
     describeGroup.add_option ("--describeOnly", dest="describeOnly",
                               action="store_true", default=False,
@@ -102,10 +100,18 @@ if __name__ == "__main__":
                            help="Use defaultqueueing system.")
     queueGroup.add_option ("--queueCommand", dest="queueCommand", type="string",
                            help="Use QUEUECOMMAND TO queue jobs")
+    # verbose options
+    verboseGroup.add_option ("--verbose", dest="verbose",
+                             action="store_true", default=False,
+                             help="Verbose output")
+    verboseGroup.add_option ("--verboseDebug", dest="verboseDebug",
+                             action="store_true", default=False,
+                             help="Verbose output for debugging")
     parser.add_option_group (describeGroup)
     parser.add_option_group (precisionGroup)
     parser.add_option_group (summaryGroup)
     parser.add_option_group (queueGroup)
+    parser.add_option_group (verboseGroup)
     options, args = parser.parse_args()
     # Because Root and PyRoot are _really annoying_, you have wait to
     # import this until command line options are parsed.
@@ -169,6 +175,9 @@ if __name__ == "__main__":
         filename2 = filename1
     if not os.path.exists (filename1) or not os.path.exists (filename2):
         raise RuntimeError, "Can not find '%s' or '%s'" % (filename1, filename2)
+    # if verboseDebug is set, set verbose as well
+    if options.verboseDebug:
+        options.verbose = True
     if options.verbose:
         print "files", filename1, filename2
 
@@ -204,6 +213,8 @@ if __name__ == "__main__":
             describeCmd += " --precision=" + options.precision
         if options.verbose:
             print "describing %s" % name
+        if options.verboseDebug:
+            print describeCmd, '\n'
         os.system (describeCmd)
         #print describeCmd, '\n'
     if options.describeOnly:
@@ -239,6 +250,8 @@ if __name__ == "__main__":
                 fullCompareCmd += ' --compRoot=%s' % compRootName
             if options.verbose:
                 print "comparing branch %s %s" % (name, obj.label())
+            if options.verboseDebug:
+                print fullCompareCmd,'\n'
             os.system (fullCompareCmd)
 
     ##################################
