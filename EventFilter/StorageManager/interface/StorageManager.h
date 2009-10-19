@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.54 2009/08/28 14:35:33 mommsen Exp $
+// $Id: StorageManager.h,v 1.55 2009/08/28 16:41:50 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -36,8 +36,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.54 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Revision: 1.55 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
   class StorageManager: public xdaq::Application
@@ -79,6 +79,11 @@ namespace stor {
      * Callback for I2O message containing a DQM event (histogramms)
      */
     void receiveDQMMessage(toolbox::mem::Reference *ref);
+
+    /**
+     * Callback for I2O message notifying the end-of-lumi-section
+     */
+    void receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref);
 
     /**
      * Bind callbacks for state machine SOAP messages
