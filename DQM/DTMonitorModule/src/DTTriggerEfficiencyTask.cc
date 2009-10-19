@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2009/08/03 16:08:38 $
- * $Revision: 1.2 $
+ * $Date: 2009/08/07 14:36:37 $
+ * $Revision: 1.3 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -120,8 +120,8 @@ void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSe
 void DTTriggerEfficiencyTask::endJob(){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
-  if (processDDU) { dbe->rmdir(topFolder(0)); } // DDU top Folder
-  if (processDCC) { dbe->rmdir(topFolder(1)); } // DCC top Folder
+//   if (processDDU) { dbe->rmdir(topFolder(0)); } // DDU top Folder
+//   if (processDCC) { dbe->rmdir(topFolder(1)); } // DCC top Folder
 
 }
 
