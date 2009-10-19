@@ -25,6 +25,7 @@ mappingBuilder_(0)
 	  xtalDetIds_[sm][fe][strip][xtal]=0;
 	}
       }
+
       //Reset SC Det Ids
       //scDetIds_[sm][fe]=0;
       scEleIds_[sm][fe]=0;
@@ -38,6 +39,7 @@ mappingBuilder_(0)
     for(uint tpg =0; tpg<NUMB_FE;tpg++){
       ttDetIds_[tccid][tpg]=0;
       ttTPIds_[tccid][tpg]=0;
+      ttEleIds_[tccid][tpg]=0;
     }
   }
 
@@ -148,26 +150,38 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
   for(uint sm=0; sm < NUMB_SM; sm++){
     for(uint fe=0; fe< NUMB_FE; fe++){
       for(uint strip=0; strip<NUMB_STRIP;strip++){
-        for(uint xtal=0; xtal<NUMB_XTAL;xtal++){
-	  if(xtalDetIds_[sm][fe][strip][xtal]){ 
-            delete xtalDetIds_[sm][fe][strip][xtal]; 
-          }
-        }
+        for(uint xtal=0; xtal<NUMB_XTAL;xtal++) delete xtalDetIds_[sm][fe][strip][xtal];         
       }
 
       // if(scDetIds_[sm][fe]){ 
       //  delete scDetIds_[sm][fe];
       //  delete scEleIds_[sm][fe];
       for(size_t i = 0; i< srFlags_[sm][fe].size(); ++i) delete srFlags_[sm][fe][i];
+
+      delete scEleIds_[sm][fe];
+      
+     
     }
  
   }
+
+  // delete trigger electronics Id
+  for (int tccid=0; tccid<NUMB_TCC; tccid++){
+    for (int ttid=0; ttid<TCC_EB_NUMBTTS; ttid++){
+      for (int ps=0; ps<NUMB_STRIP; ps++){
+        delete psInput_[tccid][ttid][ps];
+      }
+    }
+  }
+
+
   
   for( uint tccid=0; tccid < NUMB_TCC; tccid++){
     for(uint tpg =0; tpg<NUMB_FE;tpg++){
       if(ttDetIds_[tccid][tpg]){ 
         delete ttDetIds_[tccid][tpg];
         delete ttTPIds_[tccid][tpg];
+        delete ttEleIds_[tccid][tpg];
       }
     }
   }
