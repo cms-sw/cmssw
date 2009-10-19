@@ -9,7 +9,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_3_0_pre4/RelValTTbar/GEN-SIM-RECO/MC_31X_V8-v1/0000/FCC5D1DF-C3A6-DE11-81AA-001D09F28EA3.root'
+    '/store/relval/CMSSW_3_4_0_pre1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/2C8CD8FE-B6B5-DE11-ACB8-001D09F2905B.root'
      ),
      skipEvents = cms.untracked.uint32(0)
 )
@@ -26,7 +26,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V8::All')
+process.GlobalTag.globaltag = cms.string('MC_3XY_V10::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")

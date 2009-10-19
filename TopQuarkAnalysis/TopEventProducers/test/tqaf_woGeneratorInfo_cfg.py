@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('CRAFT09_R_V4::All')
+process.GlobalTag.globaltag = cms.string('CRAFT09_R_V5::All')
 
 #-------------------------------------------------
 # PAT and TQAF configuration
@@ -36,6 +36,10 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## switch to sisCone5
 from PhysicsTools.PatAlgos.tools.jetTools import *
+process.patDefaultSequence.remove(process.ak5JetID)
+addJetID(process,
+         cms.InputTag('sisCone5CaloJets'),
+         'sc5')
 switchJetCollection(process, 
                     cms.InputTag('sisCone5CaloJets'),
                     doJTA            = True,           
