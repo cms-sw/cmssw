@@ -1344,6 +1344,72 @@ class resolutionFunctionType14 : public resolutionFunctionBase<T> {
 protected:
 };
 
+template <class T>
+class resolutionFunctionType18 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType18() { this->parNum_ = 13; }
+  // linear in pt and parabolic in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+    double ptPart =  parval[0] + parval[1]*1./pt + pt*parval[2] + pt*pt*parval[3];
+
+    if(fabsEta<=1.4) {//eta in barrel + overlap
+      return( parval[6] + ptPart + parval[4]*fabsEta + parval[5]*eta*eta );
+    }
+    else if (eta>1.4){//eta in right endcap
+      // To impose continuity we require
+      double par = parval[6] + parval[4]*1.4 + parval[5]*1.4*1.4 - parval[7]*fabs((1.4-parval[8])) - parval[9]*(1.4-parval[8])*(1.4-parval[8]);
+      return( par + ptPart + parval[7]*fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+    }
+    else if (eta < -1.4){//eta in left endcap
+      // To impose continuity we require
+      double par = parval[6] + parval[4]*1.4 + parval[5]*1.4*1.4 - parval[10]*fabs((1.4-parval[11])) - parval[12]*(1.4-parval[11])*(1.4-parval[11]);
+      return( par + ptPart + parval[10]*fabs((fabsEta-parval[11])) + parval[12]*(fabsEta-parval[11])*(fabsEta-parval[11]) );
+    }
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( 0.004 );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.001 );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+    double thisStep[] = { 0.01, 0.0001, 0.00001, 0.001,
+                          0.0001, 0.0001,
+                          0.01, 0.00001, 0.01, 0.001,  
+			  0.01, 0.01, 0.01};
+    TString thisParName[] = { "offsetPt", "hyperbolicPt", "linearPt", "parabolicPt",
+                              "linaerEtaCentral", "parabEtaCentral", 
+			      "offsetEta", "linearEtaRight", "rightParabCenter", "parabolicEtaRight",
+                              "linearEtaLeft", "leftParabCenter", "parabolicEtaLeft" };
+    double thisMini[] = { -1.5, -0.001, 0.00005, -0.05,
+                          -0.001, 0.001, 
+                          -0.6, -0.0009, 0., 0.0005,
+			  -0.1, 1., 0.01     
+                        };
+
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1.,
+                            1., 1.,
+                            1., 1. ,1., 1.,
+			    1., 1., 1.
+                          };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 1.1, 0.8, 0.005, 0.05,
+			    0.0001, 0.08, 
+                            0.9, 0.0009,  1.4, 0.5, 
+			    0.05, 1.7, 0.15
+      };
+
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //
 // ---------------------------------- //
@@ -1353,31 +1419,6 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
 
 /// Service to build the resolution functor corresponding to the passed identifier when receiving a vector<double>
 resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const int identifier );
-
-// // Defined globally...
-// static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
-//   0,
-//   new resolutionFunctionType1<double *>,
-//   0,
-//   0,
-//   0,
-//   0,
-//   new resolutionFunctionType6<double *>,
-//   new resolutionFunctionType7<double *>,
-//   new resolutionFunctionType8<double *>
-// };
-
-// static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
-//   0,
-//   new resolutionFunctionType1<vector<double> >,
-//   0,
-//   0,
-//   0,
-//   0,
-//   new resolutionFunctionType6<vector<double> >,
-//   new resolutionFunctionType7<vector<double> >,
-//   new resolutionFunctionType8<vector<double> >
-// };
 
 /**
  * Background functors. <br>
