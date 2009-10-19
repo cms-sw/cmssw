@@ -891,110 +891,85 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerId_=0;
-  std::string layerName_;
+
+  std::stringstream layerName;
   
-  char tempLayerName_;
-  char tempLayerNumber_[20];
-  
-  if(      subdetectorId_==3 ){ //TIB
-    
-    for( unsigned int i=1; i < 5 ;i++){
-      
-      sprintf(tempLayerNumber_,"%u",i);
-      
-      if(TIBDetId(detId_).layer()==i){ 
-        sprintf( &tempLayerName_, "%s%s","TIB__layer__", tempLayerNumber_); 
+  if( subdetectorId_ == 3 ){ //TIB
+
+    for( unsigned int i = 1; i < 5; i++ ){
+      if( TIBDetId( detId_ ).layer() ==i ){ 
+	layerName << "TIB__layer__" << i;
 	layerId_ = 300 + i;
       }
-      layerName_ = &tempLayerName_;
-      
     }
     
   }
-  else if( subdetectorId_==4 ){ //TIDD
+
+  else if( subdetectorId_ == 4 ){ //TIDD
     
-    if(TIDDetId(detId_).side()==1){ // TIDD side 1
+    if( TIDDetId( detId_ ).side() == 1 ) { // TIDD side 1
       
-      for( unsigned int i=1; i < 4 ;i++){
-	
-	sprintf(tempLayerNumber_,"%u",i);
-	
+      for( unsigned int i = 1; i < 4; i++ ){
 	if(TIDDetId(detId_).wheel()==i){ 
-	  sprintf( &tempLayerName_, "%s%s","TID__side__1__wheel__", tempLayerNumber_); 
+	  layerName << "TID__side__1__wheel__" << i;
 	  layerId_ = 410 + i;
 	}
-	layerName_ = &tempLayerName_;
-	
       }
       
-      
     }
-    else if(TIDDetId(detId_).side()==2){// TIDD side 2
+
+    else if( TIDDetId( detId_ ).side() == 2 ) { // TIDD side 2
       
-      for( unsigned int i=1; i < 4 ;i++){
-	
-	sprintf(tempLayerNumber_,"%u",i);
-	
+      for( unsigned int i = 1; i < 4; i++ ) {
 	if(TIDDetId(detId_).wheel()==i){ 
-	  sprintf( &tempLayerName_, "%s%s","TID__side__2__wheel__", tempLayerNumber_); 
+	  layerName << "TID__side__2__wheel__" << i;
 	  layerId_ = 420 + i;
 	}
-	layerName_ = &tempLayerName_;
-	
       }
-      
+
     }
+
   }
-  else if( subdetectorId_==5 ){ // TOB
+
+
+  else if( subdetectorId_ == 5 ){ // TOB
     
-    for( unsigned int i=1; i < 7 ;i++){
-      
-      sprintf(tempLayerNumber_,"%u",i);
-      
-      if(TOBDetId(detId_).layer()==i){ 
-        sprintf( &tempLayerName_, "%s%s","TOB__layer__", tempLayerNumber_); 
+    for( unsigned int i = 1; i < 7; i++ ) {
+      if( TOBDetId( detId_ ).layer() == i ) { 
+	layerName << "TOB__layer__" << i;
 	layerId_ = 500 + i;
       }
-      layerName_ = &tempLayerName_;
-      
     }
-    
     
   }
-  else if( subdetectorId_==6 ){ // TEC
+
+  else if( subdetectorId_ == 6 ){ // TEC
     
-    
-    if(TECDetId(detId_).side()==1){ // TEC side 1
+    if( TECDetId( detId_ ).side() == 1) { // TEC side 1
       
-      for( unsigned int i=1; i < 10 ;i++){
-	
-	sprintf(tempLayerNumber_,"%u",i);
-	
-	if(TECDetId(detId_).wheel()==i){ 
-	  sprintf( &tempLayerName_, "%s%s","TEC__side__1__wheel__", tempLayerNumber_); 
+      for( unsigned int i = 1; i < 10; i++ ) {
+	if( TECDetId( detId_ ).wheel() == i ) { 
+	  layerName << "TEC__side__1__wheel__" << i;
 	  layerId_ = 610 + i;
 	}
-	layerName_ = &tempLayerName_;
-	
       }
+
     }
-    else if(TECDetId(detId_).side()==2){ // TEC side 2
+
+    else if( TECDetId( detId_ ).side() == 2 ) { // TEC side 2
       
-      for( unsigned int i=1; i < 10 ;i++){
-	
-	sprintf(tempLayerNumber_,"%u",i);
-	
-	if(TECDetId(detId_).wheel()==i){ 
-	  sprintf( &tempLayerName_, "%s%s","TEC__side__2__wheel__", tempLayerNumber_); 
+      for( unsigned int i = 1; i < 10; i++ ) {
+	if( TECDetId( detId_ ).wheel() == i ) { 
+	  layerName << "TEC__side__2__wheel__" << i;
 	  layerId_ = 620 + i;
 	}
-	layerName_ = &tempLayerName_;
-	
       }
+
      }
   }
   
-  return std::make_pair(layerName_,layerId_);
+  return std::make_pair( layerName.str(), layerId_ );
+
 }
 
 //=================================================
@@ -1005,89 +980,71 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerStringId_=0;
-  std::string layerStringName_;
   
-  char tempLayerStringName_;
-  char tempLayerStringNumber_[100];
+  std::stringstream layerStringName;
   
-  if(      subdetectorId_==3 ){ //TIB
+  if( subdetectorId_==3 ){ //TIB
     if(TIBDetId(detId_).layer()==1 && TIBDetId(detId_).isInternalString()){ //1st layer int
       for( unsigned int i=1; i < 27 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L1_Int_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L1_Int_Str_" << i;
 	  layerStringId_ = 30110+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else  if(TIBDetId(detId_).layer()==1 && TIBDetId(detId_).isExternalString()){ //1st layer ext
       for( unsigned int i=1; i < 31 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L1_Ext_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L1_Ext_Str_" << i;
 	  layerStringId_ = 301200+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==2 && TIBDetId(detId_).isInternalString()){ //2nd layer int
       for( unsigned int i=1; i < 35 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L2_Int_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L2_Int_Str_" << i;
 	  layerStringId_ = 302100+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==2 && TIBDetId(detId_).isExternalString()){ //2nd layer ext
       for( unsigned int i=1; i < 39 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L2_Ext_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L2_Ext_Str_" << i;
 	  layerStringId_ = 302200+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==3 && TIBDetId(detId_).isInternalString()){ //3rd layer int
       for( unsigned int i=1; i < 45 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L3_Int_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L3_Int_Str_" << i;
 	  layerStringId_ = 303100+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==3 && TIBDetId(detId_).isExternalString()){ //3rd layer ext
       for( unsigned int i=1; i < 47 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L3_Ext_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L3_Ext_Str_" << i;
 	  layerStringId_ = 303200+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==4 && TIBDetId(detId_).isInternalString()){ //4th layer int
       for( unsigned int i=1; i < 53 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L4_Int_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L4_Int_Str_" << i;
 	  layerStringId_ = 304100+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TIBDetId(detId_).layer()==4 && TIBDetId(detId_).isExternalString()){ //4th layer ext
       for( unsigned int i=1; i < 57 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TIBDetId(detId_).stringNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TIB_L4_Ext_Str_", tempLayerStringNumber_);  
+	  layerStringName << "TIB_L4_Ext_Str_" << i;
 	  layerStringId_ = 304200+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
@@ -1097,69 +1054,60 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
   else if( subdetectorId_==5 ){ // TOB
     if(TOBDetId(detId_).layer()==1){ //1st layer
       for( unsigned int i=1; i < 43 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L1_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L1_Rod_" << i;
 	  layerStringId_ = 50100+i;
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TOBDetId(detId_).layer()==2){ //2nd layer
       for( unsigned int i=1; i < 49 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L2_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L2_Rod_" << i;
 	  layerStringId_ = 50200+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TOBDetId(detId_).layer()==3){ //3rd layer
       for( unsigned int i=1; i < 55 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L3_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L3_Rod_" << i;
 	  layerStringId_ = 50300+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TOBDetId(detId_).layer()==4){ //4th layer
       for( unsigned int i=1; i < 61 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L4_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L4_Rod_" << i;
 	  layerStringId_ = 50400+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TOBDetId(detId_).layer()==5){ //5th layer
       for( unsigned int i=1; i < 67 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L5_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L5_Rod_" << i;
 	  layerStringId_ = 50500+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
     else if(TOBDetId(detId_).layer()==6){ //6st layer
       for( unsigned int i=1; i < 75 ;i++){
-	sprintf(tempLayerStringNumber_,"%u",i); 
 	if(TOBDetId(detId_).rodNumber()==i){  
-	  sprintf(&tempLayerStringName_, "%s%s","TOB_L6_Rod_", tempLayerStringNumber_);  
+	  layerStringName << "TOB_L6_Rod_" << i;
 	  layerStringId_ = 50600+i; 
-	  layerStringName_ = &tempLayerStringName_; 
 	}
       }      
     }
   }//TOB
 
-  // std::cout<<"TEST__layerStringName\t"<<layerStringName_<<"\t detId\t"<<detId_<<std::endl;
-  return std::make_pair(layerStringName_,layerStringId_);
+  return std::make_pair( layerStringName.str(), layerStringId_ );
+
 }
+
+
+
     
 //========================
 std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId ){

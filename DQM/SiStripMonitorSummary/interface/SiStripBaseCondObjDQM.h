@@ -35,6 +35,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <sstream>
 
 
 class SiStripBaseCondObjDQM {
