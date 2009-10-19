@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/15 19:58:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/16 19:56:20 $
+ *  $Revision: 1.2 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -339,12 +339,9 @@ HLTMuonValidator::findMother(const reco::Candidate* p)
 bool
 HLTMuonValidator::identical(const Candidate * p1, const Candidate * p2)
 {
-  if (p1 == 0)
-    if (p2 == 0) 
-      return true;
-    else
-      return false;
-  if (p1->eta() == p2->eta() &&
+  if (p1 != 0 &&
+      p2 != 0 &&
+      p1->eta() == p2->eta() &&
       p1->phi() == p2->phi() &&
       p1->pt () == p2->pt ())
     return true;
