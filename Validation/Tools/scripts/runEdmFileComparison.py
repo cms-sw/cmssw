@@ -255,11 +255,11 @@ if __name__ == "__main__":
         returnCode = os.system (describeCmd)
         if returnCode:
             # return codes are shifted by 8 bits:
-            if returnCode == GenObject.uselessRetCode << 8:
+            if returnCode == GenObject.uselessReturnCode << 8:
                 useless += 1
             else:
                 print "Error trying to describe '%s'.  Continuing.\n" % \
-                      (returnCode, name)
+                      (name)
                 failed += 1
     if options.describeOnly:
         print "Total: %3d  Skipped: %3d   Failed: %3d  Useless: %3d" % \

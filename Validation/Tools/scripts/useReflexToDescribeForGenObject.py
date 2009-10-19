@@ -219,7 +219,7 @@ if __name__ == "__main__":
                                          options.privateMemberData)
     if not len (mylist):
         print "There are no member functions that are useful for comparison."
-        sys.exit (GenObject.uselessRetCode)
+        sys.exit (GenObject.uselessReturnCode)
     targetFile = open (outputFile, 'w')
     genDef, tupleDef = genObjectDef (mylist,
                                      options.tupleName,
