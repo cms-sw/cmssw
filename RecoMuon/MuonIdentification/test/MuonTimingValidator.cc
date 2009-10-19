@@ -13,7 +13,7 @@
 //
 // Original Author:  Adam A Everett
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.3 2009/10/07 12:24:56 ptraczyk Exp $
+// $Id: MuonTimingValidator.cc,v 1.4 2009/10/16 09:07:34 ptraczyk Exp $
 //
 //
 
@@ -183,7 +183,6 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (muonTime.nDof) {
         hi_mutime_vtx->Fill(muonTime.timeAtIpInOut);
         hi_mutime_vtx_err->Fill(muonTime.timeAtIpInOutErr);
-        hi_cmbtime_ndof->Fill(muonTime.nDof);
       }
     }
     
@@ -212,6 +211,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if (timec.nDof()>0) {
 //      cout << "    Combined Time: " << timec.timeAtIpInOut() << endl;
+      hi_cmbtime_ndof->Fill(timec.nDof());
       hi_cmbtime_ibt->Fill(timec.inverseBeta());
       hi_cmbtime_ibt_err->Fill(timec.inverseBetaErr());
       hi_cmbtime_fib->Fill(timec.freeInverseBeta());
@@ -233,6 +233,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if (timedt.nDof()>0) {
 //      cout << "          DT Time: " << timedt.timeAtIpInOut() << endl;
+      hi_dttime_ndof->Fill(timedt.nDof());
       hi_dttime_ibt->Fill(timedt.inverseBeta());
       hi_dttime_ibt_err->Fill(timedt.inverseBetaErr());
       hi_dttime_fib->Fill(timedt.freeInverseBeta());
@@ -253,8 +254,9 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         hi_dttime_vtxr_pull->Fill(timedt.timeAtIpOutIn()/timedt.timeAtIpOutInErr());
     }
 
-    if (timecsc.nDof()>10) {
+    if (timecsc.nDof()>0) {
 //      cout << "         CSC Time: " << timecsc.timeAtIpInOut() << endl;
+      hi_csctime_ndof->Fill(timecsc.nDof());
       hi_csctime_ibt->Fill(timecsc.inverseBeta());
       hi_csctime_ibt_err->Fill(timecsc.inverseBetaErr());
       hi_csctime_fib->Fill(timecsc.freeInverseBeta());
