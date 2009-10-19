@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-hiSelectedVertex = cms.EDFilter("HIBestVertexSelection",
+# sort by number of tracks and keep the best
+hiBestAdaptiveVertex = cms.EDFilter("HIBestVertexSelection",
     src = cms.InputTag("hiPixelAdaptiveVertex"),
 	maxNumber = cms.uint32(1)
 )
+
+# select best of precise vertex, fast vertex, and beamspot
+hiSelectedVertex = cms.EDFilter("HIBestVertexProducer")
+
+# best vertex sequence
+bestHiVertex = cms.Sequence( hiBestAdaptiveVertex * hiSelectedVertex )

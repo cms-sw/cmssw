@@ -16,7 +16,7 @@ from RecoHI.HiTracking.HIPixelAdaptiveVertex_cfi import *
 from RecoHI.HiTracking.HISelectedVertex_cfi import *
 
 hiPixelVertices = cms.Sequence( hiPixel3ProtoTracks 
-								* hiPixelMedianVertex 
-								* hiSelectedProtoTracks 
-								* hiPixelAdaptiveVertex
-								* hiSelectedVertex )								
+                                * hiPixelMedianVertex 
+                                * hiSelectedProtoTracks 
+                                * hiPixelAdaptiveVertex
+                                * bestHiVertex )
