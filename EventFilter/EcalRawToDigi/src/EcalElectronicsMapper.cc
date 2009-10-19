@@ -10,9 +10,11 @@ EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTr
 numbXtalTSamples_(numbXtalTSamples),
 numbTriggerTSamples_(numbTriggerTSamples),
 mappingBuilder_(0)
-
 {
-	
+  resetPointers();
+}
+
+void EcalElectronicsMapper::resetPointers(){
   
   // Reset Arrays
   for(uint sm=0; sm < NUMB_SM; sm++){
@@ -144,7 +146,10 @@ mappingBuilder_(0)
 
 
 EcalElectronicsMapper::~EcalElectronicsMapper(){
+  deletePointers();
+}
 
+void EcalElectronicsMapper::deletePointers(){
 
   //DETETE ARRAYS
   for(uint sm=0; sm < NUMB_SM; sm++){
@@ -157,10 +162,10 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
       //  delete scDetIds_[sm][fe];
       //  delete scEleIds_[sm][fe];
       for(size_t i = 0; i< srFlags_[sm][fe].size(); ++i) delete srFlags_[sm][fe][i];
-
+      srFlags_[sm][fe].clear();
+ 
       delete scEleIds_[sm][fe];
-      
-     
+           
     }
  
   }
@@ -200,7 +205,6 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
 void EcalElectronicsMapper::setEcalElectronicsMapping(const EcalElectronicsMapping * m){
   mappingBuilder_= m;
   fillMaps();
-
 }
 
 bool EcalElectronicsMapper::setActiveDCC(uint dccId){
@@ -404,7 +408,6 @@ uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
 
 
 void EcalElectronicsMapper::fillMaps(){
-
  
   for( int smId=1 ; smId<= 54; smId++){
 

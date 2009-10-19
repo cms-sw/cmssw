@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2009/06/04 18:39:33 $
- * $Revision: 1.2 $
+ * $Date: 2009/09/11 17:41:04 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -57,6 +57,8 @@ public:
 
   void setEcalElectronicsMapping(const EcalElectronicsMapping *); 
 
+  void deletePointers();
+  void resetPointers();
 
   /**
   * Set DCC id that is going to be unpacked for the event
