@@ -64,14 +64,12 @@ namespace evf{
     , monitorInfoSpaceLegend_(0) 
     , timeoutOnStop_(10)
     , monSleepSec_(1)
+    , nbProcessed_(0)
+    , nbAccepted_(0)
     , wlMonitoring_(0)
     , asMonitoring_(0)
     , wlMonitoringActive_(false)
-    , nbProcessed_(0)
-    , nbAccepted_(0)
     , watching_(false)
-    , lsTimeOut_(105)
-    , localLsIncludingTimeOuts_(0)
     , firstLsTimeOut_(200)
     , residualTimeOut_(0)
     , lastLsTimedOut_(false)
@@ -81,6 +79,8 @@ namespace evf{
     , lsidTimedOutAsString_("")
     , lsid_(0)
     , psid_(0)
+    , localLsIncludingTimeOuts_(0)
+    , lsTimeOut_(105)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
     , lumiSectionsCtr_(lsRollSize_+1)
@@ -838,7 +838,7 @@ namespace evf{
     *out << "  </tr>"							<< std::endl;
     
     
-    for(unsigned int i=0; i<tr->trigPathsInMenu; i++) {
+    for(int i=0; i<tr->trigPathsInMenu; i++) {
       *out << "  <tr>" << std::endl;
       *out << "    <td>"<< i << "</td>"		<< std::endl;
       *out << "    <td>" << tr->trigPathSummaries[i].timesRun << "</td>"		<< std::endl;

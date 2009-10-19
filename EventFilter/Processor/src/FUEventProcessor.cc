@@ -100,6 +100,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   names_.push_back("epMicroStateInt");
   
   int retpipe = pipe(anonymousPipe_);
+  if(retpipe != 0)
+        LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to create pipe");
   squidPresent_ = squidnet_.check();
   evtProcessor_.setAppDesc(getApplicationDescriptor());
   evtProcessor_.setAppCtxt(getApplicationContext());
@@ -887,8 +889,8 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		if(subs_[i].alive()>0)
 		  {
 		    nblive_++;
-		    int ret = subs_[i].post(msg1,true);
-
+		    subs_[i].post(msg1,true);
+		    
 		    subs_[i].rcvNonBlocking(msg2,true);
 
 		    prg* p = (struct prg*)(msg2->mtext);
@@ -1076,7 +1078,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	}
       case MSQM_MESSAGE_TYPE_WEB:
 	{
-	  xgi::Input  *in;
+	  xgi::Input  *in = 0;
 	  xgi::Output out;
 	  std::cout << "message web received with text " << msg->mtext << std::endl;
 	  unsigned int bytesToSend = 0;

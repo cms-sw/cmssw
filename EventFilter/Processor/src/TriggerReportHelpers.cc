@@ -267,7 +267,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
   //traverse the trigger report to get a copy of relevant parts in the static structure
   // loop on paths
 
-  for(unsigned int i = 0; i < trp->trigPathsInMenu; i++)
+  for(int i = 0; i < trp->trigPathsInMenu; i++)
     {
 
       trp->trigPathSummaries[i].timesRun = 
@@ -303,7 +303,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
 	tr.trigPathSummaries[i].timesExcept - trp_.trigPathSummaries[i].timesExcept;
     }
 
-  for(unsigned int i = 0; i < trp->endPathsInMenu; i++)
+  for(int i = 0; i < trp->endPathsInMenu; i++)
     {
 
       trp->endPathSummaries[i].timesRun    = 
@@ -340,7 +340,7 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
 
   //traverse the trigger report and sum relevant parts, check otherwise
   // loop on paths
-  for(unsigned int i = 0; i < trp->trigPathsInMenu; i++)
+  for(int i = 0; i < trp->trigPathsInMenu; i++)
     {
 
       // fill individual path summaries
@@ -351,7 +351,7 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
       trs->trigPathSummaries[i].timesFailed += trp->trigPathSummaries[i].timesFailed; 
       trs->trigPathSummaries[i].timesExcept += trp->trigPathSummaries[i].timesExcept;
     }
-  for(unsigned int i = 0; i < trp->endPathsInMenu; i++)
+  for(int i = 0; i < trp->endPathsInMenu; i++)
     {
 
       trs->endPathSummaries[i].timesRun += trp->endPathSummaries[i].timesRun;
@@ -372,7 +372,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
   trp->eventSummary.totalEventsPassed = 0;
   trp->eventSummary.totalEventsFailed = 0;
 
-  for(unsigned int i = 0; i < trp->trigPathsInMenu; i++)
+  for(int i = 0; i < trp->trigPathsInMenu; i++)
     {
       // reset individual path summaries
       trp->trigPathSummaries[i].timesRun = 0;
@@ -382,7 +382,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
       trp->trigPathSummaries[i].timesFailed = 0;
       trp->trigPathSummaries[i].timesExcept = 0;
     }
-  for(unsigned int i = 0; i < trp->endPathsInMenu; i++)
+  for(int i = 0; i < trp->endPathsInMenu; i++)
     {
       trp->endPathSummaries[i].timesRun    = 0;
       trp->endPathSummaries[i].timesPassed = 0;
