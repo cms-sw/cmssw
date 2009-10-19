@@ -6,26 +6,23 @@ import FWCore.ParameterSet.Config as cms
 #
 # Service
 ZSPJetCorrectorIcone5 = cms.ESSource("ZSPJetCorrectionService",
-    tagName = cms.vstring('ZSP_CMSSW219_Iterative_Cone_05'),
-    tagNameOffset = cms.vstring(),
+    tagName = cms.vstring('ZSP_CMSSW22X_Iterative_Cone_05_PU0','ZSP_CMSSW22X_Iterative_Cone_05_PU1','ZSP_CMSSW22X_Iterative_Cone_05_PU2','ZSP_CMSSW22X_Iterative_Cone_05_PU5'),
+    tagNameOffset = cms.vstring('L1Offset_Noise_IC5Calo','L1Offset_1PU_IC5Calo','L1Offset_2PU_IC5Calo','L1Offset_5PU_IC5Calo'),
     label = cms.string('ZSPJetCorrectorIcone5'),
-#    tagName = cms.string('ZSP_CMSSW152_Iterative_Cone_05'),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0)
 )
 ZSPJetCorrectorSiscone5 = cms.ESSource("ZSPJetCorrectionService",
-    tagName = cms.vstring('ZSP_CMSSW219_Iterative_Cone_05'),
-    tagNameOffset = cms.vstring(),
+    tagName = cms.vstring('ZSP_CMSSW22X_Iterative_Cone_05_PU0','ZSP_CMSSW22X_Iterative_Cone_05_PU1','ZSP_CMSSW22X_Iterative_Cone_05_PU2','ZSP_CMSSW22X_Iterative_Cone_05_PU5'),
+    tagNameOffset = cms.vstring('L1Offset_Noise_IC5Calo','L1Offset_1PU_IC5Calo','L1Offset_2PU_IC5Calo','L1Offset_5PU_IC5Calo'),
     label = cms.string('ZSPJetCorrectorSiscone5'),
-#    tagName = cms.string('ZSP_CMSSW152_Iterative_Cone_05'),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0)
 )
 ZSPJetCorrectorAntiKt5 = cms.ESSource("ZSPJetCorrectionService",
-    tagName = cms.vstring('ZSP_CMSSW219_Iterative_Cone_05'),
-    tagNameOffset = cms.vstring(),
+    tagName = cms.vstring('ZSP_CMSSW22X_Iterative_Cone_05_PU0','ZSP_CMSSW22X_Iterative_Cone_05_PU1','ZSP_CMSSW22X_Iterative_Cone_05_PU2','ZSP_CMSSW22X_Iterative_Cone_05_PU5'),
+    tagNameOffset = cms.vstring('L1Offset_Noise_IC5Calo','L1Offset_1PU_IC5Calo','L1Offset_2PU_IC5Calo','L1Offset_5PU_IC5Calo'),
     label = cms.string('ZSPJetCorrectorAntiKt5'),
-#    tagName = cms.string('ZSP_CMSSW152_Iterative_Cone_05'),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0)
 )

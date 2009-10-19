@@ -7,7 +7,10 @@ from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 #
 ZSPJetCorrectorIcone5 = cms.ESSource("ZSPJetCorrectionService",
     tagName = cms.string('ZSP_Spring07_Iterative_Cone_05'),
-    label = cms.string('ZSPJetCorrectorIcone5')
+    label = cms.string('ZSPJetCorrectorIcone5'),
+    tagNameOffset = cms.vstring(),
+    PU = cms.int32(-1),
+    FixedPU = cms.int32(0)
 )
 
 #   
