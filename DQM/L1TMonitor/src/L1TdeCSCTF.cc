@@ -306,23 +306,26 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 				dataMuonArray[nDataMuons][2]  = trk->first.sector();
 				nDataMuons++;
 			}
-		
+			/*
 			if( trk->first.outputLink() == 1)
 			{
 				int frBit = (0x200000 &(trk->first.ptLUTAddress()) ) >> 21;
 				int dataRank = trk->first.rank();
-				ptdat thePtDat = ptLUT_->Pt(trk->first.ptLUTAddress() );
+				ptadd thePtAdd(trk->first.ptLUTAddress());
+				ptdat thePtDat = ptLUT_->Pt(thePtAdd);
 				int emuRank = thePtDat.front_rank;
 				if(frBit == 0) emuRank = thePtDat.rear_rank;
 				ptLUTOutput->Fill(dataRank, emuRank);
 				if(dataRank != emuRank)
 				{
-					endTrackBadSector->Fill(dataMuonArray[nDataMuons-1][10]);
-					endTrackBadFR->Fill(dataMuonArray[nDataMuons-1][8]);
-					endTrackBadEta->Fill(dataMuonArray[nDataMuons-1][5]);
-					endTrackBadMode->Fill(dataMuonArray[nDataMuons-1][6]);
+					endTrackBadSector->Fill(trk->first.sector());
+					endTrackBadFR->Fill(frBit);
+					int etaP = (0xf000 &(trk->first.ptLUTAddress()) ) >> 12;
+					endTrackBadEta->Fill(etaP);
+					int modeP = (0xf0000 &(trk->first.ptLUTAddress()) ) >> 16;
+					endTrackBadMode->Fill(modeP);
 				}
-			}
+			}*/
 		}
 	}
 	// Get Emulator information

@@ -30,6 +30,12 @@ from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 l1decsctf.dataTrackProducer = cms.InputTag("csctfDigis")
 l1decsctf.emulTrackProducer = cms.InputTag("valCsctfTrackDigis")
 l1decsctf.lctProducer       = cms.InputTag("csctfDigis")
+l1decsctf.PTLUT				= cms.PSet(
+									LowQualityFlag = cms.untracked.uint32(4),
+									ReadPtLUT = cms.untracked.bool(False),
+									PtMethod = cms.untracked.uint32(1)
+)
+
 from DQM.L1TMonitor.l1GtHwValidation_cfi import *
 
 #Note by Nuno: use of edm filters in dqm are discouraged
@@ -46,7 +52,7 @@ p = cms.Path(
     *(l1demon
       +l1demonecal
       +l1demongct
-      #+l1decsctf
+      +l1decsctf
       +l1GtHwValidation
       #filter goes in the end
       +hltTriggerTypeFilter*l1tderct
