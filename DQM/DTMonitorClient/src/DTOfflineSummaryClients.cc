@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 16:55:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/27 14:45:24 $
+ *  $Revision: 1.6 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -104,9 +104,9 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   // reset the monitor elements
   summaryReportMap->Reset();
-  summaryReport->Reset();
+  summaryReport->Fill(0.);
   for(int ii = 0; ii != 5; ++ii) {
-    theSummaryContents[ii]->Reset();
+    theSummaryContents[ii]->Fill(0.);
   }
 
   // protection 
@@ -156,7 +156,7 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
       }
       theSummaryContents[wheel+2]->Fill((48.-nFailingChambers)/48.);
-
+      summaryReport->Fill(summaryReport->getFloatValue() + theSummaryContents[wheel+2]->getFloatValue()/5.);
     } else {
       efficiencyFound = false;
       LogWarning("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
