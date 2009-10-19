@@ -23,6 +23,7 @@ seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*hbherecoN
 
 hcalDigiAlCaMB.firstSample = 0
 hcalDigiAlCaMB.lastSample = 9
+hcalDigiAlCaMB.InputLabel = 'source'
 hbherecoNoise.firstSample = 0
 hbherecoNoise.samplesToAdd = 4
 hbherecoNoise.digiLabel = 'hcalDigiAlCaMB'
