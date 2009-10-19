@@ -23,10 +23,10 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode) :
   
 //template <class DIGI> 
 //For HBHE Data Frame 
-bool HcalZSAlgoRealistic::keepMe(const HBHEDataFrame& inp, int threshold) const{
+bool HcalZSAlgoRealistic::keepMe(const HBHEDataFrame& inp, int threshold, uint32_t hbhezsmask) const{
   
   bool keepIt=false;
-  int mask = 999;
+  //int mask = 999;
   if ((threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
@@ -39,17 +39,17 @@ bool HcalZSAlgoRealistic::keepMe(const HBHEDataFrame& inp, int threshold) const{
       sum+=inp[j].adc();
       //pedsum+=pedave;
     }
-    if (mask==0) continue; 
+    if ((hbhezsmask&(1<<i)) !=0) continue; 
     else if (sum>=threshold) keepIt=true;
   }
   return keepIt;
 }
 
 //For HO Data Frame 
-bool HcalZSAlgoRealistic::keepMe(const HODataFrame& inp, int threshold) const{
+bool HcalZSAlgoRealistic::keepMe(const HODataFrame& inp, int threshold, uint32_t hozsmask) const{
   
   bool keepIt=false;
-  int mask = 999;
+  //  int mask = 999;
   if ((threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
@@ -62,17 +62,17 @@ bool HcalZSAlgoRealistic::keepMe(const HODataFrame& inp, int threshold) const{
       sum+=inp[j].adc();
       //pedsum+=pedave;
     }
-    if (mask==0) continue; 
+    if ((hozsmask&(1<<i)) !=0) continue; 
     else if (sum>=threshold) keepIt=true;
   }
   return keepIt;
 }
 
 //For HF Data Frame 
-bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int threshold) const{
+  bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int threshold, uint32_t hfzsmask) const{
   
   bool keepIt=false;
-  int mask = 999;
+  //  int mask = 999;
   if ((threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
@@ -85,7 +85,7 @@ bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int threshold) const{
       sum+=inp[j].adc();
       //pedsum+=pedave;
     }
-    if (mask==0) continue; 
+    if ((hfzsmask&(1<<i)) !=0) continue; 
     else if (sum>=threshold) keepIt=true;
   }
   return keepIt;
@@ -93,15 +93,16 @@ bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int threshold) const{
 
 
 bool HcalZSAlgoRealistic::shouldKeep(const HBHEDataFrame& digi) const{
+  // uint32_t hbhezsmask = digi.zsCrossingMask();
   if (digi.id().subdet()==HcalBarrel) 
-    return keepMe(digi,thresholdHB_);
-  else return keepMe(digi,thresholdHE_);
+    return keepMe(digi,thresholdHB_,digi.zsCrossingMask());
+  else return keepMe(digi,thresholdHE_,digi.zsCrossingMask());
 }  
 
 bool HcalZSAlgoRealistic::shouldKeep(const HODataFrame& digi) const{
-  return keepMe(digi,thresholdHO_);
+  return keepMe(digi,thresholdHO_,digi.zsCrossingMask());
 }
 
 bool HcalZSAlgoRealistic::shouldKeep(const HFDataFrame& digi) const{
-  return keepMe(digi,thresholdHF_);
+  return keepMe(digi,thresholdHF_,digi.zsCrossingMask());
 }
