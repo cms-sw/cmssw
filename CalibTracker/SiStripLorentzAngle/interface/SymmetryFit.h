@@ -13,6 +13,8 @@ class SymmetryFit {
   static TH1* symmetryChi2(const TH1*, const std::pair<unsigned,unsigned>);
   static std::string name(std::string base) {return base+"_symmchi2";}
   static TF1* fitfunction();
+  static std::vector<double> pol2_from_pol2(TH1* hist);
+  static std::vector<double> pol2_from_pol3(TH1* hist);
   
  private:
 
