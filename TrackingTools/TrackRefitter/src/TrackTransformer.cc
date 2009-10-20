@@ -102,17 +102,19 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 
   TransientTrackingRecHit::ConstRecHitContainer result;
   
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
-    if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker )
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+      if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
 	result.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
+      } else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
 	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
 	  continue;
 	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+    }
+  }
   
   return result;
 }
@@ -222,8 +224,8 @@ vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack track,
 
   // Apply rule -A-
   if(theRefitDirection.propagationDirection() != anyDirection){
-    if(recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum ||
-       recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) 
+    if((recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum) ||
+       (recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) ) 
       reverse(recHitsForReFit.begin(),recHitsForReFit.end());}
   // -A-
   // Apply rule -A00-

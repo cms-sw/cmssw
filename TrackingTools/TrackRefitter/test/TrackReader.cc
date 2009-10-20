@@ -71,19 +71,21 @@ void TrackReader::analyze(const Event & event, const EventSetup& setup){
   
   for (reco::TrackCollection::const_iterator track = tracks->begin(); 
        track != tracks->end(); ++track){
-    for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd(); ++hit)
+    for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd(); ++hit) {
 
-      if((*hit)->isValid())
+      if((*hit)->isValid()) {
 	if ( (*hit)->geographicalId().det() == DetId::Tracker ){
 	  LogDebug("TrackReader") << "Tracker hit"; 
 	  TransientTrackingRecHit::RecHitPointer tthit = theTrackerRecHitBuilder->build(&**hit);
 	  //	  TransientTrackingRecHit::RecHitPointer preciseHit = tthit.clone(predTsos); 
 	  LogTrace("TrackReader") << "Position: " << tthit->globalPosition();
-	}
+	} 
 	else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	  LogDebug("TrackReader") << "Muon hit"; 
 	  TransientTrackingRecHit::RecHitPointer tthit = theMuonRecHitBuilder->build(&**hit);
 	  LogTrace("TrackReader") << "Position: " << tthit->globalPosition();
 	}
+      }
+    }
   }
 }

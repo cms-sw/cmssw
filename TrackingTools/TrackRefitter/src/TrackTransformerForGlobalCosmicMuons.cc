@@ -111,17 +111,19 @@ TrackTransformerForGlobalCosmicMuons::getTransientRecHits(const reco::TransientT
   TransientTrackingRecHit::ConstRecHitContainer tkHits;
   TransientTrackingRecHit::ConstRecHitContainer staHits;
 
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
-    if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker && TrackerKeep((*hit)->geographicalId())) 
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+      if ( (*hit)->geographicalId().det() == DetId::Tracker && TrackerKeep((*hit)->geographicalId())) {
 		tkHits.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon && MuonKeep((*hit)->geographicalId())){
+      } else if ( (*hit)->geographicalId().det() == DetId::Muon && MuonKeep((*hit)->geographicalId())){
 		if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
 	  	LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
 	  	continue;
 		}
 		staHits.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+    }
+  }
   
   if(staHits.empty()) return staHits;
 
