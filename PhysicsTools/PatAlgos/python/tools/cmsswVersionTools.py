@@ -44,3 +44,17 @@ def run33xOn31xMC(process,
                         jetIdLabel       = "antikt5"
                         )
     
+
+def restrictInputToAOD31X(process):
+    """
+    ------------------------------------------------------------------
+    restrict input for pat tuple production to AOD 31x. Here the jet
+    ID needs to be switched to false for the jets, as the information
+    to produce it is not available on the 31X ADO samples.
+
+    process : process
+    ------------------------------------------------------------------    
+    """
+    process.patDefaultSequence.remove(getattr(process, 'antikt5JetID'))
+    jetProducer = getattr(process, 'allLayer1Jets')
+    jetProducer.addJetID = False
