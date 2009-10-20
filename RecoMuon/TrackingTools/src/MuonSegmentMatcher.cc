@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.7 2009/06/16 16:04:54 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.8 2009/06/26 15:18:52 bellan Exp $
 //
 //
 
@@ -222,16 +222,15 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     if ( !segmentCSC->isValid()) continue; 
 
     numCSC++;
-    double CSCnhits = segmentCSC->recHits().size();
     const vector<CSCRecHit2D>& CSCRechits2D = segmentCSC->specificRecHits();
     countMuonCSCHits = 0;
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
 
     for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
-      if ( !(*hitC)->isValid()) continue; 
+      if (!(*hitC)->isValid()) continue; 
       if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
       if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
-      if(!(*hitC)->isValid()) continue;
+      if (!(*hitC)->isValid()) continue;
 
       //DETECTOR CONSTRUCTION
       DetId id = (*hitC)->geographicalId();
@@ -266,9 +265,6 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     
     matchRatioCSC = countMuonCSCHits == 0 ? 0 : CSCcountAgreeingHits/countMuonCSCHits;
 		
-    //    cout<<"Matching Ratio(CSC): "<<matchRatioCSC<<"     and Num of Hits in Muon "<<countMuonCSCHits<<endl;
-    //    cout<<"Num of Hits in Segment = "<<CSCnhits<<endl;
-
     if ((matchRatioCSC>0.9) && ((countMuonCSCHits>1) || !cscTightMatch)) pointerToCSCSegments.push_back(&(*segmentCSC));
 
   } //End CSC Segment Iteration 
