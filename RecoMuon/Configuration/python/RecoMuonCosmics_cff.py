@@ -41,8 +41,7 @@ muontrackingforcosmics = cms.Sequence(STAmuontrackingforcosmics*globalCosmicMuon
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # muisodeposits based on "muons"
-muIsoDepositTk.ExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
-muIsoDepositCalByAssociatorTowers.ExtractorPSet.CenterConeOnCalIntersection = True
+# we are using copy extractors now
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
