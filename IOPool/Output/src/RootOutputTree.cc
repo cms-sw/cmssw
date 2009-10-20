@@ -169,7 +169,7 @@ namespace edm {
   RootOutputTree::maybeFastCloneTree(bool canFastClone, TTree* tree, std::string const& option) {
     unclonedReadBranches_.clear();
     unclonedReadBranchNames_.clear();
-    currentlyFastCloning_ = canFastClone;
+    currentlyFastCloning_ = canFastClone && !readBranches_.empty();
     if(currentlyFastCloning_) {
       fastCloneTTree(tree, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
