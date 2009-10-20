@@ -4,14 +4,13 @@
   <class name="SimpleMCJetCorrector"/>
   <class name="SimpleZSPJetCorrector"/>
   <class name="Simple3DMCJetCorrector"/>
-  <class name="SimpleL1OffsetCorrector"/>
   <class name="SimpleL2RelativeCorrector"/>
   <class name="SimpleL3AbsoluteCorrector"/>
   <class name="SimpleL3PFAbsoluteCorrector"/>
   <class name="SimpleL4EMFCorrector"/>
   <class name="SimpleL5FlavorCorrector"/>
   <class name="SimpleL7PartonCorrector"/>
-  <class name="JetCorrectionUncertainty"/>
   <class name="CombinedJetCorrector"/>
+  <class name="SmearedJet"/>
 </selection>
 </lcgdict>
