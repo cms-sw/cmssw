@@ -39,8 +39,8 @@ const GeomDetUnit* TSiStripRecHit2DLocalPos::detUnit() const
 TransientTrackingRecHit::ConstRecHitContainer 	
 TSiStripRecHit2DLocalPos::transientHits () const {
   ConstRecHitContainer result;
-
-  result.push_back(TSiStripRecHit1D::build( det(),&SiStripRecHit1D(specificHit()),
+  SiStripRecHit1D hit1d(specificHit());
+  result.push_back(TSiStripRecHit1D::build( det(),&hit1d,
 					    cpe()));
 
   return result;

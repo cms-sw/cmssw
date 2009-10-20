@@ -60,13 +60,7 @@ public:
       if(vertexCollection->size() > 0) {
 	for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
-	  double theOriginHalfLength_; 
-	  if(!theUseFixedError) {
-	    theOriginHalfLength_ = (iV->zError())*theSigmaZVertex; 
-	  }
-	  if(theUseFixedError) {
-	    theOriginHalfLength_ = theFixedError;
-	  }
+	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
 	  result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
 	}
       }
