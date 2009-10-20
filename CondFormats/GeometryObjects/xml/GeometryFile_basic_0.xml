@@ -2,8 +2,10 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="GeometryFile" >
-   <Class table="GEOMETRYFILE" id_columns="IOV_VALUE_ID" name="GeometryFile" mapping_version="GeometryFile_basic" >
-     <Blob column="GEOMETRYFILE_BLOB" name="blob"/>
+   <Class table="GEOMETRYFILE" id_columns="ID" name="GeometryFile" mapping_version="GeometryFile_basic" >
+     <Blob column="GEOMETRYFILE_BLOB" name="blob" />
+     <Primitive column="DCOMPRESSED" name="compressed" />
+     <Primitive column="DISIZE" name="isize" />
    </Class >
   </PoolContainer >
  </PoolDatabase >

@@ -2,11 +2,11 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="CSCRecoDigiParameters" >
-   <Class table="CSCRECODIGIPARAMET_1" id_columns="ID" name="CSCRecoDigiParameters" mapping_version="CSCRecoDigiParameters_basic" >
-     <Blob column="CSCRECODIGIPARAMET_2" name="pChamberType"/>
-     <Blob column="CSCRECODIGIPARAMET_3" name="pUserParOffset"/>
-     <Blob column="CSCRECODIGIPARAMET_4" name="pUserParSize"/>
-     <Blob column="CSCRECODIGIPARAMET_5" name="pfupars"/>
+   <Class table="CSCRECODIGIPARAMETER" id_columns="ID" name="CSCRecoDigiParameters" mapping_version="CSCRecoDigiParameters_basic" >
+     <Blob column="CSCRECODIGIPARAMETER_1" name="pChamberType" />
+     <Blob column="CSCRECODIGIPARAMETER_2" name="pUserParOffset" />
+     <Blob column="CSCRECODIGIPARAMETER_3" name="pUserParSize" />
+     <Blob column="CSCRECODIGIPARAMETER_4" name="pfupars" />
    </Class >
   </PoolContainer >
  </PoolDatabase >
