@@ -40,6 +40,7 @@ muons = cms.EDProducer("MuonIdProducer",
     # Match parameters
     maxAbsDx = cms.double(3.0),
     fillIsolation = cms.bool(True),
+    writeIsoDeposits = cms.bool(True),
     minNumberOfMatches = cms.int32(1),
     fillMatching = cms.bool(True),
 

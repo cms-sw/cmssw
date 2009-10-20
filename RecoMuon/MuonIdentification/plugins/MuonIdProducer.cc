@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.45 2009/09/26 19:56:38 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.46 2009/09/27 08:47:26 dmytro Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "Utilities/Timing/interface/TimerStack.h"
@@ -73,6 +74,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillEnergy_              = iConfig.getParameter<bool>("fillEnergy");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
+   writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
@@ -105,6 +107,18 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
       edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
       std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
       muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet);
+   }
+   if (fillIsolation_ && writeIsoDeposits_){
+     trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
+     produces<reco::IsoDepositMap>(trackDepositName_);
+     ecalDepositName_ = iConfig.getParameter<std::string>("ecalDepositName");
+     produces<reco::IsoDepositMap>(ecalDepositName_);
+     hcalDepositName_ = iConfig.getParameter<std::string>("hcalDepositName");
+     produces<reco::IsoDepositMap>(hcalDepositName_);
+     hoDepositName_ = iConfig.getParameter<std::string>("hoDepositName");
+     produces<reco::IsoDepositMap>(hoDepositName_);
+     jetDepositName_ = iConfig.getParameter<std::string>("jetDepositName");
+     produces<reco::IsoDepositMap>(jetDepositName_);
    }
    
    inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
@@ -332,6 +346,17 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
    reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
 
+   std::auto_ptr<reco::IsoDepositMap> trackDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler trackDepFiller(*trackDepMap);
+   std::auto_ptr<reco::IsoDepositMap> ecalDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler ecalDepFiller(*ecalDepMap);
+   std::auto_ptr<reco::IsoDepositMap> hcalDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler hcalDepFiller(*hcalDepMap);
+   std::auto_ptr<reco::IsoDepositMap> hoDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler hoDepFiller(*hoDepMap);
+   std::auto_ptr<reco::IsoDepositMap> jetDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler jetDepFiller(*jetDepMap);
+
    // loop over input collections
    
    // muons first
@@ -483,6 +508,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
    vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
    vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
+   vector<reco::IsoDeposit> trackDepColl(nMuons);
+   vector<reco::IsoDeposit> ecalDepColl(nMuons);
+   vector<reco::IsoDeposit> hcalDepColl(nMuons);
+   vector<reco::IsoDeposit> hoDepColl(nMuons);
+   vector<reco::IsoDeposit> jetDepColl(nMuons);
 
    // Fill various information
    unsigned int i=0;
@@ -517,7 +547,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// timers.pop();
 	
 	// timers.push("MuonIdProducer::produce::fillIsolation");
-	if ( fillIsolation_ ) fillMuonIsolation(iEvent, iSetup, *muon);
+	if ( fillIsolation_ ) fillMuonIsolation(iEvent, iSetup, *muon,
+						trackDepColl[i], ecalDepColl[i], hcalDepColl[i], hoDepColl[i], jetDepColl[i]);
 	// timers.pop();
 
         // fill timing information
@@ -559,6 +590,24 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(muonTimeMap,"combined");
    iEvent.put(muonTimeMapDT,"dt");
    iEvent.put(muonTimeMapCSC,"csc");
+
+   if (writeIsoDeposits_){
+     trackDepFiller.insert(muonHandle, trackDepColl.begin(), trackDepColl.end());
+     trackDepFiller.fill();
+     iEvent.put(trackDepMap, trackDepositName_);
+     ecalDepFiller.insert(muonHandle, ecalDepColl.begin(), ecalDepColl.end());
+     ecalDepFiller.fill();
+     iEvent.put(ecalDepMap,  ecalDepositName_);
+     hcalDepFiller.insert(muonHandle, hcalDepColl.begin(), hcalDepColl.end());
+     hcalDepFiller.fill();
+     iEvent.put(hcalDepMap,  hcalDepositName_);
+     hoDepFiller.insert(muonHandle, hoDepColl.begin(), hoDepColl.end());
+     hoDepFiller.fill();
+     iEvent.put(hoDepMap,    hoDepositName_);
+     jetDepFiller.insert(muonHandle, jetDepColl.begin(), jetDepColl.end());
+     jetDepFiller.fill();
+     iEvent.put(jetDepMap,  jetDepositName_);
+   }
 
    iEvent.put(caloMuons);
 }
@@ -839,7 +888,9 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
    } // muonIndex1
 }
 
-void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
+void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon,
+				       reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
+				       reco::IsoDeposit& jetDep)
 {
    reco::MuonIsolation isoR03, isoR05;
    const reco::Track* track = 0;
@@ -867,6 +918,12 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    reco::IsoDeposit depHcal = caloDeps.at(1);
    reco::IsoDeposit depHo   = caloDeps.at(2);
 
+   trackDep = depTrk;
+   ecalDep = depEcal;
+   hcalDep = depHcal;
+   hoDep = depHo;
+   jetDep = depJet;
+
    isoR03.sumPt     = depTrk.depositWithin(0.3);
    isoR03.emEt      = depEcal.depositWithin(0.3);
    isoR03.hadEt     = depHcal.depositWithin(0.3);
@@ -891,6 +948,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 
 
    aMuon.setIsolation(isoR03, isoR05);
+
 }
 
 reco::Muon MuonIdProducer::makeMuon( const reco::Track& track )

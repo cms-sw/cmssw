@@ -13,6 +13,12 @@ MIdIsoExtractorPSetBlock = cms.PSet(
     ),
     JetExtractorPSet = cms.PSet(
         MIsoJetExtractorBlock
-    )
+    ),
+    trackDepositName = cms.string("tracker"),
+    ecalDepositName  = cms.string("ecal"),
+    hcalDepositName  = cms.string("hcal"),
+    hoDepositName  = cms.string("ho"),
+    jetDepositName  = cms.string("jets"),
+
 )
 

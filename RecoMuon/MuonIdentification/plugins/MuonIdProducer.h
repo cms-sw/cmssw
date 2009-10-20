@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.17 2009/09/12 20:34:45 aeverett Exp $
+// $Id: MuonIdProducer.h,v 1.18 2009/09/23 19:15:04 dmytro Exp $
 //
 //
 
@@ -64,7 +64,9 @@ class MuonIdProducer : public edm::EDProducer {
    void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
    void          fillArbitrationInfo( reco::MuonCollection* );
-   void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon,
+				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
+				    reco::IsoDeposit& jetDep);
    void          fillGlbQuality( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
    
@@ -118,6 +120,7 @@ class MuonIdProducer : public edm::EDProducer {
    bool fillEnergy_;
    bool fillMatching_;
    bool fillIsolation_;
+   bool writeIsoDeposits_;
    double ptThresholdToFillCandidateP4WithGlobalFit_;
    double sigmaThresholdToFillCandidateP4WithGlobalFit_;
    
@@ -132,6 +135,11 @@ class MuonIdProducer : public edm::EDProducer {
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
+   std::string trackDepositName_;
+   std::string ecalDepositName_;
+   std::string hcalDepositName_;
+   std::string hoDepositName_;
+   std::string jetDepositName_;
 
    bool          fillGlobalTrackQuality_;
    edm::InputTag globalTrackQualityInputTag_;
