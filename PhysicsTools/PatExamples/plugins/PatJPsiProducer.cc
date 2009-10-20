@@ -13,7 +13,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Mon Sep 28 12:53:57 CDT 2009
-// $Id$
+// $Id: PatJPsiProducer.cc,v 1.1 2009/09/29 01:10:49 srappocc Exp $
 //
 //
 
@@ -102,7 +102,7 @@ PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<pat::Muon> > h_muons;
   iEvent.getByLabel( muonSrc_, h_muons );
 
-  const double MUON_MASS = 0.106;
+  // const double MUON_MASS = 0.106;
   const double JPSI_MASS = 3.097;
 
 	
