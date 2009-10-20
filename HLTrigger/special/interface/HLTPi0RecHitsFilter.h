@@ -305,6 +305,9 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double EMregionPhiMargin_;
  
       //parameter which decide which level of flags of EcalRecHit used for clustering.
+
+
+      bool useRecoFlag_; 
       int flagLevelRecHitsToUse_; 
       //number of minimal rechits for selected clusters.
       int nMinRecHitsSel1stCluster_; 

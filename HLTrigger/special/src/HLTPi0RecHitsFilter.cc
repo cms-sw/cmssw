@@ -50,6 +50,9 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
+//Ecal status
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 
 
@@ -82,7 +85,7 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   //  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
   // seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
   // seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
-  
+  useRecoFlag_ = iConfig.getParameter<bool>("useRecoFlag");
   flagLevelRecHitsToUse_ = iConfig.getParameter<int>("flagLevelRecHitsToUse"); 
   nMinRecHitsSel1stCluster_ = iConfig.getParameter<int>("nMinRecHitsSel1stCluster");
   nMinRecHitsSel2ndCluster_ = iConfig.getParameter<int>("nMinRecHitsSel2ndCluster");
@@ -375,6 +378,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<int>::iterator it; 
   
   
+  
+  ///get status from DB
+  edm::ESHandle<EcalChannelStatus> csHandle;
+  if ( !useRecoFlag_ ) iSetup.get<EcalChannelStatusRcd>().get(csHandle);
+  const EcalChannelStatus &channelStatus = *csHandle; 
+  
+  
   ///==============Start to process barrel part==================///
     
   Handle<EBRecHitCollection> barrelRecHitsHandle;
@@ -388,7 +398,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(debug_>=1) std::cout<<" barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
   
-
+  
   
   std::vector<EcalRecHit> seeds;
   seeds.clear();
@@ -405,15 +415,22 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double energy = itb->energy();
 
     //if( energy < seleXtalMinEnergy_) continue; 
-    int flag = itb->recoFlag();
-    if( flagLevelRecHitsToUse_ ==0){ ///good 
-      if( flag != 0) continue; 
-    }
-    else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
-      if( flag !=0 && flag != 4 ) continue; 
-    }
-    else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
-      if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
+    
+    
+    if(useRecoFlag_ ){ ///from recoFlag()
+      int flag = itb->recoFlag();
+      if( flagLevelRecHitsToUse_ ==0){ ///good 
+	if( flag != 0) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+	if( flag !=0 && flag != 4 ) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+	if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
+      }
+    }else{ //// from DB
+      int status =  int(channelStatus[itb->id().rawId()].getStatusCode()); 
+      if ( status > flagLevelRecHitsToUse_ ) continue; 
     }
     
     
@@ -932,17 +949,24 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double energy = ite->energy();
 
     //if( energy < seleXtalMinEnergyEndCap_) continue; 
-    int flag = ite->recoFlag();
+
+    if(  useRecoFlag_ ){ ///from recoFlag()
+      int flag = ite->recoFlag();
+      
+      if( flagLevelRecHitsToUse_ ==0){ ///good 
+	if( flag != 0) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+	if( flag !=0 && flag != 4 ) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+	if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
+      }
+    }else{ //// from DB
+      int status =  int(channelStatus[ite->id().rawId()].getStatusCode()); 
+      if ( status > flagLevelRecHitsToUse_ ) continue; 
+    }
     
-    if( flagLevelRecHitsToUse_ ==0){ ///good 
-      if( flag != 0) continue; 
-    }
-    else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
-      if( flag !=0 && flag != 4 ) continue; 
-    }
-    else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
-      if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
-    }
     
     EEDetId det = ite->id();
     detIdEERecHits.push_back(det);
