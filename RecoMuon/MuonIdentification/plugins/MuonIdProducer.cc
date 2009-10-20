@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.46 2009/09/27 08:47:26 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.47 2009/10/20 12:51:08 slava77 Exp $
 //
 //
 
@@ -591,7 +591,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(muonTimeMapDT,"dt");
    iEvent.put(muonTimeMapCSC,"csc");
 
-   if (writeIsoDeposits_){
+   if (writeIsoDeposits_ && fillIsolation_){
      trackDepFiller.insert(muonHandle, trackDepColl.begin(), trackDepColl.end());
      trackDepFiller.fill();
      iEvent.put(trackDepMap, trackDepositName_);
