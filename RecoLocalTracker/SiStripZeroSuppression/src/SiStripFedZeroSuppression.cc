@@ -98,7 +98,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std
       thePrevFEDhighThresh = static_cast<int16_t>(thresholds_1.getHth()*noiseHandle->getNoise(strip-1,detNoiseRange)+0.5);
       if ( ((strip)%128) == 1){
 	adcPrev2 = 0; 
-	thePrev2FEDlowThresh  = 99999;
+	thePrev2FEDlowThresh  = 9999;
       }else if (i - 2 >= 0 && in[i-2].strip() == strip - 2) {
 	adcPrev2 = in[i-2].adc();
 	thePrev2FEDlowThresh  = static_cast<int16_t>(thresholdHandle->getData(strip-2,detThRange).getLth()*noiseHandle->getNoise(strip-2,detNoiseRange)+0.5);
