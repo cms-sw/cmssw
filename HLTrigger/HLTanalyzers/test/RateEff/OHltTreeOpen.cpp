@@ -1089,28 +1089,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   /* Clean up tau code: remove study triggers, _L2R triggers become standard and are removed from names */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(20.,0.,0,0.,0)>=1) { 
+      if(OpenHltTauL2SCPassed(20.,0.,0,0.,0,30.,70.)>=1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }        
     }        
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(15.,0.,0,0.,0)>=2) { 
+      if(OpenHltTauL2SCPassed(15.,0.,0,0.,0,40.,100.)>=2) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       } 
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk5") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1)>=1) { 
+      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1,30.,70.)>=1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }        
     }        
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau30_Trk5") == 0) {         
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
-      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1)>=1) { 
+      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1,30.,70.)>=1) { 
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }       
       }         
     }         
@@ -1119,7 +1119,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // 1 Leg L3 isolation - prototype version from Chi-Nhan
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.)==1) { 
+      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.,40.,100.)==1) { 
   	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
       } 
     } 
@@ -1749,7 +1749,8 @@ void OHltTree::PrintOhltVariables(int level, int type)
     }
 }
 
-int OHltTree::OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
+int OHltTree::OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
+				   float L1TauThr, float L1CenJetThr)
 {
   int rc = 0;
   // Loop over all oh electrons
@@ -1760,7 +1761,8 @@ int OHltTree::OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, f
           if (ohTauL25Tiso[i] >= L25Tiso)
             if (ohTauL3Tpt[i] >= L3Tpt)
               if (ohTauL3Tiso[i] >= L3Tiso)
-                rc++;      
+   		if (OpenHltL1L2TauMatching(ohTauEta[i], ohTauPhi[i], L1TauThr, L1CenJetThr) == 1)
+		  rc++;      
     }
   }
 
@@ -1768,7 +1770,8 @@ int OHltTree::OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, f
 }
 
 // L2 Ecal sliding cut isolation
-int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
+int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
+				   float L1TauThr, float L1CenJetThr)
 {
   int rc = 0;
     
@@ -1780,14 +1783,16 @@ int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3T
           if (ohTauL25Tiso[i] >= L25Tiso)
             if (ohTauL3Tpt[i] >= L3Tpt)
               if (ohTauL3Tiso[i] >= L3Tiso)
-                rc++;      
+		if (OpenHltL1L2TauMatching(ohTauEta[i], ohTauPhi[i], L1TauThr, L1CenJetThr) == 1)
+		  rc++;      
     }
   }
 
   return rc;
 }
 
-int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt)
+int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt,
+					 float L1TauThr, float L1CenJetThr)
 {
   int rc = 0; int l3iso = 0;
 
@@ -1798,7 +1803,8 @@ int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, flo
 	if (ohTauL25Tpt[i] >= L25Tpt)
 	  if (ohTauL25Tiso[i] >= L25Tiso)
 	    if (ohTauL3Tpt[i] >= L3Tpt)
-	      rc++;
+	      if (OpenHltL1L2TauMatching(ohTauEta[i], ohTauPhi[i], L1TauThr, L1CenJetThr) == 1)
+		rc++;
     }
     if (ohTauL3Tiso[i] >= 1) l3iso++;
   }
@@ -2533,3 +2539,23 @@ int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
 
   return rc;    
 } 
+
+int OHltTree::OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThr) {
+  for (int j=0;j<NL1Tau;j++) {
+    double deltaphi = fabs(phi-L1TauPhi[j]);  
+    if(deltaphi > 3.14159) deltaphi = (2.0 * 3.14159) - deltaphi;
+    double deltaeta = fabs(eta-L1TauEta[j]);
+
+    if (deltaeta<0.3 && deltaphi<0.3 && L1TauEt[j]>tauThr)
+      return 1;
+  }
+  for (int j=0;j<NL1CenJet;j++) {
+    double deltaphi = fabs(phi-L1CenJetPhi[j]);  
+    if(deltaphi > 3.14159) deltaphi = (2.0 * 3.14159) - deltaphi;
+    double deltaeta = fabs(eta-L1CenJetEta[j]);
+
+    if (deltaeta<0.3 && deltaphi<0.3 && L1CenJetEt[j]>jetThr)
+      return 1;
+  }
+  return 0;
+}
