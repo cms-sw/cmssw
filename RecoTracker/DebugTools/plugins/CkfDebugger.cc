@@ -1161,7 +1161,7 @@ CkfDebugger::~CkfDebugger(){
       title.str("");
       title << "PullGP_Z_" << i+1 << "-" << j+1 << "_sh-st";
       hPullGP_Z_shst[title.str()]->Write();
-      if ( (i==2||i==4)&&(j==0||j==1) || (i==3||i==5) ){
+      if ( ((i==2||i==4)&&(j==0||j==1)) || (i==3||i==5) ){
 	title.str("");
 	title << "pullM_" << i+1 << "-" << j+1 << "_sh-rh";
 	hPullM_shrh[title.str()]->Write();
