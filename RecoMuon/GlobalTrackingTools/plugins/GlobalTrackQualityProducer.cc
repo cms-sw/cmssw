@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.1 2009/09/11 19:55:23 aeverett Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.2 2009/09/12 20:33:33 aeverett Exp $
 //
 //
 
@@ -146,7 +146,14 @@ std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) cons
     const TrajectoryStateOnSurface& tsos = (*m).predictedState();
 
 
-    if ( tsos.isValid() ) {
+    if ( tsos.isValid() && rhit->isValid() && rhit->hit()->isValid()
+	 && !std::isinf(rhit->localPositionError().xx()) //this is paranoia induced by reported case
+	 && !std::isinf(rhit->localPositionError().xy()) //it's better to track down the origin of bad numbers
+	 && !std::isinf(rhit->localPositionError().yy())
+	 && !std::isnan(rhit->localPositionError().xx()) //this is paranoia induced by reported case
+	 && !std::isnan(rhit->localPositionError().xy()) //it's better to track down the origin of bad numbers
+	 && !std::isnan(rhit->localPositionError().yy())
+	 ) {
 
       double phi1 = tsos.globalPosition().phi();
       if ( phi1 < 0 ) phi1 = 2*M_PI + phi1;
