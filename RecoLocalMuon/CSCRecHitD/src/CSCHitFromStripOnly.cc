@@ -95,8 +95,14 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     // Remember, the array starts at 0, but the stripId starts at 1...
     float strippos = makeCluster( theMaxima[imax]+1 );    
     
-    if ( strippos < 0 || tmax_cluster < 3 ) continue;
-
+    //if ( strippos < 0 || tmax_cluster < 3 ){
+    // the strippos (as calculated here) is not used later on in
+    /// fact (20.10.09);
+    // with the negative charges allowed it can become negative
+    if (  tmax_cluster < 3 ){
+      theClosestMaximum.push_back(99); // to keep proper vector size
+      continue;
+    }
     //---- If two maxima are too close the error assigned will be width/sqrt(12) - see CSCXonStrip_MatchGatti.cc
     int maximum_to_left = 99; //---- If there is one maximum - the distance is set to 99 (strips)
     int maximum_to_right = 99;
