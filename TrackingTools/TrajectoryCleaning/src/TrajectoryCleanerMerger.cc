@@ -203,20 +203,20 @@ int TrajectoryCleanerMerger::getLayer(const DetId & id)const
   // TEC wheel, ring
 
   if(id.subdetId() == (uint) PixelSubdetector::PixelBarrel)
-  { PXBDetId pid(id); return (100 * id.subdetId()+ (pid.layer() - 1)<<1 + (pid.ladder() - 1)%2); }
+  { PXBDetId pid(id); return (100 * id.subdetId()+ ((pid.layer() - 1)<<1) + (pid.ladder() - 1)%2); }
 
   if(id.subdetId() == (uint) PixelSubdetector::PixelEndcap)
-  { PXFDetId pid(id); return (100 * id.subdetId()+ (pid.disk()  - 1)<<1 + (pid.panel()  - 1)%2); }
+  { PXFDetId pid(id); return (100 * id.subdetId()+ ((pid.disk()  - 1)<<1) + (pid.panel()  - 1)%2); }
 
   if(id.subdetId() == StripSubdetector::TIB)
-  { TIBDetId pid(id); return (100 * id.subdetId()+ (pid.layer() - 1)<<1 + (pid.module() - 1)%2); }
+  { TIBDetId pid(id); return (100 * id.subdetId()+ ((pid.layer() - 1)<<1) + (pid.module() - 1)%2); }
   if(id.subdetId() == StripSubdetector::TOB)
-  { TOBDetId pid(id); return (100 * id.subdetId()+ (pid.layer() - 1)<<1 + (pid.module() - 1)%2); }
+  { TOBDetId pid(id); return (100 * id.subdetId()+ ((pid.layer() - 1)<<1) + (pid.module() - 1)%2); }
 
   if(id.subdetId() == StripSubdetector::TID)
-  { TIDDetId pid(id); return (100 * id.subdetId()+ (pid.wheel() - 1)<<1 + (pid.ring()   - 1)%2); }
+  { TIDDetId pid(id); return (100 * id.subdetId()+ ((pid.wheel() - 1)<<1) + (pid.ring()   - 1)%2); }
   if(id.subdetId() == StripSubdetector::TEC)
-  { TECDetId pid(id); return (100 * id.subdetId()+ (pid.wheel() - 1)<<1 + (pid.ring()   - 1)%2); }
+  { TECDetId pid(id); return (100 * id.subdetId()+ ((pid.wheel() - 1)<<1) + (pid.ring()   - 1)%2); }
 
   return 0;
 }
