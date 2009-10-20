@@ -2,6 +2,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -103,7 +104,7 @@ reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genPartic
   double true_set  = 0.0;;
 
   //std::cout << "(*genParticleList).size() = " << (*genParticleList).size() << std::endl;
-  for( unsigned i = 0; i < (*genParticleList).size(); ++i ) {
+  for( unsigned i = 0; i < (*genParticleList).size(); i++ ) {
 
     //std::cout << "(*genParticleList)[i].eta() = " << (*genParticleList)[i].eta() << std::endl;
 
@@ -206,10 +207,6 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
     sum_ex += et*cos(phi);
     sum_ey += et*sin(phi);
 
-    //std::cout << "pfCandidates[pfc].charge() = " << pfCandidates[pfc].charge() << std::endl;
-    //std::cout << "pfCandidates[pfc].ecalEnergy() = " << pfCandidates[pfc].ecalEnergy() << std::endl;
-    //std::cout << "pfCandidates[pfc].hcalEnergy() = " << pfCandidates[pfc].hcalEnergy() << std::endl;
-
     // compute met specific data:
     if (pfCandidates[pfc].particleId() == 1) ChargedHadEt += et;
     if (pfCandidates[pfc].particleId() == 2) ChargedEMEt += et;
@@ -219,7 +216,7 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
     if (pfCandidates[pfc].particleId() == 6) type6Et += et;
     if (pfCandidates[pfc].particleId() == 7) type7Et += et;
 
-  } // pfc
+  }
 
   const double Et_total=NeutralEMEt+NeutralHadEt+ChargedEMEt+ChargedHadEt+MuonEt+type6Et+type7Et;
 
@@ -237,9 +234,6 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
   specific.Type7Fraction = type7Et/Et_total;
 
   reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
-
-  //std::cout << "specificPFMET.NeutralEMEtFraction() = " << specificPFMET.NeutralEMEtFraction() << std::endl;
-
   return specificPFMET;
 }
 
