@@ -79,14 +79,14 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
     stripInd.reserve(stripClustersNew->size()); 
     pixelInd.reserve(pixelClustersNew->size()); 
 
-    const SiStripCluster * firstOffsetStripNew = & stripClustersNew->data().front();
+    //const SiStripCluster * firstOffsetStripNew = & stripClustersNew->data().front();
     for (edmNew::DetSetVector<SiStripCluster>::const_iterator itdetNew = stripClustersNew->begin(); itdetNew != stripClustersNew->end(); ++itdetNew) {
       edmNew::DetSet<SiStripCluster> oldDSstripNew = *itdetNew;
       if (oldDSstripNew.empty()) continue; // skip empty detsets 
       for (edmNew::DetSet<SiStripCluster>::const_iterator clNew = oldDSstripNew.begin(); clNew != oldDSstripNew.end(); ++clNew) {
 	uint16_t firstStripNew = clNew->firstStrip();
 	uint32_t idStripNew = clNew->geographicalId();
-	uint32_t keyNew = ((&*clNew) - firstOffsetStripNew);
+	//uint32_t keyNew = ((&*clNew) - firstOffsetStripNew);
 	//cout << "new strip index=" << keyNew << endl;
 	uint32_t keyOld=99999;
 	
@@ -111,14 +111,14 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
 
 
-    const SiPixelCluster * firstOffsetPixelNew = & pixelClustersNew->data().front();
+    //const SiPixelCluster * firstOffsetPixelNew = & pixelClustersNew->data().front();
     for (edmNew::DetSetVector<SiPixelCluster>::const_iterator itdetNew = pixelClustersNew->begin(); itdetNew != pixelClustersNew->end(); ++itdetNew) {
       edmNew::DetSet<SiPixelCluster> oldDSpixelNew = *itdetNew;
       if (oldDSpixelNew.empty()) continue; // skip empty detsets 
       for (edmNew::DetSet<SiPixelCluster>::const_iterator clNew = oldDSpixelNew.begin(); clNew != oldDSpixelNew.end(); ++clNew) {
 	int minPixelRowNew = clNew->minPixelRow();
 	uint32_t idPixelNew = clNew->geographicalId();
-	uint32_t keyNew = ((&*clNew) - firstOffsetPixelNew);
+	//uint32_t keyNew = ((&*clNew) - firstOffsetPixelNew);
 	//cout << "new pixel index=" << keyNew << endl;
 	uint32_t keyOld=99999;
 	
