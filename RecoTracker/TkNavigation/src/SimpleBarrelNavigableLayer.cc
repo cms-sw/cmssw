@@ -194,8 +194,8 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 					 << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl
 					 << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
 
-  bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
-			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
+  bool signZmomentumXORdir = (( (fts.momentum().z() > 0) && !(dir == alongMomentum) ) ||
+			      (!(fts.momentum().z() > 0) &&  (dir == alongMomentum) )   );
 
 
   if ( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {

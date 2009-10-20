@@ -129,6 +129,7 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
           point.r()-theRange.max() : theRange.min()-point.r();
     }
     break;
+  case invalidLoc: break; // make gcc happy
   }
   return sqrt(sqr(dr)+sqr(dz));
 }
@@ -154,6 +155,7 @@ float MSLayer::x0(float cotTheta) const
     switch(theFace) {
     case barrel:  return theX0Data.x0/sinTheta;
     case endcap: return theX0Data.x0/fabs(cotTheta*sinTheta);
+    case invalidLoc: return 0.;// make gcc happy
     }
   } else if (theX0Data.allLayers) {
     const MSLayer * dataLayer =
@@ -178,6 +180,7 @@ if (theX0Data.hasX0) {
          theX0Data.sumX0D 
              + theX0Data.slopeSumX0D * (1/cotTheta-1/theX0Data.cotTheta)
        : theX0Data.sumX0D;
+    case invalidLoc: break;// make gcc happy
     }
   } else if (theX0Data.allLayers) {
     const MSLayer* dataLayer =

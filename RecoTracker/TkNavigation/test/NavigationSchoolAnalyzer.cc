@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: NavigationSchoolAnalyzer.cc,v 1.2 2008/09/17 11:43:46 vlimant Exp $
+// $Id: NavigationSchoolAnalyzer.cc,v 1.3 2009/03/04 13:34:31 vlimant Exp $
 //
 //
 
@@ -100,6 +100,9 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
   case GeomDetEnumerators::CSC :
     LorW = CSCDetId(tag->geographicalId().rawId()).layer();
     side = CSCDetId(tag->geographicalId().rawId()).endcap(); break;
+  case GeomDetEnumerators::invalidDet: // make gcc happy
+    // edm::LogError("InvalidDet") << "At " << __FILE__ << ", line " << __LINE__ << "\n";
+    break;
   }
   
   switch (dl->location()){
@@ -111,6 +114,9 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
     os<<"endcap subDetector: "<<dl->subDetector()<<"\n"
       <<"wheel: "<<LorW<<"\n"
       <<"side: "<<((side==1)?"Minus":"Plus")<<"\n";
+    break;
+  case GeomDetEnumerators::invalidLoc: // make gcc happy
+    // edm::LogError("InvalidLoc") << "At " << __FILE__ << ", line " << __LINE__ << "\n";
     break;
   }
   os<< (void*)dl <<"\n";
