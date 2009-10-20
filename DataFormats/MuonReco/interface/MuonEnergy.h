@@ -35,7 +35,9 @@ namespace reco {
        
        /// Calorimeter timing
        float ecal_time;
+       float ecal_timeError;
        float hcal_time;
+       float hcal_timeError;
        
        /// Trajectory position at the calorimeter
        math::XYZPoint ecal_position;
@@ -51,7 +53,7 @@ namespace reco {
        tower(0), towerS9(0),
        em(0), emS9(0), emS25(0), emMax(0),
        had(0), hadS9(0), hadMax(0),
-       ho(0), hoS9(0), ecal_time(0), hcal_time(0)
+	   ho(0), hoS9(0), ecal_time(0), ecal_timeError(0), hcal_time(0), hcal_timeError(0)
 	 { }
        
     };
