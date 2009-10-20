@@ -22,6 +22,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/GeneratorProducts>                                                                                
 <use name=SimTracker/TrackAssociation>
+<use name=SimTracker/Records>
 
 <use name=rootrflx>
 
