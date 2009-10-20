@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalPi0Mon = cms.EDFilter("DQMSourcePi0",
+EcalPi0MonDQM = cms.EDFilter("DQMSourcePi0",
     prescaleFactor = cms.untracked.int32(1),
     FolderName = cms.untracked.string('AlCaReco/EcalPi0'),
 
