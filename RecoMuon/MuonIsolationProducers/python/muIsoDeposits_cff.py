@@ -10,9 +10,10 @@ import FWCore.ParameterSet.Config as cms
 #the default set of includes
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_setup_cff import *
 #the default set of modules first
-from RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi import *
-from RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi import *
-from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi import *
+#from RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi import *
+#from RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi import *
+#from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi import *
+from RecoMuon.MuonIsolationProducers.muIsoDepositCopies_cfi import *
 from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi import *
 import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
 muParamGlobalIsoDepositCtfTk = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
