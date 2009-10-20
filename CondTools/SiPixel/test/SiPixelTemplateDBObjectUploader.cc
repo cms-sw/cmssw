@@ -1,14 +1,25 @@
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectUploader.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject0TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include <fstream>
 
 SiPixelTemplateDBObjectUploader::SiPixelTemplateDBObjectUploader(const edm::ParameterSet& iConfig):
 	theTemplateCalibrations( iConfig.getParameter<vstring>("siPixelTemplateCalibrations") ),
-	theVersion( iConfig.getParameter<double>("Version") )
+	theTemplateBaseString( iConfig.getParameter<std::string>("theTemplateBaseString") ),
+	theVersion( iConfig.getParameter<double>("Version") ),
+	theMagField( iConfig.getParameter<double>("MagField") ),
+	theDetIds( iConfig.getParameter<std::vector<uint32_t> >("detIds") ),
+	theTemplIds( iConfig.getParameter<std::vector<uint32_t> >("templateIds") )
 {
 }
 
@@ -23,12 +34,7 @@ SiPixelTemplateDBObjectUploader::beginJob(const edm::EventSetup&)
 }
 
 void
-SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
-void 
-SiPixelTemplateDBObjectUploader::endJob()
+SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 {
 	//--- Make the POOL-ORA object to store the database object
 	SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
@@ -43,7 +49,7 @@ SiPixelTemplateDBObjectUploader::endJob()
 	// Set the version of the template dbobject - this is an external parameter
 	obj->setVersion(theVersion);
 
-	//  open the template file(s) 
+	// Open the template file(s) 
 	for(m=0; m< obj->numOfTempl(); ++m){
 
 		edm::FileInPath file( theTemplateCalibrations[m].c_str() );
@@ -52,7 +58,7 @@ SiPixelTemplateDBObjectUploader::endJob()
 		std::ifstream in_file(tempfile, std::ios::in);
 			
 		if(in_file.is_open()){
-			edm::LogInfo("SiPixelTemplateDBObjectUploader") << "Opened Template File: " << file.fullPath().c_str() << std::endl;
+			edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
 			// Local variables 
 			char title_char[80], c;
@@ -84,38 +90,84 @@ SiPixelTemplateDBObjectUploader::endJob()
 				in_file >> tempstore;
 			}
 			
-
 			in_file.close();
 		}
 		else {
 			// If file didn't open, report this
-			edm::LogError("SiPixelTemplateDBObjectUploader") << "Error opening File" << tempfile << std::endl;
+			edm::LogError("SiPixelTemplateDBObjectUploader") << "Error opening File" << tempfile;
 		}
 	}
+	
+	edm::ESHandle<TrackerGeometry> pDD;
+	es.get<TrackerDigiGeometryRecord>().get( pDD );
+	
+	for(unsigned int i=0; i<theDetIds.size(); ++i) {
+		short s_detid = (short) theDetIds[i];
+		short templid = (short) theTemplIds[i];
 		
+		DetId theDetid(s_detid);
+		if(s_detid!=0 && s_detid!=1 && s_detid!=2) {
+			if ( ! (*obj).putTemplateID( theDetid.rawId(),templid ) ) {
+				edm::LogInfo("Template Info") << " Could not fill specified det unit: " << theDetid;
+			}
+		}
+		else {
+			edm::LogInfo("DetUnit Info")<<" There are "<<pDD->detUnits().size()<<" detectors";
+		}
+		for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+			
+			if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+				DetId detid=(*it)->geographicalId();
+				
+				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) &&
+					(detid.subdetId() == s_detid || s_detid == 0) ) {
+					if ( ! (*obj).putTemplateID( detid.rawId(),templid ) )
+						edm::LogInfo("Template Info") << " Could not fill barrel det unit";
+				}
+				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) &&
+					(detid.subdetId() == s_detid || s_detid == 0) ) {
+					if ( ! (*obj).putTemplateID( detid.rawId(),templid ) )
+						edm::LogInfo("Template Info") << " Could not fill endcap det unit";
+				}
+			}
+			else {
+				//edm::LogInfo("Template Info")<< "Detid is Pixel but neither bpix nor fpix";
+			}
+		}
+	}
+	
 	// Uncomment to output the contents of the db object at the end of the job
-	//std::cout << *obj << std::endl;
+	//	std::cout << *obj << std::endl;
+	//std::map<unsigned int,short> templMap=(*obj).getTemplateIDs();
+	//for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it)
+		//std::cout<< "Map:\n"<< "DetId: "<< it->first << " TemplateID: "<< it->second <<"\n";
 
+
+	
   //--- Create a new IOV
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	
   if( poolDbService.isAvailable() ) {
-    if ( poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd") )
+		if ( poolDbService->isNewTagRequest(theTemplateBaseString + "Rcd") )
       poolDbService->
 				createNewIOV<SiPixelTemplateDBObject>( obj,
 					poolDbService->beginOfTime(),
 					poolDbService->endOfTime(),
-					"SiPixelTemplateDBObjectRcd"  );
-    else
+					theTemplateBaseString + "Rcd");
+		else
       poolDbService->
 				appendSinceTime<SiPixelTemplateDBObject>( obj, 
 					poolDbService->currentTime(),
-					"SiPixelTemplateDBObjectRcd" );
-  }
+					theTemplateBaseString + "Rcd");
+	}
   else {
     std::cout << "Pool Service Unavailable" << std::endl;
     // &&& throw an exception???
 	}
-	
+}
+
+void 
+SiPixelTemplateDBObjectUploader::endJob()
+{
 }
 

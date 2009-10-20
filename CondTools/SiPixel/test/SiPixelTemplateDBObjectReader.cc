@@ -1,5 +1,4 @@
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectReader.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include <iomanip>
 #include <fstream>
 #include <cmath>
@@ -11,7 +10,10 @@
 SiPixelTemplateDBObjectReader::SiPixelTemplateDBObjectReader(const edm::ParameterSet& iConfig):
 	theTemplateCalibrationLocation( iConfig.getParameter<std::string>("siPixelTemplateCalibrationLocation") ),
 	theDetailedTemplateDBErrorOutput( iConfig.getParameter<bool>("wantDetailedTemplateDBErrorOutput") ),
-	theFullTemplateDBOutput( iConfig.getParameter<bool>("wantFullTemplateDBOutput") )
+	theFullTemplateDBOutput( iConfig.getParameter<bool>("wantFullTemplateDBOutput") ),
+	theMagField( iConfig.getParameter<double>("MagneticField") ),
+	testStandalone( iConfig.getParameter<bool>("TestStandalone") ),
+	hasTriggeredWatcher(false)
 {
 }
 
@@ -27,13 +29,65 @@ SiPixelTemplateDBObjectReader::beginJob(const edm::EventSetup& setup)
 void
 SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup)
 {
-	if(SiPixelTemplateDBObjectWatcher_.check(setup)) {
+	//To test Standalone without the ESProducer
+	if(testStandalone) {
+		if(theMagField==0) {
+			if(SiPixTemplDBObj0TWatcher_.check(setup)) {
+				edm::ESHandle<SiPixelTemplateDBObject> templateH;
+				setup.get<SiPixelTemplateDBObject0TRcd>().get(templateH);
+				dbobject = *templateH.product();
+				hasTriggeredWatcher=true;
+			}
+		}
+		else if(theMagField>3.9 && theMagField<4.1) {
+			if(SiPixTemplDBObj4TWatcher_.check(setup)) {
+				edm::ESHandle<SiPixelTemplateDBObject> templateH;
+				setup.get<SiPixelTemplateDBObject4TRcd>().get(templateH);
+				dbobject = *templateH.product();
+				hasTriggeredWatcher=true;
+			}
+		}
+		else {
+			//      if(theMagField<3.7 || theMagField>=4.1) edm::LogWarning("UnexpectedMagFieldUsingDefaultPixelTemplate") << "Mag field is "	<< theMagField;
+			if(SiPixTemplDBObj38TWatcher_.check(setup)) {
+				edm::ESHandle<SiPixelTemplateDBObject> templateH;
+				setup.get<SiPixelTemplateDBObject38TRcd>().get(templateH);
+				dbobject = *templateH.product();
+				hasTriggeredWatcher=true;
+			}
+		}
+	}
+	else {
+		if(SiPixTemplDBObjectWatcher_.check(setup)) {
+			edm::ESHandle<SiPixelTemplateDBObject> templateH;
+			setup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateH);
+			dbobject = *templateH.product();
+			hasTriggeredWatcher=true;
+		}
+	}
+	if(hasTriggeredWatcher) {
+		std::vector<short> tempMapId;
 		
-		edm::ESHandle<SiPixelTemplateDBObject> templateH;
-		setup.get<SiPixelTemplateDBObjectRcd>().get(templateH);
+		if(theFullTemplateDBOutput) std::cout << "Map info" << std::endl;
+		std::map<unsigned int,short> templMap=dbobject.getTemplateIDs();
+		for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it) {
+			if(tempMapId.size()==0) tempMapId.push_back(it->second);
+			for(unsigned int i=0; i<tempMapId.size();++i) {
+				if(tempMapId[i]==it->second) continue;
+				else if(i==tempMapId.size()-1) {
+					tempMapId.push_back(it->second);
+					break;
+				}
+			}
+			if(theFullTemplateDBOutput)
+				std::cout<< "DetId: "<< it->first<<" TemplateID: "<< it->second<<"\n";
+		}
 		
-		SiPixelTemplateDBObject dbobject = *templateH.product();
-
+		std::cout << "\nMap stores template Id(s): ";
+		for(unsigned int vindex=0; vindex < tempMapId.size(); ++ vindex)
+			std::cout << tempMapId[vindex] << " ";
+		std::cout << std::endl;
+		
 		//local variables
 		const char * tempfile;
 		char c;
@@ -42,13 +96,13 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 		float tempnum=0,diff=0;
 		float tol = 1.0E-23;
 		bool error=false,givenErrorMsg=false;;
-
-		std::cout << "\nChecking Template DB object version " << dbobject.version() << " containing " << numOfTempl << " calibration(s)\n";
+		
+		std::cout << "\nChecking Template DB object version " << dbobject.version() << " containing " << numOfTempl << " calibration(s) at " << dbobject.sVector()[index+22] <<"T\n";
 		for(int i=0; i<numOfTempl;++i) {
 			
 			//Removes header in db object from diff
 			index+=20;
-
+			
 			//Tell the person viewing the output what the template ID and version are -- note that version is only valid for >=13
 			std::cout << "Calibration " << i+1 << " of " << numOfTempl << ", with Template ID " << dbobject.sVector()[index]
 								<< "\tand Version " << dbobject.sVector()[index+1] <<"\t--------  ";
@@ -61,21 +115,21 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 			edm::FileInPath file( tout.str());
 			tempfile = (file.fullPath()).c_str();
 			std::ifstream in_file(tempfile, std::ios::in);
-
+			
 			if(in_file.is_open()) {
 				
 				//Removes header in textfile from diff
 				for(int header=0; (c=in_file.get()) != '\n'; ++header) {}
-
+				
 				//First read in from the text file -- this will be compared with index = 20
 				in_file >> tempnum;
-
+				
 				//Read until the end of the current text file
 				while(!in_file.eof())
 				{
 					//Calculate the difference between the text file and the db object
 					diff = std::abs(tempnum - dbobject.sVector()[index]);
-
+					
 					//Is there a difference?
 					if(diff > tol) {
 						//We have the if statement to output the message only once
@@ -99,7 +153,7 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 			in_file.close();
 			givenErrorMsg = false;
 		}//end loop over all files
-
+		
 		if(error && !theDetailedTemplateDBErrorOutput)
 			std::cout << "\nThe were differences found between the files and the database.\n"
 								<< "If you would like more detailed information please set\n"
@@ -111,6 +165,7 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 		if(theFullTemplateDBOutput) std::cout << dbobject << std::endl;
 	}
 }
+
 
 void 
 SiPixelTemplateDBObjectReader::endJob()
@@ -135,17 +190,12 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 	for(m=0; m < dbobject.numOfTempl(); ++m) 
 	{
 		//To change the size of the output based on which template version we are using"
-		//For 11 and 12, version is the 14th element after the header
 		templateVersion = (int) dbobject.sVector_[index+21];
-		//For backwards compatibility when the version was at the end of a variable string
-		if(templateVersion == 60) templateVersion = (int) dbobject.sVector_[index+33];
 		if(templateVersion<=10) {
 			std::cout << "*****WARNING***** This code will not format this template version properly *****WARNING*****\n";
 			sizeSetter=0;
 		}
-		else if(templateVersion==11) sizeSetter=1;
-		else if(templateVersion==12) sizeSetter=1;
-		else if(templateVersion==13) sizeSetter=1;
+		else if(templateVersion<=16) sizeSetter=1;
 		else std::cout << "*****WARNING***** This code has not been tested at formatting this version *****WARNING*****\n";
 		
 		std::cout << "\n\n*********************************************************************************************" << std::endl;
@@ -161,37 +211,18 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 			++index;
 		}
 
-		//In Version 13, we changed the order of the header, where the version was moved to before this information
-		if(templateVersion<13) {
-			entries[0] = (int)dbobject.sVector_[index+1];                                //Barrel Y
-			entries[1] = (int)(dbobject.sVector_[index+2]*dbobject.sVector_[index+3]);   //Barrel X
-			entries[2] = (int)dbobject.sVector_[index+4];                                //Forward Y
-			entries[3] = (int)(dbobject.sVector_[index+5]*dbobject.sVector_[index+6]);   //Forward X
-		}
-		else {
-			entries[0] = (int)dbobject.sVector_[index+2];                                //Barrel Y
-			entries[1] = (int)(dbobject.sVector_[index+3]*dbobject.sVector_[index+4]);   //Barrel X
-			entries[2] = (int)dbobject.sVector_[index+5];                                //Forward Y
-			entries[3] = (int)(dbobject.sVector_[index+6]*dbobject.sVector_[index+7]);   //Forward X
-		}			
-		
+		entries[0] = (int) dbobject.sVector_[index+3];                               // Y
+		entries[1] = (int)(dbobject.sVector_[index+4]*dbobject.sVector_[index+5]);   // X
+				
 		//Header
-		s         << dbobject.sVector_[index]    << "\t" << dbobject.sVector_[index+1]  << "\t" << dbobject.sVector_[index+2]
-			<< "\t" << dbobject.sVector_[index+3]  << "\t" << dbobject.sVector_[index+4]  << "\t" << dbobject.sVector_[index+5]
-			<< "\t" << dbobject.sVector_[index+6]  << "\t" << dbobject.sVector_[index+7]  << "\t" << dbobject.sVector_[index+8]
-			<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10] << "\t" << dbobject.sVector_[index+11]
-      << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13];
-
-		//Extended Header for internal version >=13
-		if(templateVersion<13) {
-			s << std::endl;
-			index += 14;
-		}
-		else {
-			s << "\t" << dbobject.sVector_[index+14] << "\t" << dbobject.sVector_[index+15] << std::endl;
-			index += 16;
-		}
-
+		s        << dbobject.sVector_[index]   <<"\t"<< dbobject.sVector_[index+1]  <<"\t"<< dbobject.sVector_[index+2]
+			<<"\t"<< dbobject.sVector_[index+3]  <<"\t"<< dbobject.sVector_[index+4]  <<"\t"<< dbobject.sVector_[index+5]
+			<<"\t"<< dbobject.sVector_[index+6]  <<"\t"<< dbobject.sVector_[index+7]  <<"\t"<< dbobject.sVector_[index+8]
+			<<"\t"<< dbobject.sVector_[index+9]  <<"\t"<< dbobject.sVector_[index+10] <<"\t"<< dbobject.sVector_[index+11]
+      <<"\t"<< dbobject.sVector_[index+12] <<"\t"<< dbobject.sVector_[index+13] <<"\t"<< dbobject.sVector_[index+14]
+			<<"\t"<< dbobject.sVector_[index+15] <<"\t"<< dbobject.sVector_[index+16] << std::endl;
+		index += 17;
+			
 		//Loop over By,Bx,Fy,Fx
 		for(entry_it=0;entry_it<4;++entry_it) {
 			//Run,costrk,qavg,...,clslenx
@@ -318,29 +349,25 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 					}
 					s << std::endl;
 				}
-				//New Paramters introduced in version 12 for CPE Generic
-				if(templateVersion>=12)
+				//Y average reco params for CPE Generic
+				for(j=0;j<4;++j)
 				{
-					//Y average reco params for CPE Generic
-					for(j=0;j<4;++j)
+					for(k=0;k<4;++k)
 					{
-						for(k=0;k<4;++k)
-						{
-							s << dbobject.sVector_[index] << "\t";
-							++index;
-						}
-						s << std::endl;
+						s << dbobject.sVector_[index] << "\t";
+						++index;
 					}
-					//X average reco params for CPE Generic
-					for(j=0;j<4;++j)
+					s << std::endl;
+				}
+				//X average reco params for CPE Generic
+				for(j=0;j<4;++j)
+				{
+					for(k=0;k<4;++k)
 					{
-						for(k=0;k<4;++k)
-						{
-							s << dbobject.sVector_[index] << "\t";
-							++index;
-						}
-						s << std::endl;
+						s << dbobject.sVector_[index] << "\t";
+						++index;
 					}
+					s << std::endl;
 				}
 				//SpareX,Y
 				for(j=0;j<20;++j)
