@@ -209,6 +209,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     double cosDpsi  = (gv.x()*innerPoint.x() + gv.y()*innerPoint.y());
     cosDpsi /= sqrt(innerPoint.x()*innerPoint.x() + innerPoint.y()*innerPoint.y());
     cosDpsi /= sqrt(gv.x()*gv.x() + gv.y()*gv.y());
+    cosDpsi = cosDpsi > 1 ? 1 : cosDpsi;
+    cosDpsi = cosDpsi < -1 ? -1 : cosDpsi;
 
     double axb = ( innerPoint.x()*gv.y() ) - ( innerPoint.y()*gv.x() ) ;
     sign = (axb < 0.) ? 1 : -1;
