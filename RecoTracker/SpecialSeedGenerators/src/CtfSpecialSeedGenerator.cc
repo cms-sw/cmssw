@@ -38,12 +38,13 @@ CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
 }
 
 void CtfSpecialSeedGenerator::endRun(edm::Run &, edm::EventSetup const&){
-    if (theSeedBuilder) delete theSeedBuilder;
-    if (theRegionProducer) delete theRegionProducer;
+    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
+    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
     std::vector<OrderedHitsGenerator*>::iterator iGen;	
     for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
         delete (*iGen);
     }
+    theGenerators.clear();
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run &, const edm::EventSetup& iSetup){
