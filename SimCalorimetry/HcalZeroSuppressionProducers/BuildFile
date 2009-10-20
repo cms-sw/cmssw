@@ -6,7 +6,7 @@
 <use name=boost>
 
 <export>
-  <lib name=SimCalorimetryHcalZeroSuppressionAlgos>
+  <lib name=SimCalorimetryHcalZeroSuppressionProducers>
   <use name=SimCalorimetry/HcalZeroSuppressionAlgos>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
