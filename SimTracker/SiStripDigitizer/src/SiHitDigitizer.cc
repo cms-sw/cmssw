@@ -51,20 +51,9 @@ SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, Glob
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
   
   // Fully process one SimHit
-  /*
-  SiChargeCollectionDrifter::ionization_type ion = theSiChargeDivider->divide(hit, driftDir, moduleThickness, det);
-  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,
-				    locAmpl,firstChannelWithSignal,lastChannelWithSignal);
-  */
   theSiInduceChargeOnStrips->induce(
       theSiChargeCollectionDrifter->drift(
           theSiChargeDivider->divide(hit, driftDir, moduleThickness, det),
           driftDir,moduleThickness,timeNormalisation),
       det,locAmpl,firstChannelWithSignal,lastChannelWithSignal);
 }
-/*
-LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield,float langle){
-  LocalVector Bfield=Frame(_detp->surface().position(),_detp->surface().rotation()).toLocal(_bfield);
-  return LocalVector(-langle * Bfield.y(),langle * Bfield.x(),1.);
-}
-*/

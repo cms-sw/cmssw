@@ -1,7 +1,5 @@
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 
-
-
 SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
 								 double cdr,
 								 double dv,
@@ -30,36 +28,6 @@ SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drif
 
 SignalPoint SiLinearChargeCollectionDrifter::drift
 (const EnergyDepositUnit& edu, const LocalVector& drift) {
-  /*
-  double tanLorentzAngleX = drift.x()/drift.z();
-  double tanLorentzAngleY = drift.y()/drift.z();
-  
-  double segX = (edu).x();
-  double segY = (edu).y();
-  double segZ = (edu).z();
-  
-  double thicknessFraction = (moduleThickness/2.-segZ)/moduleThickness ; 
-  // fix the bug due to  rounding on entry and exit point
-  thicknessFraction = thicknessFraction>0. ? thicknessFraction : 0. ;
-  thicknessFraction = thicknessFraction<1. ? thicknessFraction : 1. ;
-  
-  double driftTime = -timeNormalisation*
-    log(1.-2*depletionVoltage*thicknessFraction/
-	(depletionVoltage+appliedVoltage))
-    +chargeDistributionRMS;  
-  
-  double sigma = sqrt(2.*diffusionConstant*driftTime);
-
-  double xDriftDueToMagField // Drift along X due to BField
-    = (moduleThickness/2. - segZ)*tanLorentzAngleX;
-  double yDriftDueToMagField // Drift along Y due to BField
-    = (moduleThickness/2. - segZ)*tanLorentzAngleY;
-  double positionX = segX + xDriftDueToMagField;
-  double positionY = segY + yDriftDueToMagField;
-  
-  return SignalPoint(positionX,positionY,sigma,
-		     (edu).energy());
-  */
   // computes the fraction of the module the charge has to drift through,
   // ensuring it is bounded in [0,1]
   double depth = (moduleThickness/2.-edu.z());
