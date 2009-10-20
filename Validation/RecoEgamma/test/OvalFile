@@ -49,68 +49,16 @@ some RelVal reco files which have been regenerated locally.
 </file>
   
 Here comes the concrete executables to run. They are split among few different
-environments, each one defining the relevant variales for a given data sample.
-Running dbs_discovery.py is only usefull to check the correctness of the list of
-input data files returned by the data discovery web server. We guess that from
-time to time we will have to upgrade the values DBS_* variable so to keep in
+environments, each one defining the relevant variales for a given scenario and/or
+data sample. Running dbs_discovery.py is only usefull to check the correctness
+of the list of input data files returned by the data discovery web server. We guess
+that from time to time we will have to upgrade the values DBS_* variable so to keep in
 touch with changes in data catalog structure.
 
-<environment name="WorkflowCheck">
-
-This sequence of commands is meant to check if the automatic validation is performing
-well. You can run it all with the command "oval run %Step%". Until egammaValidation_cff.py
-is integrated into the official automatic sequence, one must check out Configuration/StandardSequences
-and add our egammaValidation_cff.py within.
-
-  <environment name="Step1Pt35">
-    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1Pt35Raw_cfg.py --fileout=Step1Pt35Raw.root --mc --no_exec">
-    <executable name="cmsRun" args="Step1Pt35Raw_cfg.py">
-  </environment>
-  
-  <environment name="Step2Pt35">
-    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:Step1Pt35Raw.root -n 10 --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step2Pt35Reco_cfg.py --fileout=Step2Pt35Reco.root --mc --no_exec">
-    <executable name="cmsRun" args="Step2Pt35Reco_cfg.py">
-  </environment>
-
-  <environment name="Step3Pt35">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:Step2Pt35Reco.root  --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step3Pt35Histos_cfg.py --mc --no_exec">
-    <executable name="cmsRun" args="Step3Pt35Histos_new_cfg.py">
-  </environment>
-
-  <environment name="Step4Pt35">
-    <var name="VAL_NEW_FILE" value="DQM_V0001_R000000001__Pt35__CMSSW_${TEST_RELEASE}__RECO.root">
-    <var name="VAL_REF_FILE" value="DQM_V0001_R000000001__Pt35__CMSSW_${TEST_RELEASE}__RECO.root">
-    <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
-    <executable name="electronValidation.csh" args="Step4 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WorkflowCheckPt35">
-  </environment>
-
-  <environment name="Step1Qcd">
-    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 5 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1QcdRaw_cfg.py --fileout=Step1QcdRaw.root --mc --no_exec">
-    <executable name="cmsRun" args="Step1QcdRaw_cfg.py">
-  </environment>
-  
-  <environment name="Step2Qcd">
-    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:Step1QcdRaw.root -n 5 --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step2QcdReco_cfg.py --fileout=Step2QcdReco.root --mc --no_exec">
-    <executable name="cmsRun" args="Step2QcdReco_cfg.py">
-  </environment>
-
-  <environment name="Step3Qcd">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:Step2QcdReco.root --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step3QcdHistos_cfg.py --mc --no_exec">
-    <executable name="cmsRun" args="Step3QcdHistos_new_cfg.py">
-  </environment>
-
-  <environment name="Step4Qcd">
-    <var name="VAL_NEW_FILE" value="DQM_V0001_R000000001__Qcd__CMSSW_${TEST_RELEASE}__RECO.root">
-    <var name="VAL_REF_FILE" value="DQM_V0001_R000000001__Qcd__CMSSW_${TEST_RELEASE}__RECO.root">
-    <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
-    <executable name="electronValidation.csh" args="Step4 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WorkflowCheckQcd">
-  </environment>
-
-</environment>
-  
 <environment name="FullSimStdStats">
 
 This set of targets is currently used for the validation
+of electrons.
 
   <var name="DBS_COND" value="MC_31X_V9-v*">
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
@@ -155,12 +103,35 @@ This set of targets is currently used for the validation
     <executable name="electronValidation.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">
   </environment>
   
-  <environment name="FullQcdPt80-120">
+  <environment name="FullQcdPt80Pt120">
     <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
     <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
-    <!--executable name="dbs_discovery.py"-->
-    <!--executable name="cmsRun" args="ElectronMcFakeValidation_cfg.py"-->
-    <!--executable name="electronValidation.csh" args="FullQcdPt80-120 ${TEST_OUTPUT_FILE}"-->
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="ElectronMcFakeValidation_cfg.py">
+    <executable name="electronValidation.csh" args="FullQcdPt80Pt120 ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+</environment>
+
+<environment name="Photons">
+
+Those few photons datasets are checked so to compare
+size and performance with electrons.
+
+  <var name="DBS_COND" value="MC_31X_V9-v*">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value=""-->
+
+  <environment name="PhotonPt35">
+    <var name="DBS_SAMPLE" value="RelValSingleGammaPt35">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="PhotonValidation_cfg.py">
+  </environment>
+  
+  <environment name="PhotonQcdPt80-120">
+    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="PhotonValidation_cfg.py">
   </environment>
   
 </environment>
