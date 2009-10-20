@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/09/04 19:47:20 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/09/12 20:33:33 $
+ *  $Revision: 1.11 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -158,16 +158,17 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
   reco::TransientTrack track(globalTrack,&*(theService->magneticField()),theService->trackingGeometry());
   
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
-    if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker )
+    if ((*hit)->isValid()) {
+      if ((*hit)->geographicalId().det() == DetId::Tracker)
 	allRecHitsTemp.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
-	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
+      else if ((*hit)->geographicalId().det() == DetId::Muon) {
+	if ((*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
 	  LogTrace(theCategory) << "RPC Rec Hit discarged"; 
 	  continue;
 	}
 	allRecHitsTemp.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+    }  
   vector<Trajectory> refitted = refit(globalTrack,track,allRecHitsTemp,theMuonHitsOption);
   return refitted;
 }
