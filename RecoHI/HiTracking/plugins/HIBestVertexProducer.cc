@@ -39,76 +39,85 @@ void HIBestVertexProducer::produce
 (edm::Event& ev, const edm::EventSetup& es)
 {
   
+  // 1. use best adaptive vertex preferentially
+  // 2. use median vertex in case where adaptive algorithm failed
+  // 3. use beamspot if netither vertexing method succeeds
+
   // New vertex collection
-  std::auto_ptr<reco::VertexCollection> newVertex(new reco::VertexCollection);
+  std::auto_ptr<reco::VertexCollection> newVertexCollection(new reco::VertexCollection);
 
-  // Get reconstructed vertex collections ---------------------------
-  math::XYZPoint vtxPoint(0.0,0.0,0.0);
-  double vzErr =0.0;
-
-  // Get precise adaptive vertex 
+  //** Get precise adaptive vertex **/
   edm::Handle<reco::VertexCollection> vc1;
   ev.getByLabel("hiBestAdaptiveVertex", vc1);
-  const reco::VertexCollection * vertices1 = vc1.product();
+  const reco::VertexCollection *vertices1 = vc1.product();
+  
+  if(vertices1->size()==0)
+    LogError("HeavyIonVertexing") << "adaptive vertex collection is empty!" << endl;
 
-  if(vertices1->size()>0) {
-    vtxPoint = vertices1->begin()->position();
-    vzErr = vertices1->begin()->zError();
-    LogInfo("HeavyIonVertexing") << "Selected adaptive vertex:"
-				 << "\n   vz = " << vtxPoint.Z()  
-				 << "\n   vzErr = " << vzErr;
+  if(vertices1->begin()->zError()<3) { 
+  
+    reco::VertexCollection::const_iterator vertex1 = vertices1->begin();
+    newVertexCollection->push_back(*vertex1);
+
+    LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" 
+				 << vertex1->x() << ", " << vertex1->y() << ", " << vertex1->z() << ")" 
+				 << "\n error = ("
+				 << vertex1->xError() << ", " << vertex1->yError() << ", " 
+				 << vertex1->zError() << ")" << endl;
+  
   } else {
-    LogError("HeavyIonVertexing") << "No vertex found in collection '" 
-                                  //<< vertexCollection1_ << "'";
-				  << "hiSelectedVertex" << "'";
-  }
+    
+    //** Get fast median vertex **/
+    edm::Handle<reco::VertexCollection> vc2;
+    ev.getByLabel("hiPixelMedianVertex", vc2);
+    const reco::VertexCollection * vertices2 = vc2.product();
+    
+    //** Get beam spot position and error **/
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    ev.getByLabel("offlineBeamSpot", beamSpotHandle);
 
-  // Get fast median vertex
-  edm::Handle<reco::VertexCollection> vc2;
-  ev.getByLabel("hiPixelMedianVertex", vc2);
-  const reco::VertexCollection * vertices2 = vc2.product();
+    if( beamSpotHandle.isValid() ) 
+      beamSpot = *beamSpotHandle;
+    else
+      LogError("HeavyIonVertexing") << "no beamspot with name: 'offlineBeamSpot'" << endl;
 
-  if(vertices2->size()>0) {
-    vtxPoint = vertices2->begin()->position();
-    vzErr = vertices2->begin()->zError();
-    LogInfo("HeavyIonVertexing") << "Median vertex:"
-				 << "\n   vz = " << vtxPoint.Z()  
-				 << "\n   vzErr = " << vzErr;
-  } else {
-    LogError("HeavyIonVertexing") << "No vertex found in collection '" 
-                                  //<< vertexCollection2_ << "'";
-				  << "hiPixelMedianVertex" << "'";
-  }
+    if(vertices2->size() > 0) { 
+      
+      reco::VertexCollection::const_iterator vertex2 = vertices2->begin();
+      reco::Vertex::Error err;
+      err(0,0)=pow(beamSpot.BeamWidthX(),2);
+      err(1,1)=pow(beamSpot.BeamWidthY(),2);
+      err(2,2)=pow(beamSpot.sigmaZ(),2);
+      reco::Vertex newVertex(reco::Vertex::Point(beamSpot.x0(),beamSpot.y0(),vertex2->z()),
+			     err, 0, 1, 1);
+      newVertexCollection->push_back(newVertex);  
 
-  // Get beamspot -------------------------------------------
+      LogInfo("HeavyIonVertexing") << "median vertex + beamspot: \n position = (" 
+				   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
+				   << "\n error = ("
+				   << newVertex.xError() << ", " << newVertex.yError() << ", " 
+				   << newVertex.zError() << ")" << endl;
+      
+    } else { 
+      
+      reco::Vertex newVertex(beamSpot.position(),
+			     beamSpot.covariance3D(), 
+			     0, 1, 1);
+      newVertexCollection->push_back(newVertex);  
 
-  math::XYZPoint bsPoint(0.0,0.0,0.0);
-  double bsWidth = 0.0;
-
-  reco::BeamSpot beamSpot;
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  ev.getByLabel("offlineBeamSpot", beamSpotHandle);
-  	
-  if ( beamSpotHandle.isValid() ) {
-    beamSpot = *beamSpotHandle;
-    bsPoint = beamSpot.position();
-    bsWidth = sqrt(beamSpot.BeamWidthX()*beamSpot.BeamWidthY());
-    LogInfo("HeavyIonVertexing") << "Beamspot (x,y,z) = (" << bsPoint.X() 
-				 << "," << bsPoint.Y() << "," << bsPoint.Z() 
-				 << ")" << "\n   width = " << bsWidth;
-  } else {
-    edm::LogError("HeavyIonVertexing") << "No beam spot available from '" 
-                                       //<< beamSpotLabel_ << "'\n";
-				       << "offlineBeamSpot" << "'\n";
+      LogInfo("HeavyIonVertexing") << "beam spot: \n position = (" 
+				   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
+				   << "\n error = ("
+				   << newVertex.xError() << ", " << newVertex.yError() << ", " 
+				   << newVertex.zError() << ")" << endl;
+      
+    }
+    
   }
   
-  // Set vertex position and error ---------------------------
-  reco::Vertex::Error err;
-  err(2,2) = 0.1 * 0.1;
-  reco::Vertex ver(reco::Vertex::Point(0,0,0),err, 0, 1, 1);
-  newVertex->push_back(ver);
+  // put new vertex collection into event
+  ev.put(newVertexCollection);
   
-  ev.put(newVertex);
-
 }
 

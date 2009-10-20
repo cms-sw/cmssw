@@ -7,7 +7,7 @@ hiSelectedTracks = cms.EDProducer("AnalyticalTrackSelector",
                            
     vertices = cms.InputTag("hiSelectedVertex"),
     vtxNumber = cms.int32(-1),
-    vtxTracks = cms.uint32(2), ## at least 3 tracks by default
+    vtxTracks = cms.uint32(0), ## at least 3 tracks by default
     vtxChi2Prob = cms.double(0.01), ## at least 1% chi2nprobability (if it has a chi2)
 
     copyTrajectories = cms.untracked.bool(True),  ## false by default, needed by TrackClusterRemover
