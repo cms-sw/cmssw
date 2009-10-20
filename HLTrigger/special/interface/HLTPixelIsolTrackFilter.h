@@ -15,9 +15,10 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
       double maxptnearby;    
       double minpttrack;        
       double maxetatrack;
-      double minetatrack;
       bool filterE_;
       double minEnergy_;
+      int nMaxTrackCandidates_;
+      bool dropMultiL2Event_;
 };
 
 #endif 

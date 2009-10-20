@@ -17,14 +17,14 @@
 
 HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig)
 {
-  candTag_ = iConfig.getParameter<edm::InputTag> ("candTag");
-  minpttrack = iConfig.getParameter<double> ("MinPtTrack");
-  maxptnearby  = iConfig.getParameter<double> ("MaxPtNearby");
-  maxetatrack  = iConfig.getParameter<double> ("MaxEtaTrack");
-  minetatrack = iConfig.getParameter<double> ("MinEtaTrack");
-  filterE_ = iConfig.getParameter<bool> ("filterTrackEnergy");
-  minEnergy_=iConfig.getParameter<double>("MinEnergyTrack");
-
+  candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
+  minpttrack           = iConfig.getParameter<double> ("MinPtTrack");
+  maxptnearby          = iConfig.getParameter<double> ("MaxPtNearby");
+  maxetatrack          = iConfig.getParameter<double> ("MaxEtaTrack");
+  filterE_             = iConfig.getParameter<bool> ("filterTrackEnergy");
+  minEnergy_           = iConfig.getParameter<double>("MinEnergyTrack");
+  nMaxTrackCandidates_ = iConfig.getParameter<int>("NMaxTrackCandidates");
+  dropMultiL2Event_    = iConfig.getParameter<bool> ("DropMultiL2Event");
   //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -46,29 +46,37 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 
   //Filtering
 
-  unsigned int n=0;
-
+  int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++)
     {
       candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
 
+      // select on transverse momentum
       if (!filterE_&&(candref->maxPtPxl()<maxptnearby)&&
-	  (candref->pt()>minpttrack)&&fabs(candref->track()->eta())<maxetatrack&&fabs(candref->track()->eta())>minetatrack)
+	  (candref->pt()>minpttrack)&&fabs(candref->track()->eta())<maxetatrack)
 	{
 	  filterproduct->addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
+
+      // select on momentum
       if (filterE_){
-      if ((candref->maxPtPxl()<maxptnearby)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack&&fabs(candref->track()->eta())>minetatrack)
-        {
-          filterproduct->addObject(trigger::TriggerTrack, candref);
-	  n++;
-        }
-	}
-    }
+	if ((candref->maxPtPxl()<maxptnearby)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack)
+	  {
+	    filterproduct->addObject(trigger::TriggerTrack, candref);
+	    n++;
+	  }
+      }
+
+      // stop looping over tracks if max number is reached
+      if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break; 
+
+    } // loop over tracks
   
   
   bool accept(n>0);
+
+  if( dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;
 
   filterproduct->addCollectionTag(candTag_);
 
