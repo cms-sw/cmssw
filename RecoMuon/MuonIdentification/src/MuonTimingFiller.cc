@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.4 2009/10/16 09:34:46 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.5 2009/10/19 16:40:59 ptraczyk Exp $
 //
 //
 
@@ -138,7 +138,7 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
     vertexTimeRErr+=diff*diff*tmSeq.weight.at(i);
   }
   
-  double cf = 1./(tmSeq.dstnc.size()-1);
+  double cf = fabs(1./(tmSeq.dstnc.size()-1.+1e-8));//can a zero happen here?
   invbetaerr=sqrt(invbetaerr/tmSeq.totalWeight*cf);
   vertexTimeErr=sqrt(vertexTimeErr/tmSeq.totalWeight*cf);
   vertexTimeRErr=sqrt(vertexTimeRErr/tmSeq.totalWeight*cf);
