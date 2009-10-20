@@ -13,7 +13,7 @@ def adaptPFMuons(process,module):
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral"),
@@ -43,7 +43,7 @@ def adaptPFElectrons(process,module):
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral"),

@@ -101,19 +101,19 @@ def makePATTrackCandidates(process,
         ## loop items in isolation
         if(source == 'tracker'):
             runIsoDeps['tracker'] = True
-            l1cands.isolation.tracker = cms.PSet(
+            l1cands.userIsolation.tracker = cms.PSet(
                     src    = cms.InputTag('pat'+label+'IsoDepositTracks'),
                     deltaR = cms.double(deltaR),
             )
         elif(source == 'ecalTowers'):
             runIsoDeps['caloTowers'] = True
-            l1cands.isolation.ecal = cms.PSet(
+            l1cands.userIsolation.ecal = cms.PSet(
                     src    = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'ecal'),
                     deltaR = cms.double(deltaR),
             )
         elif(source == 'hcalTowers'):
             runIsoDeps['caloTowers'] = True
-            l1cands.isolation.hcal = cms.PSet(
+            l1cands.userIsolation.hcal = cms.PSet(
                     src    = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'hcal'),
                     deltaR = cms.double(deltaR),
             )
