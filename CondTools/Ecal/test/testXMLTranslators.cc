@@ -3,10 +3,12 @@
 #include "CondTools/Ecal/interface/EcalIntercalibErrorsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
@@ -250,7 +252,7 @@ int main(){
   
   for (int cellid = 0; 
        cellid < EEDetId::kSizeForDenseIndexing; 
-       ++cellid){// loop on EB cells
+       ++cellid){// loop on Ee cells
     
     if (EEDetId::validHashIndex(cellid)){  
       
@@ -319,5 +321,50 @@ int main(){
 
   transWeight.writeXML(filew2,header2,tbw2);
     
+
+  // test laser
+  
+  std::string filelaser("/tmp/EcalLaserAPDPNratios.xml");
+  std::string filelaser2("/tmp/EcalLaserAPDPNratios-2.xml");
+
+  EcalLaserAPDPNRatios laserrecord1;
+  EcalLaserAPDPNRatios laserrecord2;
+
+  for (int cellid = 0; 
+	     cellid < EBDetId::kSizeForDenseIndexing; 
+	     ++cellid){// loop on EB cells
+    
+    
+    uint32_t rawid= EBDetId::unhashIndex(cellid);
+
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair pair;
+    pair.p1 =1;
+    pair.p2 =2;
+    pair.p3 =3;
+
+    laserrecord1.setValue(rawid,pair);
+    
+  } 
+  
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
+       ++cellid){// loop on Ee cells
+    
+    if (EEDetId::validHashIndex(cellid)){  
+      
+      uint32_t rawid= EEDetId::unhashIndex(cellid);
+      EcalLaserAPDPNRatios::EcalLaserAPDPNpair pair;
+      pair.p1 =1;
+      pair.p2 =2;
+      pair.p3 =3;
+      
+      laserrecord1.setValue(rawid,pair);
+    
+    } // if
+  } 
+
+  EcalLaserAPDPNRatiosXMLTranslator::writeXML(filelaser,header,laserrecord1);
+  EcalLaserAPDPNRatiosXMLTranslator::readXML(filelaser,header2,laserrecord2);
+  EcalLaserAPDPNRatiosXMLTranslator::writeXML(filelaser2,header2,laserrecord2);
   return 0;  
 }
