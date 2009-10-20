@@ -101,7 +101,7 @@ process_reports() {
 void MeasureLA::
 write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARITY gran ) {
   TFile file((name+".root").c_str(),"RECREATE");
-  std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+")";
+  std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+".*)";
   for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist) 
     (*hist)->Write();
   file.Close();
