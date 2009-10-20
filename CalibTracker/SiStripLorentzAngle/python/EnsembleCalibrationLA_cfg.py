@@ -5,6 +5,8 @@ process.add_(cms.Service("MessageLogger"))
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
+from CalibTracker.SiStripLorentzAngle.MeasureLA_cff import METHOD_MULTI, METHOD_SYMM, METHOD_WIDTH, METHOD_RATIO, METHOD_SQRTVAR
+
 process.calibration = cms.EDAnalyzer(
     "sistrip::EnsembleCalibrationLA",
     InputFiles = cms.vstring([]),
@@ -15,10 +17,7 @@ process.calibration = cms.EDAnalyzer(
     HighBin = cms.double(-0.0),
     Prefix = cms.untracked.string("peak_"),
     #MaxEvents = cms.untracked.uint32(9000),
-    useWIDTH = cms.untracked.bool(True),
-    useRATIO = cms.untracked.bool(True),
-    useSQRTVAR = cms.untracked.bool(True),
-    useSYMM = cms.untracked.bool(True)
+    Methods = cms.vint32(METHOD_MULTI, METHOD_SYMM, METHOD_WIDTH, METHOD_RATIO, METHOD_SQRTVAR)
     )
 
 process.calibration.InputFiles += ["/d2/bbetchar/LA_calibration/ttbar_peak/calibTree_peak.root"

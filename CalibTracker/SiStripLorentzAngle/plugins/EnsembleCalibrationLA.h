@@ -24,7 +24,7 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
   std::string inFileLocation, Prefix;
   unsigned maxEvents,samples, nbins;
   double lowBin,highBin;
-  bool useWIDTH,useRATIO,useSQRTVAR,useSYMM;
+  std::vector<unsigned> vMethods;
 };
 }
 #endif
