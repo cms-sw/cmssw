@@ -129,32 +129,32 @@ namespace popcon {
     typedef typename Source::Container Container;
     
     initialize();
-    std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
+    std::pair<Container const *, std::string const> ret = source(m_dbService->session(),
 								 m_tagInfo,m_logDBEntry); 
     Container const & payloads = *ret.first;
     
     
-   
-
+    
+    
     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + cond::userInfo() + displayIovHelper(payloads,m_since ) +  ret.second);
-     
-     
-     displayHelper(payloads,m_since);
-     
-     std::for_each(payloads.begin(),payloads.end(),
-		   boost::bind(&popcon::PopCon::writeOne<value_type>,this,
-			       boost::bind(&Container::value_type::payload,_1),
-			       boost::bind(&Container::value_type::summary,_1),
-			       boost::bind(&Container::value_type::time,_1)
-			       )
+    
+    
+    displayHelper(payloads,m_since);
+    
+    std::for_each(payloads.begin(),payloads.end(),
+		  boost::bind(&popcon::PopCon::writeOne<value_type>,this,
+			      boost::bind(&Container::value_type::payload,_1),
+			      boost::bind(&Container::value_type::summary,_1),
+			      boost::bind(&Container::value_type::time,_1)
+			      )
 		   );
-     
-     
-      finalize();
-    }
-
+    
+    
+    finalize();
+  }
   
-
+  
+  
 }
 
 #endif //  POPCON_POPCON_H

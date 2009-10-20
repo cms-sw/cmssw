@@ -230,7 +230,7 @@ void
 cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
-  if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIO not a new tag");
+  if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
   std::string iovToken;
   if(withlogging){
     m_logdb->getWriteLock();
@@ -241,7 +241,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   try{
     cond::DbScopedTransaction transaction(m_session);
     transaction.start(false);
-
+    
     cond::IOVService iovmanager(m_session);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     editor->create(myrecord.m_timetype, firstTillTime);
@@ -250,9 +250,9 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     iovToken=editor->token();
     editor->stamp(cond::userInfo(),false);
     delete editor;
-
+    
     transaction.commit();
-
+    
     cond::MetaData metadata(m_session);
     transaction.start(false);
     /*

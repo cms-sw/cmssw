@@ -32,28 +32,29 @@ namespace popcon {
     if(!m_dbService.isAvailable() ) throw Exception("DBService not available");
     
     m_tag = m_dbService->tag(m_record);
-    if (!m_dbService->isNewTagRequest(m_record) ) {
+    if( !m_dbService->isNewTagRequest(m_record) ) {
       m_dbService->tagInfo(m_record,m_tagInfo);
       // m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
-      if (m_IsDestDbCheckedInQueryLog ) {
-       const std::string & connectionStr =m_dbService->connection().connectStr();  m_dbService->queryLog().LookupLastEntryByTag(m_tag, connectionStr , m_logDBEntry);
-       std::cout << " ------ log info searched in the same db: " <<  connectionStr << "------" <<std::endl;
+      if(m_IsDestDbCheckedInQueryLog) {
+	const std::string & connectionStr =m_dbService->session().connectionString(); 
+	m_dbService->queryLog().LookupLastEntryByTag(m_tag, connectionStr , m_logDBEntry);
+	std::cout << " ------ log info searched in the same db: " <<  connectionStr << "------" <<std::endl;
       } else {
 	m_dbService->queryLog().LookupLastEntryByTag(m_tag , m_logDBEntry);
 	std::cout << " ------ log info found in another db "  << "------" <<std::endl;
       }
 
       edm::LogInfo ("PopCon") << "TAG, last since/till, size " << m_tag 
-		<< ", " <<  m_tagInfo.lastInterval.first
-		<< "/" << m_tagInfo.lastInterval.second
-			      << ", " << m_tagInfo.size << "\n" <<
-	"Last writer, size " <<  m_logDBEntry.provenance 
+			      << ", " <<  m_tagInfo.lastInterval.first
+			      << "/" << m_tagInfo.lastInterval.second
+			      << ", " << m_tagInfo.size << "\n" 
+			      << "Last writer, size " <<  m_logDBEntry.provenance 
 			      << ", " << m_logDBEntry.payloadIdx+1 << std::endl;
     }
   }
-
-
+  
+  
   void PopCon::finalize() {
   }
-
+  
 }

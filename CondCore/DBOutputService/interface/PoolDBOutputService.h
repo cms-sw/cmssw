@@ -129,10 +129,10 @@ namespace cond{
       void writeOne(T * payload, Summary * summary, 
 		    Time_t time, const std::string& recordName, 
                     bool withlogging=false, bool since=true) {
-        if (isNewTagRequest(recordName) ){
-          createNewIOV<T>(payload, summary,
+	if (isNewTagRequest(recordName) ){
+	  createNewIOV<T>(payload, summary,
                           since ? time : beginOfTime(),
-                          since ?  endOfTime() : time,recordName, withlogging);
+                          since ?  endOfTime() : time, recordName, withlogging);
         }else{
           if (since){
             appendSinceTime<T>(payload, summary, time, recordName, withlogging);

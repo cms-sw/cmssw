@@ -40,7 +40,8 @@ namespace cond {
   std::string classNameForTypeId( const std::type_info& typeInfo );
 
   template <typename T> std::string classNameForPointer( T* pointer ){
-    return classNameForTypeId( typeid(pointer) );
+    if(!pointer) return classNameForTypeId( typeid(T) );
+    return classNameForTypeId( typeid(*pointer) );
   }
 
 }

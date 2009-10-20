@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 process.MessageLogger=cms.Service("MessageLogger",
                               destinations=cms.untracked.vstring("cout"),
                               cout=cms.untracked.PSet(
-                              treshold=cms.untracked.string("INFO")
+                              threshold=cms.untracked.string("INFO")
                               )
 )
 
