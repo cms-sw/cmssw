@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2008/02/02 20:36:09 aryd Exp $
+# $Id: Makefile,v 1.8 2008/02/15 21:02:29 aryd Exp $
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
@@ -18,6 +18,8 @@ include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 Project=pixel
 Package=CalibFormats/SiPixelObjects
+PackageName=SiPixelObjects
+
 
 Sources = $(wildcard src/*.cc)
 
@@ -58,3 +60,6 @@ Executables= $(Executable).cc
 endif
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+include $(BUILD_HOME)/$(Project)/RPM.version
+include $(XDAQ_ROOT)/config/mfRPM.rules
+
