@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/09/12 19:20:18 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/09/16 16:37:03 $
+ *  $Revision: 1.24 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -53,7 +53,7 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
 GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 
   if (theSmoother) delete theSmoother;
-
+  if (theTrackMatcher) delete theTrackMatcher;
 }
 
 //
