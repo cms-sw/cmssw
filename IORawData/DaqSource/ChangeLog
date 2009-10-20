@@ -1,3 +1,9 @@
+2009-10-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-06-18-00
+	* branch tag for 327 compat
+	* use bst timestamp
+	
 2009-10-19  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-07-01-00
