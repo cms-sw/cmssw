@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.8 2009/07/03 09:45:39 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.9 2009/08/25 09:17:58 arizzi Exp $
 
 
 #include <iostream>
@@ -94,6 +94,7 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     if (dynamic_cast<PixelGeomDetUnit*>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
+      delete module;
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
@@ -101,6 +102,7 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     if (dynamic_cast<PixelGeomDetUnit*>((*pxf))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
+      delete module;
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
