@@ -14,20 +14,20 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 ## specify which conditions you would like to dump to a text file in the "dump" vstring
 process.prod = cms.EDFilter("HcalDumpConditions",
     dump = cms.untracked.vstring(
-        'Pedestals'
-        ,'PedestalWidths' 
-        ,'Gains' 
-        ,'QIEData' 
-        ,'ElectronicsMap'
-        ,'ChannelQuality' 
-        ,'GainWidths' 
-        ,'RespCorrs' 
-        ,'TimeCorrs'
-        ,'LUTCorrs'
-        ,'PFCorrs'
-        ,'L1TriggerObjects'
-        ,'ZSThresholds'
-        ,'ValidationCorrs' 
+#        'Pedestals'
+#        ,'PedestalWidths' 
+#        ,'Gains' 
+#        ,'QIEData' 
+#        ,'ElectronicsMap'
+#        ,'ChannelQuality' 
+#        ,'GainWidths' 
+#        ,'RespCorrs' 
+#        ,'TimeCorrs'
+#        ,'LUTCorrs'
+#        ,'PFCorrs'
+        'L1TriggerObjects'
+#        ,'ZSThresholds'
+#        ,'ValidationCorrs' 
         ,'LutMetadata' 
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
@@ -127,7 +127,9 @@ process.source = cms.Source("EmptySource",
 # )
 
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-     toGet = cms.untracked.vstring('GainWidths',
+     toGet = cms.untracked.vstring('Pedestals',
+                                   'GainWidths',
+                                   'L1TriggerObjects',
                                    'LutMetadata',
                                    'ZSThresholds')
  )
