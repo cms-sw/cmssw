@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.6 2009/09/04 21:34:20 wdd Exp $
+// $Id: MultiChainEvent.cc,v 1.7 2009/10/17 03:55:57 srappocc Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ private:
 //
   MultiChainEvent::MultiChainEvent(const std::vector<std::string>& iFileNames1,
 				   const std::vector<std::string>& iFileNames2,
-				   bool useSecFileMap)
+				   bool useSecFileMapSorted)
 {
   event1_ = boost::shared_ptr<ChainEvent> ( new ChainEvent( iFileNames1 ) );
   event2_ = boost::shared_ptr<ChainEvent> ( new ChainEvent( iFileNames2 ) );
@@ -63,18 +63,88 @@ private:
   event1_->setGetter( getter_ );
   event2_->setGetter( getter_ );
 
-  // speed up secondary file access with a (run,event)_1 ---> index_2 map
-  for( event1_->toBegin();
-       ! event1_->atEnd();
-       ++(*event1_)) {
-    edm::EventID evid1 = event1_->event()->id();
-    bool found = event2_->to( evid1 );
-    if ( found ) {
-      secFileMap_[ evid1 ] = event2_->eventIndex();
-    } else {
-      std::cout << "Filenames are inconsistent for secondary files. I'm going to crash now. Ungracefully." << std::endl;
-      assert(0);
+  useSecFileMapSorted_ = useSecFileMapSorted;
+
+  if ( !useSecFileMapSorted_ ) {
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+    std::cout << "WARNING! What you are about to do may be very slow." << std::endl;
+    std::cout << "The 2-file solution in FWLite works with very simple assumptions." << std::endl;
+    std::cout << "It will linearly search through the files in the secondary file list for Products." << std::endl;
+    std::cout << "There are speed improvements available to make this run faster." << std::endl;
+    std::cout << "***If your secondary files are sorted with a run-range within a file, (almost always the case) " << std::endl;
+    std::cout << "***please use the option useSecFileMapSorted=true in this constructor. " << std::endl;
+    std::cout << "    > usage: MultiChainEvent( primaryFiles, secondaryFiles, true);" << std::endl;
+    std::cout << "------------------------------------------------------------------------" << std::endl;    
+    
+  }
+
+  if ( useSecFileMapSorted_ ) {
+
+    std::cout << "------------------------------------------------------------------------" << std::endl;    
+    std::cout << "This MultiChainEvent is now creating a (run_range)_2 ---> file_index_2 map" << std::endl;
+    std::cout << "for the 2-file solution. " << std::endl;
+    std::cout << "This is assuming the files you are giving me are sorted by run,event pairs within each secondary file." << std::endl;
+    std::cout << "If this is not true (rarely the case), set this option to false." << std::endl;
+    std::cout << "    > usage: MultiChainEvent( primaryFiles, secondaryFiles, false);" << std::endl;
+    std::cout << "------------------------------------------------------------------------" << std::endl;    
+    // speed up secondary file access with a (run,event)_1 ---> index_2 map
+    
+
+    // Loop over events, when a new file is encountered, store the first run number from this file,
+    // and the last run number from the last file. 
+    TFile * lastFile = 0;
+    std::pair<event_id_range,Long64_t> eventRange;
+    bool firstFile = true;
+
+    bool foundAny = false;
+
+    for( event2_->toBegin();
+	 ! event2_->atEnd();
+	 ++(*event2_)) {
+      // if we have a new file, cache the "first"
+      if ( lastFile != event2_->getTFile() ) {
+
+	// if this is not the first file, we have an entry.
+	// Add it to the list.
+	if ( !firstFile ) {
+	  foundAny = true;
+	  event_id_range toAdd = eventRange.first;
+	  secFileMapSorted_[ toAdd ] = eventRange.second;
+	}
+	// always add the "first" event id to the cached event range
+	eventRange.first.first = event2_->event()->id();
+	lastFile = event2_->getTFile();
+      }
+      // otherwise, cache the "second" event id in the cached event range.
+      // Upon the discovery of a new file, this will be used as the
+      // "last" event id in the cached event range. 
+      else {
+	eventRange.first.second = event2_->event()->id();
+	eventRange.second = event2_->eventIndex();
+      }
+      firstFile = false;
     }
+    // due to the invailability of a "look ahead" operation, we have one additional "put" to make
+    // after the loop (which puts the "last" event, not "this" event.
+    if ( foundAny ) {
+      event_id_range toAdd = eventRange.first;
+      secFileMapSorted_[ toAdd ] = eventRange.second;
+    }
+//     std::cout << "Dumping run range to event id list:" << std::endl;
+//     for ( sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
+// 	    mEnd = secFileMapSorted_.end(),
+// 	    mit = mBegin;
+// 	  mit != mEnd; ++mit ) {
+//       char buff[1000];
+//       event2_->to( mit->second );
+//       sprintf(buff, "[%10d,%10d - %10d,%10d] ---> %10d",
+// 	      mit->first.first.run(),
+// 	      mit->first.first.event(),
+// 	      mit->first.second.run(),
+// 	      mit->first.second.event(),
+// 	      mit->second );
+//       std::cout << buff << std::endl;
+//     }
   }
 
 }
@@ -144,20 +214,44 @@ MultiChainEvent::toSec(Long64_t iIndex) {
 ///Go to event with event id "id"
 const MultiChainEvent& 
 MultiChainEvent::toSec(edm::EventID id) {
-  sec_file_index_map::iterator found = secFileMap_.find( id );
-  if ( found == secFileMap_.end() ) {
-    std::cout << "Cannot find secondary file corresponding to run " << id.run() 
-	      << ", event " << id.event() << ", I will now exit. Ungracefully." << std::endl;
-    assert(0);
+
+  // If we use the sorted secondary file map, loop through the
+  // list and find the index of the id in question. Then set the
+  // secondary file to the index found, and return "this".
+  if ( useSecFileMapSorted_ ) {
+    // First try this file.
+    if ( event2_->event_->to( id ) ) {
+      // Foudn it, return. 
+      return *this;
+    }
+    // Now search for the file if we didn't find it. 
+    for ( sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
+	    mEnd = secFileMapSorted_.end(),
+	    mit = mBegin;
+	  mit != mEnd; ++mit ) {
+      if ( id >= mit->first.first && id <= mit->first.second ) {
+	// this part is expensive... switchToFile does memory allocations and opens the files
+	// which becomes very time consuming. This should be done as infrequently as possible. 
+	event2_->switchToFile( mit->second );
+	event2_->to( id );
+	return *this;
+      }
+    }
+    // if we did not find the id in question, bail out.
+    throw cms::Exception("ProductNotFound") << "Cannot find id " << id.run() << ", " << id.event() << " in secondary list. Exiting." << std::endl;
+    return *this; // for compiler
   }
-  return toSec(found->second);
+  // otherwise return the "dumb search"
+  else { 
+    event2_->to( id );
+    return *this;
+  }
 }
   
 ///Go to event with given run and event number
 const MultiChainEvent& 
 MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) {
-  event2_->to( edm::EventID( run, event) );
-  return *this;
+  return toSec( edm::EventID( run, event) );
 }
 
 // Go to the very first Event
@@ -207,22 +301,24 @@ MultiChainEvent::getByLabel(const std::type_info& iType,
 {
   bool ret1 = event1_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
   if ( !ret1 ) {
-    event2_->to( event1_->id() );
+    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
     bool ret2 = event2_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
     if ( !ret2 ) return false;
-    else return true;
   }
-  else return true;
+  return true;
 }
 
 edm::EDProduct const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const 
 {
   // First try the first file
-  edm::EDProduct const * prod = this->primary()->event()->getByProductID(iID);
-  // Did not find the product, try again
+  edm::EDProduct const * prod = event1_->getByProductID(iID);
+  // Did not find the product, try secondary file
   if ( 0 == prod ) {
-    (const_cast<MultiChainEvent*>(this))->toSec(this->id());
-    prod = this->secondary()->event()->getByProductID(iID);
+    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+    prod = event2_->getByProductID(iID);
+    if ( 0 == prod ) {
+      throw cms::Exception("ProductNotFound") << "Cannot find product " << iID;
+    }
   }
   return prod;
 }

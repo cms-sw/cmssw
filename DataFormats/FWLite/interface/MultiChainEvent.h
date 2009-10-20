@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.8 2009/09/11 17:00:46 cplager Exp $
+// $Id: MultiChainEvent.h,v 1.9 2009/10/17 03:55:57 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -50,11 +50,13 @@ class MultiChainEvent: public EventBase
 
    public:
 
-      typedef std::map<edm::EventID, Long64_t>   sec_file_index_map;
+      typedef std::map<edm::EventID, Long64_t>      sec_file_index_map;
+      typedef std::pair<edm::EventID, edm::EventID> event_id_range;
+      typedef std::map<event_id_range, Long64_t>    sec_file_range_index_map;
 
       MultiChainEvent(const std::vector<std::string>& iFileNames1, 
 		      const std::vector<std::string>& iFileNames2,
-		      bool useSecFileMap = false);
+		      bool useSecFileMapSorted = false );
       virtual ~MultiChainEvent();
 
       const MultiChainEvent& operator++();
@@ -138,8 +140,12 @@ class MultiChainEvent: public EventBase
       boost::shared_ptr<ChainEvent> event2_;  // secondary files
       boost::shared_ptr<internal::MultiProductGetter> getter_;
 
-      // speed up secondary file access with a (run,event)_1 ---> index_2 map
-      sec_file_index_map    secFileMap_;
+      // speed up secondary file access with a (run range)_1 ---> index_2 map, 
+      // when the files are sorted by run,event within the file.
+      // in this case, it is sufficient to store only a run-range to index mapping.
+      // with this, the solution becomes more performant. 
+      bool                     useSecFileMapSorted_;
+      sec_file_range_index_map secFileMapSorted_;
 };
 
 }
