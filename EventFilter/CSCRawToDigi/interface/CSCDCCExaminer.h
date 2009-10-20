@@ -13,7 +13,7 @@ public:
 	const uint16_t nERRORS, nWARNINGS, nPAYLOADS, nSTATUSES;
 
 private:
-	std::vector<char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
+	std::vector<const char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
 	ExaminerStatusType bERROR,  bWARNING;
 	bool               fERROR  [29];//[nERRORS];
 	bool               fWARNING[5]; //[nWARNINGS];
