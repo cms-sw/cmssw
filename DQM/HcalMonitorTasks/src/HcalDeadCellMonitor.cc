@@ -51,6 +51,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   // Set checkNevents values
   deadmon_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents",checkNevents_);
   deadmon_prescale_     = ps.getUntrackedParameter<int>("DeadCellMonitor_prescale",10); // energy, persistent occupancy checks not performed as often as basic 'never present' check
+  
 
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in three ways:
@@ -473,10 +474,15 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (ievt_>0 && ievt_%deadmon_checkNevents_==0)
     {
-      if (deadmon_test_occupancy_) fillNevents_occupancy(deadmon_checkNevents_);
-      if (deadmon_test_energy_) fillNevents_energy(deadmon_checkNevents_);
+      // Do never-present test every checkNevents
       fillNevents_problemCells(deadmon_checkNevents_);
-      zeroCounters(); // reset for next round of checks
+      // Do recent occupancy, energy tests every checkNevents*deadmon_prescale_ 
+      if (ievt_%(deadmon_checkNevents_*deadmon_prescale_)==0)
+	{
+	  if (deadmon_test_occupancy_) fillNevents_occupancy(deadmon_checkNevents_);
+	  if (deadmon_test_energy_) fillNevents_energy(deadmon_checkNevents_);
+	  zeroCounters(); // reset for next round of checks
+	}
     }
 
   return;
@@ -762,15 +768,20 @@ void HcalDeadCellMonitor::fillNevents_occupancy(int checkN)
 		      (!checkHE_ && subdet==HcalEndcap) ||
 		      (!checkHO_ && subdet==HcalOuter) ||
 		      (!checkHF_ && subdet==HcalForward))  continue;
+		  int zside=0;
 		  if (subdet==HcalForward) // shift HcalForward ieta
-		    ieta<0 ? ieta-- : ieta++;
+		    ieta<0 ? zside=-1 : zside=+1;
 		  
 		  if (occupancy[eta][phi][depth]==0)
 		    {
-		      if (fVerbosity>0) 
-			std::cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
-		      // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
-		      if (UnoccupiedDeadCellsByDepth.depth[depth]) UnoccupiedDeadCellsByDepth.depth[depth]->Fill(ieta,iphi,checkN*deadmon_prescale_);
+		      if (fVerbosity>0)
+			{
+			  std::cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", ieta = "<<ieta<<", iphi = "<<iphi<<" depth = "<<depth+1<<std::endl;
+			  std::cout <<"\t RAW COORDINATES:  eta = "<<eta<< " phi = "<<phi<<" depth = "<<depth<<std::endl;
+ 			  std::cout <<"\t Present? "<<present[CalcEtaBin(subdet,ieta,depth+1)][iphi][depth]<<std::endl;
+			}
+			     // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
+		      if (UnoccupiedDeadCellsByDepth.depth[depth]) UnoccupiedDeadCellsByDepth.depth[depth]->Fill(ieta+zside,iphi,checkN*deadmon_prescale_);
 		    }
 		} // for (int subdet=1;subdet<=4;++subdet)
 	    } // for (int phi=0;...)
@@ -1000,11 +1011,24 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
 
   if (ievt_%(checkN)==0)
     {
-      ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
-      ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
-      ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
-      ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
-      ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+      NumberOfNeverPresentCellsHB->Fill(lumiblock,neverpresentHB);
+      NumberOfNeverPresentCellsHE->Fill(lumiblock,neverpresentHE);
+      NumberOfNeverPresentCellsHO->Fill(lumiblock,neverpresentHO);
+      NumberOfNeverPresentCellsHF->Fill(lumiblock,neverpresentHF);
+      NumberOfNeverPresentCells->Fill(lumiblock,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF);
+
+      // Overall problems = never present digis + recently-missing digis + recent low-energy digis
+      // This gets filled every 1000 events by the never-present check, and every 10k by the combination
+      // of all checks.  We might see dips in TProfile plots every 10k events or so.
+      if (ievt_%(checkN*deadmon_prescale_)==0)
+	{
+	  ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
+	  ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
+	  ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
+	  ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
+	  ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+	}
+
       /*
 	//Don't want to include this behavior yet
       if (Online_ && oldlumiblock<lumiblock)
@@ -1026,6 +1050,9 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
       */
       oldlumiblock=lumiblock; // oldlumiblock keeps track of last block in which plot filled
 
+      // don't fill plots of recent unoccupied digis unless the full (checkN*deadmon_prescale_) events have passed
+      if (ievt_%(checkN*deadmon_prescale_)!=0)
+	return;
       if (deadmon_test_occupancy_)
 	{
 	  NumberOfUnoccupiedCellsHE->Fill(lumiblock,unoccupiedHB);
@@ -1049,12 +1076,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
 	  NumberOfBelowEnergyCellsHF->Fill(lumiblock,belowenergyHF);
 	  NumberOfBelowEnergyCells->Fill(lumiblock,belowenergyHB+belowenergyHE+belowenergyHO+belowenergyHF);
 	}
-
-      NumberOfNeverPresentCellsHB->Fill(lumiblock,neverpresentHB);
-      NumberOfNeverPresentCellsHE->Fill(lumiblock,neverpresentHE);
-      NumberOfNeverPresentCellsHO->Fill(lumiblock,neverpresentHO);
-      NumberOfNeverPresentCellsHF->Fill(lumiblock,neverpresentHF);
-      NumberOfNeverPresentCells->Fill(lumiblock,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF);
     }
 
   if (showTiming)
