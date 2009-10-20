@@ -7,7 +7,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-class reco::Track;
 namespace DeDxTools  {
  
   struct RawHits {
