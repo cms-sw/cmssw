@@ -61,9 +61,9 @@ touch with changes in data catalog structure.
 
 <environment name="FullSimStdStats">
 
-  <!--var name="DBS_COND" value="MC_31X_V9-v*"-->
-  <var name="DBS_RELEASE" value="LOCAL">
-  <var name="DBS_COND" value="">
+  <var name="DBS_COND" value="MC_31X_V9-v*">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value=""-->
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -100,8 +100,8 @@ touch with changes in data catalog structure.
   
   <environment name="FullZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <!--var name="DBS_COND" value="STARTUP31X_V8-v*"-->
-    <var name="DBS_COND" value="STARTUP">
+    <var name="DBS_COND" value="STARTUP31X_V8-v*">
+    <!--var name="DBS_COND" value="STARTUP"-->
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
