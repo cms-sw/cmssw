@@ -21,7 +21,7 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimTracker/Records>
 <use name=SimTracker/TrackAssociation>
-# temporary removal<use name=DQMServices/Core>
+<use name=DQMServices/Core>
 
 <use name=CLHEP>
 <use name=root>
