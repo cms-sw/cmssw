@@ -1547,8 +1547,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  chargedDirection = chargedDirection.Unit();
 	  totalChargedMomentum -= trackMomentum;
 	  // Update the calo energies
-	  calibEcal -= std::min(calibEcal,muonECAL_[0]*calibEcal/totalEcal);
-	  calibHcal -= std::min(calibHcal,muonHCAL_[0]*calibHcal/totalHcal);
+	  if ( totalEcal > 0. ) 
+	    calibEcal -= std::min(calibEcal,muonECAL_[0]*calibEcal/totalEcal);
+	  if ( totalHcal > 0. ) 
+	    calibHcal -= std::min(calibHcal,muonHCAL_[0]*calibHcal/totalHcal);
 	  totalEcal -= std::min(totalEcal,muonECAL_[0]);
 	  totalHcal -= std::min(totalHcal,muonHCAL_[0]);
 	  if ( totalEcal > muonECAL_[0] ) photonAtECAL -= muonECAL_[0] * chargedDirection;
