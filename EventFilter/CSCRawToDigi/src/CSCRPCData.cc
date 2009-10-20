@@ -99,7 +99,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
       LogTrace("CSCRPCData|CSCRawToDigi") << "+++ CSCRPCData " << std::hex << theData[pos] 
 				 << " " << theData[pos+1];
     // make the two pad words into one and see if it's empty
-    int pad = theData[pos] & 0xff + ((theData[pos+1] & 0xff) << 8);
+    int pad = (theData[pos] & 0xff) + ((theData[pos+1] & 0xff) << 8);
 
     bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
     if ( linePair == 0 ) bxnold = bxnnew;
