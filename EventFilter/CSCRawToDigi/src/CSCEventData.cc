@@ -202,16 +202,12 @@ void CSCEventData::destroy() {
 }
 
 
-std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer) const {
-  assert(ilayer > 0 && ilayer <= 6);
+std::vector<CSCStripDigi> CSCEventData::stripDigis(const CSCDetId & idlayer) const {
   std::vector<CSCStripDigi> result;
   for(unsigned icfeb = 0; icfeb < 5; ++icfeb){
-    if(theCFEBData[icfeb] != NULL) {
-      std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(ilayer);
-      result.insert(result.end(), newDigis.begin(), newDigis.end());
-    }
+    std::vector<CSCStripDigi> newDigis = stripDigis(idlayer, icfeb);
+    result.insert(result.end(), newDigis.begin(), newDigis.end());
   }
-  
   return result;
 }
 
@@ -224,7 +220,6 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned idlayer, unsigned ic
     result.insert(result.end(), newDigis.begin(), newDigis.end());
   }
   
-
   return result;
 }
 
@@ -477,21 +472,22 @@ void CSCEventData::selfTest() {
   forward.add(me1b, me1bdet1.layer());
   backward.add(me1a, me1adet2.layer());
   backward.add(me1b, me1adet2.layer());
-
-  std::vector<CSCStripDigi> me1afs = forward.stripDigis(me1adet1.layer());
-  std::vector<CSCStripDigi> me1bfs = forward.stripDigis(me1bdet1.layer());
-  std::vector<CSCStripDigi> me1abs = backward.stripDigis(me1adet2.layer());
-  std::vector<CSCStripDigi> me1bbs = backward.stripDigis(me1bdet2.layer());
-
+  std::vector<CSCStripDigi> me1afs = forward.stripDigis(me1adet1);
+  std::vector<CSCStripDigi> me1bfs = forward.stripDigis(me1bdet1);
+  std::vector<CSCStripDigi> me1abs = backward.stripDigis(me1adet2);
+  std::vector<CSCStripDigi> me1bbs = backward.stripDigis(me1bdet2);
   //FIXME The current code works under the assumption that ME11 and ME1A
   // go into separate EventData.  They need to be combined.
   assert(me1afs.size() == 16);
   assert(me1bfs.size() == 16);
   assert(me1abs.size() == 16);
   assert(me1bbs.size() == 16);
+
   assert(me1afs[4].getStrip() == 5);
-  assert(me1bfs[7].getStrip() == 8);
-  assert(me1abs[4].getStrip() == 5);
+  // numbers get reversed
+  assert(me1bfs[7].getStrip() == 9);
+  // is this what it should be?
+  assert(me1abs[4].getStrip() == 60);
   assert(me1bbs[7].getStrip() == 8);
   assert(me1afs[4].pedestal() == 600);
   assert(me1bfs[7].pedestal() == 600);

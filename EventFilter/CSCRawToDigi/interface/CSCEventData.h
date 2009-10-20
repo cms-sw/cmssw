@@ -30,6 +30,7 @@ class CSCComparatorOutput;
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <boost/dynamic_bitset.hpp>
 
 class CSCEventData {
@@ -64,7 +65,7 @@ class CSCEventData {
   CSCCFEBData * cfebData(unsigned icfeb) const;
 
   /// returns all the strip digis in the chamber, with the comparator information.
-  std::vector<CSCStripDigi> stripDigis(unsigned ilayer) const;
+  std::vector<CSCStripDigi> stripDigis(const CSCDetId & idlayer) const;
 
   /// returns all the strip digis in the chamber's cfeb
   std::vector<CSCStripDigi> stripDigis(unsigned idlayer, unsigned icfeb) const;
