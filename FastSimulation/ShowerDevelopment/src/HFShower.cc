@@ -55,27 +55,23 @@ HFShower::HFShower(const RandomEngine* engine,
   balanceEH       = myParam->hsParameters()->getHDbalanceEH();
   hcalDepthFactor = myParam->hsParameters()->getHDhcalDepthFactor();
   
-  //============================================================================================
-  // Special treatment for HF
-  // overwrite some parametrisations
-  // - eSpotSize is the "average" energy per PE needed to make the
-  //   longitudinal and transverse profile (makeSteps)
-  //============================================================================================
-
-  double PPEperGeV = 0.25;
-  eSpotSize = 1./PPEperGeV;
-
-  //============================================================================================
 
   // Special tr.size fluctuations 
   transParam *= (1. + random->flatShoot()); 
 
-  // Special long. fluctuations
-  hcalDepthFactor +=  0.05 * (2.* random->flatShoot() - 1.);
+  // Special ad hoc long. extension + some fluctuations
+  double   depthExt;
+  if (e < 50.)   depthExt =  0.8 * (50.  - e) / 50.  + 0.3; 
+  else { 
+    if (e < 500.)  depthExt =  (500. - e) / 500. * 0.4 - 0.1; 
+    else   depthExt =  -0.1; 
+  }
+  hcalDepthFactor += depthExt + 0.05 * (2.* random->flatShoot() - 1.);
 
-  transFactor = 1.;   // normally 1, in HF - might be smaller 
-                      // to take into account
-                      // a narrowness of the HF shower (Cherenkov light) 
+  // normally 1, in HF - might be smaller to take into account
+  // a narrowness of the HF shower (Cherenkov light) 
+  if( e < 50. )  transFactor = 0.5 - (50.   - e ) / 50.  * 0.2; 
+  else           transFactor = 0.7 - (1000. - e ) /1000. * 0.2;  
 
   // simple protection ...
   if(e < 0) e = 0.;
@@ -101,16 +97,16 @@ HFShower::HFShower(const RandomEngine* engine,
   else 
     theParam->setCase(2);
  
-  // PV: Commented
-   // Avoid "overflow" beyond Emax (for parameters)
-   if(effective > 0.5 * emax) {
-     eSpotSize *= 2.5;
-     if(effective > emax) {
-       effective = emax; 
-       eSpotSize *= 2.; 
-       depthStep *= 2.;
+  // A bit coarse espot size for HF...
+  eSpotSize *= 2.5; 
+  if(effective > 0.5 * emax) {
+    eSpotSize *= 2.;
+    if(effective > emax) {
+      effective = emax; 
+      eSpotSize *= 3.; 
+      depthStep *= 2.;
      }
-   }
+  }
 
   if(debug == 2 )
     LogDebug("FastCalorimetry") <<  " HFShower : " << std::endl 
@@ -124,7 +120,6 @@ HFShower::HFShower(const RandomEngine* engine,
          << "    maxTRfactor "  <<     maxTRfactor << std::endl
          << "      balanceEH "  <<       balanceEH << std::endl
          << "hcalDepthFactor "  << hcalDepthFactor << std::endl;
-
 
   double alpEM1 = theParam->alpe1();
   double alpEM2 = theParam->alpe2();
@@ -237,9 +232,7 @@ HFShower::HFShower(const RandomEngine* engine,
   // if no HCAL material behind - force to deposit in ECAL
   double maxDepth    = depthToHCAL + depthHCAL - 1.1 * depthStep;
 
-  // PV : increase by 0.8lambda (i.e. 12 cm)
-  // Tuning
-  double depthStart  = 0.8 + std::log(1./random->flatShoot()); // starting point lambda unts
+  double depthStart  = std::log(1./random->flatShoot()); // starting point lambda unts
 
   if(e < emin) {
     if(debug)
@@ -282,19 +275,15 @@ HFShower::HFShower(const RandomEngine* engine,
     }
   }
 
+
+
+
   if(debug)
     LogDebug("FastCalorimetry") << " FamosHFShower  depths(lam) - "  << std::endl 
          << "          ECAL = " << depthECAL  << std::endl
          << "           GAP = " << depthGAP   << std::endl
          << "          HCAL = " << depthHCAL  << std::endl
          << "  starting point = " << depthStart << std::endl; 
-
-  // PV
-  //  std::cout << " FamosHFShower  depths(lam) - "  << std::endl 
-  //	    << "          ECAL = " << depthECAL  << std::endl
-  //	    << "           GAP = " << depthGAP   << std::endl
-  //	    << "          HCAL = " << depthHCAL  << std::endl
-  //	    << "  starting point = " << depthStart << std::endl; 
 
   if( onEcal ) {
     if(debug) LogDebug("FastCalorimetry") << " FamosHFShower : onECAL" << std::endl;
@@ -347,8 +336,6 @@ HFShower::HFShower(const RandomEngine* engine,
   else {   // Forward 
     if(debug)  LogDebug("FastCalorimetry") << " FamosHFShower : forward" << std::endl;
     sum1 += depthStart;
-    // PV : 1.0 instead of 0.5
-    transFactor = 1.0;   // makes narower tresverse size of shower     
   }
  
   for (int i = 0; i < nmoresteps ; i++) {
@@ -401,7 +388,7 @@ void HFShower::makeSteps(int nsteps) {
 				  << "   depx0, x = " << depx0 << ", " << x 
 				  << "   deplam, y = " << deplam << ", "
 				  << y << std::endl;
-    
+
     double est = (part * betEM * gam(x,alpEM) * lamcurr[i] /
 		  (x0curr[i] * tgamEM) + 
 		  (1.-part) * betHD * gam(y,alpHD) / tgamHD) * lamstep[i];
@@ -472,11 +459,6 @@ void HFShower::makeSteps(int nsteps) {
 	  << std::endl; 
 
   }
-  // PV
-  //  std::cout << "Initial/Total energy = "
-  //	    << e << " "
-  //	    << etot
-  //	    << std::endl;
 
   // The only step is in ECAL - let's make the size bigger ...  
   if(count == 1 and detector[0] == 1) rlamStep[0] *= 2.;
@@ -513,9 +495,9 @@ bool HFShower::compute() {
 	LogDebug("FastCalorimetry") << "indexFinder - i, Fhist[i] = " << j << " " << Fhist[j] << std::endl;
     }
     
-    //====================================================================================
+    //================================================================
     // Longitudinal steps
-    //====================================================================================
+    //================================================================
     for (int i = 0; i < numLongit ; i++) {
       
       double currentDepthL0 = lamtotal[i] - 0.5 * lamstep[i];
@@ -526,14 +508,12 @@ bool HFShower::compute() {
 				    << detector[i]
 				    << "  currentDepthL0 = " 
 				    << currentDepthL0 << std::endl;
-      
+
       double maxTRsize   = maxTRfactor * rlamStep[i];     // in lambda units
       double rbinsize    = maxTRsize / nTRsteps; 
       double espot       = eStep[i] / (double)nspots[i];  // re-adjust espot
 
-      // PV changed
-      //      if(espot > 2. || espot < 0. ) 
-      if( espot < 0. ) 
+      if( espot > 4. || espot < 0. ) 
 	LogDebug("FastCalorimetry") << " FamosHFShower::compute - unphysical espot = " 
 	     << espot << std::endl;
 
@@ -556,6 +536,7 @@ bool HFShower::compute() {
 	theHcalHitMaker->setSpotEnergy(espot);        
       }
       else {
+
 	ecal = 1;
 	bool status = theGrid->getPads(currentDepthL0);   
 	
@@ -568,17 +549,10 @@ bool HFShower::compute() {
 	theGrid->setSpotEnergy(espot);
       }  
 
-      // PV : 
-      //      std::cout << "Longitudinal layer " << i << " : "
-      //		<< "E layer = " << eStep[i] << " "
-      //		<< "N spot  = " << nspots[i] << " "
-      //		<< "E spot  = " << espot  << " "
-      //		<< "Depth   = " << currentDepthL0
-      //		<< std::endl;
 
-      //---------------------------------------------------------------------------------------      
+      //------------------------------------------------------------
       // Transverse distribution
-      //---------------------------------------------------------------------------------------
+      //------------------------------------------------------------
       int nok   = 0;                          // counter of OK  
       int count = 0;
       int inf   = infinity;
@@ -593,26 +567,22 @@ bool HFShower::compute() {
 
 	++count;
 
-	// Generate Energy per PE for long fibers
-	
-	double GeVperPE      = 1./0.25;
-	double GeVperPEwidth = 0.3 * GeVperPE;
+	// energy spot  (HFL)
+        double newespot =  espot;	
 
-	// PV
-	// We need to know a priori if this energy spot if for a long (1) or short (2) fiber
-	// because resolutions/GeV per PE  are not the same
+	// We need to know a priori if this energy spot if for
+        // a long (1) or short (2) fiber
 
-	unsigned layer = random->flatShoot() < 0.66 ? 1 : 2;
-	if ( layer == 2 ) {
-	  GeVperPE      = 1./0.125;
-	  GeVperPEwidth = 0.3 * GeVperPE;
-	}
+        unsigned layer = 1;
+        if( currentDepthL0 < 1.3 ) // first 22 cm = 1.3 lambda - only HFL
+	  layer = 1;
+        else  
+	  layer = random->flatShoot() < 0.5 ? 1 : 2;
 
-	double newespot = random->gaussShoot(GeVperPE,GeVperPEwidth);
-	if ( newespot < 0. ) newespot = GeVperPE;
+	if ( layer == 2 ) newespot = 2. * espot;
 
 	if ( eremaining - newespot < 0. ) newespot = eremaining;
-	
+
 	// process transverse distribution
 	
 	double prob   = random->flatShoot();
@@ -631,28 +601,24 @@ bool HFShower::compute() {
 	theGrid->setSpotEnergy(newespot);
 	
 	bool result;
-	if(ecal) {
-	  result = theGrid->addHit(radius,phi,0);
+	if(ecal) {                                 
+	  result = theGrid->addHit(radius,phi,0);  // shouldn't get here !
 	  
 	  if(debug == 2)
 	    LogDebug("FastCalorimetry") << " FamosHFShower::compute - " 
 		 << " theGrid->addHit result = " 
 		 << result << std::endl;
+
 	}
 	else {
-	  // PV assign espot to lon/short fibers
+	  // PV assign espot to long/short fibers
           result = theHcalHitMaker->addHit(radius,phi,layer);
-
-	  // 	  std::cout << "Transverse : " << nok << " "
-	  // 		    << " , E= "        << newespot
-	  // 		    << " , Layer = "   << layer
-	  // 		    << " , Erem = "    << eremaining- newespot
-	  // 		    << std::endl;
 
 	  if(debug == 2)
 	    LogDebug("FastCalorimetry") << " FamosHFShower::compute - " 
 		 << " theHcalHitMaker->addHit result = " 
 		 << result << std::endl;
+
 	}    
 
 	if (result) {
@@ -668,42 +634,8 @@ bool HFShower::compute() {
 	}
       }
 
-      // PV : old code
-//       for (int j = 0; j < inf; j++) {
-// 	if(nok == nspots[i]) break;
-// 	count ++;
-	
-// 	double prob   = random->flatShoot();
-// 	int index     = indexFinder(prob,Fhist);
-// 	double radius = rlamStep[i] * rhist[index] +
-// 	  random->flatShoot() * rbinsize; // in-bin  
-// 	double phi = 2.*M_PI*random->flatShoot();
-	
-// 	if(debug == 2)
-// 	  LogDebug("FastCalorimetry") << std::endl << " FamosHFShower::compute " << " r = " << radius 
-// 	       << "    phi = " << phi << std::endl;
-	
-// 	bool result;
-// 	if(ecal) {
-// 	  result = theGrid->addHit(radius,phi,0);
-	  
-// 	  if(debug == 2)
-// 	    LogDebug("FastCalorimetry") << " FamosHFShower::compute - " 
-// 		 << " theGrid->addHit result = " 
-// 		 << result << std::endl;
-// 	}
-// 	else {
-// 	  result = theHcalHitMaker->addHit(radius,phi,0); 
-	  
-// 	  if(debug == 2)
-// 	    LogDebug("FastCalorimetry") << " FamosHFShower::compute - " 
-// 		 << " theHcalHitMaker->addHit result = " 
-// 		 << result << std::endl;
-// 	}    
-// 	if(result) nok ++; 
-//    } 
     // end of tranverse simulation
-    //---------------------------------------------------------------------------------------
+    //-----------------------------------------------------
 
       if(count == infinity) { 
         status = false; 
