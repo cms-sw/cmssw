@@ -27,23 +27,29 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     
     #loose cut
     d0 = cms.double(0.), #d0*charge cut
-    dEtaTrackBC = cms.double(.06), # Track-Basic cluster matching, position diff on eta
-    dPhiTrackBC = cms.double(.6), # Track-Basic cluster matching, position diff on phi
-    EnergyBC = cms.double(0.9), # Track-Basic cluster matching, BC energy lower cut
-    EnergyTotalBC = cms.double(2.), # Track-Basic cluster matching, two BC energy summation cut
+    dEtaTrackBC = cms.double(.2), # Track-Basic cluster matching, position diff on eta
+    dPhiTrackBC = cms.double(1.), # Track-Basic cluster matching, position diff on phi
+    EnergyBC = cms.double(0.3), # Track-Basic cluster matching, BC energy lower cut
+    EnergyTotalBC = cms.double(.3), # Track-Basic cluster matching, two BC energy summation cut
     MaxChi2Left = cms.double(5.), #Track quality
     MaxChi2Right = cms.double(5.),
     MinHitsLeft = cms.int32(5),
     MinHitsRight = cms.int32(2),
     DeltaCotTheta = cms.double(.036), #Track pair opening angle on R-Z
-    DeltaPhi = cms.double(.2), #Track pair opening angle on X-Y (not a final selection cut)
+    DeltaPhi = cms.double(.5), #Track pair opening angle on X-Y (not a final selection cut)
     MinApproach = cms.double(-.05), #Track pair min distance at approaching point on X-Y
+    maxDistance = cms.double(0.001),#vertex fitting quality
+    maxOfInitialValue = cms.double(1.4),#fitting initial value
+    maxNbrOfIterations = cms.int32(40),#fitting steps
+    rCut = cms.double(2.9),#analytical track cross point
+    dz = cms.double(4.0),#track pair inner position difference
 
     AllowD0 = cms.bool(True), #Allow d0*charge cut
     AllowTrackBC = cms.bool(True), #Allow to match track-basic cluster
-    AllowDeltaCot = cms.bool(True), #Allow pairing using delta cot theta cut
+    AllowDeltaCot = cms.bool(False), #Allow pairing using delta cot theta cut
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair
+    AllowVertex = cms.bool(True),
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(True) #Require second leg matching basic cluster
 )
