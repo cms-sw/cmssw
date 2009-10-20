@@ -307,12 +307,14 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access RAW trigger event  
   vector<vector<LeafCandidate> > muonsAtFilter;
   vector<vector<LeafCandidate> > muonPositionsAtFilter;  
+  for(size_t i=0; i<filterNamesLevels.size(); i++){
+    muonsAtFilter.push_back(vector<LeafCandidate>());
+    muonPositionsAtFilter.push_back(vector<LeafCandidate>());
+  }
   Handle<TriggerEventWithRefs> rawTriggerEvent;
   iEvent.getByLabel( triggerSummaryRAWTag, rawTriggerEvent );
   if( rawTriggerEvent.isValid() ){
     for(size_t i=0; i<filterNamesLevels.size(); i++){
-      muonsAtFilter.push_back(vector<LeafCandidate>());
-      muonPositionsAtFilter.push_back(vector<LeafCandidate>());
       size_t index = rawTriggerEvent->filterIndex(InputTag( filterNamesLevels[i].first, "", triggerProcessName ));
       if ( index < rawTriggerEvent->size() ){
         if( filterNamesLevels[i].second==1 ){
