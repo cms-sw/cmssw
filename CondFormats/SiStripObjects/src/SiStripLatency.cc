@@ -103,7 +103,7 @@ pair<uint16_t, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, co
 {
   const latConstIt & pos = position(detId, apv);
   if( pos == latencies_.end() ) {
-    return make_pair(-1., 0);
+    return make_pair(255, 0);
   }
   return make_pair(pos->latency, pos->mode);
 }
@@ -123,7 +123,7 @@ uint16_t SiStripLatency::singleLatency() const
   if( differentLatenciesNum == 0 ) {
     return latencies_[0].latency;
   }
-  return -1.;
+  return 255;
 }
 
 uint16_t SiStripLatency::singleMode() const

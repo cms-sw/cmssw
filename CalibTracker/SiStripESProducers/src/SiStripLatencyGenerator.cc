@@ -28,11 +28,11 @@ void SiStripLatencyGenerator::createObject()
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos = reader.getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if( !detInfos.empty() ) {
-    // Set the apv pair number as 6, the highest possible
+    // Set the apv number as 6, the highest possible
     edm::LogInfo("SiStripLatencyGenerator") << "detId = " << detInfos.rbegin()->first << " apv = " << 6
-                                            << " latency = " << _pset.getParameter<double>("latency")
+                                            << " latency = " << _pset.getParameter<uint32_t>("latency")
                                             << " mode = " << _pset.getParameter<uint32_t>("mode") << endl;
-    obj_->put(detInfos.rbegin()->first, 6, _pset.getParameter<double>("latency"), _pset.getParameter<uint32_t>("mode") );
+    obj_->put(detInfos.rbegin()->first, 6, _pset.getParameter<uint32_t>("latency"), _pset.getParameter<uint32_t>("mode") );
 
     // Call this method to collapse all consecutive detIdAndApvs with the same latency and mode to a single entry
     obj_->compress();
