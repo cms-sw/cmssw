@@ -17,13 +17,15 @@ class LA_Filler_Fitter {
   enum Method { WIDTH  =1<<0, FIRST_METHOD=1<<0, 
 		RATIO  =1<<1,  
 		SQRTVAR=1<<2, 
-		SYMM   =1<<3, LAST_METHOD=1<<3};
+		SYMM   =1<<3,
+		MULTI  =1<<4, LAST_METHOD=1<<4};
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
     case WIDTH:  return "_width-tanLA_profile";
     case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
     case SQRTVAR:return "_sqrtVariance-tanLA_profile";
     case SYMM:   return fit? SymmetryFit::name("_symm") : "_symm";
+    case MULTI:   return fit? SymmetryFit::name("_multi") : "_multi";
     default: return "_UNKNOWN";
     }
   }
@@ -73,11 +75,15 @@ class LA_Filler_Fitter {
   static void fit(Book& book) { 
     make_and_fit_ratio(book); 
     make_and_fit_symmchi2(book);
+    std::cout << "LA_Filler_Fitter::make_and_fit_multi" << std::endl;
+    make_and_fit_multisymmchi2(book);
+    std::cout << "LA_Filler_Fitter::fit_profile(WIDTH)" << std::endl;
     fit_profile(book,method(WIDTH)); 
     fit_profile(book,method(SQRTVAR)); 
   }
   static void make_and_fit_ratio(Book&, bool cleanup=false);
   static void make_and_fit_symmchi2(Book&);
+  static void make_and_fit_multisymmchi2(Book&);
   static void fit_profile(Book&, const std::string&);
   
   static Result result(Method, const std::string name, const Book&);
@@ -96,7 +102,9 @@ class LA_Filler_Fitter {
  private:
   
   static unsigned guess_bin(TH1*);
-  
+  static unsigned find_rebin(TH1*);
+  static TH1* rms_from_x_xx(std::string, TH1*, TH1*);
+
   int ensembleSize_, ensembleBins_;
   double ensembleLow_, ensembleUp_;
   bool byLayer_, byModule_;

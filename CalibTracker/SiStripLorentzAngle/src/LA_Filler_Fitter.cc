@@ -37,17 +37,15 @@ fill(TTree* tree, Book& book) {
 	  detid.subDetector()!=SiStripDetId::TOB        ) 
 	continue;
       
-      float driftx = (*tsosdriftx)[i];
-      float driftz = (*tsosdriftz)[i];
-
+      double tthetaL = (*tsosdriftx)[i] / (*tsosdriftz)[i];
+      double tthetaT = tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
       int sign = (*tsosglobalZofunitlocalY)[i] < 0  ?  -1  :  1 ;
-      double projectionByDriftz = tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
       unsigned width = (*clusterwidth)[i];
-      float sqrtVar = sqrt((*clustervariance)[i]);
+      double var = (*clustervariance)[i];
 
       poly<std::string> granular;
       if(ensembleBins_) {
-	granular+= "ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*driftx/driftz-ensembleLow_)/(ensembleUp_-ensembleLow_)));
+	granular+= "ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
 	granular+= "_pitch"+boost::lexical_cast<std::string>((int)(10000* (*tsoslocalpitch)[i] ));
 	granular+= "";
 	if(ensembleSize_) granular*= "_sample"+boost::lexical_cast<std::string>(TTREE_FOREACH_ENTRY_index % ensembleSize_);
@@ -56,15 +54,23 @@ fill(TTree* tree, Book& book) {
 	if(byLayer_) granular *= layerLabel(detid);
 	if(byModule_) granular *= moduleLabel(detid);
       }
-      poly<std::string> A1("_all"); 
-      if(width==1) A1*="_width1";
 
-                             book.fill( sign*driftx/driftz,               granular+"_reconstruction"   , 81, -0.6,0.6 );
-      if(methods_ & RATIO)   book.fill( sign*projectionByDriftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
-      if(methods_ & WIDTH)   book.fill( sign*projectionByDriftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
-      if(methods_ & SQRTVAR) book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
-      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM,0)     ,360,-1.0,1.0 );
-      if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),            granular+"_field"            , 101, 1, 5 );
+      poly<std::string> W; W++;      
+      poly<std::string> A1("_all");  if(width==1) A1*="_w1"; 
+                                else if(width==2)  W*="_w2"; 
+				else if(width==3)  W*="_w3";
+
+                             book.fill( sign*tthetaL,                    granular+"_reconstruction"   , 81, -0.6,0.6 );
+      if(methods_ & RATIO)   book.fill( sign*tthetaT,                    granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
+      if(methods_ & WIDTH)   book.fill( sign*tthetaT,             width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
+      if(methods_ & SQRTVAR) book.fill( sign*tthetaT,         sqrt(var), granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
+      if(methods_ & SYMM)    book.fill( sign*tthetaT,         sqrt(var), granular+ method(SYMM,0)     ,360, -1.0,1.0 );
+
+      if(methods_ & MULTI){  book.fill( sign*(tthetaT-tthetaL),     var, granular+method(MULTI,0)+"_var" +W ,360,-1.0,1.0 );
+	                     book.fill( sign*(tthetaT-tthetaL), var*var, granular+method(MULTI,0)+"_var2"+W ,360,-1.0,1.0 );
+			     book.fill( sign*(tthetaT-tthetaL),          granular+ method(MULTI,0)+A1       ,360,-1.0,1.0 ); }
+
+      if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),           granular+"_field"            , 101, 1, 5 );
     }
   }
 }
@@ -81,11 +87,11 @@ layerLabel(SiStripDetId detid) {
 
 void LA_Filler_Fitter::
 make_and_fit_ratio(Book& book, bool cleanup) {
-  for(Book::const_iterator it = book.begin(".*"+method(RATIO,0)+"_width1"); it!=book.end(); ++it) {
+  for(Book::const_iterator it = book.begin(".*"+method(RATIO,0)+"_w1"); it!=book.end(); ++it) {
     if((*it)->GetEntries() < 30) continue;
 
-    std::string base = boost::erase_all_copy(it.name(),"_width1");
-    std::string width1 = base+"_width1";
+    std::string base = boost::erase_all_copy(it.name(),"_w1");
+    std::string width1 = base+"_w1";
     std::string all    = base+"_all";
     std::string ratio  = base+"_ratio";
 
@@ -94,7 +100,7 @@ make_and_fit_ratio(Book& book, bool cleanup) {
     p->Fit("gaus","LLQ");
     double mean = p->GetFunction("gaus")->GetParameter(1);
     double sigma = p->GetFunction("gaus")->GetParameter(2);
-    p->Fit("gaus","LLMEQ","",mean-sigma,mean+sigma);
+    p->Fit("gaus","Q","",mean-sigma,mean+sigma);
     book.book(ratio, p);
     
     if(cleanup) {
@@ -134,7 +140,6 @@ make_and_fit_symmchi2(Book& book) {
 
     const unsigned bins = (*p)->GetNbinsX();
     const unsigned guess = guess_bin(*p);
-
     TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
     if(chi2) { 
       const unsigned guess2 = (*p)->FindBin(chi2->GetFunction("SymmetryFit")->GetParameter(0));
@@ -165,6 +170,78 @@ guess_bin(TH1* hist) {
     }
   }
   return (least_low+least_up)/2;
+}
+
+
+void LA_Filler_Fitter::
+make_and_fit_multisymmchi2(Book& book) {
+  for(Book::const_iterator it = book.begin(".*"+method(MULTI,0)+"_var_w2"); it!=book.end(); ++it) {
+    std::string base = boost::erase_all_copy(it.name(),"_var_w2");
+
+    std::vector<TH1*> rebin_hists;
+    TH1* prob_w1 = book(base+"_w1");     rebin_hists.push_back(prob_w1);
+    TH1* all = book(base+"_all");        rebin_hists.push_back(all);
+    TH1* var_w2 = book(base+"_var_w2");   rebin_hists.push_back(var_w2);
+    TH1* var_w3 = book(base+"_var_w3");   rebin_hists.push_back(var_w3);
+    TH1* var2_w2 = book(base+"_var2_w2"); rebin_hists.push_back(var2_w2);
+    TH1* var2_w3 = book(base+"_var2_w3"); rebin_hists.push_back(var2_w3);
+
+    unsigned rebin = std::max(find_rebin(var_w2),find_rebin(var_w3));
+    BOOST_FOREACH(TH1* hist, rebin_hists) hist->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
+
+    TH1* rmsv_w2 = rms_from_x_xx(base+"_rms_w2",var_w2,var2_w2); book.book(base+"_rms_w2",rmsv_w2);
+    TH1* rmsv_w3 = rms_from_x_xx(base+"_rms_w3",var_w3,var2_w3); book.book(base+"_rms_w3",rmsv_w3);
+    prob_w1->Divide(all);
+    for(int i=1; i<=prob_w1->GetNbinsX(); i++) if(!prob_w1->GetBinError(i)) prob_w1->SetBinError(i,1);
+
+    book.erase(base+"_var2_w2");
+    book.erase(base+"_var2_w3");
+    book.erase(base+"_all");
+
+    std::vector<TH1*> fit_hists;
+    fit_hists.push_back(prob_w1);
+    fit_hists.push_back(var_w2);
+    fit_hists.push_back(var_w3);
+    fit_hists.push_back(rmsv_w2);
+    fit_hists.push_back(rmsv_w3);
+
+    const unsigned bins = fit_hists[0]->GetNbinsX();
+    const unsigned guess = fit_hists[0]->FindBin(0);
+    std::cout << "Fitting " << base << "..." << std::flush;
+    TH1* chi2 = SymmetryFit::symmetryChi2(base, fit_hists, std::make_pair(guess-bins/30, guess+bins/30-1));
+    std::cout << std::endl;
+    if(chi2) book.book(SymmetryFit::name(base), chi2);
+  }
+}
+
+unsigned LA_Filler_Fitter::find_rebin(TH1* hist) {
+  double mean = hist->GetMean();
+  double rms = hist->GetRMS();
+  int begin = std::min(                1, hist->FindBin(mean-rms));
+  int end   = std::max(hist->GetNbinsX(), hist->FindBin(mean+rms)) + 1;
+  unsigned current_hole(0), max_hole(0);
+  for(int i=begin; i<end; i++) {
+    if(!hist->GetBinError(i)) current_hole++;
+    else if(current_hole) {max_hole = std::max(current_hole,max_hole); current_hole=0;}
+  }
+  return max_hole+1;
+}
+
+TH1* LA_Filler_Fitter::rms_from_x_xx(std::string name, TH1* m, TH1* mm) {
+  int bins = m->GetNbinsX();
+  TH1* rms = new TH1F(name.c_str(),"",bins, m->GetBinLowEdge(1),  m->GetBinLowEdge(bins) + m->GetBinWidth(bins) );
+  for(int i = 1; i<=bins; i++) {
+    double M = m->GetBinContent(i);
+    double MM = mm->GetBinContent(i);
+    double Me = m->GetBinError(i);
+    double MMe = mm->GetBinError(i);
+
+    if(Me) {
+      rms->SetBinContent(i, sqrt( MM - M*M ) );
+      rms->SetBinError(i, sqrt( 0.5*MMe*MMe + Me*Me ) );
+    }
+  }
+  return rms;
 }
 
 LA_Filler_Fitter::Result LA_Filler_Fitter::
@@ -201,6 +278,16 @@ result(Method m, const std::string name, const Book& book) {
       p.entries = (unsigned) book(base+method(SYMM,0))->GetEntries();
       TF1* f = h->GetFunction("SymmetryFit"); if(!f) break;
       p.measure = f->GetParameter(0);
+      p.measureErr = f->GetParameter(1);
+      p.chi2 = f->GetParameter(2);
+      p.ndof = (unsigned) (f->GetParameter(3));
+    }
+    case MULTI: {
+      p.entries = (unsigned) book(base+method(MULTI,0)+"_w1")->GetEntries();
+      p.entries = (unsigned) book(base+method(MULTI,0)+"_var_w2")->GetEntries();
+      p.entries+= (unsigned) book(base+method(MULTI,0)+"_var_w3")->GetEntries();
+      TF1* f = h->GetFunction("SymmetryFit"); if(!f) break;
+      p.measure = p.reco + f->GetParameter(0);
       p.measureErr = f->GetParameter(1);
       p.chi2 = f->GetParameter(2);
       p.ndof = (unsigned) (f->GetParameter(3));
@@ -260,9 +347,9 @@ summarize_ensembles(Book& book) {
 	book.fill( p.measureErr, name+"_merr",         500, 0, 0.1);
 	book.fill( (p.measure-p.reco)/p.measureErr, name+"_pull", 500, -10,10);
       }
-      book(name+"_measure")->Fit("gaus","LMEQ");
-      book(name+"_merr")->Fit("gaus","LMEQ");
-      book(name+"_pull")->Fit("gaus","LMEQ");
+      book(name+"_measure")->Fit("gaus","LLQ");
+      book(name+"_merr")->Fit("gaus","LLQ");
+      book(name+"_pull")->Fit("gaus","LLQ");
     } catch (edm::Exception e) {
       std::cerr << "Fit summary failed " << std::endl << e << std::endl;
       book.erase(name+"_ensembleReco");
