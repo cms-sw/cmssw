@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.7 2009/05/05 09:42:21 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.16 2009/10/17 14:37:19 hlliu Exp $
 //
 //
 
@@ -29,8 +29,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
-//#include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -45,15 +43,22 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-//#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-//#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-//#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-//#include "DataFormats/V0Candidate/interface/V0Candidate.h"
 
-//#include "DataFormats/EgammaCandidates/interface/Photon.h"
-//#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-//#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
+//Kinematic constraint vertex fitter
+#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
+#include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
+#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
+#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+#include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
 
 using namespace edm;
 using namespace reco;
@@ -72,6 +77,8 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     allowMinApproach_ = iConfig.getParameter<bool>("AllowMinApproach");
     allowOppCharge_ = iConfig.getParameter<bool>("AllowOppCharge");
 
+    allowVertex_ = iConfig.getParameter<bool>("AllowVertex");
+
     halfWayEta_ = iConfig.getParameter<double>("HalfwayEta");//open angle to search track matches with BC
 
     if (allowD0_)
@@ -88,6 +95,12 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 	energyBC_ = iConfig.getParameter<double>("EnergyBC");//BC energy cut
 	energyTotalBC_ = iConfig.getParameter<double>("EnergyTotalBC");//BC energy cut
 
+    }
+
+    if (allowVertex_){
+	maxDistance_ = iConfig.getParameter<double>("maxDistance");
+	maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
+	maxNbrOfIterations_ = iConfig.getParameter<int>("maxNbrOfIterations");
     }
     //Track cuts on left right track: at least one leg reaches ECAL
     //Left track: must exist, must reach Ecal and match BC, so loose cut on Chi2 and tight on hits
@@ -107,6 +120,11 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     // if allow single track collection, by default False
     allowSingleLeg_ = iConfig.getParameter<bool>("AllowSingleLeg");
     rightBC_ = iConfig.getParameter<bool>("AllowRightBC");
+
+    //track inner position dz cut, need RECO
+    dzCut_ = iConfig.getParameter<double>("dz");
+    //track analytical cross cut
+    r_cut = iConfig.getParameter<double>("rCut");
 
     //output
     ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
@@ -150,8 +168,8 @@ double TrackerOnlyConversionProducer::getMinApproach(const TrackRef& ll, const T
 
     const double xx_l = ll->innerPosition().x(), yy_l = ll->innerPosition().y(), zz_l = ll->innerPosition().z();
     const double xx_r = rr->innerPosition().x(), yy_r = rr->innerPosition().y(), zz_r = rr->innerPosition().z();
-    const double radius_l = ll->innerMomentum().Rho()/(.3*(magField->inTesla(GlobalPoint(xx_l, yy_l, zz_l)).z()))*100;
-    const double radius_r = rr->innerMomentum().Rho()/(.3*(magField->inTesla(GlobalPoint(xx_r, yy_r, zz_r)).z()))*100;
+    const double radius_l = ll->innerMomentum().Rho()/(.29979*(magField->inTesla(GlobalPoint(xx_l, yy_l, zz_l)).z()))*100;
+    const double radius_r = rr->innerMomentum().Rho()/(.29979*(magField->inTesla(GlobalPoint(xx_r, yy_r, zz_r)).z()))*100;
     getCircleCenter(ll, radius_l, x_l, y_l);
     getCircleCenter(rr, radius_r, x_r, y_r);
 
@@ -305,9 +323,77 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 	else
 	    appDist = distance;
     }
+
+    if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()){//inner position delta Z cut
+	const double inner_z_l = tk_l->innerPosition().z();
+	const double inner_z_r = tk_r->innerPosition().z();
+	if (fabs(inner_z_l)<120. && fabs(inner_z_r)<120.) {//not using delta z cut in TEC
+	    if (fabs(inner_z_l-inner_z_r) > dzCut_)
+		return false;
+	}
+    }
     //TODO INSERT MORE CUTS HERE!
 
     return true;
+}
+
+//because reco::vertex uses track ref, so have to keep them
+bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r, 
+	const MagneticField* magField,
+	reco::Vertex& the_vertex){
+    bool found = false;
+
+    TransientTrack ttk_l(tk_l, magField);
+    TransientTrack ttk_r(tk_r, magField);
+
+    TwoTrackMinimumDistance md;
+    md.calculate  (  ttk_l.initialFreeState(),  ttk_r.initialFreeState() );
+    GlobalPoint thecross = md.crossingPoint();
+    const double cross_r = sqrt(thecross.x()*thecross.x()+thecross.y()*thecross.y());
+
+    if (cross_r>r_cut){
+	float sigma = 0.00000000001;
+	float chi = 0.;
+	float ndf = 0.;
+	float mass = 0.000000511;
+
+	edm::ParameterSet pSet;
+	pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
+	pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+	pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+
+	KinematicParticleFactoryFromTransientTrack pFactory;
+
+	vector<RefCountedKinematicParticle> particles;
+
+	particles.push_back(pFactory.particle (ttk_l,mass,chi,ndf,sigma));
+	particles.push_back(pFactory.particle (ttk_r,mass,chi,ndf,sigma));
+
+	MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
+
+	KinematicConstrainedVertexFitter kcvFitter;
+	kcvFitter.setParameters(pSet);
+	RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
+	if( myTree->isValid() ) {
+	    myTree->movePointerToTheTop();                                                                                
+	    RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
+	    if (the_photon->currentState().isValid()){                                                                    
+		//const ParticleMass photon_mass = the_photon->currentState().mass();                                       
+		RefCountedKinematicVertex gamma_dec_vertex;                                                               
+		gamma_dec_vertex = myTree->currentDecayVertex();                                                          
+		if( gamma_dec_vertex->vertexIsValid() ){                                                                  
+		    const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
+		    if (chi2Prob>0.005){                                                                                  
+			//const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
+			the_vertex = *gamma_dec_vertex;
+			found = true;
+		    }
+		}
+	    }
+	}
+	delete constr;                                                                                                    
+    }
+    return found;
 }
 
 //calculate the center of track circle in transverse plane
@@ -423,8 +509,10 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	bool found_right = false;//check if right leg found, if no but allowSingleLeg_, go build a conversion with left leg
 	std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
 	std::vector<double> right_candidate_theta, right_candidate_approach;
+	reco::VertexCollection vertex_candidates;//store the candiate vertex to candidate right
 
 	//select right leg candidates, which passed the cuts
+	////TODO translate it!
 	for (std::multimap<double, int>::iterator rr = trackInnerEta.lower_bound(left_eta - halfWayEta_);
 		rr != trackInnerEta.upper_bound(left_eta + halfWayEta_); ++rr){//select neighbor tracks by eta
 	    //Level 2 loop
@@ -444,25 +532,46 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 	    double app_distance = -999.;
 	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
-		right_candidates.push_back(rr->second);
-		right_candidate_theta.push_back(right->innerMomentum().Theta());
-		right_candidate_approach.push_back(app_distance);
+		reco::Vertex the_vertex;//by default it is invalid
+		if (allowVertex_){
+		    if (checkVertex((*ll), right, magField, the_vertex)){
+			right_candidates.push_back(rr->second);
+			right_candidate_theta.push_back(right->innerMomentum().Theta());
+			right_candidate_approach.push_back(app_distance);
+			vertex_candidates.push_back(the_vertex);
+		    }
+		} else {
+		    right_candidates.push_back(rr->second);
+		    right_candidate_theta.push_back(right->innerMomentum().Theta());
+		    right_candidate_approach.push_back(app_distance);
+		}
 	    }
 	}
 	//take the closest to left as right
 	double min_theta = 999., min_approach = -999;;
 	edm::Ref<reco::TrackCollection> right;
+	reco::Vertex fitted_vertex;
 	int right_index = -1;
 	for (unsigned int ii = 0; ii< right_candidates.size(); ++ii){
 	    const double theta_l = (*ll)->innerMomentum().Theta();
 	    const double dCotTheta = 1./tan(theta_l) - 1./tan(right_candidate_theta[ii]);
 	    const double distance = right_candidate_approach[ii];
-	    if (fabs(min_theta) > fabs(dCotTheta) 
-		    &&  min_approach <= distance){
-		min_theta = dCotTheta;
-		min_approach = distance;
-		right_index = right_candidates[ii];;
-		right = allTracks[right_index];
+	    if (allowVertex_){//with vertex
+		if ((vertex_candidates[ii].isValid()) &&  min_approach <= distance){
+		    min_theta = dCotTheta;
+		    min_approach = distance;
+		    right_index = right_candidates[ii];;
+		    right = allTracks[right_index];
+		    fitted_vertex = vertex_candidates[ii];
+		}
+	    } else {//no vertex, cut based analysis
+		if (fabs(min_theta) > fabs(dCotTheta) 
+			&&  min_approach <= distance){
+		    min_theta = dCotTheta;
+		    min_approach = distance;
+		    right_index = right_candidates[ii];;
+		    right = allTracks[right_index];
+		}
 	    }
 	}
 
@@ -485,6 +594,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 	    reco::CaloClusterPtrVector scPtrVec;
 	    reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
+	    //if using kinematic fit
+	    if (allowVertex_) theConversionVertex = fitted_vertex;
+
 	    std::vector<math::XYZPoint> trkPositionAtEcal;
 	    std::vector<reco::CaloClusterPtr> matchingBC;
 
@@ -509,10 +621,6 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 	    reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
 
-	    //TODO: currently, scPtrVec is assigned as matching BC; no Kalman vertex fit, so theConversionVertex validity is false by default
-	    //      for first track (called left), trkPositionAtEcal and matchingBC must be valid
-	    //      for second track (called right), trkPositionAtEcal and matchingBC is not necessary valid
-	    //      so, BE CAREFUL check number of elements before reading them out
 	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist, trackPin, trackPout, algo );
 	    outputConvPhotonCollection.push_back(newCandidate);
 

@@ -4,7 +4,7 @@
  **
  **
  **  $Id:
- **  $Date: 2009/05/05 09:42:17 $
+ **  $Date: 2009/10/15 14:00:05 $
  **  $Revision: 1.4 $
  **  \author H. Liu, UC of Riverside US
  **
@@ -88,6 +88,11 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      const MagneticField* magField,
 	      double& appDist);
 
+      //kinematic vertex fitting, return true for valid vertex
+      bool checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+	      const MagneticField* magField,
+	      reco::Vertex& the_vertex);
+
       //check the closest BC, returns true for found a BC
       bool getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
 	      const math::XYZPoint& trackImpactPosition,
@@ -120,19 +125,24 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       edm::InputTag bcEndcapCollection_;
       std::string ConvertedPhotonCollection_;
 
-      bool allowD0_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_;
+      bool allowD0_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
 
       double energyBC_;//1.5GeV for track BC selection
       double energyTotalBC_;//5GeV for track pair BC selection
       double d0Cut_;//0 for d0*charge cut
+      double dzCut_;//innerposition of z diff cut
       double dEtaTkBC_, dPhiTkBC_;//0.06 0.6 for track and BC matching
 
       double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
       double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
 
       double deltaCotTheta_, deltaPhi_, minApproach_;//0.02 0.2 for track pair open angle and > -0.1 cm
+
+      double maxDistance_, maxOfInitialValue_;
+      int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
+      double r_cut;//cross_r cut
 
       bool allowSingleLeg_;//if single track conversion ?
       bool rightBC_;//if right leg requires matching BC?
