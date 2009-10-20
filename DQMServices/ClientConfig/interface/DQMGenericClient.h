@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2009/09/18 14:13:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/06 11:16:33 $
+ *  $Revision: 1.5 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -19,6 +19,7 @@
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include <TH1.h>
+#include <TPRegexp.h>
 
 class DQMStore;
 class MonitorElement;
@@ -61,7 +62,7 @@ class DQMGenericClient : public edm::EDAnalyzer
 
  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const std::string& type="eff");
 
- void findAllSubdirectories (std::string dir, std::set<std::string> * myList);
+ void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
 
 };
 

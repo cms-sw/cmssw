@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/09/23 08:32:30 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/10/06 11:16:53 $
+ *  $Revision: 1.12 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -28,8 +28,12 @@ using namespace edm;
 typedef MonitorElement ME;
 typedef vector<string> vstring;
 
+TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
+TPRegexp nonPerlWildcard("\\w\\*|^\\*");
+
 DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 {
+
   vstring dummy;
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
@@ -76,39 +80,16 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
     if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
 
-    if ( subDir[subDir.size()-1] == '*' ) {
+    if ( TString(subDir).Contains(metacharacters) ) {
       isWildcardUsed_ = true;
-
 
       const string::size_type shiftPos = subDir.rfind('/');
       const string searchPath = subDir.substr(0, shiftPos);
-      string  startDir = subDir.substr(0, shiftPos);
+      const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
       //std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
       
-      findAllSubdirectories ( startDir, &subDirSet);
-      std::set <std::string>::const_iterator iFoundDir;
-      //for (iFoundDir = subDirSet.begin();
-      //     iFoundDir != subDirSet.end();
-      //     iFoundDir ++) {
-        
-        //std::cout << "Found subdirectory = " << *iFoundDir
-        //          << std::endl;
+      findAllSubdirectories (searchPath, &subDirSet, pattern);
 
-      //}
-        
-      //      theDQM->cd(searchPath);
-
-      //      vector<string> foundDirs = theDQM->getSubdirs();
-      //      const string matchStr = subDir.substr(0, subDir.size()-2);
-
-      //      for(vector<string>::const_iterator iDir = foundDirs.begin();
-      //          iDir != foundDirs.end(); ++iDir) {
-      //        const string dirPrefix = iDir->substr(0, matchStr.size());
-
-      //        if ( dirPrefix == matchStr ) {
-      //          subDirSet.insert(*iDir);
-      //        }
-      //      }
     }
     else {
       subDirSet.insert(subDir);
@@ -539,21 +520,27 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 //=================================
 
-void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList){
+void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
 
-  //std::cout << "Looking for directory " << dir ;
-  if (theDQM->dirExists(dir)){
-    //std::cout << "... it exists! Inserting it into the list ";
-    myList->insert(dir);
-    //std::cout << "... now list has size " << myList->size() << std::endl;
-      
+  if (pattern != "") {
+    if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
+    TPRegexp regexp(pattern);
     theDQM->cd(dir);
     vector <string> foundDirs = theDQM->getSubdirs();
     for(vector<string>::const_iterator iDir = foundDirs.begin();
         iDir != foundDirs.end(); ++iDir) {
-      findAllSubdirectories ( *iDir, myList);
-      //myList.insert((*iDir));
+      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
+      if (dirName.Contains(regexp))
+        findAllSubdirectories ( *iDir, myList);
     }
+  }
+  //std::cout << "Looking for directory " << dir ;
+  else if (theDQM->dirExists(dir)){
+    //std::cout << "... it exists! Inserting it into the list ";
+    myList->insert(dir);
+    //std::cout << "... now list has size " << myList->size() << std::endl;
+    theDQM->cd(dir);
+    findAllSubdirectories (dir, myList, "*");
   } else {
     //std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
     
@@ -562,15 +549,10 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
                                  
   }
   return;
-  
 }
 
 
 void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const std::string & type) {
-
-
-  
-  
   for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
     for (int iBinY = 1; iBinY < denom->GetNbinsY()+1; iBinY++){
       for (int iBinZ = 1; iBinZ < denom->GetNbinsZ()+1; iBinZ++){
@@ -610,10 +592,6 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
 
   //efficiencyHist->setMinimum(0.0);
   //efficiencyHist->setMaximum(1.0);
-
-
 }
-
-
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */
