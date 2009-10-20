@@ -37,7 +37,7 @@ void printHLTResult(const HLTResult& hltresult){
     std::cout<<"lumisec "<<lumisec<<std::endl;
     ++lumisec;
     for(std::vector<hltinfo>::const_iterator itt=it->begin();itt!=it->end();++itt){
-      std::cout<<"\t path: "<<itt->pathname<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
+      std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
     }
   }
 }
