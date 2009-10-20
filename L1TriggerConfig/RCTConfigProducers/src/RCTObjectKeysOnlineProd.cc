@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.4 2009/03/17 09:14:00 efron Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.5 2009/03/28 22:12:27 efron Exp $
 //
 //
 
@@ -76,6 +76,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 
   if( !rctKey.empty() )
     {
+      std::string paremKey, scaleKey, ecalScaleKey ;
       // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = rctKey
       l1t::OMDSReader::QueryResults paremKeyResults =
 	m_omdsReader.basicQuery( "RCT_PARAMETER",
@@ -100,9 +101,36 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 				 paremKeyResults );  // not null no need to check
 
 
-      std::string paremKey, scaleKey ;
+      l1t::OMDSReader::QueryResults ecalScaleKeyResults =
+	m_omdsReader.basicQuery( "ECAL_LUT_CONFIG_ID",
+				 "CMS_RCT",
+				 "ECAL_SCALE_KEY",
+				 "ECAL_SCALE_KEY.ECAL_TAG",
+				 m_omdsReader.basicQuery("ECAL_CONF",
+							 "CMS_RCT",
+							 "RCT_CONF",
+							 "RCT_CONF.ECAL_CONF",
+							 m_omdsReader.singleAttribute(rctKey)));
+       if( ecalScaleKeyResults.queryFailed() ||
+	  paremKeyResults.numberRows() > 1 ) // check query successful)
+
+	{
+	  edm::LogError( "L1-O2O" ) << "Problem with RCT Parameter key." ;
+	  return ;
+	}
+       if(ecalScaleKeyResults.numberRows() == 0 ) // NULL Quantity
+	 ecalScaleKey = "NULL";
+       else {
+	 int ecalScaleTemp;
+	 ecalScaleKeyResults.fillVariable( ecalScaleTemp ) ;
+	 std::stringstream ss;
+	 ss << ecalScaleTemp;
+	 ecalScaleKey = ss.str();
+       }
+
       paremKeyResults.fillVariable( paremKey ) ;
       scaleKeyResults.fillVariable( scaleKey ) ;
+
 
       pL1TriggerKey->add( "L1RCTParametersRcd",
 			  "L1RCTParameters",
@@ -110,6 +138,10 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       pL1TriggerKey->add( "L1EmEtScaleRcd",
 			  "L1CaloEtScale",
 			  scaleKey ) ;
+      pL1TriggerKey->add( "L1CaloEcalScaleRcd",
+			  "L1CaloEcalScale",
+			  ecalScaleKey ) ;
+
     }
 }
 
