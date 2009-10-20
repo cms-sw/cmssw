@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.20 2009/06/19 10:45:01 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.21 2009/07/03 09:43:00 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -196,18 +196,15 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	      // SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id, rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
 	
 	
+	      uint32_t id = detId();
+	      SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
                 if(isPIB) continue;
 		LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-		uint32_t id = detId();
-	        SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 		
 	      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-		uint32_t id = detId();
-		SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
-
                 PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
                 int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
                 int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
@@ -229,7 +226,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	
 		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 	      }
-      
+              delete theModule;
 	}	    
   }
 

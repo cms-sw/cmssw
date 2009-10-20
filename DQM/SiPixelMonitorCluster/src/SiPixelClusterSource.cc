@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.16 2009/06/18 10:27:42 zablocki Exp $
+// $Id: SiPixelClusterSource.cc,v 1.17 2009/07/03 09:32:49 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -143,18 +143,15 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
       int nrows = (pixDet->specificTopology()).nrows();
       int ncols = (pixDet->specificTopology()).ncolumns();
 
+      uint32_t id = detId();
+      SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
       if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
         if(isPIB) continue;
 	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
 
       }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
-
         PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
         int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
         int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
@@ -178,7 +175,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	
 	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
       }
-
+      delete theModule;
     }
   }
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
