@@ -28,7 +28,7 @@ else
 endif
 
 echo "START - All messages in this script pertain to geometry data described in Configuration/StandardSequence ${geometry}"
-echo "        in and xml files in: ${geomxml}" 
+echo "        and xml files in: ${geomxml}" 
 
 # STEP 1:
 # validate current set of xml files in $geomxml is valid
@@ -106,7 +106,7 @@ set totsiz=`(wc -l dddreport.out | awk '{print $1}')`
 tail -$tsdif dddreport.out >& dddreptail.out
 set diffout = `(diff dddreptail.out ../dddreptail.ref)`
 if ( "$diffout" != "") then
-    echo "There ARE differences in the DD named objects from the standard xml files since the last ddreport.sh was run.  Please check ddreptail.out."
+    echo "There ARE differences in the DD named objects from the standard xml files since the last ddreport.sh was run.  Please check dddreptail.out."
 else 
     echo "There ARE NO differences in the DD named objects from the standard xml files since the last ddreport.sh was run."
 endif
@@ -157,7 +157,7 @@ set totsiz=`(wc -l dddreport.out | awk '{print $1}')`
 tail -$tsdif2 dddreport.out >& dddreptail.out
 set diffout = `(diff dddreptail.out ../../dddreptail.ref)`
 if ( "$diffout" != "" ) then
-    echo "There ARE differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run.  Please check ddreptail.out."
+    echo "There ARE differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run.  Please check dddreptail.out."
 else 
     echo "There ARE NO differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run."
 endif
