@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.6 2009/07/27 16:53:32 demattia Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.7 2009/07/28 08:37:13 demattia Exp $
 //
 //
 
@@ -52,6 +52,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   std::string recordName;
 
   bool doRunInfo = false;
+  std::string runInfoTagName = "";
 
   // Set the debug output level
   quality->setPrintDebugOutput( pset_.getParameter<bool>("PrintDebugOutput") );
@@ -80,6 +81,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
       iRecord.getRecord<SiStripDetVOffRcd>().get(tagName,Voff);
       quality->add( Voff.product() );
     } else if (recordName=="RunInfoRcd") {
+      runInfoTagName = tagName;
       doRunInfo = true;
     } else {
       edm::LogError("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Skipping the requested data for unexisting record " << recordName << " with tag " << tagName << std::endl;
@@ -88,7 +90,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   }
   // We do this after all the others so we know it is done after the DetCabling (if any)
   if( doRunInfo ) {
-    iRecord.getRecord<RunInfoRcd>().get(tagName,runInfo);
+    iRecord.getRecord<RunInfoRcd>().get(runInfoTagName,runInfo);
     quality->add( runInfo.product() );
   }
 
