@@ -69,7 +69,6 @@ void IsolatedPixelTrackCandidateProducer::beginJob (edm::EventSetup const & es) 
   edm::ESHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
   getEcalConstants(&(*pDD));
-  std::cout << "ECAL Constants " << rEB_ << " and " << zEE_ << "\n";
 }
 
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
