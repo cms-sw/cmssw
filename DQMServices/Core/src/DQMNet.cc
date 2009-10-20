@@ -1,28 +1,16 @@
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/interface/DQMDefinitions.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
-//#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/src/DQMError.h"
-#include "classlib/sysapi/InetSocket.h" // for completing InetAddress
+#include "classlib/iobase/InetServerSocket.h"
+#include "classlib/iobase/LocalServerSocket.h"
 #include "classlib/iobase/Filename.h"
+#include "classlib/sysapi/InetSocket.h" // for completing InetAddress
 #include "classlib/utils/TimeInfo.h"
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringFormat.h"
 #include "classlib/utils/StringOps.h"
 #include "classlib/utils/SystemError.h"
 #include "classlib/utils/Regexp.h"
-//#include "TBufferFile.h"
-//#include "TObjString.h"
-//#include "TObject.h"
-//#include "TProfile2D.h"
-//#include "TProfile.h"
-//#include "TH3F.h"
-//#include "TH2F.h"
-//#include "TH2S.h"
-//#include "TH2D.h"
-//#include "TH1F.h"
-//#include "TH1S.h"
-//#include "TH1D.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -48,8 +36,10 @@ static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
 std::ostream &
 DQMNet::logme (void)
 {
-  return std::cerr
-    << Time::current().format(true, "%Y-%m-%d %H:%M:%S")
+  Time now = Time::current();
+  return std::cout
+    << now.format(true, "%Y-%m-%d %H:%M:%S.")
+    << now.nanoformat(3, 3)
     << " " << appname_ << "[" << pid_ << "]: ";
 }
 
@@ -952,11 +942,26 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   // Record it to our list of peers.
   lock();
   Peer *p = createPeer(s);
-  InetAddress peeraddr = ((InetSocket *) s)->peername();
-  InetAddress myaddr = ((InetSocket *) s)->sockname();
-  p->peeraddr = StringFormat("%1:%2")
-		.arg(peeraddr.hostname())
-		.arg(peeraddr.port());
+  std::string localaddr;
+  if (InetSocket *inet = dynamic_cast<InetSocket *>(s))
+  {
+    InetAddress peeraddr = inet->peername();
+    InetAddress myaddr = inet->sockname();
+    p->peeraddr = StringFormat("%1:%2")
+		  .arg(peeraddr.hostname())
+		  .arg(peeraddr.port());
+    localaddr = StringFormat("%1:%2")
+		.arg(myaddr.hostname())
+		.arg(myaddr.port());
+  }
+  else if (LocalSocket *local = dynamic_cast<LocalSocket *>(s))
+  {
+    p->peeraddr = local->peername().path();
+    localaddr = local->sockname().path();
+  }
+  else
+    assert(false);
+
   p->mask = IORead|IOUrgent;
   p->socket = s;
 
@@ -964,7 +969,7 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   if (debug_)
     logme()
       << "INFO: new peer " << p->peeraddr << " is now connected to "
-      << myaddr.hostname() << ":" << myaddr.port() << std::endl;
+      << localaddr << std::endl;
 
   // Attach it to the listener.
   sel_.attach(s, p->mask, CreateHook(this, &DQMNet::onPeerData, p));
@@ -1120,6 +1125,41 @@ DQMNet::startLocalServer(int port)
   }
   
   logme() << "INFO: DQM server started at port " << port << std::endl;
+}
+
+/// Start a server socket for accessing this DQM node over a file
+/// system socket.  Must be called before calling run() or start().
+/// May throw an Exception if the server socket cannot be initialised.
+void
+DQMNet::startLocalServer(const char *path)
+{
+  if (server_)
+  {
+    logme() << "ERROR: DQM server was already started.\n";
+    return;
+  }
+
+  try
+  {
+    server_ = new LocalServerSocket(path, 10);
+    server_->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
+    server_->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
+    server_->setBlocking(false);
+    sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
+  }
+  catch (Error &e)
+  {
+    // FIXME: Do we need to do this when we throw an exception anyway?
+    // FIXME: Abort instead?
+    logme()
+      << "ERROR: Failed to start server at path " << path << ": "
+      << e.explain() << std::endl;
+
+    raiseDQMError("DQMNet::startLocalServer", "Failed to start server at path"
+		  " %s: %s", path, e.explain().c_str());
+  }
+  
+  logme() << "INFO: DQM server started at path " << path << std::endl;
 }
 
 /// Tell the network layer to connect to @a host and @a port and

@@ -1,7 +1,7 @@
 #ifndef DQMSERVICES_CORE_DQM_NET_H
 # define DQMSERVICES_CORE_DQM_NET_H
 
-# include "classlib/iobase/InetServerSocket.h"
+# include "classlib/iobase/Socket.h"
 # include "classlib/iobase/IOSelector.h"
 # include "classlib/iobase/Pipe.h"
 # include "classlib/utils/Signal.h"
@@ -155,6 +155,7 @@ public:
   void			debug(bool doit);
   void			delay(int delay);
   void			startLocalServer(int port);
+  void			startLocalServer(const char *path);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
   void			shutdown(void);
@@ -191,7 +192,7 @@ public:
   };
 
   static size_t
-  dqmhash(const std::string &key)
+  dqmhash(const void *key, size_t keylen)
     {
       // Reduced version of Bob Jenkins' hash function at:
       //   http://www.burtleburtle.net/bob/c/lookup3.c
@@ -213,12 +214,11 @@ public:
         c ^= b; c -= dqmhashrot(b,24); }
  
       uint32_t a, b, c;
-      uint32_t length = key.size();
-      a = b = c = 0xdeadbeef + length;
-      const unsigned char *k = (const unsigned char *) key.data();
+      a = b = c = 0xdeadbeef + (uint32_t) keylen;
+      const unsigned char *k = (const unsigned char *) key;
 
       // all but the last block: affect some bits of (a, b, c)
-      while (length > 12)
+      while (keylen > 12)
       {
         a += k[0];
         a += ((uint32_t)k[1]) << 8;
@@ -233,12 +233,12 @@ public:
         c += ((uint32_t)k[10]) << 16;
         c += ((uint32_t)k[11]) << 24;
         dqmhashmix(a,b,c);
-        length -= 12;
+        keylen -= 12;
         k += 12;
       }
 
       // last block: affect all 32 bits of (c); all case statements fall through
-      switch(length)
+      switch (keylen)
       {
       case 12: c += ((uint32_t)k[11]) << 24;
       case 11: c += ((uint32_t)k[10]) << 16;
@@ -313,7 +313,7 @@ private:
   int			pid_;
 
   lat::IOSelector	sel_;
-  lat::InetServerSocket	*server_;
+  lat::Socket		*server_;
   lat::Pipe		wakeup_;
   lat::Time		version_;
 
@@ -364,7 +364,7 @@ protected:
       size_t namepos = (slash == std::string::npos ? 0 : slash+1);
       std::string path(name, 0, dirpos);
       ObjType proto;
-      proto.hash = dqmhash(name);
+      proto.hash = dqmhash(name.c_str(), name.size());
       proto.dirname = &path;
       proto.objname.append(name, namepos, std::string::npos);
 
@@ -412,7 +412,7 @@ protected:
       o.version = 0;
       o.dirname = &*ip->dirs.insert(name.substr(0, dirpos)).first;
       o.objname.append(name, namepos, std::string::npos);
-      o.hash = dqmhash(name);
+      o.hash = dqmhash(name.c_str(), name.size());
       return const_cast<ObjType *>(&*ip->objs.insert(o).first);
     }
 
