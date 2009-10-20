@@ -13,8 +13,13 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& e
   poissonDistribution_(eng),
   flatDistribution_(eng)
 {
+  // we have two cases: 512 and 768 channels
+  // other cases are not allowed so far (performances issue)
+  for(unsigned int i=0;i<512;++i) channel512_[i]=i;
+  for(unsigned int i=0;i<768;++i) channel768_[i]=i;
 }
 
+// this version is used by pixel
 void GaussianTailNoiseGenerator::generate(int NumberOfchannels, 
 					  float threshold, 
 					  float noiseRMS, 
@@ -45,6 +50,7 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
   }
 }
 
+// this version is used by strips
 void GaussianTailNoiseGenerator::generate(int NumberOfchannels, 
 					  float threshold, 
 					  float noiseRMS, 
@@ -53,28 +59,27 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
   // Gaussian tail probability
   gsl_sf_result result;
   int status = gsl_sf_erf_Q_e(threshold, &result);
-  
   if (status != 0) std::cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
-  
   double probabilityLeft = result.val;  
   double meanNumberOfNoisyChannels = probabilityLeft * NumberOfchannels;
   int numberOfNoisyChannels = poissonDistribution_.fire(meanNumberOfNoisyChannels);
+  if(numberOfNoisyChannels>NumberOfchannels) numberOfNoisyChannels=NumberOfchannels;
 
+  // Compute the list of noisy channels
   theVector.reserve(numberOfNoisyChannels);
   float lowLimit = threshold * noiseRMS;
+  int*  channels = getRandomChannels(numberOfNoisyChannels,NumberOfchannels);
+  
   for (int i = 0; i < numberOfNoisyChannels; i++) {
-
-    // Find a random channel number    
-    int theChannelNumber = (int)flatDistribution_.fire(NumberOfchannels);
-    
     // Find random noise value
     double noise = generate_gaussian_tail(lowLimit, noiseRMS);
-              
     // Fill in the vector
-    theVector.push_back(std::pair<int, float>(theChannelNumber, noise));
+    theVector.push_back(std::pair<int, float>(channels[i], noise));
   }
 }
 
+/*
+// used by strips in VR mode
 void GaussianTailNoiseGenerator::generateRaw(int NumberOfchannels, 
 					     float noiseRMS, 
 					     std::vector<std::pair<int,float> > &theVector ) {
@@ -85,6 +90,37 @@ void GaussianTailNoiseGenerator::generateRaw(int NumberOfchannels,
     // Fill in the vector
     theVector.push_back(std::pair<int, float>(i,noise));
   }
+}
+*/
+
+// used by strips in VR mode
+void GaussianTailNoiseGenerator::generateRaw(float noiseRMS,
+                                             std::vector<double> &theVector ) {
+  // it was shown that a complex approach, inspired from the ZS case,
+  // does not allow to gain much. 
+  // A cut at 2 sigmas only saves 25% of the processing time, while the cost
+  // in terms of meaning is huge.
+  // We therefore use here the trivial approach (as in the early 2XX cycle)
+  unsigned int numberOfchannels = theVector.size();
+  for (int i = 0; i < numberOfchannels; ++i) {
+    if(theVector[i]==0) theVector[i] = gaussDistribution_.fire(0.,noiseRMS);
+  }
+}
+
+int*
+GaussianTailNoiseGenerator::getRandomChannels(int numberOfNoisyChannels, int numberOfchannels) {
+  if(numberOfNoisyChannels>numberOfchannels) numberOfNoisyChannels = numberOfchannels;
+  int* array = channel512_;
+  if(numberOfchannels==768) array = channel768_;
+  int theChannelNumber;
+  for(int j=0;j<numberOfNoisyChannels;++j) {
+    theChannelNumber = (int)flatDistribution_.fire(numberOfchannels-j)+j;
+    // swap the two array elements... this is optimized by the compiler
+    int b = array[j];
+    array[j] = array[theChannelNumber];
+    array[theChannelNumber] = b;
+  }
+  return array;
 }
 
 double
