@@ -9,7 +9,7 @@
 
 using namespace std;
 
-bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const float & latency, const uint16_t mode )
+bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode )
 {
   if( detId > 536870911 ) {
     stringstream error;
@@ -81,11 +81,11 @@ void SiStripLatency::compress()
 //   return pos;
 // }
 
-float SiStripLatency::latency(const uint32_t detId, const uint16_t apv) const
+uint16_t SiStripLatency::latency(const uint32_t detId, const uint16_t apv) const
 {
   const latConstIt & pos = position(detId, apv);
   if( pos == latencies_.end() ) {
-    return -1.;
+    return 255;
   }
   return pos->latency;
 }
@@ -99,7 +99,7 @@ uint16_t SiStripLatency::mode(const uint32_t detId, const uint16_t apv) const
   return pos->mode;
 }
 
-pair<float, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, const uint16_t apv) const
+pair<uint16_t, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, const uint16_t apv) const
 {
   const latConstIt & pos = position(detId, apv);
   if( pos == latencies_.end() ) {
@@ -108,7 +108,7 @@ pair<float, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, const
   return make_pair(pos->latency, pos->mode);
 }
 
-float SiStripLatency::singleLatency() const
+uint16_t SiStripLatency::singleLatency() const
 {
   if( latencies_.size() == 1 ) {
     return latencies_[0].latency;
@@ -144,7 +144,7 @@ uint16_t SiStripLatency::singleMode() const
   return 0;
 }
 
-// pair<float, uint16_t> SiStripLatency::singleLatencyAndMode() const
+// pair<uint16_t, uint16_t> SiStripLatency::singleLatencyAndMode() const
 // {
 //   if( latencies_.size() == 1 ) {
 //     return make_pair(latencies_[0].latency, latencies_[0].mode);
@@ -154,7 +154,7 @@ uint16_t SiStripLatency::singleMode() const
 
 void SiStripLatency::printSummary(std::stringstream & ss) const
 {
-  float lat = singleLatency();
+  uint16_t lat = singleLatency();
   uint16_t mode = singleMode();
   if( lat != -1. ) {
     ss << "All the Tracker has the same latency = " << lat << endl;

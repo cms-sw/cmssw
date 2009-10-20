@@ -20,7 +20,11 @@ using namespace std;
  * <br>
  * The internal Latency object stores the detId and apv value in a compressed
  * (bit shifted) uint32_t holding both the values. It stores the latency value
- * in a float and the mode value in an unsigned char (possible values 0-255). <br>
+ * in a uint8_t (unsigned char). The APV user guide reports a maximum value of 191
+ * for the latency, so the uint8_t (0-255) is enough. If the value is not filled or
+ * the detId is not found it will return latency = 255. <br>
+ * The mode value is also stored in an unsigned char (possible values 0-255). The invalid
+ * case returns mode = 0 in this case. <br>
  * To save space, since typically the latency and mode is the same for all apvs, the ranges
  * of consecutive detIds and apvs are collapsed in the last value, so that the lower_bound
  * binary search will return the correct latency. <br>
@@ -55,7 +59,7 @@ class SiStripLatency
   // Defined as public for genreflex
   struct Latency
   {
-    Latency(const uint32_t inputDetIdAndApv, const float & inputLatency, const uint16_t inputMode) :
+    Latency(const uint32_t inputDetIdAndApv, const uint16_t inputLatency, const uint16_t inputMode) :
       detIdAndApv(inputDetIdAndApv),
       latency(inputLatency),
       mode(inputMode)
@@ -63,11 +67,11 @@ class SiStripLatency
     /// Default constructor needed by genreflex
     Latency() :
       detIdAndApv(0),
-      latency(-1.),
+      latency(255),
       mode(0)
     {}
     uint32_t detIdAndApv;
-    float latency;
+    unsigned char latency;
     unsigned char mode;
   };
   typedef vector<Latency>::iterator latIt;
@@ -79,20 +83,21 @@ class SiStripLatency
    * if the compress method is not called, only the space used would be more than
    * needed.
    */
-  bool put( const uint32_t detId, const uint16_t apv, const float & latency, const uint16_t mode );
-  float latency(const uint32_t detId, const uint16_t apv) const;
+  bool put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode );
+  uint16_t latency(const uint32_t detId, const uint16_t apv) const;
   uint16_t mode(const uint32_t detId, const uint16_t apv) const;
-  pair<float, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
+  pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
   inline vector<Latency> allLatencyAndModes() const { return latencies_; }
 
-  /** Reduce ranges of consecutive detIdsAndApvs with the same latency to one value (the latest)
-   * so that lower_bound will return the correct value for latency.
+  /** Reduce ranges of consecutive detIdsAndApvs with the same latency and mode to
+   * one value (the latest) so that lower_bound will return the correct value for
+   * latency and mode.
    */
   void compress();
   /// If all the latency values stored are equal return that value, otherwise return -1
-  float singleLatency() const;
+  uint16_t singleLatency() const;
   uint16_t singleMode() const;
-  //   pair<float, uint16_t> singleLatencyAndMode() const;
+  //   pair<uint16_t, uint16_t> singleLatencyAndMode() const;
 
   /// Prints the number of ranges as well as the value of singleLatency and singleMode
   void printSummary(std::stringstream & ss) const;
