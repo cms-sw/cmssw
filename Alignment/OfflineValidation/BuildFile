@@ -19,10 +19,11 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
+#TrackingTools/Records to be added for interface/TrackerValidationVariables.h, 
+# but remove later
 <use name=SimDataFormats/Track>
-<use name=SimDataFormats/GeneratorProducts>                                                                                
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimTracker/TrackAssociation>
-<use name=SimTracker/Records>
 
 <use name=rootrflx>
 
