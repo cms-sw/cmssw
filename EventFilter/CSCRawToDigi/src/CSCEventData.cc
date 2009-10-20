@@ -484,10 +484,8 @@ void CSCEventData::selfTest() {
   assert(me1bbs.size() == 16);
 
   assert(me1afs[4].getStrip() == 5);
-  // numbers get reversed
-  assert(me1bfs[7].getStrip() == 9);
-  // is this what it should be?
-  assert(me1abs[4].getStrip() == 60);
+  assert(me1bfs[7].getStrip() == 8);
+  assert(me1abs[4].getStrip() == 5);
   assert(me1bbs[7].getStrip() == 8);
   assert(me1afs[4].pedestal() == 600);
   assert(me1bfs[7].pedestal() == 600);
