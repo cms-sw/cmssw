@@ -18,9 +18,10 @@
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=SimDataFormats/Track>
-<use name=SimDataFormats/GeneratorProducts>                                                                                
+<use name=SimDataFormats/GeneratorProducts>
+<use name=SimTracker/Records>
 <use name=SimTracker/TrackAssociation>
-<use name=DQMServices/Core>
+# temporary removal<use name=DQMServices/Core>
 
 <use name=CLHEP>
 <use name=root>

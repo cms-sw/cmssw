@@ -1,7 +1,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+// for things in align namespace
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -30,6 +31,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
