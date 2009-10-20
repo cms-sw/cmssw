@@ -85,12 +85,10 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
   }
   
   // Fill DT-specific timing information block     
-  if (dtTmSeq.totalWeight)
-    fillTimeFromMeasurements(dtTmSeq, dtTime);
+  fillTimeFromMeasurements(dtTmSeq, dtTime);
 
   // Fill CSC-specific timing information block     
-  if (cscTmSeq.totalWeight)
-    fillTimeFromMeasurements(cscTmSeq, cscTime);
+  fillTimeFromMeasurements(cscTmSeq, cscTime);
        
   // Combine the TimeMeasurementSequences from all subdetectors
   TimeMeasurementSequence combinedTmSeq;
@@ -99,8 +97,7 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
   if (useECAL_) addEcalTime(muon,combinedTmSeq);
 
   // Fill the master timing block
-  if (combinedTmSeq.totalWeight>0.) 
-    fillTimeFromMeasurements(combinedTmSeq, combinedTime);
+  fillTimeFromMeasurements(combinedTmSeq, combinedTime);
     
   LogTrace("MuonTime") << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Free 1/beta: " << combinedTime.freeInverseBeta() << " +/- " << combinedTime.freeInverseBetaErr()<<std::endl;
@@ -120,6 +117,8 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
   double vertexTime=0, vertexTimeErr=0, vertexTimeR=0, vertexTimeRErr=0;    
   double freeBeta, freeBetaErr, freeTime, freeTimeErr;
 
+  if (tmSeq.dstnc.size()<=1) return;
+
   for (unsigned int i=0;i<tmSeq.dstnc.size();i++) {
     invbeta+=(1.+tmSeq.local_t0.at(i)/tmSeq.dstnc.at(i)*30.)*tmSeq.weight.at(i)/tmSeq.totalWeight;
     x.push_back(tmSeq.dstnc.at(i)/30.);
@@ -138,7 +137,7 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
     vertexTimeRErr+=diff*diff*tmSeq.weight.at(i);
   }
   
-  double cf = fabs(1./(tmSeq.dstnc.size()-1.+1e-8));//can a zero happen here?
+  double cf = 1./(tmSeq.dstnc.size()-1);
   invbetaerr=sqrt(invbetaerr/tmSeq.totalWeight*cf);
   vertexTimeErr=sqrt(vertexTimeErr/tmSeq.totalWeight*cf);
   vertexTimeRErr=sqrt(vertexTimeRErr/tmSeq.totalWeight*cf);
