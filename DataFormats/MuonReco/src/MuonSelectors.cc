@@ -345,7 +345,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
       int lastSegBit = 0;
       if(theRequiredStationMask) {
          for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
-            if(theRequiredStationMask & 1<<stationIdx)
+	   if(theRequiredStationMask & 1<<stationIdx){
                if(theStationMask & 1<<stationIdx) {
                   lastSegBit = stationIdx;
                   goodMuon &= 1;
@@ -354,6 +354,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                   goodMuon = false;
                   break;
                }
+	   }
       } else {
          for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
             if(theStationMask & 1<<stationIdx) {

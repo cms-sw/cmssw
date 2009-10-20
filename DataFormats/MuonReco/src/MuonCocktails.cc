@@ -39,11 +39,17 @@ reco::TrackRef muon::tevOptimized( const reco::TrackRef& combinedTrack,
 
 //  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
 
-  if (prob[3]==0.)
-    if (prob[2]>0.) chosen=2; else
-      if (prob[1]>0.) chosen=1; else
+  if (prob[3]==0.){
+    if (prob[2]>0.){
+      chosen=2;
+    } else {
+      if (prob[1]>0.){
+	chosen=1; 
+      } else {
         if (prob[0]>0.) chosen=0;
-
+      }
+    }
+  }
   if ( prob[0]>0. && prob[3]>0. && ((prob[3]-prob[0]) > 30.) ) chosen=0;
   if ( prob[2]>0. && ((prob[chosen]-prob[2]) > 0.) ) chosen=2;
     
