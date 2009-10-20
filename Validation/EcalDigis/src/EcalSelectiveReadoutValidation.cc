@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2009/02/17 13:40:43 $
- * $Revision: 1.21 $
+ * $Date: 2009/08/03 12:49:21 $
+ * $Revision: 1.23 $
  *
  */
 
@@ -680,7 +680,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
 void EcalSelectiveReadoutValidation::updateL1aRate(const edm::Event& event){
   const int32_t bx = event.bunchCrossing();
-  if(bx<1 | bx > 3564) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
+  if( (bx<1) | (bx>3564) ) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
                        //  << "bx value, " << bx << " is out of range\n";
   
   int64_t t = event.bunchCrossing() + (event.orbitNumber()-1)*3564;
