@@ -16,7 +16,7 @@ EnsembleCalibrationLA::EnsembleCalibrationLA(const edm::ParameterSet& conf) :
   nbins( conf.getParameter<unsigned>("NBins")),
   lowBin( conf.getParameter<double>("LowBin")),
   highBin( conf.getParameter<double>("HighBin")),
-  vMethods( conf.getParameter<std::vector<unsigned> >("Methods"))
+  vMethods( conf.getParameter<std::vector<int> >("Methods"))
 {}
 
 void EnsembleCalibrationLA::
