@@ -14,10 +14,6 @@
 // user include files
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -52,12 +48,15 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
     ("PFRecTrackLabel");
 
   produces<GsfPFRecTrackCollection>();
+  produces<GsfPFRecTrackCollection>( "Secondary" ).setBranchAlias( "secondary" );
+
 
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   modemomentum_ = iConfig.getParameter<bool>("ModeMomentum");
   applySel_ = iConfig.getParameter<bool>("applyEGSelection");
   applyGsfClean_ = iConfig.getParameter<bool>("applyGsfTrackCleaning");
   useFifthStep_ = iConfig.getParameter<bool>("useFifthTrackingStep");
+  useFifthStepSec_ = iConfig.getParameter<bool>("useFifthTrackingStepForSecondaries");
   detaGsfSC_ = iConfig.getParameter<double>("MinDEtaGsfSC");
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
@@ -87,6 +86,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     gsfPFRecTrackCollection(new GsfPFRecTrackCollection);
 
   
+  auto_ptr< GsfPFRecTrackCollection > 
+    gsfPFRecTrackCollectionSecondary(new GsfPFRecTrackCollection);
+
   //read collections of tracks
   Handle<GsfTrackCollection> gsfelectrons;
   iEvent.getByLabel(gsfTrackLabel_,gsfelectrons);
@@ -104,48 +106,21 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
   
+
+    vector<reco::GsfPFRecTrack> selGsfPFRecTracks(0);
+    selGsfPFRecTracks.clear();
+    
+    
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
       
       GsfTrackRef trackRef(gsfelectrons, igsf);
-     
+      
       int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
       
       if (kf_ind>=0) {
 	
 	PFRecTrackRef kf_ref(thePfRecTrackCollection,
 			     kf_ind);
-	
-        
-	if(useFifthStep_ == false) {
-	  TrackRef kfref = kf_ref->trackRef();
-	  unsigned int Algo = 0; 
-	  switch (kfref->algo()) {
-	  case TrackBase::ctf:
-	  case TrackBase::iter0:
-	  case TrackBase::iter1:
-	    Algo = 0;
-	    break;
-	  case TrackBase::iter2:
-	    Algo = 1;
-	    break;
-	  case TrackBase::iter3:
-	    Algo = 2;
-	    break;
-	  case TrackBase::iter4:
-	    Algo = 3;
-	    break;
-	  case TrackBase::iter5:
-	    Algo = 4;
-	    break;
-	  default:
-	    Algo = 5;
-	    break;
-	  }
-	  if ( Algo >= 4 ) {
-	    continue;
-	  }
-	}
-
 	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
 				reco::PFRecTrack::GSF, 
 				igsf, trackRef,
@@ -162,80 +137,93 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 							    tjvec[igsf],
 							    modemomentum_);
       bool passSel = true;
-      bool keepGsf = true;
       if(applySel_) 
 	passSel = applySelection(gsftracks[igsf]);      
 
-      if(applyGsfClean_) 
-	keepGsf = resolveGsfTracks(gsftracks,igsf);
-      
 
-      if(validgsfbrem && passSel && keepGsf)
-	gsfPFRecTrackCollection->push_back(pftrack_);
+      if(validgsfbrem && passSel) 
+	selGsfPFRecTracks.push_back(pftrack_);
     }
-    //OTHER GSF TRACK COLLECTION
-    if(conf_.getParameter<bool>("AddGSFTkColl")){
-     
-      Handle<GsfElectronCollection> ElecCollection;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfElectrons"), ElecCollection);
-      GsfElectronCollection::const_iterator iel = ElecCollection->begin();
-      GsfElectronCollection::const_iterator iel_end = ElecCollection->end();
+    if(selGsfPFRecTracks.size() > 0) {
+      for(uint ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
+	
+	vector<unsigned int> secondaries(0);
+	secondaries.clear();
+	bool keepGsf = true;
+	
+	if(applyGsfClean_) {
+	  keepGsf = resolveGsfTracks(selGsfPFRecTracks,ipfgsf,secondaries);
+	}
 
-      Handle<GsfTrackCollection> otherGsfColl;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfTracks"),otherGsfColl);
-      GsfTrackCollection othergsftracks = *(otherGsfColl.product());
+	//is primary? 
+	if(keepGsf == true) {
+	  PFRecTrackRef refprimKF =  selGsfPFRecTracks[ipfgsf].kfPFRecTrackRef();
 
-      Handle<vector<Trajectory> > TrajectoryCollection;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfTracks"),TrajectoryCollection);
-      vector<Trajectory> newtj= *(TrajectoryCollection.product());
- 
-      for(;iel!=iel_end;++iel){
-       uint ibest =9999; float diffbest=10000.;
-       for (uint igsf=0; igsf<othergsftracks.size();igsf++) {
-	 float diff =(iel->gsfTrack()->momentum()-othergsftracks[igsf].momentum()).Mag2();
-	 if (diff<diffbest){
-	   ibest=igsf;
-	   diffbest=diff;
-	 }
-       }
+	  // SKIP 5TH STEP IF REQUESTED
+	  if(refprimKF.isNonnull()) {
+	    if(useFifthStep_ == false) {
+	      bool isFifthStepTrack = isFifthStep(refprimKF);
+	      if(isFifthStepTrack)
+		continue;
+	    }
+	  }
+	  
+	  // save primaries gsf tracks
+	  gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
 
-       if (ibest==9999 || diffbest>0.00001) continue;
 
-       if(otherElId(gsftracks,othergsftracks[ibest])){
-	 GsfTrackRef trackRef(otherGsfColl, ibest);
-	 
-	 int kf_ind=FindPfRef(PfRTkColl,othergsftracks[ibest],true);
-	 
-	 if (kf_ind>=0) {	      
-	   PFRecTrackRef kf_ref(thePfRecTrackCollection,
-				kf_ind);
-	   pftrack_=GsfPFRecTrack( othergsftracks[ibest].charge(), 
-				   reco::PFRecTrack::GSF, 
-				   ibest, trackRef,
-				   kf_ref);
-	 } else  {
-	   PFRecTrackRef dummyRef;
-	   pftrack_=GsfPFRecTrack( othergsftracks[ibest].charge(), 
-				   reco::PFRecTrack::GSF, 
-				   ibest, trackRef,
-				   dummyRef);
-	 }
-	 bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
-							       othergsftracks[ibest], 
-							       newtj[ibest],
-							       modemomentum_); 
-	 if(validgsfbrem)
-	   gsfPFRecTrackCollection->push_back(pftrack_);
-	 
-       }
+
+	  // NOTE:: THE TRACKID IS USED TO LINK THE PRIMARY GSF TRACK. THIS NEEDS 
+	  // TO BE CHANGED AS SOON AS IT IS POSSIBLE TO CHANGE DATAFORMATS
+	  // A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
+	  unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
+	  if(secondaries.size() > 0) {
+	    // loop on secondaries gsf tracks (from converted brems)
+	    for(uint isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
+	      
+	      PFRecTrackRef refsecKF =  selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
+
+	      // SKIP 5TH STEP IF REQUESTED
+	      if(refsecKF.isNonnull()) {
+		if(useFifthStepSec_ == false) {
+		  bool isFifthStepTrack = isFifthStep(refsecKF);
+		  if(isFifthStepTrack)
+		    continue;
+		}
+	      }
+
+	      unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
+	      GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();;
+	      if(refsecKF.isNonnull()) {
+		// NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
+		secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
+					    reco::PFRecTrack::GSF, 
+					    primGsfIndex, secGsfRef,
+					    refsecKF);
+		
+	      }
+	      else{
+		PFRecTrackRef dummyRef;
+		// NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
+		secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
+					    reco::PFRecTrack::GSF, 
+					    primGsfIndex, secGsfRef,
+					    dummyRef);
+	      }
+	      bool validgsfbrem = pfTransformer_->addPointsAndBrems(secpftrack_, 
+								    gsftracks[secGsfIndex], 
+								    tjvec[secGsfIndex],
+								    modemomentum_);
+	      if(validgsfbrem) 
+		gsfPFRecTrackCollectionSecondary->push_back(secpftrack_);
+	    }
+	  }
+	}
       }
     }
-    
-
-
-
 
     iEvent.put(gsfPFRecTrackCollection);
+    iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";
   
 }
@@ -322,34 +310,40 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   }
   return -1;
 }
+bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
 
-bool 
-PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl, 
-			    reco::GsfTrack GsfTk){
-  int nhits=GsfTk.numberOfValidHits();
-  GsfTrackCollection::const_iterator igs=GsfColl.begin();
-  GsfTrackCollection::const_iterator igs_end=GsfColl.end();  
-  uint shared=0;
-  for(;igs!=igs_end;++igs){
-    uint tmp_sh=0;
-    trackingRecHit_iterator  ghit=igs->recHitsBegin();
-    trackingRecHit_iterator  ghit_end=igs->recHitsEnd();
-    for (;ghit!=ghit_end;++ghit){
+  bool isFithStep = false;
+  
 
-      if (!((*ghit)->isValid())) continue;
-      
-      trackingRecHit_iterator  hit=GsfTk.recHitsBegin();
-      trackingRecHit_iterator  hit_end=GsfTk.recHitsEnd();
- 
-      for (;hit!=hit_end;++hit){
-	if (!((*hit)->isValid())) continue;
-	if(((*hit)->geographicalId()==(*ghit)->geographicalId())&&
-	   (((*hit)->localPosition()-(*ghit)->localPosition()).mag()<0.01)) tmp_sh++;
-      }
-    }
-    if (tmp_sh>shared) shared=tmp_sh;
+  TrackRef kfref = pfKfTrack->trackRef();
+  unsigned int Algo = 0; 
+  switch (kfref->algo()) {
+  case TrackBase::ctf:
+  case TrackBase::iter0:
+  case TrackBase::iter1:
+    Algo = 0;
+    break;
+  case TrackBase::iter2:
+    Algo = 1;
+    break;
+  case TrackBase::iter3:
+    Algo = 2;
+    break;
+  case TrackBase::iter4:
+    Algo = 3;
+    break;
+  case TrackBase::iter5:
+    Algo = 4;
+    break;
+  default:
+    Algo = 5;
+    break;
   }
-  return ((float(shared)/float(nhits))<0.5);
+  if ( Algo >= 4 ) {
+    isFithStep = true;
+  }
+
+  return isFithStep;
 }
 // -- method to apply gsf electron selection to EcalDriven seeds
 bool 
@@ -378,22 +372,28 @@ PFElecTkProducer::applySelection(reco::GsfTrack gsftk) {
   return passCut;
 }
 bool 
-PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, unsigned int ngsf) {
-  if (&(*GsfCol[ngsf].seedRef())==0) return false;    
-  ElectronSeedRef nElSeedRef=GsfCol[ngsf].extra()->seedRef().castTo<ElectronSeedRef>();
+PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec, 
+				   unsigned int ngsf, 
+				   vector<unsigned int> &secondaries) {
+
+
+  reco::GsfTrackRef nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
+
+  if (&(*nGsfTrack->seedRef())==0) return false;    
+  ElectronSeedRef nElSeedRef=nGsfTrack->extra()->seedRef().castTo<ElectronSeedRef>();
   
 
   bool n_keepGsf = true;
-  const math::XYZPoint nxyz = GsfCol[ngsf].innerPosition();
-  int nhits=GsfCol[ngsf].numberOfValidHits();
-  int ncharge = GsfCol[ngsf].chargeMode();
-  TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[ngsf]);
-  TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[ngsf]);
+  const math::XYZPoint nxyz = nGsfTrack->innerPosition();
+  int nhits=nGsfTrack->numberOfValidHits();
+  int ncharge = nGsfTrack->chargeMode();
+  TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface((*nGsfTrack));
+  TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface((*nGsfTrack));
   GlobalVector ninnMom;
 
   int outCharge = -2;
   int inCharge = -2;
-  float nPin =  GsfCol[ngsf].pMode();
+  float nPin =  nGsfTrack->pMode();
   if(outTSOS.isValid())
     outCharge = mtsMode_->chargeFromMode(outTSOS);	  
   if(inTSOS.isValid()){
@@ -402,37 +402,39 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
     nPin = ninnMom.mag();
   }
 
-  float nchi2 = GsfCol[ngsf].chi2();
-  float neta = GsfCol[ngsf].etaMode();
-  float nphi = GsfCol[ngsf].phiMode();
+  float nchi2 = nGsfTrack->chi2();
+  float neta = nGsfTrack->etaMode();
+  float nphi = nGsfTrack->phiMode();
   float ndist = sqrt(nxyz.x()*nxyz.x()+
 		     nxyz.y()*nxyz.y()+
 		     nxyz.z()*nxyz.z());
   
+
   
-  
-  for (uint igsf=0; igsf<GsfCol.size();igsf++) {
+  for (uint igsf=0; igsf< GsfPFVec.size();igsf++) {
     if(igsf != ngsf ) {
-      
-      float ieta = GsfCol[igsf].etaMode();
-      float iphi = GsfCol[igsf].phiMode();
+
+      reco::GsfTrackRef iGsfTrack = GsfPFVec[igsf].gsfTrackRef();
+
+      float ieta = iGsfTrack->etaMode();
+      float iphi = iGsfTrack->phiMode();
       float feta = fabs(neta - ieta);
       float fphi = fabs(nphi - iphi);
       if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();     
-      const math::XYZPoint ixyz = GsfCol[igsf].innerPosition();
+      const math::XYZPoint ixyz = iGsfTrack->innerPosition();
       float idist = sqrt(ixyz.x()*ixyz.x()+
 			 ixyz.y()*ixyz.y()+
 			 ixyz.z()*ixyz.z());
       
+      float minBremDphi =  selectSecondaries(GsfPFVec[ngsf],GsfPFVec[igsf]);
+      if(feta < 0.05 && (fabs(fphi) < 0.3 ||  minBremDphi < 0.05)) {
 
-      if(feta < 0.05 && fabs(fphi) < 0.3) {
-
-	TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);
-	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[igsf]);
+	TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface((*iGsfTrack));
+	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
 	GlobalVector i_innMom;
 	int i_outCharge = -2;
 	int i_inCharge = -2;
-	float iPin = GsfCol[igsf].pMode();
+	float iPin = iGsfTrack->pMode();
 	if(i_outTSOS.isValid())
 	  i_outCharge = mtsMode_->chargeFromMode(i_outTSOS);	  
 	if(i_inTSOS.isValid()){
@@ -441,9 +443,9 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	  iPin = i_innMom.mag();
 	}
 
-	if (&(*GsfCol[igsf].seedRef())==0) continue;    
-	ElectronSeedRef iElSeedRef=GsfCol[igsf].extra()->seedRef().castTo<ElectronSeedRef>();
-
+	if (&(*iGsfTrack->seedRef())==0) continue;    
+	ElectronSeedRef iElSeedRef=iGsfTrack->extra()->seedRef().castTo<ElectronSeedRef>();
+	
 	// First Case: both gsf track have a reference to a SC: cleaning using SC 
 	if(nElSeedRef->caloCluster().isNonnull() && iElSeedRef->caloCluster().isNonnull()) {
 
@@ -459,13 +461,13 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	      float iEP =  iscRef->energy()/iPin;
 	     
 	      
-	      trackingRecHit_iterator  nhit=GsfCol[ngsf].recHitsBegin();
-	      trackingRecHit_iterator  nhit_end=GsfCol[ngsf].recHitsEnd();
+	      trackingRecHit_iterator  nhit=nGsfTrack->recHitsBegin();
+	      trackingRecHit_iterator  nhit_end=nGsfTrack->recHitsEnd();
 	      unsigned int tmp_sh = 0;
 	      for (;nhit!=nhit_end;++nhit){
 		if ((*nhit)->isValid()){
-		  trackingRecHit_iterator  ihit=GsfCol[igsf].recHitsBegin();
-		  trackingRecHit_iterator  ihit_end=GsfCol[igsf].recHitsEnd();
+		  trackingRecHit_iterator  ihit=iGsfTrack->recHitsBegin();
+		  trackingRecHit_iterator  ihit_end=iGsfTrack->recHitsEnd();
 		  for (;ihit!=ihit_end;++ihit){
 		    if ((*ihit)->isValid()) {
 		      if((*nhit)->sharesInput(&*(*ihit),TrackingRecHit::all))  tmp_sh++; 
@@ -485,6 +487,15 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 		    n_keepGsf = false;
 		    return n_keepGsf;
 		  }
+		  else{
+		    if(minBremDphi < 0.05) 
+		      secondaries.push_back(igsf);
+		  }
+		}
+		else {
+		  // save secondaries gsf track (put selection)
+		  if(minBremDphi < 0.05) 
+		    secondaries.push_back(igsf);
 		}
 	      }			      
 	    }
@@ -494,9 +505,9 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	  // Second Case: One Gsf has reference to a SC and the other one not or both not
 	  // Cleaning using: starting point 
 	 
-	  int ihits=GsfCol[igsf].numberOfValidHits();
-	  float ichi2 = GsfCol[igsf].chi2();
-	  int icharge = GsfCol[igsf].chargeMode();
+	  int ihits=iGsfTrack->numberOfValidHits();
+	  float ichi2 = iGsfTrack->chi2();
+	  int icharge = iGsfTrack->chargeMode();
 	  
 	  if (idist < (ndist-5)) {
 	    n_keepGsf = false;
@@ -512,12 +523,12 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	    unsigned int sharedMod = 0;
 	    unsigned int sharedHits = 0;
 	    
-	    trackingRecHit_iterator  nhit=GsfCol[ngsf].recHitsBegin();
-	    trackingRecHit_iterator  nhit_end=GsfCol[ngsf].recHitsEnd();
+	    trackingRecHit_iterator  nhit=nGsfTrack->recHitsBegin();
+	    trackingRecHit_iterator  nhit_end=nGsfTrack->recHitsEnd();
 	    for (;nhit!=nhit_end;++nhit){
 	      if ((*nhit)->isValid()){
-		trackingRecHit_iterator  ihit=GsfCol[igsf].recHitsBegin();
-		trackingRecHit_iterator  ihit_end=GsfCol[igsf].recHitsEnd();
+		trackingRecHit_iterator  ihit=iGsfTrack->recHitsBegin();
+		trackingRecHit_iterator  ihit_end=iGsfTrack->recHitsEnd();
 		for (;ihit!=ihit_end;++ihit){
 		  if ((*ihit)->isValid()) {
 		    if((*ihit)->geographicalId()==(*nhit)->geographicalId()) sharedMod++;
@@ -532,8 +543,8 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 	    if (den == 0) den = 1;	    
 	    float fracMod = sharedMod*1./den*1.;
 	    
-	    TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface(GsfCol[igsf]);
-	    TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface(GsfCol[igsf]);
+	    TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface((*iGsfTrack));
+	    TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
 	    int i_outCharge = -2;
 	    int i_inCharge = -2;
 	    if(i_outTSOS.isValid())
@@ -551,17 +562,81 @@ PFElecTkProducer::resolveGsfTracks(const reco::GsfTrackCollection  & GsfCol, uns
 		n_keepGsf = false;
 		return n_keepGsf;
 	      }
+	      else {
+		if(minBremDphi < 0.05) 
+		  secondaries.push_back(igsf);
+	      }
 	    }
 	    if(fracMod > 0.3 && sharedHits > 1 && outCharge != -2 && inCharge != outCharge) {
 	      n_keepGsf = false;
 	      return n_keepGsf;
 	    }
+	    else {
+	      if(minBremDphi < 0.05) 
+		secondaries.push_back(igsf);
+	    }
+	  } // end elseif
+	  else {
+	    if(minBremDphi < 0.05) 
+	      secondaries.push_back(igsf);
 	  }
 	}
       }
     }
   }
+
   return n_keepGsf;
+}
+float 
+PFElecTkProducer::selectSecondaries(const reco::GsfPFRecTrack primGsf,
+				    const reco::GsfPFRecTrack secGsf) {
+  //   bool isValidSecondary = false;
+  
+  float minDeta = 1000.; 
+  float minDphi = 1000.; 
+
+  // possible other selections
+  // secondary p < primary p 
+
+
+  std::vector<reco::PFBrem> primPFBrem = primGsf.PFRecBrem();
+  std::vector<reco::PFBrem> secPFBrem = secGsf.PFRecBrem();
+
+
+  unsigned int cbrem = 0;
+
+  for (unsigned isbrem = 0; isbrem < secPFBrem.size(); isbrem++) {
+    if(secPFBrem[isbrem].indTrajPoint() == 99) continue;
+    const reco::PFTrajectoryPoint& atSecECAL 
+      = secPFBrem[isbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+    if( ! atSecECAL.isValid() ) continue;
+    float secEta = atSecECAL.positionREP().Eta();
+    float secPhi  = atSecECAL.positionREP().Phi();
+
+
+    for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
+      if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
+      const reco::PFTrajectoryPoint& atPrimECAL 
+	= primPFBrem[ipbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+      if( ! atPrimECAL.isValid() ) continue;
+      float primEta = atPrimECAL.positionREP().Eta();
+      float primPhi = atPrimECAL.positionREP().Phi();
+      
+      float deta = fabs(primEta - secEta);
+      float dphi = fabs(primPhi - secPhi);
+      if (dphi>TMath::Pi()) dphi-= TMath::TwoPi();     
+      if(fabs(dphi) < minDphi) {	   
+	minDeta = deta;
+	minDphi = fabs(dphi);
+      }
+    }
+    
+    
+    cbrem++;
+    if(cbrem == 2) 
+      break;
+  }
+  return minDphi;
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 

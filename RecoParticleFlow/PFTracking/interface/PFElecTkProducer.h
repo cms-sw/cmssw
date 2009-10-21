@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
@@ -18,12 +19,12 @@ class TrackerGeometry;
 
 /// \brief Abstract
 /*!
-\author Michele Pioppi
+\author Michele Pioppi, Daniele Benedetti
 \date January 2007
 
- PFElecTkProducer reads GsfTracks collection
- built with the seeds saved by module GoodSeedProducer
- and transform them in PFRecTracks.
+ PFElecTkProducer reads the merged GsfTracks collection
+ built with the TrackerDriven and EcalDriven seeds 
+ and transform them in PFGsfRecTracks.
 */
 
 class PFElecTkProducer : public edm::EDProducer {
@@ -45,17 +46,21 @@ class PFElecTkProducer : public edm::EDProducer {
     
       int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
 		    reco::GsfTrack, bool);
- 
-      bool otherElId(const reco::GsfTrackCollection  & GsfColl, 
-		     reco::GsfTrack GsfTk);
       
+      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+
       bool applySelection(reco::GsfTrack);
       
-      bool resolveGsfTracks(const reco::GsfTrackCollection  & GsfColl,
-			    unsigned int igsf);
+      bool resolveGsfTracks(const std::vector<reco::GsfPFRecTrack> &GsfPFVec,
+			    unsigned int ngsf,
+			    std::vector<unsigned int> &secondaries);
+
+      float selectSecondaries(const reco::GsfPFRecTrack primGsf,
+			      const reco::GsfPFRecTrack secGsf); 
       
       // ----------member data ---------------------------
       reco::GsfPFRecTrack pftrack_;
+      reco::GsfPFRecTrack secpftrack_;
       edm::ParameterSet conf_;
       edm::InputTag gsfTrackLabel_;
       edm::InputTag pfTrackLabel_;
@@ -71,6 +76,7 @@ class PFElecTkProducer : public edm::EDProducer {
       bool applySel_;
       bool applyGsfClean_;
       bool useFifthStep_;
+      bool useFifthStepSec_;
       double SCEne_;
       double detaGsfSC_;
       double dphiGsfSC_;
