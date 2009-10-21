@@ -19,7 +19,7 @@ HodoscopeDetId::HodoscopeDetId(int indexPlane, int indexFibr)
       iFibr < MIN_FIBR || iFibr > MAX_FIBR) {
     throw cms::Exception("InvalidDetId") << "HodoscopeDetId:  Cannot create object.  Indexes out of bounds.";
   }
-  id_|= (iPlane&0x3 | ((iFibr&0x3F)<<2)) ;
+  id_ |= ((iPlane&0x3) | ((iFibr&0x3F)<<2)) ;
 }
   
 HodoscopeDetId::HodoscopeDetId(const DetId& gen) {
