@@ -45,7 +45,7 @@ VertexSorting::VertexSorting(const edm::ParameterSet &params) :
 std::vector<unsigned int> VertexSorting::operator () (
 		const std::vector<SecondaryVertex> &svCandidates) const
 {
-	Measurement1D (SecondaryVertex::*measurementFn)() const;
+	Measurement1D (SecondaryVertex::*measurementFn)() const = 0;
 	switch(sortCriterium) {
 	    case sortDist3dErr:
 	    case sortDist3dVal:
@@ -59,7 +59,7 @@ std::vector<unsigned int> VertexSorting::operator () (
 		break;
 	}
 
-	double (Measurement1D::*valueFn)() const;
+	double (Measurement1D::*valueFn)() const = 0;
 	switch(sortCriterium) {
 	    case sortDist3dErr:
 	    case sortDist2dErr:
