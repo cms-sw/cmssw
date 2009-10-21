@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.39 2009/07/07 15:52:30 rougny Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.40 2009/07/24 10:49:31 rougny Exp $
 //
 //
 
@@ -72,8 +72,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
     min_nentries_=1;
   else
     min_nentries_=0;
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=test");   
+  ::putenv((char*)"CORAL_AUTH_USER=me");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test");   
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now using fit function " << fitfunction_ << ", which has " << nfitparameters_ << " free parameters. " << std::endl;
   func_= new TF1("func",fitfunction_.c_str(),0,256*scalarVcalHigh_VcalLow_);
   graph_ = new TGraphErrors();
