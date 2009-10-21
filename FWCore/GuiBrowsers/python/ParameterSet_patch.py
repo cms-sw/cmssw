@@ -97,8 +97,9 @@ def new_recurseResetModified_(self, o):
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
 def new_recurseDumpModified_(self, name, o):
+    """
     dumpPython = ""
-    if hasattr(o, "parameterNames_"):
+    if hasattr(o, "parameterNames_"):      
         for key in o.parameterNames_():
             value = getattr(o, key)
             dump = self.recurseDumpModified_(name + "." + key, value)
@@ -119,7 +120,43 @@ def new_recurseDumpModified_(self, name, o):
             dumpPython += "\n"
         dumpPython += dump
     return dumpPython
+    """
+    
+    # gfball's interpretation.
+    # Recurse over items that are Parameterizable (all modules, parametersets), printing out modifications as comments then the current value as python.
+    # This should cover everything defined in items_() below except for sequence types. However, looking at the code although _ModuleSequenceType has a parameter '_isModified' there are no conditions under which it is set.
+    # 
+    dumpPython = ""
+    # Test this is a parameterizable object. This ignores any parameters never placed in a PSet, but I don't think they're interesting anyway?
+    if isinstance(o, cms._Parameterizable):
+        
+        # Build a dictionary parametername->[modifications of that param,...] so that we group all modification statements for a single parameter together.
+        mod_dict = {}          
+        for mod in o._modifications:
+            if mod['name'] in mod_dict:
+                mod_dict[mod['name']] += [mod]
+            else:
+                mod_dict[mod['name']] = [mod]
+        
+        # Loop over modified parameters at this level, printing them
+        for paramname in mod_dict:
+            for mod in mod_dict[paramname]:
+                dumpPython += "# MODIFIED BY %(file)s:%(line)s; %(old)s -> %(new)s\n" % mod
+            dumpPython += "process.%s.%s = %s\n\n" % (name,paramname,getattr(o,paramname)) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
+            
+        # Loop over any child elements
+        for key in o.parameterNames_():
+            value = getattr(o,key)
+            dumpPython += self.recurseDumpModified_("%s.%s"%(name,key),value)
+    
+    # Test if we have a VPSet (I think the code above would miss checking a VPSet for modified children too)
+    if isinstance(o, cms._ValidatingListBase):
+        for index,item in enumerate(o):
+            dumpPython += self.recurseDumpModified_("%s[%s]"%(name,index),item)
+    return dumpPython    
 cms.Process.recurseDumpModified_=new_recurseDumpModified_
+
+
 
 def new_resetModified(self):
     modification = self.dumpModified()[0]
@@ -171,3 +208,30 @@ def new_items_(self):
         items += [("schedule", self.schedule)]
     return tuple(items)
 cms.Process.items_=new_items_
+
+from copy import deepcopy
+import inspect
+
+def new_Parameterizable_init(self,*a,**k):
+  self.__dict__['_modifications'] = []
+  self.old__init__(*a,**k)
+  self._modifications = []
+cms._Parameterizable.old__init__ = cms._Parameterizable.__init__
+cms._Parameterizable.__init__ = new_Parameterizable_init
+
+def new_Parameterizable_addParameter(self, name, value):
+  self.old__addParameter(name,value)
+  self._modifications.append({'file':inspect.stack()[3][1],'line':inspect.stack()[3][2],'name':name,'old':None,'new':deepcopy(value)})
+cms._Parameterizable.old__addParameter = cms._Parameterizable._Parameterizable__addParameter
+cms._Parameterizable._Parameterizable__addParameter = new_Parameterizable_addParameter
+
+def new_Parameterizable_setattr(self, name, value):
+  if (not self.isFrozen()) and (not name.startswith('_')) and (name in self.__dict__):
+    self._modifications.append({'file':inspect.stack()[1][1],'line':inspect.stack()[1][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value)})
+  self.old__setattr__(name,value)
+cms._Parameterizable.old__setattr__ = cms._Parameterizable.__setattr__
+cms._Parameterizable.__setattr__ = new_Parameterizable_setattr
+
+
+    
+  
