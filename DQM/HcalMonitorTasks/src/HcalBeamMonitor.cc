@@ -511,7 +511,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	     ++HFiter) 
 	  {  // loop on hfHits
 	    // If hit present, don't count it as ZS any more
-	    int ieta = HFiter->id().ieta();
+	    ieta = HFiter->id().ieta();
 	    
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // luminosity ring check
 	      (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
@@ -531,7 +531,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    else phi=(HFiter->id().iphi()-72)*0.087266;
            
 	    int mult = 1;
-	    if (HFiter->id().ieta()<0) mult=-1;
+	    if (ieta<0) mult=-1;
 
 	    if (HFiter->id().depth()==1)
 	      {
@@ -541,13 +541,13 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 		Etsum_map_L->Fill(eta*mult,phi,et);
 		Etsum_rphi_L->Fill(r,phi,et);
 	      
-		if(HFiter->id().ieta()>0) {
- 		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
-		hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et;
+		if(ieta>0) {
+ 		hitsp[ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
+		hitsp_Et[ieta-29][(HFiter->id().iphi()-1)/2][0]=et;
 	      }
-	      else if(HFiter->id().ieta()<0) {
-		hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
-		hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et; 
+	      else if(ieta<0) {
+		hitsm[-ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
+		hitsm_Et[-ieta-29][(HFiter->id().iphi()-1)/2][0]=et; 
 	      }
 	      } // if (HFiter->id().depth()==1)
          
@@ -558,14 +558,14 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 		Etsum_phi_S->Fill(phi,et);
 		Etsum_rphi_S->Fill(r,phi,et); 
 		Etsum_map_S->Fill(eta*mult,phi,et);
-		if(HFiter->id().ieta()>0)  
+		if(ieta>0)  
 		  {
-		    hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
-		    hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+		    hitsp[ieta-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+		    hitsp_Et[ieta-29][(HFiter->id().iphi()-1)/2][1]=et;
 		  }
-		else if(HFiter->id().ieta()<0)  { 
-		  hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
-		  hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+		else if(ieta<0)  { 
+		  hitsm[-ieta-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+		  hitsm_Et[-ieta-29][(HFiter->id().iphi()-1)/2][1]=et;
 		}
           
 	      } // depth()==2
