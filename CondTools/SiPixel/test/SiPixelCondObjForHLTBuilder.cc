@@ -40,8 +40,8 @@ SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet
       fromFile_(conf_.getParameter<bool>("fromFile")),
       fileName_(conf_.getParameter<std::string>("fileName"))
 {
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_USER=me");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
 }
 
 void
@@ -49,10 +49,10 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
    unsigned int run=iEvent.id().run();
-   unsigned int nmodules = 0;
+   int nmodules = 0;
    uint32_t nchannels = 0;
-   int mycol = 415;
-   int myrow = 159;
+//    int mycol = 415;
+//    int myrow = 159;
 
    edm::LogInfo("SiPixelCondObjForHLTBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
    //
@@ -119,7 +119,7 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	     
 	     pIndexConverter.transformToROC( i , j ,chipIndex,colROC,rowROC);
 	     int chanROC = PixelIndices::pixelToChannelROC(rowROC,colROC); // use ROC coordinates
-	     float pp0=0, pp1=0;
+	     //	     float pp0=0, pp1=0;
 	     std::map<int,CalParameters,std::less<int> >::const_iterator it=calmap_.find(chanROC);
 	     CalParameters theCalParameters  = (*it).second;
 	     ped  = theCalParameters.p0;
@@ -289,8 +289,8 @@ SiPixelCondObjForHLTBuilder::endJob() {
 
 bool SiPixelCondObjForHLTBuilder::loadFromFile() {
   
-  float par0,par1,par2,par3;
-  int rocid,colid,rowid;
+  float par0,par1;//,par2,par3;
+  int colid,rowid; //rocid
   std::string name;
   
   std::ifstream in_file;  // data file pointer

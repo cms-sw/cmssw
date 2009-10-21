@@ -45,9 +45,9 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
 
 
    edm::Service<TFileService> fs;
-   _TH2F_dead_modules_BPIX_lay1 =  fs->make<TH2F>("dead_modules_BPIX_lay1","Dead modules in BPIX Layer 1",112,-28.,28.,50,0.,3.2);
-   _TH2F_dead_modules_BPIX_lay2 =  fs->make<TH2F>("dead_modules_BPIX_lay2","Dead modules in BPIX Layer 2",112,-28.,28.,50,0.,3.2);
-   _TH2F_dead_modules_BPIX_lay3 =  fs->make<TH2F>("dead_modules_BPIX_lay3","Dead modules in BPIX Layer 3",112,-28.,28.,50,0.,3.2);
+   _TH2F_dead_modules_BPIX_lay1 =  fs->make<TH2F>("dead_modules_BPIX_lay1","Dead modules in BPIX Layer 1",112,-28.,28.,100,-3.2,3.2);
+   _TH2F_dead_modules_BPIX_lay2 =  fs->make<TH2F>("dead_modules_BPIX_lay2","Dead modules in BPIX Layer 2",112,-28.,28.,100,-3.2,3.2);
+   _TH2F_dead_modules_BPIX_lay3 =  fs->make<TH2F>("dead_modules_BPIX_lay3","Dead modules in BPIX Layer 3",112,-28.,28.,100,-3.2,3.2);
    _TH2F_dead_modules_FPIX_minusZ_disk1 =  fs->make<TH2F>("dead_modules_minusZ_disk1","Dead modules in FPIX minus Z disk 1",80,-18.,18.,80,-18.,18.);
    _TH2F_dead_modules_FPIX_minusZ_disk2 =  fs->make<TH2F>("dead_modules_minusZ_disk2","Dead modules in FPIX minus Z disk 2",80,-18.,18.,80,-18.,18.);
    _TH2F_dead_modules_FPIX_plusZ_disk1 =  fs->make<TH2F>("dead_modules_plusZ_disk1","Dead modules in FPIX plus Z disk 1",80,-18.,18.,80,-18.,18.);

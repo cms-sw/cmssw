@@ -6,6 +6,7 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(

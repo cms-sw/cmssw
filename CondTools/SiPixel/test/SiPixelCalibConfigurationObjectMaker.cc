@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Sep 19 13:43:52 CEST 2007
-// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.3 2008/06/12 10:09:39 fblekman Exp $
+// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.4 2008/06/26 12:04:02 fblekman Exp $
 //
 //
 
@@ -69,8 +69,8 @@ SiPixelCalibConfigurationObjectMaker::SiPixelCalibConfigurationObjectMaker(const
 
 {
    //now do what ever initialization is needed
-  ::putenv("CORAL_AUTH_USER=testuser");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_USER=testuser");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
 }
 
 

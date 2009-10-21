@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.4 2009/02/20 15:59:33 rougny Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.5 2009/05/28 22:12:55 dlange Exp $
 //
 //
 
@@ -69,8 +69,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
 
   edm::Service<TFileService> fs;
 
-  bool usedmean=false;
-  bool isdead=false;
+//   bool usedmean=false;
+//   bool isdead=false;
   TH1F *VCAL_endpoint = fs->make<TH1F>("VCAL_endpoint","value where response = 255 ( x = (255 - ped)/gain )",256,0,256);
   TH1F *goodgains = fs->make<TH1F>("goodgains","gain values",100,0,10);
   TH1F *goodpeds = fs->make<TH1F>("goodpeds","pedestal values",356,-100,256);
@@ -87,8 +87,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
   tree->Branch("gain",&gainfortree,"gain/F");
   tree->Branch("chi2",&chi2fortree,"chi2/F");
 
-  TH1F *gainPerDetid;
-  TH1F *pedPerDetid;
+//   TH1F *gainPerDetid;
+//   TH1F *pedPerDetid;
   
   size_t ntimes=0;
   std::cout << "now filling record " << record_ << std::endl;
@@ -335,7 +335,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
 	float ped=peds[jrow];
 	float gain=gains[jrow];
 	
-	if( ped>pedlow_ && gain>gainlow_ && ped<pedhi_ & gain<gainhi_ ){
+	if( ped>pedlow_ && gain>gainlow_ && ped<pedhi_ && gain<gainhi_ ){
 	  theGainCalibrationDbInput_->setData(ped, gain, theSiPixelGainCalibrationPerPixel);
 	  theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
 	}
@@ -492,20 +492,23 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
 
 SiPixelGainCalibrationReadDQMFile::SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet& iConfig):
   conf_(iConfig),
-  rootfilestring_(conf_.getUntrackedParameter<std::string>("inputrootfile","inputfile.root")),
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
   theGainCalibrationDbInput_(0),
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
   theGainCalibrationDbInputService_(iConfig),
-  usemeanwhenempty_(conf_.getUntrackedParameter<bool>("useMeanWhenEmpty",false)),
   record_(conf_.getUntrackedParameter<std::string>("record","SiPixelGainCalibrationOfflineRcd")),
-  gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(-256),gainmax_(20),pedmax_(200),badchi2_(conf_.getUntrackedParameter<double>("badChi2Prob",0.01)),nmaxcols(10*52),nmaxrows(160)
- 
+  gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(-256),
+  usemeanwhenempty_(conf_.getUntrackedParameter<bool>("useMeanWhenEmpty",false)),
+  rootfilestring_(conf_.getUntrackedParameter<std::string>("inputrootfile","inputfile.root")),
+  gainmax_(20),pedmax_(200),badchi2_(conf_.getUntrackedParameter<double>("badChi2Prob",0.01)),nmaxcols(10*52),nmaxrows(160)
+
+
+
 {
    //now do what ever initialization is needed
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=test");   
+  ::putenv((char*)"CORAL_AUTH_USER=me");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test");   
   meanGainHist_= new TH1F("meanGainHist","mean Gain Hist",500,0,gainmax_);
   meanPedHist_ = new TH1F("meanPedHist", "mean Ped Hist", 512,-200,pedmax_);
   defaultGain_=new TH2F("defaultGain","default gain, contains mean",nmaxcols,0,nmaxcols,nmaxrows,0,nmaxrows);// using dummy (largest) module size
@@ -648,7 +651,7 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
   for(size_t idir=0; idir<dirlist.size() ; ++idir){
     //    std::cout << "good dir "  << dirlist[idir] << std::endl;
     
-    uint32_t detid;
+    uint32_t detid = 1;
     
     dir = therootfile_->GetDirectory(dirlist[idir]);
     list = dir->GetListOfKeys();

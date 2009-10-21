@@ -33,6 +33,7 @@ SiPixelQuality* SiPixelBadModuleByHandBuilder::getNewObject(){
 
 
     SiPixelQuality::disabledModuleType BadModule;
+    BadModule.errorType = 3; BadModule.BadRocs = 0;
     BadModule.DetID = it->getParameter<uint32_t>("detid");
     std::string errorstring = it->getParameter<std::string>("errortype");
     std::cout << "now looking at detid " << BadModule.DetID << ", string " << errorstring << std::endl;
