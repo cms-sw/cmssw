@@ -415,7 +415,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
       matacq_ = MatacqRawEvent((unsigned char*)&data_[0], len*8);
     } else {
       if((searchBackward && (orb < orbitId))
-	 || (!searchBackward) && (orb > orbitId)){ //search ended
+	 || (!searchBackward && orb > orbitId)){ //search ended
 	lastOrb_ = orb;      
 	state = failed;
 	if(verbosity_) cout << "[Matacq] Event search failed." << "\n";
