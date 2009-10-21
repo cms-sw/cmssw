@@ -611,14 +611,16 @@ namespace edm
     pedIter = pedMap.find(detid);
     if( pedIter != pedMap.end() ) {
       aped = (*pedIter);
+      pedeStals[0] = aped.mean_x12;
+      pedeStals[1] = aped.mean_x6;
+      pedeStals[2] = aped.mean_x1;
     } else {
-      edm::LogError("DataMixing") << "Cannot find pedestals";  
+      edm::LogError("DataMixingMissingInput") << "Cannot find pedestals";  
+      pedeStals[0] = 0;
+      pedeStals[1] = 0;
+      pedeStals[2] = 0;
     }
     
-    
-    pedeStals[0] = aped.mean_x12;
-    pedeStals[1] = aped.mean_x6;
-    pedeStals[2] = aped.mean_x1;
     
     return pedeStals;
   }
