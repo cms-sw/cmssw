@@ -136,11 +136,15 @@ namespace edm {
       if (auxBranch_) {
         // Add the auxiliary branch back after fast copying the rest of the tree.
         Int_t last = branches->GetLast();
-        branches->AddAtAndExpand(branches->At(last), last+1);
-        for(Int_t ind = last-1; ind >= auxIndex; --ind) {
-          branches->AddAt(branches->At(ind), ind+1);
-        };
-        branches->AddAt(auxBranch_, auxIndex);
+        if (last >= 0) {
+          branches->AddAtAndExpand(branches->At(last), last+1);
+          for(Int_t ind = last-1; ind >= auxIndex; --ind) {
+            branches->AddAt(branches->At(ind), ind+1);
+          };
+          branches->AddAt(auxBranch_, auxIndex);
+        } else {
+          branches->Add(auxBranch_);
+        }
       }
     }
   }
