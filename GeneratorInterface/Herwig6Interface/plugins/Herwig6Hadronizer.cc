@@ -660,23 +660,23 @@ int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
 
 			q = *iter;
 			if (q->status() == 3 ||
-			    (status == 120 || status == 123 ||
-			     status == 124) && orig > 124)
+			    ((status == 120 || status == 123 ||
+			      status == 124) && orig > 124))
 				return 4;
 		}
 	}
 
 	int nesting = 0;
 	for(;;) {
-		if (status >= 120 && status <= 122 || status == 3) {
+		if ((status >= 120 && status <= 122) || status == 3) {
 			// avoid flagging status 3 if there is a
 			// better status 3 candidate upstream
 			if (externalPartons)
-				return (orig >= 121 && orig <= 124 ||
+				return ((orig >= 121 && orig <= 124) ||
 				        orig == 3) ? 3 : 4;
 			else
 				return (nesting ||
-				        status != 3 && orig <= 124) ? 3 : 4;
+				        (status != 3 && orig <= 124)) ? 3 : 4;
 		}
 
 		// check whether we are leaving the hard process
