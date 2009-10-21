@@ -154,7 +154,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
   egHLTOffEles.clear();
   egHLTOffEles.reserve(recoEles_->size());
   for(reco::GsfElectronCollection::const_iterator gsfIter=recoEles_->begin(); gsfIter!=recoEles_->end();++gsfIter){
-    if(!gsfIter->isEcalDriven()) continue; //avoid PF electrons (this is Eg HLT validation and HLT is ecal driven)
+    if(!gsfIter->ecalDrivenSeed()) continue; //avoid PF electrons (this is Eg HLT validation and HLT is ecal driven)
 
     OffEle::IsolData isolData;   
     fillIsolData(*gsfIter,isolData);
