@@ -9,6 +9,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -113,7 +115,7 @@ void PixelVertexProducerClusters::produce
 //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
         DetId id = recHit->geographicalId();
         const PixelGeomDetUnit* pgdu =
-          dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(id));
+          dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
         const RectangularPixelTopology* theTopol =
           dynamic_cast<const RectangularPixelTopology*>( &(pgdu->specificTopology()) );
         vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
