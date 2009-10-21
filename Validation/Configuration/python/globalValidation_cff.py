@@ -24,9 +24,27 @@ from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.Mixing.mixCollectionValidation_cfi import *
 from Validation.RecoJets.JetValidation_cff import *
+from Validation.RecoMET.METRelValForDQM_cff import *
 
-globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+tracksValidation+
-                                ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+ecalClustersValidationSequence+
-                                hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
-                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation+muIsoVal_seq+muonIdValDQMSeq
-                                +mixCollectionValidation+JetValidation)
+globalValidation = cms.Sequence(   trackerHitsValidation 
+                                 + trackerDigisValidation 
+                                 + trackerRecHitsValidation 
+                                 + trackingTruthValid 
+                                 + trackingRecHitsValid 
+                                 + tracksValidation 
+                                 + ecalSimHitsValidationSequence 
+                                 + ecalDigisValidationSequence 
+                                 + ecalRecHitsValidationSequence 
+                                 + ecalClustersValidationSequence 
+                                 + hcalSimHitStudy
+                                 + hcalRecHitsValidationSequence
+                                 + calotowersValidationSequence
+                                 + validSimHit+muondtdigianalyzer 
+                                 + cscDigiValidation
+                                 + validationMuonRPCDigis 
+                                 + recoMuonValidation 
+                                 + muIsoVal_seq 
+                                 + muonIdValDQMSeq 
+                                 + mixCollectionValidation 
+                                 + JetValidation 
+                                 + METValidation )
