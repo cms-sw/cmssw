@@ -14,7 +14,7 @@ using namespace std;
 // and MET cleaning.  This list is not exhaustive and additional 
 // information will be added in the future. 
 //-------------------------------------
-//reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, CommonMETData met)
+
 reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold)
 { 
   // Instantiate the container to hold the calorimeter specific information
@@ -31,7 +31,6 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.EmEtInHF = 0.0;           // Em energy in HF
   specific.EtFractionHadronic = 0.0; // Hadronic energy fraction
   specific.EtFractionEm = 0.0;       // Em energy fraction
-  specific.METSignificance = -1.0;    // MET Significance
   specific.CaloSETInpHF = 0.0;        // CaloSET in HF+ 
   specific.CaloSETInmHF = 0.0;        // CaloSET in HF- 
   specific.CaloMETInpHF = 0.0;        // CaloMET in HF+ 
@@ -59,6 +58,11 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
       CaloMET specificmet( specific, met.sumet, p4, vtx );
       return specificmet;
     }
+<<<<<<< CaloSpecificAlgo.cc
+
+  // make a calomet object
+=======
+>>>>>>> 1.22
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
   for( ; towerCand != towers->end(); towerCand++ ) 

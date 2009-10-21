@@ -25,7 +25,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id$
+// $Id: significanceAlgo.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 //
 //
 
@@ -41,11 +41,19 @@
 //  where Chisq_0 is the value of Chi squared at MET=0.
 //
 //
-// $Id: significanceAlgo.h,v 1.2 2008/03/26 17:52:19 kstory Exp $
+// $Id: significanceAlgo.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 // 
 // Revision history
 // 
 // $Log: significanceAlgo.h,v $
+// Revision 1.1  2008/04/18 10:12:55  fblekman
+// First implementation (very preliminary) of missing ET significance algorithm.
+// This code is currently still heavily under development so please bear with us.
+//
+// cheers,
+//
+//   Freya (for the Cornell MET significance group)
+//
 // Revision 1.2  2008/03/26 17:52:19  kstory
 // Tower Based Algorithm.  significanceAlgo now using matrix operations.
 //
@@ -74,9 +82,28 @@
 #include "TVectorD.h"
 
 namespace metsig{
-  //double chisq( double x,  double y,  double X0,  double Y0,  double rho,  double sigma_x,  double sigma_y);
-  void rotateMatrix( Double_t theta, TMatrixD &v);  
-  double ASignificance(const std::vector<metsig::SigInputObj>& EventVec, double& met_r, double& met_phi, double& met_set);
+  class significanceAlgo{
+  public:
+    significanceAlgo();
+    ~significanceAlgo();
+
+    const void addSignifMatrix(const TMatrixD &input);
+    const void setSignifMatrix(const TMatrixD &input,const double &met_r, const double &met_phi, const double &met_set);
+    const double significance(double& met_r, double& met_phi, double& met_set);
+    const void addObjects(const std::vector<metsig::SigInputObj>& EventVec);
+    const void subtractObjects(const std::vector<metsig::SigInputObj>& EventVec);
+    TMatrixD getSignifMatrix() const {return signifmatrix_;}
+    //    const std::vector<metsig::SigInputObj> eventVec(){return eventVec_;}
+  private:
+    void rotateMatrix( Double_t theta, TMatrixD &v);  
+
+    //    std::vector<metsig::SigInputObj> eventVec_;
+    TMatrixD signifmatrix_;
+    // workers:
+    double set_worker_;
+    double xmet_;
+    double ymet_;
+  };
 }
 
 #endif
