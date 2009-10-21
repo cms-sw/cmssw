@@ -78,8 +78,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2008/05/14 18:16:25 $
-  * $Revision: 1.8 $
+  * $Date: 2009/01/09 10:23:22 $
+  * $Revision: 1.10 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
@@ -107,7 +107,7 @@ public:
 	       const CaloMETCollection& rmets,
 	       const GenMETCollection& gmets,
 	       const CaloTowerCollection& caloTowers,
-	       const HepMC::GenEvent genEvent,
+	       const HepMC::GenEvent& genEvent,
 	       const EBRecHitCollection& EBRecHits,
 	       const EERecHitCollection& EERecHits,
 	       const HBHERecHitCollection& hbhe_hits, 

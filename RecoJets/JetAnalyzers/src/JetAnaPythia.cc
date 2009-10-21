@@ -146,7 +146,7 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     if(anaLevel != "generating"){  //We are not generating events, so xsec is there
       edm::Handle< GenRunInfoProduct > genInfoProduct;
       evt.getRun().getByLabel("source", genInfoProduct );
-      xsec = genInfoProduct->internalXSec();
+      xsec = (double)genInfoProduct->internalXSec();
       if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
     }
     else

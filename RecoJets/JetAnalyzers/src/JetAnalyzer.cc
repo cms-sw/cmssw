@@ -371,7 +371,7 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
 			   const CaloMETCollection& recmets,
 			   const GenMETCollection& genmets,
 			   const CaloTowerCollection& caloTowers,
-			   const HepMC::GenEvent genEvent,
+			   const HepMC::GenEvent& genEvent,
 			   const EBRecHitCollection& EBRecHits,
 			   const EERecHitCollection& EERecHits,
 			   const HBHERecHitCollection& HBHERecHits, 
@@ -1504,7 +1504,7 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 	      Double_t Phi = jetconst[i]->phi();
 	      Double_t Pt  = jetconst[i]->pt();
 
-	      int pdgCode = jetconst[i]->pdgId();
+	      //int pdgCode = jetconst[i]->pdgId();
 
 	      fillHist1D("PtOfParticleinJet"+pi.str(),Pt);          
 
@@ -2907,8 +2907,8 @@ void JetAnalyzer::GetParentPartons(std::vector<Candidate*>& ParentParton){
       //      cout << " np " << np << "Status " << (*p)->status() <<" Mother 1 " << (*p)->Mother() << "  Mother 2 " << (*p)->SecondMother() << "  Type " << (*p)->pdg_id() << " Pt " << (*p)->Momentum().perp() <<endl; 
 
       if(p.numberOfMothers()==2){
-	const Candidate &m0 = *(p.mother(0));
-	const Candidate &m1 = *(p.mother(1));
+	//const Candidate &m0 = *(p.mother(0));
+	//const Candidate &m1 = *(p.mother(1));
 
 			      
 			      //==5 && *(p.mother(1))==6){
