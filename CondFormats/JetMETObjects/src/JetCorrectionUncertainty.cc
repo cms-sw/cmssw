@@ -1,24 +1,42 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrectorParameters.h"
-#include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include <vector>
+#include <string>
+
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/LorentzVector.h"
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVectorD;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;
+using namespace std;
+using namespace edm;
 
 /////////////////////////////////////////////////////////////////////////
 JetCorrectionUncertainty::JetCorrectionUncertainty () 
-: mParameters (0) 
-{}
-
-JetCorrectionUncertainty::JetCorrectionUncertainty (const std::string& fDataFile) 
-: mParameters (new SimpleJetCorrectorParameters (fDataFile)) 
-{}
+{
+  mParameters = new SimpleJetCorrectorParameters();
+}
+/////////////////////////////////////////////////////////////////////////
+JetCorrectionUncertainty::JetCorrectionUncertainty (const std::string& fDataFile)  
+{
+  std::string tmp = "CondFormats/JetMETObjects/data/"+fDataFile+".txt";
+  edm::FileInPath f1("CondFormats/JetMETObjects/data/"+fDataFile+".txt");
+  mParameters = new SimpleJetCorrectorParameters(f1.fullPath());
+}
 /////////////////////////////////////////////////////////////////////////
 JetCorrectionUncertainty::~JetCorrectionUncertainty () 
 {
   delete mParameters;
+}
+/////////////////////////////////////////////////////////////////////////
+void JetCorrectionUncertainty::setParameters (const std::string& fDataFile) 
+{
+  //---- delete the mParameters pointer before setting the new address ---
+  delete mParameters; 
+  std::string tmp = "CondFormats/JetMETObjects/data/"+fDataFile+".txt";
+  edm::FileInPath f1("CondFormats/JetMETObjects/data/"+fDataFile+".txt");
+  mParameters = new SimpleJetCorrectorParameters(f1.fullPath());
 }
 /////////////////////////////////////////////////////////////////////////
 double JetCorrectionUncertainty::uncertaintyPtEta (double fPt, double fEta, std::string fDirection) const 
