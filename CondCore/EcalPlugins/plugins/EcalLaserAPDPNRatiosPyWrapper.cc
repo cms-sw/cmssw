@@ -3,6 +3,8 @@
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+#include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
 
 #include <string>
 #include <fstream>
@@ -32,9 +34,12 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalLaserAPDPNRatios>::dump() const {
+
     std::stringstream ss;
-    return ss.str();
-    
+    EcalCondHeader header;
+    ss<<EcalLaserAPDPNRatiosXMLTranslator::dumpXML(header,object());
+    return ss.str();   
+ 
   }
   
   template<>
