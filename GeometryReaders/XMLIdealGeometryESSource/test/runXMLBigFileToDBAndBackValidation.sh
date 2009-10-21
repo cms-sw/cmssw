@@ -62,7 +62,7 @@ set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
 	    endif
 	    sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" $fn
 	    DOMCount -v=always -n -s -f $fn >>& dcorig.out
-	    rm $fn
+	    rm -f $fn
 	else
 	    if ( -e $CMSSW_RELEASE_BASE/src/$l ) then
 		set dp = `(echo "${l}" | awk -F\/ '{print NF}')`
@@ -75,7 +75,7 @@ set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
 		endif
 		sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" $fn
 		DOMCount -v=always -n -s -f $fn >>& dcorig.out
-		rm $fn
+		rm -f $fn
 	    else
 		echo "Error file " $l " not found in " $CMSSW_RELEASE_BASE "/src or " $CMSSW_BASE "/src" >>& dcorig.out
 	    endif
