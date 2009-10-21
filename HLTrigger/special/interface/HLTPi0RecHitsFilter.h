@@ -308,7 +308,9 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
 
       bool useRecoFlag_; 
+      bool useDBStatus_; 
       int flagLevelRecHitsToUse_; 
+      int statusLevelRecHitsToUse_;
       //number of minimal rechits for selected clusters.
       int nMinRecHitsSel1stCluster_; 
       int nMinRecHitsSel2ndCluster_; 
