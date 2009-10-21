@@ -19,6 +19,20 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
+// random number glue: use pythia
+
+extern "C"{
+   extern double pyr_(int *idummy);
+
+   void ranmar_(float *rvec, int *lenv)
+   {
+      // produce *lenv random numbers into float vector at rvec
+      int idummy = 0;
+      for(int i = 0; i < *lenv; i++)
+         *rvec++ = pyr_(&idummy);
+   }
+}
+
 
 //
 //   General Note: While there're no explicit calls or otherwise "links" to Pythia6 anywhere,
@@ -101,7 +115,11 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
 HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
 {
-   
+   // We are using random numbers, we are fetched through Pythia6Service
+   // (through ranmar_ below) -> so grab the instance during decay()
+
+   Pythia6Service::InstanceWrapper pythia6InstanceGuard( fPy6Service );
+
    // fill up HEPEVT common block
    //
    // IDEALLY, this should be the way to go
