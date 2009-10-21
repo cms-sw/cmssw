@@ -305,37 +305,56 @@ cd data
 wget -i download.url
 cd ../test
 source setup.scr >> ${myDir}/GeometryValidation.log
-sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryXMLDB_cfg.py >> ${myDir}/GeometryValidation.log
-sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryXMLDB_cfg.py >> ${myDir}/GeometryValidation.log 
-cmsRun runTestCaloGeometryXMLDB_cfg.py > GeometryCaloValidation.log
-if ( -s GeometryCaloValidation.log ) then
-    echo "CALO test run ok" | tee -a ${myDir}/GeometryValidation.log
+sed -i "{s/GeometryExtended/${geometry}/}" runTestCaloGeometryDDD_cfg.py >> ${myDir}/GeometryValidation.log
+sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryDDD_cfg.py >> ${myDir}/GeometryValidation.log
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryDDD_cfg.py >> ${myDir}/GeometryValidation.log 
+cmsRun runTestCaloGeometryDDD_cfg.py > GeometryCaloValidationDDD.log
+if ( -s GeometryCaloValidationDDD.log ) then
+    echo "CALO test from DDD run ok" | tee -a ${myDir}/GeometryValidation.log
 else
-    echo "ERROR the output of CALO test is empty" | tee -a ${myDir}/GeometryValidation.log
+    echo "ERROR the output of CALO test from DDD is empty" | tee -a ${myDir}/GeometryValidation.log
     exit
 endif
 
-sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryXMLLocalDB_cfg.py >> ${myDir}/GeometryValidation.log
+sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryDB_cfg.py >> ${myDir}/GeometryValidation.log
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryDB_cfg.py >> ${myDir}/GeometryValidation.log 
+cmsRun runTestCaloGeometryDB_cfg.py > GeometryCaloValidationDB.log
+if ( -s GeometryCaloValidationDB.log ) then
+    echo "CALO test from GT DB run ok" | tee -a ${myDir}/GeometryValidation.log
+else
+    echo "ERROR the output of CALO test from GT DB is empty" | tee -a ${myDir}/GeometryValidation.log
+    exit
+endif
+
+sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryLocalDB_cfg.py >> ${myDir}/GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryXMLLocalDB_cfg.py >> ${myDir}/GeometryValidation.log 
 cmsRun runTestCaloGeometryXMLLocalDB_cfg.py > GeometryCaloValidationLocal.log
 if ( -s GeometryCaloValidationLocal.log ) then
-    echo "CALO Local test run ok" | tee -a ${myDir}/GeometryValidation.log
+    echo "CALO Local test from Local DB run ok" | tee -a ${myDir}/GeometryValidation.log
 else
-    echo "ERROR the output of CALO Local test is empty" | tee -a ${myDir}/GeometryValidation.log
+    echo "ERROR the output of CALO test from Local DB is empty" | tee -a ${myDir}/GeometryValidation.log
     exit
 endif
 cd ${myDir}
 
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidation.log | tee -a GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log | tee -a GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log | tee -a GeometryValidation.log
 less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log | tee -a GeometryValidation.log
 
-grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidation.log > CALOError.log 
+grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log > CALODDDError.log 
+grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log > CALODBError.log 
 grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log > CALOLocalError.log 
 
-rm -f $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidation.log
+rm -f $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log
+rm -f $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log
 rm -f $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log
+source $CMSSW_BASE/src/Geometry/CaloEventSetup/test/clean.scr
 
-if ( -s CALOError.log ) then                                                               
+if ( -s CALODDDError.log ) then                                                               
+    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log                                                                                  
+endif                                                                                                      
+
+if ( -s CALODBError.log ) then                                                               
     echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log                                                                                  
 endif                                                                                                      
 
