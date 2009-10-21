@@ -1,4 +1,4 @@
-# last update on $Date: 2008/12/17 15:08:21 $ by $Author: flucke $
+# last update on $Date: 2009/10/14 14:49:16 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -15,8 +15,8 @@ process.MessageLogger.alignment = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
         ),
     INFO = cms.untracked.PSet(
-        #limit = cms.untracked.int32(5)
-        reportEvery = cms.untracked.int32(5),
+        limit = cms.untracked.int32(5),
+        reportEvery = cms.untracked.int32(5)
         ),
     WARNING = cms.untracked.PSet(
         limit = cms.untracked.int32(10)
@@ -29,9 +29,7 @@ process.MessageLogger.alignment = cms.untracked.PSet(
         reportEvery = cms.untracked.int32(1)
         )
     )
-process.MessageLogger.cerr = cms.untracked.PSet(
-    placeholder = cms.untracked.bool(True)
-    )
+process.MessageLogger.cerr.placeholder = cms.untracked.bool(True)
 process.MessageLogger.destinations = ['alignment']
 process.MessageLogger.statistics = ['alignment']
 process.MessageLogger.categories = ['Alignment']
@@ -71,11 +69,11 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 process.AlignmentTrackSelector.src = 'ALCARECOTkAlZMuMu' #MinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
-process.AlignmentTrackSelector.ptMin = 2.
+process.AlignmentTrackSelector.ptMin = 8.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
 process.AlignmentTrackSelector.nHitMin = 9
-process.AlignmentTrackSelector.chi2nMax = 100.
+process.AlignmentTrackSelector.chi2nMax = 50.
 # some further possibilities
 #process.AlignmentTrackSelector.applyNHighestPt = True
 #process.AlignmentTrackSelector.nHighestPt = 2
@@ -119,6 +117,18 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
+#        'TrackerTECPetalLayers11,fff00f', #
+#        'TrackerTECPetalLayers29,111001', #
+#        'TrackerTOBRodLayers35,101001', #
+#        'TrackerTOBRodLayers66,f0f00f', #
+#        'TrackerTOBRodDS,111001', #
+#        'TrackerTIDRing,111001', #
+#        'TrackerTIBStringSS,101001',#
+#        'TrackerTIBStringDS,111001',#
+#        'TrackerTPEHalfDisk,111111',
+#        'TrackerTPBLadderLayers11,ffff0f', #
+#        'TrackerTPBLadderLayers23,111101'  #
+#
 #        'PixelHalfBarrels,rrrrrr', 
 #        'PXEndCaps,111111',
 #        'TrackerTOBHalfBarrel,111111', 
@@ -165,11 +175,6 @@ process.AlignmentProducer.doMisalignmentScenario = False #True
 #from Alignment.TrackerAlignment.Scenarios_cff import *
 #process.AlignmentProducer.MisalignmentScenario = TrackerSurveyLASOnlyScenario
 process.AlignmentProducer.applyDbAlignment = False # neither globalTag nor trackerAlignment
-# monitor not strictly needed:
-#process.TFileService = cms.Service("TFileService", fileName = cms.string("histograms.root"))
-#process.AlignmentProducer.monitorConfig = cms.PSet(monitors = cms.untracked.vstring ("AlignmentMonitorGeneric"),
-#                                                   AlignmentMonitorGeneric = cms.untracked.PSet()
-#                                                   )
 
 # assign by reference (i.e. could change MillePedeAlignmentAlgorithm as well):
 process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
@@ -177,24 +182,22 @@ process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
 #from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
 #process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
 process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSteerer'
-process.AlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
-process.AlignmentProducer.algoConfig.monitorFile = cms.untracked.string("millePedeMonitor.root")
-process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat")
+process.AlignmentProducer.algoConfig.binaryFile = 'milleBinaryISN.dat'
+process.AlignmentProducer.algoConfig.treeFile = 'treeFileISN.root'
+
 #process.AlignmentProducer.algoConfig.TrajectoryFactory = process.TwoBodyDecayTrajectoryFactory # BzeroReferenceTrajectoryFactory
 #process.AlignmentProducer.algoConfig.TrajectoryFactory.PropagationDirection = 'oppositeToMomentum'
-#process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'Combined', ## or "MultipleScattering" or "EnergyLoss" or "None"
+process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #'BreakPoints' #'Combined', ## or "MultipleScattering" or "EnergyLoss" or "None"
 # ...OR TwoBodyDecayTrajectoryFactory OR ...
 #process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # to switch off
-#process.AlignmentProducer.algoConfig.fileDir = '/tmp/flucke'
-#process.AlignmentProducer.algoConfig.pedeReader.fileDir = './'
-#process.AlignmentProducer.algoConfig.treeFile = 'treeFile_GF.root'
 ##default is sparsGMRES                                    <method>  n(iter)  Delta(F)
 #process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  9  0.8'
 #process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 #   'entries 100',
 #   'chisqcut  20.0  4.5' # ,'outlierdownweighting 3' #,'dwfractioncut 0.1'
-#   'bandwidth 6'
 #)
+#process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/f/flucke/cms/pede/MillepedeII/pede_1GB'
+
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
@@ -212,7 +215,7 @@ process.source = cms.Source("PoolSource",
                             )
 #process.source = cms.Source("EmptySource")
 #process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(10000)
+#    input = cms.untracked.int32(0)
 #    )
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
