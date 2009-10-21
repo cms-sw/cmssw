@@ -138,7 +138,7 @@ bool ProcMLP::load()
 	if (!ok)
 		return false;
 
-	mlp->load(trainer->trainFileName(this, "txt"));
+//	mlp->load(trainer->trainFileName(this, "txt"));
 	iteration = ITER_DONE;
 	trained = true;
 	return true;
