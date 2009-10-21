@@ -88,7 +88,7 @@ void HIBestVertexProducer::produce
       reco::Vertex::Error err;
       err(0,0)=pow(beamSpot.BeamWidthX(),2);
       err(1,1)=pow(beamSpot.BeamWidthY(),2);
-      err(2,2)=pow(beamSpot.sigmaZ(),2);
+      err(2,2)=pow(vertex2->zError(),2);
       reco::Vertex newVertex(reco::Vertex::Point(beamSpot.x0(),beamSpot.y0(),vertex2->z()),
 			     err, 0, 1, 1);
       newVertexCollection->push_back(newVertex);  
