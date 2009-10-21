@@ -60,18 +60,11 @@ namespace cms
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
 
-<<<<<<< METProducer.cc
-    if(      METtype == "CaloMET" ) {
-      produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
-      produces<std::vector<double> >().setBranchAlias(alias.c_str());
-    }
-=======
     if(      METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
 	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
       }
->>>>>>> 1.27
     else if( METtype == "GenMET" )  
       {
 	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");

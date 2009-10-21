@@ -58,11 +58,6 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
       CaloMET specificmet( specific, met.sumet, p4, vtx );
       return specificmet;
     }
-<<<<<<< CaloSpecificAlgo.cc
-
-  // make a calomet object
-=======
->>>>>>> 1.22
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
   for( ; towerCand != towers->end(); towerCand++ ) 
