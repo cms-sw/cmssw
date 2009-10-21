@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.17 2009/07/03 09:32:49 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.18 2009/10/20 14:58:08 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -68,6 +68,12 @@ SiPixelClusterSource::~SiPixelClusterSource()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   LogInfo ("PixelDQM") << "SiPixelClusterSource::~SiPixelClusterSource: Destructor"<<endl;
+
+  std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++){
+    delete struct_iter->second;
+    struct_iter->second = 0;
+  }
 }
 
 
@@ -143,39 +149,39 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
       int nrows = (pixDet->specificTopology()).nrows();
       int ncols = (pixDet->specificTopology()).ncolumns();
 
-      uint32_t id = detId();
-      SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
-      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        if(isPIB) continue;
-	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
-
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
-
-        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-        char smodule[80];sprintf(smodule,"Module_%i",module);
-        std::string side_str = sside;
-	std::string disk_str = sdisk;
-	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	            side_str.find("HalfCylinder_2")!=string::npos||
-		    side_str.find("HalfCylinder_4")!=string::npos||
-		    disk_str.find("Disk_2")!=string::npos;
-	// clutch to take all of FPIX, but no BPIX:
-	mask = false;
-	if(isPIB && mask) continue;
-	
-	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
+      
+      if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+         (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
+        uint32_t id = detId();
+        SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
+        if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+          if(isPIB) continue;
+	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
+        }else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+          PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+          int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+          int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+          int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+          int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+          char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+          char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+          char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+          char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+          char smodule[80];sprintf(smodule,"Module_%i",module);
+          std::string side_str = sside;
+	  std::string disk_str = sdisk;
+	  bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	              side_str.find("HalfCylinder_2")!=string::npos||
+		      side_str.find("HalfCylinder_4")!=string::npos||
+		      disk_str.find("Disk_2")!=string::npos;
+	  // clutch to take all of FPIX, but no BPIX:
+	  mask = false;
+	  if(isPIB && mask) continue;
+	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
+        }
       }
-      delete theModule;
     }
   }
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;

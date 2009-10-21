@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.21 2009/07/03 09:43:00 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.22 2009/10/20 14:57:29 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -73,6 +73,11 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
    // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   LogInfo ("PixelDQM") << "SiPixelRecHitSource::~SiPixelRecHitSource: Destructor"<<endl;
+  std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++){
+    delete struct_iter->second;
+    struct_iter->second = 0;
+  }
 }
 
 
@@ -196,6 +201,8 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	      // SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id, rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
 	
 	
+            if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+               (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
 	      uint32_t id = detId();
 	      SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
@@ -226,7 +233,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	
 		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 	      }
-              delete theModule;
+	    }
 	}	    
   }
 

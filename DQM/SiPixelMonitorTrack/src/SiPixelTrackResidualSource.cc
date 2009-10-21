@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.9 2009/08/25 09:17:58 arizzi Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.10 2009/10/20 14:51:27 merkelp Exp $
 
 
 #include <iostream>
@@ -77,6 +77,12 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
 
 SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource destructor" << endl;
+
+  std::map<uint32_t,SiPixelTrackResidualModule*>::iterator struct_iter;
+  for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; struct_iter++){
+    delete struct_iter->second;
+    struct_iter->second = 0;
+  }
 }
 
 
@@ -94,7 +100,6 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     if (dynamic_cast<PixelGeomDetUnit*>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
-      delete module;
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
@@ -102,7 +107,6 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     if (dynamic_cast<PixelGeomDetUnit*>((*pxf))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
-      delete module;
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
