@@ -150,6 +150,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
   std::vector<reco::TransientTrack > thePair(2);
   std::vector<std::vector<reco::TransientTrack> > allPairs;
   std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr > allPairSCAss;
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr > allPairOrdInPtSCAss;
 
   std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap1;
   std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap2;
@@ -302,19 +303,38 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
 
 
 
-  //  std::cout << " ConversionTrackPairFinder FINAL allPairSCAss size " << allPairSCAss.size() << "\n";
-  //for (  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
-  // std::cout << " ConversionTrackPairFindder FINAL allPairSCAss " << (iPair->first).size() << " SC Energy " << (iPair->second)->energy() << " eta " << (iPair->second)->eta() << " phi " <<  (iPair->second)->phi() << "\n";  
-  // std::cout << " ConversionTrackPairFindder FINAL allPairSCAss (iPair->first).size() " << (iPair->first).size() << std::endl;
-  // for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
-  //   std::cout << " ConversionTrackPair finedr track pt " << sqrt(iTk->track().innerMomentum().perp2()) << std::endl;
-  //    }
-  // }
+  // order the tracks in the pair in order of decreasing pt 
+    for (  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
+      thePair.clear();
+      if ( (iPair->first).size() ==2 ) {
+	if (  sqrt((iPair->first)[0].track().innerMomentum().perp2()) > sqrt((iPair->first)[1].track().innerMomentum().perp2())  ) {
+	  thePair.push_back((iPair->first)[0]);
+	thePair.push_back((iPair->first)[1]);
+	} else {
+	  thePair.push_back((iPair->first)[1]);
+	  thePair.push_back((iPair->first)[0]);
+	}
+      } else {
+	thePair.push_back((iPair->first)[0]);
+      }
 
+      allPairOrdInPtSCAss[thePair]=iPair->second;
+    }
+
+
+    //std::cout << " ConversionTrackPairFinder FINAL allPairOrdInPtSCAss size " << allPairOrdInPtSCAss.size() << "\n";
+    // for (  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>::const_iterator iPair= allPairOrdInPtSCAss.begin(); iPair!= allPairOrdInPtSCAss.end(); ++iPair ) {
+    // std::cout << " ConversionTrackPairFindder FINAL allPairOrdInPtSCAss " << (iPair->first).size() << " SC Energy " << (iPair->second)->energy() << " eta " << (iPair->second)->eta() << " phi " <<  (iPair->second)->phi() << "\n";  
+    // std::cout << " ConversionTrackPairFindder FINAL allPairOrdInPtSCAss (iPair->first).size() " << (iPair->first).size() << std::endl;
+      
+    // for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
+    //	std::cout << " ConversionTrackPair ordered track pt " << sqrt(iTk->track().innerMomentum().perp2()) << std::endl;
+    // }
+    // }
 
   
 
-  return allPairSCAss;
+  return allPairOrdInPtSCAss;
  
 
 }
