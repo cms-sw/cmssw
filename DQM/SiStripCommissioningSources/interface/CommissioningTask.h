@@ -44,9 +44,21 @@ class CommissioningTask {
     std::vector<float> vSumOfContents_;
     std::vector<double> vSumOfSquares_;
     bool isProfile_;
+    bool explicitFill_;
   private:
     MonitorElement* histo_;
     TAxis* axis_;
+  };
+  
+  class CompactHistoSet {
+  public:
+    CompactHistoSet();
+    void histo( MonitorElement* );
+    MonitorElement* histo();
+    std::vector<short> vNumOfEntries_;
+    bool explicitFill_;
+  private:
+    MonitorElement* histo_;
   };
   
   // ---------- Public methods ----------
@@ -87,12 +99,15 @@ class CommissioningTask {
   
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const float& value );
+  void updateHistoSet( CompactHistoSet&, const uint32_t& bin, const short& value );
 
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin );
+  void updateHistoSet( CompactHistoSet&, const uint32_t& bin );
 
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const float& value );
+  void updateHistoSet( CompactHistoSet& );
 
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
