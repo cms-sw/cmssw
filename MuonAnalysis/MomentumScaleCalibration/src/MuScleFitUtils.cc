@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/10/19 09:50:36 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/10/19 10:54:10 $
+ *  $Revision: 1.21 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -30,7 +30,6 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "TMinuit.h"
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -203,6 +202,8 @@ bool MuScleFitUtils::scaleFitNotDone_ = true;
 
 bool MuScleFitUtils::sherpa_ = false;
 
+bool MuScleFitUtils::rapidityBinsForZ_ = true;
+
 double MuScleFitUtils::minMuonPt_ = 0.;
 double MuScleFitUtils::maxMuonPt_ = 100000000.;
 double MuScleFitUtils::minMuonEtaFirstRange_ = -6.;
@@ -212,6 +213,8 @@ double MuScleFitUtils::maxMuonEtaSecondRange_ = 100.;
 
 bool MuScleFitUtils::debugMassResol_;
 MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
+
+TMinuit * MuScleFitUtils::rminPtr_ = 0;
 
 int MuScleFitUtils::iev_ = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -913,6 +916,11 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   return massProbability;
 }
 
+/**
+ * After the introduction of the rapidity bins for the Z the probability method works in the following way:
+ * - if passing iRes == 0, iY is used to select the rapidity bin
+ * - if passing iRes != 0, iY is used to select the resonance
+ */
 double MuScleFitUtils::probability( const double & mass, const double & massResol,
                                     const double GLvalue[][1001][1001], const double GLnorm[][1001],
                                     const int iRes, const int iY )
@@ -1124,44 +1132,39 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // NB max value of Z rapidity to be considered is 2.4 here
   // -------------------------------------------------------
 
+  // Do this only if we want to use the rapidity bins for the Z
+  if( MuScleFitUtils::rapidityBinsForZ_ ) {
+    // ATTENTION: cut on Z rapidity at 2.4 since we only have histograms up to that value
+    pair<double, double> windowFactors = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], 0 );
+    if( resfind[0]>0 && checkMassWindow( mass, 0,
+                                         backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
+                                         windowFactors.first, windowFactors.second ) && fabs(rapidity)<2.4 ) {
+      int iY = (int)(fabs(rapidity)*10.);
+      resConsidered[0] = true;
+      nres += 1;
 
+      if (MuScleFitUtils::debug>1) cout << "massProb:resFound = 0, rapidity bin =" << iY << endl;
 
+      // In this case the last value is the rapidity bin
+      PS[0] = probability(mass, massResol, GLZValue, GLZNorm, 0, iY);
 
-
-  // FIXME: use the appropriate mass windows taken from the backgroundHandler
-
-
-
-
-
-
-
-  // ATTENTION: cut on Z rapidity at 2.4 since we only have histograms up to that value
-  pair<double, double> windowFactors = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], 0 );
-  if( resfind[0]>0 && checkMassWindow( mass, 0,
-                                       backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
-                                       windowFactors.first, windowFactors.second ) && fabs(rapidity)<2.4 ) {
-    int iY = (int)(fabs(rapidity)*10.);
-    resConsidered[0] = true;
-    nres += 1;
-
-    if (MuScleFitUtils::debug>1) cout << "massProb:resFound = 0, rapidity bin =" << iY << endl;
-
-    // In this case the last value is the rapidity bin
-    PS[0] = probability(mass, massResol, GLZValue, GLZNorm, 0, iY);
-
-    // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
-    for( int otherRes = 0; otherRes < 6; ++otherRes ) {
-      if( otherRes != 0 ) {
-        if( checkMassWindow( mass, 0,
-                             backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
-                             windowFactors.first, windowFactors.second ) ) ++superpositionFactor;
+      // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
+      for( int otherRes = 0; otherRes < 6; ++otherRes ) {
+        if( otherRes != 0 ) {
+          if( checkMassWindow( mass, 0,
+                               backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
+                               windowFactors.first, windowFactors.second ) ) ++superpositionFactor;
+        }
       }
     }
   }
   // Next check the other resonances
   // -------------------------------
-  for (int ires=1; ires<6; ires++) {
+  int firstRes = 1;
+  if( !MuScleFitUtils::rapidityBinsForZ_ ) firstRes = 0;
+  for( int ires=firstRes; ires<6; ++ires ) {
+
+    // cout << "ires = " << ires << endl;
 
     // Changed to test the background. This way the outside of the region is also used to determine the
     // parameters of the background function.
@@ -1332,6 +1335,7 @@ void MuScleFitUtils::minimizeLikelihood()
   // Init Minuit
   // -----------
   TMinuit rmin (parnumber);
+  rminPtr_ = &rmin;
   rmin.SetFCN (likelihood);     // Unbinned likelihood
   // Standard initialization of minuit parameters:
   // sets input to be $stdin, output to be $stdout
@@ -1678,6 +1682,12 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 
   // It is a product of probabilities, we compare the sqrt_N of them. Thus N becomes a denominator of the logarithm.
   if( evtsinlik != 0 ) {
+    if( MuScleFitUtils::rminPtr_ == 0 ) {
+      cout << "ERROR: rminPtr_ = " << MuScleFitUtils::rminPtr_ << ", code will crash" << endl;
+    }
+    double normalizationArg[] = {1/double(evtsinlik)};
+    int ierror = 0;
+    MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
     fval = -2.*flike/double(evtsinlik);
 //     if( lowStatPenalty ) {
 //       fval *= 100;

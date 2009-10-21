@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/10/05 11:48:26 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/10/19 09:51:47 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -20,6 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
+#include "TMinuit.h"
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
 
@@ -200,8 +201,14 @@ public:
 
   static bool scaleFitNotDone_;
 
+  // Pointer to the minuit object
+  static TMinuit * rminPtr_;
+
   // This must be set to true if using events generated with Sherpa
   static bool sherpa_;
+
+  // Decide whether to use the rapidity bins for the Z
+  static bool rapidityBinsForZ_;
 
   static int iev_;
 

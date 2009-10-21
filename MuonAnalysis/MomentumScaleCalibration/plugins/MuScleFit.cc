@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/11 09:11:43 $
-//  $Revision: 1.61 $
+//  $Date: 2009/10/19 10:55:03 $
+//  $Revision: 1.62 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -241,6 +241,8 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
+
+  MuScleFitUtils::rapidityBinsForZ_ = pset.getUntrackedParameter<bool>("RapidityBinsForZ", true);
 
   // Set the cuts on muons to be used in the fit
   MuScleFitUtils::maxMuonPt_ = pset.getUntrackedParameter<double>("MaxMuonPt", 100000000.);
