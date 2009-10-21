@@ -11,30 +11,8 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-namespace {
-class ParametrizationTauJet{
 
- public:
-  
-  ParametrizationTauJet(int ptype, vector<double> x, double u)
-  {
-    type=ptype;
-    theParam[type] = x;
-    theEtabound[type] = u;
-    //cout<<"ParametrizationTauJet "<<type<<" "<<u<<endl; 
-  };
-  
-  double value(double, double) const;
-
- private:
-
-  int type;
-  std::map<int, std::vector<double> > theParam;
-  std::map<int,double> theEtabound;
-  
-};
-
-double ParametrizationTauJet::value(double et, double eta)const{
+double TauJetCorrector::ParametrizationTauJet::value(double et, double eta)const{
 
   double x=et;
   double etnew(et);
@@ -116,7 +94,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
     //  else
     //    cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl;
 }
-} // namespace
+
 
 TauJetCorrector::TauJetCorrector(const edm::ParameterSet& fConfig)
 {
