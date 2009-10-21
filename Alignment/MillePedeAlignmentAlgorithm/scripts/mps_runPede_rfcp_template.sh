@@ -4,6 +4,9 @@
 #
 # Adjustments might be needed for CMSSW environment.
 
+#temporary fix (?):
+#unset PYTHONHOME
+
 # these defaults will be overwritten by MPS
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
@@ -32,8 +35,7 @@ else
 fi
 
 # set up the CMS environment
-cd $HOME/cms/CMSSW/CMSSW_3_1_0
-#cd $HOME/cms/CMSSW/CMSSW_2_2_10
+cd $HOME/cms/CMSSW/CMSSW_3_4_0
 eval `scram runtime -sh`
 rehash
 
