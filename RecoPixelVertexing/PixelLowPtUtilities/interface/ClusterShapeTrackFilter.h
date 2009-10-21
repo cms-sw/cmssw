@@ -41,6 +41,7 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
   const ClusterShapeHitFilter * theFilter;
 
   double ptMin;
+  double ptMax;
 };
 
 #endif

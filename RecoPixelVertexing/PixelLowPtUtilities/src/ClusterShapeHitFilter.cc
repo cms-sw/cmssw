@@ -103,8 +103,8 @@ void ClusterShapeHitFilter::loadPixelLimits()
   
   inFile.close();
   
-  LogTrace("ClusterShapeHitFilter|MinBiasTracking")
-    << " pixel-cluster-shape filter loaded";
+  LogTrace("MinBiasTracking|ClusterShapeHitFilter")
+    << " [ClusterShapeHitFilter] pixel-cluster-shape filter loaded";
  }
 
 /*****************************************************************************/
@@ -134,7 +134,7 @@ void ClusterShapeHitFilter::loadStripLimits()
   inFile.close();
   
   LogTrace("MinBiasTracking|ClusterShapeHitFilter")
-    << " strip-cluster-width filter loaded";
+    << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
 }
 
 /*****************************************************************************/
@@ -256,6 +256,8 @@ bool ClusterShapeHitFilter::getSizes
     pred.first  = ldir.x() / ldir.z();
     pred.second = ldir.y() / ldir.z();
 
+//cerr << "  a0 " << ldir.x() << " " << ldir.y() << " " << ldir.z() << endl;
+
     if(data.size.front().second < 0)
       pred.second = - pred.second;
 
@@ -268,15 +270,21 @@ bool ClusterShapeHitFilter::getSizes
         meas.back().second = - meas.back().second;
     }
 
+//cerr << "  a1 " << pred.first << " " << pred.second << endl;
+
     // Take out drift 
     pair<float,float> drift = getDrift(pixelDet);
     pred.first  += drift.first;
     pred.second += drift.second;
 
+//cerr << "  a2 " << pred.first << " " << pred.second << endl;
+
     // Apply cotangent
     pair<float,float> cotangent = getCotangent(pixelDet);
     pred.first  *= cotangent.first;
     pred.second *= cotangent.second;
+
+//cerr << "  a3 " << pred.first << " " << pred.second << endl;
   }
 
   // Usable?
@@ -336,7 +344,20 @@ bool ClusterShapeHitFilter::isCompatible
       PixelLimitsMap::const_iterator i = pixelLimits.find(key);
       if(i != pixelLimits.end())
       { 
-        // inside on of the boxes
+/*
+cerr << "  try " << (i->second)[0][0][0]
+          << " " << (i->second)[0][0][1]
+          << " " << (i->second)[0][1][0]
+          << " " << (i->second)[0][1][1] << " | " 
+          << " " << (i->second)[1][0][0]
+          << " " << (i->second)[1][0][1]
+          << " " << (i->second)[1][1][0]
+          << " " << (i->second)[1][1][1]
+          << " " << pred.first << " " << pred.second << endl;
+*/
+//while(getchar() == 0);
+
+        // inside one of the boxes
         if (isInside((i->second)[0], pred) ||
   	    isInside((i->second)[1], pred))
           return true;
@@ -384,8 +405,14 @@ bool ClusterShapeHitFilter::isCompatible
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const GlobalVector & gdir) const
 {
+//  cerr << " gdir = " << gdir << endl;
+
+//  cerr << "   id = " << recHit.geographicalId().rawId() << endl;
+
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
+
+//  cerr << " ldir = " << ldir << endl;
 
   return isCompatible(recHit, ldir);
 }

@@ -94,4 +94,3 @@ globalSecoTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWith
 globalSecoTracks.clusterRemovalInfo = 'secondClusters'
 globalSecoTracks.src                = 'secoTrackCandidates'
 globalSecoTracks.TrajectoryInEvent  = cms.bool(True)
-

@@ -91,15 +91,6 @@ int PixelVertexProducerClusters::getContainedHits
 void PixelVertexProducerClusters::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {
-/*
-  edm::Handle<edm::SimVertexContainer> simVertices;
-  ev.getByType(                        simVertices);
-
-  float zsim = 0.;
-  if((*(simVertices.product())).size() > 0)
-    zsim = (*(simVertices.product())).at(0).position().z();
-*/
-
   // Get pixel hit collections
   edm::Handle<SiPixelRecHitCollection> pixelColl;
   ev.getByLabel("siPixelRecHits",      pixelColl);
@@ -112,32 +103,43 @@ void PixelVertexProducerClusters::produce
   {
     vector<VertexHit> hits;
 
-    for(SiPixelRecHitCollection::DataContainer::const_iterator recHit = thePixelHits->data().begin(), recHitEnd = thePixelHits->data().end();
+    for(SiPixelRecHitCollection::DataContainer::const_iterator
+           recHit = thePixelHits->data().begin(),
+           recHitEnd = thePixelHits->data().end();
            recHit != recHitEnd; ++recHit)
     {
       if(recHit->isValid())
-      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
       {
+//      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
         DetId id = recHit->geographicalId();
+        const PixelGeomDetUnit* pgdu =
+          dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(id));
+        const RectangularPixelTopology* theTopol =
+          dynamic_cast<const RectangularPixelTopology*>( &(pgdu->specificTopology()) );
+        vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
 
+        bool pixelOnEdge = false;
+        for(vector<SiPixelCluster::Pixel>::const_iterator
+               pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
+        {
+          int pos_x = (int)pixel->x;
+          int pos_y = (int)pixel->y;
+
+          if(theTopol->isItEdgePixelInX(pos_x) ||
+              theTopol->isItEdgePixelInY(pos_y))
+          { pixelOnEdge = true; break; }
+        }
+    
+        if(!pixelOnEdge)
         if(id.subdetId() == int(PixelSubdetector::PixelBarrel))  
         {
           PXBDetId pid(id);
-//          int layer = pid.layer() - 1; // 0 - 2
-
+ 
           LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
                                        recHit->localPosition().y(),
                                        recHit->localPosition().z());
 
           GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
-
-/*
-          file << " " << layer
-               << " " << gpos.z()
-               << " " << gpos.perp()
-               << " " << recHit->cluster()->sizeY()
-               << endl;
-*/
 
           VertexHit hit;
           hit.z = gpos.z(); 

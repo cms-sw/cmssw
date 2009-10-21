@@ -21,14 +21,14 @@ class TrackCleaner : public PixelTrackCleaner
      (const TracksWithRecHits & tracksWithRecHits);
 
   private:
-    int getLayer(const DetId & id);
-    bool hasCommonDetUnit (std::vector<const TrackingRecHit *> recHitsA,
-                           std::vector<const TrackingRecHit *> recHitsB,
-                           std::vector<DetId> detIds);
-    bool hasCommonLayer (std::vector<const TrackingRecHit *> recHitsA,
-                         std::vector<const TrackingRecHit *> recHitsB,
-                         std::vector<int> detLayers);
-   std::vector<const TrackingRecHit*> ttrhs(const SeedingHitSet & h) const;
+    bool areSame(const TrackingRecHit * a,
+                 const TrackingRecHit * b);
+    bool isCompatible(const DetId & i1,
+                      const DetId & i2);
+    bool canBeMerged(std::vector<const TrackingRecHit *> recHitsA,
+                     std::vector<const TrackingRecHit *> recHitsB);
+
+    std::vector<const TrackingRecHit*> ttrhs(const SeedingHitSet & h) const;
 };
 
 #endif

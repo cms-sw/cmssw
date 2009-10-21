@@ -178,7 +178,7 @@ void ClusterShapeExtractor::endJob()
 /*****************************************************************************/
 ClusterShapeExtractor::~ClusterShapeExtractor()
 {
-  delete theClusterShape;
+//  delete theClusterShape;
 }
 
 /*****************************************************************************/

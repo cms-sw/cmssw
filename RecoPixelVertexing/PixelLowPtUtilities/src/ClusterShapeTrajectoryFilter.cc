@@ -129,7 +129,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         if(recHit != 0)
           if(! theFilter->isCompatible(*recHit, gdir))
           {
-            LogTrace("MinBiasTracking")
+            LogTrace("TrajectFilter")
               << "  [TrajectFilter] fail pixel";
             return false;
           }
@@ -145,14 +145,14 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
           { 
             if(! theFilter->isCompatible(*(recHit->monoHit()  ), gdir))
             {
-              LogTrace("MinBiasTracking")
+              LogTrace("TrajectFilter")
                << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
             if(! theFilter->isCompatible(*(recHit->stereoHit()), gdir))
             {
-              LogTrace("MinBiasTracking")
+              LogTrace("TrajectFilter")
                 << "  [TrajectFilter] fail strip matched 2nd";
               return false;
             }
@@ -168,7 +168,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(! theFilter->isCompatible(*recHit, gdir))
               {
-                LogTrace("MinBiasTracking")
+                LogTrace("TrajectFilter")
                   << "  [TrajectFilter] fail strip single";
                 return false;
               }
@@ -181,7 +181,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(! theFilter->isCompatible(recHit->originalHit(), gdir))
               {
-                LogTrace("MinBiasTracking")
+                LogTrace("TrajectFilter")
                   << "  [TrajectFilter] fail strip projected";
                 return false;
               }

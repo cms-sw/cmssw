@@ -42,8 +42,9 @@ allPixelTracks = cms.EDFilter("PixelTrackProducer",
     # Filter
     useFilterWithES = cms.bool(True),
     FilterPSet = cms.PSet(
-        ComponentName = cms.string('ClusterShapeTrackFilter'),
-        ptMin  = cms.double(0.075)
+        ComponentName = cms.string('ClusterShapeTrackFilter')
+#       ptMin  = cms.double()
+#       ptMax  = cms.double()
     ),
 
     # Cleaner

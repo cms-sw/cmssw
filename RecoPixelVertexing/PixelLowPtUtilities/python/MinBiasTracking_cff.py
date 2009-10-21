@@ -39,15 +39,17 @@ thirdStep  = cms.Sequence( thirdClusters
 ###################################
 # Tracklist combiner
 allTracks = cms.EDFilter("TrackListCombiner",
+#   trackProducers = cms.vstring('pixel3PrimTracks',
+#                                'pixel3SecoTracks')
     trackProducers = cms.vstring('globalPrimTracks',
-                                 'globalSecoTracks')
-#                                'globalTertTracks')
+                                 'globalSecoTracks',
+                                 'globalTertTracks')
 )
 
 ###################################
 # Minimum bias tracking
 minBiasTracking = cms.Sequence(firstStep
                             * secondStep
-#                            * thirdStep 
+                             * thirdStep 
                              * allTracks)
 

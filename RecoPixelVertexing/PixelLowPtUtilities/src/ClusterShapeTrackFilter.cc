@@ -39,6 +39,7 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
 
   // Get ptMin if available
   ptMin = (ps.exists("ptMin") ? ps.getParameter<double>("ptMin") : 0.);
+  ptMax = (ps.exists("ptMax") ? ps.getParameter<double>("ptMax") : 999999.);
 }
 
 /*****************************************************************************/
@@ -130,8 +131,14 @@ bool ClusterShapeTrackFilter::operator()
    const vector<const TrackingRecHit *> & recHits) const
 {
   // Check pt
-  if(track->pt() < ptMin)
+  if(track->pt() < ptMin ||
+     track->pt() > ptMax)
+  {
+    LogTrace("ClusterShapeTrackFilter")
+       << "  [ClusterShapeTrackFilter] pt not in range: "
+       << ptMin << " " << track->pt() << " " << ptMax;
     return false;
+  }
 
   // Get global positions
   vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
@@ -155,7 +162,7 @@ bool ClusterShapeTrackFilter::operator()
 
     if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i]) )
     {
-      LogTrace("MinBiasTracking")
+      LogTrace("ClusterShapeTrackFilter")
          << "  [ClusterShapeTrackFilter] clusShape problem"
          << HitInfo::getInfo(*recHits[i]);
 

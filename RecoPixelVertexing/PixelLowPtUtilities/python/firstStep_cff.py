@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-############################
-# Pixel-3 proto tracks
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
+
+############################
+# Pixel-3 proto tracks
 pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 pixel3ProtoTracks.RegionFactoryPSet.ptMin = cms.double(0.2)
-pixel3ProtoTracks.FilterPSet.ptMin        = cms.double(0.2)
 
 ############################
 # Pixel vertexing
@@ -27,11 +27,10 @@ pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
  
 ############################
 # Pixel-3 primary tracks
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixel3PrimTracks  = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixel3PrimTracks.passLabel  = 'Pixel triplet tracks with vertex constraint'
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = cms.bool(True)
+pixel3PrimTracks.FilterPSet.ptMin = cms.double(0.2)
 
 ############################
 # Primary seeds
@@ -55,3 +54,4 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 globalPrimTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPrimTracks.src               = 'primTrackCandidates'
 globalPrimTracks.TrajectoryInEvent = cms.bool(True)
+globalPrimTracks.MinNumberOfHits   = cms.int32(3)

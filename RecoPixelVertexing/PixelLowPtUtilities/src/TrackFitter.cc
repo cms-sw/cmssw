@@ -13,7 +13,6 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-//#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -207,19 +206,18 @@ void TrackFitter::getErrTipAndErrZip
   float coshEta = cosh(eta);
 
   { // transverse
-    float c_ms = 0.0115;
-    float s_le = 0.0123;
+    float c_ms = 0.0115; //0.0115;
+    float s_le = 0.0095; //0.0123;
     float s_ms2 = c_ms*c_ms / (pt*pt) * coshEta;
 
     errTip = sqrt(s_le*s_le + s_ms2                  );
   }
 
   { // z
-    float c_ms = 0.0072;
-    float s_le = 0.0115;
-    float s_ms2 = c_ms*c_ms / (pt*pt) * coshEta;
+    float c_ms = 0.0070;
+    float s_le = 0.0135;
 
-    errZip = sqrt(s_le*s_le + s_ms2 * coshEta*coshEta);
+    errZip = sqrt( (s_le*s_le + c_ms*c_ms/(pt*pt)) * coshEta*coshEta*coshEta);
   }
 }
 

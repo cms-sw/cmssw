@@ -60,7 +60,7 @@ thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixelTertTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixelTertTracks.passLabel = 'Pixel pair tracks with vertex constraint'
-pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
+pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
 pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 pixelTertTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
 pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = 'ThirdLayerPairs'
@@ -106,4 +106,3 @@ globalTertTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWith
 globalTertTracks.clusterRemovalInfo = 'thirdClusters'
 globalTertTracks.src                = 'tertTrackCandidates'
 globalTertTracks.TrajectoryInEvent  = cms.bool(True)
-
