@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # RecoMuon flux ##########################################################
 # L2 seeds from L1 input
 # module hltL2MuonSeeds = L2MuonSeeds from "RecoMuon/L2MuonSeedGenerator/data/L2MuonSeeds.cfi"
-# replace hltL2MuonSeeds.GMTReadoutCollection = l1ParamMuons
-# replace hltL2MuonSeeds.InputObjects = l1ParamMuons
+# replace hltL2MuonSeeds.GMTReadoutCollection = l1extraParticles
+# replace hltL2MuonSeeds.InputObjects = l1extraParticles
 # L3 regional reconstruction
 from FastSimulation.Muons.L3Muons_cff import *
 import FastSimulation.Muons.L3Muons_cfi

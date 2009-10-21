@@ -15,6 +15,11 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForB_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
+# Muon parametrization (L1 and L3 are produced by HLT paths)
+from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
+paramMuons.MUONS.ProduceL1Muons = False
+paramMuons.MUONS.ProduceL3Muons = False
+
 # L1 emulator - in the future, we may want to use directly L1Trigger.Configuration.SimL1Emulator_cff
 # Configuration comes from the GlobalTag
 # Emulator modules
@@ -33,27 +38,20 @@ hbhereco.doDigis = True
 hfreco.doDigis = True
 horeco.doDigis = True
 
-# L1 muons emulator
-#from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
-from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
-dtTriggerPrimitiveDigis.digiTag = cms.InputTag("simMuonDTDigis")
-from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import *
-rpcTriggerDigis.label = "simMuonRPCDigis"
-from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import *
-gmtDigis.DTCandidates = cms.InputTag("dttfDigis","DT")
-gmtDigis.CSCCandidates = cms.InputTag("csctfDigis","CSC")
-gmtDigis.RPCbCandidates = cms.InputTag("rpcTriggerDigis","RPCb")
-gmtDigis.RPCfCandidates = cms.InputTag("rpcTriggerDigis","RPCf")
-gmtDigis.MipIsoData = cms.InputTag("rctDigis")
+# The parameterized L1 Muons (much faster than the L1 emulator)
+from FastSimulation.Muons.L1Muons_cfi import *
 
 # GT emulator
+# the replace of the DaqActiveBoard allows the GT to run without muon inputs (no longer needed)
+gtDigis.GmtInputTag = 'l1ParamMuons'
 gtDigis.EmulateBxInEvent = 1
 
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
-# The muon extra particles are done here, but could be done also by L1ParamMuons.
+# The muon extra particles are done by L1ParamMuons, but could be done here too.
+# Need to check the difference of efficiencies first.
 from L1Trigger.Configuration.L1Extra_cff import *
-l1extraParticles.muonSource = 'gmtDigis'
+l1extraParticles.muonSource = 'l1ParamMuons'
 
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
@@ -72,7 +70,7 @@ HLTBeginSequence = cms.Sequence(
     cms.SequencePlaceholder("simEcalTriggerPrimitiveDigis")+
     simHcalTriggerPrimitiveDigis+
     L1CaloEmulator+
-    L1MuonEmulator+
+    l1ParamMuons+
     gtDigis+
     l1extraParticles+
     cms.SequencePlaceholder("offlineBeamSpot")
