@@ -237,15 +237,23 @@ bool CSCCLCTData::check() const
 }
 
 
+void CSCCLCTData::dump() const {
+   for (int i=0;i<size_;i++) {
+      printf("%04x %04x %04x %04x\n", theData[i+3], theData[i+2], theData[i+1], theData[i]);
+      i+=3;
+   }
+}
+
+
 void CSCCLCTData::selfTest()
 {
   CSCCLCTData clctData(5, 16);
   // aim for output 4 in 5th time bin, = 0000000000010000
   CSCComparatorDigi comparatorDigi1(1, 0, 0x10);
-  // aim for output 5 in 6th time bin, = 0000 0000 1010 0000
-  CSCComparatorDigi comparatorDigi2(39, 1, 0xA0);
-  // aim for output 7 in 7th time bin, = 000 0001 1100 0000
-  CSCComparatorDigi comparatorDigi3(80, 1, 0x1C0);
+  // aim for output 5 in 6th time bin, = 0000 0000 0010 0000
+  CSCComparatorDigi comparatorDigi2(39, 1, 0x20);
+  // aim for output 7 in 7th time bin, = 000 0000 0100 0000
+  CSCComparatorDigi comparatorDigi3(80, 1, 0x40);
 
   clctData.add(comparatorDigi1,1);
   clctData.add(comparatorDigi2,4);
