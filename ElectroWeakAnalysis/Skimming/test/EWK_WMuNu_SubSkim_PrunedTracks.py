@@ -51,7 +51,7 @@ process.goodAODTracks = cms.EDFilter("TrackSelector",
     cut = cms.string('pt > 5.0')
 )
 
-# Photons filtered
+# Electrons filtered
 process.goodAODElectrons = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string('pt > 5.0')
