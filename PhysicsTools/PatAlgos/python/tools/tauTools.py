@@ -41,7 +41,7 @@ def switchToCaloTau(process,
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
     process.allLayer1Taus.isolation   = cms.PSet()
     process.allLayer1Taus.isoDeposits = cms.PSet()
-
+    process.allLayer1Taus.userIsolation = cms.PSet()
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
