@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.35 2009/10/04 10:37:12 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.36 2009/10/06 11:26:22 amraktad Exp $
 //
 
 // system include files
@@ -106,7 +106,9 @@ FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
 }
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
-{}
+{
+   m_data->DecDenyDestroy();
+}
 
 //
 // member functions
@@ -116,6 +118,7 @@ FWEveLegoViewManager::initData()
 {
    if(0==m_data) {
       m_data = new TEveCaloDataHist();
+      m_data->IncDenyDestroy();
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* background = new TH2F("background","",
@@ -201,6 +204,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                m_data->GetEtaBins()->SetTitle("h");
                m_data->GetPhiBins()->SetTitleFont(120);
                m_data->GetPhiBins()->SetTitle("f");
+               m_elements->AddElement(m_lego);
 
                // add calorimeter boundaries
                m_boundaries = new TEveStraightLineSet("boundaries");
@@ -212,7 +216,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
                m_boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
                m_lego->AddElement(m_boundaries);
-               m_elements->AddElement(m_lego);
+
                setGridColors();
             }
             builder->attach(m_elements.get(),m_data);
@@ -236,6 +240,7 @@ FWEveLegoViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
 }
+
 void
 FWEveLegoViewManager::modelChangesDone()
 {
