@@ -101,7 +101,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_Pt      = false;
   bool filter_EMF     = false;
   bool filter_NJets   = false;
-  bool filter_NTowers = false;
+  //bool filter_NTowers = false;
   bool filter_MET     = false;
   bool filter_METSig  = false;
   bool filter_HighPtTower  = false;
@@ -394,8 +394,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     const CaloMET *calomet;
     calomet = &(calometcol->front());
     double caloMET    = calomet->pt();
-    double caloMETSig = calomet->mEtSig();
-    double caloSumET  = calomet->sumEt();
+    //double caloMETSig = calomet->mEtSig();
+    //double caloSumET  = calomet->sumEt();
     if ((caloMET > 300.) && (evtType = 0)) filter_MET = true;
   }
 
