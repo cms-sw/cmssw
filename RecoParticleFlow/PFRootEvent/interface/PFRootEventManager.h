@@ -442,6 +442,9 @@ class PFRootEventManager {
   /// GSF standard reconstructed tracks branch 
   TBranch*   gsfrecTracksBranch_;
 
+  /// Secondary GSF standard reconstructed tracks branch 
+  TBranch*   convBremGsfrecTracksBranch_;
+
   ///Muons branch
   TBranch*   muonsBranch_; 
   
@@ -547,6 +550,9 @@ class PFRootEventManager {
   /// reconstructed GSF tracks
   reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
+  /// reconstructed secondary GSF tracks
+  reco::GsfPFRecTrackCollection  convBremGsfrecTracks_; 
+
   /// standard reconstructed tracks
   reco::TrackCollection    stdTracks_;
   
@@ -790,6 +796,10 @@ class PFRootEventManager {
 
   /// Use of V0 in PFAlgo
   bool   useV0_;
+
+  /// Use Secondary Gsf Tracks
+  bool useConvBremGsfTracks_;
+
 
   // MC Truth tools              ---------------------------------------
 

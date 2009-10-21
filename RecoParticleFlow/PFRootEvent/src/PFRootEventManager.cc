@@ -1219,6 +1219,19 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<gsfTracksbranchname<< endl; 
   } 
 
+  useConvBremGsfTracks_ = false;
+  options_->GetOpt("particle_flow", "useConvBremGsfTracks", useConvBremGsfTracks_);
+  if(useConvBremGsfTracks_) {
+    string convBremGsfTracksbranchname; 
+    options_->GetOpt("root","convBremGsfrecTracks_branch",convBremGsfTracksbranchname); 
+    convBremGsfrecTracksBranch_ = tree_->GetBranch(convBremGsfTracksbranchname.c_str()); 
+    if(!convBremGsfrecTracksBranch_) { 
+      cerr<<"PFRootEventManager::ReadOptions : convBremGsfrecTracks_branch not found : " 
+	  <<convBremGsfTracksbranchname<< endl; 
+    } 
+  }
+  
+
   //muons
   string muonbranchname;
   options_->GetOpt("root","muon_branch",muonbranchname); 
@@ -1442,7 +1455,8 @@ void PFRootEventManager::setAddresses() {
   if( primaryVertexBranch_ ) primaryVertexBranch_->SetAddress(&primaryVertices_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
-  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
+  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_);
+  if( convBremGsfrecTracksBranch_ ) convBremGsfrecTracksBranch_->SetAddress(&convBremGsfrecTracks_);
   if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
   if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
   if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
@@ -1521,20 +1535,21 @@ bool PFRootEventManager::processEntry(int entry) {
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
-    cout<<"number of vertices       : "<<primaryVertices_.size()<<endl;
-    cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
-    cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
-    cout<<"number of muons          : "<<muons_.size()<<endl;
-    cout<<"number of nuclear ints   : "<<nuclear_.size()<<endl;
-    cout<<"number of conversions    : "<<conversion_.size()<<endl;
-    cout<<"number of v0             : "<<v0_.size()<<endl;
-    cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
-    cout<<"number of true particles : "<<trueParticles_.size()<<endl;
-    cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
-    cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
-    cout<<"number of HFEM rechits   : "<<rechitsHFEM_.size()<<endl;
-    cout<<"number of HFHAD rechits   : "<<rechitsHFHAD_.size()<<endl;
-    cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
+    cout<<"number of vertices             : "<<primaryVertices_.size()<<endl;
+    cout<<"number of recTracks            : "<<recTracks_.size()<<endl;
+    cout<<"number of gsfrecTracks         : "<<gsfrecTracks_.size()<<endl;
+    cout<<"number of convBremGsfrecTracks : "<<convBremGsfrecTracks_.size()<<endl;
+    cout<<"number of muons                : "<<muons_.size()<<endl;
+    cout<<"number of nuclear ints         : "<<nuclear_.size()<<endl;
+    cout<<"number of conversions          : "<<conversion_.size()<<endl;
+    cout<<"number of v0                   : "<<v0_.size()<<endl;
+    cout<<"number of stdTracks            : "<<stdTracks_.size()<<endl;
+    cout<<"number of true particles       : "<<trueParticles_.size()<<endl;
+    cout<<"number of ECAL rechits         : "<<rechitsECAL_.size()<<endl;
+    cout<<"number of HCAL rechits         : "<<rechitsHCAL_.size()<<endl;
+    cout<<"number of HFEM rechits         : "<<rechitsHFEM_.size()<<endl;
+    cout<<"number of HFHAD rechits        : "<<rechitsHFHAD_.size()<<endl;
+    cout<<"number of PS rechits           : "<<rechitsPS_.size()<<endl;
   }  
 
   if( doClustering_ ) clustering(); 
@@ -1737,6 +1752,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(gsfrecTracksBranch_) {
     gsfrecTracksBranch_->GetEntry(entry);
   }
+  if(convBremGsfrecTracksBranch_) {
+    convBremGsfrecTracksBranch_->GetEntry(entry);
+  }
   if(muonsBranch_) {
     muonsBranch_->GetEntry(entry);
   }
@@ -1829,6 +1847,10 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     PreprocessRecTracks( gsfrecTracks_);
   }
    
+  if(convBremGsfrecTracksBranch_) {
+    PreprocessRecTracks( convBremGsfrecTracks_);
+  }
+
   //   if(clustersECALBranch_ && !doClustering_) {
   //     for(unsigned i=0; i<clustersECAL_->size(); i++) 
   //       (*clustersECAL_)[i].calculatePositionREP();
@@ -2325,10 +2347,13 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
-
+  
   edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
-                                                          edm::ProductID(5) );  
-
+								edm::ProductID(5) );  
+  
+  edm::OrphanHandle< reco::GsfPFRecTrackCollection > convBremGsftrackh( &convBremGsfrecTracks_, 
+									edm::ProductID(5) );  
+  
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
@@ -2355,7 +2380,7 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, gsftrackh, 
+  pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
 			 muonh,nuclh,convh,v0,
 			 ecalh, hcalh, hfemh, hfhadh, psh,
 			 trackMask,gsftrackMask,
