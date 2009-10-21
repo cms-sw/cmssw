@@ -143,7 +143,7 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
     }
 
     if (tmp4 <= std::abs(tmp3)) {
-      if (tmp3 < 0 == tip < 0)
+      if ((tmp3 < 0) == (tip < 0))
         u2 = +0.;
       else
         u1 = -0.;
