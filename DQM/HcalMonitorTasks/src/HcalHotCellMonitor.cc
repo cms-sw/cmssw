@@ -124,11 +124,11 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 					 "Total Number of Hot HF Cells vs lumi section",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-      ProblemsVsLB->getTH2F()->SetMarkerStyle(20);
-      ProblemsVsLB_HB->getTH2F()->SetMarkerStyle(20);
-      ProblemsVsLB_HE->getTH2F()->SetMarkerStyle(20);
-      ProblemsVsLB_HO->getTH2F()->SetMarkerStyle(20);
-      ProblemsVsLB_HF->getTH2F()->SetMarkerStyle(20);
+      ProblemsVsLB->getTProfile()->SetMarkerStyle(20);
+      ProblemsVsLB_HB->getTProfile()->SetMarkerStyle(20);
+      ProblemsVsLB_HE->getTProfile()->SetMarkerStyle(20);
+      ProblemsVsLB_HO->getTProfile()->SetMarkerStyle(20);
+      ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
