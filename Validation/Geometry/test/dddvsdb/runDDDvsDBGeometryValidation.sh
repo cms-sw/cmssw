@@ -16,9 +16,9 @@ endif
 cmsenv
 
 echo "Check out and compile the needed packages"
-addpkg Geometry/CaloEventSetup
+addpkg Geometry/CaloEventSetup 
 addpkg DetectorDescription/Schema
-addpkg GeometryReaders/XMLIdealGeometryESSource
+addpkg GeometryReaders/XMLIdealGeometryESSource  
 cd $CMSSW_BASE/src
 scramv1 build
 cd -
@@ -327,8 +327,8 @@ else
 endif
 
 sed -i "{/process.GlobalTag.globaltag/d}" runTestCaloGeometryLocalDB_cfg.py >> ${myDir}/GeometryValidation.log
-sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryXMLLocalDB_cfg.py >> ${myDir}/GeometryValidation.log 
-cmsRun runTestCaloGeometryXMLLocalDB_cfg.py > GeometryCaloValidationLocal.log
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" runTestCaloGeometryLocalDB_cfg.py >> ${myDir}/GeometryValidation.log 
+cmsRun runTestCaloGeometryLocalDB_cfg.py > GeometryCaloValidationLocal.log
 if ( -s GeometryCaloValidationLocal.log ) then
     echo "CALO Local test from Local DB run ok" | tee -a ${myDir}/GeometryValidation.log
 else
