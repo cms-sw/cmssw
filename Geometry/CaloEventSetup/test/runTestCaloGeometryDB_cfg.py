@@ -5,20 +5,18 @@ process = cms.Process("GeometryTest")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
+process.load('Configuration/StandardSequences/GeometryDB_cff')
+
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'MC_31X_V9::All' 
 
 process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
 
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 
-process.source = cms.Source("EmptySource")
 
 process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
 

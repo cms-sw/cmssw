@@ -5,23 +5,7 @@ process = cms.Process("GeometryTest")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-#process.load('Configuration/StandardSequences/GeometryDB_cff')
-
-process.load('GeometryReaders.XMLIdealGeometryESSource.cmsGeometryDB_cff')
-
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
-process.source = cms.Source("EmptySource")
-
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -38,6 +22,10 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              )
 
 process.mfa = cms.EDFilter("testMagneticField")
+
+process.Timing = cms.Service("Timing")
+
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('calogeom.root')
