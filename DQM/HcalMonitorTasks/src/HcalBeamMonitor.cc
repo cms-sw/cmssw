@@ -52,7 +52,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   ievt_=0; // event counter
   baseFolder_ = rootFolder_ + "BeamMonitor_Hcal";
-  if (fVerbosity) cout <<"<HcalBeamMonitor::setup> Setup in progress"<<endl;
+  if (fVerbosity) std::cout <<"<HcalBeamMonitor::setup> Setup in progress"<<std::endl;
 
   beammon_makeDiagnostics_ = ps.getUntrackedParameter<bool>("BeamMonitor_makeDiagnosticPlots",makeDiagnostics);
   // These two variables aren't yet in use
@@ -267,7 +267,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 { //processEvent loop
   if (!m_dbe)
     {
-      if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<endl;
+      if (fVerbosity) std::cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
       return;
     }
 
@@ -788,7 +788,6 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
     if (totalE>0)
       {
 	moment = pow(totalX*totalX+totalY*totalY,0.5)/totalE;
-	// cout <<"MOMENT = "<<moment<<endl;
 	CenterOfEnergyRadius->Fill(moment);
 	CenterOfEnergy->Fill(totalX/totalE, totalY/totalE);
       }
@@ -922,7 +921,6 @@ void HcalBeamMonitor::beginLuminosityBlock()
 void HcalBeamMonitor::endLuminosityBlock()
 {
   float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
-  cout <<"Nentries = "<<Nentries<<endl;
   if (Nentries==0) return;
   for (int x=1;x<=HFlumi_occ_LS->getTH2F()->GetNbinsX();++x)
     {
