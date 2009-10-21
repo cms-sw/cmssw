@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.2 2009/01/23 21:35:39 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.3 2009/05/13 20:26:05 amraktad Exp $
 //
 
 #include <math.h>
@@ -27,22 +27,27 @@
 //
 FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase() :
    m_caloData(0),
+   m_ownData(kFALSE),
    m_hist(0)
 {
 }
 
 FWCaloTower3DProxyBuilderBase::~FWCaloTower3DProxyBuilderBase()
 {
+   if (m_ownData) m_caloData->DecDenyDestroy();
 }
-
+ 
 //
 // member functions
 //
 void
 FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataHist** iCaloData)
 {
-   if(0==*iCaloData) {
+   if(0==*iCaloData)
+   {
       *iCaloData = new TEveCaloDataHist();
+      (*iCaloData)->IncDenyDestroy();
+      m_ownData = kTRUE;
 
       //NOTE: must attach a histogram to TEveCaloDataHist before passing TEveCaloDataHist to TEveCalo3D
       // else we get a segmentation fault.

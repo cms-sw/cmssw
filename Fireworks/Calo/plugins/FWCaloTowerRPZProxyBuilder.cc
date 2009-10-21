@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.3 2009/01/21 18:42:59 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.4 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -16,6 +16,25 @@
 
 TEveCaloDataHist* FWCaloTowerRPZProxyBuilderBase::m_data = 0;
 
+FWCaloTowerRPZProxyBuilderBase::FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name):
+   FWRPZDataProxyBuilder(),
+   m_ownData(kFALSE),
+   m_handleEcal(handleEcal),
+   m_histName(name),
+   m_hist(0),
+   m_sliceIndex(-1)
+{
+   setHighPriority( true );
+}
+
+FWCaloTowerRPZProxyBuilderBase::~FWCaloTowerRPZProxyBuilderBase()
+{
+   // Destructor.
+
+   if (m_ownData) m_data->DecDenyDestroy();
+}
+
+//______________________________________________________________________________
 void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElementList** product)
 {
    m_towers=0;
@@ -49,8 +68,7 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
    }
    if ( !m_data )  {
       m_data = new TEveCaloDataHist();
-      //make sure it does not go away
-      m_data->IncRefCount();
+      m_ownData = kTRUE;
    }
    if ( newHist ) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
@@ -67,6 +85,7 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
          gEve->AddElement(*product);
       }
    }
+   m_data->IncDenyDestroy();
 }
 
 void
