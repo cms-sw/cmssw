@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/28 14:52:03 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/30 13:40:37 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -150,6 +150,8 @@ void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
   mPtFirst                 = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500);
 
+  mDPhi                   = dbe->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
+
   //
   mChargedHadronEnergy = dbe->book1D("mChargedHadronEnergy", "mChargedHadronEnergy", 100, 0, 100);
   mNeutralHadronEnergy = dbe->book1D("mNeutralHadronEnergy", "mNeutralHadronEnergy", 100, 0, 100);
@@ -285,5 +287,7 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (mMuonMultiplicity )mMuonMultiplicity->Fill (jet. muonMultiplicity());
   //_______________________________________________________
   if (mNeutralFraction) mNeutralFraction->Fill (jet.neutralMultiplicity()/jet.nConstituents());
+
+  if (mDPhi)    mDPhi->Fill (_DPhi);
 
 }

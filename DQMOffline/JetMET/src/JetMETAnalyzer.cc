@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 10:14:36 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/10/19 23:51:08 $
+ *  $Revision: 1.26 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -314,7 +314,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
-
+  
+  double fstPhi=0;
+  double sndPhi=0;
+  double diff = 0.;
+  double corr = 0.;
+  double dphi = -999. ;
   if(caloJets.isValid()){
     theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
@@ -322,15 +327,33 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if( theJetAnalyzerFlag  ){ // KH Is this correct?
         LogTrace(metname)<<"[JetMETAnalyzer] Call to the SC Jet analyzer"; // KH Is this correct?
         if (cal == caloJets->begin()) {
+	  fstPhi = cal->phi();
           theCleanedSCJetAnalyzer->setNJets(caloJets->size());
           theCleanedSCJetAnalyzer->setLeadJetFlag(1);
         } else {
           theCleanedSCJetAnalyzer->setLeadJetFlag(0);
         }
+        if (cal == (caloJets->begin()+1)) sndPhi = cal->phi();
         theCleanedSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+    //calculate correctly the dphi
+    if(theCleanedSCJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    theCleanedSCJetAnalyzer->setDPhi(dphi);
   }
+  fstPhi=0;
+  sndPhi=0;
+  diff = 0.;
+  corr = 0.;
+  dphi = -999. ;
   if(caloJets.isValid()){
     theSCJetAnalyzer->setJetHiPass(JetHiPass);
     theSCJetAnalyzer->setJetLoPass(JetLoPass);
@@ -338,14 +361,27 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetCleaningFlag){ // KH Is this correct?
         LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned SC Jet analyzer"; // KH Is this correct?
         if (cal == caloJets->begin()) {
+	  fstPhi = cal->phi();
           theSCJetAnalyzer->setNJets(caloJets->size());
           theSCJetAnalyzer->setLeadJetFlag(1);
         } else {
           theSCJetAnalyzer->setLeadJetFlag(0);
         }
+        if (cal == (caloJets->begin()+1)) sndPhi = cal->phi();
         theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+    //calculate correctly the dphi
+    if(theSCJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    theSCJetAnalyzer->setDPhi(dphi);
   }
   if(caloJets.isValid()){
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
@@ -361,7 +397,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the Iterative Cone Jet container
   iEvent.getByLabel(theICJetCollectionLabel, caloJets);
-
+  //reset variables used to calculate dphi
+  fstPhi=0;
+  sndPhi=0;
+  diff = 0.;
+  corr = 0.;
+  dphi = -999. ;
   if(caloJets.isValid()){
     theICJetAnalyzer->setJetHiPass(JetHiPass);
     theICJetAnalyzer->setJetLoPass(JetLoPass);
@@ -369,16 +410,33 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the IC Jet analyzer";
 	if (cal == caloJets->begin()) {
+	  fstPhi = cal->phi();
 	  theICJetAnalyzer->setNJets(caloJets->size());
 	  theICJetAnalyzer->setLeadJetFlag(1);
 	} else {
 	  theICJetAnalyzer->setLeadJetFlag(0);
 	}
-	//	theICJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);	
+        if (cal == (caloJets->begin()+1)) sndPhi = cal->phi();
 	theICJetAnalyzer->analyze(iEvent, iSetup, *cal);	
       }
     }
+    //calculate correctly the dphi
+    if(theICJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    theICJetAnalyzer->setDPhi(dphi);
   }
+  fstPhi=0;
+  sndPhi=0;
+  diff = 0.;
+  corr = 0.;
+  dphi = -999. ;
   if(caloJets.isValid()){
     theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
@@ -386,15 +444,27 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetCleaningFlag){
         LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned IC Jet analyzer";
         if (cal == caloJets->begin()) {
+	  fstPhi = cal->phi();
           theCleanedICJetAnalyzer->setNJets(caloJets->size());
           theCleanedICJetAnalyzer->setLeadJetFlag(1);
         } else {
           theCleanedICJetAnalyzer->setLeadJetFlag(0);
         }
-        //      theICJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);
+        if (cal == (caloJets->begin()+1)) sndPhi = cal->phi();
         theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+    //calculate correctly the dphi
+    if(theCleanedICJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    theCleanedICJetAnalyzer->setDPhi(dphi);
   }
   if(caloJets.isValid()){
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
@@ -412,6 +482,11 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 // **** Get the JPT Jet container
   iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
   //jpt
+  fstPhi=0;
+  sndPhi=0;
+  diff = 0.;
+  corr = 0.;
+  dphi = -999. ;
   if(caloJets.isValid()){
     theJPTJetAnalyzer->setJetHiPass(JetHiPass);
     theJPTJetAnalyzer->setJetLoPass(JetLoPass);
@@ -419,20 +494,37 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJPTJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the JPT Jet analyzer";
 	if (cal == caloJets->begin()) {	  
+	  fstPhi = cal->phi();
 	  theJPTJetAnalyzer->setNJets(caloJets->size());
 	  theJPTJetAnalyzer->setLeadJetFlag(1);
 	} else {
 	  theJPTJetAnalyzer->setLeadJetFlag(0);
 	}
+        if (cal == (caloJets->begin()+1)) sndPhi = cal->phi();
 	theJPTJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+    //calculate correctly the dphi
+    if(theJPTJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    theJPTJetAnalyzer->setDPhi(dphi);
   }
 
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
-
+  fstPhi=0;
+  sndPhi=0;
+  diff = 0.;
+  corr = 0.;
+  dphi = -999. ;
   if(pfJets.isValid()){
 //     for (reco::PFJetCollection::const_iterator cal = pfJets->begin(); cal!=pfJets->end(); ++cal){
 //       if(thePFJetAnalyzerFlag){
@@ -444,15 +536,29 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     thePFJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::PFJetCollection::const_iterator cal = pfJets->begin(); cal!=pfJets->end(); ++cal){
       if(thePFJetAnalyzerFlag){
-	if (cal == pfJets->begin()) {	  
+	if (cal == pfJets->begin()) {
+	  fstPhi = cal->phi();	  
+	  thePFJetAnalyzer->setNJets(pfJets->size());
 	  thePFJetAnalyzer->setLeadJetFlag(1);
 	} else {
 	  thePFJetAnalyzer->setLeadJetFlag(0);
 	}
+	if (cal == (pfJets->begin()+1)) sndPhi = cal->phi();
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
 	thePFJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+    //calculate correctly the dphi
+    if(thePFJetAnalyzer->getNJets()>1) {
+      diff = fabs(fstPhi - sndPhi);
+      corr = 2*acos(-1.) - diff;
+      if(diff < acos(-1.)) { 
+	dphi = diff; 
+      } else { 
+	dphi = corr;
+      }
+    }
+    thePFJetAnalyzer->setDPhi(dphi);
   } else {
     if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";
   }

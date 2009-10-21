@@ -91,7 +91,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100000 )
+    input = cms.untracked.int32( 1000 )
 )
 process.Timing = cms.Service("Timing")
 

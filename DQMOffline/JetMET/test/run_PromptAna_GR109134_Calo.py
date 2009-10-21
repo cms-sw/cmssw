@@ -72,33 +72,34 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100000 )
+    input = cms.untracked.int32( 1000 )
 )
 process.Timing = cms.Service("Timing")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('jetMETAnalyzer'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        jetMETAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(100)
-        ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        #FwkJob = cms.untracked.PSet(
-        #    limit = cms.untracked.int32(0)
-        #),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    categories = cms.untracked.vstring('jetMETAnalyzer'),
-    destinations = cms.untracked.vstring('cout')
-)
+#process.MessageLogger = cms.Service("MessageLogger",
+#    debugModules = cms.untracked.vstring('jetMETAnalyzer'),
+#    cout = cms.untracked.PSet(
+#        default = cms.untracked.PSet(
+#            limit = cms.untracked.int32(0)
+#        ),
+#        jetMETAnalyzer = cms.untracked.PSet(
+#            limit = cms.untracked.int32(100)
+#        ),
+#        noLineBreaks = cms.untracked.bool(True),
+#        DEBUG = cms.untracked.PSet(
+#            limit = cms.untracked.int32(0)
+#        ),
+#        #FwkJob = cms.untracked.PSet(
+#        #    limit = cms.untracked.int32(0)
+#        #),
+#        threshold = cms.untracked.string('DEBUG')
+#    ),
+#    categories = cms.untracked.vstring('jetMETAnalyzer'),
+#    destinations = cms.untracked.vstring('cout')
+#)
+
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(False)
 )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -108,7 +109,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True) ## default is false
+    wantSummary = cms.untracked.bool(False) ## default is false
 
 )
 

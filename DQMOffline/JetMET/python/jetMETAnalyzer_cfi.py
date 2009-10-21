@@ -221,8 +221,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     jetAnalysis = cms.PSet(
         ptThreshold = cms.double(3.),
-        fEM = cms.double(-1),
-        N90Cells = cms.double(0),
+        n90HitsMin= cms.int32(-1),
+        fHPDMax= cms.double(1.),
+        resEMFMin= cms.double(0.),
         eBin    = cms.int32(100),
         phiMin  = cms.double(-3.2),
         ptBin   = cms.int32(100),
@@ -237,16 +238,25 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         ptMax   = cms.double(50.0),
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2)
+        phiMax  = cms.double(3.2),
+        JetIDParams = cms.PSet(
+    useRecHits = cms.bool(True),
+    hbheRecHitsColl = cms.InputTag("hbhereco"),
+    hoRecHitsColl   = cms.InputTag("horeco"),
+    hfRecHitsColl   = cms.InputTag("hfreco"),
+    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    )
     ),
 
     #
     # For jetcleaning Analysis
     #
     CleanedjetAnalysis = cms.PSet(
-        ptThreshold = cms.double(10.),
-        fEM = cms.double(0.01),
-        N90Cells = cms.double(2),
+    ptThreshold = cms.double(10.),
+    n90HitsMin= cms.int32(2),
+    fHPDMax= cms.double(0.98),
+    resEMFMin= cms.double(0.01),
         eBin    = cms.int32(100),
         phiMin  = cms.double(-3.2),
         ptBin   = cms.int32(100),
@@ -261,7 +271,15 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         ptMax   = cms.double(50.0),
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2)
+        phiMax  = cms.double(3.2),
+        JetIDParams = cms.PSet(
+    useRecHits = cms.bool(True),
+    hbheRecHitsColl = cms.InputTag("hbhereco"),
+    hoRecHitsColl   = cms.InputTag("horeco"),
+    hfRecHitsColl   = cms.InputTag("hfreco"),
+    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    )
     ),
 
     #
@@ -284,8 +302,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     pfJetAnalysis = cms.PSet(
         ptThreshold = cms.double(3.),
-        fEM = cms.double(-1),
-        N90Cells = cms.double(0),
+        n90HitsMin= cms.int32(-1),
+        fHPDMax= cms.double(1.),
+        resEMFMin= cms.double(0.),
         eBin    = cms.int32(100),
         phiMin  = cms.double(-3.2),
         ptBin   = cms.int32(100),
@@ -300,7 +319,15 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         ptMax   = cms.double(50.0),
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2)
+        phiMax  = cms.double(3.2),
+        JetIDParams = cms.PSet(
+    useRecHits = cms.bool(True),
+    hbheRecHitsColl = cms.InputTag("hbhereco"),
+    hoRecHitsColl   = cms.InputTag("horeco"),
+    hfRecHitsColl   = cms.InputTag("hfreco"),
+    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    )
     ),
 
     #
@@ -308,8 +335,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     JPTJetAnalysis = cms.PSet(
         ptThreshold = cms.double(3.),
-        fEM = cms.double(-1),
-        N90Cells = cms.double(0),
+        n90HitsMin= cms.int32(-1),
+        fHPDMax= cms.double(1.),
+        resEMFMin= cms.double(0.),
         eBin    = cms.int32(100),
         phiMin  = cms.double(-3.2),
         ptBin   = cms.int32(100),
@@ -324,8 +352,15 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         ptMax   = cms.double(50.0),
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2)
+        phiMax  = cms.double(3.2),
+        JetIDParams = cms.PSet(
+    useRecHits = cms.bool(True),
+    hbheRecHitsColl = cms.InputTag("hbhereco"),
+    hoRecHitsColl   = cms.InputTag("horeco"),
+    hfRecHitsColl   = cms.InputTag("hfreco"),
+    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
     )
-
+    )
 
 )

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2009/05/28 14:52:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/30 13:48:08 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -54,7 +54,12 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   int getNJets() {
     return  _NJets;
   }
-
+  void setDPhi(double dphi) {
+    _DPhi = dphi;
+  }
+  double getDPhi() {
+    return  _DPhi;
+  }
   void setJetLoPass(int pass) {
     _JetLoPass = pass;
   }
@@ -92,6 +97,8 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   int    pBin;
   double pMin;
   double pMax;
+
+  double _DPhi;
 
   //the histos
   MonitorElement* jetME;
@@ -181,6 +188,7 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mP;
   MonitorElement* mMass;
   MonitorElement* mNJets;
+  MonitorElement* mDPhi;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
