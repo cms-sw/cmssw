@@ -448,15 +448,15 @@ famosWithPFTauTagging = cms.Sequence(
     famosPFTauTaggingSequence
 )
 
-# The simulation sequence
-simulationWithFamos = cms.Sequence(
+# The simulation sequence without muon digitization
+simulationNoMuonDigiWithFamos = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
     caloRecHits
 )
 
 # The simulation and digitization sequence
-digitizationWithFamos = cms.Sequence(
+simulationWithFamos = cms.Sequence(
     famosSimulationSequence+
     muonDigi+
     siTrackerGaussianSmearingRecHits+
