@@ -110,7 +110,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   }
 
   if (stripQualityFlags != 0) {
-    iRecord.getRecord<SiStripQualityRcd>().get(stripQuality);
+    std::string siStripQualityLabel = pset_.getParameter<std::string>("SiStripQualityLabel");
+    iRecord.getRecord<SiStripQualityRcd>().get(siStripQualityLabel, stripQuality);
     ptr_stripQuality = stripQuality.product();
   }
   

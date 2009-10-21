@@ -14,6 +14,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     StripCPE = cms.string('StripCPEfromTrackAngle'),
     HitMatcher = cms.string('StandardMatcher'),
 
+    SiStripQualityLabel         = cms.string(''),  ## unlabelled default SiStripQuality
     UseStripModuleQualityDB     = cms.bool(True),
     DebugStripModuleQualityDB   = cms.untracked.bool(False), ## dump out info om module status
     UseStripAPVFiberQualityDB   = cms.bool(True),            ## read APV and Fiber status from SiStripQuality
