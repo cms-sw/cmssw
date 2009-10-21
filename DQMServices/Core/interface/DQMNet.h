@@ -57,7 +57,6 @@ public:
 
   static const uint32_t DQM_PROP_NEW		= 0x00010000;
   static const uint32_t DQM_PROP_RECEIVED	= 0x00020000;
-  static const uint32_t DQM_PROP_INTERESTING	= 0x00040000;
   static const uint32_t DQM_PROP_DEAD		= 0x00080000;
 
   static const uint32_t DQM_MSG_HELLO		= 0;
@@ -102,7 +101,8 @@ public:
   
   struct Object : CoreObject
   {
-    size_t		hash;
+    uint64_t		hash;
+    uint64_t		lastreq;
     DataBlob		rawdata;
     std::string		scalar;
     std::string		qdata;
@@ -410,6 +410,7 @@ protected:
       o.flags = 0;
       o.tag = 0;
       o.version = 0;
+      o.lastreq = 0;
       o.dirname = &*ip->dirs.insert(name.substr(0, dirpos)).first;
       o.objname.append(name, namepos, std::string::npos);
       o.hash = dqmhash(name.c_str(), name.size());
@@ -435,13 +436,22 @@ protected:
   virtual void
   purgeDeadObjects(Peer *p)
     {
+      uint64_t minreq
+	= (lat::Time::current()
+	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
+      {
 	if (i->flags & DQM_PROP_DEAD)
 	  ip->objs.erase(i++);
 	else
+	{
+	  if (i->lastreq && i->lastreq < minreq)
+	    const_cast<ObjType &>(*i).lastreq = 0;
 	  ++i;
+        }
+      }
     }
 
   virtual Peer *
@@ -511,7 +521,7 @@ protected:
 	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
 	  if (all || (oi->flags & DQM_PROP_NEW))
 	  {
-	    sendObjectToPeer(msg, const_cast<ObjType &>(*oi), false);
+	    sendObjectToPeer(msg, const_cast<ObjType &>(*oi), oi->lastreq > 0);
 	    if (clear)
 	      const_cast<ObjType &>(*oi).flags &= ~DQM_PROP_NEW;
 	    ++nupdates;

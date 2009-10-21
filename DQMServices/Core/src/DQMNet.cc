@@ -525,6 +525,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       Object *o = findObject(0, name, &owner);
       if (o)
       {
+	o->lastreq = Time::current().ns();
 	if (o->rawdata.empty()
 	    && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
 	  waitForData(p, name, "", owner);
@@ -659,8 +660,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (! o)
 	o = makeObject(p, name);
 
-      uint32_t interesting = o->flags & DQM_PROP_INTERESTING;
-      o->flags = words[2] | DQM_PROP_NEW | DQM_PROP_RECEIVED | interesting;
+      o->flags = words[2] | DQM_PROP_NEW | DQM_PROP_RECEIVED;
       o->tag = words[5];
       o->version = ((uint64_t) words[4] << 32 | words[3]);
       o->rawdata.clear();
@@ -674,7 +674,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 
       // If we had an object for this one already and this is a list
       // update without data, issue an immediate data get request.
-      if (interesting
+      if (o->lastreq
 	  && ! datalen
 	  && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
 	requestObjectData(p, (namelen ? &name[0] : 0), namelen);
