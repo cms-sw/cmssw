@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.2 2009/03/03 13:43:43 jserrano Exp $
+# $Id: smCleanupFiles.pl,v 1.3 2009/03/04 13:28:51 jserrano Exp $
 
 use strict;
 use warnings;
@@ -7,7 +7,7 @@ use DBI;
 use Getopt::Long;
 use File::Basename;
 
-my ($help, $debug, $nothing, $force, $execute, $maxfiles, $fileagemin);
+my ($help, $debug, $nothing, $now, $force, $execute, $maxfiles, $fileagemin);
 my ($hostname, $filename, $dataset, $stream, $config);
 my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode, );
 my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
@@ -17,8 +17,9 @@ sub usage
   print " 
   ############################################################################## 
   
-  Usage $0 [--help] [--debug] [--nothing] 
+  Usage $0 [--help] [--debug] [--nothing]  [--now] 
   Almost all the parameters are obvious. Non-obvious ones are:
+   --now : suppress 'sleep' in delete based on host ID
 
   ##############################################################################   
   \n";
@@ -53,6 +54,7 @@ sub gettimestamp($)
 $help       = 0;
 $debug      = 0;
 $nothing    = 0;
+$now        = 0;
 $filename   = ''; 
 $dataset    = '';
 $uptorun    = 0;
@@ -62,7 +64,7 @@ $hostname   = '';
 $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
-$fileagemin = 60;
+$fileagemin = 70;
 $force      = 0;
 $config     = "/opt/injectworker/.db.conf";
 
@@ -73,6 +75,7 @@ GetOptions(
            "help"          => \$help,
            "debug"         => \$debug,
            "nothing"       => \$nothing,
+           "now"           => \$now,
            "force"         => \$force,
            "config=s"      => \$config,
            "hostname=s"    => \$hostname,
@@ -88,6 +91,19 @@ GetOptions(
 
 $help && usage;
 if ($nothing) { $execute = 0; $debug = 1; }
+
+
+#time stagger deletes on the various MAIN SM nodes:
+if (!$now) { 
+    my $deletedelay=4.0;
+    my ($aa, $bb, $cc, $rack, $node) = split(/[cC-]/, $hostname, 5);
+    if( $rack=="06" || $rack=="07"){
+	my $nodesleep = $deletedelay*( 2*($rack-6)+$node-12 );
+        print "For node $hostname go to sleep for $nodesleep min \n";
+	`sleep "$nodesleep"m`;
+	}
+}
+
 
 my $reader = "xxx";
 my $phrase = "xxx";
