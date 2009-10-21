@@ -40,8 +40,8 @@ SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::Param
     m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<< m_record<<endl;
-  ::putenv("CORAL_AUTH_USER=konec");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_USER=konec");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
 }
 
 void  SiPixelFedCablingMapTestWriter::endJob()
