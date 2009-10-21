@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/12 17:22:06 $
- * $Revision: 1.139 $
+ * $Date: 2009/10/18 15:08:35 $
+ * $Revision: 1.140 $
  * \author W Fisher
  * \author J Temple
  *
@@ -568,18 +568,46 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
 //--------------------------------------------------------
 void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
      const edm::EventSetup& context) {
-  
-  if(actonLS_ && !prescale()){
-    // do scheduled tasks...
-  }
+
+  ilumisec_ = lumiSeg.luminosityBlock();
+  if(digiMon_!=0)   {  digiMon_->LumiBlockUpdate(ilumisec_);}
+  if(dfMon_!=0)     {  dfMon_->LumiBlockUpdate(ilumisec_);}
+  if(diTask_!=0)    {  diTask_->LumiBlockUpdate(ilumisec_);}
+  if(pedMon_!=0)    {  pedMon_->LumiBlockUpdate(ilumisec_);}
+  if(ledMon_!=0)    {  ledMon_->LumiBlockUpdate(ilumisec_);}
+  if(laserMon_!=0)  {  laserMon_->LumiBlockUpdate(ilumisec_);}
+  if(hotMon_!=0)    {  hotMon_->LumiBlockUpdate(ilumisec_);}
+  if(deadMon_!=0)   {  deadMon_->LumiBlockUpdate(ilumisec_);}
+  if(mtccMon_!=0)   {  mtccMon_->LumiBlockUpdate(ilumisec_);}
+  if(rhMon_!=0)     {  rhMon_->LumiBlockUpdate(ilumisec_);}
+  if (zdcMon_!=0)   {  zdcMon_->LumiBlockUpdate(ilumisec_);}
+  if (beamMon_!=0)  {  beamMon_->LumiBlockUpdate(ilumisec_);}
+  if (tpMon_!=0)    {  tpMon_->LumiBlockUpdate(ilumisec_);}
+
+  //////////////////////////////////////////////
+  if(detDiagPed_!=0){  detDiagPed_->LumiBlockUpdate(ilumisec_);}
+  if(detDiagLed_!=0){  detDiagLed_->LumiBlockUpdate(ilumisec_);}
+  if(detDiagLas_!=0){  detDiagLas_->LumiBlockUpdate(ilumisec_);}
+  if(detDiagNoise_!=0){  detDiagNoise_->LumiBlockUpdate(ilumisec_);}
+  if(detDiagTiming_!=0){  detDiagTiming_->LumiBlockUpdate(ilumisec_);}
+  /////////////////////////////////////////////
+
+  //if(actonLS_ && !prescale())
+    {
+      // do scheduled tasks...
+      // Clear BeamMonitor problem histograms
+      if (beamMon_) beamMon_->beginLuminosityBlock();
+    }
 }
 
 
 //--------------------------------------------------------
 void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					   const edm::EventSetup& context) {
-  if(actonLS_ && !prescale()){
+  //if(actonLS_ && !prescale())
+  {
     // do scheduled tasks...
+    if (beamMon_) beamMon_->endLuminosityBlock();
   }
 }
 
@@ -743,11 +771,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   // environment datamembers
   irun_     = e.id().run();
-
-  bool lumiswitch=false;
-  if (e.luminosityBlock()!=ilumisec_)
-    lumiswitch=true;
-  ilumisec_ = e.luminosityBlock();
 
   ievent_   = e.id().event();
   itime_    = e.time().value();
@@ -1086,7 +1109,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if((dfMon_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_) 
     {
-      if (lumiswitch) dfMon_->LumiBlockUpdate(ilumisec_);
       dfMon_->processEvent(*rawraw,*report,*readoutMap_);
     }
   if (showTiming_)
@@ -1098,7 +1120,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if ((diTask_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_)
     {
-      if (lumiswitch) diTask_->LumiBlockUpdate(ilumisec_);
       diTask_->processEvent(*rawraw,*report,*readoutMap_);
     }
   if (showTiming_)
@@ -1111,7 +1132,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_ && report.isValid())
     {
-      if (lumiswitch) digiMon_->LumiBlockUpdate(ilumisec_);
       digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
       digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
 			     //*zdc_digi,
@@ -1126,7 +1146,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
     {
-      if (lumiswitch) pedMon_->LumiBlockUpdate(ilumisec_);
       pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*zdc_digi,*conditions_);
     }
   if (showTiming_)
@@ -1139,7 +1158,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // LED monitor task
   if((ledMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
     {
-      if (lumiswitch) ledMon_->LumiBlockUpdate(ilumisec_);
       ledMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
     }
   if (showTiming_)
@@ -1152,7 +1170,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Laser monitor task
   if((laserMon_!=NULL) && (evtMask&DO_HCAL_LASER_CALIBMON) && digiOK_ && laserOK_)
     {
-      if (lumiswitch) ledMon_->LumiBlockUpdate(ilumisec_);
       laserMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*laser_digi,*conditions_);
     }
   if (showTiming_)
@@ -1165,16 +1182,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Rec Hit monitor task
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     {
-      if (lumiswitch) rhMon_->LumiBlockUpdate(ilumisec_);
       rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
-      // This lets us process rec hits regardless of ZDC status.
-      // But is ZDC is okay, we'll make rec hit plots for that as well.
-      if (zdchitOK_)
-	{
-	  //if (debug_>1) std::cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	  //rhMon_->processZDC(*zdc_hits);
-	}
-
     }
   if (showTiming_)
     {
@@ -1186,7 +1194,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Beam Monitor task
   if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
     {
-      if (lumiswitch) beamMon_->LumiBlockUpdate(ilumisec_);
       beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi);
     }
   if (showTiming_)
@@ -1200,9 +1207,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     {
-      if (lumiswitch) hotMon_->LumiBlockUpdate(ilumisec_);
       hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
-			    //*hbhe_digi,*ho_digi,*hf_digi,
 			    *conditions_);
       //hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
     }
@@ -1215,7 +1220,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     {
-      if (lumiswitch) deadMon_->LumiBlockUpdate(ilumisec_);
       //deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
       deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			     *hbhe_digi,*ho_digi,*hf_digi);
@@ -1231,7 +1235,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // CalotowerMonitor
   if ((ctMon_ !=NULL) )
     {
-      if (lumiswitch) ctMon_->LumiBlockUpdate(ilumisec_);
       ctMon_->processEvent(*calotowers);
     }
 
@@ -1246,7 +1249,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Trigger Primitive monitor task -- may end up using both rec hits and digis?
   if((tpMon_ != NULL) && rawOK_ && rechitOK_ && digiOK_ && tpdOK_) 
     {
-      if (lumiswitch) tpMon_->LumiBlockUpdate(ilumisec_);
       tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			   *hbhe_digi,*ho_digi,*hf_digi,
 			   *tp_digi, *emultp_digi, *rawraw, *readoutMap_);			     
@@ -1261,7 +1263,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Expert monitor plots
   if (expertMon_ != NULL) 
     {
-      if (lumiswitch) expertMon_->LumiBlockUpdate(ilumisec_);
       expertMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			       *hbhe_digi,*ho_digi,*hf_digi,
 			       *tp_digi,
@@ -1277,7 +1278,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Empty Event/Unsuppressed monitor plots
   if (eeusMon_ != NULL) 
     {
-      if (lumiswitch) eeusMon_->LumiBlockUpdate(ilumisec_);
       eeusMon_->processEvent( *rawraw,*report,*readoutMap_);
     }
   if (showTiming_)
