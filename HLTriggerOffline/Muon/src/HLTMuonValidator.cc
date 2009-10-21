@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/19 16:04:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/20 23:12:08 $
+ *  $Revision: 1.4 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -148,10 +148,19 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   iEvent.getByLabel("hltL3MuonCandidates", handleCandsL3);
   
   L1MuonParticleCollection candsL1;
-  if (!handleCandsL1.isValid()) 
+  if (!handleCandsL1.isValid()) // Check for FastSim L1 collection
     iEvent.getByLabel("l1ParamMuons", handleCandsL1);
-  if (handleCandsL1.isValid()) 
-    candsL1 = * handleCandsL1;
+  if (handleCandsL1.isValid()) candsL1 = * handleCandsL1;
+  else {
+    // L1 collections not properly saved; try the trigger summary
+    InputTag tag = InputTag("hltL1MuOpenL1Filtered0", "", hltProcessName_);
+    size_t iFilter = rawTriggerEvent->filterIndex(tag);
+    vector<L1MuonParticleRef> candsPassingL1;
+    if (iFilter < rawTriggerEvent->size())
+      rawTriggerEvent->getObjects(iFilter, TriggerL1Mu, candsPassingL1);
+    for (size_t i = 0; i < candsPassingL1.size(); i++) 
+      candsL1.push_back(* candsPassingL1[i]);
+  }
 
   vector<RecoChargedCandidateCollection> candsHlt(2);
   if (handleCandsL2.isValid()) candsHlt[0] = * handleCandsL2;
