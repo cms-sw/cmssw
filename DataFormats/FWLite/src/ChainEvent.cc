@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.14 2009/09/10 20:36:33 cplager Exp $
+// $Id: ChainEvent.cc,v 1.15 2009/09/24 19:21:33 dsr Exp $
 //
 
 // system include files
@@ -106,77 +106,80 @@ ChainEvent::operator++()
 }
 
 ///Go to the event at index iIndex
-const ChainEvent& 
-ChainEvent::to(Long64_t iIndex) {
-  if(iIndex >= accumulatedSize_.back()) {
-    //should throw exception
-    return *this;
-  }
+bool
+ChainEvent::to (Long64_t iIndex) 
+{
+   if (iIndex >= accumulatedSize_.back()) 
+   {
+      // if we're here, then iIndex was not valid
+      return false;
+   }
 
-  Long64_t offsetIndex = eventIndex_;
+   Long64_t offsetIndex = eventIndex_;
 
-  // we're going backwards, so start from the beginning
-  if (iIndex < accumulatedSize_[offsetIndex]) {
-    offsetIndex = 0;
-  }
+   // we're going backwards, so start from the beginning
+   if (iIndex < accumulatedSize_[offsetIndex]) {
+      offsetIndex = 0;
+   }
 
-  // is it past the end of this file?
-  while (iIndex >= accumulatedSize_[offsetIndex+1]) {
-    ++offsetIndex;
-  }
+   // is it past the end of this file?
+   while (iIndex >= accumulatedSize_[offsetIndex+1]) {
+      ++offsetIndex;
+   }
 
-  if(offsetIndex != eventIndex_) {
-    switchToFile(eventIndex_ = offsetIndex);
-  }
+   if(offsetIndex != eventIndex_) {
+      switchToFile(eventIndex_ = offsetIndex);
+   }
 
-  // adjust to entry # in this file
-  event_->to( iIndex-accumulatedSize_[offsetIndex] );
-  return *this;
+   // adjust to entry # in this file
+   return event_->to( iIndex-accumulatedSize_[offsetIndex] );
 }
 
 
 ///Go to event with event id "id"
-const ChainEvent& 
-ChainEvent::to(edm::EventID id) {
-  return to(id.run(), id.event());
+bool
+ChainEvent::to (const edm::EventID &id) 
+{
+  return to (id.run(), id.event());
 }
 
 ///Go to event with given run and event number
-const ChainEvent& 
-ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
+bool
+ChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event) 
+{
 
-  // First try this file
-  if ( event_->to( run, event ) )  {
-    // found it, return
-    return *this;
-  } 
-  else {
-    // Did not find it, try the other files sequentially.
-    // Someday I can make this smarter. For now... we get something working. 
-    Long64_t thisFile = eventIndex_;
-    std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
-      filesEnd = fileNames_.end(), ifile = filesBegin;
-    for ( ; ifile != filesEnd; ++ifile ) {
-      // skip the "first" file that we tried
-      if ( ifile - filesBegin != thisFile ) {
-	// switch to the next file
-	switchToFile( ifile - filesBegin );
-	// check that tree for the desired event
-	if ( event_->to( run, event ) ) {
-	  // found it, return
-	  return *this;
-	} 
-      }// end ignore "first" file that we tried
-    }// end loop over files
+   // First try this file
+   if ( event_->to( run, event ) )  
+   {
+      // found it, return
+      return true;
+   } 
+   else 
+   {
+      // Did not find it, try the other files sequentially.
+      // Someday I can make this smarter. For now... we get something working. 
+      Long64_t thisFile = eventIndex_;
+      std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
+         filesEnd = fileNames_.end(), ifile = filesBegin;
+      for ( ; ifile != filesEnd; ++ifile ) 
+      {
+         // skip the "first" file that we tried
+         if ( ifile - filesBegin != thisFile ) 
+         {
+            // switch to the next file
+            switchToFile( ifile - filesBegin );
+            // check that tree for the desired event
+            if ( event_->to( run, event ) ) 
+            {
+               // found it, return
+               return true;
+            } 
+         }// end ignore "first" file that we tried
+      }// end loop over files
     
-    // did not find the event with id "id".
-    // throw exception. 
-    throw cms::Exception("EventNotFound")
-      << "The ChainEvent does not contain run " 
-      << run << ", event " << event;
-    return *this; // make the compiler happy. this will not execute
-  }// end if we did not find event id in "first" file
-
+      // did not find the event with id "id".
+      return false;
+   }// end if we did not find event id in "first" file
 }
 
 /** Go to the very first Event*/

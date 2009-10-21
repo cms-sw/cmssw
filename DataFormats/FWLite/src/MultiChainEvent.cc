@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.7 2009/10/17 03:55:57 srappocc Exp $
+// $Id: MultiChainEvent.cc,v 1.8 2009/10/20 18:34:58 srappocc Exp $
 //
 
 // system include files
@@ -182,75 +182,100 @@ MultiChainEvent::operator++()
 }
 
 ///Go to the event at index iIndex
-const MultiChainEvent& 
-MultiChainEvent::to(Long64_t iIndex) {
-  event1_->to( iIndex );
-  return *this;
+bool
+MultiChainEvent::to(Long64_t iIndex) 
+{
+  return event1_->to( iIndex );
 }
 
 
 ///Go to event with event id "id"
-const MultiChainEvent& 
-MultiChainEvent::to(edm::EventID id) {
-  return to(id.run(), id.event());
+bool
+MultiChainEvent::to(edm::EventID id) 
+{
+  return to (id.run(), id.event());
 }
 
 ///Go to event with given run and event number
-const MultiChainEvent& 
-MultiChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
-  event1_->to( run, event );
-  return *this;
+bool
+MultiChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event) 
+{
+   return event1_->to( run, event );
 }
 
 
 ///Go to the event at index iIndex
-const MultiChainEvent& 
-MultiChainEvent::toSec(Long64_t iIndex) {
-  event2_->to( iIndex );
-  return *this;
+bool
+MultiChainEvent::toSec(Long64_t iIndex) 
+{
+   return event2_->to( iIndex );
 }
 
-
-///Go to event with event id "id"
-const MultiChainEvent& 
-MultiChainEvent::toSec(edm::EventID id) {
-
-  // If we use the sorted secondary file map, loop through the
-  // list and find the index of the id in question. Then set the
-  // secondary file to the index found, and return "this".
-  if ( useSecFileMapSorted_ ) {
-    // First try this file.
-    if ( event2_->event_->to( id ) ) {
+// Go to event with event id "id"
+bool
+MultiChainEvent::toSec (const edm::EventID &id) 
+{
+   // First try this file.
+   if ( event2_->event_->to( id ) ) 
+   {
       // Foudn it, return. 
-      return *this;
-    }
-    // Now search for the file if we didn't find it. 
-    for ( sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
-	    mEnd = secFileMapSorted_.end(),
-	    mit = mBegin;
-	  mit != mEnd; ++mit ) {
-      if ( id >= mit->first.first && id <= mit->first.second ) {
-	// this part is expensive... switchToFile does memory allocations and opens the files
-	// which becomes very time consuming. This should be done as infrequently as possible. 
-	event2_->switchToFile( mit->second );
-	event2_->to( id );
-	return *this;
+      return true;
+   }
+   // Second, assume that the secondary files are each in run/event
+   // order.  So, let's loop over all files and see if we can figure
+   // out where the event ought to be.
+   for ( sec_file_range_index_map::const_iterator mBegin = 
+            secFileMapSorted_.begin(),
+            mEnd = secFileMapSorted_.end(),
+            mit = mBegin;
+         mit != mEnd; 
+         ++mit ) 
+   {
+      if ( id < mit->first.first || id > mit->first.second ) 
+      {
+         // We don't expect this event to be in this file, so don't
+         // bother checking it right now.
+         continue;
       }
-    }
-    // if we did not find the id in question, bail out.
-    throw cms::Exception("ProductNotFound") << "Cannot find id " << id.run() << ", " << id.event() << " in secondary list. Exiting." << std::endl;
-    return *this; // for compiler
-  }
-  // otherwise return the "dumb search"
-  else { 
-    event2_->to( id );
-    return *this;
-  }
+      // If we're here, then we have a reasonable belief that this
+      // event is in this secondary file.  This part is
+      // expensive. switchToFile does memory allocations and opens the
+      // files which becomes very time consuming. This should be done
+      // as infrequently as possible.
+      event2_->switchToFile( mit->second );
+      // Is it here?
+      if (event2_->to( id ))
+      {
+         // Yes!
+         return true;
+      }
+      // if we assumed that the secondary files were not each in
+      // order, but were non-overlapping, we could break here.  But at
+      // this point, we might as well keep going.
+   } // for loop over files
+
+   // if we are still here, then we did not find the id in question,
+   // do it the old fashioned way.  This will open up each secondary
+   // file and explicitly check to see if the event is there.
+   if (event2_->to(id))
+   {
+      return true;
+   }
+   // if we're still here, then there really is no matching event in
+   // the secondary files.  Throw.
+   throw cms::Exception("ProductNotFound") << "Cannot find id " 
+                                           << id.run() << ", " 
+                                           << id.event() 
+                                           << " in secondary list. Exiting." 
+                                           << std::endl;
+   // to make the compiler happy
+   return false;
 }
   
 ///Go to event with given run and event number
-const MultiChainEvent& 
-MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) {
+bool 
+MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) 
+{
   return toSec( edm::EventID( run, event) );
 }
 

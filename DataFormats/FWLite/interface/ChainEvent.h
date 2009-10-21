@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.13 2009/09/10 20:36:33 cplager Exp $
+// $Id: ChainEvent.h,v 1.14 2009/09/11 17:00:46 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -52,11 +52,11 @@ namespace fwlite {
       const ChainEvent& operator++();
 
       ///Go to the event at index iIndex
-      const ChainEvent& to(Long64_t iIndex);
+      bool to (Long64_t iIndex);
 
       //Go to event by Run & Event number
-      const ChainEvent & to(edm::EventID id);
-      const ChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
+      bool to (const edm::EventID &id);
+      bool to (edm::RunNumber_t run, edm::EventNumber_t event);
 
       // Go to the very first Event.  
       const ChainEvent& toBegin();

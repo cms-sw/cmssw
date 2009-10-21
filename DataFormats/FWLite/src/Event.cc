@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.28 2009/08/18 17:56:59 chrjones Exp $
+// $Id: Event.cc,v 1.29 2009/09/04 21:34:20 wdd Exp $
 //
 
 // system include files
@@ -165,11 +165,35 @@ Event::operator++()
    return *this;
 }
 
-const Event& 
-Event::to(Long64_t iEntry)
+bool
+Event::to (Long64_t iEntry)
 {
-  branchMap_.updateEvent(iEntry);
-  return *this;
+   if (iEntry < size())
+   {
+      // this is a valid entry
+      return branchMap_.updateEvent(iEntry);
+   }
+   // if we're here, then iEntry was not valid
+   return false;
+}
+
+bool
+Event::to (edm::RunNumber_t run, edm::EventNumber_t event)
+{
+   fillFileIndex();
+   edm::FileIndex::const_iterator i = 
+      fileIndex_.findEventPosition(run, 0, event, true);
+   if (fileIndex_.end() != i) 
+   {
+      return branchMap_.updateEvent(i->entry_);
+   }
+   return false;
+}
+
+bool
+Event::to (const edm::EventID &id)
+{
+   return to (id.run(), id.event());
 }
 
 void
@@ -194,24 +218,6 @@ Event::fillFileIndex() const
   }      
   assert(!fileIndex_.empty());
 }
-
-bool
-Event::to(edm::RunNumber_t run, edm::EventNumber_t event)
-{
-  fillFileIndex();
-  edm::FileIndex::const_iterator i = fileIndex_.findEventPosition(run, 0, event, true);
-  if (fileIndex_.end() != i) {
-    return branchMap_.updateEvent(i->entry_);
-  }
-  return false;
-}
-
-bool
-Event::to(edm::EventID id)
-{
-  return to(id.run(), id.event());
-}
-
 const Event& 
 Event::toBegin()
 {

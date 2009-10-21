@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.21 2009/08/18 17:56:59 chrjones Exp $
+// $Id: Event.h,v 1.22 2009/09/04 21:34:19 wdd Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -133,11 +133,11 @@ namespace fwlite {
          const Event& operator++();
 
          ///Go to the event at index iIndex
-         const Event& to(Long64_t iIndex);
+         bool to (Long64_t iIndex);
       
          //Go to event by Run & Event number
-         bool to(edm::EventID id);
-         bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+         bool to (const edm::EventID &id);
+         bool to (edm::RunNumber_t run, edm::EventNumber_t event);
 
          // Go to the very first Event.
          const Event& toBegin();
@@ -195,10 +195,10 @@ namespace fwlite {
          internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
       
          // ---------- member data --------------------------------
-//      TFile* file_;
-//      TTree* eventTree_;
+         // TFile* file_;
+         // TTree* eventTree_;
          TTree* eventHistoryTree_;
-//      Long64_t eventIndex_;
+         // Long64_t eventIndex_;
          mutable fwlite::BranchMapReader branchMap_;
       
 
@@ -219,9 +219,9 @@ namespace fwlite {
       
          //references data in data_;
          mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 
-//      mutable edm::ProductRegistry* prodReg_;
+         // mutable edm::ProductRegistry* prodReg_;
          //references branch descriptions in prodReg_;
-//      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
+         // mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
       
          boost::shared_ptr<edm::EDProductGetter> getter_;
    };
