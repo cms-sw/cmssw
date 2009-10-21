@@ -101,9 +101,12 @@ void HIBestVertexProducer::produce
       
     } else { 
       
-      reco::Vertex newVertex(beamSpot.position(),
-			     beamSpot.covariance3D(), 
-			     0, 1, 1);
+      reco::Vertex::Error err;
+      err(0,0)=pow(beamSpot.BeamWidthX(),2);
+      err(1,1)=pow(beamSpot.BeamWidthY(),2);
+      err(2,2)=pow(beamSpot.sigmaZ(),2);
+      reco::Vertex newVertex(beamSpot.position(), 
+			     err, 0, 1, 1);
       newVertexCollection->push_back(newVertex);  
 
       LogInfo("HeavyIonVertexing") << "beam spot: \n position = (" 
