@@ -207,14 +207,19 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
       Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",
 				    8,0,8,36, 0.5,72.5);
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(1,"-36");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(2,"-35");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(3,"-34");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(4,"-33");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(5,"33");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(6,"34");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(7,"35");
-      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(8,"36");
+      SetEtaLabels(Etsum_ratio_map);
+
+      HFlumi_occ_LS = m_dbe->book2D("HFlumi_occ_LS","HFlumi occupancy for current LS",
+				      8,0,8,36, 0.5,72.5);
+      SetEtaLabels(HFlumi_occ_LS);
+      
+      HFlumi_total_deadcells = m_dbe->book2D("HFlumi_total_deadcells","# of times each HFlumi cell was dead for 1 full LS",
+					     8,0,8,36,0.5,72.5);
+      SetEtaLabels(HFlumi_total_deadcells);
+      HFlumi_total_hotcells = m_dbe->book2D("HFlumi_total_hotcells","# of times each HFlumi cell was hot for 1 full LS",
+					     8,0,8,36,0.5,72.5);
+      SetEtaLabels(HFlumi_total_hotcells);
+
 
       Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
@@ -494,6 +499,13 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	
 	int ieta, iphi;
 	float et,eta,phi,r;
+
+	HFlumi_occ_LS->Fill(-1,-1,1 ); // event counter in occupancy histogram underflow bin
+	// set maximum to HFlumi_occ_LS->getBinContent(0,0)?  
+	// that won't work -- offline will add multiple histograms, and maximum will get screwed up?
+	// No, we can add it here, but we also need a call to setMaximum in the client as well.
+	HFlumi_occ_LS->getTH2F()->SetMaximum(HFlumi_occ_LS->getBinContent(0,0));
+
 	for (HFiter=hfHits.begin(); 
 	     HFiter!=hfHits.end(); 
 	     ++HFiter) 
@@ -512,58 +524,76 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      phi=HFiter->id().iphi()*0.087266;
 	    else phi=(HFiter->id().iphi()-72)*0.087266;
            
-	    if (HFiter->id().depth()==1){
-            
-            
-	      if(HFiter->id().ieta()>0) {
-            
-		Etsum_eta_L->Fill(eta,et);
+	    int mult = 1;
+	    if (HFiter->id().ieta()<0) mult=-1;
+
+	    if (HFiter->id().depth()==1)
+	      {
+		// use mult variable to separate positive, negative eta regions
+		Etsum_eta_L->Fill(eta*mult,et);
 		Etsum_phi_L->Fill(phi,et);
-		Etsum_map_L->Fill(eta,phi,et);
+		Etsum_map_L->Fill(eta*mult,phi,et);
 		Etsum_rphi_L->Fill(r,phi,et);
-		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
+	      
+		if(HFiter->id().ieta()>0) {
+ 		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
 		hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et;
 	      }
-	      if(HFiter->id().ieta()<0) {
-		Etsum_eta_L->Fill(-eta,et);
-		Etsum_phi_L->Fill(phi,et);
-		Etsum_rphi_L->Fill(r,phi,et);
-		Etsum_map_L->Fill(-eta,phi,et);
+	      else if(HFiter->id().ieta()<0) {
 		hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
 		hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et; 
 	      }
-	    }
+	      } // if (HFiter->id().depth()==1)
          
 	    //Fill 3 histos for Short Fibers :
-	    if (HFiter->id().depth()==2){
-	      if(HFiter->id().ieta()>0)  {
-		Etsum_eta_S->Fill(eta,et);
+	    if (HFiter->id().depth()==2)
+	      {
+		Etsum_eta_S->Fill(eta*mult,et);
 		Etsum_phi_S->Fill(phi,et);
 		Etsum_rphi_S->Fill(r,phi,et); 
-		Etsum_map_S->Fill(eta,phi,et);
-		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
-		hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
-	      }
-	      if(HFiter->id().ieta()<0)  {  Etsum_eta_S->Fill(-eta,et);
-              Etsum_map_S->Fill(-eta,phi,et);
-              Etsum_phi_S->Fill(phi,et);
-              Etsum_rphi_S->Fill(r,phi,et); 
-	      hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
-	      hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
-	      }
+		Etsum_map_S->Fill(eta*mult,phi,et);
+		if(HFiter->id().ieta()>0)  
+		  {
+		    hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+		    hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+		  }
+		else if(HFiter->id().ieta()<0)  { 
+		  hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+		  hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+		}
           
-	    } // depth()==2
+	      } // depth()==2
 	    Energy_Occ->Fill(HFiter->energy()); 
             
 	    //HF: no non-threshold occupancy map is filled?
-	           
-	    if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
-	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-		    }
+	    
+	    int HFieta=HFiter->id().ieta();
+	    if ((abs(HFieta) == 33 || abs(HFieta) == 34) && HFiter->id().depth() == 1)
+	      { 
+		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
+		if (et>occThresh_)
+		  {
+		    int etabin=0;
+		    if (HFieta<0)
+		      etabin=36+HFieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
+		    else
+		      etabin=HFieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
+		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi(),1);
+		  }
+	      }
 
-	    if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
-	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-	
+	    if ((abs(HFieta) == 35 || abs(HFieta) == 36) && HFiter->id().depth() == 2)
+	      { 
+		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
+		if (et>occThresh_)
+		  {
+		    int etabin=0;
+		    if (HFieta<0)
+		      etabin=36+HFieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
+		    else
+		      etabin=HFieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
+		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi(),1);
+		  }
 	    }
 
 	    if(et>occThresh_){
@@ -872,3 +902,54 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 }
  // void HcalBeamMonitor::processEvent(const HBHERecHit Collection&hbheHits; ...)
 
+
+void HcalBeamMonitor::beginLuminosityBlock()
+{
+  // reset histograms that get updated each luminosity section
+  HFlumi_occ_LS->Reset();
+  stringstream title;
+  title <<"HFlumi occupancy for LS # " <<lumiblock;
+  HFlumi_occ_LS->getTH2F()->SetTitle(title.str().c_str());
+  return;
+} // void HcalBeamMonitor::beginLuminosityBlock()
+
+void HcalBeamMonitor::endLuminosityBlock()
+{
+  float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
+  cout <<"Nentries = "<<Nentries<<endl;
+  if (Nentries==0) return;
+  for (int x=1;x<=HFlumi_occ_LS->getTH2F()->GetNbinsX();++x)
+    {
+      for (int y=1;y<=HFlumi_occ_LS->getTH2F()->GetNbinsY();++y)
+	{
+	  if (HFlumi_occ_LS->getBinContent(x,y)==0)
+	    {
+	      // One new luminosity section found with no entries for the cell in question
+	      // Add protection requiring a minimum number of entries before counting as dead?
+	      HFlumi_total_deadcells->setBinContent(x,y,HFlumi_total_deadcells->getBinContent(x,y)+1);
+	    } // dead cell check
+
+	  if (HFlumi_occ_LS->getBinContent(x,y)>0.5*Nentries)
+	    {
+	      // One new luminosity section found with no entries for the cell in question
+	      // Add protection requiring a minimum number of entries before counting as dead?
+	      HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
+	    } // dead cell check
+	} // loop over y
+    } // loop over x
+  return;
+}
+
+
+void HcalBeamMonitor::SetEtaLabels(MonitorElement * h)
+{
+  h->getTH2F()->GetXaxis()->SetBinLabel(1,"-36S");
+  h->getTH2F()->GetXaxis()->SetBinLabel(2,"-35S");
+  h->getTH2F()->GetXaxis()->SetBinLabel(3,"-34L");
+  h->getTH2F()->GetXaxis()->SetBinLabel(4,"-33L");
+  h->getTH2F()->GetXaxis()->SetBinLabel(5,"33L");
+  h->getTH2F()->GetXaxis()->SetBinLabel(6,"34L");
+  h->getTH2F()->GetXaxis()->SetBinLabel(7,"35S");
+  h->getTH2F()->GetXaxis()->SetBinLabel(8,"36S");
+  return;
+}

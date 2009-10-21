@@ -114,7 +114,12 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       ProblemsVsLB_HF=m_dbe->bookProfile("TotalDeadCells_HF_vs_LS",
 					 "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
+      (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
+      (ProblemsVsLB_HB->getTProfile())->SetMarkerStyle(20);
+      (ProblemsVsLB_HE->getTProfile())->SetMarkerStyle(20);
+      (ProblemsVsLB_HO->getTProfile())->SetMarkerStyle(20);
+      (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
+
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
 
@@ -151,6 +156,12 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       NumberOfNeverPresentCellsHF=m_dbe->bookProfile("Problem_NeverPresentCells_HF_vs_LS",
 						     "Total Number of Never-Present HF Cells vs LS;Lumi Section;Dead Cells",
 						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      (NumberOfNeverPresentCells->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentCellsHB->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentCellsHE->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentCellsHO->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentCellsHF->getTProfile())->SetMarkerStyle(20);
+
 
       for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
 	DigiPresentByDepth.depth[depth]->Reset();
@@ -207,6 +218,12 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  NumberOfUnoccupiedCellsHF=m_dbe->bookProfile("Problem_UnoccupiedCells_HF_vs_LS",
 						  name.str(),
 						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  (NumberOfUnoccupiedCells->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfUnoccupiedCellsHB->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfUnoccupiedCellsHE->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfUnoccupiedCellsHO->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfUnoccupiedCellsHF->getTProfile())->SetMarkerStyle(20);
+
 	}
       
       if (deadmon_test_energy_)
@@ -254,7 +271,11 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  NumberOfEnergyNeverPresentCellsHF=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HF_vs_LS",
 							name.str(),
 							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
+	  (NumberOfEnergyNeverPresentCells->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfEnergyNeverPresentCellsHB->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfEnergyNeverPresentCellsHE->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfEnergyNeverPresentCellsHO->getTProfile())->SetMarkerStyle(20);
+	  (NumberOfEnergyNeverPresentCellsHF->getTProfile())->SetMarkerStyle(20);
 
 	  m_dbe->setCurrentFolder(baseFolder_+"/dead_energytest");
 	  SetupEtaPhiHists(BelowEnergyThresholdCellsByDepth,"Dead Cells Failing Energy Threshold Test","");
@@ -299,6 +320,12 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  NumberOfBelowEnergyCellsHF=m_dbe->bookProfile("Problem_BelowEnergyCells_HF_vs_LS",
 							name.str(),
 							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  (NumberOfBelowEnergyCells->getTProfile())->SetMarkerStyle(20);
+          (NumberOfBelowEnergyCellsHB->getTProfile())->SetMarkerStyle(20);
+          (NumberOfBelowEnergyCellsHE->getTProfile())->SetMarkerStyle(20);
+          (NumberOfBelowEnergyCellsHO->getTProfile())->SetMarkerStyle(20);
+          (NumberOfBelowEnergyCellsHF->getTProfile())->SetMarkerStyle(20);
+
 	}
 
     } // if (m_dbe)

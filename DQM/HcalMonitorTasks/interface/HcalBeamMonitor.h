@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/10/13 17:15:46 $
-  * $Revision: 1.9 $
+  * $Date: 2009/10/13 17:51:45 $
+  * $Revision: 1.10 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -31,8 +31,11 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 		    );
   void reset();
   void clearME();
+  void beginLuminosityBlock();
+  void endLuminosityBlock();
 
  private:
+  void SetEtaLabels(MonitorElement* h);
   float occThresh_;  
   int ievt_;
   MonitorElement* meEVT_;
@@ -93,6 +96,10 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1;
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2;
   MonitorElement* HFlumi_Et_per_channel_vs_lumiblock;
+
+  MonitorElement* HFlumi_occ_LS;
+  MonitorElement* HFlumi_total_hotcells;
+  MonitorElement* HFlumi_total_deadcells;
 
   const int ETA_OFFSET_HB;
 
