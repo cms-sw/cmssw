@@ -2,6 +2,9 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -101,3 +104,5 @@ void ESDcsInfoTask::cleanup(void){
 void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
 
 }
+
+DEFINE_FWK_MODULE(ESDcsInfoTask);

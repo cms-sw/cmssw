@@ -2,6 +2,9 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -39,6 +42,8 @@ ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
 
    meESDaqFraction_ = 0;
    meESDaqActiveMap_ = 0;
+   meESDaqError_ = 0;
+
    for (int i = 0; i < 56; i++) {
       meESDaqActive_[i] = 0;
    }
@@ -133,7 +138,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
    }
 
    for (int i = 0; i < 56; i++) {
-      meESDaqError_->setBinContent(i, 0.0);
+      if ( meESDaqError_ ) meESDaqError_->setBinContent(i, 0.0);
    }
 
    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
@@ -238,3 +243,4 @@ void ESDaqInfoTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
+DEFINE_FWK_MODULE(ESDaqInfoTask);
