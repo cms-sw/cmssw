@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jul 21 11:00:06 CDT 2009
-// $Id: metoedmformat_t.cc,v 1.3 2009/09/29 19:49:10 ameyer Exp $
+// $Id: metoedmformat_t.cc,v 1.4 2009/10/12 16:50:33 dellaric Exp $
 //
 
 // system include files
@@ -416,13 +416,16 @@ namespace {
       return m_i != iOther.m_i;
     }
 
-    int GetNbinsX() const { return 1;}
-    int GetNbinsY() const { return 1;}
-    int GetNbinsZ() const { return 1;}
+    int GetNbinsX() const {return 1;}
+    int GetNbinsY() const {return 1;}
+    int GetNbinsZ() const {return 1;}
 
     const Axis* GetXaxis() const {return &Axis::dummy;}
     const Axis* GetYaxis() const {return &Axis::dummy;}
     const Axis* GetZaxis() const {return &Axis::dummy;}
+
+    bool TestBit(unsigned int f) const{return false;}
+    long long Merge(void *) {return -1;}
 
     int m_i;
 
