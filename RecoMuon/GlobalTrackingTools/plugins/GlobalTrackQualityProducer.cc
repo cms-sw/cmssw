@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.2 2009/09/12 20:33:33 aeverett Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.3 2009/10/20 19:36:35 slava77 Exp $
 //
 //
 
@@ -88,11 +88,12 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
     LogDebug(theCategory)<<"Kink " << thisKink.first << " " << thisKink.second;
     LogDebug(theCategory)<<"Rel Chi2 " << relative_tracker_chi2 << " " << relative_muon_chi2;
+    float maxFloat01 = std::numeric_limits<float>::max()*0.1; // a better solution would be to use float above .. m/be not
     reco::MuonQuality muQual;
-    muQual.trkKink    = thisKink.first;
-    muQual.glbKink    = thisKink.second;
-    muQual.trkRelChi2 = relative_tracker_chi2;
-    muQual.staRelChi2 = relative_muon_chi2;
+    muQual.trkKink    = thisKink.first > maxFloat01 ? maxFloat01 : thisKink.first;
+    muQual.glbKink    = thisKink.second > maxFloat01 ? maxFloat01 : thisKink.second;
+    muQual.trkRelChi2 = relative_tracker_chi2 > maxFloat01 ? maxFloat01 : relative_tracker_chi2;
+    muQual.staRelChi2 = relative_muon_chi2 > maxFloat01 ? maxFloat01 : relative_muon_chi2;
     valuesQual.push_back(muQual);
   }
 
