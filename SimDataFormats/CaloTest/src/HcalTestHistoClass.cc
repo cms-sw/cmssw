@@ -89,8 +89,7 @@ void HcalTestHistoClass::fillHits(std::vector<CaloHit> hitcache) {
     float eta   = itr->eta();
     float phi   = itr->phi();
     float t     = itr->t();
-    int lay     = (unitID>>15)&31;
-    lay         = lay+1;
+    int lay     = ((unitID>>15)&31)+1;
 
     hits[nHits].layer = lay;
     hits[nHits].id = unitID;
