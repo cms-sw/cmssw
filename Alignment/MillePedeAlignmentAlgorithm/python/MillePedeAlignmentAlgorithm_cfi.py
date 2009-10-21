@@ -36,10 +36,10 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         pedeDump = cms.untracked.string('pede.dump'),
         method = cms.string('sparseGMRES 6  0.8'), ## "inversion  6  0.8" 
         options = cms.vstring('entries 50', # min. number of measurements (parameters with less will be skipped)
+            # 'regularisation 1.0 0.01', # regularisation with default pre-sigma 0.01
             # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers AND/OR ...
             # "outlierdownweighting 3", "dwfractioncut 0.1" #, # ... 3x Huber down weighting OR...
-            'outlierdownweighting 5', 'dwfractioncut 0.2',
-            'bandwidth 6'), # for method sparseGMRES for preconditioning
+            'outlierdownweighting 5', 'dwfractioncut 0.2'),
 
         # Special selection of parameters to fix, use as reference coordinate system etc.
         # ------------------------------------------------------------------------------
