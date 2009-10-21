@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id: TestMixedSource.cc,v 1.1 2009/05/25 17:30:40 ebecheva Exp $
+// $Id: TestMixedSource.cc,v 1.3 2009/07/02 17:11:20 ebecheva Exp $
 //
 //
 
@@ -214,9 +214,6 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!gotPSimHit) outputFile<<" Could not read SimHits with label "<<subdet<<"!!!!"<<std::endl;
   else {
     outputFile<<"\n\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
-
-    int bsp=cf_simhit->getBunchSpace();
-    char tof[30];
 
     std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf_simhit.product()));
     //outputFile<<*(col.get())<<std::endl;

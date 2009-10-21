@@ -1277,7 +1277,9 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  int chipIndex,rowROC,colROC;
+  int chipIndex = 0;
+  int rowROC = 0;
+  int colROC = 0;
   map<int, int, less<int> >chips, columns;
   map<int, int, less<int> >::iterator iter;
   

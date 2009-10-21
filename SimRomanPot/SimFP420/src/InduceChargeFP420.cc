@@ -52,12 +52,12 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       if( abs(Position3D.z())<FiducialXYZ[2] ) {
       }
       else{
-	(*sp).amplitude() == 0.;
+        //	(*sp).amplitude() == 0.;
 	std::cout << " *InduceChargeFP420:Z slice outside the plate: Position3D= " << Position3D << std::endl;
       }
     }
     else{
-      (*sp).amplitude() == 0.;
+      //      (*sp).amplitude() == 0.;
       std::cout << " *InduceChargeFP420:XY slice outside the plate: Position3D= " << Position3D << std::endl;
     }
     
