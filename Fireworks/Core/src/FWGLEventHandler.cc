@@ -67,7 +67,8 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
             case kButton1:
             {
                if (event->fState & kKeyMod1Mask) {
-                  fGLViewer->RequestSelect(event->fX, event->fY, kTRUE);
+                  fGLViewer->RequestSelect(event->fX, event->fY);
+                  fGLViewer->RequestSecondarySelect(event->fX, event->fY);
                   if (fGLViewer->fSecSelRec.GetPhysShape() != 0)
                   {
                      TGLLogicalShape& lshape = const_cast<TGLLogicalShape&>
@@ -188,10 +189,28 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
           (eventSt.fCode == event->fCode))
       {
          TObject *obj = 0;
-         fGLViewer->RequestSelect(fLastPos.fX, fLastPos.fY, kFALSE);
+         fGLViewer->RequestSelect(fLastPos.fX, fLastPos.fY);
          TGLPhysicalShape *phys_shape = fGLViewer->fSelRec.GetPhysShape();
          if (phys_shape) {
+            // primary
             obj = phys_shape->GetLogical()->GetExternal();
+            // secondary
+            if (fSecSelType == TGLViewer::kOnRequest
+                && phys_shape->GetLogical()->AlwaysSecondarySelect())
+            {
+               fGLViewer->RequestSecondarySelect(fLastPos.fX, fLastPos.fY);
+               if (fGLViewer->fSecSelRec.GetPhysShape() != 0)
+               {
+                  TGLLogicalShape& lshape = const_cast<TGLLogicalShape&>
+                     (*fGLViewer->fSecSelRec.GetPhysShape()->GetLogical());
+                  lshape.ProcessSelection(*fGLViewer->fRnrCtx, fGLViewer->fSecSelRec);
+                  if ( event->fState & kKeyControlMask)
+                  {
+                     Warning("TGLEventHandler::HandleButton", "Multiple select not supported in this mode.");
+                     event->fState ^= kKeyControlMask;
+                  }
+               }
+            }
          }
          fGLViewer->Clicked(obj);
          Int_t buttonCode = event->fCode;
