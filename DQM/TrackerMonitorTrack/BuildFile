@@ -10,12 +10,4 @@
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMTrackerMonitorTrack>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DQM/SiStripCommon>
-   <use name=DQMServices/Core>
-   <use name=CalibFormats/SiStripObjects>
-   <use name=CalibTracker/Records>
-   <use name=GeometryTrackerGeometryBuilder>
 </export>
