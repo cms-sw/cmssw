@@ -12,8 +12,10 @@ from DPGAnalysis.SiStripTools.filtertest.reco_69800_debug_cff import fileNames
 source.fileNames = fileNames
 
 #-------------------------------------------------------------------------
-from DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cff import *
-fakeapvlatency.APVLatency = cms.untracked.int32(143)
+from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi import *
+SiStripLatencyGenerator.latency = cms.uint32(143)
+SiStripLatencyGenerator.mode = cms.uint32(47)
 #-------------------------------------------------------------------------
 
 from DPGAnalysis.SiStripTools.eventwithhistoryproducer_cfi import *

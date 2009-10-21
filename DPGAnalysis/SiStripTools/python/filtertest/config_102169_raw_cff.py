@@ -21,11 +21,13 @@ from DPGAnalysis.SiStripTools.filtertest.rawtodigi_cff import *
 # Global Tag
 #-------------------------------------------------
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = "GR09_31X_V5P::All"
+GlobalTag.globaltag = "CRAFT09_R_V5::All"
 
 #-------------------------------------------------------------------------
-from DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cff import *
-fakeapvlatency.APVLatency = cms.untracked.int32(140)
+from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi import *
+SiStripLatencyGenerator.latency = cms.uint32(140)
+SiStripLatencyGenerator.mode = cms.uint32(47)
 #-------------------------------------------------------------------------
 
 from DPGAnalysis.SiStripTools.eventwithhistoryproducer_cfi import *

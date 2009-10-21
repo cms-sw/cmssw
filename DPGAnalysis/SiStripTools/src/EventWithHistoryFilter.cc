@@ -3,8 +3,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-#include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
-#include "DPGAnalysis/SiStripTools/interface/APVLatencyRcd.h"
+//#include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
+//#include "DPGAnalysis/SiStripTools/interface/APVLatencyRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -16,6 +18,7 @@ EventWithHistoryFilter::EventWithHistoryFilter():
   _historyProduct(),
   _partition(), 
   _APVPhaseLabel(),
+  _apvmodes(),
   _dbxrange(), _dbxrangelat(),
   _bxrange(), _bxrangelat(),
   _bxcyclerange(), _bxcyclerangelat(),
@@ -30,6 +33,7 @@ EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig)
   _historyProduct(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
   _partition(iConfig.getUntrackedParameter<std::string>("partitionName","Any")),
   _APVPhaseLabel(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
+  _apvmodes(iConfig.getUntrackedParameter<std::vector<int> >("apvModes",std::vector<int>())),
   _dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
   _dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
   _bxrange(iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>())),
@@ -93,9 +97,20 @@ const bool EventWithHistoryFilter::selected(const edm::Event& event, const edm::
 
 const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int> apvphases) const {
 
+
   const int latency = getAPVLatency(iSetup);
 
+
   bool selected = true;
+
+  if(!isAPVModeNotNeeded()) {
+    const int apvmode = getAPVMode(iSetup);
+    bool modeok = false;
+    for(std::vector<int>::const_iterator wantedmode =_apvmodes.begin();wantedmode!=_apvmodes.end();++wantedmode) {
+      modeok = modeok || (apvmode == *wantedmode);
+    }
+    if(!modeok) return false;
+  }
 
   selected = selected && (isCutInactive(_dbxrange) || isInRange(he.deltaBX(),_dbxrange,he.depth()!=0));
 
@@ -151,15 +166,33 @@ const int EventWithHistoryFilter::getAPVLatency(const edm::EventSetup& iSetup) c
 
   if(isAPVLatencyNotNeeded()) return -1;
 
-  edm::ESHandle<APVLatency> apvlat;
-  iSetup.get<APVLatencyRcd>().get(apvlat);
-  const int latency = apvlat->get();
+  edm::ESHandle<SiStripLatency> apvlat;
+  iSetup.get<SiStripLatencyRcd>().get(apvlat);
+  const int latency = apvlat->singleLatency()!=255 ? apvlat->singleLatency(): -1;
 
   // thrown an exception if latency value is invalid
 
-  if(latency < 0) throw cms::Exception("InvalidAPVLatency") << " invalid APVLatency found ";
+  if(latency < 0  && !isAPVLatencyNotNeeded()) 
+    throw cms::Exception("InvalidAPVLatency") << " invalid APVLatency found ";
 
   return latency;
+
+}
+
+const int EventWithHistoryFilter::getAPVMode(const edm::EventSetup& iSetup) const {
+
+  if(isAPVModeNotNeeded()) return -1;
+
+  edm::ESHandle<SiStripLatency> apvlat;
+  iSetup.get<SiStripLatencyRcd>().get(apvlat);
+  const int mode = apvlat->singleMode()!=0 ? apvlat->singleMode() : -1;
+
+  // thrown an exception if mode value is invalid
+
+  if(mode < 0 && !isAPVModeNotNeeded()) 
+    throw cms::Exception("InvalidAPVMode") << " invalid APVMode found ";
+
+  return mode;
 
 }
 
@@ -200,6 +233,12 @@ const bool EventWithHistoryFilter::isAPVPhaseNotNeeded() const {
     isCutInactive(_dbxcyclerange) &&
     isCutInactive(_bxcyclerangelat) &&
     isCutInactive(_dbxcyclerangelat);
+  
+}
+
+const bool EventWithHistoryFilter::isAPVModeNotNeeded() const {
+
+  return (_apvmodes.size()==0) ;
   
 }
 
