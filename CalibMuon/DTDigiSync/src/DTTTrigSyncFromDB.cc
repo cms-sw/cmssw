@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:46:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/21 17:05:47 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -39,7 +39,7 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
   theWirePropCorrType = config.getParameter<int>("wirePropCorrType");
   // spacing of BX in ns
-  theBXspace  = config.getParameter<double>("bxSpace");
+  theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 00:02:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/21 17:05:47 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -24,7 +24,7 @@ DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config){
   theTOFCorrType = config.getParameter<int>("tofCorrType"); // FIXME: Default was 1
   debug = config.getUntrackedParameter<bool>("debug");
   // spacing of BX in ns
-  theBXspace  = config.getParameter<double>("bxSpace");
+  theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
 
 }
 
