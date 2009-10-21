@@ -57,9 +57,11 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   applyGsfClean_ = iConfig.getParameter<bool>("applyGsfTrackCleaning");
   useFifthStep_ = iConfig.getParameter<bool>("useFifthTrackingStep");
   useFifthStepSec_ = iConfig.getParameter<bool>("useFifthTrackingStepForSecondaries");
+  maxPtConvReco_ = iConfig.getParameter<double>("MaxConvBremRecoPT");
   detaGsfSC_ = iConfig.getParameter<double>("MinDEtaGsfSC");
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
+  
 }
 
 
@@ -592,11 +594,27 @@ PFElecTkProducer::selectSecondaries(const reco::GsfPFRecTrack primGsf,
 				    const reco::GsfPFRecTrack secGsf) {
   //   bool isValidSecondary = false;
   
+
   float minDeta = 1000.; 
   float minDphi = 1000.; 
 
   // possible other selections
   // secondary p < primary p 
+  
+  // temporary: discard gsf with pMode() > 49 
+  // or KF pt>49  (no pre-ided)
+ 
+  PFRecTrackRef refsecKF =  secGsf.kfPFRecTrackRef();
+  if(refsecKF.isNonnull()) {
+    TrackRef kfref = refsecKF->trackRef();
+    if(kfref->pt() > maxPtConvReco_)
+      return minDphi;
+  }
+  
+  reco::GsfTrackRef secGsfTrack = secGsf.gsfTrackRef();
+  if(secGsfTrack->ptMode() > maxPtConvReco_)
+    return minDphi;
+  
 
 
   std::vector<reco::PFBrem> primPFBrem = primGsf.PFRecBrem();

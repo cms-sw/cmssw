@@ -80,6 +80,7 @@ class PFElecTkProducer : public edm::EDProducer {
       double SCEne_;
       double detaGsfSC_;
       double dphiGsfSC_;
+      double maxPtConvReco_;
 
 };
 #endif
