@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
@@ -20,12 +20,29 @@ namespace reco {
 
     PFBlockElementGsfTrack() {} 
 
-    PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout);
+    PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, 
+			   const math::XYZTLorentzVector& Pin, 
+			   const math::XYZTLorentzVector& Pout);
 
     PFBlockElement* clone() const { return new PFBlockElementGsfTrack(*this); }
     
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;
+
+    /// \return tracktype
+    virtual bool trackType(TrackType trType) const { 
+      return (trackType_>>trType) & 1; 
+    }
+      
+    /// \set the trackType
+    virtual void setTrackType(TrackType trType, bool value) {
+      if(value)  trackType_ = trackType_ | (1<<trType);
+      else trackType_ = trackType_ ^ (1<<trType);
+    }
+    
+    bool isSecondary() const { 
+      return trackType(T_FROM_GAMMACONV); 
+    }
 
     /// \return reference to the corresponding PFGsfRecTrack
     GsfPFRecTrackRef GsftrackRefPF() const {
@@ -53,6 +70,8 @@ namespace reco {
     const math::XYZTLorentzVector& Pout() const    { return Pout_; }
   private:
     
+
+
     /// reference to the corresponding GSF track (transient)
     GsfPFRecTrackRef  GsftrackRefPF_;
     
@@ -63,9 +82,10 @@ namespace reco {
     /// The CorrespondingKFTrackRef is needeed. 
     math::XYZTLorentzVector Pin_;
     math::XYZTLorentzVector Pout_;
+    unsigned int  trackType_; 
+ 
 
-
-    /// position at ECAL entrance
+   /// position at ECAL entrance
     math::XYZPointF        positionAtECALEntrance_;
     
 

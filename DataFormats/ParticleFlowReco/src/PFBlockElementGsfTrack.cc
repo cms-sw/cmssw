@@ -10,12 +10,15 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementGsfTrack::PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout ) : 
+PFBlockElementGsfTrack::PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, 
+					       const math::XYZTLorentzVector& Pin, 
+					       const math::XYZTLorentzVector& Pout ) : 
   PFBlockElement( GSF ),
   GsftrackRefPF_( gsfref ), 
   GsftrackRef_( gsfref->gsfTrackRef() ),
   Pin_(Pin),
-  Pout_(Pout) {
+  Pout_(Pout),
+  trackType_(0){
 
   if(gsfref.isNull() )
     throw cms::Exception("NullRef")
@@ -27,6 +30,8 @@ PFBlockElementGsfTrack::PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, c
 					    atECAL.position().y(),
 					    atECAL.position().z() );
 
+  
+  setTrackType( DEFAULT, true );      
 }
 
 void PFBlockElementGsfTrack::Dump(ostream& out, 
