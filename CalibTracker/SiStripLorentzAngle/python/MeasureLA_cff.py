@@ -11,12 +11,12 @@ METHOD_SYMM =    8
 METHOD_MULTI =  16
 
 def LA_Report(method, granularity, filename) :
-    return cms.PSet( Method = method,
+    return cms.PSet( Method = cms.int32(method),
                      Granularity = granularity,
                      ReportName = cms.string(filename) )
 
 def LA_Measurement(method, granularity, minimumEntries, maxChi2ndof) :
-    return cms.PSet( Method = method,
+    return cms.PSet( Method = cms.int32(method),
                      Granularity = granularity,
                      MinEntries = cms.uint32(minimumEntries),
                      MaxChi2ndof = cms.double(maxChi2ndof) )
