@@ -225,6 +225,7 @@ def main():
     print_header()
 
     # Get environment variables
+    #FIXME: should check into this and make sure the proper variables for the tests being published are read from logfile (case of deprecated releases...)
     print "\n Getting Environment variables..."
     (LocalPath, ShowTagsResult) = get_environ()
 
@@ -233,7 +234,7 @@ def main():
 
     # Determine program parameters and input/staging locations
     print "\n Determining locations for input and staging..."
-    (drive,path,remote,stage,port,repdir,prevrev) = getStageRepDirs(options,args)
+    (drive,path,remote,stage,port,repdir,prevrev,igprof_remotedir) = getStageRepDirs(options,args)
 
     #Get the number of events for each test from logfile:
     print "\n Getting the number of events for each test..."
@@ -243,9 +244,11 @@ def main():
     if os.path.exists(cmsPerfSuiteLogfile):
         try:
             (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
+            #Get the CMSSW version and SCRAM architecture from log (need these for the IgProf new publishing with igprof-navigator)
+            (CMSSW_arch,CMSSW_version)=getArchVersionFromLog(cmsPerfSuiteLogfile)
             #For now keep the dangerous default? Better set it to a negative number...
         except:
-            print "There was an issue in reading out the number of events for the various tests using the standard logfile %s"%cmsPerfSuiteLogFile
+            print "There was an issue in reading out the number of events for the various tests or the architecture/CMSSW version using the standard logfile %s"%cmsPerfSuiteLogFile
             print "Check that the format was not changed: this scripts relies on the initial perfsuite arguments to be dumped in the logfile one per line!"
             print "For now taking the default values for all tests (0)!"
 
@@ -261,6 +264,10 @@ def main():
     # Produce a small logfile with basic info on the Production area
     _createLogFile("%s/ProductionLog.txt" % stage,date,repdir,ShowTagsResult)
 
+    print "\n Handling IgProf reports..."
+    # add a function to handle the IgProf reports
+    stageIgProfReports(igprof_remotedir,CMSSW_arch,CMSSW_version)
+    
     print "\n Creating HTML files..."
     # create HTML files
     createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
@@ -384,7 +391,16 @@ def optionparse():
         help='Use a particular port number to rsync material to a remote server',
         metavar='<PORT>'
         )
-
+    parser.add_option(
+        '--igprof',
+        type='string',
+        dest='ig_remotedir',
+        default='/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data' #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
+        #default='cmsperfvm:/data/projects/conf/PerfSuiteDB/IgProfData', #This should not change often! In this virtual machine a cron job will run to move stuff to AFS.
+        help='Specify an AFS or host:mydir remote directory instead of default one',
+        metavar='<IGPROF REMOTE DIRECTORY>'
+        )
+    
     devel.add_option(
         '-d',
         '--debug',
@@ -446,6 +462,20 @@ def getNumOfEventsFromLog(logfile):
             lineitems=line.split()
             MemcheckEvents=lineitems[lineitems.index('MemcheckEvents')+1]
     return (TimeSizeEvents,IgProfEvents,CallgrindEvents,MemcheckEvents)
+
+def getArchVersionFromLog(logfile):
+    '''Another very fragile function to get the architecture and the CMSSW version parsing the logfile...'''
+    log=open(logfile,"r")
+    arch=re.compile("^Current Architecture is")
+    version=re.compile("^Current CMSSW version is")
+    CMSSW_arch="UNKNOWN_ARCH"
+    CMSSW_version="UNKNOWN_ARCH"
+    for line in log:
+        if arch.search(line):
+            CMSSW_arch=line.split()[3]
+        if version.search(line):
+            CMSSW_version=line.split()[4]
+    return(CMSSW_arch,CMSSW_version)
 
 
 #####################
@@ -592,8 +622,8 @@ def getStageRepDirs(options,args):
             pass
         else:
             fail("ERROR: There was some problem (%s) when creating the staging directory" % detail)
-
-    return (drive,path,remote,StagingArea,port,repdir,previousrev)
+    
+    return (drive,path,remote,StagingArea,port,repdir,previousrev,options.ig_remotedir)
 
 ####################
 #
@@ -1352,6 +1382,32 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
 
     INDEX.write("<br />")    
 
+def stageIgProfReports(remotedir,arch,version):
+    '''Publish all IgProf files into one remote directory (new naming convention). Can publish to AFS location or to a local directory on a remote (virtual) machine.'''
+    #Compose command to create remote dir:
+    if ":" in remotedir: #Remote host local directory case
+        (host,dir)=remotedir.split(":")
+        mkdir_cmd="ssh %s mkdir %s/%s"%(host,dir,arch)
+    else: #AFS or local case:
+        mkdir_cmd="mkdir %s/%s"%(remotedir,arch)
+
+    #Create remote dir:
+    try:
+        print mkdir_cmd
+        os.system(mkdir_cmd)
+        print "Successfully created remote directory"
+    except:
+        print "Issues with remote directory existence/creation!"
+        
+    #Look for any X_IgProf_Y directory:
+    rsync_cmd="rsync -avz *_IgProf_*/*.sql3 %s/%s/%s"%(remotedir,arch,version)
+    try:
+        print rsync_cmd
+        os.system(rsync_cmd)
+        print "Successfully copied IgProf reports to %s"%remotedir
+    except:
+        print "Issues with rsyncing to the remote directory!"
+    return #Later, report here something like the web link to the reports in igprof-navigator...
 
 
 #####################

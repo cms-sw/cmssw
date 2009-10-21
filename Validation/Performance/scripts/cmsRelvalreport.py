@@ -510,7 +510,9 @@ class Profile:
             if not 'ANALYSE' in IgProf_option:
                 #Switch to the use of igprof-analyse instead of PerfReport!
                 #Will use the ANALYSE case for regressions between early event dumps and late event dumps of the profiles
-                sqlite_outputfile=self.profile_name.split(".")[0].replace(IgProfProfiles[IgProf_option[0]],IgProf_option[0])+'___EndOfJob.sql3'
+                #Following Andreas suggestion, add the number of events for the EndOfJob report
+                NumberOfEvents=self.command.split()[3] #FIXME: this is quite hardcoded... but should be stable...
+                sqlite_outputfile=self.profile_name.split(".")[0].replace(IgProfProfiles[IgProf_option[0]],IgProf_option[0])+'___'+NumberOfEvents+'_EndOfJob.sql3'
                 logger("Executing the report of the IgProf end of job profile")
                 exit=execute('igprof-analyse --sqlite -d -v -g -r %s %s | sqlite3 %s'%(IgProf_option[0],self.profile_name,sqlite_outputfile)) 
                 return exit

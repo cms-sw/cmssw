@@ -71,11 +71,12 @@ class PerfSuite:
     
         #Get some environment variables to use
         try:
+            self.cmssw_arch   = os.environ["SCRAM_ARCH"]
             self.cmssw_version= os.environ["CMSSW_VERSION"]
             self.host         = os.environ["HOST"]
             self.user              = os.environ["USER"]
         except KeyError:
-            self.logh.write('Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.\n')
+            self.logh.write('Error: An environment variable either SCRAM_ARCH, CMSSW_VERSION, HOST or USER is not available.\n')
             self.logh.write('       Please run eval `scramv1 runtime -csh` to set your environment variables\n')
             self.logh.flush()
             sys.exit()
@@ -962,7 +963,8 @@ class PerfSuite:
                 #Attach the full option synthax for cmsRelvalreportInput.py:
                 bypasshltRelvalInput="--bypass-hlt"
                 #FIXME: should import cmsRelvalreportInput.py and avoid these issues...
-            
+            self.logh.write("Current Architecture is %s\n"%self.cmssw_arch)
+            self.logh.write("Current CMSSW version is %s\n"%self.cmssw_version)
             self.logh.write("This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s\n" %(self.host,cores,cpus))
             self.logh.write("This machine's HEPSPEC06 score is: %s \n"%self.HEPSPEC06)
             path=os.path.abspath(".")
@@ -1521,7 +1523,10 @@ class PerfSuite:
                            #FIXME:
                            #Should put at least the convention in cmsPerfCommons to know how to parse it...
                            #Potential weak point if the conditions tag convention changes...
-                           fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1]
+                           if "," in fileOptionValue: #Since 330, conditions don't have FrontierConditions_GlobalTag, in front of them anymore...
+                              fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1] #"Backward" compatibility
+                           else:
+                              fileConditionsOption=fileOptionValue.split("::")[0] 
                   else: # empty token
                      #print "Print this is the token: %s"%token
                      pass
@@ -1531,7 +1536,7 @@ class PerfSuite:
                      #FIXME:
                      #Could add the allowed event contents in the cmsPerfCommons.py file and use those to match in the command line options... This assumes maintenance of cmsPerfCommons.py
                   
-               TarFile = "%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption, fileWorkingDir, self.host, self.user)
+               TarFile = "%s_%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption, fileWorkingDir, self.host, self.user)
                AbsTarFile = os.path.join(perfsuitedir,TarFile)
                tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
                self.printFlush(tarcmd)
