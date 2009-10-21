@@ -218,7 +218,7 @@ MultiChainEvent::toSec (const edm::EventID &id)
    // First try this file.
    if ( event2_->event_->to( id ) ) 
    {
-      // Foudn it, return. 
+      // Found it, return. 
       return true;
    }
    // Second, assume that the secondary files are each in run/event

@@ -124,7 +124,7 @@ class MultiChainEvent: public EventBase
 
       MultiChainEvent(const Event&); // stop default
 
-      const MultiChainEvent& operator=(const Event&); // stop default
+      const MultiChainEvent& operator= (const Event&); // stop default
 
       ///Go to the event from secondary files at index iIndex
       bool toSec(Long64_t iIndex);
