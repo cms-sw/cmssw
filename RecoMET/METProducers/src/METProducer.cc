@@ -60,11 +60,18 @@ namespace cms
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
 
+<<<<<<< METProducer.cc
+    if(      METtype == "CaloMET" ) {
+      produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+      produces<std::vector<double> >().setBranchAlias(alias.c_str());
+    }
+=======
     if(      METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
 	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
       }
+>>>>>>> 1.27
     else if( METtype == "GenMET" )  
       {
 	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");
@@ -137,16 +144,25 @@ namespace cms
       CaloSpecificAlgo calospecalgo;
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
-      //Run algorithm to calculate CaloMET Significance and add to the CaloMET Object
-      SignCaloSpecificAlgo signcalospecalgo;
+      //Run algorithm to calculate CaloMET Significance and add to the MET Object
+      SignCaloSpecificAlgo sign_calomet;
       metsig::SignAlgoResolutions resolutions(conf_);
-      calomet.SetMetSignificance( signcalospecalgo.addSignificance(input,output,resolutions,noHF,globalThreshold) );
+      sign_calomet.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
+      calomet.SetMetSignificance(sign_calomet.getSignificance());
+      
+      std::auto_ptr<std::vector<double> > calometsigworker;
+      std::vector<double> values=sign_calomet.getSignifMatrix();
+      for(size_t ii=0; ii<values.size();++ii)
+	calometsigworker->push_back(values[ii]);
+      // book the significance bookkeeping
+      event.put(calometsigworker);
 
       //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
       calometcoll.reset(new CaloMETCollection);
       calometcoll->push_back( calomet ) ;
-      event.put( calometcoll );           
+      event.put( calometcoll );  
+      
     }
     //-----------------------------------
     else if( METtype == "TCMET" )
@@ -165,6 +181,7 @@ namespace cms
 	std::auto_ptr<PFMETCollection> pfmetcoll;
 	pfmetcoll.reset (new PFMETCollection);
 	pfmetcoll->push_back( pf.addInfo(input, output) );
+	metsig::SignAlgoResolutions resolutions(conf_);
 	event.put( pfmetcoll );
       }
     //-----------------------------------
