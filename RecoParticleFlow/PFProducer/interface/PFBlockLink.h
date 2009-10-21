@@ -28,6 +28,7 @@ class PFBlockLink {
     HCALandGSF = 0x30,
     TRACKandGSF = 0x21,
     GSFandBREM =0x60,
+    GSFandGSF = 0x20,
     ECALandBREM = 0x48,
     HCALandBREM = 0x50,
     PS1andGSF = 0x22,

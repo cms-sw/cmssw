@@ -50,6 +50,7 @@ class PFBlockProducer : public edm::EDProducer {
 
   edm::InputTag   inputTagRecTracks_;
   edm::InputTag   inputTagGsfRecTracks_;
+  edm::InputTag   inputTagConvBremGsfRecTracks_;
   edm::InputTag   inputTagRecMuons_;
   edm::InputTag   inputTagPFNuclear_;
   edm::InputTag   inputTagPFClustersECAL_;
@@ -72,6 +73,9 @@ class PFBlockProducer : public edm::EDProducer {
   /// switch on/off Conversions
   bool  useConversions_;  
   
+  /// switch on/off Conversions Brem Recovery
+  bool   useConvBremGsfTracks_;
+
   /// switch on/off V0
   bool useV0_;
 

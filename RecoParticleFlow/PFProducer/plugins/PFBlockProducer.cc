@@ -40,6 +40,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagGsfRecTracks_ 
     = iConfig.getParameter<InputTag>("GsfRecTracks");
 
+    inputTagConvBremGsfRecTracks_ 
+    = iConfig.getParameter<InputTag>("ConvBremGsfRecTracks");
+
   inputTagRecMuons_ 
     = iConfig.getParameter<InputTag>("RecMuons");
 
@@ -147,8 +150,19 @@ PFBlockProducer::produce(Event& iEvent,
       LogError("PFBlockProducer")<<" cannot get Gsfrectracks: "
 				 << inputTagGsfRecTracks_ <<endl;
   }
-  // get recmuons
 
+  // get ConvBremGsfTracks 
+  Handle< reco::GsfPFRecTrackCollection > convBremGsfrecTracks;
+
+  if(useConvBremGsfTracks_) {
+    found = iEvent.getByLabel(inputTagConvBremGsfRecTracks_,convBremGsfrecTracks);
+
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get ConvBremGsfrectracks: "
+				 << inputTagConvBremGsfRecTracks_ <<endl;
+  }
+
+  // get recmuons
   Handle< reco::MuonCollection > recMuons;
 
   // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
@@ -247,6 +261,7 @@ PFBlockProducer::produce(Event& iEvent,
   } else { 
     pfBlockAlgo_.setInput( recTracks, 
 			   GsfrecTracks,
+			   convBremGsfrecTracks,
 			   recMuons, 
 			   pfNuclears,
 			   pfConversions,

@@ -291,13 +291,15 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   if( type1==type2 ) {
     // cannot link 2 elements of the same type. 
     // except if the elements are 2 tracks
-    if( type1!=PFBlockElement::TRACK ) return;
+    if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF) return;
     // cannot link two primary tracks  (except if they come from a V0)
-    else if ( 
-	     ((!el1->isSecondary()) && (!el2->isSecondary())) && 
-	     ((!el1->trackType(reco::PFBlockElement::T_FROM_V0)) || 
-	      (!el2->trackType(reco::PFBlockElement::T_FROM_V0)))
-	     ) return;
+    if( type1 ==PFBlockElement::TRACK) {
+      if ( 
+	  ((!el1->isSecondary()) && (!el2->isSecondary())) && 
+	  ((!el1->trackType(reco::PFBlockElement::T_FROM_V0)) || 
+	   (!el2->trackType(reco::PFBlockElement::T_FROM_V0)))
+	  ) return;
+    }
   }
 
   linktype = static_cast<PFBlockLink::Type>
@@ -472,6 +474,31 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	dist = 0.001;
       } else { 
 	dist = -1.;
+      }
+      break;
+    }
+  case PFBlockLink::GSFandGSF:
+    {
+      const reco::PFBlockElementGsfTrack * lowGsfEl  =  
+	dynamic_cast<const reco::PFBlockElementGsfTrack*>(lowEl);
+      const reco::PFBlockElementGsfTrack * highGsfEl  =  
+	dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
+      
+      GsfPFRecTrackRef lowgsfref = lowGsfEl->GsftrackRefPF();
+      GsfPFRecTrackRef highgsfref = highGsfEl->GsftrackRefPF();
+      assert( !lowgsfref.isNull() );
+      assert( !highgsfref.isNull() );
+      
+      if( (lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
+	   highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) ||
+	  (highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
+	   lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV))) {
+	if(lowgsfref->trackId() == highgsfref->trackId()) {
+	  dist = 0.001;
+	}
+	else {
+	  dist = -1.;
+	}
       }
       break;
     }

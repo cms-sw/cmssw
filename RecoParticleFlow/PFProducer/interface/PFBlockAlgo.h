@@ -66,6 +66,7 @@ class PFBlockAlgo {
   template< template<typename> class T>
     void  setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		   const T<reco::GsfPFRecTrackCollection>&    gsftrackh,
+		   const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		   const T<reco::MuonCollection>&    muonh,
 		   const T<reco::PFNuclearInteractionCollection>&  nuclh,
 		   const T<reco::PFConversionCollection>&  conv,
@@ -96,11 +97,12 @@ class PFBlockAlgo {
 		  const Mask& hcalMask = dummyMask_,
 		  const Mask& psMask = dummyMask_ ) {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
+    T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
     T<reco::PFNuclearInteractionCollection> nuclh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    setInput<T>( trackh, gsftrackh, muonh, nuclh, convh, v0, 
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclh, convh, v0, 
 		 ecalh, hcalh, hfemh, hfhadh, psh, 
 		 trackMask, ecalMask, hcalMask, psMask); 
   }
@@ -117,11 +119,12 @@ class PFBlockAlgo {
 		  const Mask& ecalMask = dummyMask_,
 		  const Mask& hcalMask = dummyMask_,
 		  const Mask& psMask = dummyMask_ ) {
+    T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
     T<reco::PFNuclearInteractionCollection> nuclh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    setInput<T>( trackh, gsftrackh, muonh, nuclh, convh, v0, ecalh, hcalh, psh, 
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclh, convh, v0, ecalh, hcalh, psh, 
 		 trackMask, gsftrackMask,ecalMask, hcalMask, psMask); 
   }
   
@@ -298,6 +301,7 @@ template< template<typename> class T >
 void
 PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const T<reco::GsfPFRecTrackCollection>&    gsftrackh, 
+		      const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		      const T<reco::MuonCollection>&    muonh,
                       const T<reco::PFNuclearInteractionCollection>&  nuclh,
 		      const T<reco::PFConversionCollection>&  convh,
@@ -486,6 +490,72 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
     }
   }
 
+  // -------------- GSF tracks and brems for Conversion Recovery ----------
+   
+  if(convbremgsftrackh.isValid() ) {
+    
+ 
+    const  reco::GsfPFRecTrackCollection ConvPFGsfProd = *(convbremgsftrackh.product());
+    for(unsigned i=0;i<convbremgsftrackh->size(); i++) {
+
+      reco::GsfPFRecTrackRef refgsf(convbremgsftrackh,i );   
+      
+      if((refgsf).isNull()) continue;
+      
+      reco::PFBlockElement* gsfEl;
+      
+      const  std::vector<reco::PFTrajectoryPoint> 
+	PfGsfPoint =  ConvPFGsfProd[i].trajectoryPoints();
+      
+      uint c_gsf=0;
+      bool PassTracker = false;
+      bool GetPout = false;
+      uint IndexPout = -1;
+      
+      typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
+      for(IP itPfGsfPoint =  PfGsfPoint.begin();  
+	  itPfGsfPoint!= PfGsfPoint.end();itPfGsfPoint++) {
+	
+	if (itPfGsfPoint->isValid()){
+	  int layGsfP = itPfGsfPoint->layer();
+	  if (layGsfP == -1) PassTracker = true;
+	  if (PassTracker && layGsfP > 0 && GetPout == false) {
+	    IndexPout = c_gsf-1;
+	    GetPout = true;
+	  }
+	  //const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
+	  c_gsf++;
+	}
+      }
+      math::XYZTLorentzVector pin = PfGsfPoint[0].momentum();      
+      math::XYZTLorentzVector pout = PfGsfPoint[IndexPout].momentum();
+      
+      
+    
+      gsfEl = new reco::PFBlockElementGsfTrack(refgsf, pin, pout);
+      
+      bool valuegsf = true;
+      // IMPORTANT SET T_FROM_GAMMACONV trackType() FOR CONVERSIONS
+      gsfEl->setTrackType(reco::PFBlockElement::T_FROM_GAMMACONV, valuegsf);
+
+      
+
+      elements_.push_back( gsfEl);
+      std::vector<reco::PFBrem> pfbrem = refgsf->PFRecBrem();
+      
+      for (unsigned i2=0;i2<pfbrem.size(); i2++) {
+	const double DP = pfbrem[i2].DeltaP();
+	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
+	const uint TrajP = pfbrem[i2].indTrajPoint();
+	if(TrajP == 99) continue;
+
+	reco::PFBlockElement* bremEl;
+	bremEl = new reco::PFBlockElementBrem(refgsf,DP,SigmaDP,TrajP);
+	elements_.push_back(bremEl);
+	
+      }
+    }
+  }
 
   
   // -------------- ECAL clusters ---------------------

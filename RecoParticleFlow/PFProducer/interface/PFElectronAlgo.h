@@ -81,6 +81,7 @@ class PFElectronAlgo {
   std::vector<bool> lockExtraKf_;
   std::vector<bool> GsfTrackSingleEcal_;
   std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
+  std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   double mvaEleCut_;
   TMVA::Reader    *tmvaReader_;
@@ -101,6 +102,7 @@ class PFElectronAlgo {
   float SigmaEtaEta; 
   int lateBrem,firstBrem,earlyBrem;
   float HOverHE,HOverPin;
+
 
 
   bool isvalid_;
