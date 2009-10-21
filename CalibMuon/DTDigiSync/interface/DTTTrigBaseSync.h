@@ -4,8 +4,8 @@
 /** \class DTTTrigBaseSync
  *  Base class to define the offsets for 1D DT RecHit building
  *
- *  $Date: 2007/02/19 11:45:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/07 18:32:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -63,6 +63,19 @@ public:
 			double& tofCorr) = 0;
 
 
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// It does not take into account TOF and signal propagation along the wire
+  virtual double emulatorOffset(const DTWireId& wireId);
+
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// It does not take into account TOF and signal propagation along the wire
+  /// It also returns the different contributions separately:
+  ///     - tTrig is the offset (t_trig)
+  ///     - t0cell is the t0 from pulses
+  virtual double emulatorOffset(const DTWireId& wireId,
+				double &tTrig,
+				double &t0cell) = 0;
+  
 
 };
 #endif

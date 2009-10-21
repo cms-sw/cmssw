@@ -6,7 +6,7 @@
  *  This plugin reads only the t0 from pulses from the DB.
  *
  *
- *  $Date: 2006/03/15 12:44:52 $
+ *  $Date: 2007/02/19 11:45:21 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -49,6 +49,13 @@ public:
 			double& tofCorr);
 
   virtual double offset(const DTWireId& wireId);
+
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// Returns just 0 in this implementation of the plugin
+  virtual double emulatorOffset(const DTWireId& wireId,
+				double &tTrig,
+				double &t0cell);
+
 
  private:
   

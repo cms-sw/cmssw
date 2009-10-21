@@ -24,9 +24,19 @@
  *       TOF from the center of the chamber, SL, layer or wire to the hit position.
  *       NOTE: particles are assumed as coming from the IP.
  *
+ *  The emulatorOffset is computed as:
+ *  <br>
+ *  offset = int(ttrig/BXspace)*BXspace + t0
+ *  <br>
+ *  where: <br>
+ *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be switched off)
+ *     - ttrig from the fit of time box rising edge (taken from DB, it is assumed to be in ns)
+ *     - BXspace BX spacing (in ns). Can be configured.
+ *   
+ *  NOTE: this should approximate what is seen online by the BTI
  *
- *  $Date: 2007/06/07 08:41:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/09 18:51:54 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -73,6 +83,17 @@ public:
   /// It does not take into account TOF and signal propagation along the wire
   double offset(const DTWireId& wireId);
 
+
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// It does not take into account TOF and signal propagation along the wire
+  /// It also returns the different contributions separately:
+  ///     - tTrig is the offset (t_trig)
+  ///     - t0cell is the t0 from pulses
+  virtual double emulatorOffset(const DTWireId& wireId,
+				double &tTrig,
+				double &t0cell);
+
+
  private:
   
   const DTT0 *tZeroMap;
@@ -89,6 +110,8 @@ public:
   // Switch on/off the correction for the signal propagation along the wire
   bool doWirePropCorrection;
   int theWirePropCorrType;
+  // spacing of BX in ns
+  double theBXspace;
 };
 #endif
 

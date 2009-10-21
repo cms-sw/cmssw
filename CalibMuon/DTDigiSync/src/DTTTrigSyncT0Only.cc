@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/09 11:51:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/03 09:13:59 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -82,6 +82,14 @@ double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
 // Set the verbosity level
 bool DTTTrigSyncT0Only::debug;
 
+
+double DTTTrigSyncT0Only::emulatorOffset(const DTWireId& wireId,
+					 double &tTrig,
+					 double &t0cell) {
+  tTrig = 0.;
+  t0cell = 0.;
+  return 0.;
+}
 
 
 
