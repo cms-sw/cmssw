@@ -8,6 +8,7 @@ from DQM.DTMonitorClient.dtDCSSummary_cfi import *
 from DQM.HcalMonitorClient.HcalDCSInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDCSSummary_cfi import *
 from DQM.CSCMonitorModule.csc_dcs_info_cfi import *
+from DQM.EcalPreshowerMonitorModule.ESDcsInfoTask_cfi import *
 
-dcs_dqmoffline = cms.Sequence(siStripDcsInfo*siPixelDcsInfo*ecalBarrelDcsInfoTask*ecalEndcapDcsInfoTask*dtDCSSummary*hcalDCSInfo*rpcDCSSummary*cscDcsInfo)
+dcs_dqmoffline = cms.Sequence(siStripDcsInfo*siPixelDcsInfo*ecalBarrelDcsInfoTask*ecalEndcapDcsInfoTask*dtDCSSummary*hcalDCSInfo*rpcDCSSummary*cscDcsInfo*ecalPreshowerDcsInfoTask)
 
