@@ -23,6 +23,7 @@
 #include <TProfile2D.h>
 #include <TObjString.h>
 #include <TString.h>
+#include <TList.h>
 
 #include <string>
 #include <vector>
@@ -105,6 +106,12 @@ class MEtoEDM
        std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
 #endif
        MEtoEdmObject.push_back(newMEtoEDMObject[i]);
+     } else if (MEtoEdmObject[j].object.TestBit(TH1::kCanRebin) == true && newMEtoEDMObject[i].object.TestBit(TH1::kCanRebin) == true) {
+       TList list;
+       list.Add((TObject*)&newMEtoEDMObject[i].object);
+       if (MEtoEdmObject[j].object.Merge(&list) == -1) {
+	 std::cout << "ERROR MEtoEDM::mergeProducts(): merge failed for '" << name << "'" <<  std::endl;
+       }
      } else {
        // this value is also in the new container: add the two 
        if (MEtoEdmObject[j].object.GetNbinsX()           == newMEtoEDMObject[i].object.GetNbinsX()           &&
