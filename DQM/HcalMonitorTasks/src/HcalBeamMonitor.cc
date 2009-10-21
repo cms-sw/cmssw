@@ -511,14 +511,20 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	     ++HFiter) 
 	  {  // loop on hfHits
 	    // If hit present, don't count it as ZS any more
-	    (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
+	    int ieta = HFiter->id().ieta();
+	    
+	    if (abs(ieta)>=33 && abs(ieta)<=36) // luminosity ring check
+	      (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
 
 	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
 
 	    eta=etaBounds[abs(HFiter->id().ieta())-29];
 	    et=HFiter->energy()/cosh(eta)/area[abs(HFiter->id().ieta())-29];
-	    if (et>=0.0625) // minimum ET threshold
-	      (HFiter->id().depth()==1) ? --emptytowersRing1 : --emptytowersRing2;
+	    if (abs(ieta)>=33 && abs(ieta)<=36) // Luminosity ring check
+	      {
+		if (et>=0.0625) // minimum ET threshold
+		  (HFiter->id().depth()==1) ? --emptytowersRing1 : --emptytowersRing2;
+	      }
 	    r=radius[abs(HFiter->id().ieta())-29];
 	    if(HFiter->id().iphi()<37)
 	      phi=HFiter->id().iphi()*0.087266;

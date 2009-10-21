@@ -282,6 +282,8 @@ void HcalSummaryClient::setup(void)
   status_global_=-1;
   
   // Set all bins to "unknown" to start
+  depthME.clear();  // clear histograms from old runs (running on TB data causes setup to get called twice, which leads to 8 depth histograms if clear is not called here.)
+
   if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
@@ -674,6 +676,7 @@ void HcalSummaryClient::analyze(void)
     }
   
   // Now fill status map vs. LS
+  
   StatusVsLS->setBinContent(LS_,1,status_HB_);
   StatusVsLS->setBinContent(LS_,2,status_HE_);
   StatusVsLS->setBinContent(LS_,3,status_HO_);
