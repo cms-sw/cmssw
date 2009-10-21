@@ -1,9 +1,9 @@
-#ifndef PolyFit2DParametrizedMagneticField_h
-#define PolyFit2DParametrizedMagneticField_h
+#ifndef PolyFit3DParametrizedMagneticField_h
+#define PolyFit3DParametrizedMagneticField_h
 
-/** \class PolyFit2DParametrizedMagneticField
+/** \class PolyFit3DParametrizedMagneticField
  *
- *  Magnetic Field engine wrapper for V. Maroussov's 2D parametrization
+ *  Magnetic Field engine wrapper for V. Maroussov's 3D parametrization
  *  of the MT data.
  *
  *  $Date: 2008/05/06 12:09:19 $
@@ -14,20 +14,20 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace edm { class ParameterSet; }
-namespace magfieldparam { class BFit; }
+namespace magfieldparam { class BFit3D; }
 
 
-class PolyFit2DParametrizedMagneticField : public MagneticField {
+class PolyFit3DParametrizedMagneticField : public MagneticField {
  public:
   /// Constructor. Fitted bVal for the nominal currents are:
   /// 2.0216; 3.5162;  3.8114; 4.01242188708911
-  PolyFit2DParametrizedMagneticField(double bVal = 3.8114);
+  PolyFit3DParametrizedMagneticField(double bVal = 3.8114);
 
   /// Constructor. Parameters taken from a PSet
-  PolyFit2DParametrizedMagneticField(const edm::ParameterSet& parameters);
+  PolyFit3DParametrizedMagneticField(const edm::ParameterSet& parameters);
 
   /// Destructor
-  virtual ~PolyFit2DParametrizedMagneticField();
+  virtual ~PolyFit3DParametrizedMagneticField();
   
   GlobalVector inTesla (const GlobalPoint& gp) const;
 
@@ -36,7 +36,7 @@ class PolyFit2DParametrizedMagneticField : public MagneticField {
   bool isDefined(const GlobalPoint& gp) const;
 
  private:
-  magfieldparam::BFit* theParam;
+  magfieldparam::BFit3D* theParam;
 };
 #endif
 
