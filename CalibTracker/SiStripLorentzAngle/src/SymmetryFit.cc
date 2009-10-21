@@ -10,9 +10,7 @@ TH1* SymmetryFit::symmetryChi2(std::string basename, const std::vector<TH1*>& ca
   delete fake;
 
   BOOST_FOREACH(const TH1* candidate, candidates) {
-    std::cout << "|" << std::flush;
     SymmetryFit sf(candidate,range); 
-    std::cout << ">" << std::flush;
     combined+=sf; 
     delete sf.chi2_; 
   }
@@ -38,11 +36,8 @@ SymmetryFit::SymmetryFit(const TH1* h, const std::pair<unsigned,unsigned> r)
     ndf_( minmaxUsable_.first<minmaxUsable_.second ? minmaxUsable_.second-minmaxUsable_.first : 0),
     chi2_(0)
 {
-  std::cout << range_.first << "-" << range_.second << "," << minmaxUsable_.first<<"-"<<minmaxUsable_.second << std::flush;
   makeChi2Histogram();
-  std::cout << ";" << std::flush;
   fillchi2();
-  std::cout << ";" << std::flush;
 }
 
 void SymmetryFit::makeChi2Histogram() 

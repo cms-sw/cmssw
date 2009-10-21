@@ -101,6 +101,7 @@ make_and_fit_ratio(Book& book, bool cleanup) {
     double mean = p->GetFunction("gaus")->GetParameter(1);
     double sigma = p->GetFunction("gaus")->GetParameter(2);
     p->Fit("gaus","Q","",mean-sigma,mean+sigma);
+    p->SetTitle("Ratio Method;tan#theta_{t};Probability of width==1");
     book.book(ratio, p);
     
     if(cleanup) {
@@ -114,7 +115,7 @@ void LA_Filler_Fitter::
 fit_profile(Book& book, const std::string& key) {
   for(Book::const_iterator p = book.begin(".*"+key); p!=book.end(); ++p) {
     if((*p)->GetEntries() < 400) {book.erase(p.name()); continue;}
-    
+    (*p)->SetTitle(";tan#theta_{t};");
     float min = (*p)->GetMinimum();
     float max = (*p)->GetMaximum();
     float xofmin = (*p)->GetBinCenter((*p)->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
@@ -135,9 +136,10 @@ fit_profile(Book& book, const std::string& key) {
 void LA_Filler_Fitter::
 make_and_fit_symmchi2(Book& book) {
   for(Book::const_iterator p = book.begin(".*"+method(SYMM,0)); p!=book.end(); ++p) {
+    (*p)->SetTitle(";tan#theta_{t};mean sqrt(variance)");
     unsigned rebin = (unsigned)( (*p)->GetNbinsX() / sqrt(2*(*p)->GetEntries()) + 1);
     (*p)->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
-
+    
     const unsigned bins = (*p)->GetNbinsX();
     const unsigned guess = guess_bin(*p);
     TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
@@ -199,18 +201,16 @@ make_and_fit_multisymmchi2(Book& book) {
     book.erase(base+"_all");
 
     std::vector<TH1*> fit_hists;
-    fit_hists.push_back(prob_w1);
-    fit_hists.push_back(var_w2);
-    fit_hists.push_back(var_w3);
-    fit_hists.push_back(rmsv_w2);
-    fit_hists.push_back(rmsv_w3);
+    fit_hists.push_back(prob_w1);  prob_w1->SetTitle("Width==1 Probability;tan#theta_{t}-(dx/dz)_{reco}");
+    fit_hists.push_back(var_w2);   var_w2->SetTitle("Width==2 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    fit_hists.push_back(var_w3);   var_w3->SetTitle("Width==3 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    fit_hists.push_back(rmsv_w2);  rmsv_w2->SetTitle("Width==2 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    fit_hists.push_back(rmsv_w3);  rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
 
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
-    std::cout << "Fitting " << base << "..." << std::flush;
     TH1* chi2 = SymmetryFit::symmetryChi2(base, fit_hists, std::make_pair(guess-bins/30, guess+bins/30-1));
-    std::cout << std::endl;
-    if(chi2) book.book(SymmetryFit::name(base), chi2);
+    if(chi2) { book.book(SymmetryFit::name(base), chi2); chi2->SetTitle("MultiSymmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
   }
 }
 

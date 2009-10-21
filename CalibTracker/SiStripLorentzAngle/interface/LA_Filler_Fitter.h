@@ -75,9 +75,7 @@ class LA_Filler_Fitter {
   static void fit(Book& book) { 
     make_and_fit_ratio(book); 
     make_and_fit_symmchi2(book);
-    std::cout << "LA_Filler_Fitter::make_and_fit_multi" << std::endl;
     make_and_fit_multisymmchi2(book);
-    std::cout << "LA_Filler_Fitter::fit_profile(WIDTH)" << std::endl;
     fit_profile(book,method(WIDTH)); 
     fit_profile(book,method(SQRTVAR)); 
   }
