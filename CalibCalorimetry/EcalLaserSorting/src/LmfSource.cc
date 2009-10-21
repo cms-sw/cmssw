@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/07/30 08:20:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/30 08:32:49 $
+ *  $Revision: 1.4 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -400,7 +400,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
           << "Error while reading from file " << fileNames_[iFile_];
       }
     
-      if(verbosity_ & data_.size()>16){
+      if(verbosity_ && data_.size()>16){
         cout << "[LmfSource]"
              << "Head of DCC data (in hex):" << hex;
         for(int i=0; i < 16; ++i){ 
