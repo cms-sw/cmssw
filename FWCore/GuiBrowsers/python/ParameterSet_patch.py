@@ -1,3 +1,28 @@
+from copy import deepcopy
+import inspect
+
+#### patches needed for deepcopy of process ####
+
+import FWCore.ParameterSet.DictTypes as typ
+    
+def new_SortedKeysDict__copy__(self):
+    return self.__class__(self)
+typ.SortedKeysDict.__copy__ = new_SortedKeysDict__copy__
+
+def new_SortedKeysDict__deepcopy__(self, memo=None):
+    from copy import deepcopy
+    if memo is None:
+        memo = {}
+    d = memo.get(id(self), None)
+    if d is not None:
+        return d
+    memo[id(self)] = d = self.__class__()
+    d.__init__(deepcopy(self.items(), memo))
+    return d
+typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
+
+#### process history ####
+
 import FWCore.ParameterSet.Config as cms
 
 def new___init__(self,name):
@@ -97,7 +122,6 @@ def new_recurseResetModified_(self, o):
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
 def new_recurseDumpModified_(self, name, o):
-    """
     dumpPython = ""
     if hasattr(o, "parameterNames_"):      
         for key in o.parameterNames_():
@@ -107,7 +131,7 @@ def new_recurseDumpModified_(self, name, o):
                 dumpPython += "\n"
             dumpPython += dump
     elif hasattr(o, "isModified") and o.isModified():
-        if isinstance(o, InputTag):
+        if isinstance(o, cms.InputTag):
             pythonValue="\"" + str(o.value()) + "\""
         elif hasattr(o, "pythonValue"):
             pythonValue=o.pythonValue()
@@ -154,9 +178,8 @@ def new_recurseDumpModified_(self, name, o):
         for index,item in enumerate(o):
             dumpPython += self.recurseDumpModified_("%s[%s]"%(name,index),item)
     return dumpPython    
+    """
 cms.Process.recurseDumpModified_=new_recurseDumpModified_
-
-
 
 def new_resetModified(self):
     modification = self.dumpModified()[0]
@@ -209,8 +232,7 @@ def new_items_(self):
     return tuple(items)
 cms.Process.items_=new_items_
 
-from copy import deepcopy
-import inspect
+#### parameterizable history ####
 
 def new_Parameterizable_init(self,*a,**k):
   self.__dict__['_modifications'] = []
@@ -228,10 +250,41 @@ cms._Parameterizable._Parameterizable__addParameter = new_Parameterizable_addPar
 def new_Parameterizable_setattr(self, name, value):
   if (not self.isFrozen()) and (not name.startswith('_')) and (name in self.__dict__):
     self._modifications.append({'file':inspect.stack()[1][1],'line':inspect.stack()[1][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value)})
+    self._isModified = True
   self.old__setattr__(name,value)
 cms._Parameterizable.old__setattr__ = cms._Parameterizable.__setattr__
 cms._Parameterizable.__setattr__ = new_Parameterizable_setattr
 
+def new_Parameterizable_resetModified(self):
+    self._isModified=False
+    for name in self.parameterNames_():
+        param = self.__dict__[name]
+        if isinstance(param, cms._Parameterizable):
+            param.resetModified()
+cms._Parameterizable.resetModified = new_Parameterizable_resetModified
 
+#### sequence history ####
     
-  
+def new__ModuleSequenceType_resetModified(self):
+    self._isModified=False
+cms._ModuleSequenceType.resetModified = new__ModuleSequenceType_resetModified
+def new__ModuleSequenceType_isModified(self):
+    return self._isModified
+cms._ModuleSequenceType.isModified = new__ModuleSequenceType_isModified
+def new__ModuleSequenceType_copy(self):
+    returnValue =_ModuleSequenceType.__new__(type(self))
+    returnValue.__init__(self._seq)
+    returnValue._isModified = self._isModified
+    return returnValue
+cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
+def new__ModuleSequenceType__replace(self, original, replacement):
+    self.old__replace(original, replacement)
+    self._isModified=True
+cms._ModuleSequenceType.old__replace = cms._ModuleSequenceType._replace
+cms._ModuleSequenceType._replace = new__ModuleSequenceType__replace
+def new__ModuleSequenceType__remove(self, original):
+    self._isModified=True
+    self.old__remove(original)
+cms._ModuleSequenceType.old__remove = cms._ModuleSequenceType._remove
+cms._ModuleSequenceType._remove = new__ModuleSequenceType__remove
+
