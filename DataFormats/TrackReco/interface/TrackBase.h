@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.76 2009/06/15 08:02:51 gpetrucc Exp $
+ * \version $Id: TrackBase.h,v 1.77 2009/09/10 10:39:27 vlimant Exp $
  *
  */
 
@@ -244,6 +244,11 @@ namespace reco {
     void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
     void setTrackerExpectedHitsInner( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsInner_.set( hit, i ); }
     void setTrackerExpectedHitsOuter( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsOuter_.set( hit, i ); }
+
+    /// set hitPattern from pre-defined hitPattern
+    void setHitPattern( const HitPattern& hitP) {hitPattern_ = hitP;}
+    void setTrackerExpectedHitsInner( const HitPattern& hitP ) {trackerExpectedHitsInner_ = hitP;}
+    void setTrackerExpectedHitsOuter( const HitPattern& hitP ) {trackerExpectedHitsOuter_ = hitP;}
 
     /// position index 
 
