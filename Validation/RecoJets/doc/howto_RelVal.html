@@ -12,24 +12,27 @@ different jet reconstuction algorithms and can be viewed using a web browser.
 <ol>
 <b><li>Create a release area</b>
 <pre>
-  scramv1 project CMSSW CMSSW_2_2_3
-  cd CMSSW_2_2_3/src
+  scramv1 project -n CMSSW_3_3_0_pre5_val CMSSW CMSSW_3_3_0_pre5
+  cd CMSSW_3_3_0_pre5_val/src
   eval `scramv1 runtime -csh`
   cmscvsroot CMSSW
 </pre>
 
+<!---
 <p>
 <b><li>(Optional) Check out the latest version of <em>Jet Plus Tracks</em>
 correction code</b>
 
 <p>Follow the instructions which can be founds at:<br>
 <a href="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections"><src="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections" alt=""> https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections </a>
+--->
 
 <p>
 <b><li>Check out and build the JetMet release validation package</b>
 <p>
 <pre>
-   cvs co Validation/RecoJets
+   cvs co -r V04-02-01 Validation/RecoJets
+   cvs co -r V01-08-27 JetMETCorrections/Configuration # if you are using the above for 31X and 32X
    scramv1 b
 </pre>
 
@@ -58,7 +61,6 @@ distributions used to validate the release.
 you have to run over a reference sample and a target sample to produce 
 two sets of root file.
 
-
 <p>
 <b><li>Run the <tt>validation.sh</tt> script</b>
 
@@ -69,14 +71,13 @@ with the target distribution.
 to compare and the name of the directory where the plots should be 
 written to. This directory name is also used for the title in the histograms.
 
-
 <p>
 <b><li>Open the <tt>index.html</tt> file (located in the new directory)
 in a web browser</b>
 <pre>
   firefox index.html
 </pre>
-Now you can view at all the plots...
+Now you can view at all the plots.
 </ol>
 
 <hr>
@@ -84,7 +85,9 @@ Now you can view at all the plots...
 <h2>Example</h2>
 The <tt>alljets_validation_cfg.py</tt> runs per default over the
 <pre>
+  <!---
   CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2 
+  --->
 </pre>
 sample.
 <pre>

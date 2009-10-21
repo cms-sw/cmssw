@@ -1,3 +1,8 @@
+2009-10-19  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-17-00
+	* Modifications for use with MPEP (requires recompilation of RB too)
+	
 2009-09-19  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-16-06

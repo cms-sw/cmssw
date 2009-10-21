@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.54 2009/08/28 14:35:33 mommsen Exp $
+// $Id: StorageManager.h,v 1.55 2009/08/28 16:41:50 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -36,8 +36,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.54 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Revision: 1.55 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
   class StorageManager: public xdaq::Application

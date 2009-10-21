@@ -84,7 +84,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 
   // additional tuning factor to correct the response in the barrel
   //                              1     2     3     5     9    15    20    30 
-  double barrelCorrection[15] = {1.0, 0.99, 0.98, 0.98, 0.97, 0.96, 0.95, 0.95,     0.96, 0.97, 0.97, 0.97, 0.97, 0.97, 0.97};  
+  double barrelCorrection[15] = {1.0, 0.97, 0.95, 0.95, 0.95, 0.95, 0.95, 0.96,     0.96, 0.97, 0.97, 0.97, 0.97, 0.97, 0.97};  
 
   // MEAN energy response for (1) all (2) MIP in ECAL (3) non-MIP in ECAL 
   //-----------------------------------------------------------------------
@@ -435,8 +435,8 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   for(int i = 0; i<maxEMe;  i++) {
     eGridEM[i] = _eGridEM[i];
     for(int j = 0; j<maxEMeta; j++) {
-      meanEM[i][j]  =  _meanEM[i][j] / eGridEM[i];
-      sigmaEM[i][j] =  _sigmaEM[i][j] / eGridEM[i];
+      meanEM[i][j]  = 0.9 * _meanEM[i][j] / eGridEM[i];
+      sigmaEM[i][j] = 0.9 * _sigmaEM[i][j] / eGridEM[i];
     }
   }
 

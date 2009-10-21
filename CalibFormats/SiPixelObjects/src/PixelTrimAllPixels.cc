@@ -15,7 +15,6 @@
 #include <iostream>
 #include <ios>
 #include <assert.h>
-#include <stdexcept>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
@@ -25,7 +24,7 @@ using namespace pos;
 PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >& tableMat):
   PixelTrimBase("","","")
 {
-    std::string mthn = "]\t[PixelTrimAllPixels::PixelTrimAllPixels()]\t\t    " ; 
+
     std::stringstream currentRocName;
     std::map<std::string , int > colM;
     std::vector<std::string > colNames;
@@ -65,7 +64,7 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
       {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << "[PixelTrimAllPixels::PixelTrimAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
       }
@@ -92,7 +91,6 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::string filename):
 
       std::ifstream in(filename.c_str());
 	
-      if (!in.good())  throw std::runtime_error("Failed to open file "+filename);
       //	std::cout << "filename =" << filename << std::endl;
 
       std::string s1;
@@ -130,7 +128,6 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::string filename):
     else{
 
       std::ifstream in(filename.c_str(),std::ios::binary);
-      if (!in.good())  throw std::runtime_error("Failed to open file "+filename);
 
       char nchar;
 
@@ -304,15 +301,15 @@ void PixelTrimAllPixels::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>ROC Trim Bits</RUN_TYPE>"                                                   << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>ROC Trim Bits</COMMENT_DESCRIPTION>"                             << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 
   *outstream << " <DATA_SET>"                                                                             << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			  << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <PART>"                                                                                << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

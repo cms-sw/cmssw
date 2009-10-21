@@ -35,6 +35,7 @@
 
 class DQMStore;
 class MonitorElement;
+class SiStripDetCabling;
 
 class SiStripCertificationInfo: public edm::EDAnalyzer {
 
@@ -54,9 +55,11 @@ class SiStripCertificationInfo: public edm::EDAnalyzer {
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Begin Of Luminosity
+
+  /// End Of Luminosity
                                                                                
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+
 
   /// Analyze
 
@@ -74,16 +77,25 @@ private:
   void resetTrackingCertificationMEs();
   void fillTrackingCertificationMEs();
 
-  DQMStore* dqmStore_;
-  MonitorElement * SiStripCertification;
-  MonitorElement * SiStripCertificationTIB;
-  MonitorElement * SiStripCertificationTOB;
-  MonitorElement * SiStripCertificationTIDF;
-  MonitorElement * SiStripCertificationTIDB;
-  MonitorElement * SiStripCertificationTECF;
-  MonitorElement * SiStripCertificationTECB;
+  void fillDummySiStripCertification();
+  void fillDummyTrackingCertification();
 
-  
+  DQMStore* dqmStore_;
+
+
+
+  struct SubDetMEs{
+    MonitorElement* det_fractionME;
+    std::string folder_name;
+    std::string subdet_tag;
+    int n_layer;
+  };
+
+  MonitorElement * SiStripCertification;
+  MonitorElement * SiStripCertificationMap; 
+  std::map<std::string, SubDetMEs> SubDetMEsMap;
+  MonitorElement * SiStripCertificationSummaryMap;
+
   MonitorElement * TrackingCertification;  
   MonitorElement * TrackingCertificationRate;
   MonitorElement * TrackingCertificationChi2overDoF;
@@ -92,6 +104,8 @@ private:
   bool trackingCertificationBooked_;
   bool sistripCertificationBooked_;
   unsigned long long m_cacheID_;
+
+  edm::ESHandle< SiStripDetCabling > detCabling_;
 
 };
 #endif

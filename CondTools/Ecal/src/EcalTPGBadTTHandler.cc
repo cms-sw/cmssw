@@ -143,41 +143,35 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	      
 	     if(ecid_name=="EB_trigger_tower") {
  	  
-	       int tcc_num=rd_badTT.getTCCId();
-	       int tt_num=rd_badTT.getTTId();
+	       int sm_num=rd_badTT.getTCCId();
+	       int xt_num=rd_badTT.getTTId();
 	        
-	       char identTTEB[10];
-    	       sprintf(identTTEB,"%d%d", tcc_num, tt_num);
-	       str.assign(identTTEB);
-	       std::string S="";
-	       S.insert(0,identTTEB);
-	       
-	       int ebTTDetId = 0; 
-	       ebTTDetId = atoi(S.c_str());
-	       
-	       towerStatus->setValue(ebTTDetId,rd_badTT.getStatus());
+	       EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+    	    
+	       towerStatus->setValue(ebdetid.rawId(),rd_badTT.getStatus());
 	    
 	       ++icells;
 	     }
-	     else if (ecid_name=="EE_trigger_tower"){
-	       // Check
-	       // EE data
-	    
-	       int tcc_num=rd_badTT.getTCCId();
-	       int tt_num=rd_badTT.getTTId();
+	    else if (ecid_name=="EE_trigger_tower"){
+	      // Check
+	      // EE data
+	    /*
+	      int sm_num=rd_badTT.getSMId();
+	      int xt_num=rd_badTT.getTTId();
 
-	       char identTTEE[10];
-	       sprintf(identTTEE,"%d%d", tcc_num, tt_num);
-	       str.assign(identTTEE);
+		  char identTT[6];
+	  	  sprintf(identTT,"%d%d", sm_num, xt_num);
+	  	  str.assign(identTT);
 		
-	       std::string S="";
-	       S.insert(0,identTTEE);
-	       		        
-	       int eeTTDetId = 0; 
-	       eeTTDetId = atoi(S.c_str());
-                 
-	       towerStatus->setValue(eeTTDetId,rd_badTT.getStatus());
-	    
+	  	  std::map <std::string, int>::const_iterator it; 
+	  	  it=mapEE.find(str);
+	        
+	  	  int eeDetId = 0; 
+	  	  eeDetId = it->second;
+
+		  //rd_badTT.getId();
+		  towerStatus->setValue(eeDetId,rd_badTT.getStatus());
+	    */
 	      ++icells;
 		
 	    }

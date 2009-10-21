@@ -1,9 +1,8 @@
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
+#include <DQMServices/Core/interface/MonitorElement.h>
 
 #define NBINS (500)
 #define LOWBIN (-125)
@@ -22,6 +21,12 @@ FineDelayTask::FineDelayTask( DQMStore* dqm,
   CommissioningTask( dqm, conn, "FineDelayTask" )
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
+  // compute the fiber length correction
+  float length=conn.fiberLength();
+  // convert cm to ns
+  float c=30; //speed of light in cm/ns
+  float refractionIndex = 1.4; // refraction index of the optical fibers
+  fiberLengthCorrection_ =  length/c*refractionIndex;
 }
 
 // -----------------------------------------------------------------------------
@@ -35,9 +40,8 @@ FineDelayTask::~FineDelayTask() {
 void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book]";
 
-  std::string title;
+  std::string title, pwd, rootDir;
   int nBins = NBINS;
-  SiStripDetKey detkeytracker((uint32_t) 0);
 
   // see if the global timing histogram is already booked
   if (timing_.histo()) {
@@ -48,16 +52,19 @@ void FineDelayTask::book() {
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
     // construct the histo title
     title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
-                               sistrip::FINE_DELAY,
-                               sistrip::DET_KEY,
-                               detkeytracker.key(),
-                               sistrip::TRACKER,
-                               0,
-                               sistrip::extrainfo::clusterCharge_ ).title();
-    dqm()->setCurrentFolder( detkeytracker.path() );
+                                           sistrip::FINE_DELAY,
+                                           sistrip::DET_KEY,
+                                           0,
+                                           sistrip::TRACKER,
+                                           0,
+                                           sistrip::extrainfo::clusterCharge_ ).title();
+    pwd = dqm()->pwd();
+    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
+    dqm()->setCurrentFolder( rootDir );
     timing_.histo( dqm()->bookProfile( title, title,            // name and title
                                        nBins, LOWBIN, HIGHBIN,  // binning + range
                                        100, 0., -1., "s" ) );   // Y range : automatic
+    dqm()->setCurrentFolder( pwd );
     timing_.vNumOfEntries_.resize(nBins,0);
     timing_.vSumOfContents_.resize(nBins,0);
     timing_.vSumOfSquares_.resize(nBins,0);
@@ -66,7 +73,7 @@ void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
   if(!mode_) {
     std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_)));
+    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
     dqm()->setCurrentFolder( rootDir );
     mode_ = dqm()->bookInt("latencyCode");
   }
@@ -83,7 +90,6 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
   uint32_t latencyCode = (const_cast<SiStripEventSummary&>(summary).layerScanned()>>24)&0xff;
   LogDebug("Commissioning") << "[FineDelayTask::fill]: layerScanned() is " << const_cast<SiStripEventSummary&>(summary).layerScanned();
   int latencyShift = latencyCode & 0x3f;             // number of bunch crossings between current value and start of scan... must be positive
-  if(latencyShift>32) latencyShift -=64;             // allow negative values: we cover [-32,32].. should not be needed.
   if((latencyCode>>6)==2) latencyShift -= 3;         // layer in deconv, rest in peak
   if((latencyCode>>6)==1) latencyShift += 3;         // layer in peak, rest in deconv
   float correctedDelay = delay - (latencyShift*25.); // shifts the delay so that 0 corresponds to the current settings.

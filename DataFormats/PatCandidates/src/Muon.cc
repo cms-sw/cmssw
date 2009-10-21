@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.20 2009/08/11 04:23:31 srappocc Exp $
+// $Id: Muon.cc,v 1.21.2.1 2009/10/08 04:18:08 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -230,13 +230,8 @@ double Muon::normChi2() const {
   if ( cachedNormChi2_ ) {
     return normChi2_;
   } else {
-    reco::TrackRef t = this->globalTrack();
-    if ( t.isNonnull() && t.isAvailable() ) {
-      return t->chi2() / t->ndof();
-    }
-    else {
-      return std::numeric_limits<double>::max();
-    }
+    reco::TrackRef t = globalTrack();
+    return t->chi2() / t->ndof();
   }
 }
 
@@ -248,13 +243,8 @@ unsigned int Muon::numberOfValidHits() const {
   if ( cachedNumberOfValidHits_ ) {
     return numberOfValidHits_;
   } else {
-    reco::TrackRef t = this->globalTrack();
-    if ( t.isNonnull() && t.isAvailable() ) {
-      return t->numberOfValidHits();
-    }
-    else {
-      return 0;
-    }
+    reco::TrackRef t = innerTrack();
+    return t->numberOfValidHits();
   }
 }
 

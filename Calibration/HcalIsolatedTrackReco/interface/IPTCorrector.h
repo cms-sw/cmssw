@@ -13,10 +13,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 //#include "DataFormats/Common/interface/Provenance.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 class IPTCorrector : public edm::EDProducer {
@@ -34,7 +36,11 @@ class IPTCorrector : public edm::EDProducer {
 	
   edm::InputTag corSource_;
   edm::InputTag uncorSource_;
-  double assocCone_;
+ 
+  double corrIsolRadius_;
+  double corrIsolMaxP_;
+  double corrIsolRadiusHB_;
+  double corrIsolRadiusHE_;
 };
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 16:03:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/07/14 10:31:19 $
+ *  $Revision: 1.14 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -44,8 +44,7 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // Get parameters from configuration file
   theTriggerPathToPass        = parameters.getParameter<string>("triggerPathToPass");
   thePlotTheseTriggersToo     = parameters.getParameter<vector<string> >("plotTheseTriggersToo");
-  theHltMenu                  = parameters.getParameter<string>("hltMenu");
-  theTriggerResultsCollection = parameters.getParameter<string>("triggerResultsCollection");
+  theTriggerResultsCollection = parameters.getParameter<InputTag>("triggerResultsCollection");
   thePhotonCollectionLabel    = parameters.getParameter<InputTag>("photonCollection");
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
   theMinCaloJetEt             = parameters.getParameter<int>("minCaloJetEt");
@@ -106,10 +105,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////
   // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(InputTag(theTriggerResultsCollection, "", theHltMenu), HLTresults); 
+  iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
   if (!HLTresults.isValid()) return;
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltMenu);
+  hltConfig.init("HLT");
   unsigned int triggerIndex; // index of trigger path
   bool passed_HLT;
 

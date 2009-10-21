@@ -130,7 +130,7 @@ class HTMLExport(FileExportPlugin):
       mod_pset = htmlPSet(mod.parameters_())
       
       mod_content_html = div(mod_table+mod_pset,'module_area',id='mod_%s'%data.label(mod))
-      return div(mod_label_html+mod_content_html,'module',id='module_'+data.label(mod))
+      return div(mod_label_html+mod_content_html,'module')
       
     def htmlPathRecursive(p):
       children = data.children(p)
@@ -148,58 +148,24 @@ class HTMLExport(FileExportPlugin):
         return htmlModule(p)
         
     toplevel={}
+    for tlo in data.children(data.topLevelObjects()[0]):
+      children = data.children(tlo)
+      if children:
+        toplevel[tlo._label]=children
+        
+    path_html=''
+    if 'paths' in toplevel:
+      for path in toplevel['paths']:
+        path_html += div(htmlPathRecursive(path),'path')
     
-    
-    
-    filter_html = elem('span','Filter  '+
-                        elem('input',type='text',width=50,onkeyup="return doFilter();",id='input-filter'),
-                        'right label')
-    
-    header_html = div('Config File Visualisation'+filter_html,'header')
-    
-    if data.process():
-      for tlo in data.children(data.topLevelObjects()[0]):
-        children = data.children(tlo)
-        if children:
-          toplevel[tlo._label]=children    
-      path_html=''
-      if 'paths' in toplevel:
-        for path in toplevel['paths']:
-          path_html += div(htmlPathRecursive(path),'path')
-    
-      file_html = div(elem('span','Process:')
+    header_html = div('Config File Visualisation','header')
+    file_html = div(elem('span','Process:')
                    +elem('span',data.process().name_(),'title')
                    +elem('span',data._filename,'right'),
                 'file')
-      head_html = elem('head',elem('title',data.process().name_()))
-    else:
-      toplevel['sequences']=[]
-      toplevel['paths']=[]
-      toplevel['modules']=[]
-      for tlo in data.topLevelObjects():
-        if data.type(tlo)=='Sequence':
-          toplevel['sequences']+=[tlo]
-        if data.type(tlo)=='Path':
-          toplevel['paths']+=[tlo]
-        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
-          toplevel['modules']+=[tlo]
-      
-      path_html = ''
-      sequence_html = ''
-      module_html = ''
-      for path in toplevel['paths']:
-        path_html += div(htmlPathRecursive(path),'path')
-      for sequence in toplevel['sequences']:
-        sequence_html += htmlPathRecursive(sequence)
-      for module in toplevel['modules']:
-        module_html += htmlModule(module)
-      file_html = div(elem('span',data._filename,'right'),'file')
-      path_html += sequence_html
-      path_html += module_html
-      head_html = elem('head',elem('title',data._filename))
     footer_html = div('gordon.ball','footer')
     
-    
+    head_html = elem('head',elem('title',data.process().name_()))
     
     style_html = elem('style',
     """
@@ -265,22 +231,6 @@ class HTMLExport(FileExportPlugin):
         label_elem.className = 'sequence_label_hidden';
       }
     }
-    
-    function doFilter() {
-      var text = document.getElementById('input-filter').value;
-      var regex = new RegExp(text);
-      for (var i=0;i<document.all.length;i++) {
-        if (document.all(i).id.substr(0,7)=="module_") {
-          var elem = document.all(i);
-          var elem_name = elem.id.substr(7);
-          if (regex.test(elem_name)) {
-            elem.style.display='block';
-          } else {
-            elem.style.display='none';
-          }
-        }
-      }
-    }
     """,
     type='text/javascript')
     
@@ -289,8 +239,8 @@ class HTMLExport(FileExportPlugin):
     return elem('html',head_html+style_html+body_html)
     
   def export(self,data,filename,filetype):
-    #if not data.process():
-    #  raise "HTMLExport requires a cms.Process object"
+    if not data.process():
+      raise "HTMLExport requires a cms.Process object"
     
     html = self.produce(data)
     

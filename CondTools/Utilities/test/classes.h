@@ -14,32 +14,29 @@
 
 #include <iostream>
 
+namespace {
+  struct dictionary {
 
+    CondCachedIter<Pedestals> dummy0;
 
+    CondCachedIter<AlignmentErrors> dummy1;
 
-namespace { namespace {
+    CondCachedIter<EcalPedestals> dummy2;
 
-CondCachedIter<Pedestals> dummy0;
+    CondCachedIter<EcalLaserAPDPNRatios> dummy3;
 
-CondCachedIter<AlignmentErrors> dummy1;
+    CondCachedIter<SiPixelGainCalibration> dummy4;
 
-CondCachedIter<EcalPedestals> dummy2;
+    CondCachedIter<SiStripFedCabling> dummy5;
 
-CondCachedIter<EcalLaserAPDPNRatios> dummy3;
+    CondCachedIter<DTReadOutMapping> dummy6;
 
-CondCachedIter<SiPixelGainCalibration> dummy4;
+    CondCachedIter<mySiStripNoises> dummy9;
 
-CondCachedIter<SiStripFedCabling> dummy5;
+    CondIter<Pedestals> dummy7;
 
-CondCachedIter<DTReadOutMapping> dummy6;
+    CondIter<EcalPedestals> dummy8;
 
-
-CondCachedIter<mySiStripNoises> dummy9;
-
-
-CondIter<Pedestals> dummy7;
-
-CondIter<EcalPedestals> dummy8;
-
-}}
+  };
+}
 

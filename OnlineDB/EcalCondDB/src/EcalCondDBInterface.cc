@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.16 2009/06/24 10:26:40 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.14 2008/11/27 10:26:23 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -406,22 +406,6 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
 
 
 
-void EcalCondDBInterface::insertMonRunIOV(MonRunIOV* iov)
-  throw(runtime_error)
-{
-  try {
-    iov->setConnection(env, conn);
-    iov->writeDB();
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-
-
-
 MonRunIOV EcalCondDBInterface::fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t subrun)
   throw(runtime_error)
 {
@@ -545,14 +529,14 @@ LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,
   return r;
 }
 
-LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,uint64_t min_time, int min_run, int end_run)
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,uint64_t min_time, int end_run)
   throw(runtime_error)
 {  
   LMFRunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
   r.setLMFRunTag(lmfrunTag);
-  r.fetchRuns(min_time, min_run, end_run);
+  r.fetchRuns(min_time, end_run);
   return r;
 }
 

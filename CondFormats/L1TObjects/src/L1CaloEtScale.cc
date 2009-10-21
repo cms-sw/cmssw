@@ -12,9 +12,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include <stdexcept>
-
 using std::vector;
 using std::ostream;
 using std::endl;
@@ -73,7 +70,7 @@ uint16_t L1CaloEtScale::rank(const double EtInGeV) const {
   uint16_t out = 0;
 
   for (unsigned i=0; i<m_thresholds.size() && i<(unsigned)(m_rankScaleMax+1); i++) {
-    if ( EtInGeV >= m_thresholds.at(i) ) { out = i; }
+    if ( EtInGeV >= m_thresholds[i] ) { out = i; }
   }
 
   return out & m_rankScaleMax;
@@ -91,12 +88,7 @@ double L1CaloEtScale::et(const uint16_t rank) const {
 //   }
 
 // return bin lower edge
-  try {
-    return m_thresholds.at(rank);
-  }
-  catch(std::out_of_range) {
-    throw cms::Exception("OutOfRange") << "Index out of range in L1CaloEtScale::et(rank)" << std::endl;
-  }
+  return m_thresholds[rank];
 
 }
 

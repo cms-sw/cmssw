@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $
+// $Id: StorageManager.cc,v 1.107.2.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -29,6 +29,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <cstdlib>
+
 using namespace std;
 using namespace stor;
 
@@ -36,7 +38,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.107.2.1 2009/09/25 09:57:49 mommsen Exp $ $Name: branch_3_3_X $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -111,6 +113,10 @@ void StorageManager::bindStateMachineCallbacks()
   xoap::bind( this,
               &StorageManager::handleFSMSoapMessage,
               "Halt",
+              XDAQ_NS_URI );
+  xoap::bind( this,
+              &StorageManager::handleFSMSoapMessage,
+              "EmergencyStop",
               XDAQ_NS_URI );
 }
 
@@ -209,35 +215,20 @@ void StorageManager::startWorkerThreads()
   }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL(getApplicationLogger(),
-      e.what() << xcept::stdformat_exception_history(e));
-
-    notifyQualified("fatal", e);
-
-    _sharedResources->moveToFailedState( e.what() + xcept::stdformat_exception_history(e) );
+    _sharedResources->moveToFailedState( e );
   }
   catch(std::exception &e)
   {
-    LOG4CPLUS_FATAL(getApplicationLogger(),
-      e.what());
-    
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, e.what());
-    notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( e.what() );
+    _sharedResources->moveToFailedState( sentinelException );
   }
   catch(...)
   {
     std::string errorMsg = "Unknown exception when starting the workloops";
-    LOG4CPLUS_FATAL(getApplicationLogger(),
-      errorMsg);
-
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, errorMsg);
-    notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState( sentinelException );
   }
 }
 
@@ -282,6 +273,15 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
   _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+
+#ifdef STOR_DEBUG_DUPLICATE_MESSAGES
+  double r = rand()/static_cast<double>(RAND_MAX);
+  if (r < 0.001)
+  {
+    LOG4CPLUS_INFO(this->getApplicationLogger(), "Simulating duplicated data message");
+    receiveDataMessage(ref->duplicate());
+  }
+#endif
 }
 
 
@@ -616,6 +616,10 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     {
       _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
     }
+    else if (command == "EmergencyStop")
+    {
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::EmergencyStop() ) );
+    }
     else
     {
       XCEPT_RAISE(stor::exception::StateMachine,
@@ -629,36 +633,30 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
   }
   catch (cms::Exception& e) {
     errorMsg += e.explainSelf();
-    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
-
-    _sharedResources->moveToFailedState( errorMsg );
-
-    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
+    XCEPT_DECLARE(xoap::exception::Exception,
+      sentinelException, errorMsg);
+    _sharedResources->moveToFailedState( sentinelException );
+    throw sentinelException;
   }
   catch (xcept::Exception &e) {
-    LOG4CPLUS_FATAL( getApplicationLogger(),
-      errorMsg << xcept::stdformat_exception_history(e));
-
-    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
-
-    XCEPT_RETHROW(xoap::exception::Exception, errorMsg, e);
+    XCEPT_DECLARE_NESTED(xoap::exception::Exception,
+      sentinelException, errorMsg, e);
+    _sharedResources->moveToFailedState( sentinelException );
+    throw sentinelException;
   }
   catch (std::exception& e) {
     errorMsg += e.what();
-    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
-
-    _sharedResources->moveToFailedState( errorMsg );
-
-    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
+    XCEPT_DECLARE(xoap::exception::Exception,
+      sentinelException, errorMsg);
+    _sharedResources->moveToFailedState( sentinelException );
+    throw sentinelException;
   }
   catch (...) {
     errorMsg += "Unknown exception";
-
-    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
-
-    _sharedResources->moveToFailedState( errorMsg );
-
-    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
+    XCEPT_DECLARE(xoap::exception::Exception,
+      sentinelException, errorMsg);
+    _sharedResources->moveToFailedState( sentinelException );
+    throw sentinelException;
   }
 
   return returnMsg;
@@ -754,7 +752,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
   // Register consumer with InitMsgCollection:
   bool reg_ok =
     _sharedResources->_initMsgCollection->registerConsumer( cid,
-                                                            reginfo->selHLTOut() );
+                                                            reginfo->outputModuleLabel() );
   if( !reg_ok )
     {
       writeNotReady( out );

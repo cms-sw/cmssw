@@ -65,10 +65,6 @@ void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituen
   ecalSelectiveReadout->setTriggerMap(map);
 }
 
-void EcalSelectiveReadoutSuppressor::setElecMap(const EcalElectronicsMapping * map){
-  ecalSelectiveReadout->setElecMap(map);
-}
-
 
 void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeometry) 
 {
@@ -216,9 +212,11 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 					 EEDigiCollection & endcapDigis){
   EBDigiCollection selectedBarrelDigis;
   EEDigiCollection selectedEndcapDigis;
+  EBSrFlagCollection ebSrFlags;
+  EESrFlagCollection eeSrFlags;
   
   run(eventSetup, trigPrims, barrelDigis, endcapDigis,
-      &selectedBarrelDigis, &selectedEndcapDigis, 0, 0);
+      selectedBarrelDigis, selectedEndcapDigis, ebSrFlags, eeSrFlags);
   
 //replaces the input with the suppressed version
   barrelDigis.swap(selectedBarrelDigis);
@@ -231,10 +229,10 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 				    const EcalTrigPrimDigiCollection & trigPrims,
 				    const EBDigiCollection & barrelDigis,
 				    const EEDigiCollection & endcapDigis,
-				    EBDigiCollection* selectedBarrelDigis,
-				    EEDigiCollection* selectedEndcapDigis,
-				    EBSrFlagCollection* ebSrFlags,
-				    EESrFlagCollection* eeSrFlags){
+				    EBDigiCollection& selectedBarrelDigis,
+				    EEDigiCollection& selectedEndcapDigis,
+				    EBSrFlagCollection& ebSrFlags,
+				    EESrFlagCollection& eeSrFlags){
   if(!trigPrimBypass_){//normal mode
     setTtFlags(trigPrims);
   } else{//debug mode, run w/o TP digis
@@ -242,35 +240,31 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   }
 
   ecalSelectiveReadout->runSelectiveReadout0(ttFlags);  
+  
+  selectedBarrelDigis.reserve(barrelDigis.size()/20);
+  selectedEndcapDigis.reserve(endcapDigis.size()/20);
 
-  if(selectedBarrelDigis){
-    selectedBarrelDigis->reserve(barrelDigis.size()/20);
-    
-    // do barrel first
-    for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
-	digiItr != barrelDigis.end(); ++digiItr){
-      int interestLevel
-	= ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
-      if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
-	selectedBarrelDigis->push_back(digiItr->id(), digiItr->begin());
-      } 
-    }
+  // do barrel first
+  for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
+      digiItr != barrelDigis.end(); ++digiItr){
+    int interestLevel
+      = ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
+    if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
+      selectedBarrelDigis.push_back(digiItr->id(), digiItr->begin());
+    } 
   }
   
   // and endcaps
-  if(selectedEndcapDigis){
-    selectedEndcapDigis->reserve(endcapDigis.size()/20);
-    for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
-	digiItr != endcapDigis.end(); ++digiItr){
-      int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
-      if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
-	selectedEndcapDigis->push_back(digiItr->id(), digiItr->begin());
-      }
+  for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
+      digiItr != endcapDigis.end(); ++digiItr){
+    int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
+    if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
+      selectedEndcapDigis.push_back(digiItr->id(), digiItr->begin());
     }
   }
-
-  if(ebSrFlags) ebSrFlags->reserve(34*72);
-  if(eeSrFlags) eeSrFlags->reserve(624);
+  
+  ebSrFlags.reserve(34*72);
+  eeSrFlags.reserve(624);
   //SR flags:
   for(int iZ = -1; iZ <=1; iZ+=2){ //-1=>EE-, EB-, +1=>EE+, EB+
     //barrel:
@@ -290,7 +284,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	} else{
 	  flag = srFlags[BARREL][interest];
 	}
-	if(ebSrFlags) ebSrFlags->push_back(EBSrFlag(id, flag));
+	ebSrFlags.push_back(EBSrFlag(id, flag));
       }//next iPhi
     } //next barrel iEta
 
@@ -298,7 +292,6 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     EcalScDetId id;
     for(int iX = 1; iX <= 20; ++iX){
       for(int iY = 1; iY <= 20; ++iY){
-
 	if (EcalScDetId::validDetId(iX, iY, iZ))
 	  id = EcalScDetId(iX, iY, iZ);
 	else
@@ -306,16 +299,15 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	
 	EcalSelectiveReadout::towerInterest_t interest
 	  = ecalSelectiveReadout->getSuperCrystalInterest(id);
-	
 	if(interest>=0){//negative no SC at (iX,iY) coordinates
 	  int flag;
 	  if(interest==EcalSelectiveReadout::FORCED_RO){
 	    flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
 	  } else{
-	    flag = srFlags[ENDCAP][interest];
+	    flag = srFlags[BARREL][interest];
 	  }
-	  if(eeSrFlags) eeSrFlags->push_back(EESrFlag(id, flag));
-	} else if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
+	  eeSrFlags.push_back(EESrFlag(id, flag));
+	} else{
 	  cout << __FILE__ << ":" << __LINE__ << ": "
 	       <<  "negative interest in EE for SC "
 	       << id << "\n";

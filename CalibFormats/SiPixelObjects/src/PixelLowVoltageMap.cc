@@ -13,7 +13,6 @@
 #include <ios>
 #include <assert.h>
 #include <stdio.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace pos;
@@ -111,7 +110,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     
     if (!in.good()){
       std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-      throw std::runtime_error("Failed to open file "+filename);
+      assert(0);
     }
     else {
       std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
@@ -119,7 +118,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     
     if (in.eof()){
       std::cout << __LINE__ << "]\t" << mthn << "eof before reading anything!" << std::endl;
-      throw std::runtime_error("Failure when reading file; file seems to be empty: "+filename);
+      ::abort();
     }
 
     
@@ -230,15 +229,15 @@ void PixelLowVoltageMap::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>XDAQ Low Voltage Map</RUN_TYPE>"                                            << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>XDAQ Low Voltage Map</COMMENT_DESCRIPTION>"                      << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 
   *outstream << " <DATA_SET>"                                                                             << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			  << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <PART>"                                                                                << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

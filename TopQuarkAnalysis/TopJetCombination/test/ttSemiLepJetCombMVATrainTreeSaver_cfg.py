@@ -13,7 +13,7 @@ process.MessageLogger.cerr.TtSemiLepJetCombMVATrainer = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
+    '/store/relval/CMSSW_3_3_0_pre4/RelValTTbar/GEN-SIM-RECO/MC_31X_V8-v1/0000/FCC5D1DF-C3A6-DE11-81AA-001D09F28EA3.root'
     )
 )
 ## define maximal number of events to loop over
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V8::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")

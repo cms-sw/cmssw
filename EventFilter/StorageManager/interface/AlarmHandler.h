@@ -1,10 +1,12 @@
-// $Id: AlarmHandler.h,v 1.1 2009/08/20 13:40:03 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.4.2.2 2009/09/25 09:57:42 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef StorageManager_AlarmHandler_h
 #define StorageManager_AlarmHandler_h
 
 #include <string>
+
+#include "boost/thread/mutex.hpp"
 
 #include "xcept/Exception.h"
 #include "xdaq/Application.h"
@@ -17,8 +19,8 @@ namespace stor {
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.1 $
-   * $Date: 2009/08/20 13:40:03 $
+   * $Revision: 1.4.2.2 $
+   * $Date: 2009/09/25 09:57:42 $
    */
 
   class AlarmHandler
@@ -30,6 +32,17 @@ namespace stor {
     
     AlarmHandler() {};
     explicit AlarmHandler(xdaq::Application*);
+
+    virtual ~AlarmHandler() {};
+
+    /**
+      Notifies the sentinel
+    */
+    virtual void notifySentinel
+    (
+      const ALARM_LEVEL,
+      xcept::Exception&
+    );
 
     /**
       Raises a sentinel alarm
@@ -58,6 +71,8 @@ namespace stor {
 
     xdaq::Application* _app;
     xdata::InfoSpace* _alarmInfoSpace;
+
+    mutable boost::mutex _mutex;
 
   };
   

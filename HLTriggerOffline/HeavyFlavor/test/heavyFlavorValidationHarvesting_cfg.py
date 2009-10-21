@@ -16,10 +16,11 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     processingMode = cms.untracked.string('RunsAndLumis'),
-    fileNames = cms.untracked.vstring('file:heavyFlavorValidation.root')
+    fileNames = cms.untracked.vstring('file:/tmp/heavyFlavorValidation.root')
 )
 
-process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
+process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
+process.dqmSaver.dirName = '/tmp/'
 process.load('HLTriggerOffline/HeavyFlavor/heavyFlavorValidationHarvestingSequence_cff')
 
 process.path = cms.Path(process.EDMtoME * process.heavyFlavorValidationHarvestingSequence)

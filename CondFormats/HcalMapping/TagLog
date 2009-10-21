@@ -1,0 +1,24 @@
+** V00-01-03  [Fri Mar  3 21:57:23 2006]
+Wire source map fix
+
+** V00-01-02  [Tue Feb 21 23:01:30 2006]
+Added calibration and some unmapped channels
+
+** V00-01-01  [Tue Feb  7 17:17:03 2006]
+Fiber update
+
+** V00-01-00  [Wed Feb  1 20:36:08 2006]
+HcalMapping no longer in use
+
+** V00-00-03  [Tue Jan 17 19:01:17 2006]
+Update maps for correct HTR slots
+
+** V00-00-02  [Thu Dec 29 22:44:18 2005]
+Update maps for new releases
+
+** V00-00-01  [Mon Nov 14 19:17:45 2005]
+Added Trigger Primitives to the satocrich map
+
+** V00-00-00  [Wed Oct 26 18:08:17 2005]
+Base tag on CMSSW_0_2_0_pre5
+

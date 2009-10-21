@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtGenEvent_h
 #define TopObjects_TtGenEvent_h
 
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
 /**

@@ -23,11 +23,12 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1D.h>
-#include <TDirectory.h>
 
 class SiStripLAProfileBooker : public edm::EDAnalyzer
 {
  public:
+  //typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2;} histofit ;
+  //typedef std::map <unsigned int, histofit*> fitmap;
   
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
   
@@ -48,16 +49,11 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   typedef std::map <unsigned int, MonitorElement*> histomap;
   
   int trackcollsize, trajsize,RunNumber, EventNumber, ClSize, HitCharge, Type, Layer, Wheel, bw_fw, Ext_Int, MonoStereo, ParticleCharge;
-  float sumx, hit_std_dev, barycenter, TanTrackAngle, TanTrackAngleParallel, SignCorrection, MagField, XGlobal, YGlobal, ZGlobal, Momentum, pt, chi2norm, EtaTrack, PhiTrack;
-  int nstrip, eventcounter,size, HitNr, hitcounter, hitcounter_2ndloop, worse_double_hit, better_double_hit, HitPerTrack;
-  int id_detector, TrackCounter, EventCounter;
-  float thick_detector, pitch_detector;
-  uint8_t Amplitudes[100];
+  float sumx, hit_std_dev, barycenter, TanTrackAngle, SignCorrection, MagField, XGlobal, YGlobal, ZGlobal, Momentum, pt, chi2norm, EtaTrack;
+  int nstrip, eventcounter, trajcounter, size, HitNr, hitcounter, hitcounter_2ndloop, worse_double_hit, better_double_hit, HitPerTrack;
   
-  TTree  *HitsTree, *TrackTree, *EventTree;
+  TTree* HitsTree;
   TFile* hFile;
-  
-  TDirectory *Hit_Tree, *Track_Tree, *Event_Tree;
   
   histomap histos;
   histomap summaryhisto;
@@ -66,6 +62,7 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   
   detparmap detmap;
   detparmap summarydetmap;
+  //fitmap summaryfits;
   edm::ParameterSet conf_;
   std::string treename_;
   

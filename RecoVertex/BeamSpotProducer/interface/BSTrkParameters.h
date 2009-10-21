@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSTrkParameters.h,v 1.2 2007/03/29 16:33:36 yumiceva Exp $
+ version $Id: BSTrkParameters.h,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -45,8 +45,7 @@ class BSTrkParameters {
 		fpt = pt;
 		fd0phi_d0   = d0phi_d0;
 		fd0phi_chi2 = d0phi_chi2;
-		fvx = 0.;
-		fvy = 0.;
+		
 	};
 
     //
@@ -58,10 +57,7 @@ class BSTrkParameters {
 	double pt() const { return fpt; }
 	double d0phi_chi2() const { return fd0phi_chi2; }
 	double d0phi_d0() const { return fd0phi_d0; }
-	double vx() const { return fvx; }
-	double vy() const { return fvy; }
-	void setVx( double vx ) { fvx = vx; }
-	void setVy( double vy ) { fvy = vy; }
+	
 	
   private:
 	double fz0;
@@ -72,8 +68,7 @@ class BSTrkParameters {
 	double fpt;
 	double fd0phi_chi2;
 	double fd0phi_d0;
-	double fvx;
-	double fvy;
+	
 };
 
 #endif

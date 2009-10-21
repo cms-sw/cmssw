@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/18 13:08:07 $
- *  $Revision: 1.9.10.1 $
+ *  $Date: 2008/10/02 09:56:40 $
+ *  $Revision: 1.8.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -105,18 +105,12 @@ void DTCCBConfigHandler::getNewObjects() {
   std::cout << "last configuration key already copied for run: "
             << last << std::endl;
 
-  int lastKey = 0;
   if ( last == 0 ) {
     DTCCBConfig* dummyConf = new DTCCBConfig( dataTag );
     dummyConf->setStamp( 0 );
     dummyConf->setFullKey( 0 );
     cond::Time_t snc = 1;
     m_to_transfer.push_back( std::make_pair( dummyConf, snc ) );
-  }
-  else {
-    Ref payload = lastPayload();
-    int lastKey = payload->fullKey();
-    std::cout << "last key: " << lastKey << std::endl;
   }
 
   //to access the information on last successful log entry for this tag:
@@ -192,7 +186,7 @@ void DTCCBConfigHandler::getNewObjects() {
     int cfgId = static_cast<int>( row["CCBCSET"].data<long long>() );
     if ( static_cast<unsigned>( runId ) <= lastRun ) continue;
     std::cout << "schedule config key copy for run "
-              << runId << " ---> config " << cfgId << std::endl;
+              << runId << std::endl;
     if ( runMap.find( runId ) == runMap.end() )
          runMap.insert( std::pair<int,int>( runId, cfgId ) );
     if ( cfgMap.find( cfgId ) == cfgMap.end() )
@@ -367,8 +361,6 @@ void DTCCBConfigHandler::getNewObjects() {
     // get full configuration
     int run = runEntry.first;
     int cfg = runEntry.second;
-    if ( cfg == lastKey ) continue;
-    lastKey = cfg;
     std::cout << "retrieve configuration bricks for run " << run
               << " ---> config " << cfg << std::endl;
     DTCCBConfig* fullConf = new DTCCBConfig( dataTag );

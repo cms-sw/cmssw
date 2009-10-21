@@ -164,8 +164,7 @@ CSCTMBHeader2006::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi)
   bits.MPC_Muon0_SyncErr_ = digi.getSyncErr();
   bits.MPC_Muon0_bx_ = digi.getBX();
   bits.MPC_Muon0_bc0_ = digi.getBX0();
-  bits.MPC_Muon0_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon0_cscid_bit4 = (digi.getCSCID()>>3) & 0x1;
+  bits.MPC_Muon0_cscid_low = digi.getCSCID();
 }
 
 void
@@ -183,8 +182,7 @@ CSCTMBHeader2006::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
   bits.MPC_Muon1_SyncErr_ = digi.getSyncErr();
   bits.MPC_Muon1_bx_ = digi.getBX();
   bits.MPC_Muon1_bc0_ = digi.getBX0();
-  bits.MPC_Muon1_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon0_cscid_bit4 = (digi.getCSCID()>>3) & 0x1;
+  bits.MPC_Muon1_cscid_low = digi.getCSCID();
 }
 
 

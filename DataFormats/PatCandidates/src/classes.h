@@ -398,6 +398,17 @@ namespace {
   pat::UserHolder<math::XYZPoint>	         p_udh_p3d;
   pat::UserHolder<math::XYZTLorentzVector>	 p_udh_lv;
   pat::UserHolder<math::PtEtaPhiMLorentzVector>	 p_udh_plv;
+  pat::UserHolder<AlgebraicSymMatrix22>          p_udh_smat_22;
+  pat::UserHolder<AlgebraicSymMatrix33>          p_udh_smat_33;
+  pat::UserHolder<AlgebraicSymMatrix44>          p_udh_smat_44;
+  pat::UserHolder<AlgebraicSymMatrix55>          p_udh_smat_55;
+  pat::UserHolder<AlgebraicVector2>              p_udh_vec_2;
+  pat::UserHolder<AlgebraicVector3>              p_udh_vec_3;
+  pat::UserHolder<AlgebraicVector4>              p_udh_vec_4;
+  pat::UserHolder<AlgebraicVector5>              p_udh_vec_5;
+  pat::UserHolder<reco::Track>                   p_udh_tk;
+  pat::UserHolder<reco::Vertex>                  p_udh_vtx;
+
 
   edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >	 w_vm_p_lutr;
 

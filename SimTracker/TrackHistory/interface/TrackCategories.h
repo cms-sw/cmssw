@@ -15,8 +15,6 @@ public:
         Fake = 0,
         Reconstructed = Fake,
         Bad,
-        BadInnerHits,
-        SharedInnerHits,        
         SignalEvent,
         Bottom,
         Charm,
@@ -26,11 +24,7 @@ public:
         TauDecay,
         KsDecay,
         LambdaDecay,
-        JpsiDecay,
-        XiDecay,
-        OmegaDecay,
-        SigmaPlusDecay,
-        SigmaMinusDecay,
+        Jpsi,
         LongLivedDecay,
         Conversion,
         Interaction,
@@ -38,6 +32,8 @@ public:
         SecondaryVertex,
         TertiaryVertex,
         TierciaryVertex = TertiaryVertex,
+        BadInnerHits,
+        SharedInnerHits,
         Unknown
     };
 

@@ -80,6 +80,7 @@ HLT_PhysicsNoMuon
 HLT_PixelFEDSize
 HLT_HFThreshold
 HLT_GlobalRunHPDNoise
+HLT_TechTrigHCALNoise
 HLT_L1_BPTX
 HLT_L1_BSC
 HLT_L1_HFtech

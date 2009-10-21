@@ -59,6 +59,10 @@ namespace evf
     
     // find RCMS state listener
     void findRcmsStateListener();
+
+    // disable rcms state notification
+    void disableRcmsStateNotification(){doStateNotification_=false;}
+
     
     // report current state
     xdata::String* stateName() { return &stateName_; }
@@ -160,6 +164,7 @@ namespace evf
     xdata::InfoSpace*                appInfoSpace_;
     std::string                      appNameAndInstance_;
     xdata::String                    stateName_;
+    bool                             doStateNotification_;
     
     // finite state machine
     toolbox::fsm::FiniteStateMachine fsm_;

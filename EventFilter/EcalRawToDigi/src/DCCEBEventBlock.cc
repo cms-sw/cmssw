@@ -130,9 +130,6 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   tzs_                 = ((*data_)>>H_TZS_B)           & B_MASK;
   srChStatus_          = ((*data_)>>H_SRCHSTATUS_B)    & H_CHSTATUS_MASK;
   
-
-  bool ignoreSR(true);
-
   // getting TCC channel status bits
   tccChStatus_[0] = ((*data_)>>H_TCC1CHSTATUS_B)   & H_CHSTATUS_MASK; 
   tccChStatus_[1] = ((*data_)>>H_TCC2CHSTATUS_B)   & H_CHSTATUS_MASK;
@@ -168,14 +165,8 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
       STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
-      if ( STATUS == BLOCK_UNPACKED ){ ignoreSR = false; }
     }
-    
   }
-
-
-
-
 
   // See number of FE channels that we need according to the trigger type //
   // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE			
@@ -231,19 +222,13 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
           if( fov_ > 0){  
             bool applyZS(true);
-            
-              if( !ignoreSR && chStatus != CH_FORCEDZS1
-                && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
+            if( chStatus != CH_FORCEDZS1
+              && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
           
-                 STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
-                
-              // If there is an action to suppress SR channel the associated channel status should be updated 
-              // so we can remove this piece of code
-              // if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
-              //
-	      //  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
-              //}
-            
+            if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
+
+	        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
+            }
           }
           else{
 

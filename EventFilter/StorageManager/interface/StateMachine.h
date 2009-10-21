@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+// $Id: StateMachine.h,v 1.9 2009/09/29 07:54:45 mommsen Exp $
 /// @file: StateMachine.h 
 
 #ifndef StorageManager_StateMachine_h
@@ -76,9 +76,9 @@ namespace stor
   /**
      Abstract base for state classes
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
 
   class Operations
@@ -94,7 +94,7 @@ namespace stor
 
     std::string stateName() const;
 
-    void moveToFailedState( const std::string& reason ) const;
+    void moveToFailedState( xcept::Exception& exception ) const;
 
   protected:
 
@@ -104,12 +104,12 @@ namespace stor
 
     virtual std::string do_stateName() const = 0;
 
-    virtual void do_moveToFailedState( const std::string& reason ) const = 0;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const = 0;
 
-    void safeEntryAction( Notifier* );
+    void safeEntryAction();
     virtual void do_entryActionWork() = 0;
 
-    void safeExitAction( Notifier* );
+    void safeExitAction();
     virtual void do_exitActionWork() = 0; 
 
   };
@@ -118,9 +118,9 @@ namespace stor
   /**
      State machine class
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
 
   class StateMachine: public bsc::state_machine<StateMachine,Normal>
@@ -165,9 +165,9 @@ namespace stor
   /**
      Failed state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Failed: public bsc::state<Failed,StateMachine>, public Operations
   {
@@ -182,16 +182,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Normal state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Normal: public bsc::state<Normal,StateMachine,Halted>, public Operations
   {
@@ -209,16 +209,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Halted state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Halted: public bsc::state<Halted,Normal>, public Operations
   {
@@ -236,16 +236,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Ready state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Ready: public bsc::state<Ready,Normal,Stopped>, public Operations
   {
@@ -265,16 +265,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Stopped state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Stopped: public bsc::state<Stopped,Ready>, public Operations
   {
@@ -295,16 +295,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Enabled state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Enabled: public bsc::state<Enabled,Ready,Starting>, public Operations
   {
@@ -327,16 +327,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Starting state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Starting: public bsc::state<Starting,Enabled>, public Operations
   {
@@ -361,7 +361,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
     bool workerThreadsConfigured() const;
 
@@ -370,9 +370,9 @@ namespace stor
   /**
      Stopping state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Stopping: public bsc::state<Stopping,Enabled>, public Operations
   {
@@ -393,7 +393,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
     bool destructionIsDone() const;
 
@@ -402,9 +402,9 @@ namespace stor
   /**
      Halting state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Halting: public bsc::state<Halting,Enabled>, public Operations
   {
@@ -425,7 +425,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
     bool destructionIsDone() const;
 
@@ -434,9 +434,9 @@ namespace stor
   /**
      Running state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Running: public bsc::state<Running,Enabled,Processing>, public Operations
   {
@@ -461,16 +461,16 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      Processing state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class Processing: public bsc::state<Processing,Running>, public Operations
   {
@@ -493,16 +493,16 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
   };
 
   /**
      DrainingQueues state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class DrainingQueues: public bsc::state<DrainingQueues,Running>, public Operations
   {
@@ -523,7 +523,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
     bool allQueuesAndWorkersAreEmpty() const;
     void processStaleFragments() const;
@@ -532,9 +532,9 @@ namespace stor
   /**
      FinishingDQM state
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:45 $
   */
   class FinishingDQM: public bsc::state<FinishingDQM,Running>, public Operations
   {
@@ -550,7 +550,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState( const std::string& reason ) const;
+    virtual void do_moveToFailedState( xcept::Exception& exception ) const;
 
     bool endOfRunProcessingIsDone() const;
 

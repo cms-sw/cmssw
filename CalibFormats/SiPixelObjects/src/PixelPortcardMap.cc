@@ -11,7 +11,6 @@
 
 #include <sstream>
 #include <cassert>
-#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -66,7 +65,6 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 	    }
 	}
     }//end for
-  /*
   for(unsigned int n=0; n<colNames.size(); n++)
     {
       if(colM.find(colNames[n]) == colM.end())
@@ -76,7 +74,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 	  assert(0);
 	}
     }
-  */
+  
 	
 	
   std::string portcardname;
@@ -91,12 +89,12 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     modulename   = tableMat[r][colM["PANEL_NAME"]];
     aohstring    = tableMat[r][colM["AOH_CHAN"]];
     tbmChannel   = tableMat[r][colM["TBM_MODE"]] ;
-//     cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
-// 	 << "Portcardname: " << portcardname
-// 	 << "\tmodulename: "   << modulename
-// 	 << "\taohstring: "    << aohstring
-// 	 << "\ttbmChannel:"   << tbmChannel
-// 	 << endl ;
+//    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
+//      << "Portcardname: " << portcardname
+//      << "\tmodulename: "   << modulename
+//      << "\taohstring: "    << aohstring
+//      << "\ttbmChannel:"   << tbmChannel
+//      << endl ;
     //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
     aoh = (((unsigned int)atoi(aohstring.c_str())));
     //std::cout<<aoh<<std::endl;
@@ -128,7 +126,7 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
 
   if (!in.good()){
     std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename <<std::endl;
-    throw std::runtime_error("Failed to open file "+filename);
+    assert(0);
   }
   else {
     std::cout << __LINE__ << "]\t" << mthn << "Reading from: "   << filename <<std::endl;
@@ -306,22 +304,19 @@ std::set< std::string > PixelPortcardMap::portcards(const PixelDetectorConfig* d
 
 	if(detconfig != 0){
 	
-	  //still done done in an awkward way, but this avoids an
-          //double nested loop that we had in the first implementation
 	  const std::vector <PixelModuleName> moduleList=detconfig->getModuleList();
-	  std::set< std::string > moduleNames;
+	  
 	  for(std::vector <PixelModuleName>::const_iterator it=moduleList.begin(), it_end=moduleList.end(); it!=it_end; ++it){
-	    moduleNames.insert(it->modulename());
-	  }
 
-	  for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
-	    {
-	      if ( moduleNames.find(map_itr->first.modulename()) != moduleNames.end() ){
-		  returnThis.insert(map_itr->second.first);
-		}
-	    }
+	    for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	      {
+		if ( map_itr->first.modulename() == it->modulename() )
+		  {
+		    returnThis.insert(map_itr->second.first);
+		  }
+	      }
 	
-	 
+	  }
 	  
 	 
 	}
@@ -363,7 +358,9 @@ void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Port Card Map</RUN_TYPE>" 		                                     << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Pixel Port Card Map</COMMENT_DESCRIPTION>"      	             << std::endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << std::endl ;
   *outstream << "  </RUN>"								         	     << std::endl ;
   *outstream << " </HEADER>"								         	     << std::endl ;
   *outstream << ""										 	     << std::endl ;
@@ -372,9 +369,7 @@ void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << std::endl ;
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << std::endl ;
   *outstream << "  </PART>"                                                                                  << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << std::endl ;
 }
 
 //=============================================================================================

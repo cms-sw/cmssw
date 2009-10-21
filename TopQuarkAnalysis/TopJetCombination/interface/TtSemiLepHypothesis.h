@@ -41,7 +41,8 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   /// reset candidate pointers before hypo build process
   void resetCandidates();
-  /// helper function to contruct the proper correction level string for corresponding quarkType, for unknown quarkTypes an emty string is returned 
+  /// helper function to construct the proper correction level string for corresponding quarkType,
+  /// for unknown quarkTypes an empty string is returned
   std::string jetCorrectionLevel(const std::string& quarkType);
   /// use one object in a collection to set a ShallowClonePtrCandidate
   template <typename C>

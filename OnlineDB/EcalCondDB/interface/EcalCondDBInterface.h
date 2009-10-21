@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.19 2009/06/24 10:26:40 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.17 2008/11/27 10:26:23 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -187,13 +187,6 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
   /**
-   *  Insert a monitoring run object.  Nothing is committed in the event of an exception
-   */
-  void insertMonRunIOV(MonRunIOV* iov)
-    throw(std::runtime_error);
-
-
-  /**
    *  Return a monitoring run object
    */
   MonRunIOV fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t monrun)
@@ -271,8 +264,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag) throw(std::runtime_error);
   LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,int min_run, int max_run) throw(std::runtime_error);
-
-  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,uint64_t min_time, int min_run,int end_run) throw(std::runtime_error);
+  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,uint64_t min_time, int end_run) throw(std::runtime_error);
   LMFRunList fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfruntag, int max_run, int n_runs) throw(std::runtime_error);
 
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag) throw(std::runtime_error);

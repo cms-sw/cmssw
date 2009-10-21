@@ -7,15 +7,13 @@ from PhysicsTools.PatAlgos.tools.tauTools import *
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-def adaptPFMuons(process,module):
-
-    
+def adaptPFMuons(process,module):    
     print "Adapting PF Muons "
     print "***************** "
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral"),
@@ -45,7 +43,7 @@ def adaptPFElectrons(process,module):
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral"),
@@ -70,6 +68,9 @@ def adaptPFElectrons(process,module):
     print module.isoDeposits
     print 
     
+    print "removing traditional isolation"
+    process.patDefaultSequence.remove(getattr(process, 'patElectronIsolation'))
+
     
 
 
@@ -95,21 +96,23 @@ def adaptPFPhotons(process,module):
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
 
-def adaptPFTaus(process,tauType = 'fixedConePFTau' ):
-# MICHAL: tauType can be changed only to shrinkig cone one, otherwise request is igonred
+def adaptPFTaus(process,tauType = 'shrinkingConePFTau' ):
+# MICHAL: tauType can be changed only to fixed cone one, otherwise request is igonred
     oldTaus = process.allLayer1Taus.tauSource
     process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
 
-    if tauType == 'shrinkingConePFTau': 
-        print "PF2PAT: tauType changed from default \'fixedConePFTau\' to \'shrinkingConePFTau\'"
-        process.allLayer0TausDiscrimination.PFTauProducer = cms.InputTag(tauType+"Producer")
+    if tauType == 'fixedConePFTau': 
+        print "PF2PAT: tauType changed from default \'shrinkingConePFTau\' to \'fixedConePFTau\'"
+        process.allLayer0TausDiscriminationByLeadTrackPt.PFTauProducer = cms.InputTag(tauType+"Producer") 
+        process.allLayer0TausDiscriminationByIsolation.PFTauProducer = cms.InputTag(tauType+"Producer")
         process.allLayer0Taus.src = cms.InputTag(tauType+"Producer")
-        process.pfTauSequence.replace(process.fixedConePFTauProducer,
-                                      process.shrinkingConePFTauProducer)
+        process.pfTauSequence.replace(process.shrinkingConePFTauProducer,
+                                      process.fixedConePFTauProducer)
+                                      
         
     if (tauType != 'shrinkingConePFTau' and tauType != 'fixedConePFTau'):
-        print "PF2PAT: TauType \'"+tauType+"\' is not supported. Default \'fixedConePFTau\' is used instead."
-        tauType = 'fixedConePFTau'
+        print "PF2PAT: TauType \'"+tauType+"\' is not supported. Default \'shrinkingConePFTau\' is used instead."
+        tauType = 'shrinkingConePFTau'
         
     redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
                             process.allLayer1Taus.tauSource,
@@ -145,7 +148,8 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    process.patDefaultSequence.remove(process.patMETCorrections)
+    process.patDefaultSequence.remove(getattr(process, 'makeLayer1METs'))
+
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
@@ -153,7 +157,7 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         input,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=None, 
+                        jetCorrLabel=('IC5','PF'), 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
 
@@ -194,8 +198,8 @@ def usePF2PAT(process,runPF2PAT=True):
     switchToPFJets( process, cms.InputTag('pfNoTau') )
     
     # Taus
-    adaptPFTaus( process ) #default (i.e. fixedConePFTau)
-    #adaptPFTaus( process, tauType='shrinkingConePFTau' )
+    adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
+    #adaptPFTaus( process, tauType='fixedConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))

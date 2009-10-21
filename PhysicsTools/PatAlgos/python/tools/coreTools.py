@@ -16,15 +16,22 @@ def restrictInputToAOD(process,
     ------------------------------------------------------------------    
     """
     for obj in range(len(names)):
-        print "-----------------------------------------------------------------------------"
-        print "WARNING: the following additional information can only be used on RECO format"
+        print "---------------------------------------------------------------------"
+        print "WARNING: the following additional information can only be used on "
+        print "         RECO format:"
+        if( names[obj] == 'Photons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Photons"
+        if( names[obj] == 'Electrons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Electrons"            
+        if( names[obj] == 'Muons' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Muons"            
+        if( names[obj] == 'Taus' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for Taus"            
         if( names[obj] == 'Jets' or names[obj] == 'All' ):
-            print "          * jetID"
-            ## get allLayer1Jets module
-            jetProducer = getattr(process, 'allLayer1Jets')
-            jetProducer.addJetID = False
-            jetProducer.jetID = cms.PSet()
-    print "-----------------------------------------------------------------------------"
+            print "          * nothing needs to be done for Jets"            
+        if( names[obj] == 'METs' or names[obj] == 'All' ):
+            print "          * nothing needs to be done for METs"            
+    print "---------------------------------------------------------------------"
     
 
 def removeMCMatching(process,
@@ -89,34 +96,42 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName):
 
 
 def removeAllPATObjectsBut(process,
-                           names
+                           names,
+                           outputInProcess=True
                            ):
     """
     ------------------------------------------------------------------
     remove all PAT objects from the default sequence but a specific
     one:
 
-    process : process
-    name    : list of collection names; supported are 'Photons',
-              'Electrons', 'Muons', 'Taus', 'Jets', 'METs'
+    process         : process
+    name            : list of collection names; supported are
+                      'Photons', 'Electrons', 'Muons', 'Taus',
+                      'Jets', 'METs'
+    outputInProcess : indicate whether there is an output module
+                      specified for the process (default is True)            
     ------------------------------------------------------------------    
     """
     removeTheseObjectCollections = ['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs']
     for obj in range(len(names)):
         removeTheseObjectCollections.remove(names[obj])
-    removeSpecificPATObjects(process, removeTheseObjectCollections)
+    removeSpecificPATObjects(process, removeTheseObjectCollections, outputInProcess)
 
 
 def removeSpecificPATObjects(process,
-                            names
+                             names,
+                             outputInProcess=True
                             ):
     """
     ------------------------------------------------------------------
     remove a specific PAT object from the default sequence:
 
-    process : process
-    names   : listr of collection names; supported are 'Photons',
-              'Electrons', 'Muons', 'Taus', 'Jets', 'METs'
+    process         : process
+    names           : listr of collection names; supported are
+                      'Photons', 'Electrons', 'Muons', 'Taus', 'Jets',
+                      'METs'
+    outputInProcess : indicate whether there is an output module
+                      specified for the process (default is True)
     ------------------------------------------------------------------    
     """
     ## remove pre object production steps from the default sequence
@@ -146,7 +161,7 @@ def removeSpecificPATObjects(process,
             process.patDefaultSequence.remove(getattr(process, 'patMETCorrections'))                
         ## remove cleaning for the moment; in principle only the removed object
         ## could be taken out of the checkOverlaps PSet
-        removeCleaning(process)
+        removeCleaning(process, outputInProcess)
         
         ## remove object production steps from the default sequence    
         if( names[obj] == 'METs' ):
@@ -174,12 +189,14 @@ def removeSpecificPATObjects(process,
             process.cleanLayer1Summary.candidates.remove( cms.InputTag('cleanLayer1'+names[obj]) )
     
 
-def removeCleaning(process):
+def removeCleaning(process, outputInProcess=True):
     """
     ------------------------------------------------------------------
     remove PAT cleaning from the default sequence:
 
-    process : process
+    process         : process
+    outputInOricess : indicate whether there is an output module
+                      specified for the process (default is True)
     ------------------------------------------------------------------    
     """
     ## adapt single object counters
@@ -191,9 +208,10 @@ def removeCleaning(process):
     countLept.muonSource = countLept.muonSource.value().replace('cleanLayer1','selectedLayer1')
     countLept.tauSource = countLept.tauSource.value().replace('cleanLayer1','selectedLayer1')
     process.patDefaultSequence.remove(process.cleanLayer1Objects)
-    ## add selected layer1 objects to the pat output
-    from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoLayer1Cleaning
-    process.out.outputCommands = patEventContentNoLayer1Cleaning
+    if ( outputInProcess ):
+        ## add selected layer1 objects to the pat output
+        from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoLayer1Cleaning
+        process.out.outputCommands = patEventContentNoLayer1Cleaning
 
 
 def addCleaning(process):

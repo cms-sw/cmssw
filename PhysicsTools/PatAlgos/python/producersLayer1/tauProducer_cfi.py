@@ -31,12 +31,23 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     embedLeadTrack       = cms.bool(False), ## embed in AOD externally stored leading track
     embedSignalTracks    = cms.bool(False), ## embed in AOD externally stored signal tracks
     embedIsolationTracks = cms.bool(False), ## embed in AOD externally stored isolation tracks
+                           
+    # embed IsoDeposits
+    isoDeposits = cms.PSet(
+        pfAllParticles = cms.InputTag("tauIsoDepositPFCandidates"),
+        pfChargedHadron = cms.InputTag("tauIsoDepositPFChargedHadrons"),
+        pfNeutralHadron = cms.InputTag("tauIsoDepositPFNeutralHadrons"),
+        pfGamma = cms.InputTag("tauIsoDepositPFGammas")
+    ),
 
-    # isolation values
+    # user defined isolation variables the variables defined here will be accessible
+    # via pat::Tau::userIsolation(IsolationKeys key) with the key as defined in
+    # DataFormats/PatCandidates/interface/Isolation.h
+    #
     # (set Pt thresholds for PFChargedHadrons (PFGammas) to 1.0 (1.5) GeV,
-    #  matching the thresholds used when computing the tau iso. discriminators
-    #  in RecoTauTag/RecoTau/python/PFRecoTauDiscriminationByIsolation_cfi.py)        
-    isolation = cms.PSet(
+    # matching the thresholds used when computing the tau iso. discriminators
+    # in RecoTauTag/RecoTau/python/PFRecoTauDiscriminationByIsolation_cfi.py)        
+    userIsolation = cms.PSet(
         pfAllParticles = cms.PSet(
             src = cms.InputTag("tauIsoDepositPFCandidates"),
             deltaR = cms.double(0.5),
@@ -57,13 +68,6 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
             deltaR = cms.double(0.5),
             threshold = cms.double(0.)
         )
-    ),                           
-    # embed IsoDeposits
-    isoDeposits = cms.PSet(
-        pfAllParticles = cms.InputTag("tauIsoDepositPFCandidates"),
-        pfChargedHadron = cms.InputTag("tauIsoDepositPFChargedHadrons"),
-        pfNeutralHadron = cms.InputTag("tauIsoDepositPFNeutralHadrons"),
-        pfGamma = cms.InputTag("tauIsoDepositPFGammas")
     ),
 
     # tau ID (for efficiency studies)

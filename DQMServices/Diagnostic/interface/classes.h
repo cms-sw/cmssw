@@ -10,9 +10,11 @@
 
 
 namespace {
-  CondCachedIter<HDQMSummary> dummy13;
+  struct dictionary {
+    CondCachedIter<HDQMSummary> dummy13;
 
-//   HDQMInspector dummy1;
+//  HDQMInspector dummy1;
 //  HDQMGraphAnalysis dummy2;
+  };
 }
 

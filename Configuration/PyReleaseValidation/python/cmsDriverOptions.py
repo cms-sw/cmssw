@@ -158,9 +158,14 @@ expertSettings.add_option("--datamix",
 expertSettings.add_option("--gflash",
                   help="Run the FULL SIM using the GFlash parameterization.",
                   action="store_true",
-                  default=False,
+                  default=defaultOptions.gflash,
                   dest="gflash")
 
+expertSettings.add_option("--himix",
+                 help="Run the Heavy Ions signal mixing.",
+                 action="store_true",
+                 default=defaultOptions.himix,
+                 dest="himix")
                                                     
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
@@ -385,5 +390,11 @@ if not options.isData and not options.isMC:
     else:
         print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
     
+# force the HeavyIons scenario is the himix option is chosen
+if options.himix and not options.scenario=='HeavyIons':
+   print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
+   options.scenario='HeavyIons'
+
+
 options.outfile_name = options.dirout+options.fileout
 
