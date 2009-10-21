@@ -123,11 +123,12 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       ProblemsVsLB_HF=m_dbe->bookProfile("TotalHotCells_HF_vs_LS",
 					 "Total Number of Hot HF Cells vs lumi section",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_ZDC=m_dbe->bookProfile("TotalHotCells_ZDC_vs_LS",
-					  "Total Number of Hot ZDC Cells vs lumi section",
-					  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-
+      ProblemsVsLB->getTH2F()->SetMarkerStyle(20);
+      ProblemsVsLB_HB->getTH2F()->SetMarkerStyle(20);
+      ProblemsVsLB_HE->getTH2F()->SetMarkerStyle(20);
+      ProblemsVsLB_HO->getTH2F()->SetMarkerStyle(20);
+      ProblemsVsLB_HF->getTH2F()->SetMarkerStyle(20);
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
@@ -1241,8 +1242,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
   ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
   ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
-  ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
-  ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
+  ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
 
   /*
     // not yet sure we want this behavior
