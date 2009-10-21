@@ -10,7 +10,8 @@ magfield = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cms.xml', 
         'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
-        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml'),
+        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml',
+        'Geometry/CMSCommonData/data/materials.xml'),
     rootNodeName = cms.string('cmsMagneticField:MAGF')
 )
 
