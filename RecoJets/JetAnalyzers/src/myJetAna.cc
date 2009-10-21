@@ -50,6 +50,7 @@
 // #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 // #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
