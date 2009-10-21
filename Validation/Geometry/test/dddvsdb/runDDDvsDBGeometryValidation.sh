@@ -14,9 +14,20 @@ else
 endif
 
 cmsenv
+
+echo "Check out and compile the needed packages"
+addpkg Geometry/CaloEventSetup
+addpkg DetectorDescription/Schema
+addpkg GeometryReaders/XMLIdealGeometryESSource
+cd $CMSSW_BASE/src
+scramv1 build
+cd -
+echo "Finish the setup of release working area"
+
 mkdir workArea
 cd workArea
 set myDir=`pwd`
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/dbconfig.xml .
 source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >>  GeometryValidation.log
@@ -288,7 +299,6 @@ echo "End RPC RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start CALO RECO geometry validation" | tee -a GeometryValidation.log
 
-addpkg Geometry/CaloEventSetup
 cp myfile.db $CMSSW_BASE/src/Geometry/CaloEventSetup/test/
 cd $CMSSW_BASE/src/Geometry/CaloEventSetup/
 cd data
@@ -335,14 +345,12 @@ endif
                                                                                               
 echo "End CALO RECO geometry validation" | tee -a GeometryValidation.log
 
-#echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
+echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 
-#addpkg DetectorDescription/Schema
-#addpkg GeometryReaders/XMLIdealGeometryESSource
-#cd $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/
-#source runXMLBigFileToDBAndBackValidation.sh ${geometry} > GeometryXMLValidation.log
-#cd ${myDir}
-#less $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/GeometryXMLValidation.log | tee -a GeometryValidation.log
-#rm -f $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/GeometryXMLValidation.log
+cd $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/
+source runXMLBigFileToDBAndBackValidation.sh ${geometry} > GeometryXMLValidation.log
+cd ${myDir}
+less $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/GeometryXMLValidation.log | tee -a GeometryValidation.log
+rm -f $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/GeometryXMLValidation.log
 
-#echo "End Simulation geometry validation" | tee -a GeometryValidation.log
+echo "End Simulation geometry validation" | tee -a GeometryValidation.log
