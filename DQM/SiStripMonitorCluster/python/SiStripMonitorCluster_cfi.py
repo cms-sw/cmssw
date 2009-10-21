@@ -60,9 +60,9 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         moduleswitchon = cms.bool(False)
     ),                                
     TH1ModuleLocalOccupancy = cms.PSet(
-        Nbinx          = cms.int32(20),
-        xmin           = cms.double(-0.5),
-        xmax           = cms.double(0.95),
+        Nbinx          = cms.int32(51),
+        xmin           = cms.double(-0.01),
+        xmax           = cms.double(1.01),
         layerswitchon  = cms.bool(True),
         moduleswitchon = cms.bool(True)
     ),
