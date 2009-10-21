@@ -108,8 +108,8 @@ void ESDaqInfoTask::beginJob(const EventSetup& c){
 
       dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
       sprintf(histo, "DAQError");
-      meESDaqFraction_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_-0.5, ESFedRangeMax_+0.5);
-      meESDaqFraction_->setAxisTitle("FedID", 1);
+      meESDaqError_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_-0.5, ESFedRangeMax_+0.5);
+      meESDaqError_->setAxisTitle("FedID", 1);
 
    }
 
