@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/20 23:12:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/21 01:06:23 $
+ *  $Revision: 1.5 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -141,7 +141,7 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   if (rawTriggerEvent.failedToGet()) 
     {LogError("HLTMuonVal") << "No RAW trigger summary found"; return;}
 
-  iEvent.getByLabel("muons",               genParticles );
+  iEvent.getByLabel("muons",               recMuons     );
   iEvent.getByLabel("genParticles",        genParticles );
   iEvent.getByLabel("hltL1extraParticles", handleCandsL1);
   iEvent.getByLabel("hltL2MuonCandidates", handleCandsL2);
