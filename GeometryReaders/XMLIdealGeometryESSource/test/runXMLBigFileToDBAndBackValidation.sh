@@ -38,7 +38,7 @@ echo "        and xml files in: ${geomxml}"
 set whst=`(grep ".xml" $geomxml | sed "{s/'//g}" | sed '{s/,//g}' | sed '{s/ //g}' | sed '{s/\t//g}' | sed '{s/geomXMLFiles=cms.vstring(//g}'  | sed '{s/+cms.vstring(//g}' | sed '{s/)//g}' | grep -v "#" )`
 #echo $whst
 mkdir workarea
-#rm dcorig.out
+#rm -f dcorig.out
 touch dcorig.out
 #set the schema path
 if ( -e "${CMSSW_BASE}/src/DetectorDescription/Schema/DDLSchema.xsd" ) then
@@ -116,13 +116,13 @@ mkdir xml
 cd db
 # STEP 3: prepare database, prepare XML file to be loaded in DB.
 # The rm lines can be removed for debugging to check what is going on.
-#rm myfile.db
-#rm trXMLFromDB.out
-#rm twLoadDBWithXML.out
-#rm *.log.xml
-#rm *.log
-#rm dumpBDB
-#rm dumpSpecsdumpBDB
+#rm -f myfile.db
+#rm -f trXMLFromDB.out
+#rm -f twLoadDBWithXML.out
+#rm -f *.log.xml
+#rm -f *.log
+#rm -f dumpBDB
+#rm -f dumpSpecsdumpBDB
 echo "Start to write the single BIG XML file."
 # At this point I'm writing the XML file, 'fred.xml'
 # ASSUMPTION:  1) In the file CondTools/Geometry/test/geometryxmlwriter.py there will be always GeometryExtended
@@ -177,10 +177,10 @@ cmsRun ../../testReadXMLFromDB.py >& trXMLFromDB.out
 echo "Done with reading the big XML file FROM the DB object"
 cd ../xml
 #uncomment for debugging.
-#rm trIdeal.out
-#rm dumpSTD
-#rm dumpSpecdumpSTD
-#rm diffgeomIdeal.out
+#rm -f trIdeal.out
+#rm -f dumpSTD
+#rm -f dumpSpecdumpSTD
+#rm -f diffgeomIdeal.out
 echo "Start reading the XML from the original config file."
 cp ../../readIdealAndDump.py .
 sed -i "{s/GeometryExtended/${geometry}/}" readIdealAndDump.py >& trIdeal.out
