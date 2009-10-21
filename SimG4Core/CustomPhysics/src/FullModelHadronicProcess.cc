@@ -769,13 +769,12 @@ void FullModelHadronicProcess::CalculateMomenta(
   const G4double twsup[] = { 1.0, 0.7, 0.5, 0.3, 0.2, 0.1 };
   G4double rand1 = G4UniformRand();
   G4double rand2 = G4UniformRand();
-  if( annihilation || (vecLen >= 6) ||
-      (modifiedOriginal.GetKineticEnergy()/GeV >= 1.0) &&
-      (((originalIncident->GetDefinition() == G4KaonPlus::KaonPlus() ||
-	 originalIncident->GetDefinition() == G4KaonMinus::KaonMinus() ||
-	 originalIncident->GetDefinition() == G4KaonZeroLong::KaonZeroLong() ||
-	 originalIncident->GetDefinition() == G4KaonZeroShort::KaonZeroShort()) &&
-	rand1 < 0.5) || rand2 > twsup[vecLen]) )
+  if( (annihilation || (vecLen >= 6) || (modifiedOriginal.GetKineticEnergy()/GeV >= 1.0)) && 
+      (((originalIncident->GetDefinition() == G4KaonPlus::KaonPlus()) || 
+         (originalIncident->GetDefinition() == G4KaonMinus::KaonMinus()) || 
+         (originalIncident->GetDefinition() == G4KaonZeroLong::KaonZeroLong()) || 
+         (originalIncident->GetDefinition() == G4KaonZeroShort::KaonZeroShort())) && 
+       ((rand1 < 0.5) || (rand2 > twsup[vecLen]))))
     finishedGenXPt =
       theReactionDynamics.GenerateXandPt( vec, vecLen,
 					  modifiedOriginal, originalIncident,

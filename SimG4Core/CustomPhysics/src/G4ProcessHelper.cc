@@ -234,7 +234,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 
   // To each ReactionProduct we assign a cumulated probability and a flag
   // discerning between 2 -> 2 and 2 -> 3
-  for (G4int i = 0; std::abs(i) != theReactionProductList.size(); i++){
+  for (unsigned int i = 0; i != theReactionProductList.size(); i++){
     if (theReactionProductList[i].size() == 2) {
       CumulatedProbability += p22/N22;
       TwotoThreeFlag.push_back(false);
@@ -264,12 +264,12 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   //  ReactionProductList::iterator prod_it;
 
   //Keep looping over the list until we have a choice, or until we have tried 100 times  
-  G4int i;
+  unsigned int i;
   while(!selected && tries < 100){
     i=0;
     G4double dice = G4UniformRand();
     // edm::LogInfo("CustomPhysics")<<"What's the dice?"<<dice<<G4endl;
-    while(dice>Probabilities[i] && std::abs(i)<theReactionProductList.size()){
+    while(dice>Probabilities[i] && i<theReactionProductList.size()){
       //      edm::LogInfo("CustomPhysics")<<"i: "<<i<<G4endl;
       i++;
     }
