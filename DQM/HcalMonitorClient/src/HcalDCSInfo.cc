@@ -43,7 +43,20 @@ void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
   dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/");
 
   // Book MEs for Hcal DCS fractions
+
   DCSFraction_= dqmStore_->bookFloat("DCSSummary"); 
+
+  DCSSummaryMap_ = dqmStore_->book2D("DCSSummaryMap","HcalDCSSummaryMap",7,0.,7.,1,0.,1.);
+  DCSSummaryMap_->setAxisRange(-1,1,3);
+  DCSSummaryMap_->setBinLabel(1,"HB");
+  DCSSummaryMap_->setBinLabel(2,"HE");
+  DCSSummaryMap_->setBinLabel(3,"HO");
+  DCSSummaryMap_->setBinLabel(4,"HF");
+  DCSSummaryMap_->setBinLabel(5,"H00");
+  DCSSummaryMap_->setBinLabel(6,"H012");
+  DCSSummaryMap_->setBinLabel(7,"HFlumi");
+  DCSSummaryMap_->setBinLabel(1,"Status",2);
+
   dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/DCSSummaryContents");
   DCSFractionHB_= dqmStore_->bookFloat("Hcal_HB");  
   DCSFractionHE_= dqmStore_->bookFloat("Hcal_HE");  
@@ -53,16 +66,7 @@ void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
   DCSFractionHO12_= dqmStore_->bookFloat("Hcal_HO12");
   DCSFractionHFlumi_= dqmStore_->bookFloat("Hcal_HFlumi");
 
-  // Fill them with -1 to start with
-  DCSFraction_->Fill(-1.0);
-  DCSFractionHB_->Fill(-1.0);
-  DCSFractionHE_->Fill(-1.0);
-  DCSFractionHO_->Fill(-1.0);
-  DCSFractionHF_->Fill(-1.0);
-  DCSFractionHO0_->Fill(-1.0);
-  DCSFractionHO12_->Fill(-1.0);
-  DCSFractionHFlumi_->Fill(-1.0);
-} // void HcalDCSInfo::beginJob(...)
+} 
 
 //
 // -- Begin Run
@@ -91,6 +95,30 @@ void HcalDCSInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm:
 void HcalDCSInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
   edm::LogInfo ("HcalDCSInfo") <<"HcalDCSInfo:: Luminosity Block";
+
+  // Fill them with -1 to start with
+
+  for (int ii=0;ii<7;ii++) DCSSummaryMap_->setBinContent(ii+1,1,-1.0);
+  DCSFraction_->Fill(-1.0);
+  DCSFractionHB_->Fill(-1.0);
+  DCSFractionHE_->Fill(-1.0);
+  DCSFractionHO_->Fill(-1.0);
+  DCSFractionHF_->Fill(-1.0);
+  DCSFractionHO0_->Fill(-1.0);
+  DCSFractionHO12_->Fill(-1.0);
+  DCSFractionHFlumi_->Fill(-1.0);
+
+  // Fill them with 1
+
+  for (int ii=0;ii<7;ii++) DCSSummaryMap_->setBinContent(ii+1,1,1.0);
+  DCSFraction_->Fill(1.0);
+  DCSFractionHB_->Fill(1.0);
+  DCSFractionHE_->Fill(1.0);
+  DCSFractionHO_->Fill(1.0);
+  DCSFractionHF_->Fill(1.0);
+  DCSFractionHO0_->Fill(1.0);
+  DCSFractionHO12_->Fill(1.0);
+  DCSFractionHFlumi_->Fill(1.0);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

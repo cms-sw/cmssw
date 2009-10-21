@@ -74,6 +74,7 @@ class HcalDCSInfo: public edm::EDAnalyzer {
 private:
 
   DQMStore* dqmStore_;
+  MonitorElement * DCSSummaryMap_;
   MonitorElement * DCSFraction_;
   MonitorElement * DCSFractionHB_;
   MonitorElement * DCSFractionHE_;
