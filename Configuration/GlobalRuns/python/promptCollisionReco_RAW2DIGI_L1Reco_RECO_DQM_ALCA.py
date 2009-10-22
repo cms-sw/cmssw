@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -63,6 +63,7 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
 process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
