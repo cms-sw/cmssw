@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Taus = cms.EDProducer("PATTauProducer",
     # input
-    tauSource = cms.InputTag("fixedConePFTauProducer"),
+    tauSource = cms.InputTag("shrinkingConePFTauProducer"),
 
     # add user data
     userData = cms.PSet(
@@ -76,18 +76,27 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some
         # disk space
-        leadingTrackFinding = cms.InputTag("fixedConePFTauDiscriminationByLeadingTrackFinding"),
-        leadingTrackPtCut = cms.InputTag("fixedConePFTauDiscriminationByLeadingTrackPtCut"),
-        trackIsolation = cms.InputTag("fixedConePFTauDiscriminationByTrackIsolation"),
-        ecalIsolation = cms.InputTag("fixedConePFTauDiscriminationByECALIsolation"),
-        byIsolation = cms.InputTag("fixedConePFTauDiscriminationByIsolation"),
-        againstElectron = cms.InputTag("fixedConePFTauDiscriminationAgainstElectron"),
-        againstMuon = cms.InputTag("fixedConePFTauDiscriminationAgainstMuon")
+        leadingTrackFinding = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),
+        leadingTrackPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
+        leadingPionPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
+        trackIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"),
+        trackIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),
+        ecalIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"),
+        ecalIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),
+        byIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
+        byIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion"),
+        againstElectron = cms.InputTag("shrinkingConePFTauDiscriminationAgainstElectron"),
+        againstMuon = cms.InputTag("shrinkingConePFTauDiscriminationAgainstMuon"),
+        byTaNC = cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"),
+        byTaNCfrOnePercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
+        byTaNCfrHalfPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
+        byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
+        byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     ),
 
     # tau decay mode configurables
     addDecayMode = cms.bool(False),
-    decayModeSrc = cms.InputTag("fixedConePFTauDecayModeProducer"),                    
+    decayModeSrc = cms.InputTag("shrinkingConePFTauDecayModeProducer"),                    
 
     # mc matching configurables
     addGenMatch      = cms.bool(True),
