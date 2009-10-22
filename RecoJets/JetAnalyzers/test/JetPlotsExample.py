@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 #############   Define the source file ###############
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_2_1_2/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V6_10TeV_v7/0000/044A7A03-BE6E-DD11-B3C0-000423D98B08.root')
+'/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RECO/STARTUP31X_V8_FastSim_Early10TeVCollision-v1/0001/0E3E1B64-56B7-DE11-A8E1-00304867924E.root')
 )
 #############   Calo Jets  ###########################
 process.calo = cms.EDAnalyzer("CaloJetPlotsExample",
