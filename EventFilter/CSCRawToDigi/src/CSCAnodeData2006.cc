@@ -116,6 +116,19 @@ void CSCAnodeData2006::addHit(int afeb, int tbin, int layer, int halfLayer, unsi
 }
 
 
+CSCAnodeDataFrame2006 CSCAnodeData2006::rawHit(int afeb, int tbin, int layer, int halfLayer) const
+{
+  return CSCAnodeDataFrame2006(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
+}
+
+
+int CSCAnodeData2006::index(int afeb, int tbin, int layer) const {
+  int result = (layer-1)*2 + 12*tbin + afeb*12*nTimeBins_;
+  assert(result < sizeInWords());
+  return result;
+}
+
+
 void CSCAnodeData2006::selfTest()
 {
   CSCAnodeDataFrame2006 frame(2, 15, 32); 

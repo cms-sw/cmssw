@@ -64,16 +64,10 @@ public:
 private:
   void init();
 
-  CSCAnodeDataFrame2006 rawHit(int afeb, int tbin, int layer, int halfLayer) const {
-    return CSCAnodeDataFrame2006(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
-  }
+  CSCAnodeDataFrame2006 rawHit(int afeb, int tbin, int layer, int halfLayer) const;
 
   /// the index into theDataFrames
-  int index(int afeb, int tbin, int layer) const {
-    int result = (layer-1)*2 + 12*tbin + afeb*12*nTimeBins_;
-    assert(result < sizeInWords());
-    return result;
-  }
+  int index(int afeb, int tbin, int layer) const;
 
   void addHit(int afeb, int tbin, int layer, int halfLayer, unsigned wireBit);
 
