@@ -77,16 +77,16 @@ set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
 		DOMCount -v=always -n -s -f $fn >>& dcorig.out
 		rm -f $fn
 	    else
-		echo "Error file " $l " not found in " $CMSSW_RELEASE_BASE "/src or " $CMSSW_BASE "/src" >>& dcorig.out
+		echo "ERROR: file " $l " not found in " $CMSSW_RELEASE_BASE "/src or " $CMSSW_BASE "/src" >>& dcorig.out
 	    endif
 	endif
     end
     set errcnt = `(grep --count "Error" dcorig.out)`
-    set warcnt = `(grep --count "Error" dcorig.out)`
-    if ($errcnt == 0 && $warcnt == 0) then
-	echo "No XML Schema violations in original xml files."
+    set warcnt = `(grep --count "Warning" dcorig.out)`
+    if ($errcnt != 0 || $warcnt != 0) then
+	echo "WARNING: There ARE XML Schema violations in original XML files and can be seen in dcorig.out."
     else
-	echo "XML Schema violations can be seen in dcorig.out."
+	echo "There ARE NO XML Schema violations in original XML files."
     endif
 #else
 #    echo "Missing ../../../DetectorDescription/Schema/DDLSchema.xsd..."
@@ -106,7 +106,8 @@ set totsiz=`(wc -l dddreport.out | awk '{print $1}')`
 tail -$tsdif dddreport.out >& dddreptail.out
 set diffout = `(diff dddreptail.out ../dddreptail.ref)`
 if ( "$diffout" != "") then
-    echo "There ARE differences in the DD named objects from the standard xml files since the last ddreport.sh was run.  Please check dddreptail.out."
+    echo "WARNING: There ARE differences in the DD named objects from the standard xml files since the last ddreport.sh was run."
+    echo "WARNING: Please check workarea/dddreport.out and workarea/dddreptail.out."
 else 
     echo "There ARE NO differences in the DD named objects from the standard xml files since the last ddreport.sh was run."
 endif
@@ -139,12 +140,15 @@ echo "Finish the write to the single BIG XML file."
 
 #sed -i '{s/..\/..\/..\/D/..\/..\/..\/..\/..\/D/g}' fred.xml
 sed -i "{s/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/}" fred.xml
-DOMCount -n -s -f -v=always fred.xml >& diffdom.out
-set diffout = `(diff diffdom.out ../../domcountBIG.ref)`
-if ( "$diffout" != "" ) then
-    echo "There ARE differences in DOMCount of the  single BIG file since the last time it was run"
+DOMCount -n -s -f -v=always fred.xml >& dcBig.out
+#set diffout = `(diff diffdom.out ../../domcountBIG.ref)`
+set errcnt = `(grep --count "Error" dcBig.out)`
+set warcnt = `(grep --count "Warning" dcBig.out)`
+#if ( "$diffout" != "" ) then
+if ($errcnt != 0 || $warcnt != 0) then
+    echo "WARNING: There ARE Schema violations in the single BIG XML file."
 else 
-    echo "There ARE NO differences in DOMCount of the single BIG xml file since the last time it was run."
+    echo "There ARE NO Schema violations in the single BIG XML file."
 endif
 # validate current ddd model AS TRANSFERRED TO THE BIG XML FILE has no missing solids, materials or logical parts
 grep -v "File" $CMSSW_BASE/src/dddreportconfig.xml >& dddbigfilereport.xml
@@ -157,7 +161,7 @@ set totsiz=`(wc -l dddreport.out | awk '{print $1}')`
 tail -$tsdif2 dddreport.out >& dddreptail.out
 set diffout = `(diff dddreptail.out ../../dddreptail.ref)`
 if ( "$diffout" != "" ) then
-    echo "There ARE differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run.  Please check dddreptail.out."
+    echo "WARNING: There ARE differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run.  Please check dddreptail.out."
 else 
     echo "There ARE NO differences in the DD named objects from the single BIG xml file since the last ddreport.sh was run."
 endif
@@ -193,9 +197,8 @@ set wccnt = `(wc -l tcdf.out | awk '{print $1}')`
 if ( $wccnt == 0 ) then
     echo "All differences in position are less than tolerance."
 else
-    echo "There are $wccnt lines with differences greater than tolerance.  Please check/verify."
-    echo "Tolerance can be changed in the file testCompareDumpFiles.py."
-    echo "tcdf.out contains detailed descriptions of differences."
+    echo "WARNING: There are $wccnt lines with differences greater than tolerance.  Please check tcdf.out for differences."
+    echo "WARNING: Tolerance can be changed in the file testCompareDumpFiles.py."
 endif
 
 echo "ALL DONE!"
