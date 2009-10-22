@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.5 2008/01/31 19:02:14 paterno Exp $
+$Id: ProducerBase.cc,v 1.6 2008/06/24 23:26:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,11 +25,11 @@ namespace edm {
    namespace {
      class CallbackWrapper {
        public:  
-        CallbackWrapper(boost::shared_ptr<ProducerBase> iProd,
+        CallbackWrapper(ProducerBase* iProd,
                         boost::function<void(const BranchDescription&)> iCallback,
                         ProductRegistry* iReg,
                         const ModuleDescription& iDesc):
-        prod_(&(*iProd)), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
+        prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
         lastSize_(iProd->typeLabelList().size()) {}
         
         void operator()(const BranchDescription& iDesc) {
@@ -59,7 +59,7 @@ namespace edm {
   }
 
 
-  void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
+  void ProducerBase::registerProducts(ProducerBase* producer,
 				ProductRegistry* iReg,
 				ModuleDescription const& md)
   {

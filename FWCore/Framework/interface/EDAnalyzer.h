@@ -49,7 +49,7 @@ namespace edm {
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-    void registerAnyProducts(boost::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
+    void registerAnyProducts(EDAnalyzer const*, ProductRegistry const*) {}
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
     //This interface is deprecated

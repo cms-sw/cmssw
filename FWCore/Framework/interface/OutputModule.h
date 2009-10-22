@@ -172,7 +172,7 @@ namespace edm {
     // the appropriate tests have been done.
     void reallyCloseFile();
 
-    void registerAnyProducts(boost::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
+    void registerAnyProducts(OutputModule const*, ProductRegistry const*) {}
 
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

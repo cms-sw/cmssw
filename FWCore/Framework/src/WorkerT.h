@@ -9,8 +9,6 @@ WorkerT: Code common to all workers.
 
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -66,7 +64,7 @@ namespace edm {
                                                unsigned int iNumberOfChildren);
      virtual std::string workerType() const;
 
-    boost::shared_ptr<T> module_;
+    std::auto_ptr<T> module_;
   };
 
   template <typename T>
@@ -76,8 +74,9 @@ namespace edm {
 		 WorkerParams const& wp) :
     Worker(md, wp),
     module_(ed) {
+    assert(module_.get() != 0);
     module_->setModuleDescription(md);
-    module_->registerAnyProducts(module_, wp.reg_);
+    module_->registerAnyProducts(module_.get(), wp.reg_);
   }
 
   template <typename T>

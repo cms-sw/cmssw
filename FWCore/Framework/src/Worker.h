@@ -32,13 +32,14 @@ the worker is reset().
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 
-  class Worker {
+  class Worker : private boost::noncopyable {
   public:
     enum State { Ready, Pass, Fail, Exception };
 

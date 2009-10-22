@@ -53,7 +53,7 @@ namespace edm {
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-    void registerAnyProducts(boost::shared_ptr<EDProducer>& module, ProductRegistry* reg) {
+    void registerAnyProducts(EDProducer* module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);
     }
 
