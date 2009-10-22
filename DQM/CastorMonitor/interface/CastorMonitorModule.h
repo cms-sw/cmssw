@@ -121,7 +121,7 @@ public:
   int nlumisecs_;
   bool saved_;
 
-  std::string rootFile_;      
+     
 
 
   ////---- control whether or not to display time used by each module

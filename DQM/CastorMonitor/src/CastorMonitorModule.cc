@@ -109,8 +109,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   
  if ( dbe_ != NULL ){
   dbe_->setCurrentFolder(rootFolder_);
-   ////---- open the root file to display histograms 
-  dbe_->open(rootFile_);
   }
 
 
