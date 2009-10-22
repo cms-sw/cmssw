@@ -232,8 +232,8 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
   unsigned int anotherLayerNumber = anotherHit.layerNumber();
   isAProperPair = 
     // First hit on PXB1
-    ( ( theSubDetId == 1 && theLayerNumber == 1 ) && (
-      ( anotherSubDetId == 1 && anotherLayerNumber == 2) || 
+    ( (( theSubDetId == 1 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 2)) || 
       ( anotherSubDetId == 2 && anotherLayerNumber == 1) ) || 
       // First hit on PXB2
     ( ( theSubDetId == 1 && theLayerNumber == 2 ) && 
@@ -243,7 +243,7 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
       ( anotherSubDetId == 2 && anotherLayerNumber == 2) ) ||
     // First Hit on PXD2
     ( ( theSubDetId == 2 && theLayerNumber == 2 ) &&  
-      ( anotherSubDetId == 6 && anotherLayerNumber == 2 ) ) );
+      ( anotherSubDetId == 6 && anotherLayerNumber == 2 ) );
 
  return isAProperPair;
 
