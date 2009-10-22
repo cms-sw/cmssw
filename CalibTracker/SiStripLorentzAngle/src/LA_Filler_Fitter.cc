@@ -281,16 +281,18 @@ result(Method m, const std::string name, const Book& book) {
       p.measureErr = f->GetParameter(1);
       p.chi2 = f->GetParameter(2);
       p.ndof = (unsigned) (f->GetParameter(3));
+      break;
     }
     case MULTI: {
       p.entries = (unsigned) book(base+method(MULTI,0)+"_w1")->GetEntries();
-      p.entries = (unsigned) book(base+method(MULTI,0)+"_var_w2")->GetEntries();
+      p.entries+= (unsigned) book(base+method(MULTI,0)+"_var_w2")->GetEntries();
       p.entries+= (unsigned) book(base+method(MULTI,0)+"_var_w3")->GetEntries();
       TF1* f = h->GetFunction("SymmetryFit"); if(!f) break;
       p.measure = p.reco + f->GetParameter(0);
       p.measureErr = f->GetParameter(1);
       p.chi2 = f->GetParameter(2);
       p.ndof = (unsigned) (f->GetParameter(3));
+      break;
     }
     default:break;
     }
