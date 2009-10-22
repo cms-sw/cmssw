@@ -20,7 +20,7 @@ namespace edm {
     InputSource(pset, desc),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
     numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
-    presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
+    presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 1)),  //time in ns
     origTime_(presentTime_),
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
