@@ -17,8 +17,7 @@ CSCAnodeData2006::CSCAnodeData2006(const CSCALCTHeader & header) ///for digi->ra
     for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
       for(int layer = 1; layer <= 6; ++layer) {
 	for(int halfLayer = 0; halfLayer < 2; ++halfLayer) {
-	  rawHit(afeb, tbin, layer, halfLayer)
-	    = CSCAnodeDataFrame2006(afeb, tbin, 0);
+	  theDataFrames[index(afeb, tbin, layer)+halfLayer] = CSCAnodeDataFrame2006(afeb, tbin, 0).frame();
 	}
       }
     }
@@ -51,7 +50,7 @@ std::vector<CSCWireDigi> CSCAnodeData2006::wireDigis(int layer) const {
       for(int halfLayer = 0; halfLayer <2; ++halfLayer) {
 	for (int j=0;j<8;++j) {
 	  for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
-	    const CSCAnodeDataFrame2006 & frame = rawHit(afeb,tbin,layer, halfLayer);
+	    CSCAnodeDataFrame2006 frame(rawHit(afeb,tbin,layer, halfLayer));
 	    // see if there's anything in 1st 8 bits.  Usually zero
 	    if(frame.data() != 0) {
 	      if(frame.isHit(j)) {
@@ -91,7 +90,6 @@ void CSCAnodeData2006::add(const CSCWireDigi & digi, int layer)
       edm::LogError("CSCAnodeData|CSCRawToDigi") << "Bad Wire Number for this digi.";
       return;
     }
-
   if(bxn >= 0 && bxn < nTimeBins_) 
     {
       // 12 16-bit words per time bin, two per layer
@@ -99,7 +97,7 @@ void CSCAnodeData2006::add(const CSCWireDigi & digi, int layer)
       unsigned halfLayer = (localGroup > 7);
       unsigned bitNumber = localGroup % 8;
       // and pack it in the 8 bits allocated
-      rawHit(alctBoard, bxn, layer, halfLayer).addHit(bitNumber);
+      addHit(alctBoard, bxn, layer, halfLayer, bitNumber);
     } 
   else 
     {
@@ -107,4 +105,41 @@ void CSCAnodeData2006::add(const CSCWireDigi & digi, int layer)
 			      << ": out of range ";
     }
 }
+
+
+void CSCAnodeData2006::addHit(int afeb, int tbin, int layer, int halfLayer, unsigned wireBit)
+{
+  int i = index(afeb,tbin,layer) + halfLayer;
+  CSCAnodeDataFrame2006 frame(theDataFrames[i]);
+  frame.addHit(wireBit);
+  theDataFrames[i] = frame.frame(); 
+}
+
+
+void CSCAnodeData2006::selfTest()
+{
+  CSCAnodeDataFrame2006 frame(2, 15, 32); 
+  assert(frame.chip() == 2);
+  assert(frame.tbin() == 15);
+  assert(frame.data() == 32);
+  assert(frame.isHit(5));
+  assert(!frame.isHit(7));
+  frame.addHit(7);
+  assert(frame.isHit(7));
+
+  CSCWireDigi wireDigi(10, (1 << 4));
+  CSCALCTHeader header(7);
+  CSCAnodeData2006 anodeData(header);
+  anodeData.add(wireDigi, 1);
+  anodeData.add(wireDigi, 6);
+
+  std::vector<CSCWireDigi> wires1 = anodeData.wireDigis(1);
+  std::vector<CSCWireDigi> wires6 = anodeData.wireDigis(6);
+
+  assert(wires1.size() == 1);
+  assert(wires6.size() == 1);
+  assert(wires1[0].getWireGroup() == 10);
+  assert(wires6[0].getWireGroup() == 10);
+}
+
 

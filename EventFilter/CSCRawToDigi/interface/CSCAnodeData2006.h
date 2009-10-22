@@ -7,36 +7,39 @@ class CSCALCTHeader;
 class CSCAnodeDataFrame2006 {
 public:
   CSCAnodeDataFrame2006() {}
-  CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data) 
-  :  data_(data&0x3), tbin_(tbin),
-  // do we have 2 bits for this, or 3? 
-  // chip_( chip&1 + 2*(chip&2 | chip&4) ) 
-  chip_(chip) {}
+  CSCAnodeDataFrame2006(unsigned short frame):
+    theFrame(frame) {}
+  CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data)
+  : theFrame(data + (tbin << 8) + (chip<<13) ) {}
+
 
   /// given a wiregroup between 0 and 7, it tells whether this bit was on
   bool isHit(unsigned wireGroup) const {
     assert(wireGroup < 8);
-    return ( (data_>>wireGroup) & 0x1 );
+    return ( (theFrame>>wireGroup) & 0x1 );
   }
 
   /// sets a bit, from 0 to 7
-  void addHit(unsigned wireGroup) {
-    data_ |= (1 << wireGroup);
+  void addHit(unsigned wireBit) {
+    theFrame |= (1 << wireBit);
   }
 
   /// time bin
-  unsigned tbin() const {return tbin_;}
+  unsigned tbin() const {return (theFrame >> 8) & 0x1F;}
   /// kind of the chip ID.  But it's only 2-bit, and we really need
   /// three, so it's the lowest bit, plus the OR of the next two.
-  unsigned chip() const {return chip_;}
-  unsigned short data() const {return data_;}
+  unsigned chip() const {return (theFrame >>13) & 0x3;}
+  unsigned short data() const {return theFrame & 0xFF;}
+  unsigned short frame() const {return theFrame;}
 
 private:
-  unsigned short data_ : 8;
-  unsigned short tbin_ : 5;
-  unsigned short chip_ : 2;
-  unsigned short ddu_code_ : 1;
+  unsigned short theFrame;
+  //unsigned short data_ : 8;
+  //unsigned short tbin_ : 5;
+  //unsigned short chip_ : 2;
+  //unsigned short ddu_code_ : 1;
 };
+
 
 
 class CSCAnodeData2006 : public CSCAnodeDataFormat 
@@ -56,16 +59,13 @@ public:
 
   virtual void add(const CSCWireDigi &, int layer);
 
+  static  void selfTest();
+
 private:
   void init();
 
-  const CSCAnodeDataFrame2006 & rawHit(int afeb, int tbin, int layer, int halfLayer) const {
-    return (const CSCAnodeDataFrame2006 &)(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
-  }
-
-  /// nonconst version
-  CSCAnodeDataFrame2006 & rawHit(int afeb, int tbin, int layer, int halfLayer) {
-    return (CSCAnodeDataFrame2006 &)(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
+  CSCAnodeDataFrame2006 rawHit(int afeb, int tbin, int layer, int halfLayer) const {
+    return CSCAnodeDataFrame2006(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
   }
 
   /// the index into theDataFrames
@@ -74,6 +74,8 @@ private:
     assert(result < sizeInWords());
     return result;
   }
+
+  void addHit(int afeb, int tbin, int layer, int halfLayer, unsigned wireBit);
 
   /// we don't know the size at first.  Max should be 7 boards * 32 bins * 6 layers * 2
   unsigned short theDataFrames[2700];
