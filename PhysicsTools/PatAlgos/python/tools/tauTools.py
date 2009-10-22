@@ -43,6 +43,8 @@ def switchToCaloTau(process,
     process.allLayer1Taus.isolation   = cms.PSet()
     process.allLayer1Taus.isoDeposits = cms.PSet()
     process.allLayer1Taus.userIsolation = cms.PSet()
+    ## adapt cleanLayer1Taus
+    process.cleanLayer1Taus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5'
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
