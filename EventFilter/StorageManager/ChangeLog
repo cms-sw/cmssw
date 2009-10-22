@@ -9,6 +9,18 @@
 	* Merge changes from V05-02-00 into branch_3_3_X
 	* Fix a couple of issues for gcc4/amd64
 
+2009-10-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-04
+	* Add new state Constructed which is entered when the state
+	  machine is initiated. The Constructed state is identical to
+	  the Halted state, except that it does not send the state
+	  notification to run control. The Constructed state cannot be
+	  re-entered once the it was left. Instead the Halted state is used.
+	* Accept the end-of-lumi-section I2O message if compiled against
+	  a sufficiently new xdaq release (>= 10.0). Does not do anything
+	  with it yet.
+
 2009-10-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-02-03
