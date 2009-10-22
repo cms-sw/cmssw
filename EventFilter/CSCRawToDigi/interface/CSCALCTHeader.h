@@ -50,6 +50,9 @@ struct CSCALCT {
 struct CSCALCTHeader2007 {
   CSCALCTHeader2007()  {
     bzero(this,  sizeInWords()*2); ///size of 2007 header w/o variable parts = 16 bytes
+    //FIXME I have no idea what these should be, so I'm just guessing
+    rawBins = 16;
+    lctBins = 7;
   }
 
   short unsigned int sizeInWords() const { ///size of ALCT2007 Header

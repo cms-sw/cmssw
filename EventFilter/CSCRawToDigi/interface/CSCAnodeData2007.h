@@ -7,6 +7,7 @@ class CSCALCTHeader;
 
 class CSCAnodeDataFrame2007 {
  public:
+  explicit CSCAnodeDataFrame2007(unsigned short data) {data_ = data;}
   CSCAnodeDataFrame2007() {}
 
   /// given a wiregroup between 0 and 11, it tells whether this bit was on
@@ -41,11 +42,12 @@ public:
   
   virtual void add(const CSCWireDigi &, int layer);
 
+  static void selfTest();
 
 private:
   void init(const CSCALCTHeader &);
   int index(int tbin, int layer, int layerPart) const;
-  const CSCAnodeDataFrame2007 & findFrame(int tbin, int layer, int layerPart) const;
+  CSCAnodeDataFrame2007 findFrame(int tbin, int layer, int layerPart) const;
   CSCAnodeDataFrame2007 & findFrame(int tbin, int layer, int layerPart);
 
   /// we don't know the size at first.  Max should be 7 boards * 32 bins * 6 layers * 2

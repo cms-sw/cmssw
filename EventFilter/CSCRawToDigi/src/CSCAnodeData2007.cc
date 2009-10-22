@@ -7,8 +7,9 @@
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
-  bzero(theDataFrames, sizeInWords()*2);
   init(header);
+  // comes after, because need to fetch sizeInWords()
+  bzero(theDataFrames, sizeInWords()*2);
 }
 
 
@@ -45,7 +46,7 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
 	///loop over 12 bits in each word (each bit is one wiregroup) 
 	///we want to stop if we reached the maxWireGroups
 	for(int tbin = 0; tbin < nTimeBins_; ++tbin) { ///loop over tbins
-	  const CSCAnodeDataFrame2007 & frame = findFrame(tbin, layer, layerPart);
+	  CSCAnodeDataFrame2007 frame = findFrame(tbin, layer, layerPart);
 	  if(frame.data() != 0) {
 	    if(frame.isHit(j)) {
 	      tbinbits=tbinbits + (1<<tbin);
@@ -66,13 +67,8 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
 }
 
 
-const CSCAnodeDataFrame2007 & CSCAnodeData2007::findFrame(int tbin, int layer, int layerPart) const {
-  return (const CSCAnodeDataFrame2007 &)(theDataFrames[index(tbin, layer, layerPart)]);
-}
-
-
-CSCAnodeDataFrame2007 & CSCAnodeData2007::findFrame(int tbin, int layer, int layerPart) {
-  return (CSCAnodeDataFrame2007 &)(theDataFrames[index(tbin, layer, layerPart)]);
+CSCAnodeDataFrame2007 CSCAnodeData2007::findFrame(int tbin, int layer, int layerPart) const {
+  return CSCAnodeDataFrame2007(theDataFrames[index(tbin, layer, layerPart)]);
 }
 
 
@@ -87,35 +83,50 @@ int CSCAnodeData2007::index(int tbin, int layer, int layerPart) const
 
 void CSCAnodeData2007::add(const CSCWireDigi & digi, int layer) 
 {
-/*
+
   int wireGroup = digi.getWireGroup();
-  int bxn=digi.getBeamCrossingTag(); 
-  int alctBoard  = (wireGroup-1) / 16;
-  int localGroup = (wireGroup-1) % 16;
+  //           wireGroup = (layerPart*12+j)+1;
+  unsigned layerPart = (wireGroup-1) / 12;
+  unsigned wireInPart = (wireGroup-1) % 12; 
+  std::vector<int> timeBinsOn = digi.getTimeBinsOn();
+  for(std::vector<int>::const_iterator timeBinOn = timeBinsOn.begin();
+      timeBinOn != timeBinsOn.end(); ++timeBinOn)
+  {
+    // crash if there's a bad wire number, but don't freak out
+    // if a time bin is out of range 
+    //  assert(alctBoard < nAFEBs_);
+    if(layerPart >= layerParts_)
+      {
+        edm::LogError("CSCAnodeData|CSCRawToDigi") << "Bad Wire Number for this digi.";
+        return;
+      }
 
-  // crash if there's a bad wire number, but don't freak out
-  // if a time bin is out of range 
-  //  assert(alctBoard < nAFEBs_);
-  if(alctBoard > nAFEBs_)
-    {
-      edm::LogError("CSCAnodeData|CSCRawToDigi") << "Bad Wire Number for this digi.";
-      return;
-    }
+    if((*timeBinOn) >= 0 && (*timeBinOn) < nTimeBins_) 
+      {
+        theDataFrames[index(*timeBinOn, layer, layerPart)] += (1<<wireInPart);
+      } 
+    else 
+      {
+        LogTrace("CSCAnodeData|CSCRawToDigi")<< "warning: not saving anode data in bx " << *timeBinOn 
+  			      << ": out of range ";
+      }
+  }
+}
 
-  if(bxn >= 0 && bxn < nTimeBins_) 
-    {
-      // 12 16-bit words per time bin, two per layer
-      // wiregroups 0-7 go on the first line, 8-15 go on the 2nd.
-      unsigned halfLayer = (localGroup > 7);
-      unsigned bitNumber = localGroup % 8;
-      // and pack it in the 8 bits allocated
-      rawHit(alctBoard, bxn, layer, halfLayer).addHit(bitNumber);
-    } 
-  else 
-    {
-      LogTrace("CSCAnodeData|CSCRawToDigi")<< "warning: not saving anode data in bx " << bxn 
-			      << ": out of range ";
-    }
-*/
+void CSCAnodeData2007::selfTest()
+{
+  CSCWireDigi wireDigi(10, (1 << 4));
+  CSCALCTHeader header(7);
+  CSCAnodeData2007 anodeData(header);
+  anodeData.add(wireDigi, 1);
+  anodeData.add(wireDigi, 6);
+
+  std::vector<CSCWireDigi> wires1 = anodeData.wireDigis(1);
+  std::vector<CSCWireDigi> wires6 = anodeData.wireDigis(6);
+
+  assert(wires1.size() == 1);
+  assert(wires6.size() == 1);
+  assert(wires1[0].getWireGroup() == 10);
+  assert(wires6[0].getWireGroup() == 10);
 }
 
