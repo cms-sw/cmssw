@@ -31,5 +31,5 @@ MeasureLA = cms.ESProducer(
                                         #LA_Measurement( METHOD_WIDTH,   byModule, 1000, 3.0),
                                         #LA_Measurement( METHOD_SQRTVAR, byLayer,  1000, 3.5)
                                         ),
-    Calibrations = LorentzAngleCalibrations_PeakMode
+    Calibrations = LorentzAngleCalibrations_DeconvolutionModeBEAM
     )
