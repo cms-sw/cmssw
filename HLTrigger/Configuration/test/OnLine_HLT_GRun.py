@@ -7749,8 +7749,8 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
-process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/f/futyand/public/globaltag/MC_3XY_V11.db'
-process.GlobalTag.globaltag = 'STARTUP3XY_V9::All'
+process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+process.GlobalTag.globaltag = 'STARTUP3X_V10::All'
 
 
 # Automatic addition of the customisation function
