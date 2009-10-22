@@ -20,7 +20,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP3XY_V9::All')
+## global tag for 33X
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+## global tag for 34X
+## process.GlobalTag.globaltag = cms.string('STARTUP3XY_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
