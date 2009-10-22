@@ -173,11 +173,10 @@ TrackerRecHit::makesAPairWith(const TrackerRecHit& anotherHit) const {
     // First Hit on TEC2
     ( ( theSubDetId == 6 && theLayerNumber == 2 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 3 ) ) ||
-
   //Pixelless Pairs  
    // First Hit on TIB1
-    ( ( theSubDetId == 4 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 4 && anotherLayerNumber == 2 ) ||
+    ( (( theSubDetId == 4 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 4 && anotherLayerNumber == 2 )) ||
       ( anotherSubDetId == 3 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TID1
     ( ( theSubDetId == 3 && theLayerNumber == 1 ) && 
@@ -189,17 +188,16 @@ TrackerRecHit::makesAPairWith(const TrackerRecHit& anotherHit) const {
     ( ( theSubDetId == 3 && theLayerNumber == 3 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TEC3
-    ( ( theSubDetId == 6 && theLayerNumber == 3 ) && 
-      ( anotherSubDetId == 6 && anotherLayerNumber == 4 ) || 
+    ( (( theSubDetId == 6 && theLayerNumber == 3 ) && 
+      ( anotherSubDetId == 6 && anotherLayerNumber == 4 )) || 
       ( anotherSubDetId == 6 && anotherLayerNumber == 5 ) ) ||
     // First Hit on TEC4
     ( ( theSubDetId == 6 && theLayerNumber == 4 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 5 ) ) ||
-
   //Tob-Tec pairs
   //first hit on TOB1 
-    ( ( theSubDetId == 5 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 5 && anotherLayerNumber == 2 ) ||
+    ( (( theSubDetId == 5 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 5 && anotherLayerNumber == 2 )) ||
       ( anotherSubDetId == 6 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TEC1
     ( ( theSubDetId == 6 && theLayerNumber == 1 ) && 

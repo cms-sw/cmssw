@@ -550,7 +550,7 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
   //Local information for the sim hit
   float xSim = simhit->localPosition().x();
   float ySim = simhit->localPosition().y();
-  float zSim = simhit->localPosition().z();
+  //  float zSim = simhit->localPosition().z();
   
   unsigned int subdet   = DetId(simhit->detUnitId()).subdetId();
   
@@ -560,7 +560,7 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
   
   //Pulls for x and y
   float pull_x = delta_x/Rec_err_xx;
-  float pull_y = delta_y/Rec_err_yy;
+  //  float pull_y = delta_y/Rec_err_yy;
   
   
   switch (subdet) {

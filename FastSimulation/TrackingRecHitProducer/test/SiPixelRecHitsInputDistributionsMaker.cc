@@ -642,11 +642,12 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   if(abs(simHit.particleType()) == 13)
   {
 #endif
-    if(fabs(res_x/cmtomicron)<0.05)
+    if(fabs(res_x/cmtomicron)<0.05) {
       if(hasBigPixelInX)
         recHitResXForwardBigPixel[sizeX - 1]->Fill(res_x/cmtomicron);
       else
-        recHitResXForward[sizeX - 1]->Fill(res_x/cmtomicron);        
+        recHitResXForward[sizeX - 1]->Fill(res_x/cmtomicron);
+    }        
 #ifdef MUONSONLY
   }
 #endif
@@ -658,11 +659,12 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   if(abs(simHit.particleType()) == 13)
   {
 #endif
-    if(fabs(res_y/cmtomicron)<0.05)
+    if(fabs(res_y/cmtomicron)<0.05) {
       if(hasBigPixelInY)
         recHitResYForwardBigPixel[sizeY - 1]->Fill(res_y/cmtomicron);
       else
         recHitResYForward[sizeY - 1]->Fill(res_y/cmtomicron);
+    }
 #ifdef MUONSONLY
   }
 #endif

@@ -153,43 +153,52 @@ void FamosRecHitAnalysis::book() {
   // Microstrips
   int    nbin   = 2000;
   double minmax = 1.0;
+  char det[100]; 
   // TIB
-  bookValues( histos_TIB_x , histos_TIB_y , histos_TIB_z , nbin , minmax , "TIB" , nHist_TIB );
-  bookErrors( histos_TIB_err_x , histos_TIB_err_y , histos_TIB_err_z , 500 , 0.0500 , "TIB" , nHist_TIB );
-  bookNominals( histos_TIB_nom_x , nbin , minmax , "TIB" , nHist_TIB );
-  bookEnergyLosses( histos_TIB_dedx, 200, 0.001, "TIB", nHist_TIB );
+  sprintf  (det, "TIB" );
+  bookValues( histos_TIB_x , histos_TIB_y , histos_TIB_z , nbin , minmax , det , nHist_TIB );
+  bookErrors( histos_TIB_err_x , histos_TIB_err_y , histos_TIB_err_z , 500 , 0.0500 , det , nHist_TIB );
+  bookNominals( histos_TIB_nom_x , nbin , minmax , det , nHist_TIB );
+  bookEnergyLosses( histos_TIB_dedx, 200, 0.001, det, nHist_TIB );
   // TID
-  bookValues( histos_TID_x , histos_TID_y , histos_TID_z , nbin , minmax , "TID" , nHist_TID );
-  bookErrors( histos_TID_err_x , histos_TID_err_y , histos_TID_err_z , 500 , 0.0500 , "TID" , nHist_TID );
-  bookNominals( histos_TID_nom_x , nbin , minmax , "TID" , nHist_TID );
-  bookEnergyLosses( histos_TID_dedx, 200, 0.001, "TID", nHist_TID );
+  sprintf  (det, "TID" );
+  bookValues( histos_TID_x , histos_TID_y , histos_TID_z , nbin , minmax , det , nHist_TID );
+  bookErrors( histos_TID_err_x , histos_TID_err_y , histos_TID_err_z , 500 , 0.0500 , det , nHist_TID );
+  bookNominals( histos_TID_nom_x , nbin , minmax , det , nHist_TID );
+  bookEnergyLosses( histos_TID_dedx, 200, 0.001, det , nHist_TID );
   // TOB
-  bookValues( histos_TOB_x , histos_TOB_y , histos_TOB_z , nbin , minmax , "TOB" , nHist_TOB );
-  bookErrors( histos_TOB_err_x , histos_TOB_err_y , histos_TOB_err_z , 500 , 0.0500 , "TOB" , nHist_TOB );
-  bookNominals( histos_TOB_nom_x , nbin , minmax , "TOB" , nHist_TOB );
-  bookEnergyLosses( histos_TOB_dedx, 200, 0.002, "TOB", nHist_TOB );
+  sprintf  (det, "TOB" );
+  bookValues( histos_TOB_x , histos_TOB_y , histos_TOB_z , nbin , minmax , det , nHist_TOB );
+  bookErrors( histos_TOB_err_x , histos_TOB_err_y , histos_TOB_err_z , 500 , 0.0500 , det , nHist_TOB );
+  bookNominals( histos_TOB_nom_x , nbin , minmax , det , nHist_TOB );
+  bookEnergyLosses( histos_TOB_dedx, 200, 0.002, det, nHist_TOB );
   // TEC
-  bookValues( histos_TEC_x , histos_TEC_y , histos_TEC_z , nbin , minmax , "TEC" , nHist_TEC );
-  bookErrors( histos_TEC_err_x , histos_TEC_err_y , histos_TEC_err_z , 500 , 0.0500 , "TEC" , nHist_TEC );
-  bookNominals( histos_TEC_nom_x , nbin , minmax , "TEC" , nHist_TEC );
-  bookEnergyLosses( histos_TEC_dedx, 200, 0.002, "TEC", nHist_TEC );
+  sprintf  (det, "TEC" );
+  bookValues( histos_TEC_x , histos_TEC_y , histos_TEC_z , nbin , minmax , det , nHist_TEC );
+  bookErrors( histos_TEC_err_x , histos_TEC_err_y , histos_TEC_err_z , 500 , 0.0500 , det , nHist_TEC );
+  bookNominals( histos_TEC_nom_x , nbin , minmax , det , nHist_TEC );
+  bookEnergyLosses( histos_TEC_dedx, 200, 0.002, det, nHist_TEC );
   //
   
   // special Analysis of pixels
   loadPixelData(thePixelMultiplicityFile, thePixelBarrelResolutionFile, thePixelForwardResolutionFile);
   //
+
+  sprintf  (det, "PXB" );
   bookPixel( histos_PXB_alpha , histos_PXB_beta , histos_PXB_nom_alpha , histos_PXB_nom_beta ,
              histos_PXB_dedx_alpha, histos_PXB_dedx_beta,
-             "PXB" );
+             det );
+  bookPixel( histos_PXB_res_alpha , histos_PXB_res_beta , histos_PXB_nom_res_alpha , histos_PXB_nom_res_beta ,
+             det ,
+             nAlphaBarrel , resAlphaBarrel_binMin , resAlphaBarrel_binWidth , resAlphaBarrel_binN ,
+             nBetaBarrel  , resBetaBarrel_binMin  , resBetaBarrel_binWidth  , resBetaBarrel_binN  );
+
+  sprintf  (det, "PXF" );
   bookPixel( histos_PXF_alpha , histos_PXF_beta , histos_PXF_nom_alpha , histos_PXF_nom_beta ,
              histos_PXF_dedx_alpha, histos_PXF_dedx_beta,
-             "PXF" );
-  bookPixel( histos_PXB_res_alpha , histos_PXB_res_beta , histos_PXB_nom_res_alpha , histos_PXB_nom_res_beta ,
-             "PXB" ,
-             nAlphaBarrel , resAlphaBarrel_binMin , resAlphaBarrel_binWidth , resAlphaBarrel_binN ,
-             nBetaBarrel  , resBetaBarrel_binMin  , resBetaBarrel_binWidth  , resBetaBarrel_binN   );
+             det );
   bookPixel( histos_PXF_res_alpha , histos_PXF_res_beta , histos_PXF_nom_res_alpha , histos_PXF_nom_res_beta ,
-             "PXF" ,
+             det ,
              nAlphaForward , resAlphaForward_binMin , resAlphaForward_binWidth , resAlphaForward_binN ,
              nBetaForward  , resBetaForward_binMin  , resBetaForward_binWidth  , resBetaForward_binN   );
   //
