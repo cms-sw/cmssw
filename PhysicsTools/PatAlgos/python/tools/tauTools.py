@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
+from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 def redoPFTauDiscriminators(process,
                             oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
                             newPFTauLabel = cms.InputTag('pfRecoTauProducer'),
@@ -137,6 +138,15 @@ def switchToPFTauShrinkingCone(process,
         byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     )
+
+# Select switcher by string
+def switchToPFTauByType(process, pfTauType=None, pfTauLabelNew=None,
+                        pfTauLabelOld=cms.InputTag('pfRecoTauProducer') ):
+    mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
+                'fixedConePFTau' : switchToPFTauFixedCone,
+                'fixedConeHighEffPFTau' : switchToPFTauFixedConeHighEff,
+                'caloTau' : switchToCaloTau }
+    mapping[pfTauType](process, pfTauLabelOld=pfTauLabelOld, pfTauLabelNew=pfTauLabelNew)
 
 # switch to PFTau collection that was default in PAT production in CMSSW_3_1_x release series
 def switchTo31Xdefaults(process):
