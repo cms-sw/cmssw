@@ -197,9 +197,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 */
 
 		if (detid.subdetId()==EcalEndcap) {
-	    	    result.push_back(weightsMethod_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape));
+	    	    uncalibRecHit = weightsMethod_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
 		} else {
-		    result.push_back(weightsMethod_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape));
+		    uncalibRecHit = weightsMethod_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape);
 		}
 
                 // === time computation ===
