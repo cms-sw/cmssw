@@ -395,7 +395,7 @@ def optionparse():
         '--igprof',
         type='string',
         dest='ig_remotedir',
-        default='/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data' #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
+        default='/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data', #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
         #default='cmsperfvm:/data/projects/conf/PerfSuiteDB/IgProfData', #This should not change often! In this virtual machine a cron job will run to move stuff to AFS.
         help='Specify an AFS or host:mydir remote directory instead of default one',
         metavar='<IGPROF REMOTE DIRECTORY>'
