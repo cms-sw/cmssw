@@ -62,9 +62,13 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag(pfTauType + "DiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut = cms.InputTag(pfTauType + "DiscriminationByLeadingTrackPtCut"),
+        leadingPionPtCut = cms.InputTag(pfTauType + "DiscriminationByLeadingPionPtCut"),
         trackIsolation = cms.InputTag(pfTauType + "DiscriminationByTrackIsolation"),
+        trackIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByTrackIsolationUsingLeadingPion"),
         ecalIsolation = cms.InputTag(pfTauType + "DiscriminationByECALIsolation"),
+        ecalIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByECALIsolationUsingLeadingPion"),
         byIsolation = cms.InputTag(pfTauType + "DiscriminationByIsolation"),
+        byIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByIsolationUsingLeadingPion"),
         againstElectron = cms.InputTag(pfTauType + "DiscriminationAgainstElectron"),
         againstMuon = cms.InputTag(pfTauType + "DiscriminationAgainstMuon")
         #
@@ -118,9 +122,13 @@ def switchToPFTauShrinkingCone(process,
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
+        leadingPionPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
         trackIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"),
+        trackIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),
         ecalIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"),
+        ecalIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),
         byIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
+        byIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion"),
         againstElectron = cms.InputTag("shrinkingConePFTauDiscriminationAgainstElectron"),
         againstMuon = cms.InputTag("shrinkingConePFTauDiscriminationAgainstMuon"),
         byTaNC = cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"),
