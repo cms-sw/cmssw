@@ -63,6 +63,10 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     void myBook2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
       myBook2D( name, xBins, xLabel, yBins, yLabel, name);
     }
+    void myBookProfile2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
+    void myBookProfile2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
+      myBookProfile2D( name, xBins, xLabel, yBins, yLabel, name);
+    }
     void myBook1D( TString name, vector<double> &xBins, TString label, TString title );
     void myBook1D( TString name, vector<double> &xBins, TString label ){
       myBook1D( name, xBins, label, name );
@@ -176,6 +180,12 @@ void HeavyFlavorValidation::beginJob(const EventSetup&){
   }
   myBook2D( "pathMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
   myBook2D( "resultMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+// Eta Pt Single Resolution
+  myBookProfile2D( "resGlobGen_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+  for(size_t i=0; i<filterNamesLevels.size(); i++){
+    myBookProfile2D( TString::Format("resFilt%dGlob_recoEtaPt",i+1), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
+  }
+  myBookProfile2D( "resPathGlob_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
 // Eta Pt Double  
   myBook2D( "genDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
   myBook2D( "globDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
@@ -407,12 +417,14 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     ME["genMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
     ME["genMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
     if(glob_gen[i] != -1){
+      ME["resGlobGen_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt(), (globMuons[glob_gen[i]].pt()-genMuons[i].pt())/genMuons[i].pt() );
       ME["globMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
       ME["globMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
       ME["globMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
       ME["globMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[i]] != -1){
+          ME[TString::Format("resFilt%dGlob_recoEtaPt",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (muonsAtFilter[f][filt_glob[f][glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
           ME[TString::Format("filt%dMuon_recoEtaPt",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
           ME[TString::Format("filt%dMuon_recoEtaPhi",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }else{
@@ -420,6 +432,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
         }  
       }
       if(path_glob[glob_gen[i]] != -1){
+        ME["resPathGlob_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (pathMuons[path_glob[glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
         ME["pathMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
         ME["pathMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
       }
@@ -586,6 +599,27 @@ void HeavyFlavorValidation::myBook2D( TString name, vector<double> &ptBins, TStr
   h->SetYTitle(etaLabel);
   h->SetTitle(title);
   ME[name] = dqmStore->book2D( name.Data(), h );
+  delete h;
+}
+
+void HeavyFlavorValidation::myBookProfile2D( TString name, vector<double> &ptBins, TString ptLabel, vector<double> &etaBins, TString etaLabel, TString title )
+{
+//   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
+  int ptN = ptBins.size()==3 ? (int)ptBins[0]+1 : ptBins.size();
+  Double_t *pt = new Double_t[ ptN ];
+  for(int i=0; i<ptN; i++){
+    pt[i] = ptBins.size()==3 ? ptBins[1] + i*(ptBins[2]-ptBins[1])/ptBins[0] : ptBins[i] ;
+  }
+  int etaN = etaBins.size()==3 ? (int)etaBins[0]+1 : etaBins.size();
+  Double_t *eta = new Double_t[ etaN ];
+  for(int i=0; i<etaN; i++){
+    eta[i] = etaBins.size()==3 ? etaBins[1] + i*(etaBins[2]-etaBins[1])/etaBins[0] : etaBins[i] ;
+  }
+  TProfile2D *h = new TProfile2D( name, name, ptN-1, pt, etaN-1, eta  );
+  h->SetXTitle(ptLabel);
+  h->SetYTitle(etaLabel);
+  h->SetTitle(title);
+  ME[name] = dqmStore->bookProfile2D( name.Data(), h );
   delete h;
 }
 
