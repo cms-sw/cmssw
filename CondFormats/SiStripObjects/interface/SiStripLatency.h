@@ -27,12 +27,12 @@ using namespace std;
  * case returns mode = 0 in this case. <br>
  * To save space, since typically the latency and mode is the same for all apvs, the ranges
  * of consecutive detIds and apvs are collapsed in the last value, so that the lower_bound
- * binary search will return the correct latency. <br>
+ * binary search will return the correct latency and mode. <br>
  * <br>
  * Methods are provided to extract latency and mode (separately or together in a pair)
  * for each apv. <br>
  * If the value of latency (mode) is the same for the whole Tracker, the singleLatency()
- * (singleMode()) method will return it, otherwise it will return -1 (0). <br>
+ * (singleMode()) method will return it, otherwise it will return 255 (0). <br>
  * <br>
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  * <br>
@@ -89,6 +89,11 @@ class SiStripLatency
   pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
   inline vector<Latency> allLatencyAndModes() const { return latencies_; }
 
+  /// Fills the passed vector with all the possible latencies in the Tracker
+  void allLatencies(vector<uint16_t> & allLatenciesVector) const;
+  /// Fills the passed vector with all the possible modes in the Tracker
+  void allModes(vector<uint16_t> & allModesVector) const;
+
   /** Reduce ranges of consecutive detIdsAndApvs with the same latency and mode to
    * one value (the latest) so that lower_bound will return the correct value for
    * latency and mode.
@@ -113,12 +118,12 @@ class SiStripLatency
     }
   };
 
-  struct EqualByLatency
-  {
-    bool operator()(const Latency & lat1, const Latency & lat2) {
-      return( lat1.latency == lat2.latency );
-    }
-  };
+  // struct EqualByLatency
+  // {
+  //   bool operator()(const Latency & lat1, const Latency & lat2) {
+  //     return( lat1.latency == lat2.latency );
+  //   }
+  // };
 
   /// Used to compute the position with the lower_bound binary search
   // If put in the cc file it will not know about the typedefs and the Latency class
