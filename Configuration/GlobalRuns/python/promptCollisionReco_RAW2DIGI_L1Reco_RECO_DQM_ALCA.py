@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,7 +34,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('promptReco_DIGI2RAW.root')
+    fileNames = cms.untracked.vstring('/store/data/CRAFT09/Cosmics/RAW/v1/000/113/222/C87DDBC8-8799-DE11-8345-000423D6AF24.root')
 )
 
 # Output definition
@@ -59,7 +59,7 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
         'keep L1AcceptBunchCrossings_*_*_*'),
     fileName = cms.untracked.string('SiStripCalZeroBias.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('StreamSiStripCalZeroBias'),
+        filterName = cms.untracked.string('StreamALCACombined'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
