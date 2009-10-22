@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.1 2009/10/10 09:18:37 meridian Exp $
 
 
 
@@ -190,19 +190,19 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 
         edm::Handle< reco::SuperClusterCollection > pEEClusters;
         ev.getByLabel( endcapClusterCollection_, pEEClusters );
-        const reco::SuperClusterCollection *eeClusters = pEEClusters.product();
+        //const reco::SuperClusterCollection *eeClusters = pEEClusters.product();
 
         edm::Handle< EcalRecHitCollection > pEBRecHits;
         ev.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
         const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
 
-        edm::Handle< EcalRecHitCollection > pEERecHits;
-        ev.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
-        const EcalRecHitCollection *eeRecHits = pEERecHits.product();
+        //edm::Handle< EcalRecHitCollection > pEERecHits;
+        //ev.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
+        //const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
-        edm::ESHandle<CaloGeometry> pGeometry;
-        es.get<CaloGeometryRecord>().get(pGeometry);
-        const CaloGeometry *geometry = pGeometry.product();
+        //edm::ESHandle<CaloGeometry> pGeometry;
+        //es.get<CaloGeometryRecord>().get(pGeometry);
+        //const CaloGeometry *geometry = pGeometry.product();
 
         edm::ESHandle<CaloTopology> pTopology;
         es.get<CaloTopologyRecord>().get(pTopology);

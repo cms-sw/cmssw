@@ -69,21 +69,21 @@ bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel( barrelClusterCollection_, pEBClusters );
   const reco::SuperClusterCollection *ebClusters = pEBClusters.product();
   
-  edm::Handle< reco::SuperClusterCollection > pEEClusters;
-  iEvent.getByLabel( endcapClusterCollection_, pEEClusters );
-  const reco::SuperClusterCollection *eeClusters = pEEClusters.product();
+  //edm::Handle< reco::SuperClusterCollection > pEEClusters;
+  //iEvent.getByLabel( endcapClusterCollection_, pEEClusters );
+  //const reco::SuperClusterCollection *eeClusters = pEEClusters.product();
   
   edm::Handle< EcalRecHitCollection > pEBRecHits;
   iEvent.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
   const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
   
-  edm::Handle< EcalRecHitCollection > pEERecHits;
-  iEvent.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
-  const EcalRecHitCollection *eeRecHits = pEERecHits.product();
+  //edm::Handle< EcalRecHitCollection > pEERecHits;
+  //iEvent.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
+  //const EcalRecHitCollection *eeRecHits = pEERecHits.product();
   
-  edm::ESHandle<CaloGeometry> pGeometry;
-  iSetup.get<CaloGeometryRecord>().get(pGeometry);
-  const CaloGeometry *geometry = pGeometry.product();
+  //edm::ESHandle<CaloGeometry> pGeometry;
+  //iSetup.get<CaloGeometryRecord>().get(pGeometry);
+  //const CaloGeometry *geometry = pGeometry.product();
   
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);

@@ -21,17 +21,17 @@ int main(int argc, char* argv[]) {
                           if (EBDetId::validDetId(ieta,iphi)) {
                                   EBDetId id = EBDetId(ieta, iphi);
                                   if ( EBDetId::isNextToBoundary( id ) ) {
-                                          fprintf(ofile, "%d %d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
+                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
                                   } else {
-                                          fprintf(ofile, "%d %d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
+                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
                                   }
                           }
                           if (EBDetId::validDetId(-ieta,iphi)) {
                                   EBDetId id = EBDetId(-ieta, iphi);
                                   if ( EBDetId::isNextToBoundary( id ) ) {
-                                          fprintf(ofile, "%d %d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
+                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
                                   } else {
-                                          fprintf(ofile, "%d %d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
+                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
                                   }
                           }
                   }
