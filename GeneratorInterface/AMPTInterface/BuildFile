@@ -8,6 +8,7 @@
 <use name=SimDataFormats/HiGenData>
 <use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>
+<Flags FFLAGS="-O">
 <export>
  <lib name=GeneratorInterfaceAMPTInterface>
  <use name=hepmc>

@@ -6,6 +6,7 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>
+ <Flags FFLAGS="-O">
 <export>
  <lib name=GeneratorInterfaceHijingInterface>
  <use name=hepmc>
