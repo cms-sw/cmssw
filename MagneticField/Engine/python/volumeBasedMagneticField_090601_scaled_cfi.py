@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # This cfi contains everything needed to use the VolumeBased magnetic
-# field engine version 090601 (based on 2007 geometry, model with extended R and Z; plus a correction for the TOSCA geometry of S9-11 of barrel L3)
+# field engine version 090601 ased on 2007 geometry, model with extended R and Z; plus a correction for the TOSCA geometry of S9-11 of barrel L3); including scaling factors from CRAFT data.
 # with separate tables for different sectors
 
 magfield = cms.ESSource("XMLIdealGeometryESSource",
@@ -27,17 +27,19 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldPro
     label = cms.untracked.string('parametrizedField')
 )
 
+#Apply scaling factors
+from MagneticField.Engine.ScalingFactors_090601_091022_cfi import *
+
 
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
+    fieldScaling,
     useParametrizedTrackerField = cms.bool(True),
     label = cms.untracked.string(''),
     paramLabel = cms.string('parametrizedField'),
     version = cms.string('grid_1103l_090601_3_8t'),
     debugBuilder = cms.untracked.bool(False),
-    cacheLastVolume = cms.untracked.bool(True),
     overrideMasterSector = cms.bool(False),
-    scalingVolumes = cms.vint32(),
-    scalingFactors = cms.vdouble()
+    cacheLastVolume = cms.untracked.bool(True)
 )
 
 
