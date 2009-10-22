@@ -17,17 +17,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.4 2007/08/17 21:01:41 elmer Exp $
+// $Id: PluginFactoryBase.h,v 1.5 2007/09/28 20:29:25 chrjones Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
+#include <map>
 #include "sigc++/signal.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edmplugin {
@@ -37,6 +36,9 @@ class PluginFactoryBase
    public:
       PluginFactoryBase() {}
       virtual ~PluginFactoryBase();
+
+      typedef std::vector<std::pair<void*, std::string> > PMakers;
+      typedef std::map<std::string, PMakers > Plugins;
 
       // ---------- const member functions ---------------------
 
@@ -65,93 +67,25 @@ class PluginFactoryBase
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
       // this routine will throw an exception if iName is unknown therefore the return value is always valid
-      template<typename Plugins>
-      typename Plugins::const_iterator findPMaker(const std::string& iName,
-                                                   const Plugins& iPlugins) const {
-        //do we already have it?
-        typename Plugins::const_iterator itFound = iPlugins.find(iName);
-        if(itFound == iPlugins.end()) {
-          std::string lib = PluginManager::get()->load(this->category(),iName).path().native_file_string();
-          itFound = iPlugins.find(iName);
-          if(itFound == iPlugins.end()) {
-            throw cms::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
-            <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
-          }
-        } else {
-          checkProperLoadable(iName,itFound->second.front().second);
-        }
-        return itFound;
-      }
+      Plugins::const_iterator findPMaker(const std::string& iName) const;
 
       //similar to findPMaker but will return 'end()' if iName is known
-      template<typename Plugins>
-        typename Plugins::const_iterator tryToFindPMaker(const std::string& iName,
-                                                         const Plugins& iPlugins) const 
-      {
-        //do we already have it?
-        typename Plugins::const_iterator itFound = iPlugins.find(iName);
-        if(itFound == iPlugins.end()) {
-          const SharedLibrary* slib = PluginManager::get()->tryToLoad(this->category(),iName);
-          if(0!=slib) {
-            std::string lib = slib->path().native_file_string();
-            itFound = iPlugins.find(iName);
-            if(itFound == iPlugins.end()) {
-              throw cms::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
-              <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
-            }
-          }
-        } else {
-          checkProperLoadable(iName,itFound->second.front().second);
-        }
-        return itFound;
-      }
+      Plugins::const_iterator tryToFindPMaker(const std::string& iName) const;
       
+      void fillInfo(const PMakers &makers,
+                    PluginInfo& iInfo,
+                    std::vector<PluginInfo>& iReturn ) const;
+
+      void fillAvailable(std::vector<PluginInfo>& iReturn) const;
       
-      template<typename MakersItr>
-        static void fillInfo(MakersItr iBegin, MakersItr iEnd,
-                             PluginInfo& iInfo,
-                             std::vector<PluginInfo>& iReturn ) {
-          for(MakersItr it = iBegin;
-              it != iEnd;
-              ++it) {
-            iInfo.loadable_ = it->second;
-            iReturn.push_back(iInfo);
-          }
-        }
-      template<typename PluginsItr>
-      static void fillAvailable(PluginsItr iBegin,
-                                PluginsItr iEnd,
-                                std::vector<PluginInfo>& iReturn) {
-        PluginInfo info;
-        for( PluginsItr it = iBegin;
-            it != iEnd;
-            ++it) {
-          info.name_ = it->first;
-          fillInfo(it->second.begin(),it->second.end(),
-                   info, iReturn);
-        }
-      }
-      
+      Plugins m_plugins;
       
    private:
       PluginFactoryBase(const PluginFactoryBase&); // stop default
 
       const PluginFactoryBase& operator=(const PluginFactoryBase&); // stop default
 
-      void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const {
-        //should check to see if this is from the proper loadable if it
-        // was not statically linked
-        if (iLoadedFrom != PluginManager::staticallyLinkedLoadingFileName() &&
-            PluginManager::isAvailable()) {
-          if( iLoadedFrom != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
-            throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
-            <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
-            <<"'\n but instead it was already loaded from\n '"
-            <<iLoadedFrom<<"'\n because some other plugin was loaded from the latter loadables.\n"
-            "To work around the problem the plugin '"<<iName<<"' should only be defined in one of these loadables.";
-          }
-        }
-      }
+      void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
 
 };
