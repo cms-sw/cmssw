@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.3 2009/10/21 14:06:13 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.4 2009/10/22 22:00:47 chrjones Exp $
 //
 
 #ifndef Fireworks_Calo_CaloTowerProxyRPZBuilder_h
@@ -35,13 +35,11 @@ private:
 
    // ---------- member data --------------------------------
    static TEveCaloDataHist* m_data;
-   Bool_t m_ownData;
 
    bool         m_handleEcal;
    const char*  m_histName;
    TH2F*        m_hist;
    Int_t        m_sliceIndex;
-   TEveCaloData::vCellId_t m_modelIndexToCellId;
 };
 
 //

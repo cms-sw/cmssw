@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.6 2009/10/22 16:22:42 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.7 2009/10/22 22:00:47 chrjones Exp $
 //
 
 // system include files
@@ -19,7 +19,6 @@ TEveCaloDataHist* FWCaloTowerRPZProxyBuilderBase::m_data = 0;
 
 FWCaloTowerRPZProxyBuilderBase::FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name):
    FWRPZDataProxyBuilder(),
-   m_ownData(kFALSE),
    m_handleEcal(handleEcal),
    m_histName(name),
    m_hist(0),
@@ -38,7 +37,6 @@ FWCaloTowerRPZProxyBuilderBase::~FWCaloTowerRPZProxyBuilderBase()
 //______________________________________________________________________________
 void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   m_modelIndexToCellId.clear();
    m_towers=0;
    iItem->get(m_towers);
    if(0==m_towers) {
@@ -70,20 +68,14 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
    }
    
    m_hist->Reset();
-   m_modelIndexToCellId.reserve(m_towers->size());
-   for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower) {
-      if(iItem->defaultDisplayProperties().isVisible()) {         
+   if(iItem->defaultDisplayProperties().isVisible()) {         
+      for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower) {
          if(m_handleEcal) {
             (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
          } else {
             (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
          }
       }
-      //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
-      // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
-      m_modelIndexToCellId.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
-      //std::cout <<" index "<<m_modelIndexToCellId.size()-1<<" bin # "<<m_hist->FindBin(tower->eta(),tower->phi())
-      //<<" eta "<< tower->eta()<<" phi "<<tower->phi()<<std::endl;
    }
    if ( m_calo3d == 0 ) {
       m_calo3d = new TEveCalo3D(m_data, "RPZCalo3D");
@@ -118,13 +110,31 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    if(m_data && m_towers && item()) {
       m_hist->Reset();
-      bool somethingSelected = false;
+      
+      //find all selected cell ids which are not from this FWEventItem and preserve only them
+      TEveCaloData::vCellId_t& selected = m_data->GetCellsSelected();
+      TEveCaloData::vCellId_t temp;
+      //use capacity instead of size becuase capacity will hold the largest number of selected objects seen
+      // while size is only how many are presently selected
+      temp.reserve(selected.capacity());
+      for(TEveCaloData::vCellId_t::iterator it = selected.begin(),itEnd = selected.end();
+          it != itEnd;
+          ++it) {
+         if(it->fSlice !=m_sliceIndex) {
+            temp.push_back(*it);
+            //std::cout <<"keeping "<<it->fTower<<" "<<it->fSlice<<std::endl;
+         }
+      }
+      selected.swap(temp);
+      
+      bool somethingSelected = !selected.empty();
+      //if(somethingSelected) {
+      //   std::cout <<" something already selected"<<std::endl;
+      //}
       if(item()->defaultDisplayProperties().isVisible()) {
 
          assert(item()->size() >= m_towers->size());
          unsigned int index=0;
-         //NOTE: technically should only remove the cells for this slice, not all cells
-         m_data->GetCellsSelected().clear();
          for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
             const FWEventItem::ModelInfo& info = item()->modelInfo(index);
             if(info.displayProperties().isVisible()) {
@@ -134,7 +144,10 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
                   (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
                }
                if(info.isSelected()) {
-                  m_data->GetCellsSelected().push_back(m_modelIndexToCellId[index]);
+                  //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
+                  // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
+
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
                   //std::cout <<"selected "<<index<<" cellID "<<m_modelIndexToCellId[index].fTower<<std::endl;
                   somethingSelected=true;
                }
