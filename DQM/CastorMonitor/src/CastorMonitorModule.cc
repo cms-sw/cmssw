@@ -23,6 +23,9 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
 
+  rootFile_ = ps.getUntrackedParameter<string>("rootFile","");
+  cout << "Root File to display = " << rootFile_ << endl;
+ 
  if(fVerbosity>0) cout << "CastorMonitorModule Constructor (start)" << endl;
 
   ////---- initialize Run, LS, Event number and other parameters
@@ -37,7 +40,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   meLatency_=0; meQuality_=0;
   fedsListed_ = false;
 
-  RecHitMon_ = NULL;   
+  RecHitMon_ = NULL;  RecHitMonValid_ = NULL;  
   PedMon_ = NULL; 
   LedMon_ = NULL;    
 
@@ -64,18 +67,27 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     RecHitMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
+ 
+////-------------------- RecHitMonitorValid ------------------------// 
+  if ( ps.getUntrackedParameter<bool>("RecHitMonitorValid", false) ) {
+    if(fVerbosity>0) cout << "CastorMonitorModule: RecHitValid monitor flag is on...." << endl;
+    RecHitMonValid_ = new CastorRecHitsValidation();
+    RecHitMonValid_->setup(ps, dbe_);
+  }
+ //-------------------------------------------------------------//
 
-  ////-------------------- LEDMonitor ------------------------//
+
+
+  ////-------------------- LEDMonitor ------------------------// 
   if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
     if(fVerbosity>0) cout << "CastorMonitorModule: LED monitor flag is on...." << endl;
     LedMon_ = new CastorLEDMonitor();
     LedMon_->setup(ps, dbe_);
   }
-//-------------------------------------------------------------//
+ //-------------------------------------------------------------//
 
+   ////---- ADD OTHER MONITORS HERE !!!!!!!!!!!!
   
- ////---- ADD OTHER MONITORS HERE !!!!!!!!!!!!
-
   ////---- get steerable variables
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
   if(fVerbosity>0) cout << "===>CastorMonitor event prescale = " << prescaleEvt_ << " event(s)"<< endl;
@@ -95,6 +107,14 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   if(fVerbosity>0) cout << "===>CastorMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
   
+ if ( dbe_ != NULL ){
+  dbe_->setCurrentFolder(rootFolder_);
+   ////---- open the root file to display histograms 
+  dbe_->open(rootFile_);
+  }
+
+
+
   gettimeofday(&psTime_.updateTV,NULL);
   ////---- get time in milliseconds, convert to minutes
   psTime_.updateTime = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
@@ -142,7 +162,7 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
-    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
+    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,660,759);
     meCASTOR_ = dbe_->bookInt("CASTORpresent");
     ////---- process latency 
     meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
@@ -152,11 +172,12 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
     meEvtMask_->Fill(-1);
     ////---- should fill with 0 to start
     meCASTOR_->Fill(0);
-  }
+    
+    }
   else{
   if(fVerbosity>0) cout << "CastorMonitorModule::beginJob - NO DQMStore service" << endl; 
  }
-
+  /*
   ////  (NO "CastorDbRecord" record found in the EventSetup)
   ////---- get Castor Readout Map from the DB 
   edm::ESHandle<CastorDbService> pSetup;
@@ -166,7 +187,7 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
   HcalCastorDetId CastorDetID_; 
 
   if(fVerbosity>0) cout << "CastorMonitorModule::beginJob 6" << endl; 
-
+ 
   ////---- build a map of readout hardware unit to calorimeter channel
   std::vector <CastorElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
   int dccid;
@@ -232,7 +253,7 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
   //// c.get<CastorChannelQualityRcd>().get(p);     //FIX
   //// chanquality_= new CastorChannelQuality(*p.product());
  
-   
+   */
  if(fVerbosity>0) cout << "CastorMonitorModule::beginJob (end)" << endl;
 
   return;
@@ -289,6 +310,9 @@ void CastorMonitorModule::endJob(void) {
   if(RecHitMon_!=NULL) RecHitMon_->done();
   if(PedMon_!=NULL) PedMon_->done();
   if(LedMon_!=NULL) LedMon_->done();
+  if(RecHitMonValid_!=NULL) RecHitMonValid_->done();
+  
+  
   /* FIX
   // TO DUMP THE OUTPUT TO DATABASE FILE
   if (dump2database_)
@@ -343,22 +367,24 @@ void CastorMonitorModule::reset(){
   if(PedMon_!=NULL)       PedMon_->reset();
   if(RecHitMon_!=NULL)    RecHitMon_->reset();
   if(LedMon_!=NULL)     LedMon_->reset();
+  if(RecHitMonValid_!=NULL) RecHitMonValid_->reset();
 }
 
 
 //=================================================================//
 //========================== analyze  ===============================//
 //=================================================================//
-void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup){
+void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
+cout << "==>CastorMonitorModule::analyze START !!!" << endl;
 
   // environment datamembers
-  irun_     = iEvent.id().run();
-  ilumisec_ = iEvent.luminosityBlock();
-  ievent_   = iEvent.id().event();
-  itime_    = iEvent.time().value();
+  irun_     = e.id().run();
+  ilumisec_ = e.luminosityBlock();
+  ievent_   = e.id().event();
+  itime_    = e.time().value();
 
   if (fVerbosity>0) { 
-  cout << "CastorMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << endl;
+  cout << "==> CastorMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << endl;
   cout << " evt: " << ievent_ << ", time: " << itime_  <<"\t counter = "<< ievt_pre_<< "\t total count = "<<ievt_<<endl; 
   }
 
@@ -392,12 +418,13 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   bool rechitOK_ = true;
 
 
- 
-  ////---- try to get raw data 
+ cout << "==>CastorMonitorModule::analyze 1 !!!" << endl;
+ /*
+  ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
  
   try{
-    iEvent.getByType(RawData);
+    e.getByType(RawData);
   }
   catch(...)
     {
@@ -406,11 +433,13 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (rawOK_&&!RawData.isValid()) {
     rawOK_=false;
   }
-
-  ////---- try to get unpacker report
+ */
+  //--- MY_DEBUG put it for now
+  HcalUnpackerReport * report = new HcalUnpackerReport();
+  /*
   edm::Handle<HcalUnpackerReport> report;  
   try{
-    iEvent.getByType(report);
+    e.getByType(report);
   }
   catch(...)
     {
@@ -430,7 +459,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 	fedsListed_ = true;
       }
     }
- 
+  */
 
   //---------------------------------------------------------------//
   //-------------------  try to get digis ------------------------//
@@ -439,7 +468,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::Handle<CastorDigiCollection> CastorDigi;
 
   try{
-      iEvent.getByLabel(inputLabelDigi_,CastorDigi);
+      e.getByLabel(inputLabelDigi_,CastorDigi);
     }
   catch(...) {
       digiOK_=false;
@@ -448,11 +477,13 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (digiOK_ && !CastorDigi.isValid()) {
     digiOK_=false;
   }
-
+  /* MY_DEBUG
   ////---- check that Castor is on by seeing which are reading out FED data
   if ( checkCASTOR_ )
     CheckCastorStatus(*RawData,*report,*readoutMap_,*CastorDigi);
-    
+  */ 
+ CastorElectronicsMap* readoutMap_ = new CastorElectronicsMap();
+ //  CheckCastorStatus(*RawData,*report,*readoutMap_,*CastorDigi);
 
   //---------------------------------------------------------------//
   //------------------- try to get RecHits ------------------------//
@@ -460,7 +491,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::Handle<CastorRecHitCollection> CastorHits;
 
   try{
-  iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
+  e.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
   }
   catch(...) {
   rechitOK_=false;
@@ -469,7 +500,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (rechitOK_&&!CastorHits.isValid()) {
     rechitOK_ = false;
   }
-
 
   //------------------------------------------------------------//
   //---------------- Run the configured tasks ------------------//
@@ -481,8 +511,11 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
 
+
+
   //----------------- Pedestal monitor task ------------------//
-  if((PedMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
+  // MY_DEBUG
+  // if((PedMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
     PedMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_)
     {
@@ -491,8 +524,9 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
 
+
  //----------------- Rec Hit monitor task -------------------------//
-  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
+  //  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
     RecHitMon_->processEvent(*CastorHits);
   if (showTiming_)
     {
@@ -501,17 +535,20 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
 
+    RecHitMonValid_->processEvent(*CastorHits);
+
+
+  //---------------- LED monitor task ------------------------//
+  //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
+     LedMon_->processEvent(*CastorDigi,*conditions_);
+   if (showTiming_)
+     {
+       cpu_timer.stop();
+       if (LedMon_!=NULL) cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+       cpu_timer.reset(); cpu_timer.start();
+     }
   
-  //---------------- LED monitor task ------------------------// 
-  if((LedMon_!=NULL) && (evtMask&DO_CASTOR_LED_CALIBMON) && digiOK_)
-    LedMon_->processEvent(*CastorDigi,*conditions_);
-  if (showTiming_)
-    {
-      cpu_timer.stop();
-      if (LedMon_!=NULL) cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
- 
+
 
   if(fVerbosity>0 && ievt_%1000 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
@@ -519,9 +556,9 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if(fVerbosity>0)
     {
       cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
-      cout << "    RAW Data   ==> " << rawOK_<< endl;
-      cout << "    Digis      ==> " << digiOK_<< endl;
-      cout << "    RecHits    ==> " << rechitOK_<< endl;
+      // cout << "    RAW Data   ==> " << rawOK_<< endl;
+      // cout << "    Digis      ==> " << digiOK_<< endl;
+      // cout << "    RecHits    ==> " << rechitOK_<< endl;
     }
   
   return;
