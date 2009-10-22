@@ -46,11 +46,14 @@ protected:
   /// Endjob
   void endJob();
 
-
+  void harvest();
 
 private:
   DQMStore* dbe_;  
   edm::ParameterSet config_;
+
+  bool runAtEndJob_;
+  bool runAtEndRun_;
 
 
 };
