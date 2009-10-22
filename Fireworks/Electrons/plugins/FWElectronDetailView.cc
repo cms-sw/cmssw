@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.40 2009/10/08 18:23:14 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.41 2009/10/12 17:54:05 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -51,49 +51,43 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
 {
    if(0==iElectron) return;
    TEveWindowPack* eveWindow = base->MakePack();
+   eveWindow->SetHorizontal();
    eveWindow->SetShowTitleBar(kFALSE);
+   setEveWindow(eveWindow);
 
-   TEveWindow* ew(0);
-   TEveWindowSlot* slot(0);
-   TEveScene*      scene(0);
-   TEveViewer*     viewer(0);
-   TGVerticalFrame* ediFrame(0);
+   // first slot canvas
+   TEveWindowSlot* slot = eveWindow->NewSlotWithWeight(1);
+   slot->SetShowTitleBar(kFALSE);
+   TRootEmbeddedCanvas* ec  = new TRootEmbeddedCanvas();
+   slot->MakeFrame(ec);
+   makeLegend(iElectron, id, ec->GetCanvas());
 
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 1
-   ///////////////////////////////////////////////////////////////////////
+   // second slot viewer
+   slot = eveWindow->NewSlotWithWeight(3);
+   TEveViewer*  ev = new TEveViewer("Track hits detail view");
+   slot->SetShowTitleBar(kFALSE);
+   ev->SpawnGLEmbeddedViewer();
+   slot->ReplaceWindow(ev);
+   m_viewer = ev->GetGLViewer();
 
-   // prepare window
-   slot = eveWindow->NewSlot();
-   ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("ECAL based view");
-   FWDetailViewBase::setEveWindow(ew);
-   
+   gEve->GetViewers()->AddElement(ev);
+   TEveScene* scene = gEve->SpawnNewScene("hits scene");
+   ev->AddScene(scene);
+
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
 				   iElectron->caloPosition().eta(), iElectron->caloPosition().phi(), 25);
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iElectron->superCluster().isAvailable() )
-     builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
+      builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
    TEveCaloLego* lego = builder.build();
    scene->AddElement(lego);
-   
    // add Electron specific details
    addTrackPointsInCaloData( iElectron, lego);
    drawCrossHair(iElectron, lego, scene);
    addInfo(iElectron, scene);
 
-   // draw legend in latex
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
-   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   ediFrame->MapSubwindows();
-   ediFrame->Layout();
-   ec->GetCanvas()->SetBorderMode(0);
-   makeLegend(iElectron, id, ec->GetCanvas());
-   
    // draw axis at the window corners
-   // std::cout << "TEveViewer: " << viewer << std::endl;
-   m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
@@ -109,19 +103,9 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    m_viewer->UpdateScene();
    m_viewer->CurrentCamera().Reset();
 
-   scene->Repaint(true);
-
+ 
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
-   
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 2
-   ///////////////////////////////////////////////////////////////////////
-   // slot = eveWindow->NewSlot();
-   // ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   // ew->SetElementName("View C");
-
-   // eveWindow->GetTab()->SetTab(1);
 }
 
 
@@ -341,7 +325,7 @@ FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, TEve
    Double_t em, eM, pm, pM;
    data->GetEtaLimits(em, eM);
    data->GetPhiLimits(pm, pM);
-
+   data->IncDenyDestroy();
    Bool_t changed = kFALSE;
    // add cells in third layer if necessary
 
@@ -464,6 +448,7 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
 void
 FWElectronDetailView::setBackgroundColor(Color_t col)
 {
+   return;
    FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
