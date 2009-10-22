@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.4 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.5 2009/10/21 14:06:13 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ FWCaloTowerRPZProxyBuilderBase::~FWCaloTowerRPZProxyBuilderBase()
 {
    // Destructor.
 
-   if (m_ownData) m_data->DecDenyDestroy();
+   if( 0 !=m_data && 0 != m_hist) {m_data->DecDenyDestroy();}
 }
 
 //______________________________________________________________________________
@@ -68,11 +68,12 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
    }
    if ( !m_data )  {
       m_data = new TEveCaloDataHist();
-      m_ownData = kTRUE;
    }
    if ( newHist ) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(m_histName, 0., iItem->defaultDisplayProperties().color());
+      //make sure it does not go away
+      m_data->IncDenyDestroy();
    }
    if ( m_calo3d == 0 ) {
       m_calo3d = new TEveCalo3D(m_data, "RPZCalo3D");
@@ -85,7 +86,6 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
          gEve->AddElement(*product);
       }
    }
-   m_data->IncDenyDestroy();
 }
 
 void
