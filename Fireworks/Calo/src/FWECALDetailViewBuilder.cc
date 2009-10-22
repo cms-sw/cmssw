@@ -65,6 +65,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
    // data
    TEveCaloDataVec* data = new TEveCaloDataVec(1 + m_colors.size());
+   data->IncDenyDestroy();
    data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, kMagenta+2);
    for (size_t i = 0; i < m_colors.size(); ++i)
    {
