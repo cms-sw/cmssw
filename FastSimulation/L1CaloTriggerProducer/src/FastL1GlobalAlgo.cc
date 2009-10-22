@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.40 2009/03/23 11:41:28 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.41 2009/03/28 14:40:52 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -547,10 +547,10 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   e.getByLabel(m_L1Config.HcalTPInput,HTPinput);
 
   //CaloTowerCollection towers;
-  int hEtV[396][16] = {0};
-  int hFGV[396][16] = {0};
-  int hiEtaV[396][16] = {0};
-  int hiPhiV[396][16] = {0};
+  int hEtV  [396][16] = {{0}}; 
+  int hFGV  [396][16] = {{0}};
+  int hiEtaV[396][16] = {{0}};
+  int hiPhiV[396][16] = {{0}};
   for (HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->begin(); 
        hTP!=HTPinput->end(); hTP++) {
     
@@ -593,10 +593,10 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   }
   
 
-  int emEtV[396][16] = {0};
-  int emFGV[396][16] = {0};
-  int emiEtaV[396][16] = {0};
-  int emiPhiV[396][16] = {0};
+  int emEtV  [396][16] = {{0}};
+  int emFGV  [396][16] = {{0}};
+  int emiEtaV[396][16] = {{0}};
+  int emiPhiV[396][16] = {{0}};
   //double emEtaV[396][16] = {0.};
   for (EcalTrigPrimDigiCollection::const_iterator eTP=ETPinput->begin(); 
        eTP!=ETPinput->end(); eTP++) {
