@@ -7,6 +7,7 @@
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 
 // Forward Declarations
+namespace edm { class ParameterSet; }
 class DQMStore;
 class FedChannelConnection;
 class SiStripEventSummary;
@@ -19,7 +20,7 @@ class PedsFullNoiseTask : public CommissioningTask {
 
   public:
 
-    PedsFullNoiseTask( DQMStore * dqm, const FedChannelConnection & conn);
+    PedsFullNoiseTask(DQMStore * dqm, const FedChannelConnection & conn, const edm::ParameterSet & pset);
     virtual ~PedsFullNoiseTask();
 
   private:

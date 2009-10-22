@@ -71,7 +71,8 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   cablingTask_(false),
   updateFreq_( pset.getUntrackedParameter<int>("HistoUpdateFreq",1) ),
   base_(""),
-  view_( pset.getUntrackedParameter<std::string>("View", "Default") )
+  view_( pset.getUntrackedParameter<std::string>("View", "Default") ),
+  parameters_(pset)
 {
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -1028,7 +1029,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           } else if ( task_ == sistrip::NOISE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
           } else if ( task_ == sistrip::PEDS_FULL_NOISE ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask( dqm(), *iconn );
+            tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask( dqm(), *iconn, parameters_ );
           } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
           } else if ( task_ == sistrip::CALIBRATION_SCAN || 

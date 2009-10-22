@@ -6,25 +6,26 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/lexical_cast.hpp"
 
 
 // -----------------------------------------------------------------------------
 //
-PedsFullNoiseTask::PedsFullNoiseTask( DQMStore * dqm,
-                            const FedChannelConnection & conn)
-  : CommissioningTask( dqm, conn, "PedsFullNoiseTask"),
-    skipped_(false),
-    nskip_(0),
-    tempstable_(false),
-    ntempstab_(200),
-    nadcnoise_(25),
-    nstrips_(256)
+PedsFullNoiseTask::PedsFullNoiseTask(DQMStore * dqm, const FedChannelConnection & conn, const edm::ParameterSet & pset) :
+  CommissioningTask(dqm, conn, "PedsFullNoiseTask"),
+  nstrips_(256)
 {
   LogTrace(sistrip::mlDqmSource_)
     << "[PedsFullNoiseTask::" << __func__ << "]"
     << " Constructing object...";
+  edm::ParameterSet params = pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters");
+  nskip_ = params.getParameter<int>("NrEvToSkipAtStart");
+  skipped_ = false,
+  ntempstab_ = params.getParameter<int>("NrEvUntilStable");
+  tempstable_ = false;
+  nadcnoise_ = params.getParameter<int>("NrPosBinsNoiseHist");
 }
 
 // -----------------------------------------------------------------------------
