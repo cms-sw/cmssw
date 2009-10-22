@@ -53,12 +53,13 @@ process.load("HLTriggerOffline.Tau.Validation.HLTTauValidation_cff")
 
 #Load The Post processor
 process.load("HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi")
+process.load("HLTriggerOffline.Tau.Validation.HLTTauQualityTests_cff")
 
 
 #Define the Paths
 process.validation = cms.Path(process.HLTTauVal)
 
-process.postProcess = cms.EndPath(process.HLTTauPostVal+process.dqmSaver)
+process.postProcess = cms.EndPath(process.HLTTauPostVal+process.hltTauRelvalQualityTests+process.dqmSaver)
 #process.postProcess = cms.EndPath(process.dqmSaver)
 process.schedule =cms.Schedule(process.validation,process.postProcess)
 
