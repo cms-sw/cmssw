@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.16 2008/03/06 17:46:40 delaer Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.17 2008/03/17 17:37:10 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -35,6 +35,7 @@ std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) 
   else if ( run_type == sistrip::PEDESTALS ) { return sistrip::pedestalsRun_; }
   else if ( run_type == sistrip::PEDS_ONLY ) { return sistrip::pedsOnlyRun_; }
   else if ( run_type == sistrip::NOISE ) { return sistrip::noiseRun_; }
+  else if ( run_type == sistrip::PEDS_FULL_NOISE ) { return sistrip::pedsFullNoiseRun_; }
   else if ( run_type == sistrip::APV_LATENCY ){ return sistrip::apvLatencyRun_; }
   else if ( run_type == sistrip::FINE_DELAY ){ return sistrip::fineDelayRun_; }
   else if ( run_type == sistrip::CALIBRATION ){ return sistrip::calibPeakRun_; }
@@ -58,6 +59,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type.find( sistrip::vpspScanRun_ ) != std::string::npos ) { return sistrip::VPSP_SCAN; }
   else if ( run_type.find( sistrip::pedestalsRun_ ) != std::string::npos ) { return sistrip::PEDESTALS; }
   else if ( run_type.find( sistrip::pedsOnlyRun_ ) != std::string::npos ) { return sistrip::PEDS_ONLY; }
+  else if ( run_type.find( sistrip::pedsFullNoiseRun_ ) != std::string::npos ) { return sistrip::PEDS_FULL_NOISE; } // needs to be before noise, otherwise name mismatch
   else if ( run_type.find( sistrip::noiseRun_ ) != std::string::npos ) { return sistrip::NOISE; }
   else if ( run_type.find( sistrip::fineDelayRun_ ) != std::string::npos ) { return sistrip::FINE_DELAY; }
   else if ( run_type.find( sistrip::calibPeakRun_ ) != std::string::npos ) { return sistrip::CALIBRATION; }
@@ -76,6 +78,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type == "OPTO_SCAN" ) { return sistrip::OPTO_SCAN; }
   else if ( run_type == "VPSP_SCAN" ) { return sistrip::VPSP_SCAN; }
   else if ( run_type == "PEDESTALS" ) { return sistrip::PEDESTALS; }
+  else if ( run_type == "PEDS_FULL_NOISE" ) { return sistrip::PEDS_FULL_NOISE; }
   else if ( run_type == "PEDS_ONLY" ) { return sistrip::PEDS_ONLY; }
   else if ( run_type == "NOISE" ) { return sistrip::NOISE; }
   else if ( run_type == "APV_LATENCY" ) { return sistrip::APV_LATENCY; }
@@ -115,6 +118,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const uint16_t& run_type ) {
   else if ( run_type == 21 ) { return sistrip::FAST_CABLING; }
   else if ( run_type == 22 ) { return sistrip::PEDS_ONLY; }
   else if ( run_type == 23 ) { return sistrip::NOISE; }
+  else if ( run_type == 24 ) { return sistrip::PEDS_FULL_NOISE; }
   else if ( run_type == 33 ) { return sistrip::CALIBRATION_DECO; }
   else if ( run_type == sistrip::invalid_ ) { return sistrip::UNDEFINED_RUN_TYPE; }
   else { return sistrip::UNKNOWN_RUN_TYPE; }

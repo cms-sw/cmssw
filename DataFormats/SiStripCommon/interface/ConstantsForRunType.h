@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.9 2008/03/17 17:37:10 bainbrid Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -27,6 +27,7 @@ namespace sistrip {
   static const char pedestalsRun_[]         = "Pedestals";
   static const char pedsOnlyRun_[]          = "PedsOnly";
   static const char noiseRun_[]             = "Noise";
+  static const char pedsFullNoiseRun_[]     = "PedsFullNoise";
   static const char apvLatencyRun_[]        = "ApvLatency";
   static const char fineDelayRun_[]         = "FineDelay";
   static const char calibPeakRun_[]         = "CalibrationPeak";
@@ -42,7 +43,7 @@ namespace sistrip {
    * Run types: (equivalent "TrackerSupervisor" enums in brackets): 
    * unknown run type,
    * undefined run type,
-   * physics data-taking run                  (1 = PHYSIC), 
+   * physics data-taking run                  (1 = PHYSICS), 
    * FED calibration run for peds and noise   (2 = PEDS_AND_NOISE), 
    * pulse shape tuning using peak mode       (3 = CALIBRATION), 
    * bias and gain scan for LLD device        (4 = GAINSCAN),  
@@ -63,33 +64,36 @@ namespace sistrip {
    * isha/vfs scan using decon mode           (20 = CALIBRATION_SCAN_DECO), 
    * "fast" connection run                    (21 = XTOFS_CONNECTION), 
    * FED calibration run for pedestals (only) (22 = PEDESTAL), 
-   * FED calibration run for noise (only)     (23 = NOISE), 
+   * FED calibration run for noise (only)     (23 = NOISE),
+   * FED calib. for peds and detailed noise   (24 = PEDS_FULL_NOISE),
    * pulse shape tuning using decon mode      (33 = CALIBRATION_DECO), 
    */
-  enum RunType { PHYSICS               = 1,
-		 PEDESTALS             = 2,
-		 CALIBRATION           = 3,
-		 OPTO_SCAN             = 4,
-		 APV_TIMING            = 5,
-		 APV_LATENCY           = 6,
-		 FINE_DELAY_PLL        = 7,
-		 FINE_DELAY_TTC        = 8,
-		 MULTI_MODE            = 10,
-		 FED_TIMING            = 12,
-                 FED_CABLING           = 13,
-		 VPSP_SCAN             = 14,
-		 DAQ_SCOPE_MODE        = 15,
-                 QUITE_FAST_CABLING    = 16,
-		 FINE_DELAY            = 17,
-		 PHYSICS_ZS            = 18,
-		 CALIBRATION_SCAN      = 19,
-		 CALIBRATION_SCAN_DECO = 20,
-		 FAST_CABLING          = 21,
-		 PEDS_ONLY             = 22,
-		 NOISE                 = 23,
-		 CALIBRATION_DECO      = 33,
-		 UNKNOWN_RUN_TYPE   = sistrip::unknown_,
-		 UNDEFINED_RUN_TYPE = sistrip::invalid_
+  enum RunType { 
+      PHYSICS               = 1,
+      PEDESTALS             = 2,
+      CALIBRATION           = 3,
+      OPTO_SCAN             = 4,
+      APV_TIMING            = 5,
+      APV_LATENCY           = 6,
+      FINE_DELAY_PLL        = 7,
+      FINE_DELAY_TTC        = 8,
+      MULTI_MODE            = 10,
+      FED_TIMING            = 12,
+      FED_CABLING           = 13,
+      VPSP_SCAN             = 14,
+      DAQ_SCOPE_MODE        = 15,
+      QUITE_FAST_CABLING    = 16,
+      FINE_DELAY            = 17,
+      PHYSICS_ZS            = 18,
+      CALIBRATION_SCAN      = 19,
+      CALIBRATION_SCAN_DECO = 20,
+      FAST_CABLING          = 21,
+      PEDS_ONLY             = 22,
+      NOISE                 = 23,
+      PEDS_FULL_NOISE       = 24,
+      CALIBRATION_DECO      = 33,
+      UNKNOWN_RUN_TYPE   = sistrip::unknown_,
+      UNDEFINED_RUN_TYPE = sistrip::invalid_
   };
 
 }
