@@ -65,7 +65,7 @@ else
     exit
 endif
 
-diff outLocalDB.log outGTDB.log > logLocalvsGTDiff.log
+diff outLocalDB.log outGTDB.log > logDiffLocalvsGT.log
 if ( -s logLocalvsGTDiff.log ) then
     echo "WARNING THE CONTENT OF GLOBAL TAG IS DIFFERENT WHIT RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
 endif
@@ -174,12 +174,12 @@ else
     exit
 endif
 
-diff --ignore-matching-lines='Geometry node for DTGeom' outDDD_DT.log outDB_DT.log > logDTDiffGTvsDDD.log
+diff --ignore-matching-lines='Geometry node for DTGeom' outDB_DT.log outDDD_DT.log > logDTDiffGTvsDDD.log
 if ( -s logDTDiffGTvsDDD.log ) then
     echo "WARNING THE DT RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log
 endif
 
-diff --ignore-matching-lines='Geometry node for DTGeom' outDDD_DT.log outLocalDB_DT.log > logDTDiffLocalvsDDD.log
+diff --ignore-matching-lines='Geometry node for DTGeom' outLocalDB_DT.log outDDD_DT.log > logDTDiffLocalvsDDD.log
 if ( -s logDTDiffLocalvsDDD.log ) then
     echo "WARNING THE DT RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND LOCAL DB" | tee -a GeometryValidation.log
 endif
@@ -227,17 +227,17 @@ else
     exit
 endif
 
-diff --ignore-matching-lines='Geometry node for CSCGeom' outDDD_CSC.log outDB_CSC.log > logCSCDiffGTvsDDD.log
+diff --ignore-matching-lines='Geometry node for CSCGeom' outDB_CSC.log outDDD_CSC.log > logCSCDiffGTvsDDD.log
 if ( -s logCSCDiffGTvsDDD.log ) then
     echo "WARNING THE CSC RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log
 endif
 
-diff --ignore-matching-lines='Geometry node for CSCGeom' outDDD_CSC.log outLocalDB_CSC.log > logCSCDiffLocalvsDDD.log
+diff --ignore-matching-lines='Geometry node for CSCGeom' outLocalDB_CSC.log outDDD_CSC.log > logCSCDiffLocalvsDDD.log
 if ( -s logCSCDiffLocalvsDDD.log ) then
-    echo "WARNING THE CSC RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND Local DB" | tee -a GeometryValidation.log
+    echo "WARNING THE CSC RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND LOCAL DB" | tee -a GeometryValidation.log
 endif
 
-diff --ignore-matching-lines='Geometry node for CSCGeom' outDB_CSC.log outLocalDB_CSC.log > logCSCDiffLocalvsGT.log
+diff --ignore-matching-lines='Geometry node for CSCGeom' outLocalDB_CSC.log outDB_CSC.log > logCSCDiffLocalvsGT.log
 if ( -s logCSCDiffLocalvsGT.log ) then
     echo "WARNING THE CSC RECO GEOMETRY IS DIFFERENT BETWEEN GT DB AND LOCAL DB" | tee -a GeometryValidation.log
 endif
@@ -280,17 +280,17 @@ else
     exit
 endif
 
-diff --ignore-matching-lines='Geometry node for RPCGeom' outDDD_RPC.log outDB_RPC.log > logRPCDiffGTvsDDD.log
+diff --ignore-matching-lines='Geometry node for RPCGeom' outDB_RPC.log outDDD_RPC.log > logRPCDiffGTvsDDD.log
 if ( -s logRPCDiffGTvsDDD.log ) then
     echo "WARNING THE RPC RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log
 endif
 
-diff --ignore-matching-lines='Geometry node for RPCGeom' outDDD_RPC.log outLocalDB_RPC.log > logRPCDiffLocalvsDDD.log
+diff --ignore-matching-lines='Geometry node for RPCGeom' outLocalDB_RPC.log outDDD_RPC.log > logRPCDiffLocalvsDDD.log
 if ( -s logRPCDiffLocalvsDDD.log ) then
     echo "WARNING THE RPC RECO GEOMETRY IS DIFFERENT BETWEEN DDD AND LOCAL DB" | tee -a GeometryValidation.log
 endif
 
-diff --ignore-matching-lines='Geometry node for RPCGeom' outDB_RPC.log outLocalDB_RPC.log > logRPCDiffLocalvsDB.log
+diff --ignore-matching-lines='Geometry node for RPCGeom' outLocalDB_RPC.log outDB_RPC.log > logRPCDiffLocalvsDB.log
 if ( -s logRPCDiffLocalvsDB.log ) then
     echo "WARNING THE RPC RECO GEOMETRY IS DIFFERENT BETWEEN GT DB AND LOCAL DB" | tee -a GeometryValidation.log
 endif
@@ -351,15 +351,15 @@ rm -f $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.l
 source $CMSSW_BASE/src/Geometry/CaloEventSetup/test/clean.scr
 
 if ( -s CALODDDError.log ) then                                                               
-    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log                                                                                  
+    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND REF" | tee -a GeometryValidation.log                                                                                  
 endif                                                                                                      
 
 if ( -s CALODBError.log ) then                                                               
-    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND GT DB" | tee -a GeometryValidation.log                                                                                  
+    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN GT DB AND REF" | tee -a GeometryValidation.log                                                                                  
 endif                                                                                                      
 
 if ( -s CALOLocalError.log ) then                                                               
-    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN DDD AND LOCAL DB" | tee -a GeometryValidation.log                                                                                  
+    echo "WARNING THE CALO GEOMETRY IS DIFFERENT BETWEEN LOCAL DB AND REF" | tee -a GeometryValidation.log                                                                                  
 endif                                                                                                      
                                                                                               
 echo "End CALO RECO geometry validation" | tee -a GeometryValidation.log
