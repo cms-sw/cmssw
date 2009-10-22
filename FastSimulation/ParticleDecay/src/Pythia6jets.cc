@@ -7,7 +7,7 @@ extern "C" void *getaddr(void *item)
 }
 
 extern 
-struct {
+struct _Pyjets {
 	int n;
 	int npad;
 	int k[5][4000];

@@ -215,7 +215,7 @@ C...Check existence of decay channels. Particle/antiparticle rules.
       ENDIF
  
 C...Sum branching ratios of allowed decay channels.
-  220 NOPE=0
+      NOPE=0
       BRSU=0D0
       DO 230 IDL=MDCY(KCA,2),MDCY(KCA,2)+MDCY(KCA,3)-1
 c
