@@ -14,7 +14,8 @@
  * negative of each correction.  
  *
  * \authors Michael Schmitt, Richard Cavanaugh The University of Florida
- *
+ * changes by Freya Blekman, Cornell University: Added significance interface
+ * 
  * \version   1st Version May 31st, 2005.
  *
  ************************************************************/
@@ -24,6 +25,7 @@
 #include <cmath>
 #include <vector>
 #include <cstring>
+#include "TMatrixD.h"
 
 namespace reco
 {
@@ -43,6 +45,8 @@ namespace reco
       double sumEt() const { return sumet; }       
       //MET Significance = MET / sqrt(SumET)
       double mEtSig() const { return ( sumet ? (this->et() / sqrt(sumet)) : (0.0) ); }
+      //real MET significance
+      double significance() const;
       //longitudinal component of the vector sum of energy over all object
       //(useful for data quality monitoring)
       double e_longitudinal() const {return elongit; }  
@@ -51,13 +55,21 @@ namespace reco
       std::vector<double> dmEx();
       std::vector<double> dmEy();
       std::vector<double> dsumEt();
+      std::vector<double> dSignificance();
       //Define method to extract the entire "block" of MET corrections
       std::vector<CorrMETData> mEtCorr() const { return corr; }
       //-----------------------------------------------------------------
+      void setSignificanceMatrix(const TMatrixD& matrix);
+      TMatrixD getSignificanceMatrix(void) const;
     private:
       virtual bool overlap( const Candidate & ) const;
       double sumet;
       double elongit;
+      // bookkeeping for the significance
+      double signif_dxx;
+      double signif_dyy;
+      double signif_dyx;
+      double signif_dxy;
       std::vector<CorrMETData> corr;
     };
 }

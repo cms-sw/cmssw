@@ -24,7 +24,7 @@ struct CorrMETData {
   double mex;
   double mey;
   double sumet;
-
+  double significance;
 };
 
 #endif // METRECO_CORR_MET_DATA_H

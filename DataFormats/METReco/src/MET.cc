@@ -4,6 +4,8 @@
 // Creation Date:  MHS MAY 30, 2005 initial version
 
 #include "DataFormats/METReco/interface/MET.h"
+#include "TVector.h"
+#include "TMatrix.h"
 
 using namespace std;
 using namespace reco;
@@ -28,6 +30,7 @@ MET::MET( const LorentzVector& p4_, const Point& vtx_ ) :
 {
   sumet = 0.0;
   elongit = 0.0;
+  signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
 //---------------------------------------------------------------------------
 
@@ -41,6 +44,7 @@ MET::MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ ) :
 {
   sumet = sumet_;
   elongit = 0.0;
+  signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
 //---------------------------------------------------------------------------
 
@@ -51,10 +55,11 @@ MET::MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ ) :
 //-----------------------------------
 MET::MET( double sumet_, std::vector<CorrMETData> corr_, 
 	  const LorentzVector& p4_, const Point& vtx_ ) : 
-  RecoCandidate( 0, p4_, vtx_ ) 
+  RecoCandidate( 0, p4_, vtx_ )
 {
   sumet = sumet_;
   elongit = 0.0;
+  signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
   //-----------------------------------
   // Fill the vector containing the corrections (corr) with vector of 
   // known corrections (corr_) passed in via the constructor.
@@ -65,6 +70,20 @@ MET::MET( double sumet_, std::vector<CorrMETData> corr_,
     }
 }
 //---------------------------------------------------------------------------
+
+// function that calculates the MET significance from the vector information.
+double MET::significance() const {
+  TMatrixD metmat = getSignificanceMatrix();
+  TVectorD metvec(2);
+  metvec(0)=this->px();
+  metvec(1)=this->py();
+  double signif = -1;
+  if(metmat.Abs()>0.000001){
+    metmat.Invert();
+    signif = metvec * (metmat * metvec);
+  }
+  return signif;
+}
 
 //---------------------------------------------------------------------------
 // Returns the vector of all corrections applied to the x component of the
@@ -112,6 +131,35 @@ std::vector<double> MET::dsumEt()
     }
   return deltas;
 }
+
+//---------------------------------------------------------------------------
+// returns the significance matrix
+//---------------------------------------------------------------------------
+
+TMatrixD MET::getSignificanceMatrix(void) const
+{
+  TMatrixD result(2,2);
+  result(0,0)=signif_dxx;
+  result(0,1)=signif_dxy;
+  result(1,0)=signif_dyx;
+  result(1,1)=signif_dyy;
+  return result;
+}
+
+//---------------------------------------------------------------------------
+// Returns the vector of all corrections applied to the significance of the 
+// transverse energy (over all objects)
+//-----------------------------------
+std::vector<double> MET::dSignificance()
+{
+  std::vector<double> deltas;
+  std::vector<CorrMETData>::const_iterator i;
+  for( i = corr.begin(); i != corr.end(); i++ )
+    {
+      deltas.push_back( i->significance );
+    }
+  return deltas;
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -122,3 +170,12 @@ bool MET::overlap( const Candidate & ) const
   return false;
 }
 //---------------------------------------------------------------------------
+
+void
+MET::setSignificanceMatrix(const TMatrixD &inmatrix){
+  signif_dxx=inmatrix(0,0);
+  signif_dxy=inmatrix(0,1);
+  signif_dyx=inmatrix(1,0);
+  signif_dyy=inmatrix(1,1);
+  return;
+}
