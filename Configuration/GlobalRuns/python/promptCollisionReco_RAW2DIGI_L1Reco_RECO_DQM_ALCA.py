@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.149 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('promptReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 )
 
 # Output definition
-process.output = cms.OutputModule("PoolOutputModule",
+process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = process.RECOEventContent.outputCommands,
     fileName = cms.untracked.string('promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
     dataset = cms.untracked.PSet(
@@ -48,7 +48,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
-process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
+process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias')
     ),
@@ -115,8 +115,8 @@ process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*pr
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
-process.out_step = cms.EndPath(process.output)
-process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
+process.out_step = cms.EndPath(process.FEVT)
+process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
