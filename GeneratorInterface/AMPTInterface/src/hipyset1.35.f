@@ -5032,6 +5032,8 @@ C...Purpose: to perform rotations and boosts.
       SAVE /LUDAT1/ 
       DIMENSION ROT(3,3),PR(3),VR(3),DP(4),DV(4)    
     
+      DV(1)=DV(1)
+      VR(1)=VR(1)
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
       IF(MSTU(1).GT.0) IMIN=MSTU(1) 
@@ -5318,6 +5320,7 @@ C...data, or current parameter values.
       DATA CHMO/'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep',  
      &'Oct','Nov','Dec'/,CHDL/'(())',' ','()','!!','<>','==','(==)'/    
     
+      CHMO(1)=CHMO(1)
 C...Initialization printout: version number and date of last change.    
 C      IF(MLIST.EQ.0.OR.MSTU(12).EQ.1) THEN  
 C        WRITE(MSTU(11),1000) MSTU(181),MSTU(182),MSTU(185), 
@@ -6052,7 +6055,8 @@ C...differential cross-sections to be used for weighting.
       CHARACTER CHFRAM*8,CHBEAM*8,CHTARG*8,CHMO(12)*3,CHLH(2)*6 
       DATA CHMO/'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep',  
      &'Oct','Nov','Dec'/, CHLH/'lepton','hadron'/   
-    
+
+      CHMO(1)=CHMO(1)
 C...Write headers.  
 C      IF(MSTP(122).GE.1) WRITE(MSTU(11),1000) MSTP(181),MSTP(182),  
 C     &MSTP(185),CHMO(MSTP(184)),MSTP(183)   
@@ -15157,6 +15161,8 @@ C...by removing C* at the beginning of some of the lines below.
       DATA HEADER/'Tung evolution package has been invoked'/    
       DATA INIT/0/  
     
+      HEADER=HEADER
+      CHDFLM(1)=CHDFLM(1)
 C...Proton structure functions from Diemoz, Ferroni, Longo, Martinelli. 
 C...Allowed variable range 10 GeV2 < Q2 < 1E8 GeV2, 5E-5 < x < .95. 
       IF(MSTP(51).GE.11.AND.MSTP(51).LE.13.AND.MSTP(52).LE.1) THEN  
