@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "DataFormats/Provenance/interface/TransientStreamer.h"
 #include "DataFormats/Common/interface/CacheStreamers.h"
@@ -191,6 +192,9 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   setCacheStreamers();
   setTransientStreamers();
   setRefCoreStreamer();
+
+  // Load the library containing dictionaries for std:: classes (e.g. std::vector<int>)
+  edmplugin::PluginCapabilities::get()->load("LCGReflex/std::vector<int>");
 }
 
 InitRootHandlers::~InitRootHandlers () {
