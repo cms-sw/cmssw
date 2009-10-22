@@ -23,9 +23,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
 
-  rootFile_ = ps.getUntrackedParameter<string>("rootFile","");
-  cout << "Root File to display = " << rootFile_ << endl;
- 
  if(fVerbosity>0) cout << "CastorMonitorModule Constructor (start)" << endl;
 
   ////---- initialize Run, LS, Event number and other parameters
