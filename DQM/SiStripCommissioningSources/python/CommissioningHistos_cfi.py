@@ -8,9 +8,9 @@ CommissioningHistos = cms.EDAnalyzer("SiStripCommissioningSource",
   CommissioningTask        = cms.untracked.string('UNDEFINED'),
   View                     = cms.untracked.string('Default'),
   PedsFullNoiseParameters  = cms.PSet(
-    NrEvToSkipAtStart  = cms.untracked.int32(0),
-    NrEvUntilStable    = cms.untracked.int32(20),
-    NrPosBinsNoiseHist = cms.untracked.int32(25)
+    NrEvToSkipAtStart  = cms.int32(0),
+    NrEvUntilStable    = cms.int32(20),
+    NrPosBinsNoiseHist = cms.int32(30)
   )
 )
 
