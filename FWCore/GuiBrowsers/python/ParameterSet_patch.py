@@ -284,7 +284,7 @@ cms._ModuleSequenceType.old__replace = cms._ModuleSequenceType._replace
 cms._ModuleSequenceType._replace = new__ModuleSequenceType__replace
 def new__ModuleSequenceType__remove(self, original):
     self._isModified=True
-    self.old__remove(original)
+    return self.old__remove(original)
 cms._ModuleSequenceType.old__remove = cms._ModuleSequenceType._remove
 cms._ModuleSequenceType._remove = new__ModuleSequenceType__remove
 
