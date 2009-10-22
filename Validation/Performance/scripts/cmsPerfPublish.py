@@ -1384,6 +1384,7 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
 
 def stageIgProfReports(remotedir,arch,version):
     '''Publish all IgProf files into one remote directory (new naming convention). Can publish to AFS location or to a local directory on a remote (virtual) machine.'''
+    #FIXME: can eliminate this part if using tar pipes... was done with rsynch in mind
     #Compose command to create remote dir:
     if ":" in remotedir: #Remote host local directory case
         (host,dir)=remotedir.split(":")
@@ -1400,17 +1401,23 @@ def stageIgProfReports(remotedir,arch,version):
         print "Issues with remote directory existence/creation!"
         
     #Copy files over to remote dir
-    rsync_cmd="rsync -avz *_IgProf_*/*.sql3 %s/%s/%s"%(remotedir,arch,version)
+    #replacing rsync with tar pipes since it can hang on AFS (Andreas' experience):
+    #rsync_cmd="rsync -avz *_IgProf_*/*.sql3 %s/%s/%s"%(remotedir,arch,version)
+    if ":" in remotedir:
+        tarpipe_cmd='tar cf - *_IgProf_*/*.sql3 | ssh %s "cd %s/%s; mkdir %s; cd %s; tar xf -; mv *_IgProf_*/*.sql3 .; rmdir *_IgProf_*"'%(host,dir,arch,version,version)
+    else:
+        tarpipe_cmd='tar cf - *_IgProf_*/*.sql3 | (cd %s/%s; mkdir %s; cd %s; tar xf -; mv *_IgProf_*/*.sql3 .; rmdir *_IgProf_*)'%(remotedir,arch,version,version)
     try:
-        print rsync_cmd
-        os.system(rsync_cmd)
+    #    print rsync_cmd
+    #    os.system(rsync_cmd)
+        print tarpipe_cmd
+        os.system(tarpipe_cmd)
         print "Successfully copied IgProf reports to %s"%remotedir
     except:
         print "Issues with rsyncing to the remote directory %s!"%remotedir
 
     #Make sure permissions are set for group to be able to write:
     if ":" in remotedir: #Remote host local directory case
-        (host,dir)=remotedir.split(":")
         chmod_cmd="ssh %s chmod -R 775 %s/%s"%(host,dir,arch)
     else:
         chmod_cmd="chmod -R 775 %s/%s"%(remotedir,arch)
