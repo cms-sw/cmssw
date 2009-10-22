@@ -140,15 +140,10 @@ namespace cms
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
       SignCaloSpecificAlgo sign_calomet;
       metsig::SignAlgoResolutions resolutions(conf_);
-      sign_calomet.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
-      calomet.SetMetSignificance(sign_calomet.getSignificance());
-      
-      std::auto_ptr<std::vector<double> > calometsigworker;
-      std::vector<double> values=sign_calomet.getSignifMatrix();
-      for(size_t ii=0; ii<values.size();++ii)
-	calometsigworker->push_back(values[ii]);
-      // book the significance bookkeeping
-      event.put(calometsigworker);
+
+      signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
+      calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
+      calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
 
       //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
