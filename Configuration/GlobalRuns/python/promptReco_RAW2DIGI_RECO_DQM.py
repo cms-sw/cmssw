@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -52,12 +52,6 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_31X_V2P::All'
-
-# FIX
-
-process.DQMOfflineCosmics.remove(process.hltResults)
-
-# FIX
 
 # Path and EndPath definitions
 

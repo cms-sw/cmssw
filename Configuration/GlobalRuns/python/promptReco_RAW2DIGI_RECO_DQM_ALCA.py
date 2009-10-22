@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -63,12 +63,6 @@ process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
-
-# FIX
-
-process.DQMOfflineCosmics.remove(process.hltResults)
-
-# FIX
 
 # Path and EndPath definitions
 
