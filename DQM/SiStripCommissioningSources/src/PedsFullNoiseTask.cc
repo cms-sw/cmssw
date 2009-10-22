@@ -1,33 +1,28 @@
-//#include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
-//#include "CalibTracker/SiStripAPVAnalysis/interface/ApvFactoryService.h"
+
+#include "DQM/SiStripCommissioningSources/interface/PedsFullNoiseTask.h"
+
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQM/SiStripCommissioningSources/interface/PedsFullNoiseTask.h"
 #include "boost/lexical_cast.hpp"
-#include "math.h"
 
-
-using namespace sistrip;
-static int tasknr = 0;
 
 // -----------------------------------------------------------------------------
 //
 PedsFullNoiseTask::PedsFullNoiseTask( DQMStore * dqm,
                             const FedChannelConnection & conn)
   : CommissioningTask( dqm, conn, "PedsFullNoiseTask"),
+    skipped_(false),
+    nskip_(0),
     tempstable_(false),
     ntempstab_(200),
     nadcnoise_(25),
     nstrips_(256)
 {
-tasknr++;
-tasknr_ = tasknr;
-  LogTrace( mlDqmSource_)
+  LogTrace(sistrip::mlDqmSource_)
     << "[PedsFullNoiseTask::" << __func__ << "]"
     << " Constructing object...";
 }
@@ -36,26 +31,30 @@ tasknr_ = tasknr;
 //
 PedsFullNoiseTask::~PedsFullNoiseTask()
 {
-  LogTrace( mlDqmSource_)
+  LogTrace(sistrip::mlDqmSource_)
     << "[PedsFullNoiseTask::" << __func__ << "]"
     << " Destructing object...";
 
   // Readjust noise measurements
   // Here we correct for the drift in the pedestal (the rough pedestal was used
   //   as a reference for the noise measurement) and for the fact that the mean
-  //   of the noise histogram is also not correct because since it is filled with
-  //   SetBinContent() rather than with Fill()
+  //   of the noise histogram is also not correct because since it is filled
+  //   with SetBinContent() rather than with Fill()
   // In principle we could just take the mean of the histogram (meanrough below)
-  //   and shift to mean 0, but to do things properly we calculate the shift to
-  //   be applied as below, using:
+  //   and shift to mean 0, but to do things properly in cases of non-
+  //   Gaussian noise we calculate the shift to be applied as below, using:
   //     1) meangood = pedgood - pedrough
   //     2) meanrough + shift = 0
   TH2S * hist = (TH2S *) noisehist_.histo()->getTH2S();
   for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
-    // get the noise histogram for this strip
-    TH1D * noisehist = hist->ProjectionX("projx", istrip+1, istrip+1);
-    // get the 'rough' mean from the noise histogram
-    float meanrough = noisehist->GetMean();
+    // get the 'rough' mean from the noise histogram [don't use Th1 projections! it's awfully slow]
+    float meanrough = 0, tot = 0;
+    for ( uint16_t ibin = 0; ibin < 2*nadcnoise_; ++ibin ) {
+      float noisebin = hist->GetBinContent(hist->GetBin(ibin+1, istrip+1));
+      meanrough += noisebin*hist->GetBinCenter(ibin+1);
+      tot += noisebin;
+    }
+    meanrough /= tot;
     // get the 'correct' mean when taking the binning properly into account
     float meangood = 1. * noiseSum_.at(istrip) / noiseNum_.at(istrip);
     // get the rough pedestal from the start of the run, that was used to make the noise histogram
@@ -63,7 +62,7 @@ PedsFullNoiseTask::~PedsFullNoiseTask()
     // get the good pedestal that was determined during the remainder of the run
     float pedgood  = 1. * pedhist_.vSumOfContents_.at(istrip) / pedhist_.vNumOfEntries_.at(istrip);
     // get rid of the sliced noise histogram
-    delete noisehist;
+//    delete noisehist;
     // calculate the shift to apply. It should bring the mean very close to 0.
     float shift = meangood - meanrough - pedgood + pedrough;
     // determine how to loop depending on whether the shift is up or down
@@ -82,7 +81,7 @@ PedsFullNoiseTask::~PedsFullNoiseTask()
         // now fill
         hist->SetBinContent(binnrtarget, content);
         // note: this will give a histogram with the mean between [-0.5,0.5]
-        //   this is an unavoidable consequence of binnin on a 2D histogram,
+        //   this is an unavoidable consequence of binning on a 2D histogram,
         //   where the true mean of each X projection is not stored
         //   nevertheless we still need to correct for the binning-biased mean
         //   in the original histogram
@@ -101,7 +100,7 @@ PedsFullNoiseTask::~PedsFullNoiseTask()
 void PedsFullNoiseTask::book()
 {
 
-  LogTrace( mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]";
+  LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]";
 
   // pedestal estimate profile histo
   // in principle we don't need to store this one, but let's keep it anyway
@@ -189,29 +188,36 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
   // Check number of digis
   uint16_t nbins = digis.data.size();
   if (nbins != nstrips_) {
-    edm::LogWarning( mlDqmSource_)
+    edm::LogWarning(sistrip::mlDqmSource_)
       << "[PedsFullNoiseTask::" << __func__ << "]"
       << " " << nstrips_ << " digis expected, but got " << nbins << ". Skipping.";
     return;
   }
 
-  // get the event number of the first event
-  static uint32_t firstev = 0;
-  if (firstev == 0) firstev = summary.event();
+  // get the event number of the first event, not necessarily 1 (parallel processing on FUs)
+  static uint32_t firstev = summary.event();
+
+  // skipping events
+  if (summary.event() - firstev < nskip_) return;
+  // when all events are skipped
+  if (!skipped_ && summary.event() - firstev >= nskip_) {
+    skipped_ = true;
+    if (nskip_ > 0) LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
+      << " Done skipping events. Now starting rough pedestals.";
+  }
 
   // while stabilizing temperature...
-  if (summary.event() - firstev <= ntempstab_) {
+  if (summary.event() - firstev < ntempstab_ + nskip_) {
     // estimate peds roughly
     for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
       updateHistoSet( pedroughhist_, istrip, digis.data[istrip].adc() );
     }
     return;
   }
-
   // when temperature has stabilized
-  if (!tempstable_ && summary.event() - firstev > ntempstab_) {
+  if (!tempstable_ && summary.event() - firstev >= ntempstab_ + nskip_) {
     tempstable_ = true;
-    LogTrace( mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
+    LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
       << " Rough pedestals done. Now starting noise measurements.";
   }
 
@@ -223,7 +229,7 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
     adc.clear(); adc.reserve(128);
     for ( uint16_t ibin = 0; ibin < 128; ibin++ ) { 
       if ( (iapv*128)+ibin < nbins ) { 
-	adc.push_back( digis.data[(iapv*128)+ibin].adc() );
+		adc.push_back( digis.data[(iapv*128)+ibin].adc() );
       }
     }
     sort( adc.begin(), adc.end() ); 

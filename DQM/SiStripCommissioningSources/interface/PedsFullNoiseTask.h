@@ -7,7 +7,6 @@
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 
 // Forward Declarations
-class ApvAnalysisFactory;
 class DQMStore;
 class FedChannelConnection;
 class SiStripEventSummary;
@@ -36,6 +35,10 @@ class PedsFullNoiseTask : public CommissioningTask {
     CompactHistoSet noisehist_;
     // keeps track of the mean of the noise histograms from value instead of histogram bins
     std::vector<float> noiseSum_, noiseNum_;
+    // keeps track of whether desired number of events were skipped
+    bool skipped_;
+    // number of events to skip
+    uint16_t nskip_;
     // keeps track of whether "stable temperature" has been reached
     bool tempstable_;
     // number of events before assumed temperature stabilization
@@ -44,7 +47,6 @@ class PedsFullNoiseTask : public CommissioningTask {
     uint16_t nadcnoise_;
     // number of strips per apv
     uint16_t nstrips_;
-    int tasknr_;
 
 };
 
