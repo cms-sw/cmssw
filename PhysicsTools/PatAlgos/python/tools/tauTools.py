@@ -137,6 +137,11 @@ def switchToPFTauShrinkingCone(process,
         byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     )
+
+# switch to PFTau collection that was default in PAT production in CMSSW_3_1_x release series
+def switchTo31Xdefaults(process):
+    switchToPFTauFixedCone(process)
+    process.cleanLayer1Taus.preselection = cms.string('tauID("byIsolation") > 0')
     
 # function to switch to **any** PFTau collection
 # It is just to make internal function accessible externally
