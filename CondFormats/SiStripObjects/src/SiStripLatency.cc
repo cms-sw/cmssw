@@ -144,6 +144,41 @@ uint16_t SiStripLatency::singleMode() const
   return 0;
 }
 
+void SiStripLatency::allModes(vector<uint16_t> & allModesVector) const
+{
+  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
+    allModesVector.push_back(it->mode);
+  }
+  // The Latencies are sorted by DetIdAndApv, we need to sort the modes again and then remove duplicates
+  sort( allModesVector.begin(), allModesVector.end() );
+  allModesVector.erase( unique( allModesVector.begin(), allModesVector.end() ), allModesVector.end() );
+}
+
+void SiStripLatency::allLatencies(vector<uint16_t> & allLatenciesVector) const
+{
+//   if( !(latencies_.empty()) ) {
+//     allLatenciesVector.push_back(latencies_[0].latency);
+//     if( latencies_.size() > 1 ) {
+//       for( latConstIt it = latencies_.begin()+1; it != latencies_.end(); ++it ) {
+//         if( it->latency != (it-1)->latency) {
+//           allLatenciesVector.push_back(it->latency);
+//           cout << "Saved latency = " << short(it->latency) << endl;
+//         }
+//       }
+//       // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again
+//       sort( allLatenciesVector.begin(), allLatenciesVector.end() );
+//       allLatenciesVector.erase( unique( allLatenciesVector.begin(), allLatenciesVector.end() ) );
+//     }
+//   }
+
+  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
+    allLatenciesVector.push_back(it->latency);
+  }
+  // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again and then remove duplicates
+  sort( allLatenciesVector.begin(), allLatenciesVector.end() );
+  allLatenciesVector.erase( unique( allLatenciesVector.begin(), allLatenciesVector.end() ), allLatenciesVector.end() );
+}
+
 // pair<uint16_t, uint16_t> SiStripLatency::singleLatencyAndMode() const
 // {
 //   if( latencies_.size() == 1 ) {
