@@ -68,14 +68,8 @@ namespace edm {
    class UnscheduledHandlerSentry {
    public:
       UnscheduledHandlerSentry(UnscheduledHandler* iHandler,
-                               CurrentProcessingContext const* iContext) :
-      m_handler(iHandler),
-      m_old(0) {
-         if(m_handler) {m_old = iHandler->setCurrentProcessingContext(iContext);}
-      }
-      ~UnscheduledHandlerSentry() {
-         if(m_handler) { m_handler->setCurrentProcessingContext(m_old); }
-      }
+                               CurrentProcessingContext const* iContext);
+      ~UnscheduledHandlerSentry();
    private:
       UnscheduledHandler* m_handler;
       CurrentProcessingContext const* m_old;

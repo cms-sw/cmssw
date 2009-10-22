@@ -89,4 +89,20 @@ namespace edm {
   //
   // static member functions
   //
+//-------------
+
+   UnscheduledHandlerSentry::UnscheduledHandlerSentry(UnscheduledHandler* iHandler,
+                               CurrentProcessingContext const* iContext) :
+   m_handler(iHandler),
+   m_old(0) {
+      if(m_handler) {
+	  m_old = iHandler->setCurrentProcessingContext(iContext);
+      }
+   }
+
+   UnscheduledHandlerSentry::~UnscheduledHandlerSentry() {
+      if(m_handler) {
+         m_handler->setCurrentProcessingContext(m_old);
+      }
+   }
 }
