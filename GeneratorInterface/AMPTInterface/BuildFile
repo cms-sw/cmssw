@@ -14,5 +14,4 @@
  <use name=FWCore/Framework>
  <use name=SimDataFormats/GeneratorProducts>
  <use name=SimDataFormats/HiGenData>
-# <use name=GeneratorInterface/PyquenInterface>
 </export>
