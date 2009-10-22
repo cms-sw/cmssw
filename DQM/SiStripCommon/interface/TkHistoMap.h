@@ -34,7 +34,7 @@ class TkHistoMap{
   std::string getLayerName(std::string title){return title.erase(0,MapName_.size()+1);}
   uint16_t getLayerNum(std::string layerName){return tkdetmap_->getLayerNum(layerName);}
 
-  void fillFromAscii(char* filename);
+  void fillFromAscii(std::string filename);
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
   void add(uint32_t& detid,float value);

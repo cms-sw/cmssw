@@ -108,9 +108,9 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 }
 
 #include "iostream"
-void TkHistoMap::fillFromAscii(char* filename){
+void TkHistoMap::fillFromAscii(string filename){
   ifstream file;
-  file.open(filename);
+  file.open(filename.c_str());
   float value;
   uint32_t detid;
   while (file.good()){
