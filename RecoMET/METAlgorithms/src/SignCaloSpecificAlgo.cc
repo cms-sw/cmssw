@@ -35,7 +35,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.6 2009/08/21 13:18:56 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.7 2009/10/21 11:27:11 fblekman Exp $
 //
 //
 
@@ -58,16 +58,6 @@ void SignCaloSpecificAlgo::usePreviousSignif(const std::vector<double> &values)
   matrix_(1,0)=values[2];
   matrix_(1,1)=values[3];
   return;
-}
-std::vector<double>
-SignCaloSpecificAlgo::getSignifMatrix()
-{
-  std::vector<double> result(4,0.);
-  result[0]=matrix_(0,0);
-  result[1]=matrix_(0,1);
-  result[2]=matrix_(1,0);
-  result[3]=matrix_(1,1);
-  return result;
 }
 ////////////////
 //

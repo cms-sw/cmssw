@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.8 2009/05/15 16:41:27 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.9 2009/10/21 11:27:12 fblekman Exp $
 //
 //
 
@@ -33,7 +33,7 @@ metsig::significanceAlgo::significanceAlgo():
   ymet_(0)
 
 {
-  std::cout << "in constructor ! " << std::endl;
+  //  std::cout << "in constructor ! " << std::endl;
   signifmatrix_(0,0)=signifmatrix_(1,0)=signifmatrix_(0,1)=signifmatrix_(1,1)=0;
 }
 
@@ -170,7 +170,7 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
  //--- Initialize sum of rotated covariance matrices ---//  
   v_tot=signifmatrix_;
-  std::cout << "INPUT:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
+  //  std::cout << "INPUT:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
 
 
 
@@ -186,17 +186,17 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
 
   // save matrix into object:
-  std::cout << "SAVED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
+  //  std::cout << "SAVED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
   v_tot.Invert();
-  std::cout << "INVERTED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
+  //  std::cout << "INVERTED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
   
 
 
   metvec(0) = xmet_; metvec(1) = ymet_;
   double lnSignificance = metvec * (v_tot * metvec);
 
-  v_tot.Invert();
-  std::cout << "INVERTED AGAIN:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
+  //  v_tot.Invert();
+  //  std::cout << "INVERTED AGAIN:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
   return lnSignificance;
 }
 //*** End of Significance calculation ********************************//
