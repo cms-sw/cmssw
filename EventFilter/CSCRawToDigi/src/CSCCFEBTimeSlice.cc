@@ -19,6 +19,18 @@ CSCCFEBTimeSlice::CSCCFEBTimeSlice()
 }
 
 
+CSCCFEBSCAControllerWord::CSCCFEBSCAControllerWord(unsigned short frame)
+// trig_time( frame & 0xFF ),
+// sca_blk( (frame>>8) & 0xF ),
+// l1a_phase((frame>>12( & 0x1),
+// lct_phase((frame>>13( & 0x1),
+// sca_full((frame>>14) & 0x1),
+// ts_flag(((frame>>15) & 0x1)
+{
+  memcpy(this, &frame, 2);
+}
+
+
 CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const 
 {
   assert(layer >= 1 && layer <= 6);
@@ -37,7 +49,7 @@ CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const
   for(unsigned i = 0; i < 16; ++i) {
      result |= timeSample(i*6+layer-1)->controllerData << i;
   }
-  return *(CSCCFEBSCAControllerWord *)(&result);
+  return CSCCFEBSCAControllerWord(result);
 }
 
 
@@ -47,7 +59,7 @@ void CSCCFEBTimeSlice::setControllerWord(const CSCCFEBSCAControllerWord & contro
     {
       for(int channel = 1; channel <= 16; ++channel)
 	{
-	  unsigned short * shortWord = (unsigned short *) &controllerWord;
+	  const unsigned short * shortWord = reinterpret_cast<const unsigned short *>(&controllerWord);
 	  timeSample(layer, channel)->controllerData
 	    = ( *shortWord >> (channel-1)) & 1;
 	}

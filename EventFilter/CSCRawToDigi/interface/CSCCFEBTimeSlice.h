@@ -39,6 +39,7 @@ struct CSCCFEBSCAControllerWord {
 TRIG_TIME indicates which of the eight time samples in the 400ns SCA block (lowest bit is the first sample, highest bit the eighth sample) corresponds to the arrival of the LCT; it should be at some fixed phase relative to the peak of the CSC pulse.  SCA_BLK is the SCA Capacitor block used for this time sample. L1A_PHASE and LCT_PHASE show the phase of the 50ns CFEB digitization clock at the time the trigger was received (1=clock high, 0=clock low).  SCA_FULL indicates lost SCA data due to SCA full condition.  The TS_FLAG bit indicates the number of time samples to digitize per event; high=16 time samples, low=8 time samples. 
 
   */
+  explicit CSCCFEBSCAControllerWord(unsigned short frame);
   CSCCFEBSCAControllerWord() {bzero(this, 2);}
 
   unsigned short trig_time : 8;
