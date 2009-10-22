@@ -3,483 +3,126 @@ import FWCore.ParameterSet.Config as cms
 heavyFlavorValidationHarvesting = cms.EDAnalyzer("HeavyFlavorHarvesting",
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu5'),
   Efficiencies = cms.untracked.VPSet(
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globMuon_genEtaPt"),
-      DenominatorMEname = cms.untracked.string("genMuon_genEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effGlobGen_genEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt1Glob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Glob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Glob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Glob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Glob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathMuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effPathGlob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("filt1Muon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Filt1_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("filt2Muon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Filt2_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("filt3Muon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Filt3_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Muon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("filt4Muon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Filt4_recoEtaPt")
-    ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globMuon_genEtaPt","genMuon_genEtaPt","effGlobGen_genEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Muon_recoEtaPt","globMuon_recoEtaPt","effFilt1Glob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Muon_recoEtaPt","globMuon_recoEtaPt","effFilt2Glob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPt","globMuon_recoEtaPt","effFilt3Glob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPt","globMuon_recoEtaPt","effFilt4Glob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPt","globMuon_recoEtaPt","effFilt5Glob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathMuon_recoEtaPt","globMuon_recoEtaPt","effPathGlob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Muon_recoEtaPt","filt1Muon_recoEtaPt","effFilt2Filt1_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPt","filt2Muon_recoEtaPt","effFilt3Filt2_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPt","filt3Muon_recoEtaPt","effFilt4Filt3_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPt","filt4Muon_recoEtaPt","effFilt5Filt4_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPt","filt1Muon_recoEtaPt","effFilt3Filt1_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPt","filt1Muon_recoEtaPt","effFilt4Filt1_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPt","filt1Muon_recoEtaPt","effFilt5Filt1_recoEtaPt") ),
 
-    
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globMuon_genEtaPhi"),
-      DenominatorMEname = cms.untracked.string("genMuon_genEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effGlobGen_genEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt1Glob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Glob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Glob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Glob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Glob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathMuon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("globMuon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effPathGlob_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("filt1Muon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Filt1_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("filt2Muon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Filt2_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("filt3Muon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Filt3_recoEtaPhi")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Muon_recoEtaPhi"),
-      DenominatorMEname = cms.untracked.string("filt4Muon_recoEtaPhi"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Filt4_recoEtaPhi")
-    ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globMuon_genEtaPhi","genMuon_genEtaPhi","effGlobGen_genEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Muon_recoEtaPhi","globMuon_recoEtaPhi","effFilt1Glob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Muon_recoEtaPhi","globMuon_recoEtaPhi","effFilt2Glob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPhi","globMuon_recoEtaPhi","effFilt3Glob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPhi","globMuon_recoEtaPhi","effFilt4Glob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPhi","globMuon_recoEtaPhi","effFilt5Glob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathMuon_recoEtaPhi","globMuon_recoEtaPhi","effPathGlob_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Muon_recoEtaPhi","filt1Muon_recoEtaPhi","effFilt2Filt1_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPhi","filt2Muon_recoEtaPhi","effFilt3Filt2_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPhi","filt3Muon_recoEtaPhi","effFilt4Filt3_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPhi","filt4Muon_recoEtaPhi","effFilt5Filt4_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Muon_recoEtaPhi","filt1Muon_recoEtaPhi","effFilt3Filt1_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Muon_recoEtaPhi","filt1Muon_recoEtaPhi","effFilt4Filt1_recoEtaPhi") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Muon_recoEtaPhi","filt1Muon_recoEtaPhi","effFilt5Filt1_recoEtaPhi") ),
 
 #################  DOUBLE  ETA  PT  ######################
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globDimuon_genEtaPt"),
-      DenominatorMEname = cms.untracked.string("genDimuon_genEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effGlobDigenAND_genEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathDimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobOR_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt1Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diPathDimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobAND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("diFilt1Dimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Difilt1AND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("diFilt2Dimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Difilt2AND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("diFilt3Dimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Difilt3AND_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("diFilt4Dimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Difilt4AND_recoEtaPt")
-    ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globDimuon_genEtaPt","genDimuon_genEtaPt","effGlobDigenAND_genEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt1DiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt2DiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt3DiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt4DiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt5DiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathDimuon_recoEtaPt","globDimuon_recoEtaPt","effPathDiglobOR_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt1Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt1DiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt2DiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt3DiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt4DiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoEtaPt","globDimuon_recoEtaPt","effFilt5DiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diPathDimuon_recoEtaPt","globDimuon_recoEtaPt","effPathDiglobAND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoEtaPt","diFilt1Dimuon_recoEtaPt","effFilt2Difilt1AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoEtaPt","diFilt2Dimuon_recoEtaPt","effFilt3Difilt2AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoEtaPt","diFilt3Dimuon_recoEtaPt","effFilt4Difilt3AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoEtaPt","diFilt4Dimuon_recoEtaPt","effFilt5Difilt4AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoEtaPt","diFilt1Dimuon_recoEtaPt","effFilt3Difilt1AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoEtaPt","diFilt1Dimuon_recoEtaPt","effFilt4Difilt1AND_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoEtaPt","diFilt1Dimuon_recoEtaPt","effFilt5Difilt1AND_recoEtaPt") ),
 
-    
 #################  DOUBLE  RAPIDITY  PT  ######################
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globDimuon_genRapPt"),
-      DenominatorMEname = cms.untracked.string("genDimuon_genRapPt"),
-      EfficiencyMEname = cms.untracked.string("effGlobDigenAND_genRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathDimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobOR_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt1Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diPathDimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobAND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("diFilt1Dimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Difilt1AND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("diFilt2Dimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Difilt2AND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("diFilt3Dimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Difilt3AND_recoRapPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("diFilt4Dimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Difilt4AND_recoRapPt")
-    ),
-
-    
-
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globDimuon_genRapPt","genDimuon_genRapPt","effGlobDigenAND_genRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt1DiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt2DiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt3DiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt4DiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt5DiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathDimuon_recoRapPt","globDimuon_recoRapPt","effPathDiglobOR_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt1Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt1DiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt2DiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt3DiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt4DiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoRapPt","globDimuon_recoRapPt","effFilt5DiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diPathDimuon_recoRapPt","globDimuon_recoRapPt","effPathDiglobAND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoRapPt","diFilt1Dimuon_recoRapPt","effFilt2Difilt1AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoRapPt","diFilt2Dimuon_recoRapPt","effFilt3Difilt2AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoRapPt","diFilt3Dimuon_recoRapPt","effFilt4Difilt3AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoRapPt","diFilt4Dimuon_recoRapPt","effFilt5Difilt4AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoRapPt","diFilt1Dimuon_recoRapPt","effFilt3Difilt1AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoRapPt","diFilt1Dimuon_recoRapPt","effFilt4Difilt1AND_recoRapPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoRapPt","diFilt1Dimuon_recoRapPt","effFilt5Difilt1AND_recoRapPt") ),
     
     #################  DOUBLE  PT  DR  ######################
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globDimuon_genPtDR"),
-      DenominatorMEname = cms.untracked.string("genDimuon_genPtDR"),
-      EfficiencyMEname = cms.untracked.string("effGlobDigenAND_genPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathDimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobOR_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt1Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diPathDimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobAND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("diFilt1Dimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Difilt1AND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Difilt2AND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Difilt3AND_recoPtDR")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoPtDR"),
-      DenominatorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDR"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Difilt4AND_recoPtDR")
-    ),
-
-    
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globDimuon_genPtDR","genDimuon_genPtDR","effGlobDigenAND_genPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt1DiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt2DiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt3DiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt4DiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt5DiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathDimuon_recoPtDR","globDimuon_recoPtDR","effPathDiglobOR_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt1Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt1DiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt2DiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt3DiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt4DiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDR","globDimuon_recoPtDR","effFilt5DiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diPathDimuon_recoPtDR","globDimuon_recoPtDR","effPathDiglobAND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoPtDR","diFilt1Dimuon_recoPtDR","effFilt2Difilt1AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDR","diFilt2Dimuon_recoPtDR","effFilt3Difilt2AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDR","diFilt3Dimuon_recoPtDR","effFilt4Difilt3AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDR","diFilt4Dimuon_recoPtDR","effFilt5Difilt4AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDR","diFilt1Dimuon_recoPtDR","effFilt3Difilt1AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDR","diFilt1Dimuon_recoPtDR","effFilt4Difilt1AND_recoPtDR") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDR","diFilt1Dimuon_recoPtDR","effFilt5Difilt1AND_recoPtDR") ),
 
     #################  DOUBLE  ETA  PT  ######################
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("globDimuon_genPtDRpos"),
-      DenominatorMEname = cms.untracked.string("genDimuon_genPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effGlobDigenAND_genPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt1Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt2Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt3Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt4Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("filt5Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("pathDimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobOR_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt1Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt1DiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt2DiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt3DiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt4DiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt5DiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diPathDimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effPathDiglobAND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("diFilt1Dimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt2Difilt1AND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("diFilt2Dimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt3Difilt2AND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("diFilt3Dimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt4Difilt3AND_recoPtDRpos")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("diFilt5Dimuon_recoPtDRpos"),
-      DenominatorMEname = cms.untracked.string("diFilt4Dimuon_recoPtDRpos"),
-      EfficiencyMEname = cms.untracked.string("effFilt5Difilt4AND_recoPtDRpos")
-    ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globDimuon_genPtDRpos","genDimuon_genPtDRpos","effGlobDigenAND_genPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt1DiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt2Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt2DiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt3Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt3DiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt4Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt4DiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt5Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt5DiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("pathDimuon_recoPtDRpos","globDimuon_recoPtDRpos","effPathDiglobOR_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt1Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt1DiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt2DiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt3DiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt4DiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDRpos","globDimuon_recoPtDRpos","effFilt5DiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diPathDimuon_recoPtDRpos","globDimuon_recoPtDRpos","effPathDiglobAND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt2Dimuon_recoPtDRpos","diFilt1Dimuon_recoPtDRpos","effFilt2Difilt1AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDRpos","diFilt2Dimuon_recoPtDRpos","effFilt3Difilt2AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDRpos","diFilt3Dimuon_recoPtDRpos","effFilt4Difilt3AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDRpos","diFilt4Dimuon_recoPtDRpos","effFilt5Difilt4AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt3Dimuon_recoPtDRpos","diFilt1Dimuon_recoPtDRpos","effFilt3Difilt1AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt4Dimuon_recoPtDRpos","diFilt1Dimuon_recoPtDRpos","effFilt4Difilt1AND_recoPtDRpos") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("diFilt5Dimuon_recoPtDRpos","diFilt1Dimuon_recoPtDRpos","effFilt5Difilt1AND_recoPtDRpos") ),
 
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("resultDimuon_recoEtaPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoEtaPt"),
-      EfficiencyMEname = cms.untracked.string("effResultDiglob_recoEtaPt")
-    ),
-    cms.untracked.PSet(
-      NumeratorMEname = cms.untracked.string("resultDimuon_recoRapPt"),
-      DenominatorMEname = cms.untracked.string("globDimuon_recoRapPt"),
-      EfficiencyMEname = cms.untracked.string("effResultDiglob_recoRapPt")
-    )
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("resultDimuon_recoEtaPt","globDimuon_recoEtaPt","effResultDiglob_recoEtaPt") ),
+    cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("resultDimuon_recoRapPt","globDimuon_recoRapPt","effResultDiglob_recoRapPt") )
 
   )
 )
