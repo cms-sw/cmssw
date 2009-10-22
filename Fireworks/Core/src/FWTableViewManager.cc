@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.8 2009/09/23 20:32:34 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.9 2009/09/24 14:55:25 chrjones Exp $
 //
 
 // system include files
@@ -441,3 +441,4 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
 	  // first FWTableView.
      }
 }
+
