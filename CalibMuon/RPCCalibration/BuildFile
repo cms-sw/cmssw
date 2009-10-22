@@ -22,7 +22,6 @@
 
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=CalibMuon/RPCCalibration>
 
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>

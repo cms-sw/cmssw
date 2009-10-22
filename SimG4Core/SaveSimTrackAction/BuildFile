@@ -1,7 +1,4 @@
 <Flags EDM_PLUGIN=1>
-<export>
- <lib name=SimG4CorSaveSimTrackAction>
-</export>
  
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>

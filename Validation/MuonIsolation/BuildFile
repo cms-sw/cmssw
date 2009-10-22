@@ -11,8 +11,6 @@
 
 <flags EDM_PLUGIN=1>
 <export>
-	<lib name=tut_codeTutTrackAnalyzer>
-
 	<use name=FWCore/Framework>
 	<use name=root>
 	<use name=FWCore/PluginManager>

@@ -4,7 +4,6 @@
 <use name=DataFormats/HcalRecHit>
 <use name=TBDataFormats/HcalTBObjects>
 <export>
-<lib name=zdcTBAnalyzer>
 <use name=root>
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalRecHit>
