@@ -469,7 +469,7 @@ def getArchVersionFromLog(logfile):
     arch=re.compile("^Current Architecture is")
     version=re.compile("^Current CMSSW version is")
     CMSSW_arch="UNKNOWN_ARCH"
-    CMSSW_version="UNKNOWN_ARCH"
+    CMSSW_version="UNKNOWN_VERSION"
     for line in log:
         if arch.search(line):
             CMSSW_arch=line.split()[3]
@@ -1399,14 +1399,28 @@ def stageIgProfReports(remotedir,arch,version):
     except:
         print "Issues with remote directory existence/creation!"
         
-    #Look for any X_IgProf_Y directory:
+    #Copy files over to remote dir
     rsync_cmd="rsync -avz *_IgProf_*/*.sql3 %s/%s/%s"%(remotedir,arch,version)
     try:
         print rsync_cmd
         os.system(rsync_cmd)
         print "Successfully copied IgProf reports to %s"%remotedir
     except:
-        print "Issues with rsyncing to the remote directory!"
+        print "Issues with rsyncing to the remote directory %s!"%remotedir
+
+    #Make sure permissions are set for group to be able to write:
+    if ":" in remotedir: #Remote host local directory case
+        (host,dir)=remotedir.split(":")
+        chmod_cmd="ssh %s chmod -R 775 %s/%s"%(host,dir,arch)
+    else:
+        chmod_cmd="chmod -R 775 %s/%s"%(remotedir,arch)
+    try:
+        print chmod_cmd
+        os.system(chmod_cmd)
+        print "Successfully set permissions for IgProf reports directory %s"%remotedir
+    except:
+        print "(Potential) issues with chmoding the remote directory %s!"%remotedir
+    
     return #Later, report here something like the web link to the reports in igprof-navigator...
 
 
