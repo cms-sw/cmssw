@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/21 01:06:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/21 18:24:57 $
+ *  $Revision: 1.6 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -69,11 +69,11 @@ HLTMuonValidator::beginJob(const EventSetup & iSetup)
         hltPaths_.insert(validTriggerNames[j]);
   }
 
-  set<string>::iterator pathIter;
+  set<string>::iterator iPath;
 
-  for (pathIter = hltPaths_.begin(); pathIter != hltPaths_.end(); pathIter++) {
+  for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
-    string path = * pathIter;
+    string path = * iPath;
     vector<string> moduleLabels = hltConfig.moduleLabels(path);
 
     for (size_t i = 0; i < moduleLabels.size(); i++)
@@ -168,12 +168,11 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   RecoChargedCandidateCollection & candsL2 = candsHlt[0];
   RecoChargedCandidateCollection & candsL3 = candsHlt[1];
 
-  for (size_t k = 0; k < 2; k++) {
+  for (size_t sourceNo = 0; sourceNo < 2; sourceNo++) {
 
-    string source = kSources[k];
+    string source = kSources[sourceNo];
 
     vector<MatchStruct> matches;
-
     if (source == "gen" && genParticles.isValid())
       for (size_t i = 0; i < genParticles->size(); i++) {
         const GenParticle * genParticle = & genParticles->at(i);
@@ -196,7 +195,7 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
     for (size_t i = 0; i < candsL3.size(); i++) {
       size_t match = findMatch(& candsL3[i], matches, cutsDr_[2], "L3");
       if (match == kNull) LogTrace("HLTMuonVal") << "Orphan L3 in " 
-                                                 << kSources[k] << endl;
+                                                 << source << endl;
       else matches[match].setL3(& candsL3[i]);
     }
 
@@ -211,7 +210,7 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
       if (match == kNull) 
         match = findMatch(& candsL2[i], matches, cutsDr_[1], "L2");
       if (match == kNull) 
-        LogTrace("HLTMuonVal") << "Orphan L2 in " << kSources[k] << endl;
+        LogTrace("HLTMuonVal") << "Orphan L2 in " << source << endl;
       else matches[match].setL2(& candsL2[i]);
     }
 
@@ -228,13 +227,13 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
       if (match == kNull) 
         match = findMatch(& candsL1[i], matches, cutsDr_[0], "L1");
       if (match == kNull) 
-        LogTrace("HLTMuonVal") << "Orphan L1 in " << kSources[k] << endl;
+        LogTrace("HLTMuonVal") << "Orphan L1 in " << source << endl;
       else matches[match].setL1(& candsL1[i]);
     }
 
-    set<string>::iterator pathIter;
-    for (pathIter = hltPaths_.begin(); pathIter != hltPaths_.end(); pathIter++)
-      analyzePath(* pathIter, kSources[k], matches, rawTriggerEvent);
+    set<string>::iterator iPath;
+    for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++)
+      analyzePath(* iPath, source, matches, rawTriggerEvent);
 
   }
 
@@ -276,45 +275,42 @@ HLTMuonValidator::analyzePath(const string & path,
     hasMatch[i].assign(matches.size(), false);
   vector<size_t> matchesInRange;
 
-  for (size_t iStep = 0; iStep < nSteps; iStep++) {
+  for (size_t step = 0; step < nSteps; step++) {
 
-    const size_t hltStep = (iStep >= 2) ? iStep - 2 : 0;
-    const size_t level   = (iStep == 1) ? 1 :
-                           (iStep == 2) ? 2 :
-                           (iStep == 3) ? (nStepsHlt == 4) ? 2 : 3 :
-                           (iStep >= 4) ? 3 :
+    const size_t hltStep = (step >= 2) ? step - 2 : 0;
+    const size_t level   = (step == 1) ? 1 :
+                           (step == 2) ? 2 :
+                           (step == 3) ? (nStepsHlt == 4) ? 2 : 3 :
+                           (step >= 4) ? 3 :
                            0;
 
-    size_t nMatches = 0;
-    if (level == 0) {
-      nMatches = matches.size();
-      for (size_t j = 0; j < matches.size(); j++)
-        if ((matches[j].candBase->eta()) < maxEta)
+    for (size_t j = 0; j < matches.size(); j++)
+      if (level == 0) {
+        if (fabs(matches[j].candBase->eta()) < maxEta)
           matchesInRange.push_back(j);
-    }
-    if (level == 1)
-      for (size_t j = 0; j < matches.size(); j++) 
+      }
+      else if (level == 1) {
         for (size_t k = 0; k < candsPassingL1.size(); k++) 
-          if (identical(matches[j].candL1, & * candsPassingL1[k])) {
-            hasMatch[iStep][j] = true;
-            nMatches++;
-          }
-    if (level >= 2)
-      for (size_t j = 0; j < matches.size(); j++)
+          if (identical(matches[j].candL1, & * candsPassingL1[k]))
+            hasMatch[step][j] = true;
+      }
+      else if (level >= 2) {
         for (size_t k = 0; k < candsPassingHlt[hltStep].size(); k++)
           if (identical(matches[j].candHlt[level - 2],
-                        & * candsPassingHlt[hltStep][k])) {
-            hasMatch[iStep][j] = true;
-            nMatches++;
-          }
-
+                        & * candsPassingHlt[hltStep][k]))
+            hasMatch[step][j] = true;
+      }
+    
+    size_t nMatches = count(hasMatch[step].begin(), 
+                            hasMatch[step].end(), 
+                            true);
     if (nMatches < nObjectsToPassPath) break;
 
     string pre  = path + "_" + source + "Pass";
-    string post = "_" + stepLabels_[path][iStep];
+    string post = "_" + stepLabels_[path][step];
 
     for (size_t j = 0; j < matches.size(); j++) {
-      if (!hasMatch[iStep][j]) missingMatch[j] = true;
+      if (!hasMatch[step][j]) missingMatch[j] = true;
       double pt  = matches[j].candBase->pt();
       double eta = matches[j].candBase->eta();
       double phi = matches[j].candBase->phi();
