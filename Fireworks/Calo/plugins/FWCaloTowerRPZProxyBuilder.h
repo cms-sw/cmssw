@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.3 2009/10/21 14:06:13 amraktad Exp $
 //
 
 #ifndef Fireworks_Calo_CaloTowerProxyRPZBuilder_h
@@ -7,6 +7,7 @@
 
 class TH2F;
 class TEveCaloDataHist;
+#include "TEveCaloData.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
@@ -40,6 +41,7 @@ private:
    const char*  m_histName;
    TH2F*        m_hist;
    Int_t        m_sliceIndex;
+   TEveCaloData::vCellId_t m_modelIndexToCellId;
 };
 
 //
