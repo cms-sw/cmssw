@@ -1,5 +1,4 @@
 <export>
- <lib name=L1TriggerConfigCSCTFConfigProducer>
  <use name=FWCore/Framework>
  <use name=CondFormats/L1TObjects>
  <use name=CondFormats/DataRecord>

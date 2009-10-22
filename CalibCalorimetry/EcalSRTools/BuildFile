@@ -12,7 +12,6 @@
 <use name=SimCalorimetry/EcalSimAlgos>
 <flags EDM_PLUGIN=1>
 <export>
-    <lib name=CalibCalorimetryEcalSRTools.so>
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
     <use name=FWCore/MessageLogger>
