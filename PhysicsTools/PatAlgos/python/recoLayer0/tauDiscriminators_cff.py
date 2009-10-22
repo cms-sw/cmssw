@@ -4,20 +4,28 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 
 patFixedConePFTauDiscrimination = cms.Sequence(
-    fixedConePFTauDiscriminationByIsolation +
     fixedConePFTauDiscriminationByLeadingTrackFinding +
     fixedConePFTauDiscriminationByLeadingTrackPtCut +
+    fixedConePFTauDiscriminationByLeadingPionPtCut +
+    fixedConePFTauDiscriminationByIsolation +
     fixedConePFTauDiscriminationByTrackIsolation +
     fixedConePFTauDiscriminationByECALIsolation +
+    fixedConePFTauDiscriminationByIsolationUsingLeadingPion +
+    fixedConePFTauDiscriminationByTrackIsolationUsingLeadingPion +
+    fixedConePFTauDiscriminationByECALIsolationUsingLeadingPion +
     fixedConePFTauDiscriminationAgainstElectron +
     fixedConePFTauDiscriminationAgainstMuon
 )
 patFixedConeHighEffPFTauDiscrimination = cms.Sequence(
-    fixedConeHighEffPFTauDiscriminationByIsolation +
     fixedConeHighEffPFTauDiscriminationByLeadingTrackFinding +
     fixedConeHighEffPFTauDiscriminationByLeadingTrackPtCut +
+    fixedConeHighEffPFTauDiscriminationByLeadingPionPtCut +
+    fixedConeHighEffPFTauDiscriminationByIsolation +
     fixedConeHighEffPFTauDiscriminationByTrackIsolation +
     fixedConeHighEffPFTauDiscriminationByECALIsolation +
+    fixedConeHighEffPFTauDiscriminationByIsolationUsingLeadingPion +
+    fixedConeHighEffPFTauDiscriminationByTrackIsolationUsingLeadingPion +
+    fixedConeHighEffPFTauDiscriminationByECALIsolationUsingLeadingPion +
     fixedConeHighEffPFTauDiscriminationAgainstElectron +
     fixedConeHighEffPFTauDiscriminationAgainstMuon
 )
@@ -33,6 +41,8 @@ patShrinkingConePFTauDiscrimination = cms.Sequence(
     shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion +
     shrinkingConePFTauDiscriminationAgainstElectron +
     shrinkingConePFTauDiscriminationAgainstMuon +
+    shrinkingConePFTauDecayModeProducer +
+    shrinkingConePFTauDecayModeIndexProducer +
     shrinkingConePFTauDiscriminationByTaNC +
     shrinkingConePFTauDiscriminationByTaNCfrOnePercent +
     shrinkingConePFTauDiscriminationByTaNCfrHalfPercent +
