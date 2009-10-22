@@ -50,7 +50,6 @@ namespace gen
     bool					get_particles(HepMC::GenEvent* evt);
     bool                                        call_amptset(double efrm, std::string frame, std::string proj, 
                                                             std::string targ, int iap, int izp, int iat, int izt);
-    bool					ampt_init(const edm::ParameterSet &pset);
     //    inline double			        nuclear_radius() const;
     void                                        rotateEvtPlane();
 

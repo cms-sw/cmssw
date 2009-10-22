@@ -286,6 +286,7 @@ cc      SAVE /RNDF77/
         common/embed/iembed,pxqembd,pyqembd,xembd,yembd
         SAVE   
 c
+        itq1=itq1
         dcth=dble(RANART(NSEED))*2.d0-1.d0
         dPHI=dble(RANART(NSEED)*HIPR1(40))*2.d0
 clin-6/2009 Added if embedding a high-Pt quark pair after string melting:
@@ -582,8 +583,8 @@ c
                  vyp0(npar)=dble(patt(i,2)/patt(i,4))
                  vzp0(npar)=dble(patt(i,3)/patt(i,4))
  1001     continue
- 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
- 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+cyy 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+cyy 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
 c
               if((isoft.eq.4.or.isoft.eq.5)
      1 .and.iabs(it(2)).gt.1000) then
@@ -1715,9 +1716,9 @@ c           if(abs(enet-e1).gt.0.02)
 c     1          write(93,*) 'resdec(): nt=',nt,enet-e1,lb1
         endif
 
- 200    format(a20,3(1x,i6))
- 210    format(i6,5(1x,f8.3))
- 220    format(a2,i5,5(1x,f8.3))
+cyy 200    format(a20,3(1x,i6))
+cyy 210    format(i6,5(1x,f8.3))
+cyy 220    format(a2,i5,5(1x,f8.3))
 
         do 1003 idau=nsav+1,n
            kdaut=K(idau,2)
@@ -1763,7 +1764,7 @@ clin-5/2008:
               dppion(NNN,IRUN)=dpdecp
            endif
  1003   continue
- 230    format(a2,i5,5(1x,e8.2))
+cyy 230    format(a2,i5,5(1x,e8.2))
         return
         end
 
@@ -2549,13 +2550,13 @@ cms              close(nfile(nf)+ifile)
 cms           close(740+nf)
  1022      continue
         endif
- 200        format(2x,f5.2,3(2x,f7.4),2(2x,f9.2),i6,2x,f9.2)
- 210        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2))
+cyy 200        format(2x,f5.2,3(2x,f7.4),2(2x,f9.2),i6,2x,f9.2)
+cyy 210        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2))
  240        format(a30,3(2x,f9.5))
- 250        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2),i6)
+cyy 250        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2),i6)
 csp
  201        format(2x,f5.2,4(2x,f9.2))
- 251        format(5e15.5)
+cyy 251        format(5e15.5)
 c
         return
         end
@@ -2945,7 +2946,7 @@ cms           write (87, 200)
 cms  1        tsf(ii+1),xnf,dxnf,etf,detf
  1003      continue
         endif
- 200    format(2x,f9.2,4(2x,f10.2))
+cyy 200    format(2x,f9.2,4(2x,f10.2))
 c
         return
         end

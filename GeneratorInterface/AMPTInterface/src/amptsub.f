@@ -2111,6 +2111,7 @@ c       inverse Lorentz transformation
 cc      SAVE /RNDF77/
         SAVE   
 
+        iseed=iseed
         iflag=-1
 c        iflag=-1: fail to find momenta
 c             = 1: success
@@ -2272,6 +2273,14 @@ cc      SAVE /RNDF77/
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
+        iseed=iseed
+        dt=dt
+        nchrg=nchrg
+        nt=nt
+        ratiok=ratiok
+        px(1)=px(1)
+        py(1)=py(1)
+        pz(1)=pz(1)
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz
@@ -2490,6 +2499,10 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+        irun=irun
+        iseed=iseed
+        nt=nt
+        dt=dt
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz
@@ -2656,6 +2669,11 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+        dt=dt
+        irun=irun
+        iseed=iseed
+        nchrg=nchrg
+        nt=nt
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz

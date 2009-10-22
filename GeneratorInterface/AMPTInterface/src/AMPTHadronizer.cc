@@ -36,6 +36,7 @@ extern "C"
 {
   double gen::ranart_(int *idummy)
   {
+    if(0) idummy = idummy; 
     return _amptRandomEngine->flat();
   }
 }
@@ -220,18 +221,17 @@ bool AMPTHadronizer::call_amptset(double efrm, std::string frame, std::string pr
    return true;
 }
 
-//______________________________________________________________
-bool AMPTHadronizer::ampt_init(const ParameterSet &pset)
-{
-  // set ampt options
-  return true;
-}
-
 //_____________________________________________________________________
 bool AMPTHadronizer::initializeForInternalPartons(){
 
-   // ampt running options 
-   ampt_init(pset_);
+  //initialize pythia5
+  /*
+  if(0){
+    std::string dumstr = "";
+    call_pygive(dumstr);
+  }
+  */
+
    // initialize ampt
    LogInfo("AMPTinAction") << "##### Calling HIJSET(" << efrm_ << "," <<frame_<<","<<proj_<<","<<targ_<<","<<iap_<<","<<izp_<<","<<iat_<<","<<izt_<<") ####";
 
@@ -248,8 +248,6 @@ bool AMPTHadronizer::declareStableParticles( std::vector<int> pdg )
 
 //________________________________________________________________                                                                    
 void AMPTHadronizer::rotateEvtPlane(){
-
-   int * dummy;
    phi0_ = 2.*pi*gen::ranart_(0) - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);

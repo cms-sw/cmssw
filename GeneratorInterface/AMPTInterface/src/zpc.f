@@ -186,6 +186,7 @@ cc      SAVE /rndm2/
 cc      SAVE /rndm3/
         SAVE   
 
+        str=str
         iseed=iseedp
 c       this is the initialization file containing the initial values of 
 c          the parameters

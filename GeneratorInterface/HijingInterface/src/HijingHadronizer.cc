@@ -70,8 +70,6 @@ HijingHadronizer::HijingHadronizer(const ParameterSet &pset) :
 HijingHadronizer::~HijingHadronizer()
 {
   // destructor
-//  call_pystat(1);
-//  delete pythia6Service_;
 }
 
 //_____________________________________________________________________
@@ -224,27 +222,17 @@ bool HijingHadronizer::call_hijset(double efrm, std::string frame, std::string p
 }
 
 //______________________________________________________________
-bool HijingHadronizer::hijing_init(const ParameterSet &pset)
-{
-  // set hijing options
-
-//   edm::Service<RandomNumberGenerator> rng;
-//   randomEngine = &(rng->getEngine());
-
-  return true;
-}
-
-//_____________________________________________________________________
 bool HijingHadronizer::initializeForInternalPartons(){
 
-//   Pythia6Service::InstanceWrapper guard(pythia6Service_);
-//   pythia6Service_->setGeneralParams();
+  //initialize pythia5
 
-   // hijing running options 
-   hijing_init(pset_);
+  if(0){
+    std::string dumstr = "";
+    call_pygive(dumstr);
+  }
+
    // initialize hijing
    LogInfo("HIJINGinAction") << "##### Calling HIJSET(" << efrm_ << "," <<frame_<<","<<proj_<<","<<targ_<<","<<iap_<<","<<izp_<<","<<iat_<<","<<izt_<<") ####";
-
    call_hijset(efrm_,frame_,proj_,targ_,iap_,izp_,iat_,izt_);
 
    return true;
