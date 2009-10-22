@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre2/HIon/V5 (CMSSW_3_4_X_2009-10-14-0100)
+# /dev/CMSSW_3_4_0/pre2/HIon/V7 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HIon/V7')
 )
 
 
@@ -40,7 +40,6 @@ MCJetCorrectorIcone5Unit = cms.ESSource( "L2RelativeCorrectionService",
   tagName = cms.string( "HLT_L2RelativeFlat" ),
   label = cms.string( "MCJetCorrectorIcone5Unit" )
 )
-SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
   iovIsRunNotTime = cms.bool( True ),
@@ -388,6 +387,9 @@ RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
   ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
   appendToDataLabel = cms.string( "" )
 )
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre2/HLT/V22 (CMSSW_3_4_X_2009-10-14-0100)
+# /dev/CMSSW_3_4_0/pre2/HLT/V29 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HLT/V22')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HLT/V29')
 )
 
 
@@ -40,7 +40,6 @@ MCJetCorrectorIcone5Unit = cms.ESSource( "L2RelativeCorrectionService",
   tagName = cms.string( "HLT_L2RelativeFlat" ),
   label = cms.string( "MCJetCorrectorIcone5Unit" )
 )
-SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
   iovIsRunNotTime = cms.bool( True ),
@@ -388,6 +387,9 @@ RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
   ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
   appendToDataLabel = cms.string( "" )
 )
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
@@ -1667,6 +1669,7 @@ hltMet = cms.EDProducer( "METProducer",
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.3 ),
     noHF = cms.bool( False ),
+    onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -1834,6 +1837,7 @@ hltHtMet = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 5.0 ),
     noHF = cms.bool( False ),
+    onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -1872,6 +1876,7 @@ hltJet15UHt = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 30.0 ),
     noHF = cms.bool( False ),
+    onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -1910,6 +1915,7 @@ hltJet30Ht = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 30.0 ),
     noHF = cms.bool( False ),
+    onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -11363,7 +11369,8 @@ hltCosmicMuonBarrelOnly = cms.EDProducer( "CosmicMuonProducer",
       UseMuonNavigation = cms.untracked.bool( True ),
       RPCLayers = cms.bool( True ),
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny',
-        'SteppingHelixPropagatorOpposite' )
+        'SteppingHelixPropagatorOpposite',
+        'StraightLinePropagator' )
     ),
     TrackLoaderParameters = cms.PSet( 
       MuonUpdatorAtVertexParameters = cms.PSet( 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre2/HIon/V5 (CMSSW_3_4_X_2009-10-14-0100)
+# /dev/CMSSW_3_4_0/pre2/HIon/V7 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HIon/V7')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -72,7 +72,6 @@ process.MCJetCorrectorIcone5Unit = cms.ESSource( "L2RelativeCorrectionService",
     tagName = cms.string( "HLT_L2RelativeFlat" ),
     label = cms.string( "MCJetCorrectorIcone5Unit" )
 )
-process.SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 process.XMLIdealGeometryESSource = cms.ESSource( "XMLIdealGeometryESSource",
     rootNodeName = cms.string( "cms:OCMS" ),
     appendToDataLabel = cms.string( "" ),
@@ -778,6 +777,9 @@ process.RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESP
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
   ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+process.SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
   appendToDataLabel = cms.string( "" )
 )
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
@@ -2328,15 +2330,26 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
       'keep triggerTriggerEventWithRefs_*_*_*',
+      'keep *_hltIconeTau4Regional_*_*',
       'keep *_hltL1NonIsoLargeWindowElectronPixelSeeds_*_*',
       'keep *_hltPixelMatchLargeWindowElectronsL1NonIso_*_*',
+      'keep *_hltIconeCentral1Regional_*_*',
       'keep *_hltIterativeCone5CaloJets_*_*',
+      'keep *_hltBSoftMuonL25BJetTagsUByDR_*_*',
+      'keep *_hltBSoftMuonL25TagInfosU_*_*',
+      'keep *_hltMCJetCorJetIcone5HF07_*_*',
       'keep *_hltL3MuonCandidates_*_*',
       'keep *_hltTowerMakerForMuons_*_*',
+      'keep *_hltBSoftMuonL25JetsU_*_*',
       'keep *_hltL1NonIsolatedElectronHcalIsol_*_*',
       'keep *_hltL1NonIsoSiStripElectronPixelSeeds_*_*',
+      'keep *_hltBLifetimeL25JetsStartupU_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
+      'keep *_hltBLifetimeRegionalCtfWithMaterialTracksStartupU_*_*',
+      'keep *_hltSiPixelClusters_*_*',
       'keep *_hltL3Muons_*_*',
+      'keep *_hltBLifetimeL3JetsStartupU_*_*',
+      'keep *_hltIconeCentral3Regional_*_*',
       'keep *_hltL1IsoRecoEcalCandidate_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL3TrajectorySeed_*_*',
@@ -2344,19 +2357,34 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPixelMatchLargeWindowElectronsL1Iso_*_*',
       'keep *_hltL2TauRelaxingIsolationSelector_*_*',
       'keep *_hltMet_*_*',
+      'keep *_hltBLifetimeL3AssociatorStartupU_*_*',
+      'keep *_hltBLifetimeL25TagInfosStartupU_*_*',
+      'keep *_hltBSoftMuonL3BJetTagsUByDR_*_*',
+      'keep *_hltIconeCentral4Regional_*_*',
       'keep *_hltL2MuonSeeds_*_*',
       'keep *_hltL2Muons_*_*',
+      'keep *_hltBLifetimeL3BJetTagsStartupU_*_*',
+      'keep *_hltBLifetimeL3TagInfosStartupU_*_*',
+      'keep *_hltPixelTracks_*_*',
       'keep *_hltL2TauNarrowConeIsolationProducer_*_*',
       'keep *_hltL3MuonIsolations_*_*',
       'keep *_hltL2MuonIsolations_*_*',
       'keep *_hltL1IsolatedElectronHcalIsol_*_*',
+      'keep *_hltBLifetimeL25BJetTagsStartupU_*_*',
+      'keep *_hltIconeCentral2Regional_*_*',
       'keep *_hltL1IsoSiStripElectronPixelSeeds_*_*',
       'keep *_hltL2MuonCandidates_*_*',
+      'keep *_hltBSoftMuonL3TagInfosU_*_*',
       'keep *_hltOfflineBeamSpot_*_*',
       'keep *_hltL1NonIsoStartUpElectronPixelSeeds_*_*',
+      'keep *_hltIconeTau2Regional_*_*',
+      'keep *_hltBLifetimeL25AssociatorStartupU_*_*',
       'keep *_hltL1NonIsoRecoEcalCandidate_*_*',
+      'keep *_hltIconeTau1Regional_*_*',
       'keep *_hltL1IsoStartUpElectronPixelSeeds_*_*',
-      'keep *_hltL2TauJets_*_*' ),
+      'keep *_hltL2TauJets_*_*',
+      'keep *_hltDt4DSegments_*_*',
+      'keep *_hltIconeTau3Regional_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2467,8 +2495,8 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
-process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
-process.GlobalTag.globaltag = 'MC_3XY_V10::All'
+process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/f/futyand/public/globaltag/MC_3XY_V11.db'
+process.GlobalTag.globaltag = 'MC_3XY_V11::All'
 
 
 # Automatic addition of the customisation function
