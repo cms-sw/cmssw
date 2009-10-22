@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 # packs and unpacks data from a dataset which already has digis
 process = cms.Process("ANAL")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 
 process.load("EventFilter.CSCRawToDigi.cscPacker_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre5/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/EC0724B2-AC2B-DE11-BDB4-000423D991F0.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_4_0_pre1/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0008/D670F304-B7B5-DE11-A234-001D09F2983F.root')
 )
 process.maxEvents = cms.untracked.PSet(
-     input = cms.untracked.int32(1000)
+     input = cms.untracked.int32(50)
      )
 
 
