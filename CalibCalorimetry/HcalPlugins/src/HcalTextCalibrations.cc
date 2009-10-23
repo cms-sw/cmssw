@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.14 2009/07/30 20:09:03 kukartse Exp $
+// $Id: HcalTextCalibrations.cc,v 1.15 2009/09/21 16:57:03 kukartse Exp $
 //
 //
 
@@ -93,6 +93,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else if (objectName == "LutMetadata") {
       setWhatProduced (this, &HcalTextCalibrations::produceLutMetadata);
       findingRecord <HcalLutMetadataRcd> ();
+    }
+    else if (objectName == "DcsValues") {
+      setWhatProduced (this, &HcalTextCalibrations::produceDcsValues);
+      findingRecord <HcalDcsRcd> ();
     }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
@@ -197,4 +201,9 @@ std::auto_ptr<HcalValidationCorrs> HcalTextCalibrations::produceValidationCorrs 
 
 std::auto_ptr<HcalLutMetadata> HcalTextCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
   return produce_impl<HcalLutMetadata> (mInputs ["LutMetadata"]);
+}
+
+std::auto_ptr<HcalDcsValues>
+  HcalTextCalibrations::produceDcsValues(HcalDcsRcd const & rcd) {
+  return produce_impl<HcalDcsValues> (mInputs ["DcsValues"]);
 }

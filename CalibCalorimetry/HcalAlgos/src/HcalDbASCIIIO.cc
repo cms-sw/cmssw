@@ -1,14 +1,16 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.50 2009/09/01 00:24:15 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.51 2009/09/21 16:55:03 kukartse Exp $
 //
 #include <vector>
 #include <string>
 #include <cstdio>
+#include <sstream>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
@@ -79,6 +81,12 @@ void dumpId (std::ostream& fOutput, DetId id) {
   sprintf (buffer, "  %15s %15s %15s %15s",
 	   converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str (),converter.getFlavor ().c_str ());  
   fOutput << buffer;
+}
+
+template<class T>
+bool from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
+  std::istringstream iss(s);
+  return !(iss >> f >> t).fail();
 }
 
 template <class T,class S> 
@@ -930,5 +938,124 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLutMetadata& fO
 	     channel->rawId ());
     fOutput << buffer;
   }
+  return true;
+}
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalDcsValues * fObject) {
+  if (!fObject) fObject = new HcalDcsValues;
+  std::string buffer;
+  while (getline(fInput, buffer)) {
+    if (buffer.at(0) == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (buffer);
+    if (items.size()==0) continue; // blank line
+
+    if (items.size() < 9) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 9 items: subDet, side_ring, slice, type, subChannel, LS, Value, UpperLimit, LowerLimit" << std::endl;
+      continue;
+    }
+
+    HcalOtherSubdetector subd;
+    int sidering;
+    unsigned int slice, subchan;
+    switch (items[0].at(1)) {
+    case 'B':
+      subd = HcalDcsBarrel;
+      break;
+    case 'E':
+      subd = HcalDcsEndcap;
+      break;
+    case 'F':
+      subd = HcalDcsForward;
+      break;
+    case 'O':
+      subd = HcalDcsOuter;
+      break;
+    default:
+      continue;
+    }
+    //from_string<int>(subd, items[0], std::dec);
+    from_string<int>(sidering, items[1], std::dec);
+    from_string<unsigned int>(slice, items[2], std::dec);
+    //from_string<int>(ty, items[3], std::dec);
+    from_string<unsigned int>(subchan, items[4], std::dec);
+
+    HcalDcsDetId newId(subd, sidering, slice, 
+		       HcalDcsDetId::DcsTypeFromString(items[3]), subchan);
+
+    int LS;
+    float val,upper,lower;
+    from_string<int>(LS, items[5], std::dec);
+    from_string<float>(val, items[6], std::dec);
+    from_string<float>(upper, items[7], std::dec);
+    from_string<float>(lower, items[8], std::dec);
+
+    HcalDcsValue newVal(newId.rawId(),LS,val,upper,lower);
+//     std::cout << buffer << '\n';
+//     std::cout << subd << ' ' << sidering << ' ' << slice << ' '
+// 	      << ty << ' ' << subchan << ' ' << LS << ' '
+// 	      << val << ' ' << upper << ' ' << lower << '\n';
+//     std::cout << newId ;
+    if (!(fObject->addValue(newVal))) {
+      edm::LogWarning("Data Error") << "Data from line " << buffer 
+				    << "\nwas not added to the HcalDcsValues object." << std::endl;
+    }
+//     std::cout << std::endl;
+  }
+  fObject->sortAll();
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, 
+			       HcalDcsValues const& fObject) {
+  fOutput << "# subDet side_ring slice type subChan LS Value UpperLimit LowerLimit DcsId\n";
+  for(int subd = HcalDcsValues::HcalHB; 
+      subd <= HcalDcsValues::HcalHF; ++subd) {
+//     std::cout << "subd: " << subd << '\n';
+    HcalDcsValues::DcsSet const & vals= 
+      fObject.getAllSubdetValues(HcalDcsValues::DcsSubDet(subd));
+    for (HcalDcsValues::DcsSet::const_iterator val = vals.begin(); 
+	 val != vals.end(); ++val) {
+      HcalDcsDetId valId(val->DcsId());
+
+      switch (valId.subdet()) {
+      case HcalDcsBarrel:
+	fOutput << "HB ";
+	break;
+      case HcalDcsEndcap:
+	fOutput << "HE ";
+	break;
+      case HcalDcsOuter:
+	fOutput << "HO ";
+	break;
+      case HcalDcsForward:
+	fOutput << "HF ";
+	break;
+      default :
+	fOutput << valId.subdet() << ' ';
+      }
+
+      if (valId.subdet() == HcalDcsOuter)
+	fOutput << valId.ring() << ' ';
+      else
+	fOutput << valId.zside() << ' ';
+
+      fOutput << valId.slice() << ' ' 
+	      << valId.typeString(valId.type()) << ' '
+	      << valId.subchannel() << ' ';
+      fOutput << val->LS() << ' ' 
+	      << val->getValue() << ' '
+	      << val->getUpperLimit() << ' '
+	      << val->getLowerLimit() << ' ';
+      fOutput << std::hex << val->DcsId() << std::dec << '\n';
+
+//       std::cout << valId << ' '
+// 		<< valId.subdet() << ' ' 
+// 		<< val->LS() << ' ' << val->getValue() << ' '
+// 		<< val->getUpperLimit() << ' ' << val->getLowerLimit()
+// 		<< std::endl;
+    }
+  }
+
   return true;
 }

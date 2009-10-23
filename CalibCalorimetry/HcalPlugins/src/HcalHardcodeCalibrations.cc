@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.21 2009/07/30 20:09:03 kukartse Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.22 2009/09/21 16:57:03 kukartse Exp $
 //
 //
 
@@ -139,6 +139,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if ((*objectName == "LutMetadata") || (*objectName == "electronicsMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLutMetadata);
       findingRecord <HcalLutMetadataRcd> ();
+    }
+    if ((*objectName == "DcsValues") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsValues);
+      findingRecord <HcalDcsRcd> ();
     }
   }
 }
@@ -333,3 +337,9 @@ std::auto_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (con
   return result;
 }
 
+std::auto_ptr<HcalDcsValues> 
+  HcalHardcodeCalibrations::produceDcsValues (const HcalDcsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsValues-> ...";
+  std::auto_ptr<HcalDcsValues> result(new HcalDcsValues);
+  return result;
+}

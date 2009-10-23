@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.12 2009/07/30 20:09:03 kukartse Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.13 2009/09/21 16:57:03 kukartse Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -29,6 +29,7 @@ class HcalLUTCorrsRcd;
 class HcalPFCorrsRcd;
 class HcalValidationCorrsRcd;
 class HcalLutMetadataRcd;
+class HcalDcsRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -61,6 +62,7 @@ protected:
 
   std::auto_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
   std::auto_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
+  std::auto_ptr<HcalDcsValues> produceDcsValues (const HcalDcsRcd& rcd);
 
   bool h2mode_;
 };
