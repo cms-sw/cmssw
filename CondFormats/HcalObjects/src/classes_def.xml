@@ -68,7 +68,7 @@
 
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
- <class name="HcalLutMetadata"/>
+ <class name="HcalLutMetadata" class_version="0"/>
  <class name="HcalLutMetadata::NonChannelData"/>
 
  <class pattern="*HcalCondObjectContainer*"/>
