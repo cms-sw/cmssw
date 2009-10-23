@@ -764,6 +764,7 @@ void HcalBeamClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 	  if (ieta==-9999) continue;
 	  for (int phi=0;phi<phibins;++phi)
             {
+	      iphi=phi+1;
 	      if (abs(eta)>20 && phi%2!=1) continue;
 	      if (abs(eta)>39 && phi%4!=3) continue;
 	      if (ProblemCellsByDepth.depth[depth]==0)
