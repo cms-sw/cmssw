@@ -27,8 +27,6 @@ ecalLocalRecoRECO = cms.PSet(
 #AOD content
 ecalLocalRecoAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep EBSrFlagsSorted_ecalDigis_*_*',
-        'keep EESrFlagsSorted_ecalDigis_*_*'
         )
 )
 
