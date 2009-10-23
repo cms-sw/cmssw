@@ -39,6 +39,7 @@ class WPlusJetsEventSelector : public EventSelector {
   virtual bool operator()( edm::EventBase const & t, std::strbitset & ret);
 
   std::vector<pat::Jet>      const & selectedJets     () const { return selectedJets_;     } 
+  std::vector<pat::Jet>      const & cleanedJets      () const { return cleanedJets_;      } 
   std::vector<pat::Electron> const & selectedElectrons() const { return selectedElectrons_;}
   std::vector<pat::Muon>     const & selectedMuons    () const { return selectedMuons_;    }
  
@@ -56,15 +57,19 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<pat::Muon>      looseMuons_;
   std::vector<pat::Electron>  looseElectrons_;
   std::vector<pat::MET>       selectedMETs_;
+  std::vector<pat::Jet>       cleanedJets_;
+  std::vector<pat::Electron>  selectedElectrons2_;
 
   boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor>      muonIdTight_;
   boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdTight_;
+  boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdTight2_;
   boost::shared_ptr<JetIDSelectionFunctor>                jetIdTight_;
   boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor>      muonIdLoose_;
   boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdLoose_;
   boost::shared_ptr<JetIDSelectionFunctor>                jetIdLoose_;
 
   int minJets_;
+  double dR_;
   bool muPlusJets_;
   bool ePlusJets_;
 

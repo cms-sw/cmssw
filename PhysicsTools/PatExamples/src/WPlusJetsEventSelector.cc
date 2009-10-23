@@ -67,11 +67,14 @@ WPlusJetsEventSelector::WPlusJetsEventSelector(
   set( "Z Veto"         );
   set( "Conversion Veto");
   set( "Cosmic Veto"    );
+
+  dR_ = 0.3;
 }
 
 bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::strbitset & ret)
 {
   selectedJets_.clear();
+  cleanedJets_.clear();
   selectedMuons_.clear();
   selectedElectrons_.clear();
   looseMuons_.clear();
@@ -102,11 +105,12 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
   if (!triggerEvent.isValid() ) return (bool)ret;  
 
 
-
+  int nGlobalMuons = 0;
   for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
 	  muonEnd = muonHandle->end(), imuon = muonBegin;
 	imuon != muonEnd; ++imuon ) {
     if ( imuon->isGlobalMuon() ) {
+      ++nGlobalMuons;
       // Tight cuts
       std::strbitset iret = muonIdTight_->getBitTemplate();
       if ( imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
@@ -123,14 +127,16 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
     }
   }
 
-
+  int nElectrons = 0;
   for ( std::vector<pat::Electron>::const_iterator electronBegin = electronHandle->begin(),
 	  electronEnd = electronHandle->end(), ielectron = electronBegin;
 	ielectron != electronEnd; ++ielectron ) {
+    ++nElectrons;
     // Tight cuts
     std::strbitset iret = electronIdTight_->getBitTemplate();
     if ( ielectron->pt() > elePtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && 
-	 (*electronIdTight_)(*ielectron, iret) ) {
+	 (*electronIdTight_)(*ielectron, iret) &&
+	 ielectron->electronID( "eidRobustTight" ) > 0  ) {
       selectedElectrons_.push_back( *ielectron );
     } else {
       // Loose cuts
@@ -146,11 +152,25 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	  jetEnd = jetHandle->end(), ijet = jetBegin;
 	ijet != jetEnd; ++ijet ) {
     std::strbitset iret = jetIdTight_->getBitTemplate();
-    if ( ijet->pt() > jetPtMin_ && (*jetIdTight_)(*ijet, iret) ) {
+//     if ( ijet->pt() > jetPtMin_ && fabs(ijet->eta()) < jetEtaMax_ && (*jetIdTight_)(*ijet, iret) ) {
+    if ( ijet->pt() > jetPtMin_ && fabs(ijet->eta()) < jetEtaMax_ ) {
       selectedJets_.push_back( *ijet );
+      if ( muPlusJets_ ) {
+	cleanedJets_.push_back( *ijet );
+      } else {
+	//Remove some jets
+	bool indeltaR = false;
+	for( std::vector<pat::Electron>::const_iterator electronBegin = selectedElectrons_.begin(),
+	       electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
+	     ielectron != electronEnd; ++ielectron )
+	  if( reco::deltaR( ielectron->eta(), ielectron->phi(), ijet->eta(), ijet->phi() ) < dR_ )
+	    {  indeltaR = true;  continue; }
+	if( !indeltaR ) {
+	  cleanedJets_.push_back( *ijet );
+	}
+      }
     }
   }
-
 
   pat::TriggerEvent const * trig = &*triggerEvent;
 
@@ -191,7 +211,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	    );
 	bool oneElectron = 
 	  ( selectedElectrons_.size() == 1 &&
-	    selectedMuons_.size() + looseMuons_.size() == 0
+	    selectedMuons_.size() == 0 
 	    );
 
 	if ( ignoreCut("== 1 Lepton") || 
@@ -200,7 +220,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	  passCut(ret, "== 1 Lepton");
 
 	  if ( ignoreCut("Tight Jet Cuts") ||
-	       static_cast<int>(selectedJets_.size()) >=  this->cut("Tight Jet Cuts", int()) ){
+	       static_cast<int>(cleanedJets_.size()) >=  this->cut("Tight Jet Cuts", int()) ){
 	    passCut(ret,"Tight Jet Cuts");
 	  
 
