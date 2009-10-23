@@ -8,7 +8,8 @@ process = cms.Process("EDMtoMEConvert")
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
-process.load("DQMOffline.Trigger.BPAGPostProcessor_cff")
+#process.load("DQMOffline.Trigger.BPAGPostProcessor_cff")
+process.load("DQMOffline.Trigger.TnPEfficiencyPostProcessor_cff")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 ## parse some command line arguments
@@ -69,7 +70,7 @@ process.dqmSaver.dirName = options.outputDir
 
 
 
-process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.JpsiPostProcessor*process.ZPostProcessor*process.dqmStoreStats)
+process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.tagAndProbeEfficiencyPostProcessor*process.dqmStoreStats)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)
