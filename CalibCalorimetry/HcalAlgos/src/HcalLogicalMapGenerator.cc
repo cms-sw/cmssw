@@ -1499,7 +1499,12 @@ void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCE
     else {
       iside = -1;
       irm = 2;
-      fpga = "top";
+      if (mapIOV_<4) {
+	fpga = "top";
+	ispigot = 12;}
+      else {
+	fpga = "bot";
+	ispigot = 13;}
     }
     /*loop over ZDC cables*/
     for(icab=1; icab<NZDCCAB+1; icab++){
@@ -1522,7 +1527,8 @@ void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCE
         ihtr_fi = irm_fi;
       }
       else {
-        ihtr_fi = irm_fi + 3;
+	if (mapIOV_<4) ihtr_fi = irm_fi + 3;
+        else ihtr_fi = irm_fi;
       }
       if (icab < 6) {
         ix = icab;

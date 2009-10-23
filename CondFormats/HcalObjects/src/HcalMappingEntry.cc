@@ -14,7 +14,7 @@
 using namespace std;
 
 
-// class HBHEHFLogicalMapEntry 
+//class HBHEHFLogicalMapEntry 
 
 HBHEHFLogicalMapEntry::HBHEHFLogicalMapEntry( 
              int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,

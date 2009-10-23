@@ -13,7 +13,7 @@
 //
 // Original Author:  Jared Todd Sturdy
 //         Created:  Thu Oct 23 18:16:33 CEST 2008
-// $Id: MapTester.cc,v 1.2 2009/05/19 16:05:57 rofierzy Exp $
+// $Id: MapTester.cc,v 1.3 2009/09/01 00:24:17 rofierzy Exp $
 //
 //
 
@@ -104,7 +104,8 @@ MapTester::beginJob(const edm::EventSetup&)
     std::ostringstream file;
     if      (mapIOV_==1) file<<"version_A_emap.txt";
     else if (mapIOV_==2) file<<"version_B_emap.txt";
-    else                 file<<"version_C_emap.txt";
+    else if (mapIOV_==3) file<<"version_C_emap.txt";
+    else                 file<<"version_D_emap.txt";
     std::ofstream outStream( file.str().c_str() );
     char buf [1024];
     sprintf(buf,"#file creation series : %s",tempbuff);

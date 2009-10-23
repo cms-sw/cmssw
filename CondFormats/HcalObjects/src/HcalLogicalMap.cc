@@ -97,13 +97,20 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   mystream.str("");
   if      (mapIOV==1) IOVlabel = "A";
   else if (mapIOV==2) IOVlabel = "B";
-  else                IOVlabel = "C";
+  else if (mapIOV==3) IOVlabel = "C";
+  else                IOVlabel = "D";
 
-  HBEFmapstr  = "./HCALmapHBEF_"+date+".txt";
-  HOXmapstr   = "./HCALmapHO_"+date+"_"+IOVlabel+".txt";
-  CALIBmapstr = "./HCALmapCALIB_"+date+".txt";
-  ZDCmapstr   = "./ZDCmap_"+date+".txt";
-  HTmapstr    = "./HCALmapHT_"+date+".txt";
+  HBEFmapstr  = "./HCALmapHBEF_"+IOVlabel+".txt";
+  HOXmapstr   = "./HCALmapHO_"+IOVlabel+".txt";
+  CALIBmapstr = "./HCALmapCALIB_"+IOVlabel+".txt";
+  ZDCmapstr   = "./ZDCmap_"+IOVlabel+".txt";
+  HTmapstr    = "./HCALmapHT_"+IOVlabel+".txt";
+
+//  HBEFmapstr  = "./HCALmapHBEF_"+date+".txt";
+//  HOXmapstr   = "./HCALmapHO_"+date+"_"+IOVlabel+".txt";
+//  CALIBmapstr = "./HCALmapCALIB_"+date+".txt";
+//  ZDCmapstr   = "./ZDCmap_"+date+".txt";
+//  HTmapstr    = "./HCALmapHT_"+date+".txt";
   
   HBEFmap     = fopen(HBEFmapstr.c_str(),"w");
   HOXmap      = fopen(HOXmapstr.c_str(),"w");
@@ -112,19 +119,34 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   HTmap       = fopen(HTmapstr.c_str(),"w");
   /**********************/
 
-  if(HBEFmap) printHBEFMap(HBEFmap);
+  if(HBEFmap) {
+    fprintf(HBEFmap,"## file created %s ##\n",date.c_str());
+    printHBEFMap(HBEFmap);
+  }
   else cout <<HBEFmapstr<<" not found!"<<endl;
 
-  if(HOXmap) printHOXMap(HOXmap);
+  if(HOXmap) {
+    fprintf(HOXmap,"## file created %s ##\n",date.c_str());
+    printHOXMap(HOXmap);
+  }
   else cout <<HOXmapstr<<" not found!"<<endl;
 
-  if(CALIBmap) printCalibMap(CALIBmap);
+  if(CALIBmap) {
+    fprintf(CALIBmap,"## file created %s ##\n",date.c_str());
+    printCalibMap(CALIBmap);
+  }
   else cout <<CALIBmapstr<<" not found!"<<endl;
 
-  if(ZDCmap) printZDCMap(ZDCmap);
+  if(ZDCmap) {
+    fprintf(ZDCmap,"## file created %s ##\n",date.c_str());
+    printZDCMap(ZDCmap);
+  }
   else cout <<ZDCmapstr<<" not found!"<<endl;
 
-  if(HTmap) printHTMap(HTmap);
+  if(HTmap) {
+    fprintf(HTmap,"## file created %s ##\n",date.c_str());
+    printHTMap(HTmap);
+  }
   else cout <<HTmapstr<<" not found!"<<endl;
 
 }
