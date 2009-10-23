@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 
 use Getopt::Long;
 my ($myfile);
@@ -10,7 +9,7 @@ GetOptions(
 
 	  );
 if(!$myfile or !$user or !$password or !$db){
-	die "perl update_tag.pl -myfile list_tag.txt -user CMS_COND_STRIP -db cms_orcoff_int2r -password SSWDC3MCAI8HQHTC\n";
+	die "perl update_tag.pl -myfile list_tag.txt -user CMS_COND_STRIP -db cms_orcoff_int2r -password xxxxxxxxxxx\n";
 }
 
 unless(-e $myfile){die "Il file specificato doesn't exit\n"; }
