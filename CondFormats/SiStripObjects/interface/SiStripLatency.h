@@ -36,6 +36,8 @@ using namespace std;
  * <br>
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  * <br>
+ * The method allModes (allLatencies) fill the passed vector with all different modes
+ * (latencies) in the Tracker. <br>
  * ATTENTION: the biggest possible detId value that can be stored is 536870911 because
  * 29 bits out of 32 are reserved for the detId and the remaining 3 for the apv value (1-6). <br>
  * The biggest possible Tracker detId at this moment is 470178036 so this is not a problem.
