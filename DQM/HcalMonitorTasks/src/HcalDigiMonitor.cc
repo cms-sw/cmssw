@@ -343,9 +343,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       else 
 	continue; // skip anything that isn't HB, HE, HO, HF
       // extra protection against nonsensical values -- prevents occasional crashes
-      if (rEta < 85 && rEta > 0 
-	  && (rPhi-1) > 0 && (rPhi-1)<72 
-	  && (rDepth-1) > 0 && (rDepth-1)<4)
+      if (rEta < 85 && rEta >= 0 
+	  && (rPhi-1) >= 0 && (rPhi-1)<72 
+	  && (rDepth-1) >= 0 && (rDepth-1)<4)
 	{
 	  ++badunpackerreport[rEta][rPhi-1][rDepth-1];
 	  ++baddigis[rEta][rPhi-1][rDepth-1];  
