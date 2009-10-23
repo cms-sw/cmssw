@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
 #include "TEveCaloData.h"
 #include "TH2F.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
@@ -81,9 +83,58 @@ FW3DLegoEveHistProxyBuilder::build()
 void
 FW3DLegoEveHistProxyBuilder::modelChangesImp(const FWModelIds&)
 {
+   //find all selected cell ids which are not from this FWEventItem and preserve only them
+   // do this by moving them to the end of the list and then clearing only the end of the list
+   // this avoids needing any additional memory
+   TEveCaloData::vCellId_t& selected = m_data->GetCellsSelected();
+   
+   TEveCaloData::vCellId_t::iterator itEnd = selected.end();
+   for(TEveCaloData::vCellId_t::iterator it = selected.begin();
+       it != itEnd;
+       ++it) {
+      if(it->fSlice ==m_sliceIndex) {
+         //we have found one we want to get rid of, so we swap it with the
+         // one closest to the end which is not of this slice
+         do {
+            TEveCaloData::vCellId_t::iterator itLast = itEnd-1;
+            itEnd = itLast;
+         } while (itEnd != it && itEnd->fSlice==m_sliceIndex);
+         
+         if(itEnd != it) {
+            std::swap(*it,*itEnd);
+         } else {
+            //shouldn't go on since advancing 'it' will put us past itEnd
+            break;
+         }
+         //std::cout <<"keeping "<<it->fTower<<" "<<it->fSlice<<std::endl;
+      }
+   }
+   selected.erase(itEnd,selected.end());
+      
    applyChangesToAllModels();
+   
+   if (!selected.empty()) {
+      if(0==m_data->GetSelectedLevel()) {
+         gEve->GetSelection()->AddElement(m_data);
+      }         
+   } else {
+      if(0!=m_data->GetSelectedLevel()) {
+         gEve->GetSelection()->RemoveElement(m_data);
+      }
+   }
+   
    m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
    m_data->DataChanged();
+}
+
+void
+FW3DLegoEveHistProxyBuilder::addToSelect(double iEta, double iPhi)
+{
+   TEveCaloData::vCellId_t& selected = m_data->GetCellsSelected();
+   //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
+   // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
+   
+   selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(iEta,iPhi),m_sliceIndex));   
 }
 
 void

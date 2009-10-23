@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:06 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.h,v 1.3 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.h,v 1.4 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -45,6 +45,8 @@ public:
                        TEveCaloDataHist* iHist);
    virtual void build();
 
+protected:
+   void addToSelect(double,double);
 private:
    virtual void modelChangesImp(const FWModelIds&);
    virtual void itemChangedImp(const FWEventItem*);
