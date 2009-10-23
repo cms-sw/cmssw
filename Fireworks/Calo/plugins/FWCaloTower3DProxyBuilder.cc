@@ -8,13 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.3 2009/05/13 20:26:05 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.4 2009/10/21 14:06:13 amraktad Exp $
 //
 
 #include <math.h>
 #include "TEveCaloData.h"
 #include "TEveCalo.h"
 #include "TH2F.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 
 #include "Fireworks/Calo/plugins/FWCaloTower3DProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -121,16 +123,63 @@ FWCaloTower3DProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    if(m_caloData && m_towers && item()) {
       m_hist->Reset();
+
+      //find all selected cell ids which are not from this FWEventItem and preserve only them
+      // do this by moving them to the end of the list and then clearing only the end of the list
+      // this avoids needing any additional memory
+      TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
+      
+      TEveCaloData::vCellId_t::iterator itEnd = selected.end();
+      for(TEveCaloData::vCellId_t::iterator it = selected.begin();
+          it != itEnd;
+          ++it) {
+         if(it->fSlice ==m_sliceIndex) {
+            //we have found one we want to get rid of, so we swap it with the
+            // one closest to the end which is not of this slice
+            do {
+               TEveCaloData::vCellId_t::iterator itLast = itEnd-1;
+               itEnd = itLast;
+            } while (itEnd != it && itEnd->fSlice==m_sliceIndex);
+            
+            if(itEnd != it) {
+               std::swap(*it,*itEnd);
+            } else {
+               //shouldn't go on since advancing 'it' will put us past itEnd
+               break;
+            }
+            //std::cout <<"keeping "<<it->fTower<<" "<<it->fSlice<<std::endl;
+         }
+      }
+      selected.erase(itEnd,selected.end());
+      
       if(item()->defaultDisplayProperties().isVisible()) {
 
          assert(item()->size() >= m_towers->size());
          unsigned int index=0;
          for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-            if(item()->modelInfo(index).displayProperties().isVisible()) {
+            const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+            if(info.displayProperties().isVisible()) {
                (m_hist)->Fill(tower->eta(),tower->phi(), getEt(*tower));
+            }
+            if(info.isSelected()) {
+               //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
+               // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
+               
+               selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
             }
          }
       }
+
+      if(!selected.empty()) {
+         if(0==m_caloData->GetSelectedLevel()) {
+            gEve->GetSelection()->AddElement(m_caloData);
+         }
+      } else {
+         if(0!=m_caloData->GetSelectedLevel()) {
+            gEve->GetSelection()->RemoveElement(m_caloData);
+         }
+      }
+      
       m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_caloData->DataChanged();
    }

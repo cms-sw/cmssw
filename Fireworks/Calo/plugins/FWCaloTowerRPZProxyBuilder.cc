@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.8 2009/10/22 23:13:18 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.9 2009/10/23 00:20:15 chrjones Exp $
 //
 
 // system include files
@@ -139,10 +139,6 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       }
       selected.erase(itEnd,selected.end());
       
-      bool somethingSelected = !selected.empty();
-      //if(somethingSelected) {
-      //   std::cout <<" something already selected"<<std::endl;
-      //}
       if(item()->defaultDisplayProperties().isVisible()) {
 
          assert(item()->size() >= m_towers->size());
@@ -160,13 +156,11 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
                   // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
 
                   selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
-                  //std::cout <<"selected "<<index<<" cellID "<<m_modelIndexToCellId[index].fTower<<std::endl;
-                  somethingSelected=true;
                }
             }
          }
       }
-      if(somethingSelected) {
+      if(!selected.empty()) {
          if(0==m_data->GetSelectedLevel()) {
             gEve->GetSelection()->AddElement(m_data);
          }
