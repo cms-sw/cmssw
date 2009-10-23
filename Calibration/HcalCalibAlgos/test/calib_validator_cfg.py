@@ -27,7 +27,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
 process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt")
-process.ValidationIsoTrk.AxB = cms.string("3x3")
+process.ValidationIsoTrk.AxB = cms.string("Cone")
+#process.ValidationIsoTrk.AxB = cms.string("3x3")
+process.ValidationIsoTrk.calibrationConeSize = cms.double(26)
 process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
 
 process.load("HLTrigger.Timer.timer_cfi")
@@ -38,7 +40,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_1.root',
+'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_3.root',
 
 #'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_1.root',
 #'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_2.root'
