@@ -81,12 +81,6 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     ctstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     ctstr>>RefCol>>ValCol;
     ctstr.getline(xAxisTitle,200);
-
-    cout<<'\t'<<OutLabel<<'\t'<<nRebin;
-    cout<<'\t'<<xAxisMin<<'\t'<<xAxisMax<<'\t'<<yAxisMin<<'\t'<<yAxisMax;
-    cout<<'\t'<<DimSwitch<<'\t'<<StatSwitch<<'\t'<<Chi2Switch<<'\t'<<LogSwitch;
-    cout<<'\t'<<RefCol<<'\t'<<ValCol;
-    cout<<'\t'<<xAxisTitle<<endl;
     
     //Format pad
     if (LogSwitch == "Log") gPad->SetLogy();
