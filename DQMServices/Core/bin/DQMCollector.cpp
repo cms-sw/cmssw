@@ -1,13 +1,18 @@
 #include "DQMServices/Core/interface/DQMNet.h"
+#include "DQMServices/Core/src/DQMNet.cc"
+#include "DQMServices/Core/src/DQMError.cc"
+  /* NB: Avoids picking up the entire DQMServices/Core
+         library, and in particular avoids ROOT. */
 #include "classlib/utils/DebugAids.h"
+#include "classlib/utils/Signal.h"
 #include <iostream>
 #include <signal.h>
 #include <unistd.h>
-#include "TROOT.h"
 #include <cstdlib>
 
-sig_atomic_t s_stop = 0;
-static void interrupt (int sig) 
+volatile sig_atomic_t s_stop = 0;
+static void
+interrupt (int sig) 
 {
   s_stop = 1;
 }
@@ -47,6 +52,8 @@ onAssertFail (const char *message)
 int main (int argc, char **argv)
 {
   lat::DebugAids::failHook(&onAssertFail);
+  lat::Signal::handle(SIGINT, (lat::Signal::HandlerType) &interrupt);
+  lat::Signal::ignore(SIGPIPE);
 
   // Check and process arguments.
   int port = 9090;
@@ -70,10 +77,6 @@ int main (int argc, char **argv)
     std::cerr << "Usage: " << argv[0] << " --listen PORT [--[no-]debug]\n";
     return 1;
   }
-
-  // Initialise ROOT.
-  ROOT::GetROOT();
-  signal(SIGINT, &interrupt);
 
   // Start serving.
   DQMCollector server (argv[0], port, debug);
