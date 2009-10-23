@@ -28,7 +28,8 @@ process.prod = cms.EDFilter("HcalDumpConditions",
         'L1TriggerObjects'
 #        ,'ZSThresholds'
 #        ,'ValidationCorrs' 
-        ,'LutMetadata' 
+        ,'LutMetadata'
+#        ,'DcsValues'
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )

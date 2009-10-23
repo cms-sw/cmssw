@@ -29,7 +29,7 @@ process.prod = cms.EDFilter("HcalDumpConditions",
 #        ,'ZSThresholds'
 #        ,'ValidationCorrs' 
 #        ,'LutMetadata' 
-        ,'DcsValues' 
+        'DcsValues' 
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -88,8 +88,8 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #            tag = cms.string('hcal_lutmetadata_trivial_v1.01_mc')
 #        ),  
         cms.PSet(
-            record = cms.string('HcalPedestalsRcd'),
-            tag = cms.string('hcal_pedestals_fC_v6_mc')
+            record = cms.string('HcalDcsRcd'),
+            tag = cms.string('hcal_dcsvalue_trivial_v1.01_mc')
         )
 )
 )
