@@ -209,6 +209,23 @@ process.GlobalTag.globaltag = "GR09_H_V4::All"
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
+process.EcalTrivialConditionRetriever.producedChannelStatus = False
+process.EcalTrivialConditionRetriever.weightsForTB = False
+process.EcalTrivialConditionRetriever.producedEcalPedestals = False
+process.EcalTrivialConditionRetriever.getWeightsFromFile = False
+process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = False
+process.EcalTrivialConditionRetriever.producedEcalIntercalibConstantsMC = False
+process.EcalTrivialConditionRetriever.producedEcalIntercalibErrors = False
+process.EcalTrivialConditionRetriever.producedEcalTimeCalibConstants = False
+process.EcalTrivialConditionRetriever.producedEcalTimeCalibErrors = False
+process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
+process.EcalTrivialConditionRetriever.producedEcalGainRatios = False
+process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = True
+process.EcalTrivialConditionRetriever.producedEcalClusterCrackCorrParameters = False
+process.EcalTrivialConditionRetriever.producedEcalMappingElectronics = False
+process.EcalTrivialConditionRetriever.producedEnergyUncertaintyParameters = False
+process.EcalTrivialConditionRetriever.produceEnergyCorrectionParameters = False
+
 process.EcalTrivialConditionRetriever.adcToGeVEBConstant = cms.untracked.double(0.00875)
 process.EcalTrivialConditionRetriever.adcToGeVEEConstant = cms.untracked.double(0.060)
 process.EcalTrivialConditionRetriever.pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
