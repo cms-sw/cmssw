@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.44 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.45 2009/10/14 13:54:07 amraktad Exp $
 //
 
 #define private public
@@ -120,8 +120,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_cameraZoom(0),
    m_cameraMatrix(0)
 {
-   m_projMgr.reset(new TEveProjectionManager);
-   m_projMgr->SetProjection(iProjType);
+   m_projMgr.reset(new TEveProjectionManager(iProjType));
    m_projMgr->SetImportEmpty(kTRUE);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
    /*

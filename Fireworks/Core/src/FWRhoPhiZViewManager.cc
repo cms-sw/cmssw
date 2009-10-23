@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.50 2009/04/07 14:07:44 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.51 2009/10/14 14:00:19 amraktad Exp $
 //
 
 // system include files
@@ -92,11 +92,10 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    iGUIMgr->registerViewBuilder(kRhoZViewTypeName,f);
 
    //setup geometry projections
-   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager);
+   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RPhi));
    //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
 
-   m_rhoZGeomProjMgr.reset(new TEveProjectionManager);
-   m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
+   m_rhoZGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RhoZ));
    //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
 
    m_eveStore = new TEveElementList();
