@@ -100,7 +100,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 ######################################################################################
 ### LogError Histogramming
 process.load("FWCore.Modules.logErrorHarvester_cfi")
-process.load("DQMServices.Components.DQMLogError_cfi")
+process.load("DQMServices.Components.DQMMessageLogger_cfi")
 
 
 ######################################################################################
