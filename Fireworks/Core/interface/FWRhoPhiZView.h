@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.18 2009/04/07 14:10:54 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.19 2009/10/03 17:13:50 dmytro Exp $
 //
 
 // system include files
@@ -59,7 +59,6 @@ public:
 
    virtual void saveImageTo(const std::string& iName) const;
 
-   // ---------- static member functions --------------------
    // ---------- member functions ---------------------------
    void resetCamera();
    void destroyElements();
@@ -70,15 +69,14 @@ public:
 
    //returns the new element created from this import
    TEveElement* importElements(TEveElement*, float iLayer);
+
 private:
    void doDistortion();
    void doCompression(bool);
    void doZoom(double);
    void updateCaloParameters();
-   void updateCaloThresholdParameters();
    void updateScaleParameters();
    void updateCalo(TEveElement*, bool dataChanged = false);
-   void updateCaloThresholds(TEveElement*);
    void updateCaloLines(TEveElement*);
    void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
    void lineWidthChanged();
@@ -110,8 +108,6 @@ private:
    FWBoolParameter   m_smoothLine;
    FWBoolParameter*  m_showHF;
    FWBoolParameter*  m_showEndcaps;
-   //FWDoubleParameter  m_minEcalEnergy;
-   //FWDoubleParameter  m_minHcalEnergy;
 
    // camera parameters
    double* m_cameraZoom;

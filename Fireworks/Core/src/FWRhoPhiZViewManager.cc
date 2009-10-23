@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.51 2009/10/14 14:00:19 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.52 2009/10/23 11:34:58 amraktad Exp $
 //
 
 // system include files
@@ -32,12 +32,12 @@
 #include "TGeoManager.h"
 #include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
-
 #include "TGeoManager.h"
 
 #include <iostream>
 #include <exception>
 #include <boost/bind.hpp>
+#include <sstream>
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
@@ -58,7 +58,6 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
-#include <sstream>
 
 //
 //
@@ -93,15 +92,10 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
 
    //setup geometry projections
    m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RPhi));
-   //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
-
    m_rhoZGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RhoZ));
-   //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
 
    m_eveStore = new TEveElementList();
 
-   //kTRUE tells it to reset the camera so we see everything
-   //gEve->Redraw3D(kTRUE);
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
@@ -136,11 +130,6 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    
 }
 
-// FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 {
    m_isBeingDestroyed=true;
@@ -151,17 +140,6 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
    m_eveStore->Destroy();
 }
 
-//
-// assignment operators
-//
-// const FWRhoPhiZViewManager& FWRhoPhiZViewManager::operator=(const FWRhoPhiZViewManager& rhs)
-// {
-//   //An exception safe implementation is
-//   FWRhoPhiZViewManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -240,7 +218,6 @@ FWRhoPhiZViewManager::setupGeometry()
       makeTrackerGeometryRhoZ();
    }
 }
-
 
 void
 FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
@@ -329,7 +306,6 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
          }
       }
    }
-
 }
 
 void
@@ -365,9 +341,6 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
    }
 }
 
-//
-// const member functions
-//
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
    if ( !detIdToGeo() ) return;
@@ -409,7 +382,6 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
          iter.next();
       }
    }
-
    m_eveStore->AddElement(container);
 }
 
@@ -812,5 +784,4 @@ FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
       }
    }
    return returnValue;
-
 }
