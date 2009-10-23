@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.9 2009/10/23 00:20:15 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.10 2009/10/23 01:22:15 chrjones Exp $
 //
 
 // system include files
@@ -14,6 +14,7 @@
 #include "Fireworks/Calo/plugins/FWCaloTowerRPZProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
+#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 
 TEveCaloDataHist* FWCaloTowerRPZProxyBuilderBase::m_data = 0;
 
@@ -59,10 +60,18 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
 
    if ( !m_data )  {
       m_data = new TEveCaloDataHist();
+      FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_data);
+      //make sure it is accessible via the base class
+      m_data->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
    }
    if ( newHist ) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(m_histName, 0., iItem->defaultDisplayProperties().color());
+      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_data->GetUserData());
+      assert(0!=base);
+      FWFromTEveCaloDataSelector* sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
+      assert(0!=sel);
+      sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,iItem));
       //make sure it does not go away
       m_data->IncDenyDestroy();
    }

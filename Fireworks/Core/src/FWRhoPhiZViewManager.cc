@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.52 2009/10/23 11:34:58 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.53 2009/10/23 12:49:24 amraktad Exp $
 //
 
 // system include files
@@ -34,6 +34,9 @@
 #include "TEvePointSet.h"
 #include "TGeoManager.h"
 
+//TEMP
+#include "TEveCaloData.h"
+
 #include <iostream>
 #include <exception>
 #include <boost/bind.hpp>
@@ -58,6 +61,7 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
+#include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
 
 //
 //
@@ -278,13 +282,20 @@ FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
       if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( not id->item()->modelInfo(id->index()).isSelected() ) {
+         if(dynamic_cast<TEveCaloData*>(iElement)) {
             bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   selecting"<<std::endl;
-
-            id->select();
+            FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
+            base->doSelect();
             m_eveSelection->BlockSignals(last);
+         }else {
+            FWModelId* id = static_cast<FWModelId*>(userData);
+            if( not id->item()->modelInfo(id->index()).isSelected() ) {
+               bool last = m_eveSelection->BlockSignals(kTRUE);
+               //std::cout <<"   selecting"<<std::endl;
+               
+               id->select();
+               m_eveSelection->BlockSignals(last);
+            }
          }
       }
    }
@@ -296,7 +307,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
    //std::cout <<"selection removed"<<std::endl;
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
-      if(0 != userData) {
+      if(0 != userData && 0 == dynamic_cast<TEveCaloData*>(iElement)) {
          FWModelId* id = static_cast<FWModelId*>(userData);
          if( id->item()->modelInfo(id->index()).isSelected() ) {
             bool last = m_eveSelection->BlockSignals(kTRUE);
