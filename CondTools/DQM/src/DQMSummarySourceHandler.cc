@@ -10,7 +10,7 @@
 namespace popcon {
   DQMSummarySourceHandler::DQMSummarySourceHandler(const edm::ParameterSet & pset):
     m_name(pset.getUntrackedParameter<std::string>("name","DQMSummarySourceHandler")),
-    m_since(pset.getUntrackedParameter<boost::int64_t>("firstSince",1)), 
+    m_since(pset.getUntrackedParameter<boost::uint64_t>("firstSince",1)), 
     m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_DQM_SUMMARY")), 
     m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","****")) {
     m_connectionString = "oracle://cms_omds_lb/CMS_DQM_SUMMARY";
