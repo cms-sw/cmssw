@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloEcalScaleOnlineProd.cc,v 1.1 2009/06/08 15:41:17 efron Exp $
+// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.1 2009/10/20 11:43:26 efron Exp $
 //
 //
 
@@ -95,7 +95,14 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
  
-
+     if(objectKey == "NULL")  // return default blank ecal scale	 
+        return boost::shared_ptr< L1CaloEcalScale >( ecalScale );
+     if(objectKey == "IDENTITY"){  // return identity ecal scale  
+       ecalScale = 0;
+       ecalScale = new L1CaloEcalScale(1);
+       return boost::shared_ptr< L1CaloEcalScale >( ecalScale);
+     }
+     
 
      double ee_lsb = 0.;
      double eb_lsb = 0.;
@@ -164,7 +171,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        }
 
      }
-     //          std::cout << " eb lsb " << eb_lsb << " ee_lsb " << ee_lsb << std::endl;
+     //     std::cout << " eb lsb " << eb_lsb << " ee_lsb " << ee_lsb << std::endl;
   
      std::vector< std::string > grpLUT;
      grpLUT.push_back("GROUP_ID");
