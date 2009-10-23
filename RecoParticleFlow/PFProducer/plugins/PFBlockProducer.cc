@@ -83,6 +83,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   useNuclear_ = iConfig.getParameter<bool>("useNuclear");
 
   useConversions_ = iConfig.getParameter<bool>("useConversions");
+  
+  useConvBremGsfTracks_ = iConfig.getParameter<bool>("useConvBremGsfTracks");
 
   useV0_ = iConfig.getParameter<bool>("useV0");
 
