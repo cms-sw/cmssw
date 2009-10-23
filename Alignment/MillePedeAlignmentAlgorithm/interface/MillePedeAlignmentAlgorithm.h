@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.25 $
-///  $Date: 2009/08/21 16:40:16 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.26 $
+///  $Date: 2009/09/15 16:22:34 $
+///  (last update by $Author: ckleinw $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -78,7 +78,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
 
-  /// fill mille for a trajectory, returning number of x/y hits ([0,0]) if 'bad' trajectory
+  /// fill mille for a trajectory, returning number of x/y hits ([0,0] if 'bad' trajectory)
   std::pair<unsigned int, unsigned int>
     addReferenceTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
 
@@ -88,15 +88,19 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   int addMeasurementData(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			 unsigned int iHit, AlignmentParameters *&params);
 
- // adds data from reference trajectory from a specific Hit
-  void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
+  /// adds data from reference trajectory from a specific Hit
+  void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+			 unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM,
+			 TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
-  // adds data from reference trajectory from a specific multiple scattering measurement
+  /// adds data from reference trajectory from a specific multiple scattering measurement
   void addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			   unsigned int iMsMeas);
+		 unsigned int iMsMeas);
 			   
- // adds data from reference trajectory from a specific Hit
-  void addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
+ /// adds multiple scattering data from reference trajectory from a specific Hit
+  void addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+			   unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM,
+			   TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
@@ -106,7 +110,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;
 
- // calls Mille and diagonalises the covariance matrx of a Hit if neccesary
+  /// calls Mille and diagonalises the covariance matrix of a Hit if neccesary
   int callMille2D ( const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 		    unsigned int iTrajHit, const std::vector<int> &globalLabels,
 		    const std::vector<float> &globalDerivativesx,
@@ -158,8 +162,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
   unsigned int              theMinNumHits;
-  double                    theMaximalCor2D; /// maximal correlation allowed for 2D hits. If larger
-                                              /// the 2D measurement gets diagonalized!!!
+  double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
+                                             /// If larger, the 2D measurement gets diagonalized!!!
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
   std::vector<int>          theIntBuffer;
