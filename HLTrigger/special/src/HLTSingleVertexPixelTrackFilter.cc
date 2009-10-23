@@ -1,9 +1,10 @@
-// $Id$
+// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.1 2009/10/22 18:04:11 davidlw Exp $
 
 #include "HLTrigger/special/interface/HLTSingleVertexPixelTrackFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -118,3 +119,5 @@ bool HLTSingleVertexPixelTrackFilter::filter(edm::Event& iEvent, const edm::Even
 
    return accept;
 }
+
+DEFINE_FWK_MODULE(HLTSingleVertexPixelTrackFilter);
