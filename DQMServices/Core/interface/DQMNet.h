@@ -422,14 +422,22 @@ protected:
   // flag the objects that need to be killed at the end.  After
   // call to this method, revive all live objects by removing the
   // DQM_PROP_DEAD flag, then call purgeDeadObjects() at the end
-  // to remove the dead ones.
+  // to remove the dead ones.  This also turns off object request
+  // for objects we've lost interest in.
   virtual void
   markObjectsDead(Peer *p)
     {
+      uint64_t minreq
+	= (lat::Time::current()
+	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
+      {
+	if (i->lastreq && i->lastreq < minreq)
+	  const_cast<ObjType &>(*i).lastreq = 0;
 	const_cast<ObjType &>(*i).flags |= DQM_PROP_DEAD;
+      }
     }
 
   // Mark remaining zombie objects as dead.  See markObjectsDead().
@@ -533,9 +541,6 @@ protected:
   virtual void
   sendObjectListToPeers(bool all)
     {
-      uint64_t minreq
-	= (lat::Time::current()
-	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       typename PeerMap::iterator i, e;
       typename ObjectMap::iterator oi, oe;
       for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
@@ -551,9 +556,6 @@ protected:
 	Bucket msg;
         msg.next = 0;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
-        for (oi = p.objs.begin(), oe = p.objs.end(); oi != oe; ++oi)
-	  if (oi->lastreq && oi->lastreq < minreq)
-	    const_cast<ObjType &>(*oi).lastreq = 0;
 
 	if (! msg.data.empty())
 	{
