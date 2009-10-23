@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.148 $"
+__version__ = "$Revision: 1.149 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -199,12 +199,13 @@ class ConfigBuilder(object):
 		self.schedule.append(self.process.out_stepAOD)
 		# ATTENTION: major tweaking to avoid inlining of event content
 		# should we do that?
-		# Note: we need to return the _second_ arg from the list of eventcontents ... 
-		def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
-			return label
+		# Note: we need to return the _second_ arg from the list of eventcontents ...
+		if len(self.eventcontent.split(',')) > 1 :
+		    def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
+		        return label
 
-		self.process.aodOutput.outputCommands.__dict__["dumpPython"] = dummy2
-		result += "\n"+self.process.aodOutput.dumpPython()
+		    self.process.aodOutput.outputCommands.__dict__["dumpPython"] = dummy2
+		    result += "\n"+self.process.aodOutput.dumpPython()
 
             return result
         
@@ -809,7 +810,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.148 $"),
+              (version=cms.untracked.string("$Revision: 1.149 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
