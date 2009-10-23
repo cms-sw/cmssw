@@ -191,18 +191,32 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
 {
   uint16_t lat = singleLatency();
   uint16_t mode = singleMode();
-  if( lat != -1. ) {
+  if( lat != 255 ) {
     ss << "All the Tracker has the same latency = " << lat << endl;
   }
   else {
-    ss << "There is more than one latency value in the Tracker" << endl;
+    vector<uint16_t> allLatenciesVector;
+    allLatencies(allLatenciesVector);
+    if( allLatenciesVector.size() > 1 ) {
+      ss << "There is more than one latency value in the Tracker" << endl;
+    }
+    else {
+      ss << "Latency value is " << lat << " that means invalid" << endl;
+    }
   }
 
   if( mode != 0 ) {
     ss << "All the Tracker has the same mode = " << mode << endl;
   }
   else {
-    ss << "There is more than one mode in the Tracker" << endl;
+    vector<uint16_t> allModesVector;
+    allModes(allModesVector);
+    if( allModesVector.size() > 1 ) {
+      ss << "There is more than one mode in the Tracker" << endl;
+    }
+    else {
+      ss << "Mode value is " << mode << " that means invalid" << endl;
+    }
   }
 
   ss << "Total number of ranges = " << latencies_.size() << endl;
@@ -214,6 +228,6 @@ void SiStripLatency::printDebug(std::stringstream & ss) const
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
     int detId = it->detIdAndApv >> 3;
     int apv = it->detIdAndApv & 7; // 7 is 0...0111
-    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << it->latency << " and mode = " << int(it->mode) << endl;
+    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency) << " and mode = " << int(it->mode) << endl;
   }
 }
