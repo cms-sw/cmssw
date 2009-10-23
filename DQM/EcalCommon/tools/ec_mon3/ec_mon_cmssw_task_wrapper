@@ -202,6 +202,11 @@ if ( $filnam ) {
 print CONFIGFILE <<EOF2;
 )
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
+process.GlobalTag.globaltag = "GR09_H_V4::All"
+
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
 process.EcalTrivialConditionRetriever.adcToGeVEBConstant = cms.untracked.double(0.00875)
@@ -212,14 +217,9 @@ process.EcalTrivialConditionRetriever.amplWeights = cms.untracked.vdouble(-0.333
 process.EcalTrivialConditionRetriever.amplWeightsAftGain = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0)
 process.EcalTrivialConditionRetriever.jittWeights = cms.untracked.vdouble(0.041, 0.041, 0.041, 0.0, 1.325, -0.050, -0.504, -0.502, -0.390, 0.0)
 process.EcalTrivialConditionRetriever.jittWeightsAft = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 1.098, -0.046, -0.416, -0.419, -0.337, 0.0)
-process.EcalTrivialConditionRetriever.channelStatusFile = 'CalibCalorimetry/EcalTrivialCondModules/data/listCRUZET4.v1.hashed.txt'
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = "CRAFT_V17H::All"
-#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
-#process.GlobalTag.globaltag = "GR09_H_V4::All"
 #process.prefer("GlobalTag")
+process.prefer("EcalTrivialConditionRetriever")
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
