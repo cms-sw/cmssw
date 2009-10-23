@@ -12,9 +12,13 @@ class HcalFrontEndId {
   HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfiber,int fiberchannel,int qiecard,int adc);
   ~HcalFrontEndId();
   uint32_t rawId() const {return hcalFrontEndId_;}
-  /// index which uniquely identifies an RM (e.g. HPD) within HCAL
-  int rmIndex() const { return (hcalFrontEndId_>>15)&0x3FF;}
-  static const int maxRmIndex = 0x3FF;
+
+  // index which uniquely identifies an RBX within HCAL
+  int rbxIndex() const {return (hcalFrontEndId_>>18);}
+  static const int maxRbxIndex=0xFF;
+  // index which uniquely identifies an RM (e.g. HPD) within HCAL
+  int rmIndex() const {return ((rm()-1)&0x3)+(rbxIndex()<<2);}
+  static const int maxRmIndex=0x3FF;
 
   bool null() const { return hcalFrontEndId_==0; }
 
