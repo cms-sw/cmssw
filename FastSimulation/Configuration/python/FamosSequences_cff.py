@@ -35,6 +35,8 @@ from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 # KFFittingSmoother.MinNumberOfHits = 3
 
 # 3) Fast Simulation tracking sequences
+# this one is added before 340pre3 to cope with adding SiPixelTemplateDBObjectESProducer and corresponding objects to the ConfDB (MC_3XY_V11, STARTUP3X_V10)
+from CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi import *
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 from FastSimulation.Tracking.IterativeTracking_cff import *
 

@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(10)
 )
 
 # Include the RandomNumberGeneratorService definition
@@ -42,17 +42,18 @@ process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
+
 # Famos with everything !
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 process.source = cms.Source("EmptySource")
-process.simulation = cms.Sequence(process.generator*process.famosWithEverything)
+process.simulation = cms.Path(process.generator*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *', 
                                            'drop *_mix_*_*'),
-    fileName = cms.untracked.string('MyFirstFamosFile.root')
+    fileName = cms.untracked.string('MyFirstFamosFile_2.root')
 )
 process.outpath = cms.EndPath(process.o1)
 

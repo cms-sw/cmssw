@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 # The number of events to be processed.
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
     
 # For valgrind studies
 # process.ProfilerService = cms.Service("ProfilerService",
@@ -50,12 +50,12 @@ process.famosSimHits.SimulateTracking = True
 # Produce Tracks and Clusters
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithCaloHits)
 process.source = cms.Source("EmptySource")
-process.simulation = cms.Sequence(process.generator*process.famosWithCaloHits)
+process.p1 = cms.Path(process.generator*process.famosWithCaloHits)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("MyFirstFamosFile.root"),
+    fileName = cms.untracked.string("MyFirstFamosFile_1.root"),
     outputCommands = cms.untracked.vstring("keep *",
                                            "drop *_mix_*_*")
     )
