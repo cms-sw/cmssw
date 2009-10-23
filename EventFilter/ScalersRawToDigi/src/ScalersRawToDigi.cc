@@ -31,6 +31,8 @@
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/BeamSpot.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 class ScalersRawToDigi : public edm::EDProducer 
@@ -53,6 +55,8 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
   produces<L1TriggerScalersCollection>();
   produces<Level1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
+  produces<BeamSpotCollection>();
+  produces<DcsStatusCollection>();
   if ( iConfig.exists("scalersInputTag") )
   {
     inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
@@ -82,6 +86,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 
   std::auto_ptr<L1AcceptBunchCrossingCollection> 
     pBunch(new L1AcceptBunchCrossingCollection());
+
+  std::auto_ptr<BeamSpotCollection> pBeamSpot(new BeamSpotCollection());
+  std::auto_ptr<DcsStatusCollection> pDcsStatus(new DcsStatusCollection());
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -122,11 +129,22 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 	pBunch->push_back(bc);
       }
     }
+
+    if ( raw->version >= 4 )
+    {
+      BeamSpot beamSpot(fedData.data());
+      pBeamSpot->push_back(beamSpot);
+
+      DcsStatus dcsStatus(fedData.data());
+      pDcsStatus->push_back(dcsStatus);
+    }
   }
   iEvent.put(pOldTrigger); 
   iEvent.put(pTrigger); 
   iEvent.put(pLumi); 
   iEvent.put(pBunch);
+  iEvent.put(pBeamSpot);
+  iEvent.put(pDcsStatus);
 }
 
 // Define this as a plug-in

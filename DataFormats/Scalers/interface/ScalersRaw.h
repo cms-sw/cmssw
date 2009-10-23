@@ -146,6 +146,35 @@ struct LumiScalersRaw_v1
   unsigned int numOrbits;
 };
 
+struct BeamSpotRaw_v4
+{
+  unsigned int collectionTime_sec;
+  unsigned int collectionTime_nsec;
+  float x;
+  float y;
+  float z;
+  float dxdz;
+  float dydz;
+  float err_x;
+  float err_y;
+  float err_z;
+  float err_dxdz;
+  float err_dydz;
+  float width_x;
+  float width_y;
+  float sigma_z;
+  float err_width_x;
+  float err_width_y;
+  float err_sigma_z;
+};
+
+struct DcsStatusRaw_v4
+{
+  unsigned int collectionTime_sec;
+  unsigned int collectionTime_nsec;
+  unsigned int ready;
+};
+
 struct ScalersEventRecordRaw_v1
 {
   unsigned long long header;
@@ -174,6 +203,18 @@ struct ScalersEventRecordRaw_v3
   struct TriggerScalersRaw_v3 trig;
   struct LumiScalersRaw_v1    lumi;
   unsigned int filler;
+  unsigned long long bx[ScalersRaw::N_BX_v2];
+  unsigned long long trailer;
+};
+
+struct ScalersEventRecordRaw_v4
+{
+  unsigned long long header;
+  int version;
+  struct TriggerScalersRaw_v3 trig;
+  struct LumiScalersRaw_v1    lumi;
+  struct BeamSpotRaw_v4       beamSpot;
+  struct DcsStatusRaw_v4      dcsStatus;
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
