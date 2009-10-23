@@ -142,6 +142,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       if (! me.wasUpdated())
 	continue;
 
+      o.lastreq = 0;
       o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
       o.flags = me.data_.flags;
       o.tag = me.data_.tag;

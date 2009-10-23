@@ -475,7 +475,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'UPDATE ME' from peer "
-	  << p->peeraddr << std::endl;
+	  << p->peeraddr << ", size " << len << std::endl;
 
       p->update = true;
     }
@@ -486,7 +486,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'LIST OBJECTS' from peer "
-	  << p->peeraddr << std::endl;
+	  << p->peeraddr << ", size " << len << std::endl;
 
       // Send over current status: list of known objects.
       sendObjectListToPeer(msg, true, false);
@@ -498,7 +498,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'GET OBJECT' from peer "
-	  << p->peeraddr << std::endl;
+	  << p->peeraddr << ", size " << len << std::endl;
 
       if (len < 3*sizeof(uint32_t))
       {
@@ -564,7 +564,8 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	logme()
 	  << "DEBUG: received message 'LIST BEGIN "
 	  << (flags ? "FULL" : "INCREMENTAL")
-	  << "' from " << p->peeraddr << std::endl;
+	  << "' from " << p->peeraddr
+	  << ", size " << len << std::endl;
 
       // If we are about to receive a full list of objects, flag all
       // objects as possibly dead.  Subsequent object notifications
@@ -602,7 +603,8 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	logme()
 	  << "DEBUG: received message 'LIST END "
 	  << (flags ? "FULL" : "INCREMENTAL")
-	  << "' from " << p->peeraddr << std::endl;
+	  << "' from " << p->peeraddr
+	  << ", size " << len << std::endl;
 
       // Indicate we have received another update from this peer.
       // Also indicate we should flush to our clients.
@@ -650,7 +652,8 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'OBJECT " << name
-	  << "' from " << p->peeraddr << std::endl;
+	  << "' from " << p->peeraddr
+	  << ", size " << len << std::endl;
 
       // Mark the peer as a known object source.
       p->source = true;
@@ -710,14 +713,13 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       }
 
       unsigned char *namedata = data + sizeof(words);
-      unsigned char *enddata = namedata + namelen;
-      std::string name ((char *) namedata, namelen);
-      assert (enddata == data + len);
+      std::string name((char *) namedata, namelen);
 
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'NONE " << name
-	  << "' from " << p->peeraddr << std::endl;
+	  << "' from " << p->peeraddr
+	  << ", size " << len << std::endl;
 
       // Mark the peer as a known object source.
       p->source = true;

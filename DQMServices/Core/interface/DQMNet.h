@@ -436,9 +436,6 @@ protected:
   virtual void
   purgeDeadObjects(Peer *p)
     {
-      uint64_t minreq
-	= (lat::Time::current()
-	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
@@ -446,11 +443,7 @@ protected:
 	if (i->flags & DQM_PROP_DEAD)
 	  ip->objs.erase(i++);
 	else
-	{
-	  if (i->lastreq && i->lastreq < minreq)
-	    const_cast<ObjType &>(*i).lastreq = 0;
 	  ++i;
-        }
       }
     }
 
@@ -503,11 +496,16 @@ protected:
     {
       typename PeerMap::iterator pi, pe;
       typename ObjectMap::iterator oi, oe;
-      uint32_t numobjs = 0;
+      size_t size = 0;
+      size_t numobjs = 0;
       for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-	numobjs += pi->second.objs.size();
+	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi, ++numobjs)
+	  if (all || (oi->flags & DQM_PROP_NEW))
+	    size += 9*sizeof(uint32_t) + oi->dirname->size()
+		    + oi->objname.size() + 1 + oi->scalar.size() + oi->qdata.size()
+		    + (oi->lastreq > 0 ? oi->rawdata.size() : 0);
 
-      msg->data.reserve(msg->data.size() + 300*numobjs);
+      msg->data.reserve(msg->data.size() + size + 8 * sizeof(uint32_t));
 
       uint32_t nupdates = 0;
       uint32_t words [4];
@@ -535,7 +533,11 @@ protected:
   virtual void
   sendObjectListToPeers(bool all)
     {
+      uint64_t minreq
+	= (lat::Time::current()
+	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       typename PeerMap::iterator i, e;
+      typename ObjectMap::iterator oi, oe;
       for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
       {
 	ImplPeer &p = i->second;
@@ -549,6 +551,9 @@ protected:
 	Bucket msg;
         msg.next = 0;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
+        for (oi = p.objs.begin(), oe = p.objs.end(); oi != oe; ++oi)
+	  if (oi->lastreq && oi->lastreq < minreq)
+	    const_cast<ObjType &>(*oi).lastreq = 0;
 
 	if (! msg.data.empty())
 	{
