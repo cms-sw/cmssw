@@ -73,10 +73,10 @@ void DQMMessageLoggerClient::fillHistograms(){
 
 
   vector<string> entries;
-  entries.push_back("Test/MessageLogger/Warnings/modules_warnings");
-  entries.push_back("Test/MessageLogger/Errors/modules_errors");
-  entries.push_back("Test/MessageLogger/Warnings/categories_warnings");
-  entries.push_back("Test/MessageLogger/Errors/categories_errors");
+  entries.push_back("MessageLogger/Warnings/modules_warnings");
+  entries.push_back("MessageLogger/Errors/modules_errors");
+  entries.push_back("MessageLogger/Warnings/categories_warnings");
+  entries.push_back("MessageLogger/Errors/categories_errors");
   
   
   int mel = 0;
@@ -112,7 +112,7 @@ void DQMMessageLoggerClient::fillHistograms(){
       
       switch(mel){
       case 1:
-	theDbe->setCurrentFolder("Test/MessageLogger/Warnings");
+	theDbe->setCurrentFolder("MessageLogger/Warnings");
 	if(nonzeros>0){
 	  modulesWarningsFound = theDbe->book1D("modulesWarningsFound", "Warnings per module", binContent.size(), 0, binContent.size());
 	}else{
@@ -130,7 +130,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	if(nonzeros>4) modulesWarningsFound->getTH1()->GetXaxis()->LabelsOption("v");
 	break;
       case 2:
-	theDbe->setCurrentFolder("Test/MessageLogger/Errors");
+	theDbe->setCurrentFolder("MessageLogger/Errors");
 	if(nonzeros>0){
 	  modulesErrorsFound = theDbe->book1D("modulesErrorsFound", "Errors per module",binContent.size(), 0, binContent.size() );
 	}else{
@@ -147,7 +147,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	if(nonzeros>4) modulesErrorsFound->getTH1()->GetXaxis()->LabelsOption("v");
 	break;
       case 3:
-	theDbe->setCurrentFolder("Test/MessageLogger/Warnings");
+	theDbe->setCurrentFolder("MessageLogger/Warnings");
 	if(nonzeros>0){
 	  categoriesWarningsFound = theDbe->book1D("categoriesWarningsFound", "Warnings per category", binContent.size(),0,binContent.size());
 	} else{
@@ -165,7 +165,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	if(nonzeros>4) categoriesWarningsFound->getTH1()->GetXaxis()->LabelsOption("v");
 	break;
       case 4:
-	theDbe->setCurrentFolder("Test/MessageLogger/Errors");
+	theDbe->setCurrentFolder("MessageLogger/Errors");
 	if(nonzeros>0){
 	  categoriesErrorsFound = theDbe->book1D("categoriesErrorsFound", "Errors per category", binContent.size(),0,binContent.size());
 	}else{

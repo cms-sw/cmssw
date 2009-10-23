@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 DQMMessageLoggerClient = cms.EDAnalyzer ("DQMMessageLoggerClient",
-                                   Directory = cms.string("Test/MessageLogger")
+                                   Directory = cms.string("MessageLogger")
 
     )
