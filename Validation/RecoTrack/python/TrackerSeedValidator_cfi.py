@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
     associators = cms.vstring('TrackAssociatorByHits'),
-    useFabsEta = cms.bool(True),
+    useFabsEta = cms.bool(False),
     minpT = cms.double(-1),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     min = cms.double(0.0),
@@ -48,7 +48,20 @@ trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
     cotThetaRes_nbin = cms.int32(120),                                   
     dxyRes_nbin = cms.int32(100),                                   
     dzRes_nbin = cms.int32(150),
-    useLogPt=cms.untracked.bool(True)
+    useLogPt=cms.untracked.bool(True),
+    # TP originating vertical position
+    minVertpos = cms.double(0),
+    maxVertpos = cms.double(5),
+    nintVertpos = cms.int32(100),
+    # TP originating z position
+    minZpos = cms.double(-10),
+    maxZpos = cms.double(10),
+    nintZpos = cms.int32(100),
+    parametersDefiner = cms.string('LhcParametersDefinerForTP'),
+    useGsf=cms.bool(False),
+    skipHistoFit=cms.untracked.bool(False)
+
+    
 )
 
 

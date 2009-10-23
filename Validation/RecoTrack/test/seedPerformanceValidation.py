@@ -14,7 +14,7 @@ import string
 RefRelease='CMSSW_3_1_1'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_1_1'
+NewRelease='CMSSW_3_4_0_pre2'
 
 # startup and ideal sample list
 
@@ -52,7 +52,7 @@ Sequence='re_tracking'
 #Sequence='harvesting'
 
 # Ideal and Statup tags
-IdealTag='MC_31X_V2'
+IdealTag='MC_3XY_V10'
 StartupTag='STARTUP31X_V1'
 
 # PileUp: PU . No PileUp: noPU
@@ -68,11 +68,11 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
-#NewRepository = '.'
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
+NewRepository = '.'
+#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
 
 #Default Nevents
-defaultNevents ='5000'
+defaultNevents ='5'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={}
@@ -129,10 +129,10 @@ def do_validation(samples, GlobalTag):
             harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
             if(( Sequence=="harvesting" and os.path.isfile(harvestedfile) )==False):
                     #search the primary dataset
-                    cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
+                    cmd='dbsql "find dataset where dataset like *'
             #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-                    cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-                    cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
+                    cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* order by dataset.createdate "'
+                    cmd+='|grep '+sample+'|grep -v test|tail -1 '
                     print cmd
                     dataset= os.popen(cmd).readline().strip()
                     print 'DataSet:  ', dataset, '\n'
