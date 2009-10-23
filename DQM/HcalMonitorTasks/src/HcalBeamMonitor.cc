@@ -930,15 +930,14 @@ void HcalBeamMonitor::endLuminosityBlock()
 	    {
 	      // One new luminosity section found with no entries for the cell in question
 	      // Add protection requiring a minimum number of entries before counting as dead?
-	      HFlumi_total_deadcells->setBinContent(x,y,HFlumi_total_deadcells->getBinContent(x,y)+1);
+	      HFlumi_total_deadcells->Fill(x-1,2*y-1,1);
 	    } // dead cell check
 
 	  if (HFlumi_occ_LS->getBinContent(x,y)>0.5*Nentries)
 	    {
-	      // One new luminosity section found with no entries for the cell in question
-	      // Add protection requiring a minimum number of entries before counting as dead?
-	      HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
-	    } // dead cell check
+	      HFlumi_total_dhotcells->Fill(x-1,2*y-1,1);
+	      //HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
+	    } // hot cell check
 	} // loop over y
     } // loop over x
   return;
