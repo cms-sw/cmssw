@@ -48,14 +48,14 @@ ZSPJetCorrector::~ZSPJetCorrector () {
 
 double ZSPJetCorrector::correction (const LorentzVector& fJet) const {
   double a = mSimpleCorrector[fixedPU]->correctionPtEtaPhiE (fJet.Pt(), fJet.Eta(), fJet.Phi(),fJet.E());
-  std::cout<<" Simple First correction "<<a<<std::endl;
+ // std::cout<<" Simple First correction "<<a<<std::endl;
   double b = a;
   if(iPU >= 0) {
   if(mSimpleCorrectorOffset.size()>0) {
   b = mSimpleCorrectorOffset[fixedPU]->correctionEnEta (a*fJet.E(), fJet.Eta());
-  std::cout<<"Simple  Second correction "<<b<<std::endl;
+  // std::cout<<"Simple  Second correction "<<b<<std::endl;
   } else {
-  std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;
+ // std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;
   }
   }
   return b;
@@ -68,7 +68,7 @@ double ZSPJetCorrector::correction( const reco::Jet& fJet, const edm::Event& iEv
 {
    double b=1.;
    int nPU = 0;
-   cout<<" Event correction "<<iPU<<endl;
+//   cout<<" Event correction "<<iPU<<endl;
    if(iPU > 0) {
 // Look for the Lumi section
 //     LuminosityBlock lbID = iEvent.getLuminosityBlock();
@@ -78,14 +78,14 @@ double ZSPJetCorrector::correction( const reco::Jet& fJet, const edm::Event& iEv
 
 
   double a = mSimpleCorrector[nPU]->correctionPtEtaPhiE (fJet.p4().Pt(), fJet.p4().Eta(), fJet.p4().Phi(),fJet.p4().E());
-  std::cout<<" Lumi section First correction "<<a<<" "<<nPU<<std::endl;
+//  std::cout<<" Lumi section First correction "<<a<<" "<<nPU<<std::endl;
   b = a;
   if(iPU >= 0) {
   if(mSimpleCorrectorOffset.size()>0) {
   b = mSimpleCorrectorOffset[nPU]->correctionEnEta (a*fJet.p4().E(), fJet.p4().Eta());
-  std::cout<<" Lumi section Second correction "<<b<<" "<<nPU<<std::endl;
+ // std::cout<<" Lumi section Second correction "<<b<<" "<<nPU<<std::endl;
   } else {
-  std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;
+ // std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;
   }
   }
 
