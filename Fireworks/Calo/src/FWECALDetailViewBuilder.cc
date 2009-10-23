@@ -49,7 +49,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no barrel ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         "showing crystal location but not energy" << std::endl;
       }
    } else {
       try {
@@ -59,7 +59,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no endcap ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         "showing crystal location but not energy" << std::endl;
       }
    }
 
@@ -186,7 +186,7 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
          handle_superclusters.getByLabel(*m_event, "correctedHybridSuperClusters");
          superclusters = handle_superclusters.ptr();
       }
-      catch ( ...)
+      catch (...)
       {
          std::cout <<"no barrel superclusters are available" << std::endl;
       }
@@ -195,7 +195,7 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
          handle_superclusters.getByLabel(*m_event, "correctedMulti5x5SuperClustersWithPreshower");
          superclusters = handle_superclusters.ptr();
       }
-      catch ( ...)
+      catch (...)
       {
          std::cout <<"no endcap superclusters are available" << std::endl;
       }
@@ -207,8 +207,8 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
    std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
    for (size_t i = 0; i < sorted.size(); ++i)
    {
-      if (! (fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
-             && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
+      if (!(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
+            && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
          continue;
 
       if (colorIndex %2 == 0) showSuperCluster(sorted[i], color1);
@@ -225,17 +225,17 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
 
    // loop on all the detids
    for (EcalRecHitCollection::const_iterator k = hits->begin();
-	k != hits->end(); ++k) {
+        k != hits->end(); ++k) {
 
       const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
       if ( matrix == 0 ) {
-	 printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
-	 continue;
+         printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
+         continue;
       }
 
       TVector3 v(matrix->GetTranslation()[0],
-		 matrix->GetTranslation()[1],
-		 matrix->GetTranslation()[2]);
+                 matrix->GetTranslation()[1],
+                 matrix->GetTranslation()[2]);
 
       // set the et
       double size = k->energy()/cosh(v.Eta());
@@ -248,41 +248,41 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
       // if in the EB
       if (k->id().subdetId() == EcalBarrel) {
 
-	 // do phi wrapping
-	 double phi = v.Phi();
-	 if (v.Phi() > m_phi + M_PI)
+         // do phi wrapping
+         double phi = v.Phi();
+         if (v.Phi() > m_phi + M_PI)
             phi -= 2 * M_PI;
-	 if (v.Phi() < m_phi - M_PI)
+         if (v.Phi() < m_phi - M_PI)
             phi += 2 * M_PI;
 
-	 // check if the hit is in the window to be drawn
-	 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172)
-		&& fabs(phi - m_phi) < (m_size*0.0172)))
+         // check if the hit is in the window to be drawn
+         if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
+               && fabs(phi - m_phi) < (m_size*0.0172)))
             continue;
 
-	 // if in the window to be drawn then draw it
-	 // data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
-	 // 				phi - 0.0172 / 2, phi + 0.0172 / 2);
-	 DetIdToMatrix::Range range = m_geom->getEtaPhiRange(k->id().rawId());
-	 data->AddTower(range.min1, range.max1, range.min2, range.max2);
-	 data->FillSlice(slice, size);
-	 // if (size>0.5)
-	 // std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
+         // if in the window to be drawn then draw it
+         // data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
+         //                             phi - 0.0172 / 2, phi + 0.0172 / 2);
+         DetIdToMatrix::Range range = m_geom->getEtaPhiRange(k->id().rawId());
+         data->AddTower(range.min1, range.max1, range.min2, range.max2);
+         data->FillSlice(slice, size);
+         // if (size>0.5)
+         // std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
 
          // otherwise in the EE
       } else if (k->id().subdetId() == EcalEndcap) {
 
-	 // check if the hit is in the window to be drawn
-	 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172)
-		&& fabs(v.Phi() - m_phi) < (m_size*0.0172)))
+         // check if the hit is in the window to be drawn
+         if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
+               && fabs(v.Phi() - m_phi) < (m_size*0.0172)))
             continue;
 
-	 // if in the window to be drawn then draw it
-	 DetIdToMatrix::Range range = m_geom->getXYRange(k->id().rawId());
-	 data->AddTower(range.min1, range.max1, range.min2, range.max2);
-	 // data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
-	 // 		(v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
-	 data->FillSlice(slice, size);
+         // if in the window to be drawn then draw it
+         DetIdToMatrix::Range range = m_geom->getXYRange(k->id().rawId());
+         data->AddTower(range.min1, range.max1, range.min2, range.max2);
+         // data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
+         //             (v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
+         data->FillSlice(slice, size);
       }
 
    } // end loop on hits
