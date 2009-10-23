@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/09/24 12:03:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/02 13:09:47 $
+ *  $Revision: 1.4 $
  */
 
 
@@ -400,22 +400,22 @@ void HLTMuonBPAG::begin()
 
     
     //diMuonMassVsPt[ALLKEY] = bookIt("diMuonMassVsPt_All", "Mass Vs Probe Pt", massVsPtBins);
-    diMuonMassVsPt[ALLKEY] =  book2DVarBins("diMuonMassVsPt_All", "Mass Vs Probe Pt", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
-    diMuonMassVsEta[ALLKEY] = bookIt("diMuonMassVsEta_All", "Mass Vs Probe Eta", massVsEtaBins);    
+    diMuonMassVsPt[ALLKEY] =  book2DVarBins("diMuonMassVsPt_All", "Mass Vs Probe Pt; Pt; Mass", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+    diMuonMassVsEta[ALLKEY] = bookIt("diMuonMassVsEta_All", "Mass Vs Probe Eta; #eta ; Mass", massVsEtaBins);    
     diMuonMassVsPhi[ALLKEY] = bookIt("diMuonMassVsPhi_All", "Mass Vs Probe Phi", massVsPhiBins);
     
-    diMuonMass[ALLKEY] = bookIt("diMuonMass_All", "Mass of Dimuons", massBins);
+    diMuonMass[ALLKEY] = bookIt("diMuonMass_All", "Mass of Dimuons; Mass", massBins);
 
-    probeMuonPt[ALLKEY] = bookIt("probeMuonPt_All", "Probe Muon PT", evenPtBins);
+    probeMuonPt[ALLKEY] = bookIt("probeMuonPt_All", "Probe Muon PT; Probe Pt", evenPtBins);
     
     
     if (useFullDebugInformation || isL1Path) {
-      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
-      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta " + myLabel, massVsEtaBins);
-      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi " + myLabel, massVsPhiBins);
+      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt; Pt; Mass", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta; #eta; Mass " + myLabel, massVsEtaBins);
+      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi; #phi; Mass " + myLabel, massVsPhiBins);
  
-      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons  " + myLabel, massBins);
-      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT" + myLabel, evenPtBins);
+      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons; mass  " + myLabel, massBins);
+      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT; Pt" + myLabel, evenPtBins);
       
     }
 
@@ -444,12 +444,12 @@ void HLTMuonBPAG::begin()
     
 
       // Book for L2, L3
-      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt" + myLabel, nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
-      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta " + myLabel, massVsEtaBins);
-      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi " + myLabel, massVsPhiBins);
+      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt; Pt; Mass" + myLabel, nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta; #eta; Mass " + myLabel, massVsEtaBins);
+      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi; #phi; Mass " + myLabel, massVsPhiBins);
 
-      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons  " + myLabel, massBins);
-      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT "+ myLabel, evenPtBins);
+      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons; Mass  " + myLabel, massBins);
+      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT; Pt "+ myLabel, evenPtBins);
       
     }// end for each collection label
 
