@@ -141,8 +141,11 @@ foreach $file ( @files ) {
 #      my $appversion = "CMSSW_2_1_4";
 #      my $setuplabel = "Commissioning2008Ecal";
 
-      my $appversion = "CMSSW_2_1_9";
-      my $setuplabel = "PrivEcal219";
+#      my $appversion = "CMSSW_2_1_9";
+#      my $setuplabel = "PrivEcal219";
+
+      my $appversion = "CMSSW_3_3_0";
+      my $setuplabel = "PrivEcal330";
 
       my $stream = "A";
       my $producer = "ECAL_LOCAL_DAQ";
