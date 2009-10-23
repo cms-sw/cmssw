@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.7 2009/10/22 22:00:47 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.8 2009/10/22 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -112,20 +112,32 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       m_hist->Reset();
       
       //find all selected cell ids which are not from this FWEventItem and preserve only them
+      // do this by moving them to the end of the list and then clearing only the end of the list
+      // this avoids needing any additional memory
       TEveCaloData::vCellId_t& selected = m_data->GetCellsSelected();
-      TEveCaloData::vCellId_t temp;
-      //use capacity instead of size becuase capacity will hold the largest number of selected objects seen
-      // while size is only how many are presently selected
-      temp.reserve(selected.capacity());
-      for(TEveCaloData::vCellId_t::iterator it = selected.begin(),itEnd = selected.end();
+      
+      TEveCaloData::vCellId_t::iterator itEnd = selected.end();
+      for(TEveCaloData::vCellId_t::iterator it = selected.begin();
           it != itEnd;
           ++it) {
-         if(it->fSlice !=m_sliceIndex) {
-            temp.push_back(*it);
+         if(it->fSlice ==m_sliceIndex) {
+            //we have found one we want to get rid of, so we swap it with the
+            // one closest to the end which is not of this slice
+            do {
+               TEveCaloData::vCellId_t::iterator itLast = itEnd-1;
+               itEnd = itLast;
+            } while (itEnd != it && itEnd->fSlice==m_sliceIndex);
+            
+            if(itEnd != it) {
+               std::swap(*it,*itEnd);
+            } else {
+               //shouldn't go on since advancing 'it' will put us past itEnd
+               break;
+            }
             //std::cout <<"keeping "<<it->fTower<<" "<<it->fSlice<<std::endl;
          }
       }
-      selected.swap(temp);
+      selected.erase(itEnd,selected.end());
       
       bool somethingSelected = !selected.empty();
       //if(somethingSelected) {
