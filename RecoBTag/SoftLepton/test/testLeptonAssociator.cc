@@ -201,7 +201,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   
   edm::Handle<edm::View<reco::Track> > globalMuonTrackHandle;
   iEvent.getByLabel(m_globalMuons, globalMuonTrackHandle);
-  const edm::View<reco::Track>& globalMuonTrackCollection = *(globalMuonTrackHandle.product()); 
+  //const edm::View<reco::Track>& globalMuonTrackCollection = *(globalMuonTrackHandle.product()); 
   
   edm::Handle<reco::MuonCollection> globalMuonHandle;
   iEvent.getByLabel(m_muons, globalMuonHandle);
