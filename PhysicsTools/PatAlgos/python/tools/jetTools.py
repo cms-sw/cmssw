@@ -400,7 +400,7 @@ def addJetCollection(process,
     def addAlso(label, value):
         existing = getattr(process, label)
         setattr( process, label+postfixLabel, value)
-        process.makeAllLayer1Jets.replace( existing, existing*value )
+        process.patDefaultSequence.replace( existing, existing*value )        
 
     ## clone and add a module as process to the
     ## default sequence
