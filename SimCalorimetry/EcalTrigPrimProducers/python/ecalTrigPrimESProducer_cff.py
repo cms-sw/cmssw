@@ -71,4 +71,22 @@ tpparams11 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+tpparams12 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGPhysicsConstRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams13 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGCrystalStatusRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams14 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGTowerStatusRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
 
