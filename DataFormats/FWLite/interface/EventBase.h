@@ -27,18 +27,12 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Common/interface/EventBase.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 #include "Rtypes.h"
 
-namespace edm {
-   class TriggerResults;
-}
-
 namespace fwlite 
 {
-   class TriggerNames;
-
    class EventBase : public edm::EventBase
    {
       public:
@@ -64,14 +58,8 @@ namespace fwlite
 
          virtual const EventBase& toBegin() = 0;
 
-         virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) = 0;
-
          virtual Long64_t fileIndex()          const { return -1; }
          virtual Long64_t secondaryFileIndex() const { return -1; }
-
-         protected:
-
-         static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
 
       private:
       

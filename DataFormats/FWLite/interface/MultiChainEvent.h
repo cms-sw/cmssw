@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.10 2009/10/20 18:34:58 srappocc Exp $
+// $Id: MultiChainEvent.h,v 1.12 2009/10/21 17:26:53 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -36,10 +36,10 @@ namespace edm {
   class EDProductGetter;
   class EventAux;
   class TriggerResults;
+  class TriggerNames;
 }
 
 namespace fwlite {
-  class TriggerNames;
 
   namespace internal {
     class MultiProductGetter;
@@ -106,7 +106,7 @@ class MultiChainEvent: public EventBase
       virtual Long64_t secondaryFileIndex() const 
       { return event2_->eventIndex(); }
 
-      virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults);
+      virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);

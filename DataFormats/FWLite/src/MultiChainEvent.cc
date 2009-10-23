@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.8 2009/10/20 18:34:58 srappocc Exp $
+// $Id: MultiChainEvent.cc,v 1.10 2009/10/21 17:26:53 cplager Exp $
 //
 
 // system include files
@@ -371,10 +371,10 @@ MultiChainEvent::size() const
   return event1_->size();
 }
 
-TriggerNames const&
-MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults)
+edm::TriggerNames const&
+MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
 {
-  TriggerNames const* names = triggerNames_(triggerResults);
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
   if (names != 0) return *names;
 
   event1_->fillParameterSetRegistry();

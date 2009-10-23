@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.15 2009/09/24 19:21:33 dsr Exp $
+// $Id: ChainEvent.cc,v 1.16 2009/10/21 16:48:02 cplager Exp $
 //
 
 // system include files
@@ -277,14 +277,14 @@ ChainEvent::size() const
   return accumulatedSize_.back();
 }
 
-TriggerNames const&
-ChainEvent::triggerNames(edm::TriggerResults const& triggerResults)
+edm::TriggerNames const&
+ChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
 {
   return event_->triggerNames(triggerResults);
 }
 
 void
-ChainEvent::fillParameterSetRegistry()
+ChainEvent::fillParameterSetRegistry() const
 {
   event_->fillParameterSetRegistry();
 }

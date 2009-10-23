@@ -4,5 +4,4 @@
   <class name="fwlite::ChainEvent"/>
   <class name="fwlite::MultiChainEvent"/>
   <class name="fwlite::ErrorThrower"/>
-  <class name="fwlite::TriggerNames"/>
 </lcgdict>

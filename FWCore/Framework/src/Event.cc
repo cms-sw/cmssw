@@ -213,4 +213,14 @@ size_t
     return h;
   }
 
+  TriggerNames const&
+  Event::triggerNames(edm::TriggerResults const& triggerResults) const
+  {
+    edm::TriggerNames const* names = triggerNames_(triggerResults);
+    if (names != 0) return *names;
+
+    throw cms::Exception("TriggerNamesNotFound")
+      << "TriggerNames not found in ParameterSet registry";
+    return *names;
+  }
 }

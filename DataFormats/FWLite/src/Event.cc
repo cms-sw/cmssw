@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.29 2009/09/04 21:34:20 wdd Exp $
+// $Id: Event.cc,v 1.30 2009/10/21 16:48:02 cplager Exp $
 //
 
 // system include files
@@ -640,10 +640,10 @@ Event::getByProductID(edm::ProductID const& iID) const
   return itFound->second->pProd_;
 }
 
-TriggerNames const&
-Event::triggerNames(edm::TriggerResults const& triggerResults)
+edm::TriggerNames const&
+Event::triggerNames(edm::TriggerResults const& triggerResults) const
 {
-  TriggerNames const* names = triggerNames_(triggerResults);
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
   if (names != 0) return *names;
 
   if (!parameterSetRegistryFilled_) {
@@ -658,7 +658,7 @@ Event::triggerNames(edm::TriggerResults const& triggerResults)
 }
 
 void
-Event::fillParameterSetRegistry()
+Event::fillParameterSetRegistry() const
 {
   if (parameterSetRegistryFilled_) return;
   parameterSetRegistryFilled_ = true;

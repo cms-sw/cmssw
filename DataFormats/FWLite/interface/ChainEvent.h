@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.14 2009/09/11 17:00:46 cplager Exp $
+// $Id: ChainEvent.h,v 1.15 2009/10/21 16:48:02 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -36,10 +36,10 @@ namespace edm {
   class EDProductGetter;
   class EventAux;
   class TriggerResults;
+  class TriggerNames;
 }
 
 namespace fwlite {
-   class TriggerNames;
 
    class ChainEvent : public EventBase
 {
@@ -95,8 +95,8 @@ namespace fwlite {
 
       Event const * event() const { return &*event_; }
 
-      virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults);
-      void fillParameterSetRegistry();
+      virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+      void fillParameterSetRegistry() const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);

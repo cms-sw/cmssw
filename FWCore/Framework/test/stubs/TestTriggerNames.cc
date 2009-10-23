@@ -211,19 +211,25 @@ namespace edmtest
       }
       status_ = false;
 
+      TriggerNames const& triggerNamesFromEvent = e.triggerNames(*prod[0]);
+
       Strings triggernames2 = triggerNames.triggerNames();
-      if (triggernames2.size() != expected_trigger_previous_.size()) {
+      Strings namesFromEvent = triggerNamesFromEvent.triggerNames();
+      if (triggernames2.size() != expected_trigger_previous_.size() ||
+          namesFromEvent.size() != expected_trigger_previous_.size()) {
         std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
              << "Expected and actual previous trigger path lists not the same size" << std::endl;  
         abort();
       }
       for (Strings::size_type i = 0; i < expected_trigger_previous_.size(); ++i) {
-        if (triggernames2[i] != expected_trigger_previous_[i]) {
+        if (triggernames2[i] != expected_trigger_previous_[i] ||
+            namesFromEvent[i] != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
 	  abort();
         }
-        if (triggerNames.triggerName(i) != expected_trigger_previous_[i]) {
+        if (triggerNames.triggerName(i) != expected_trigger_previous_[i] ||
+            triggerNamesFromEvent.triggerName(i) != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "name from index accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
@@ -231,18 +237,27 @@ namespace edmtest
         }
         // Exercise the object initialized with the init function and
         // at the same time the function that returns an index
-        if ( i != triggerNamesI_.triggerIndex(expected_trigger_previous_[i])) {
+        if ( i != triggerNamesI_.triggerIndex(expected_trigger_previous_[i]) ||
+             i != triggerNamesFromEvent.triggerIndex(expected_trigger_previous_[i])) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "index from name accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
 	  abort();
         }
-        if (triggerNamesI_.size() != expected_trigger_previous_.size()) {
+        if (triggerNamesI_.size() != expected_trigger_previous_.size() ||
+            triggerNamesFromEvent.size() != expected_trigger_previous_.size()) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "Checking size accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
           abort();
         }
+      }
+      // This causes it to find the results in the map lookup in the TEST configuration
+      // and exercises that execution path in the code.
+      // If you follow the execution in the debugger in EventBase::triggerNames_ in EventBase.cc
+      // you can verify this is working correctly.
+      if (prod.size() > 1U) {
+        e.triggerNames(*prod[1]);
       }
     }
   }

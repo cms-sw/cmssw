@@ -29,7 +29,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "DataFormats/Common/interface/EventBase.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
@@ -170,6 +170,8 @@ namespace edm {
     processHistory() const;
 
     size_t size() const;
+
+    virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
   private:
     EventPrincipal const&

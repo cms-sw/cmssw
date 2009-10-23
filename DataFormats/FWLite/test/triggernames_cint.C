@@ -11,7 +11,6 @@ static loadFWLite lfw;
 #endif
 
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/TriggerNames.h"
 
 #include <string>
 #include <vector>
@@ -32,7 +31,7 @@ void triggernames_cint()
   for (ev.toBegin(); ! ev.atEnd(); ++ev) {
     ++iEvent;
     hTriggerResults.getByLabel(ev,"TriggerResults","","TEST");
-    fwlite::TriggerNames const&  triggerNames = ev.triggerNames(*hTriggerResults);
+    edm::TriggerNames const&  triggerNames = ev.triggerNames(*hTriggerResults);
 
     std::vector<std::string> const& names = triggerNames.triggerNames();
     for (unsigned i = 0; i < triggerNames.size(); ++i) {
