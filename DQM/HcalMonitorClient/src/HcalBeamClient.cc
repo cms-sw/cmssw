@@ -751,7 +751,8 @@ void HcalBeamClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       return;
     }
 
-  int ieta,iphi;
+  int ieta=0;
+  int iphi=0;
 
   ostringstream name;
   int etabins=0, phibins=0;
