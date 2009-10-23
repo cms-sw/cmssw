@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.55 $
- *  $Date: 2009/10/14 14:14:08 $
+ *  $Revision: 1.56 $
+ *  $Date: 2009/10/14 14:42:03 $
  *  (last update by $Author: flucke $)
  */
 
@@ -277,11 +277,14 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
     } // end loop on hits
 
 // CHK add 'Multiple Scattering Measurements' for break points, broken lines
-    for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) { this->addMsMeas(refTrajPtr,iMsMeas); }
+    for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) {
+      this->addMsMeas(refTrajPtr, iMsMeas);
+    }
         
     // kill or end 'track' for mille, depends on #hits criterion
     if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
       theMille->kill();
+      hitResultXy.first = hitResultXy.second = 0; //reset
     } else {
       theMille->end();
       // take care about hit statistics as well
