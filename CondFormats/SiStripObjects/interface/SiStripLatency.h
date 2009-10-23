@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <algorithm>
+#include <stdint.h>
+#include <sstream>
 
 using namespace std;
 
