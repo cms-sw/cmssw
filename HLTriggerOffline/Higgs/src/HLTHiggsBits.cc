@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/03/05 14:06:35 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/03/10 15:37:17 $
+ *  $Revision: 1.1 $
  *
  *  \author Mika Huhtinen
  *
@@ -16,52 +16,73 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+/*#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-//#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
+//#include "DataFormats/L1Trigger/interface/L1ParticleMap.h" */
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <iomanip>
 #include <string>
+#include <vector>
 
 //
 // constructors and destructor
 //
 HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
-  l1ParticleMapTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraParticleMap")),
-  l1GTReadoutRecTag_(iConfig.getParameter<edm::InputTag> ("L1GTReadoutRecord")),
-  l1GTObjectMapTag_(iConfig.getParameter<edm::InputTag> ("L1GTObjectMapTag")),
   mctruth_ (iConfig.getParameter<edm::InputTag> ("MCTruth")),
   n_channel_ (iConfig.getParameter<int>("Nchannel")),
   triggerNames_(),
-  n_true_(0),
-  n_fake_(0),
-  n_miss_(0),
-  n_inmc_(0),
-  n_L1acc_(0),
-  n_L1acc_mc_(0),
-  n_hlt_of_L1_(0),
   nEvents_(0),
   hlNames_(0),
   init_(false),
   histName(iConfig.getParameter<string>("histName")),
-  hlt_bitnames(iConfig.getParameter<std::vector<string> >("hltBitNames"))
+  hlt_bitnames(iConfig.getParameter<std::vector<string> >("hltBitNames")),
+  hlt_bitnamesMu(iConfig.getParameter<std::vector<string> >("hltBitNamesMu")),
+  hlt_bitnamesEg(iConfig.getParameter<std::vector<string> >("hltBitNamesEG")),
+  hlt_bitnamesPh(iConfig.getParameter<std::vector<string> >("hltBitNamesPh")),
+  hlt_bitnamesTau(iConfig.getParameter<std::vector<string> >("hltBitNamesTau")),
+  triggerTag_(iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Higgs")),
+  outputFileName(iConfig.getParameter<std::string>("OutputFileName")),
+  outputMEsInRootFile(iConfig.getParameter<bool>("OutputMEsInRootFile"))
+  
 {
 
-  n_hlt_bits=hlt_bitnames.size();
+   
+   n_hlt_bits=hlt_bitnames.size();   // total paths
+  
+ 
+    n_hlt_bits_eg  = hlt_bitnamesEg.size();   // muon paths   
+    n_hlt_bits_mu  = hlt_bitnamesMu.size();   // electron paths
+    n_hlt_bits_ph  = hlt_bitnamesPh.size();  // photon paths
+    n_hlt_bits_tau = hlt_bitnamesTau.size(); // tau paths
+    
+   
+ /* 
   cout << "Number of bit names : " << n_hlt_bits << endl;
   if (n_hlt_bits>20) {
     cout << "TOO MANY BITS REQUESTED - TREATING ONLY FIRST 20" << endl;
     n_hlt_bits=20;
-  }
+  }*/
+  
+  
+  
 
 // 1:H->ZZ->4l, 2:H->WW->2l, 3: H->gg, 4:qqh->2tau, 5:H+->taunu, 6:qqh->inv
 // The proper channel number has to be set in the cff-file
-  cout << "Analyzing Higgs channel number " << n_channel_ << endl;
+ // cout << "Analyzing Higgs channel number " << n_channel_ << endl;
 
   // open the histogram file
   m_file=0; // set to null
@@ -69,82 +90,144 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   m_file->cd();
   outfile.open((histName+".output").c_str());
 
+
   // Initialize the tree
   HltTree = 0;
   HltTree = new TTree("HltTree","");
 
-  for (int i=0;i<n_hlt_bits;i++) {
+ /* for (int i=0;i<n_hlt_bits;i++) {
     for (int j=0;j<n_hlt_bits+1;j++) {
       hlt_whichbit[0][i][j]=0;
       hlt_whichbit[1][i][j]=0;
       hlt_whichbit[2][i][j]=0;
     }
-  }
+  }*/
 
 
   mct_analysis_.setup(iConfig, HltTree);
 
-  const int kMaxEvents = 50000;
+ // const int kMaxEvents = 50000;
+ /* const int kMaxEvents = 5000000;
   hlt_nbits = new int[kMaxEvents];
   HltTree->Branch("NEventCount",&neventcount,"NEventCount/I");
-  HltTree->Branch("HLT_nBits",hlt_nbits,"HLT_nBits[NEventCount]/I");
+  HltTree->Branch("HLT_nBits",hlt_nbits,"HLT_nBits[NEventCount]/I");*/
+  
 
-  // book histrograms fro the L1 & HLT efficiency wrt GEN and wrt GEN+MC-preselection
-  trg_eff_gen = new TH1D("TRG_eff_gen","Trigger-eff-wrt-gen",3,0.5,3.5);
-  trg_eff_gen ->GetXaxis() -> SetBinLabel(1,"Generated");
-  trg_eff_gen ->GetXaxis() -> SetBinLabel(2,"L1-selected");
-  trg_eff_gen ->GetXaxis() -> SetBinLabel(3,"HLT-selected");
-  trg_eff_gen_mc = new TH1D("TRG_eff_gen_mc","Trigger-eff-wrt-MC-preselect",4,0.5,4.5);
-  trg_eff_gen_mc ->GetXaxis() -> SetBinLabel(1,"Generated");
-  trg_eff_gen_mc ->GetXaxis() -> SetBinLabel(2,"MC preselection");
-  trg_eff_gen_mc ->GetXaxis() -> SetBinLabel(3,"L1-selected");
-  trg_eff_gen_mc ->GetXaxis() -> SetBinLabel(4,"HLT-selected");
-  trg_eff_gen -> SetStats(false);
-  trg_eff_gen_mc -> SetStats(false);
+  
+  //--------------------------------------------
+  ///  histos pt, eta   reconstructed objects
+  ///
+  //--------------------------------------------
+  
+ 
+        dbe = edm::Service<DQMStore>().operator->();	
+	dbe->setCurrentFolder(triggerTag_);
 
-  // book histograms for bit multiplicity, i.e. by how many paths an event is taken
-  hlt_mult_hist = new TH1D("HLT-multiplicity","HLT-bit-multiplicity-of-GEN",n_hlt_bits+1,-0.5,n_hlt_bits+0.5);
-  hlt_mult_hist_mc = new TH1D("HLT-multiplicity-mc","HLT-bit-multiplicity-of-MCacc",n_hlt_bits+1,-0.5,n_hlt_bits+0.5);
-  hlt_mult_hist_l1 = new TH1D("HLT-multiplicity-l1","HLT-bit-multiplicity-of-L1acc",n_hlt_bits+1,-0.5,n_hlt_bits+0.5);
-
-  //book histograms for individual bits, i.e. how often a given path is fired
-  hlt_bit_hist = new TH1D("HLT-fired-bits","HLT-bits-wrt-GEN",n_hlt_bits,0.5,n_hlt_bits+0.5);
-  hlt_bit_hist_mc = new TH1D("HLT-fired-bits-mc","HLT-bits-wrt-MCacc",n_hlt_bits,0.5,n_hlt_bits+0.5);
-  hlt_bit_hist_l1 = new TH1D("HLT-fired-bits-l1","HLT-bits-wrt-L1acc",n_hlt_bits,0.5,n_hlt_bits+0.5);
-
-  // book a cumulative distribution of paths - result (except last bin) will 
-  // depend on order of path-names, as given in the cff !
-  hlt_bit_cumul = new TH1D("HLT-cumulative","HLT-cumulative-efficiency-wrt-GEN",n_hlt_bits,0.5,n_hlt_bits+0.5);
-  hlt_bit_cumul_mc = new TH1D("HLT-cumulative-mc","HLT-cumulative-efficiency-wrt-MCacc",n_hlt_bits,0.5,n_hlt_bits+0.5);
-  hlt_bit_cumul_l1 = new TH1D("HLT-cumulative-l1","HLT-cumulative-efficiency-wrt-L1acc",n_hlt_bits,0.5,n_hlt_bits+0.5);
-  for (int k=0;k<n_hlt_bits; k++) {
-    hlt_bit_hist -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
-    hlt_bit_hist_mc -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
-    hlt_bit_hist_l1 -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
-    hlt_bit_cumul -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
-    hlt_bit_cumul_mc -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
-    hlt_bit_cumul_l1 -> GetXaxis() -> SetBinLabel(k+1,hlt_bitnames[k].c_str());
+     //  dbe->setCurrentFolder("HLT/Higgs");
+     
+     
+     if (n_channel_==1 || n_channel_==2 || n_channel_==4){  // only for WW,ZZ, 2tau
+  
+   h_ptmu1 = dbe->book1D("Muon1Pt","Muon1Pt",50,0.0,150.0);
+   h_ptmu2 = dbe->book1D("Muon2Pt","Muon2Pt",50,0.0,150.0);
+   h_etamu1 = dbe->book1D("Muon1Eta","Muon1Eta",50,-2.5,2.5);
+   h_etamu2 = dbe->book1D("Muon2Eta","Muon2Eta",50,-2.5,2.5);
+        
+   h_ptel1 = dbe->book1D("Electron1Pt","Electron1Pt",50,0.0,150.0);
+   h_ptel2 = dbe->book1D("Electron2Pt","Electron2Pt",50,0.0,150.0);
+   h_etael1 = dbe->book1D("Electron1Eta","Electron1Eta",50,-2.5,2.5);
+   h_etael2 = dbe->book1D("Electron2Eta","Electron2Eta",50,-2.5,2.5);
+   
+   }
+   
+   if (n_channel_==1 || n_channel_==2){
+         
+   h_ptmu1_emu = dbe->book1D("Muon1Pt_EM","Muon1Pt_EM",50,0.0,150.0);
+   h_ptel1_emu = dbe->book1D("Electron1Pt_EM","Electron1Pt_EM",50,0.0,150.0);
+   h_etamu1_emu = dbe->book1D("Muon1Eta_EM","Muon1Eta_EM",50,-2.5,2.5);
+   h_etael1_emu = dbe->book1D("Electron1Eta_EM","Electron1Eta_EM",50,-2.5,2.5);
+   
+   }
+ //  dbe->setCurrentFolder("HLT/Higgs/H2tau");
+ 
+   if (n_channel_==3){  // only for Hgg
+      
+   h_ptph1 = dbe->book1D("Photon1Pt","Photon1Pt",50,0.0,200.0);
+   h_ptph2 = dbe->book1D("Photon2Pt","Photon2Pt",50,0.0,200.0);
+   h_etaph1 = dbe->book1D("Photon1Eta","Photon1Eta",50,-2.5,2.5);
+   h_etaph2 = dbe->book1D("Photon2Eta","Photon2Eta",50,-2.5,2.5);
+    
+   }
+   
+  /* if (n_channel_==5){
+   
+  // dbe->setCurrentFolder("HLT/Higgs/Htaunu");   
+   h_pttau1 = dbe->book1D("Tau1Pt","Tau1Pt",50,0.0,500.0);  
+   h_etatau1 = dbe->book1D("Tau1Eta","Tau1Eta",50,-5.0,5.0);
+   }*/
+ 
+  //------------------------------------------------
+  //
+  //  Histos pt, eta RECO events firing HLT 
+  //
+  //---------------------------------------------------
+  
+     if (n_channel_==1 || n_channel_==2){
+  
+    for (int j=0;j<n_hlt_bits;j++) { 
+     string histnameptmuem  = "Muon1Pt_EM_"+hlt_bitnames[j];
+     string histnameetamuem = "Muon1Eta_EM_"+hlt_bitnames[j];
+     string histnameptelem  = "Electron1Pt_EM_"+hlt_bitnames[j];
+     string histnameetaelem = "Electron1Eta_EM_"+hlt_bitnames[j];
+     h_ptmu1_emu_trig[j] = dbe->book1D((histnameptmuem).c_str(),(hlt_bitnames[j]+"ptmuon").c_str(),50,0.0,150.0); 
+     h_etamu1_emu_trig[j] = dbe->book1D((histnameetamuem).c_str(),(hlt_bitnames[j]+"etamuon").c_str(),50,-2.5,2.5);
+     
+     h_ptel1_emu_trig[j] = dbe->book1D((histnameptelem).c_str(),(hlt_bitnames[j]+"ptelectron").c_str(),50,0.0,150.0); 
+     h_etael1_emu_trig[j] = dbe->book1D((histnameetaelem).c_str(),(hlt_bitnames[j]+"etaelectron").c_str(),50,-2.5,2.5); 
+    
+       }
+    } 
+  
+      if (n_channel_==1 || n_channel_==2 || n_channel_==4){
+   for (int j=0;j<n_hlt_bits_mu;j++) { 
+     string histnameptmu  = "Muon1Pt_"+hlt_bitnamesMu[j];
+     string histnameetamu = "Muon1Eta_"+hlt_bitnamesMu[j];
+     h_ptmu1_trig[j] = dbe->book1D((histnameptmu).c_str(),(hlt_bitnamesMu[j]+"ptmuon").c_str(),50,0.0,150.0); 
+     h_etamu1_trig[j] = dbe->book1D((histnameetamu).c_str(),(hlt_bitnamesMu[j]+"etamuon").c_str(),50,-2.5,2.5); 
+   
   }
-  for (int j=0;j<n_hlt_bits;j++) {
-    string histname = "HLT-redundancy-for-"+hlt_bitnames[j];
-    hlt_redundancy[j] = new TH1D(histname.c_str(),(hlt_bitnames[j]+"-redundancy").c_str(),n_hlt_bits,0.5,n_hlt_bits+0.5);
-    hlt_redundancy_mc[j] = new TH1D((histname+"-of-MCacc").c_str(),(hlt_bitnames[j]+"-redundancy-MCsel").c_str(),n_hlt_bits,0.5,n_hlt_bits+0.5);
-    hlt_redundancy_l1[j] = new TH1D((histname+"-of-L1acc").c_str(),(hlt_bitnames[j]+"-redundancy-L1acc").c_str(),n_hlt_bits,0.5,n_hlt_bits+0.5);
-    hlt_redundancy[j] -> SetStats(false);
-    hlt_redundancy_mc[j] -> SetStats(false);
-    hlt_redundancy_l1[j] -> SetStats(false);
+   for (int j=0;j<n_hlt_bits_eg;j++) { 
+     string histnameptel = "Electron1Pt_"+hlt_bitnamesEg[j];
+     string histnameetael = "Electron1Eta_"+hlt_bitnamesEg[j];
+     h_ptel1_trig[j] = dbe->book1D((histnameptel).c_str(),(hlt_bitnamesEg[j]+"ptelectron").c_str(),50,0.0,150.0);
+     h_etael1_trig[j] = dbe->book1D((histnameetael).c_str(),(hlt_bitnamesEg[j]+"etaelectron").c_str(),50,-2.5,2.5);  
+    }
+  
   }
-  // the stats make no sense for these histograms
-  hlt_mult_hist -> SetStats(false);
-  hlt_mult_hist_mc -> SetStats(false);
-  hlt_mult_hist_l1 -> SetStats(false);
-  hlt_bit_hist -> SetStats(false);
-  hlt_bit_hist_mc -> SetStats(false);
-  hlt_bit_hist_l1 -> SetStats(false);
-  hlt_bit_cumul -> SetStats(false);
-  hlt_bit_cumul_mc -> SetStats(false);
-  hlt_bit_cumul_l1 -> SetStats(false);
-  cout << "booking OK " << endl;
+  
+    if (n_channel_==3){
+   for (int j=0;j<n_hlt_bits_ph;j++) { 
+     string histnameptph = "Photon1Pt_"+hlt_bitnamesPh[j];
+     string histnameetaph = "Photon1Eta_"+hlt_bitnamesPh[j];
+     h_ptph1_trig[j] = dbe->book1D((histnameptph).c_str(),(hlt_bitnamesPh[j]+"ptphoton").c_str(),50,0.0,200);
+     h_etaph1_trig[j] = dbe->book1D((histnameetaph).c_str(),(hlt_bitnamesPh[j]+"etaphoton").c_str(),50,-2.5,2.5);
+  
+  }
+  
+  }
+  
+  /*  if (n_channel_==5){
+  for (int j=0;j<n_hlt_bits_tau;j++) { 
+     string histnamepttau = "Tau1Pt_"+hlt_bitnamesTau[j];
+     string histnameetatau = "Tau1Eta_"+hlt_bitnamesTau[j];
+     h_pttau1_trig[j] = dbe->book1D((histnamepttau).c_str(),(hlt_bitnamesTau[j]+"pttau").c_str(),50,0.0,300);
+     h_etatau1_trig[j] = dbe->book1D((histnameetatau).c_str(),(hlt_bitnamesTau[j]+"etatau").c_str(),50,-5.0,5.0);
+    
+    }
+  }*/
+  
+ 
+ // cout << "booking OK " << endl;
 
 }
 
@@ -165,23 +248,36 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
 
-  nEvents_++;
+
+ 
+  edm::Handle<MuonCollection> muonHandle;
+  iEvent.getByLabel("muons", muonHandle);
+  
+  
+  edm::Handle<GsfElectronCollection> electronHandle;
+  iEvent.getByLabel("gsfElectrons",electronHandle);
+  
+   edm::Handle<PhotonCollection> photonHandle;
+   iEvent.getByLabel("photons", photonHandle);
+
 
 
 // MC truth part
 
   string errMsg("");
-  edm::Handle<CandidateCollection> mctruth;
+  edm::Handle<CandidateView> mctruth;
+  
+ 
   try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
 
   // do the MC-preselection. This depends on the channel under study. with
   // wrong n_channel the result would be nonsense
   if (n_channel_== 1) {
-    mct_analysis_.analyzeHZZ4l(*mctruth, HltTree);
+    mct_analysis_.analyzeHZZ4l(*mctruth, *muonHandle, *electronHandle, HltTree);
   } else if (n_channel_ == 2) {
-    mct_analysis_.analyzeHWW2l(*mctruth, HltTree);
+    mct_analysis_.analyzeHWW2l(*mctruth, *muonHandle,*electronHandle, HltTree);
   } else if (n_channel_ == 3) {
-    mct_analysis_.analyzeHgg(*mctruth, HltTree);
+    mct_analysis_.analyzeHgg(*mctruth, *photonHandle, HltTree);
   } else if (n_channel_ == 4) {
     mct_analysis_.analyzeH2tau(*mctruth, HltTree);
   } else if (n_channel_ == 5) {
@@ -191,45 +287,6 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-
-// L1 part
-
-
-
-//  const unsigned int nl1(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
-
-  getL1Names(iEvent, iSetup);
-
-  // get hold of L1GlobalReadoutRecord
-  Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  try {iEvent.getByLabel(l1GTReadoutRecTag_,L1GTRR);} catch (...) {
-    cout << "L1 Information not found" << endl;}
-  if (L1GTRR.isValid()) {
-    l1_decision = L1GTRR->decision();
-//  the following code extracts the L1-trigger name, but for the time
-//  being we only look at the overall decision.
-//  code below is tested to work in 1_7_5
-/*  code to get the L1 bits one by one - not used at the moment
-    DecisionWord gtDecisionWord = L1GTRR->decisionWord();
-    LogDebug("") << "L1GlobalTriggerReadoutRecord decision: " << l1_decision;
-    cout << "L1GlobalTriggerReadoutRecord decision: " << l1_decision << endl;
-    if (l1_decision) ++nL1Accepts_;
-    const unsigned int numberL1Bits = L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
-    for (int k=0; k<numberL1Bits; k++) {
-      cout << "decision word = " << gtDecisionWord[k] << " " << algoBitToName[k] << endl;
-    }
-  } else {
-    LogDebug("") << "L1GlobalTriggerReadoutRecord with label ["+l1GTReadoutRecTag_.encode()+"] not found!";
-    cout << "L1GlobalTriggerReadoutRecord not found " << endl;
-    nErrors_++;
-    return;
-*/
-  }
-
-  if (l1_decision) {
-    n_L1acc_++;
-    if (mct_analysis_.decision()) n_L1acc_mc_++;
-  }
 
 // HLT part
 
@@ -247,78 +304,292 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     hlNames_=triggerNames_.triggerNames();
   }
 
+ 
+  // define reco objects
+  reco::Muon muon1, muon2;
+  reco::GsfElectron electron1, electron2;
+  reco::Photon photon1, photon2;
+  
+  
+  //------------------------
+  //  fill pt, eta reco objects
+  //
+  //---------------------------------
+  
+  
+///////////////////////
+///////7  Events passing reco muon preselection
+/////////////////  
+  if (mct_analysis_.MuonChannel_recoacc()) {  
+    // trg_eff_gen_mc_mu -> Fill(4,1);
+    
+    if (n_channel_==4){
+	  h_ptmu1->Fill(mct_analysis_.ptMuon1());
+	  h_etamu1->Fill(mct_analysis_.etaMuon1());
+	
+	}
+	else{  
+    
+         muon1 = mct_analysis_.muon1_();
+         muon2 = mct_analysis_.muon2_();
+ 
+           h_ptmu1->Fill(muon1.pt());
+           h_ptmu2->Fill(muon2.pt());  
+           h_etamu1->Fill(muon1.eta());
+           h_etamu2->Fill(muon2.eta()); 
+	   } 
+	   
+	 
+	               
+     }
+  
+/////////////////
+////////  Events passing reco electron preselection
+//////////////7  
+  
+   if (mct_analysis_.ElecChannel_recoacc()) {  
+   //  trg_eff_gen_mc_elec -> Fill(4,1);
+   
+      if (n_channel_==4){
+	  h_ptel1->Fill(mct_analysis_.ptElectron1());
+	  h_etael1->Fill(mct_analysis_.etaElectron1());
+	
+	}
+	else{
+         electron1 = mct_analysis_.electron1_();
+         electron2 = mct_analysis_.electron2_();
+    
+    
+   //  cout<<"iso="<< electron1.dr03TkSumPt()<<endl;
+    
+        h_ptel1->Fill(electron1.pt());
+        h_ptel2->Fill(electron2.pt());
+        h_etael1->Fill(electron1.eta());
+        h_etael2->Fill(electron2.eta());
+	}
+	
+     }
+  
+////////////////
+////////7  Events passing reco emu preselection
+//////////  
 
-  if (mct_analysis_.decision()) n_inmc_++;
+   if (mct_analysis_.ElecMuChannel_recoacc()) {  
+     //  trg_eff_gen_mc_emu -> Fill(4,1);
+     
+        if (n_channel_!=4){
+        muon1 = mct_analysis_.muon1_();
+        electron1 = mct_analysis_.electron1_();
+    
+        h_ptmu1_emu->Fill(muon1.pt());
+        h_ptel1_emu->Fill(electron1.pt());
+        h_etamu1_emu->Fill(muon1.eta());
+        h_etael1_emu->Fill(electron1.eta());
+	}
+  
+     }
+  
+ /////////////////
+ /////  Events passing reco photon preselection
+ ////////////7///////
+  
+   if (mct_analysis_.PhotonChannel_acc()) {  
+ 
+ 
+      photon1 = mct_analysis_.photon1_();
+      photon2 = mct_analysis_.photon2_();
+    
+     h_ptph1->Fill(photon1.pt());
+     h_ptph2->Fill(photon2.pt());
+     h_etaph1->Fill(photon1.eta());
+     h_etaph2->Fill(photon2.eta());
+    
+  }
+  
+  
+  /*   if (mct_analysis_.TauChannel_acc()) {  
+     h_pttau1->Fill(mct_analysis_.ptTau1());
+     h_etatau1->Fill(mct_analysis_.etaTau1());
+ 
+     }
+  */
+  
+  ///------------
+  
+  
   // decision for each HL algorithm
   const unsigned int n(hlNames_.size());
-  // HLT_fired counts the number of paths that have fired
-  int HLT_fired=0;
+  
   // wtrig if set to 1 for paths that have fired
-  int wtrig[100]={0};
+  int wtrig_m[100]={0};
+  int wtrig_eg[100]={0};
+  int wtrig_ph[100]={0};
+  int wtrig_tau[100]={0};
+  int wtrig_[100]={0};
+  
   for (unsigned int i=0; i!=n; ++i) {
     if (HLTR->accept(i)) {
-      for (int j=0;j<n_hlt_bits;j++) {
-        if (hlNames_[i] == hlt_bitnames[j]) {
-          HLT_fired++;
-	  wtrig[j]=1;
+      for (int j=0;j<n_hlt_bits_mu;j++) {
+        if (hlNames_[i] == hlt_bitnamesMu[j]) {     
+	  wtrig_m[j]=1;
         }
       }
+      for(int jj=0;jj<n_hlt_bits_eg;jj++) {
+        if (hlNames_[i] == hlt_bitnamesEg[jj]) {     
+	  wtrig_eg[jj]=1;
+        }
+      }
+      
+       for (int j=0;j<n_hlt_bits;j++) {
+        if (hlNames_[i] == hlt_bitnames[j]) {     
+	  wtrig_[j]=1;
+        }
+      }
+      
+      
+       for(int k=0;k<n_hlt_bits_ph;k++) {
+        if (hlNames_[i] == hlt_bitnamesPh[k]) {     
+	  wtrig_ph[k]=1;
+        }
+      }
+      for(int k=0;k<n_hlt_bits_tau;k++) {
+        if (hlNames_[i] == hlt_bitnamesTau[k]) {     
+	  wtrig_tau[k]=1;
+        }
+      }
+      
+      
     }
   }
-  if (HLT_fired > 0) {
-    if (l1_decision) n_hlt_of_L1_++;
-    // HLT takes this - see if it has passed the MC-preselection
-    if (mct_analysis_.decision()) {
-      n_true_++;
-    } else {
-      n_fake_++;
-    }
-    std::cout << "Event " << nEvents_ << " taken by " << HLT_fired << " triggers" << std::endl;
-  } else if (mct_analysis_.decision()) {
-    // we get here if HLT did not take an event that has passed MC-preselection
-    n_miss_++;
-  }
-  hlt_nbits[nEvents_-1]=HLT_fired;
-  hlt_mult_hist->Fill(HLT_fired);
-  if (mct_analysis_.decision()) hlt_mult_hist_mc->Fill(HLT_fired);
-  if (l1_decision) hlt_mult_hist_l1->Fill(HLT_fired);
+  
+ 
+  
+  //// histos for muon, electron or photon paths
+ 
+ //------------------------------------ 
+ //        muons
+ //-------------------------------------
+   
+  
+   
+    if (mct_analysis_.MuonChannel_recoacc()){
+    
+       for (int j=0;j<n_hlt_bits_mu;j++) {
+       
+          if (wtrig_m[j]==1) {   
+	  
+	  if (n_channel_==4){
+	    h_ptmu1_trig[j]->Fill(mct_analysis_.ptMuon1());
+	   h_etamu1_trig[j]->Fill(mct_analysis_.etaMuon1());
+	  
+	  }
+	  else{
+	  
+           h_ptmu1_trig[j]->Fill(muon1.pt());
+	   h_etamu1_trig[j]->Fill(muon1.eta());
+	   
+	   }
+          // hlt_bitmu_hist_reco->Fill(j+1);
+       //h_ptmu2_trig[j]->Fill(mct_analysis_.ptmuon2());
+          }
+        }
+      }
+      
+      
+      
+ //_------------------------------------
+ //  electrons
+ //_-----------------------------------
+      
+    
+	
+	  if (mct_analysis_.ElecChannel_recoacc()){
+	     
+	     for (int j=0;j<n_hlt_bits_eg;j++) {
+	       //  h_el_reco->Fill(j+1);
+                 if (wtrig_eg[j]==1) {
+		 
+		  if (n_channel_==4){
+	    h_ptel1_trig[j]->Fill(mct_analysis_.ptElectron1());
+	   h_etael1_trig[j]->Fill(mct_analysis_.etaElectron1());
+	  
+	  }
+		 else {
+                  h_ptel1_trig[j]->Fill(electron1.pt());
+		  h_etael1_trig[j]->Fill(electron1.eta());
+                //  hlt_bitel_hist_reco->Fill(j+1); 
+                  }              
+              }
+	      }
+        }
+	
+	
+	
+//-------------------------------------------------
+//   emu channel
+//
+//----------------------------------------------------	
+	
+	
+	 if (mct_analysis_.ElecMuChannel_recoacc()){
+	    // h_emu_reco->Fill(1);
+	     for (int j=0;j<n_hlt_bits;j++) {
+	        // h_emu_reco->Fill(j+1);
+                 if (wtrig_[j]==1) {
+		 
+		   if (n_channel_!=4){
+                  h_ptel1_emu_trig[j]->Fill(electron1.pt());
+		  h_etael1_emu_trig[j]->Fill(electron1.eta());
+		  h_ptmu1_emu_trig[j]->Fill(muon1.pt());
+		  h_etamu1_emu_trig[j]->Fill(muon1.eta());
+		  }
+               //   hlt_bitemu_hist_reco->Fill(j+1); 
+                  }              
+              }
+        }
+	
 
-  // the istaken*** flags are used to fill the cumulative histograms, i.e.
-  // istaken=true as soon as any path has taken the event and stays true
-  // thereafter
-  bool istaken=false;
-  bool istaken_mc=false;
-  bool istaken_l1=false;
-  for (int j=0;j<n_hlt_bits;j++) {
-    if (wtrig[j]==1) {
-      hlt_redundancy[j]->Fill(HLT_fired);
-      hlt_bit_hist->Fill(j+1);
-      istaken=true;
-    } 
-    if (istaken) hlt_bit_cumul->Fill(j+1);
-    hlt_whichbit[0][j][HLT_fired]=hlt_whichbit[0][j][HLT_fired]+wtrig[j];
-    hlt_whichbit[0][j][0]=hlt_whichbit[0][j][0]+wtrig[j];
-    if (mct_analysis_.decision()) {
-      if (wtrig[j]==1) {
-        hlt_redundancy_mc[j]->Fill(HLT_fired);
-        hlt_bit_hist_mc->Fill(j+1);
-        istaken_mc=true;
-      } 
-      if (istaken_mc) hlt_bit_cumul_mc->Fill(j+1);
-      hlt_whichbit[1][j][HLT_fired]=hlt_whichbit[1][j][HLT_fired]+wtrig[j];
-      hlt_whichbit[1][j][0]=hlt_whichbit[1][j][0]+wtrig[j];
-    }
-    if (l1_decision) {
-      if (wtrig[j]==1) {
-        hlt_redundancy_l1[j]->Fill(HLT_fired);
-        hlt_bit_hist_l1->Fill(j+1);
-        istaken_l1=true;
-      } 
-      if (istaken_l1) hlt_bit_cumul_l1->Fill(j+1);
-      hlt_whichbit[2][j][HLT_fired]=hlt_whichbit[2][j][HLT_fired]+wtrig[j];
-      hlt_whichbit[2][j][0]=hlt_whichbit[2][j][0]+wtrig[j];
-    }
-  }
+
+//--------------------------------
+//
+//
+//------------------------------	
+    
+    //photons reco
+      if (mct_analysis_.PhotonChannel_acc()){
+              //  h_ph->Fill(1);
+	  for (int j=0;j<n_hlt_bits_ph;j++) {
+	    //  h_ph->Fill(j+1);
+             if (wtrig_ph[j]==1) {  
+              h_ptph1_trig[j]->Fill(photon1.pt());
+	      h_etaph1_trig[j]->Fill(photon1.eta());
+            //  hlt_bitph_hist->Fill(j+1);
+            }                
+          }
+      }
+      
+      //taus
+     /* if (mct_analysis_.TauChannel_acc()){
+               //  h_tau->Fill(1);
+		 
+		// ev_clasif->Fill(mct_analysis_.evtype());
+	  for (int j=0;j<n_hlt_bits_tau;j++) {
+	     // h_tau->Fill(j+1);
+             if (wtrig_tau[j]==1) {  
+              h_pttau1_trig[j]->Fill(mct_analysis_.ptTau1());
+	      h_etatau1_trig[j]->Fill(mct_analysis_.etaTau1());
+           //   hlt_bittau_hist->Fill(j+1);
+            }                
+          }
+      }*/
+      
+  
+  ////------------
+ 
+    //----------------
+    
+    
+  
   neventcount=nEvents_;
 
   return;
@@ -326,7 +597,7 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-void
+/*void
 HLTHiggsBits::getL1Names(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
@@ -341,7 +612,9 @@ HLTHiggsBits::getL1Names(const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::string algoNameStr = (*itMap).algoName();
     algoBitToName[algoBit] = algoNameStr;
   }
-}
+}*/
+
+
 
 
 void
@@ -349,113 +622,30 @@ HLTHiggsBits::endJob()
 {
   // final printout of accumulated statistics
 
-  cout << "Job ending " << endl;
+ // cout << "Job ending " << endl;
 
   using namespace std;
 
-  cout << "Number of events handled:                      " << nEvents_ << endl;
-  cout << "Number of events seen in MC:                   " << n_inmc_ << ", (" << 100.0*n_inmc_/nEvents_ <<"%)" << endl;
-  cout << "Number of events taken by L1:                  " << n_L1acc_ << ", (" << 100.0*n_L1acc_/nEvents_ << "%)" << endl;
-  cout << "Number of events taken by L1, seen in MC:      " << n_L1acc_mc_ << ", (" << 100.0*n_L1acc_mc_/n_inmc_ << "%)" << endl;
-  cout << "Number of events taken by HLT :                " << n_fake_+n_true_ << ", (" << 100.0*(n_true_+n_fake_)/nEvents_ <<"%)" << endl;
-  cout << "Number of correct (matched to MC) HL triggers: " << n_true_ << ", (" << 100.0*n_true_/n_inmc_ <<"%)" << endl;
-  cout << "HLT acceptance wrt L1                          " << n_hlt_of_L1_ << ", (" << 100.0*n_hlt_of_L1_/n_L1acc_ << "%)" << endl;
-  cout << "Number of missed (seen in MC) HL triggers:     " << n_miss_ << endl;
-  cout << "Number of wrong (no MC match) HL triggers:     " << n_fake_ << endl;
-
-  outfile << "Number of events handled:                      " << nEvents_ << endl;
-  outfile << "Number of events seen in MC:                   " << n_inmc_ << ", (" << 100.0*n_inmc_/nEvents_ <<"%)" << endl;
-  outfile << "Number of events taken by L1:                  " << n_L1acc_ << ", (" << 100.0*n_L1acc_/nEvents_ << "%)" << endl;
-  outfile << "Number of events taken by L1, seen in MC:      " << n_L1acc_mc_ << ", (" << 100.0*n_L1acc_mc_/n_inmc_ << "%)" << endl;
-  outfile << "Number of events taken by HLT :                " << n_fake_+n_true_ << ", (" << 100.0*(n_true_+n_fake_)/nEvents_ <<"%)" << endl;
-  outfile << "Number of correct (matched to MC) HL triggers: " << n_true_ << ", (" << 100.0*n_true_/n_inmc_ <<"%)" << endl;
-  outfile << "HLT acceptance wrt L1                          " << n_hlt_of_L1_ << ", (" << 100.0*n_hlt_of_L1_/n_L1acc_ << "%)" << endl;
-  outfile << "Number of missed (seen in MC) HL triggers:     " << n_miss_ << endl;
-  outfile << "Number of wrong (no MC match) HL triggers:     " << n_fake_ << endl;
-
-  trg_eff_gen -> Fill(1,nEvents_);
-  trg_eff_gen -> Fill(2,n_L1acc_);
-  trg_eff_gen -> Fill(3,n_hlt_of_L1_);
-
-  trg_eff_gen_mc -> Fill(1,nEvents_);
-  trg_eff_gen_mc -> Fill(2,n_inmc_);
-  trg_eff_gen_mc -> Fill(3,n_L1acc_mc_);
-  trg_eff_gen_mc -> Fill(4,n_true_);
-
-  cout << "===== Events accepted by HLT (of all generated) =======" << endl;
-  for (int i=0;i<n_hlt_bits;i++) {
-    for (int j=1;j<n_hlt_bits+1;j++) {
-      cout << hlt_whichbit[0][i][j] << ", ";
-    }
-    cout << hlt_whichbit[0][i][0] << ", " << hlt_bitnames[i] << endl;
-  }
-  cout << "===== Events accepted by HLT (of passed MC cuts) ======" << endl;
-  for (int i=0;i<n_hlt_bits;i++) {
-    for (int j=1;j<n_hlt_bits+1;j++) {
-      cout << hlt_whichbit[1][i][j] << ", ";
-    }
-    cout << hlt_whichbit[1][i][0] << ", " << hlt_bitnames[i] << endl;
-  }
-  cout << "===== Events accepted by HLT (of passed L1) ===========" << endl;
-  for (int i=0;i<n_hlt_bits;i++) {
-    for (int j=1;j<n_hlt_bits+1;j++) {
-      cout << hlt_whichbit[2][i][j] << ", ";
-    }
-    cout << hlt_whichbit[2][i][0] << ", " << hlt_bitnames[i] << endl;
-  }
+ // cout << "Number of events handled:                      " << nEvents_ << endl;
+ // cout << "Number of events seen in MC:                   " << n_inmc_ << ", (" << 100.0*n_inmc_/nEvents_ <<"%)" << endl;
+ 
+ 
 
 //  return;
+
+
 
   HltTree->Fill();
   m_file->cd(); 
   HltTree->Write();
   delete HltTree;
-
-  double scale=1.0/nEvents_;
-  double scale_mc=1.0/n_inmc_;
-  double scale_l1=1.0/n_L1acc_;
-
-  hlt_mult_hist->Scale(scale);
-  hlt_mult_hist->Write();
-  delete hlt_mult_hist;
-  hlt_mult_hist_mc->Scale(scale_mc);
-  hlt_mult_hist_mc->Write();
-  delete hlt_mult_hist_mc;
-  hlt_mult_hist_l1->Scale(scale_l1);
-  hlt_mult_hist_l1->Write();
-  delete hlt_mult_hist_l1;
-
-  hlt_bit_hist->Scale(scale);
-  hlt_bit_hist->Write();
-  delete hlt_bit_hist;
-  hlt_bit_hist_mc->Scale(scale_mc);
-  hlt_bit_hist_mc->Write();
-  delete hlt_bit_hist_mc;
-  hlt_bit_hist_l1->Scale(scale_l1);
-  hlt_bit_hist_l1->Write();
-  delete hlt_bit_hist_l1;
-
-  hlt_bit_cumul->Scale(scale);
-  hlt_bit_cumul->Write();
-  delete hlt_bit_cumul;
-  hlt_bit_cumul_mc->Scale(scale_mc);
-  hlt_bit_cumul_mc->Write();
-  delete hlt_bit_cumul_mc;
-  hlt_bit_cumul_l1->Scale(scale_l1);
-  hlt_bit_cumul_l1->Write();
-  delete hlt_bit_cumul_l1;
-
-  for (int j=0;j<n_hlt_bits;j++) {
-    hlt_redundancy[j]->Scale(scale);
-    hlt_redundancy[j]->Write();
-    delete hlt_redundancy[j];
-    hlt_redundancy_mc[j]->Scale(scale_mc);
-    hlt_redundancy_mc[j]->Write();
-    delete hlt_redundancy_mc[j];
-    hlt_redundancy_l1[j]->Scale(scale_l1);
-    hlt_redundancy_l1[j]->Write();
-    delete hlt_redundancy_l1[j];
+  
+ if(outputMEsInRootFile){
+    dbe->showDirStructure();
+    dbe->save(outputFileName);
   }
+
+  
   HltTree = 0;
 
   if (m_file!=0) { // if there was a tree file...

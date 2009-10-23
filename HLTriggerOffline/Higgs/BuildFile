@@ -2,15 +2,19 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=DQMServices/Core>
+
 <use name=CondFormats/DataRecord>
 #<use name=Geometry/CaloGeometry>
 #<use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>	
 #<use name=DataFormats/JetReco>
 #<use name=DataFormats/METReco>
-#<use name=DataFormats/MuonReco>
+<use name=DataFormats/MuonReco>
 #<use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/EgammaReco>
+#<use name=DataFormats/HepMCCandidate> //old
 #<use name=DataFormats/CaloTowers>
 #<use name=DataFormats/HcalRecHit>
 #<use name=DataFormats/HcalDigi>
@@ -20,10 +24,10 @@
 #<use name=DataFormats/EcalDetId>
 #<use name=DataFormats/FEDRawData>
 #<use name=TBDataFormats/HcalTBObjects>
-<use name=SimDataFormats/HepMCProduct>
-<use name=DataFormats/L1Trigger>
-<use name=DataFormats/L1GlobalTrigger>
-<use name=CondFormats/L1TObjects>
+#<use name=SimDataFormats/HepMCProduct> //old
+##<use name=DataFormats/L1Trigger>
+##<use name=DataFormats/L1GlobalTrigger>
+##<use name=CondFormats/L1TObjects>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>
@@ -38,7 +42,10 @@
 #  <use name=Geometry/CaloEventSetup>
 #  <use name=DataFormats/JetReco>
 #  <use name=DataFormats/METReco>
-#  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EgammaReco>
+
 #  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/HepMCCandidate>
 #  <use name=DataFormats/HcalRecHit>
@@ -49,8 +56,8 @@
 #  <use name=DataFormats/EcalDetId>
 #  <use name=DataFormats/FEDRawData>
 #  <use name=TBDataFormats/HcalTBObjects>
-  <use name=SimDataFormats/HepMCProduct>
-  <use name=DataFormats/L1Trigger>
-  <use name=DataFormats/L1GlobalTrigger>
-  <use name=CondFormats/L1TObjects>
+ # <use name=SimDataFormats/HepMCProduct> //old
+ ## <use name=DataFormats/L1Trigger>
+ ## <use name=DataFormats/L1GlobalTrigger>
+ ## <use name=CondFormats/L1TObjects>
 </export>
