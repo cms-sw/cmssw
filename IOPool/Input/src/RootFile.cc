@@ -126,6 +126,23 @@ namespace edm {
     return false;
   }
 
+  namespace {
+    int
+    forcedRunOffset(RunNumber_t const& forcedRunNumber, FileIndex::const_iterator inxBegin, FileIndex::const_iterator inxEnd) {
+      if(inxBegin == inxEnd) return 0;
+      int defaultOffset = (inxBegin->run_ != 0 ? 0 : 1);
+      int offset = (forcedRunNumber != 0U ? forcedRunNumber - inxBegin->run_ : defaultOffset);
+      if(offset < 0) {
+        throw edm::Exception(errors::Configuration)
+          << "The value of the 'setRunNumber' parameter must not be\n"
+          << "less than the first run number in the first input file.\n"
+          << "'setRunNumber' was " << forcedRunNumber <<", while the first run was "
+          << forcedRunNumber - offset << ".\n";
+      }
+      return offset;
+    }
+  }
+
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
@@ -143,7 +160,7 @@ namespace edm {
 		     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
 		     InputSource::ProcessingMode processingMode,
-		     int forcedRunOffset,
+		     RunNumber_t const& forcedRunNumber,
 		     std::vector<LuminosityBlockRange> const& whichLumisToProcess,
 		     std::vector<EventRange> const& whichEventsToProcess,
                      bool noEventSort,
@@ -179,7 +196,7 @@ namespace edm {
       productRegistry_(),
       branchIDLists_(),
       processingMode_(processingMode),
-      forcedRunOffset_(forcedRunOffset),
+      forcedRunOffset_(0),
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
       history_(new History),
@@ -352,6 +369,7 @@ namespace edm {
     if(noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
+    forcedRunOffset_ = forcedRunOffset(forcedRunNumber, fileIndexBegin_, fileIndexEnd_);
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     readEventHistoryTree();
@@ -512,22 +530,19 @@ namespace edm {
     if(remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) {
       whyNotFastClonable_ += FileBlock::MaxLumisTooSmall;
     }
-    if(forcedRunOffset_ != 0) { 
-      whyNotFastClonable_ += FileBlock::RunNumberModified;
-    }
+    // We no longer fast copy the EventAuxiliary branch, so there
+    // is no longer any need to disable fast copying because the run
+    // number is being modified.   Also, this check did not work anyway
+    // because this function is called before forcedRunOffset_ is set.
+
+    // if(forcedRunOffset_ != 0) { 
+    //   whyNotFastClonable_ += FileBlock::RunNumberModified;
+    // }
     if(duplicateChecker_.get() != 0) {
       if(!duplicateChecker_->fastCloningOK()) {
         whyNotFastClonable_ += FileBlock::DuplicateEventsRemoved;
       }
     }
-  }
-
-  int
-  RootFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
-    if(fileIndexBegin_ == fileIndexEnd_) return 0;
-    int defaultOffset = (fileIndexBegin_->run_ != 0 ? 0 : 1);
-    forcedRunOffset_ = (forcedRunNumber != 0U ? forcedRunNumber - fileIndexBegin_->run_ : defaultOffset);
-    return forcedRunOffset_;
   }
 
   boost::shared_ptr<FileBlock>

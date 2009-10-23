@@ -65,7 +65,6 @@ namespace edm {
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
@@ -101,14 +100,6 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if(forcedRunOffset_ < 0) {
-          throw edm::Exception(errors::Configuration)
-            << "The value of the 'setRunNumber' parameter must not be\n"
-            << "less than the first run number in the first input file.\n"
-            << "'setRunNumber' was " << setRun_ <<", while the first run was "
-            << setRun_ - forcedRunOffset_ << ".\n";
-        }
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
@@ -197,7 +188,7 @@ namespace edm {
 	  whichLumisToSkip_, whichEventsToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
-	  forcedRunOffset_,
+	  setRun_,
 	  whichLumisToProcess_, whichEventsToProcess_,
 	  noEventSort_,
 	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_,
@@ -400,14 +391,6 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if(forcedRunOffset_ < 0) {
-          throw edm::Exception(errors::Configuration)
-          << "The value of the 'setRunNumber' parameter must not be\n"
-          << "less than the first run number in the first input file.\n"
-          << "'setRunNumber' was " << setRun_ <<", while the first run was "
-          << setRun_ - forcedRunOffset_ << ".\n";
-        }
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
 	    skipEvents(skipEvents_, cache);

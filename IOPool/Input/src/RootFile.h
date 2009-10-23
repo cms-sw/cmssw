@@ -71,7 +71,7 @@ namespace edm {
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
 	     InputSource::ProcessingMode processingMode,
-	     int forcedRunOffset,
+	     RunNumber_t const& forcedRunNumber,
 	     std::vector<LuminosityBlockRange> const& whichLumisToProcess,
 	     std::vector<EventRange> const& whichEventsToProcess,
              bool noEventSort,
@@ -130,7 +130,6 @@ namespace edm {
     }
 
     int skipEvents(int offset);
-    int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getEntryTypeSkippingDups();

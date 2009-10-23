@@ -118,7 +118,6 @@ namespace edm {
     bool skipBadFiles_;
     unsigned int treeCacheSize_;
     int const treeMaxVirtualSize_;
-    int forcedRunOffset_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
     bool primarySequence_;
