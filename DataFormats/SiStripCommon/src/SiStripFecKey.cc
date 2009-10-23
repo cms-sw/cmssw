@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.20 2008/02/28 13:14:22 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.21 2009/02/10 21:45:54 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -601,8 +601,8 @@ void SiStripFecKey::initFromPath() {
       path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
     
-    uint32_t curr = 0; // current string position
-    uint32_t next = 0; // next string position
+    size_t curr = 0; // current string position
+    size_t next = 0; // next string position
     next = path().find( sistrip::controlView_, curr );
 
     // Extract view 
