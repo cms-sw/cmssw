@@ -396,6 +396,24 @@ void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simp
 }
 
 
+std::vector<PSimHit> TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust) 
+{
+  //vector with the matched SimHit
+  std::vector<PSimHit> result; 
+
+  //initialize class vectors
+  simtrackid.clear();
+  simhitCFPos.clear();
+
+  associateSimpleRecHitCluster(clust, simtrackid);
+
+  for(size_t i=0; i<simhitCFPos.size(); i++){
+    result.push_back(TrackerHits.getObject(simhitCFPos[i]));
+  }
+
+  return result;  
+}
+
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust, std::vector<SimHitIdpr>& simtrackid){
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
   StripHits =true;	  
@@ -442,6 +460,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 	    std::cout << "Position = " << linkiter->CFposition()  << std::endl;
 	    std::cout << " POS -1 = " << TrackerHits.getObject(linkiter->CFposition()-1).localPosition() << std::endl;
 	    std::cout << " Process = " << TrackerHits.getObject(linkiter->CFposition()-1).processType() << std::endl;
+	    std::cout << " fraction = " << linkiter->fraction() << std::endl;
 	  */
 	  
 	  SimHitIdpr currentId(linkiter->SimTrackId(), linkiter->eventId());
