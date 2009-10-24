@@ -73,11 +73,6 @@ if [ ${nflag} -eq 0 ]
     fi
 fi
 
-if [ ${o2ocode2} -eq 66 ]
-    then
-    echo "The OMDS user name or password is incorrect.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date." | tee -a tmp.log
-fi
-
 cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 #cat tmp.log >> /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log 2>&1 # use w/o ssh
 #cat tmp.log # causes timeout
@@ -99,9 +94,9 @@ echo "exit code ${o2ocode}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${vers
 
 if [ ${o2ocode} -eq 0 ]
     then
-    echo "o2o-setIOV.sh successful"
+    echo "L1-O2O-INFO: o2o-setIOV.sh successful"
 else
-    echo "o2o-setIOV.sh error!"
+    echo "L1-O2O-ERROR: o2o-setIOV.sh failed!" >&2
 fi
 
 echo "`date` : o2o-setIOV.sh finished : ${run} ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log

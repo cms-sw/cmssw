@@ -60,11 +60,6 @@ else
     o2ocode=$?
 fi
 
-if [ ${o2ocode} -eq 66 ]
-    then
-    echo "The OMDS user name or password is incorrect.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date." | tee -a tmpb.log
-fi
-
 cat tmpb.log | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 rm -f tmpb.log
 
@@ -72,9 +67,9 @@ echo "cmsRun status ${o2ocode}" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${
 
 if [ ${o2ocode} -eq 0 ]
     then
-    echo "o2o-tscKey.sh successful"
+    echo "L1-O2O-INFO: o2o-tscKey.sh successful"
 else
-    echo "o2o-tscKey.sh error!"
+    echo "L1-O2O-ERROR: o2o-tscKey.sh failed!" >&2
 fi
 
 echo "`date` : o2o-tscKey.sh finished : ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log

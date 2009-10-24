@@ -2,7 +2,7 @@
 
 source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
-export TNS_ADMIN=/nfshome0/popcondev/conddb_cmsusr
+export TNS_ADMIN=/nfshome0/popcondev/conddb
 
 xflag=0
 oflag=0

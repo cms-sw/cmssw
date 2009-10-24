@@ -2,7 +2,7 @@
 
 source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
-export TNS_ADMIN=/nfshome0/popcondev/conddb_cmsusr
+export TNS_ADMIN=/nfshome0/popcondev/conddb
 
 xflag=0
 oflag=0
@@ -35,15 +35,45 @@ if [ ${xflag} -eq 0 ]
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSPayloadOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} print
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSIOVOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. print
+    o2ocode=$?
+    if [ ${o2ocode} -ne 0 ]
+	then
+	if [ ${o2ocode} -eq 66 ]
+	    then
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	else
+	    if [ ${o2ocode} -eq 65 ]
+		then
+		echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+	    fi
+	fi
+    fi
+
 #    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. print
 #    echo "`date` : checking O2O"
 #    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=sqlite_file:l1config.db inputDBAuth=. printRSKeys=1 runNumber=${runnum}
+
 else
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSPayloadOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} print
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSIOVOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
+    o2ocode=$?
+    if [ ${o2ocode} -ne 0 ]
+	then
+	if [ ${o2ocode} -eq 66 ]
+	    then
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	else
+	    if [ ${o2ocode} -eq 65 ]
+		then
+		echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+	    fi
+	fi
+    fi
+
 #    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
 #    echo "`date` : checking O2O"
 #    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printRSKeys=1 runNumber=${runnum}
+
 fi
 
-exit
+exit ${o2ocode}
