@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.4 2009/08/14 17:44:12 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.5 2009/08/14 19:58:38 wsun Exp $
 //
 
 // system include files
@@ -108,7 +108,8 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
    {
      pData = newObject( key ) ;
 
-     if( pData.get() == 0 )
+     //     if( pData.get() == 0 )
+     if( pData == boost::shared_ptr< TData >() )
        {
 	 std::string dataType =
 	   edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
