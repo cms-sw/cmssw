@@ -1,11 +1,9 @@
 <use name=root>
 <use name=rootrflx>
-<use name=hepmc>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=SimDataFormats/GeneratorProducts>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/HcalRecHit>
@@ -15,7 +13,6 @@
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoHIHiCentralityAlgos>
