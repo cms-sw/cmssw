@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.5 2009/10/23 01:02:52 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 
 
 //
@@ -67,6 +69,11 @@ FW3DLegoEveHistProxyBuilder::attach(TEveElement* iElement,
                                     TEveCaloDataHist* iHist)
 {
    m_data = iHist;
+   if(0==m_data->GetUserData()) {
+      FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_data);
+      //make sure it is accessible via the base class
+      iHist->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+   }
 }
 
 void
@@ -76,6 +83,13 @@ FW3DLegoEveHistProxyBuilder::build()
    if(0!=m_hist && -1 == m_sliceIndex) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str(), 0., item()->defaultDisplayProperties().color());
+      
+      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_data->GetUserData());
+      assert(0!=base);
+      FWFromTEveCaloDataSelector* sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
+      assert(0!=sel);
+      sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,item()));
+      
    }
    m_data->DataChanged();
 }
