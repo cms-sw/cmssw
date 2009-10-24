@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondTools/L1Trigger/interface/DataWriter.h"
+#include "CondTools/L1Trigger/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 
@@ -31,7 +32,17 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   pool.start( false ) ;
 
   // update key to have new payload registered for record-type pair.
-  std::string payloadToken = writer->save( setup, pool ) ;
+  std::string payloadToken ;
+  try
+    {
+      payloadToken = writer->save( setup, pool ) ;
+    }
+  catch( l1t::DataInvalidException& ex )
+    {
+      pool.commit() ;
+      throw ex ;
+    }
+
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
