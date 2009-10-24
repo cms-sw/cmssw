@@ -18,7 +18,7 @@ class EWKMuTkSelector : public edm::EDProducer {
 
       edm::InputTag muonTag_;
       edm::InputTag trackTag_;
-      double ptCutForAdditionalTracks_;
+      double ptCut_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,7 +38,7 @@ EWKMuTkSelector::EWKMuTkSelector(const edm::ParameterSet& pset) {
   // Input products
       muonTag_ = pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"));
       trackTag_ = pset.getUntrackedParameter<edm::InputTag> ("TrackTag", edm::InputTag("gneralTracks"));
-      ptCutForAdditionalTracks_ = pset.getUntrackedParameter<double> ("PtCutForAdditionalTracks");
+      ptCut_ = pset.getUntrackedParameter<double> ("PtCut");
 
 } 
 
@@ -79,21 +79,15 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
 
       // Select tracks for the new collection and set links in the new muon collection
       for (unsigned int j=0; j<trackCollectionSize; ++j) {
-            bool alreadyWritten = false;
             reco::TrackRef tk = (trackCollection->refAt(j)).castTo<reco::TrackRef>(); 
-            if (tk->pt()>ptCutForAdditionalTracks_) {
-                  newtracks->push_back(*tk);
-                  alreadyWritten = true;
-            }
+            if (tk->pt()<ptCut_) continue;
+            newtracks->push_back(*tk);
+
             for (unsigned int i=0; i<muonCollectionSize; ++i) {
                   const reco::Muon& mu = muonCollection->at(i);
                   if (mu.innerTrack().isNull()) continue;
                   reco::TrackRef tkInMuon = mu.innerTrack();
                   if (tk==tkInMuon) {
-                        if (!alreadyWritten) {
-                              newtracks->push_back(*tk);
-                              alreadyWritten = true;
-                        }
                         reco::Muon* newmu = mu.clone();
                         newmu->setInnerTrack(reco::TrackRef(trackRefProd,newtracks->size()-1));
                         // insert it ordered by pt
@@ -101,7 +95,7 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
                         double newpt = newmu->pt();
                         bool inserted = false;
                         for (unsigned int k=0; k<newmuonCollectionSize; ++k) {
-                              const reco::Muon& mu2 = newmuons->at(i);
+                              const reco::Muon& mu2 = newmuons->at(k);
                               if (newpt>mu2.pt()) {
                                     newmuons->insert(newmuons->begin()+k,*newmu);
                                     inserted = true;
@@ -114,6 +108,30 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
                         }
                         break;
                   }
+            }
+      }
+
+      // Add standalone muons
+      for (unsigned int i=0; i<muonCollectionSize; ++i) {
+            const reco::Muon& mu = muonCollection->at(i);
+            if (!mu.innerTrack().isNull()) continue;
+            reco::Muon* newmu = mu.clone();
+
+            // insert it ordered by pt
+            unsigned int newmuonCollectionSize = newmuons->size();
+            double newpt = newmu->pt();
+            bool inserted = false;
+            for (unsigned int k=0; k<newmuonCollectionSize; ++k) {
+                  const reco::Muon& mu2 = newmuons->at(k);
+                  if (newpt>mu2.pt()) {
+                        newmuons->insert(newmuons->begin()+k,*newmu);
+                        inserted = true;
+                        break;
+                  } 
+            }
+            if (!inserted) {
+                  newmuons->push_back(*newmu);
+                  inserted = true;
             }
       }
 
