@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id$
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.1 2009/10/23 22:05:57 chrjones Exp $
 //
 
 // system include files
@@ -98,8 +98,18 @@ FWFromTEveCaloDataSelector::doSelect()
 void 
 FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelector& iSelector)
 {
-   assert(iSlice ==static_cast<int>(m_sliceSelectors.size()));
-   m_sliceSelectors.push_back(iSelector);
+   assert(iSlice>-1);
+   if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
+      m_sliceSelectors.push_back(iSelector);
+   } else if (iSlice>static_cast<int>(m_sliceSelectors.size())) {
+      //insert dummies
+      while (iSlice >=static_cast<int>(m_sliceSelectors.size())) {
+         m_sliceSelectors.push_back(iSelector);         
+      }
+   } else {
+      assert(iSlice<static_cast<int>(m_sliceSelectors.size()));
+      m_sliceSelectors[iSlice]=iSelector;
+   }
 }
 
 //
