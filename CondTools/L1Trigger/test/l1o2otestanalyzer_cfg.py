@@ -43,6 +43,11 @@ options.register('printRSKeys',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Print Run Settings keys")
+options.register('printPayloadTokens',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Print payload tokens (long)")
 options.parseArguments()
 
 # Input DB
@@ -100,5 +105,10 @@ if options.printRSKeys == 1:
     process.L1O2OTestAnalyzer.printESRecords = True
 else:
     process.L1O2OTestAnalyzer.printESRecords = False
+
+if options.printPayloadTokens == 1:
+    process.L1O2OTestAnalyzer.printPayloadTokens = True
+else:
+    process.L1O2OTestAnalyzer.printPayloadTokens = False
 
 process.p = cms.Path(process.L1O2OTestAnalyzer)
