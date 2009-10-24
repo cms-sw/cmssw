@@ -1,19 +1,19 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 //
 // class declaration
 //
-class EWKMuTkSelector : public edm::EDProducer {
+class EWKMuTkSelector : public edm::EDFilter {
    public:
       explicit EWKMuTkSelector(const edm::ParameterSet&);
       ~EWKMuTkSelector();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
       edm::InputTag muonTag_;
@@ -54,13 +54,15 @@ void EWKMuTkSelector::beginJob(const edm::EventSetup&) {
 void EWKMuTkSelector::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
+bool EWKMuTkSelector::filter(edm::Event& ev, const edm::EventSetup&) {
+
+      bool selected = false;
 
       // Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
-            return;
+            return false;
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
@@ -68,7 +70,7 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
       edm::Handle<edm::View<reco::Track> > trackCollection;
       if (!ev.getByLabel(trackTag_, trackCollection)) {
             edm::LogError("") << ">>> Track collection does not exist !!!";
-            return;
+            return false;
       }
       unsigned int trackCollectionSize = trackCollection->size();
 
@@ -86,9 +88,11 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
             for (unsigned int i=0; i<muonCollectionSize; ++i) {
                   const reco::Muon& mu = muonCollection->at(i);
                   if (mu.innerTrack().isNull()) continue;
+                  if (mu.pt()<ptCut_) continue;
                   reco::TrackRef tkInMuon = mu.innerTrack();
                   if (tk==tkInMuon) {
                         reco::Muon* newmu = mu.clone();
+                        selected = true;
                         newmu->setInnerTrack(reco::TrackRef(trackRefProd,newtracks->size()-1));
                         // insert it ordered by pt
                         unsigned int newmuonCollectionSize = newmuons->size();
@@ -115,7 +119,9 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
       for (unsigned int i=0; i<muonCollectionSize; ++i) {
             const reco::Muon& mu = muonCollection->at(i);
             if (!mu.innerTrack().isNull()) continue;
+            if (mu.pt()<ptCut_) continue;
             reco::Muon* newmu = mu.clone();
+            selected = true;
 
             // insert it ordered by pt
             unsigned int newmuonCollectionSize = newmuons->size();
@@ -138,6 +144,7 @@ void EWKMuTkSelector::produce(edm::Event& ev, const edm::EventSetup&) {
       // Write new products
       ev.put(newtracks);
       ev.put(newmuons);
+      return selected;
 }
 
 DEFINE_FWK_MODULE(EWKMuTkSelector);
