@@ -6,8 +6,7 @@
 #include <TH1F.h>
 #include <TMath.h>
 #include <TTree.h>
-#include "Utilities.cc"
-#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
+#include "Utilities.h"
 
 using namespace std;
 
@@ -16,30 +15,31 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string TreeFilename      = c1.getValue<string>("TreeFilename");
-  string HistoFilename     = c1.getValue<string>("HistoFilename");
-  bool UseRatioForResponse = c1.getValue<bool>("UseRatioForResponse");
-  double CALOPT_MIN        = c1.getValue<double>("CALOPT_MIN"); 
-  double DR_MIN            = c1.getValue<double>("DR_MIN");
-  int NJETS_MAX            = c1.getValue<int>("NJETS_MAX"); 
-  vector<double> pt_vec    = c1.getVector<double>("RefPtBoundaries");
-  vector<double> eta_vec   = c1.getVector<double>("EtaBoundaries");
+  string TreeFilename      = c1.getValue<string> ("TreeFilename"             );
+  string HistoFilename     = c1.getValue<string> ("HistoFilename"            );
+  bool UseRatioForResponse = c1.getValue<bool>   ("UseRatioForResponse", true);
+  bool IsPFJet             = c1.getValue<bool>   ("IsPFJet",            false);
+  int NJETS_MAX            = c1.getValue<int>    ("NJETS_MAX",              2);
+  double JetPT_MIN         = c1.getValue<double> ("JetPT_MIN",            1.0); 
+  double DR_MIN            = c1.getValue<double> ("DR_MIN",              0.25);
+  vector<double> pt_vec    = c1.getVector<double>("RefPtBoundaries"          );
+  vector<double> eta_vec   = c1.getVector<double>("EtaBoundaries"            );
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
   const int MAX_NETA = 83; 
-  const int MAX_NREFPTBINS = 30; 
-  TH1F *hPtRef[MAX_NREFPTBINS][MAX_NETA];
-  TH1F *hPtCalo[MAX_NREFPTBINS][MAX_NETA];
-  TH1F *hPtRefBarrel[MAX_NREFPTBINS];
-  TH1F *hPtCaloBarrel[MAX_NREFPTBINS];
-  TH1F *hResponseBarrel[MAX_NREFPTBINS];
-  TH1F *hResponse[MAX_NREFPTBINS][MAX_NETA];
-  int NRefPtBins = pt_vec.size()-1;
-  int NETA = eta_vec.size()-1;   
-  char name[100];
+  const int MAX_NPT  = 30; 
+  TH1F *hPtRef[MAX_NPT][MAX_NETA];
+  TH1F *hPtJet[MAX_NPT][MAX_NETA];
+  TH1F *hPtRefBarrel[MAX_NPT];
+  TH1F *hPtJetBarrel[MAX_NPT];
+  TH1F *hResponseBarrel[MAX_NPT];
+  TH1F *hResponse[MAX_NPT][MAX_NETA];
+  int NPT  = pt_vec.size()-1;
+  int NETA = eta_vec.size()-1;
+  char name[1024];
   bool cut_ptmin,cut_dR,cut_njets;
-  float ptCalo,ptGen,etaCalo,etaGen,phiCalo,phiGen,dR,resp;
+  float ptJet,ptGen,etaJet,emfJet,chfJet,etaGen,phiJet,phiGen,dR,resp;
   int rank;
   int i,j,ind_pt,ind_eta,responseBins(2200);
   double responseLow(-1000.),responseHigh(100.);
@@ -47,7 +47,7 @@ int main(int argc, char**argv)
   if (UseRatioForResponse)
     {
       responseBins = 200;
-      responseLow = 0.;
+      responseLow  = 0.;
       responseHigh = 2;
     } 
   vector<string> HistoNamesList; 
@@ -56,16 +56,27 @@ int main(int argc, char**argv)
   TFile *outf = new TFile(HistoFilename.c_str(),"RECREATE");
   
   TTree *tr = (TTree*)inf->Get("mcTruthTree");
-  TBranch *br_ptCalo = (TBranch*)tr->GetBranch("ptCalo");
-  br_ptCalo->SetAddress(&ptCalo);
+  TBranch *br_ptJet = (TBranch*)tr->GetBranch("ptJet");
+  br_ptJet->SetAddress(&ptJet);
   TBranch *br_ptGen = (TBranch*)tr->GetBranch("ptGen");
   br_ptGen->SetAddress(&ptGen);
-  TBranch *br_etaCalo = (TBranch*)tr->GetBranch("etaCalo");
-  br_etaCalo->SetAddress(&etaCalo);
+  TBranch *br_emfJet,*br_chfJet;
+  if (!IsPFJet)
+    {
+      br_emfJet = (TBranch*)tr->GetBranch("emfJet");
+      br_emfJet->SetAddress(&emfJet);
+    }
+  else
+    {
+      br_chfJet = (TBranch*)tr->GetBranch("chfJet");
+      br_chfJet->SetAddress(&chfJet);
+    }
+  TBranch *br_etaJet = (TBranch*)tr->GetBranch("etaJet");
+  br_etaJet->SetAddress(&etaJet);
   TBranch *br_etaGen = (TBranch*)tr->GetBranch("etaGen");
   br_etaGen->SetAddress(&etaGen);
-  TBranch *br_phiCalo = (TBranch*)tr->GetBranch("phiCalo");
-  br_phiCalo->SetAddress(&phiCalo);
+  TBranch *br_phiJet = (TBranch*)tr->GetBranch("phiJet");
+  br_phiJet->SetAddress(&phiJet);
   TBranch *br_phiGen = (TBranch*)tr->GetBranch("phiGen");
   br_phiGen->SetAddress(&phiGen);
   TBranch *br_dR = (TBranch*)tr->GetBranch("dR");
@@ -75,12 +86,12 @@ int main(int argc, char**argv)
   cout<<"Total entries:"<<tr->GetEntries()<<endl;
   if (NETA>1)
     {
-      for (i=0;i<NRefPtBins;i++)
+      for (i=0;i<NPT;i++)
        {
          sprintf(name,"ptRef_RefPt%d_Barrel",i);
          hPtRefBarrel[i] = new TH1F(name,name,2000,0,2000);
-         sprintf(name,"ptCalo_RefPt%d_Barrel",i);
-         hPtCaloBarrel[i] = new TH1F(name,name,2000,0,2000);
+         sprintf(name,"ptJet_RefPt%d_Barrel",i);
+         hPtJetBarrel[i] = new TH1F(name,name,2000,0,2000);
          sprintf(name,"Response_RefPt%d_Barrel",i);
          hResponseBarrel[i] = new TH1F(name,name,responseBins,responseLow,responseHigh);     
          for (j=0;j<NETA;j++)
@@ -88,7 +99,7 @@ int main(int argc, char**argv)
 	     sprintf(name,"ptRef_RefPt%d_Eta%d",i,j);
              hPtRef[i][j] = new TH1F(name,name,2000,0,2000);
              sprintf(name,"ptCalo_RefPt%d_Eta%d",i,j);
-             hPtCalo[i][j] = new TH1F(name,name,2000,0,2000);
+             hPtJet[i][j] = new TH1F(name,name,2000,0,2000);
 	     sprintf(name,"Response_RefPt%d_Eta%d",i,j);
              hResponse[i][j] = new TH1F(name,name,responseBins,responseLow,responseHigh);
            }
@@ -96,45 +107,46 @@ int main(int argc, char**argv)
     }
   else
     {
-      for (i=0;i<NRefPtBins;i++)
+      for (i=0;i<NPT;i++)
        {
          sprintf(name,"ptRef_RefPt%d",i);
          hPtRefBarrel[i] = new TH1F(name,name,2000,0,2000);
          sprintf(name,"ptCalo_RefPt%d",i);
-         hPtCaloBarrel[i] = new TH1F(name,name,2000,0,2000);
+         hPtJetBarrel[i] = new TH1F(name,name,2000,0,2000);
          sprintf(name,"Response_RefPt%d",i);
          hResponseBarrel[i] = new TH1F(name,name,responseBins,responseLow,responseHigh);     
        }
     }
+  cout<<"Histograms booked"<<endl;
   for(entry=0;entry<tr->GetEntries();entry++)
     {
       if (entry % (tr->GetEntries()/10) == 0)
         cout<<"Entries: "<<entry<<endl;
       tr->GetEntry(entry);
-      cut_ptmin = (ptCalo>CALOPT_MIN);
+      cut_ptmin = (ptJet>JetPT_MIN);
       cut_dR    = (dR<DR_MIN);
       cut_njets = (rank<NJETS_MAX);
       if (cut_ptmin && cut_dR && cut_njets)
         {
 	  ind_pt = getBin(ptGen,pt_vec);
-	  ind_eta = getBin(etaCalo,eta_vec);   
+	  ind_eta = getBin(etaJet,eta_vec);   
           resp = 0.;
           if (UseRatioForResponse && ptGen>0)
-            resp = ptCalo/ptGen;
+            resp = ptJet/ptGen;
           else
-            resp = ptCalo - ptGen; 
+            resp = ptJet - ptGen; 
           if (NETA>1)
             { 
-              if (fabs(etaCalo)<1.3 && ind_pt>=0)
+              if (fabs(etaJet)<1.3 && ind_pt>=0)
                 {
                   hPtRefBarrel[ind_pt]->Fill(ptGen);
-                  hPtCaloBarrel[ind_pt]->Fill(ptCalo);
+                  hPtJetBarrel[ind_pt]->Fill(ptJet);
                   hResponseBarrel[ind_pt]->Fill(resp);
                 }  
               if (ind_pt>=0 && ind_eta>=0 && NETA>1)
                 { 
 	          hPtRef[ind_pt][ind_eta]->Fill(ptGen);
-                  hPtCalo[ind_pt][ind_eta]->Fill(ptCalo);
+                  hPtJet[ind_pt][ind_eta]->Fill(ptJet);
 	          hResponse[ind_pt][ind_eta]->Fill(resp);
                 }
             }
@@ -142,7 +154,7 @@ int main(int argc, char**argv)
             if (ind_pt>=0)
               {
                 hPtRefBarrel[ind_pt]->Fill(ptGen);
-                hPtCaloBarrel[ind_pt]->Fill(ptCalo);
+                hPtJetBarrel[ind_pt]->Fill(ptJet);
                 hResponseBarrel[ind_pt]->Fill(resp);
               }  
         }

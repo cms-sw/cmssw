@@ -7,8 +7,8 @@
 #include <TMath.h>
 #include <TKey.h>
 #include <TList.h>
-#include "Utilities.cc"
-#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
+#include "Utilities.h"
+
 using namespace std;
 
 int main(int argc, char**argv)

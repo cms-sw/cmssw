@@ -11,8 +11,8 @@
 #include <TMath.h>
 #include <TKey.h>
 #include <TList.h>
-#include "Utilities.cc"
-#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
+#include "Utilities.h"
+
 using namespace std;
 
 int main(int argc, char**argv)
@@ -27,7 +27,6 @@ int main(int argc, char**argv)
   string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
   string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
   string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
-  bool UseRatioForResponse       = c1.getValue<bool>("UseRatioForResponse");
   vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
   vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
