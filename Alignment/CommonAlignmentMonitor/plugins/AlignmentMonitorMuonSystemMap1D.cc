@@ -111,9 +111,21 @@ void AlignmentMonitorMuonSystemMap1D::book() {
     m_CSCvsphi_me41[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("41"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me41[endcap-1]);
     m_CSCvsphi_me42[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("42"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me42[endcap-1]);
   }
+
+  m_counter_event = 0;
+  m_counter_track = 0;
+  m_counter_trackpt = 0;
+  m_counter_trackokay = 0;
+  m_counter_dt = 0;
+  m_counter_13numhits = 0;
+  m_counter_2numhits = 0;
+  m_counter_csc = 0;
+  m_counter_cscnumhits = 0;
 }
 
 void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& trajtracks) {
+   m_counter_event++;
+
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
@@ -121,14 +133,20 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
     const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;
 
+    m_counter_track++;
+
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       char charge = (track->charge() > 0 ? 1 : -1);
       // double qoverpt = track->charge() / track->pt();
       // double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
 
+      m_counter_trackpt++;
+
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
 	std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
+
+	m_counter_trackokay++;
 
 	for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId) {
 
@@ -137,7 +155,11 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 	    MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
 	    DTChamberId id(chamberId->rawId());
 
+	    m_counter_dt++;
+
 	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits) {
+	       m_counter_13numhits++;
+
 	      double residual = dt13->global_residual();
 	      double resslope = dt13->global_resslope();
 	      double chi2 = dt13->chi2();
@@ -171,6 +193,8 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 	    }
 
 	    if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits) {
+	       m_counter_2numhits++;
+
 	      double residual = dt2->global_residual();
 	      double resslope = dt2->global_resslope();
 	      double chi2 = dt2->chi2();
@@ -208,7 +232,11 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 	    MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
 	    CSCDetId id(chamberId->rawId());
 
+	    m_counter_csc++;
+
 	    if (csc != NULL  &&  csc->numHits() >= m_minCSCHits) {
+	       m_counter_cscnumhits++;
+
 	      double residual = csc->global_residual();
 	      double resslope = csc->global_resslope();
 	      double chi2 = csc->chi2();
@@ -265,7 +293,17 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
   } // end loop over tracks
 }
 
-void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup) {}
+void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup) {
+   std::cout << "monitor m_counter_event = " << m_counter_event << std::endl;
+   std::cout << "monitor m_counter_track = " << m_counter_track << std::endl;
+   std::cout << "monitor m_counter_trackpt = " << m_counter_trackpt << std::endl;
+   std::cout << "monitor m_counter_trackokay = " << m_counter_trackokay << std::endl;
+   std::cout << "monitor m_counter_dt = " << m_counter_dt << std::endl;
+   std::cout << "monitor m_counter_13numhits = " << m_counter_13numhits << std::endl;
+   std::cout << "monitor m_counter_2numhits = " << m_counter_2numhits << std::endl;
+   std::cout << "monitor m_counter_csc = " << m_counter_csc << std::endl;
+   std::cout << "monitor m_counter_cscnumhits = " << m_counter_cscnumhits << std::endl;
+}
 
 //
 // constructors and destructor
