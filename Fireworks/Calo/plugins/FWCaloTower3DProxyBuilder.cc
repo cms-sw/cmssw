@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.4 2009/10/21 14:06:13 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.5 2009/10/23 01:22:15 chrjones Exp $
 //
 
 #include <math.h>
@@ -24,19 +24,20 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
+#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+
 //
 // constructors , dectructors
 //
 FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase() :
    m_caloData(0),
-   m_ownData(kFALSE),
    m_hist(0)
 {
 }
 
 FWCaloTower3DProxyBuilderBase::~FWCaloTower3DProxyBuilderBase()
 {
-   if (m_ownData) m_caloData->DecDenyDestroy();
+   m_caloData->DecDenyDestroy();
 }
  
 //
@@ -48,9 +49,13 @@ FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataH
    if(0==*iCaloData)
    {
       *iCaloData = new TEveCaloDataHist();
-      (*iCaloData)->IncDenyDestroy();
-      m_ownData = kTRUE;
 
+      //Setup for selection
+      FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(*iCaloData);
+      //make sure it is accessible via the base class
+      (*iCaloData)->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+      
+      
       //NOTE: must attach a histogram to TEveCaloDataHist before passing TEveCaloDataHist to TEveCalo3D
       // else we get a segmentation fault.
       Bool_t status = TH1::AddDirectoryStatus();
@@ -70,6 +75,8 @@ FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataH
       iContainer.AddElement(calo3d);
    }
    m_caloData = *iCaloData;
+   (*iCaloData)->IncDenyDestroy();
+
 }
 
 void
@@ -95,6 +102,12 @@ FWCaloTower3DProxyBuilderBase::build(const FWEventItem* iItem,
       TH1::AddDirectory(status);
       m_sliceIndex = m_caloData->AddHistogram(m_hist);
       m_caloData->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
+
+      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+      assert(0!=base);
+      FWFromTEveCaloDataSelector* sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
+      assert(0!=sel);
+      sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,iItem));      
    }
    m_hist->Reset();
 
