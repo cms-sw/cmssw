@@ -53,16 +53,13 @@ std::string L1GtRsObjectKeysOnlineProd::keyL1GtPrescaleFactorsAlgoTrig(const std
 
     std::string objectKey;
 
-    // SELECT PRESCALE_FACTORS_ALGO_FK FROM CMS_GT.GT_RUN_SETTINGS
-    //        WHERE GT_RUN_SETTINGS.ID = (
     // SELECT GT_RUN_SETTINGS_FK FROM CMS_GT.GT_RUN_SETTINGS_KEY_CURRENT
-    //        WHERE GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER = m_partitionNumber)
-    l1t::OMDSReader::QueryResults objectKeyResults = m_omdsReader.basicQuery(
-            "PRESCALE_FACTORS_ALGO_FK", gtSchema, "GT_RUN_SETTINGS", "GT_RUN_SETTINGS.ID",
-            m_omdsReader.basicQueryGenericKey<int> (
-                    "GT_RUN_SETTINGS_FK", gtSchema, "GT_RUN_SETTINGS_KEY_CURRENT",
+    //        WHERE GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER = m_partitionNumber
+    l1t::OMDSReader::QueryResults objectKeyResults =
+            m_omdsReader.basicQueryGenericKey<int> ("GT_RUN_SETTINGS_FK",
+                    gtSchema, "GT_RUN_SETTINGS_KEY_CURRENT",
                     "GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER",
-                    m_omdsReader.singleAttribute(m_partitionNumber), ""));
+                    m_omdsReader.singleAttribute(m_partitionNumber), "");
 
     // check if query was successful
     if (objectKeyResults.queryFailed()) {
@@ -80,27 +77,27 @@ std::string L1GtRsObjectKeysOnlineProd::keyL1GtPrescaleFactorsAlgoTrig(const std
     //
     if (edm::isDebugEnabled()) {
         LogTrace("L1GtRsObjectKeysOnlineProd")
-                << "\nThe following key was found for L1GtPrescaleFactorsAlgoTrigRcd: \n  "
-                << objectKey << "\nfor partition " << m_partitionNumber << "\n" << std::endl;
+                << "\nThe following GT_RUN_SETTINGS_FK key "
+                << "was found for L1GtPrescaleFactorsAlgoTrigRcd: \n  "
+                << objectKey << "\nfor partition " << m_partitionNumber << "\n"
+                << std::endl;
     }
 
     return objectKey;
 }
 
+
 std::string L1GtRsObjectKeysOnlineProd::keyL1GtPrescaleFactorsTechTrig(const std::string& gtSchema) {
 
     std::string objectKey;
 
-    // SELECT PRESCALE_FACTORS_TT_FK FROM CMS_GT.GT_RUN_SETTINGS
-    //        WHERE GT_RUN_SETTINGS.ID = (
     // SELECT GT_RUN_SETTINGS_FK FROM CMS_GT.GT_RUN_SETTINGS_KEY_CURRENT
-    //        WHERE GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER = m_partitionNumber)
-    l1t::OMDSReader::QueryResults objectKeyResults = m_omdsReader.basicQuery(
-            "PRESCALE_FACTORS_TT_FK", gtSchema, "GT_RUN_SETTINGS", "GT_RUN_SETTINGS.ID",
-            m_omdsReader.basicQueryGenericKey<int> (
-                    "GT_RUN_SETTINGS_FK", gtSchema, "GT_RUN_SETTINGS_KEY_CURRENT",
+    //        WHERE GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER = m_partitionNumber
+    l1t::OMDSReader::QueryResults objectKeyResults =
+            m_omdsReader.basicQueryGenericKey<int> ("GT_RUN_SETTINGS_FK",
+                    gtSchema, "GT_RUN_SETTINGS_KEY_CURRENT",
                     "GT_RUN_SETTINGS_KEY_CURRENT.GT_PARTITION_NUMBER",
-                    m_omdsReader.singleAttribute(m_partitionNumber), ""));
+                    m_omdsReader.singleAttribute(m_partitionNumber), "");
 
     // check if query was successful
     if (objectKeyResults.queryFailed()) {
@@ -118,12 +115,15 @@ std::string L1GtRsObjectKeysOnlineProd::keyL1GtPrescaleFactorsTechTrig(const std
     //
     if (edm::isDebugEnabled()) {
         LogTrace("L1GtRsObjectKeysOnlineProd")
-                << "\nThe following key was found for L1GtPrescaleFactorsTechTrigRcd: \n  "
-                << objectKey << "\nfor partition " << m_partitionNumber << "\n" << std::endl;
+                << "\nThe following GT_RUN_SETTINGS_FK key "
+                << "was found for L1GtPrescaleFactorsTechTrigRcd: \n  "
+                << objectKey << "\nfor partition " << m_partitionNumber << "\n"
+                << std::endl;
     }
 
     return objectKey;
 }
+
 
 std::string L1GtRsObjectKeysOnlineProd::keyL1GtTriggerMaskAlgoTrig(const std::string& gtSchema) {
 
