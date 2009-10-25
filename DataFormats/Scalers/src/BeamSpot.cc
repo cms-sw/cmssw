@@ -92,17 +92,19 @@ std::ostream& operator<<(std::ostream& s, const BeamSpot& c)
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  sprintf(line,"       x: %e +/- %e   y: %e +/- %e    z: %e +/- %e",
-	  c.x(), c.err_x(), c.y(), c.err_y(), c.z(), c.err_z());
+  sprintf(line,"    x: %e +/- %e   width: %e +/- %e",
+	  c.x(), c.err_x(), c.width_x(), c.err_width_x());
   s << line << std::endl;
 
-  sprintf(line," width_x: %e +/- %e    width_y: %e +/- %e   sigma_z: %e +/- %e",
-	  c.width_x(), c.err_width_x(), 
-	  c.width_y(), c.err_width_y(), 
-	  c.sigma_z(), c.err_sigma_z());
+  sprintf(line,"    y: %e +/- %e   width: %e +/- %e",
+	  c.y(), c.err_y(), c.width_y(), c.err_width_y());
   s << line << std::endl;
 
-  sprintf(line," dxdy: %e +/- %e    dxdz: %e +/- %e",
+  sprintf(line,"    z: %e +/- %e   sigma: %e +/- %e",
+	  c.z(), c.err_z(), c.sigma_z(), c.err_sigma_z());
+  s << line << std::endl;
+
+  sprintf(line," dxdy: %e +/- %e   dydz: %e +/- %e",
 	  c.dxdz(), c.err_dxdz(), c.dydz(), c.err_dydz());
   s << line << std::endl;
   return s;

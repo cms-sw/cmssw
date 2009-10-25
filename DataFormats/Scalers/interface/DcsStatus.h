@@ -29,35 +29,40 @@ class DcsStatus
 {
  public:
 
+  static const int partitionList[];
+  static const char * partitionName[];
+
   enum
   {
-    EB_p       =     0,
-    EB_minus   =     1,
-    EE_plus    =     2,
-    EE_minus   =     3,
-    HBHEa      =     5,
-    HBHEb      =     6,
-    HBHEc      =     7,
-    HF         =     8,
-    HO         =     9,
-    RPC        =    12,
-    DT0        =    13,
-    DT_plus    =    14,
-    DT_minus   =    15,
-    CSC_plus   =    16,
-    CSC_minus  =    17,
-    DTTF       =    18,
-    CSCTF      =    19,
-    CASTOR     =    20,
-    TIBTID     =    24,
-    TOB        =    25,
-    TEC_plus   =    26,
-    TEC_minus  =    27,
-    BPIX       =    28,
-    FPIX       =    29,
-    ES_plus    =    30,
-    ES_minus   =    31
+    EBp         =     0,
+    EBm         =     1,
+    EEp         =     2,
+    EEm         =     3,
+    HBHEa       =     5,
+    HBHEb       =     6,
+    HBHEc       =     7,
+    HF          =     8,
+    HO          =     9,
+    RPC         =    12,
+    DT0         =    13,
+    DTp         =    14,
+    DTm         =    15,
+    CSCp        =    16,
+    CSCm        =    17,
+    DTTF        =    18,
+    CSCTF       =    19,
+    CASTOR      =    20,
+    TIBTID      =    24,
+    TOB         =    25,
+    TECp        =    26,
+    TECm        =    27,
+    BPIX        =    28,
+    FPIX        =    29,
+    ESp         =    30,
+    ESm         =    31,
+    nPartitions =    26
   };
+
 
   DcsStatus();
   DcsStatus(const unsigned char * rawData);
@@ -80,7 +85,7 @@ class DcsStatus
   unsigned int ready()  const              { return(ready_);}
 
   bool ready(int partitionNumber) const 
-  { return((ready_ & ( 1 << partitionNumber ) != 0 ));}
+  { return(  (ready_ & ( 1 << partitionNumber )) != 0 );}
 
   /// equality operator
   int operator==(const DcsStatus& e) const { return false; }
