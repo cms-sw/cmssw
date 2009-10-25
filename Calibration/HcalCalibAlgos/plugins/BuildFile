@@ -1,7 +1,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
-<use name=Geometry/Records>
-<use name=Geometry/CaloGeometry>
+
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
@@ -13,14 +12,30 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/FEDRawData>
+
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+
 <use name=Geometry/CaloTopology>
+<use name=Geometry/Records>
+<use name=Geometry/CaloGeometry>
+
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
 <use name=rootphysics>
+
+#### Needed for HcalPFCorrs
+<use name=boost>
+<use name=root>
+<use name=DataFormats/CaloRecHit>
+<use name=SimDataFormats/GeneratorProducts>
+<use name=clhep>
+<use name=hepmc>
+<use name=CondTools/Hcal>
+
+############
 
 #### Needed for ValidIsoTrkCalib
 <use name=TrackPropagation/SteppingHelixPropagator>
