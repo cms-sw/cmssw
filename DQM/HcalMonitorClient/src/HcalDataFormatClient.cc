@@ -127,7 +127,8 @@ void HcalDataFormatClient::analyze(void){
   int spg2offset=0;
   int spg3offset=0;
   int chn2offset=0;
-  float scale=1.0;
+  float evtcnt=1.0;
+  float tsFactor=1.0;
   float val=0.0;
   //Normalize everything by the -1,-1 underflow bin
   for (int fednum=0; fednum<NUMDCCS; fednum++) {
@@ -136,7 +137,7 @@ void HcalDataFormatClient::analyze(void){
     for (int spgnum=0; spgnum<15; spgnum++) {
       spg3offset = 1 + (4*spgnum); //3 bins, plus one of margin, each spigot
       //Warning! Assumes interchangable scaling factors among these histograms!
-      scale= LRBDataCorruptionIndicators_->GetBinContent(-1,-1);
+      evtcnt= LRBDataCorruptionIndicators_->GetBinContent(-1,-1);
       for (int xbin=1; xbin<=3; xbin++) {
 	for (int ybin=1; ybin<=3; ybin++) {
 	  if (!LRBDataCorruptionIndicators_) continue;
@@ -145,21 +146,21 @@ void HcalDataFormatClient::analyze(void){
 	  if (val) 
 	    LRBDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							spg3offset+ybin,
-							( (float)val/(float)scale ));
+							( (float)val/(float)evtcnt ));
 	  if (!HalfHTRDataCorruptionIndicators_) continue;
 	  val = HalfHTRDataCorruptionIndicators_->GetBinContent(fed3offset+xbin,
 								spg3offset+ybin);
 	  if (val) 
 	    HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							    spg3offset+ybin,
-							    ( (float)val/(float)scale ));
+							    ( (float)val/(float)evtcnt ));
 	  if (!DataFlowInd_ || xbin>2) continue;  //DataFlowInd_;  2x by 3y
 	  val = DataFlowInd_->GetBinContent(fed2offset+xbin,
 					    spg3offset+ybin);
 	  if (val) 
 	    DataFlowInd_->SetBinContent(fed2offset+xbin,
-					spg3offset+ybin,
-					( (float)val/(float)scale ));
+					spg3offset+ybin,	
+				( (float)val/(float)evtcnt ));
 	}
       }
     }
@@ -171,39 +172,57 @@ void HcalDataFormatClient::analyze(void){
     fed2offset = 1 + (3*fednum); //2 bins, plus one of margin, each DCC 
     for (int spgnum=0; spgnum<15; spgnum++) {
       spg2offset = 1 + (3*spgnum); //2 bins, plus one of margin, each spigot
-      scale = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
+      evtcnt = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
   							   spg2offset);
+      numTS_[(fednum*NUMSPGS)+spgnum]=ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
+										   spg2offset+1);
+
       for (int xbin=1; xbin<=2; xbin++) {
   	for (int ybin=1; ybin<=2; ybin++) {
   	  val = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset+xbin,
   							     spg2offset+ybin);
-  	  if ( (val) && (scale) ) {
+	  if ( (val) && (evtcnt) ) {
+	    //Lower pair of bins don't scale with just the timesamples per event.
+	    if (ybin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]; 
+	    else {
+	      if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
+	      else tsFactor=1.0;
+	    }
   	    ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset+xbin,
   							 spg2offset+ybin,
-  							 val/scale);
+  							 val/(evtcnt*tsFactor));
 	    val=0.0;
 	  }
   	}
       }
-      //Clear the scaler, which clutters the final plot.
-      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset,
-						   spg2offset, 0.0);
+      //Clear the evtcnt and numTS, which clutter the final plot.
+      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset  ,
+						   spg2offset  , 0.0);
+      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset  ,
+						   spg2offset+1, 0.0);
 
       if (!Chann_DataIntegrityCheck_[fednum]) continue;  
       for (int chnnum=0; chnnum<24; chnnum++) {
   	chn2offset = 1 + (3*chnnum); //2 bins, plus one of margin, each channel
 	if (! (Chann_DataIntegrityCheck_[fednum]))  
 	  continue;
-  	scale = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset,
-  								 spg2offset);
+  	evtcnt = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset,
+								  spg2offset);
   	for (int xbin=1; xbin<=2; xbin++) {
   	  for (int ybin=1; ybin<=2; ybin++) {
   	    val = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset+xbin,
   								   spg2offset+ybin);
-  	    if ( (val) && (scale) )
+  	    if ( (val) && (evtcnt) ) {
+	      //Lower pair of bins don't scale with just the timesamples per event.
+	      if (ybin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]; 
+	      else {
+		if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
+		else tsFactor=1.0;
+	      }
   	      Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset+xbin,
   							       spg2offset+ybin,
-  							       val/scale);
+  							       val/(evtcnt*tsFactor));
+	    }
   	  }
   	}
 	Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset,
