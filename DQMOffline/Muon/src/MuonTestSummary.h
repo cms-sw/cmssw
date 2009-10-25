@@ -109,6 +109,9 @@ private:
   MonitorElement* summaryReport;
   MonitorElement*  summaryReportMap;
   std::vector<MonitorElement*>  theSummaryContents;
+  MonitorElement* summaryCertification;
+  MonitorElement*  summaryCertificationMap;
+  std::vector<MonitorElement*>  theCertificationContents;
 
 };
 
