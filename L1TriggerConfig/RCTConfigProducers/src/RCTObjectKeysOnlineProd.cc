@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.5 2009/03/28 22:12:27 efron Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.6 2009/10/20 14:56:45 efron Exp $
 //
 //
 
@@ -93,6 +93,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	  return ;
 	}
 
+
       l1t::OMDSReader::QueryResults scaleKeyResults =
 	m_omdsReader.basicQuery( "L1T_SCALE_CALO_ET_THRESHOLD_ID",
 				 "CMS_RCT",
@@ -100,34 +101,58 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 				 "PAREM_CONF.PAREM_KEY",
 				 paremKeyResults );  // not null no need to check
 
-
-      l1t::OMDSReader::QueryResults ecalScaleKeyResults =
-	m_omdsReader.basicQuery( "ECAL_LUT_CONFIG_ID",
-				 "CMS_RCT",
-				 "ECAL_SCALE_KEY",
-				 "ECAL_SCALE_KEY.ECAL_TAG",
-				 m_omdsReader.basicQuery("ECAL_CONF",
-							 "CMS_RCT",
-							 "RCT_CONF",
-							 "RCT_CONF.ECAL_CONF",
-							 m_omdsReader.singleAttribute(rctKey)));
-       if( ecalScaleKeyResults.queryFailed() ||
-	  paremKeyResults.numberRows() > 1 ) // check query successful)
-
+      l1t::OMDSReader::QueryResults ecalKeyResults =
+	m_omdsReader.basicQuery("ECAL_CONF",
+				"CMS_RCT",
+				"RCT_CONF",
+				"RCT_CONF.RCT_KEY",
+				m_omdsReader.singleAttribute(rctKey));
+      //      std::cout << " empty row for ECAL_CONF" <<std::endl;
+      if( ecalKeyResults.queryFailed() ||
+	  ecalKeyResults.numberRows() > 1 ) // check query successful)	
 	{
-	  edm::LogError( "L1-O2O" ) << "Problem with RCT Parameter key." ;
+	  edm::LogError( "L1-O2O" ) << "Problem with rct_conf.ecal_conf." ;
 	  return ;
 	}
-       if(ecalScaleKeyResults.numberRows() == 0 ) // NULL Quantity
+      std::string ecalKey;
+      if(!ecalKeyResults.fillVariable(ecalKey))
 	 ecalScaleKey = "NULL";
-       else {
-	 int ecalScaleTemp;
-	 ecalScaleKeyResults.fillVariable( ecalScaleTemp ) ;
+      else {
+	std::cout << "ecal key " << ecalKey <<std::endl;
+	if( ecalKey == "NULL")
+	  ecalScaleKey = "NULL";
+	else if(ecalKey == "IDENTITY")
+	  ecalScaleKey = "IDENTITY";
+	else {
+      
+
+	l1t::OMDSReader::QueryResults ecalScaleKeyResults =
+	  m_omdsReader.basicQuery( "ECAL_LUT_CONFIG_ID",
+				     "CMS_RCT",
+				     "ECAL_SCALE_KEY",
+				     "ECAL_SCALE_KEY.ECAL_TAG",
+				     ecalKeyResults);
+
+	  if( ecalScaleKeyResults.queryFailed() ||
+	      ecalScaleKeyResults.numberRows() > 1 ) // check query successful)
+	    {
+	      std::cout << " nrows " << ecalScaleKeyResults.numberRows() <<std::endl;
+	      edm::LogError( "L1-O2O" ) << "bad results from lut_config_id." ;
+	      return ;
+	    }
+	  int ecalScaleTemp;
+	 
+	  ecalScaleKeyResults.fillVariable( ecalScaleTemp );
+
+
+
+
 	 std::stringstream ss;
 	 ss << ecalScaleTemp;
 	 ecalScaleKey = ss.str();
-       }
-
+	}
+      }
+      std::cout << "ecalScaleKey " <<ecalScaleKey <<std::endl;
       paremKeyResults.fillVariable( paremKey ) ;
       scaleKeyResults.fillVariable( scaleKey ) ;
 
