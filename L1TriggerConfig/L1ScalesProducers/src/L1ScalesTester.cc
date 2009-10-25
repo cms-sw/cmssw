@@ -6,6 +6,11 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+
 
 using std::cout;
 using std::endl;
@@ -28,13 +33,20 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
    emScale->print(cout);
    cout << endl;
 
+   ESHandle< L1CaloEcalScale > ecalScale;
+   es.get< L1CaloEcalScaleRcd >().get(ecalScale);
+   
+   cout << " L1ColoEcalScale  :" << endl;
+   ecalScale->print(cout);
+   cout << endl;
+   
    ESHandle< L1CaloEtScale > jetScale ;
    es.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
    cout << "L1JetEtScaleRcd :" << endl;
    jetScale->print(cout);
    cout << endl;
-
+   
    // test EM lin-rank conversion
    cout << "Testing EM linear-to-rank conversion" << endl;
    for (unsigned short i=0; i<32; i++) {
@@ -42,7 +54,7 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
      cout << "EM linear : " << i << ", Et : " << i*emScale->linearLsb() << " GeV, rank : " << rank << endl;
    }
    cout << endl;
-
+   
    // test jet lin-rank conversion
    cout << "Testing jet linear-to-rank conversion" << endl;
    for (unsigned short i=0; i<32; i++) {
@@ -50,7 +62,7 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
      cout << "jet linear : " << i << ", Et : " << i*jetScale->linearLsb() << " GeV, rank : " << rank << endl;
    }
    cout << endl;
-
+   
    // test EM rank-et conversion
    cout << "Testing EM rank-to-Et conversion" << endl;
    for (unsigned i=0; i<32; i++) {
@@ -58,7 +70,7 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
      cout << "EM rank : " << i << " Et : " << et << " GeV" << endl;
    }
    cout << endl;
-
+   
    // test jet rank-et conversion
    cout << "Testing jet rank-to-Et conversion" << endl;
    for (unsigned i=0; i<32; i++) {
