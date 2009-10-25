@@ -23,58 +23,58 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2009/06/04 12:10:33 $
-  * $Revision: 1.17 $
+  * $Date: 2009/08/19 19:47:46 $
+  * $Revision: 1.18 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
- 
-  HcaluLUTTPGCoder(const char* ifilename, bool read_Ascii_LUTs=false, bool read_XML_LUTs=false);
+
+  HcaluLUTTPGCoder();
   virtual ~HcaluLUTTPGCoder();
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
   virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const;
-  virtual float getLUTPedestal(HcalDetId id) const;               // returns the PED for channel id
-  virtual float getLUTGain(HcalDetId id) const;              // returns the gain for channel id
+  virtual float getLUTPedestal(HcalDetId id) const;
+  virtual float getLUTGain(HcalDetId id) const;
 
   void update(const HcalDbService& conditions);
-  void update(const char* filename);
+  void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
-  void PrintTPGMap();
-  void SetLUTGenerationMode(bool gen, bool dump=false){ 
-     LUTGenerationMode = gen; 
-     DumpL1TriggerObjects = dump;
-  };
-  void SetLUTInfo(const std::string& tag, const std::string& algo){
-	  TagName = tag;
-	  AlgoName = algo;
-  };
-private:
-  void loadILUTs(const char* filename);
-  typedef std::vector<int> LUTType;
-  std::vector<LUTType> inputluts_;
-  static const int nluts = 46007, INPUT_LUT_SIZE = 128;
-  int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
-  int GetLUTID(uint32_t rawid) const;
-  void AllocateLUTs();
-  void getRecHitCalib(const char* filename);
-  float Rcalib[87];
-  typedef short unsigned int LUT;
-  LUT *inputLUT[nluts];
-  float *_gain;
-  float *_ped;
-  static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
-  bool LUTGenerationMode;
-  bool DumpL1TriggerObjects;
-  std::string TagName;
-  std::string AlgoName;
+  void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
+  void setMaskBit(int bit){ bitToMask_ = bit; };
+  std::vector<unsigned short> getLinearizationLUTWithMSB(const HcalDetId& id) const;
+  void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
+  bool getMSB(const HcalDetId& id, int adc) const;
 
-  // Hcal Cell status word
-  // https://twiki.cern.ch/twiki/bin/view/CMS/HcalDataValidationWorkflow
-  static const int bitToMask = 0x8000;
+  // Temporary methods for metadata
+  void getRecHitCalib(const char* filename);
+  float getRcalib(const HcalDetId& id) const;
+  int getLutGranularity(const HcalDetId& id) const;
+
+private:
+  // typedef
+  typedef unsigned short LutElement;
+  typedef std::vector<LutElement> Lut;
+
+  // constants
+  static const size_t nluts = 46007, INPUT_LUT_SIZE = 128;
+  static const float lsb_;
+
+  // member functions
+  int getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const;
+  int getLUTId(uint32_t rawid) const;
+  int getLUTId(const HcalDetId& detid) const;
+
+  // member variables
+  bool LUTGenerationMode_;
+  int bitToMask_;
+  std::vector< Lut > inputLUT_;
+  std::vector<float> gain_;
+  std::vector<float> ped_;
+  float Rcalib[87];
 };
 
 #endif
