@@ -88,7 +88,7 @@ private:
   TH2F* OccupancyByDepth[4];
   TH2F* OccupancyThreshByDepth[4];
   TH2F* SumEnergyByDepth[4];
-  TH2F* SumEnergy2ByDepth[4];
+  TH2F* SqrtSumEnergy2ByDepth[4];
   TH2F* SumEnergyThreshByDepth[4];
   TH2F* SumTimeByDepth[4];
   TH2F* SumTimeThreshByDepth[4];

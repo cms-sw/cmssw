@@ -34,7 +34,7 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
       OccupancyByDepth[i]         =0;
       OccupancyThreshByDepth[i]   =0;
       SumEnergyByDepth[i]            =0;
-      SumEnergy2ByDepth[i]           =0;
+      SqrtSumEnergy2ByDepth[i]           =0;
       SumEnergyThreshByDepth[i]      =0;
       SumTimeByDepth[i]              =0;
       SumTimeThreshByDepth[i]        =0;
@@ -195,7 +195,7 @@ void HcalRecHitClient::cleanup(void)
 	  if (OccupancyByDepth[i])                delete OccupancyByDepth[i];
 	  if (OccupancyThreshByDepth[i])          delete OccupancyThreshByDepth[i];
 	  if (SumEnergyByDepth[i])                delete SumEnergyByDepth[i];
-          if (SumEnergy2ByDepth[i])               delete SumEnergy2ByDepth[i];
+          if (SqrtSumEnergy2ByDepth[i])           delete SqrtSumEnergy2ByDepth[i];
 	  if (SumEnergyThreshByDepth[i])          delete SumEnergyThreshByDepth[i];
 	  if (SumTimeByDepth[i])                  delete SumTimeByDepth[i];
 	  if (SumTimeThreshByDepth[i])            delete SumTimeThreshByDepth[i];
@@ -349,7 +349,7 @@ void HcalRecHitClient::getHistograms()
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info/","RecHit Occupancy", OccupancyByDepth);
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold RecHit Occupancy", OccupancyThreshByDepth);
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info/sumplots/","RecHit Summed Energy", SumEnergyByDepth, "GeV");
-  getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info/sumplots/","RecHit Summed Energy2", SumEnergy2ByDepth, "GeV");
+  getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info/sumplots/","RecHit Sqrt Summed Energy2", SqrtSumEnergy2ByDepth, "GeV");
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold RecHit Summed Energy", SumEnergyThreshByDepth, "GeV");
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info/sumplots/","RecHit Summed Time", SumTimeByDepth, "nS");
   getEtaPhiHists(rootFolder_,"RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold RecHit Summed Time", SumTimeThreshByDepth, "nS");
@@ -497,23 +497,23 @@ void HcalRecHitClient::analyze(void)
                       if (isHB(eta,mydepth+1)) {
                         if (validDetId(HcalBarrel, CalcIeta(HcalBarrel, eta, mydepth+1), phi+1, mydepth+1)) {
                             meHBEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
-                            meHBEnergyRMS_1D->Fill(sqrt(pow(SumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
+                            meHBEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
                         }
                       } else if (isHE(eta,mydepth+1)) {
                         if (validDetId(HcalEndcap, CalcIeta(HcalEndcap, eta, mydepth+1), phi+1, mydepth+1)) {
                             
                             meHEEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
-                            meHEEnergyRMS_1D->Fill(sqrt(pow(SumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
+                            meHEEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
                         }
                       } else if (isHO(eta,mydepth+1)) {
                          if (validDetId(HcalOuter, CalcIeta(HcalOuter, eta, mydepth+1), phi+1, mydepth+1)) {
                              meHOEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
-                             meHOEnergyRMS_1D->Fill(sqrt(pow(SumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
+                             meHOEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
                          }
                       } else if (isHF(eta,mydepth+1)) {
                          if (validDetId(HcalForward, CalcIeta(HcalForward, eta, mydepth+1), phi+1, mydepth+1)) {
                              meHFEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
-                             meHFEnergyRMS_1D->Fill(sqrt(pow(SumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
+                             meHFEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
                          }
                       }
                       

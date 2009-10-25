@@ -79,7 +79,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
       SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
-      SetupEtaPhiHists(SumEnergy2ByDepth,"RecHit Summed Energy2","GeV");
+      SetupEtaPhiHists(SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
       SetupEtaPhiHists(SumTimeByDepth,"RecHit Summed Time","nS");
       
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
@@ -300,7 +300,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       OccupancyByDepth.depth[i]->update();
       OccupancyThreshByDepth.depth[i]->update();
       SumEnergyByDepth.depth[i]->update();
-      SumEnergy2ByDepth.depth[i]->update();
+      SqrtSumEnergy2ByDepth.depth[i]->update();
       SumTimeByDepth.depth[i]->update();
     }
     
@@ -656,7 +656,7 @@ void HcalRecHitMonitor::fillNevents(void)
 		  OccupancyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
 		  OccupancyThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_thresh_[eta][phi][mydepth]);
 		  SumEnergyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,energy_[eta][phi][mydepth]);
-                  SumEnergy2ByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,sqrt(energy2_[eta][phi][mydepth]));
+                  SqrtSumEnergy2ByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,sqrt(energy2_[eta][phi][mydepth]));
 		  SumEnergyThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,energy_thresh_[eta][phi][mydepth]);
 		  SumTimeByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,time_[eta][phi][mydepth]);
 		  SumTimeThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,time_thresh_[eta][phi][mydepth]);
@@ -667,7 +667,7 @@ void HcalRecHitMonitor::fillNevents(void)
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
       FillUnphysicalHEHFBins(SumEnergyByDepth);
-      FillUnphysicalHEHFBins(SumEnergy2ByDepth);
+      FillUnphysicalHEHFBins(SqrtSumEnergy2ByDepth);
       FillUnphysicalHEHFBins(SumEnergyThreshByDepth);
       FillUnphysicalHEHFBins(SumTimeByDepth);
       FillUnphysicalHEHFBins(SumTimeThreshByDepth);

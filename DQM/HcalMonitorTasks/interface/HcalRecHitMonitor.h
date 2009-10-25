@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/08/09 12:46:35 $
-  * $Revision: 1.30 $
+  * $Date: 2009/10/12 16:09:44 $
+  * $Revision: 1.31 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -66,7 +66,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   EtaPhiHists OccupancyThreshByDepth;
 
   EtaPhiHists SumEnergyByDepth;
-  EtaPhiHists SumEnergy2ByDepth;
+  EtaPhiHists SqrtSumEnergy2ByDepth;
   EtaPhiHists SumEnergyThreshByDepth;
   EtaPhiHists SumTimeByDepth;
   EtaPhiHists SumTimeThreshByDepth;

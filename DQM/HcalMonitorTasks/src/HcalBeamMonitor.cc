@@ -935,7 +935,7 @@ void HcalBeamMonitor::endLuminosityBlock()
 
 	  if (HFlumi_occ_LS->getBinContent(x,y)>0.5*Nentries)
 	    {
-	      HFlumi_total_dhotcells->Fill(x-1,2*y-1,1);
+	      HFlumi_total_hotcells->Fill(x-1,2*y-1,1);
 	      //HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
 	    } // hot cell check
 	} // loop over y
