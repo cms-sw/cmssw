@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/28 09:56:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.20 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -83,8 +83,9 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   }
 }
 
-MuonAnalyzer::~MuonAnalyzer() { 
-  
+MuonAnalyzer::~MuonAnalyzer() {
+ 
+  delete theService;
   if(theMuEnergyAnalyzerFlag) delete theMuEnergyAnalyzer;
   if(theSeedsAnalyzerFlag) delete theSeedsAnalyzer;
   if(theMuonRecoAnalyzerFlag) delete theMuonRecoAnalyzer;
