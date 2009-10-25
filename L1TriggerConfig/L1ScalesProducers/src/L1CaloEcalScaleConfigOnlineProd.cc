@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.1 2009/10/20 11:43:26 efron Exp $
+// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.2 2009/10/23 14:47:00 efron Exp $
 //
 //
 
@@ -95,7 +95,9 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
  
-     if(objectKey == "NULL")  // return default blank ecal scale	 
+     std:: cout << "object Key " << objectKey <<std::endl;
+
+     if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
         return boost::shared_ptr< L1CaloEcalScale >( ecalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
        ecalScale = 0;
