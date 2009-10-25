@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/10/08 12:21:10 $
- * $Revision: 1.51 $
+ * $Date: 2009/10/12 16:07:43 $
+ * $Revision: 1.52 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -141,7 +141,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
   MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
-  MonitorElement* meDCCStatusBits_;  
 
   // The following MEs map specific conditons from the HTR/DCC headers as specified in
   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf
