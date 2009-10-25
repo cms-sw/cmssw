@@ -6,6 +6,7 @@ hiTracks = 'hiGlobalPrimTracks' #heavy ion track label
 
 # replace with heavy ion track label
 muons.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuons:UpdatedAtVtx']
+muons.TrackExtractorPSet.inputTrackCollection = hiTracks
 
 calomuons.inputTracks = hiTracks
 
