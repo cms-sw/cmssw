@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.5 2009/10/23 01:22:15 chrjones Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.6 2009/10/24 14:52:57 chrjones Exp $
 //
 
 #include <math.h>
@@ -188,7 +188,7 @@ FWCaloTower3DProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
             gEve->GetSelection()->AddElement(m_caloData);
          }
       } else {
-         if(0!=m_caloData->GetSelectedLevel()) {
+         if(1==m_caloData->GetSelectedLevel()||2==m_caloData->GetSelectedLevel()) {
             gEve->GetSelection()->RemoveElement(m_caloData);
          }
       }

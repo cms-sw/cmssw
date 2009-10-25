@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.10 2009/10/23 01:22:15 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.11 2009/10/23 22:06:19 chrjones Exp $
 //
 
 // system include files
@@ -174,7 +174,7 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
             gEve->GetSelection()->AddElement(m_data);
          }
       } else {
-         if(0!=m_data->GetSelectedLevel()) {
+         if(1==m_data->GetSelectedLevel()||2==m_data->GetSelectedLevel()) {
             gEve->GetSelection()->RemoveElement(m_data);
          }
       }

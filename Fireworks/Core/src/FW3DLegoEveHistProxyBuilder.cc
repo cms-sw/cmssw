@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.5 2009/10/23 01:02:52 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.6 2009/10/24 14:42:24 chrjones Exp $
 //
 
 // system include files
@@ -132,7 +132,7 @@ FW3DLegoEveHistProxyBuilder::modelChangesImp(const FWModelIds&)
          gEve->GetSelection()->AddElement(m_data);
       }         
    } else {
-      if(0!=m_data->GetSelectedLevel()) {
+      if(1==m_data->GetSelectedLevel()||2==m_data->GetSelectedLevel()) {
          gEve->GetSelection()->RemoveElement(m_data);
       }
    }
