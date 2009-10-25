@@ -78,7 +78,8 @@ private:
   void trackStudy(const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
-  void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
+  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
+
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,TString,float);
   void fillMEs(SiStripClusterInfo*,std::string,float,std::string);

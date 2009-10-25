@@ -12,6 +12,7 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -556,9 +557,10 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
       
       nhit++;
       
-      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
-      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( ttrh->hit() );
-      const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
+      const ProjectedSiStripRecHit2D* phit     = dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
+      const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>( ttrh->hit() );
+      const SiStripRecHit2D* hit2D             = dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
+      const SiStripRecHit1D* hit1D             = dynamic_cast<const SiStripRecHit1D*>( ttrh->hit() );	
       
       RecHitType type=Single;
 
@@ -571,11 +573,11 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 	//mono side
 	const GeomDetUnit * monodet=gdet->monoDet();
 	statedirection=monodet->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref,es);
+	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(matchedhit->monoHit(),statedirection,trackref,es);
 	//stereo side
 	const GeomDetUnit * stereodet=gdet->stereoDet();
 	statedirection=stereodet->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref,es);
+	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(matchedhit->stereoHit(),statedirection,trackref,es);
 	ss<<"\nLocalMomentum (stereo): " <<  statedirection;
       }
       else if(phit){
@@ -591,31 +593,33 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 	  LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found  MONO"<< std::endl;
 	  det=gdet->monoDet();
 	  statedirection=det->toLocal(gtrkdirup);
-	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
+	  if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(phit->originalHit()),statedirection,trackref,es);
 	}
 	else{
 	  LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found STEREO"<< std::endl;
 	  //stereo side
 	  det=gdet->stereoDet();
 	  statedirection=det->toLocal(gtrkdirup);
-	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
+	  if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(phit->originalHit()),statedirection,trackref,es);
 	}
-      }else {
-	if(hit!=0){
-	  ss<<"\nSingle recHit found"<< std::endl;	  
-	  statedirection=updatedtsos.localMomentum();
-	  if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref,es);
-	}
+      }else if (hit2D){
+	ss<<"\nSingle recHit2D found"<< std::endl;	  
+	statedirection=updatedtsos.localMomentum();
+	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,trackref,es);
+      } else if (hit1D) {
+	ss<<"\nSingle recHit1D found"<< std::endl;	  
+	statedirection=updatedtsos.localMomentum();
+	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,trackref,es);
+      } else {
+	ss <<"LocalMomentum: "<<statedirection
+	   << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());	      
+	LogTrace("SiStripMonitorTrack") <<ss.str() << std::endl;
       }
-      ss <<"LocalMomentum: "<<statedirection
-	 << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());	      
-      LogTrace("SiStripMonitorTrack") <<ss.str() << std::endl;
     }
-    
   }
 }
 
-  void SiStripMonitorTrack::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup& es){
+template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup& es){
     
     if(!tkrecHit->isValid()){
       LogTrace("SiStripMonitorTrack") <<"\t\t Invalid Hit " << std::endl;
