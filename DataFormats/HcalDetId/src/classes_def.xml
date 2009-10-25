@@ -5,6 +5,7 @@
   <class name="HcalTrigTowerDetId"/>
   <class name="HcalCalibDetId"/>
   <class name="HcalOtherDetId"/>
+  <class name="HcalDcsDetId"/>
   <class name="HcalZDCDetId"/>
   <class name="HcalCastorDetId"/>
   <class name="CastorElectronicsId"/>
