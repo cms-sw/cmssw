@@ -842,6 +842,7 @@ label -> Draw();
 label -> Draw();
    c1->SaveAs(imgpath+"p45.png");  
    hh1 -> Delete();
+   hh2 -> Delete();
 
 
   ftree -> Draw("iEta:iPhi>>hh1", selection&&"abs(iEta)<20", "colz");
