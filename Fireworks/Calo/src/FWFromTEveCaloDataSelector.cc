@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.1 2009/10/23 22:05:57 chrjones Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.2 2009/10/24 14:42:45 chrjones Exp $
 //
 
 // system include files
@@ -40,7 +40,8 @@ FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
    int index = 0;
    FWChangeSentry(*(m_item->changeManager()));
    for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower,++index) {
-      if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower) {
+      if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower && 
+          m_item->modelInfo(index).m_displayProperties.isVisible()) {
          m_item->select(index);
       }
    }
