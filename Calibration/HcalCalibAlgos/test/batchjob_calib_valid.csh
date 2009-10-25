@@ -7,19 +7,19 @@ echo 'Start'
 
 #cmsrel CMSSW_3_1_0_pre10
 #cd CMSSW_3_1_0_pre10/src
-cmsrel CMSSW_3_1_2
-cd CMSSW_3_1_2/src
+cmsrel CMSSW_3_1_4
+cd CMSSW_3_1_4/src
 cmsenv
 cvs co Calibration/HcalCalibAlgos
-cp /afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/plugins/ValidIsoTrkCalib.cc Calibration/HcalCalibAlgos/plugins
+cp /afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/plugins/ValidIsoTrkCalib.cc Calibration/HcalCalibAlgos/plugins
 scram b
 cd Calibration/HcalCalibAlgos/test
 
 #set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/data
-set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/data
+set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/data
 
 # if you want to validate your own calibration, copy it to data/ from your local place: 
-cp $respcorrdir/response_corrections.txt ../data/response_corrections.txt
+cp $respcorrdir/calibConst_IsoTrk_testCone_26.3cm.txt ../data/response_corrections.txt
 
 cat > validator.py <<@EOF
 
@@ -87,7 +87,7 @@ process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIso
 
 cmsRun validator.py
 
-set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/test
+set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/test
 #set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/test
 #set outdir=/castor/cern.ch/user/a/andrey/pi50_310_pre10
 #set outdir=/castor/cern.ch/user/a/andrey/pi300_310_pre10
