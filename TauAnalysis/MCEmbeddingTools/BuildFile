@@ -1,10 +1,9 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=rootmath>
-<use name=SimDataFormats/HepMCProduct>
-<use name=GeneratorInterface/CommonInterface>
+<use name=boost>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/HepMCCandidate>
 <use name=RecoMuon/MuonIsolation>
 <use name=DataFormats/DetId>
@@ -12,7 +11,7 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/RoadSearchHitAccess>
 <use name=DataFormats/VertexReco>
-
+<use name=GeneratorInterface/ExternalDecays>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=ElectroWeakAnalysisMuonWithMCTauReplacer>

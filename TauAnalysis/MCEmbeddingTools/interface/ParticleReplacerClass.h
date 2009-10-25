@@ -17,64 +17,57 @@
 
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 
 #include <stack>
-
-
+#include <queue>
 
 #include "Math/LorentzVector.h"
 #include "Math/VectorUtil.h"
-#include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
-//#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+/*
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/PythiaWrapper.h"
-#include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"
+*/
 
-#include "GeneratorInterface/CommonInterface/interface/TauolaInterface.h"
-#include "GeneratorInterface/CommonInterface/interface/TauolaWrapper.h"
+#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "HepPDT/ParticleDataTable.hh"
 
-// #include "TauAnalysis/MCEmbeddingTools/interface/MuonSelector.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
-// #include <iostream>
-using namespace std;
-using namespace edm;
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "TTree.h"
 
-class ParticleReplacerClass : public edm::EDProducer
+class ParticleReplacerClass : public ParticleReplacerBase
 {
 public:
 	explicit ParticleReplacerClass(const edm::ParameterSet&);
 	~ParticleReplacerClass();
 
-	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void beginJob(const edm::EventSetup& );
+        virtual std::auto_ptr<HepMC::GenEvent> produce(const reco::MuonCollection& muons, const reco::Vertex *pvtx=0, const HepMC::GenEvent *genEvt=0);
+	virtual void beginRun(edm::Run& iRun,const edm::EventSetup& iSetup);
 	virtual void endJob();
-	
-private:
-	void initPythia(const edm::ParameterSet& pset);
-	void initPythiaTauola(const edm::ParameterSet& pset);
 
-	/// Interface to the PYGIVE/TXGIVE pythia routine, with add'l protections
-	bool call_pygive(const std::string& iParm );
-	bool call_txgive(const std::string& iParm );
-	bool call_txgive_init();
+private:
+	void transformMuMu2TauTau(reco::Particle * muon1, reco::Particle * muon2);
+	void transformMuMu2TauNu(reco::Particle * muon1, reco::Particle * muon2);
 
 	HepMC::GenEvent * processEventWithTauola(HepMC::GenEvent * evt);
 	HepMC::GenEvent * processEventWithPythia(HepMC::GenEvent * evt);
-//	bool makeEvent(HepMC::GenEvent*,const reco::MuonCollection&,HepMC::GenVertex*);
+	
+	bool testEvent(HepMC::GenEvent * evt);	
 
 	void cleanEvent(HepMC::GenEvent * evt, HepMC::GenVertex * vtx);
 	void repairBarcodes(HepMC::GenEvent * evt);
@@ -86,17 +79,27 @@ private:
 	unsigned int generatorMode_;
 	bool noInitialisation_;
 
-	string HepMCSource_;
-	string selectedParticles_;
-
+	// this variable defines the type of decay to simulate
+	// 0 - mumu->mumu (i.e. no transformation)
+	// 1 - mumu->tautau (default value)
+	unsigned int transformationMode_;
+	
 	int motherParticleID_;
 	bool useExternalGenerators_ ;
 	bool useTauola_ ;
 	bool useTauolaPolarization_ ;
-	TauolaInterface tauola_;
+	
+	gen::TauolaInterface tauola_;
 
 	bool printEvent_;
-// 	MuonSelector* muonSelector;
+
+	double minVisibleTransverseMomentum_;
+	
+	double targetParticleMass_;
+	int targetParticlePdgID_;
+	
+	TTree * outTree;
+	int attempts;
 };
 
 

@@ -1,3 +1,4 @@
+/*
 #include "TauAnalysis/MCEmbeddingTools/plugins/CheckHepMCEvent.h"
 
 CheckHepMCEvent::CheckHepMCEvent(const edm::ParameterSet& pset)
@@ -90,3 +91,4 @@ void CheckHepMCEvent::endJob()
 {
 
 }
+*/

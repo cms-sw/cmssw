@@ -1,3 +1,4 @@
+/*
 // system include files
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -22,3 +23,4 @@ class CheckHepMCEvent : public edm::EDAnalyzer {
 	std::string HepMCSource_;
 	void checkParticle(HepMC::GenParticle * part);
 };
+*/

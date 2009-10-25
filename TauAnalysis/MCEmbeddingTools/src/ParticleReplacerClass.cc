@@ -14,37 +14,40 @@ extern "C" {
 }
 #endif
 
-ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset)
+ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset):
+  ParticleReplacerBase(pset),
+  tauola_(pset)
 {
 // 	using namespace reco;
 	using namespace edm;
 	using namespace std;
 
-	// this module creates a edm::HepMCProduct
-	produces<edm::HepMCProduct>();
-	
-	HepMC::HEPEVT_Wrapper::set_max_number_entries(4000);
-	HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
-
-	// replacementMode =
-	//	0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
-	//	1 - build new HepMCProduct only with taus (+decay products)
-	replacementMode_ = pset.getUntrackedParameter<int>("replacementMode",1);
-
-/*
-	// sourceMode =
-	//	0 - use HepMCProduct-source
-	//			=> transformMode_ is set to 1 automatically
-	//	1 - use two reconstructed muons
-	//			=> replacementMode_ is set to 1 automatically
-	sourceMode_ = pset.getUntrackedParameter<int>("sourceMode",0);
+	//HepMC::HEPEVT_Wrapper::set_max_number_entries(4000);
+	//HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
 
 	// transformationMode =
-	//	0 - the stored particles are already transformed
-	//	1 - transform the two muons into two taus
-	//			=> replacementMode_ is set to 1 automatically
+	//  0 - no transformation
+	//  1 - mumu -> tautau
 	transformationMode_ = pset.getUntrackedParameter<int>("transformationMode",1);
-*/
+	switch (transformationMode_)
+	{
+		case 0:
+		{	
+			LogInfo("Replacer") << "won't do any transformation with the given mumu";
+			break;
+		}
+		case 1:
+		{
+			LogInfo("Replacer") << "will transform mumu into tautau";
+			break;
+		}
+		case 2:
+    {
+      LogInfo("Replacer") << "will transform mumu into taunu (as coming from a W boson)";
+      break;
+    }         
+	}
+	
 	// generatorMode =
 	//	0 - use Pythia
 	//	1 - use Tauola
@@ -57,211 +60,21 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset)
 	//          Caution: This option is not tested!
 	noInitialisation_ = pset.getUntrackedParameter<bool>("noInitialisation",false);
 
-	printEvent_ = pset.getUntrackedParameter<bool>("printEvent",false);	// normally tau-mass
+	printEvent_ = pset.getUntrackedParameter<bool>("printEvent",false);
 
 	motherParticleID_ = pset.getUntrackedParameter<int>("motherParticleID",23);
 
-	selectedParticles_ = pset.getUntrackedParameter<string>("selectedParticles","selectMuons");
+	// requires the visible decay products of a tau to have a sum transverse momentum
+	minVisibleTransverseMomentum_ = pset.getUntrackedParameter<double>("minVisibleTransverseMomentum",10.);
 
-	HepMCSource_ = pset.getUntrackedParameter<string>("HepMCSource","source");
+	edm::Service<TFileService> fileService_;
+	outTree = fileService_->make<TTree>( "event_generation","This tree stores information about the event generation");
+	outTree->Branch("attempts",&attempts,"attempts/I");
 
-/*
-	if (sourceMode_==1 && replacementMode_!=1)
-	{
-		cout << "replacementMode_ is forced to be '1'!!!\n";
-		replacementMode_=1;
-	}
-	if (sourceMode_==0 && transformationMode_!=0)
-	{
-		cout << "transformMode is forced to be '1'!!!\n";
-		transformationMode_=1;
-	}
-*/
-	if (!noInitialisation_)
-		cout << "starting init process... " << endl;
-	else
-		cout << "skip init process..." << endl;
-
-	if (generatorMode_==0 && !noInitialisation_) //pythia		
-	{
-		std::cout << "initialize Pythia only...\n";
-		initPythia(pset);
-	}
-	else if (generatorMode_==1 && !noInitialisation_) //tauola
-	{
-		std::cout << "initialize Pythia and Tauola...\n";
-		initPythiaTauola(pset);
-	}
-
-	std::cout << "*** generatorMode      "<< generatorMode_<< "\n";
-	std::cout << "*** replacementMode    "<< replacementMode_<< "\n";
-
-	// setting up the random numbers
-	srand(time(NULL));
-	uint32_t seed = rand();
-	ostringstream sRandomSet;
-	sRandomSet <<"MRPY(1)="<<seed;
-	call_pygive(sRandomSet.str());
+	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
+	edm::LogInfo("Replacer") << "replacementMode = "<< replacementMode_<< "\n";
 
 	return;
-}
-
-void ParticleReplacerClass::initPythia(const edm::ParameterSet& pset)
-{
-	////////////////////////
-	// Set PYTHIA parameters in a single ParameterSet
-	
-	ParameterSet pythia_params = 
-	pset.getParameter<ParameterSet>("PythiaParameters") ;
-	
-	// The parameter sets to be read (default, min bias, user ...) in the
-	// proper order.
-	vector<string> setNames = pythia_params.getParameter<vector<string> >("parameterSets");
-
-	// Loop over the sets
-	
-	for ( unsigned i=0; i<setNames.size(); ++i )
-	{
-		string mySet = setNames[i];
-	
-		// Read the PYTHIA parameters for each set of parameters
-		vector<string> pars = pythia_params.getParameter<vector<string> >(mySet);
-		
-		if (mySet != "CSAParameters")
-		{
-			cout << "----------------------------------------------" << endl;
-			cout << "Read PYTHIA parameter set " << mySet << endl;
-			cout << "----------------------------------------------" << endl;
-		
-			// Loop over all parameters and stop in case of mistake
-			for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) 
-			{
-			  cout << (*itPar) << "\n";
-				static string sRandomValueSetting("MRPY(1)");
-				if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) )
-				{
-					throw edm::Exception(edm::errors::Configuration,"PythiaError") <<" attempted to set random number using pythia command 'MRPY(1)' this is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
-				}
-				if( ! call_pygive(*itPar) ) 
-				{
-					throw edm::Exception(edm::errors::Configuration,"PythiaError") <<" pythia did not accept the following \""<<*itPar<<"\"";
-				}
-			}
-		}
-	}
-}
-
-// the following code has been taken from GeneratorInterface/Pythia6Interface
-void ParticleReplacerClass::initPythiaTauola(const edm::ParameterSet& pset)
-{
-	// Set PYTHIA parameters in a single ParameterSet
-	ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
-	
-	// The parameter sets to be read (default, min bias, user ...) in the
-	// proper order.
-	vector<string> setNames = pythia_params.getParameter<vector<string> >("parameterSets");
-	
-	// Loop over the sets
-	for ( unsigned i=0; i<setNames.size(); ++i )
-	{
-		
-		string mySet = setNames[i];
-		std::cout << mySet << " -----------------\n";
-		// Read the PYTHIA parameters for each set of parameters
-		vector<string> pars = pythia_params.getParameter<vector<string> >(mySet);
-		
-		if (mySet != "SLHAParameters" && mySet != "CSAParameters")
-		{
-		
-			// Loop over all parameters and stop in case of mistake
-			for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) 
-			{
-				static string sRandomValueSetting("MRPY(1)");
-				if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) )
-				{
-					throw edm::Exception(edm::errors::Configuration,"PythiaError") <<" attempted to set random number using pythia command 'MRPY(1)' this is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
-				}
-				if( ! call_pygive(*itPar) ) 
-				{
-					throw edm::Exception(edm::errors::Configuration,"PythiaError")<<" pythia did not accept the following \""<<*itPar<<"\"";
-				}
-			}
-		}
-		else if(mySet == "CSAParameters")
-		{
-			// Read CSA parameter
-			pars = pythia_params.getParameter<vector<string> >("CSAParameters");
-			
-			call_txgive_init();
-			// Loop over all parameters and stop in case of a mistake
-			for (vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar)
-			{
-				call_txgive(*itPar); 
-			} 
-		} 
-// 		else if(mySet == "SLHAParameters")
-// 		{
-// 			// Read SLHA parameter
-// 			
-// 			pars = pythia_params.getParameter<vector<string> >("SLHAParameters");
-// 			
-// 			// Loop over all parameters and stop in case of a mistake
-// 			for (vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar) 
-// 			{
-// 				call_slhagive(*itPar); 
-// 			} 
-// 			
-// 			call_slha_init(); 
-// 		}
-  }
-
-	// TAUOLA, etc.
-	//
-	useExternalGenerators_ = pset.getUntrackedParameter<bool>("UseExternalGenerators",false);
-
-	if ( useExternalGenerators_ )
-	{
-		// read External Generator parameters
-		ParameterSet ext_gen_params = pset.getParameter<ParameterSet>("ExternalGenerators") ;
-		vector<string> extGenNames = ext_gen_params.getParameter< vector<string> >("parameterSets");
-		for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
-		{
-			string curSet = extGenNames[ip];
-			ParameterSet gen_par_set =
-			ext_gen_params.getUntrackedParameter< ParameterSet >(curSet);
-			/*
-			cout << "----------------------------------------------" << endl;
-			cout << "Read External Generator parameter set "  << endl;
-			cout << "----------------------------------------------" << endl;
-			*/
-			if ( curSet == "Tauola" )
-			{
-				useTauola_ = true;
-				if ( useTauola_ )
-					cout << "--> use TAUOLA" << endl;
-				useTauolaPolarization_ = gen_par_set.getParameter<bool>("UseTauolaPolarization");
-				if ( useTauolaPolarization_ ) 
-				{
-					cout << "(Polarization effects enabled)" << endl;
-					tauola_.enablePolarizationEffects();
-				} 
-				else 
-				{
-					cout << "(Polarization effects disabled)" << endl;
-					tauola_.disablePolarizationEffects();
-				}
-				vector<string> cards = gen_par_set.getParameter< vector<string> >("InputCards");
-				cout << "----------------------------------------------" << endl;
-				cout << "Initializing Tauola" << endl;
-				for( vector<string>::const_iterator itPar = cards.begin(); itPar != cards.end(); ++itPar )
-				{
-					call_txgive(*itPar);
-				}
-				tauola_.initialize();
-			}
-		}
-	}
-
 }
 
 ParticleReplacerClass::~ParticleReplacerClass()
@@ -271,49 +84,102 @@ ParticleReplacerClass::~ParticleReplacerClass()
 }
 
 // ------------ method called to produce the data  ------------
-void
-ParticleReplacerClass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCollection& muons, const reco::Vertex *pvtx, const HepMC::GenEvent *genEvt)
 {
 	using namespace edm;
 	using namespace std;
 	using namespace HepMC;
 
+        if(pvtx != 0)
+          throw cms::Exception("Configuration") << "ParticleReplacerClass does NOT support using primary vertex as the origin for taus" << std::endl;
+
 	HepMC::GenEvent * evt=0;
 
 	GenVertex * zvtx = new GenVertex();
-	// things that are now obsolete:	
-	//	sourceMode_
-	//	transformationMode_
-	
+
 	reco::GenParticle * part1=0;
 	reco::GenParticle * part2=0;
 
-	/// 1) access the particles to be used	
-	Handle<std::vector<reco::Particle> > dataHandle;
-	if (!iEvent.getByLabel(selectedParticles_,dataHandle))
+	/// 2) transform the muons to the desired particles
+	std::vector<reco::Particle> particles;	
+	switch (transformationMode_)
 	{
-		std::cout << "Stored Particles not found:\n"<< selectedParticles_ << "\n";
-		return;
-	}
-	const std::vector<reco::Particle> particles = *( dataHandle.product() );
+		case 0:	// mumu->mumu
+		{
+			if (muons.size()!=2)
+			{
+				LogError("Replacer") << "the decay mode Z->mumu requires exactly two muons, aborting processing";
+				return std::auto_ptr<HepMC::GenEvent>(0);
+			}
+	
+			targetParticleMass_  = 0.105658369;
+			targetParticlePdgID_ = 13;
+				
+			reco::Muon muon1 = muons.at(0);
+			reco::Muon muon2 = muons.at(1);
+			reco::Particle tau1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
+			reco::Particle tau2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
+			particles.push_back(tau1);
+			particles.push_back(tau2);
+			break;
+		} 
+		case 1:	// mumu->tautau
+		{
+			if (muons.size()!=2)
+			{
+				LogError("Replacer") << "the decay mode Z->tautau requires exactly two muons, aborting processing";
+				return std::auto_ptr<HepMC::GenEvent>(0);
+			}
 
+			targetParticleMass_  = 1.77690;
+			targetParticlePdgID_ = 15;
+			
+			reco::Muon muon1 = muons.at(0);
+			reco::Muon muon2 = muons.at(1);
+			reco::Particle tau1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
+			reco::Particle tau2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
+			transformMuMu2TauTau(&tau1, &tau2);
+			particles.push_back(tau1);
+			particles.push_back(tau2);			
+			break;
+		}
+    case 2: // mumu->taunu (W boson)
+    {
+      if (muons.size()!=2)
+      {
+        LogError("Replacer") << "the decay mode Z->tautau requires exactly two muons, aborting processing";
+        return std::auto_ptr<HepMC::GenEvent>(0);
+      }
+
+      targetParticleMass_  = 1.77690;
+      targetParticlePdgID_ = 15;
+      
+      reco::Muon muon1 = muons.at(0);
+      reco::Muon muon2 = muons.at(1);
+      reco::Particle tau1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
+      reco::Particle tau2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
+      transformMuMu2TauNu(&tau1, &tau2);
+      particles.push_back(tau1);
+      particles.push_back(tau2);                      
+      break;
+    }  
+	}
+	
 	if (particles.size()==0)
 	{
-		std::cout << "NO PARTICLES FOUND!";
-		return;
+		LogError("Replacer") << "the creation of the new particles failed somehow";
+		return std::auto_ptr<HepMC::GenEvent>(0);
 	}
 	else
 	{
-		std::cout << particles.size() << " particles found, continue processing\n";
+		LogInfo("Replacer") << particles.size() << " particles found, continue processing";
 	}
 
 	/// 3) prepare the event
-	if (replacementMode_==0)
+	if (genEvt)
 	{
-			Handle<edm::HepMCProduct> HepMCHandle;
-			iEvent.getByLabel(HepMCSource_,HepMCHandle);
-		
-			evt = new HepMC::GenEvent(*(HepMCHandle->GetEvent()));
+	
+			evt = new HepMC::GenEvent(*genEvt);
 	
 			for ( GenEvent::vertex_iterator p = evt->vertices_begin(); p != evt->vertices_end(); p++ ) 
 			{
@@ -343,8 +209,6 @@ ParticleReplacerClass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 					zvtx=*p;
 				}
 			}
-/*
-*/
 
 			cleanEvent(evt, zvtx);
 
@@ -358,9 +222,8 @@ ParticleReplacerClass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 				zvtx->add_particle_out(new HepMC::GenParticle((FourVector)it->p4(), it->pdgId(), 1, Flow(), Polarization(0,0)));
 			}
 	}
-
 	// new product with tau decays
-	if (replacementMode_==1)
+	else
 	{
 		reco::Particle::LorentzVector mother_particle_p4;
 		for (std::vector<reco::Particle>::const_iterator it=particles.begin();it!=particles.end();it++)
@@ -377,20 +240,47 @@ ParticleReplacerClass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 		for (std::vector<reco::Particle>::const_iterator it=particles.begin();it!=particles.end();it++)
 		{
-			decayvtx->add_particle_out(new HepMC::GenParticle((FourVector)it->p4(), it->pdgId(), 1, Flow(), Polarization(0,0)));
+			decayvtx->add_particle_out(new HepMC::GenParticle((FourVector)it->p4(), it->pdgId(), 1, Flow(), Polarization(0,0)));			
 		}
 		evt->add_vertex(decayvtx);
 	}
 	repairBarcodes(evt);
-
+		
 	HepMC::GenEvent * retevt = 0;
 
 	/// 3) process the event
-	if (generatorMode_==0)	// Pythia
-		retevt=processEventWithPythia(evt);
+	int nr_of_trials=0;
+	while(nr_of_trials<1000)
+	{
+		nr_of_trials++;
+		
+		if (generatorMode_==0)	// Pythia
+		{
+			LogError("Replacer") << "Pythia is currently not supported!";
+			retevt=evt;
+		}
 
-	if (generatorMode_==1)	// TAUOLA
-		retevt=processEventWithTauola(evt);
+		if (generatorMode_==1)	// TAUOLA
+			retevt=tauola_.decay(evt);
+
+		if (retevt==0)
+		{
+			LogError("Replacer") << "The new event could not be created due to some problems!";
+			return std::auto_ptr<HepMC::GenEvent>(0);
+		}
+	
+		if (testEvent(retevt))
+			break;
+	}
+	if (nr_of_trials==1000)
+	{
+		LogError("Replacer") << "failed to create an event where the visible momenta exceed "<< minVisibleTransverseMomentum_ << " GeV ";
+		attempts=-1;
+		outTree->Fill();
+		return std::auto_ptr<HepMC::GenEvent>(0);
+	}
+	attempts=nr_of_trials;
+	outTree->Fill();	
 
 	// recover the status codes
 	if (replacementMode_==0)
@@ -404,74 +294,76 @@ ParticleReplacerClass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		}
 	}
 
-	auto_ptr<HepMCProduct> bare_product(new HepMCProduct()); 
+        std::auto_ptr<HepMC::GenEvent> ret(retevt);
+
 	if (printEvent_)
 		retevt->print(std::cout);
-
-	bare_product->addHepMCData(retevt);
-	iEvent.put(bare_product);
 
 	delete part1;
 	delete part2;
 	delete zvtx;
 	delete evt;
-	return;
+	return ret;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-ParticleReplacerClass::beginJob(const edm::EventSetup&)
+void ParticleReplacerClass::beginRun(edm::Run& iRun,const edm::EventSetup& iSetup)
 {
-
+	tauola_.init(iSetup);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ParticleReplacerClass::endJob()
 {
-
+	tauola_.statistics();
 }
 
-HepMC::GenEvent *  ParticleReplacerClass::processEventWithTauola(HepMC::GenEvent * evt)
+bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
 {
 	using namespace HepMC;
+        using namespace edm;
+	
+	if (minVisibleTransverseMomentum_<=0)
+		return true;
+		
+  for (GenEvent::particle_iterator it=evt->particles_begin();it!=evt->particles_end();it++)
+	{
+		if (abs((*it)->pdg_id())==15 && (*it)->end_vertex())
+    {
+    	FourVector vis_mom();
+    	math::PtEtaPhiMLorentzVector visible_momentum;
+    	std::queue<const GenParticle *> decaying_particles;
+			decaying_particles.push(*it);
+			int t=0;
+			while(!decaying_particles.empty() && (++t < 30))
+			{
+				const GenParticle * front = decaying_particles.front();
+	    	decaying_particles.pop();
 
-	// convert the event from HepMC to HEPEVT
-	HepMC::IO_HEPEVT conv;
-	conv.write_event(evt);
+				if (!front->end_vertex())
+				{
+					int pdgId=abs(front->pdg_id());
+					if (pdgId>10 && pdgId!=12 && pdgId!=14 && pdgId!=16)
+						visible_momentum+=(math::PtEtaPhiMLorentzVector)front->momentum();
+				}
+				else
+				{
+					GenVertex * temp_vert = front->end_vertex();
+					for (GenVertex::particles_out_const_iterator it2=temp_vert->particles_out_const_begin();it2!=temp_vert->particles_out_const_end();it2++)
+						decaying_particles.push((*it2));
+				}
 
-	// HEPEVT to PYJETS (or so)
-	call_pyhepc(2);
-
-	// call tauola
-	tauola_.processEvent();
-
-	// PYJETS to HEPEVT (or so)
-	call_pyhepc(1);
-
-	// event to be returned
-	return conv.read_next_event();
-}
-
-HepMC::GenEvent *  ParticleReplacerClass::processEventWithPythia(HepMC::GenEvent * evt)
-{
-	using namespace HepMC;
-
-	// convert the event from HepMC to HEPEVT
-	HepMC::IO_HEPEVT conv;
-	conv.write_event(evt);
-
-	// HEPEVT to PYJETS (or so)
-	call_pyhepc(2);
-
-	// call Pythia
-	call_pyexec();
-
-	// PYJETS to HEPEVT (or so)
-	call_pyhepc(1);
-
-	// event to be returned
-	return conv.read_next_event();
+    		//delete temp_vert;
+    	}
+    	if (visible_momentum.pt()<minVisibleTransverseMomentum_)
+    	{
+	   		LogInfo("Replacer") << "refusing the event as the sum of the visible transverse momenta is too small: " << visible_momentum.pt() << "\n";
+    		return false;
+    	}
+		}
+	}
+	return true;
 }
 
 void ParticleReplacerClass::cleanEvent(HepMC::GenEvent * evt, HepMC::GenVertex * vtx)
@@ -514,7 +406,7 @@ void ParticleReplacerClass::cleanEvent(HepMC::GenEvent * evt, HepMC::GenVertex *
 	
 	while (!deleteVertex.empty())
 	{
-  		evt->remove_vertex(deleteVertex.top());
+		evt->remove_vertex(deleteVertex.top());
 		deleteVertex.pop();
 	}
 
@@ -539,43 +431,169 @@ void ParticleReplacerClass::repairBarcodes(HepMC::GenEvent * evt)
 	// repair the barcodes
 	int max_barc=0;
 	for (GenEvent::vertex_iterator it=evt->vertices_begin();it!=evt->vertices_end();it++)
-	{
 		while (!(*it)->suggest_barcode(-1*(++max_barc)))
 			;
-	}
 
 	max_barc=0;
 	for (GenEvent::particle_iterator it=evt->particles_begin();it!=evt->particles_end();it++)
-	{
 		while (!(*it)->suggest_barcode(++max_barc))
 			;
-	}
 }
 
-bool ParticleReplacerClass::call_pygive(const std::string& iParm ) 
+///	transform a muon pair into a tau pair
+void ParticleReplacerClass::transformMuMu2TauTau(reco::Particle * muon1, reco::Particle * muon2)
 {
-	int numWarn = pydat1.mstu[26]; //# warnings
-	int numErr = pydat1.mstu[22];// # errors
-	// call the fortran routine pygive with a fortran string
-	PYGIVE( iParm.c_str(), iParm.length() );  
-	//if an error or warning happens it is problem
-	return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
+	using namespace edm;
+	using namespace reco;
+	using namespace std;
+	
+	reco::Particle::LorentzVector muon1_momentum = muon1->p4();
+	reco::Particle::LorentzVector muon2_momentum =  muon2->p4();
+	reco::Particle::LorentzVector z_momentum = muon1_momentum + muon2_momentum;
+
+	ROOT::Math::Boost booster(z_momentum.BoostToCM());
+	ROOT::Math::Boost invbooster(booster.Inverse());
+	
+	reco::Particle::LorentzVector Zb = booster(z_momentum);
+
+	reco::Particle::LorentzVector muon1b = booster(muon1_momentum);
+	reco::Particle::LorentzVector muon2b = booster(muon2_momentum);
+	
+	double tau_mass2 = targetParticleMass_*targetParticleMass_;
+
+	double muonxb_mom2 = muon1b.x()*muon1b.x() + muon1b.y()*muon1b.y() + muon1b.z() * muon1b.z();
+	double tauxb_mom2 = 0.25 * Zb.t() * Zb.t() - tau_mass2;
+
+	float scaling1 = sqrt(tauxb_mom2 / muonxb_mom2);
+	float scaling2 = scaling1;
+
+	float tauEnergy= Zb.t() / 2.;
+
+	if (tauEnergy*tauEnergy<tau_mass2)
+		return;
+	
+	reco::Particle::LorentzVector tau1b_mom = reco::Particle::LorentzVector(scaling1*muon1b.x(),scaling1*muon1b.y(),scaling1*muon1b.z(),tauEnergy);
+	reco::Particle::LorentzVector tau2b_mom = reco::Particle::LorentzVector(scaling2*muon2b.x(),scaling2*muon2b.y(),scaling2*muon2b.z(),tauEnergy);
+
+	// some checks
+	// the following test guarantees a deviation
+	// of less than 0.1% for phi and theta for the
+	// original muons and the placed taus
+	// (in the centre-of-mass system of the z boson)
+	assert((muon1b.phi()-tau1b_mom.phi())/muon1b.phi()<0.001);
+	assert((muon2b.phi()-tau2b_mom.phi())/muon2b.phi()<0.001);
+	assert((muon1b.theta()-tau1b_mom.theta())/muon1b.theta()<0.001);
+	assert((muon2b.theta()-tau2b_mom.theta())/muon2b.theta()<0.001);	
+
+	reco::Particle::LorentzVector tau1_mom = (invbooster(tau1b_mom));
+	reco::Particle::LorentzVector tau2_mom = (invbooster(tau2b_mom));
+	
+	// some additional checks
+	// the following tests guarantee a deviation of less
+	// than 0.1% for the following values of the original
+	// muons and the placed taus
+	//	invariant mass
+	//	transverse momentum
+	assert(((muon1_momentum+muon1_momentum).mass()-(tau1_mom+tau2_mom).mass())/(muon1_momentum+muon1_momentum).mass()<0.001);
+	assert(((muon1_momentum+muon2_momentum).pt()-(tau1_mom+tau2_mom).pt())/(muon1_momentum+muon1_momentum).pt()<0.001);
+
+	muon1->setP4(tau1_mom);
+	muon2->setP4(tau2_mom);
+
+	muon1->setPdgId(targetParticlePdgID_*muon1->pdgId()/abs(muon1->pdgId()));
+	muon2->setPdgId(targetParticlePdgID_*muon2->pdgId()/abs(muon2->pdgId()));
+
+	muon1->setStatus(1);
+	muon2->setStatus(1);
+
+	return;
+}
+///     transform a muon pair into tau nu (as coming from a W boson)
+void ParticleReplacerClass::transformMuMu2TauNu(reco::Particle * part1, reco::Particle * part2)
+{
+	using namespace edm;
+	using namespace reco;
+	using namespace std;
+
+	reco::Particle::LorentzVector muon1_momentum = part1->p4();
+	reco::Particle::LorentzVector muon2_momentum =  part2->p4();
+	reco::Particle::LorentzVector z_momentum = muon1_momentum + muon2_momentum;
+
+	ROOT::Math::Boost booster(z_momentum.BoostToCM());
+	ROOT::Math::Boost invbooster(booster.Inverse());
+
+	reco::Particle::LorentzVector Zb = booster(z_momentum);
+
+	const double breitWignerWidth_Z = 2.4952;
+	const double breitWignerWidth_W = 2.141;
+	const double knownMass_W = 80.398;
+	const double knownMass_Z = 91.1876;
+		      
+	double Wb_mass = ( Zb.mass() - knownMass_Z ) * ( breitWignerWidth_W / breitWignerWidth_Z ) + knownMass_W;
+	std::cout << "Wb_mass: " << Wb_mass << "\n";
+
+	reco::Particle::LorentzVector muon1b = booster(muon1_momentum);
+	reco::Particle::LorentzVector muon2b = booster(muon2_momentum);
+
+	double tau_mass2 = targetParticleMass_*targetParticleMass_;
+
+	double muonxb_mom2 = muon1b.x()*muon1b.x() + muon1b.y()*muon1b.y() + muon1b.z() * muon1b.z();
+	double tauxb_mom2 = 0.25 * Zb.t() * Zb.t() - tau_mass2;
+
+	float scaling1 = sqrt(tauxb_mom2 / muonxb_mom2) * Wb_mass/Zb.mass();
+	float scaling2 = scaling1;
+
+	float tauEnergy= Zb.t() / 2.;
+
+	if (tauEnergy*tauEnergy<tau_mass2)
+		      return;
+
+	reco::Particle::LorentzVector tau1b_mom = reco::Particle::LorentzVector(scaling1*muon1b.x(),scaling1*muon1b.y(),scaling1*muon1b.z(),tauEnergy* Wb_mass/Zb.mass());
+	reco::Particle::LorentzVector tau2b_mom = reco::Particle::LorentzVector(scaling2*muon2b.x(),scaling2*muon2b.y(),scaling2*muon2b.z(),tauEnergy* Wb_mass/Zb.mass());
+
+	std::cout << "muon1b_momentum: " << muon1b << "\n";
+	std::cout << "muon2b_momentum: " << muon2b << "\n";
+
+	std::cout << "tau1b_momentum: " << tau1b_mom << "\n";
+	std::cout << "tau2b_momentum: " << tau2b_mom << "\n";
+
+	std::cout << "zb_momentum: " << Zb << "\n";
+	std::cout << "wb_momentum: " << (tau1b_mom+tau2b_mom) << "\n";
+		              
+	// some checks
+	// the following test guarantees a deviation
+	// of less than 0.1% for phi and theta for the
+	// original muons and the placed taus
+	// (in the centre-of-mass system of the z boson)
+	assert((muon1b.phi()-tau1b_mom.phi())/muon1b.phi()<0.001);
+	assert((muon2b.phi()-tau2b_mom.phi())/muon2b.phi()<0.001);
+	assert((muon1b.theta()-tau1b_mom.theta())/muon1b.theta()<0.001);
+	assert((muon2b.theta()-tau2b_mom.theta())/muon2b.theta()<0.001);        
+
+	reco::Particle::LorentzVector tau1_mom = (invbooster(tau1b_mom));
+	reco::Particle::LorentzVector tau2_mom = (invbooster(tau2b_mom));
+
+	// some additional checks
+	// the following tests guarantee a deviation of less
+	// than 0.1% for the following values of the original
+	// muons and the placed taus
+	//      invariant mass
+	//      transverse momentum
+	//assert(((muon1_momentum+muon1_momentum).mass()-(tau1_mom+tau2_mom).mass())/(muon1_momentum+muon1_momentum).mass()<0.001);
+	//assert(((muon1_momentum+muon2_momentum).pt()-(tau1_mom+tau2_mom).pt())/(muon1_momentum+muon1_momentum).pt()<0.001);
+
+	part1->setP4(tau1_mom);
+	part2->setP4(tau2_mom);
+
+	part1->setPdgId(15*part1->pdgId()/abs(part1->pdgId()));
+	part2->setPdgId(16*part2->pdgId()/abs(part2->pdgId()));
+
+	part1->setStatus(1);
+	part2->setStatus(1);
+
+	return;
 }
 
-// tested:
-bool ParticleReplacerClass::call_txgive(const std::string& iParm )
-{
-	TXGIVE( iParm.c_str(), iParm.length() );
-	cout << "     " <<  iParm.c_str() << endl; 
-	return 1;  
-}
-
-bool ParticleReplacerClass::call_txgive_init()
-{
-	TXGIVE_INIT();
-	cout << "  Setting CSA reweighting parameters.   "   << endl;
-	return 1;
-}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(Replacer);

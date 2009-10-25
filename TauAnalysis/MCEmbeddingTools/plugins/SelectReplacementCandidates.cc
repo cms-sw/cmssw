@@ -5,7 +5,8 @@ SelectReplacementCandidates::SelectReplacementCandidates(const edm::ParameterSet
 	using namespace edm;
 	using namespace std;
 	produces< vector<uint32_t> >();
-	produces< std::vector<reco::Particle> >();
+	produces< vector<uint32_t> >("assocHitsWithHCAL");
+	produces< std::vector<reco::Muon> >();
 	
 	targetParticleMass_=iConfig.getUntrackedParameter<double>("targetParticlesMass",1.77690);
 	targetParticlePdgID_=iConfig.getUntrackedParameter<int>("targetParticlesPdgID",15);
@@ -34,16 +35,23 @@ void SelectReplacementCandidates::produce(edm::Event& iEvent, const edm::EventSe
 		return;
 	
 	vector<uint32_t> hits ;	
-	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon1);
-	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon2);
+	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon1, false);
+	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon2, false);
 	std::auto_ptr< vector<uint32_t> > selectedHitsAutoPtr(new vector<uint32_t>(hits) );
 	iEvent.put( selectedHitsAutoPtr );
-	
-	std::vector<reco::Particle> muons;
+
+	vector<uint32_t> assoc_hits_withHCAL;   
+	getRawIDsAdvanced(iEvent, iSetup, &assoc_hits_withHCAL, &muon1, true);
+	getRawIDsAdvanced(iEvent, iSetup, &assoc_hits_withHCAL, &muon2, true);
+	std::cout << "found in total " << assoc_hits_withHCAL.size() << " cells with associated hits with hcal\n";
+	std::auto_ptr< vector<uint32_t> > selectedAssocHitsWithHCALAutoPtr(new vector<uint32_t>(assoc_hits_withHCAL) );
+	iEvent.put( selectedAssocHitsWithHCALAutoPtr, "assocHitsWithHCAL");
+                                                	
+	std::vector<reco::Muon> muons;
 	transformMuMu2TauTau(&muon1, &muon2);
 	muons.push_back(muon1);
 	muons.push_back(muon2);
-	std::auto_ptr< std::vector<reco::Particle> > selectedMuonsPtr(new std::vector<reco::Particle>(muons) );
+	std::auto_ptr< std::vector<reco::Muon> > selectedMuonsPtr(new std::vector<reco::Muon>(muons) );
 	iEvent.put( selectedMuonsPtr );
 
 }
@@ -66,8 +74,11 @@ int SelectReplacementCandidates::determineMuonsToUse(const edm::Event& iEvent, c
 	using namespace std;
 
 	Handle< edm::RefToBaseVector<reco::Candidate> > zCandidate_handle;
-	iEvent.getByLabel("goodZToMuMuReco", zCandidate_handle);
-
+	if (!iEvent.getByLabel("dimuonsGlobal", zCandidate_handle))
+	{
+	  std::cout << "Objekt nicht gefunden: dimuonsGloal\n";
+	  return -1;
+	}
 	std::cout << zCandidate_handle->size() << " Kandidaten gefunden!\n";
 
 	uint nMuons = zCandidate_handle->size();
@@ -100,7 +111,6 @@ int SelectReplacementCandidates::determineMuonsToUse(const edm::Event& iEvent, c
 
 		break;
 	}
-
 	return 0;
 }
 
@@ -131,7 +141,7 @@ int SelectReplacementCandidates::determineMuonsToUse_old(const edm::Event& iEven
   return 0;
 }
 
-void SelectReplacementCandidates::getRawIDsAdvanced(const edm::Event& iEvent, const edm::EventSetup& iConfig, std::vector<uint32_t> * L, reco::Muon * muon)
+void SelectReplacementCandidates::getRawIDsAdvanced(const edm::Event& iEvent, const edm::EventSetup& iConfig, std::vector<uint32_t> * L, reco::Muon * muon, bool includeHCAL)
 {
   using namespace edm;
   using namespace reco;
@@ -140,16 +150,17 @@ void SelectReplacementCandidates::getRawIDsAdvanced(const edm::Event& iEvent, co
 	if (muon->bestTrackRef().isNonnull())
 	{
 		TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iConfig, *(muon->bestTrackRef().get()), parameters_);
-
-//		for(std::vector<const EcalRecHit*>::const_iterator hit = info.ecalRecHits.begin(); hit != info.ecalRecHits.end(); ++hit)
-//			L->push_back((*hit)->detid().rawId());
-		
-//		for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); hit != info.hcalRecHits.end(); ++hit)
-//			L->push_back((*hit)->detid().rawId());
-
-		int recs = (muon->bestTrackRef().get())->recHitsSize();
-		for (int i=0; i<recs; i++)
-			L->push_back(((muon->bestTrackRef().get())->recHit(i).get())->geographicalId().rawId());
+		if (includeHCAL)
+		{
+			for(std::vector<const EcalRecHit*>::const_iterator hit = info.ecalRecHits.begin(); hit != info.ecalRecHits.end(); ++hit)
+      	L->push_back((*hit)->detid().rawId());
+                                                                                                
+			for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); hit != info.hcalRecHits.end(); ++hit)
+				L->push_back((*hit)->detid().rawId());
+                                                                                                                                                              }
+			int recs = (muon->bestTrackRef().get())->recHitsSize();
+			for (int i=0; i<recs; i++)
+				L->push_back(((muon->bestTrackRef().get())->recHit(i).get())->geographicalId().rawId());
 	}
 	else
 		std::cout << "ERROR: Muon has no bestTrackRef!!\n";
@@ -178,7 +189,7 @@ template < typename T > void SelectReplacementCandidates::ProductNotFound(const 
 
 
 ///	transform muon into tau
-void SelectReplacementCandidates::transformMuMu2TauTau(reco::Particle * muon1, reco::Particle * muon2)
+void SelectReplacementCandidates::transformMuMu2TauTau(reco::Muon * muon1, reco::Muon * muon2)
 {
 	using namespace edm;
 	using namespace reco;
