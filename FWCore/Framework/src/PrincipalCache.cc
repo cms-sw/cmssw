@@ -232,5 +232,8 @@ namespace edm {
     for (ConstRunIterator it = runPrincipals_.begin(), itEnd = runPrincipals_.end(); it != itEnd; ++it) {
       it->second->adjustIndexesAfterProductRegistryAddition();
     }
+    for (ConstLumiIterator it = lumiPrincipals_.begin(), itEnd = lumiPrincipals_.end(); it != itEnd; ++it) {
+      it->second->adjustIndexesAfterProductRegistryAddition();
+    }
   }
 }
