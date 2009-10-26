@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/12/03 14:44:53 $
- * $Revision: 1.27 $
+ * $Date: 2008/12/03 15:03:17 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -54,7 +54,7 @@ EEPedestalOnlineTask::~EEPedestalOnlineTask(){
 
 }
 
-void EEPedestalOnlineTask::beginJob(const EventSetup& c){
+void EEPedestalOnlineTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -63,11 +63,11 @@ void EEPedestalOnlineTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEPedestalOnlineTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

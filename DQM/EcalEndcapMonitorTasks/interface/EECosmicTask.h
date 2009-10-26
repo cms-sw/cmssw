@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2008/05/11 09:35:11 $
- * $Revision: 1.14 $
+ * $Date: 2009/08/10 15:49:43 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

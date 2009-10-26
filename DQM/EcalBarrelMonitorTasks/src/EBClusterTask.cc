@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/03/30 18:42:00 $
- * $Revision: 1.76 $
+ * $Date: 2009/08/23 20:59:51 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -114,7 +114,7 @@ EBClusterTask::~EBClusterTask(){
 
 }
 
-void EBClusterTask::beginJob(const EventSetup& c){
+void EBClusterTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -123,11 +123,11 @@ void EBClusterTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBClusterTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

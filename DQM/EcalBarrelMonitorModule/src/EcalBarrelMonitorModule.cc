@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2009/08/05 12:02:46 $
- * $Revision: 1.189 $
+ * $Date: 2009/08/27 18:27:39 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -130,7 +130,7 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
 }
 
-void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
+void EcalBarrelMonitorModule::beginJob(void){
 
   if ( debug_ ) cout << "EcalBarrelMonitorModule: beginJob" << endl;
 

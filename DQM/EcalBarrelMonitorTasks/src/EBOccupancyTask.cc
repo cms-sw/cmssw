@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/08/10 17:52:34 $
- * $Revision: 1.76 $
+ * $Date: 2009/08/17 09:58:24 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -91,7 +91,7 @@ EBOccupancyTask::~EBOccupancyTask(){
 
 }
 
-void EBOccupancyTask::beginJob(const EventSetup& c){
+void EBOccupancyTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -100,11 +100,11 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBOccupancyTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

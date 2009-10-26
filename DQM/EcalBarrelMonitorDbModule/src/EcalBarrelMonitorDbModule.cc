@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  *
- * $Date: 2008/04/08 18:32:10 $
- * $Revision: 1.18 $
+ * $Date: 2008/11/10 22:22:23 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -61,11 +61,11 @@ EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
 
 }
 
-void EcalBarrelMonitorDbModule::beginJob(const edm::EventSetup& c){
+void EcalBarrelMonitorDbModule::beginJob(void){
 
   icycle_ = 0;
 
-  if ( ME_Db_ ) ME_Db_->beginJob(c);
+  if ( ME_Db_ ) ME_Db_->beginJob();
 
 }
 

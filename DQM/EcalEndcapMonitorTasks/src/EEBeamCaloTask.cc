@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/12/03 14:44:52 $
- * $Revision: 1.35 $
+ * $Date: 2008/12/03 15:03:17 $
+ * $Revision: 1.36 $
  * \author A. Ghezzi
  *
  */
@@ -99,7 +99,7 @@ EEBeamCaloTask::~EEBeamCaloTask(){
 
 }
 
-void EEBeamCaloTask::beginJob(const EventSetup& c){
+void EEBeamCaloTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -110,11 +110,11 @@ void EEBeamCaloTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEBeamCaloTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEBeamCaloTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

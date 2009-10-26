@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.60 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -94,7 +94,7 @@ EBBeamHodoTask::~EBBeamHodoTask(){
 
 }
 
-void EBBeamHodoTask::beginJob(const EventSetup& c){
+void EBBeamHodoTask::beginJob(void){
 
   ievt_  = 0;
 
@@ -107,11 +107,11 @@ void EBBeamHodoTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBBeamHodoTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBBeamHodoTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

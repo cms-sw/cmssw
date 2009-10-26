@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.19 2008/05/22 10:49:43 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.20 2008/11/10 22:22:23 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo
-  \version $Revision: 1.19 $
-  \date $Date: 2008/05/22 10:49:43 $
+  \version $Revision: 1.20 $
+  \date $Date: 2008/11/10 22:22:23 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -88,7 +88,7 @@ MonitorElementsDb::~MonitorElementsDb(){
 
 }
 
-void MonitorElementsDb::beginJob(const edm::EventSetup& c){
+void MonitorElementsDb::beginJob( void ){
 
   ievt_ = 0;
 

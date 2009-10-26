@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/08/13 18:12:42 $
- * $Revision: 1.15 $
+ * $Date: 2009/08/21 15:10:32 $
+ * $Revision: 1.16 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -58,7 +58,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

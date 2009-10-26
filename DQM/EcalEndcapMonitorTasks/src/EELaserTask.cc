@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2009/08/04 10:30:17 $
- * $Revision: 1.60 $
+ * $Date: 2009/08/25 09:17:30 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -100,7 +100,7 @@ EELaserTask::~EELaserTask(){
 
 }
 
-void EELaserTask::beginJob(const EventSetup& c){
+void EELaserTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -109,11 +109,11 @@ void EELaserTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EELaserTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EELaserTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

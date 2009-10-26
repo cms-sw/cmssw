@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2009/08/26 18:36:04 $
- * $Revision: 1.21 $
+ * $Date: 2009/08/27 08:35:32 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -56,7 +56,7 @@ EBStatusFlagsTask::~EBStatusFlagsTask(){
 
 }
 
-void EBStatusFlagsTask::beginJob(const EventSetup& c){
+void EBStatusFlagsTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -65,11 +65,11 @@ void EBStatusFlagsTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBStatusFlagsTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

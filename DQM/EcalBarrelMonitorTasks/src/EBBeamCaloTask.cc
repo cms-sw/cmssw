@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/12/03 14:44:43 $
- * $Revision: 1.73 $
+ * $Date: 2008/12/03 15:03:16 $
+ * $Revision: 1.74 $
  * \author A. Ghezzi
  *
  */
@@ -99,7 +99,7 @@ EBBeamCaloTask::~EBBeamCaloTask(){
 
 }
 
-void EBBeamCaloTask::beginJob(const EventSetup& c){
+void EBBeamCaloTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -110,11 +110,11 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBBeamCaloTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBBeamCaloTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2008/08/05 15:37:23 $
- * $Revision: 1.21 $
+ * $Date: 2009/02/26 14:54:44 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/08/10 15:49:44 $
- * $Revision: 1.61 $
+ * $Date: 2009/08/17 09:58:24 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -114,7 +114,7 @@ EEOccupancyTask::~EEOccupancyTask(){
 
 }
 
-void EEOccupancyTask::beginJob(const EventSetup& c){
+void EEOccupancyTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -123,11 +123,11 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEOccupancyTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

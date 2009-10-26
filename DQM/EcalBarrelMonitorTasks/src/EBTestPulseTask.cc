@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2009/08/02 15:46:38 $
- * $Revision: 1.109 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -79,7 +79,7 @@ EBTestPulseTask::~EBTestPulseTask(){
 
 }
 
-void EBTestPulseTask::beginJob(const EventSetup& c){
+void EBTestPulseTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -88,11 +88,11 @@ void EBTestPulseTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBTestPulseTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBTestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

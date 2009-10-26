@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsTask.h
  *
- * $Date: 2008/05/11 09:35:08 $
- * $Revision: 1.6 $
+ * $Date: 2009/06/18 14:47:10 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

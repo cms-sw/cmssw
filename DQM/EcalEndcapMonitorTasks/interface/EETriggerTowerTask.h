@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/08/31 10:48:19 $
- * $Revision: 1.22 $
+ * $Date: 2009/10/13 17:00:26 $
+ * $Revision: 1.23 $
  *
 */
 
@@ -47,7 +47,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 	       const edm::EventSetup& c);
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// EndJob
   void endJob(void);

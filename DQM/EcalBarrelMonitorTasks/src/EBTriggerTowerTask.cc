@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:50:31 $
- * $Revision: 1.92 $
+ * $Date: 2009/10/13 17:00:22 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -83,7 +83,7 @@ void EBTriggerTowerTask::reserveArray( array1& array ) {
 
 }
 
-void EBTriggerTowerTask::beginJob(const EventSetup& c){
+void EBTriggerTowerTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -92,11 +92,11 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBTriggerTowerTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:45:58 $
- * $Revision: 1.45 $
+ * $Date: 2009/06/23 06:47:36 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
  */
@@ -73,7 +73,7 @@ EEIntegrityTask::~EEIntegrityTask(){
 
 }
 
-void EEIntegrityTask::beginJob(const EventSetup& c){
+void EEIntegrityTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -82,11 +82,11 @@ void EEIntegrityTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEIntegrityTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2009/06/29 13:26:50 $
- * $Revision: 1.12 $
+ * $Date: 2009/08/03 23:44:22 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

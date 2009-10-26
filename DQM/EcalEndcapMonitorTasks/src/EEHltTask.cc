@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2009/05/29 16:58:10 $
- * $Revision: 1.10 $
+ * $Date: 2009/05/29 18:23:17 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ EEHltTask::~EEHltTask(){
 
 }
 
-void EEHltTask::beginJob(const EventSetup& c){
+void EEHltTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -81,11 +81,11 @@ void EEHltTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
-  initGeometry(c);
-
 }
 
 void EEHltTask::beginRun(const Run& r, const EventSetup& c) {
+
+  initGeometry(c);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/12/04 06:22:48 $
- * $Revision: 1.46 $
+ * $Date: 2009/05/22 08:39:20 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -57,7 +57,7 @@ EBTimingTask::~EBTimingTask(){
 
 }
 
-void EBTimingTask::beginJob(const EventSetup& c){
+void EBTimingTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -66,11 +66,11 @@ void EBTimingTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBTimingTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/13 17:00:26 $
- * $Revision: 1.60 $
+ * $Date: 2009/10/14 08:23:01 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -93,7 +93,7 @@ void EETriggerTowerTask::reserveArray( array1& array ) {
 
 }
 
-void EETriggerTowerTask::beginJob(const EventSetup& c){
+void EETriggerTowerTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -102,11 +102,11 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EETriggerTowerTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/09/28 19:16:58 $
- * $Revision: 1.462 $
+ * $Date: 2009/10/26 16:55:25 $
+ * $Revision: 1.463 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -575,7 +575,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient() {
 
 }
 
-void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
+void EcalBarrelMonitorClient::beginJob(void) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -622,8 +622,6 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   if ( summaryClient_ ) summaryClient_->beginJob(dqmStore_);
 
-  Numbers::initGeometry(c, verbose_);
-
 }
 
 void EcalBarrelMonitorClient::beginRun(void) {
@@ -661,6 +659,8 @@ void EcalBarrelMonitorClient::beginRun(void) {
 }
 
 void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, verbose_);
 
   if ( verbose_ ) {
     cout << endl;

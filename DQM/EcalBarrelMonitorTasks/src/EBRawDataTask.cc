@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/05/24 08:46:28 $
- * $Revision: 1.24 $
+ * $Date: 2009/05/24 13:00:07 $
+ * $Revision: 1.25 $
  * \author E. Di Marco
  *
 */
@@ -71,7 +71,7 @@ EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
 EBRawDataTask::~EBRawDataTask() {
 }
 
-void EBRawDataTask::beginJob(const EventSetup& c){
+void EBRawDataTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -80,11 +80,11 @@ void EBRawDataTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBRawDataTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBRawDataTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

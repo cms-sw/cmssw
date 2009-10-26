@@ -52,7 +52,7 @@ EBDataCertificationTask::~EBDataCertificationTask() {
 
 }
 
-void EBDataCertificationTask::beginJob(const EventSetup& c){
+void EBDataCertificationTask::beginJob(void){
 
   char histo[200];
   

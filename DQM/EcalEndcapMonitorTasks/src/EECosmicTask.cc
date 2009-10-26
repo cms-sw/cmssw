@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2009/08/10 15:49:44 $
- * $Revision: 1.49 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -64,7 +64,7 @@ EECosmicTask::~EECosmicTask(){
 
 }
 
-void EECosmicTask::beginJob(const EventSetup& c){
+void EECosmicTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -73,11 +73,11 @@ void EECosmicTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EECosmicTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EECosmicTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

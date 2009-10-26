@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/08/05 12:02:46 $
- * $Revision: 1.66 $
+ * $Date: 2009/08/27 18:27:39 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -130,7 +130,7 @@ EcalEndcapMonitorModule::~EcalEndcapMonitorModule(){
 
 }
 
-void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
+void EcalEndcapMonitorModule::beginJob(void){
 
   if ( debug_ ) cout << "EcalEndcapMonitorModule: beginJob" << endl;
 

@@ -47,7 +47,7 @@ EBDaqInfoTask::~EBDaqInfoTask() {
 
 }
 
-void EBDaqInfoTask::beginJob(const EventSetup& c){
+void EBDaqInfoTask::beginJob(void){
 
   char histo[200];
   

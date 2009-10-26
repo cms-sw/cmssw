@@ -52,7 +52,7 @@ EEDataCertificationTask::~EEDataCertificationTask() {
 
 }
 
-void EEDataCertificationTask::beginJob(const EventSetup& c){
+void EEDataCertificationTask::beginJob(void){
 
   char histo[200];
   

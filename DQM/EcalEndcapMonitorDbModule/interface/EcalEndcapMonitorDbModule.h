@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.h
  *
- * $Date: 2008/04/08 18:32:11 $
- * $Revision: 1.8 $
+ * $Date: 2009/08/25 15:50:16 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,7 @@ class EcalEndcapMonitorDbModule: public edm::EDAnalyzer{
   void analyze( const edm::Event& e, const edm::EventSetup& c );
 
   // BeginJob
-  void beginJob( const edm::EventSetup& c );
+  void beginJob( void );
 
   // EndJob
   void endJob( void );

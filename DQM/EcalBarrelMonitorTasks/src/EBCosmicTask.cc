@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2009/08/10 15:49:11 $
- * $Revision: 1.111 $
+ * $Date: 2009/08/23 20:59:51 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -64,7 +64,7 @@ EBCosmicTask::~EBCosmicTask(){
 
 }
 
-void EBCosmicTask::beginJob(const EventSetup& c){
+void EBCosmicTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -73,11 +73,11 @@ void EBCosmicTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBCosmicTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBCosmicTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

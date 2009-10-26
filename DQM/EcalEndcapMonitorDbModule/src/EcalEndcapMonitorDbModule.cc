@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  *
- * $Date: 2008/04/08 18:32:10 $
- * $Revision: 1.18 $
+ * $Date: 2008/11/10 22:22:24 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -61,11 +61,11 @@ EcalEndcapMonitorDbModule::~EcalEndcapMonitorDbModule(){
 
 }
 
-void EcalEndcapMonitorDbModule::beginJob(const edm::EventSetup& c){
+void EcalEndcapMonitorDbModule::beginJob(void){
 
   icycle_ = 0;
 
-  if ( ME_Db_ ) ME_Db_->beginJob(c);
+  if ( ME_Db_ ) ME_Db_->beginJob();
 
 }
 

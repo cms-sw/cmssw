@@ -51,7 +51,7 @@ EEDaqInfoTask::~EEDaqInfoTask() {
 
 }
 
-void EEDaqInfoTask::beginJob(const EventSetup& c){
+void EEDaqInfoTask::beginJob(void){
 
   char histo[200];
   

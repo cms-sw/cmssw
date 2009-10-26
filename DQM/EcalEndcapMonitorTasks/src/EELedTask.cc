@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2009/08/25 09:17:30 $
- * $Revision: 1.52 $
+ * $Date: 2009/10/09 12:14:51 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -82,7 +82,7 @@ EELedTask::~EELedTask(){
 
 }
 
-void EELedTask::beginJob(const EventSetup& c){
+void EELedTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -91,11 +91,11 @@ void EELedTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EELedTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EELedTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

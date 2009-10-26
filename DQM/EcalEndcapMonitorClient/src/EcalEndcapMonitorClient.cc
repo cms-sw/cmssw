@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/09/28 19:16:58 $
- * $Revision: 1.224 $
+ * $Date: 2009/10/26 16:55:25 $
+ * $Revision: 1.225 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -617,7 +617,7 @@ EcalEndcapMonitorClient::~EcalEndcapMonitorClient() {
 
 }
 
-void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
+void EcalEndcapMonitorClient::beginJob(void) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -663,8 +663,6 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   if ( summaryClient_ ) summaryClient_->beginJob(dqmStore_);
 
-  Numbers::initGeometry(c, verbose_);
-
 }
 
 void EcalEndcapMonitorClient::beginRun(void) {
@@ -702,6 +700,8 @@ void EcalEndcapMonitorClient::beginRun(void) {
 }
 
 void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, verbose_);
 
   if ( verbose_ ) {
     cout << endl;

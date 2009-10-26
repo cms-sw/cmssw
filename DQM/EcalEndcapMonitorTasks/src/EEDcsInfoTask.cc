@@ -44,7 +44,7 @@ EEDcsInfoTask::~EEDcsInfoTask() {
 
 }
 
-void EEDcsInfoTask::beginJob(const EventSetup& c){
+void EEDcsInfoTask::beginJob(void){
 
   char histo[200];
   

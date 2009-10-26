@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2009/08/04 10:30:15 $
- * $Revision: 1.125 $
+ * $Date: 2009/08/23 20:59:51 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  *
 */
@@ -100,7 +100,7 @@ EBLaserTask::~EBLaserTask(){
 
 }
 
-void EBLaserTask::beginJob(const EventSetup& c){
+void EBLaserTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -109,11 +109,11 @@ void EBLaserTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBLaserTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBLaserTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

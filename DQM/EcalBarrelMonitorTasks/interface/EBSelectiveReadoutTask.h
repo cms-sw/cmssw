@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2009/07/17 17:14:23 $
- * $Revision: 1.14 $
+ * $Date: 2009/08/13 18:12:39 $
+ * $Revision: 1.15 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -34,7 +34,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

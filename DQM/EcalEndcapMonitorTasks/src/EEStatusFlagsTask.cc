@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2009/08/26 18:36:04 $
- * $Revision: 1.23 $
+ * $Date: 2009/08/27 08:35:33 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -58,7 +58,7 @@ EEStatusFlagsTask::~EEStatusFlagsTask(){
 
 }
 
-void EEStatusFlagsTask::beginJob(const EventSetup& c){
+void EEStatusFlagsTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -67,11 +67,11 @@ void EEStatusFlagsTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEStatusFlagsTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

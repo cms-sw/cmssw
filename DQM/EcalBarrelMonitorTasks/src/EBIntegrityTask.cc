@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:41:50 $
- * $Revision: 1.77 $
+ * $Date: 2009/06/23 06:45:58 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
  */
@@ -73,7 +73,7 @@ EBIntegrityTask::~EBIntegrityTask(){
 
 }
 
-void EBIntegrityTask::beginJob(const EventSetup& c){
+void EBIntegrityTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -82,11 +82,11 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBIntegrityTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

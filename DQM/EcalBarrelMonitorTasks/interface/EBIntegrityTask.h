@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2009/06/18 09:48:15 $
- * $Revision: 1.27 $
+ * $Date: 2009/06/23 06:41:50 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
  */
@@ -34,7 +34,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

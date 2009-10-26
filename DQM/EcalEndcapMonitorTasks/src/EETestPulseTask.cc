@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2009/08/02 15:46:41 $
- * $Revision: 1.52 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ EETestPulseTask::~EETestPulseTask(){
 
 }
 
-void EETestPulseTask::beginJob(const EventSetup& c){
+void EETestPulseTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -86,11 +86,11 @@ void EETestPulseTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EETestPulseTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EETestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

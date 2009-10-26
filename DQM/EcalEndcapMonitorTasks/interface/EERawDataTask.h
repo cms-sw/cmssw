@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2008/12/05 07:52:36 $
- * $Revision: 1.5 $
+ * $Date: 2009/04/29 07:46:18 $
+ * $Revision: 1.6 $
  * \author E. Di Marco
  *
 */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

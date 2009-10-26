@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.36 $
+ * $Date: 2009/10/13 11:41:18 $
+ * $Revision: 1.37 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -100,7 +100,7 @@ EESelectiveReadoutTask::~EESelectiveReadoutTask() {
 
 }
 
-void EESelectiveReadoutTask::beginJob(const EventSetup& c) {
+void EESelectiveReadoutTask::beginJob(void) {
 
   ievt_ = 0;
 
@@ -109,7 +109,71 @@ void EESelectiveReadoutTask::beginJob(const EventSetup& c) {
     dqmStore_->rmdir(prefixME_ + "/EESelectiveReadoutTask");
   }
 
+}
+
+void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
+
   Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  for(int ix = 0; ix < 20; ix++ ) {
+    for(int iy = 0; iy < 20; iy++ ) {
+      for(int iz = 0; iz < 2; iz++) {
+        nEvtFullReadout[ix][iy][iz] = 0;
+        nEvtRUForced[ix][iy][iz] = 0;
+        nEvtAnyReadout[ix][iy][iz] = 0;
+        nEvtHighInterest[ix][iy][iz] = 0;
+        nEvtLowInterest[ix][iy][iz] = 0;
+        nEvtAnyInterest[ix][iy][iz] = 0;
+      }
+    }
+  }
+
+}
+
+void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EESelectiveReadoutTask::reset(void) {
+
+  if ( EETowerSize_[0] ) EETowerSize_[0]->Reset();
+  if ( EETowerSize_[1] ) EETowerSize_[1]->Reset();
+
+  if ( EETTFMismatch_[0] ) EETTFMismatch_[0]->Reset();
+  if ( EETTFMismatch_[1] ) EETTFMismatch_[1]->Reset();
+
+  if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
+
+  if ( EEDccEventSizeMap_ ) EEDccEventSizeMap_->Reset();
+
+  if ( EEReadoutUnitForcedBitMap_[0] ) EEReadoutUnitForcedBitMap_[0]->Reset();
+  if ( EEReadoutUnitForcedBitMap_[1] ) EEReadoutUnitForcedBitMap_[1]->Reset();
+
+  if ( EEFullReadoutSRFlagMap_[0] ) EEFullReadoutSRFlagMap_[0]->Reset();
+  if ( EEFullReadoutSRFlagMap_[1] ) EEFullReadoutSRFlagMap_[1]->Reset();
+
+  if ( EEHighInterestTriggerTowerFlagMap_[0] ) EEHighInterestTriggerTowerFlagMap_[0]->Reset();
+  if ( EEHighInterestTriggerTowerFlagMap_[1] ) EEHighInterestTriggerTowerFlagMap_[1]->Reset();
+
+  if ( EELowInterestTriggerTowerFlagMap_[0] ) EELowInterestTriggerTowerFlagMap_[0]->Reset();
+  if ( EELowInterestTriggerTowerFlagMap_[1] ) EELowInterestTriggerTowerFlagMap_[1]->Reset();
+
+  if ( EEEventSize_[0] ) EEEventSize_[0]->Reset();
+  if ( EEEventSize_[1] ) EEEventSize_[1]->Reset();
+
+  if ( EEHighInterestPayload_[0] ) EEHighInterestPayload_[0]->Reset();
+  if ( EEHighInterestPayload_[1] ) EEHighInterestPayload_[1]->Reset();
+
+  if ( EELowInterestPayload_[0] ) EELowInterestPayload_[0]->Reset();
+  if ( EELowInterestPayload_[1] ) EELowInterestPayload_[1]->Reset();
+
+  if ( EEHighInterestZsFIR_[0] ) EEHighInterestZsFIR_[0]->Reset();
+  if ( EEHighInterestZsFIR_[1] ) EEHighInterestZsFIR_[1]->Reset();
+
+  if ( EELowInterestZsFIR_[0] ) EELowInterestZsFIR_[0]->Reset();
+  if ( EELowInterestZsFIR_[1] ) EELowInterestZsFIR_[1]->Reset();
 
 }
 
@@ -339,70 +403,6 @@ void EESelectiveReadoutTask::endJob(void){
   LogInfo("EESelectiveReadoutTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
-
-}
-
-void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
-
-  if ( ! mergeRuns_ ) this->reset();
-
-  for(int ix = 0; ix < 20; ix++ ) {
-    for(int iy = 0; iy < 20; iy++ ) {
-      for(int iz = 0; iz < 2; iz++) {
-        nEvtFullReadout[ix][iy][iz] = 0;
-        nEvtRUForced[ix][iy][iz] = 0;
-        nEvtAnyReadout[ix][iy][iz] = 0;
-        nEvtHighInterest[ix][iy][iz] = 0;
-        nEvtLowInterest[ix][iy][iz] = 0;
-        nEvtAnyInterest[ix][iy][iz] = 0;
-      }
-    }
-  }
-
-}
-
-void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
-
-}
-
-void EESelectiveReadoutTask::reset(void) {
-
-  if ( EETowerSize_[0] ) EETowerSize_[0]->Reset();
-  if ( EETowerSize_[1] ) EETowerSize_[1]->Reset();
-
-  if ( EETTFMismatch_[0] ) EETTFMismatch_[0]->Reset();
-  if ( EETTFMismatch_[1] ) EETTFMismatch_[1]->Reset();
-
-  if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
-
-  if ( EEDccEventSizeMap_ ) EEDccEventSizeMap_->Reset();
-
-  if ( EEReadoutUnitForcedBitMap_[0] ) EEReadoutUnitForcedBitMap_[0]->Reset();
-  if ( EEReadoutUnitForcedBitMap_[1] ) EEReadoutUnitForcedBitMap_[1]->Reset();
-
-  if ( EEFullReadoutSRFlagMap_[0] ) EEFullReadoutSRFlagMap_[0]->Reset();
-  if ( EEFullReadoutSRFlagMap_[1] ) EEFullReadoutSRFlagMap_[1]->Reset();
-
-  if ( EEHighInterestTriggerTowerFlagMap_[0] ) EEHighInterestTriggerTowerFlagMap_[0]->Reset();
-  if ( EEHighInterestTriggerTowerFlagMap_[1] ) EEHighInterestTriggerTowerFlagMap_[1]->Reset();
-
-  if ( EELowInterestTriggerTowerFlagMap_[0] ) EELowInterestTriggerTowerFlagMap_[0]->Reset();
-  if ( EELowInterestTriggerTowerFlagMap_[1] ) EELowInterestTriggerTowerFlagMap_[1]->Reset();
-
-  if ( EEEventSize_[0] ) EEEventSize_[0]->Reset();
-  if ( EEEventSize_[1] ) EEEventSize_[1]->Reset();
-
-  if ( EEHighInterestPayload_[0] ) EEHighInterestPayload_[0]->Reset();
-  if ( EEHighInterestPayload_[1] ) EEHighInterestPayload_[1]->Reset();
-
-  if ( EELowInterestPayload_[0] ) EELowInterestPayload_[0]->Reset();
-  if ( EELowInterestPayload_[1] ) EELowInterestPayload_[1]->Reset();
-
-  if ( EEHighInterestZsFIR_[0] ) EEHighInterestZsFIR_[0]->Reset();
-  if ( EEHighInterestZsFIR_[1] ) EEHighInterestZsFIR_[1]->Reset();
-
-  if ( EELowInterestZsFIR_[0] ) EELowInterestZsFIR_[0]->Reset();
-  if ( EELowInterestZsFIR_[1] ) EELowInterestZsFIR_[1]->Reset();
 
 }
 

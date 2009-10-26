@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.26 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -94,7 +94,7 @@ EEBeamHodoTask::~EEBeamHodoTask(){
 
 }
 
-void EEBeamHodoTask::beginJob(const EventSetup& c){
+void EEBeamHodoTask::beginJob(void){
 
   ievt_  = 0;
 
@@ -107,11 +107,11 @@ void EEBeamHodoTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EEBeamHodoTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EEBeamHodoTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

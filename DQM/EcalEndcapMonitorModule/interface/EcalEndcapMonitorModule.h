@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/05/11 09:50:52 $
- * $Revision: 1.19 $
+ * $Date: 2009/04/28 10:35:59 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -34,7 +34,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 // EndJob
 void endJob(void);

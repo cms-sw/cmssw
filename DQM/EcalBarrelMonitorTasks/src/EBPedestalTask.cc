@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2009/08/02 15:46:38 $
- * $Revision: 1.95 $
+ * $Date: 2009/08/23 20:59:51 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  *
 */
@@ -80,7 +80,7 @@ EBPedestalTask::~EBPedestalTask(){
 
 }
 
-void EBPedestalTask::beginJob(const EventSetup& c){
+void EBPedestalTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -89,11 +89,11 @@ void EBPedestalTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBPedestalTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EBPedestalTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

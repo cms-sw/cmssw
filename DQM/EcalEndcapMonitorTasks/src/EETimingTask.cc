@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/12/04 11:08:38 $
- * $Revision: 1.40 $
+ * $Date: 2009/05/22 08:39:21 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -57,7 +57,7 @@ EETimingTask::~EETimingTask(){
 
 }
 
-void EETimingTask::beginJob(const EventSetup& c){
+void EETimingTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -66,11 +66,11 @@ void EETimingTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EETimingTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

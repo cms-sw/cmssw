@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.39 $
+ * $Date: 2009/10/13 11:41:18 $
+ * $Revision: 1.40 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -86,7 +86,7 @@ EBSelectiveReadoutTask::~EBSelectiveReadoutTask() {
 
 }
 
-void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
+void EBSelectiveReadoutTask::beginJob(void) {
 
   ievt_ = 0;
 
@@ -95,7 +95,58 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
     dqmStore_->rmdir(prefixME_ + "/EBSelectiveReadoutTask");
   }
 
+}
+
+void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
+
   Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  for(int ietindex = 0; ietindex < 34; ietindex++ ) {
+    for(int iptindex = 0; iptindex < 72; iptindex++ ) {
+      nEvtFullReadout[iptindex][ietindex] = 0;
+      nEvtRUForced[iptindex][ietindex] = 0;
+      nEvtAnyReadout[iptindex][ietindex] = 0;
+      nEvtHighInterest[iptindex][ietindex] = 0;
+      nEvtLowInterest[iptindex][ietindex] = 0;
+      nEvtAnyInterest[iptindex][ietindex] = 0;
+    }
+  }
+
+}
+
+void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBSelectiveReadoutTask::reset(void) {
+
+  if ( EBTowerSize_ ) EBTowerSize_->Reset();
+
+  if ( EBTTFMismatch_ ) EBTTFMismatch_->Reset();
+
+  if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
+
+  if ( EBDccEventSizeMap_ ) EBDccEventSizeMap_->Reset();
+
+  if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
+
+  if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
+
+  if ( EBHighInterestTriggerTowerFlagMap_ ) EBHighInterestTriggerTowerFlagMap_->Reset();
+
+  if ( EBLowInterestTriggerTowerFlagMap_ ) EBLowInterestTriggerTowerFlagMap_->Reset();
+
+  if ( EBEventSize_ ) EBEventSize_->Reset();
+
+  if ( EBHighInterestPayload_ ) EBHighInterestPayload_->Reset();
+
+  if ( EBLowInterestPayload_ ) EBLowInterestPayload_->Reset();
+
+  if ( EBHighInterestZsFIR_ ) EBHighInterestZsFIR_->Reset();
+
+  if ( EBLowInterestZsFIR_ ) EBLowInterestZsFIR_->Reset();
 
 }
 
@@ -239,57 +290,6 @@ void EBSelectiveReadoutTask::endJob(void){
   LogInfo("EBSelectiveReadoutTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
-
-}
-
-void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
-
-  if ( ! mergeRuns_ ) this->reset();
-
-  for(int ietindex = 0; ietindex < 34; ietindex++ ) {
-    for(int iptindex = 0; iptindex < 72; iptindex++ ) {
-      nEvtFullReadout[iptindex][ietindex] = 0;
-      nEvtRUForced[iptindex][ietindex] = 0;
-      nEvtAnyReadout[iptindex][ietindex] = 0;
-      nEvtHighInterest[iptindex][ietindex] = 0;
-      nEvtLowInterest[iptindex][ietindex] = 0;
-      nEvtAnyInterest[iptindex][ietindex] = 0;
-    }
-  }
-
-}
-
-void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
-
-}
-
-void EBSelectiveReadoutTask::reset(void) {
-
-  if ( EBTowerSize_ ) EBTowerSize_->Reset();
-
-  if ( EBTTFMismatch_ ) EBTTFMismatch_->Reset();
-
-  if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
-
-  if ( EBDccEventSizeMap_ ) EBDccEventSizeMap_->Reset();
-
-  if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
-
-  if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
-
-  if ( EBHighInterestTriggerTowerFlagMap_ ) EBHighInterestTriggerTowerFlagMap_->Reset();
-
-  if ( EBLowInterestTriggerTowerFlagMap_ ) EBLowInterestTriggerTowerFlagMap_->Reset();
-
-  if ( EBEventSize_ ) EBEventSize_->Reset();
-
-  if ( EBHighInterestPayload_ ) EBHighInterestPayload_->Reset();
-
-  if ( EBLowInterestPayload_ ) EBLowInterestPayload_->Reset();
-
-  if ( EBHighInterestZsFIR_ ) EBHighInterestZsFIR_->Reset();
-
-  if ( EBLowInterestZsFIR_ ) EBLowInterestZsFIR_->Reset();
 
 }
 

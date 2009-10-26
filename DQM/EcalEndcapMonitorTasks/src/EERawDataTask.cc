@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2009/05/24 08:42:06 $
- * $Revision: 1.23 $
+ * $Date: 2009/05/24 08:46:28 $
+ * $Revision: 1.24 $
  * \author E. Di Marco
  *
 */
@@ -71,7 +71,7 @@ EERawDataTask::EERawDataTask(const ParameterSet& ps) {
 EERawDataTask::~EERawDataTask() {
 }
 
-void EERawDataTask::beginJob(const EventSetup& c){
+void EERawDataTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -80,11 +80,11 @@ void EERawDataTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EERawDataTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 void EERawDataTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

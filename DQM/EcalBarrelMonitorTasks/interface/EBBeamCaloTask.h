@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2008/04/08 15:32:08 $
- * $Revision: 1.28 $
+ * $Date: 2008/05/11 09:35:07 $
+ * $Revision: 1.29 $
  * \author A. Ghezzi
  *
 */
@@ -33,7 +33,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
