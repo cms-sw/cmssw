@@ -16,14 +16,14 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
 
  private:
   
-  void write_ensembles_text(const Book&);
-  void write_ensembles_plots(const Book&);
-  void write_samples_plots(const Book&);
+  void write_ensembles_text(const Book&) const;
+  void write_ensembles_plots(const Book&) const;
+  void write_samples_plots(const Book&) const;
 
-  std::vector<std::string> inputFiles;
-  std::string inFileLocation, Prefix;
-  unsigned maxEvents,samples, nbins;
-  double lowBin,highBin;
+  const std::vector<std::string> inputFiles;
+  const std::string inFileLocation, Prefix;
+  const unsigned maxEvents,samples, nbins;
+  const double lowBin,highBin;
   std::vector<int> vMethods;
 };
 }

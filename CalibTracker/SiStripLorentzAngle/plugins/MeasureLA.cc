@@ -30,8 +30,8 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   store_methods_and_granularity( measurementPreferences );
   store_calibrations();
 
-  TChain* chain = new TChain("la_data"); 
-  BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
+  TChain*const chain = new TChain("la_data"); 
+  BOOST_FOREACH(const std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
   LA_Filler_Fitter laff(methods, byLayer, byModule, maxEvents);
   laff.fill(chain, book);
@@ -61,33 +61,32 @@ produce(const SiStripLorentzAngleRcd& ) {
 void MeasureLA::
 summarize_module_muH_byLayer() {
   for(int m = LA_Filler_Fitter::FIRST_METHOD; m <= LA_Filler_Fitter::LAST_METHOD; m<<=1) {
-    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
+    const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
     std::pair<uint32_t,LA_Filler_Fitter::Result> result;
     BOOST_FOREACH(result, LA_Filler_Fitter::module_results(book, method)) {
       
       calibrate( calibration_key(result.first,method), result.second); 
       std::string label = LA_Filler_Fitter::layerLabel(result.first) + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
       label = boost::regex_replace(label,boost::regex("layer"),"");
-
       
-      double mu_H = fabs( result.second.calibratedMeasurement / result.second.field );
-      double sigma_mu_H = result.second.calibratedError / result.second.field;
-      double weight = pow(1./sigma_mu_H, 2);
+      const double mu_H = fabs( result.second.calibratedMeasurement / result.second.field );
+      const double sigma_mu_H = result.second.calibratedError / result.second.field;
+      const double weight = pow(1./sigma_mu_H, 2);
       
       book.fill(mu_H, label, 150,-0.05,0.1, weight);
     }
-    for(Book::const_iterator it = book.begin(".*"+granularity(MODULESUMMARY)+".*"); it!=book.end(); ++it) {
-      if((*it)->GetEntries()) (*it)->Fit("gaus","LLQ");
+    for(Book::iterator it = book.begin(".*"+granularity(MODULESUMMARY)+".*"); it!=book.end(); ++it) {
+      if(it->second->GetEntries()) it->second->Fit("gaus","LLQ");
     }
   }
 }
 
 void MeasureLA::
-process_reports() {
+process_reports() const {
   BOOST_FOREACH(edm::ParameterSet p, reports) {
-    GRANULARITY gran = (GRANULARITY) p.getParameter<int32_t>("Granularity");
-    std::string name = p.getParameter<std::string>("ReportName");
-    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
+    const GRANULARITY gran = (GRANULARITY) p.getParameter<int32_t>("Granularity");
+    const std::string name = p.getParameter<std::string>("ReportName");
+    const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
 
     write_report_plots( name, method, gran);
     switch(gran) {
@@ -99,17 +98,17 @@ process_reports() {
 }
 
 void MeasureLA::
-write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARITY gran ) {
+write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARITY gran ) const {
   TFile file((name+".root").c_str(),"RECREATE");
-  std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+".*)";
+  const std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+".*)";
   for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist) 
-    (*hist)->Write();
+    hist->second->Write();
   file.Close();
 }
 
 template <class T>
 void MeasureLA::
-write_report_text(std::string name, LA_Filler_Fitter::Method method, std::map<T,LA_Filler_Fitter::Result> results) {
+write_report_text(std::string name, LA_Filler_Fitter::Method method, std::map<T,LA_Filler_Fitter::Result> results) const {
   fstream file((name+".dat").c_str(),std::ios::out);
   std::pair<T,LA_Filler_Fitter::Result> result;
   BOOST_FOREACH(result, results) {
@@ -120,13 +119,13 @@ write_report_text(std::string name, LA_Filler_Fitter::Method method, std::map<T,
 }
 
 void MeasureLA::
-write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) {
+write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) const {
   fstream file((name+".dat").c_str(),std::ios::out);
-  std::string key = ".*"+granularity(MODULESUMMARY)+LA_Filler_Fitter::method(method);
+  const std::string key = ".*"+granularity(MODULESUMMARY)+LA_Filler_Fitter::method(method);
   for(Book::const_iterator it = book.begin(key); it!=book.end(); ++it) {
-    TF1* f = (*it)->GetFunction("gaus");
+    const TF1*const f = it->second->GetFunction("gaus");
     if(f) {
-      file << it.name() << "\t"
+      file << it->first << "\t"
 	   << f->GetParameter(1) << "\t"
 	   << f->GetParError(1) << "\t"
 	   << f->GetParameter(2) << "\t"
@@ -139,7 +138,7 @@ write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) {
 void MeasureLA::
 store_calibrations() {
   BOOST_FOREACH(edm::ParameterSet p, calibrations) {
-    std::pair<uint32_t,LA_Filler_Fitter::Method> 
+    const std::pair<uint32_t,LA_Filler_Fitter::Method> 
       key( p.getParameter<uint32_t>("Pitch"), (LA_Filler_Fitter::Method) 
 	   p.getParameter<int32_t>("Method"));
     offset[key] = p.getParameter<double>("Offset");
@@ -150,13 +149,14 @@ store_calibrations() {
 
 inline
 void MeasureLA::
-calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) {
-  result.calibratedMeasurement = ( result.measure - offset[key] ) / slope[key] ;
-  result.calibratedError = result.measureErr * error_scaling[key] / slope[key] ;
+calibrate(const std::pair<uint32_t,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) const {
+  
+  result.calibratedMeasurement = ( result.measure - offset.find(key)->second ) / slope.find(key)->second ;
+  result.calibratedError = result.measureErr * error_scaling.find(key)->second / slope.find(key)->second ;
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
-calibration_key(std::string layer,LA_Filler_Fitter::Method method) {
+calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) const {
   uint32_t pitch = 0;
   if(layer.find("TIB_layer1") != std::string::npos || layer.find("TIB_layer2") != std::string::npos) pitch=80; else
     if(layer.find("TIB_layer3") != std::string::npos || layer.find("TIB_layer4") != std::string::npos) pitch=120; else
@@ -166,8 +166,8 @@ calibration_key(std::string layer,LA_Filler_Fitter::Method method) {
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
-calibration_key(uint32_t detid,LA_Filler_Fitter::Method method) {
-  uint32_t pitch =  
+calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const {
+  const uint32_t pitch =  
     SiStripDetId(detid).subDetector() == SiStripDetId::TIB 
     ? TIBDetId(detid).layer() < 3 ?  80 : 120
     : TOBDetId(detid).layer() > 4 ? 122 : 183; 

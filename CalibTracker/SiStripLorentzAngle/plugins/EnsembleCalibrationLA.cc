@@ -23,7 +23,7 @@ void EnsembleCalibrationLA::
 endJob() 
 {
   Book book("la_ensemble");
-  TChain* chain = new TChain("la_ensemble"); 
+  TChain*const chain = new TChain("la_ensemble"); 
   BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
 
   int methods = 0;  BOOST_FOREACH(unsigned method, vMethods) methods|=method;
@@ -40,15 +40,15 @@ endJob()
 }
 
 void EnsembleCalibrationLA::
-write_ensembles_text(const Book& book) {
+write_ensembles_text(const Book& book) const {
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, LA_Filler_Fitter::ensemble_summary(book)) {
     fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
       file << summary << std::endl;
     
-    std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
-    float pull =  LA_Filler_Fitter::pull(ensemble.second);
+    const std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
+    const float pull =  LA_Filler_Fitter::pull(ensemble.second);
 
     file << std::endl << std::endl
 	 << "# Best Fit Line: "	 
@@ -63,18 +63,18 @@ write_ensembles_text(const Book& book) {
 }
 
 void EnsembleCalibrationLA::
-write_ensembles_plots(const Book& book) {
+write_ensembles_plots(const Book& book) const {
   TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
   for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction|symm|symmchi2|_w\\d)"); hist!=book.end(); ++hist)
-    (*hist)->Write();
+    hist->second->Write();
   file.Close();
 }
  
 void EnsembleCalibrationLA::
-write_samples_plots(const Book& book) {
+write_samples_plots(const Book& book) const {
   TFile file((Prefix+"ensembleFits.root").c_str(),"RECREATE");
   for(Book::const_iterator hist = book.begin(".*(measure|merr|ensembleReco|pull)"); hist!=book.end(); ++hist)
-    (*hist)->Write();
+    hist->second->Write();
   file.Close();
 }
   

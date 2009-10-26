@@ -21,7 +21,7 @@ class MeasureLA : public edm::ESProducer {
  private:
 
   enum GRANULARITY {LAYER=0, MODULE=1, MODULESUMMARY=2};
-  std::string granularity(int32_t g) { switch(g) {
+  static std::string granularity(int32_t g) { switch(g) {
     case LAYER: return "_layer"; 
     case MODULE: return "_module"; 
     case MODULESUMMARY: return "_moduleSummary";
@@ -31,21 +31,21 @@ class MeasureLA : public edm::ESProducer {
   void store_methods_and_granularity(const edm::VParameterSet&);
 
   void summarize_module_muH_byLayer();
-  void process_reports();
-  template<class T> 
-  void write_report_text(std::string, LA_Filler_Fitter::Method, std::map<T,LA_Filler_Fitter::Result>);
-  void write_report_text_ms(std::string name, LA_Filler_Fitter::Method method);
-  void write_report_plots(std::string, LA_Filler_Fitter::Method, GRANULARITY);
+  void process_reports() const;
+  template<class T>
+  void write_report_text(const std::string, const LA_Filler_Fitter::Method, const std::map<T,LA_Filler_Fitter::Result>) const;
+  void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
+  void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
-  void calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&);
-  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(std::string layer,LA_Filler_Fitter::Method method);
-  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(uint32_t detid,LA_Filler_Fitter::Method method);
-
-  std::vector<std::string> inputFiles;
-  std::string inFileLocation;
-  edm::FileInPath fp_;
-  unsigned maxEvents;
-  edm::VParameterSet reports, measurementPreferences, calibrations;
+  void calibrate(const std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) const;
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const;
+  
+  const std::vector<std::string> inputFiles;
+  const std::string inFileLocation;
+  const edm::FileInPath fp_;
+  const unsigned maxEvents;
+  const edm::VParameterSet reports, measurementPreferences, calibrations;
   std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
   int32_t methods;
   bool byModule, byLayer;
