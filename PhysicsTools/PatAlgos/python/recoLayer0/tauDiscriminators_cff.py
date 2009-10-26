@@ -51,7 +51,7 @@ patShrinkingConePFTauDiscrimination = cms.Sequence(
 )
 
 patCaloTauDiscrimination = cms.Sequence(
-    #caloRecoTauDiscriminationAgainstElectron  +  # Not on AOD
+    caloRecoTauDiscriminationAgainstElectron  +  
     caloRecoTauDiscriminationByIsolation +
     caloRecoTauDiscriminationByLeadingTrackFinding +
     caloRecoTauDiscriminationByLeadingTrackPtCut 
