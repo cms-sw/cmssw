@@ -1,9 +1,6 @@
-<use name=CoralBase>
-<use name=DataSvc>
-<use name=DetectorDescription/Core>
-<use name=FWCore/Utilities>
+<use name="DetectorDescription/Core">
+<use name="clhep">
+<use name="rootmath">
 <export>
-  <use name=DetectorDescription/Core>
-  <lib name=DetectorDescriptionOfflineDBLoader>
+  <lib name="1">
 </export>
-
