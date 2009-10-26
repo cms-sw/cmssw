@@ -1,4 +1,4 @@
-// $Id: TTUWedgeORLogic.cc,v 1.3 2009/09/15 14:42:10 aosorio Exp $
+// $Id: TTUWedgeORLogic.cc,v 1.4 2009/10/04 19:17:44 aosorio Exp $
 // Include files 
 
 
@@ -19,12 +19,25 @@ TTUWedgeORLogic::TTUWedgeORLogic(  ) {
 
   m_triggersignal = false;
   
-  m_maxsectors = 3; //this is the size of the wedge
+  //m_maxsectors = 3; //this is the size of the wedge
 
-  m_wedgeSector.push_back(2); //this is the starting sector for each wedge
-  m_wedgeSector.push_back(4);
-  m_wedgeSector.push_back(8);
-  m_wedgeSector.push_back(10);
+  //the key is the starting sector: sec 2 -> quadrant 7,8,9 and so on
+ 
+  m_wedgeSector[2]   = 1; //this is the size of the wedge: sec 2
+  m_wedgeSector[3]   = 1; //this is the size of the wedge: sec 3
+  m_wedgeSector[4]   = 1; //this is the size of the wedge: sec 4
+  m_wedgeSector[5]   = 1; //this is the size of the wedge: sec 5
+  m_wedgeSector[6]   = 1; //this is the size of the wedge: sec 6
+  m_wedgeSector[7]   = 3; //this is the size of the wedge: bottom quadrant 1
+  m_wedgeSector[8]   = 3; //this is the size of the wedge: bottom quadrant 2
+  m_wedgeSector[9]   = 3; //this is the size of the wedge: bottom quadrant 3
+  m_wedgeSector[10]  = 3; //this is the size of the wedge: bottom quadrant 4
+  m_wedgeSector[11]  = 3; //this is the size of the wedge: bottom quadrant 5
+
+  //m_wedgeSector.push_back(2); //this is the starting sector for each wedge
+  //m_wedgeSector.push_back(4);
+  //m_wedgeSector.push_back(8);
+  //m_wedgeSector.push_back(10);
 
   m_maxwedges = m_wedgeSector.size();
   
@@ -42,7 +55,7 @@ TTUWedgeORLogic::~TTUWedgeORLogic() {}
 void TTUWedgeORLogic::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
 {
  
-  m_wheelMajority[ boardspecs.m_Wheel1Id ] = 4;
+  m_wheelMajority[ boardspecs.m_Wheel1Id ] = 3;
   
   if ( (boardspecs.m_MaxNumWheels > 1) && (boardspecs.m_Wheel2Id != 0) )
     m_wheelMajority[ boardspecs.m_Wheel2Id ] = 3;
@@ -64,18 +77,48 @@ bool TTUWedgeORLogic::process( const TTUInput & inmap )
   
   m_triggersignal = false;
   
-  //
-  //In this context m_option is the Selected Wedge/Quadrant (1,2,3,4...)
-  // for the moment we have 4 quadrants
+  // October 15 2009: A.Osorio
+  // In this context m_option is the Selected Wedge/Quadrant (1,2,3,4...)
+  // initially we had 4 quadrants
   // 1=*2-3-4 ; 2=*4-5-6; 3=*8-9-10; 4=*10-11-12
-  //
+  // Now: we have 5 top sectors: 2,3,4,5,6 and 5 bottom quadrants +/-1 of the opposite sector
   
   int nhits(0);
-  int firstsector = m_wedgeSector[ (m_option-1) ] -1;
+  int sector_indx(0);
+  int firstsector = m_option;
+  
+  m_maxsectors = m_wedgeSector[ firstsector ];
   
   for(int j = 0; j < m_maxsectors; ++j)  {
-    nhits += inmap.input_sec[ firstsector + j ].count();
+    sector_indx = (firstsector-1) + j;
+    if( sector_indx >= 12 ) sector_indx = 0;
+    nhits += inmap.input_sec[ sector_indx ].count();
   }
+  
+  //...introduce force logic
+  bool use_forcing = false;
+  
+  if ( use_forcing ) {
+
+    for(int j = 0; j < m_maxsectors; ++j)  {
+      
+      sector_indx = (firstsector-1) + j;
+      
+      if( firstsector <= 6 ) { //...only top sectors
+        
+        bool hasLayer1 = inmap.input_sec[sector_indx][0]; //layer 1: RB1in
+        
+        if ( ! hasLayer1 ) {
+          m_triggersignal = false;
+          return true;
+        }
+        
+      }
+      
+    }
+    
+  }
+  
 
   int majority = m_wheelMajority[ inmap.m_wheelId ];
 
@@ -85,11 +128,13 @@ bool TTUWedgeORLogic::process( const TTUInput & inmap )
   if ( nhits >= majority) m_triggersignal = true;
   
   if( m_debug ) 
-    std::cout << "TTUWedgeORLogic wedge decision:" 
-              << m_option << '\t' 
-              << firstsector << '\t' 
-              << "nhits: " << nhits << '\t'
-              << "Dec: "   << m_triggersignal << std::endl;
+    std::cout << "TTUWedgeORLogic wedge decision: "
+              << "wheel: "    << inmap.m_wheelId << '\t'
+              << "quadrant: " << m_option << '\t' 
+              << "fsector: "  << firstsector << '\t' 
+              << "nhits: "    << nhits << '\t'
+              << "maj: "      << majority << '\t'
+              << "Dec: "      << m_triggersignal << std::endl;
   
   if( m_debug ) std::cout << "TTUWedgeORLogic>process ends" << std::endl;
   

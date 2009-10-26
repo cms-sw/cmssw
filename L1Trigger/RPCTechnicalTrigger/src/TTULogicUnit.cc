@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.cc,v 1.5 2009/08/09 11:11:37 aosorio Exp $
+// $Id: TTULogicUnit.cc,v 1.6 2009/08/19 15:04:01 aosorio Exp $
 // Include files 
 
 
@@ -78,8 +78,19 @@ void TTULogicUnit::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardSpc
 
 void TTULogicUnit::run( const TTUInput & input )
 {
- 
+
+  //... check the thresholds
+
+  //... by Sector
+  
+  //... by Tower
+
+  //... by Wheel
+
   m_logic->process( input );
+
+  //m_logic->m_triggersignal = false;
+  
  
 }
 
@@ -88,5 +99,7 @@ void TTULogicUnit::run( const TTUInput & input , int option )
 
   m_logic->setOption( option );
   m_logic->process( input );
- 
+
+  //m_logic->m_triggersignal = false;
+  
 }

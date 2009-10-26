@@ -177,9 +177,12 @@ private:
   std::map<int,int> m_WheelTtu;
   
   std::map<int,TTUResults*> m_ttuResultsByQuadrant;
+
+  std::vector<int> m_quadrants;
   
+  std::vector<int>::iterator m_firstSector;
   
-  
+    
 };
 
 #endif // RPCTECHNICALTRIGGER_H

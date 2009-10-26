@@ -1,4 +1,4 @@
-// $Id: TTUWedgeORLogic.h,v 1.1 2009/08/09 11:11:36 aosorio Exp $
+// $Id: TTUWedgeORLogic.h,v 1.2 2009/08/19 15:04:01 aosorio Exp $
 #ifndef INTERFACE_TTUWEDGEORLOGIC_H 
 #define INTERFACE_TTUWEDGEORLOGIC_H 1
 
@@ -39,7 +39,9 @@ private:
   
   std::map< int, int> m_wheelMajority;
   
-  std::vector<int> m_wedgeSector;
+  //std::vector<int> m_wedgeSector;
+
+  std::map<int,int> m_wedgeSector;
     
 };
 #endif // INTERFACE_TTUWEDGEORLOGIC_H

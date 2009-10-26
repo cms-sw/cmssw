@@ -4,7 +4,7 @@ import os
 maxevts   = 100
 globaltag = 'GR09_31X_V4P::All'
 globaltag = 'STARTUP3XY_V9::All'
-inputfile = '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/131/B68E147D-C27C-DE11-B561-0019B9F72CC2.root'
+inputfile = '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/468/F2CDA89C-B57D-DE11-B2C9-000423D98DC4.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 

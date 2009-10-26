@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.2 2009/07/01 22:52:06 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.3 2009/09/20 22:06:50 aosorio Exp $
 // Include files 
 
 
@@ -75,8 +75,13 @@ void RBCProcessRPCDigis::configure()
   
   m_layermap[311]     = 11; //RB3Bk
   m_layermap[411]     = 12; //RB4Bk
-  
+
   m_maxBxWindow = 3;
+
+  std::vector<int>::iterator wheel;
+
+  for( wheel = m_wheelid.begin(); wheel != m_wheelid.end(); ++wheel)
+    m_digiCounters[(*wheel)] = new Counters( (*wheel) );
   
 }
 
@@ -87,13 +92,18 @@ RBCProcessRPCDigis::~RBCProcessRPCDigis() {
   
   if ( m_lbin ) delete m_lbin;
 
+  std::vector<int>::iterator wheel;
+  
+  for( wheel = m_wheelid.begin(); wheel != m_wheelid.end(); ++wheel)
+    delete m_digiCounters[(*wheel)];
+  
   m_sec1id.clear();
   m_sec2id.clear();
   m_wheelid.clear();
   m_layermap.clear();
-
-  reset();
   
+  reset();
+    
 } 
 
 //=============================================================================
@@ -172,6 +182,12 @@ int RBCProcessRPCDigis::next() {
       setDigiAt( sector, digipos );
     }
     
+    std::map<int, Counters* >::iterator wheelCounter;
+    wheelCounter = m_digiCounters.find( wheel );
+    
+    if ( wheelCounter != m_digiCounters.end() )
+      (*wheelCounter).second->incrementSector( sector );
+    
     if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
     
     ++ndigis;
@@ -189,6 +205,12 @@ int RBCProcessRPCDigis::next() {
   
   if ( m_debug ) std::cout << "RBCProcessRPCDigis: DataSize: " << m_data.size() 
                            << " ndigis " << ndigis << std::endl;
+  
+  std::map<int, Counters* >::iterator wheelCounter;
+  for( wheelCounter = m_digiCounters.begin(); wheelCounter != m_digiCounters.end(); ++wheelCounter) {
+    (*wheelCounter).second->evalCounters();
+    if ( m_debug ) (*wheelCounter).second->printSummary();
+  }
   
   if ( m_data.size() <= 0 ) return 0;
   
@@ -269,7 +291,6 @@ void RBCProcessRPCDigis::builddata()
                           + 10000*(*itr)->wheelIdx()
                           + 100  *(*itr)->m_sec1[k]
                           + 1    *(*itr)->m_sec2[k] );
-
         
         RBCInput * signal = & (*itr)->m_orsignals[k];
         signal->needmapping = false;

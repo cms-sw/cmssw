@@ -1,4 +1,4 @@
-// $Id: RPCData.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
+// $Id: RPCData.cc,v 1.2 2009/05/24 21:45:39 aosorio Exp $
 // Include files 
 
 
@@ -15,13 +15,91 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
+
+Counters::Counters(int wheel)
+{
+  m_wheelid = wheel;
+  int maxsectors=12;
+  
+  for(int k=1; k <= maxsectors; ++k)
+    m_sector[k] = 0;
+  m_nearSide = 0;
+  m_farSide = 0;
+  m_wheel=0;
+  
+}
+
+Counters::~Counters()
+{
+  m_sector.clear();
+}
+
+void Counters::evalCounters()
+{
+  
+  std::map<int,int>::iterator itr;
+  for(itr = m_sector.begin(); itr != m_sector.end(); ++itr)
+    m_wheel += (*itr).second;
+  
+  std::vector<int> far;
+  std::vector<int> near;
+  
+  far.push_back(3);
+  far.push_back(4);
+  far.push_back(5);
+  far.push_back(6);
+  far.push_back(7);
+  far.push_back(8);
+  
+  near.push_back(1);
+  near.push_back(2);
+  near.push_back(12);
+  near.push_back(11);
+  near.push_back(10);
+  near.push_back(9);
+  
+  std::vector<int>::iterator sec;
+  for( sec = far.begin(); sec != far.end(); ++sec) {
+    std::map<int, int>::iterator sector;
+    sector = m_sector.find( (*sec) );
+    m_farSide  += (*sector).second;
+  }
+  
+  for( sec = near.begin(); sec != near.end(); ++sec) {
+    std::map<int, int>::iterator sector;
+    sector = m_sector.find( (*sec) );
+    m_nearSide += (*sector).second;
+  }
+  
+
+}
+
+void Counters::printSummary()
+{
+
+  std::cout << m_wheelid << std::endl;
+  std::map<int,int>::iterator itr;
+  for(itr = m_sector.begin(); itr != m_sector.end(); ++itr)
+    std::cout << (*itr).first << ": " << (*itr).second << '\t';
+  std::cout << '\n';
+  
+  std::cout << "total wheel: " 
+            << m_wheel << " " << m_farSide << " " << m_nearSide << '\n';
+    
+}
+
+void Counters::incrementSector( int sector )
+{
+  m_sector[ sector ] += 1;
+}
+
 RPCData::RPCData() {
   
   m_wheel     = 10;
   m_sec1      = new int[6];
   m_sec2      = new int[6];
   m_orsignals = new RBCInput[6];
-  
+
 }
 //=============================================================================
 // Destructor
