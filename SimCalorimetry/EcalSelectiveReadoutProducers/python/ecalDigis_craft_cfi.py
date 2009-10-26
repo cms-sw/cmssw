@@ -75,12 +75,31 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
 
     #for debug mode only
     trigPrimBypassWithPeakFinder = cms.bool(True),
+
+    # Mode selection for "Trig bypass" mode
+    # 0: TT thresholds applied on sum of crystal Et's
+    # 1: TT thresholds applies on compressed Et from Trigger primitive
+    # @ee trigPrimByPass_ switch
+    trigPrimBypassMode = cms.int32(0),
                               
     #number of events whose TT and SR flags must be dumped (for debug purpose):
     dumpFlags = cms.untracked.int32(0),
                               
     #logical flag to write out SrFlags
-    writeSrFlags = cms.untracked.bool(True)
+    writeSrFlags = cms.untracked.bool(True),
+
+    #switch to apply selective readout decision on the digis and produce
+    #the "suppressed" digis
+    produceDigis = cms.untracked.bool(True),
+
+    #Trigger Tower Flag to use when a flag is not found from the input
+    #Trigger Primitive collection. Must be one of the following values:
+    # 0: low interest, 1: mid interest, 3: high interest
+    # 4: forced low interest, 5: forced mid interest, 7: forced high interest
+    defaultTtf_ = cms.int32(4)
+
+    # SR->action flag map
+    actions = cms.vint32(1, 3, 3, 3, 5, 7, 7, 7)
 )
 
 
