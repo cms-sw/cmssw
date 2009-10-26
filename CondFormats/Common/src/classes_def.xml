@@ -1,4 +1,5 @@
 <lcgdict>
+ <class name="std::basic_string<char>"/>
  <class name="cond::IOVElement"/>
  <class name="cond::UpdateStamp"/>
  <class name="pool::PVector<cond::IOVElement>"/>
