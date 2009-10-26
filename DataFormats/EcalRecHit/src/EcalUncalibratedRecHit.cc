@@ -19,7 +19,9 @@ bool EcalUncalibratedRecHit::isSaturated() const {
 float EcalUncalibratedRecHit::outOfTimeEnergy() const
 {
         uint32_t rawEnergy = (flags_>>4);
-        return (float)rawEnergy * 0.01;
+        uint16_t exponent = rawEnergy>>10;
+        uint16_t significand = ~(0xE<<9) & rawEnergy;
+        return (float) significand*pow(10,exponent-5);
 }
 
 void EcalUncalibratedRecHit::setRecoFlag( uint32_t flag )
@@ -32,9 +34,10 @@ void EcalUncalibratedRecHit::setOutOfTimeEnergy( float energy )
         if ( energy < 0 ) {
                 edm::LogWarning("EcalUncalibratedRecHit::setOutOfTimeEnergy") << "Negative energy, cannot set it : " << energy;
         } else {
-                uint32_t rawEnergy = lround( energy / 0.01); // 0.01 ADC count resolution
+                uint16_t exponent = lround(floor(log10(energy)))+3;
+                uint16_t significand = lround(energy/pow(10,exponent-5));
+                uint32_t rawEnergy = exponent<<10 | significand;
                 setFlags( ( ~(0xFFFFFFF<<4) & flags_) | ((rawEnergy & 0xFFFFFFF)<<4) );
         }
 }
-
 

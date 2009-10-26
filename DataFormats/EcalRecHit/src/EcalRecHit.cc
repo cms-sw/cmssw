@@ -24,8 +24,10 @@ float EcalRecHit::chi2Prob() const
 
 float EcalRecHit::outOfTimeEnergy() const
 {
-        uint32_t rawEnergy = 0x3FFF & (flags()>>8);
-        return (float)rawEnergy * 0.1;
+        uint32_t rawEnergy = (0x1FFF & flags()>>8);
+        uint16_t exponent = rawEnergy>>10;
+        uint16_t significand = ~(0xE<<9) & rawEnergy;
+        return (float) significand*pow(10,exponent-5);
 }
 
 void EcalRecHit::setRecoFlag( uint32_t flag )
@@ -48,8 +50,10 @@ void EcalRecHit::setOutOfTimeEnergy( float energy )
         if ( energy < 0 ) {
                 edm::LogWarning("EcalRecHit::setOutOfTimeEnergy") << "Negative energy, cannot set it : " << energy;
         } else {
-                uint32_t rawEnergy = lround( energy / 0.1); // 100 MeV resolution
-                setFlags( ( ~(0x3FFF<<8) & flags()) | ((rawEnergy & 0x3FFF)<<8) );
+                uint16_t exponent = lround(floor(log10(energy)))+3;
+                uint16_t significand = lround(energy/pow(10,exponent-5));
+                uint32_t rawEnergy = exponent<<10 | significand;
+                setFlags( ( ~(0x1FFF<<8) & flags()) | ((rawEnergy & 0x1FFF)<<8) );
         }
 }
 
