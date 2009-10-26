@@ -8,9 +8,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
-# Pick your geometry
+# Pick your geometry, Comment them all out for current geometry
 process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
+#wqprocess.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
+
 
 process.source = cms.Source("EmptySource")
 
