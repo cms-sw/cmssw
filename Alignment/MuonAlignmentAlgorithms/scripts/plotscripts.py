@@ -1798,20 +1798,56 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         c1.Clear()
         c1.Divide(3, 2)
         chamber_x.SetTitle(getname(r))
-        c1.GetPad(1).cd(); chamber_x.Draw(); (None if suppressblue else chamber_x_fit2.Draw("same")); chamber_x_fit.Draw("same")
-        c1.GetPad(2).cd(); chamber_dxdz.Draw(); (None if suppressblue else chamber_dxdz_fit2.Draw("same")); chamber_dxdz_fit.Draw("same")
-        c1.GetPad(3).cd(); chamber_alphax.Draw(); (None if suppressblue else chamber_alphax_fit2.Draw("same")); chamber_alphax_fit.Draw("same")
-        c1.GetPad(4).cd(); chamber_y.Draw(); (None if suppressblue else chamber_y_fit2.Draw("same")); chamber_y_fit.Draw("same")
-        c1.GetPad(5).cd(); chamber_dydz.Draw(); (None if suppressblue else chamber_dydz_fit2.Draw("same")); chamber_dydz_fit.Draw("same")
-        c1.GetPad(6).cd(); chamber_alphay.Draw(); (None if suppressblue else chamber_alphay_fit2.Draw("same")); chamber_alphay_fit.Draw("same")
+
+        c1.GetPad(1).cd()
+        chamber_x.Draw()
+        if not suppressblue: chamber_x_fit2.Draw("same")
+        chamber_x_fit.Draw("same")
+
+        c1.GetPad(2).cd()
+        chamber_dxdz.Draw()
+        if not suppressblue: chamber_dxdz_fit2.Draw("same")
+        chamber_dxdz_fit.Draw("same")
+
+        c1.GetPad(3).cd()
+        chamber_alphax.Draw()
+        if not suppressblue: chamber_alphax_fit2.Draw("same")
+        chamber_alphax_fit.Draw("same")
+
+        c1.GetPad(4).cd()
+        chamber_y.Draw()
+        if not suppressblue: chamber_y_fit2.Draw("same")
+        chamber_y_fit.Draw("same")
+
+        c1.GetPad(5).cd()
+        chamber_dydz.Draw()
+        if not suppressblue: chamber_dydz_fit2.Draw("same")
+        chamber_dydz_fit.Draw("same")
+
+        c1.GetPad(6).cd()
+        chamber_alphay.Draw()
+        if not suppressblue: chamber_alphay_fit2.Draw("same")
+        chamber_alphay_fit.Draw("same")
 
     else:
         c1.Clear()
         c1.Divide(3, 1)
         chamber_x.SetTitle(getname(r))
-        c1.GetPad(1).cd(); chamber_x.Draw(); (None if suppressblue else chamber_x_fit2.Draw("same")); chamber_x_fit.Draw("same")
-        c1.GetPad(2).cd(); chamber_dxdz.Draw(); (None if suppressblue else chamber_dxdz_fit2.Draw("same")); chamber_dxdz_fit.Draw("same")
-        c1.GetPad(3).cd(); chamber_alphax.Draw(); (None if suppressblue else chamber_alphax_fit2.Draw("same")); chamber_alphax_fit.Draw("same")
+
+        c1.GetPad(1).cd()
+        chamber_x.Draw()
+        if not suppressblue: chamber_x_fit2.Draw("same")
+        chamber_x_fit.Draw("same")
+
+        c1.GetPad(2).cd()
+        chamber_dxdz.Draw()
+        if not suppressblue: chamber_dxdz_fit2.Draw("same")
+        chamber_dxdz_fit.Draw("same")
+
+        c1.GetPad(3).cd()
+        chamber_alphax.Draw()
+        if not suppressblue: chamber_alphax_fit2.Draw("same")
+        chamber_alphax_fit.Draw("same")
 
 def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     global label1, label2, label3, label4, label5, label6, label7, label8, label9
@@ -2117,22 +2153,85 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_dydz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dydz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
 
-        c1.GetPad(2).cd(); chamber_x_trackx.Draw("e1"); (None if suppressblue else chamber_x_trackx_fit2.Draw("samel")); chamber_x_trackx_fit.Draw("samel")
-        c1.GetPad(3).cd(); chamber_x_tracky.Draw("e1"); (None if suppressblue else chamber_x_tracky_fit2.Draw("samel")); chamber_x_tracky_fit.Draw("samel")
-        c1.GetPad(4).cd(); chamber_x_trackdxdz.Draw("e1"); (None if suppressblue else chamber_x_trackdxdz_fit2.Draw("samel")); chamber_x_trackdxdz_fit.Draw("samel")
-        c1.GetPad(5).cd(); chamber_x_trackdydz.Draw("e1"); (None if suppressblue else chamber_x_trackdydz_fit2.Draw("samel")); chamber_x_trackdydz_fit.Draw("samel")
-        c1.GetPad(7).cd(); chamber_y_trackx.Draw("e1"); (None if suppressblue else chamber_y_trackx_fit2.Draw("samel")); chamber_y_trackx_fit.Draw("samel")
-        c1.GetPad(8).cd(); chamber_y_tracky.Draw("e1"); (None if suppressblue else chamber_y_tracky_fit2.Draw("samel")); chamber_y_tracky_fit.Draw("samel")
-        c1.GetPad(9).cd(); chamber_y_trackdxdz.Draw("e1"); (None if suppressblue else chamber_y_trackdxdz_fit2.Draw("samel")); chamber_y_trackdxdz_fit.Draw("samel")
-        c1.GetPad(10).cd(); chamber_y_trackdydz.Draw("e1"); (None if suppressblue else chamber_y_trackdydz_fit2.Draw("samel")); chamber_y_trackdydz_fit.Draw("samel")
-        c1.GetPad(12).cd(); chamber_dxdz_trackx.Draw("e1"); (None if suppressblue else chamber_dxdz_trackx_fit2.Draw("samel")); chamber_dxdz_trackx_fit.Draw("samel")
-        c1.GetPad(13).cd(); chamber_dxdz_tracky.Draw("e1"); (None if suppressblue else chamber_dxdz_tracky_fit2.Draw("samel")); chamber_dxdz_tracky_fit.Draw("samel")
-        c1.GetPad(14).cd(); chamber_dxdz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdxdz_fit2.Draw("samel")); chamber_dxdz_trackdxdz_fit.Draw("samel")
-        c1.GetPad(15).cd(); chamber_dxdz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdydz_fit2.Draw("samel")); chamber_dxdz_trackdydz_fit.Draw("samel")
-        c1.GetPad(17).cd(); chamber_dydz_trackx.Draw("e1"); (None if suppressblue else chamber_dydz_trackx_fit2.Draw("samel")); chamber_dydz_trackx_fit.Draw("samel")
-        c1.GetPad(18).cd(); chamber_dydz_tracky.Draw("e1"); (None if suppressblue else chamber_dydz_tracky_fit2.Draw("samel")); chamber_dydz_tracky_fit.Draw("samel")
-        c1.GetPad(19).cd(); chamber_dydz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dydz_trackdxdz_fit2.Draw("samel")); chamber_dydz_trackdxdz_fit.Draw("samel")
-        c1.GetPad(20).cd(); chamber_dydz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dydz_trackdydz_fit2.Draw("samel")); chamber_dydz_trackdydz_fit.Draw("samel")
+        c1.GetPad(2).cd()
+        chamber_x_trackx.Draw("e1")
+        if not suppressblue: chamber_x_trackx_fit2.Draw("samel")
+        chamber_x_trackx_fit.Draw("samel")
+        
+        c1.GetPad(3).cd()
+        chamber_x_tracky.Draw("e1")
+        if not suppressblue: chamber_x_tracky_fit2.Draw("samel")
+        chamber_x_tracky_fit.Draw("samel")
+        
+        c1.GetPad(4).cd()
+        chamber_x_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_x_trackdxdz_fit2.Draw("samel")
+        chamber_x_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(5).cd()
+        chamber_x_trackdydz.Draw("e1")
+        if not suppressblue: chamber_x_trackdydz_fit2.Draw("samel")
+        chamber_x_trackdydz_fit.Draw("samel")
+        
+        c1.GetPad(7).cd()
+        chamber_y_trackx.Draw("e1")
+        if not suppressblue: chamber_y_trackx_fit2.Draw("samel")
+        chamber_y_trackx_fit.Draw("samel")
+        
+        c1.GetPad(8).cd()
+        chamber_y_tracky.Draw("e1")
+        if not suppressblue: chamber_y_tracky_fit2.Draw("samel")
+        chamber_y_tracky_fit.Draw("samel")
+        
+        c1.GetPad(9).cd()
+        chamber_y_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_y_trackdxdz_fit2.Draw("samel")
+        chamber_y_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(10).cd()
+        chamber_y_trackdydz.Draw("e1")
+        if not suppressblue: chamber_y_trackdydz_fit2.Draw("samel")
+        chamber_y_trackdydz_fit.Draw("samel")
+        
+        c1.GetPad(12).cd()
+        chamber_dxdz_trackx.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackx_fit2.Draw("samel")
+        chamber_dxdz_trackx_fit.Draw("samel")
+        
+        c1.GetPad(13).cd()
+        chamber_dxdz_tracky.Draw("e1")
+        if not suppressblue: chamber_dxdz_tracky_fit2.Draw("samel")
+        chamber_dxdz_tracky_fit.Draw("samel")
+        
+        c1.GetPad(14).cd()
+        chamber_dxdz_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackdxdz_fit2.Draw("samel")
+        chamber_dxdz_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(15).cd()
+        chamber_dxdz_trackdydz.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackdydz_fit2.Draw("samel")
+        chamber_dxdz_trackdydz_fit.Draw("samel")
+        
+        c1.GetPad(17).cd()
+        chamber_dydz_trackx.Draw("e1")
+        if not suppressblue: chamber_dydz_trackx_fit2.Draw("samel")
+        chamber_dydz_trackx_fit.Draw("samel")
+        
+        c1.GetPad(18).cd()
+        chamber_dydz_tracky.Draw("e1")
+        if not suppressblue: chamber_dydz_tracky_fit2.Draw("samel")
+        chamber_dydz_tracky_fit.Draw("samel")
+        
+        c1.GetPad(19).cd()
+        chamber_dydz_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_dydz_trackdxdz_fit2.Draw("samel")
+        chamber_dydz_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(20).cd()
+        chamber_dydz_trackdydz.Draw("e1")
+        if not suppressblue: chamber_dydz_trackdydz_fit2.Draw("samel")
+        chamber_dydz_trackdydz_fit.Draw("samel")
 
     else:
         c1.Clear()
@@ -2195,11 +2294,43 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
 
-        c1.GetPad(2).cd(); chamber_x_trackx.Draw("e1"); (None if suppressblue else chamber_x_trackx_fit2.Draw("samel")); chamber_x_trackx_fit.Draw("samel")
-        c1.GetPad(3).cd(); chamber_x_tracky.Draw("e1"); (None if suppressblue else chamber_x_tracky_fit2.Draw("samel")); chamber_x_tracky_fit.Draw("samel")
-        c1.GetPad(4).cd(); chamber_x_trackdxdz.Draw("e1"); (None if suppressblue else chamber_x_trackdxdz_fit2.Draw("samel")); chamber_x_trackdxdz_fit.Draw("samel")
-        c1.GetPad(5).cd(); chamber_x_trackdydz.Draw("e1"); (None if suppressblue else chamber_x_trackdydz_fit2.Draw("samel")); chamber_x_trackdydz_fit.Draw("samel")
-        c1.GetPad(7).cd(); chamber_dxdz_trackx.Draw("e1"); (None if suppressblue else chamber_dxdz_trackx_fit2.Draw("samel")); chamber_dxdz_trackx_fit.Draw("samel")
-        c1.GetPad(8).cd(); chamber_dxdz_tracky.Draw("e1"); (None if suppressblue else chamber_dxdz_tracky_fit2.Draw("samel")); chamber_dxdz_tracky_fit.Draw("samel")
-        c1.GetPad(9).cd(); chamber_dxdz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdxdz_fit2.Draw("samel")); chamber_dxdz_trackdxdz_fit.Draw("samel")
-        c1.GetPad(10).cd(); chamber_dxdz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdydz_fit2.Draw("samel")); chamber_dxdz_trackdydz_fit.Draw("samel")
+        c1.GetPad(2).cd()
+        chamber_x_trackx.Draw("e1")
+        if not suppressblue: chamber_x_trackx_fit2.Draw("samel")
+        chamber_x_trackx_fit.Draw("samel")
+        
+        c1.GetPad(3).cd()
+        chamber_x_tracky.Draw("e1")
+        if not suppressblue: chamber_x_tracky_fit2.Draw("samel")
+        chamber_x_tracky_fit.Draw("samel")
+        
+        c1.GetPad(4).cd()
+        chamber_x_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_x_trackdxdz_fit2.Draw("samel")
+        chamber_x_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(5).cd()
+        chamber_x_trackdydz.Draw("e1")
+        if not suppressblue: chamber_x_trackdydz_fit2.Draw("samel")
+        chamber_x_trackdydz_fit.Draw("samel")
+        
+        c1.GetPad(7).cd()
+        chamber_dxdz_trackx.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackx_fit2.Draw("samel")
+        chamber_dxdz_trackx_fit.Draw("samel")
+        
+        c1.GetPad(8).cd()
+        chamber_dxdz_tracky.Draw("e1")
+        if not suppressblue: chamber_dxdz_tracky_fit2.Draw("samel")
+        chamber_dxdz_tracky_fit.Draw("samel")
+        
+        c1.GetPad(9).cd()
+        chamber_dxdz_trackdxdz.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackdxdz_fit2.Draw("samel")
+        chamber_dxdz_trackdxdz_fit.Draw("samel")
+        
+        c1.GetPad(10).cd()
+        chamber_dxdz_trackdydz.Draw("e1")
+        if not suppressblue: chamber_dxdz_trackdydz_fit2.Draw("samel")
+        chamber_dxdz_trackdydz_fit.Draw("samel")
+        
