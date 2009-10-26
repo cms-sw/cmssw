@@ -237,6 +237,14 @@ DiJetAnalyzer::beginJob(const edm::EventSetup& iSetup)
     tree->Branch("runNumber", &runNumber, "runNumber/i");  
     tree->Branch("iEtaHit", &iEtaHit, "iEtaHit/I");
     tree->Branch("iPhiHit", &iPhiHit, "iPhiHit/i");    
+
+    tree->Branch("xTrkEcal", &xTrkEcal, "xTrkEcal/F");
+    tree->Branch("yTrkEcal", &yTrkEcal, "yTrkEcal/F");
+    tree->Branch("zTrkEcal", &zTrkEcal, "zTrkEcal/F");
+    tree->Branch("xTrkHcal", &xTrkHcal, "xTrkHcal/F");
+    tree->Branch("yTrkHcal", &yTrkHcal, "yTrkHcal/F");
+    tree->Branch("zTrkHcal", &zTrkHcal, "zTrkHcal/F");
+
     tree->Branch("cells", &cells, 64000); 
     tree->Branch("emEnergy", &emEnergy, "emEnergy/F"); 
     tree->Branch("targetE", &targetE, "targetE/F");

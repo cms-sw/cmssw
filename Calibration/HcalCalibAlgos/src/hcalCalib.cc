@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.3 2008/11/19 03:44:13 anastass Exp $
+// $Id: hcalCalib.cc,v 1.4 2009/03/22 15:12:58 anastass Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -229,11 +229,24 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     if (abs(iEtaHit)<16) h2_dHitRefBarrel->Fill(dEtaHitRef, dPhiHitRef);
     if (abs(iEtaHit)>16 && abs(iEtaHit)<25) h2_dHitRefEndcap->Fill(dEtaHitRef, dPhiHitRef);
 
-    if (abs(iEtaMaxE)<16 && HB_CLUSTER_SIZE==3) filterCells3x3(selectCells, iEtaMaxE, iPhiMaxE);
-    if (abs(iEtaMaxE)>15 && HE_CLUSTER_SIZE==3) filterCells3x3(selectCells, iEtaMaxE, iPhiMaxE);
+    // --------------------------------------------------
+    // Choice of cluster definition 
+    //
+    // fixed size NxN clusters as specified in to config file 
+    if (!USE_CONE_CLUSTERING) {
+      if (abs(iEtaMaxE)<16 && HB_CLUSTER_SIZE==3) filterCells3x3(selectCells, iEtaMaxE, iPhiMaxE);
+      if (abs(iEtaMaxE)>15 && HE_CLUSTER_SIZE==3) filterCells3x3(selectCells, iEtaMaxE, iPhiMaxE);
+      
+      if (abs(iEtaMaxE)<16 && HB_CLUSTER_SIZE==5) filterCells5x5(selectCells, iEtaMaxE, iPhiMaxE);
+      if (abs(iEtaMaxE)>15 && HE_CLUSTER_SIZE==5) filterCells5x5(selectCells, iEtaMaxE, iPhiMaxE);    
+    }      
+    else {
+      //  calculate distance at hcal surface
+      const GlobalPoint hitPositionHcal(xTrkHcal, yTrkHcal, zTrkHcal); 
+      filterCellsInCone(selectCells, hitPositionHcal, MAX_CONE_DIST, theCaloGeometry);
+    }
 
-    if (abs(iEtaMaxE)<16 && HB_CLUSTER_SIZE==5) filterCells5x5(selectCells, iEtaMaxE, iPhiMaxE);
-    if (abs(iEtaMaxE)>15 && HE_CLUSTER_SIZE==5) filterCells5x5(selectCells, iEtaMaxE, iPhiMaxE);    
+
 
     refPos.first  = iEtaMaxE;
     refPos.second = iPhiMaxE;

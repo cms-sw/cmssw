@@ -15,7 +15,7 @@ void sumDepths(vector<TCell> &selectCells) {
   // the cell at depth=1 is not present: create it and follow the procedure. 
     
   if (selectCells.size()==0) return;
-    
+
   vector<TCell> selectCellsDepth1;
   vector<TCell> selectCellsHighDepth;
     
@@ -335,5 +335,68 @@ void sumSmallDepths(vector<TCell> &selectCells) {
   selectCells = newCells;
     
   return;
+}
+
+
+void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPositionHcal, 
+		       Float_t maxConeDist, const CaloGeometry* theCaloGeometry) {
+
+  vector<TCell> filteredCells;
+      
+  for (vector<TCell>::iterator it=selectCells.begin(); it!=selectCells.end(); ++it) {
+
+    const GlobalPoint recHitPoint = theCaloGeometry->getPosition(it->id());
+
+    if (getDistInPlaneSimple(hitPositionHcal, recHitPoint)<= maxConeDist) 
+      filteredCells.push_back(*it);
+  }
+
+  selectCells = filteredCells;
+
+  return;
+}
+
+
+// From Jim H. => keep till the code is included centrally
+double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint) {
+  
+  // Simplified version of getDistInPlane
+  // Assume track direction is origin -> point of hcal intersection
+  
+  const GlobalVector caloIntersectVector(caloPoint.x(), 
+					 caloPoint.y(), 
+					 caloPoint.z());
+
+  const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
+  
+  const GlobalVector rechitVector(rechitPoint.x(),
+				  rechitPoint.y(),
+				  rechitPoint.z());
+
+  const GlobalVector rechitUnitVector = rechitVector.unit();
+
+  double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
+  double rechitdist = caloIntersectVector.mag()/dotprod;
+  
+  
+  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
+  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
+					 effectiveRechitVector.y(),
+					 effectiveRechitVector.z());
+  
+  
+  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
+  
+  if (dotprod > 0.)
+    {
+      return distance_vector.mag();
+    }
+  else
+    {
+      return 999999.;
+    
+    }
+
+    
 }
 

@@ -9,7 +9,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.h,v 1.3 2009/03/22 15:12:58 anastass Exp $
+// $Id: hcalCalib.h,v 1.4 2009/09/20 08:38:43 andreasp Exp $
 //
 ///////////////////////////////////////////////////////////////
 
@@ -32,6 +32,10 @@
 #include "TClonesArray.h"
 #include "TRefArray.h"
 
+// needed to get cell coordinates
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+
 class hcalCalib : public TSelector {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -45,6 +49,13 @@ public :
    Float_t         targetE;
    Float_t         etVetoJet;
  
+   Float_t         xTrkHcal;
+   Float_t         yTrkHcal;
+   Float_t         zTrkHcal;
+   Float_t         xTrkEcal;
+   Float_t         yTrkEcal;
+   Float_t         zTrkEcal;
+
    TLorentzVector  *tagJetP4;
    TLorentzVector  *probeJetP4;
 
@@ -60,6 +71,13 @@ public :
    TBranch        *b_emEnergy;   //!
    TBranch        *b_targetE;   //!
    TBranch        *b_etVetoJet;   //!
+
+   TBranch        *b_xTrkHcal;
+   TBranch        *b_yTrkHcal;
+   TBranch        *b_zTrkHcal;
+   TBranch        *b_xTrkEcal;
+   TBranch        *b_yTrkEcal;
+   TBranch        *b_zTrkEcal;
 
    TBranch        *b_tagJetEmFrac;   //!
    TBranch        *b_probeJetEmFrac;   //!
@@ -101,7 +119,11 @@ public :
     Bool_t  COMBINE_PHI;
 
     Int_t   HB_CLUSTER_SIZE;
-    Int_t   HE_CLUSTER_SIZE;     
+    Int_t   HE_CLUSTER_SIZE;
+
+    Bool_t  USE_CONE_CLUSTERING;
+    Float_t MAX_CONE_DIST;
+     
     Int_t   CALIB_ABS_IETA_MAX;
     Int_t   CALIB_ABS_IETA_MIN;
    
@@ -116,11 +138,14 @@ public :
     TString CALIB_METHOD; // L3, matrix inversion, everage then matrix inversion,...
 
     TString PHI_SYM_COR_FILENAME;
-    Bool_t APPLY_PHI_SYM_COR_FLAG;
+    Bool_t  APPLY_PHI_SYM_COR_FLAG;
 
     TString OUTPUT_COR_COEF_FILENAME;
     TString HISTO_FILENAME;
    
+
+    const CaloGeometry* theCaloGeometry;
+
 
     void SetMinTargetE(Float_t e)                   { MIN_TARGET_E = e; }
     void SetMaxTargetE(Float_t e)                   { MAX_TARGET_E = e; }
@@ -134,7 +159,11 @@ public :
     void SetCalibType(TString s)                    { CALIB_TYPE = s; }
     void SetCalibMethod(TString s)                  { CALIB_METHOD = s; }  
     void SetHbClusterSize(Int_t i)                  { HB_CLUSTER_SIZE = i; }      
-    void SetHeClusterSize(Int_t i)                  { HE_CLUSTER_SIZE = i; }    
+    void SetHeClusterSize(Int_t i)                  { HE_CLUSTER_SIZE = i; }  
+
+    void SetUseConeClustering (Bool_t b)            { USE_CONE_CLUSTERING = b; }
+    void SetConeMaxDist(Float_t d)                  { MAX_CONE_DIST = d; }
+  
     void SetCalibAbsIEtaMax(Int_t i)                { CALIB_ABS_IETA_MAX = i; }      
     void SetCalibAbsIEtaMin(Int_t i)                { CALIB_ABS_IETA_MIN = i; }
     void SetMaxEtThirdJet(Float_t et)               { MAX_ET_THIRD_JET = et; }
@@ -145,10 +174,12 @@ public :
     void SetMaxTagJetEmFrac(Float_t f)              { MAX_TAGJET_EMFRAC = f; }
     void SetMaxTagJetAbsEta(Float_t e)              { MAX_TAGJET_ABSETA = e; }
     void SetMinTagJetEt(Float_t e)                  { MIN_TAGJET_ET = e; }
-    void SetMinProbeJetAbsEta(Float_t e)            { MIN_PROBEJET_ABSETA =e; }
+    void SetMinProbeJetAbsEta(Float_t e)            { MIN_PROBEJET_ABSETA = e; }
     void SetOutputCorCoefFileName(TString filename) { OUTPUT_COR_COEF_FILENAME = filename; }
     void SetHistoFileName(TString filename)         { HISTO_FILENAME = filename; }
 
+
+    void SetCaloGeometry (const CaloGeometry* g)    { theCaloGeometry = g; }
 
     void GetCoefFromMtrxInvOfAve();
 
@@ -205,6 +236,14 @@ void hcalCalib::Init(TTree *tree)
    fChain->SetBranchAddress("emEnergy", &emEnergy, &b_emEnergy);
    fChain->SetBranchAddress("targetE", &targetE, &b_targetE);
    fChain->SetBranchAddress("etVetoJet", &etVetoJet, &b_etVetoJet);
+
+   fChain->SetBranchAddress("xTrkHcal", &xTrkHcal, &b_xTrkHcal);
+   fChain->SetBranchAddress("yTrkHcal", &yTrkHcal, &b_yTrkHcal);
+   fChain->SetBranchAddress("zTrkHcal", &zTrkHcal, &b_zTrkHcal);
+   fChain->SetBranchAddress("xTrkEcal", &xTrkEcal, &b_xTrkEcal);
+   fChain->SetBranchAddress("yTrkEcal", &yTrkEcal, &b_yTrkEcal);
+   fChain->SetBranchAddress("zTrkEcal", &zTrkEcal, &b_zTrkEcal);
+
    fChain->SetBranchAddress("tagJetEmFrac", &tagJetEmFrac, &b_tagJetEmFrac);
    fChain->SetBranchAddress("probeJetEmFrac", &probeJetEmFrac, &b_probeJetEmFrac);
 

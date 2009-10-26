@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.2 2008/10/27 16:10:00 anastass Exp $
+// $Id: HcalCalibrator.cc,v 1.3 2009/03/22 15:12:58 anastass Exp $
 //
 //
 //_________________________________________________________________________________
@@ -60,6 +60,10 @@ to the actual calibration code in "endJob()".
 
 
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+
+
 
 using namespace edm;
 //using namespace reco;
@@ -88,6 +92,10 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf) :
   mCombinePhi (conf.getUntrackedParameter<bool>("combinePhi")),   
   mHbClusterSize(conf.getUntrackedParameter<int>("hbClusterSize")),
   mHeClusterSize(conf.getUntrackedParameter<int>("heClusterSize")), 
+
+  mUseConeClustering(conf.getUntrackedParameter<bool>("useConeClustering")),
+  mMaxConeDist(conf.getUntrackedParameter<double>("maxConeDist")),
+
   mCalibAbsIEtaMax(conf.getUntrackedParameter<int>("calibAbsIEtaMax")),
   mCalibAbsIEtaMin(conf.getUntrackedParameter<int>("calibAbsIEtaMin")),
   mMaxProbeJetEmFrac(conf.getUntrackedParameter<double>("maxProbeJetEmFrac")),
@@ -118,7 +126,17 @@ HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 
 void
-HcalCalibrator::beginJob(const edm::EventSetup&) {
+HcalCalibrator::beginJob(const edm::EventSetup& evtSetup) {
+
+  //  ESHandle<CaloGeometry> theGeometry;
+  //  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
+  //  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
+
+
+   edm::ESHandle<CaloGeometry> pG;
+   evtSetup.get<CaloGeometryRecord>().get(pG);     
+   mTheCaloGeometry = pG.product();
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -171,6 +189,10 @@ HcalCalibrator::endJob() {
   calibrator->SetMaxTrkEmE(mMaxTrkEmE);
   calibrator->SetHbClusterSize(mHbClusterSize);
   calibrator->SetHeClusterSize(mHeClusterSize);
+
+  calibrator->SetUseConeClustering(mUseConeClustering);
+  calibrator->SetConeMaxDist(mMaxConeDist); 
+
   calibrator->SetCalibAbsIEtaMax(mCalibAbsIEtaMax);
   calibrator->SetCalibAbsIEtaMin(mCalibAbsIEtaMin);
   calibrator->SetMaxProbeJetEmFrac(mMaxProbeJetEmFrac);
@@ -185,6 +207,9 @@ HcalCalibrator::endJob() {
   calibrator->SetOutputCorCoefFileName(mOutputCorCoefFileName);
 
   calibrator->SetHistoFileName(mHistoFileName); 
+
+  calibrator->SetCaloGeometry(mTheCaloGeometry);
+
  
   ifstream inputFileList;  // contains list of input root files
 

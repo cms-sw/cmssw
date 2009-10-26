@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("hcalCalib")
 
+process.load("Configuration.StandardSequences.GeometryHCAL_cff")
+
 # no CMS input files
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(0) )
 process.source = cms.Source("EmptySource")
@@ -60,6 +62,13 @@ process.hcalCalib = cms.EDAnalyzer("HcalCalibrator",
 
 # ------- cluster size in HE for isotracks: 3 or 5 (means 3x3, 5x5)
   heClusterSize = cms.untracked.int32(5),
+
+# -------- flag to use cone clustering -> overrides the above cluster sizes
+# -------- and uses cone size as specified below
+ useConeClustering = cms.untracked.bool(True),
+
+# -------- size of the cone (when useConeClustering=True)
+ maxConeDist = cms.untracked.double(26.2),
 
 # ------- max ABS(iEta) used in the calibration: for matrix inversion sets the range for performing inversion
 # ------- For all methods: controls the range of correction factors are saved in the output file                                   
