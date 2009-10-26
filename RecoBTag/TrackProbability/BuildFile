@@ -1,4 +1,3 @@
-<use name=CondFormats/BTauObjects>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/JetReco>
@@ -14,7 +13,6 @@
 <use name=TrackingTools/TransientTrack>
 <use name=xerces-c>
 <export>
-  <use name=CondFormats/BTauObjects>
   <use name=DataFormats/BTauReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/TrackReco>
