@@ -185,11 +185,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
    const HcalQIEShape* shape = conditions.getHcalShape();
    HcalCalibrations calibrations;
-   // Temporary Remove metadata
-   // const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
-   // assert(metadata !=0);
-   // float nominalgain_ = metadata->getNominalGain();
-   float nominalgain_ = 0.177;
+   const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
+   assert(metadata !=0);
+   float nominalgain_ = metadata->getNominalGain();
 
    std::map<int, float> cosh_ieta;
    for (int i = 0; i < 13; ++i)
@@ -206,7 +204,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                HcalDetId cell(subdet, ieta, iphi, depth);
                const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
                HcalCoderDb coder (*channelCoder, *shape);
-               // const HcalLutMetadatum *meta = metadata->getValues(cell);
+               const HcalLutMetadatum *meta = metadata->getValues(cell);
 
 
                int lutId = getLUTId(subdet, ieta, iphi, depth);
@@ -237,8 +235,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                ped_[lutId] = ped;
                gain_[lutId] = gain;
                bool isMasked = ( (status & bitToMask_) > 0 );
-               //float rcalib = meta->getRCalib();
-               float rcalib = getRcalib(cell);
+               float rcalib = meta->getRCalib();
 
                // Input LUT for HB/HE/HF
                if (subdet == HcalBarrel || subdet == HcalEndcap){
@@ -246,8 +243,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                   frame.setSize(1);
                   CaloSamples samples(cell, 1);
 
-                  //int granularity = meta->getLutGranularity();
-                  int granularity = getLutGranularity(cell);
+                  int granularity = meta->getLutGranularity();
 
                   for (int adc = 0; adc <= 0x7F; ++adc) {
                      frame.setSample(0,HcalQIESample(adc));
@@ -330,63 +326,4 @@ bool HcaluLUTTPGCoder::getMSB(const HcalDetId& id, int adc) const{
    int lutId = getLUTId(id);
    const Lut& lut = inputLUT_.at(lutId);
    return (lut.at(adc) & 0x400);
-}
-
-// =================================================================
-//              Temporary methods for metadata.
-// =================================================================
-void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
-
-std::ifstream userfile;
-userfile.open(filename);
-int tool;
-float Rec_calib_[87];
- 
-   if (userfile) {
-          userfile >> tool;
-
-          if (tool != 86) {
-       std::cout << "Wrong RecHit calibration filesize: " << tool << " (expect 86)" << std::endl;
-          }
-     for (int j=1; j<87; j++) {
-       userfile >> Rec_calib_[j]; // Read the Calib factors
-       Rcalib[j] = Rec_calib_[j] ;
-     }
-   
-     userfile.close();  
-   }
-   else  std::cout << "File " << filename << " with RecHit calibration factors not found" << std::endl;
-}
-
-float HcaluLUTTPGCoder::getRcalib(const HcalDetId& id) const{
-   int ieta = id.ieta(); 
-   int index = 0; 
-   switch (id.subdet()){ 
-      case HcalBarrel: 
-         index = (id.zside() == 1 ? ieta+43 : abs(ieta)); 
-         break; 
-      case HcalEndcap: 
-         index = (id.zside() == 1 ? ieta+44 : abs(ieta)+1); 
-         break; 
-      case HcalForward: 
-         index = (id.zside() == 1 ? ieta+45 : abs(ieta)+2); 
-         break; 
-      default: 
-         return 0; 
-   } 
-   return Rcalib[index]; 
-}
-int HcaluLUTTPGCoder::getLutGranularity(const HcalDetId& id) const{ 
-   switch (id.subdet()) {
-      case HcalBarrel:
-         return 1;
-      case HcalEndcap:
-         int ietaAbs = id.ietaAbs();
-         if (ietaAbs < 18) return 1;
-         else if (ietaAbs < 27) return 2;
-         else return 5;
-      default:
-         return 0;
-   }
-   return 0;
 }
