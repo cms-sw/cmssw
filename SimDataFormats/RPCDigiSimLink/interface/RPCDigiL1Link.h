@@ -23,6 +23,8 @@ class RPCDigiL1Link {
   void setLink(unsigned int layer, unsigned int rpcdetId, int strip, int bx);
   
  private:
+  void checklayer(unsigned int layer) const;
+ private:
   std::vector< std::pair<unsigned int, int> > _link;
   
 };
