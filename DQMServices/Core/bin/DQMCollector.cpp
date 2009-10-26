@@ -1,3 +1,4 @@
+#define WITHOUT_CMS_FRAMEWORK 1
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/src/DQMNet.cc"
 #include "DQMServices/Core/src/DQMError.cc"
