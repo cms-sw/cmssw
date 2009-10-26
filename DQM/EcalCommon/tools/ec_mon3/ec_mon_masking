@@ -55,7 +55,7 @@ if ( -e "$config{'ec_mon_path'}/.cms_tstore.conf" ) {
   print "DB config file not found, exit\n"
 }
 
-my $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";
+my $cmssw_setup = "/cmssrv0/nfshome0/cmssw/scripts/setup.sh";
 
 my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_current";
 

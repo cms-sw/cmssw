@@ -47,7 +47,7 @@ if ( $filnam ) {
   }
 }
 
-my $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";
+my $cmssw_setup = "/cmssrv0/nfshome0/cmssw/scripts/setup.sh";
 
 my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_current";
 
