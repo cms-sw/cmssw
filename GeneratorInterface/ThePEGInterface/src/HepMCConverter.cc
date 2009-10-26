@@ -83,17 +83,38 @@ HepMCConverter(const Event & ev, GenEvent & gev, bool nocopies,
 
 }
 
+struct ParticleOrderNumberCmp {
+  bool operator()(tcPPtr a, tcPPtr b) const {
+    return a->number() < b->number();
+  }
+};
+
 template <typename HepMCEventT, typename Traits>
 void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
 
-  if ( lengthUnit != millimeter && lengthUnit != centimeter )
-    throw HepMCConverterException()
-      << "Length unit used for HepMC::GenEvent was not MM nor CM."
-      << Exception::runerror;
-  if ( energyUnit != GeV && energyUnit != MeV )
-    throw HepMCConverterException()
-      << "Momentum unit used for HepMC::GenEvent was not GEV nor MEV."
-      << Exception::runerror;
+  if ( Traits::hasUnits() ) {
+    if ( lengthUnit != millimeter && lengthUnit != centimeter )
+      throw HepMCConverterException()
+	<< "Length unit used for HepMC::GenEvent was not MM nor CM."
+	<< Exception::runerror;
+    if ( energyUnit != GeV && energyUnit != MeV )
+      throw HepMCConverterException()
+	<< "Momentum unit used for HepMC::GenEvent was not GEV nor MEV."
+	<< Exception::runerror;
+  } else {
+    if ( lengthUnit != millimeter )
+      throw HepMCConverterException()
+	<< "Length unit used for HepMC::GenEvent was not MM and the "
+	<< "HepMCTraits class claims that the used version of HepMC "
+	<< "cannot handle user-defined units."
+	<< Exception::runerror;
+    if ( energyUnit != GeV )
+      throw HepMCConverterException()
+	<< "Momentum unit used for HepMC::GenEvent was not GEV and the "
+	<< "HepMCTraits class claims that the used version of HepMC "
+	<< "cannot handle user-defined units."
+	<< Exception::runerror;
+  }
   Traits::setUnits(*geneve, energyUnit, lengthUnit);
 
   if ( ev.primaryCollision() && ( eh =
@@ -102,7 +123,7 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
     // Get general event info if present.
   }
 
-  // Extract all particles.
+  // Extract all particles and order them.
   tcPVector all;
   ev.select(back_inserter(all), SelectAll());
   vertices.reserve(all.size()*2);
@@ -273,8 +294,7 @@ HepMCConverter<HepMCEventT,Traits>::createVertex(Vertex * v) {
 }
 
 template <typename HepMCEventT, typename Traits>
-typename HepMCConverter<HepMCEventT,Traits>::PdfInfo *
-HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
+void HepMCConverter<HepMCEventT,Traits>::setPdfInfo(const Event & e) {
   // ids of the partons going into the primary sub process
   tSubProPtr sub = e.primarySubProcess();
   int id1 = sub->incoming().first ->id();
@@ -291,20 +311,11 @@ HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
   // get the scale
   Energy2 scale = eh->lastScale();
   // get the values of the pdfs
-  double pdf1 = pdfs.first .xfx(sub->incoming().first ->dataPtr(),scale,x1);
-  double pdf2 = pdfs.second.xfx(sub->incoming().second->dataPtr(),scale,x2);
-  // create the PDFinfo object
-  PdfInfo * output = new PdfInfo();
-  // set the values
-  output->set_id1(id1);
-  output->set_id2(id2);
-  output->set_x1(x1);
-  output->set_x2(x2);
-  output->set_scalePDF(sqrt(scale/GeV2));
-  output->set_pdf1(pdf1);
-  output->set_pdf2(pdf2);
-  // return the answer
-  return output;
+  double xf1 = pdfs.first.xfx(sub->incoming().first->dataPtr(), scale, x1);
+  double xf2 = pdfs.second.xfx(sub->incoming().second->dataPtr(), scale, x2);
+
+  Traits::setPdfInfo(*geneve, id1, id2, x1, x2, sqrt(scale/GeV2), xf1, xf2);
+
 }
 
 template<typename HepMCEventT, typename Traits>
