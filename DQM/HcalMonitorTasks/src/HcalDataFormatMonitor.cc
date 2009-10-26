@@ -160,7 +160,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meBCNwhenOrNDiff_->setAxisTitle("BCN",1);
     meBCNwhenOrNDiff_->setAxisTitle("# of Entries",2);
 
-    type = "03 OrN Difference Between HTR and DCC";
+    type = "03 OrN Difference HTR - DCC";
     meOrNCheck_ = m_dbe->book1D(type,type,65,-32.5,32.5);
     meOrNCheck_->setAxisTitle("htr OrN - dcc OrN",1);
 
@@ -169,20 +169,20 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meOrNSynch_->setAxisTitle("FED #",1);
     meOrNSynch_->setAxisTitle("Spigot #",2);
 
-    type = "05 BCN Difference Between HTR and DCC";
+    type = "05 BCN Difference HTR - DCC";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
     meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
 
-    type = "05 BCN Inconsistent - HTR vs HTR";
+    type = "05 BCN Inconsistent - HTR vs DCC";
     meBCNSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
     meBCNSynch_->setAxisTitle("FED #",1);
     meBCNSynch_->setAxisTitle("Slot #",2);
 
-    type = "06 EvN Difference Between HTR and DCC";
+    type = "06 EvN Difference HTR - DCC";
     meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
     meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
 
-    type = "06 EvN Inconsistent - HTR vs HTR";
+    type = "06 EvN Inconsistent - HTR vs DCC";
     meEvtNumberSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
     meEvtNumberSynch_->setAxisTitle("FED #",1);
     meEvtNumberSynch_->setAxisTitle("Slot #",2);

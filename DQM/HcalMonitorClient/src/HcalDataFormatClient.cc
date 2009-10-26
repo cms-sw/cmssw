@@ -296,27 +296,26 @@ void HcalDataFormatClient::getHistograms(bool getEmAll){
     sprintf(name,"DataFormatMonitor/Data Flow/BCN from DCCs");
     dccBCN_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Difference Between Ref HTR and DCC");
-    BCNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Inconsistent - HTR vs Ref HTR");
-    BCNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Difference Between Ref HTR and DCC");
-    EvtNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Inconsistent - HTR vs Ref HTR");
-    EvtNumberSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Difference Between Ref HTR and DCC");
+    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Difference HTR - DCC");
     OrNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Inconsistent - HTR vs Ref HTR");
+    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Inconsistent - HTR vs DCC");
     OrNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
     sprintf(name,"DataFormatMonitor/Corruption/04 HTR BCN when OrN Diff");
     BCNwhenOrNDiff_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
+    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Difference HTR - DCC");
+    BCNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Inconsistent - HTR vs DCC");
+    BCNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Difference HTR - DCC");
+    EvtNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Inconsistent - HTR vs DCC");
+    EvtNumberSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
   
     sprintf(name,"DataFormatMonitor/Diagnostics/Unpacking - HcalHTRData check failures");
     InvHTRData_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
@@ -746,19 +745,19 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/DCC Plots/BCN from DCCs");
   dccBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Difference Between Ref HTR and DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Difference HTR - DCC");
   BCNCheck_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Difference Between Ref HTR and DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Difference HTR - DCC");
   EvtNCheck_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/ZZ HTR Expert Plots/BCN of Fiber Orbit Message");
   FibBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Inconsistent - HTR vs Ref HTR");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Inconsistent - HTR vs DCC");
   EvtNumberSynch_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Inconsistent - HTR vs Ref HTR");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Inconsistent - HTR vs DCC");
   BCNSynch_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/ZZ HTR Expert Plots/HTR Firmware Version");
