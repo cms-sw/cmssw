@@ -218,7 +218,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   unsigned int count = 0;
   for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i)
     if (
-      (abs(trackingParticleCollection[i].pdgId()) == m_flavour) and
+      (std::abs(trackingParticleCollection[i].pdgId()) == (int)m_flavour) and
       (trackingParticleCollection[i].pt() >= m_ptcut)
     )
       ++count;
@@ -239,7 +239,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
 
     for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i) {
       TrackingParticleRef tp (trackingParticleHandle, i);
-      if ((abs(tp->pdgId()) != m_flavour) or (tp->pt() < m_ptcut)) 
+      if ((std::abs(tp->pdgId()) != (int)m_flavour) or (tp->pt() < m_ptcut)) 
         continue;
       std::cout << "--> TrackingParticle" << tp << std::endl;
       printAssociations("Track",  tp, byhits_tracks,      bychi2_tracks);

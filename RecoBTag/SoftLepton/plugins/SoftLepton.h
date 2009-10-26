@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.7 2009/04/01 17:24:38 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.8 2009/05/04 19:02:13 fwyzard Exp $
 //
 
 // system include files
@@ -38,8 +38,10 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
-class edm::EventSetup;
-class edm::Event;
+namespace edm {
+  class EventSetup;
+  class Event;
+}
 class TransientTrackBuilder;
 
 class SoftLepton : public edm::EDProducer {

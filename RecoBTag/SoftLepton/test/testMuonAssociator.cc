@@ -247,7 +247,7 @@ void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup&
   unsigned int count = 0;
   for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i)
     if (
-      (abs(trackingParticleCollection[i].pdgId()) == m_flavour) and
+      (std::abs(trackingParticleCollection[i].pdgId()) == (int)m_flavour) and
       (trackingParticleCollection[i].pt() >= m_ptcut)
     )
       ++count;
@@ -301,7 +301,7 @@ void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup&
 
     for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i) {
       TrackingParticleRef tp (trackingParticleHandle, i);
-      if ((abs(tp->pdgId()) != m_flavour) or (tp->pt() < m_ptcut)) 
+      if ((std::abs(tp->pdgId()) != (int)m_flavour) or (tp->pt() < m_ptcut)) 
         continue;
       std::cout << "--> TrackingParticle" << tp << std::endl;
       std::cout << Associations<edm::RefToBase<reco::Track> >("Track",  tp, byhits_tracks,      bychi2_tracks,      bypos_tracks);

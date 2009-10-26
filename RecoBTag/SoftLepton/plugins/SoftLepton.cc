@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.31 2009/05/20 18:24:03 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.32 2009/07/01 09:40:19 fwyzard Exp $
 
 
 #include <memory>
@@ -223,7 +223,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
-        if (muon::isGoodMuon( *muon, m_muonSelection ))
+        if (muon::isGoodMuon( *muon, m_muonSelection )) {
           if (not muon->globalTrack().isNull())
             leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
           else 
@@ -233,6 +233,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
           if (not muon->outerTrack().isNull())
             // does this makes sense ?
             leptons.push_back(edm::RefToBase<reco::Track>( muon->outerTrack() ));
+        }
       }
       break;
     }
@@ -290,6 +291,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
+    properties.quality  = 0.; //FIXME
     info.insert( lepton, properties );
   }
 
