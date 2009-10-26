@@ -27,6 +27,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
    trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+   trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode"),
    dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
    writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
    produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
@@ -37,7 +38,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
      produces<EBDigiCollection>(ebSRPdigiCollection_);
      produces<EEDigiCollection>(eeSRPdigiCollection_);
    }
-   
+
    if (writeSrFlags_) {
      produces<EBSrFlagCollection>(ebSrFlagCollection_);
      produces<EESrFlagCollection>(eeSrFlagCollection_);
@@ -45,17 +46,17 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
 
    theGeometry = 0;
    theTriggerTowerMap = 0;
-   
+
 }
 
 
 
-EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer() 
+EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer()
 { }
 
 
 void
-EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
+EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
   // check that everything is up-to-date
   checkGeometry(eventSetup);
@@ -65,18 +66,18 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   //gets the trigger primitives:
   EcalTrigPrimDigiCollection emptyTPColl;
   const EcalTrigPrimDigiCollection* trigPrims =
-    trigPrimBypass_?&emptyTPColl:getTrigPrims(event);
+    (trigPrimBypass_ && trigPrimBypassMode_==0)?&emptyTPColl:getTrigPrims(event);
 
-  
+
   //gets the digis from the events:
   EBDigiCollection dummyEbDigiColl;
   EEDigiCollection dummyEeDigiColl;
-  
+
   const EBDigiCollection* ebDigis = produceDigis_?getEBDigis(event)
     :&dummyEbDigiColl;
   const EEDigiCollection* eeDigis = produceDigis_?getEEDigis(event)
     :&dummyEeDigiColl;
-  
+
   //runs the selective readout algorithm:
   auto_ptr<EBDigiCollection> selectedEBDigis;
   auto_ptr<EEDigiCollection> selectedEEDigis;
@@ -102,7 +103,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     ofstream ttfFile("TTF.txt", (iEvent==1?ios::trunc:ios::app));
     suppressor_->printTTFlags(ttfFile, iEvent,
 			      iEvent==1?true:false);
-  
+
     ofstream srfFile("SRF.txt", (iEvent==1?ios::trunc:ios::app));
     if(iEvent==1){
       suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
@@ -115,7 +116,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
 		 iEvent==1?true:false);
   }
-  
+
   ++iEvent; //event counter
 
   if(produceDigis_){
@@ -123,11 +124,11 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     event.put(selectedEBDigis, ebSRPdigiCollection_);
     event.put(selectedEEDigis, eeSRPdigiCollection_);
   }
-  
+
   //puts the SR flags into the event:
   if(writeSrFlags_) {
     event.put(ebSrFlags, ebSrFlagCollection_);
-    event.put(eeSrFlags, eeSrFlagCollection_);  
+    event.put(eeSrFlags, eeSrFlagCollection_);
   }
 }
 
@@ -171,7 +172,7 @@ EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
   return hTPDigis.product();
 }
 
-  
+
 void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup & eventSetup)
 {
   edm::ESHandle<CaloGeometry> hGeometry;
@@ -194,7 +195,7 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
    eventSetup.get<IdealGeometryRecord>().get(eTTmap);
 
    const EcalTrigTowerConstituentsMap * pMap = &*eTTmap;
-  
+
   // see if we need to update
   if(pMap!= theTriggerTowerMap) {
     theTriggerTowerMap = pMap;
@@ -210,7 +211,7 @@ void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup & eventSet
    eventSetup.get<EcalMappingRcd>().get(eElecmap);
 
    const EcalElectronicsMapping * pMap = &*eElecmap;
-  
+
   // see if we need to update
   if(pMap!= theElecMap) {
     theElecMap = pMap;
@@ -235,7 +236,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
     "#                    " << tccFlagMarker[4+1] << ": 1xx forced readout (Hw error)\n"
     "#\n";
   //}
-  
+
   vector<vector<int> > ttf(nEta, vector<int>(nPhi, -1));
   for(EcalTrigPrimDigiCollection::const_iterator it = tp.begin();
       it != tp.end(); ++it){
@@ -267,7 +268,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 	"The last weights will be discarded.";
       warnWeightCnt = false; //it's not needed to repeat the warning.
   }
-  
+
   if(weights.size()>0){
     int iMaxWeight = 0;
     double maxWeight = weights[iMaxWeight];
@@ -282,11 +283,11 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
     //position of time sample whose maximum weight is applied:
     int maxWeightBin = params_.getParameter<int>("ecalDccZs1stSample")
       + iMaxWeight;
-    
+
     //gets the bin of maximum (in case of raw data it will not exist)
     int binOfMax = 0;
     bool rc = getBinOfMax(evt, noZsDigiId, binOfMax);
-    
+
     if(rc && maxWeightBin!=binOfMax){
       edm::LogWarning("Configuration")
 	<< "The maximum weight of DCC zero suppression FIR filter is not "
@@ -334,7 +335,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
       "# |         " << srpFlagMarker[1] << ": ZS 1\n"
       "# |         " << srpFlagMarker[2] << ": ZS 2\n"
       "# V Eta/X   " << srpFlagMarker[3] << ": full readout\n"
-      "#\n";    
+      "#\n";
   }
 
   //EE-,EB,EE+ map wil be written onto file in following format:
@@ -396,7 +397,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
   for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
   for(EBSrFlagCollection::const_iterator it = ebSrFlags.begin();
       it != ebSrFlags.end(); ++it){
-    
+
     const EBSrFlag& flag = *it;
     int iEta = flag.id().ieta();
     int iEta0 = iEta + nTtEta/2 - (iEta>=0?1:0); //0->55 from eta=-3 to eta=3
@@ -406,15 +407,15 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     assert(iPhi0>=0 && iPhi0<nTtPhi);
 
 //     cout << __FILE__ << ":" << __LINE__ << ": "
-// 	 <<  iEta << "\t" << flag.id().iphi() << " -> "
-// 	 << iEbEta0 << "\t" << iPhi0
-// 	 << "... Flag: " << flag.value() << "\n";
+//	 <<  iEta << "\t" << flag.id().iphi() << " -> "
+//	 << iEbEta0 << "\t" << iPhi0
+//	 << "... Flag: " << flag.value() << "\n";
 
-    
+
     ebSrf[iEbEta0][iPhi0] = flag.value();
   }
-  
-  
+
+
   //print flags:
 
   //EE-
@@ -427,7 +428,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     }
     os << "\n"; //one Y supercystal column per line
   } //next supercrystal X-index
-   
+
   //EB
   for(int iEta0 = 0;
       iEta0 < nEbTtEta;
@@ -435,12 +436,12 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     for(int iPhi0 = 0; iPhi0 < nTtPhi; ++iPhi0){
       int srFlag = ebSrf[iEta0][iPhi0];
       assert(srFlag>=-1
-	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0]))); 
+	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])));
       os << (srFlag==-1?'?':srpFlagMarker[srFlag]);
     }
     os << "\n"; //one phi per line
   }
-   
+
   //EE+
   for(int iX0=0; iX0<nScX; ++iX0){
     for(int iY0=0; iY0<nScY; ++iY0){
@@ -451,7 +452,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     }
     os << "\n"; //one Y supercystal column per line
   } //next supercrystal X-index
-  
+
   //event trailer:
   os << "\n";
 }

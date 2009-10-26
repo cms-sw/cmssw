@@ -46,7 +46,7 @@ public:
 	       const EESrFlagCollection& eeSrFlags,
 	       int iEvent = -1,
 	       bool withHeader = true);
-  
+
 private:
 
   /** Sanity check on the DCC FIR filter weights. Log warning or
@@ -65,7 +65,7 @@ private:
   bool
   getBinOfMax(const edm::Event& evt, const edm::ProductID& noZsDigiId,
 	      int& binOfMax) const;
-  
+
   const EBDigiCollection*
   getEBDigis(edm::Event& event) const;
 
@@ -86,10 +86,10 @@ private:
   checkElecMap(const edm::EventSetup & eventSetup);
 
   ///@}
-  
+
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
-  
+
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
@@ -110,6 +110,8 @@ private:
 
   bool trigPrimBypass_;
 
+  int trigPrimBypassMode_;
+
   /** Number of event whose TT and SR flags must be dumped into a file.
    */
   int dumpFlags_;
@@ -124,4 +126,4 @@ private:
   bool produceDigis_;
 };
 
-#endif 
+#endif

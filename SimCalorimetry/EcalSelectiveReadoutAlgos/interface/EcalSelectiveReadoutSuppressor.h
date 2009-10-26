@@ -188,14 +188,14 @@ public:
   double frame2Energy(const T& frame, int timeOffset = 0) const;
 
 
-  /** Help function to get SR flag from ZS threshold using min/max convention
-   * for SUPPRESS and FULL_READOUT: see zsThreshold.
-   * @param thr ZS threshold in thrUnit
-   * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
-   * EcalSrFlag::SRF_ZS2
-   * @return the SR flag
-   */
-  int thr2Srf(int thr, int zsFlag) const;
+//   /** Help function to get SR flag from ZS threshold using min/max convention
+//    * for SUPPRESS and FULL_READOUT: see zsThreshold.
+//    * @param thr ZS threshold in thrUnit
+//    * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
+//    * EcalSrFlag::SRF_ZS2
+//    * @return the SR flag
+//    */
+//   int thr2Srf(int thr, int zsFlag) const;
   
   /** Number of endcap, obviously two.
    */
@@ -269,6 +269,24 @@ public:
    */
   bool trigPrimBypass_;
 
+  /** Mode selection for "Trig bypass" mode
+   * 0: TT thresholds applied on sum of crystal Et's
+   * 1: TT thresholds applies on compressed Et from Trigger primitive
+   * @see trigPrimByPass_ switch
+   */
+  int trigPrimBypassMode_;
+
+  /** SR flag (low interest/single/neighbor/center) to action flag
+   * (suppress, ZS1, ZS2, FRO) map.
+   */
+  std::vector<int> actions_;
+  
+  /** Switch to applies trigPrimBypassLTH_ and trigPrimBypassHTH_ thresholds
+   * on TPG compressed ET instead of using flags from TPG: trig prim bypass mode
+   * 1.
+   */
+  bool ttThresOnCompressedEt_;
+  
   /** When in trigger primitive simulation module bypass debug mode,
    * switch to enable Peak finder effect simulation
    */
@@ -284,11 +302,21 @@ public:
    */
   double trigPrimBypassHTH_;
 
+
   /** Maps RU interest flag (low interest, single neighbour, center) to
    * Selective readout action flag (type of readout).
    * 1st index: 0 for barrel, 1 for endcap
-   * 2nd index: RU interest (low, single, neighbour, center)
+   * 2nd index: RU interest (low, single, neighbour, center,
+   *                         forced low, forced single...)
    */
-  int srFlags[2][4];
+  int srFlags[2][8];
+
+  /** Default TTF to substitute if absent from the trigger primitive collection
+   */
+  EcalSelectiveReadout::ttFlag_t defaultTtf_;
+
+  /** Number of produced events
+   */
+  int ievt_;
 };
 #endif
