@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripCommon.Reconstruction_cff import *
-from CalibTracker.SiStripCommon.Filter_Refit_cff import *
+from CalibTracker.Configuration.Reconstruction_cff import *
+from CalibTracker.Configuration.Filter_Refit_cff import *
 from CalibTracker.SiStripLorentzAngle.ntuple_cff import *
 shallowTrackClusters.Tracks = "CalibrationTracksRefitRAW"
 shallowTrackClusters.Clusters = 'CalibrationTracksRAW'
