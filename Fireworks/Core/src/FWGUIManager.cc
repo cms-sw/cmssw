@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.152 2009/10/07 19:02:31 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.153 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@
 #include "Fireworks/Core/src/accessMenuBar.h"
 
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 
@@ -80,6 +81,7 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
+#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
@@ -89,6 +91,8 @@
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
+
+#include "Fireworks/Core/interface/CmsShowNavigator.h"
 
 //
 // constants, enums and typedefs
@@ -111,6 +115,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
+			   CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
@@ -131,10 +136,12 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_viewPopup(0),
    m_brightnessPopup(0),
    m_helpPopup(0),
+   m_searchFiles(0),
    m_shortcutPopup(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
+   m_cmsShowMain = iCmsShowMain;
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
@@ -182,6 +189,109 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
+      assert(getAction(cmsshow::sSearchFiles) != 0);
+      getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createSearchFiles));
+      assert(getAction(cmsshow::sHelp) != 0);
+      getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
+      assert(getAction(cmsshow::sKeyboardShort) != 0);
+      getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+
+      // toolbar special widget with non-void actions
+      m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
+
+      TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "showEventFilter()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterState, "Clicked()", "FWGUIManager", this, "eventFilterStatusChanged()");
+      // TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "eventFilterChanged()");
+
+      TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowUndocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+   }
+}
+
+
+FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
+                           FWEventItemsManager* iEIMgr,
+                           FWModelChangeManager* iCMgr,
+                           FWColorManager* iColorMgr,
+                           const FWViewManagerManager* iVMMgr,
+			   bool iDebugInterface
+                           ) :
+   m_selectionManager(iSelMgr),
+   m_eiManager(iEIMgr),
+   m_changeManager(iCMgr),
+   m_colorManager(iColorMgr),
+   m_presentEvent(0),
+   m_continueProcessingEvents(false),
+   m_waitForUserAction(true),
+   m_code(0),
+   m_editableSelected(0),
+   m_detailViewManager(0),
+   m_viewManagerManager(iVMMgr),
+   m_contextMenuHandler(0),
+   m_dataAdder(0),
+   m_ediFrame(0),
+   m_modelPopup(0),
+   m_viewPopup(0),
+   m_brightnessPopup(0),
+   m_helpPopup(0),
+   m_searchFiles(0),
+   m_shortcutPopup(0),
+   m_tasks(new CmsShowTaskExecutor)
+{
+   m_guiManager = this;
+   m_cmsShowMain = 0;
+   m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
+   m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
+                                             this, _1) );
+
+   m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
+   // These are only needed temporarilty to work around a problem which
+   // Matevz has patched in a later version of the code
+   TApplication::NeedGraphicsLibs();
+   gApplication->InitializeGraphics();
+
+   TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
+   TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
+
+   TEveManager::Create(kFALSE, "FI");
+
+   {
+      //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
+      // causing the program to go into full screen mode under default SL4 window manager
+      UInt_t width = gClient->GetDisplayWidth();
+      UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
+      //try to deal with multiple horizontally placed monitors.  Since present monitors usually
+      // have less than 2000 pixels horizontally, when we see more it is a good indicator that
+      // we are dealing with more than one monitor.
+      while(width > 2000) {
+         width /= 2;
+      }
+      width = static_cast<UInt_t>(width*.8);
+      m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
+                                                width,
+                                                height,
+                                                this);
+      m_cmsShowMainFrame->SetWindowName("CmsShow");
+      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+
+      m_detailViewManager = new FWDetailViewManager(m_colorManager);
+      m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
+
+      getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
+      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
+      getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
+      getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
+      getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
+      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*m_colorManager, &FWColorManager::switchBackground));
+      getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
+
+      getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
+      assert(getAction(cmsshow::sSearchFiles) != 0);
+      getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createSearchFiles));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
@@ -220,7 +330,9 @@ FWGUIManager::~FWGUIManager()
    delete m_editableSelected;
    delete m_cmsShowMainFrame;
    delete m_ediFrame;
+   delete m_cmsShowMain;
    delete m_contextMenuHandler;
+
 }
 
 void
@@ -692,6 +804,36 @@ void FWGUIManager::createHelpPopup ()
    }
    m_helpPopup->MapWindow();
 }
+
+
+
+void FWGUIManager::createSearchFiles ()
+{
+   if (m_searchFiles == 0) {
+  
+     m_searchFiles = new CmsShowSearchFiles("", "Searching Files",
+					    m_cmsShowMainFrame,
+					    800, 600);
+     m_searchFiles->browser()->Connect("Clicked(char*)", "FWGUIManager", this,
+                           "openWebRootFiles(char *)");
+     m_searchFiles->Connect("CloseWindow()", "FWGUIManager", this,
+                            "resetSearchFiles()");
+     m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   m_searchFiles->MapWindow();
+}
+
+void FWGUIManager::openWebRootFiles (char *fileName)
+{
+ 
+  if (fileName) m_cmsShowMain->navigator()->loadFile(fileName);
+}
+void FWGUIManager::resetSearchFiles ()
+{
+   m_searchFiles->DontCallClose();
+   m_searchFiles->UnmapWindow();
+}
+
 
 void FWGUIManager::createShortcutPopup ()
 {

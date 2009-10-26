@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.25 2009/08/14 15:40:44 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.26 2009/09/29 19:26:32 dmytro Exp $
 //
 
 // system include files
@@ -102,6 +102,8 @@ public:
    void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
    void notified(TSocket*);
+
+  CmsShowNavigator* navigator(){return m_navigator;};
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default

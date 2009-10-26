@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.75 2009/10/04 13:15:47 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.76 2009/10/07 19:02:31 amraktad Exp $
 //
 
 // system include files
@@ -75,6 +75,8 @@ class FWGUIEventDataAdder;
 
 class CmsShowTaskExecutor;
 
+class CmsShowMain;
+
 class FWModelContextMenuHandler;
 
 namespace fwlite {
@@ -88,6 +90,7 @@ class FWViewManagerManager;
 class FWColorManager;
 class CmsShowBrightnessPopup;
 class CmsShowHelpPopup;
+class CmsShowSearchFiles;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -98,7 +101,14 @@ public:
                 FWModelChangeManager*,
                 FWColorManager*,
                 const FWViewManagerManager*,
+		CmsShowMain*,
                 bool iDebugInterface = false);
+  FWGUIManager(FWSelectionManager*,
+                FWEventItemsManager*,
+                FWModelChangeManager*,
+                FWColorManager*,
+                const FWViewManagerManager*,
+	       bool iDebugInterface = false);
    virtual ~FWGUIManager();
    void     evePreTerminate();
 
@@ -125,6 +135,12 @@ public:
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
+
+
+  void createSearchFiles ();
+  void resetSearchFiles ();
+
+  void openWebRootFiles(char *);
 
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;
@@ -274,6 +290,11 @@ private:
    // help
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
 
+  
+   CmsShowSearchFiles *m_searchFiles;
+   CmsShowMain *m_cmsShowMain;
+  
+  
    TGTab             *m_textViewTab;
    TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;

@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.64 2009/10/04 13:15:48 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.65 2009/10/09 19:58:29 chrjones Exp $
 //
 // hacks
 #define private public
@@ -105,6 +105,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
+   CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
@@ -130,13 +131,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
-
+   
    openData->createMenuEntry(fileMenu);
+   searchFiles->createMenuEntry(fileMenu);
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
-
+    
    exportImage->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
 

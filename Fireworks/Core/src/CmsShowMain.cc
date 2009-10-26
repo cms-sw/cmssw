@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.93 2009/09/29 19:26:32 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.94 2009/10/06 18:56:06 dmytro Exp $
 //
 
 // system include files
@@ -258,6 +258,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                   m_changeManager.get(),
                                                                   m_colorManager.get(),
                                                                   m_viewManager.get(),
+								  this,
                                                                   false));
 
       if ( vm.count(kAdvancedRenderOpt) ) {
