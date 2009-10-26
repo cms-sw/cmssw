@@ -4,7 +4,6 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Candidate>
 <use name=Geometry/CaloGeometry>
-<use name=RecoCaloTools/MetaCollections>
 <use name=clhep>
 <use name=root>
 <export>
@@ -13,6 +12,5 @@
   <use name=DataFormats/EgammaReco>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloEventSetup>
-  <use name=RecoCaloTools/MetaCollections>
   <lib name=RecoHIHiEgammaAlgos>
 </export>

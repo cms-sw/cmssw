@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.9 2009/08/24 14:55:04 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.10 2009/10/24 15:26:55 yilmaz Exp $
 //
 //
 
@@ -109,9 +109,9 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
    double eHF     =  0;        // Variable for computing total HF energy 
-   double eCASTOR =  0;
-   double eZDC    =  0;
-   int cnt = 0;
+   //double eCASTOR =  0;      // Other variables commented out until they have been implemented
+   //double eZDC    =  0;
+   //int cnt = 0;
 
    if(recoLevel_){
      Handle<HFRecHitCollection> hits;
