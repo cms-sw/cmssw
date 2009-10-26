@@ -32,13 +32,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalDcsValuesRcd'),
+        record = cms.string('HcalDcsRcd'),
         tag = cms.string('hcal_dcsvalues_trivial_v1.01_mc')
          ))
 )
 
 process.mytest = cms.EDAnalyzer("HcalDcsValuesPopConAnalyzer",
-    record = cms.string('HcalDcsValuesRcd'),
+    record = cms.string('HcalDcsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
