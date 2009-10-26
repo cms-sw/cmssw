@@ -173,32 +173,34 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   double pxbpitchx[16] = { 0.0 };
   double pxbpitchy[16] = { 0.0 };
   unsigned int pxfN = 0;
+  unsigned int pxf_D_N = 0;
   unsigned int pxf_1x2N = 0;
   unsigned int pxf_1x5N = 0;
   unsigned int pxf_2x3N = 0;
   unsigned int pxf_2x4N = 0;
   unsigned int pxf_2x5N = 0;
-  unsigned int pxf_1x2_D[3] = { 0 };
-  unsigned int pxf_1x5_D[3] = { 0 };
-  unsigned int pxf_2x3_D[3] = { 0 };
-  unsigned int pxf_2x4_D[3] = { 0 };
-  unsigned int pxf_2x5_D[3] = { 0 };
-  double psi_pxf_D[3]= { 0 };
+  unsigned int pxf_D[6] = { 0 };
+  unsigned int pxf_1x2_D[6] = { 0 };
+  unsigned int pxf_1x5_D[6] = { 0 };
+  unsigned int pxf_2x3_D[6] = { 0 };
+  unsigned int pxf_2x4_D[6] = { 0 };
+  unsigned int pxf_2x5_D[6] = { 0 };
+  double psi_pxf_D[6]= { 0 };
   double psi_pxf[16] = { 0 };
-  double pxfR_min_D[3] = { 9999.0 , 9999.0 , 9999.0 };
-  double pxfR_max_D[3] = { 0.0 };
-  double pxfZ_D[3] = { 0.0 };
+  double pxfR_min_D[6] = { 9999.0 , 9999.0 , 9999.0 };
+  double pxfR_max_D[6] = { 0.0 };
+  double pxfZ_D[6] = { 0.0 };
   unsigned int tibN = 0;
   unsigned int tib_L12_rphiN = 0;
   unsigned int tib_L12_sterN = 0;
   unsigned int tib_L34_rphiN = 0;
-  unsigned int tib_L12_rphi_L[4] = { 0 };
-  unsigned int tib_L12_ster_L[4] = { 0 };
-  unsigned int tib_L34_rphi_L[4] = { 0 };
-  double tib_apv_L[4] = { 0 };
+  unsigned int tib_L12_rphi_L[6] = { 0 };
+  unsigned int tib_L12_ster_L[6] = { 0 };
+  unsigned int tib_L34_rphi_L[6] = { 0 };
+  double tib_apv_L[6] = { 0 };
   double apv_tib  = 0;
-  double tibR_L[4] = { 0.0 };
-  double tibZ_L[4] = { 0.0 };
+  double tibR_L[6] = { 0.0 };
+  double tibZ_L[6] = { 0.0 };
   unsigned int tidN = 0;
   unsigned int tid_r1_rphiN = 0;
   unsigned int tid_r1_sterN = 0;
@@ -269,7 +271,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   double volume_pxf          = 0.0;
   double weight_pxf          = 0.0;
   double activeSurface_pxf   = 0.0;
-  double activeSurface_pxf_D[3]   = {0.0};
+  double activeSurface_pxf_D[6]   = {0.0};
   double volume_tib          = 0.0;
   double weight_tib          = 0.0;
   double activeSurface_tib   = 0.0;
@@ -400,6 +402,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	weight_pxf+=weight;
 	activeSurface_pxf+=activeSurface;
 	std::string name = modules[i]->name().name();
+        if(name == "PixelForwardSensor")    pxf_D_N++;
 	if(name == "PixelForwardActive1x2") pxf_1x2N++;
 	if(name == "PixelForwardActive1x5") pxf_1x5N++;
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
@@ -413,13 +416,14 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
         thepixROCRowsD[theDisk-1] = modules[i]->pixROCRows();
         thepixROCColsD[theDisk-1] = modules[i]->pixROCCols();
 	if(theDisk > ndisksPXF) ndisksPXF=theDisk;
+	if(name == "PixelForwardSensor")    pxf_D[theDisk-1]++;
 	if(name == "PixelForwardActive1x2") pxf_1x2_D[theDisk-1]++;
 	if(name == "PixelForwardActive1x5") pxf_1x5_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x3") pxf_2x3_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x4") pxf_2x4_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x5") pxf_2x5_D[theDisk-1]++;
         // Make sure there are no new names we didn't know about.
-        if((name == "PixelForwardActive1x2" || name == "PixelForwardActive1x5" || name == "PixelForwardActive2x3" || name == "PixelForwardActive2x4" || name == "PixelForwardActive2x5")==0)  std::cout <<"\nYou have added PXF layers that are not taken into account!\n\n";
+        if((name == "PixelForwardSensor" || name == "PixelForwardActive1x2" || name == "PixelForwardActive1x5" || name == "PixelForwardActive2x3" || name == "PixelForwardActive2x4" || name == "PixelForwardActive2x5")==0)  std::cout <<"\nYou have added PXF layers that are not taken into account!\t"<<name <<"\n";
         if (3<theDisk) std::cout<<"\nYou need to increase the PXF array sizes!\n";
 	activeSurface_pxf_D[theDisk-1]+=activeSurface;
 	psi_pxf_D[theDisk-1] += modules[i]->pixROCx()*modules[i]->pixROCy();
@@ -460,7 +464,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	if(name == "TIBActiveSter0") tib_L12_ster_L[theLayer-1]++;
 	if(name == "TIBActiveRphi2") tib_L34_rphi_L[theLayer-1]++;
 	if((name == "TIBActiveRphi0" || name == "TIBActiveSter0" || name == "TIBActiveRphi2" )==0)  std::cout <<"\nYou have added TIB layers that are not taken into account!\n\n";
-	if (4<theLayer) std::cout<<"\nYou need to increase the TIB array sizes!\n";
+	if (6<theLayer) std::cout<<"\nYou need to increase the TIB array sizes!\n";
         activeSurface_tib_L[theLayer-1]+=activeSurface;
 	tib_apv_L[theLayer-1] += modules[i]->siliconAPVNum();
 	apv_tib += modules[i]->siliconAPVNum();
@@ -610,7 +614,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	if(name == "TECModule6RphiActive")   tec_r7_rphi_D[theWheel-1]++;
         if((name == "TECModule0RphiActive" || name == "TECModule0StereoActive" || name == "TECModule1RphiActive"   || name == "TECModule1StereoActive" || name == "TECModule2RphiActive" ||
             name == "TECModule3RphiActive" || name == "TECModule4RphiActive"   || name == "TECModule4StereoActive" || name == "TECModule5RphiActive"   || name == "TECModule6RphiActive" )==0)
-	    std::cout <<"\nYou have added TOB layers that are not taken into account!\n\n";
+	    std::cout <<"\nYou have added TOB layers that are not taken into account!,\t"<<name<<"\n";
         if (9<theWheel) std::cout<<"\nYou need to increase the TEC array sizes!\n";
 	activeSurface_tec_D[theWheel-1]+=activeSurface;
 	tec_apv_D[theWheel-1] += modules[i]->siliconAPVNum();
@@ -826,6 +830,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   Output << "        channels Strx12 = " << (int)chan_strx12 << std::endl;
   Output << "        channels Strx34 = " << (int)chan_strx34 << std::endl; 
   Output << " PXF    = " << pxfN << std::endl;
+  Output << "   PH1 = " << pxf_D_N << std::endl;
   Output << "   1x2 = " << pxf_1x2N << std::endl;
   Output << "   1x5 = " << pxf_1x5N << std::endl;
   Output << "   2x3 = " << pxf_2x3N << std::endl;
@@ -942,17 +947,18 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     GeometryOutput << "   PXF Disk no. " << i+1<<" (numbers are the total for both sides)"<< std::endl;
     GeometryOutput << "        Minimum radius of disk no. " << i+1<< ": "<< pxfR_min_D[i]<< " [cm]"<< std::endl;
     GeometryOutput << "        Maximum radius of disk no. " << i+1<< ": "<< pxfR_max_D[i]<< " [cm]"<< std::endl;
-    GeometryOutput << "        Position in Z of disk no. " << i+1<< ": "<< pxfZ_D[i]/(pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<< " [cm]"<< std::endl;
+    GeometryOutput << "        Position in Z of disk no. " << i+1<< ": "<< pxfZ_D[i]/(pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<< " [cm]"<< std::endl;
     GeometryOutput << "        Number of 1x2 modules in PXF disk no. " << i+1<< ": "<< pxf_1x2_D[i]<< std::endl;
     GeometryOutput << "        Number of 1x5 modules in PXF disk no. " << i+1<< ": "<< pxf_1x5_D[i]<< std::endl;
     GeometryOutput << "        Number of 2x3 modules in PXF disk no. " << i+1<< ": "<< pxf_2x3_D[i]<< std::endl;
     GeometryOutput << "        Number of 2x4 modules in PXF disk no. " << i+1<< ": "<< pxf_2x4_D[i]<< std::endl;
     GeometryOutput << "        Number of 2x5 modules in PXF disk no. " << i+1<< ": "<< pxf_2x5_D[i]<< std::endl;
+    GeometryOutput << "        Number of 2x8 modules in PXF disk no. " << i+1<< ": "<< pxf_D[i]<< std::endl;
     GeometryOutput << "        Active Silicon surface in PXF disk no. " << i+1<< ": "<< activeSurface_pxf_D[i]<< " [cm^2]"<< std::endl;
     GeometryOutput << "        Number of PSI46s in PXF disk no. " << i+1<< ": "<< psi_pxf_D[i]<< std::endl;
     GeometryOutput << "        Number of pixel channels in PXF disk no. " << i+1<< ": "<< (int)psi_pxf_D[i]*chan_per_psiD[i]<< std::endl;
     GeometryOutput << std::endl;
-    GeometryXLS <<"PXF"<<i+1<<" "<<pxfR_min_D[i]<<" "<<pxfR_max_D[i]<<" "<<pxfZ_D[i]/(pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<<" "<<activeSurface_pxf_D[i]<<" "<<psi_pxf_D[i]<<" "<<(int)psi_pxf_D[i]*chan_per_psiD[i]<<" "<<pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i]<<" "<<pxf_1x2_D[i]<<" "<<pxf_1x5_D[i]<<" "<<pxf_2x3_D[i]<<" "<<pxf_2x4_D[i]<<" "<<pxf_2x5_D[i]<<std::endl;  
+    GeometryXLS <<"PXF"<<i+1<<" "<<pxfR_min_D[i]<<" "<<pxfR_max_D[i]<<" "<<pxfZ_D[i]/(pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<<" "<<activeSurface_pxf_D[i]<<" "<<psi_pxf_D[i]<<" "<<(int)psi_pxf_D[i]*chan_per_psiD[i]<<" "<<pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i]<<" "<<pxf_D[i]<<" "<<pxf_1x2_D[i]<<" "<<pxf_1x5_D[i]<<" "<<pxf_2x3_D[i]<<" "<<pxf_2x4_D[i]<<" "<<pxf_2x5_D[i]<<std::endl;  
   }
   for(unsigned int i=0; i<ndisksTID;i++){
     GeometryOutput << "   TID Disk no. " << i+1<<" (numbers are the total for both sides)"<< std::endl;
