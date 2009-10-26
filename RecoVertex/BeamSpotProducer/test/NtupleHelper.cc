@@ -51,46 +51,63 @@ zData  NtupleHelper::Loop(int maxEvents)
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
 //   TH2F *hvxy = new TH2F("vxy","x vers. y vertex",100,-0.4,0.4,100,-0.4,0.4);
+
+  std::cout << "  loop over entries" <<std::endl;
+  std::cout << "  maximum number of entries: " << maxEvents << std::endl;
   zData zvector;
    if (fChain == 0) return zvector;
    zvector.erase(zvector.begin(),zvector.end());
    Long64_t nentries = fChain->GetEntriesFast();
 
+   std::cout << " total number of entries: " << fChain->GetEntries() << std::endl;
+   
    Int_t nbytes = 0, nb = 0;
    int theevent = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-      Long64_t ientry = LoadTree(jentry);
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
-      //      if (sigmaD <0.05&&pt>4.0)
-      //	{
+     Long64_t ientry = LoadTree(jentry);
+     if (ientry < 0) break;
+     nb = fChain->GetEntry(jentry);   nbytes += nb;
+     //      if (sigmaD <0.05&&pt>4.0)
+     //	{
       
-      //if (z0>-20. && z0<20. && pt>4 ) {
-	  //if (pt>2 ) {
-	  if (pt>5 && sigmaD<0.02) { //it was pt>5
-		  if (maxEvents>0 && maxEvents == theevent) break;
-		  hvxy->Fill(x,y);
-		  hvxyz->Fill(x,z0,y);
-		  hdphi->Fill(phi,d0);
-		  hvxz->Fill(z0,x);
-		  hsd->Fill(z0,fabs(d0));
-          hd->Fill(z0,d0);  
-		  hsx->Fill(z0,fabs(x));
-		  hpt->Fill(pt,1.0);
-		  hsw->Fill(z0,1.0);   
-          hsigma->Fill(sigmaD);
+     //if (z0>-20. && z0<20. && pt>4 ) {
+     //if (pt>2 ) {
+     //if (pt>5 && sigmaD<0.02) { //it was pt>5
+     if (true) {
+       if (maxEvents>0 && maxEvents == theevent) {
+	 std::cout << " reached maximum number of tracks, continue" << std::endl;
+	 break;
+       }
+       hvxy->Fill(x,y);
+       hvxyz->Fill(x,z0,y);
+       hdphi->Fill(phi,d0);
+       hvxz->Fill(z0,x);
+       hsd->Fill(z0,fabs(d0));
+       hd->Fill(z0,d0);  
+       hsx->Fill(z0,fabs(x));
+       hpt->Fill(pt,1.0);
+       hsw->Fill(z0,1.0);   
+       hsigma->Fill(sigmaD);
 
-		  // for reco ntuples:
-		  if (pt>10 && nStripHit>=9 && nPixelHit>=3 && TMath::Abs(d0)<0.06 &&
-		    (chi2/ndof)<5 && TMath::Prob(chi2, (int)ndof)>0.02 && TMath::Abs(eta)<2.2 ) {
-			  zvector.push_back(data(z0,sigmaz0,d0,sigmaD,phi,pt,1.));
-			  }
-		  theevent++;
-      }
-	  // if (Cut(ientry) < 0) continue;
+       // for reco ntuples:
+       if (pt>1.2 &&
+		   TMath::Abs(eta)< 2.4 &&
+		   TMath::Abs(d0)<5 &&
+		   TMath::Abs(z0)<60 &&
+		   nPixelLayerMeas>=3 &&
+		   nTotLayerMeas >= 11 &&
+		   normchi2 < 2 ) { 
+		   //TMath::Abs(d0)<0.06 ) {
+		   //(chi2/ndof)<5 && TMath::Prob(chi2, (int)ndof)>0.02 && TMath::Abs(eta)<2.2 ) {
+		   zvector.push_back(data(z0,sigmaz0,d0,sigmaD,phi,pt,1.));
+		   theevent++;
+       }
+      
+     }
+  // if (Cut(ientry) < 0) continue;
 	  //	}
    }
-   std::cout << zvector.size() << " tracks read in.\n";
+   std::cout << zvector.size() << " selected tracks read in.\n";
    hsx->Divide(hsw);
    hsd->Divide(hsw);
    return zvector;

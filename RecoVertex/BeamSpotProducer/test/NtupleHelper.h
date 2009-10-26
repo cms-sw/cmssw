@@ -43,13 +43,15 @@ public :
    Double_t         sigmaz0;
    Float_t         x;
    Float_t         y;
-
-   UInt_t nPixelHit;
-   UInt_t nStripHit;
-   Double_t chi2;
-   Double_t ndof;
+   //   UInt_t nPixelHit;
+   Double_t normchi2;
    Double_t eta;
-   
+   Double_t theta;
+   Int_t charge;
+   Int_t nTotLayerMeas;
+   Int_t nStripLayerMeas;
+   Int_t nPixelLayerMeas;
+
    // List of branches
    TBranch        *b_run;   //!
    TBranch        *b_event;   //!
@@ -61,13 +63,14 @@ public :
    TBranch        *b_sigmaz0;   //!
    TBranch        *b_x;   //!
    TBranch        *b_y;   //!
-
-   TBranch *b_nPixelHit;
-   TBranch *b_nStripHit;
-   TBranch *b_chi2;
-   TBranch *b_ndof;
+   TBranch *b_nTotLayerMeas;
+   TBranch *b_nStripLayerMeas;
+   TBranch *b_nPixelLayerMeas;
+   TBranch *b_normchi2;
    TBranch *b_eta;
-   
+   TBranch *b_theta;
+   TBranch *b_charge;
+
    NtupleHelper(const char* fname ,TTree *tree=0);
    virtual ~NtupleHelper();
    virtual Int_t    Cut(Long64_t entry);
@@ -103,7 +106,7 @@ NtupleHelper::NtupleHelper(const char* fname,TTree *tree)
 NtupleHelper::~NtupleHelper()
 {
    if (!fChain) return;
-   delete fChain->GetCurrentFile();
+   //delete fChain->GetCurrentFile();
 }
 
 Int_t NtupleHelper::GetEntry(Long64_t entry)
@@ -147,18 +150,18 @@ void NtupleHelper::Init(TTree *tree)
    fChain->SetBranchAddress("d0",&d0);
    //fChain->SetBranchAddress("phi",&phi);
    fChain->SetBranchAddress("phi0",&phi);// for reco ntuple
-   //fChain->SetBranchAddress("sigmaD",&sigmaD);
    fChain->SetBranchAddress("sigmad0",&sigmaD);// for reco ntuple
    fChain->SetBranchAddress("z0",&z0);
    fChain->SetBranchAddress("sigmaz0",&sigmaz0);
    //fChain->SetBranchAddress("x",&x);
    //fChain->SetBranchAddress("y",&y);
-
-   fChain->SetBranchAddress("nStripHit",&nStripHit);
-   fChain->SetBranchAddress("nPixelHit",&nPixelHit);
-   fChain->SetBranchAddress("chi2",&chi2);
-   fChain->SetBranchAddress("ndof",&ndof);
+   fChain->SetBranchAddress("nTotLayerMeas",&nTotLayerMeas);
+   fChain->SetBranchAddress("nStripLayerMeas",&nStripLayerMeas);
+   fChain->SetBranchAddress("nPixelLayerMeas",&nPixelLayerMeas);
+   fChain->SetBranchAddress("normchi2",&normchi2);
    fChain->SetBranchAddress("eta",&eta);
+   fChain->SetBranchAddress("theta",&theta);
+   fChain->SetBranchAddress("charge",&charge);
 
    std::cout << "[NtupleHelper] tree initialized " << std::endl;
    Notify();
@@ -188,10 +191,10 @@ Bool_t NtupleHelper::Notify()
    //b_x = fChain->GetBranch("x");
    //b_y = fChain->GetBranch("y");
 
-   b_nPixelHit = fChain->GetBranch("nPixelHit");
-   b_nStripHit = fChain->GetBranch("nStripHit");
-   b_chi2 = fChain->GetBranch("chi2");
-   b_ndof = fChain->GetBranch("ndof");
+   b_nTotLayerMeas = fChain->GetBranch("nTotLayerMeas");
+   b_nPixelLayerMeas = fChain->GetBranch("nPixelLayerMeas");
+   b_nStripLayerMeas = fChain->GetBranch("nStripLayerMeas");
+   b_normchi2 = fChain->GetBranch("normchi2");
    b_eta = fChain->GetBranch("eta");
 
    std::cout << "[NtupleHelper] branches notified" << std::endl;

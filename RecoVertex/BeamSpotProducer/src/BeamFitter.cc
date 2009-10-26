@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.10 2009/09/17 21:49:42 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.11 2009/09/18 20:47:55 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -159,7 +159,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       }
     }
     
-    // Tracl algorithm
+    // Track algorithm
     bool algo_ok = true;
     if (algorithm_.size()!=0) {
       if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
