@@ -20,8 +20,8 @@ class HcalLaserClient : public HcalBaseClient {
   void init( const edm::ParameterSet&, DQMStore*, const string );
   void setup(void);
 
-  void beginJob(const EventSetup& c);
-  void beginRun(void);
+  void beginJob();
+  void beginRun(const EventSetup& c);
   void analyze(void);
   void endRun(void);
   void endJob(void);

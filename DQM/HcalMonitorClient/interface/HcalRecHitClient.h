@@ -24,7 +24,6 @@ class HcalRecHitClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  //void beginJob(const EventSetup& c);
   void beginJob();
 
   /// EndJob

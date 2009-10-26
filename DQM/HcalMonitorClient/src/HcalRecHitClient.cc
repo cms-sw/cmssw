@@ -144,7 +144,7 @@ void HcalRecHitClient::beginJob(){
   meHFEnergyRMS_1D=dbe_->book1D("HF_energy_RMS_1D","HF Energy RMS Per RecHit;Energy (GeV)",500,0,5);
   
   return;
-} // void HcalRecHitClient::beginJob(const EventSetup& eventSetup);
+} // void HcalRecHitClient::beginJob()
 
 
 void HcalRecHitClient::beginRun(void)

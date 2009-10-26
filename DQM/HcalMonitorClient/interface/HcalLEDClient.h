@@ -28,13 +28,13 @@ public:
   void analyze(void);
   
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob();
   
   /// EndJob
   void endJob(void);
   
   /// BeginRun
-  void beginRun(void);
+  void beginRun(const EventSetup& c);
   
   /// EndRun
   void endRun(void);

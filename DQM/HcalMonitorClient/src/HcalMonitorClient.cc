@@ -298,7 +298,7 @@ void HcalMonitorClient::resetAllME() {
 }
 
 //--------------------------------------------------------
-void HcalMonitorClient::beginJob(const EventSetup& c){
+void HcalMonitorClient::beginJob(){
 
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginJob" << endl;
   
@@ -307,11 +307,11 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
   if( rechit_client_ )     rechit_client_->beginJob();
-  if( pedestal_client_ )   pedestal_client_->beginJob(c);
-  if( led_client_ )        led_client_->beginJob(c);
-  if( laser_client_ )      laser_client_->beginJob(c);
-  if( hot_client_ )        hot_client_->beginJob(c);
-  if( dead_client_ )       dead_client_->beginJob(c);
+  if( pedestal_client_ )   pedestal_client_->beginJob();
+  if( led_client_ )        led_client_->beginJob();
+  if( laser_client_ )      laser_client_->beginJob();
+  if( hot_client_ )        hot_client_->beginJob();
+  if( dead_client_ )       dead_client_->beginJob();
   if( tp_client_ )         tp_client_->beginJob();
   if( ct_client_ )         ct_client_->beginJob();
   if( beam_client_ )       beam_client_->beginJob();
@@ -333,11 +333,11 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( dataformat_client_ ) dataformat_client_->beginRun();
   if( digi_client_ )       digi_client_->beginRun();
   if( rechit_client_ )     rechit_client_->beginRun();
-  if( pedestal_client_ )   pedestal_client_->beginRun();
-  if( led_client_ )        led_client_->beginRun();
-  if( laser_client_ )      laser_client_->beginRun();
-  if( hot_client_ )        hot_client_->beginRun();
-  if( dead_client_ )       dead_client_->beginRun();
+  if( pedestal_client_ )   pedestal_client_->beginRun(c);
+  if( led_client_ )        led_client_->beginRun(c);
+  if( laser_client_ )      laser_client_->beginRun(c);
+  if( hot_client_ )        hot_client_->beginRun(c);
+  if( dead_client_ )       dead_client_->beginRun(c);
   if( tp_client_ )         tp_client_->beginRun();
   if( ct_client_ )         ct_client_->beginRun();
   if( beam_client_ )       beam_client_->beginRun();

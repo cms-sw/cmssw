@@ -83,7 +83,7 @@ HcalDeadCellClient::~HcalDeadCellClient()
   this->cleanup();
 } // destructor
 
-void HcalDeadCellClient::beginJob(const EventSetup& eventSetup)
+void HcalDeadCellClient::beginJob()
 {
   if ( debug_>1 ) std::cout << "HcalDeadCellClient: beginJob" << std::endl;
 
@@ -104,10 +104,10 @@ void HcalDeadCellClient::beginJob(const EventSetup& eventSetup)
   ProblemCellsByDepth.setup(dbe_," Problem Dead Cell Rate");
 
   return;
-} // void HcalDeadCellClient::beginJob(const EventSetup& eventSetup);
+} // void HcalDeadCellClient::beginJob()
 
 
-void HcalDeadCellClient::beginRun(void)
+void HcalDeadCellClient::beginRun(const EventSetup& eventSetup)
 {
   if ( debug_>1 ) std::cout << "HcalDeadCellClient: beginRun" << std::endl;
 

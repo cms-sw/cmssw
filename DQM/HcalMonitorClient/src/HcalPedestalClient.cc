@@ -94,7 +94,7 @@ HcalPedestalClient::~HcalPedestalClient()
 } // destructor
 
 
-void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
+void HcalPedestalClient::beginJob(){
 
   if ( debug_ ) std::cout << "HcalPedestalClient: beginJob" << std::endl;
 
@@ -102,10 +102,10 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
   jevt_ = 0;
   this->setup();
   return;
-} // void HcalPedestalClient::beginJob(const EventSetup& eventSetup);
+} // void HcalPedestalClient::beginJob()
 
 
-void HcalPedestalClient::beginRun(void)
+void HcalPedestalClient::beginRun(const EventSetup& eventSetup)
 {
   if ( debug_ ) std::cout << "HcalPedestalClient: beginRun" << std::endl;
 

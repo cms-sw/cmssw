@@ -46,14 +46,14 @@ void HcalLaserClient::init( const ParameterSet& ps, DQMStore* dbe, const string 
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void HcalLaserClient::beginJob( const EventSetup& eventSetup ) {
+void HcalLaserClient::beginJob(){
   if ( debug_ ) cout << "HcalLaserClient: beginJob" << endl;
   ievt_ = jevt_ = 0;
   this->resetAllME();
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void HcalLaserClient::beginRun(void){
+void HcalLaserClient::beginRun(const EventSetup& eventSetup){
   if ( debug_ ) cout << "HcalLaserClient: beginRun" << endl;
   jevt_ = 0;
   this->resetAllME();

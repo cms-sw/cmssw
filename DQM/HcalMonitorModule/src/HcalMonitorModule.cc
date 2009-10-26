@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/18 15:08:35 $
- * $Revision: 1.140 $
+ * $Date: 2009/10/21 11:25:02 $
+ * $Revision: 1.141 $
  * \author W Fisher
  * \author J Temple
  *
@@ -348,117 +348,23 @@ HcalMonitorModule::~HcalMonitorModule()
 } //void HcalMonitorModule::~HcalMonitorModule()
 
 //--------------------------------------------------------
-void HcalMonitorModule::beginJob(const edm::EventSetup& c){
+// beginJob no longer needed; trying setup within beginJob won't work -- IOV's not loaded
+void HcalMonitorModule::beginJob()
+{
+  // should we reset these counters at the start of each run?
   ievt_ = 0;
-  
   ievt_pre_=0;
 
   // Counters for rawdata, digi, and rechit
   ievt_rawdata_=0;
   ievt_digi_=0;
   ievt_rechit_=0;
-
-  /*
-  if ( dbe_ != NULL ){
-    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
-   
-    meIEVTALL_ = dbe_->bookInt("Events Processed");
-    meIEVTRAW_ = dbe_->bookInt("Events with Raw Data");
-    meIEVTDIGI_= dbe_->bookInt("Events with Digis");
-    meIEVTRECHIT_ = dbe_->bookInt("Events with RecHits");
-    meIEVTALL_->Fill(ievt_);
-    meIEVTRAW_->Fill(ievt_rawdata_);
-    meIEVTDIGI_->Fill(ievt_digi_);
-    meIEVTRECHIT_->Fill(ievt_rechit_);
-    meStatus_  = dbe_->bookInt("STATUS");
-    meRunType_ = dbe_->bookInt("RUN TYPE");
-    meEvtMask_ = dbe_->bookInt("EVT MASK");
-   
-    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
-    // process latency was (200,0,1), but that gave overflows
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
-    meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
-    // Store whether or not subdetectors are present
-    meHB_ = dbe_->bookInt("HBpresent");
-    meHE_ = dbe_->bookInt("HEpresent");
-    meHO_ = dbe_->bookInt("HOpresent");
-    meHF_ = dbe_->bookInt("HFpresent");
-    meZDC_ = dbe_->bookInt("ZDCpresent");
-    meStatus_->Fill(0);
-    meRunType_->Fill(-1);
-    meEvtMask_->Fill(-1);
-
-    // Should fill with 0 to start
-    meHB_->Fill(HBpresent_);
-    meHE_->Fill(HEpresent_);
-    meHO_->Fill(HOpresent_);
-    meHF_->Fill(HFpresent_);
-    meZDC_->Fill(ZDCpresent_);
-  }
-
-  edm::ESHandle<HcalDbService> pSetup;
-  c.get<HcalDbRecord>().get( pSetup );
-
-  readoutMap_=pSetup->getHcalMapping();
-  DetId detid_;
-  HcalDetId hcaldetid_; 
-
-  // Build a map of readout hardware unit to calorimeter channel
-  std::vector <HcalElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
-  uint32_t itsdcc    =0;
-  uint32_t itsspigot =0;
-  uint32_t itshtrchan=0;
-  
-  // by looping over all precision (non-trigger) items.
-  for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin();
-       eid != AllElIds.end();
-       eid++) {
-
-    //Get the HcalDetId from the HcalElectronicsId
-    detid_ = readoutMap_->lookup(*eid);
-    
-    // NULL if illegal; ignore
-    if (!detid_.null()) {
-      if (detid_.det()!=4) continue; //not Hcal
-      if (detid_.subdetId()!=HcalBarrel &&
-	  detid_.subdetId()!=HcalEndcap &&
-	  detid_.subdetId()!=HcalOuter  &&
-	  detid_.subdetId()!=HcalForward) continue;
-
-      itsdcc    =(uint32_t) eid->dccid(); 
-      itsspigot =(uint32_t) eid->spigot();
-      itshtrchan=(uint32_t) eid->htrChanId();
-      hcaldetid_ = HcalDetId(detid_);
-
-      if (dfMon_)
-	dfMon_->stashHDI(dfMon_->hashup(itsdcc,itsspigot,itshtrchan),
-			 hcaldetid_);
-    } // if (!detid_.null()) 
-  } 
-
-  //get conditions
-  c.get<HcalDbRecord>().get(conditions_);
-
-  // fill reference pedestals with database values
-  // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
-  if (pedMon_!=NULL)
-    pedMon_->fillDBValues(*conditions_);
-  //if (deadMon_!=NULL)
-  //  deadMon_->createMaps(*conditions_);
-  if (hotMon_!=NULL)
-    hotMon_->createMaps(*conditions_);
-
-
-  edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  chanquality_= new HcalChannelQuality(*p.product());
-
-  */
   return;
-} // HcalMonitorModule::beginJob(...)
+}
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
+ 
   fedsListed_ = false;
 
   // I think we want to reset these at 0 at the start of each run
@@ -550,8 +456,8 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
 
   // fill reference pedestals with database values
   // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
-  if (pedMon_!=NULL)
-    pedMon_->fillDBValues(*conditions_);
+  //if (pedMon_!=NULL)
+  //pedMon_->fillDBValues(*conditions_);
   //if (deadMon_!=NULL)
   //  deadMon_->createMaps(*conditions_);
   if (hotMon_!=NULL)
@@ -561,7 +467,7 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
-
+  return;
 
 }
 

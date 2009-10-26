@@ -81,7 +81,7 @@ public:
   void analyze(const Event& evt, const EventSetup& es);
   
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob();
   /// BeginRun
   void beginRun(const Run& r, const edm::EventSetup & c);
   /// BeginLumiBlock

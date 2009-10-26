@@ -59,15 +59,9 @@ HcalLEDClient::~HcalLEDClient(){
   this->cleanup();
 }
 
-void HcalLEDClient::beginJob(const EventSetup& eventSetup){
-  
+void HcalLEDClient::beginJob()
+{
   if ( debug_>0 ) cout << "HcalLEDClient: beginJob" << endl;
-  //  eventSetup.get<HcalDbRecord>().get(conditions_);
-  
-   // get the hcal mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  eventSetup.get<HcalDbRecord>().get( pSetup );
-  readoutMap_=pSetup->getHcalMapping();
 
   ievt_ = 0;
   jevt_ = 0;
@@ -75,9 +69,15 @@ void HcalLEDClient::beginJob(const EventSetup& eventSetup){
   return;
 }
 
-void HcalLEDClient::beginRun(void){
+void HcalLEDClient::beginRun(const EventSetup& eventSetup)
+{
 
   if ( debug_>0 ) cout << "HcalLEDClient: beginRun" << endl;
+
+  // get the hcal mapping
+  edm::ESHandle<HcalDbService> pSetup;
+  eventSetup.get<HcalDbRecord>().get( pSetup );
+  readoutMap_=pSetup->getHcalMapping();
 
   jevt_ = 0;
   this->resetAllME();
