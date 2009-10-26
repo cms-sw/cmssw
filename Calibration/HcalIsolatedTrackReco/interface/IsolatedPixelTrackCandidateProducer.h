@@ -34,7 +34,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
-  std::pair<double, double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);
+  std::pair<double, double> GetEtaPhiAtEcal(const edm::EventSetup& iSetup, double etaIP, double phiIP, double pT, int charge, double vtxZ);
 
  private:
 	
@@ -52,6 +52,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   double vtxCutIsol_;
   double tauAssocCone_;
   double tauUnbiasCone_;
+  std::string bfield_;
   double minPTrackValue_;
   double maxPForIsolationValue_;
   double rEB_;
