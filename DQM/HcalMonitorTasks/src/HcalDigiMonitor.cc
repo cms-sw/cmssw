@@ -304,8 +304,16 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       return; 
     }
   
+  //HcalBaseMonitor::processEvent();
+  // If all digis seem bad, don't run tests -- skip base processEvent as well?
+  if (report.badQualityDigis()>9072) // all bad digis (actual total # of bad digis will be > 9072, assuming small # of dead cells, because of extra calibration channels)
+    {
+      cout <<"hbhe = "<<hbhe.size()<<endl;
+      cout <<"ho = "<<ho.size()<<endl;
+      cout <<"hf = "<<hf.size()<<endl;
+      return;
+    }
   HcalBaseMonitor::processEvent();
-
   hbHists.count_bad=0;
   hbHists.count_good=0;
   heHists.count_bad=0;
