@@ -124,9 +124,9 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
         try:
             return lookuptable[id(self)]
         except:
-            # return something like "EDAnalyzer("foo", ...)"
             raise ModuleCloneError(self._errorstr())
     def _errorstr(self):
+         # return something like "EDAnalyzer("foo", ...)"
         typename = format_typename(self)
         return "%s('%s', ...)" %(typename, self.type_())
 
