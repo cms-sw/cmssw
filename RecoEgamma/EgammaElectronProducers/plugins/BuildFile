@@ -1,4 +1,3 @@
-<use name=RecoEgamma/EgammaElectronProducers>
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=RecoTracker/CkfPattern>
