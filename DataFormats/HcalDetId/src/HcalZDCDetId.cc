@@ -61,13 +61,15 @@ bool
 HcalZDCDetId::validDetId( Section se ,
 			  int     dp   )
 {
-   return ( dp >= 1 &&
-	    ( ( se == EM      ) &&
-	      ( dp <= kDepEM  )    ) ||
-	    ( ( se == HAD     ) &&
-	      ( dp <= kDepHAD )    ) ||
-	    ( ( se == LUM     ) &&
-	      ( dp <= kDepLUM )    )    ) ;
+  return ( dp >= 1 && (
+		       ( ( se == EM      ) &&
+			 ( dp <= kDepEM  )    ) ||
+		       ( ( se == HAD     ) &&
+			 ( dp <= kDepHAD )    ) ||
+		       ( ( se == LUM     ) &&
+			 ( dp <= kDepLUM )    )   
+		       )
+	   ) ;
 }
 
 std::ostream& operator<<(std::ostream& s,const HcalZDCDetId& id) {
