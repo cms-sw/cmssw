@@ -3,6 +3,12 @@ import inspect
 
 #### patches needed for deepcopy of process ####
 
+def auto_inspect():
+    stack = inspect.stack()
+    while 'ParameterSet' in stack[0][1]:
+        stack = stack[1:]
+    return stack
+
 import FWCore.ParameterSet.DictTypes as typ
     
 def new_SortedKeysDict__copy__(self):
@@ -122,6 +128,7 @@ def new_recurseResetModified_(self, o):
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
 def new_recurseDumpModified_(self, name, o):
+    """
     dumpPython = ""
     if hasattr(o, "parameterNames_"):      
         for key in o.parameterNames_():
@@ -152,6 +159,17 @@ def new_recurseDumpModified_(self, name, o):
     # 
     dumpPython = ""
     # Test this is a parameterizable object. This ignores any parameters never placed in a PSet, but I don't think they're interesting anyway?
+    if isinstance(o, cms._ModuleSequenceType):
+        if o._isModified:
+            for mod in o._modifications:
+                if mod['action']=='replace':
+                    dumpPython += "# MODIFIED BY %(file)s:%(line)s replace %(old)s with %(new)s\n"%mod
+                if mod['action']=='remove':
+                    dumpPython += "# MODIFIED BY %(file)s:%(line)s remove %(old)s\n"%mod
+                if mod['action']=='append':
+                    dumpPython += "# MODIFIED BY %(file)s:%(line)s append %(new)s\n"%mod
+            dumpPython += "process.%s = %s\n"%(name,o.dumpPython({}))
+    
     if isinstance(o, cms._Parameterizable):
         
         # Build a dictionary parametername->[modifications of that param,...] so that we group all modification statements for a single parameter together.
@@ -178,7 +196,7 @@ def new_recurseDumpModified_(self, name, o):
         for index,item in enumerate(o):
             dumpPython += self.recurseDumpModified_("%s[%s]"%(name,index),item)
     return dumpPython    
-    """
+    
 cms.Process.recurseDumpModified_=new_recurseDumpModified_
 
 def new_resetModified(self):
@@ -243,13 +261,15 @@ cms._Parameterizable.__init__ = new_Parameterizable_init
 
 def new_Parameterizable_addParameter(self, name, value):
   self.old__addParameter(name,value)
-  self._modifications.append({'file':inspect.stack()[3][1],'line':inspect.stack()[3][2],'name':name,'old':None,'new':deepcopy(value)})
+  stack = auto_inspect()
+  self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':None,'new':deepcopy(value)})
 cms._Parameterizable.old__addParameter = cms._Parameterizable._Parameterizable__addParameter
 cms._Parameterizable._Parameterizable__addParameter = new_Parameterizable_addParameter
 
 def new_Parameterizable_setattr(self, name, value):
   if (not self.isFrozen()) and (not name.startswith('_')) and (name in self.__dict__):
-    self._modifications.append({'file':inspect.stack()[1][1],'line':inspect.stack()[1][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value)})
+    stack = auto_inspect()
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value)})
     self._isModified = True
   self.old__setattr__(name,value)
 cms._Parameterizable.old__setattr__ = cms._Parameterizable.__setattr__
@@ -257,6 +277,7 @@ cms._Parameterizable.__setattr__ = new_Parameterizable_setattr
 
 def new_Parameterizable_resetModified(self):
     self._isModified=False
+    self._modifications = []
     for name in self.parameterNames_():
         param = self.__dict__[name]
         if isinstance(param, cms._Parameterizable):
@@ -264,27 +285,89 @@ def new_Parameterizable_resetModified(self):
 cms._Parameterizable.resetModified = new_Parameterizable_resetModified
 
 #### sequence history ####
+
+def new__Sequenceable_name(self):
+    return ''
+cms._Sequenceable._name = new__Sequenceable_name
+
+from FWCore.ParameterSet.SequenceTypes import _SequenceOperator, _SequenceNegation, _SequenceIgnore
+
+
+def new__SequenceOperator_name(self):
+    return self._left._name()+self._pySymbol+self._right._name()
+_SequenceOperator._name = new__SequenceOperator_name    
+
+def new__SequenceNegation_name(self):
+    return '~'+self._operand._name()
+_SequenceNegation._name = new__SequenceNegation_name    
+
+def new__SequenceIgnore_name(self):
+    return '-'+self._operand._name()
+_SequenceIgnore._name = new__SequenceIgnore_name
+
+def new_Sequence_name(self):
+    return '('+self._seq._name()+')'
+cms.Sequence._name = new_Sequence_name
+
+def new__Module_name(self):
+  if hasattr(self,'_Labelable__label'):
+    return getattr(self,'_Labelable__label')
+  elif hasattr(self,'_TypedParameterizable__type'):
+    return 'unnamed(%s)'%getattr(self,'_TypedParameterizable__type')
+  return type(self).__name__
+cms._Module._name = new__Module_name
+
+def new__ModuleSequenceType__init__(self,*arg,**argv):
+    self._modifications = []
+    self.old__init__(*arg,**argv)
+cms._ModuleSequenceType.old__init__ = cms._ModuleSequenceType.__init__
+cms._ModuleSequenceType.__init__ = new__ModuleSequenceType__init__
     
 def new__ModuleSequenceType_resetModified(self):
     self._isModified=False
+    self._modifications = []
 cms._ModuleSequenceType.resetModified = new__ModuleSequenceType_resetModified
+
 def new__ModuleSequenceType_isModified(self):
     return self._isModified
 cms._ModuleSequenceType.isModified = new__ModuleSequenceType_isModified
+
 def new__ModuleSequenceType_copy(self):
     returnValue =_ModuleSequenceType.__new__(type(self))
     returnValue.__init__(self._seq)
     returnValue._isModified = self._isModified
+    returnValue._modifications = deepcopy(self._modifications)
     return returnValue
 cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
+
 def new__ModuleSequenceType__replace(self, original, replacement):
-    self.old__replace(original, replacement)
+    stack = auto_inspect()
     self._isModified=True
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name(),'new':replacement._name()})
+    self.old__replace(original, replacement)
 cms._ModuleSequenceType.old__replace = cms._ModuleSequenceType._replace
 cms._ModuleSequenceType._replace = new__ModuleSequenceType__replace
+
 def new__ModuleSequenceType__remove(self, original):
+    stack = auto_inspect()
     self._isModified=True
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name()})
     return self.old__remove(original)
 cms._ModuleSequenceType.old__remove = cms._ModuleSequenceType._remove
 cms._ModuleSequenceType._remove = new__ModuleSequenceType__remove
 
+def new__ModuleSequenceType__imul__(self,other):
+    stack = auto_inspect()
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name()})
+    self._isModified=True
+    return self.old__iadd__(other)
+cms._ModuleSequenceType.old__imul__ = cms._ModuleSequenceType.__imul__
+cms._ModuleSequenceType.__imul__ = new__ModuleSequenceType__imul__
+
+def new__ModuleSequenceType__iadd__(self,other):
+    stack = auto_inspect()
+    self._isModified=True
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name()})
+    return self.old__iadd__(other)
+cms._ModuleSequenceType.old__iadd__ = cms._ModuleSequenceType.__iadd__
+cms._ModuleSequenceType.__iadd__ = new__ModuleSequenceType__iadd__
