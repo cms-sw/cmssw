@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.2 2009/06/11 18:15:03 boudoul Exp $
+// $Id: TrackAnalyzer.h,v 1.3 2009/09/14 16:19:21 jengbou Exp $
 
 #include <memory>
 #include <fstream>
@@ -28,7 +28,7 @@ class TrackAnalyzer {
   virtual ~TrackAnalyzer();
   virtual void beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_);
   
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, const reco::BeamSpot& bs);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
   
  private:
 

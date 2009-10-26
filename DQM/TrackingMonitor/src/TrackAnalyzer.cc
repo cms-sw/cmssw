@@ -87,6 +87,19 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   double VZMin = conf_.getParameter<double>("VZMin");
   double VZMax = conf_.getParameter<double>("VZMax");
 
+  int    X0Bin = conf_.getParameter<int>("X0Bin");
+  double X0Min = conf_.getParameter<double>("X0Min");
+  double X0Max = conf_.getParameter<double>("X0Max");
+
+  int    Y0Bin = conf_.getParameter<int>("Y0Bin");
+  double Y0Min = conf_.getParameter<double>("Y0Min");
+  double Y0Max = conf_.getParameter<double>("Y0Max");
+
+  int    Z0Bin = conf_.getParameter<int>("Z0Bin");
+  double Z0Min = conf_.getParameter<double>("Z0Min");
+  double Z0Max = conf_.getParameter<double>("Z0Max");
+  dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+
   histname = "NumberOfRecHitsPerTrack_";
   NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each track");
@@ -102,6 +115,7 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   histname = "NumberOfLayersPerTrack_";
   NumberOfLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
   NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each track");
+  dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
   histname = "Chi2_";
   Chi2 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
@@ -114,6 +128,33 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   histname = "Chi2overDoF_";
   Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max/10);
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
+
+  if(doBSPlots_)
+    {
+      dqmStore_->setCurrentFolder(MEBSFolderName);
+  
+      histname = "DistanceOfClosestApproachToBS_";
+      DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
+      DistanceOfClosestApproachToBS->setAxisTitle("Track distance of closest approach to beam spot (cm)");
+  
+      histname = "DistanceOfClosestApproachToBSVsPhi_";
+      DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
+      DistanceOfClosestApproachToBSVsPhi->getTH1()->SetBit(TH1::kCanRebin);
+      DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track azimuthal angle",1);
+      DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track distance of closest approach to beam spot (cm)",2);
+
+      histname = "xPointOfClosestApproachVsZ0_";
+      xPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
+      xPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
+      xPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the x-axis (cm)",2);
+
+      histname = "yPointOfClosestApproachVsZ0_";
+      yPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
+      yPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
+      yPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the y-axis (cm)",2);
+
+    }
+  dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
  
   histname = "DistanceOfClosestApproach_";
   DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
@@ -121,13 +162,16 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
 
   histname = "DistanceOfClosestApproachVsPhi_";
   DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
+  DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track azimuthal angle",1);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track distance of closest approach (cm)",2);
  
+  if(doBSPlots_) dqmStore_->setCurrentFolder(MEFolderName);
   
   if(doAllPlots_)
     {
-      histname = "DistanceOfClosestApproachVsTheta_";
+   dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+     histname = "DistanceOfClosestApproachVsTheta_";
       DistanceOfClosestApproachVsTheta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, D0Bin,D0Min,D0Max);
       DistanceOfClosestApproachVsTheta->setAxisTitle("Track polar angle",1);
       DistanceOfClosestApproachVsTheta->setAxisTitle("Track distance of closest approach",2);
@@ -160,49 +204,15 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   } else {
     bookHistosForState(StateName, dqmStore_);
   }
-  if(doBSPlots_) {
-    
-    dqmStore_->setCurrentFolder(MEBSFolderName);
-    
-    int    X0Bin = conf_.getParameter<int>("X0Bin");
-    double X0Min = conf_.getParameter<double>("X0Min");
-    double X0Max = conf_.getParameter<double>("X0Max");
-    
-    int    Y0Bin = conf_.getParameter<int>("Y0Bin");
-    double Y0Min = conf_.getParameter<double>("Y0Min");
-    double Y0Max = conf_.getParameter<double>("Y0Max");
-    
-    int    Z0Bin = conf_.getParameter<int>("Z0Bin");
-    double Z0Min = conf_.getParameter<double>("Z0Min");
-    double Z0Max = conf_.getParameter<double>("Z0Max");
-
-    histname = "DistanceOfClosestApproachToBS_";
-    DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
-    DistanceOfClosestApproachToBS->setAxisTitle("Track distance of closest approach to beam spot (cm)");
-    
-    histname = "DistanceOfClosestApproachToBSVsPhi_";
-    DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
-    DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track azimuthal angle",1);
-    DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track distance of closest approach to beam spot (cm)",2);
-    
-    histname = "xPointOfClosestApproachVsZ0_";
-    xPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
-    xPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
-    xPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the x-axis (cm)",2);
-    
-    histname = "yPointOfClosestApproachVsZ0_";
-    yPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
-    yPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
-    yPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the y-axis (cm)",2);
-    
-  }
 }
 //
 // -- Analyse
 //
-void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, const reco::BeamSpot& bs){
- 
+void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track){
+   using namespace edm;
+  InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
 
+ 
   NumberOfRecHitsPerTrack->Fill(track.recHitsSize());
   NumberOfRecHitsFoundPerTrack->Fill(track.found());
   NumberOfRecHitsLostPerTrack->Fill(track.lost());
@@ -217,6 +227,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   DistanceOfClosestApproachVsPhi->Fill(track.phi(), track.d0());
   
   if(doBSPlots_){
+ Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;      
+
     DistanceOfClosestApproachToBS->Fill(-track.dxy(bs.position()));
     DistanceOfClosestApproachToBSVsPhi->Fill(track.phi(), -track.dxy(bs.position()));
     xPointOfClosestApproachVsZ0->Fill(track.dz(),track.vx());
@@ -360,6 +374,8 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
 
   if(doAllPlots_)
     {
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+
       histname = "NumberOfRecHitsPerTrackVsPhi_" + htag;
       tkmes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->book2D(histname, histname, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
       tkmes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Track azimuthal angle",1);
@@ -374,6 +390,8 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
       tkmes.NumberOfRecHitsPerTrackVsEta = dqmStore_->book2D(histname, histname, EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
       tkmes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Track pseudorapidity",1);
       tkmes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Number of RecHits of each track",2);
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
       histname = "Chi2overDoFVsTheta_" + htag;
       tkmes.Chi2overDoFVsTheta = dqmStore_->book2D(histname, histname, ThetaBin, ThetaMin, ThetaMax, Chi2Bin, Chi2Min, Chi2Max);
@@ -390,6 +408,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
       tkmes.Chi2overDoFVsEta->setAxisTitle("Track pseudorapidity",1);
       tkmes.Chi2overDoFVsEta->setAxisTitle("Chi2 over nr. of degrees of freedom of each track",2);
     }
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
   histname = "TrackP_" + htag;
   tkmes.TrackP = dqmStore_->book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
   tkmes.TrackP->setAxisTitle("Track momentum");
@@ -572,6 +591,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 void TrackAnalyzer::doTrackerSpecificInitialization(DQMStore * dqmStore_) {
 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
+  std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   int    TKHitBin = conf_.getParameter<int>("RecHitBin");
   double TKHitMin = conf_.getParameter<double>("RecHitMin");
   double TKHitMax = conf_.getParameter<double>("RecHitMax");
@@ -579,6 +599,7 @@ void TrackAnalyzer::doTrackerSpecificInitialization(DQMStore * dqmStore_) {
   int    TKLayBin = conf_.getParameter<int>("RecLayBin");
   double TKLayMin = conf_.getParameter<double>("RecLayMin");
   double TKLayMax = conf_.getParameter<double>("RecLayMax");
+  dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
 
   histname = "NumberOfTOBRecHitsPerTrack_";
   NumberOfTOBRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
