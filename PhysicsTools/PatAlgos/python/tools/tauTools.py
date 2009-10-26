@@ -4,13 +4,13 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 def redoPFTauDiscriminators(process,
-                            oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            newPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            tauType='fixedConePFTau'):
+                            oldPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
+                            newPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
+                            tauType='shrinkingConePFTau'):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     print 'Tau type: ', tauType
     tauSrc = 'PFTauProducer'
-    tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
+    tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
     if tauType == 'fixedConeHighEffPFTau':
         tauDiscriminationSequence = process.patFixedConeHighEffPFTauDiscrimination
     elif tauType == 'shrinkingConePFTau':
@@ -26,7 +26,7 @@ def redoPFTauDiscriminators(process,
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
-                    pfTauLabel = cms.InputTag('fixedConePFTauProducer'),
+                    pfTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
     process.tauMatch.src       = caloTauLabel
     process.tauGenJetMatch.src = caloTauLabel
@@ -90,7 +90,7 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
-                           pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                           pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                            pfTauLabelNew = cms.InputTag('fixedConePFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau')
     #
@@ -102,7 +102,7 @@ def switchToPFTauFixedCone(process,
 
 # switch to PFTau collection produced for fixed dR = 0.15 signal cone size
 def switchToPFTauFixedConeHighEff(process,
-                                  pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                                  pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                                   pfTauLabelNew = cms.InputTag('fixedConeHighEffPFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConeHighEffPFTau')
     #
@@ -114,7 +114,7 @@ def switchToPFTauFixedConeHighEff(process,
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
 def switchToPFTauShrinkingCone(process,
-                               pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                               pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                                pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau')
     #
@@ -143,7 +143,7 @@ def switchToPFTauShrinkingCone(process,
 
 # Select switcher by string
 def switchToPFTauByType(process, pfTauType=None, pfTauLabelNew=None,
-                        pfTauLabelOld=cms.InputTag('pfRecoTauProducer') ):
+                        pfTauLabelOld=cms.InputTag('shrinkingConePFTauProducer') ):
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
                 'fixedConeHighEffPFTau' : switchToPFTauFixedConeHighEff,
@@ -158,7 +158,7 @@ def switchTo31Xdefaults(process):
 # function to switch to **any** PFTau collection
 # It is just to make internal function accessible externally
 def switchToAnyPFTau(process,
-                     pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
-                     pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
-                     pfTauType='fixedConePFTau'):
+                     pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauType='shrinkingConePFTau'):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType)
