@@ -160,32 +160,32 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meBCNwhenOrNDiff_->setAxisTitle("BCN",1);
     meBCNwhenOrNDiff_->setAxisTitle("# of Entries",2);
 
-    type = "03 OrN Difference Between Ref HTR and DCC";
+    type = "03 OrN Difference Between HTR and DCC";
     meOrNCheck_ = m_dbe->book1D(type,type,65,-32.5,32.5);
     meOrNCheck_->setAxisTitle("htr OrN - dcc OrN",1);
 
-    type = "03 OrN Inconsistent - HTR vs Ref HTR";
-    meOrNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    meOrNSynch_->setAxisTitle("Slot #",1);
-    meOrNSynch_->setAxisTitle("Crate #",2);
+    type = "03 OrN Inconsistent - HTR vs DCC";
+    meOrNSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
+    meOrNSynch_->setAxisTitle("FED #",1);
+    meOrNSynch_->setAxisTitle("Spigot #",2);
 
-    type = "05 BCN Difference Between Ref HTR and DCC";
+    type = "05 BCN Difference Between HTR and DCC";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
     meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
 
-    type = "05 BCN Inconsistent - HTR vs Ref HTR";
-    meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    meBCNSynch_->setAxisTitle("Slot #",1);
-    meBCNSynch_->setAxisTitle("Crate #",2);
+    type = "05 BCN Inconsistent - HTR vs HTR";
+    meBCNSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
+    meBCNSynch_->setAxisTitle("FED #",1);
+    meBCNSynch_->setAxisTitle("Slot #",2);
 
-    type = "06 EvN Difference Between Ref HTR and DCC";
+    type = "06 EvN Difference Between HTR and DCC";
     meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
     meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
 
-    type = "06 EvN Inconsistent - HTR vs Ref HTR";
-    meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    meEvtNumberSynch_->setAxisTitle("Slot #",1);
-    meEvtNumberSynch_->setAxisTitle("Crate #",2);
+    type = "06 EvN Inconsistent - HTR vs HTR";
+    meEvtNumberSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
+    meEvtNumberSynch_->setAxisTitle("FED #",1);
+    meEvtNumberSynch_->setAxisTitle("Slot #",2);
 
     //     ---------------- 
     //     | E!P | UE | TR |                                           
@@ -796,43 +796,28 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meHTRFWVersion_->Fill(cratenum,htrFWVer);  
 
     ///check that all HTRs have the same L1A number.
-    if(lastEvtN_==-1) {
-      lastEvtN_ = htrEvtN;  ///the first one will be the reference
-      int EvtNdiff = htrEvtN - dccEvtNum;
+    int EvtNdiff = htrEvtN - dccEvtNum;
+    if (EvtNdiff!=0) {
+      meEvtNumberSynch_->Fill(dcc_,spigot);
       meEvtNCheck_->Fill(EvtNdiff);
-      if (EvtNdiff!=0) meEvtNumberSynch_->Fill(slotnum,cratenum);
-    } else {
-      if((int) htrEvtN!=lastEvtN_) {
-	meEvtNumberSynch_->Fill(slotnum,cratenum);
-	if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;
-      }
+      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< dccEvtNum << "  "<<htrEvtN <<endl;
     }
 
     ///check that all HTRs have the same BCN
-    if(lastBCN_==-1) {
-      lastBCN_ = htrBCN;  ///the first one will be the reference
-      int BCNdiff = htrBCN-dccBCN;
+    int BCNdiff = htrBCN-dccBCN;
+    if (BCNdiff!=0) {
+      meBCNSynch_->Fill(dcc_,spigot);
       meBCNCheck_->Fill(BCNdiff);
-      if (BCNdiff!=0) meBCNSynch_->Fill(slotnum,cratenum);
-    } else {
-      if((int)htrBCN!=lastBCN_) {
-	meBCNSynch_->Fill(slotnum,cratenum);
-	if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;
-      }
+      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< dccBCN << "  "<<htrBCN <<endl;
     }
 
     ///check that all HTRs have the same OrN
-    if(lastOrN_==-1) {
-      lastOrN_ = htrOrN;  ///the first one will be the reference
-      int OrNdiff = htrOrN-dccOrN;
+    int OrNdiff = htrOrN-dccOrN;
+    if (OrNdiff!=0) {
+      meOrNSynch_->Fill(dcc_,spigot);
       meOrNCheck_->Fill(OrNdiff);
-      if (OrNdiff!=0) meOrNSynch_->Fill(slotnum,cratenum);
-    } else {
-      if((int)htrOrN!=lastOrN_) {
-	meOrNSynch_->Fill(slotnum,cratenum);
-	meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur?
-	if (prtlvl_==1)cout << "++++ OrN # out of sync, ref, this HTR: "<< lastOrN_ << "  "<<htrOrN <<endl;
-      }
+      meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur? Let's see.
+      if (prtlvl_==1)cout << "++++ OrN # out of sync, ref, this HTR: "<< dccOrN << "  "<<htrOrN <<endl;
     }
 
     bool htrUnSuppressed=(HTRraw[6]>>15 & 0x0001);
