@@ -333,7 +333,7 @@ particle_flow   usePFElectrons      1
 particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
 
 // PF Converted Bremsstrahlung recovery
-particle_flow   useConvBremGsfTracks    1
+particle_flow   useConvBremGsfTracks    0
 
 // PFConversions
 particle_flow   usePFConversions      0

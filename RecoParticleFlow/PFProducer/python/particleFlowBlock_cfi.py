@@ -16,7 +16,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),
     ConvBremGsfRecTracks = cms.InputTag("pfTrackElec","Secondary"),
-    useConvBremGsfTracks = cms.bool(True),                                     
+    useConvBremGsfTracks = cms.bool(False),                                     
     RecTracks = cms.InputTag("trackerDrivenElectronSeeds"),
 
     # input nuclear interactions 
