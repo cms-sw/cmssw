@@ -13,12 +13,83 @@
 
 # Use the -n option to specify how many events to run over
 
+
+
 getFiles () {
     FILE_NAMES=`mktemp`
     $DBS_CMD lsf --path=$1 | grep .root | \
         sed "s:\(/store/.*\.root\):'\1', :" >> $FILE_NAMES
     echo $FILE_NAMES
 }
+
+
+
+reduceToMuonContent () {
+
+    if [ $# -ne 2 ]; then echo "Wrong number of arguments"; exit; fi
+
+    cat >> reduceToMuonContent.C << EOF
+void CopyDir(TDirectory *source) {
+   //copy all objects and subdirs of directory source as a subdir of the current directory   
+   source->ls();
+   TDirectory *savdir = gDirectory;
+   TDirectory *adir = savdir->mkdir(source->GetName());
+   adir->cd();
+   //loop on all entries of this directory
+   TKey *key;
+   TIter nextkey(source->GetListOfKeys());
+   while ((key = (TKey*)nextkey())) {
+      const char *classname = key->GetClassName();
+      TClass *cl = gROOT->GetClass(classname);
+      if (!cl) continue;
+      if (cl->InheritsFrom("TDirectory")) {
+         source->cd(key->GetName());
+         TDirectory *subdir = gDirectory;
+         adir->cd();
+         CopyDir(subdir);
+         adir->cd();
+      } else if (cl->InheritsFrom("TTree")) {
+         TTree *T = (TTree*)source->Get(key->GetName());
+         adir->cd();
+         TTree *newT = T->CloneTree();
+         newT->Write();
+      } else {
+         source->cd();
+         TObject *obj = key->ReadObj();
+         adir->cd();
+         obj->Write();
+         delete obj;
+     }
+  }
+  adir->SaveSelf(kTRUE);
+  savdir->cd();
+}
+
+void reduceToMuonContent(TString oldFileName, TString newFileName) {
+
+  TFile *oldFile = new TFile(oldFileName);
+  gDirectory->cd("/DQMData/HLT/Muon/");
+  TDirectory *oldDir = gDirectory;
+
+  TFile *newFile = new TFile(newFileName, "recreate");
+  newFile->cd();
+  TDirectory *newDir = newFile->mkdir("DQMData");
+  newDir = newDir->mkdir("HLT");
+  CopyDir(oldDir);
+
+  newFile->Save();
+  newFile->Close();
+
+}
+
+EOF
+
+    root -b -q "reduceToMuonContent.C(\"$1\",\"$2\")" &> /dev/null
+    rm reduceToMuonContent.C
+
+}
+
+
 
 POST_ONLY=false
 N_EVENTS=-1
@@ -91,5 +162,8 @@ else
 fi
 
 SHORTNAME=`echo $LONGNAME | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-mv hltMuonPostProcessor.root $SHORTNAME.root
+mv hltMuonPostProcessor.root TEMP.root
+reduceToMuonContent TEMP.root $SHORTNAME.root
+rm TEMP.root
 echo "Produced $SHORTNAME.root"
+
