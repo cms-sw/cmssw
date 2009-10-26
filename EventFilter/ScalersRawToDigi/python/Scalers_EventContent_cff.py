@@ -14,7 +14,7 @@ EvtScalersRECO = cms.PSet(
        'keep L1TriggerScalerss_*_*_*',
        'keep Level1TriggerScalerss_*_*_*',
        'keep LumiScalerss_*_*_*',
-       'keep BeamSpots_*_*_*',
+       'keep BeamSpotOnlines_*_*_*',
        'keep DcsStatuss_*_*_*')
 )
 
@@ -26,6 +26,6 @@ EvtScalersAOD = cms.PSet(
        'keep L1TriggerScalerss_*_*_*',
        'keep Level1TriggerScalerss_*_*_*',
        'keep LumiScalerss_*_*_*',
-       'keep BeamSpots_*_*_*',
+       'keep BeamSpotOnlines_*_*_*',
        'keep DcsStatuss_*_*_*')
 )

@@ -88,8 +88,8 @@ DcsStatus::DcsStatus(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ >= 4 )
   {
-    collectionTime_.set_tv_sec(static_cast<long>(raw->beamSpot.collectionTime_sec));
-    collectionTime_.set_tv_nsec(raw->beamSpot.collectionTime_nsec);
+    collectionTime_.set_tv_sec(static_cast<long>(raw->dcsStatus.collectionTime_sec));
+    collectionTime_.set_tv_nsec(raw->dcsStatus.collectionTime_nsec);
     ready_       = raw->dcsStatus.ready;
   }
 }

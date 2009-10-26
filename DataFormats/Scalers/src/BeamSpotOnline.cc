@@ -1,13 +1,13 @@
 /*
- *   File: DataFormats/Scalers/src/BeamSpot.cc   (W.Badgett)
+ *   File: DataFormats/Scalers/src/BeamSpotOnline.cc   (W.Badgett)
  */
 
-#include "DataFormats/Scalers/interface/BeamSpot.h"
+#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 #include <cstdio>
 #include <ostream>
 
-BeamSpot::BeamSpot() : 
+BeamSpotOnline::BeamSpotOnline() : 
    trigType_(0),
    eventID_(0),
    sourceID_(0),
@@ -33,9 +33,9 @@ BeamSpot::BeamSpot() :
 { 
 }
 
-BeamSpot::BeamSpot(const unsigned char * rawData)
+BeamSpotOnline::BeamSpotOnline(const unsigned char * rawData)
 { 
-  BeamSpot();
+  BeamSpotOnline();
 
   struct ScalersEventRecordRaw_v4 * raw 
     = (struct ScalersEventRecordRaw_v4 *)rawData;
@@ -47,38 +47,38 @@ BeamSpot::BeamSpot(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ >= 4 )
   {
-    collectionTime_.set_tv_sec(static_cast<long>(raw->beamSpot.collectionTime_sec));
-    collectionTime_.set_tv_nsec(raw->beamSpot.collectionTime_nsec);
-    x_           = raw->beamSpot.x;
-    y_           = raw->beamSpot.y;
-    z_           = raw->beamSpot.z;
-    dxdz_        = raw->beamSpot.dxdz;
-    dydz_        = raw->beamSpot.dydz;
-    err_x_       = raw->beamSpot.err_x;
-    err_y_       = raw->beamSpot.err_y;
-    err_z_       = raw->beamSpot.err_z;
-    err_dxdz_    = raw->beamSpot.err_dxdz;
-    err_dydz_    = raw->beamSpot.err_dydz;
-    width_x_     = raw->beamSpot.width_x;
-    width_y_     = raw->beamSpot.width_y;
-    sigma_z_     = raw->beamSpot.sigma_z;
-    err_width_x_ = raw->beamSpot.err_width_x;
-    err_width_y_ = raw->beamSpot.err_width_y;
-    err_sigma_z_ = raw->beamSpot.err_sigma_z;
+    collectionTime_.set_tv_sec(static_cast<long>(raw->beamSpotOnline.collectionTime_sec));
+    collectionTime_.set_tv_nsec(raw->beamSpotOnline.collectionTime_nsec);
+    x_           = raw->beamSpotOnline.x;
+    y_           = raw->beamSpotOnline.y;
+    z_           = raw->beamSpotOnline.z;
+    dxdz_        = raw->beamSpotOnline.dxdz;
+    dydz_        = raw->beamSpotOnline.dydz;
+    err_x_       = raw->beamSpotOnline.err_x;
+    err_y_       = raw->beamSpotOnline.err_y;
+    err_z_       = raw->beamSpotOnline.err_z;
+    err_dxdz_    = raw->beamSpotOnline.err_dxdz;
+    err_dydz_    = raw->beamSpotOnline.err_dydz;
+    width_x_     = raw->beamSpotOnline.width_x;
+    width_y_     = raw->beamSpotOnline.width_y;
+    sigma_z_     = raw->beamSpotOnline.sigma_z;
+    err_width_x_ = raw->beamSpotOnline.err_width_x;
+    err_width_y_ = raw->beamSpotOnline.err_width_y;
+    err_sigma_z_ = raw->beamSpotOnline.err_sigma_z;
   }
 }
 
-BeamSpot::~BeamSpot() { } 
+BeamSpotOnline::~BeamSpotOnline() { } 
 
 
-/// Pretty-print operator for BeamSpot
-std::ostream& operator<<(std::ostream& s, const BeamSpot& c) 
+/// Pretty-print operator for BeamSpotOnline
+std::ostream& operator<<(std::ostream& s, const BeamSpotOnline& c) 
 {
   char zeit[128];
   char line[128];
   struct tm * hora;
 
-  s << "BeamSpot    Version: " << c.version() << 
+  s << "BeamSpotOnline    Version: " << c.version() << 
     "   SourceID: "<< c.sourceID() << std::endl;
 
   timespec ts = c.collectionTime();

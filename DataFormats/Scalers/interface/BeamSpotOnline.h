@@ -1,7 +1,7 @@
 /*
- *  File: DataFormats/Scalers/interface/BeamSpot.h   (W.Badgett)
+ *  File: DataFormats/Scalers/interface/BeamSpotOnline.h   (W.Badgett)
  *
- *  The online computed BeamSpot value
+ *  The online computed BeamSpotOnline value
  *
  */
 
@@ -15,26 +15,26 @@
 #include <vector>
 #include <string>
 
-/*! \file BeamSpot.h
- * \Header file for online BeamSpot value
+/*! \file BeamSpotOnline.h
+ * \Header file for online BeamSpotOnline value
  * 
  * \author: William Badgett
  *
  */
 
-/// \class BeamSpot.h
-/// \brief Persistable copy of online BeamSpot value
+/// \class BeamSpotOnline.h
+/// \brief Persistable copy of online BeamSpotOnline value
 
-class BeamSpot
+class BeamSpotOnline
 {
  public:
 
-  BeamSpot();
-  BeamSpot(const unsigned char * rawData);
-  virtual ~BeamSpot();
+  BeamSpotOnline();
+  BeamSpotOnline(const unsigned char * rawData);
+  virtual ~BeamSpotOnline();
 
   /// name method
-  std::string name() const { return "BeamSpot"; }
+  std::string name() const { return "BeamSpotOnline"; }
 
   /// empty method (= false)
   bool empty() const { return false; }
@@ -65,10 +65,10 @@ class BeamSpot
   float err_sigma_z()  const               { return(err_sigma_z_);}
 
   /// equality operator
-  int operator==(const BeamSpot& e) const { return false; }
+  int operator==(const BeamSpotOnline& e) const { return false; }
 
   /// inequality operator
-  int operator!=(const BeamSpot& e) const { return false; }
+  int operator!=(const BeamSpotOnline& e) const { return false; }
 
 protected:
 
@@ -98,9 +98,9 @@ protected:
   float err_sigma_z_;
 };
 
-/// Pretty-print operator for BeamSpot
-std::ostream& operator<<(std::ostream& s, const BeamSpot& c);
+/// Pretty-print operator for BeamSpotOnline
+std::ostream& operator<<(std::ostream& s, const BeamSpotOnline& c);
 
-typedef std::vector<BeamSpot> BeamSpotCollection;
+typedef std::vector<BeamSpotOnline> BeamSpotOnlineCollection;
 
 #endif
