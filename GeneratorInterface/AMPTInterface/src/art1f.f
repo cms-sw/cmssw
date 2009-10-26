@@ -16989,6 +16989,7 @@ c      real*4   xarray(14), earray(14)
      &31.6,25.9,24.0,23.1,
      &24.0,28.3,33.6,41.5,47/
 
+      xpp=0.
        pmass=0.9383 
 * 1.Calculate E_kin(lab) [MeV] from srt [GeV]
 *   Formula used:   DSQRT(s) = 2 m DSQRT(E_kin/(2m) + 1)
@@ -17043,6 +17044,7 @@ c      real*4   xarray(11), earray(11)
       data  xarray / 410.,270.,214.5,130.,78.,53.5,
      &41.6,35.9,34.2,34.3,34.9/
 
+       xnp=0.
        pmass=0.9383
 * 1.Calculate E_kin(lab) [MeV] from srt [GeV]
 *   Formula used:   DSQRT(s) = 2 m DSQRT(E_kin/(2m) + 1)
@@ -17675,6 +17677,7 @@ c      real*4   xarray(122), earray(122)
      &6.420560,6.431045,6.441367,6.451529,6.461533,6.471386,6.481091,    
      &6.490650,6.476413,6.297259,6.097826/
 
+      dirct1=0
       if (srt .lt. earray(1)) then
         dirct1 = 0.00001
         return
@@ -17757,6 +17760,7 @@ c      real*4   xarray(122), earray(122)
      &5.552088,5.593359,5.634520,5.675570,5.716515,5.757356,5.798093,    
      &5.838732,5.879272,5.919717,5.960068,5.980941/
 
+      dirct2=0.
       if (srt .lt. earray(1)) then
         dirct2 = 0.00001
         return
