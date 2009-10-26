@@ -28,15 +28,38 @@ process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT OBJECTNAME, SUBDET, IETA, IPHI, DEPTH, TYPE, SECTION, ISPOSITIVEETA, SECTOR, MODULE, CHANNEL,
-               VALUE
-        FROM CMS_HCL_HCAL_COND.V_HCAL_RESPONSE_CORRECTIONS
-        --SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
-          --FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
-        WHERE
-          TAG_NAME=:1
-        and
-          VERSION=:2
+SELECT 
+      OBJECTNAME, 
+      SUBDET, 
+      IETA, 
+      IPHI, 
+      DEPTH, 
+      TYPE, 
+      SECTION, 
+      ISPOSITIVEETA, 
+      SECTOR, 
+      MODULE, 
+      CHANNEL, 
+      VALUE 
+FROM ( 
+     select 
+            MIN(rc.record_id) as record_id, 
+	    MAX(rc.interval_of_validity_begin) as iov_begin, 
+	    rc.channel_map_id 
+     from 
+            cms_hcl_hcal_cond.v_hcal_response_corrections rc 
+     where 
+            tag_name=:1 
+     AND 
+            rc.interval_of_validity_begin<=:2 
+     group by 
+            rc.channel_map_id 
+     order by 
+            rc.channel_map_id 
+) fp 
+inner join CMS_HCL_HCAL_COND.V_HCAL_RESPONSE_CORRECTIONS sp 
+on 
+fp.record_id=sp.record_id 
         ''')
     ))
 )

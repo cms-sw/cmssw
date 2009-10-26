@@ -23,18 +23,50 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('ElectronicsMap'),
-        tag = cms.string('DUMMY-TAG-TEST001'),
-        version = cms.string('TEST:1'),
+        tag = cms.string('hcal-emap-29-jan-2009-v1'),
+        version = cms.string('obsolete'),
         subversion = cms.int32(1),
-        accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
+        accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
         query = cms.string('''
-        SELECT OBJECTNAME, SUBDET, IETA, IPHI, DEPTH, TYPE, SECTION, ISPOSITIVEETA, SECTOR, MODULE, CHANNEL, 
-               1107314060 as i, 0 as cr, 2 as sl, 't' as tb, 2 as dcc, 0 as spigot, 1 as fiber, 0 as fiberchan 
-        FROM CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS 
-        WHERE
-        TAG_NAME=:1
-        and
-        VERSION=:2
+SELECT 
+      OBJECTNAME, 
+      SUBDET, 
+      IETA, 
+      IPHI, 
+      DEPTH, 
+      TYPE, 
+      SECTION, 
+      ISPOSITIVEETA, 
+      SECTOR, 
+      MODULE, 
+      CHANNEL, 
+      CHANNEL as i, 
+      cr, 
+      sl, 
+      tb, 
+      dcc, 
+      spigot, 
+      fiber, 
+      fiberchan 
+FROM ( 
+     select 
+            MIN(theview.record_id) as record_id, 
+            MAX(theview.interval_of_validity_begin) as iov_begin, 
+            theview.channel_map_id 
+     from 
+            cms_hcl_hcal_cond.V_HCAL_EMAP_V1 theview 
+     where 
+            tag_name=:1 
+     AND 
+            theview.interval_of_validity_begin<=:2 
+     group by 
+            theview.channel_map_id 
+     order by 
+            theview.channel_map_id 
+) fp 
+inner join CMS_HCL_HCAL_COND.V_HCAL_EMAP_V1 sp 
+on 
+fp.record_id=sp.record_id 
         ''')
     ))
 )

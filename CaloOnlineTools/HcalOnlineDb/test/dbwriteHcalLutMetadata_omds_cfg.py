@@ -22,9 +22,9 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('L1TriggerObjects'),
-        tag = cms.string('hcal-l1trigger-test-v1'),
-        version = cms.string('obsolete'),
+        object = cms.string('LutMetadata'),
+        tag = cms.string('hcal-respcorr-test-v1'),
+        version = cms.string('dummy-obsolete'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
         query = cms.string('''
@@ -40,18 +40,16 @@ SELECT
       SECTOR, 
       MODULE, 
       CHANNEL, 
-      AVERAGE_PEDESTAL, 
-      RESPONSE_CORRECTED_GAIN, 
-      FLAG, 
-      'fake_metadata_name', 
-      'fake_metadata_value' 
+      rec_hit_calibration, 
+      lut_granularity, 
+      output_lut_threshold 
 FROM ( 
      select 
             MIN(theview.record_id) as record_id, 
             MAX(theview.interval_of_validity_begin) as iov_begin, 
             theview.channel_map_id 
      from 
-            cms_hcl_hcal_cond.v_hcal_L1_TRIGGER_OBJECTS theview 
+            cms_hcl_hcal_cond.v_hcal_lut_chan_data_v1 theview 
      where 
             tag_name=:1 
      AND 
@@ -61,7 +59,7 @@ FROM (
      order by 
             theview.channel_map_id 
 ) fp 
-inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS sp 
+inner join CMS_HCL_HCAL_COND.V_HCAL_lut_chan_data_v1 sp 
 on 
 fp.record_id=sp.record_id 
  
@@ -79,23 +77,21 @@ SELECT
        -1, 
        -1, 
        -1, 
-       -999999.0, 
-       -999999.0, 
-       -999999, 
-       TRIGGER_OBJECT_METADATA_NAME,
-       TRIGGER_OBJECT_METADATA_VALUE 
+       rctlsb, 
+       nominal_gain, 
+       -1 
 FROM ( 
      select 
             MIN(theview.record_id) as record_id, 
 	    MAX(theview.interval_of_validity_begin) as iov_begin 
      from 
-            cms_hcl_hcal_cond.v_hcal_L1_TRIGGER_OBJECTS_MDA theview 
+            cms_hcl_hcal_cond.v_hcal_lut_metadata_v1 theview 
      where 
             tag_name=:1 
      AND 
             theview.interval_of_validity_begin<=:2 
 ) fp 
-inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA sp 
+inner join CMS_HCL_HCAL_COND.V_HCAL_lut_metadata_v1 sp 
 on 
 fp.record_id=sp.record_id 
         ''')
@@ -107,13 +103,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalL1TriggerObjectsRcd'),
+        record = cms.string('HcalLutMetadataRcd'),
         tag = cms.string('hcal_resp_corrs_trivial_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalL1TriggerObjectsPopConAnalyzer",
-    record = cms.string('HcalL1TriggerObjectsRcd'),
+process.mytest = cms.EDAnalyzer("HcalLutMetadataPopConAnalyzer",
+    record = cms.string('HcalLutMetadataRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

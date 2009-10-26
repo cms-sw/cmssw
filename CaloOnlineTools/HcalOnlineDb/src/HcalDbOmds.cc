@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.14 2009/10/18 19:05:52 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.15 2009/10/26 02:55:16 kukartse Exp $
 //
 //
 #include <vector>
@@ -74,8 +74,8 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(2,3);
+    //stmt->setString(2,fVersion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -140,8 +140,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -231,8 +230,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -287,8 +285,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -343,8 +340,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -423,8 +419,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -502,8 +497,6 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    //stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
     stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
@@ -556,8 +549,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -609,8 +601,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -664,8 +655,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
-    stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    stmt->setInt(2,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -686,22 +676,32 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     _row.setPrintCount(true);
     _row.setNewLine(true);
     //
-    // The query result must be ordered in the following way
+    // This is two queries in one joined by "UNION" (SQL), not ordered
+    // One of the queries returns global data: LUT tag name and algo name
+    // The global data is one raw, and it is ordered in the following way
+    // 1."fakeobjectname",
+    // 2."fakesubdetector", 3. -1, 4. -1, 5. -1, 6. -1, 7."fakesection", 8. -1, 9. -1, 10. -1, 11. -1 
+    // 12. -999999.0, 13. -999999.0, 14. -999999,
+    // 15. TRIGGER_OBJECT_METADATA_NAME, 16. TRIGGER_OBJECT_METADATA_VALUE
+    //
+    // The channel query result must be ordered in the following way
     // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
     // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
-    // 12. AVERAGE_PEDESTAL, 13. RESPONSE_CORRECTED_GAIN, 14. FLAG, 15. LUT_TAG_NAME, 16. ALGO_NAME
+    // 12. AVERAGE_PEDESTAL, 13. RESPONSE_CORRECTED_GAIN, 14. FLAG,
+    // 15. 'fake_metadata_name', 16. 'fake_metadata_value'
     //
-    bool _is_first_entry=true;
     while (rs->next()) {
       _row.count();
       DetId id = getId(rs);
       float average_pedestal = rs->getFloat(12);
       float response_corrected_gain = rs->getFloat(13);
       int flag = rs->getInt(14);
-      if (_is_first_entry){
-	_tag = rs->getString(15);
+      string metadata_name = rs->getString(15);
+      if (metadata_name.find("lut_tag")!=std::string::npos){
+	_tag = rs->getString(16);
+      }
+      else if (metadata_name.find("algo_name")!=std::string::npos){
 	_algo = rs->getString(16);
-	_is_first_entry=false;
       }
       HcalL1TriggerObject * fCondObject = new HcalL1TriggerObject(id, average_pedestal, response_corrected_gain, flag);
       fObject->addValues(*fCondObject);
@@ -714,6 +714,125 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   }
   fObject->setTagString(_tag);
   fObject->setAlgoString(_algo);
+  return result;
+}
+
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const int fIOVBegin,
+			    const std::string & fQuery,
+			    HcalValidationCorrs* fObject) {
+  bool result=true;
+  if (!fObject) fObject = new HcalValidationCorrs;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    //stmt->setString(2,fVersion);
+    stmt->setInt(2,fIOVBegin);
+
+    ResultSet *rs = stmt->executeQuery();
+
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL channels processed: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. value
+    //
+    while (rs->next()) {
+      _row.count();
+      DetId id = getId(rs);
+      float value = rs->getFloat(12);
+      //int ieta = rs->getInt(2);
+      //int iphi = rs->getInt(3);
+      //int depth = rs->getInt(4);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //cout << "DEBUG: " << id << " " << value << endl;
+      HcalValidationCorr * fCondObject = new HcalValidationCorr(id, value);
+      fObject->addValues(*fCondObject);
+      delete fCondObject;
+    }
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
+  return result;
+}
+
+
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const int fIOVBegin,
+			    const std::string & fQuery,
+			    HcalLutMetadata* fObject) {
+  bool result=true;
+  if (!fObject) fObject = new HcalLutMetadata;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    //stmt->setString(2,fVersion);
+    stmt->setInt(2,fIOVBegin);
+
+    ResultSet *rs = stmt->executeQuery();
+
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL channels processed: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    //
+    // This is two queries in one joined by "UNION" (SQL), not ordered
+    // One of the queries returns global data: RCTLSB and nominal gain.
+    // The global data is one raw, and it is ordered in the following way
+    // 1."fakeobjectname",
+    // 2."fakesubdetector", 3. -1, 4. -1, 5. -1, 6. -1, 7."fakesection", 8. -1, 9. -1, 10. -1, 11. -1 
+    // 12. RCTLSB, 13. nominal_gain, 14. -1
+    //
+    // The channel query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. rec_hit_calibration, 13. lut_granularity, 14. output_lut_threshold 
+    //
+    while (rs->next()) {
+      if (rs->getString(1).find("fakeobjectname")!=std::string::npos){ // global data
+	float rctlsb = rs->getFloat(12);
+	float nominal_gain = rs->getFloat(13);
+	fObject->setRctLsb(rctlsb);
+	fObject->setNominalGain(nominal_gain);
+      }
+      else{ // channel data
+	_row.count();
+	DetId id = getId(rs);
+	float rcalib = rs->getFloat(12);
+	uint32_t lut_granularity = rs->getInt(13);
+	uint32_t output_lut_threshold = rs->getInt(14);
+	HcalLutMetadatum * fCondObject = new HcalLutMetadatum(id,
+							      rcalib,
+							      lut_granularity,
+							      output_lut_threshold);
+	fObject->addValues(*fCondObject);
+	delete fCondObject;
+      }
+    }
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
   return result;
 }
 

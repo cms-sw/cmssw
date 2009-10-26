@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.5 2009/03/27 09:02:13 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.6 2009/08/05 22:22:56 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -25,7 +25,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.5 2009/03/27 09:02:13 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.6 2009/08/05 22:22:56 kukartse Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -135,6 +135,22 @@ namespace HcalDbOmds {
 		  const std::string & fQuery,
 		  HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const int fIOVBegin,
+		  const std::string & fQuery,
+		  HcalValidationCorrs* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const int fIOVBegin,
+		  const std::string & fQuery,
+		  HcalLutMetadata* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
 
   HcalSubdetector get_subdetector( std::string _det );
   HcalZDCDetId::Section get_zdc_section( std::string _section );

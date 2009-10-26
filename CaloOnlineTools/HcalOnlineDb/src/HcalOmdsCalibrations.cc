@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalAsciiCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.8 2009/08/05 22:22:57 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.9 2009/10/26 02:55:16 kukartse Exp $
 //
 //
 
@@ -27,6 +27,8 @@
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 
@@ -93,11 +95,19 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalOmdsCalibrations::produceElectronicsMap);
       findingRecord <HcalElectronicsMapRcd> ();
     }
+    else if (objectName == "ValidationCorrs") {
+      setWhatProduced (this, &HcalOmdsCalibrations::produceValidationCorrs);
+      findingRecord <HcalValidationCorrsRcd> ();
+    }
+    else if (objectName == "LutMetadata") {
+      setWhatProduced (this, &HcalOmdsCalibrations::produceLutMetadata);
+      findingRecord <HcalLutMetadataRcd> ();
+    }
     else {
       std::cerr << "HcalOmdsCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs L1TriggerObjects"
+		<< "ZSThresholds RespCorrs L1TriggerObjects ValidationCorrs LutMetadata"
 		<< std::endl;
     }
   }
@@ -243,5 +253,23 @@ std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (c
 					   mIOVBegin["ElectronicsMap"], 
 					   mQuery["ElectronicsMap"], 
 					   mAccessor["ElectronicsMap"]);
+}
+
+std::auto_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
+  return produce_impl<HcalValidationCorrs> (mInputs ["ValidationCorrs"], 
+					    mVersion["ValidationCorrs"], 
+					    mSubversion["ValidationCorrs"], 
+					    mIOVBegin["ValidationCorrs"], 
+					    mQuery["ValidationCorrs"], 
+					    mAccessor["ValidationCorrs"]);
+}
+
+std::auto_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
+  return produce_impl<HcalLutMetadata> (mInputs ["LutMetadata"], 
+					mVersion["LutMetadata"], 
+					mSubversion["LutMetadata"], 
+					mIOVBegin["LutMetadata"], 
+					mQuery["LutMetadata"], 
+					mAccessor["LutMetadata"]);
 }
 
