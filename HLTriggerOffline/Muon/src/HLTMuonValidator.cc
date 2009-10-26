@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/22 16:39:56 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/26 16:43:11 $
+ *  $Revision: 1.8 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -177,11 +177,11 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
       for (size_t i = 0; i < genParticles->size(); i++) {
         const GenParticle * genParticle = & genParticles->at(i);
         const Candidate * mother = findMother(genParticle);
-        int    momId  = mother ? mother->pdgId() : 0;
-        int    id     = genParticle->pdgId();
-        int    status = genParticle->status();
-        if (abs(id) == 13 && status == 1 && 
-            (cutMotherId_ == 0 || abs(momId) == cutMotherId_))
+        unsigned int momId  = mother ? abs(mother->pdgId()) : 0;
+        unsigned int id     = abs(genParticle->pdgId());
+        unsigned int status = genParticle->status();
+        if (id == 13 && status == 1 && 
+            (cutMotherId_ == 0 || momId == cutMotherId_))
           matches.push_back(MatchStruct(genParticle));
       }
     else if (source == "rec" && recMuons.isValid())
