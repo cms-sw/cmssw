@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/21 18:24:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/22 16:39:56 $
+ *  $Revision: 1.7 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -55,7 +55,7 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet & pset)
 
 
 void 
-HLTMuonValidator::beginJob(const EventSetup & iSetup) 
+HLTMuonValidator::beginJob() 
 {
 
   HLTConfigProvider hltConfig;
@@ -233,7 +233,7 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
 
     set<string>::iterator iPath;
     for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++)
-      analyzePath(* iPath, source, matches, rawTriggerEvent);
+      analyzePath(* iPath, source, matches, * rawTriggerEvent);
 
   }
 
@@ -244,8 +244,8 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
 void 
 HLTMuonValidator::analyzePath(const string & path, 
                               const string & source,
-                              vector<MatchStruct> & matches,
-                              Handle<TriggerEventWithRefs> & rawTriggerEvent)
+                              const vector<MatchStruct> & matches,
+                              const TriggerEventWithRefs & rawTriggerEvent)
 {
 
   const float maxEta = elements_[path + "_" + "CutMaxEta" ]->getFloatValue();
@@ -259,12 +259,12 @@ HLTMuonValidator::analyzePath(const string & path,
 
   for (size_t i = 0; i < nFilters; i++) {
     InputTag tag     = InputTag(filterLabels_[path][i], "", hltProcessName_);
-    size_t   iFilter = rawTriggerEvent->filterIndex(tag);
-    if (iFilter < rawTriggerEvent->size())
+    size_t   iFilter = rawTriggerEvent.filterIndex(tag);
+    if (iFilter < rawTriggerEvent.size())
       if (i == 0)
-        rawTriggerEvent->getObjects(iFilter, TriggerL1Mu, candsPassingL1);
+        rawTriggerEvent.getObjects(iFilter, TriggerL1Mu, candsPassingL1);
       else
-        rawTriggerEvent->getObjects(iFilter, TriggerMuon, candsPassingHlt[i-1]);
+        rawTriggerEvent.getObjects(iFilter, TriggerMuon, candsPassingHlt[i-1]);
     else LogTrace("HLTMuonVal") << "No collection with label " << tag;
   }
 

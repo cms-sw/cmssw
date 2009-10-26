@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/09/30 20:46:47 $
- *  $Revision:  $
+ *  $Date: 2009/10/15 19:57:44 $
+ *  $Revision: 1.1 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -51,7 +51,7 @@ class HLTMuonValidator : public edm::EDAnalyzer {
 
  public:
   HLTMuonValidator(const edm::ParameterSet &);
-  virtual void beginJob(const edm::EventSetup &);
+  virtual void beginJob();
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
 
  private:
@@ -91,8 +91,8 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   };
 
   void analyzePath(const std::string &, const std::string &,
-                   std::vector<MatchStruct> &, 
-                   edm::Handle<trigger::TriggerEventWithRefs> &);
+                   const std::vector<MatchStruct> &, 
+                   const trigger::TriggerEventWithRefs &);
   const reco::Candidate * findMother(const reco::Candidate *);
   bool identical(const reco::Candidate *, const reco::Candidate *);
   unsigned int findMatch(const reco::Candidate *, std::vector<MatchStruct> &, 
@@ -119,4 +119,5 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   std::map<std::string, std::vector<std::string> > stepLabels_;
 
 };
+
 #endif
