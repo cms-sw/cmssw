@@ -1,3 +1,24 @@
+V02-04-00
+---------
+
+2009-10-26  author  <author@pcsaccms02.cern.ch>
+
+	* python/ecalDigis_cfi.py, python/ecalDigis_craft_cfi.py:
+	. SR flag (low interest, single..) to actions is now fully configurable.
+	. Default TTF is now configurable. Set its value to "force low interest"
+	. Added a mode (trigByPassMode=1), where TTF is recomputed from trigger primitive (TP) compressed Et issue from the TP module.
+
+	* interface/EcalSelectiveReadoutProducer.h, src/EcalSelectiveReadoutProducer.cc:
+	. SRF of the four inner corner partial SC changed to unknown to SRF of the main RU (the one reading 5 out of the 6 crystals)
+	. Configurable default TTF. Now, with ecalDigi.cfi, uses forced low interest as default.
+	. Added a mode (trigByPassMode=1), where TTF is recomputed from trigger primitive (TP) compressed Et issue from the TP module.
+
+	* test/TpSrp_cfg.py: 
+	fixed configuration
+
+	* test/SimDigi_cfg.py:
+	Fixed to worj with particle gun of >= 31X
+
 V02-03-00
 ---------
 	

@@ -1,3 +1,17 @@
+V02-03-00
+---------
+
+2009-10-26  author  <author@pcsaccms02.cern.ch>
+
+	* interface/EcalSelectiveReadoutSuppressor.h, src/EcalSelectiveReadoutSuppressor.cc:
+	. SRF of the four inner corner partial SC changed to unknown to SRF of the main RU (the one reading 5 out of the 6 crystals)
+	. Configurable default TTF. Now, with ecalDigi.cfi, uses forced low interest as default.
+	. Added a mode (trigByPassMode=1), where TTF is recomputed from trigger primitive (TP) compressed Et issue from the TP module.
+
+	* src/EcalSelectiveReadout.cc, src/EcalSelectiveReadout.h:
+	. SR flag (low interest, single..) to actions is now fully configurable.
+	. Implemented treatement of forced flags according to what is done in the hardware.
+
 V02-02-01
 ---------
 
