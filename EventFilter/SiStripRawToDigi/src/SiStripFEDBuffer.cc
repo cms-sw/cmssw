@@ -210,11 +210,13 @@ namespace sistrip {
 
   bool FEDBuffer::checkFEUnitAPVAddresses() const
   {
+    //get golden address
+    const uint8_t goldenAddress = apveAddress();
+    //don't check if the address is 00 since APVe is probably not connected
+    if (goldenAddress == 0x00) return true;
     //check can only be done for full debug headers
     const FEDFullDebugHeader* fdHeader = dynamic_cast<FEDFullDebugHeader*>(feHeader_.get());
     if (!fdHeader) return true;
-    //get golden address
-    const uint8_t goldenAddress = apveAddress();
     //check all enabled FE units
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
       if (!feGood(iFE)) continue;
