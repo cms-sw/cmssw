@@ -33,8 +33,8 @@ class TrackClassMatch
  bool operator()(const first_argument_type & input , const second_argument_type & category ) const
 {
  const reco::Track & track = input.track;
- const reco::Jet & jet = input.jet;
- const reco::Vertex & pv = input.vertex;
+// const reco::Jet & jet = input.jet;
+// const reco::Vertex & pv = input.vertex;
  const TrackProbabilityCategoryData & d = category.category;
   //Track Data
   double p=track.p();
