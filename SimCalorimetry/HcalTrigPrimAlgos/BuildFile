@@ -2,6 +2,7 @@
   <lib name=SimCalorimetryHcalTrigPrimAlgos>
   <use name=CondFormats/HcalObjects>
   <use name=CalibCalorimetry/HcalAlgos>
+  <use name=CalibCalorimetry/HcalTPGAlgos>
   <use name=CalibFormats/HcalObjects>
   <use name=DataFormats/HcalDigi>
   <use name=CalibFormats/CaloTPG>
@@ -11,6 +12,7 @@
 
 <use name=CondFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=CalibCalorimetry/HcalTPGAlgos>
 <use name=CalibFormats/HcalObjects>
 <use name=DataFormats/HcalDigi>
 <use name=CalibFormats/CaloTPG>

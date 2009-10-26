@@ -6,7 +6,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
-#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+//#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -25,11 +26,11 @@ public:
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
   ~HcalTriggerPrimitiveAlgo();
 
-  void run(const HcalTPGCoder * incoder,
-           const HcalTPGCompressor * outcoder,
-           const HBHEDigiCollection & hbheDigis,
-           const HFDigiCollection & hfDigis,
-           HcalTrigPrimDigiCollection & result);
+  void run(const HcalTPGCoder* incoder,
+           const HcalTPGCompressor* outcoder,
+           const HBHEDigiCollection& hbheDigis,
+           const HFDigiCollection& hfDigis,
+           HcalTrigPrimDigiCollection& result);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
   void runFEFormatError(const FEDRawDataCollection* rawraw,
@@ -41,14 +42,15 @@ public:
   void addSignal(const HBHEDataFrame & frame);
   void addSignal(const HFDataFrame & frame);
   void addSignal(const IntegerCaloSamples & samples);
-  void addSignalFG(const IntegerCaloSamples & samples);
+  void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
+
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
 
    // Member initialized by constructor
-  const HcalTPGCoder * incoder_;
-  const HcalTPGCompressor * outcoder_;
+  const HcaluLUTTPGCoder* incoder_;
+  const HcalTPGCompressor* outcoder_;
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
@@ -85,5 +87,7 @@ public:
   typedef std::map<uint32_t, std::vector<bool> > TowerMapVeto;
   TowerMapVeto HF_Veto;
 
+  typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
+  FGbitMap fgMap_;
 };
 #endif
