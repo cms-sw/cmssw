@@ -104,11 +104,10 @@ void SiPixelRawDataErrorSource::endJob(void){
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------
-void
-SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-
+//std::cout<<"Event number: "<<eventNo<<std::endl;
   // get input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByLabel( src_, input );

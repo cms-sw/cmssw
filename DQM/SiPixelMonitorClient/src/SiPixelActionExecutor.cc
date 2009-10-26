@@ -609,12 +609,25 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
-	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"||
+	   (*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray") 
 	  prefix="SUMRAW";
       }
-      string tag = prefix + "_" + (*iv) + "_FEDErrors";
-      MonitorElement* temp = getFEDSummaryME(bei, tag);
-      sum_mes.push_back(temp);
+      if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"){
+        string tag = prefix + "_" + (*iv) + "_FEDErrors";
+        MonitorElement* temp = getFEDSummaryME(bei, tag);
+        sum_mes.push_back(temp);
+      }else if((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray"){
+        string tag = prefix + "_" + (*iv);
+	MonitorElement* temp;
+	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChNErrArray") temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedETypeNErrArray") temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,15,24.5,39.5);
+	sum_mes.push_back(temp);
+      }
     }
     if (sum_mes.size() == 0) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
@@ -626,54 +639,36 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	 it != subdirs.end(); it++) {
       if ( (*it).find("FED_") == string::npos) continue;
       bei->cd(*it);
-      ///////      ndet++;
       string fedid = (*it).substr((*it).find("_")+1);
-      if(fedid=="0") ndet = 1;
-      else if(fedid=="1") ndet = 2;
-      else if(fedid=="2") ndet = 3;
-      else if(fedid=="3") ndet = 4;
-      else if(fedid=="4") ndet = 5;
-      else if(fedid=="5") ndet = 6;
-      else if(fedid=="6") ndet = 7;
-      else if(fedid=="7") ndet = 8;
-      else if(fedid=="8") ndet = 9;
-      else if(fedid=="9") ndet = 10;
-      else if(fedid=="10") ndet = 11;
-      else if(fedid=="11") ndet = 12;
-      else if(fedid=="12") ndet = 13;
-      else if(fedid=="13") ndet = 14;
-      else if(fedid=="14") ndet = 15;
-      else if(fedid=="15") ndet = 16;
-      else if(fedid=="16") ndet = 17;
-      else if(fedid=="17") ndet = 18;
-      else if(fedid=="18") ndet = 19;
-      else if(fedid=="19") ndet = 20;
-      else if(fedid=="20") ndet = 21;
-      else if(fedid=="21") ndet = 22;
-      else if(fedid=="22") ndet = 23;
-      else if(fedid=="23") ndet = 24;
-      else if(fedid=="24") ndet = 25;
-      else if(fedid=="25") ndet = 26;
-      else if(fedid=="26") ndet = 27;
-      else if(fedid=="27") ndet = 28;
-      else if(fedid=="28") ndet = 29;
-      else if(fedid=="29") ndet = 30;
-      else if(fedid=="30") ndet = 31;
-      else if(fedid=="31") ndet = 32;
-      else if(fedid=="32") ndet = 33;
-      else if(fedid=="33") ndet = 34;
-      else if(fedid=="34") ndet = 35;
-      else if(fedid=="35") ndet = 36;
-      else if(fedid=="36") ndet = 37;
-      else if(fedid=="37") ndet = 38;
-      else if(fedid=="38") ndet = 39;
-      else if(fedid=="39") ndet = 40;
+      std::istringstream isst;
+      isst.str(fedid);
+      isst>>ndet; ndet++;
       vector<string> contents = bei->getMEs(); 
 			
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
 	for (vector<string>::const_iterator im = contents.begin();
 	     im != contents.end(); im++) {
+	  if(((*im).find("FedChNErrArray_")!=std::string::npos && (*isum)->getName().find("FedChNErrArray")!=std::string::npos) ||
+	     ((*im).find("FedChLErrArray_")!=std::string::npos && (*isum)->getName().find("FedChLErrArray")!=std::string::npos) ||
+	     ((*im).find("FedETypeNErrArray_")!=std::string::npos && (*isum)->getName().find("FedETypeNErrArray")!=std::string::npos)){
+	    string fullpathname = bei->pwd() + "/" + (*im); 
+	    MonitorElement *  me = bei->get(fullpathname);
+	    if(me && me->getIntValue()>0){
+	      for(int i=0; i!=37; i++){
+	        int n = (*im).find("_"); n++;
+	        string channel_str = (*im).substr(n);
+		std::istringstream jsst;
+		jsst.str(channel_str);
+		int channel=-1;
+		jsst>>channel;
+	        if(channel==i){
+		  if((*im).find("FedETypeNErrArray_")!=std::string::npos) (*isum)->Fill(ndet-1,i+25,me->getIntValue());
+		  else (*isum)->Fill(ndet-1,i,me->getIntValue());
+		}
+	      }
+	    }
+	  }
 	  string sname = ((*isum)->getName());
 	  string tname = " ";
 	  tname = sname.substr(7,(sname.find("_",7)-6));
@@ -703,12 +698,14 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 		      }
 		    }
 		  }
-		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
-	        }else (*isum)->Fill(ndet-1, me->getMean());
+//		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
+//	        }else (*isum)->Fill(ndet-1, me->getMean());
+		  if(othererror) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
+	        }else (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
 	      }
 	      (*isum)->setAxisTitle("FED #",1);
 	      string title = " ";
-	      title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per FED"; 
+	      title = sname.substr(7,(sname.find("_",7)-7)) + " per FED"; 
 	      (*isum)->setAxisTitle(title,2);
 	    }
 	    break;
@@ -1569,8 +1566,6 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 		MonitorElement*  me = bei->get(fullpathname);
 		
 		if (me) {
-		//cout << "Name: " << me->getName() << endl;
-		// TH1F* histo = (TH1F*) me->getTH1F();
 		TH1F* histo = me->getTH1F();
 		
 		Int_t nbins = histo->GetNbinsX();

@@ -62,10 +62,10 @@ process.qTester = cms.EDFilter("QualityTester",
 )
 
 ##----## Pixel DQM P5/OFFLINE:
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
 ## the following sequences are declared therein:
 ## siPixelOfflineDQM_source, siPixelOfflineDQM_cosmics_source, siPixelOfflineDQM_source_woTrack
 ## PixelOfflineDQMClient, PixelOfflineDQMClientWithDataCertification
@@ -89,7 +89,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-#process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ##----## Global tag and input data:
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -235,7 +235,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(25000)
+    input = cms.untracked.int32(4200)
 )
 
 ##----## Sequences and Paths:
@@ -255,8 +255,7 @@ process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*proc
 #process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.PixelP5DQMClient*process.dqmSaver)
-#process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelDigiSource*process.PixelP5DQMClient*process.dqmSaver)
+process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 
 #process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
-process.p = cms.Path(process.RecoForDQM*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
