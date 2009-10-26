@@ -910,7 +910,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
  
       // "bad" include "recovered" if the flag not to use them was set 
       // this is consistent with the treatment of what channels are accepted
-      if (thisEcalSevLvl>theEcalAcceptSeverityLevel || 
+      if (thisEcalSevLvl>int(theEcalAcceptSeverityLevel) || 
 	  ( thisEcalSevLvl==EcalSeverityLevelAlgo::kRecovered && !theRecoveredEcalHitsAreUsed) ) {
 	
 	++numBadEcalChan;
@@ -1374,7 +1374,7 @@ uint CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
       CaloTowersCreationAlgo::RecoveredChan : CaloTowersCreationAlgo::BadChan;
   }
   else {
-    if (severityLevel > theHcalAcceptSeverityLevel) {
+    if (severityLevel > int(theHcalAcceptSeverityLevel)) {
       return CaloTowersCreationAlgo::BadChan;
     }
     else {
@@ -1408,7 +1408,7 @@ uint CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
       CaloTowersCreationAlgo::RecoveredChan : CaloTowersCreationAlgo::BadChan;
   }  
   else {
-    if (severityLevel > theEcalAcceptSeverityLevel) {
+    if (severityLevel > int(theEcalAcceptSeverityLevel)) {
       return CaloTowersCreationAlgo::BadChan;
     }
     else {
