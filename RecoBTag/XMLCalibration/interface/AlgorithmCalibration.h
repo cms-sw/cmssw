@@ -16,7 +16,7 @@
 //#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
 #include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 
-class XERCES_CPP_NAMESPACE::DOMNode;
+namespace XERCES_CPP_NAMESPACE { class DOMNode; }
 
 using namespace std;
 using namespace XERCES_CPP_NAMESPACE;
