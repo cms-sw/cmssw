@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/09/01 09:52:49 $
- * $Revision: 1.461 $
+ * $Date: 2009/09/28 19:16:58 $
+ * $Revision: 1.462 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -755,6 +755,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   subrun_ = -1;
 
+  this->softReset(false);
+
 }
 
 void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
@@ -784,8 +786,6 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
     }
 
   }
-
-  this->softReset(false);
 
 }
 

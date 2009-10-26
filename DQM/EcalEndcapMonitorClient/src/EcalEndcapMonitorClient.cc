@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/09/01 09:52:49 $
- * $Revision: 1.223 $
+ * $Date: 2009/09/28 19:16:58 $
+ * $Revision: 1.224 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -796,6 +796,8 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   subrun_ = -1;
 
+  this->softReset(false);
+
 }
 
 void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
@@ -825,8 +827,6 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
     }
 
   }
-
-  this->softReset(false);
 
 }
 
