@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_4_0/pre2/HLT"          # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_4_0/pre2/\$TABLE"      # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_4_0/pre2/HLT"     # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_4_0/pre2/\$TABLE" # no explicit version, take te most recent 
 TABLES="8E29 1E31 GRun HIon"           # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
@@ -54,21 +54,23 @@ function getConfigForOnline() {
 eval `scramv1 runtime -sh`
 hash -r
 
-if [ "$1" == "CVS" ]; then
-  # for things in CMSSW CVS
-  rm -f HLT*_cff.py
-  getConfigForCVS  $MASTER FULL
-  getContentForCVS $MASTER
-  for TABLE in $TABLES; do
-    getConfigForCVS $(eval echo $TARGET) $TABLE
-  done
-  ls -l HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py
-  mv -f HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py ../python
-else
-  # for things NOT in CMSSW CVS:
-  rm -f OnLine_HLT_*.py
-  for TABLE in $TABLES; do
-    getConfigForOnline $(eval echo $TARGET) $TABLE
-  done
-  ls -l OnLine_HLT_*.py
-fi
+# for things in CMSSW CVS
+echo "Extracting CVS python dumps"
+rm -f HLT*_cff.py
+getConfigForCVS  $MASTER FULL
+getContentForCVS $MASTER
+for TABLE in $TABLES; do
+  getConfigForCVS $(eval echo $TARGET) $TABLE
+done
+ls -l HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py
+mv -f HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py ../python
+echo
+
+# for things now also in CMSSW CVS:
+echo "Extracting full configurations"
+rm -f OnLine_HLT_*.py
+for TABLE in $TABLES; do
+  getConfigForOnline $(eval echo $TARGET) $TABLE
+done
+ls -l OnLine_HLT_*.py
+echo
