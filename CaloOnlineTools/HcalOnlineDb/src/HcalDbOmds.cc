@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.13 2009/10/18 18:08:12 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.14 2009/10/18 19:05:52 kukartse Exp $
 //
 //
 #include <vector>
@@ -75,7 +75,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
     stmt->setString(2,fVersion);
-    //stmt->setInt(3,fSubversion);
+    //stmt->setInt(2,3);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -109,6 +109,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(23);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(24));
       //HcalDetId id(subdetector,ieta,iphi,depth);
+      cout << "DEBUG: " << endl;
       //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
       HcalPedestal * fCondObject = new HcalPedestal(id.rawId(), cap0, cap1, cap2, cap3, variance0, variance1, variance2, variance3);
       fObject->addValues(*fCondObject);
@@ -494,6 +495,8 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalChannelQuality* fObject) {
+  cout << " +++++=====> HcalDbOmds::getObject" << endl;
+
   bool result=true;
   if (!fObject) fObject = new HcalChannelQuality;
   try {
@@ -527,7 +530,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << zs << endl;
+      //cout << "DEBUG: " << endl;//<< id << " " << zs << endl;
       HcalChannelStatus * fCondObject = new HcalChannelStatus(id, value);
       fObject->addValues(*fCondObject);
       delete fCondObject;

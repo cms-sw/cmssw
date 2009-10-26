@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
-// Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.7 2009/03/27 09:02:14 kukartse Exp $
+// Adapted from HcalAsciiCalibrations
+// $Id: HcalOmdsCalibrations.cc,v 1.8 2009/08/05 22:22:57 kukartse Exp $
 //
 //
 

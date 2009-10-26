@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.2 2009/08/17 02:12:52 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.3 2009/09/14 16:20:32 kukartse Exp $
 //
 
 
@@ -95,7 +95,7 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
 
 // inspired by cmscond_list_iov
 //
-std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::string connect){
+int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out, std::string tag, std::string connect){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
   std::string user("");
   std::string pass("");
@@ -113,13 +113,17 @@ std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::st
   cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
   cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
   
-  std::vector<uint32_t> allIovs;
+  out.clear();
   try{
     myconnection.connect(session);
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     std::string token;
     coraldb.start(true);
+    if(!metadata_svc.hasTag(tag)){
+      //std::cout << "no such tag in the Pool database!" << std::endl;
+      return -1;
+    }
     token=metadata_svc.getToken(tag);
     coraldb.commit();
     cond::PoolTransaction& pooldb = myconnection.poolTransaction();
@@ -134,7 +138,7 @@ std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::st
       // FIXME: after CMSSW_3_2_3 use this:
       std::string payloadContainer=iov.payloadContainerName();
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-	allIovs.push_back(ioviterator->since());
+	out.push_back(ioviterator->since());
 	++counter;
       }
     }
@@ -145,7 +149,7 @@ std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::st
     std::cout<<er.what()<<std::endl;
   }
   delete session;
-  return allIovs;
+  return out.size();
 }
 
 
@@ -179,8 +183,120 @@ std::vector<std::string> HcalO2OManager::getListOfOmdsTags(){
 
 
 
-std::vector<uint32_t> HcalO2OManager::getListOfOmdsIovs(std::string tagname){
-  std::vector<uint32_t> allIovs;
+int HcalO2OManager::getListOfOmdsIovs(std::vector<uint32_t> & out, std::string tagname){
+  out.clear();
+  static ConnectionManager conn;
+  conn.connect();
+  std::string query = " ";
+  //query += "select iov, ";
+  //query += "       i.cond_iov_record_id, ";
+  //query += "       time ";
+  //query += "from ( ";
+  query += "      select iovs.interval_of_validity_begin as iov, ";
+  query += "             min(iovs.record_insertion_time) time ";
+  query += "      from cms_hcl_core_iov_mgmnt.cond_tags tags ";
+  query += "      inner join cms_hcl_core_iov_mgmnt.cond_iov2tag_maps i2t ";
+  query += "      on tags.cond_tag_id=i2t.cond_tag_id ";
+  query += "      inner join cms_hcl_core_iov_mgmnt.cond_iovs iovs ";
+  query += "      on i2t.cond_iov_record_id=iovs.cond_iov_record_id ";
+  query += "where ";
+  query += "      tags.tag_name=:1 ";
+  query += "group by iovs.interval_of_validity_begin ";
+  //query += "     ) ";
+  //query += "inner join cms_hcl_core_iov_mgmnt.cond_iovs i ";
+  //query += "on time=i.record_insertion_time ";
+  query += "order by time asc ";
+  int _n_iovs = 0;
+  try {
+    oracle::occi::Statement* stmt = conn.getStatement(query);
+    //_____  set bind variables
+    stmt->setString(1,tagname);
+    oracle::occi::ResultSet *rs = stmt->executeQuery();
+    while (rs->next()) {
+      _n_iovs++;
+      out.push_back(rs->getInt(1));
+    }
+  }
+  catch (SQLException& e) {
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+  conn.disconnect();
+  return out.size();
+}
 
-  return allIovs;
+
+void HcalO2OManager::getListOfNewIovs_test( void ){
+  std::vector<uint32_t> omds, orcon, out;
+  orcon.push_back(1);
+  orcon.push_back(100);
+  //orcon.push_back(80000);
+  //orcon.push_back(90000);
+  //orcon.push_back(100000);
+  //orcon.push_back(199000);
+  //orcon.push_back(199001);
+  //orcon.push_back(199002);
+  //orcon.push_back(199003);
+  omds.push_back(1);
+  omds.push_back(100);
+  //omds.push_back(80000);
+  //omds.push_back(90000);
+  //omds.push_back(100000);
+  //omds.push_back(199000);
+  //omds.push_back(199001);
+  //omds.push_back(199002);
+  //omds.push_back(199004);
+  if (getListOfNewIovs(out, omds, orcon) == -1){
+    std::cout << "HcalO2OManager::getListOfNewIovs_test(): O2O is not possible" << std::endl;
+  }
+  else if (getListOfNewIovs(out, omds, orcon) == 0){
+    std::cout << "HcalO2OManager::getListOfNewIovs_test(): O2O is not needed, the tag is up to date" << std::endl;
+  }
+  else{
+    std::cout << "HcalO2OManager::getListOfNewIovs_test(): O2O is possible" << std::endl;
+    std::cout << "HcalO2OManager::getListOfNewIovs_test(): " << out.size() << " IOVs to be copied to ORCON" << std::endl;
+    std::copy (out.begin(),
+	       out.end(),
+	       std::ostream_iterator<uint32_t>(std::cout,"\n")
+	       );
+  }
+}
+
+
+int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
+				     const std::vector<uint32_t> & omds_iovs,
+				     const std::vector<uint32_t> & orcon_iovs){
+  int result = -1; // default fail
+  iovs.clear();
+  if (omds_iovs.size() < orcon_iovs.size()) return result; // more IOVs in ORCON than in OMDS
+  unsigned int _index = 0;
+  for (std::vector<uint32_t>::const_iterator _iov = orcon_iovs.begin();
+       _iov != orcon_iovs.end();
+       ++_iov){
+    _index = (int)(_iov - orcon_iovs.begin());
+    if (omds_iovs[_index] != orcon_iovs[_index]){
+      return result; // existing IOVs do not match
+    }
+    ++_index;
+  }
+  //
+  //_____ loop over remaining OMDS IOVs
+  //
+  int _counter = 0; // count output IOVs
+  for (;_index < omds_iovs.size();++_index){
+    if (_index == 0){
+      iovs.push_back(omds_iovs[_index]);
+      ++_counter;
+    }
+    else if (omds_iovs[_index]>omds_iovs[_index-1]){
+      iovs.push_back(omds_iovs[_index]);
+      ++_counter;
+    }
+    else{
+      return result;
+    }
+  }
+  //if (_counter != 0) result = _counter;
+  result = _counter;
+  return result;
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id: HcalChannelIterator.cc,v 1.2 2009/07/24 06:55:21 kukartse Exp $
+// $Id: HcalChannelIterator.cc,v 1.3 2009/08/04 22:25:18 kukartse Exp $
 //
 
 #include <fstream>
@@ -44,7 +44,7 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
   string _row;
   ifstream inFile( filename . c_str(), ios::in );
   if (!inFile){
-    cout << "Unable to open file with the electronic map: " << filename << endl;
+    cout << "Unable to open file with the logical map: " << filename << endl;
   }
   else{
     cout << "File with the logical map opened successfully: " << filename << endl;

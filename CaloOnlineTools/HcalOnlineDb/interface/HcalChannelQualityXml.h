@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelQualityXml.h,v 1.5 2009/08/16 14:02:09 kukartse Exp $
+// $Id: HcalChannelQualityXml.h,v 1.6 2009/08/16 14:21:17 kukartse Exp $
 //
 
 #include <map>
@@ -71,6 +71,9 @@ class HcalChannelQualityXml : public HcalChannelDataXml
 
   // add XML for all HCAL channels onoff entries
   int set_all_channels_on_off( int _hb, int _he, int _hf, int _ho);
+
+  // add XML for all HCAL channels status entries
+  int set_all_channels_status( uint32_t _hb, uint32_t _he, uint32_t _hf, uint32_t _ho);
 
   // get baseline channel status from a tag for a given IOV
   int getBaseLineFromOmds(std::string _tag, int _iov_begin);

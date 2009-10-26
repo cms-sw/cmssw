@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.8 2009/08/16 14:21:17 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.9 2009/08/16 21:21:21 kukartse Exp $
 //
 
 #include <iostream>
@@ -133,6 +133,42 @@ int HcalChannelQualityXml::set_all_channels_on_off( int _hb, int _he, int _hf, i
     
   }
 
+  return 0;
+}
+
+
+int HcalChannelQualityXml::set_all_channels_status( uint32_t _hb,
+						    uint32_t _he,
+						    uint32_t _hf,
+						    uint32_t _ho){
+  HcalChannelIterator iter;
+  iter.initHBEFListFromLmapAscii();
+  std::string _subdetector = "";
+  uint32_t _status = 0;
+  int _onoff = 0;
+  std::string _comment = get_random_comment();
+  for (iter.begin(); !iter.end(); iter.next()){
+    HcalSubdetector _det = iter.getHcalSubdetector();
+    if (_det == HcalBarrel){
+      _subdetector = "HB";
+      _status = _hb;
+    }
+    else if (_det == HcalEndcap){
+      _subdetector = "HE";
+      _status = _he;
+    }
+    else if (_det == HcalForward){
+      _subdetector = "HF";
+      _status = _hf;
+    }
+    else if (_det == HcalOuter){
+      _subdetector = "HO";
+      _status = _ho;
+    }
+    else continue;
+    add_hcal_channel_dataset( iter.getIeta(), iter.getIphi(), iter.getDepth(), _subdetector,
+			      _status, _onoff, _comment );
+  }
   return 0;
 }
 

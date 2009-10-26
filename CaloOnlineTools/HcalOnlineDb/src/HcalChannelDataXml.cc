@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelDataXml.cc,v 1.3 2009/08/05 18:19:25 kukartse Exp $
+// $Id: HcalChannelDataXml.cc,v 1.4 2009/10/14 00:09:01 kukartse Exp $
 //
 
 #include <iostream>
@@ -28,6 +28,7 @@ HcalChannelDataXml::HcalChannelDataXml(){
   comment = hcal_ass.getRandomQuote();
   //init_data();
   dataset_count = 0;
+  global_timestamp = time(NULL);
 }
 
 
@@ -148,7 +149,8 @@ DOMNode * HcalChannelDataXml::add_dataset( void ){
   //_____ fix due to the new convention: version/subversion combo must be unique for every payload
   //
   char _buf[128];
-  time_t _offset = time(NULL);
+  //time_t _offset = time(NULL);
+  time_t _offset = global_timestamp;
   sprintf( _buf, "%d", (uint32_t)_offset );
   std::string _version;
   _version.clear();
