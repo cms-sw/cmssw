@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/10/08 02:20:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/10/08 03:44:24 $
+ *  $Revision: 1.11 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -89,7 +89,7 @@ public:
   // also gamma is only valid if the model is kPowerLawTails or kROOTVoigt
   virtual bool fit(Alignable *ali) = 0;
   double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
-  double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
+  double errorerror(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
   double loglikelihood() { return m_loglikelihood; };
   long numsegments() {
     long num = 0;

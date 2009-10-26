@@ -790,42 +790,42 @@ void MuonAlignmentFromReference::terminate() {
 	  double redchi2 = fitter->second->plot(name.str(), &rootDirectory, thisali);
 	  if (fitter->second->type() == MuonResidualsFitter::k5DOF) {
 	    double deltax_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignX);
-	    double deltax_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignX);
+	    double deltax_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignX);
 	    double deltax_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignX);
 
 	    double deltaz_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignZ);
-	    double deltaz_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignZ);
+	    double deltaz_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignZ);
 	    double deltaz_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignZ);
 
 	    double deltaphix_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiX);
-	    double deltaphix_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignPhiX);
 	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiX);
 
 	    double deltaphiy_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiY);
-	    double deltaphiy_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignPhiY);
 	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiY);
 
 	    double deltaphiz_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiZ);
-	    double deltaphiz_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignPhiZ);
 	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiZ);
 
 	    double sigmaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidSigma);
-	    double sigmaresid_error = fitter->second->error(MuonResiduals5DOFFitter::kResidSigma);
+	    double sigmaresid_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kResidSigma);
 	    double sigmaresid_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResidSigma);
 
 	    double sigmaresslope_value = fitter->second->value(MuonResiduals5DOFFitter::kResSlopeSigma);
-	    double sigmaresslope_error = fitter->second->error(MuonResiduals5DOFFitter::kResSlopeSigma);
+	    double sigmaresslope_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kResSlopeSigma);
 	    double sigmaresslope_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResSlopeSigma);
 
 	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
 	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
 	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	      gammaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidGamma);
-	      gammaresid_error = fitter->second->error(MuonResiduals5DOFFitter::kResidGamma);
+	      gammaresid_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kResidGamma);
 	      gammaresid_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResidGamma);
 	      
 	      gammaresslope_value = fitter->second->value(MuonResiduals5DOFFitter::kResSlopeGamma);
-	      gammaresslope_error = fitter->second->error(MuonResiduals5DOFFitter::kResSlopeGamma);
+	      gammaresslope_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kResSlopeGamma);
 	      gammaresslope_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResSlopeGamma);
 	    }
 
@@ -897,62 +897,62 @@ void MuonAlignmentFromReference::terminate() {
 
 	  else if (fitter->second->type() == MuonResidualsFitter::k6DOF) {
 	    double deltax_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignX);
-	    double deltax_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignX);
+	    double deltax_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignX);
 	    double deltax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignX);
 
 	    double deltay_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignY);
-	    double deltay_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignY);
+	    double deltay_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignY);
 	    double deltay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignY);
 
 	    double deltaz_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignZ);
-	    double deltaz_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignZ);
+	    double deltaz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignZ);
 	    double deltaz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignZ);
 
 	    double deltaphix_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiX);
-	    double deltaphix_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignPhiX);
 	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiX);
 
 	    double deltaphiy_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiY);
-	    double deltaphiy_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignPhiY);
 	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiY);
 
 	    double deltaphiz_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiZ);
-	    double deltaphiz_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignPhiZ);
 	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiZ);
 
 	    double sigmax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXSigma);
-	    double sigmax_error = fitter->second->error(MuonResiduals6DOFFitter::kResidXSigma);
+	    double sigmax_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResidXSigma);
 	    double sigmax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidXSigma);
 
 	    double sigmay_value = fitter->second->value(MuonResiduals6DOFFitter::kResidYSigma);
-	    double sigmay_error = fitter->second->error(MuonResiduals6DOFFitter::kResidYSigma);
+	    double sigmay_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResidYSigma);
 	    double sigmay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidYSigma);
 
 	    double sigmadxdz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeXSigma);
-	    double sigmadxdz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeXSigma);
+	    double sigmadxdz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResSlopeXSigma);
 	    double sigmadxdz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeXSigma);
 
 	    double sigmadydz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeYSigma);
-	    double sigmadydz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeYSigma);
+	    double sigmadydz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResSlopeYSigma);
 	    double sigmadydz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeYSigma);
 
 	    double gammax_value, gammax_error, gammax_antisym, gammay_value, gammay_error, gammay_antisym, gammadxdz_value, gammadxdz_error, gammadxdz_antisym, gammadydz_value, gammadydz_error, gammadydz_antisym;
 	    gammax_value = gammax_error = gammax_antisym = gammay_value = gammay_error = gammay_antisym = gammadxdz_value = gammadxdz_error = gammadxdz_antisym = gammadydz_value = gammadydz_error = gammadydz_antisym = 0.;
 	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	      gammax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXGamma);
-	      gammax_error = fitter->second->error(MuonResiduals6DOFFitter::kResidXGamma);
+	      gammax_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResidXGamma);
 	      gammax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidXGamma);
 	      
 	      gammay_value = fitter->second->value(MuonResiduals6DOFFitter::kResidYGamma);
-	      gammay_error = fitter->second->error(MuonResiduals6DOFFitter::kResidYGamma);
+	      gammay_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResidYGamma);
 	      gammay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidYGamma);
 	      
 	      gammadxdz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeXGamma);
-	      gammadxdz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeXGamma);
+	      gammadxdz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResSlopeXGamma);
 	      gammadxdz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeXGamma);
 	      
 	      gammadydz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeYGamma);
-	      gammadydz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeYGamma);
+	      gammadydz_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResSlopeYGamma);
 	      gammadydz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeYGamma);
 	    }
 
@@ -1037,46 +1037,46 @@ void MuonAlignmentFromReference::terminate() {
 
 	  else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi) {
 	    double deltax_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignX);
-	    double deltax_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignX);
+	    double deltax_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignX);
 	    double deltax_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignX);
 
 	    double deltay_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignY);
-	    double deltay_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignY);
+	    double deltay_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignY);
 	    double deltay_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignY);
 
 	    double deltaz_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignZ);
-	    double deltaz_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignZ);
+	    double deltaz_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignZ);
 	    double deltaz_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignZ);
 
 	    double deltaphix_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiX);
-	    double deltaphix_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignPhiX);
 	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiX);
 
 	    double deltaphiy_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiY);
-	    double deltaphiy_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignPhiY);
 	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiY);
 
 	    double deltaphiz_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
-	    double deltaphiz_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
 	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
 
 	    double sigmaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidSigma);
-	    double sigmaresid_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResidSigma);
+	    double sigmaresid_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kResidSigma);
 	    double sigmaresid_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResidSigma);
 
 	    double sigmaresslope_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
-	    double sigmaresslope_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
+	    double sigmaresslope_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
 	    double sigmaresslope_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
 
 	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
 	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
 	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	      gammaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidGamma);
-	      gammaresid_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResidGamma);
+	      gammaresid_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kResidGamma);
 	      gammaresid_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResidGamma);
 	      
 	      gammaresslope_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
-	      gammaresslope_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
+	      gammaresslope_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
 	      gammaresslope_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
 	    }
 

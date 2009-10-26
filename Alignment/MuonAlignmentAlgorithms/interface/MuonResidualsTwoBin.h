@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/10/08 01:57:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/08 02:20:59 $
+ *  $Revision: 1.8 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -57,8 +57,8 @@ public:
   double value(int parNum) {
     return (m_twoBin ? ((m_pos->value(parNum) + m_neg->value(parNum)) / 2.) : m_pos->value(parNum));
   };
-  double error(int parNum) {
-    return (m_twoBin ? (sqrt(pow(m_pos->error(parNum), 2.) + pow(m_neg->error(parNum), 2.)) / 2.) : m_pos->error(parNum));
+  double errorerror(int parNum) {
+    return (m_twoBin ? (sqrt(pow(m_pos->errorerror(parNum), 2.) + pow(m_neg->errorerror(parNum), 2.)) / 2.) : m_pos->errorerror(parNum));
   };
   double antisym(int parNum) {
     return (m_twoBin ? ((m_pos->value(parNum) - m_neg->value(parNum)) / 2.) : 0.);
