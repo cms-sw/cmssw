@@ -4,104 +4,100 @@
 #include <map>
 #include <string>
 #include "poly.h"
-#include <boost/regex.hpp>
 #include "TDirectory.h"
 #include "TH1.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TProfile.h"
 #include "TH3D.h"
+#include <boost/regex.hpp>
+#include <boost/iterator/filter_iterator.hpp>
 
 class Book {
   
-  typedef std::map<std::string, TH1*> book_t;
+  typedef   const double             double_t;
+  typedef   const unsigned long        uint_t;
+  typedef   const std::string        string_t;
+  typedef std::map<std::string, TH1*>  book_t;
+
   book_t book_;
-  const std::string _title;
+  string_t title_;
   TDirectory*const  directory;
-
-  typedef   const double&             double_t;
-  typedef   const unsigned long&        uint_t;
-
+  
+  struct match_name {
+    match_name(string_t re) : expression(re) {}
+    bool operator()(const book_t::const_iterator::value_type& p) { return regex_match( p.first, expression); }
+    private:  boost::regex expression;
+  };
+  
  public:
+  
+  Book() : title_(""), directory(0) {}
+  Book(string_t t) : title_(t), directory(new TDirectory(t.c_str(),t.c_str())) {}
 
-  Book() : _title(""), directory(0) {}
-  Book(const std::string& t) : _title(t), directory(new TDirectory(t.c_str(),t.c_str())) {}
+  string_t& title() const { return title_;}
+  bool empty()   const { return book_.empty(); }
+  long size ()   const { return book_.size(); }
 
-  const std::string& title() const {return _title;}
-  TH1* book(const std::string& name, TH1* hist)  { book_[name]=hist; hist->SetDirectory(directory); if(!hist->GetSumw2N()) hist->Sumw2(); return hist;}
-  TH1*& operator()(const std::string& name)      { return book_[name]; }
-  TH1* operator()(const std::string& name) const { return book_.find(name)->second; }
-  bool  contains (const std::string& name) const { return book_.find(name) != book_.end(); }
-  void erase(const std::string& name) { book_t::iterator it = book_.find(name); if(it!=book_.end()) {delete it->second; book_.erase(it); } }
+  TH1* book(string_t name, TH1*const hist)   { book_[name]=hist; hist->SetDirectory(directory); if(!hist->GetSumw2N()) hist->Sumw2(); return hist;}
+  TH1*& operator[](string_t name)       { return book_[name]; }
+  const TH1*  operator[](string_t name) const { book_t::const_iterator it = book_.find(name); return it==book_.end() ? 0 : it->second;}
 
-  bool empty() const { return book_.empty(); }
-  long size () const { return book_.size(); }
+  typedef boost::filter_iterator<match_name,book_t::iterator> iterator;
+  typedef boost::filter_iterator<match_name,book_t::const_iterator> const_iterator;
+  iterator       begin(string_t re = ".*")       {book_t::iterator       b(book_.begin()), e(book_.end()); return boost::make_filter_iterator(match_name(re),b,e);}
+  const_iterator begin(string_t re = ".*") const {book_t::const_iterator b(book_.begin()), e(book_.end()); return boost::make_filter_iterator(match_name(re),b,e);}
+  iterator       end(  string_t re = ".*")       {book_t::iterator       e(book_.end()); return boost::make_filter_iterator(match_name(re),e,e);}
+  const_iterator end(  string_t re = ".*") const {book_t::const_iterator e(book_.end()); return boost::make_filter_iterator(match_name(re),e,e);}
+  iterator       find (string_t name, string_t re = ".*")       { return boost::make_filter_iterator(match_name(re),book_.find(name),book_.end()); }
+  const_iterator find (string_t name, string_t re = ".*") const { return boost::make_filter_iterator(match_name(re),book_.find(name),book_.end()); }
+  std::pair<iterator,iterator>             filter_range(string_t re = ".*")       { return std::make_pair(begin(re), end(re) ); }
+  std::pair<const_iterator,const_iterator> filter_range(string_t re = ".*") const { return std::make_pair(begin(re), end(re) ); }
 
-  class const_iterator;
-  const_iterator begin(const std::string& re=".*") const {return const_iterator( book_.begin(), book_.begin(), book_.end(), boost::regex(re) ); }
-  const_iterator end(const std::string& re=".*")   const {return const_iterator( book_.end(),   book_.begin(), book_.end(), boost::regex(re) ); }
+  void erase(string_t name) { book_t::iterator it = book_.find(name); if(it!=book_.end()) {delete it->second; book_.erase(it); } }
+  void erase(iterator it) { delete it->second; book_.erase(it.base()); }
+
 
   void fill( double_t X, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) 
-    { 
-      BOOST_FOREACH(std::string name, std::make_pair(names.begin(),names.end())) {
-	book_t::const_iterator current = book_.find(name);
-	if( current == book_.end() )
-	  book(name, new TH1D(name.c_str(), "", NbinsX, Xlow, Xup))->Fill(X,W);
-	else current->second->Fill(X,W);
-      }
+  { 
+    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+      book_t::const_iterator current = book_.find(name);
+      if( current == book_.end() )
+	book(name, new TH1D(name.c_str(), "", NbinsX, Xlow, Xup))->Fill(X,W);
+      else current->second->Fill(X,W);
     }
-  void fill( double_t X, double_t Y,              const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 )
-    { 
-      BOOST_FOREACH(std::string name, std::make_pair(names.begin(),names.end())) {
-	book_t::const_iterator current = book_.find(name);
-	if( current == book_.end() )
-	  static_cast<TProfile*>(book(name, new TProfile(name.c_str(), "", NbinsX, Xlow, Xup)))->Fill(X,Y,W);
-	else static_cast<TProfile*>(current->second)->Fill(X,Y,W);
-      }
+  }
+  void fill( double_t X, double_t Y, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 )
+  { 
+    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+      book_t::const_iterator current = book_.find(name);
+      if( current == book_.end() )
+	static_cast<TProfile*>(book(name, new TProfile(name.c_str(), "", NbinsX, Xlow, Xup)))->Fill(X,Y,W);
+      else static_cast<TProfile*>(current->second)->Fill(X,Y,W);
     }
-  void fill( double_t X, double_t Y,              const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
-                                                                                  uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 )
-    { 
-      BOOST_FOREACH(std::string name, std::make_pair(names.begin(),names.end())) {
-	book_t::const_iterator current = book_.find(name);
-	if( current == book_.end() )
-	  static_cast<TH2*>(book(name, new TH2D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup)))->Fill(X,Y,W);
-	else static_cast<TH2*>(current->second)->Fill(X,Y,W);
-      }
+  }
+  void fill( double_t X, double_t Y, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
+	                                                             uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 )
+  { 
+    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+      book_t::const_iterator current = book_.find(name);
+      if( current == book_.end() )
+	static_cast<TH2*>(book(name, new TH2D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup)))->Fill(X,Y,W);
+      else static_cast<TH2*>(current->second)->Fill(X,Y,W);
     }
+  }
   void fill( double_t X, double_t Y, double_t Z,  const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
 	                                                                          uint_t NbinsY, double_t Ylow, double_t Yup,
 	                                                                          uint_t NbinsZ, double_t Zlow, double_t Zup, double_t W=1 )
-    { 
-      BOOST_FOREACH(std::string name, std::make_pair(names.begin(),names.end())) {
-	book_t::const_iterator current = book_.find(name);
-	if( current == book_.end() )
-	  static_cast<TH3*>(book(name, new TH3D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup, NbinsZ, Zlow, Zup)))->Fill(X,Y,Z,W);
-	else static_cast<TH3*>(current->second)->Fill(X,Y,Z,W);
-      }
+  { 
+    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+      book_t::const_iterator current = book_.find(name);
+      if( current == book_.end() )
+	static_cast<TH3*>(book(name, new TH3D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup, NbinsZ, Zlow, Zup)))->Fill(X,Y,Z,W);
+      else static_cast<TH3*>(current->second)->Fill(X,Y,Z,W);
     }
-  
-  class const_iterator
-    : public boost::iterator_facade< const_iterator, TH1* const, boost::bidirectional_traversal_tag, TH1* const>  {
-    friend class boost::iterator_core_access;
-    
-    std::map<std::string, TH1*>::const_iterator base, begin, end;
-    boost::regex expression;
-    
-    void increment() { while( ++base!=end && !regex_match(    base->first, expression) ); }
-    void decrement() { while( base!=begin && !regex_match((--base)->first, expression) ); }
-    bool equal(const const_iterator& rhs) const { return base==rhs.base; }
-    TH1* const dereference()        const { return base->second;   }
-    
-    typedef std::map<std::string,TH1*>::const_iterator base_t;
-    public:
-    const_iterator(const base_t& base, const base_t& begin, const base_t& end, const boost::regex& expression ) 
-      : base(base), begin(begin), end(end), expression(expression) { if(base!=end && !regex_match(base->first, expression) ) increment();}
-    const std::string& name() {return base->first;}
-    typedef TH1* type;
-  };
-  
-  //long count(const std::string& pattern) const;
+  }
+
 };
 
 #endif
