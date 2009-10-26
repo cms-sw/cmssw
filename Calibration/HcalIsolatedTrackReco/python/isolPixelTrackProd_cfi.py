@@ -12,6 +12,7 @@ isolPixelTrackProd    = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
     MaxVtxDXYSeed              = cms.double( 101.0 ),
     MaxVtxDXYIsol              = cms.double( 101.0 ),
     VertexLabel                = cms.InputTag( "hltPixelVertices" ),
+    MagFieldRecordName         = cms.string("VolumeBasedMagneticField"),
     minPTrack                  = cms.double( 5.0 ),
     maxPTrackForIsolation      = cms.double( 3.0 ),
     EBEtaBoundary              = cms.double(1.479)
