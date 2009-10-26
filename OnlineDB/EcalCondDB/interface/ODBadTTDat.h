@@ -22,6 +22,9 @@ class ODBadTTDat : public IODConfig {
   inline void setSMId(int dac) { m_sm = dac; }
   inline int getSMId() const { return m_sm; }
 
+  inline void setTRId(int dac) { m_sm = dac; }
+  inline int getTRId() const { return m_sm; }
+
   inline void setFedId(int dac) { m_fed = dac; }
   inline int getFedId() const { return m_fed; }
 

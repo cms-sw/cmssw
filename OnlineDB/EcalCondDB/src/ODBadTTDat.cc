@@ -36,7 +36,7 @@ void ODBadTTDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, status ) "
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tr_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
     throw(runtime_error("ODBadTTDat::prepareWrite():  "+e.getMessage()));
@@ -52,7 +52,7 @@ void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
 
   try {
     m_writeStmt->setInt(1, item->getId());
-    m_writeStmt->setInt(2, item->getSMId());
+    m_writeStmt->setInt(2, item->getTRId());
     m_writeStmt->setInt(3, item->getFedId() );
     m_writeStmt->setInt(4, item->getTTId() );
     m_writeStmt->setInt(5, item->getStatus() );
@@ -78,7 +78,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by sm_id, fed_id, tt_id ");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :rec_id order by tr_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     
@@ -86,7 +86,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
     ODBadTTDat dat;
     while(rset->next()) {
       // dat.setId( rset->getInt(1) );
-      dat.setSMId( rset->getInt(2) );
+      dat.setTRId( rset->getInt(2) );
       dat.setFedId( rset->getInt(3) );
       dat.setTTId( rset->getInt(4) );
       dat.setStatus( rset->getInt(5) );
@@ -132,7 +132,7 @@ void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat > data, ODBadTTInfo*
   for (size_t count = 0; count != data.size(); count++) {
     dataitem=data[count];
     ids[count]=iovID;
-    xx[count]=dataitem.getSMId();
+    xx[count]=dataitem.getTRId();
     yy[count]=dataitem.getFedId();
     zz[count]=dataitem.getTTId();
     st[count]=dataitem.getStatus();
