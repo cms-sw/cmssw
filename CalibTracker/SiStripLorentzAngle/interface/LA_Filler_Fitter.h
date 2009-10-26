@@ -21,9 +21,9 @@ class LA_Filler_Fitter {
 		MULTI  =1<<4, LAST_METHOD=1<<4};
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
-    case WIDTH:  return "_width-tanLA_profile";
+    case WIDTH:  return "_width_prof";
     case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
-    case SQRTVAR:return "_sqrtVariance-tanLA_profile";
+    case SQRTVAR:return "_sqrtVar_prof";
     case SYMM:   return fit? SymmetryFit::name("_symm") : "_symm";
     case MULTI:   return fit? SymmetryFit::name("_multi") : "_multi";
     default: return "_UNKNOWN";
@@ -79,10 +79,10 @@ class LA_Filler_Fitter {
     fit_profile(book,method(WIDTH)); 
     fit_profile(book,method(SQRTVAR)); 
   }
-  static void make_and_fit_ratio(Book&, bool cleanup=false);
+  static void make_and_fit_ratio(Book&);
   static void make_and_fit_symmchi2(Book&);
   static void make_and_fit_multisymmchi2(Book&);
-  static void fit_profile(Book&, const std::string&);
+  static void fit_profile(Book&, const std::string);
   
   static Result result(Method, const std::string name, const Book&);
   static std::map< std::string,                      Result  >    layer_results(const Book&, const Method);
@@ -93,15 +93,16 @@ class LA_Filler_Fitter {
   static std::pair<std::pair<float,float>, std::pair<float,float> > offset_slope(const std::vector<EnsembleSummary>&);
   static float pull(const std::vector<EnsembleSummary>&);
 
-  static std::string subdetLabel(SiStripDetId);
-  static std::string moduleLabel(SiStripDetId);
-  static std::string layerLabel(SiStripDetId);
+  static std::string subdetLabel(const SiStripDetId);
+  static std::string moduleLabel(const SiStripDetId);
+  static std::string layerLabel(const SiStripDetId);
   
  private:
   
-  static unsigned guess_bin(TH1*);
-  static unsigned find_rebin(TH1*);
-  static TH1* rms_from_x_xx(std::string, TH1*, TH1*);
+  static unsigned guess_bin(const TH1* const);
+  static unsigned find_rebin(const TH1* const);
+  static TH1* rms_from_x_xx(const std::string, const TH1* const, const TH1* const);
+  static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );
 
   int ensembleSize_, ensembleBins_;
   double ensembleLow_, ensembleUp_;
