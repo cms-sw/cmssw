@@ -306,9 +306,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   //HcalBaseMonitor::processEvent();
 
-  // Skip events in which no good digis found -- still getting some strange (calib?) events through DQM
-  if (hbhe.size()==0 && ho.size()==0 && hf.size()==0)
-    return;
+  // Skip events in which minimal good digis found -- still getting some strange (calib?) events through DQM
+  if (report.badQualityDigis()>9000)
+    {
+      return;
+    }
   HcalBaseMonitor::processEvent();
   hbHists.count_bad=0;
   hbHists.count_good=0;
