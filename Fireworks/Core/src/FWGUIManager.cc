@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.153 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.154 2009/10/26 18:08:43 yanjuntu Exp $
 //
 
 // system include files
@@ -136,8 +136,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_viewPopup(0),
    m_brightnessPopup(0),
    m_helpPopup(0),
-   m_searchFiles(0),
    m_shortcutPopup(0),
+   m_searchFiles(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
@@ -237,8 +237,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_viewPopup(0),
    m_brightnessPopup(0),
    m_helpPopup(0),
-   m_searchFiles(0),
    m_shortcutPopup(0),
+   m_searchFiles(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
