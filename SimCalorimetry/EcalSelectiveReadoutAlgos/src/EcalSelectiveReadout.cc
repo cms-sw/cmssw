@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.15 2009/06/07 22:38:10 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.16 2009/10/14 08:47:52 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -12,54 +12,14 @@
 #include <iomanip>
 //#include <iostream> //for debugging
 
-
 using std::vector;
 
-const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C', 'F'};
-
-// //list of sets of partial supercrystal whose SR flags are forced to be identical
-// //because they are grouped within a same DCC channel (same readout unit).
-// //SC (x0,y0) in {(11,11),(11,8),(8,11),(8,8)} are not included here and are treated
-// //separetly, because they can contains crystals read in different ZS/S/F mode.   
-// //note: {0,0,0} = padding for the array size.
-// //[iScGroup][iSc].ix: Supercrytal X-index
-// //[iScGroup][iSc].iy: Supercrytal Y-index
-// //[iScGroup][iSc].iz: Supercrytal Z-index
-// static const int nScGroups = 12;
-// static const int maxScInGroup = 4;
-// static const struct Xyz {
-//   int ix;
-//   int iy;
-//   int iz;
-// } groupedSc[nScGroups][maxScInGroup] = {
-//   {{18,15,0}, {19,12,0}, {16,17,0}, {17,16,0}}, //DCC  2, RUs 3 and 25
-//   {{12,19,0}, {15,18,0}, { 0, 0,0}, { 0, 0,0}}, //DCC  3, RU 30
-//   {{ 4,18,0}, { 7,19,0}, { 0, 0,0}, { 0, 0,0}}, //DCC  4, RU 30
-//   {{ 0,12,0}, { 1,15,0}, { 2,16,0}, { 3,17,0}}, //DCC  5, RUs 3 and 25
-//   {{ 1, 4,0}, { 2, 3,0}, { 3, 2,0}, { 4, 1,0}}, //DCC  7, RUs 14 and 21
-//   {{17, 3,0}, {18, 4,0}, {15, 1,0}, {16, 2,0}}, //DCC  9, RUs 14 and 21
-//   {{16,17,1}, {17,16,1}, {18,15,1}, {19,12,1}}, //DCC 47, RUs 3 and 25
-//   {{12,19,1}, {15,18,1}, { 0, 0,0}, { 0, 0,0}}, //DCC 48, RU 30
-//   {{ 4,18,1}, { 7,19,1}, { 0, 0,0}, { 0, 0,0}}, //DCC 49, RU 30
-//   {{ 2,16,1}, { 3,17,1}, { 0,12,1}, { 1,15,1}}, //DCC 50, RUs 3 and 25
-//   {{ 1, 4,1}, { 2, 3,1}, { 3, 2,1}, { 4, 1,1}}, //DCC 52, RUs 14 and 21
-//   {{17, 3,1}, {18, 4,1}, {15, 1,1}, {16, 2,1}}, //DCC 54, RUs 14 and 21
-// };
+const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C',
+                                                    '4', '5', '6', '7'};
 
 EcalSelectiveReadout::EcalSelectiveReadout(int dEta_, int dPhi_):
   theTriggerMap(0), theElecMap(0), dEta(dEta_), dPhi(dPhi_) {
 }
-
-// void EcalSelectiveReadout::resetSupercrystalInterest(){
-//   //init superCrystalInterest (sets all elts to 'UNKNOWN'):
-//   for(size_t iCap=0; iCap < nEndcaps; ++iCap){
-//     for(size_t iSCX = 0; iSCX < nSupercrystalXBins; ++iSCX){
-//       for(size_t iSCY = 0; iSCY < nSupercrystalYBins; ++iSCY){
-//         supercrystalInterest[iCap][iSCX][iSCY] = UNKNOWN;
-//       }
-//     }
-//   }
-// }
 
 void EcalSelectiveReadout::resetEeRuInterest(){
   //init superCrystalInterest (sets all elts to 'UNKNOWN'):
@@ -79,10 +39,10 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   
   //classifies the trigger towers (single,center,neighbor,low interest)
   classifyTriggerTowers(ttFlags);
-
+  
   //count number of TT in each interest class for debugging display
-  int nTriggerTowerE[] = {0, 0, 0, 0};
-  int nTriggerTowerB[] = {0, 0, 0, 0};
+  int nTriggerTowerE[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  int nTriggerTowerB[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   static int ncall = 0;
   if(ncall < 10){
@@ -96,22 +56,41 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
         } else{//in barrel
           ++nTriggerTowerB[towerInterest[iEta][iPhi]];
         }
+
+        assert(towerInterest[iEta][iPhi] >= 0
+               && towerInterest[iEta][iPhi] <= 0x7);
       }
     }
     edm::LogInfo("EcalSelectiveReadout")
-      << nTriggerTowerB[LOWINTEREST] << " low interest TT in barrel\n"
-      << nTriggerTowerB[SINGLE]      << " single TT in barrel\n"
-      << nTriggerTowerB[NEIGHBOUR]   << " neighbor interest TT in barrel\n"
-      << nTriggerTowerB[CENTER]      << " centre interest TT in barrel\n"
-      << nTriggerTowerE[LOWINTEREST] << " low interest TT in endcap\n"
-      << nTriggerTowerE[SINGLE]      << " single TT in endcap\n"
-      << nTriggerTowerE[NEIGHBOUR]   << " neighbor TT in endcap\n"
-      << nTriggerTowerE[CENTER]      << " center TT in endcap\n";
+      << "without forced bit + with forced bit set:\n"
+      << nTriggerTowerB[LOWINTEREST] << " + "
+      << nTriggerTowerB[LOWINTEREST | FORCED_MASK]
+      << " low interest TT(s) in barrel\n"
+      << nTriggerTowerB[SINGLE]       << " + "
+      << nTriggerTowerB[SINGLE | FORCED_MASK]
+      << " single TT(s) in barrel\n"
+      << nTriggerTowerB[NEIGHBOUR]   << " + "
+      << nTriggerTowerB[NEIGHBOUR | FORCED_MASK]
+      << " neighbor interest TT(s) in barrel\n"
+      << nTriggerTowerB[CENTER]      << " + "
+      << nTriggerTowerB[CENTER | FORCED_MASK]
+      << " centre interest TT(s) in barrel\n"
+      << nTriggerTowerE[LOWINTEREST] << " + "
+      << nTriggerTowerE[LOWINTEREST | FORCED_MASK]
+      << " low interest TT(s) in endcap\n"
+      << nTriggerTowerE[SINGLE]      << " + "
+      << nTriggerTowerE[SINGLE | FORCED_MASK]
+      << " single TT(s) in endcap\n"
+      << nTriggerTowerE[NEIGHBOUR]   << " + "
+      << nTriggerTowerE[NEIGHBOUR | FORCED_MASK]
+      << " neighbor TT(s) in endcap\n"
+      << nTriggerTowerE[CENTER]      << " + "
+      << nTriggerTowerE[CENTER | FORCED_MASK]
+      << " center TT(s) in endcap\n";
   }
   //end TT interest class composition debugging display
   
-  //For the endcap the TT classification must be mapped to the SC:
-  //resetSupercrystalInterest();
+  //For the endcap the TT classification must be mapped to the SC:  
   resetEeRuInterest();
   
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
@@ -119,16 +98,17 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   for(std::vector<DetId>::const_iterator eeDetIdItr = endcapDetIds.begin();
       eeDetIdItr != endcapDetIds.end(); ++eeDetIdItr){
     // for each superCrystal, the interest is the highest interest
-    // of any trigger tower associated with at least one crystal from this SC
+    // of any trigger tower associated with at least one crystal from this SC.
+    // The forced bit must be set if the flag of one of these trigger towers has
+    // the forced bit set.
     EcalTrigTowerDetId trigTower = theTriggerMap->towerOf(*eeDetIdItr);
     assert(trigTower.rawId() != 0); 
     EEDetId eeDetId(*eeDetIdItr);
     int iz = (eeDetId.zside() > 0) ? 1 : 0;
-//     int superCrystalX = (eeDetId.ix()-1) / 5;
-//     int superCrystalY = (eeDetId.iy()-1) / 5;
-//    setHigher(supercrystalInterest[iz][superCrystalX][superCrystalY], 
-//              getTowerInterest(trigTower));
-    setHigher(eeRuInterest(eeDetId), getTowerInterest(trigTower));
+    //Following statement will set properly the actual 2-bit flag value
+    //and the forced bit: TTF forced bit is propagated to every RU that
+    //overlaps with the corresponding TT.
+    combineFlags(eeRuInterest(eeDetId), getTowerInterest(trigTower));
   }
 #else //ECALSELECTIVEREADOUT_NOGEOM defined
   EEDetId xtal;
@@ -148,11 +128,13 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
         // of any trigger tower associated with any crystal in this SC
         EcalTrigTowerDetId trigTower = theTriggerMap->towerOf(xtal);
         assert(trigTower.rawId() != 0); 
-        // int superCrystalX = iX0 / 5;
-        // int superCrystalY = iY0 / 5;
-        // setHigher(supercrystalInterest[iZ0][superCrystalX][superCrystalY], 
-        //           getTowerInterest(trigTower));
-        setHigher(eeRuInterest(xtal), getTowerInterest(trigTower));
+        //Following statement will set properly the actual 2-bit flag value
+        //and the forced bit: TTF forced bit is propagated to every RU that
+        //overlaps with the corresponding TT.
+        combineFlags(eeRuInterest(xtal), getTowerInterest(trigTower));
+
+        assert(0<= eeRuInterest(xtal)  && eeRuInterest(xtal) <= 0x7);
+        
       } //next iY0
     } //next iX0
   } //next iZ0
@@ -176,32 +158,11 @@ EcalSelectiveReadout::getCrystalInterest(const EEDetId & eeDetId) const
   //   return supercrystalInterest[iz][superCrystalX][superCrystalY];
   return const_cast<EcalSelectiveReadout*>(this)->eeRuInterest(eeDetId);
 }
-EcalSelectiveReadout::towerInterest_t 
 
+EcalSelectiveReadout::towerInterest_t 
 EcalSelectiveReadout::getSuperCrystalInterest(const EcalScDetId& scDetId) const 
 {
-//   int iz = (scDetId.zside() > 1) ? 1 : 0;
-//   int superCrystalX = scDetId.ix()-1;
-//   int superCrystalY = scDetId.iy()-1;
-//   return supercrystalInterest[iz][superCrystalX][superCrystalY];
-  int iScX0 = scDetId.ix() - 1;
-  int iScY0 = scDetId.iy() - 1;
-  if(8 <= iScX0 && iScX0 <=11
-     && 8 <= iScY0 && iScY0 <=11){
-    //an inner partial supercrystal
-    // -> no interest flag, because it is not uniform
-    // within a such SC
-    //for debugging
-    //std::cout << __FILE__ << ":" << __LINE__ << ": "
-    //           <<  "inner partial SC ix0 = " << iScX0
-    //           << " iy0 = " << iScY0 << " -> "
-    //           << " DCC = " << theElecMap->getDCCandSC(scDetId).first
-    //           << " DCC Ch = " << theElecMap->getDCCandSC(scDetId).second
-    //           << "\n";
-    return EcalSelectiveReadout::UNKNOWN;
-  } else{
-    return eeRuInterest(scDetId);
-  }
+  return const_cast<EcalSelectiveReadout*>(this)->eeRuInterest(scDetId);
 }
 
 EcalSelectiveReadout::towerInterest_t&
@@ -211,20 +172,28 @@ EcalSelectiveReadout::eeRuInterest(const EEDetId& eeDetId){
   const int iDcc0 = id.dccId()-1;
   const int iDccPhi0 = (iDcc0<9)?iDcc0:(iDcc0-45);
   const int iDccCh0 = id.towerId()-1;
-  assert(0 <= iDccPhi0 && iDccPhi0 <= nDccPerEe);
-  assert(0 <= iDccCh0  && iDccCh0 <= maxDccChs);
+  assert(0 <= iDccPhi0 && iDccPhi0 < nDccPerEe);
+  assert(0 <= iDccCh0  && iDccCh0 < maxDccChs);
+
+  assert(eeRuInterest_[iZ0][iDccPhi0][iDccCh0] == UNKNOWN
+         || (0<= eeRuInterest_[iZ0][iDccPhi0][iDccCh0]
+             && eeRuInterest_[iZ0][iDccPhi0][iDccCh0] <=7));
+  
   return eeRuInterest_[iZ0][iDccPhi0][iDccCh0];
 }
 
-EcalSelectiveReadout::towerInterest_t
-EcalSelectiveReadout::eeRuInterest(const EcalScDetId& scDetId) const{
+EcalSelectiveReadout::towerInterest_t&
+EcalSelectiveReadout::eeRuInterest(const EcalScDetId& scDetId){
   std::pair<int, int> dccAndDccCh = theElecMap->getDCCandSC(scDetId);
-  const int iZ0 = scDetId.zside()>0 ? 1: 0;
+  const int iZ0 = (scDetId.zside()>0) ? 1: 0;
   const int iDcc0 = dccAndDccCh.first-1;
-  const int iDccPhi0 = iDcc0<9?iDcc0:(iDcc0-45);
+  const int iDccPhi0 = (iDcc0<9)?iDcc0:(iDcc0-45);
   const int iDccCh0 = dccAndDccCh.second-1;
   assert(0 <= iDccPhi0 && iDccPhi0 <= nDccPerEe);
   assert(0 <= iDccCh0  && iDccCh0 <= maxDccChs);
+
+  assert(-1<= eeRuInterest_[iZ0][iDccPhi0][iDccCh0] && eeRuInterest_[iZ0][iDccPhi0][iDccCh0] <=7);
+  
   return eeRuInterest_[iZ0][iDccPhi0][iDccCh0];
 }
 
@@ -236,6 +205,9 @@ EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const
   int iEta = tower.ieta()<0? tower.ieta() + nTriggerTowersInEta/2
     : tower.ieta() + nTriggerTowersInEta/2 -1;
   int iPhi = tower.iphi() - 1;
+
+  assert(-1 <= towerInterest[iEta][iPhi] && towerInterest[iEta][iPhi] < 8);
+  
   return towerInterest[iEta][iPhi];
 }
 
@@ -251,7 +223,10 @@ EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTower
 
   for(int iEta=0; iEta < (int)nTriggerTowersInEta; ++iEta){
     for(int iPhi=0; iPhi < (int)nTriggerTowersInPhi; ++iPhi){
-      if(ttFlags[iEta][iPhi] == TTF_HIGH_INTEREST){
+      //copy forced bit from ttFlags to towerInterests:
+      towerInterest[iEta][iPhi] =  (towerInterest_t) (towerInterest[iEta][iPhi]
+                                                      | (ttFlags[iEta][iPhi] & FORCED_MASK)) ;
+      if((ttFlags[iEta][iPhi] & ~FORCED_MASK) == TTF_HIGH_INTEREST){
         //flags this tower as a center tower
         towerInterest[iEta][iPhi] = CENTER;
         //flags the neighbours of this tower
@@ -267,14 +242,12 @@ EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTower
             if(iPhiNeigh_<0) {
               iPhiNeigh_ += nTriggerTowersInPhi;
             }
-            setHigher(towerInterest[iEtaNeigh][iPhiNeigh_],
-                      NEIGHBOUR);
+            combineFlags(towerInterest[iEtaNeigh][iPhiNeigh_],
+                         NEIGHBOUR);
           }
         }
-      } else if(ttFlags[iEta][iPhi] == TTF_MID_INTEREST){
-        setHigher(towerInterest[iEta][iPhi], SINGLE);
-      } else if(ttFlags[iEta][iPhi] & TTF_FORCED_RO_MASK){
-        setHigher(towerInterest[iEta][iPhi], FORCED_RO);
+      } else if((ttFlags[iEta][iPhi] & ~FORCED_MASK) == TTF_MID_INTEREST){
+        combineFlags(towerInterest[iEta][iPhi], SINGLE);
       }
     }
   }
@@ -302,7 +275,10 @@ void EcalSelectiveReadout::printHeader(std::ostream & os) const{
     "# |         " << srpFlagMarker[1] << ": single\n"
     "# |         " << srpFlagMarker[2] << ": neighbour\n"
     "# V Eta/X   " << srpFlagMarker[3] << ": center\n"
-    "#           " << srpFlagMarker[4] << ": forced readout\n"
+    "#           " << srpFlagMarker[4] << ": forced low interest\n"
+    "#           " << srpFlagMarker[5] << ": forced single\n"
+    "#           " << srpFlagMarker[6] << ": forced neighbout\n"
+    "#           " << srpFlagMarker[7] << ": forced center\n"
     "#\n";
 }
 
@@ -340,14 +316,16 @@ void EcalSelectiveReadout::printEndcap(int endcap, std::ostream & os) const
   for(size_t iX=0; iX<nSupercrystalXBins; ++iX){
     for(size_t iY=0; iY<nSupercrystalYBins; ++iY){
       towerInterest_t srFlag;
+      char c;
       if(!EcalScDetId::validDetId(iX+1,iY+1,endcap>=1?1:-1)){
-        srFlag = UNKNOWN;
+        //        srFlag = UNKNOWN;
+        c = ' ';
       } else{
         srFlag
           = getSuperCrystalInterest(EcalScDetId(iX+1, iY+1, endcap>=1?1:-1));//supercrystalInterest[endcap][iX][iY];
+        c = srFlag==UNKNOWN ? '?' : srpFlagMarker[srFlag];
       }
-      os << (srFlag==UNKNOWN?
-             ' ':srpFlagMarker[srFlag]);
+      os << c;
     }
     os << "\n"; //one Y supercystal column per line
   } //next supercrystal X-index
