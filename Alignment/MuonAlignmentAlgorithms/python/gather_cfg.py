@@ -5,6 +5,7 @@ inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
 mapplots = (os.environ["ALIGNMENT_MAPPLOTS"] == "True")
+segdiffplots = (os.environ["ALIGNMENT_SEGDIFFPLOTS"] == "True")
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 trackerconnect = os.environ["ALIGNMENT_TRACKERCONNECT"]
@@ -47,18 +48,33 @@ process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 
+process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring())
+
 if mapplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonSystemMap1D_cfi")
-    process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap1D"),
-                                            AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D)
-    process.looper.monitorConfig.minTrackPt = cms.double(minTrackPt)
-    process.looper.monitorConfig.maxTrackPt = cms.double(maxTrackPt)
-    process.looper.monitorConfig.minTrackerHits = cms.int32(minTrackerHits)
-    process.looper.monitorConfig.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
-    process.looper.monitorConfig.allowTIDTEC = cms.bool(allowTIDTEC)
-    process.looper.monitorConfig.minDT13Hits = process.looper.algoConfig.minDT13Hits
-    process.looper.monitorConfig.minDT2Hits = process.looper.algoConfig.minDT2Hits
-    process.looper.monitorConfig.minCSCHits = process.looper.algoConfig.minCSCHits
+    process.looper.monitorConfig.monitors.append("AlignmentMonitorMuonSystemMap1D")
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minTrackPt = cms.double(minTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.maxTrackPt = cms.double(maxTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minTrackerHits = cms.int32(minTrackerHits)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT13Hits = process.looper.algoConfig.minDT13Hits
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT2Hits = process.looper.algoConfig.minDT2Hits
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minCSCHits = process.looper.algoConfig.minCSCHits
+
+if segdiffplots:
+    process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorSegmentDifferences_cfi")
+    process.looper.monitorConfig.monitors.append("AlignmentMonitorSegmentDifferences")
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences = process.AlignmentMonitorSegmentDifferences
+    # this should be set separately (50 GeV nominal)
+    # process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackPt = cms.double(minTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackerHits = cms.int32(minTrackerHits)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT13Hits = process.looper.algoConfig.minDT13Hits
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT2Hits = process.looper.algoConfig.minDT2Hits
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minCSCHits = process.looper.algoConfig.minCSCHits
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)

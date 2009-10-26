@@ -45,6 +45,10 @@ parser.add_option("--mapplots",
                   help="Make map plots",
                   action="store_true",
                   dest="mapplots")
+parser.add_option("--segdiffplots",
+                  help="Make segment-difference plots",
+                  action="store_true",
+                  dest="segdiffplots")
 parser.add_option("--globalTag",
                   help="GlobalTag for conditions not otherwise overridden",
                   type="string",
@@ -129,6 +133,7 @@ parser.add_option("--minAlignmentHits",
 
 options, args = parser.parse_args(sys.argv[5:])
 mapplots = options.mapplots
+segdiffplots = options.segdiffplots
 globaltag = options.globaltag
 trackerconnect = options.trackerconnect
 trackeralignment = options.trackeralignment
@@ -176,7 +181,7 @@ for iteration in range(1, ITERATIONS+1):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
 
-        if mapplots == True: copyplots = "plotting*.root"
+        if mapplots or segdiffplots: copyplots = "plotting*.root"
         else: copyplots = ""
 
         if len(inputfiles) > 0:
@@ -193,6 +198,7 @@ export ALIGNMENT_INPUTFILES='%(inputfiles)s'
 export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_JOBNUMBER=%(jobnumber)d
 export ALIGNMENT_MAPPLOTS=%(mapplots)s
+export ALIGNMENT_SEGDIFFPLOTS=%(segdiffplots)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
