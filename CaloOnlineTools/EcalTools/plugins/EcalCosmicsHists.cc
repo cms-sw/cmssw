@@ -1091,7 +1091,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double bestPhiSeed = 1000;
       EBDetId bestTrackDet;
       EBDetId bestSeed;
-      int bestTrack;
+      int bestTrack = -1;
       std::map<EBDetId,EBDetId> trackDetIdToSeedMap;
 
       //edm::LogVerbatim("TrackAssociator") << "NumTracks:" << trackDetIdMap.size() << " numClusters:" << seeds.size();
