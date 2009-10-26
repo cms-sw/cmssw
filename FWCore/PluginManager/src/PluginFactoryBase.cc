@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:09:50 EDT 2007
-// $Id: PluginFactoryBase.cc,v 1.4 2007/06/14 02:52:58 wmtan Exp $
+// $Id: PluginFactoryBase.cc,v 1.5 2009/10/22 07:05:35 eulisse Exp $
 //
 
 // system include files
@@ -152,6 +152,21 @@ PluginFactoryBase::checkProperLoadable(const std::string& iName, const std::stri
       "To work around the problem the plugin '"<<iName<<"' should only be defined in one of these loadables.";
     }
   }
+}
+
+
+void 
+PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
+  m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
+  newPlugin(iName);
+}
+
+std::vector<PluginInfo> 
+PluginFactoryBase::available() const {
+  std::vector<PluginInfo> returnValue;
+  returnValue.reserve(m_plugins.size());
+  fillAvailable(returnValue);
+  return returnValue;
 }
 
 //

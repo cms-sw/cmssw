@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.5 2007/09/28 20:29:25 chrjones Exp $
+// $Id: PluginFactoryBase.h,v 1.6 2009/10/22 07:05:35 eulisse Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class PluginFactoryBase
       // ---------- const member functions ---------------------
 
       ///return info about all plugins which are already available in the program
-      virtual std::vector<PluginInfo> available() const = 0;
+      virtual std::vector<PluginInfo> available() const;
 
       ///returns the name of the category to which this plugin factory belongs
       virtual const std::string& category() const = 0;
@@ -77,6 +77,8 @@ class PluginFactoryBase
                     std::vector<PluginInfo>& iReturn ) const;
 
       void fillAvailable(std::vector<PluginInfo>& iReturn) const;
+
+      void registerPMaker(void* iPMaker, const std::string& iName);
       
       Plugins m_plugins;
       

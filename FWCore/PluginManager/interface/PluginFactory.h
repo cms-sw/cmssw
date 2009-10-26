@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.6 2007/09/28 20:29:25 chrjones Exp $
+// $Id: PluginFactory.h,v 1.7 2009/10/22 07:05:35 eulisse Exp $
 //
 
 // system include files
@@ -53,12 +53,6 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
       };
 
       // ---------- const member functions ---------------------
-      virtual std::vector<PluginInfo> available() const {
-        std::vector<PluginInfo> returnValue;
-        returnValue.reserve(m_plugins.size());
-        fillAvailable(returnValue);
-        return returnValue;
-      }
       virtual const std::string& category() const ;
       
       R* create(const std::string& iName) const {
@@ -78,8 +72,7 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
       static PluginFactory<R*(void)>* get();
       // ---------- member functions ---------------------------
       void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-        m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
-        newPlugin(iName);
+        PluginFactoryBase::registerPMaker(iPMaker, iName);
       }
 
    private:
@@ -112,12 +105,6 @@ public:
     };
   
   // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(returnValue);
-    return returnValue;
-  }
   virtual const std::string& category() const ;
   
   R* create(const std::string& iName, Arg iArg) const {
@@ -136,8 +123,7 @@ public:
   static PluginFactory<R*(Arg)>* get();
   // ---------- member functions ---------------------------
   void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
+    PluginFactoryBase::registerPMaker(iPMaker, iName);
   }
   
 private:
@@ -170,12 +156,6 @@ public:
     };
   
   // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(returnValue);
-    return returnValue;
-  }
   virtual const std::string& category() const ;
   
   R* create(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
@@ -195,8 +175,7 @@ public:
   static PluginFactory<R*(Arg1,Arg2)>* get();
   // ---------- member functions ---------------------------
   void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
+    PluginFactoryBase::registerPMaker(iPMaker, iName);
   }
   
 private:
