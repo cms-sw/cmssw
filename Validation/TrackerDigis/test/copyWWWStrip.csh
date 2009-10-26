@@ -1,5 +1,9 @@
 #! /bin/csh
-setenv RELEASE $CMSSW_VERSION
+if ($#argv < 1) then
+    setenv RELEASE $CMSSW_VERSION
+else
+    setenv RELEASE $1
+endif
 
 if ( ! -d /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/ ) mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/
 if ( ! -d /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi ) mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi

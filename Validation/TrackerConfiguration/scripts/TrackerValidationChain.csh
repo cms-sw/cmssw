@@ -1,6 +1,7 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_3_0_pre4"
+set RefRelease="CMSSW_3_3_1"
+set WebDir="CMSSW_3_3_1_slc5_ia32_gcc434" # this is where you want the plots to end up; normally, you should put here the current release
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
@@ -20,11 +21,13 @@ set Mode="Comparison"
 set copyWWW="true"
 
 # set the histogram file name in Comparison mode
-set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre5-MC_31X_V8-v1__GEN-SIM-RECO.root"
+#set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre5-MC_31X_V8-v1__GEN-SIM-RECO.root"
+set histogramfile="DQM_V0001_R000000001__CMSSW_3_3_1_slc5_ia32_gcc434__RelVal__Validation.root"
 
 #reference histogram file name
 #set refhistogramfile="DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root"
-set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre4-MC_31X_V8-v1__GEN-SIM-RECO.root"
+#set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre4-MC_31X_V8-v1__GEN-SIM-RECO.root"
+set refhistogramfile="DQM_V0001_R000000001__CMSSW_3_3_1_slc4_ia32_gcc345__RelVal__Validation.root"
 eval `scramv1 runtime -csh`
 
 setenv DATADIR $CMSSW_BASE/src
@@ -130,7 +133,7 @@ gzip -f *.eps
 mv Tof.eps.gz plots/muon
 mv Tof.gif plots/muon
 
-if ($copyWWW == "true") source copyWWWall.csh
+if ($copyWWW == "true") source copyWWWall.csh $WebDir
 
 cd ${DATADIR}/Validation/TrackerDigis/test 
 
@@ -145,10 +148,10 @@ ln -fs ${REFDIR}/${refhistogramfile} ../pixeldigihisto.root
 
 root -b -p -q  SiPixelDigiCompare.C
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWPixel.csh
+if ($copyWWW == "true") source copyWWWPixel.csh $WebDir
 root -b -p -q  SiStripDigiCompare.C
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWStrip.csh
+if ($copyWWW == "true") source copyWWWStrip.csh $WebDir
 
 cd ${DATADIR}/Validation/TrackerRecHits/test
 
@@ -162,10 +165,10 @@ ln -fs  ${REFDIR}/${refhistogramfile} ../pixelrechitshisto.root
 
 root -b -p -q SiPixelRecHitsCompare.C
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWPixel.csh
+if ($copyWWW == "true") source copyWWWPixel.csh $WebDir
 root -b -p -q SiStripRecHitsCompare.C
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWStrip.csh
+if ($copyWWW == "true") source copyWWWStrip.csh $WebDir
 
 cd ${DATADIR}/Validation/TrackingMCTruth/test
 ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/trackingtruthhisto.root .
@@ -175,7 +178,7 @@ ln -fs ${REFDIR}/${refhistogramfile} ../trackingtruthhisto.root
 
 root -b -p -q TrackingTruthCompare.C
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWTP.csh
+if ($copyWWW == "true") source copyWWWTP.csh $WebDir
 
 cd ${DATADIR}/Validation/RecoTrack/test
 
@@ -197,11 +200,11 @@ ln -fs ${REFDIR}/${refhistogramfile} ../striptrackingrechitshisto.root
 
 root -b -p -q SiPixelRecoCompare.C 
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWPixel.csh
+if ($copyWWW == "true") source copyWWWPixel.csh $WebDir
 
 root -b -p -q SiStripTrackingRecHitsCompare.C 
 gzip -f *.eps
-if ($copyWWW == "true") source copyWWWStrip.csh
+if ($copyWWW == "true") source copyWWWStrip.csh $WebDir
 
 #Check on the fly in order to check the correctness of LiteGeometry
 #cd ${DATADIR}/CalibTracker/SiStripCommon/test
@@ -212,3 +215,4 @@ if ($copyWWW == "true") source copyWWWStrip.csh
 #diff myfile.txt oldgeometrylite.txt > ! litegeometryDIFF.txt
 #mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/${RefRelease}/LiteGeometry
 #cp litegeometryDIFF.txt  /afs/cern.ch/cms/performance/tracker/activities/validation/${RefRelease}/LiteGeometry
+
