@@ -52,7 +52,7 @@ class HcalDCSInfo: public edm::EDAnalyzer {
  private:
 
   /// BeginJob
-  void beginJob(edm::EventSetup const& eSetup);
+  void beginJob();
 
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);

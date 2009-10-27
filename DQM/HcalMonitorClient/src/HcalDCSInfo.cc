@@ -14,10 +14,14 @@
 #include <sstream>
 #include <math.h>
 
+using namespace cms;
+using namespace edm;
+using namespace std;
+
 //
 // -- Constructor
 //
-HcalDCSInfo::HcalDCSInfo(edm::ParameterSet const& pSet) {
+HcalDCSInfo::HcalDCSInfo(const ParameterSet& pSet) {
 
   debug_ = pSet.getUntrackedParameter<int>("debug",0);
   rootFolder_ = pSet.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
@@ -37,7 +41,7 @@ HcalDCSInfo::~HcalDCSInfo()
 //
 // -- Begin Job
 //
-void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
+void HcalDCSInfo::beginJob() {
  
 
   dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/");

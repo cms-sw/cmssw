@@ -35,13 +35,14 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 //
 // class declaration
@@ -53,7 +54,7 @@ class HcalDataCertification : public edm::EDAnalyzer {
       ~HcalDataCertification();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
@@ -72,7 +73,6 @@ class HcalDataCertification : public edm::EDAnalyzer {
    MonitorElement* Hcal_HFlumi;
    MonitorElement* Hcal_HO0;
    MonitorElement* Hcal_HO12;
-   edm::Service<TFileService> fs_;
    int debug_;
   std::string rootFolder_;
 };
@@ -89,11 +89,12 @@ class HcalDataCertification : public edm::EDAnalyzer {
 // constructors and destructor
 //
 
-HcalDataCertification::HcalDataCertification(const edm::ParameterSet& iConfig):conf_(iConfig)
+HcalDataCertification::HcalDataCertification(const ParameterSet& iConfig)
 {
   // now do what ever initialization is needed
   debug_ = iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
+  dbe_ = Service<DQMStore>().operator->();  
 }
 
 HcalDataCertification::~HcalDataCertification()
@@ -108,17 +109,12 @@ HcalDataCertification::~HcalDataCertification()
 
 // ------------ method called to for each event  ------------
 void
-HcalDataCertification::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using namespace edm;
-}
+HcalDataCertification::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalDataCertification::beginJob(const edm::EventSetup&)
+HcalDataCertification::beginJob()
 {
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
   if (debug_>0) std::cout<<"<HcalDataCertification> beginJob"<< std::endl;
 
   dbe_->setCurrentFolder(rootFolder_);
