@@ -396,10 +396,9 @@ void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simp
 }
 
 
-std::vector<PSimHit> TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust) 
+void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust, std::vector<PSimHit>& simhit)
 {
-  //vector with the matched SimHit
-  std::vector<PSimHit> result; 
+// Caller needs to clear simhit before calling this function
 
   //initialize class vectors
   simtrackid.clear();
@@ -408,10 +407,8 @@ std::vector<PSimHit> TrackerHitAssociator::associateSimpleRecHitCluster(const Si
   associateSimpleRecHitCluster(clust, simtrackid);
 
   for(size_t i=0; i<simhitCFPos.size(); i++){
-    result.push_back(TrackerHits.getObject(simhitCFPos[i]));
+    simhit.push_back(TrackerHits.getObject(simhitCFPos[i]));
   }
-
-  return result;  
 }
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust, std::vector<SimHitIdpr>& simtrackid){
