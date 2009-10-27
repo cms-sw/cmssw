@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('CRAFT09_R_V5::All')
+process.GlobalTag.globaltag = cms.string('CRAFT09_R_V8::All')
 
 #-------------------------------------------------
 # PAT and TQAF configuration
