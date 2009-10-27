@@ -819,18 +819,23 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
   iEvent.getByLabel (l2collectionTag_,l2mucands);
-  iEvent.getByLabel (l3collectionTag_,l3mucands);
+  //iEvent.getByLabel (l3collectionTag_,l3mucands);
   RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
   
   Handle<L2MuonTrajectorySeedCollection> l2seeds; 
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
   Handle<L3MuonTrajectorySeedCollection> l3seeds; 
-  iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+  //iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+
+  if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+  if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) {
+    if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
+  }
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     //cout << "trigger fired!" << endl;
-    if( !l2seeds.failedToGet() ) {
+    if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
       map<L1MuonParticleRef, int> l1map;
@@ -878,7 +883,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	_hpt1[ntrig][0]->Fill(l1ref->pt());
 	_heta1[ntrig][0]->Fill(l1ref->eta());
 	_hphi1[ntrig][0]->Fill(l1ref->phi());
-	if ( !l2mucands.failedToGet()) {
+	if ( !l2mucands.failedToGet() && l2mucands.isValid() ) {
 	  for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 	    TrackRef tk = cand->get<TrackRef>();
 	    RefToBase<TrajectorySeed> seed=tk->seedRef();
@@ -916,7 +921,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      _heta1[ntrig][1]->Fill(tk->eta());
 	      _hphi1[ntrig][1]->Fill(tk->phi());
 	      //find the L3 build from this L2
-	      if (!l3mucands.failedToGet()) {
+	      if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
 		for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 		  TrackRef l3tk= cand->get<TrackRef>();
 		  if( l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
@@ -969,7 +974,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     }
     //else cout << "failed to get l2seed!" << endl;
 
-    if (!l3seeds.failedToGet()) {
+    if (!l3seeds.failedToGet() && l3seeds.isValid() ) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
       L3MuonTrajectorySeedCollection::const_iterator l3seed;
       map<TrackRef, int> l2map;
@@ -1015,14 +1020,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     iEvent.getByLabel("hltOfflineBeamSpot",recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet())  beamSpot = *recoBeamSpotHandle;
     
-    if (!l2mucands.failedToGet()) {
+    if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
       LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << endl;
       Handle<reco::IsoDepositMap> l2depMap;
-      iEvent.getByLabel (l2isolationTag_,l2depMap);
+      if( l2mucands->size() != 0 ) iEvent.getByLabel (l2isolationTag_,l2depMap);
       hNMu[ntrig][1]->Fill(l2mucands->size());
       for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 	TrackRef tk = cand->get<TrackRef>();
-	if (!l2depMap.failedToGet()) {
+	if (!l2depMap.failedToGet() && l2depMap.isValid() ) {
 	  LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << endl;
 	  if ( l2depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit = (*l2depMap)[tk];
@@ -1080,14 +1085,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	} else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
       }
     }
-    if (!l3mucands.failedToGet()) {
+    if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
       LogDebug("HLTMuonDQMSource") << " filling L3 stuff " << endl;
       hNMu[ntrig][2]->Fill(l3mucands->size());
       Handle<reco::IsoDepositMap> l3depMap;
-      iEvent.getByLabel (l3isolationTag_,l3depMap);
+      if( l3mucands->size() != 0 ) iEvent.getByLabel (l3isolationTag_,l3depMap);
       for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 	TrackRef tk = cand->get<TrackRef>();
-	if (!l3depMap.failedToGet()) {
+	if (!l3depMap.failedToGet() && l3depMap.isValid() ) {
 	  if ( l3depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit= (*l3depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
@@ -1208,7 +1213,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
   // Tower
   Handle<CaloTowerCollection> caloTower; 
-  iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
+  if( !l2mucands.failedToGet() && l2mucands->size() != 0 )
+    iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( caloTower.isValid() ) {
@@ -1217,7 +1223,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  if( (*itower).et() == 0 ) continue;
 
 	  // deltaR with l2muon
-	  if (!l2mucands.failedToGet()) {
+	  if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
 	      for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 		  TrackRef l2tk= cand->get<TrackRef>();
 	          double deltaR_l2 = reco::deltaR(*l2tk, (*itower));
@@ -1225,7 +1231,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      }
 	  }
 	  // deltaR with l3muon
-	  if (!l3mucands.failedToGet()) {
+	  if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
 	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 		  TrackRef l3tk= cand->get<TrackRef>();
 	          double deltaR_l3 = reco::deltaR(*l3tk, (*itower));
