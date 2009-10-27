@@ -223,9 +223,11 @@ namespace edm {
   }
 
   void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
-    eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
-    bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
-    assert(eventOK);
+    if (eventPrincipal_) {
+      eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
+      bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
+      assert(eventOK);
+    }
   }
   
   void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
