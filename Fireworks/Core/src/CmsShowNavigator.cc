@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.40 2009/10/03 17:14:29 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.41 2009/10/03 18:48:24 dmytro Exp $
 //
 
 // hacks
@@ -558,8 +558,8 @@ CmsShowNavigator::enableEventFiltering( Bool_t flag ){
 }
 
 void
-CmsShowNavigator::showEventFilter(){
-   FWGUIEventFilter* filter = new FWGUIEventFilter(m_selectors,*m_currentFile->event,m_globalOR);
+CmsShowNavigator::showEventFilter(const TGWindow* parent){
+   FWGUIEventFilter* filter = new FWGUIEventFilter(parent, m_selectors,*m_currentFile->event,m_globalOR);
    filter->show();
    gClient->WaitForUnmap(filter);
    Int_t absolutePosition = m_currentEntry;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.155 2009/10/26 22:31:59 yanjuntu Exp $
+// $Id: FWGUIManager.cc,v 1.156 2009/10/27 01:43:29 dmytro Exp $
 //
 
 // system include files
@@ -1216,7 +1216,7 @@ void FWGUIManager::eventIdChanged()
 
 void FWGUIManager::showEventFilter()
 {
-  showEventFilter_.emit();
+  showEventFilter_.emit(m_cmsShowMainFrame);
 }
 
 void FWGUIManager::eventFilterStatusChanged()

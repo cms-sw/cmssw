@@ -10,14 +10,11 @@ class TGTransientFrame;
 class TGCompositeFrame;
 class TGTextButton;
 
-namespace fwlite{
-  class Event;
-}
-
 class FWGUIEventFilter: public TGTransientFrame{
-  std::vector<FWEventSelector*>& m_sels;
-  fwlite::Event& m_event;
-  bool& m_globalOR;
+  std::vector<FWEventSelector*>* m_main_sels;
+  std::vector<FWEventSelector*>  m_sels;
+  bool* m_main_globalOR;
+  bool m_globalOR;
   TGCompositeFrame* m_mainFrame;
   std::vector<TGVerticalFrame*> m_columns;
   std::vector<std::vector<TGFrame*> > m_cells;
@@ -30,14 +27,22 @@ class FWGUIEventFilter: public TGTransientFrame{
   FWHLTValidator m_validator;
   static const TGPicture* m_icon_enabled;
   static const TGPicture* m_icon_disabled;
+  bool m_changed;
+  TGTextButton* m_applyChanges;
+  void changed(bool flag = true){
+    m_changed = flag;
+    m_applyChanges->SetEnabled(flag);
+  }
 
 public:
-  FWGUIEventFilter(std::vector<FWEventSelector*>& sels,
+  FWGUIEventFilter(const TGWindow* parent,
+		   std::vector<FWEventSelector*>& sels,
 		   fwlite::Event&,
 		   bool&);
   void addSelector(FWEventSelector* sel);
   void show();
   void update();
+  void applyChanges();
   void dump(const char* text);
   void newEntry(const char* text=0);
   void junctionChanged();

@@ -14,15 +14,18 @@
 const TGPicture* FWGUIEventFilter::m_icon_enabled = 0;
 const TGPicture* FWGUIEventFilter::m_icon_disabled = 0;
 
-FWGUIEventFilter::FWGUIEventFilter(std::vector<FWEventSelector*>& sels, 
+FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent,
+				   std::vector<FWEventSelector*>& sels, 
 				   fwlite::Event& event,
 				   bool& junction):
-  TGTransientFrame(gClient->GetRoot(), gClient->GetRoot(),m_width,m_height),
+  TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
+  m_main_sels(&sels),
   m_sels(sels),
-  m_event(event),
+  m_main_globalOR(&junction),
   m_globalOR(junction),
   m_haveNewEntry(false),
-  m_validator(event)
+  m_validator(event),
+  m_changed(false)
 {
   
   // SetCleanup(kDeepCleanup);
@@ -36,8 +39,8 @@ FWGUIEventFilter::FWGUIEventFilter(std::vector<FWEventSelector*>& sels,
   m_junctionWidget->Connect("Clicked()","FWGUIEventFilter", this, "junctionChanged()");
   junctionUpdate();
 
-  TGCanvas* frame = new TGCanvas(this,m_width,m_height-2*m_entryHeight);
-  AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+  TGCanvas* frame = new TGCanvas(this,m_width,m_height-6*m_entryHeight);
+  AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 1,1,1,1));
 
   m_mainFrame = new TGHorizontalFrame(frame->GetViewPort(), m_width, m_entryHeight, 0);
   frame->SetContainer(m_mainFrame);
@@ -65,6 +68,16 @@ FWGUIEventFilter::FWGUIEventFilter(std::vector<FWEventSelector*>& sels,
   m_cells.push_back(std::vector<TGFrame*>());
   m_cells.back().push_back(new TGLabel(m_columns.back(),"Delete"));
   m_columns.back()->AddFrame(m_cells.back().back(), new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+   
+  TGHorizontalFrame* buttons = new TGHorizontalFrame(this, m_width, 2*m_entryHeight, 0);
+  AddFrame(buttons, new TGLayoutHints(kLHintsExpandX|kLHintsBottom, 0,0,0,0));
+  m_applyChanges = new TGTextButton(buttons," Apply Changes ");
+  buttons->AddFrame(m_applyChanges, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY, 5,5,5,5));
+  m_applyChanges->Connect("Clicked()","FWGUIEventFilter", this, "applyChanges()");
+
+  TGTextButton* m_cancel = new TGTextButton(buttons," Cancel ");
+  buttons->AddFrame(m_cancel, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY, 5,5,5,5));
+  m_cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 }
 
 void FWGUIEventFilter::addSelector(FWEventSelector* sel){
@@ -73,6 +86,7 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel){
     m_cells[1].push_back(0);
     m_cells[2].push_back(0);
     m_cells[3].push_back(0);
+    changed();
     return;
   }
   if(!m_icon_enabled || !m_icon_disabled) {
@@ -114,6 +128,7 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel){
   button->Connect("Clicked()","FWEventSelector", sel, "remove()");
   button->Connect("Clicked()","FWGUIEventFilter", this, "update()");
   m_cells[3].push_back(button);
+  changed();
 }
 
 void FWGUIEventFilter::newEntry(const char* text){
@@ -150,6 +165,7 @@ void FWGUIEventFilter::show(){
     addSelector(*sel);
   update();
   newEntry();
+  changed(false);
 }
  
 void FWGUIEventFilter::update(){
@@ -165,6 +181,7 @@ void FWGUIEventFilter::update(){
       m_cells[3][i+1]=0;
     }
   }
+  changed();
   MapSubwindows();
   Layout();
   MapWindow();
@@ -179,14 +196,23 @@ void FWGUIEventFilter::dump(const char* text){
 }
 
 void FWGUIEventFilter::junctionChanged(){
-  m_globalOR = !m_globalOR;
+  m_globalOR = ! m_globalOR;
   junctionUpdate();
+  changed();
 }
 
 void FWGUIEventFilter::junctionUpdate(){
-  m_junctionWidget->SetDown(!m_globalOR);
+  m_junctionWidget->SetDown(! m_globalOR);
   if (m_globalOR)
     m_junctionWidget->SetText(" OR  ");
   else
     m_junctionWidget->SetText(" AND ");
+}
+
+void FWGUIEventFilter::applyChanges(){
+  if (m_changed){
+    *m_main_sels = m_sels;
+    *m_main_globalOR = m_globalOR;
+  }
+  DoExit();
 }

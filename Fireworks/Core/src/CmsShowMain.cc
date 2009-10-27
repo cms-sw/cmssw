@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.94 2009/10/06 18:56:06 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.95 2009/10/26 18:08:43 yanjuntu Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 
 
 //
@@ -435,7 +436,7 @@ void CmsShowMain::openData()
     */
    fi.fIniDir = new char[10];
    strcpy(fi.fIniDir, ".");
-   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
+   new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
      m_navigator->loadFile(fi.fFilename);
@@ -735,7 +736,7 @@ CmsShowMain::setupDataHandling()
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1,_2));
-   m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator));
+   m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator,_1));
    // m_guiManager->changedEventFilter_.connect(boost::bind(&CmsShowNavigator::filterEventsAndReset,m_navigator));
    m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
 

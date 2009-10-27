@@ -583,7 +583,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(0);
-  topaa.addValue("HLT_Mu9 || HLT_Ele15_SW_L1R");
+  topaa.addValue("HLT_Mu9");
   topa.addKeyValue("EventFilter2_selection", topaa);
 }
 {
@@ -672,6 +672,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Line width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Smooth line", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -944,7 +954,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.78");
+  topaaaa.addValue("0.933425");
   topaaa.addKeyValue("orthoCameraZoom3D Lego", topaaaa);
 }
 {
@@ -1065,6 +1075,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Line width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Smooth line", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1752,7 +1772,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("56");
+  topaaaaa.addValue("55");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1800,7 +1820,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("372");
+  topaaaaa.addValue("374");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1842,6 +1862,10 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topa(1);
   top.addKeyValue("Tables", topa);
+}
+{
+  FWConfiguration topa(1);
+  top.addKeyValue("TriggerTables", topa);
 }
 
   return top_p;

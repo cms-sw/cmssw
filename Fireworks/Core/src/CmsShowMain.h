@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.26 2009/09/29 19:26:32 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.27 2009/10/26 18:08:52 yanjuntu Exp $
 //
 
 // system include files
@@ -159,6 +159,7 @@ private:
 
    TTimer* m_playTimer;
    TTimer* m_playBackTimer;
+   TTimer* m_liveTimer;
    bool    m_isPlaying;
    bool    m_forward;
    bool    m_rewindMode;

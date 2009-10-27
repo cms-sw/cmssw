@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.77 2009/10/26 18:09:34 yanjuntu Exp $
+// $Id: FWGUIManager.h,v 1.78 2009/10/27 01:43:29 dmytro Exp $
 //
 
 // system include files
@@ -78,6 +78,7 @@ class CmsShowTaskExecutor;
 class CmsShowMain;
 
 class FWModelContextMenuHandler;
+class TGWindow;
 
 namespace fwlite {
    class Event;
@@ -180,7 +181,7 @@ public:
 
    sigc::signal<void> changedRunEntry_;
    sigc::signal<void> changedEventEntry_;
-   sigc::signal<void> showEventFilter_;
+   sigc::signal<void, const TGWindow*> showEventFilter_;
 
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
@@ -199,6 +200,9 @@ public:
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
    void showEventFilter();
+  CmsShowMainFrame* getMainFrame(){
+    return m_cmsShowMainFrame;
+  }
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
 

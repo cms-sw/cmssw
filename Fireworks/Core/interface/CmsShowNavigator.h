@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.23 2009/09/30 18:01:09 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.24 2009/10/02 17:55:26 dmytro Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@ class TEventList;
 class CSGAction;
 class CmsShowMain;
 class TFile;
+class TGWindow;
 
 namespace edm {
    class EventID;
@@ -77,7 +78,7 @@ public:
    void goToEvent(Int_t,Int_t);
    void checkForNewFiles();
    void setMaxNumberOfFilesToChain( unsigned int i ){ m_maxNumberOfFilesToChain = i; }
-   void showEventFilter();
+   void showEventFilter(const TGWindow*);
 
    sigc::signal<void, const fwlite::Event&> newEvent_;
    sigc::signal<void, const fwlite::Event&> oldEvent_;
