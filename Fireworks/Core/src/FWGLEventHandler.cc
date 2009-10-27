@@ -13,6 +13,7 @@
 #include "TGLOverlay.h"
 #include "TGLLogicalShape.h"
 #include "TGLPhysicalShape.h"
+#include "TGLAnnotation.h"
 #include "TContextMenu.h"
 #include "KeySymbols.h"
 
@@ -45,6 +46,32 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
       eventSt.fY = event->fY;
       eventSt.fCode = event->fCode;
      
+      if ( fGLViewer->GetPushAction() != TGLViewer::kPushStd )
+      {
+         fGLViewer->RequestSelect(event->fX, event->fY);
+         if (fGLViewer->fSelRec.GetN() > 0)
+         {
+            TGLVector3 v(event->fX, event->fY, 0.5*fGLViewer->fSelRec.GetMinZ());
+            fGLViewer->CurrentCamera().WindowToViewport(v);
+            v = fGLViewer->CurrentCamera().ViewportToWorld(v);
+            if (fGLViewer->GetPushAction() == TGLViewer::kPushCamCenter)
+            {
+               fGLViewer->CurrentCamera().SetExternalCenter(kTRUE);
+               fGLViewer->CurrentCamera().SetCenterVec(v.X(), v.Y(), v.Z());
+            }
+            else
+            {
+               TGLSelectRecord& rec = fGLViewer->GetSelRec();
+               TObject* obj = rec.GetObject();
+               TGLRect& vp = fGLViewer->CurrentCamera().RefViewport();
+               TGLAnnotation* ann = new TGLAnnotation(fGLViewer, obj->GetTitle(),  eventSt.fX*1.f/vp.Width(),  1 - eventSt.fY*1.f/vp.Height(), v);
+               ann->SetTextSize(0.03);
+            }
+
+            fGLViewer->RequestDraw();
+         }
+         return kTRUE;
+      }
 
       Bool_t grabPointer = kFALSE;
       Bool_t handled     = kFALSE;
