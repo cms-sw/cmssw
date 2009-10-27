@@ -1,5 +1,5 @@
 from xml.dom import minidom
-import types
+import types, os
 
 def createNode(xml_doc, node_name, values = {}, parent = None):
 	if (parent == None):
@@ -252,7 +252,7 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 		print tarpipe_cmd
 		os.system(tarpipe_cmd)
 		print "Successfully copied XML report %s to %s"%(xmlFileName,remotedir)
-	except:
-		print "Issues with copying XML report %s to the remote directory %s!"%(xmlFileName,remotedir)
+	except Exception,e :
+		print "Issues with copying XML report %s to the remote directory %s!\n%s"%(xmlFileName,remotedir,str(e))
 		
 	
