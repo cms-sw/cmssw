@@ -25,7 +25,7 @@ startupsamples = []
 # Pileup MC sample
 #idealsamples = ['RelValZmumuJets_Pt_20_300_GEN']
 
-# New samples array for 3_1_X
+# New samples array for 3_X_X
 mcsamples = ['RelValQCD_Pt_80_120']
 
 Sequence = 'only_validation'
@@ -35,7 +35,8 @@ Sequence = 'only_validation'
 IdealTag = 'IDEAL_31X'
 StartupTag = 'STARTUP_31X'
 # This tag is the new replacement (as of 31X) for MC, IDEAL becomes DESIGN
-MCTag = 'MC_31X_V2'
+# MC_31X_V9 works for CMSSW_3_4_0_preX
+MCTag = 'MC_31X_V9'
 
 # PileUp: PU, No PileUp: noPU
 PileUp = 'noPU'
@@ -49,10 +50,10 @@ StartupReferenceSelection = 'STARTUP_31X_test'+PileUp
 #RefRepository = '/afs/cern.ch/cms/performance/'
 RefRepository = '/nfs/data37/cms/drell/valTest'
 # NewRepository contains the files for the new release to be tested
-NewRepository = '/nfs/data37/cms/drell/valTest'
+NewRepository = '/nfs/data37/cms/drell/val340'
 
 # Default number of events
-defaultNevents = '20'
+defaultNevents = '200'
 
 # Specify the number of events to be processed for specific samples (numbers must be strings)
 Events = {}
