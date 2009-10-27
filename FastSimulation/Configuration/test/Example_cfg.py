@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 # The number of events to be processed.
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
     
 # For valgrind studies
 # process.ProfilerService = cms.Service("ProfilerService",

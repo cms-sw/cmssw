@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_4_0/pre2/1E31/V7 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
+# /dev/CMSSW_3_4_0/pre2/1E31/V9 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/1E31/V7')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/1E31/V9')
 )
 
 
@@ -2425,7 +2425,8 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 5.0 )
+      nSigmasDeltaZ1 = cms.double( 5.0 ),
+      applyHOverECut = cms.bool( False )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -2477,7 +2478,8 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 5.0 )
+      nSigmasDeltaZ1 = cms.double( 5.0 ),
+      applyHOverECut = cms.bool( False )
     )
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt10PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -2653,7 +2655,7 @@ hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdDetaFilter = cms.EDFilter( "HLTElectr
     nonIsoTag = cms.InputTag( 'hltElectronL1NonIsoDetaDphi','Deta' ),
     lessThan = cms.bool( True ),
     thrRegularEB = cms.double( 0.0080 ),
-    thrRegularEE = cms.double( 0.0080 ),
+    thrRegularEE = cms.double( 0.011 ),
     thrOverPtEB = cms.double( -1.0 ),
     thrOverPtEE = cms.double( -1.0 ),
     thrTimesPtEB = cms.double( -1.0 ),
@@ -3000,7 +3002,7 @@ hltL1NonIsoHLTIsoSingleElectronEt20LTIEleIdDetaFilter = cms.EDFilter( "HLTElectr
     nonIsoTag = cms.InputTag( 'hltElectronL1NonIsoDetaDphi','Deta' ),
     lessThan = cms.bool( True ),
     thrRegularEB = cms.double( 0.0080 ),
-    thrRegularEE = cms.double( 0.0080 ),
+    thrRegularEE = cms.double( 0.011 ),
     thrOverPtEB = cms.double( -1.0 ),
     thrOverPtEE = cms.double( -1.0 ),
     thrTimesPtEB = cms.double( -1.0 ),
@@ -3426,8 +3428,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt10EcalIsolFilter = cms.EDFilter( "HLTEgammaGene
     useEt = cms.bool( False ),
     thrRegularEB = cms.double( 3.0 ),
     thrRegularEE = cms.double( 3.0 ),
-    thrOverEEB = cms.double( 0.2 ),
-    thrOverEEE = cms.double( 0.2 ),
+    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEE = cms.double( 0.1 ),
     thrOverE2EB = cms.double( -1.0 ),
     thrOverE2EE = cms.double( -1.0 ),
     ncandcut = cms.int32( 1 ),
@@ -3478,8 +3480,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt10TrackIsolFilter = cms.EDFilter( "HLTEgammaGen
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonHollowTrackIsol" ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
-    thrRegularEB = cms.double( 0.0 ),
-    thrRegularEE = cms.double( 0.0 ),
+    thrRegularEB = cms.double( 4.0 ),
+    thrRegularEE = cms.double( 4.0 ),
     thrOverEEB = cms.double( 0.05 ),
     thrOverEEE = cms.double( 0.05 ),
     thrOverE2EB = cms.double( -1.0 ),
@@ -3562,8 +3564,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt20EcalIsolFilter = cms.EDFilter( "HLTEgammaGene
     useEt = cms.bool( False ),
     thrRegularEB = cms.double( 3.0 ),
     thrRegularEE = cms.double( 3.0 ),
-    thrOverEEB = cms.double( 0.2 ),
-    thrOverEEE = cms.double( 0.2 ),
+    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEE = cms.double( 0.1 ),
     thrOverE2EB = cms.double( -1.0 ),
     thrOverE2EE = cms.double( -1.0 ),
     ncandcut = cms.int32( 1 ),
@@ -3594,8 +3596,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt20TrackIsolFilter = cms.EDFilter( "HLTEgammaGen
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonHollowTrackIsol" ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
-    thrRegularEB = cms.double( 0.0 ),
-    thrRegularEE = cms.double( 0.0 ),
+    thrRegularEB = cms.double( 4.0 ),
+    thrRegularEE = cms.double( 4.0 ),
     thrOverEEB = cms.double( 0.05 ),
     thrOverEEE = cms.double( 0.05 ),
     thrOverE2EB = cms.double( -1.0 ),
@@ -3678,8 +3680,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt25EcalIsolFilter = cms.EDFilter( "HLTEgammaGene
     useEt = cms.bool( False ),
     thrRegularEB = cms.double( 3.0 ),
     thrRegularEE = cms.double( 3.0 ),
-    thrOverEEB = cms.double( 0.2 ),
-    thrOverEEE = cms.double( 0.2 ),
+    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEE = cms.double( 0.1 ),
     thrOverE2EB = cms.double( -1.0 ),
     thrOverE2EE = cms.double( -1.0 ),
     ncandcut = cms.int32( 1 ),
@@ -3710,8 +3712,8 @@ hltL1NonIsoHLTLEITISinglePhotonEt25TrackIsolFilter = cms.EDFilter( "HLTEgammaGen
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonHollowTrackIsol" ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
-    thrRegularEB = cms.double( 0.0 ),
-    thrRegularEE = cms.double( 0.0 ),
+    thrRegularEB = cms.double( 4.0 ),
+    thrRegularEE = cms.double( 4.0 ),
     thrOverEEB = cms.double( 0.05 ),
     thrOverEEE = cms.double( 0.05 ),
     thrOverE2EB = cms.double( -1.0 ),
@@ -4979,7 +4981,8 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 5.0 )
+      nSigmasDeltaZ1 = cms.double( 5.0 ),
+      applyHOverECut = cms.bool( False )
     )
 )
 hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -5031,7 +5034,8 @@ hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 5.0 )
+      nSigmasDeltaZ1 = cms.double( 5.0 ),
+      applyHOverECut = cms.bool( False )
     )
 )
 hltEle10LWL1RHT200ElePixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",

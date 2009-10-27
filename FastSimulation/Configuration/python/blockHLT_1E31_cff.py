@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre2/1E31/V7 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
+# /dev/CMSSW_3_4_0/pre2/1E31/V9 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/1E31/V7')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/1E31/V9')
 )
 
 
@@ -54,7 +54,8 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
   hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
+  applyHOverECut = cms.bool( False )
 )
 block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -102,7 +103,8 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
   hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
+  applyHOverECut = cms.bool( False )
 )
 block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -150,7 +152,8 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
   hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
+  applyHOverECut = cms.bool( False )
 )
 block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -198,5 +201,6 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
   hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
+  applyHOverECut = cms.bool( False )
 )
