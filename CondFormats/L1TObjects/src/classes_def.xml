@@ -100,6 +100,9 @@
   <class name="L1GtBptxTemplate"/>
   <class name="std::vector<L1GtBptxTemplate>"/>
   <class name="std::vector<std::vector<L1GtBptxTemplate> >"/>
+  <class name="L1GtExternalTemplate"/>
+  <class name="std::vector<L1GtExternalTemplate>"/>
+  <class name="std::vector<std::vector<L1GtExternalTemplate> >"/>
   <class name="L1GtCorrelationTemplate"/>
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
