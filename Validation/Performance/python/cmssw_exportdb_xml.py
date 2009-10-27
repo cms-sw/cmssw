@@ -230,7 +230,7 @@ def exportECRules(xml_doc, rules):
 	runInfoNode = createNode(node_name= "EventContentRules", xml_doc=xml_doc, parent=node_xml, 
 			values=rules)
 
-def write_xml(xml_doc, xmlFileName):
+def write_xml(xml_doc, remotedir,xmlFileName):
 	xml = xml_doc.toprettyxml(indent="  ")
 
 	# return xml as string (if requested)
@@ -238,6 +238,21 @@ def write_xml(xml_doc, xmlFileName):
 		return xml
 	# or save that as file
 	out = open(xmlFileName, "w")
-	#print xml
+	#print xml locally
 	out.write(xml)
 	out.close()
+	print "Now copying %s to remote directory %s..."%(xmlFileName,remotedir)
+	#FIXME: Here we could decide to archive it on CASTOR on a dedicated directory
+	if ":" in remotedir: #CAVEAT: since we report the timestamp as part of the xml filename we need to be careful..
+		(host,dir)=remotedir.split(":")
+		tarpipe_cmd='tar cf - %s|ssh %s "cd %s;tar xf -'%(xmlFileName,host,dir)
+	else:
+		tarpipe_cmd='tar cf - %s|(cd %s;tar xf -)'%(xmlFileName,remotedir)
+	try:
+		print tarpipe_cmd
+		os.system(tarpipe_cmd)
+		print "Successfully copied XML report %s to %s"%(xmlFileName,remotedir)
+	except:
+		print "Issues with copying XML report %s to the remote directory %s!"%(xmlFileName,remotedir)
+		
+	

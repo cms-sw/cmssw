@@ -601,7 +601,7 @@ class parserPerfsuiteMetadata:
 			if os.environ.has_key("PERFDB_CASTOR_FILE_URL"):
 				url = os.environ["PERFDB_CASTOR_FILE_URL"]
 				
-			else:
+			else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)
 				 self.handleParsingError( "Castor tarball URL not found. Provide interactively")
 
 			while True:

@@ -48,8 +48,9 @@ def get_params(argv):
     
     """ try to get the version for command line argument """
     #print argv
+    #FIXME: this should be rewritten using getopt properly
     version = None
-    xml_dir = ""
+    xml_dir = "cmsperfvm:/data/projects/conf/PerfSuiteDB/xml_dropbox" #Set this as default (assume change in write_xml to write to remote machines)
     try:                              
         opts, args = getopt.getopt(argv[1:], "v:", ["version=", "output="])
     except getopt.GetoptError, e:  
@@ -291,7 +292,9 @@ if __name__ == "__main__":
     #save the XML file, TODO: change fileName after introducting the JobID
     import datetime
     now = datetime.datetime.now()
-    file_name = os.path.join(output_dir, "%s_[%s]_[%s]_%s.xml" % (release, "__".join(steps.keys()), "__".join(candles.keys()), now))
+    #Changing slightly the XML filename format
+    #FIXME: review this convention and archive the xml in a separate CASTOR xml directory for quick recovery of DB...
+    file_name = "%s___%s___%s___%s.xml" % (release, "_".join(steps.keys()), "_".join(candles.keys()), now.isoformat())
     print "Writing the output to: %s " % file_name
 
-    write_xml(xmldoc, file_name)
+    write_xml(xmldoc, output_dir, file_name) #change this function to be able to handle directories in remote machines (via tar pipes for now could always revert to rsync later).
