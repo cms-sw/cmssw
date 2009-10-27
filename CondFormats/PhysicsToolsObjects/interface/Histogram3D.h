@@ -73,7 +73,7 @@ class Histogram3D {
 
 	const std::vector<AxisX_t> upperLimitsX() const { return binULimitsX; }
 	const std::vector<AxisY_t> upperLimitsY() const { return binULimitsY; }
-        const std::vector<AxisY_t> upperLimitsZ() const { return binULimitsZ; }
+        const std::vector<AxisZ_t> upperLimitsZ() const { return binULimitsZ; }
 
 	inline int bin3D(int binX, int binY, int binZ) const
 //        { return (((binY * strideY) + binX) * strideX) + binZ; }
@@ -157,7 +157,7 @@ class Histogram3D {
         unsigned int                    strideY;
 	std::vector<AxisX_t>		binULimitsX;
 	std::vector<AxisY_t>		binULimitsY;
-        std::vector<AxisY_t>            binULimitsZ;
+        std::vector<AxisZ_t>            binULimitsZ;
 	std::vector<Value_t>		binValues;
 	RangeX				limitsX;
 	RangeY				limitsY;
