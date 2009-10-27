@@ -59,7 +59,7 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	unsigned int max_since=0;
+	int max_since=0;
 	max_since=(int)tagInfo().lastInterval.first;
 	edm::LogInfo("EcalTPGLutIdMapHandler") << "max_since : "  << max_since;
 	edm::LogInfo("EcalTPGLutIdMapHandler") << "retrieved last payload ";
@@ -102,8 +102,8 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	  min_run=(int)m_firstRun;
 	}
 	
-	if(m_firstRun<max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	}
 	
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -123,7 +123,7 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
@@ -131,24 +131,24 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" run= "<<irun<<std::endl;
 
-		// retrieve the data :
-		map<EcalLogicID, RunTPGConfigDat> dataset;
-		econn->fetchDataSet(&dataset, &run_vec[kr]);
+	    // retrieve the data :
+	    map<EcalLogicID, RunTPGConfigDat> dataset;
+	    econn->fetchDataSet(&dataset, &run_vec[kr]);
 		
-		std::string the_config_tag="";
-		int the_config_version=0;
+	    std::string the_config_tag="";
+	    int the_config_version=0;
 		
-		map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
+	    map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
 	
-		int nr=0;
-        	for( it=dataset.begin(); it!=dataset.end(); it++ )
-        	{
-	      	  ++nr;
-	      	  EcalLogicID ecalid  = it->first;
-	      	  RunTPGConfigDat  dat = it->second;
-	      	  the_config_tag=dat.getConfigTag();
-	      	  the_config_version=dat.getVersion();
-		}
+	    int nr=0;
+            for( it=dataset.begin(); it!=dataset.end(); it++ )
+            {
+	      ++nr;
+	      EcalLogicID ecalid  = it->first;
+	      RunTPGConfigDat  dat = it->second;
+	      the_config_tag=dat.getConfigTag();
+	      the_config_version=dat.getVersion();
+	    }
 		
 		  
 	    // it is all the same for all SM... get the last one 
@@ -159,81 +159,79 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	    // here we should check if it is the same as previous run.
 
 
-	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+	    	if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
+	          std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
 
-	      FEConfigMainInfo fe_main_info;
-	      fe_main_info.setConfigTag(the_config_tag);
-	      fe_main_info.setVersion(the_config_version);
+	      	  FEConfigMainInfo fe_main_info;
+	      	  fe_main_info.setConfigTag(the_config_tag);
+	      	  fe_main_info.setVersion(the_config_version);
 
-	      try{ 
-		std::cout << " before fetch config set" << std::endl;	    
-		econn-> fetchConfigSet(&fe_main_info);
-		std::cout << " after fetch config set" << std::endl;	    
+	      	  try{ 
+		    std::cout << " before fetch config set" << std::endl;	    
+		    econn-> fetchConfigSet(&fe_main_info);
+		    std::cout << " after fetch config set" << std::endl;	    
 
 
-        	// now get TPGLutIdMap
-        	int lutId=fe_main_info.getLUTId();
+        	    // now get TPGLutIdMap
+        	    int lutId=fe_main_info.getLUTId();
 	
-	        if( lutId != m_i_lutIdMap ) {
+	            if( lutId != m_i_lutIdMap ) {
 		
-		FEConfigLUTInfo fe_lut_info;
-		fe_lut_info.setId(lutId);
-		econn-> fetchConfigSet(&fe_lut_info);
-       		map<EcalLogicID, FEConfigLUTGroupDat> dataset_TpgLut;
+		      FEConfigLUTInfo fe_lut_info;
+		      fe_lut_info.setId(lutId);
+		      econn-> fetchConfigSet(&fe_lut_info);
+       		      map<EcalLogicID, FEConfigLUTGroupDat> dataset_TpgLut;
 	
-		econn->fetchDataSet(&dataset_TpgLut, &fe_lut_info);
-		edm::LogInfo("EcalTPGLutIdMapHandler") << "Got object!";
+		      econn->fetchDataSet(&dataset_TpgLut, &fe_lut_info);
+		      edm::LogInfo("EcalTPGLutIdMapHandler") << "Got object!";
 	
-		EcalTPGLutIdMap* lutMap = new EcalTPGLutIdMap;
+		      EcalTPGLutIdMap* lutMap = new EcalTPGLutIdMap;
 	
-		typedef map<EcalLogicID, FEConfigLUTGroupDat>::const_iterator CIfelut;
-		EcalLogicID ecid_xt;
-		FEConfigLUTGroupDat  rd_lut;
-		int igroups=0;
-		unsigned int lutArray[1024] ;
+		      typedef map<EcalLogicID, FEConfigLUTGroupDat>::const_iterator CIfelut;
+		      EcalLogicID ecid_xt;
+		      FEConfigLUTGroupDat  rd_lut;
+		      int igroups=0;
+		      unsigned int lutArray[1024] ;
 	
-		for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) 
-		{
-	  	  ecid_xt = p->first;
-	  	  rd_lut  = p->second;
+		      for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) 
+		      {
+	  	  	ecid_xt = p->first;
+	  	  	rd_lut  = p->second;
 
-		  std::string ecid_name=ecid_xt.getName();
+		  	std::string ecid_name=ecid_xt.getName();
  	  
-	  	for (int ilut=0;ilut<1024;++ilut) {
-	    	lutArray[ilut]=rd_lut.getLUTValue(ilut);
-	  	}
+	  		for (int ilut=0;ilut<1024;++ilut) {
+	    		  lutArray[ilut]=rd_lut.getLUTValue(ilut);
+	  		}
 	  
-	  	EcalTPGLut mylut;
-        	mylut.setLut(lutArray);	
-	  	lutMap->setValue(rd_lut.getLUTGroupId(),mylut);
-	  	++igroups;
+	  		EcalTPGLut mylut;
+        		mylut.setLut(lutArray);	
+	  		lutMap->setValue(rd_lut.getLUTGroupId(),mylut);
+	  		++igroups;
 	  
-		}
+		      }
 	
-		edm::LogInfo("EcalTPGLutIdMapHandler") << "found " << igroups << "Lut groups.";
-
- 	    	Time_t snc= (Time_t) irun ;
- 	    	m_to_transfer.push_back(std::make_pair((EcalTPGLutIdMap*)lutMap,snc));
+ 	    	      Time_t snc= (Time_t) irun ;
+ 	    	      m_to_transfer.push_back(std::make_pair((EcalTPGLutIdMap*)lutMap,snc));
 	  
-	  		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-		  m_i_lutIdMap=lutId;
+	  	      m_i_run_number=irun;
+		      m_i_tag=the_config_tag;
+		      m_i_version=the_config_version;
+		      m_i_lutIdMap=lutId;
 		  
-		  writeFile("last_tpg_lutIdMap_settings.txt");
+		      writeFile("last_tpg_lutIdMap_settings.txt");
 
-		} else {
+		    } else {
 
-		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
+		      m_i_run_number=irun;
+		      m_i_tag=the_config_tag;
+		      m_i_version=the_config_version;
 
-		  writeFile("last_tpg_lutIdMap_settings.txt");
+		      writeFile("last_tpg_lutIdMap_settings.txt");
 
-		  std::cout<< " even if the tag/version is not the same, the lutIdMap id is the same -> no transfer needed "<< std::endl; 
+		      std::cout<< " even if the tag/version is not the same, the lutIdMap id is the same -> no transfer needed "<< std::endl; 
 
-		}
+		    }
 
 	      }       
 	      
@@ -258,9 +256,6 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	      std::cout<<" **************** "<<std::endl;
 	      writeFile("last_tpg_lutIdMap_settings.txt");
 	    }
-	  
-	  
-	  
 	  
 	  }
 	}

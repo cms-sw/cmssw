@@ -95,8 +95,8 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
 
-	if(min_run<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	int max_run=(int)m_lastRun;
@@ -114,7 +114,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 	
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
@@ -246,7 +246,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		      
 		      for (itEtSat it1 = EtSatLinEB.begin() ; it1 != EtSatLinEB.end(); it1++){
 
-			if (it1->first == eb.rawId()){ 
+			if (it1->first == (int)eb.rawId()){ 
 		          float ETSatLin = it1->second;
 		          
 	                  if (rd_physLut.getETSat() == ETSatLin) {
@@ -271,7 +271,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	  
 	              for (itEtSat it2 = EtSatLinEE.begin(); it2 != EtSatLinEE.end(); it2++){
 
-			if (it2->first == ee.rawId()){ 
+			if (it2->first == (int)ee.rawId()){ 
 		          float ETSatLin = it2->second;
 		       
 	                  if (rd_physLut.getETSat() == ETSatLin) {
@@ -307,7 +307,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	  	      int count;
 		      for ( iterEB itt=temporaryMapEB.begin() ; itt != temporaryMapEB.end() ; itt++ ){
                        			
-		        if (itt->first == eb.rawId()){ 
+		        if (itt->first == (int)eb.rawId()){ 
 
 			  (itt->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
 	                  (itt->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
@@ -332,7 +332,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	              int countEE = 0;
 	  	      for ( iterEE itEE=temporaryMapEE.begin() ; itEE != temporaryMapEE.end() ; itEE++ ){                       
 
-		        if (itEE->first == ee.rawId()){ 
+		        if (itEE->first == (int)ee.rawId()){ 
 			  
 			  (itEE->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
 	                  (itEE->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
@@ -351,9 +351,9 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	          }
 		  
 
- 	        Time_t snc= (Time_t) irun ;
+ 	          Time_t snc= (Time_t) irun ;
 	      	      
- 	        m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC,snc));
+ 	          m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC,snc));
 	      
 	      
 	          m_i_run_number=irun;

@@ -106,8 +106,8 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	  min_run=(int)m_firstRun;
 	}
 	
-	if(m_firstRun<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	}
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -128,7 +128,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	unsigned long irun=0;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
@@ -177,77 +177,75 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 		std::cout << " after fetch config set" << std::endl;	    
 
 
-	    // now get TPGWeightGroup
-	    int wId=fe_main_info.getWeiId();
+	    	// now get TPGWeightGroup
+	    	int wId=fe_main_info.getWeiId();
 	    
-	    if( wId != m_i_weightGroup ) {
+	    	if( wId != m_i_weightGroup ) {
 	    
-	    FEConfigWeightInfo fe_w_info;
-	    fe_w_info.setId(wId);
-	    econn-> fetchConfigSet(&fe_w_info);
-	    map<EcalLogicID, FEConfigWeightDat> dataset_TpgW;
-	    econn->fetchDataSet(&dataset_TpgW, &fe_w_info);
+	    	  FEConfigWeightInfo fe_w_info;
+	    	  fe_w_info.setId(wId);
+	    	  econn-> fetchConfigSet(&fe_w_info);
+	    	  map<EcalLogicID, FEConfigWeightDat> dataset_TpgW;
+	    	  econn->fetchDataSet(&dataset_TpgW, &fe_w_info);
 
 
-	    EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
-	    typedef map<EcalLogicID, FEConfigWeightDat>::const_iterator CIfesli;
-	    EcalLogicID ecid_xt;
-	    int weightGroup;
-	    int icells=0;
+	    	  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+	    	  typedef map<EcalLogicID, FEConfigWeightDat>::const_iterator CIfesli;
+	    	  EcalLogicID ecid_xt;
+	    	  int weightGroup;
+	    	  int icells=0;
 	    
-	    
-	    std::map<std::string,int> map;
-	    std::string str;
+	    	  std::map<std::string,int> map;
+	    	  std::string str;
 
-	    for (CIfesli p = dataset_TpgW.begin(); p != dataset_TpgW.end(); p++) {
-	      ecid_xt = p->first;
-	      weightGroup  = p->second.getWeightGroupId();
+	    	  for (CIfesli p = dataset_TpgW.begin(); p != dataset_TpgW.end(); p++) {
+	      	    ecid_xt = p->first;
+	      	    weightGroup  = p->second.getWeightGroupId();
 	      
-	      std::string ecid_name=ecid_xt.getName();
+	      	    std::string ecid_name=ecid_xt.getName();
 	      
-	      // EB data
-	      if(ecid_name=="EB_VFE") {
-	        // SM num (1,36)
-	        int id1=ecid_xt.getID1();
-	        // TT num (1,68)
-	        int id2=ecid_xt.getID2();
-	        // strip num (1,5)
-	        int id3=ecid_xt.getID3();
+	      	    // EB data
+	      	    if(ecid_name=="EB_VFE") {
+	              // SM num (1,36)
+	              int id1=ecid_xt.getID1();
+	              // TT num (1,68)
+	              int id2=ecid_xt.getID2();
+	              // strip num (1,5)
+	              int id3=ecid_xt.getID3();
 	      
-	      
-	        char identSMTTST[10];			      
-	        sprintf(identSMTTST,"%d%d%d", id1, id2, id3);
-	        std::string S="";
-		S.insert(0,identSMTTST);
+	              char identSMTTST[10];			      
+	              sprintf(identSMTTST,"%d%d%d", id1, id2, id3);
+	              std::string S="";
+		      S.insert(0,identSMTTST);
 		
-		unsigned int stripEBId = 0;
-		stripEBId = atoi(S.c_str());
+		      unsigned int stripEBId = 0;
+		      stripEBId = atoi(S.c_str());
 		      
-	        weightG->setValue(stripEBId,weightGroup);
-	        ++icells;
-	      }
-	       else if (ecid_name=="EE_trigger_strip"){
-               // EE data to add
-	       	int id1=ecid_xt.getID1();
-	        int id2=ecid_xt.getID2();
-	        int id3=ecid_xt.getID3();	
+	              weightG->setValue(stripEBId,weightGroup);
+	              ++icells;
+	      	    }
+	       	    else if (ecid_name=="EE_trigger_strip"){
+               	      // EE data to add
+	       	      int id1=ecid_xt.getID1();
+	              int id2=ecid_xt.getID2();
+	              int id3=ecid_xt.getID3();	
 
-		char ch[10];
-		sprintf(ch,"%d%d%d", id1, id2, id3);
+		      char ch[10];
+		      sprintf(ch,"%d%d%d", id1, id2, id3);
 		
-		std::string S ="";
-		S.insert(0,ch);
+		      std::string S ="";
+		      S.insert(0,ch);
 		       
-		unsigned int stripEEId = atoi(S.c_str());		   
+		      unsigned int stripEEId = atoi(S.c_str());		   
 
-	       	weightG->setValue(stripEEId,weightGroup);
-	        ++icells;    
-	      }
-	    }
+	       	      weightG->setValue(stripEEId,weightGroup);
+	              ++icells;    
+	      	    }
+	          } 
 	    
-	    Time_t snc= (Time_t) irun ;
+	          Time_t snc= (Time_t) irun ;
 	      	      
-	    m_to_transfer.push_back(std::make_pair((EcalTPGWeightGroup*)weightG,snc));
+	          m_to_transfer.push_back(std::make_pair((EcalTPGWeightGroup*)weightG,snc));
 	    
 	    	  m_i_run_number=irun;
 		  m_i_tag=the_config_tag;

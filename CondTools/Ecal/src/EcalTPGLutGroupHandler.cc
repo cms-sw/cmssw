@@ -106,8 +106,8 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 	}
 	
 
-	if(m_firstRun<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 	
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -128,7 +128,7 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
@@ -178,75 +178,73 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 		std::cout << " after fetch config set" << std::endl;	
 		
 		
-            // now get TPGLutGroup
-            int lutId=fe_main_info.getLUTId();
+            	// now get TPGLutGroup
+            	int lutId=fe_main_info.getLUTId();
 	    
-	    if( lutId != m_i_lutGroup ) {
+	    	if( lutId != m_i_lutGroup ) {
 	    
-	    FEConfigLUTInfo fe_lut_info;
-	    fe_lut_info.setId(lutId);
-	    econn-> fetchConfigSet(&fe_lut_info);
-	    std::map<EcalLogicID, FEConfigLUTDat> dataset_TpgLut;
-	    econn->fetchDataSet(&dataset_TpgLut, &fe_lut_info);
+	    	  FEConfigLUTInfo fe_lut_info;
+	    	  fe_lut_info.setId(lutId);
+	    	  econn-> fetchConfigSet(&fe_lut_info);
+	    	  std::map<EcalLogicID, FEConfigLUTDat> dataset_TpgLut;
+	    	  econn->fetchDataSet(&dataset_TpgLut, &fe_lut_info);
 
-            EcalTPGLutGroup *lut=new EcalTPGLutGroup();
-            typedef std::map<EcalLogicID, FEConfigLUTDat>::const_iterator CIfelut;
-	    EcalLogicID ecid_xt;
-	    FEConfigLUTDat  rd_lut;
-	    int itowers=0;
+            	  EcalTPGLutGroup *lut=new EcalTPGLutGroup();
+            	  typedef std::map<EcalLogicID, FEConfigLUTDat>::const_iterator CIfelut;
+	    	  EcalLogicID ecid_xt;
+	    	  FEConfigLUTDat  rd_lut;
+	    	  int itowers=0;
 	
-	    for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) 
-	    {
-	      ecid_xt = p->first;
-	      rd_lut  = p->second;
+	    	  for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) 
+	    	  {
+	      	    ecid_xt = p->first;
+	            rd_lut  = p->second;
 	  
-	      std::string ecid_name=ecid_xt.getName();
+	      	    std::string ecid_name=ecid_xt.getName();
 	      
-	      if(ecid_name=="EB_trigger_tower") {
-	      // SM number
-              int smid=ecid_xt.getID1();
-              // TT number
-	      int towerid=ecid_xt.getID2();
+	      	    if(ecid_name=="EB_trigger_tower") {
+	      	      // SM number
+              	      int smid=ecid_xt.getID1();
+              	      // TT number
+	      	      int towerid=ecid_xt.getID2();
 	  
-	      char ch[10];
-	      sprintf(ch,"%d%d", smid, towerid);
-	      std::string S="";
-	      S.insert(0,ch);
+	      	      char ch[10];
+	      	      sprintf(ch,"%d%d", smid, towerid);
+	      	      std::string S="";
+	      	      S.insert(0,ch);
 	  
-	      unsigned int towerEBId = 0;
-	      towerEBId = atoi(S.c_str());
+	      	      unsigned int towerEBId = 0;
+	      	      towerEBId = atoi(S.c_str());
 	  	     	  
-	      lut->setValue(towerEBId, rd_lut.getLUTGroupId());
-	      ++itowers;
-	    }
-	    else if (ecid_name=="EE_trigger_tower") {
-	      // EE data
-	      // TCC number
-      	      int tccid=ecid_xt.getID1();
-      	      // TT number
-	      int towerid=ecid_xt.getID2();
+	      	      lut->setValue(towerEBId, rd_lut.getLUTGroupId());
+	      	      ++itowers;
+	    	    }
+	    	    else if (ecid_name=="EE_trigger_tower") {
+	      	      // EE data
+	      	      // TCC number
+      	      	      int tccid=ecid_xt.getID1();
+      	      	      // TT number
+	      	      int towerid=ecid_xt.getID2();
 	  
-	      char ch[10];
-	      sprintf(ch,"%d%d",tccid, towerid);
-	      std::string S="";
-	      S.insert(0,ch);
+	      	      char ch[10];
+	      	      sprintf(ch,"%d%d",tccid, towerid);
+	      	      std::string S="";
+	      	      S.insert(0,ch);
 	  
-	      unsigned int towerEEId = 0;
-	      towerEEId = atoi(S.c_str());
+	      	      unsigned int towerEEId = 0;
+	      	      towerEEId = atoi(S.c_str());
 	    	     	  
-	      lut->setValue(towerEEId, rd_lut.getLUTGroupId());
-	      ++itowers;
-	  }
-	}
+	      	      lut->setValue(towerEEId, rd_lut.getLUTGroupId());
+	      	      ++itowers;
+	  	    }
+		  }
 	
-	edm::LogInfo("EcalTPGLutGroupHandler") << "found " << itowers << "towers.";
 
-
-	Time_t snc= (Time_t) irun;
+		  Time_t snc= (Time_t) irun;
 	      	      
-	m_to_transfer.push_back(std::make_pair((EcalTPGLutGroup*)lut,snc));
+		  m_to_transfer.push_back(std::make_pair((EcalTPGLutGroup*)lut,snc));
 	
-			  m_i_run_number=irun;
+	          m_i_run_number=irun;
 		  m_i_tag=the_config_tag;
 		  m_i_version=the_config_version;
 		  m_i_lutGroup=lutId;

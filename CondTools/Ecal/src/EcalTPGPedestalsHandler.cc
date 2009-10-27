@@ -101,8 +101,8 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	} else {
 	  min_run=(int)m_firstRun;
 	}
-	if(min_run<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -121,7 +121,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 		
 	if(num_runs>0){ 
 	
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
 	    std::cout<<" **************** "<<std::endl;

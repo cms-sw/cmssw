@@ -47,7 +47,7 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	unsigned int max_since=0;
+	int max_since=0;
 	max_since=(int)tagInfo().lastInterval.first;
 	edm::LogInfo("EcalTPGFineGrainTowerEEHandler") << "max_since : "  << max_since;
 	Ref fgrTTEE_db = lastPayload();
@@ -90,8 +90,8 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 	} else {
 	  min_run=(int)m_firstRun;
 	}
-	if(min_run<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -110,7 +110,7 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();	  
 
@@ -134,11 +134,10 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 		EcalLogicID ecalid  = it->first;
 		RunTPGConfigDat  dat = it->second;
 		the_config_tag=dat.getConfigTag();
-              the_config_version=dat.getVersion();
+                the_config_version=dat.getVersion();
 	    }
 
 	    // it is all the same for all SM... get the last one 
-
 
 	    std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
 

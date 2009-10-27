@@ -58,7 +58,7 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	unsigned int max_since=0;
+	int max_since=0;
 	max_since=(int)tagInfo().lastInterval.first;
 	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "max_since : "  << max_since;
 	Ref fgrGroup_db = lastPayload();
@@ -101,8 +101,8 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 	} else {
 	  min_run=(int)m_firstRun;
 	}
-	if(min_run<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -122,7 +122,7 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
@@ -170,69 +170,69 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 		std::cout << " after fetch config set" << std::endl;	    
 
 
-	    // now get TPGFineGrainEBGroup
-	    int fgrId=fe_main_info.getFgrId();
+	    	// now get TPGFineGrainEBGroup
+	    	int fgrId=fe_main_info.getFgrId();
 	    
-	    if( fgrId != m_i_fgrGroup ) {
+	    	if( fgrId != m_i_fgrGroup ) {
 	    
-	    FEConfigFgrInfo fe_fgr_info;
-	    fe_fgr_info.setId(fgrId);
-	    econn-> fetchConfigSet(&fe_fgr_info);
-	    std::map<EcalLogicID, FEConfigFgrDat> dataset_TpgFineGrainEB;
-	    econn->fetchDataSet(&dataset_TpgFineGrainEB, &fe_fgr_info);
+	    	  FEConfigFgrInfo fe_fgr_info;
+	    	  fe_fgr_info.setId(fgrId);
+	    	  econn-> fetchConfigSet(&fe_fgr_info);
+	    	  std::map<EcalLogicID, FEConfigFgrDat> dataset_TpgFineGrainEB;
+	    	  econn->fetchDataSet(&dataset_TpgFineGrainEB, &fe_fgr_info);
 	    
-	    EcalTPGFineGrainEBGroup *fgrMap = new EcalTPGFineGrainEBGroup;
-	    typedef std::map<EcalLogicID, FEConfigFgrDat>::const_iterator CIfefgr;
-	    EcalLogicID ecid_xt;
-	    FEConfigFgrDat  rd_fgr;
-	    int itowers=0;
+	    	  EcalTPGFineGrainEBGroup *fgrMap = new EcalTPGFineGrainEBGroup;
+	    	  typedef std::map<EcalLogicID, FEConfigFgrDat>::const_iterator CIfefgr;
+	    	  EcalLogicID ecid_xt;
+	    	  FEConfigFgrDat  rd_fgr;
+	    	  int itowers=0;
 	    
-	    for (CIfefgr p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
-	      ecid_xt = p->first;
-	      rd_fgr  = p->second;
+	    	  for (CIfefgr p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
+	      	    ecid_xt = p->first;
+	      	    rd_fgr  = p->second;
 	      
-	      std::string ecid_name=ecid_xt.getName();
+	      	    std::string ecid_name=ecid_xt.getName();
 	      
-	      if (ecid_name=="EB_trigger_tower") {
-	        // SM number
-	        int smid=ecid_xt.getID1();
-	        // TT number
-	        int towerid=ecid_xt.getID2();
+	      	    if (ecid_name=="EB_trigger_tower") {
+	        	// SM number
+	        	int smid=ecid_xt.getID1();
+	        	// TT number
+	        	int towerid=ecid_xt.getID2();
                 
-		char identTT[10];
-		sprintf(identTT,"%d%d", smid, towerid);
+			char identTT[10];
+			sprintf(identTT,"%d%d", smid, towerid);
 	        
-		std::string S="";
-		S.insert(0,identTT);
+			std::string S="";
+			S.insert(0,identTT);
 		
-		unsigned int towerEBId = 0;
-		towerEBId = atoi(S.c_str());
+			unsigned int towerEBId = 0;
+			towerEBId = atoi(S.c_str());
 				
-                fgrMap->setValue(towerEBId, rd_fgr.getFgrGroupId());
-	        ++itowers;
-	      }
-	    }
+                	fgrMap->setValue(towerEBId, rd_fgr.getFgrGroupId());
+	        	++itowers;
+	      	     }
+	    	   }
 	    	
-	    Time_t snc= (Time_t) irun ;
+	    	   Time_t snc= (Time_t) irun ;
 	      	      
-	    m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainEBGroup *)fgrMap,snc));
+	    	   m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainEBGroup *)fgrMap,snc));
 	    
-	    		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-		  m_i_fgrGroup=fgrId;
+	           m_i_run_number=irun;
+		   m_i_tag=the_config_tag;
+		   m_i_version=the_config_version;
+		   m_i_fgrGroup=fgrId;
 		  
-		  writeFile("last_tpg_fgrGroup_settings.txt");
+		   writeFile("last_tpg_fgrGroup_settings.txt");
 
-		} else {
+		 } else {
 
-		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
+		   m_i_run_number=irun;
+		   m_i_tag=the_config_tag;
+		   m_i_version=the_config_version;
 
-		  writeFile("last_tpg_fgrGroup_settings.txt");
+		   writeFile("last_tpg_fgrGroup_settings.txt");
 
-		  std::cout<< " even if the tag/version is not the same, the fgrGroup id is the same -> no transfer needed "<< std::endl; 
+		   std::cout<< " even if the tag/version is not the same, the fgrGroup id is the same -> no transfer needed "<< std::endl; 
 
 		}
 

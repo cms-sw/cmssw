@@ -59,7 +59,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	unsigned int max_since=0;
+	int max_since=0;
 	max_since=(int)tagInfo().lastInterval.first;
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "max_since : "  << max_since;
 	Ref weightIdMap_db = lastPayload();
@@ -103,8 +103,8 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 	  min_run=(int)m_firstRun;
 	}
 	
-	if(m_firstRun<max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	if(min_run<max_since) {
+	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
@@ -121,7 +121,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 
 	unsigned long irun;
 	if(num_runs>0){
-	  for(int kr=0; kr<run_vec.size(); kr++){
+	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
