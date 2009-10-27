@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.8 2009/07/09 14:03:37 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.9 2009/09/27 14:59:35 aosorio Exp $
 // Include files 
 
 
@@ -73,7 +73,7 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   //.
   runSeedBuster( inmap );
   
-  if ( m_initialseeds.size() > 0 ) 
+  if ( m_initialseeds.size() > 0 && m_initialseeds.size() < 20 ) // if too much hits, then cannot process
     initTrk->add( m_initialseeds[0] );
   else {
     initTrk->addnone();
@@ -81,6 +81,10 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
     return false;
   }
   
+
+
+
+
   m_tracks.push_back( initTrk );
   
   //..

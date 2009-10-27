@@ -161,7 +161,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
-
+  
   if ( ! m_hasConfig ) {
     edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
     iEvent.put(output);

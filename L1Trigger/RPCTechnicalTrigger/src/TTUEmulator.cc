@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.14 2009/08/19 15:04:01 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.15 2009/09/26 13:39:17 elmer Exp $
 // Include files 
 
 
@@ -166,6 +166,8 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
   //. 
   int bx(0);
   bool trg(false); 
+
+  if( m_debug ) std::cout << "TTUEmulator::processTtu starts" << '\n';
   
   m_trigger.reset();
   m_triggerBx.clear();
@@ -235,6 +237,8 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
   if( m_debug ) std::cout << "TTUEmulator::processTtu> done with this TTU: " << m_id << std::endl;
 
   bxVec.clear();
+
+  if( m_debug ) std::cout << "TTUEmulator::processTtu ends" << '\n';
     
 }
 
@@ -244,6 +248,8 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
   //. 
   int bx(0);
   bool trg(false); 
+  
+  if( m_debug ) std::cout << "TTUEmulator::processTtu( Pointing ) starts " << '\n';
   
   m_trigger.reset();
   m_triggerBx.clear();
@@ -288,7 +294,7 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
         
         m_trigger.set(k,trg);
         
-        if( m_debug ) std::cout << "TTUEmulator::processTtu ttuid: " << m_id 
+        if( m_debug ) std::cout << "TTUEmulator::processTtu( Pointing ) ttuid: " << m_id 
                                 << " bx: "          << (*bxItr)
                                 << " wheel: "       << m_Wheels[k].getid()
                                 << " response: "    << trg << std::endl;
@@ -304,12 +310,14 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
     
   }
   
-  if( m_debug ) std::cout << "TTUEmulator::processTtu> size of trigger map " 
+  if( m_debug ) std::cout << "TTUEmulator::processTtu (Pointing) > size of trigger map " 
                           << m_triggerBx.size() << std::endl;
   
-  if( m_debug ) std::cout << "TTUEmulator::processTtu> done with this TTU: " << m_id << std::endl;
+  if( m_debug ) std::cout << "TTUEmulator::processTtu (Pointing) > done with this TTU: " << m_id << std::endl;
   
   bxVec.clear();
+
+  if( m_debug ) std::cout << "TTUEmulator::processTtu( Pointing ) end" << '\n';
   
 }
 
