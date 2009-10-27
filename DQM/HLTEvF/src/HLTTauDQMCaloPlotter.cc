@@ -175,7 +175,8 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    for(unsigned int j=0;j<l2preJets_.size();++j)
      if(iEvent.getByLabel(l2preJets_[j],l2Regional))
-     {
+       if((!l2Regional.failedToGet()))
+       {
        for(unsigned int i=0;i<l2Regional->size();++i)
 	 {
 	   const Jet& jet = (*l2Regional)[i];
@@ -209,6 +210,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
    if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the Association class
+     if((!l2TauInfoAssoc.failedToGet()))
      {
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)

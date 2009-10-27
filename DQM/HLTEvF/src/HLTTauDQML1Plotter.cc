@@ -253,7 +253,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   if(iEvent.getByLabel(l1ExtraTaus_,taus))
-    if(taus->size()>0)
+    if((!taus.failedToGet())&&taus->size()>0)
     {
 	  if(!doRefAnalysis_)
 	    {
@@ -277,6 +277,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    
     }
   if(iEvent.getByLabel(l1ExtraJets_,jets))
+    if((!jets.failedToGet())&&jets->size()>0)
     for(L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
 	  {	
 	    l1jets.push_back(i->p4());
@@ -292,6 +293,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   if(iEvent.getByLabel(l1ExtraElectrons_,electrons))
+    if((!electrons.failedToGet())&&electrons->size()>0)
     for(L1EmParticleCollection::const_iterator i = electrons->begin();i!=electrons->end();++i)
       {
 	l1electrons.push_back(i->p4());
@@ -303,6 +305,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   if(iEvent.getByLabel(l1ExtraMuons_,muons))
+    if((!muons.failedToGet())&&muons->size()>0)
     for(L1MuonParticleCollection::const_iterator i = muons->begin();i!=muons->end();++i)
       {
 	l1muons.push_back(i->p4());

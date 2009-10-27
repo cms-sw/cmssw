@@ -117,11 +117,12 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
 	{
 	  Handle<TriggerEvent> trigEv;
 	  if(iEvent.getByLabel(triggerEvent_,trigEv))
-	    for(unsigned int i=0;i<refFilter_.size();++i)
-	    {
-	      size_t ID =trigEv->filterIndex(refFilter_[i]);
+	    if(trigEv.isValid())
+	      for(unsigned int i=0;i<refFilter_.size();++i)
+		{
+		  size_t ID =trigEv->filterIndex(refFilter_[i]);
 		  refC.push_back(getFilterCollection(ID,refID_[i],*trigEv,ptThres_[i]));
-	    }
+		}
 	}
 
       //fill the empty slots with empty collections
