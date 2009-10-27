@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.9 2009/06/28 19:54:45 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.10 2009/07/06 19:14:53 amraktad Exp $
 //
 
 // system include files
@@ -63,6 +63,7 @@ public:
    void saveImage();
    void changeBackground();
    void backgroundColorWasChanged();
+   void pickAnnotation();
 
    TEveWindow* GetEveWindow() const { return m_eveWindow; }
 
@@ -74,16 +75,18 @@ private:
    const CmsShowViewPopup& operator=(const CmsShowViewPopup&);    // stop default
 
    // ---------- member data --------------------------------
-   TGLabel* m_viewLabel;
-   TGTextButton* m_removeButton;
+   bool              m_mapped;
+
+   TGLabel*          m_viewLabel;
+   TGTextButton*     m_removeButton;
    TGCompositeFrame* m_viewContentFrame;
-   TGButton* m_saveImageButton;
-   TGTextButton* m_changeBackground;
+   TGButton*         m_saveImageButton;
+   TGTextButton*     m_changeBackground;
+   TGTextButton*     m_annotation;
+
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;
-   TEveWindow* m_eveWindow;
-
-   bool  m_mapped;
+   TEveWindow*     m_eveWindow;
 };
 
 

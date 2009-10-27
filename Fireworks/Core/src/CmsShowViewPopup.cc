@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.13 2009/07/17 08:01:57 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.14 2009/07/20 17:30:05 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "TGButton.h"
 #include "TG3DLine.h"
 #include "TEveWindow.h"
+#include "TEveViewer.h"
+#include "TGLViewer.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -40,9 +42,15 @@
 //
 CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, TEveWindow* ew) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
+   m_mapped(kFALSE),
+   m_viewLabel(0),
+   m_removeButton(0),
+   m_viewContentFrame(0),
+   m_saveImageButton(0),
+   m_changeBackground(0),
+   m_annotation(0),
    m_colorManager(iCMgr),
-   m_eveWindow(0),
-   m_mapped(kFALSE)
+   m_eveWindow(0)
 {
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
 
@@ -66,7 +74,14 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
    AddFrame(m_saveImageButton);
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
-   // content frame
+   
+   // annotation
+   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_annotation = new TGTextButton(this,"Pick Annotation");
+   AddFrame(m_annotation);
+   m_annotation->Connect("Clicked()","CmsShowViewPopup",this,"pickAnnotation()");
+  
+  // content frame
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
@@ -191,6 +206,13 @@ CmsShowViewPopup::backgroundColorWasChanged()
    } else {
       m_changeBackground->SetText("Change Background Color to Black");
    }
+}
+
+void
+CmsShowViewPopup::pickAnnotation()
+{
+   TEveViewer* ev = dynamic_cast<TEveViewer*>(m_eveWindow);
+   if (ev) ev->GetGLViewer()->PickAnnotate();
 }
 
 //
