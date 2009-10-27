@@ -34,7 +34,7 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_rpcDigiLabel       = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
   m_ttBits             = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
   m_ttNames            = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useDatabase        = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
+  m_useEventSetup        = iConfig.getUntrackedParameter<int>("UseEventSetup", 1);
   m_useRPCSimLink      = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
   m_rpcSimLinkInstance = iConfig.getParameter<std::string>("RPCSimLinkInstance");
 
@@ -385,7 +385,7 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   //..  Get Board Specifications (hardware configuration)
   
-  if ( m_useDatabase >= 1 ) {
+  if ( m_useEventSetup >= 1 ) {
     
     edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
     evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
