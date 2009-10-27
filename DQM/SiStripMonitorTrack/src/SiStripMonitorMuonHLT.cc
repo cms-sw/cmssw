@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.2 2009/10/07 11:59:39 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.3 2009/10/27 16:58:16 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -155,11 +155,39 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	      if (l3tk->recHit (hit)->isValid () == true && l3tk->recHit (hit)->geographicalId ().det () == DetId::Tracker)
 		{
 		  uint detID = l3tk->recHit (hit)->geographicalId ()();
+		  const SiStripRecHit1D *hit1D = dynamic_cast < const SiStripRecHit1D * >(l3tk->recHit (hit).get ());
 		  const SiStripRecHit2D *hit2D = dynamic_cast < const SiStripRecHit2D * >(l3tk->recHit (hit).get ());
 		  const SiStripMatchedRecHit2D *hitMatched2D = dynamic_cast < const SiStripMatchedRecHit2D * >(l3tk->recHit (hit).get ());
 		  const ProjectedSiStripRecHit2D *hitProj2D = dynamic_cast < const ProjectedSiStripRecHit2D * >(l3tk->recHit (hit).get ());
 
 
+		  // if SiStripRecHit1D
+		  if (hit1D != 0)
+		    {
+		      if (hit1D->cluster_regional ().isNonnull ())
+			{
+			  if (hit1D->cluster_regional ().isAvailable ())
+			    {
+			      detID = hit1D->cluster_regional ()->geographicalId ();
+			    }
+			}
+		      int layer = tkdetmap_->FindLayer (detID);
+		      string label = tkdetmap_->getLayerName (layer);
+		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
+		      if (theGeomDet != 0)
+			{
+			  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
+			  if (topol != 0)
+			    {
+			      // get the cluster position in local coordinates (cm) 
+			      LocalPoint clustlp = topol->localPosition (hit1D->cluster_regional ()->barycenter ());
+			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
+			      LayerMEMap[label.c_str ()].EtaDistribOnTrackClustersMap->Fill (clustgp.eta ());
+			      LayerMEMap[label.c_str ()].PhiDistribOnTrackClustersMap->Fill (clustgp.phi ());
+			      LayerMEMap[label.c_str ()].EtaPhiOnTrackClustersMap->Fill (clustgp.eta (), clustgp.phi ());
+			    }
+			}
+		    }
 		  // if SiStripRecHit2D
 		  if (hit2D != 0)
 		    {
