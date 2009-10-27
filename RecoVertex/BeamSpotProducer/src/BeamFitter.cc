@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.11 2009/09/18 20:47:55 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.12 2009/10/26 16:31:44 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -32,6 +32,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
+  isMuon_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("IsMuonCollection");
 
   trk_MinpT_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MinimumPt");
   trk_MaxEta_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumEta");
@@ -81,16 +82,21 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     ftree_->Branch("nPXBLayerMeas",&fnPXBLayerMeas,"fnPXBLayerMeas/i");
     ftree_->Branch("nPXFLayerMeas",&fnPXFLayerMeas,"fnPXFLayerMeas/i");
     ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
-
+	ftree_->Branch("vx",&fvx,"fvx/D");
+ 	ftree_->Branch("vy",&fvy,"fvy/D");
   }
   
   fBSvector.clear();
   ftotal_tracks = 0;
+  fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
+  fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
+  
 }
 
 BeamFitter::~BeamFitter() {
   if (saveNtuple_) {
     file_->cd();
+	if (h1z) h1z->Write();
     ftree_->Write();
     file_->Close();
   }
@@ -100,45 +106,55 @@ BeamFitter::~BeamFitter() {
 void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
-  edm::Handle<reco::TrackCollection> TrackCollection;
-  iEvent.getByLabel(tracksLabel_, TrackCollection);
+	edm::Handle<reco::TrackCollection> TrackCollection;
+	iEvent.getByLabel(tracksLabel_, TrackCollection);
+	
+	const reco::TrackCollection *tracks = TrackCollection.product();
 
-  const reco::TrackCollection *tracks = TrackCollection.product();
+	
+	for ( reco::TrackCollection::const_iterator track = tracks->begin();
+		  track != tracks->end();
+		  ++track ) {
 
-  for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	track != tracks->end();
-	++track ) {
-    const reco::HitPattern& trkHP = track->hitPattern();
+		
+		if ( ! isMuon_) {
+		
+			const reco::HitPattern& trkHP = track->hitPattern();
 
-    fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
-    fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
-    fnTotLayerMeas = trkHP.trackerLayersWithMeasurement();
-    fnPXBLayerMeas = trkHP.pixelBarrelLayersWithMeasurement();
-    fnPXFLayerMeas = trkHP.pixelEndcapLayersWithMeasurement();
-    fnTIBLayerMeas = trkHP.stripTIBLayersWithMeasurement();
-    fnTIDLayerMeas = trkHP.stripTIDLayersWithMeasurement();
-    fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
-    fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
+			fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
+			fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
+			fnTotLayerMeas = trkHP.trackerLayersWithMeasurement();
+			fnPXBLayerMeas = trkHP.pixelBarrelLayersWithMeasurement();
+			fnPXFLayerMeas = trkHP.pixelEndcapLayersWithMeasurement();
+			fnTIBLayerMeas = trkHP.stripTIBLayersWithMeasurement();
+			fnTIDLayerMeas = trkHP.stripTIDLayersWithMeasurement();
+			fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
+			fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
+		} else {
+
+			fnTotLayerMeas = track->numberOfValidHits();
+
+		}
+	
+		fpt = track->pt();
+		feta = track->eta();
+		fphi0 = track->phi();
+		fcharge = track->charge();
+		fnormchi2 = track->normalizedChi2();
     
-    fpt = track->pt();
-    feta = track->eta();
-    fphi0 = track->phi();
-    fcharge = track->charge();
-    fnormchi2 = track->normalizedChi2();
-    
-    fd0 = track->d0();
-    fsigmad0 = track->d0Error();
-    fz0 = track->dz();
-    fsigmaz0 = track->dzError();
-    ftheta = track->theta();
-    double vx = track->vx();
-    double vy = track->vy();
+		fd0 = track->d0();
+		fsigmad0 = track->d0Error();
+		fz0 = track->dz();
+		fsigmaz0 = track->dzError();
+		ftheta = track->theta();
+		fvx = track->vx();
+		fvy = track->vy();
 
-    for (int i=0; i<5; ++i) {
-      for (int j=0; j<5; ++j) {
-	fcov[i][j] = track->covariance(i,j);
-      }
-    }
+		for (int i=0; i<5; ++i) {
+			for (int j=0; j<5; ++j) {
+				fcov[i][j] = track->covariance(i,j);
+			}
+		}
 
 //     if (debug_) {
 //       std::cout << "pt= " << fpt << " eta= " << feta << " fd0= " << fd0 << " sigmad0= " << fsigmad0;
@@ -148,23 +164,29 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
     // Track quality
     bool quality_ok=true;
-    if (quality_.size()!=0) {
-      quality_ok = false;
-      for (unsigned int i = 0; i<quality_.size();++i) {
-	if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
-	if (track->quality(quality_[i])) {
-	  quality_ok = true;
-	  break;
-	}
-      }
-    }
+	bool algo_ok = true;
+	
+	if (! isMuon_ ) {
+		if (quality_.size()!=0) {
+			quality_ok = false;
+			for (unsigned int i = 0; i<quality_.size();++i) {
+				if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
+				if (track->quality(quality_[i])) {
+					quality_ok = true;
+					break;
+				}
+			}
+		}
+		
     
-    // Track algorithm
-    bool algo_ok = true;
-    if (algorithm_.size()!=0) {
-      if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
-	algo_ok = false;
-    }
+		// Track algorithm
+		
+		if (algorithm_.size()!=0) {
+			if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
+				algo_ok = false;
+		}
+
+	}
     
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
@@ -172,21 +194,22 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     // Final track selection
     if (fnTotLayerMeas >= trk_MinNTotLayers_
         && fnPixelLayerMeas >= trk_MinNPixLayers_
-	&& fnormchi2 < trk_MaxNormChi2_
-	&& fpt > trk_MinpT_
-	&& algo_ok
-	&& quality_ok
-	&& std::abs( fd0 ) < trk_MaxIP_
-	&& std::abs( fz0 ) < trk_MaxZ_
+		&& fnormchi2 < trk_MaxNormChi2_
+		&& fpt > trk_MinpT_
+		&& algo_ok
+		&& quality_ok
+		&& std::abs( fd0 ) < trk_MaxIP_
+		&& std::abs( fz0 ) < trk_MaxZ_
+		&& std::abs( feta ) < trk_MaxEta_
         ) {
-      if (debug_){
-	std::cout << "Selected track quality = " << track->qualityMask();
-	std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
-      }
-      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
-      BSTrk.setVx(vx);
-      BSTrk.setVy(vy);
-      fBSvector.push_back(BSTrk);
+		if (debug_){
+			std::cout << "Selected track quality = " << track->qualityMask();
+			std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+		}
+		BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
+		BSTrk.setVx(fvx);
+		BSTrk.setVy(fvy);
+		fBSvector.push_back(BSTrk);
     }
 
   }
@@ -209,7 +232,10 @@ bool BeamFitter::runFitter() {
     fbeamspot = myalgo->Fit();
 
     if(writeTxt_) dumpTxtFile();
-    
+
+	// retrieve histogram for Vz
+ 	h1z = (TH1F*) myalgo->GetVzHisto();
+		
     delete myalgo;
     if ( fbeamspot.type() != 0 ) // not Fake
       fit_ok = true;

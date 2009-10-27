@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.cc,v 1.3 2009/03/26 18:46:38 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.cc,v 1.4 2009/03/26 20:04:14 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -72,7 +72,9 @@ BeamSpotWrite2DB::endJob() {
 	double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY,emittanceX,emittanceY,betastar;
 	std::string tag;
 	double cov[7][7];
+	int type;
 
+	fasciiFile >> tag >> type;
 	fasciiFile >> tag >> x;
 	fasciiFile >> tag >> y;
 	fasciiFile >> tag >> z;
@@ -94,6 +96,7 @@ BeamSpotWrite2DB::endJob() {
 	
 	BeamSpotObjects *abeam = new BeamSpotObjects();
 	
+	abeam->SetType(type);
 	abeam->SetPosition(x,y,z);
 	abeam->SetSigmaZ(sigmaZ);
 	abeam->Setdxdz(dxdz);

@@ -13,9 +13,9 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         process.CondDBSetup,
                                         toGet = cms.VPSet(cms.PSet(
     record = cms.string('BeamSpotObjectsRcd'),
-    tag = cms.string('Early7TeVCollision_4p2cm_v1_mc_IDEAL')
+    tag = cms.string('Early10TeVCollision_3p8cm_31X_v1_mc_START')
     )),
-                                        connect = cms.string('sqlite_file:EarlyCollision_IDEAL.db')
+                                        connect = cms.string('sqlite_file:Early10TeVCollision_3p8cm_31X_v1_mc_START.db')
                                         #connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_BEAMSPOT')
                                         )
 

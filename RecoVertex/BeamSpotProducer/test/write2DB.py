@@ -10,7 +10,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #################################
 # Produce a SQLITE FILE
 #
-process.CondDBCommon.connect = "sqlite_file:EarlyCollision_IDEAL.db"
+process.CondDBCommon.connect = "sqlite_file:Early10TeVCollision_3p8cm_31X_v1_mc_START.db"
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 #################################
 #
@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           toPut = cms.VPSet(cms.PSet(
     record = cms.string('BeamSpotObjectsRcd'),
-    tag = cms.string('Early7TeVCollision_4p2cm_v1_mc_IDEAL') )),
+    tag = cms.string('Early10TeVCollision_3p8cm_31X_v1_mc_START') )),
     loadBlobStreamer = cms.untracked.bool(False)
 )
 

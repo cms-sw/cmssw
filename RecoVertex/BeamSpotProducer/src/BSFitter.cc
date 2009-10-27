@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.9 2009/08/31 22:27:09 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.10 2009/09/17 21:49:42 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -336,7 +336,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	//std::cout << "Fit_z_chi2() called" << std::endl;
         // FIXME: include whole tracker z length for the time being
         // ==> add protection and z0 cut
-	TH1F *h1z = new TH1F("h1z","z distribution",200,-fMaxZ, fMaxZ);
+	h1z = new TH1F("h1z","z distribution",200,-fMaxZ, fMaxZ);
 	
 	std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
 
@@ -344,7 +344,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	
 	for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
 		
-		 h1z->Fill(iparam->z0(), iparam->sigz0());
+		 h1z->Fill( iparam->z0() );
 		 //std::cout<<"z0="<<iparam->z0()<<"; sigZ0="<<iparam->sigz0()<<std::endl;
 	}
 
@@ -360,7 +360,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	matrix(2,2) = fgaus->GetParError(1);
 	matrix(3,3) = fgaus->GetParError(2);
 	
-	delete h1z;
+	//delete h1z;
 
 	return reco::BeamSpot( reco::BeamSpot::Point(0.,
 						     0.,
@@ -383,7 +383,7 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 	
 	reco::BeamSpot theanswer;
 
-	if ( fBSvector.size() <= fminNtrks ) {
+	if ( (int)fBSvector.size() <= fminNtrks ) {
 		std::cout << "[BSFitter] need at least " << fminNtrks << " tracks to run beamline fitter." << std::endl;
 		fbeamtype = reco::BeamSpot::Fake;
 		theanswer.setType(fbeamtype);

@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.6 2009/08/31 22:34:53 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.7 2009/09/18 20:47:53 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -23,6 +23,7 @@
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1F.h"
 
 #include<fstream>
 
@@ -69,8 +70,10 @@ class BeamFitter {
   double convergence_;
   int ftotal_tracks;
   int min_Ntrks_;
-
+  bool isMuon_;
+  
   // ntuple
+  TH1F* h1z;
   bool saveNtuple_;
   std::string outputfilename_;
   TFile* file_;
@@ -97,6 +100,8 @@ class BeamFitter {
   double fd0phi_chi2;
   double fd0phi_d0;
   double fcov[7][7];
+  double fvx;
+  double fvy;
 
 };
 

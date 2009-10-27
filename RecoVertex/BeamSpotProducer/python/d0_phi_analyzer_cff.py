@@ -8,6 +8,7 @@ d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
     BeamFitter = cms.PSet(
 	Debug = cms.untracked.bool(False),
 	TrackCollection = cms.untracked.InputTag('generalTracks'),
+        IsMuonCollection = cms.untracked.bool(False),
         WriteAscii = cms.untracked.bool(True),
 	AsciiFileName = cms.untracked.string('BeamFit.txt'),
 	SaveNtuple = cms.untracked.bool(False),	
