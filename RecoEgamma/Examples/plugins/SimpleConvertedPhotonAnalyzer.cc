@@ -66,7 +66,7 @@ SimpleConvertedPhotonAnalyzer::~SimpleConvertedPhotonAnalyzer() {
 }
 
 
-void SimpleConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& )
+void SimpleConvertedPhotonAnalyzer::beginJob()
 {
 
 

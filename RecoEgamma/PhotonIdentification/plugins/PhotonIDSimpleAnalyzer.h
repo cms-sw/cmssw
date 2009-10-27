@@ -41,7 +41,7 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 

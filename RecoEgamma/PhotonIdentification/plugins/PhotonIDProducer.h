@@ -19,7 +19,6 @@ class PhotonIDProducer : public edm::EDProducer
   explicit PhotonIDProducer(const edm::ParameterSet& conf);
   virtual ~PhotonIDProducer();
 
-  //  virtual void beginJob(edm::EventSetup const& iSetup);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
    
  private:

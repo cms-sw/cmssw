@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.7 2009/03/24 18:43:17 nancy Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.8 2009/09/28 19:10:02 askew Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -101,7 +101,7 @@ PhotonIDSimpleAnalyzer::~PhotonIDSimpleAnalyzer()
 //    method called once each job just before starting event loop    //
 ///////////////////////////////////////////////////////////////////////
 void 
-PhotonIDSimpleAnalyzer::beginJob(edm::EventSetup const&)
+PhotonIDSimpleAnalyzer::beginJob()
 {
 
   // go to *OUR* rootfile
