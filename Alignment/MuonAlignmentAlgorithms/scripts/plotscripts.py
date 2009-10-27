@@ -22,7 +22,7 @@ def rms(xlist):
   for x in xlist:
     s2 += x**2
     n += 1.
-  return math.sqrt(s2/n)
+  return sqrt(s2/n)
 
 def stdev(xlist):
   s, s2, n = 0., 0., 0.
@@ -30,7 +30,7 @@ def stdev(xlist):
     s += x
     s2 += x**2
     n += 1.
-  return math.sqrt(s2/n - (s/n)**2)
+  return sqrt(s2/n - (s/n)**2)
 
 #############################################################
 
@@ -486,7 +486,7 @@ signConventions = {
 ("DT", 2, 4, 14): (-1, 1, -1, 733.072, -1.38313, 533.35),
 ("DT", 2, 4, 11): (-1, 1, -1, 722.674, -1.05548, 533.35),
 ("DT", 2, 4, 12): (-1, 1, -1, 725.376, -0.643132, 533.35),
-("CSC", 1, 1, 1, 1): (1, 1, -1, 181.5, -2.27939e-15, 616.95),
+("CSC", 1, 1, 1, 1): (1, 1, -1, 181.5, -1.74066e-15, 616.95),
 ("CSC", 1, 1, 1, 3): (1, 1, -1, 181.5, 0.349066, 616.95),
 ("CSC", 1, 1, 1, 5): (1, 1, -1, 181.5, 0.698132, 616.95),
 ("CSC", 1, 1, 1, 7): (1, 1, -1, 181.5, 1.0472, 616.95),
@@ -522,7 +522,7 @@ signConventions = {
 ("CSC", 1, 1, 1, 32): (1, 1, -1, 181.5, -0.872665, 587.65),
 ("CSC", 1, 1, 1, 34): (1, 1, -1, 181.5, -0.523599, 587.65),
 ("CSC", 1, 1, 1, 36): (1, 1, -1, 181.5, -0.174533, 587.65),
-("CSC", 1, 1, 2, 1): (1, 1, -1, 369.7, -1.32737e-15, 712.761),
+("CSC", 1, 1, 2, 1): (1, 1, -1, 369.7, -1.19913e-15, 712.761),
 ("CSC", 1, 1, 2, 3): (1, 1, -1, 369.7, 0.349066, 712.761),
 ("CSC", 1, 1, 2, 5): (1, 1, -1, 369.7, 0.698132, 712.761),
 ("CSC", 1, 1, 2, 7): (1, 1, -1, 369.7, 1.0472, 712.761),
@@ -531,7 +531,7 @@ signConventions = {
 ("CSC", 1, 1, 2, 13): (1, 1, -1, 369.7, 2.0944, 712.761),
 ("CSC", 1, 1, 2, 15): (1, 1, -1, 369.7, 2.44346, 712.761),
 ("CSC", 1, 1, 2, 17): (1, 1, -1, 369.7, 2.79253, 712.761),
-("CSC", 1, 1, 2, 19): (1, 1, -1, 369.7, -3.14159, 712.761),
+("CSC", 1, 1, 2, 19): (1, 1, -1, 369.7, 3.14159, 712.761),
 ("CSC", 1, 1, 2, 21): (1, 1, -1, 369.7, -2.79253, 712.761),
 ("CSC", 1, 1, 2, 23): (1, 1, -1, 369.7, -2.44346, 712.761),
 ("CSC", 1, 1, 2, 25): (1, 1, -1, 369.7, -2.0944, 712.761),
@@ -558,7 +558,7 @@ signConventions = {
 ("CSC", 1, 1, 2, 32): (1, 1, -1, 369.7, -0.872665, 685.361),
 ("CSC", 1, 1, 2, 34): (1, 1, -1, 369.7, -0.523599, 685.361),
 ("CSC", 1, 1, 2, 36): (1, 1, -1, 369.7, -0.174533, 685.361),
-("CSC", 1, 1, 3, 1): (1, 1, -1, 595.15, -1.18508e-15, 695.159),
+("CSC", 1, 1, 3, 1): (1, 1, -1, 595.15, -9.19576e-16, 695.159),
 ("CSC", 1, 1, 3, 2): (1, 1, -1, 595.15, 0.174533, 695.159),
 ("CSC", 1, 1, 3, 3): (1, 1, -1, 595.15, 0.349066, 695.159),
 ("CSC", 1, 1, 3, 4): (1, 1, -1, 595.15, 0.523599, 695.159),
@@ -594,7 +594,7 @@ signConventions = {
 ("CSC", 1, 1, 3, 34): (1, 1, -1, 595.15, -0.523599, 695.159),
 ("CSC", 1, 1, 3, 35): (1, 1, -1, 595.15, -0.349066, 695.159),
 ("CSC", 1, 1, 3, 36): (1, 1, -1, 595.15, -0.174533, 695.159),
-("CSC", 1, 1, 4, 1): (1, 1, -1, 181.5, -2.27939e-15, 616.95),
+("CSC", 1, 1, 4, 1): (1, 1, -1, 181.5, -1.74066e-15, 616.95),
 ("CSC", 1, 1, 4, 3): (1, 1, -1, 181.5, 0.349066, 616.95),
 ("CSC", 1, 1, 4, 5): (1, 1, -1, 181.5, 0.698132, 616.95),
 ("CSC", 1, 1, 4, 7): (1, 1, -1, 181.5, 1.0472, 616.95),
@@ -648,7 +648,7 @@ signConventions = {
 ("CSC", 1, 2, 1, 14): (1, 1, -1, 242.7, -1.65806, 816.161),
 ("CSC", 1, 2, 1, 16): (1, 1, -1, 242.7, -0.959931, 816.161),
 ("CSC", 1, 2, 1, 18): (1, 1, -1, 242.7, -0.261799, 816.161),
-("CSC", 1, 2, 2, 1): (1, 1, -1, 526.5, -1.39541e-15, 840.961),
+("CSC", 1, 2, 2, 1): (1, 1, -1, 526.5, -1.07735e-15, 840.961),
 ("CSC", 1, 2, 2, 3): (1, 1, -1, 526.5, 0.349066, 840.961),
 ("CSC", 1, 2, 2, 5): (1, 1, -1, 526.5, 0.698132, 840.961),
 ("CSC", 1, 2, 2, 7): (1, 1, -1, 526.5, 1.0472, 840.961),
@@ -657,7 +657,7 @@ signConventions = {
 ("CSC", 1, 2, 2, 13): (1, 1, -1, 526.5, 2.0944, 840.961),
 ("CSC", 1, 2, 2, 15): (1, 1, -1, 526.5, 2.44346, 840.961),
 ("CSC", 1, 2, 2, 17): (1, 1, -1, 526.5, 2.79253, 840.961),
-("CSC", 1, 2, 2, 19): (1, 1, -1, 526.5, 3.14159, 840.961),
+("CSC", 1, 2, 2, 19): (1, 1, -1, 526.5, -3.14159, 840.961),
 ("CSC", 1, 2, 2, 21): (1, 1, -1, 526.5, -2.79253, 840.961),
 ("CSC", 1, 2, 2, 23): (1, 1, -1, 526.5, -2.44346, 840.961),
 ("CSC", 1, 2, 2, 25): (1, 1, -1, 526.5, -2.0944, 840.961),
@@ -702,7 +702,7 @@ signConventions = {
 ("CSC", 1, 3, 1, 14): (-1, 1, 1, 252.7, -1.65806, 947.839),
 ("CSC", 1, 3, 1, 16): (-1, 1, 1, 252.7, -0.959931, 947.839),
 ("CSC", 1, 3, 1, 18): (-1, 1, 1, 252.7, -0.261799, 947.839),
-("CSC", 1, 3, 2, 1): (-1, 1, 1, 526.5, -1.25133e-15, 923.039),
+("CSC", 1, 3, 2, 1): (-1, 1, 1, 526.5, -1.13392e-15, 923.039),
 ("CSC", 1, 3, 2, 3): (-1, 1, 1, 526.5, 0.349066, 923.039),
 ("CSC", 1, 3, 2, 5): (-1, 1, 1, 526.5, 0.698132, 923.039),
 ("CSC", 1, 3, 2, 7): (-1, 1, 1, 526.5, 1.0472, 923.039),
@@ -711,7 +711,7 @@ signConventions = {
 ("CSC", 1, 3, 2, 13): (-1, 1, 1, 526.5, 2.0944, 923.039),
 ("CSC", 1, 3, 2, 15): (-1, 1, 1, 526.5, 2.44346, 923.039),
 ("CSC", 1, 3, 2, 17): (-1, 1, 1, 526.5, 2.79253, 923.039),
-("CSC", 1, 3, 2, 19): (-1, 1, 1, 526.5, -3.14159, 923.039),
+("CSC", 1, 3, 2, 19): (-1, 1, 1, 526.5, 3.14159, 923.039),
 ("CSC", 1, 3, 2, 21): (-1, 1, 1, 526.5, -2.79253, 923.039),
 ("CSC", 1, 3, 2, 23): (-1, 1, 1, 526.5, -2.44346, 923.039),
 ("CSC", 1, 3, 2, 25): (-1, 1, 1, 526.5, -2.0944, 923.039),
@@ -756,7 +756,43 @@ signConventions = {
 ("CSC", 1, 4, 1, 14): (-1, 1, 1, 262.65, -1.65806, 1037.34),
 ("CSC", 1, 4, 1, 16): (-1, 1, 1, 262.65, -0.959931, 1037.34),
 ("CSC", 1, 4, 1, 18): (-1, 1, 1, 262.65, -0.261799, 1037.34),
-("CSC", 2, 1, 1, 1): (-1, 1, 1, 181.5, -7.56017e-17, -616.95),
+("CSC", 1, 4, 2, 1): (-1, 1, 1, 526.5, -1.19637e-15, 1012.54),
+("CSC", 1, 4, 2, 3): (-1, 1, 1, 526.5, 0.349066, 1012.54),
+("CSC", 1, 4, 2, 5): (-1, 1, 1, 526.5, 0.698132, 1012.54),
+("CSC", 1, 4, 2, 7): (-1, 1, 1, 526.5, 1.0472, 1012.54),
+("CSC", 1, 4, 2, 9): (-1, 1, 1, 526.5, 1.39626, 1012.54),
+("CSC", 1, 4, 2, 11): (-1, 1, 1, 526.5, 1.74533, 1012.54),
+("CSC", 1, 4, 2, 13): (-1, 1, 1, 526.5, 2.0944, 1012.54),
+("CSC", 1, 4, 2, 15): (-1, 1, 1, 526.5, 2.44346, 1012.54),
+("CSC", 1, 4, 2, 17): (-1, 1, 1, 526.5, 2.79253, 1012.54),
+("CSC", 1, 4, 2, 19): (-1, 1, 1, 526.5, 3.14159, 1012.54),
+("CSC", 1, 4, 2, 21): (-1, 1, 1, 526.5, -2.79253, 1012.54),
+("CSC", 1, 4, 2, 23): (-1, 1, 1, 526.5, -2.44346, 1012.54),
+("CSC", 1, 4, 2, 25): (-1, 1, 1, 526.5, -2.0944, 1012.54),
+("CSC", 1, 4, 2, 27): (-1, 1, 1, 526.5, -1.74533, 1012.54),
+("CSC", 1, 4, 2, 29): (-1, 1, 1, 526.5, -1.39626, 1012.54),
+("CSC", 1, 4, 2, 31): (-1, 1, 1, 526.5, -1.0472, 1012.54),
+("CSC", 1, 4, 2, 33): (-1, 1, 1, 526.5, -0.698132, 1012.54),
+("CSC", 1, 4, 2, 35): (-1, 1, 1, 526.5, -0.349066, 1012.54),
+("CSC", 1, 4, 2, 2): (-1, 1, 1, 526.5, 0.174533, 1037.34),
+("CSC", 1, 4, 2, 4): (-1, 1, 1, 526.5, 0.523599, 1037.34),
+("CSC", 1, 4, 2, 6): (-1, 1, 1, 526.5, 0.872665, 1037.34),
+("CSC", 1, 4, 2, 8): (-1, 1, 1, 526.5, 1.22173, 1037.34),
+("CSC", 1, 4, 2, 10): (-1, 1, 1, 526.5, 1.5708, 1037.34),
+("CSC", 1, 4, 2, 12): (-1, 1, 1, 526.5, 1.91986, 1037.34),
+("CSC", 1, 4, 2, 14): (-1, 1, 1, 526.5, 2.26893, 1037.34),
+("CSC", 1, 4, 2, 16): (-1, 1, 1, 526.5, 2.61799, 1037.34),
+("CSC", 1, 4, 2, 18): (-1, 1, 1, 526.5, 2.96706, 1037.34),
+("CSC", 1, 4, 2, 20): (-1, 1, 1, 526.5, -2.96706, 1037.34),
+("CSC", 1, 4, 2, 22): (-1, 1, 1, 526.5, -2.61799, 1037.34),
+("CSC", 1, 4, 2, 24): (-1, 1, 1, 526.5, -2.26893, 1037.34),
+("CSC", 1, 4, 2, 26): (-1, 1, 1, 526.5, -1.91986, 1037.34),
+("CSC", 1, 4, 2, 28): (-1, 1, 1, 526.5, -1.5708, 1037.34),
+("CSC", 1, 4, 2, 30): (-1, 1, 1, 526.5, -1.22173, 1037.34),
+("CSC", 1, 4, 2, 32): (-1, 1, 1, 526.5, -0.872665, 1037.34),
+("CSC", 1, 4, 2, 34): (-1, 1, 1, 526.5, -0.523599, 1037.34),
+("CSC", 1, 4, 2, 36): (-1, 1, 1, 526.5, -0.174533, 1037.34),
+("CSC", 2, 1, 1, 1): (-1, 1, 1, 181.5, 1.12532e-15, -616.95),
 ("CSC", 2, 1, 1, 3): (-1, 1, 1, 181.5, 0.349066, -616.95),
 ("CSC", 2, 1, 1, 5): (-1, 1, 1, 181.5, 0.698132, -616.95),
 ("CSC", 2, 1, 1, 7): (-1, 1, 1, 181.5, 1.0472, -616.95),
@@ -792,7 +828,7 @@ signConventions = {
 ("CSC", 2, 1, 1, 32): (-1, 1, 1, 181.5, -0.872665, -587.65),
 ("CSC", 2, 1, 1, 34): (-1, 1, 1, 181.5, -0.523599, -587.65),
 ("CSC", 2, 1, 1, 36): (-1, 1, 1, 181.5, -0.174533, -587.65),
-("CSC", 2, 1, 2, 1): (-1, 1, 1, 369.7, -2.44217e-17, -712.761),
+("CSC", 2, 1, 2, 1): (-1, 1, 1, 369.7, 5.85335e-16, -712.761),
 ("CSC", 2, 1, 2, 3): (-1, 1, 1, 369.7, 0.349066, -712.761),
 ("CSC", 2, 1, 2, 5): (-1, 1, 1, 369.7, 0.698132, -712.761),
 ("CSC", 2, 1, 2, 7): (-1, 1, 1, 369.7, 1.0472, -712.761),
@@ -828,7 +864,7 @@ signConventions = {
 ("CSC", 2, 1, 2, 32): (-1, 1, 1, 369.7, -0.872665, -685.361),
 ("CSC", 2, 1, 2, 34): (-1, 1, 1, 369.7, -0.523599, -685.361),
 ("CSC", 2, 1, 2, 36): (-1, 1, 1, 369.7, -0.174533, -685.361),
-("CSC", 2, 1, 3, 1): (-1, 1, 1, 595.15, -3.47421e-16, -695.159),
+("CSC", 2, 1, 3, 1): (-1, 1, 1, 595.15, 3.06347e-16, -695.159),
 ("CSC", 2, 1, 3, 2): (-1, 1, 1, 595.15, 0.174533, -695.159),
 ("CSC", 2, 1, 3, 3): (-1, 1, 1, 595.15, 0.349066, -695.159),
 ("CSC", 2, 1, 3, 4): (-1, 1, 1, 595.15, 0.523599, -695.159),
@@ -864,7 +900,7 @@ signConventions = {
 ("CSC", 2, 1, 3, 34): (-1, 1, 1, 595.15, -0.523599, -695.159),
 ("CSC", 2, 1, 3, 35): (-1, 1, 1, 595.15, -0.349066, -695.159),
 ("CSC", 2, 1, 3, 36): (-1, 1, 1, 595.15, -0.174533, -695.159),
-("CSC", 2, 1, 4, 1): (-1, 1, 1, 181.5, -7.56017e-17, -616.95),
+("CSC", 2, 1, 4, 1): (-1, 1, 1, 181.5, 1.12532e-15, -616.95),
 ("CSC", 2, 1, 4, 3): (-1, 1, 1, 181.5, 0.349066, -616.95),
 ("CSC", 2, 1, 4, 5): (-1, 1, 1, 181.5, 0.698132, -616.95),
 ("CSC", 2, 1, 4, 7): (-1, 1, 1, 181.5, 1.0472, -616.95),
@@ -918,7 +954,7 @@ signConventions = {
 ("CSC", 2, 2, 1, 14): (-1, 1, 1, 242.7, -1.65806, -816.161),
 ("CSC", 2, 2, 1, 16): (-1, 1, 1, 242.7, -0.959931, -816.161),
 ("CSC", 2, 2, 1, 18): (-1, 1, 1, 242.7, -0.261799, -816.161),
-("CSC", 2, 2, 2, 1): (-1, 1, 1, 526.5, -2.94938e-16, -840.961),
+("CSC", 2, 2, 2, 1): (-1, 1, 1, 526.5, 4.63998e-16, -840.961),
 ("CSC", 2, 2, 2, 3): (-1, 1, 1, 526.5, 0.349066, -840.961),
 ("CSC", 2, 2, 2, 5): (-1, 1, 1, 526.5, 0.698132, -840.961),
 ("CSC", 2, 2, 2, 7): (-1, 1, 1, 526.5, 1.0472, -840.961),
@@ -972,7 +1008,7 @@ signConventions = {
 ("CSC", 2, 3, 1, 14): (1, 1, -1, 252.7, -1.65806, -947.839),
 ("CSC", 2, 3, 1, 16): (1, 1, -1, 252.7, -0.959931, -947.839),
 ("CSC", 2, 3, 1, 18): (1, 1, -1, 252.7, -0.261799, -947.839),
-("CSC", 2, 3, 2, 1): (1, 1, -1, 526.5, -5.54065e-17, -923.039),
+("CSC", 2, 3, 2, 1): (1, 1, -1, 526.5, 5.2127e-16, -923.039),
 ("CSC", 2, 3, 2, 3): (1, 1, -1, 526.5, 0.349066, -923.039),
 ("CSC", 2, 3, 2, 5): (1, 1, -1, 526.5, 0.698132, -923.039),
 ("CSC", 2, 3, 2, 7): (1, 1, -1, 526.5, 1.0472, -923.039),
@@ -1026,6 +1062,42 @@ signConventions = {
 ("CSC", 2, 4, 1, 14): (1, 1, -1, 262.65, -1.65806, -1037.34),
 ("CSC", 2, 4, 1, 16): (1, 1, -1, 262.65, -0.959931, -1037.34),
 ("CSC", 2, 4, 1, 18): (1, 1, -1, 262.65, -0.261799, -1037.34),
+("CSC", 2, 4, 2, 1): (1, 1, -1, 526.5, 5.83721e-16, -1012.54),
+("CSC", 2, 4, 2, 3): (1, 1, -1, 526.5, 0.349066, -1012.54),
+("CSC", 2, 4, 2, 5): (1, 1, -1, 526.5, 0.698132, -1012.54),
+("CSC", 2, 4, 2, 7): (1, 1, -1, 526.5, 1.0472, -1012.54),
+("CSC", 2, 4, 2, 9): (1, 1, -1, 526.5, 1.39626, -1012.54),
+("CSC", 2, 4, 2, 11): (1, 1, -1, 526.5, 1.74533, -1012.54),
+("CSC", 2, 4, 2, 13): (1, 1, -1, 526.5, 2.0944, -1012.54),
+("CSC", 2, 4, 2, 15): (1, 1, -1, 526.5, 2.44346, -1012.54),
+("CSC", 2, 4, 2, 17): (1, 1, -1, 526.5, 2.79253, -1012.54),
+("CSC", 2, 4, 2, 19): (1, 1, -1, 526.5, -3.14159, -1012.54),
+("CSC", 2, 4, 2, 21): (1, 1, -1, 526.5, -2.79253, -1012.54),
+("CSC", 2, 4, 2, 23): (1, 1, -1, 526.5, -2.44346, -1012.54),
+("CSC", 2, 4, 2, 25): (1, 1, -1, 526.5, -2.0944, -1012.54),
+("CSC", 2, 4, 2, 27): (1, 1, -1, 526.5, -1.74533, -1012.54),
+("CSC", 2, 4, 2, 29): (1, 1, -1, 526.5, -1.39626, -1012.54),
+("CSC", 2, 4, 2, 31): (1, 1, -1, 526.5, -1.0472, -1012.54),
+("CSC", 2, 4, 2, 33): (1, 1, -1, 526.5, -0.698132, -1012.54),
+("CSC", 2, 4, 2, 35): (1, 1, -1, 526.5, -0.349066, -1012.54),
+("CSC", 2, 4, 2, 2): (1, 1, -1, 526.5, 0.174533, -1037.34),
+("CSC", 2, 4, 2, 4): (1, 1, -1, 526.5, 0.523599, -1037.34),
+("CSC", 2, 4, 2, 6): (1, 1, -1, 526.5, 0.872665, -1037.34),
+("CSC", 2, 4, 2, 8): (1, 1, -1, 526.5, 1.22173, -1037.34),
+("CSC", 2, 4, 2, 10): (1, 1, -1, 526.5, 1.5708, -1037.34),
+("CSC", 2, 4, 2, 12): (1, 1, -1, 526.5, 1.91986, -1037.34),
+("CSC", 2, 4, 2, 14): (1, 1, -1, 526.5, 2.26893, -1037.34),
+("CSC", 2, 4, 2, 16): (1, 1, -1, 526.5, 2.61799, -1037.34),
+("CSC", 2, 4, 2, 18): (1, 1, -1, 526.5, 2.96706, -1037.34),
+("CSC", 2, 4, 2, 20): (1, 1, -1, 526.5, -2.96706, -1037.34),
+("CSC", 2, 4, 2, 22): (1, 1, -1, 526.5, -2.61799, -1037.34),
+("CSC", 2, 4, 2, 24): (1, 1, -1, 526.5, -2.26893, -1037.34),
+("CSC", 2, 4, 2, 26): (1, 1, -1, 526.5, -1.91986, -1037.34),
+("CSC", 2, 4, 2, 28): (1, 1, -1, 526.5, -1.5708, -1037.34),
+("CSC", 2, 4, 2, 30): (1, 1, -1, 526.5, -1.22173, -1037.34),
+("CSC", 2, 4, 2, 32): (1, 1, -1, 526.5, -0.872665, -1037.34),
+("CSC", 2, 4, 2, 34): (1, 1, -1, 526.5, -0.523599, -1037.34),
+("CSC", 2, 4, 2, 36): (1, 1, -1, 526.5, -0.174533, -1037.34),
 }
 
 def DBMC(database, reports, window=10., selection=None, phi=False, color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name=""):
@@ -1803,27 +1875,27 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_x.Draw()
         if not suppressblue: chamber_x_fit2.Draw("same")
         chamber_x_fit.Draw("same")
-
+        
         c1.GetPad(2).cd()
         chamber_dxdz.Draw()
         if not suppressblue: chamber_dxdz_fit2.Draw("same")
         chamber_dxdz_fit.Draw("same")
-
+        
         c1.GetPad(3).cd()
         chamber_alphax.Draw()
         if not suppressblue: chamber_alphax_fit2.Draw("same")
         chamber_alphax_fit.Draw("same")
-
+        
         c1.GetPad(4).cd()
         chamber_y.Draw()
         if not suppressblue: chamber_y_fit2.Draw("same")
         chamber_y_fit.Draw("same")
-
+        
         c1.GetPad(5).cd()
         chamber_dydz.Draw()
         if not suppressblue: chamber_dydz_fit2.Draw("same")
         chamber_dydz_fit.Draw("same")
-
+        
         c1.GetPad(6).cd()
         chamber_alphay.Draw()
         if not suppressblue: chamber_alphay_fit2.Draw("same")
@@ -1838,12 +1910,12 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_x.Draw()
         if not suppressblue: chamber_x_fit2.Draw("same")
         chamber_x_fit.Draw("same")
-
+        
         c1.GetPad(2).cd()
         chamber_dxdz.Draw()
         if not suppressblue: chamber_dxdz_fit2.Draw("same")
         chamber_dxdz_fit.Draw("same")
-
+        
         c1.GetPad(3).cd()
         chamber_alphax.Draw()
         if not suppressblue: chamber_alphax_fit2.Draw("same")
@@ -2333,4 +2405,162 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_dxdz_trackdydz.Draw("e1")
         if not suppressblue: chamber_dxdz_trackdydz_fit2.Draw("samel")
         chamber_dxdz_trackdydz_fit.Draw("samel")
+
+##################################################################################
+
+def segdiff(tfiles, component, pair, **args):
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(1)
+    tdrStyle.SetTitleFontSize(0.05)
+
+    if component[0:2] == "dt":
+        wheel = args["wheel"]
+        if wheel == -2: wheelletter = "A"
+        elif wheel == -1: wheelletter = "B"
+        elif wheel ==  0: wheelletter = "C"
+        elif wheel == +1: wheelletter = "D"
+        elif wheel == +2: wheelletter = "E"
+        else: raise Exception
+        sector = args["sector"]
+        profname = "%s_%s_%02d_%s" % (component, wheelletter, sector, str(pair))
+        posname = "pos" + profname
+        negname = "neg" + profname
+
+        station1 = int(str(pair)[0])
+        station2 = int(str(pair)[1])
+        phi1 = signConventions["DT", wheel, station1, sector][4]
+        phi2 = signConventions["DT", wheel, station2, sector][4]
+        if abs(phi1 - phi2) > 1.:
+            if phi1 > phi2: phi1 -= 2.*pi
+            else: phi1 += 2.*pi
+        phi = (phi1 + phi2) / 2.
+        while (phi < -pi): phi += 2.*pi
+        while (phi > pi): phi -= 2.*pi
+
+    elif component[0:3] == "csc": raise Exception
+
+    else: raise Exception
+
+    if "window" in args: window = args["window"]
+    else: window = 5.
+
+    global tmpprof, tmppos, tmpneg
+    tmpprof = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname).Clone()
+    tmpprof.SetMarkerStyle(8)
+    # tmppos = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname).Clone()
+    # tmpneg = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname).Clone()
+    for tfile in tfiles[1:]:
+        tmpprof.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname))
+        # tmppos.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname))
+        # tmpneg.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname))
+
+    for i in xrange(1, tmpprof.GetNbinsX()+1):
+        if tmpprof.GetBinError(i) < 1e-5:
+            tmpprof.SetBinError(i, 100.)
+    tmpprof.SetAxisRange(-window, window, "Y")
+
+    tmpprof.SetXTitle("q/p_{T} (c/GeV)")
+    if component == "dt13_resid": tmpprof.SetYTitle("#Delta x^{local} (mm)")
+    if component == "dt13_slope": tmpprof.SetYTitle("#Delta dx/dz^{local} (mrad)")
+    if component == "dt2_resid": tmpprof.SetYTitle("#Delta y^{local} (mm)")
+    if component == "dt2_slope": tmpprof.SetYTitle("#Delta dy/dz^{local} (mrad)")
+    tmpprof.GetXaxis().CenterTitle()
+    tmpprof.GetYaxis().CenterTitle()
+    if component[0:2] == "dt":
+        if int(pair) == 12: tmpprof.SetTitle("MB1 - MB2, wheel %d, sector %02d" % (int(wheel), int(sector)))
+        if int(pair) == 23: tmpprof.SetTitle("MB2 - MB3, wheel %d, sector %02d" % (int(wheel), int(sector)))
+        if int(pair) == 34: tmpprof.SetTitle("MB3 - MB4, wheel %d, sector %02d" % (int(wheel), int(sector)))
+
+    elif component[0:3] == "csc": raise Exception
+
+    else: raise Exception
+
+    tmpprof.Fit("pol1", "q")
+    tmpprof.Draw("e1")
+    # tmppos.Draw()
+    # tmpneg.Draw()
+
+    return phi, tmpprof.GetFunction("pol1").GetParameter(0), tmpprof.GetFunction("pol1").GetParError(0)
+
+def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()):
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(1)
+    tdrStyle.SetTitleFontSize(0.05)
+
+    global htemp, gtemp_12, gtemp_23, gtemp_34, tlegend
+    htemp = ROOT.TH1F("htemp", "", 1, -pi, pi)
+    gtemp_12_phi, gtemp_12_val, gtemp_12_err = [], [], []
+    gtemp_23_phi, gtemp_23_val, gtemp_23_err = [], [], []
+    gtemp_34_phi, gtemp_34_val, gtemp_34_err = [], [], []
+    for sector in xrange(1, 12+1):
+        r1_found, r2_found, r3_found, r4_found = False, False, False, False
+        for r1 in reports:
+            if r1.postal_address == ("DT", wheel, 1, sector):
+                r1_found = True
+                break
+        for r2 in reports:
+            if r2.postal_address == ("DT", wheel, 2, sector):
+                r2_found = True
+                break
+        for r3 in reports:
+            if r3.postal_address == ("DT", wheel, 3, sector):
+                r3_found = True
+                break
+        for r4 in reports:
+            if r4.postal_address == ("DT", wheel, 4, sector):
+                r4_found = True
+                break
         
+        if sector not in excludesectors:
+            if r1_found and r2_found and r1.status == "PASS" and r2.status == "PASS":
+                phi, val, err = segdiff(tfiles, component, 12, wheel=wheel, sector=sector)
+                gtemp_12_phi.append(phi)
+                gtemp_12_val.append(val)
+                gtemp_12_err.append(err)
+            if r2_found and r3_found and r2.status == "PASS" and r3.status == "PASS":
+                phi, val, err = segdiff(tfiles, component, 23, wheel=wheel, sector=sector)
+                gtemp_23_phi.append(phi)
+                gtemp_23_val.append(val)
+                gtemp_23_err.append(err)
+            if component[:4] == "dt13":
+                if r3_found and r4_found and r3.status == "PASS" and r4.status == "PASS":
+                    phi, val, err = segdiff(tfiles, component, 34, wheel=wheel, sector=sector)
+                    gtemp_34_phi.append(phi)
+                    gtemp_34_val.append(val)
+                    gtemp_34_err.append(err)
+
+    gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))
+    gtemp_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err))
+    if component[:4] == "dt13":
+        gtemp_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val), array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err))
+    gtemp_12.SetMarkerStyle(20); gtemp_12.SetMarkerSize(1.); gtemp_12.SetMarkerColor(ROOT.kBlue);    gtemp_12.SetLineColor(ROOT.kBlue)
+    gtemp_23.SetMarkerStyle(21); gtemp_23.SetMarkerSize(1.); gtemp_23.SetMarkerColor(ROOT.kRed);     gtemp_23.SetLineColor(ROOT.kRed)
+    if component[:4] == "dt13":
+        gtemp_34.SetMarkerStyle(22); gtemp_34.SetMarkerSize(1.25); gtemp_34.SetMarkerColor(ROOT.kGreen+2); gtemp_34.SetLineColor(ROOT.kGreen+2)
+
+    if wheel == 0: htemp.SetTitle("Wheel %d" % wheel)
+    else: htemp.SetTitle("Wheel %+d" % wheel)
+    htemp.SetAxisRange(-window, window, "Y")
+    htemp.SetXTitle("Average #phi of pair (rad)")
+    if component == "dt13_resid": htemp.SetYTitle("#Delta x^{local} (mm)")
+    if component == "dt13_slope": htemp.SetYTitle("#Delta dx/dz^{local} (mrad)")
+    if component == "dt2_resid": htemp.SetYTitle("#Delta y^{local} (mm)")
+    if component == "dt2_slope": htemp.SetYTitle("#Delta dy/dz^{local} (mrad)")
+    htemp.GetXaxis().CenterTitle()
+    htemp.GetYaxis().CenterTitle()
+    htemp.GetYaxis().SetTitleOffset(0.75)
+
+    htemp.Draw()
+    gtemp_12.Draw("p")
+    gtemp_23.Draw("p")
+    if component[:4] == "dt13": gtemp_34.Draw("p")
+
+    tlegend = ROOT.TLegend(0.5, 0.72, 0.9, 0.92)
+    tlegend.SetBorderSize(0)
+    tlegend.SetFillColor(ROOT.kWhite)
+    tlegend.AddEntry(gtemp_12, "MB1 - MB2 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_12_val), stdev(gtemp_12_val)), "pl")
+    tlegend.AddEntry(gtemp_23, "MB2 - MB3 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_23_val), stdev(gtemp_23_val)), "pl")
+    if component[:4] == "dt13":
+        tlegend.AddEntry(gtemp_34, "MB3 - MB4 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_34_val), stdev(gtemp_34_val)), "pl")
+    tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
+    tlegend.Draw()
