@@ -194,10 +194,9 @@ def getDependenciesFromPythonFile(filename,toplevelname,path):
 
 
 def getImportTree(filename,path):
-    config = __import__(filename.rstrip(".py"))
     toplevelname = packageNameFromFilename(filename)
     # get dependencies from given file
-    if hasattr(config,"process"):
+    if filename.endswith('_cfg.py'): 
         globalDependencyDict = getDependenciesFromConfig(filename,toplevelname,path)
     else:
         globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)
