@@ -28,7 +28,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.9 2009/05/07 10:05:44 pjanot Exp $
+// $Id: PFEnergyCalibration.h,v 1.10 2009/05/19 18:59:33 pjanot Exp $
 //
 //
 
@@ -66,7 +66,8 @@ class PFEnergyCalibration
   double energyEm(const reco::PFCluster& clusterEcal,
 		  std::vector<double> &EclustersPS1,
 		  std::vector<double> &EclustersPS2,
-		  double &ps1,double&ps2);
+		  double &ps1,double&ps2,
+		  bool crackCorrection=true);
 
   // HCAL only calibration
   double energyHad(double uncalibratedEnergyHCAL, 
@@ -139,7 +140,7 @@ class PFEnergyCalibration
   double EcorrPS_ePSNil(double eEcal,double eta);
   double EcorrZoneAfterPS(double E, double eta);
   double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,bool crackCorrection=true);
-  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&);
+  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&,bool crackCorrection=true);
 
   // Barrel calibration (eta 0.00 -> 1.48)
   TF1* faBarrel;

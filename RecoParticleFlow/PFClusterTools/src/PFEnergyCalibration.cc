@@ -299,7 +299,8 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     std::vector<double> &EclustersPS1,
 				     std::vector<double> &EclustersPS2,
-				     double& ps1,double& ps2){
+				     double& ps1,double& ps2,
+				     bool crackCorrection){
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
@@ -313,7 +314,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   for(unsigned i=0;i<EclustersPS1.size();i++) ePS1 += EclustersPS1[i];
   for(unsigned i=0;i<EclustersPS2.size();i++) ePS2 += EclustersPS2[i];
 
-  double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2);
+  double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2,crackCorrection);
   if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
 }
@@ -787,7 +788,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 // returns the corrected energy everywhere
 // this work should be improved between 1.479 and 1.52 (junction barrel-endcap)
 double
-PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2)  {
+PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  {
 
   static double endBarrel=1.48;
   static double beginingPS=1.65;
@@ -799,7 +800,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,doubl
   eta=TMath::Abs(eta);
 
   if(eEcal>0){
-    if(eta <= endBarrel)                         result = EcorrBarrel(eEcal,eta,phi);
+    if(eta <= endBarrel)                         result = EcorrBarrel(eEcal,eta,phi,crackCorrection);
     else if(eta <= beginingPS)                   result = EcorrZoneBeforePS(eEcal,eta);
     else if((eta < endPS) && ePS1==0 && ePS2==0) result = EcorrPS_ePSNil(eEcal,eta);
     else if(eta < endPS)                         result = EcorrPS(eEcal,ePS1,ePS2,eta,ps1,ps2);
