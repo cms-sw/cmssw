@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.16 2009/07/02 13:55:44 alinn Exp $
-// Latest tag:  $Name: V04-00-00 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.17 2009/08/17 12:06:35 alinn Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -33,10 +33,10 @@ using namespace sistrip;
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet& pset,
 							 const edm::ActivityRegistry&):
   m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",640.))), 
-  m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))), 
-  m_defaultnoisevalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultNoise",0.))), 
   m_defaultthresholdhighvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdHigh",0.))), 
   m_defaultthresholdlowvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdLow",0.))), 
+  m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))), 
+  m_defaultnoisevalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultNoise",0.))), 
   m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",690.))) 
 {
   LogTrace(mlESSources_) 
