@@ -378,7 +378,7 @@ void ODLaserConfig::writeDB()
     m_writeStmt->setSQL ("SELECT laser_configuration FROM "+getTable()+" WHERE"
                          " laser_configuration_id=:1 FOR UPDATE");
     std::cout<<"updating the laser clob "<<std::endl;
-    m_writeStmt->executeUpdate();
+    
 
     m_writeStmt->setInt(1, m_ID);
     ResultSet* rset = m_writeStmt->executeQuery();
