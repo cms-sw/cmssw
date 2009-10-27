@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.42 2009/06/09 16:32:59 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.43 2009/06/09 16:35:35 loizides Exp $
 
 use strict;
 use DBI;
@@ -335,7 +335,7 @@ unless($pathname) {
 $hostname = hostname()         if $hostname eq 'unset';
 $hostname = 'srv-C2D05-03'     if $hostname eq 'cms-tier0-stage';
 $hostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
-$hostname = 'csc-C2D07-08'     if $hostname eq 'csc-daq00';
+$hostname = 'csc-C2D08-11'     if $hostname eq 'csc-daq00';
 
 unless($hostname eq 'srv-C2D05-03'      || 
        $hostname eq 'srv-C2D05-02'      || 
