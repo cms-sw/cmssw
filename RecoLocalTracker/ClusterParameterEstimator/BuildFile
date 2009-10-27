@@ -1,5 +1,6 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
+<use name=TrackingTools/TrajectoryState>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
 <export>
