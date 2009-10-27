@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Lumi")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDBSetup,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     timetype = cms.untracked.string('lumiid'),
+    connect = cms.string('#sqlite_file:mydata.db#'),
     logconnect = cms.untracked.string('sqlite_file:#tag#_#version#_log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('LumiSectionData'),
@@ -25,7 +26,7 @@ process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('rootsource'),
       lumiFileName = cms.string('#rootfilename#'),
-      allowForceFirstSince = cms.bool(#allowForceFirstSince#)
+      allowForceFirstSince = cms.bool(False)
     ),                                          
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),
