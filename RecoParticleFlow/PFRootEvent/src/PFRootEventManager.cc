@@ -859,6 +859,9 @@ void PFRootEventManager::readOptions(const char* file,
     double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
     options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
 
+    bool applyCrackCorrections=true;
+    options_->GetOpt("particle_flow","electron_crackCorrection",applyCrackCorrections);
+
     string mvaWeightFileEleID = "";
     options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
 		     mvaWeightFileEleID);
@@ -867,7 +870,8 @@ void PFRootEventManager::readOptions(const char* file,
     try { 
       pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
-				 usePFElectrons);
+				 usePFElectrons,
+				 applyCrackCorrections);
     }
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Electron parameters: "

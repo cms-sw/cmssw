@@ -330,6 +330,7 @@ particle_flow   nsigma_HCAL    1.0
 // PFElectrons
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1
+particle_flow   electron_crackCorrection 1
 particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
 
 // PF Converted Bremsstrahlung recovery
