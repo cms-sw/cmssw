@@ -27,7 +27,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:dead.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityRcd'),
-        tag = cms.string('SiPixelQuality_v04')
+        tag = cms.string('SiPixelQuality_v05_mc')
     ))
 )
 
@@ -91,11 +91,67 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
         cms.PSet(
             errortype = cms.string('whole'),
             detid = cms.uint32(344019468)
-        ), 
+        ),
         cms.PSet(
-            errortype = cms.string('tbmB'),
-            detid = cms.uint32(302060044)
-         )),
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078852)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078856)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078860)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078596)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078600)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078604)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344078608)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344077572)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344077576)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344077580)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344077584)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344079620)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344079624)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344079628)
+        ),
+        cms.PSet(
+            errortype = cms.string('whole'),
+            detid = cms.uint32(344079632)
+        )), 
     Record = cms.string('SiPixelQualityRcd'),
     SinceAppendMode = cms.bool(True),
     IOVMode = cms.string('Run'),
