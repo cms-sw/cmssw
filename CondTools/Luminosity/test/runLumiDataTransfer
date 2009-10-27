@@ -6,6 +6,7 @@ python script to run EDAnalyzer LumiSectionDataPopCon
 
 """
 import sys,os,string,shutil
+import ConfigParser
 from optparse import OptionParser
 
 def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
@@ -58,6 +59,9 @@ def main():
    parser.add_option("-v","--verbose",action="store_true",dest="verbose",
                      help="verbose mode")
    (options, args) = parser.parse_args()
+   if args[0]:
+      print 'parse parameters from config file ',args[0]
+   
    if not options.rootfilename:
       parser.error('option -f or --filename is required')
    if not options.tagname:
