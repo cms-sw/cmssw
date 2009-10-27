@@ -1,8 +1,6 @@
-<use name=DetectorDescription/Base>
-<use name=clhep>
+<use name="DetectorDescription/Base">
+<use name="FWCore/MessageLogger">
+<use name="clhep">
 <export>
-  <use name=DetectorDescription/Base>
-  <use name=clhep>
-  <lib name=DetectorDescriptionExprAlgo>
+  <lib name="1">
 </export>
-
