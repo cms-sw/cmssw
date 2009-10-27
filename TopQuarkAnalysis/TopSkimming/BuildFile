@@ -1,10 +1,6 @@
-<use name=AnalysisDataFormats/TopObjects>
-<use name=DataFormats/HepMCCandidate>
 <use name=FWCore/ParameterSet>
 
 <export>
    <lib name=TopQuarkAnalysisTopSkimming>
-   <use name=AnalysisDataFormats/TopObjects>
-   <use name=DataFormats/HepMCCandidate>
    <use name=FWCore/ParameterSet>
 </export>

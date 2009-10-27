@@ -4,8 +4,6 @@
 <use name=TopQuarkAnalysis/TopTools>
 <use name=PhysicsTools/MVAComputer>
 <use name=PhysicsTools/MVATrainer>
-<use name=PhysicsTools/JetMCUtils>
-<use name=PhysicsTools/UtilAlgos>
 <use name=CondCore/PluginSystem>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>

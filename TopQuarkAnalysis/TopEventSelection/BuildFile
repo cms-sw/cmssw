@@ -2,13 +2,11 @@
 <use name=TopQuarkAnalysis/TopTools>
 <use name=DataFormats/PatCandidates>
 <use name=AnalysisDataFormats/TopObjects>
-<use name=rootcintex>
 
 <export>
    <use name=FWCore/Framework>
    <use name=TopQuarkAnalysis/TopTools>
    <use name=DataFormats/PatCandidates>
    <use name=AnalysisDataFormats/TopObjects>
-   <use name=rootcintex>
    <lib name=TopQuarkAnalysisTopEventSelection>
 </export>

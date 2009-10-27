@@ -1,12 +1,10 @@
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/TopTools>
 <use name=FWCore/Framework>
-<use name=rootcintex>
 
 <export>
   <use name=AnalysisDataFormats/TopObjects>
   <use name=TopQuarkAnalysis/TopTools>
   <use name=FWCore/Framework>
-  <use name=rootcintex>
   <lib name=TopQuarkAnalysisTopJetCombination>
 </export>
