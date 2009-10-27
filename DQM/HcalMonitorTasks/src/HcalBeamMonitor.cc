@@ -197,15 +197,15 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",83,-41.5,41.5,100,0,100);
       Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",36,0.5,72.5,100,0,100);
       Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",36,0.5,72.5,100,0,100);
-      Etsum_ratio_p=m_dbe->book1D("Occ vs fm HF+","Energy difference of Long and Short Fiber for abnormal HF+ hits",105,0.,1.05);
+      Etsum_ratio_p=m_dbe->book1D("Occ vs PMT events HF+","Energy difference of Long and Short Fiber for abnormal HF+ hits",105,0.,1.05);
       Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,-5,1995);
-      Etsum_ratio_m=m_dbe->book1D("Occ vs fm HF-","Energy difference of Long and Short Fiber for abnormal HF- hits",105,0.,1.05);
+      Etsum_ratio_m=m_dbe->book1D("Occ vs PMT events HF-","Energy difference of Long and Short Fiber for abnormal HF- hits",105,0.,1.05);
       Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",83,-41.5,41.5,36,0.5,72.5);
       Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",83,-41.5,41.5,36,0.5,72.5);
       Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
 
-      Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",
+      Etsum_ratio_map=m_dbe->book2D("Abnormal PMT events","Abnormal PMT events",
 				    8,0,8,36, 0.5,72.5);
       SetEtaLabels(Etsum_ratio_map);
 
