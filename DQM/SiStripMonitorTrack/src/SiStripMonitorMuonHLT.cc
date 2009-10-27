@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.1 2009/10/05 17:05:48 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.2 2009/10/07 11:59:39 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -123,7 +123,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   iEvent.getByLabel (clusterCollectionTag_, clusters);
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
 
-  if (!clusters.failedToGet ())
+  if (!clusters.failedToGet () && clusters.isValid())
     {
       for (clust = clusters->begin_record (); clust != clusters->end_record (); ++clust)
 	{
@@ -143,7 +143,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	}
     }
 
-  if (!l3mucands.failedToGet ())
+  if (!l3mucands.failedToGet () && l3mucands.isValid())
     {
       for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand)
 	{
@@ -533,8 +533,8 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
       //MONO OR STEREO
       int step;
-      if (map_boolStereo[labelHisto] = false) step = 1;
-      if (map_boolStereo[labelHisto] = true) step = 2;
+      if (map_boolStereo[labelHisto] == false) step = 1;
+      if (map_boolStereo[labelHisto] == true) step = 2;
 
       //BUILD ETA VECTOR
       i = 0;
