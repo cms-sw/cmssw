@@ -6,8 +6,12 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+<<<<<<< ClusterParameterEstimator.h
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+=======
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+>>>>>>> 1.12
 
 template <class T> 
 class ClusterParameterEstimator {
@@ -27,9 +31,9 @@ class ClusterParameterEstimator {
     vlp.push_back(localParameters(cluster,gd));
     return vlp;
   }
-  virtual VLocalValues localParametersV( const T& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters& ltp) const {
+  virtual VLocalValues localParametersV( const T& cluster, const GeomDetUnit& gd, const TrajectoryStateOnSurface& tsos) const {
     VLocalValues vlp;
-    vlp.push_back(localParameters(cluster,gd,ltp));
+    vlp.push_back(localParameters(cluster,gd,tsos.localParameters()));
     return vlp;
   }
   virtual VLocalValues localParametersV( const T& cluster, const GeomDetUnit& gd, const TrajectoryStateOnSurface& tsos) const {
