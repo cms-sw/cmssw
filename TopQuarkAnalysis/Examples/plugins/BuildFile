@@ -1,5 +1,4 @@
 <use name=AnalysisDataFormats/TopObjects>
-<use name=TopQuarkAnalysis/TopTools>
 <use name=CommonTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
