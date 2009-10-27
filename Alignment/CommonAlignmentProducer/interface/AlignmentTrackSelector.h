@@ -7,6 +7,7 @@
 
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 namespace edm {
@@ -45,6 +46,7 @@ class AlignmentTrackSelector
   bool isHit2D(const TrackingRecHit &hit) const;
   /// if valid, check for minimum charge (currently only in strip), if invalid give true 
   bool isOkCharge(const TrackingRecHit* therechit) const;
+  bool isOkChargeStripHit(const SiStripRecHit1D *siStripRecHit1D) const;
   bool isOkChargeStripHit(const SiStripRecHit2D *siStripRecHit2D) const;
   bool isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const;
   bool isOkTrkQuality(const reco::Track* track) const;

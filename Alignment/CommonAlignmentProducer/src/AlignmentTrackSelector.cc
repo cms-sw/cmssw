@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
@@ -287,6 +288,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 	const SiStripDetId stripId(detId);
 	if (stripId.stereo()) return countStereoHitAs2D_; // 1D stereo modules
         else if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
+	//the following two are not used any more since ages... 
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
 	  const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
@@ -324,21 +326,43 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
   }
 
   // We are in SiStrip now, so test normal hit:
-  const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-  if (stripHit2D) {
-    return this->isOkChargeStripHit(stripHit2D);
+  const std::type_info &type = typeid(*hit);
+  
+
+  if (type == typeid(SiStripRecHit2D)) {
+    const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+    if (stripHit2D) {
+      return this->isOkChargeStripHit(stripHit2D);
+    }
   }
-  // or matched (should not occur anymore due to hit splitting since 20X):
-  const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
-  if (matchedHit) {  
-    return (this->isOkChargeStripHit(matchedHit->monoHit())
-            && this->isOkChargeStripHit(matchedHit->stereoHit()));
+  else if(type == typeid(SiStripRecHit1D)){
+    const SiStripRecHit1D *stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
+    if (stripHit1D) {
+      return this->isOkChargeStripHit(stripHit1D);
+    } 
   }
-  // or projected (should not occur anymore due to hit splitting since 20X):
-  const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
-  if (projHit) {
-    return this->isOkChargeStripHit(&projHit->originalHit());
+
+  else if(type == typeid(SiStripMatchedRecHit2D)){  // or matched (should not occur anymore due to hit splitting since 20X)
+    const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+    if (matchedHit) {  
+      return (this->isOkChargeStripHit(matchedHit->monoHit())
+	      && this->isOkChargeStripHit(matchedHit->stereoHit()));
+    }
   }
+  else if(type == typeid(ProjectedSiStripRecHit2D)){ 
+    // or projected (should not occur anymore due to hit splitting since 20X):
+    const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
+    if (projHit) {
+      return this->isOkChargeStripHit(&projHit->originalHit());
+    }
+  }
+  else{
+    edm::LogError("AlignmentTrackSelector")<< "@SUB=isOkCharge" <<"Unknown type of a valid tracker hit in Strips "
+                                           << " SubDet = "<<id.subdetId();
+    return false;
+  }
+  
+
 
   // and now? SiTrackerMultiRecHit? Not here I guess!
   // Should we throw instead?
@@ -357,6 +381,22 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRe
   double charge = 0.;
 
   SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D->cluster());
+  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
+
+  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
+    charge += amplitudes[ia];
+  }
+
+  return (charge >= minHitChargeStrip_);
+}
+
+//-----------------------------------------------------------------------------
+
+bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D *siStripRecHit1D) const
+{
+  double charge = 0.;
+
+  SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D->cluster());
   const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
@@ -456,15 +496,31 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
       bool isPixelHit=(subDet == kFPIX || subDet == kBPIX);
 
       if (!isPixelHit){
-	const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-	if(striphit!=0){
-	  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	  flag = flagMap[stripclust];
-	  
+	const std::type_info &type = typeid(*hit);
+
+
+	if (type == typeid(SiStripRecHit2D)) {	
+	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit); 
+	  if(striphit!=0){
+	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
+	    flag = flagMap[stripclust];
+	  }
 	}
+	else if(type == typeid(SiStripRecHit1D)){
+	  const SiStripRecHit1D* striphit = dynamic_cast<const SiStripRecHit1D*>(hit);
+	  if(striphit!=0){
+	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
+	    flag = flagMap[stripclust];
+	  }
+	} 
 	else{
-	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Strip RecHit failed! ";
+	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Strip RecHit failed!"
+						  <<" Skipping this hit.";
+	   continue;
 	}
+
+	  
+
       }//end if hit in Strips
       else{ // test explicitely BPIX/FPIX
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
