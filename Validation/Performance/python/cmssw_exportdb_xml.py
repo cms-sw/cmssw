@@ -245,7 +245,7 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 	#FIXME: Here we could decide to archive it on CASTOR on a dedicated directory
 	if ":" in remotedir: #CAVEAT: since we report the timestamp as part of the xml filename we need to be careful..
 		(host,dir)=remotedir.split(":")
-		tarpipe_cmd='tar cf - %s|ssh %s "cd %s;tar xf -'%(xmlFileName,host,dir)
+		tarpipe_cmd='tar cf - %s|ssh %s "cd %s;tar xf -"'%(xmlFileName,host,dir)
 	else:
 		tarpipe_cmd='tar cf - %s|(cd %s;tar xf -)'%(xmlFileName,remotedir)
 	try:
