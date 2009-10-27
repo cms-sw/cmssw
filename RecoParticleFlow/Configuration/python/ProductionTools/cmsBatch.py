@@ -146,7 +146,7 @@ class MyBatchManager( BatchManager ):
           grouping = len(process.source.fileNames)/nJobs
           
           iFileMin = (value)*grouping
-          iFileMax = (value+1)*grouping
+          iFileMax = (value+1)*grouping + 1
           
           process.source.fileNames = fullSource.fileNames[iFileMin:iFileMax]
           print process.source
