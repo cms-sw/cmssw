@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.56 2009/02/27 08:30:04 alinn Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.57 2009/04/06 17:08:39 lowette Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -810,10 +810,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
     // --- Construct FedChannelConnection objects ---
 
     for ( uint16_t ipair = 0; ipair < npairs; ipair++ ) {
-      uint16_t iapv = 
-	( ipair == 1 && npairs == 2 ) ?
-	( iapv = 36 ) :
-	( iapv = 32 + 2 * ipair ) ;
+      uint16_t iapv = ( ipair == 1 && npairs == 2 ? 36 : 32 + 2 * ipair ) ;
       FedChannelConnection conn( fec_crate, 
 				 fec_slot, 
 				 fec_ring, 
