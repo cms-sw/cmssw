@@ -4,11 +4,11 @@ import sys, os, re
 import getopt
 from Validation.Performance.parserTimingReport import *
 from Validation.Performance.cmssw_exportdb_xml import *
-import Validation.Performance.cmssw_exportdb_xml
+import Validation.Performance.cmssw_exportdb_xml as cmssw_exportdb_xml
 from Validation.Performance.parserPerfsuiteMetadata import parserPerfsuiteMetadata
 
 from Validation.Performance.FileNamesHelper import *
-import Validation.Performance.parserEdmSize
+import Validation.Performance.parserEdmSize as parserEdmSize
 
 """ indicates whether the CMSSW is [use False] available or not. on our testing machine it's not [use True] """
 _TEST_RUN = False
