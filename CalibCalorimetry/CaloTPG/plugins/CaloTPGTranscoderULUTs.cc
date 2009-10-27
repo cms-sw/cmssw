@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: CaloTPGTranscoderULUTs.cc,v 1.3 2008/09/05 05:06:25 tulika Exp $
+// $Id: CaloTPGTranscoderULUTs.cc,v 1.4 2009/06/23 23:28:48 tulika Exp $
 //
 //
 
@@ -144,7 +144,8 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 	 //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT());
 	 //return pTCoder;
    }
-   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
+   //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
+   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
    return pTCoder;
 }
 

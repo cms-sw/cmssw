@@ -91,11 +91,6 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
       if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(), true);
    } 
    else {
-      // Temporary for reading Rcalib
-      // Will be moved to metadata
-      edm::FileInPath file(iConfig.getParameter<edm::FileInPath>("RCalibFile"));
-      theCoder_->getRecHitCalib(file.fullPath().c_str());
-
       bool LUTGenerationMode = iConfig.getParameter<bool>("LUTGenerationMode");
       int maskBit = iConfig.getParameter<int>("MaskBit");
       theCoder_->setLUTGenerationMode(LUTGenerationMode);

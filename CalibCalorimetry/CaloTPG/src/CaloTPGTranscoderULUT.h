@@ -4,17 +4,21 @@
 #include <vector>
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
+// tmp
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
+
+
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2009/05/29 07:25:08 $
-  * $Revision: 1.13 $
+  * $Date: 2009/06/23 23:28:49 $
+  * $Revision: 1.14 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
 public:
-  CaloTPGTranscoderULUT();
-  CaloTPGTranscoderULUT(const std::string& hcalFile1, const std::string& hcalFile2);
-  CaloTPGTranscoderULUT(const std::vector<int>& _ietal,const std::vector<int>& _ietah,const std::vector<int>& _zs,const std::vector<int>& _lutfactor, const double& _rctlsb, const double& _nominalgain, const std::string& hcalFile1, const std::string& hcalFile2);
+  CaloTPGTranscoderULUT(const std::string& compressionFile="",
+                        const std::string& decompressionFile="");
   virtual ~CaloTPGTranscoderULUT();
   virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
   virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
@@ -30,40 +34,43 @@ public:
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;
+  virtual void setup(const edm::EventSetup& es, Mode) const;
+  void printDecompression() const;
 
  private:
+  // Typedef
+  typedef unsigned int LUT;
+  typedef std::vector<double> RCTdecompression;
+
+  // Constant
+  // TODO prefix k
   static const int NOUTLUTS = 4176;
   static const unsigned int OUTPUT_LUT_SIZE = 1024;
   static const int TPGMAX = 256;
+  static const bool newHFphi = true;
+
+  // Member functions
+  void loadHCALCompress(void) const; //Analytical compression tables
+  void loadHCALCompress(const std::string& filename) const; //Compression tables from file
+  void loadHCALUncompress(void) const; //Analytical decompression
+  void loadHCALUncompress(const std::string& filename) const; //Decompression tables from file
+  virtual int getOutputLUTId(const int ieta, const int iphi) const;
+  //int getLutGranularity(const DetId& id) const;
+  //int getLutThreshold(const DetId& id) const;
+
+  // Member Variables
+  mutable bool isLoaded_;
+  mutable double nominal_gain_;
+  mutable double rctlsb_factor_;
+  std::string compressionFile_;
+  std::string decompressionFile_;
   std::vector<int> ietal;
   std::vector<int> ietah;
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
-  double nominal_gain;
-  double RCTLSB;
-  double RCTLSB_factor;
-  int NR;
-  static const bool newHFphi = true;
 
-  void loadHCALCompress(void); //Analytical compression tables
-  void loadHCALCompress(const std::string& filename); //Compression tables from file
-  void loadHCALUncompress(void) const; //Analytical decompression
-  void loadHCALUncompress(const std::string& filename) const; //Decompression tables from file
-  virtual int GetOutputLUTId(const int ieta, const int iphi) const;
-
-  typedef std::vector<unsigned char> LUTType;
-  std::vector<LUTType> outputluts_;
-  typedef unsigned char LUT;
-  LUT *outputLUT[NOUTLUTS];
-  unsigned int AnalyticalLUT[OUTPUT_LUT_SIZE];
-  unsigned int IdentityLUT[OUTPUT_LUT_SIZE];
-  typedef std::vector<double> RCTdecompression;
+  mutable LUT *outputLUT_[NOUTLUTS];
   mutable std::vector<RCTdecompression> hcaluncomp_;
-  std::string DecompressionFile;
-
-  void setLUTGranularity( const std::vector<int>&, const std::vector<int>&, const std::vector<int>&, const std::vector<int>& );
-  void setRCTLSB(const double&);
-  void setNominalGain(const double&);
-
+  mutable edm::ESHandle<HcalLutMetadata> lutMetadata_;
 };
 #endif
