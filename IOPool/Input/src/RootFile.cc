@@ -576,6 +576,12 @@ namespace edm {
     return fileIndexIter_->getEntryType();
   }
 
+  FileIndex::const_iterator
+  RootFile::fileIndexIter() const {
+    assert(fileIndexIter_ != fileIndexEnd_);
+    return fileIndexIter_;
+  }
+
   // Temporary KLUDGE until we can properly merge runs and lumis across files
   // This KLUDGE skips duplicate run or lumi entries.
   FileIndex::EntryType
@@ -817,8 +823,8 @@ namespace edm {
     return runAuxiliary;
   }
 
-  int
-  RootFile::skipEvents(int offset) {
+  bool
+  RootFile::skipEvents(int& offset) {
     for(;offset > 0 && fileIndexIter_ != fileIndexEnd_; ++fileIndexIter_) {
       if(fileIndexIter_->getEntryType() == FileIndex::kEvent) {
 	if(isDuplicateEvent()) {
@@ -839,7 +845,7 @@ namespace edm {
     while(fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
       ++fileIndexIter_;
     }
-    return offset;
+    return (fileIndexIter_ == fileIndexEnd_);
   }
 
   // readEvent() is responsible for creating, and setting up, the

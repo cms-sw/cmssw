@@ -99,10 +99,10 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
-    EventNumber_t const& eventNumber() const {return fileIndexIter_->event_;}
-    FileIndex::EntryNumber_t const& entryNumber() const {return fileIndexIter_->entry_;}
-    LuminosityBlockNumber_t const& luminosityBlockNumber() const {return fileIndexIter_->lumi_;}
-    RunNumber_t const& runNumber() const {return fileIndexIter_->run_;}
+    EventNumber_t const& eventNumber() const {return fileIndexIter()->event_;}
+    FileIndex::EntryNumber_t const& entryNumber() const {return fileIndexIter()->entry_;}
+    LuminosityBlockNumber_t const& luminosityBlockNumber() const {return fileIndexIter()->lumi_;}
+    RunNumber_t const& runNumber() const {return fileIndexIter()->run_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
     RootTree const& eventTree() const {return eventTree_;}
@@ -129,7 +129,7 @@ namespace edm {
       fileIndexIter_ = fileIndexEnd_;
     }
 
-    int skipEvents(int offset);
+    bool skipEvents(int& offset);
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getEntryTypeSkippingDups();
@@ -139,6 +139,7 @@ namespace edm {
     }
 
   private:
+    FileIndex::const_iterator fileIndexIter() const;
     void setIfFastClonable(int remainingEvents, int remainingLumis);
     void validateFile();
     void fillFileIndex();
