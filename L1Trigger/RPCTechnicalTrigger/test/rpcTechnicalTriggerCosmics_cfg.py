@@ -3,7 +3,7 @@ import os
 
 maxevts   = 1000
 globaltag = 'STARTUP31X_V2::All'
-##globaltag = 'STARTUP3XY_V9::All'
+globaltag = 'STARTUP3XY_V9::All'
 inputfile = '/store/relval/CMSSW_3_1_2/RelValCosmics/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0007/C481562D-9278-DE11-8CA2-000423D9517C.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
