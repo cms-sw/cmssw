@@ -3,19 +3,14 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=DetectorDescription/Core>
-<use name=Geometry/DTGeometry>
 <use name=Geometry/MuonNumbering>
 <use name=Geometry/TrackerNumberingBuilder>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalCommonData>
-<use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/EcalDetId>
-<use name=rootgraphics>
-<lib name=Gpad>
+<use name=rootgpad>
 <lib name=Geom>
-<lib name=Thread>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Framework>
