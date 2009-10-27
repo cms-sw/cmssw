@@ -11,7 +11,7 @@ process.SiStripConfigDb.UsingDb = True                    # should be true!
 process.SiStripConfigDb.ConfDb = 'user/password@account'  # taken from $CONFDB
 process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = 'DBPART'
 process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
-process.SiStripConfigDb.TNS_ADMIN = '/etc'  # for P5
+process.SiStripConfigDb.TNS_ADMIN = '/etc'  # for P5 only!
 
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
 process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
@@ -28,17 +28,8 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
-    ProductLabel = cms.string('source'),
-    ProductInstance = cms.string(''),
-    CreateDigis = cms.bool(True),
-    AppendedBytes = cms.int32(0),
-    UseDaqRegister = cms.bool(True),
-    UseFedKey = cms.bool(True),
-    FedEventDumpFreq = cms.untracked.int32(0),
-    FedBufferDumpFreq = cms.untracked.int32(0),
-    TriggerFedId = cms.int32(-1),
-)
+process.load("EventFilter.SiStripRawToDigi.FedChannelDigis_cfi")
+process.FedChannelDigis.UnpackBadChannels = cms.bool(False)
 
 process.load("DQM.SiStripCommissioningSources.CommissioningHistos_cfi")
 process.CommissioningHistos.CommissioningTask = 'UNDEFINED'  # <-- run type taken from event data, but can be overriden
@@ -50,4 +41,3 @@ process.p = cms.Path(process.FedChannelDigis*process.CommissioningHistos)
 #    fileName = cms.untracked.string('digis.root')
 #)
 #process.outpath = cms.EndPath(process.out)
-
