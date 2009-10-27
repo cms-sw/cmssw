@@ -75,6 +75,7 @@ void reduceToMuonContent(TString oldFileName, TString newFileName) {
   newFile->cd();
   TDirectory *newDir = newFile->mkdir("DQMData");
   newDir = newDir->mkdir("HLT");
+  newDir->cd();
   CopyDir(oldDir);
 
   newFile->Save();
