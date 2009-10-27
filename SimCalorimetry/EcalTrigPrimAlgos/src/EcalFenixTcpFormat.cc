@@ -10,6 +10,8 @@ using  namespace std;
 EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos,int binOfMax)
   : tcpFormat_(tcpFormat),debug_(debug),famos_(famos),binOfMax_(binOfMax)
 {
+  status_=0;
+  badTTStatus_=&status_;
 }
  
 EcalFenixTcpFormat::~EcalFenixTcpFormat() {
