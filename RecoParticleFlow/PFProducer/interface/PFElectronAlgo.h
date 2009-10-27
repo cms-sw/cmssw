@@ -18,7 +18,8 @@ class PFElectronAlgo {
   
   //constructor
   PFElectronAlgo(const double mvaEleCut,
-		 std::string  mvaWeightFileEleID);
+		 std::string  mvaWeightFileEleID,
+		 bool applyCrackCorrections);
 		
   
   //destructor
@@ -84,6 +85,7 @@ class PFElectronAlgo {
   std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   double mvaEleCut_;
+  bool applyCrackCorrections_;
   TMVA::Reader    *tmvaReader_;
   const char  *mvaWeightFile_;
 

@@ -22,6 +22,8 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt'),
                               
     pf_electron_mvaCut = cms.double(-0.1),
+    # apply the crack corrections                             
+    pf_electronID_crackCorrection = cms.bool(True),
 
     # Use photon conversion identification in PFAlgo
     usePFConversions = cms.bool(False),

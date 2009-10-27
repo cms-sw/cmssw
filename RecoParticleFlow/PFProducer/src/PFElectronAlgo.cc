@@ -20,8 +20,9 @@
 using namespace std;
 using namespace reco;
 PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
-			       string mvaWeightFileEleID):
-  mvaEleCut_(mvaEleCut)
+			       string mvaWeightFileEleID,
+			       bool applyCrackCorrections):
+  mvaEleCut_(mvaEleCut),applyCrackCorrections_(applyCrackCorrections)
 {
   // Set the tmva reader
   tmvaReader_ = new TMVA::Reader();
@@ -1000,7 +1001,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  double ps1,ps2;
 	  ps1=ps2=0.;
 	  //	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	  
-	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2);	  
+	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
 	  //	  std::cout << "Test " << Ene_ecalgsf <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 
 
@@ -1042,7 +1043,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	}
 	else {
 	  reco::PFClusterRef clusterRef = elements[(assogsf_index[ielegsf])].clusterRef();	  	  
-	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	 
+	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,applyCrackCorrections_);	 
 	  Ene_extraecalgsf += TempClus_energy;
 	  if (DebugIDOutputs)
 	    cout << " setIdOutput! Extra ECAL Cluster E " 
@@ -1080,7 +1081,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    if( assobrem_index[ibrem] !=  ecalGsf_index) {
 	      reco::PFClusterRef clusterRef = 
 		elements[(assobrem_index[ibrem])].clusterRef();
-	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem);
+	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,applyCrackCorrections_);
 	      Ene_ecalbrem += BremClus_energy;
 	      NumBrem++;
 	      if (DebugIDOutputs) cout << " setIdOutput::BREM Cluster " 
@@ -1478,7 +1479,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	double ps1,ps2;
 	ps1=ps2=0.;
 	//	float EE=pfcalib_.energyEm(cl,ps1Ene,ps2Ene);
-	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2);	  
+	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
 	//	std::cout << "Test "<< EE << " " <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 	//	float RawEE = cl.energy();
 
@@ -1520,9 +1521,9 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	cluster_Candidate.setPs1Energy(ps2);
 	cluster_Candidate.setEcalEnergy(EE);
 	//	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
-	// yes, EE, we want the raw ecal energy of the daugther to have the same definition
-	// as the GSF cluster
-	cluster_Candidate.setRawEcalEnergy(EE);
+	// The Raw Ecal energy will be the energy of the basic cluster. 
+	// It will be the corrected energy without the preshower
+	cluster_Candidate.setRawEcalEnergy(EE-ps1-ps2);
 	cluster_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
 	cluster_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
 	// store the photon candidate
@@ -1596,7 +1597,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      // to get a calibrated PS energy 
 	      double ps1=0;
 	      double ps2=0;
-	      float EE = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2);
+	      float EE = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2,applyCrackCorrections_);
 	      
 	      // float RawEE  = clusterRef->energy();
 	      float ceta = clusterRef->position().eta();

@@ -83,9 +83,12 @@ PFAlgo::setParameters(double nSigmaECAL,
 void 
 PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
-			   bool usePFElectrons) {
+			   bool usePFElectrons,
+			   bool applyCrackCorrections) {
   mvaEleCut_ = mvaEleCut;
   usePFElectrons_ = usePFElectrons;
+  applyCrackCorrectionsElectrons_ = applyCrackCorrections;  
+
   if(!usePFElectrons_) return;
   mvaWeightFileEleID_ = mvaWeightFileEleID;
   FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
@@ -98,7 +101,7 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
     err += "'";
     throw invalid_argument( err );
   }
-  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_);
+  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,applyCrackCorrectionsElectrons_);
 }
 
 void 
