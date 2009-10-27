@@ -1,4 +1,4 @@
-// $Id: FWTriggerTableViewTableManager.cc,v 1.9 2009/08/26 22:21:45 dmytro Exp $
+// $Id: FWTriggerTableViewTableManager.cc,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -80,13 +80,15 @@ FWTableCellRendererBase
                                               int iCol) const
 {
    const int realRowNumber = unsortedRowNumber(iSortedRowNumber);
+   const int acceptColumn = 1;
    if ( !m_view->m_columns.empty() &&
         int(m_view->m_columns.size())>iCol &&
         int(m_view->m_columns.front().values.size())>realRowNumber ) {
-      if (m_view->m_manager->colorManager().background() == kBlack)
-         m_graphicsContext->SetForeground(0xe0e0e0);
+      bool accepted = std::string(m_view->m_columns.at(acceptColumn).values.at(realRowNumber)) == "1";
+      if ( (m_view->m_manager->colorManager().background() == kBlack) == accepted )
+	m_graphicsContext->SetForeground(0xe0e0e0);
       else
-         m_graphicsContext->SetForeground(0x404040);
+	m_graphicsContext->SetForeground(0x404040);
       m_renderer->setData(m_view->m_columns.at(iCol).values.at(realRowNumber), false);
    } else {
       m_renderer->setData("invalid", false);
