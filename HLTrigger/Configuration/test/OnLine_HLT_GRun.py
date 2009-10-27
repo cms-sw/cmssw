@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre2/GRun/V8 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
+# /dev/CMSSW_3_4_0/pre2/GRun/V9 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/GRun/V9')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -6064,7 +6064,7 @@ process.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     period = cms.uint32( 4096 ),
     invert = cms.bool( False )
 )
-process.hltL1sAlCaHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG1" ),
@@ -6073,7 +6073,7 @@ process.hltL1sAlCaHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltPreAlCaHcalPhiSym = cms.EDFilter( "HLTPrescaler" )
+process.hltPreHcalPhiSym = cms.EDFilter( "HLTPrescaler" )
 process.hltPreHcalNZS = cms.EDFilter( "HLTPrescaler" )
 process.hltHcalNoPedestals = cms.EDFilter( "HLTHcalCalibTypeFilter",
     InputTag = cms.InputTag( "rawDataCollector" ),
@@ -7048,8 +7048,8 @@ process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
 )
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_HcalNZS',
-  'AlCa_HcalPhiSym',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HcalNZS',
+  'HLT_HcalPhiSym',
   'HLT_BTagIP_Jet50U',
   'HLT_BTagMu_Jet10U',
   'HLT_BackwardBSC',
@@ -7486,7 +7486,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalEta_8E29',
   'AlCa_EcalPhiSym',
   'AlCa_EcalPi0_8E29',
-  'AlCa_HcalPhiSym',
+  'HLT_HcalPhiSym',
   'HLT_BTagIP_Jet50U',
   'HLT_BTagMu_Jet10U',
   'HLT_BackwardBSC',
@@ -7709,8 +7709,8 @@ process.HLT_BackwardBSC = cms.Path( process.HLTBeginSequence + process.hltL1sBac
 process.HLT_ForwardBSC = cms.Path( process.HLTBeginSequence + process.hltL1sForwardBSC + process.hltPreForwardBSC + process.HLTEndSequence )
 process.HLT_TrackerCosmics = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreTrackerCosmics + process.HLTEndSequence )
 process.HLT_IsoTrack_8E29 = cms.Path( process.HLTBeginSequence + process.hltL1sIsoTrack8E29 + process.hltPreIsoTrack8E29 + process.HLTL2HcalIsolTrackSequence + process.hltIsolPixelTrackProd8E29 + process.hltIsolPixelTrackL2Filter8E29 + process.HLTDoLocalStripSequence + process.hltHITPixelPairSeedGenerator8E29 + process.hltHITPixelTripletSeedGenerator8E29 + process.hltHITSeedCombiner8E29 + process.hltHITCkfTrackCandidates8E29 + process.hltHITCtfWithMaterialTracks8E29 + process.hltHITIPTCorrector8E29 + process.hltIsolPixelTrackL3Filter8E29 + process.HLTEndSequence )
-process.AlCa_HcalPhiSym = cms.Path( process.HLTBeginSequenceNZS + process.hltL1sAlCaHcalPhiSym + process.hltPreAlCaHcalPhiSym + process.HLTEndSequence )
-process.AlCa_HcalNZS = cms.Path( process.hltPreHcalNZS + process.hltHcalNoPedestals + process.hltHcalNZSFilter + process.HLTEndSequence )
+process.HLT_HcalPhiSym = cms.Path( process.HLTBeginSequenceNZS + process.hltL1sHcalPhiSym + process.hltPreHcalPhiSym + process.HLTEndSequence )
+process.HLT_HcalNZS = cms.Path( process.hltPreHcalNZS + process.hltHcalNoPedestals + process.hltHcalNZSFilter + process.HLTEndSequence )
 process.AlCa_EcalPhiSym = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPhiSym + process.hltPreAlCaEcalPhiSym + process.hltEcalRawToRecHitFacility + process.hltESRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltAlCaPhiSymStream + process.HLTEndSequence )
 process.AlCa_EcalPi0_8E29 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0Eta8E29 + process.hltPreAlCaEcalPi08E29 + process.HLTDoRegionalPi0EtaSequence + process.hltAlCaPi0RegRecHits + process.HLTEndSequence )
 process.AlCa_EcalEta_8E29 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0Eta8E29 + process.hltPreAlCaEcalEta8E29 + process.HLTDoRegionalPi0EtaSequence + process.hltAlCaEtaRegRecHits + process.HLTEndSequence )

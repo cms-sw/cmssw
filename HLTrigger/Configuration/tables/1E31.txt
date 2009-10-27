@@ -89,7 +89,7 @@ HLT_ForwardBSC
 HLT_TrackerCosmics
 HLT_StoppedHSCP_1E31
 HLT_IsoTrack_1E31
-AlCa_HcalPhiSym
+HLT_HcalPhiSym
 AlCa_EcalPhiSym
 AlCa_EcalPi0_1E31
 AlCa_EcalEta_1E31
