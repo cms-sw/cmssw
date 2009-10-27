@@ -478,6 +478,7 @@ public :
   Int_t           HLT_MET100;
   Int_t           HLT_HT100U;
   Int_t           HLT_L1Mu20;
+  Int_t           HLT_L2Mu9;
   Int_t           HLT_L2Mu11;
   Int_t           HLT_Mu3; 
   Int_t           HLT_IsoMu3;
@@ -969,6 +970,7 @@ public :
   TBranch        *b_HLT_MET100;   //!
   TBranch        *b_HLT_HT100U;   //!
   TBranch        *b_HLT_L1Mu20;   //!
+  TBranch        *b_HLT_L2Mu9;   //!
   TBranch        *b_HLT_L2Mu11;   //!
   TBranch        *b_HLT_Mu3;   //! 
   TBranch        *b_HLT_IsoMu3;   //!
@@ -1686,6 +1688,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MET100", &HLT_MET100, &b_HLT_MET100);
   fChain->SetBranchAddress("HLT_HT100U", &HLT_HT100U, &b_HLT_HT100U);
   fChain->SetBranchAddress("HLT_L1Mu20", &HLT_L1Mu20, &b_HLT_L1Mu20);
+  fChain->SetBranchAddress("HLT_L2Mu9", &HLT_L2Mu9, &b_HLT_L2Mu9);
   fChain->SetBranchAddress("HLT_L2Mu11", &HLT_L2Mu11, &b_HLT_L2Mu11);
   fChain->SetBranchAddress("HLT_Mu3", &HLT_Mu3, &b_HLT_Mu3); 
   fChain->SetBranchAddress("HLT_IsoMu3", &HLT_IsoMu3, &b_HLT_IsoMu3);
@@ -1933,6 +1936,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MET100", &map_BitOfStandardHLTPath["HLT_MET100"], &b_HLT_MET100);
   fChain->SetBranchAddress("HLT_HT100U", &map_BitOfStandardHLTPath["HLT_HT100U"], &b_HLT_HT100U);
   fChain->SetBranchAddress("HLT_L1Mu20", &map_BitOfStandardHLTPath["HLT_L1Mu20"], &b_HLT_L1Mu20);
+  fChain->SetBranchAddress("HLT_L2Mu9", &map_BitOfStandardHLTPath["HLT_L2Mu9"], &b_HLT_L2Mu9);
   fChain->SetBranchAddress("HLT_L2Mu11", &map_BitOfStandardHLTPath["HLT_L2Mu11"], &b_HLT_L2Mu11);
   fChain->SetBranchAddress("HLT_Mu3", &map_BitOfStandardHLTPath["HLT_Mu3"], &b_HLT_Mu3); 
   fChain->SetBranchAddress("HLT_IsoMu3", &map_BitOfStandardHLTPath["HLT_IsoMu3"], &b_HLT_IsoMu3);
