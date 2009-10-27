@@ -147,7 +147,7 @@ int main(){
   std::string serviceName("oracle://cms_omds_lb/CMS_GT_MON");
   std::string authName("/nfshome0/xiezhen/authentication.xml");
   //int run=110823;
-  int run=108239;
+  int run=110823;
   //two blocks of views in schema cms_gt_mon&cms_gt
   std::string gtmonschema("CMS_GT_MON");
   std::string algoviewname("GT_MON_TRIG_ALGO_VIEW");

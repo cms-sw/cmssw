@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("Lumi")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = '#connect#'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
@@ -35,4 +34,3 @@ process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     debug = cms.bool(False)
 )
 
-process.p = cms.Path(process.lumidatatransfer)
