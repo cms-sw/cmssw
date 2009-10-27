@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 PF2PATEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
     # Gen information
+    'drop recoGenJets_*_*_HLT',
     'keep *_genParticles_*_*',
     'keep *_genMetTrue_*_*',
     'keep recoGenJets_*_*_*',
@@ -33,7 +34,7 @@ PATEventContent = cms.PSet(
     'keep patElectrons_*_*_*',
     'keep patMuons_*_*_*',
     'keep patJets_*_*_*',
-    'keep patMET_*_*_*',
+    'keep patMETs_*_*_*',
     'keep patTaus_*_*_*',
     'keep recoIsoDepositedmValueMap_iso*_*_*'
     )
