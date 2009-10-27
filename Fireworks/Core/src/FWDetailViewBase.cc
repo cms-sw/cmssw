@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.11 2009/10/08 19:28:11 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.12 2009/10/12 18:02:45 amraktad Exp $
 //
 
 // system include files
@@ -56,7 +56,6 @@ FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
 
    // gui frame 
    guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
-
    guiFrame->SetCleanup(kLocalCleanup);
    pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
 
@@ -74,31 +73,29 @@ FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
 }
 
 TEveWindow*
-FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene)
+FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveViewer *&eveViewer, TEveScene *&scene)
 {
    TEveWindowPack* wp = slot->MakePack();
+   wp->SetHorizontal();
    wp->SetShowTitleBar(kFALSE);
-   TGPack* pack = wp->GetPack();
-   pack->SetVertical(kFALSE);
-   pack->SetUseSplitters(kFALSE);
 
-   // gui frame 
-   guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
-   guiFrame->SetCleanup(kLocalCleanup);
-   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
+   // left canvas
+   slot = wp->NewSlotWithWeight(1);
+   slot->SetShowTitleBar(kFALSE);
+   TRootEmbeddedCanvas*  ec = new TRootEmbeddedCanvas();
+   slot->MakeFrame(ec);
+   canvas = ec->GetCanvas();
 
    // viewer GL
-   TGLEmbeddedViewer *egl = new TGLEmbeddedViewer(pack, 0, 0);
-   eveViewer= new TEveViewer("DetailViewViewer");
-   eveViewer->SetGLViewer(egl, egl->GetFrame());
-   gEve->GetViewers()->AddElement(eveViewer);
-   pack->AddFrameWithWeight(egl->GetFrame(),0, 5);
+   slot = wp->NewSlotWithWeight(3);
+   slot->SetShowTitleBar(kFALSE);
+   eveViewer = new TEveViewer("Detail view");
+   eveViewer->SpawnGLEmbeddedViewer();   gEve->GetViewers()->AddElement(eveViewer);
+   slot->ReplaceWindow(eveViewer);
+
+   // scene
    scene = gEve->SpawnNewScene("Detailed view");
    eveViewer->AddScene(scene);
-
-   pack->MapSubwindows();
-   pack->Layout();
-   pack->MapWindow();
 
    return wp;
 }
