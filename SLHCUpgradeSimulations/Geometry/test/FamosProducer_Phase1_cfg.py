@@ -122,13 +122,14 @@ process.TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 #process.multiTrackValidator.label = ['generalTracks']
 ### if using simple (non-iterative) or old (as in 1_8_4) tracking
-process.multiTrackValidator.label = ['ctfWithMaterialTracks']
+#process.multiTrackValidator.label = ['ctfWithMaterialTracks']
+process.multiTrackValidator.label = ['cutsRecoTracks']
+process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")
+process.multiTrackValidator.label_tp_fake = cms.InputTag("cutsTPFake")
 process.multiTrackValidator.sim = 'famosSimHits'
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = True
 process.multiTrackValidator.outputFile = "validphase1_muon_50GeV.root"
-#process.multiTrackValidator.label_tp_effic = cms.InputTag("mergedtruth")
-#process.multiTrackValidator.label_tp_fake = cms.InputTag("mergedtruth")
 process.multiTrackValidator.nint = cms.int32(20)
 process.multiTrackValidator.nintpT = cms.int32(25)
 process.multiTrackValidator.maxpT = cms.double(50.0)
@@ -136,15 +137,35 @@ process.multiTrackValidator.maxpT = cms.double(50.0)
 #process.multiTrackValidator.firstGeneratedPairOnly = cms.bool(False)
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
+process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
+        'BPix1+BPix3+BPix4',
+        'BPix2+BPix3+BPix4',
+        'BPix1+BPix2+BPix4',
+        'BPix1+BPix2+FPix1_pos',
+        'BPix1+BPix2+FPix1_neg',
+        'BPix1+FPix1_pos+FPix2_pos',
+        'BPix1+FPix1_neg+FPix2_neg',
+        'BPix1+FPix2_pos+FPix3_pos',
+        'BPix1+FPix2_neg+FPix3_neg',
+        'FPix1_pos+FPix2_pos+FPix3_pos',
+        'FPix1_neg+FPix2_neg+FPix3_neg')
 # restrict vertex finding in trackingtruthprod to smaller volume (note: these numbers in mm) 
 process.mergedtruth.volumeRadius = cms.double(100.0)
 process.mergedtruth.volumeZ = cms.double(900.0)
 process.mergedtruth.discardOutVolume = cms.bool(True)
 
-process.cutsTPEffic.ptMin = cms.double(2.5)
-process.cutsTPFake.ptMin = cms.double(2.0)
+#process.cutsTPEffic.ptMin = cms.double(2.5)
+#process.cutsTPFake.ptMin = cms.double(2.0)
 process.cutsTPFake.tip = cms.double(10.0)
 process.cutsTPFake.lip = cms.double(90.0)
+#NB: tracks are already filtered by the generalTracks sequence
+#for additional cuts use the cutsRecoTracks filter:
+process.load("Validation.RecoTrack.cutsRecoTracks_cfi")
+process.cutsRecoTracks.src = cms.InputTag("ctfWithMaterialTracks")
+process.cutsRecoTracks.quality = cms.string('')
+process.cutsRecoTracks.minHit = cms.int32(3)
+#process.cutsRecoTracks.minHit = cms.int32(8)
+#process.cutsRecoTracks.minHit = cms.int32(6
 ############ end John's changes ###########################
 
 ### make sure the correct (modified) error routine is used
@@ -214,7 +235,7 @@ process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNo
 
 process.Timing =  cms.Service("Timing")
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_phase1_mu50")
+#process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_phase1_mu50")
 ### to output debug messages for particular modules
 # process.MessageLogger.detailedInfo_strawb_mu50 = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 # process.MessageLogger.debugModules= cms.untracked.vstring("*")
@@ -227,9 +248,9 @@ process.p2 = cms.Path(process.trDigi)
 process.p3 = cms.Path(process.trackerlocalreco)
 process.p6 = cms.Path(process.oldTracking_wtriplets)
 #process.p6 = cms.Path(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks)
-process.p8 = cms.Path(process.trackingParticles*process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
+process.p8 = cms.Path(process.trackingParticles*process.cutsTPEffic*process.cutsTPFake*process.cutsRecoTracks*process.multiTrackValidator)
 #process.p9 = cms.Path(process.ReadLocalMeasurement)
 process.p9 = cms.Path(process.ReadLocalMeasurement*process.ReadFastsimHits)
 #process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8,process.p9,process.outpath)
-process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8,process.p9)
+process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8)
 
