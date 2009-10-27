@@ -193,15 +193,15 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
 			 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
 			 3.0, 3.1, 3.2, 3.3, 3.4, 3.5};
-      Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",120,-6,6,40,0,800);
-      Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",120,-6,6,40,0,800);
-      Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",70,-3.5,3.5,40,0,800);
-      Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",70,-3.5,3.5,40,0,800);
-      Etsum_ratio_p=m_dbe->book1D("Occ vs fm HF+","Energy difference of Long and Short Fiber HF+",105,-1.05,1.05);
+      Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",83,-41.5,41.5,100,0,100);
+      Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",83,-41.5,41.5,100,0,100);
+      Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",36,0.5,72.5,100,0,100);
+      Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",36,0.5,72.5,100,0,100);
+      Etsum_ratio_p=m_dbe->book1D("Occ vs fm HF+","Energy difference of Long and Short Fiber HF+",105,0.,1.05);
       Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,0,2000);
-      Etsum_ratio_m=m_dbe->book1D("Occ vs fm HF-","Energy difference of Long and Short Fiber HF-",105,-1.05,1.05);
-      Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",120,-6,6,80,-4,4);
-      Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",120,-6,6,80,-4,4);
+      Etsum_ratio_m=m_dbe->book1D("Occ vs fm HF-","Energy difference of Long and Short Fiber HF-",105,0.,1.05);
+      Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",83,-41.5,41.5,36,0.5,72.5);
+      Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",83,-41.5,41.5,36,0.5,72.5);
       Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
 
@@ -223,15 +223,15 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
       Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
-      Occ_eta_S=m_dbe->bookProfile("Occ vs Eta Short Fiber","Occ per Bunch crossing vs Eta Short Fiber",120,-6,6,40,0,800);
-      Occ_eta_L=m_dbe->bookProfile("Occ vs Eta Long Fiber","Occ per Bunch crossing vs Eta Long Fiber",120,-6,6,40,0,800);
+      Occ_eta_S=m_dbe->bookProfile("Occ vs iEta Short Fiber","Occ per Bunch crossing vs iEta Short Fiber",83,-41.5,41.5,40,0,800);
+      Occ_eta_L=m_dbe->bookProfile("Occ vs iEta Long Fiber","Occ per Bunch crossing vs iEta Long Fiber",83,-41.5,41.5,40,0,800);
       
-      Occ_phi_L=m_dbe->bookProfile("Occ vs Phi Long Fiber","Occ per Bunch crossing vs Phi Long Fiber",70,-3.5,3.5,40,0,800);
+      Occ_phi_L=m_dbe->bookProfile("Occ vs iPhi Long Fiber","Occ per Bunch crossing vs iPhi Long Fiber",36,0.5,72.5,40,0,800);
       
-      Occ_phi_S=m_dbe->bookProfile("Occ vs Phi Short Fiber","Occ per Bunch crossing vs Phi Short Fiber",70,-3.5,3.5,40,0,800);
+      Occ_phi_S=m_dbe->bookProfile("Occ vs iPhi Short Fiber","Occ per Bunch crossing vs iPhi Short Fiber",36,0.5,72.5,40,0,800);
       
-      Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber",120,-6,6,70,-3.5,3.5);
-      Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber",120,-6,6,70,-3.5,3.5);
+      Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber (above threshold)",83,-41.5,41.5,36,0.5,72.5);
+      Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber (above threshold)",83,-41.5,41.5,36,0.5,72.5);
       
       //HFlumi plots
       HFlumi_ETsum_perwedge =  m_dbe->book1D("HF lumi ET-sum per wedge","HF lumi ET-sum per wedge",36,1,37);
@@ -512,52 +512,51 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  {  // loop on hfHits
 	    // If hit present, don't count it as ZS any more
 	    ieta = HFiter->id().ieta();
-	    
+	    iphi = HFiter->id().iphi();
+
+	    // Count that hit was found in one of the rings used for luminosity calculation.
+	    // If so, decrease the number of empty channels per ring by 1
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // luminosity ring check
 	      (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
 
 	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
 
-	    eta=etaBounds[abs(HFiter->id().ieta())-29];
-	    et=HFiter->energy()/cosh(eta)/area[abs(HFiter->id().ieta())-29];
+	    eta=etaBounds[abs(ieta)-29];
+	    et=HFiter->energy()/cosh(eta)/area[abs(ieta)-29];
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // Luminosity ring check
 	      {
 		if (et>=0.0625) // minimum ET threshold
 		  (HFiter->id().depth()==1) ? --emptytowersRing1 : --emptytowersRing2;
 	      }
-	    r=radius[abs(HFiter->id().ieta())-29];
+	    r=radius[abs(ieta)-29];
 	    if(HFiter->id().iphi()<37)
 	      phi=HFiter->id().iphi()*0.087266;
 	    else phi=(HFiter->id().iphi()-72)*0.087266;
            
-	    int mult = 1;
-	    if (ieta<0) mult=-1;
-
 	    if (HFiter->id().depth()==1)
 	      {
-		// use mult variable to separate positive, negative eta regions
-		Etsum_eta_L->Fill(eta*mult,et);
-		Etsum_phi_L->Fill(phi,et);
-		Etsum_map_L->Fill(eta*mult,phi,et);
+		Etsum_eta_L->Fill(ieta,et);
+		Etsum_phi_L->Fill(iphi,et);
+		Etsum_map_L->Fill(ieta,iphi,et);
 		Etsum_rphi_L->Fill(r,phi,et);
 	      
 		if(ieta>0) {
- 		hitsp[ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
-		hitsp_Et[ieta-29][(HFiter->id().iphi()-1)/2][0]=et;
-	      }
-	      else if(ieta<0) {
-		hitsm[-ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
-		hitsm_Et[-ieta-29][(HFiter->id().iphi()-1)/2][0]=et; 
-	      }
+		  hitsp[ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
+		  hitsp_Et[ieta-29][(HFiter->id().iphi()-1)/2][0]=et;
+		}
+		else if(ieta<0) {
+		  hitsm[-ieta-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
+		  hitsm_Et[-ieta-29][(HFiter->id().iphi()-1)/2][0]=et; 
+		}
 	      } // if (HFiter->id().depth()==1)
          
 	    //Fill 3 histos for Short Fibers :
 	    if (HFiter->id().depth()==2)
 	      {
-		Etsum_eta_S->Fill(eta*mult,et);
-		Etsum_phi_S->Fill(phi,et);
+		Etsum_eta_S->Fill(ieta,et);
+		Etsum_phi_S->Fill(iphi,et);
 		Etsum_rphi_S->Fill(r,phi,et); 
-		Etsum_map_S->Fill(eta*mult,phi,et);
+		Etsum_map_S->Fill(ieta,iphi,et);
 		if(ieta>0)  
 		  {
 		    hitsp[ieta-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
@@ -572,101 +571,55 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    Energy_Occ->Fill(HFiter->energy()); 
             
 	    //HF: no non-threshold occupancy map is filled?
-	    
-	    int HFieta=HFiter->id().ieta();
-	    if ((abs(HFieta) == 33 || abs(HFieta) == 34) && HFiter->id().depth() == 1)
+
+	    if ((abs(ieta) == 33 || abs(ieta) == 34) && HFiter->id().depth() == 1)
 	      { 
 		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 		if (et>occThresh_)
 		  {
 		    int etabin=0;
-		    if (HFieta<0)
-		      etabin=36+HFieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
+		    if (ieta<0)
+		      etabin=36+ieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
 		    else
-		      etabin=HFieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
-		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi(),1);
+		      etabin=ieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
+		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi());
 		  }
 	      }
 
-	    if ((abs(HFieta) == 35 || abs(HFieta) == 36) && HFiter->id().depth() == 2)
+	    else if ((abs(ieta) == 35 || abs(ieta) == 36) && HFiter->id().depth() == 2)
 	      { 
 		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 		if (et>occThresh_)
 		  {
 		    int etabin=0;
-		    if (HFieta<0)
-		      etabin=36+HFieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
+		    if (ieta<0)
+		      etabin=36+ieta; // bins 0-3 correspond to ieta = -36, -35, -34, -33
 		    else
-		      etabin=HFieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
-		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi(),1);
+		      etabin=ieta-29; // bins 4-7 correspond to ieta = 33, 34, 35, 36
+		    HFlumi_occ_LS->Fill(etabin,HFiter->id().iphi());
 		  }
-	    }
-
-	    if(et>occThresh_){
-	    
-	      if (HFiter->id().depth()==1){
-		if(HFiter->id().ieta()>0)  
-		  { Occ_eta_L->Fill(eta,1);
-                  Occ_phi_L->Fill(phi,1);
-                  Occ_map_L->Fill(eta,phi,1);
-                  Occ_rphi_L->Fill(r,phi,1);
-		  }
-
-		if(HFiter->id().ieta()<0)   { 
-                  Occ_eta_L->Fill(-eta,1);
-                  Occ_phi_L->Fill(phi,1);
-                  Occ_map_L->Fill(-eta,phi,1);
-		  Occ_rphi_L->Fill(r,phi,1);
-		}}
-
-	      if (HFiter->id().depth()==2){
-		if(HFiter->id().ieta()>0) { 
-                  Occ_eta_S->Fill(eta,1);
-                  Occ_phi_S->Fill(phi,1);
-                  Occ_map_S->Fill(eta,phi,1);
-                  Occ_rphi_S->Fill(r,phi,1);
-		}  
-            
-		if(HFiter->id().ieta()<0) { 
-                  Occ_eta_S->Fill(-eta,1);
-                  Occ_map_S->Fill(-eta,phi,1);
-                  Occ_phi_S->Fill(phi,1);
-                  Occ_rphi_S->Fill(r,phi,1);
-		}  
 	      }
-   
-	    }
-           
-	    else { if (HFiter->id().depth()==1){ 
-	      if(HFiter->id().ieta()>0)  
-		{ Occ_eta_L->Fill(eta,0);
-		Occ_map_L->Fill(eta,phi,0);
-		Occ_phi_L->Fill(phi,0); 
-		Occ_rphi_L->Fill(r,phi,0);}
-	      if(HFiter->id().ieta()<0)   { 
-		Occ_eta_L->Fill(-eta,0);
-		Occ_map_L->Fill(-eta,phi,0);
-		Occ_phi_L->Fill(phi,0);
-		Occ_rphi_L->Fill(r,phi,0);}
-	    }
 
-            if (HFiter->id().depth()==2){
-	      if(HFiter->id().ieta()>0) { 
-		Occ_eta_S->Fill(eta,0);
-		Occ_map_S->Fill(eta,phi,0);
-		Occ_phi_S->Fill(phi,0);
-		Occ_rphi_S->Fill(r,phi,0);}  
-            
-	      if(HFiter->id().ieta()<0) { 
-		Occ_eta_S->Fill(-eta,0);
-		Occ_map_S->Fill(-eta,phi,0);
-		Occ_phi_S->Fill(phi,0);
-		Occ_rphi_S->Fill(r,phi,0);}  
-	    }
-	    }//else
+	    // Fill occupancy plots.
+	    
+	    int value=0;
+	    if(et>occThresh_) value=1;
+	    if (HFiter->id().depth()==1)
+	      {
+		Occ_eta_L->Fill(ieta,value);
+		Occ_phi_L->Fill(iphi,value);
+		Occ_map_L->Fill(ieta,iphi,value);
+		Occ_rphi_L->Fill(r,phi,value);
+	      }
+	      
+	    else if (HFiter->id().depth()==2)
+	      {
+		Occ_eta_S->Fill(ieta,value);
+		Occ_phi_S->Fill(iphi,value);
+		Occ_map_S->Fill(ieta,iphi,value);
+		Occ_rphi_S->Fill(r,phi,value);
+	      }  
 	    HcalDetId id(HFiter->detid().rawId());
-	    ieta=id.ieta();
-	    iphi=id.iphi();
 
 	    HFtotalX+=HFiter->energy()*cos(2.*PI*iphi/72);
 	    HFtotalY+=HFiter->energy()*sin(2.*PI*iphi/72);
@@ -678,7 +631,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    HF_weightedX[index]+=HFiter->energy()*cos(2.*PI*iphi/72);
 	    HF_weightedY[index]+=HFiter->energy()*sin(2.*PI*iphi/72);
 	    HF_energy[index]+=HFiter->energy();
-	  
+	    
 	  } // for (HFiter=hfHits.begin();...)
 	
 	// looped on all HF hits; calculate empty fraction
@@ -688,12 +641,14 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	// Check Ring 1
 	double logvalue=0;
+	int ring1totalchannels=144;
+	int ring2totalchannels=144;
 	if (emptytowersRing1>0)
-	  logvalue=-1.*log(emptytowersRing1/144.);
+	  logvalue=-1.*log(emptytowersRing1/ring1totalchannels);
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,logvalue);
 	
 	// Check Ring 2
-	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing2/144.) : logvalue = 0;
+	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing2/ring2totalchannels) : logvalue = 0;
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,logvalue);
 
 	int hfeta=ETA_OFFSET_HF;
