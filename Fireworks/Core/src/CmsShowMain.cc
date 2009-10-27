@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.95 2009/10/26 18:08:43 yanjuntu Exp $
+// $Id: CmsShowMain.cc,v 1.96 2009/10/27 01:55:29 dmytro Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
-
+#include "TVirtualX.h"
 
 //
 // constants, enums and typedefs
@@ -146,6 +146,7 @@ static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "root";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
+static const char* const kLiveCommandOpt = "live";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -162,10 +163,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_navigator(new CmsShowNavigator(*this)),
    m_playTimer(0),
    m_playBackTimer(0),
+   m_liveTimer(0),
+   m_liveMode(false),
    m_isPlaying(false),
    m_forward(true),
    m_rewindMode(false),
-   m_playDelay(3.f)
+   m_playDelay(3.f),
+   m_lastPointerPositionX(-999),
+   m_lastPointerPositionY(-999)
    //  m_configFileName(iConfigFileName)
 {
    //m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
@@ -177,21 +182,22 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
-              (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
-              (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
-              (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
-              (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
-              (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
-              (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
-              (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
-              (kLoopCommandOpt,                                   "Loop events in play mode")
-              (kPlainRootCommandOpt,                              "Plain ROOT without event display")
-              (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-              (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
-              (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
-              (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-              (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain.")
-              (kHelpCommandOpt,                                   "Display help message");
+         (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
+         (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+         (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
+         (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
+         (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
+         (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
+         (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+         (kLoopCommandOpt,                                   "Loop events in play mode")
+         (kPlainRootCommandOpt,                              "Plain ROOT without event display")
+         (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
+         (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
+         (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
+         (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain.")
+         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display.")
+         (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
 
@@ -231,7 +237,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
       } else {
-         if (vm.count(kNoConfigFileOpt)){
+         if (vm.count(kNoConfigFileOpt)) {
             printf("No configiguration is loaded, show everything.\n");
             m_configFileName = "";
          } else {
@@ -259,7 +265,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                   m_changeManager.get(),
                                                                   m_colorManager.get(),
                                                                   m_viewManager.get(),
-								  this,
+                                                                  this,
                                                                   false));
 
       if ( vm.count(kAdvancedRenderOpt) ) {
@@ -322,6 +328,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator, vm[kChainCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
+      if(vm.count(kLiveCommandOpt)) m_liveMode = true;
       if (vm.count(kPlayOpt)) {
          m_playDelay = vm[kPlayOpt].as<float>();
          f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
@@ -352,37 +359,37 @@ CmsShowMain::~CmsShowMain()
 class DieTimer : public TTimer
 {
 protected:
-  CmsShowMain* fApp;
+   CmsShowMain* fApp;
 public:
-  DieTimer(CmsShowMain* app) : TTimer(), fApp(app)
-  {
-     Start(0, kTRUE);
-  }
+   DieTimer(CmsShowMain* app) : TTimer(), fApp(app)
+   {
+      Start(0, kTRUE);
+   }
 
-  virtual Bool_t Notify()
-  {
-     TurnOff();
-     fApp->doExit();
-     delete this;
-     return kFALSE;
-  }
+   virtual Bool_t Notify()
+   {
+      TurnOff();
+      fApp->doExit();
+      delete this;
+      return kFALSE;
+   }
 };
 
 void CmsShowMain::quit()
 {
-  new DieTimer(this);
+   new DieTimer(this);
 }
 
 void CmsShowMain::doExit()
 {
-  // fflush(stdout);
-  m_guiManager->evePreTerminate();
-  // sleep at least 150 ms
-  // windows in ROOT GUI are destroyed in 150 ms timeout after
-  gSystem->Sleep(151);
-  gSystem->ProcessEvents();
+   // fflush(stdout);
+   m_guiManager->evePreTerminate();
+   // sleep at least 150 ms
+   // windows in ROOT GUI are destroyed in 150 ms timeout after
+   gSystem->Sleep(151);
+   gSystem->ProcessEvents();
 
-  gSystem->ExitLoop();
+   gSystem->ExitLoop();
 }
 
 
@@ -408,6 +415,7 @@ void CmsShowMain::resetInitialization() {
 void CmsShowMain::draw(const fwlite::Event& event)
 {
    // TStopwatch stopwatch;
+   if (m_liveMode) m_liveTimer->Reset();
    m_guiManager->updateStatus("loading event ...");
    m_guiManager->enableActions(false);
    m_eiManager->setGeom(&m_detIdToGeo);
@@ -423,6 +431,7 @@ void CmsShowMain::draw(const fwlite::Event& event)
    } else {
       m_guiManager->enableActions();
    }
+   if (m_liveMode) m_liveTimer->Start(600000, kFALSE);
 }
 
 void CmsShowMain::openData()
@@ -439,8 +448,8 @@ void CmsShowMain::openData()
    new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
-     m_navigator->loadFile(fi.fFilename);
-     m_navigator->firstEventInTheCurrentFile();
+      m_navigator->loadFile(fi.fFilename);
+      m_navigator->firstEventInTheCurrentFile();
    }
    m_guiManager->clearStatus();
 }
@@ -747,15 +756,18 @@ CmsShowMain::setupDataHandling()
       timer = new SignalTimer();
       timer->timeout_.connect(m_guiManager->getAction(cmsshow::sPreviousEvent)->activated);
       m_playBackTimer=timer;
+      timer = new SignalTimer();
+      timer->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
+      m_liveTimer = timer;
    }
 
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
-      if (! m_navigator->loadFile(m_inputFileName) ){
-	m_guiManager->updateStatus("failed to load data file");
-	openData();
+      if (!m_navigator->loadFile(m_inputFileName) ) {
+         m_guiManager->updateStatus("failed to load data file");
+         openData();
       } else {
-	m_navigator->firstEventInTheCurrentFile();
+         m_navigator->firstEventInTheCurrentFile();
       }
    }
    else if (m_monitor.get() != 0) {
@@ -826,7 +838,7 @@ CmsShowMain::notified(TSocket* iSocket)
       if (!m_inputFileName.size())
       {
          m_navigator->loadFile(fileName);
-	 m_navigator->firstEventInTheCurrentFile();
+         m_navigator->firstEventInTheCurrentFile();
          accept = true;
       }
       else
@@ -973,6 +985,29 @@ CmsShowMain::postFiltering()
 {
    m_guiManager->enableActions(true);
 }
+
+void
+CmsShowMain::checkLiveMode()
+{
+   m_liveTimer->Reset();
+   m_liveTimer->Start(600000, kFALSE);
+   if ( m_guiManager->playEventsAction()->isRunning()) return;
+
+   Window_t rootw, childw;
+   Int_t root_x, root_y, win_x, win_y;
+   UInt_t mask;
+   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
+                           rootw, childw,
+                           root_x, root_y,
+                           win_x, win_y,
+                           mask);
+   if ( m_lastPointerPositionX == root_x &&
+        m_lastPointerPositionY == root_y )
+      m_guiManager->playEventsAction()->switchMode();
+   m_lastPointerPositionX = root_x;
+   m_lastPointerPositionY = root_y;
+}
+
 
 //
 // static member functions

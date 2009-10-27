@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.27 2009/10/26 18:08:52 yanjuntu Exp $
+// $Id: CmsShowMain.h,v 1.28 2009/10/27 01:55:29 dmytro Exp $
 //
 
 // system include files
@@ -103,7 +103,9 @@ public:
 
    void notified(TSocket*);
 
-  CmsShowNavigator* navigator(){return m_navigator;};
+   CmsShowNavigator* navigator(){
+      return m_navigator;
+   };
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
@@ -130,8 +132,9 @@ private:
 
    void preFiltering();
    void postFiltering();
-   
+
    void setPlayDelay(Float_t);
+   void checkLiveMode();
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
@@ -160,10 +163,13 @@ private:
    TTimer* m_playTimer;
    TTimer* m_playBackTimer;
    TTimer* m_liveTimer;
-   bool    m_isPlaying;
-   bool    m_forward;
-   bool    m_rewindMode;
+   bool m_liveMode;
+   bool m_isPlaying;
+   bool m_forward;
+   bool m_rewindMode;
    Float_t m_playDelay;  // delay between events in seconds
+   Int_t m_lastPointerPositionX;
+   Int_t m_lastPointerPositionY;
 
    std::auto_ptr<TMonitor> m_monitor;
 };
