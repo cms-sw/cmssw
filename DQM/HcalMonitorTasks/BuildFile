@@ -13,11 +13,9 @@
 
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1GlobalMuonTrigger>
-<use name=CondFormats/L1TObjects>
 
 <export>
   <lib name=DQMHcalMonitorTasks>
-  <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/HcalDigi>
   <use name=TBDataFormats/HcalTBObjects>
   <use name=EventFilter/HcalRawToDigi>
