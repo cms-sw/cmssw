@@ -11,7 +11,7 @@ from optparse import OptionParser
 def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
                                   tagName,databaseConnect,
                                   logdbConnect,authenticationPath,
-                                  debugMode):
+                                  allowForceFirstSince,debugMode):
    """
    
    """
@@ -25,8 +25,10 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
       f.write('process.lumidatatransfer.loggingOn=False\n')
    else:
       f.write('process.PoolDBOutputService.logconnect="'+logdbConnect+'"\n')
+   if allowForceFirstSince:
+      f.write('process.lumidatatransfer.Source.allowForceFirstSince=True\n')
    f.write('process.PoolDBOutputService.DBParameters.authenticationPath="'+authenticationPath+'"\n')
-   f.write('process.CondDBCommon.connect="'+databaseConnect+'"\n')
+   f.write('process.PoolDBOutputService.connect="'+databaseConnect+'"\n')
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
    f.write('process.p = cms.Path(process.lumidatatransfer)')
    
@@ -52,6 +54,7 @@ def main():
                      help="output config file(OPTIONAL)")
    parser.add_option("-d","--dryrun",action="store_true",dest="dryrun",
                      help="dryrun mode-only write the config file (OPTIONAL)")
+   parser.add_option("-a","--allowForceFirstSince",action="store_true",dest="allowforcefirstsince",help="set allowForceFirstSince parameter to True (OPTIONAL)")
    parser.add_option("-v","--verbose",action="store_true",dest="verbose",
                      help="verbose mode")
    (options, args) = parser.parse_args()
@@ -73,6 +76,7 @@ def main():
    logdatabase=''
    outputFilename='outputcfg.py'
    dryrun=False
+   allowForceFirstSince=False
    verbose=False
    if options.logdatabase:
       logdatabase=options.logdatabase
@@ -80,6 +84,7 @@ def main():
       outputFilename=options.outputFilename
    verbose=options.verbose
    dryrun=options.dryrun
+   allowForceFirstSince=options.allowforcefirstsince
    if verbose:
       print 'rootfilename:\t',rootfilename
       print 'tagname:\t',tagname
@@ -91,10 +96,12 @@ def main():
       else:
          print 'logdatabase:\t',logdatabase
       print 'outputFilename:\t',outputFilename
+      if allowForceFirstSince:
+         print 'allowForceFirstSince:\t True'
       if dryrun:
          print 'dryrun mode'
    
-   writeLumiSectionDataPopConCfg(outputFilename,inputTemplate,rootfilename,tagname,connect,logdatabase,authpath,verbose)
+   writeLumiSectionDataPopConCfg(outputFilename,inputTemplate,rootfilename,tagname,connect,logdatabase,authpath,allowForceFirstSince,verbose)
    if not dryrun:
       print '====== running config file ',outputFilename
       os.system('cmsRun '+outputFilename)
