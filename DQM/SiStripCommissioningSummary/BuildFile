@@ -2,7 +2,7 @@
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=boost>
-<use name=root>
+<use name=rootgraphics>
 
 <export>
   <lib name=DQMSiStripCommissioningSummary>
@@ -10,5 +10,5 @@
   <use name=DataFormats/SiStripCommon>
   <use name=DataFormats/SiStripDetId>
   <use name=boost>
-  <use name=root>
+  <use name=rootgraphics>
 </export>
