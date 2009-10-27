@@ -259,12 +259,12 @@ if __name__ == "__main__":
 
     if not _TEST_RUN:
 	 try:
-		 import ModuleToSequenceAssign
+		 import Validation.Performance.ModuleToSequenceAssign as ModuleToSequenceAssign
 		 Sequences_OK = True
 	 except Exception, e:
 		print e
 	 try:
-    	 	import parseEventContent
+    	 	import Validation.Performance.parseEventContent as parseEventContent
 		EventContents_OK = True
 	 except Exception, e:
 		print e	
