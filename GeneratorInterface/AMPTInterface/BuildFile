@@ -5,9 +5,8 @@
 #<use name=GeneratorInterface/PyquenInterface>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
-<use name=SimDataFormats/HiGenData>
-<use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>
+<use name=f77compiler>
 <Flags FFLAGS="-O">
 <export>
  <lib name=GeneratorInterfaceAMPTInterface>

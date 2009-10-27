@@ -3,17 +3,15 @@
 <use name=GeneratorInterface/Core>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
-<use name=SimDataFormats/HiGenData>
 <use name=GeneratorInterface/Pythia6Interface>
 <use name=GeneratorInterface/PyquenInterface>
-<use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>
+<use name=f77compiler>
 <Flags FFLAGS="-O">
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/GeneratorProducts>
- <use name=SimDataFormats/HiGenData>
  <use name=GeneratorInterface/PyquenInterface>
 </export>
