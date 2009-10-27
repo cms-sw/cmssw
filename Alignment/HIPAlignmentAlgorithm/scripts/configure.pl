@@ -4,22 +4,36 @@ use File::Basename;
 print "Configuring the python executables and run scripts...\n";
 
 $odir = $ARGV[0];
-$datalist = $ARGV[1];
-@datafile=split(/;/,$datalist);
+#$datafile = $ARGV[1];
+#$flag   = $ARGV[2];
 
-$dircount=0;
+#prendo dal file
+$datafile1 = $ARGV[1];
 
-foreach $dataitem ( @datafile ){
-    print "Output directory: $odir \n";
-    print "Datafile: $dataitem \n";
-    
+open (datafile1) or die "Can't open the file!";
+@dataFileInput1 = <datafile1>;
+
+$j = 0;
+
+foreach $data1 ( @dataFileInput1 ) {
+
+$data1 =~ m/\,/;
+$datafile = $`;
+$flag1 = $';
+$flag1 =~ m/$/;
+$flag = $`;
+#$flag = $';
+
+print "Output directory: $odir \n";
+print "Datafile: $datafile \n";
+
 # open datafile, get skim name
-    open (dataitem) or die "Can't open the file!";
-    @dataFileInput = <dataitem>;
-    
-    $dataskim = basename( $dataitem, ".dat" );
-    
-    system( "
+open (datafile) or die "Can't open the file!";
+@dataFileInput = <datafile>;
+
+$dataskim = basename( $datafile, ".dat" );
+
+system( "
 cp python/common_cff_py.txt $odir/.;
 cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
 cp python/align_tpl.py $odir/.;
@@ -38,7 +52,9 @@ open (SELECTION) or die "Can't open the file!";
 @selectionsInput = <SELECTION>;
 
 ## setting up parallel jobs
-$j = $dircount;
+
+
+
 
 foreach $data ( @dataFileInput ) {
 	$j++;
@@ -51,21 +67,25 @@ foreach $data ( @dataFileInput ) {
 	" );
 	# run script
 	open OUTFILE,"$odir/job$j/runScript.csh";
+        insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
+	insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
 	# replaces for align job
 	replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
 	replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
 	replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
-	insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
-	insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
+##flag
+	replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );	
 	# replaces for runScript
-	replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
+        replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
 	replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
 	close OUTFILE;
 	system "chmod a+x $odir/job$j/runScript.csh";
 }
-    $dircount=$j;
+
+}
+
 system( "
-mkdir $odir/main;
+mkdir $odir/main/;
 cp python/initial_tpl.py $odir/main/initial_cfg.py;
 cp python/collect_tpl.py $odir/main/collect_cfg.py;
 cp python/upload_tpl.py $odir/upload_cfg.py;
@@ -76,21 +96,19 @@ cp scripts/checkError.sh $odir/main/.;
 ## setting up initial job
 replace( "$odir/main/initial_cfg.py", "<PATH>", "$odir" );
 insertBlock( "$odir/main/initial_cfg.py", "<COMMON>", @commonFileInput );
-
+replace( "$odir/main/initial_cfg.py", "<FLAG>", "" );	
 ## setting up collector job
 replace( "$odir/main/collect_cfg.py", "<PATH>", "$odir" );
 replace( "$odir/main/collect_cfg.py", "<JOBS>", "$j" );
 insertBlock( "$odir/main/collect_cfg.py", "<COMMON>", @commonFileInput );
+replace( "$odir/main/collect_cfg.py", "<FLAG>", "" );	
 replace( "$odir/main/runScript.csh", "<ODIR>", "$odir/main" );
 replace( "$odir/main/runScript.csh", "<JOBTYPE>", "collect_cfg.py" );
 system "chmod a+x $odir/main/runScript.csh";
-system "chmod a+x $odir/main/checkError.sh";
 
 ## setting up upload job
 replace( "$odir/upload_cfg.py", "<PATH>", "$odir" );
 insertBlock( "$odir/upload_cfg.py", "<COMMON>", @commonFileInput );
-
-}#end loop on datafiles
 
 # replace sub routines #
 ###############################################################################

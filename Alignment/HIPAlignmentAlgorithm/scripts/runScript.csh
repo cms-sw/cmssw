@@ -7,7 +7,7 @@ set workdir = $1
 set curdir = `pwd`
 
 cp <ODIR>/../main/IOIteration.root $curdir/.
-cp <ODIR>/../main/IOAlignedPositions.root $curdir/.
+cp <ODIR>/../main/IOAlignedPositions.root $curdir/. 
 
 # printing
 echo Setting up CMSSW environment in $workdir
@@ -22,4 +22,10 @@ rehash
 cd $curdir
 # Execute
 time cmsRun <ODIR>/<JOBTYPE>
+echo  $? >  <ODIR>/DONE
 
+if(`cat <ODIR>/DONE | cut -b1` == 0) then 
+exit 0
+else
+exit 1
+endif  
