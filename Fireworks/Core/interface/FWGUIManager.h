@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.76 2009/10/07 19:02:31 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.77 2009/10/26 18:09:34 yanjuntu Exp $
 //
 
 // system include files
@@ -103,12 +103,6 @@ public:
                 const FWViewManagerManager*,
 		CmsShowMain*,
                 bool iDebugInterface = false);
-  FWGUIManager(FWSelectionManager*,
-                FWEventItemsManager*,
-                FWModelChangeManager*,
-                FWColorManager*,
-                const FWViewManagerManager*,
-	       bool iDebugInterface = false);
    virtual ~FWGUIManager();
    void     evePreTerminate();
 
