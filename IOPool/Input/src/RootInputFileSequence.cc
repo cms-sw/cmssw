@@ -406,8 +406,8 @@ namespace edm {
     assert (skipEvents_ == 0 || skipEvents_ == offset);
     skipEvents_ = offset;
     while(skipEvents_ != 0) {
-      skipEvents_ = rootFile_->skipEvents(skipEvents_);
-      if(skipEvents_ > 0 && !nextFile(cache)) {
+      bool atEnd = rootFile_->skipEvents(skipEvents_);
+      if((skipEvents_ > 0 || atEnd) && !nextFile(cache)) {
 	skipEvents_ = 0;
 	return false;
       }
@@ -416,7 +416,12 @@ namespace edm {
         return false;
       }
     }
-    rootFile_->skipEvents(0);
+    int dummy = 0;
+    bool atTheEnd = rootFile_->skipEvents(dummy);
+    if (atTheEnd && !nextFile(cache)) {
+      skipEvents_ = 0;
+      return false;
+    }
     setSkipInfo();
     return true;
   }
