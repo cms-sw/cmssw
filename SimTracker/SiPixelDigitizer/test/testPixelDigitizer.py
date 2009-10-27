@@ -42,7 +42,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(50)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -63,18 +63,13 @@ process.maxEvents = cms.untracked.PSet(
 #    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/B41EF45B-D14E-DE11-BC68-001D09F24600.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/682FF80C-524F-DE11-9159-001D09F2543D.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/0E9B84FD-D24E-DE11-94D9-001617C3B70E.root')
 #)
 
-# get the files from DBS:
-
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( ['/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/B41EF45B-D14E-DE11-BC68-001D09F24600.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/682FF80C-524F-DE11-9159-001D09F2543D.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0007/0E9B84FD-D24E-DE11-94D9-001617C3B70E.root'] );
 
-
 secFiles.extend( ['/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/B479D4A7-D14E-DE11-A78F-001D09F250AF.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/A6F81696-D04E-DE11-8B2E-001617C3B6DC.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/A625B90A-D34E-DE11-A4D3-000423D6A6F4.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/5441A448-D14E-DE11-B5BC-001D09F295A1.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/4C9657A5-D34E-DE11-9C9D-001D09F248F8.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/3EA6B3D7-514F-DE11-8DFD-000423D6A6F4.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/2C49163C-D24E-DE11-AA16-001D09F2438A.root','/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/1E69E467-D04E-DE11-8A75-001617E30D4A.root'] )
-
-
 
 
 #process.PoolDBESSource = cms.ESSource("PoolDBESSource",
@@ -93,22 +88,12 @@ secFiles.extend( ['/store/relval/CMSSW_3_1_0_pre9/RelValSingleMuPt10/GEN-SIM-DIG
 
 
 # Choose the global tag here:
-#process.GlobalTag.globaltag = 'COSMMC_21X_V1::All'
-#process.GlobalTag.globaltag = 'IDEAL_30X::All'
-#process.GlobalTag.globaltag = 'IDEAL_31X::All'
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
-#process.GlobalTag.globaltag = 'CRAFT_30X::All'
-
-
-
-#rfio:/castor/cern.ch/user/v/vesna/test.root
+process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *','keep *_*_*_DigiTest'),
-#            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_1_X_2009-06-02-0700/src/SimTracker/SiPixelDigitizer/test/Digis_test.root')
-            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/scratch0/Digis_IDEAL_KillModuleTrue_VCALSmearing_FALSE.root')  
+            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_2_1/src/SimTracker/SiPixelDigitizer/test/Digis.root')  
 )
-
 
 process.Timing = cms.Service("Timing")
 
@@ -133,12 +118,11 @@ process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHit
 
 #process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
 
-#This process to get events to be used to make DQM occupancy maps (run the Pixel_occupancy_digi.py after you ran testPixelDigitizer.py):
-#process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
+#This process to get events to be used to make DQM occupancy maps (cmsRun DQM_Pixel_digi.py after you ran testPixelDigitizer.py):
+process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
 
 # Look at cluster charge:
-process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
-
+#process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
 
 #This process is to run the digis validation:
 #process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.pixelDigisValid)
