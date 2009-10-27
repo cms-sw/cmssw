@@ -37,6 +37,8 @@ class EcalUncalibratedRecHit {
   void setChi2( double chi2 ) { chi2_ = chi2; }
   void setFlags( uint32_t flags ) { flags_ = flags; }
   void setRecoFlag( uint32_t flags );
+  // set the energy for out of time events
+  // (only energy >= 0 will be stored)
   void setOutOfTimeEnergy( float energy );
   void setId( DetId id ) { id_ = id; }
   

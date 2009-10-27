@@ -35,6 +35,8 @@ public:
   bool isRecovered() const;
   uint32_t recoFlag() const { return 0xF & flags(); }
   float chi2Prob() const;
+  // set the energy for out of time events
+  // (only energy >= 0 will be stored)
   float outOfTimeEnergy() const;
   void setRecoFlag( uint32_t flag );
   void setChi2Prob( float chi2Prob );
