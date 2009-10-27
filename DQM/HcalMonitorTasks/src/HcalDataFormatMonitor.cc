@@ -1116,7 +1116,8 @@ void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
     myeta = CalcEtaBin(HDI.subdet(),
 		       HDI.ieta(),
 		       mydepth);
-    problemfound[myeta][myphi-1][mydepth-1] = true;
+    if (myeta>=0)
+      problemfound[myeta][myphi-1][mydepth-1] = true;
   }
 }
 void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
@@ -1137,7 +1138,8 @@ void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
     myeta = CalcEtaBin(HDI.subdet(),
 		       HDI.ieta(),
 		       mydepth);
-    problemfound[myeta][myphi-1][mydepth-1] = true;
+    if (myeta>=0)
+      problemfound[myeta][myphi-1][mydepth-1] = true;
   }
 }   // void HcalDataFormatMonitor::mapHTRproblem(...)
 
@@ -1157,7 +1159,8 @@ void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
   myeta = CalcEtaBin(HDI.subdet(),
 		     HDI.ieta(),
 		     mydepth);
-  problemfound[myeta][myphi-1][mydepth-1] = true;
+  if (myeta>=0)
+      problemfound[myeta][myphi-1][mydepth-1] = true;
 }   // void HcalDataFormatMonitor::mapChannproblem(...)
 
 
