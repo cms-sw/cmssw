@@ -1,8 +1,7 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/TrackReco>
 <use name=rootrflx>
 <lib name=Eve>
-<flags CXXFLAGS="-g -O0">
+<use name=clhep>
 <export>
   <lib name=FireworksTracks>
   <use name=rootrflx>
