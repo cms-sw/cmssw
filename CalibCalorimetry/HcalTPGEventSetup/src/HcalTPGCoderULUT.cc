@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.7 2009/03/28 19:12:07 tulika Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.8 2009/06/04 12:09:45 tulika Exp $
 //
 //
 
@@ -39,27 +39,20 @@
 //
 
 class HcalTPGCoderULUT : public edm::ESProducer {
+   public:
+      HcalTPGCoderULUT(const edm::ParameterSet&);
+      ~HcalTPGCoderULUT();
+     
+      typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
+      void dbRecordCallback(const HcalDbRecord&);
 
-public:
-  HcalTPGCoderULUT(const edm::ParameterSet&);
-  ~HcalTPGCoderULUT();
-  
-  typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
-  void dbRecordCallback(const HcalDbRecord&);
-
-  ReturnType produce(const HcalTPGRecord&);
-private:
-  // ----------member data ---------------------------
-  edm::FileInPath *ifilename_;
-  ReturnType coder_;  
-  HcaluLUTTPGCoder* theCoder;
-  bool read_Ascii;
-  bool read_XML;
-  bool LUTGenerationMode;
-  bool DumpL1TriggerObjects;
-  std::string TagName;
-  std::string AlgoName;
-
+      ReturnType produce(const HcalTPGRecord&);
+   private:
+      // ----------member data ---------------------------
+      ReturnType coder_;  
+      HcaluLUTTPGCoder* theCoder_;
+      bool read_FGLut_;
+      edm::FileInPath fgfile_;
 };
 
 //
@@ -75,47 +68,40 @@ private:
 //
 HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) 
 {
-  /*
-  ifilename_=0;  
-  try {
-    ofilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("outputLUTs"));
-  } catch (...) {
-    ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
-    ofilename_=0;
-  }
-  */
-  read_Ascii=false;
-  read_Ascii=iConfig.getParameter<bool>("read_Ascii_LUTs");
-  read_XML=false;
-  read_XML=iConfig.getParameter<bool>("read_XML_LUTs");
-  if (read_Ascii || read_XML) ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
-  else ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
-
-  LUTGenerationMode = iConfig.getParameter<bool>("LUTGenerationMode");
-  DumpL1TriggerObjects = iConfig.getParameter<bool>("DumpL1TriggerObjects");
-  TagName = iConfig.getParameter<std::string>("TagName");
-  AlgoName = iConfig.getParameter<std::string>("AlgoName");
+   bool read_Ascii = iConfig.getParameter<bool>("read_Ascii_LUTs");
+   bool read_XML = iConfig.getParameter<bool>("read_XML_LUTs");
+   read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs"); 
+   fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
 
    //the following line is needed to tell the framework what
    // data is being produced
    if (!(read_Ascii || read_XML)) setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
    else setWhatProduced(this);
-
   
   //now do what ever other initialization is needed
    using namespace edm::es;
+   theCoder_ = new HcaluLUTTPGCoder();
    if (read_Ascii || read_XML){
-     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii,read_XML);
-     coder_=ReturnType(theCoder);
+      edm::FileInPath ifilename(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
+      edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename.fullPath() << " for HcalTPGCoderULUT initialization";
+      if (read_Ascii) theCoder_->update(ifilename.fullPath().c_str());
+      else if (read_XML) theCoder_->updateXML(ifilename.fullPath().c_str());
+
+      // Read FG LUT and append to most significant bit 11
+      if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(), true);
    } 
    else {
-     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str());
-	  theCoder->SetLUTGenerationMode(LUTGenerationMode, DumpL1TriggerObjects);
-	  theCoder->SetLUTInfo(TagName,AlgoName);
-     coder_=ReturnType(theCoder);
+      // Temporary for reading Rcalib
+      // Will be moved to metadata
+      edm::FileInPath file(iConfig.getParameter<edm::FileInPath>("RCalibFile"));
+      theCoder_->getRecHitCalib(file.fullPath().c_str());
+
+      bool LUTGenerationMode = iConfig.getParameter<bool>("LUTGenerationMode");
+      int maskBit = iConfig.getParameter<int>("MaskBit");
+      theCoder_->setLUTGenerationMode(LUTGenerationMode);
+      theCoder_->setMaskBit(maskBit);
    }  
+   coder_=ReturnType(theCoder_);
 }
 
 
@@ -124,9 +110,6 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
- 
-  if (ifilename_!=0) delete ifilename_;
 }
 
 
@@ -142,9 +125,13 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 }
 
 void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
-  edm::ESHandle<HcalDbService> conditions;
-  theRec.get(conditions);
-  theCoder->update(*conditions);
+   edm::ESHandle<HcalDbService> conditions;
+   theRec.get(conditions);
+   theCoder_->update(*conditions);
+
+   // Temporary update for FG Lut
+   // Will be moved to DB
+   if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(), true);
 }
 
 //define this as a plug-in
