@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.14 2009/10/08 17:40:04 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.15 2009/10/12 17:54:06 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -30,7 +30,8 @@
 // constructors and destructor
 //
 FWMuonDetailView::FWMuonDetailView():
-m_viewer(0)
+   m_viewer(0),
+   m_data(0)
 { 
    getEveWindow()->DestroyWindow();
 }
@@ -38,6 +39,7 @@ m_viewer(0)
 FWMuonDetailView::~FWMuonDetailView()
 {
    getEveWindow()->DestroyWindow();
+   m_data->DecDenyDestroy();
 }
 
 //
@@ -45,60 +47,40 @@ FWMuonDetailView::~FWMuonDetailView()
 //
 void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveWindowSlot* base)
 {
+
    if(0==iMuon) return;
-   TEveWindowPack* eveWindow = base->MakePack();
-   eveWindow->SetShowTitleBar(kFALSE);
 
-   TEveWindow* ew(0);
-   TEveWindowSlot* slot(0);
-   TEveScene*      scene(0);
-   TEveViewer*     viewer(0);
-   TGVerticalFrame* ediFrame(0);
+   TEveScene*  scene(0);
+   TEveViewer* viewer(0);
+   TCanvas*    canvas(0);
+   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
+   setEveWindow(eveWindow);
+   m_viewer = viewer->GetGLViewer();
+   makeLegend(iMuon, id, canvas);
 
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 1
-   ///////////////////////////////////////////////////////////////////////
-
-   // prepare window
-   slot = eveWindow->NewSlot();
-   ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("Muon based view");
-   FWDetailViewBase::setEveWindow(ew);
-
-   // build ECAL objects
    double eta = iMuon->eta();
    double phi = iMuon->phi();
-
    if ( iMuon->isEnergyValid() )
-     {
-	eta = iMuon->calEnergy().ecal_position.eta();
-	phi = iMuon->calEnergy().ecal_position.phi();
-     }
+   {
+      eta = iMuon->calEnergy().ecal_position.eta();
+      phi = iMuon->calEnergy().ecal_position.phi();
+   }
 
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
-				   eta, phi, 10);
+                                   eta, phi, 10);
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iMuon->isEnergyValid() ) {
       std::vector<DetId> ids;
       ids.push_back(iMuon->calEnergy().ecal_id);
       builder.setColor(kYellow,ids);
    }
-   TEveCaloLego* lego = builder.build();
-   scene->AddElement(lego);
 
+   TEveCaloLego* lego = builder.build();
+   m_data = lego->GetData();
+   scene->AddElement(lego);
    addInfo(iMuon, scene);
 
-   // draw legend in latex
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
-   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   ediFrame->MapSubwindows();
-   ediFrame->Layout();
-   ec->GetCanvas()->SetBorderMode(0);
-   makeLegend(iMuon, id, ec->GetCanvas());
-
    // draw axis at the window corners
-   // std::cout << "TEveViewer: " << viewer << std::endl;
-   m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
@@ -111,21 +93,10 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    TEveLegoEventHandler* eh =
       new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
    m_viewer->SetEventHandler(eh);
-   m_viewer->UpdateScene();
    m_viewer->CurrentCamera().Reset();
 
-   scene->Repaint(true);
    viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
-
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 2
-   ///////////////////////////////////////////////////////////////////////
-   // slot = eveWindow->NewSlot();
-   // ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   // ew->SetElementName("View C");
-
-   // eveWindow->GetTab()->SetTab(1);
 }
 
 void

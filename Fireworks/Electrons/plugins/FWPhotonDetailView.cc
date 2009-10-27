@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.18 2009/10/12 14:36:26 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.19 2009/10/12 17:54:05 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -44,46 +44,28 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
 {
    if(0==iPhoton) return;
 
-   TEveWindowPack* eveWindow = base->MakePack();
-   eveWindow->SetShowTitleBar(kFALSE);
+   TEveScene*  scene(0);
+   TEveViewer* viewer(0);
+   TCanvas*    canvas(0);
+   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
+   setEveWindow(eveWindow);
+   m_viewer = viewer->GetGLViewer();
+   makeLegend(iPhoton, id, canvas);
 
-   TEveWindow* ew(0);
-   TEveWindowSlot* slot(0);
-   TEveScene*      scene(0);
-   TEveViewer*     viewer(0);
-   TGVerticalFrame* ediFrame(0);
-
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 1
-   ///////////////////////////////////////////////////////////////////////
-
-   // prepare window
-   slot = eveWindow->NewSlot();
-   ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("Photon based view");
-   FWDetailViewBase::setEveWindow(ew);
-   
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
-				   iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
+   iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iPhoton->superCluster().isAvailable() )
-     builder.showSuperCluster(*(iPhoton->superCluster()), kYellow);
+   builder.showSuperCluster(*(iPhoton->superCluster()), kYellow);
    TEveCaloLego* lego = builder.build();
+   m_data = lego->GetData();
    scene->AddElement(lego);
    
    // add Photon specific details
    addInfo(iPhoton, scene);
-
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
-   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   ediFrame->MapSubwindows();
-   ediFrame->Layout();
-   ec->GetCanvas()->SetBorderMode(0);
-   makeLegend(iPhoton, id, ec->GetCanvas());
    
    // draw axis at the window corners
-   // std::cout << "TEveViewer: " << viewer << std::endl;
    m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
@@ -95,19 +77,12 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    // set event handler and flip camera to top view at beginning
    m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = 
-      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
+   new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
    m_viewer->SetEventHandler(eh);
    m_viewer->UpdateScene();
    m_viewer->CurrentCamera().Reset();
 
-   scene->Repaint(true);
-
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
-   gEve->Redraw3D();
-   
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 2
-   ///////////////////////////////////////////////////////////////////////
 }
 
 void

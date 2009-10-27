@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.41 2009/10/12 17:54:05 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.42 2009/10/22 14:47:24 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -35,13 +35,15 @@
 // constructors and destructor
 //
 FWElectronDetailView::FWElectronDetailView():
-m_viewer(0)
+   m_viewer(0),
+   m_data(0)
 {
 }
 
 FWElectronDetailView::~FWElectronDetailView()
 { 
    getEveWindow()->DestroyWindow();
+   m_data->DecDenyDestroy();
 }
 
 //
@@ -50,29 +52,14 @@ FWElectronDetailView::~FWElectronDetailView()
 void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* iElectron, TEveWindowSlot* base)
 {
    if(0==iElectron) return;
-   TEveWindowPack* eveWindow = base->MakePack();
-   eveWindow->SetHorizontal();
-   eveWindow->SetShowTitleBar(kFALSE);
+
+   TEveScene*  scene(0);
+   TEveViewer* viewer(0);
+   TCanvas*    canvas(0);
+   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
    setEveWindow(eveWindow);
-
-   // first slot canvas
-   TEveWindowSlot* slot = eveWindow->NewSlotWithWeight(1);
-   slot->SetShowTitleBar(kFALSE);
-   TRootEmbeddedCanvas* ec  = new TRootEmbeddedCanvas();
-   slot->MakeFrame(ec);
-   makeLegend(iElectron, id, ec->GetCanvas());
-
-   // second slot viewer
-   slot = eveWindow->NewSlotWithWeight(3);
-   TEveViewer*  ev = new TEveViewer("Track hits detail view");
-   slot->SetShowTitleBar(kFALSE);
-   ev->SpawnGLEmbeddedViewer();
-   slot->ReplaceWindow(ev);
-   m_viewer = ev->GetGLViewer();
-
-   gEve->GetViewers()->AddElement(ev);
-   TEveScene* scene = gEve->SpawnNewScene("hits scene");
-   ev->AddScene(scene);
+   m_viewer = viewer->GetGLViewer();
+   makeLegend(iElectron, id, canvas);
 
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
@@ -81,6 +68,8 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    if ( iElectron->superCluster().isAvailable() )
       builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
    TEveCaloLego* lego = builder.build();
+   m_data = lego->GetData();
+   scene->AddElement(lego->GetData());
    scene->AddElement(lego);
    // add Electron specific details
    addTrackPointsInCaloData( iElectron, lego);

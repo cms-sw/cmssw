@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.15 2009/09/06 12:53:44 dmytro Exp $
+// $Id: FWElectronDetailView.h,v 1.16 2009/10/08 18:23:14 amraktad Exp $
 //
 
 // user include files
@@ -51,7 +51,8 @@ private:
    void makeLegend (const reco::GsfElectron*, const FWModelId&, TCanvas*);
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
-   TGLViewer* m_viewer;
+   TGLViewer*    m_viewer;
+   TEveCaloData* m_data;
 };
 
 #endif

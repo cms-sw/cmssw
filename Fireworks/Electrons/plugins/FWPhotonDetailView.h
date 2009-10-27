@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.h,v 1.5 2009/09/06 12:54:23 dmytro Exp $
+// $Id: FWPhotonDetailView.h,v 1.6 2009/10/08 18:23:15 amraktad Exp $
 //
 
 // user include files
@@ -39,7 +39,8 @@ private:
    void makeLegend(const reco::Photon*, const FWModelId&, TCanvas*);
    void addInfo(const reco::Photon*, TEveElementList*);
 
-   TGLViewer* m_viewer;
+   TGLViewer*    m_viewer;
+   TEveCaloData* m_data;
 };
 
 #endif
