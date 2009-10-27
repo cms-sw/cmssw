@@ -77,17 +77,17 @@ public:
   const StripGeomDetUnit& specificGeomDet() const {return *theStripGDU;}
 
   TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripClusterRef&, const LocalTrajectoryParameters& ltp) const;
+  buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
 
   TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripRegionalClusterRef&, const LocalTrajectoryParameters& ltp) const;
+  buildRecHit( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
 
     
   TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripClusterRef&, const LocalTrajectoryParameters& ltp) const;
+  buildRecHits( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
   
   TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripRegionalClusterRef&, const LocalTrajectoryParameters& ltp) const;
+  buildRecHits( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
 
 
   bool  isEmpty() {return empty;}
@@ -172,7 +172,7 @@ private:
   
   template<class ClusterRefT>
     void buildSimpleRecHit( const ClusterRefT& cluster,
-			    const LocalTrajectoryParameters& ltp,
+			    const TrajectoryStateOnSurface& ltp,
 			    std::vector<SiStripRecHit2D>& res) const;
   
 };
