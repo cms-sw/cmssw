@@ -15,16 +15,48 @@ process = cms.Process('TestL1Gt')
 
 # choose the type of sample used (True for RelVal, False for data)
 useRelValSample = True 
-#useRelValSample = False 
+#useRelValSample=False 
 
-# choose the global tag type for RelVal; 
-#     actual GlobalTag must be replaced in the "if" below 
-#useGlobalTag = 'IDEAL'
-useGlobalTag = 'STARTUP'
+# release to be used
+useRelease = 'CMSSW_3_4_X'
+
+
+if useRelValSample == True :
+    
+    if useRelease == 'CMSSW_2_2_12' :
+        
+        useGlobalTag = 'IDEAL_V12'
+        #useGlobalTag='STARTUP_V11'
+    
+    elif useRelease == 'CMSSW_3_1_1' :
+         useGlobalTag = 'MC_31X_V2'
+         #useGlobalTag = 'STARTUP31X_V1'
+
+    elif useRelease == 'CMSSW_3_4_X' :
+         useGlobalTag = 'MC_3XY_V10'
+         #useGlobalTag = 'STARTUP3X_V9'
+
+    # RelVals 
+    useSample = 'RelValTTbar'
+    #useSample = 'RelValZTT'
+    
+else :
+    # global tag for data
+    
+    if useRelease == 'CMSSW_2_2_12' :
+        useGlobalTag = 'CRAFT_ALL_V11'
+        
+    elif useRelease == 'CMSSW_3_1_1' :
+        #useGlobalTag = 'CRAFT0831X_V1'
+        useGlobalTag = 'GR09_31X_V1P'
+
 
 # explicit choice of the L1 menu - available choices:
-#l1Menu = 'L1Menu_Commissioning2009_v0'
-l1Menu = 'L1Menu_MC2009_v0'
+# use menu from global tag
+l1Menu =''
+# use selected menu
+#l1Menu = 'L1Menu_Commissioning2009_v5'
+#l1Menu = 'L1Menu_MC2009_v0'
 #l1Menu = 'L1Menu_startup2_v4'
 #l1Menu = 'L1Menu_2008MC_2E30'
 #l1Menu = 'myMenu'
@@ -48,41 +80,48 @@ process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNam
 # type of sample used (True for RelVal, False for data)
 
 if useRelValSample == True :
-    if useGlobalTag == 'IDEAL':
-
-        #/RelValTTbar/CMSSW_2_2_4_IDEAL_V11_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
-        dataset = cms.untracked.vstring('RelValTTbar_CMSSW_2_2_4_IDEAL_V11_v1')
+    if useGlobalTag.count('IDEAL') or useGlobalTag.count('MC') :
         
-        readFiles.extend([
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/02697009-5CF3-DD11-A862-001D09F2423B.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/064657A8-59F3-DD11-ACA5-000423D991F0.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0817F6DE-5BF3-DD11-880D-0019DB29C5FC.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0899697C-5AF3-DD11-9D21-001617DBD472.root'
-            ]);
+        if (useRelease == 'CMSSW_3_4_X') and (useSample == 'RelValTTbar') :
+
+            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_4_0_pre2-MC_3XY_V10-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')       
+            readFiles.extend([
+                '/store/relval/CMSSW_3_4_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V10-v1/0003/F4AC0278-96BD-DE11-8687-00261894392D.root',
+                '/store/relval/CMSSW_3_4_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V10-v1/0003/E2E078D8-C0BD-DE11-A77B-0026189438E0.root',
+                '/store/relval/CMSSW_3_4_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V10-v1/0003/E0D7EB2D-90BD-DE11-9BB6-0017312B5651.root'
+                ]);
 
 
-        secFiles.extend([
-            ])
+            secFiles.extend([
+                ])
 
-    elif useGlobalTag == 'STARTUP':
+        else : 
+            print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+            sys.exit()
+            
+    elif useGlobalTag.count('STARTUP') :
 
-        #/RelValBeamHalo/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
-        dataset = cms.untracked.vstring('RelValBeamHalo_CMSSW_2_2_4_STARTUP_V8_v1')
-        
-        readFiles.extend([
-            '/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/4059446C-1FF3-DD11-9570-001D09F241B4.root',
-            '/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/60D8AF30-91F3-DD11-81A6-001D09F29597.root'
-            ]);
+        if (useRelease == 'CMSSW_3_4_X') and (useSample == 'RelValBeamHalo') :
+
+            dataset = cms.untracked.vstring('/RelValBeamHalo/CMSSW_3_4_0_pre2-STARTUP3XY_V9-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3XY_V9-v1/0003/BC5F1CA5-C0BD-DE11-B4BD-002618943982.root',
+                '/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3XY_V9-v1/0003/663EED3C-89BD-DE11-97CF-001A92971B8E.root'
+                ]);
 
 
-        secFiles.extend([
-            ])
-    else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+            secFiles.extend([
+                ])
+        else :
+            print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+            sys.exit()
 
 else : 
 
     # CRAFT data FIXME
+    print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+    sys.exit()
+    
     dataset = ''
     
     readFiles.extend([
@@ -96,8 +135,16 @@ if useLocalFiles :
 
 # technical triggers to be run and collected by GT
 
-# BSC trigger
-process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
+# producers for Technical Trigger
+#
+# BSC Trigger
+import L1TriggerOffline.L1Analyzer.bscTrigger_cfi
+process.simBscDigis = L1TriggerOffline.L1Analyzer.bscTrigger_cfi.bscTrigger.clone()
+
+# RPC Technical Trigger
+import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
+process.simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
+
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
@@ -125,7 +172,8 @@ process.l1GtEmulDigis.GctInputTag = 'simGctDigis'
 # Example:
 # TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('aTechTrigDigis'), 
 #                                            cms.InputTag('anotherTechTriggerDigis')),
-process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('bscTrigger'))
+process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('simBscDigis'), 
+                                                                 cms.InputTag('simRpcTechTrigDigis'))
 
 # logical flag to produce the L1 GT DAQ readout record
 #     if true, produce the record (default)
@@ -164,25 +212,17 @@ process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('b
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-if useRelValSample == True :
-    if useGlobalTag == 'IDEAL':
-        process.GlobalTag.globaltag = 'IDEAL_V11::All'
-
-    elif useGlobalTag == 'STARTUP':
-        process.GlobalTag.globaltag = 'STARTUP_V8::All'
-
-    else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
-
-else :
-    process.GlobalTag.globaltag = 'CRAFT_ALL_V8::All'
+process.GlobalTag.globaltag = useGlobalTag + '::All'
 
 
 # explicit choice of the L1 menu
 
-if l1Menu == 'L1Menu_Commissioning2009_v0' :
+if l1Menu == '' :
+    print 'Using menu from global tag', useGlobalTag
+
+elif l1Menu == 'L1Menu_Commissioning2009_v5' :
     process.load('L1Trigger.Configuration.L1StartupConfig_cff')
-    process.load('L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v0_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff')
+    process.load('L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v5_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff')
     
 elif l1Menu == 'L1Menu_startup2_v4' :
     process.load('L1Trigger.Configuration.L1StartupConfig_cff')
@@ -225,37 +265,27 @@ process.l1GtTrigReport.L1GtRecordInputTag = "l1GtEmulDigis"
 #process.l1GtTrigReport.PrintOutput = 1
 
 # path to be run
-process.p = cms.Path(process.bscTrigger * process.l1GtEmulDigis * process.l1GtTrigReport)
-
+process.p = cms.Path(process.simBscDigis 
+                     + process.simRpcTechTrigDigis 
+                     + process.l1GtEmulDigis 
+                     + process.l1GtTrigReport)
 
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
-process.MessageLogger.categories.append('L1GlobalTrigger')
-process.MessageLogger.destinations = ['L1TechTrigL1GtEmulTrigReport']
-process.MessageLogger.cout = cms.untracked.PSet(
-    #threshold=cms.untracked.string('DEBUG'),
-    #threshold = cms.untracked.string('INFO'),
-    threshold = cms.untracked.string('ERROR'),
-    DEBUG=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    INFO=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    WARNING=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    ERROR=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    default=cms.untracked.PSet(
-        limit=cms.untracked.int32(0)  
-    ),
-    L1GlobalTrigger=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)  
-    )
-)
+process.MessageLogger.categories.append('L1GtTrigReport')
+
+process.MessageLogger.cerr.threshold = 'DEBUG'
+#process.MessageLogger.cerr.threshold = 'INFO'
+#process.MessageLogger.cerr.threshold = 'WARNING'
+#process.MessageLogger.cerr.threshold = 'ERROR'
+
+process.MessageLogger.cerr.DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+process.MessageLogger.cerr.INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+process.MessageLogger.cerr.WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+process.MessageLogger.cerr.ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+
+process.MessageLogger.cerr.L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 
 # summary
 process.options = cms.untracked.PSet(
