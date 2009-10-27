@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.6 2009/08/14 23:06:43 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.7 2009/09/18 20:47:53 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -33,8 +33,18 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									const edm::EventSetup& context) ;
+  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+								  const edm::EventSetup& c);
 
   int    ftotalevents;
+  int fitNLumi_;
+  int resetFitNLumi_;
+  int countEvt_;       //counter
+  int countLumi_;      //counter
+  int ftmprun0, ftmprun;
+  int ftmplumi0, ftmplumi;
   
   bool write2DB_;
   bool runallfitters_;

@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.12 2009/10/26 16:31:44 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.13 2009/10/27 14:38:20 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -84,13 +84,15 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
 	ftree_->Branch("vx",&fvx,"fvx/D");
  	ftree_->Branch("vy",&fvy,"fvy/D");
+	ftree_->Branch("run",&frun,"frun/i");
+	ftree_->Branch("lumi",&flumi,"flumi/i");
   }
   
   fBSvector.clear();
   ftotal_tracks = 0;
   fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
   fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
-  
+  frun = flumi = -1;
 }
 
 BeamFitter::~BeamFitter() {
@@ -106,6 +108,9 @@ BeamFitter::~BeamFitter() {
 void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
+	frun = iEvent.id().run();
+	flumi = iEvent.luminosityBlock();
+	
 	edm::Handle<reco::TrackCollection> TrackCollection;
 	iEvent.getByLabel(tracksLabel_, TrackCollection);
 	

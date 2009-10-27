@@ -65,14 +65,17 @@ process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
 
 #######################
 # run over STA muons
-process.d0_phi_analyzer.BeamFitter.TrackCollection = cms.untracked.InputTag('standAloneMuons') #,'UpdatedAtVtx')
-process.d0_phi_analyzer.BeamFitter.IsMuonCollection = True
-process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers = 15
-process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers = -1
-process.d0_phi_analyzer.BeamFitter.MaximumNormChi2 = 20
-process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 1
+#process.d0_phi_analyzer.BeamFitter.TrackCollection = cms.untracked.InputTag('standAloneMuons') #,'UpdatedAtVtx')
+#process.d0_phi_analyzer.BeamFitter.IsMuonCollection = True
+#process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers = 15
+#process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers = -1
+#process.d0_phi_analyzer.BeamFitter.MaximumNormChi2 = 20
+#process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 1
 #########################
 
-process.d0_phi_analyzer.BeamFitter.OutputFileName = 'bsZMMwithMuons10000.root' #AtVtx10000.root'
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'bsZMMwithMuons10000debug.root' #AtVtx10000.root'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
+# fit as function of lumi sections
+#process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 2
+#process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 10

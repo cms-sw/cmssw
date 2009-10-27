@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.7 2009/09/18 20:47:53 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.8 2009/10/27 14:38:20 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -102,7 +102,9 @@ class BeamFitter {
   double fcov[7][7];
   double fvx;
   double fvy;
-
+  int frun;
+  int flumi;
+  
 };
 
 #endif

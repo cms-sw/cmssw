@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.10 2009/09/17 21:49:42 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.11 2009/09/18 20:47:54 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -27,14 +27,18 @@ ________________________________________________________________**/
 BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 {
   // get parameter
-  write2DB_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
-  runallfitters_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
-  
+  write2DB_       = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
+  runallfitters_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
+  fitNLumi_       = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("fitEveryNLumi",-1);
+  resetFitNLumi_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("resetEveryNLumi",-1);
+
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
 
   ftotalevents = 0;
-  
+  ftmprun0 = ftmprun = -1;
+  ftmplumi0 = ftmplumi = -1;
+  countLumi_ = 0;
 }
 
 
@@ -47,10 +51,10 @@ BeamSpotAnalyzer::~BeamSpotAnalyzer()
 void
 BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	
-  theBeamFitter->readEvent(iEvent);
-  ftotalevents++;
-
+	ftotalevents++;
+	theBeamFitter->readEvent(iEvent);
+	ftmprun = iEvent.id().run();
+	ftmplumi = iEvent.luminosityBlock();
 }
 
 
@@ -60,56 +64,91 @@ BeamSpotAnalyzer::beginJob(const edm::EventSetup&)
 {
 }
 
+//--------------------------------------------------------
+void
+BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									   const edm::EventSetup& context) {
+
+	if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
+		ftmprun0 = lumiSeg.run();
+		ftmplumi0 = lumiSeg.id().luminosityBlock();
+	}
+	countLumi_++;
+	//std::cout << "Lumi # " << countLumi_ << std::endl;
+	
+}
+
+//--------------------------------------------------------
+void
+BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									 const edm::EventSetup& iSetup) {
+
+	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
+	
+	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
+
+	if (theBeamFitter->runFitter()){
+		reco::BeamSpot bs = theBeamFitter->getBeamSpot();
+		std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
+		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
+		std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
+		std::cout << " lumi counter # " << countLumi_ << std::endl;
+		std::cout << bs << std::endl;
+		std::cout << "[BeamFitter] fit done. \n" << std::endl;	
+	}
+	else { // Fill in empty beam spot if beamfit fails
+		reco::BeamSpot bs;
+		bs.setType(reco::BeamSpot::Fake);
+		std::cout << "\n Empty Beam spot fit" << std::endl;
+		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
+		std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
+		std::cout << " lumi counter # " << countLumi_ << std::endl;
+		std::cout << bs << std::endl;
+		std::cout << "[BeamFitter] fit failed \n" << std::endl;
+	}
+
+	
+	if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
+		std::vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
+		std::cout << "Total number of tracks accumulated = " << theBSvector.size() << std::endl;
+		std::cout << "Reset track collection for beam fit" <<std::endl;
+		theBeamFitter->resetTrkVector();
+	}
+
+}
+
+
 void 
 BeamSpotAnalyzer::endJob() {
   std::cout << "\n-------------------------------------\n" << std::endl;
   std::cout << "\n Total number of events processed: "<< ftotalevents << std::endl;
   std::cout << "\n-------------------------------------\n\n" << std::endl;
-  
-  if(theBeamFitter->runFitter()){
-    reco::BeamSpot beam_default = theBeamFitter->getBeamSpot();
-    
-    std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
-    std::cout << beam_default << std::endl;
-    
-    if (write2DB_) {
-      std::cout << "\n-------------------------------------\n\n" << std::endl;
-      std::cout << " write results to DB..." << std::endl;
-      theBeamFitter->write2DB();
-    }
-    
-    if (runallfitters_) {
-      theBeamFitter->runAllFitter();
-      
-// 	// add new branches
-// 	std::cout << " add new branches to output file " << std::endl;
-// 	beam_default = myalgo->Fit_d0phi();
-// 	file_->cd();
-// 	TTree *newtree = new TTree("mytreecorr","mytreecorr");
-// 	newtree->Branch("d0phi_chi2",&fd0phi_chi2,"fd0phi_chi2/D");
-// 	newtree->Branch("d0phi_d0",&fd0phi_d0,"fd0phi_d0/D");
-// 	newtree->SetBranchAddress("d0phi_chi2",&fd0phi_chi2);
-// 	newtree->SetBranchAddress("d0phi_d0",&fd0phi_d0);
-// 	std::vector<BSTrkParameters>  tmpvector = myalgo->GetData();
-	
-// 	std::vector<BSTrkParameters>::iterator iparam = tmpvector.begin();
-// 	for( iparam = tmpvector.begin() ;
-// 		 iparam != tmpvector.end() ; ++iparam) {
-// 		fd0phi_chi2 = iparam->d0phi_chi2();
-// 		fd0phi_d0   = iparam->d0phi_d0();
-// 		newtree->Fill();
-// 	}
-// 	newtree->Write();
-    }
 
-	// let's close everything
-// 	file_->cd();
-// 	ftree_->Write();
-// 	file_->Close();
+  if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) {
+	  
+	  if(theBeamFitter->runFitter()){
+		  reco::BeamSpot beam_default = theBeamFitter->getBeamSpot();
+    
+		  std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
+		  std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
+		  std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
+		  std::cout << " lumi counter # " << countLumi_ << std::endl;
+		  std::cout << beam_default << std::endl;
+    
+		  if (write2DB_) {
+			  std::cout << "\n-------------------------------------\n\n" << std::endl;
+			  std::cout << " write results to DB..." << std::endl;
+			  theBeamFitter->write2DB();
+		  }
+    
+		  if (runallfitters_) {
+			  theBeamFitter->runAllFitter();     
+		  }
 
+	  }
+	  else std::cout << "[BeamSpotAnalyzer] beamfit fails !!!" << std::endl;
   }
-  else std::cout << "[BeamSpotAnalyzer] beamfit fails !!!" << std::endl;
-
+  
   std::cout << "[BeamSpotAnalyzer] endJob done \n" << std::endl;
 }
 

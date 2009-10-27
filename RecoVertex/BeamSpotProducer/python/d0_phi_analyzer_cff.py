@@ -4,6 +4,8 @@ d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
     BSAnalyzerParameters = cms.PSet(
         RunAllFitters = cms.bool(False), ## False: run only default fitter
         WriteToDB = cms.bool(False), ## do not write results to DB
+	fitEveryNLumi = cms.untracked.int32( -1 ),
+	resetEveryNLumi = cms.untracked.int32( -1 )
     ),
     BeamFitter = cms.PSet(
 	Debug = cms.untracked.bool(False),
