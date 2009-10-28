@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 10:50:21 CDT 2009
-// $Id$
+// $Id: FWFromEveSelectorBase.h,v 1.1 2009/10/23 22:05:58 chrjones Exp $
 //
 
 // system include files
@@ -38,11 +38,12 @@ class FWFromEveSelectorBase
 
       // ---------- member functions ---------------------------
       virtual void doSelect() = 0;
+      virtual void doUnselect() = 0;
 
    private:
-      FWFromEveSelectorBase(const FWFromEveSelectorBase&); // stop default
+      //FWFromEveSelectorBase(const FWFromEveSelectorBase&); // stop default
 
-      const FWFromEveSelectorBase& operator=(const FWFromEveSelectorBase&); // stop default
+      //const FWFromEveSelectorBase& operator=(const FWFromEveSelectorBase&); // stop default
 
       // ---------- member data --------------------------------
 
