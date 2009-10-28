@@ -52,18 +52,36 @@ void SiStripTrackingRecHitsCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
+ bool rgood=true;
  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+<<<<<<< SiStripTrackingRecHitsCompare.C
+ else if (rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else {cout << "NEW HISTOS: no RecoTrackV directory found! STOP" << endl; rgood=false;}
+=======
  else if(rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
  else if(rfile->cd("DQMData/Run 1/Tracking"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
  else if(rfile->cd("DQMData/Tracking/TrackingRecHits/Strip"))rfile->cd("DQMData/Tracking/TrackingRecHits/Strip");
 
  rdir=gDirectory;
+>>>>>>> 1.12
 
+ if (rgood) rdir=gDirectory;
+ else break;
+
+ bool sgood=true;
  if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+<<<<<<< SiStripTrackingRecHitsCompare.C
+ else if (sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else {cout << "REFERENCE HISTOS: no RecoTrackV directory found! STOP" << endl; sgood=false;}
+
+ if (sgood) sdir=gDirectory; 
+ else break;
+=======
  else if(sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
  else if(sfile->cd("DQMData/Run 1/Tracking"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
  else if(sfile->cd("DQMData/Tracking/TrackingRecHits/Strip"))sfile->cd("DQMData/Tracking/TrackingRecHits/Strip");
  sdir=gDirectory; 
+>>>>>>> 1.12
 
  Char_t histo[200];
 
