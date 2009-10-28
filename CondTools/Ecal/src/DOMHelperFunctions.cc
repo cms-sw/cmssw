@@ -1,7 +1,7 @@
 /**
  *  \file Implementation of helper functions
  *
- *  $Id: DOMHelperFunctions.cc,v 1.6 2008/11/04 15:09:58 argiro Exp $
+ *  $Id: DOMHelperFunctions.cc,v 1.1 2008/11/14 15:46:04 argiro Exp $
  */
 
 
@@ -21,81 +21,34 @@ using namespace std;
 using namespace xuti;
 using namespace xercesc;
 
-const DetId xuti::readCellId(xercesc::DOMNode* node){
+const DetId xuti::readCellId(xercesc::DOMElement* node){
   
- DOMNode* child = 0;
 
-  int ieta=0;
-  int iphi=0;
-  int ix=0;
-  int iy=0;
+  int ieta =0;
+  int iphi =0;
+  int ix   =0;
+  int iy   =0;
   int zside=0;
   
+  stringstream ieta_str ;
+  stringstream iphi_str;
+  stringstream ix_str;
+  stringstream iy_str ;
+  stringstream zside_str ;
+
+ 
+  ieta_str << toNative(node->getAttribute(fromNative(iEta_tag).c_str()));
+  iphi_str << toNative(node->getAttribute(fromNative(iPhi_tag).c_str()));
+  ix_str   << toNative(node->getAttribute(fromNative(ix_tag).c_str()));
+  iy_str   << toNative(node->getAttribute(fromNative(iy_tag).c_str()));
+  zside_str<< toNative(node->getAttribute(fromNative(zside_tag).c_str()));
   
-  for (child = node->getFirstChild(); 
-       child != 0; 
-       child=child->getNextSibling()){
+  ieta_str>> ieta;
+  iphi_str>> iphi;
+  ix_str  >> ix;
+  iy_str  >> iy;
+  zside_str  >> zside;
 
-    // handle barrel xtals 
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	 fromNative(iEta_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative(child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> ieta;
-      
-    } // if 
-    
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	  fromNative(iPhi_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative(child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> iphi;
-      
-    } // if 
-    
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	  fromNative(iPhi_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative( child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> iphi;
-      
-    } // if 
-
-    
-    // handle endcap xtals
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	  fromNative(ix_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative( child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> ix;
-      
-    } // if 
-
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	  fromNative(iy_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative( child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> iy;
-      
-    } // if 
-    
-    if ( child->getNodeType( ) == DOMNode::ELEMENT_NODE &&
-	  fromNative(zside_tag) == child->getNodeName( )) {
-      
-      string value_s = toNative( child->getTextContent( ));
-      stringstream value_ss(value_s); 
-      value_ss>> zside;
-      
-    } // if 
-    
-
-  } // for
-  
   if (ieta && iphi)        {return EBDetId(ieta,iphi);}
   if (ix   && iy  && zside){return EEDetId(ix,iy,zside);}
   
@@ -106,81 +59,51 @@ const DetId xuti::readCellId(xercesc::DOMNode* node){
 
 
 
-void  xuti::writeCellId(xercesc::DOMNode* node, 
+DOMElement*  xuti::writeCell(xercesc::DOMNode* node, 
 		  const DetId& detid){
   
-  
+  DOMElement* cell_node = 
+      node->getOwnerDocument()->createElement( fromNative(Cell_tag).c_str());
+
+  node->appendChild(cell_node);
   
   if (detid.subdetId()==EcalBarrel){ 
-    
-    DOMElement* eta_node = 
-      node->getOwnerDocument()->createElement( fromNative(iEta_tag).c_str());
-    
+        
+   
     stringstream value_s;
     value_s <<EBDetId(detid).ieta() ;
 
   
-    node->appendChild(eta_node);
-
-    DOMText*   ideta = 
-      node->getOwnerDocument()->createTextNode(fromNative(value_s.str()).c_str());
-    eta_node->appendChild(ideta);
-    
-
-    DOMElement* phi_node = 
-      node->getOwnerDocument()->createElement( fromNative(iPhi_tag).c_str());
-
+    cell_node->setAttribute(fromNative(iEta_tag).c_str(),
+			    fromNative(value_s.str()).c_str());
     value_s.str("");
     value_s <<EBDetId(detid).iphi() ;
 
-    node->appendChild(phi_node);
-
-    DOMText*   idphi = 
-      node->getOwnerDocument()->createTextNode(fromNative(value_s.str()).c_str());
-    phi_node->appendChild(idphi);
+    cell_node->setAttribute(fromNative(iPhi_tag).c_str(),
+			    fromNative(value_s.str()).c_str());
 
   } else  if (detid.subdetId()==EcalEndcap){
     
-    DOMElement* x_node = 
-      node->getOwnerDocument()->createElement( fromNative(ix_tag).c_str());
-
     stringstream value_s;
     value_s <<EEDetId(detid).ix() ;
 
-    x_node->setNodeValue(fromNative(value_s.str()).c_str());
-    node->appendChild(x_node);
-
-    DOMText*   idx = 
-      node->getOwnerDocument()->createTextNode(fromNative(value_s.str()).c_str());
-    x_node->appendChild(idx);
-
-    DOMElement* y_node = 
-      node->getOwnerDocument()->createElement( fromNative(iy_tag).c_str());
-
+  
+    cell_node->setAttribute(fromNative(ix_tag).c_str(),
+			    fromNative(value_s.str()).c_str());
     value_s.str("");
     value_s <<EEDetId(detid).iy() ;
 
-    y_node->setNodeValue(fromNative(value_s.str()).c_str());
-    node->appendChild(y_node);
-
-    DOMText*   idy = 
-      node->getOwnerDocument()->createTextNode(fromNative(value_s.str()).c_str());
-    y_node->appendChild(idy);
-
-    DOMElement* z_node = 
-      node->getOwnerDocument()->createElement(fromNative(zside_tag).c_str());
-
+    cell_node->setAttribute(fromNative(iy_tag).c_str(),
+			    fromNative(value_s.str()).c_str());
     value_s.str("");
     value_s <<EEDetId(detid).zside() ;
 
-    z_node->setNodeValue(fromNative(value_s.str()).c_str());
-    node->appendChild(z_node);
-   
-    DOMText*   idz = 
-      node->getOwnerDocument()->createTextNode(fromNative(value_s.str()).c_str());
-    z_node->appendChild(idz);
+    cell_node->setAttribute(fromNative(zside_tag).c_str(),
+			    fromNative(value_s.str()).c_str());
+
   }
 
+  return cell_node;
 }
   
 // return 0 if not found

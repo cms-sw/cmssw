@@ -7,7 +7,7 @@
  *
  * \author S. Argiro, F. Rubbo
  *
- * $Id: DOMHelperFunctions.h,v 1.7 2008/11/04 15:09:59 argiro Exp $
+ * $Id: DOMHelperFunctions.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
  */
 
 #include <xercesc/dom/DOMNode.hpp>
@@ -24,10 +24,10 @@
 namespace xuti {
 
   /// Assuming \param node is a  <cell> node, read the id 
-  const DetId readCellId(xercesc::DOMNode* node);
+  const DetId readCellId(xercesc::DOMElement* node);
 
-  /// Assuming \param node is a <cell> node, write the id
-  void  writeCellId(xercesc::DOMNode* node, const DetId& detid);
+  /// Append a Cell node with attributes to \param node
+  xercesc::DOMElement*  writeCell(xercesc::DOMNode* node, const DetId& detid);
   
   /// get the child of \param node called \param nodedame,return 0 if not found
   xercesc::DOMNode * getChildNode(xercesc::DOMNode * node,  

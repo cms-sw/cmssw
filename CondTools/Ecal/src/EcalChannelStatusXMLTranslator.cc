@@ -55,7 +55,7 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
     {
       uint16_t csc = 0;
 
-      DetId detid = readCellId(cellnode);
+      DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
 
       DOMNode* c_node = getChildNode(cellnode,ChannelStatusCode_tag);
       GetNodeData(c_node,csc);
@@ -127,10 +127,8 @@ std::string EcalChannelStatusXMLTranslator::dumpXML(
 
 	if(!record[rawid].getStatusCode()) continue;
       
-	DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
 
-	writeCellId(cellnode,rawid);	  
+	DOMElement* cellnode = writeCell(root,rawid);	  
 
 	WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());
 
@@ -151,10 +149,7 @@ std::string EcalChannelStatusXMLTranslator::dumpXML(
 
 	if(!record[rawid].getStatusCode()) continue;
 
-	DOMElement* cellnode = doc->createElement( fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
-
-	writeCellId(cellnode,rawid);
+	DOMElement* cellnode = writeCell(root,rawid);
 	WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());
 	  
       }

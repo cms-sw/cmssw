@@ -56,7 +56,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
     {
       float g12_6 = 0;
       float g6_1 = 0;
-      DetId detid = readCellId(cellnode);
+      DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
 
       DOMNode* g12_6_node = getChildNode(cellnode,Gain12Over6_tag);
       GetNodeData(g12_6_node,g12_6);
@@ -129,11 +129,8 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
 
 	if (record.find(rawid) == record.end()) continue;
        	if(!record[rawid].gain12Over6() && !record[rawid].gain6Over1()) continue;
-
-	DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
 	  
-	writeCellId(cellnode,rawid);
+	DOMElement* cellnode=writeCell(root,rawid);
 
 	WriteNodeWithValue(cellnode,Gain12Over6_tag,record[rawid].gain12Over6());
 	WriteNodeWithValue(cellnode,Gain6Over1_tag,record[rawid].gain6Over1());
@@ -151,10 +148,7 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
 	if (record.find(rawid) == record.end()) continue;
 	if(!record[rawid].gain12Over6() && !record[rawid].gain6Over1()) continue;
 
-	DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
-
-	writeCellId(cellnode,rawid);
+	DOMElement* cellnode=writeCell(root,rawid);
 
 	WriteNodeWithValue(cellnode,Gain12Over6_tag,record[rawid].gain12Over6());
 	WriteNodeWithValue(cellnode,Gain6Over1_tag,record[rawid].gain6Over1());

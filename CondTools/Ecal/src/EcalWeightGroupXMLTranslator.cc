@@ -52,7 +52,7 @@ int  EcalWeightGroupXMLTranslator::readXML(const std::string& filename,
     unsigned int  group=0;
 
     // read id
-    DetId detid= readCellId(cellnode);
+    DetId detid= readCellId(dynamic_cast<DOMElement*> (cellnode));
        
     // read constant
     DOMNode * c_node = getChildNode(cellnode,WeightGroup_tag);
@@ -128,10 +128,7 @@ EcalWeightGroupXMLTranslator::dumpXML(const EcalCondHeader& header,
 
     //if (!record[rawid]) continue; // cell absent from original record
     
-    DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-    root->appendChild(cellnode);
-     
-    writeCellId(cellnode,rawid);
+    DOMElement* cellnode=writeCell(root,rawid);
 
     WriteNodeWithValue(cellnode,WeightGroup_tag,record[rawid].id());
   
@@ -149,10 +146,8 @@ EcalWeightGroupXMLTranslator::dumpXML(const EcalCondHeader& header,
     uint32_t rawid= EEDetId::unhashIndex(cellid);
     //xif (!record[rawid]) continue; // cell absent from original record
 
-    DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-    root->appendChild(cellnode);
         
-    writeCellId(cellnode,rawid);
+    DOMElement* cellnode=writeCell(root,rawid);
     WriteNodeWithValue(cellnode,WeightGroup_tag,record[rawid].id());
     
   } // loop on EE cells

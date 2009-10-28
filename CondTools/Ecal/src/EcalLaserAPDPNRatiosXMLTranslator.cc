@@ -65,7 +65,7 @@ int  EcalLaserAPDPNRatiosXMLTranslator::readXML(const std::string& filename,
 //       edm::TimeStamp t3=0;
 
 
-      DetId detid = readCellId(cellnode);
+      DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
 
       DOMNode* p1_node = getChildNode(cellnode,Laser_p1_tag);
       GetNodeData(p1_node,p1);
@@ -155,11 +155,7 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 
 	uint32_t rawid = EBDetId::unhashIndex(cellid);
 
-      
-	DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
-
-	writeCellId(cellnode,rawid);	  
+	DOMElement* cellnode= writeCell(root,rawid);	  
 
 	float p1=(record.getLaserMap())[rawid].p1;
 	float p2=(record.getLaserMap())[rawid].p2;
@@ -191,10 +187,7 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 	uint32_t rawid = EEDetId::unhashIndex(cellid); 
 
 
-	DOMElement* cellnode = doc->createElement( fromNative(Cell_tag).c_str());
-	root->appendChild(cellnode);
-
-	writeCellId(cellnode,rawid);
+	DOMElement* cellnode=writeCell(root,rawid);
 	  
 	float p1=(record.getLaserMap())[rawid].p1;
 	float p2=(record.getLaserMap())[rawid].p2;

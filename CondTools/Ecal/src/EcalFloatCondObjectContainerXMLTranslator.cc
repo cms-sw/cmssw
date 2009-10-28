@@ -55,7 +55,7 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
     float val=0;
 
     // read id
-    DetId detid= readCellId(cellnode);
+    DetId detid= readCellId(dynamic_cast<DOMElement*>(cellnode));
        
     // read value
     DOMNode * c_node = getChildNode(cellnode,Value_tag);
@@ -143,10 +143,7 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
 
     if (!record[rawid]) continue; // cell absent from original record
     
-    DOMElement* cellnode = doc->createElement( fromNative(Cell_tag).c_str());
-    root->appendChild(cellnode);
-     
-    writeCellId(cellnode,rawid);
+    DOMElement* cellnode=writeCell(root,rawid);
 
     WriteNodeWithValue(cellnode,Value_tag,record[rawid]);
  
@@ -164,10 +161,7 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
     uint32_t rawid= EEDetId::unhashIndex(cellid);
     if (!record[rawid]) continue; // cell absent from original record
 
-    DOMElement* cellnode = doc->createElement(fromNative(Cell_tag).c_str());
-    root->appendChild(cellnode);
-        
-    writeCellId(cellnode,rawid);
+    DOMElement* cellnode= writeCell(root,rawid);
     WriteNodeWithValue(cellnode,Value_tag,record[rawid]);
 
     
