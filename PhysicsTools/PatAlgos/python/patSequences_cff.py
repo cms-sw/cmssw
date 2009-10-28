@@ -18,3 +18,13 @@ patDefaultSequence = cms.Sequence(
     cleanLayer1Objects *
     countLayer1Objects
 )
+
+# make heavyIonObjects
+from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonObjects_cff import *
+
+patHeavyIonDefaultSequence = cms.Sequence(
+    heavyIonObjects * 
+    selectedLayer1Jets *
+    selectedLayer1Muons *
+    selectedLayer1Photons
+)
