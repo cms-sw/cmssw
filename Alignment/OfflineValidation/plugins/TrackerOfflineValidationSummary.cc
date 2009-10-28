@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.1 2009/10/09 14:07:29 hauk Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.2 2009/10/13 14:44:22 hauk Exp $
 //
 //
 
@@ -82,8 +82,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
         TH1* NormResYprimeHisto;
       };
       
-      virtual void beginJob(const edm::EventSetup& es) ;
-      virtual void analyze(const edm::Event& evt, const edm::EventSetup&){};
+      virtual void analyze(const edm::Event& evt, const edm::EventSetup&);
       virtual void endJob() ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
@@ -104,6 +103,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       const bool useFit_;
       
       DQMStore* dbe_;
+      
+      bool moduleMapsInitialized;
       
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mPxbResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mPxeResiduals_;
@@ -126,7 +127,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig):
    parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
-   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0)
+   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0), moduleMapsInitialized(false)
 {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -147,17 +148,13 @@ TrackerOfflineValidationSummary::~TrackerOfflineValidationSummary()
 //
 
 // ------------ method called to for each event  ------------
-//void
-//TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-//{
-//}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackerOfflineValidationSummary::beginJob(const edm::EventSetup& es)
+void
+TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
+  // Access of EventSetup is needed to get the list of silicon-modules and their IDs
+  // Since they do not change, it is accessed only once
+  if(moduleMapsInitialized)return;
+  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry* bareTkGeomPtr = &(*tkGeom_);
   const TrackingGeometry::DetIdContainer& detIdContainer = bareTkGeomPtr->detIds();
   std::vector<DetId>::const_iterator iDet;
@@ -178,7 +175,9 @@ TrackerOfflineValidationSummary::beginJob(const edm::EventSetup& es)
       mPxbResiduals_[0];
     }
   }
+  moduleMapsInitialized = true;
 }
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
