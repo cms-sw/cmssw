@@ -215,37 +215,50 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
           (event->fY == eventSt.fY) &&
           (eventSt.fCode == event->fCode))
       {
+         
          TObject *obj = 0;
          fGLViewer->RequestSelect(fLastPos.fX, fLastPos.fY);
          TGLPhysicalShape *phys_shape = fGLViewer->fSelRec.GetPhysShape();
-         if (phys_shape) {
-            // primary
-            obj = phys_shape->GetLogical()->GetExternal();
-            // secondary
-            if (fSecSelType == TGLViewer::kOnRequest
-                && phys_shape->GetLogical()->AlwaysSecondarySelect())
+         
+         if (phys_shape) obj = phys_shape->GetLogical()->GetExternal();
+         
+         // secondary selection
+         if (phys_shape && fSecSelType == TGLViewer::kOnRequest
+             && phys_shape->GetLogical()->AlwaysSecondarySelect())
+         {
+            fGLViewer->RequestSecondarySelect(fLastPos.fX, fLastPos.fY);
+            fGLViewer->fSecSelRec.SetMultiple(event->fState & kKeyControlMask);
+            
+            if (fGLViewer->fSecSelRec.GetPhysShape() != 0)
             {
-               fGLViewer->RequestSecondarySelect(fLastPos.fX, fLastPos.fY);
-               if (fGLViewer->fSecSelRec.GetPhysShape() != 0)
+               TGLLogicalShape& lshape = const_cast<TGLLogicalShape&>
+               (*fGLViewer->fSecSelRec.GetPhysShape()->GetLogical());
+               
+               lshape.ProcessSelection(*fGLViewer->fRnrCtx, fGLViewer->fSecSelRec);
+               switch (fGLViewer->fSecSelRec.GetSecSelResult())
                {
-                  TGLLogicalShape& lshape = const_cast<TGLLogicalShape&>
-                     (*fGLViewer->fSecSelRec.GetPhysShape()->GetLogical());
-                  lshape.ProcessSelection(*fGLViewer->fRnrCtx, fGLViewer->fSecSelRec);
-                  if ( event->fState & kKeyControlMask)
-                  {
-                     Warning("TGLEventHandler::HandleButton", "Multiple select not supported in this mode.");
-                     event->fState ^= kKeyControlMask;
-                  }
-               }
+                  case TGLSelectRecord::kEnteringSelection:
+                     fGLViewer->Clicked(obj, event->fCode, event->fState);
+                     break;
+                  case TGLSelectRecord::kLeavingSelection:
+                     fGLViewer->UnClicked(obj, event->fCode, event->fState);
+                     break;
+                  case TGLSelectRecord::kModifyingInternalSelection:
+                     fGLViewer->ReClicked(obj, event->fCode, event->fState);
+                     break;
+                  default:
+                     break;
+               };
             }
          }
-         fGLViewer->Clicked(obj);
-         Int_t buttonCode = event->fCode;
-         if(buttonCode==kButton3) {
-            //we want this also to be selected so have to 'fake' it
-            buttonCode=kButton1;
+         else
+         {
+            fGLViewer->Clicked(obj);
+            fGLViewer->Clicked(obj, event->fCode, event->fState);
          }
-         fGLViewer->Clicked(obj, buttonCode, event->fState);
+         
+         
+         
          eventSt.fX = 0;
          eventSt.fY = 0;
          eventSt.fCode = 0;
