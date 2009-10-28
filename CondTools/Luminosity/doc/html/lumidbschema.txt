@@ -19,8 +19,7 @@ columns:  cmsrunid(uint32, FK, link to table 1 if needed),
           runnum(uint32),
           lumiversion(string),
           lsnum(uint32),
-          DTNORM(float), //or int? ?? 
-          LUMINORM(float),//or int? ??
+          luminorm(float),
           instlumi(float),
           instlumierror(float),
           instlumiquality(short),
@@ -44,6 +43,7 @@ columns:  lumisummaryid(uint32, FK, link to table 2 when needed),
 table 4:  TRIGGERTABLE (insert n-hltpath rows per run+ls, unrelated to lumiversion)
 columns:  cmsrunid(uint32,FK, link to table 1 when needed),
           trgpathid(uint32,PK, represent uniqueness of runnumber+ls+trgpath)
+          trgseed(string),
           runnum(uint32),
           cmsluminum(uint32), //lumi section id taken by cmsdaq
           l1bitnum(uint32), //range : 0-127 algo;128-192 tech
