@@ -14,9 +14,11 @@ extern "C" {
 }
 #endif
 
-ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset):
+ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool verbose):
   ParticleReplacerBase(pset),
-  tauola_(pset)
+  generatorMode_(pset.getParameter<std::string>("generatorMode")),
+  tauola_(pset),
+  printEvent_(verbose)
 {
 // 	using namespace reco;
 	using namespace edm;
@@ -48,19 +50,12 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset):
     }         
 	}
 	
-	// generatorMode =
-	//	0 - use Pythia
-	//	1 - use Tauola
-	generatorMode_ = pset.getUntrackedParameter<int>("generatorMode",0);
-
 	// If one wants to use two instances of this module in one
 	// configuration file, there might occur some segmentation
 	// faults due to the second initialisation of Tauola. This
 	// can be prevented by setting noInitialisation to false.
 	//          Caution: This option is not tested!
 	noInitialisation_ = pset.getUntrackedParameter<bool>("noInitialisation",false);
-
-	printEvent_ = pset.getUntrackedParameter<bool>("printEvent",false);
 
 	motherParticleID_ = pset.getUntrackedParameter<int>("motherParticleID",23);
 
@@ -232,7 +227,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		reco::Particle::Point production_point = particles.begin()->vertex();
 		GenVertex * decayvtx = new GenVertex(FourVector(production_point.x(),production_point.y(),production_point.z(),0));
 
-		HepMC::GenParticle * mother_particle = new HepMC::GenParticle((FourVector)mother_particle_p4, motherParticleID_, (generatorMode_==0 ? 3 : 2), Flow(), Polarization(0,0));
+		HepMC::GenParticle * mother_particle = new HepMC::GenParticle((FourVector)mother_particle_p4, motherParticleID_, (generatorMode_=="Pythia" ? 3 : 2), Flow(), Polarization(0,0));
 
 		decayvtx->add_particle_in(mother_particle);
 		
@@ -254,13 +249,13 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 	{
 		nr_of_trials++;
 		
-		if (generatorMode_==0)	// Pythia
+		if (generatorMode_ == "Pythia")	// Pythia
 		{
 			LogError("Replacer") << "Pythia is currently not supported!";
 			retevt=evt;
 		}
 
-		if (generatorMode_==1)	// TAUOLA
+		if (generatorMode_ == "Tauola")	// TAUOLA
 			retevt=tauola_.decay(evt);
 
 		if (retevt==0)

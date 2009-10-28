@@ -6,17 +6,18 @@
 #include "HepMC/PythiaWrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 
-ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig):
+ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig, bool verbose):
   ParticleReplacerBase(iConfig),
   tauola_(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")),
   pythia_(iConfig),
-  particleOrigin_(iConfig.getParameter<std::string>("ParticleOrigin")),
-  forceTauPolarization_(iConfig.getParameter<std::string>("ForceTauPolarization")),
-  forceTauDecay_(iConfig.getParameter<std::string>("ForceTauDecay")),
-  gunParticle_(iConfig.getParameter<int>("GunParticle")),
-  forceTauPlusHelicity_(iConfig.getParameter<int>("ForceTauPlusHelicity")),
-  forceTauMinusHelicity_(iConfig.getParameter<int>("ForceTauMinusHelicity")),
-  printout_(iConfig.getUntrackedParameter<bool>("Print", false)) {
+  particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
+  forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
+  forceTauDecay_(iConfig.getParameter<std::string>("forceTauDecay")),
+  generatorMode_(iConfig.getParameter<std::string>("generatorMode")),
+  gunParticle_(iConfig.getParameter<int>("gunParticle")),
+  forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
+  forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity")),
+  printout_(verbose) {
 
   srand(time(NULL)); // Should we use RandomNumberGenerator service?
 
@@ -35,6 +36,9 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
 
   std::memset(pol1_, 0, 4*sizeof(float));
   std::memset(pol2_, 0, 4*sizeof(float));
+
+  if(generatorMode_ != "Tauola")
+    throw cms::Exception("Configuration") << "Generator mode other than Tauola is not supported" << std::endl;
 
   throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun is not usable yet." << std::endl;
 }

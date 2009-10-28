@@ -24,6 +24,8 @@
 
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 
+#include<string>
+
 #include<boost/shared_ptr.hpp>
 
 class MCParticleReplacer : public edm::EDProducer
@@ -39,9 +41,12 @@ public:
 	virtual void endJob();
 	
 private:
+        enum HepMcMode { kInvalid=0, kNew, kReplace };
+        static HepMcMode stringToHepMcMode(const std::string& name);
+
         edm::InputTag src_;
         edm::InputTag srcHepMC_;
-        unsigned int replacementMode_;
+        HepMcMode hepMcMode_;
         boost::shared_ptr<ParticleReplacerBase> replacer_;
 };
 

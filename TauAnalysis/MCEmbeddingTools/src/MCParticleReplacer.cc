@@ -8,16 +8,25 @@
 //	0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
 //	1 - build new HepMCProduct only with taus (+decay products)
 MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& pset):
-  src_(pset.getParameter<edm::InputTag>("selectedParticles")),
-  srcHepMC_(pset.getParameter<edm::InputTag>("HepMCSource")),
-  replacementMode_(pset.getParameter<unsigned int>("replacementMode")),
-  replacer_(ParticleReplacerFactory::create(pset.getUntrackedParameter<int>("desiredReplacerClass", 1), pset)) {
+  src_(pset.getParameter<edm::InputTag>("src")),
+  srcHepMC_(pset.getParameter<edm::InputTag>("hepMcSrc")),
+  hepMcMode_(stringToHepMcMode(pset.getParameter<std::string>("hepMcMode"))),
+  replacer_(ParticleReplacerFactory::create(pset.getParameter<std::string>("algorithm"), pset)) {
 
   produces<edm::HepMCProduct>();
 }
 
 MCParticleReplacer::~MCParticleReplacer()
 {}
+
+MCParticleReplacer::HepMcMode MCParticleReplacer::stringToHepMcMode(const std::string& name) {
+  if(name == "new")
+    return kNew;
+  else if(name == "replace")
+    return kReplace;
+  else
+    throw cms::Exception("Configuration") << "Unsupported hepMcMode " << name << ", should be 'new' or 'replace'" << std::endl;
+}
 
 // ------------ method called to produce the data  ------------
 void
@@ -30,17 +39,17 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	return;
 
   std::auto_ptr<HepMC::GenEvent> evt;
-  if(replacementMode_ == 0) {
+  if(hepMcMode_ == kReplace) {
     edm::Handle<edm::HepMCProduct> HepMCHandle;	 
     iEvent.getByLabel(srcHepMC_, HepMCHandle);
 
     evt = replacer_->produce(*muons, 0, HepMCHandle->GetEvent());
   }
-  else if(replacementMode_ == 1){
+  else if(hepMcMode_ == kNew) {
     evt = replacer_->produce(*muons);
   }
   else
-    throw cms::Exception("Configuration") << "Unsupported replacementMode " << replacementMode_ << ", should be 1 or 0" << std::endl;
+    throw cms::Exception("LogicError") << "Invalid hepMcMode " << hepMcMode_ << std::endl;
 
 
   if(evt.get() != 0) {

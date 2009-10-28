@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("EXAMPLE")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.load("Configuration.Generator.PythiaUESettings_cfi")
 
@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'MC_31X_V5::All'
 
 
 TauolaDefaultInputCards = cms.PSet(
@@ -24,54 +24,9 @@ TauolaPolar = cms.PSet(
     UseTauolaPolarization = cms.bool(True)
 )
 
-process.newSource = cms.EDProducer('MCParticleReplacer',
-	desiredReplacerClass=cms.untracked.int32(1),
-# replacementMode =
-#    0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
-#    1 - build new HepMCProduct only with taus (+decay products)
-	replacementMode  = cms.untracked.int32(1),
-#
-# generatorMode =
-#    0 - use Pythia
-#    1 - use Tauola  
-	generatorMode  = cms.untracked.int32(1),
-
-	printEvent = cms.untracked.bool(True),
-
-    #maxEventsToPrint = cms.untracked.int32(5),
-    #pythiaPylistVerbosity = cms.untracked.int32(1),
-    filterEfficiency = cms.untracked.double(1.0),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    ExternalGenerators = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            TauolaPolar,
-            TauolaDefaultInputCards
-        ),
-        parameterSets = cms.vstring('Tauola')
-    ),
-    UseExternalGenerators = cms.untracked.bool(True),
-    PythiaParameters = cms.PSet(
-        process.pythiaUESettingsBlock,
-        ZtautauParameters = cms.vstring('MSEL         = 11 ', 
-            'MDME( 174,1) = 0    !Z decay into d dbar', 
-            'MDME( 175,1) = 0    !Z decay into u ubar', 
-            'MDME( 176,1) = 0    !Z decay into s sbar', 
-            'MDME( 177,1) = 0    !Z decay into c cbar', 
-            'MDME( 178,1) = 0    !Z decay into b bbar', 
-            'MDME( 179,1) = 0    !Z decay into t tbar', 
-            'MDME( 182,1) = 0    !Z decay into e- e+', 
-            'MDME( 183,1) = 0    !Z decay into nu_e nu_ebar', 
-            'MDME( 184,1) = 0    !Z decay into mu- mu+', 
-            'MDME( 185,1) = 0    !Z decay into nu_mu nu_mubar', 
-            'MDME( 186,1) = 1    !Z decay into tau- tau+', 
-            'MDME( 187,1) = 0    !Z decay into nu_tau nu_taubar', 
-            'CKIN( 1)     = 40.  !(D=2. GeV)', 
-            'CKIN( 2)     = -1.  !(D=-1. GeV)',
-                'MSTJ(28) = 1          ! no tau decays in pythia, use tauola instead'),
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'ZtautauParameters')
-    )
-)
+process.load("TauAnalysis.MCEmbeddingTools.MCParticleReplacer_cfi")
+process.newSource.algorithm = "Ztautau"
+process.newSource.verbose = True
 
 process.selectMuons = cms.EDProducer('SelectParticles',
 	TrackAssociatorParameters = cms.PSet(

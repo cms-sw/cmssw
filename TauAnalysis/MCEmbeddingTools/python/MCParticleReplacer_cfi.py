@@ -28,7 +28,8 @@ newSource = cms.EDProducer("MCParticleReplacer",
             Tauola = cms.PSet(
                 TauolaPolar,
                 TauolaDefaultInputCards
-            )
+            ),
+            parameterSets = cms.vstring('Tauola')
         ),
         PythiaParameters = cms.PSet(
             pythiaUESettingsBlock,
@@ -47,7 +48,8 @@ newSource = cms.EDProducer("MCParticleReplacer",
                 cms.PSet(
                     InputCards = cms.vstring('TAUOLA = 0 0 102 ! TAUOLA ')      # 114=l+jet, 102=only muons
                 )
-            )
+            ),
+            parameterSets = cms.vstring('Tauola')
         ),
         PythiaParameters = cms.PSet(
             pythiaUESettingsBlock,

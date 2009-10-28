@@ -21,11 +21,13 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include<string>
+
 #include<boost/shared_ptr.hpp>
 
 class ParticleReplacerFactory {
 public:
-  static boost::shared_ptr<ParticleReplacerBase> create(int algo, const edm::ParameterSet& iConfig);
+  static boost::shared_ptr<ParticleReplacerBase> create(const std::string& algo, const edm::ParameterSet& iConfig);
 };
 
 #endif

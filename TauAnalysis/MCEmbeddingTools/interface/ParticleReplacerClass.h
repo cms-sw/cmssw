@@ -50,10 +50,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 
+#include<string>
+
 class ParticleReplacerClass : public ParticleReplacerBase
 {
 public:
-	explicit ParticleReplacerClass(const edm::ParameterSet&);
+	explicit ParticleReplacerClass(const edm::ParameterSet&, bool);
 	~ParticleReplacerClass();
 
         virtual std::auto_ptr<HepMC::GenEvent> produce(const reco::MuonCollection& muons, const reco::Vertex *pvtx=0, const HepMC::GenEvent *genEvt=0);
@@ -76,7 +78,7 @@ private:
 	//	0	fullEvent	(incl. all other particles)
 	//	1	taus only	(create an event only with the two decaying taus)
 	unsigned int replacementMode_;
-	unsigned int generatorMode_;
+	std::string generatorMode_;
 	bool noInitialisation_;
 
 	// this variable defines the type of decay to simulate

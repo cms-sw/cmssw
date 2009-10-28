@@ -28,7 +28,7 @@
 
 class ParticleReplacerParticleGun: public ParticleReplacerBase {
 public:
-  explicit ParticleReplacerParticleGun(const edm::ParameterSet&);
+  explicit ParticleReplacerParticleGun(const edm::ParameterSet&, bool);
   virtual ~ParticleReplacerParticleGun();
 
   virtual void beginJob();
@@ -51,6 +51,7 @@ private:
   std::string particleOrigin_;
   std::string forceTauPolarization_;
   std::string forceTauDecay_;
+  std::string generatorMode_;
   int gunParticle_;
   int forceTauPlusHelicity_;
   int forceTauMinusHelicity_;
