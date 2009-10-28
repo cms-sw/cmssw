@@ -3,7 +3,7 @@ configurations used for the RelVal samples. It is trying
 SingleElectronPt35 and QcdPt80-120 with 10 events.
 Type "oval p".
 
-<var name="MY_GLOBAL_TAG" value="MC_31X_V9">
+<var name="MY_GLOBAL_TAG" value="MC_3XY_V10">
 
 <diffline expr="(Begin processing the \S* record)">
 
@@ -18,7 +18,7 @@ Type "oval p".
   </environment>
   
   <environment name="SingleElectronPt35Harv">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SingleElectronPt35Reco.root  --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Harv.py --no_exec">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SingleElectronPt35Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Harv.py --no_exec">
     <executable name="cmsRun" args="MyElectronPt35Harv.py">
   </environment>
 
@@ -35,7 +35,7 @@ Type "oval p".
   </environment>
   
   <environment name="SinglePhotonPt35Harv">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SinglePhotonPt35Reco.root  --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SinglePhotonPt35Harv.py --no_exec">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SinglePhotonPt35Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SinglePhotonPt35Harv.py --no_exec">
     <executable name="cmsRun" args="MyPhotonPt35Harv.py">
   </environment>
 
@@ -52,7 +52,7 @@ Type "oval p".
   </environment>
   
   <environment name="QcdPt80Pt120Harv">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:QcdPt80Pt120Reco.root --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Harv.py --no_exec">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:QcdPt80Pt120Reco.root --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Harv.py --no_exec">
     <executable name="cmsRun" args="MyQcdPt80Pt120Harv.py">
   </environment>
 
