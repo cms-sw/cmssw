@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre2/HLT/V33 (CMSSW_3_4_X_2009-10-22-0100_HLT1)
+# /dev/CMSSW_3_4_0/pre2/HLT/V34 (CMSSW_3_4_X_2009-10-27-1500_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HLT/V33')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre2/HLT/V34')
 )
 
 
@@ -313,13 +313,32 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
+  SiStripQualityLabel = cms.string( "" ),
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   stripClusterProducer = cms.string( "hltSiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  )
+  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  badStripCuts = cms.PSet( 
+    TIB = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TOB = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TEC = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TID = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    )
+  )
 )
 MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "muonCkfTrajectoryBuilder" ),
