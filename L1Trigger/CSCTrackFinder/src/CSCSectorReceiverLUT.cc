@@ -540,14 +540,15 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
   gblphidat dtlut;
 
   // The following method was ripped from D. Holmes' LUT conversion program
-
-  int GlobalPhiMin = (_subsector == 1) ? 0x42 : 0x800;
-  int GlobalPhiMax = (_subsector == 1) ? 0x7ff : 0xfbd;
-  double GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0);
+  // modifications from Darin and GP
+  int GlobalPhiMin = (_subsector == 1) ? 0x42 : 0x800;  // (0.999023 : 31 in degrees)
+  int GlobalPhiMax = (_subsector == 1) ? 0x7ff : 0xfbd; // (30.985 : 60.986 in degrees)
+  int GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0);
 
   double dt_out = static_cast<double>(csclut.global_phi) - GlobalPhiShift;
 
-  dt_out = (dt_out/1981)*2155;
+  // these numbers are 62 deg / 1 rad (CSC phi scale vs. DT phi scale)
+  dt_out = (dt_out/1982)*2145; //CSC phi 62 degrees; DT phi 57.3 degrees
 
   if(dt_out >= 0) // msb != 1
     {
@@ -572,8 +573,10 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cs
   address.wire_group = ((1<<5)-1)&(wire_group>>2);
   address.phi_local = phi_local;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  else if(LUTsFromFile) result = mb_global_phi[address.toint()];
+  // comment for now
+  //  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
+  //else 
+  if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address));
 
   return result;
@@ -584,8 +587,9 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address) const
   gblphidat result;
   gblphiadd theadd(address);
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address);
-  else if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
+  //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address);
+  //else 
+  if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address));
 
   return result;
@@ -595,8 +599,9 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address) const
 {
   gblphidat result;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  else if(LUTsFromFile) result = mb_global_phi[address.toint()];
+  //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
+  //else 
+  if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address));
 
   return result;
