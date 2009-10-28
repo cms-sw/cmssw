@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.12 2009/10/25 15:23:03 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.13 2009/10/28 14:46:17 chrjones Exp $
 //
 
 // system include files
@@ -90,12 +90,12 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
       m_calo3d = new TEveCalo3D(m_data, "RPZCalo3D");
       m_calo3d->SetBarrelRadius(129);
       m_calo3d->SetEndCapPos(310);
-      if ( *product == 0)
-      {
-         *product = new TEveElementList("RPZCalo3DHolder");
-         (*product)->AddElement(m_calo3d);
-         gEve->AddElement(*product);
-      }
+   }
+   if ( *product == 0)
+   {
+      *product = new TEveElementList("RPZCalo3DHolder");
+      (*product)->AddElement(m_calo3d);
+      gEve->AddElement(*product);
    }
 }
 
