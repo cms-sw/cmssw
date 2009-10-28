@@ -1,5 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
 import FWCore.ParameterSet.Config as cms
 
 patEventContentNoLayer1Cleaning = [
@@ -34,7 +32,7 @@ patExtraAodEventContent = [
     'keep *_offlineBeamSpot_*_*',
     'keep *_offlinePrimaryVertices_*_*',
     # TRIGGER
-    'keep edmTriggerResults_TriggerResults_*_HLT', 
+    'keep edmTriggerResults_TriggerResults_*_*', 
     'keep *_hltTriggerSummaryAOD_*_*'
 ]
 
@@ -56,4 +54,17 @@ patEventContentTriggerMatch = [
     'keep *_cleanLayer1TausTriggerMatch_*_*', 
     'keep *_cleanLayer1JetsTriggerMatch_*_*', 
     'keep *_layer1METsTriggerMatch_*_*'
+]
+
+patHiEventContent = [
+    'keep patPhotons_selected*_*_*',
+    'keep patMuons_selected*_*_*',
+    'keep patJets_selected*_*_*',
+    'keep patHeavyIon_heavyIon_*_*'
+]
+
+patHiExtraAodEventContent = [
+    'keep recoGenParticles_hiGenParticles_*_*',
+    'keep recoGenJets_iterativeCone5HiGenJets_*_*', # until a better solution
+    'keep recoTracks_hiSelectedTracks_*_*'
 ]
