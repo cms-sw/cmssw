@@ -110,7 +110,7 @@ void ESOccupancyTask::beginJob(const edm::EventSetup & c)
 
 void ESOccupancyTask::endJob() {
 
-   cout<<"Reach EndJob of ESOccupancyTask"<<endl;
+   // cout<<"Reach EndJob of ESOccupancyTask"<<endl;
 
 }
 
