@@ -10,6 +10,7 @@
 <use name="DataFormats/TrackReco">
 <use name="DataFormats/VertexReco">
 <use name="RecoParticleFlow/PFClusterTools">
+<use name="RecoParticleFlow/PFClusterShapeProducer">
 <use name="boost">
 <use name="clhep">
 <use name="rootmath">
@@ -28,6 +29,7 @@
   <use name="DataFormats/TrackReco">
   <use name="DataFormats/VertexReco">
   <use name="RecoParticleFlow/PFClusterTools">
+  <use name="RecoParticleFlow/PFClusterShapeProducer">	
   <use name="boost">
   <use name="clhep">
   <use name="rootmath">

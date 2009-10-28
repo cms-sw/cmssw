@@ -15,6 +15,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+#include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterWidthAlgo.h"
 #include <iomanip>
 
 using namespace std;
@@ -922,7 +923,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 
     float Ene_ecalgsf = 0.;
     float Ene_hcalgsf = 0.;
-    float sigmaEtaEta = 0.;
+    double sigmaEtaEta = 0.;
     float deta_gsfecal = 0.;
     float Ene_ecalbrem = 0.;
     float Ene_extraecalgsf = 0.;
@@ -1012,34 +1013,14 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  
 	  deta_gsfecal = clusterRef->position().eta() - Etaout_gsf;
 	  
-	  const vector< reco::PFRecHitFraction >& PFRecHits =  clusterRef->recHitFractions();
-	  double SeedClusEnergy = -1.;
-	  unsigned int SeedDetID = 0;
-	  double SeedEta = -1.;
-	  double SeedPhi = -1.;
-	  for ( vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
-		it != PFRecHits.end(); ++it) {
-	    const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
-	    double energyRecHit = RefPFRecHit->energy();
-	    if (energyRecHit > SeedClusEnergy) {
-	      SeedClusEnergy = energyRecHit;
-	      SeedEta = RefPFRecHit->position().eta();
-	      SeedPhi =  RefPFRecHit->position().phi();
-	      SeedDetID = RefPFRecHit->detId();
-	    }
-	  }
+	  vector<reco::PFCluster> pfClust_vec(0);
+	  pfClust_vec.clear();
+	  pfClust_vec.push_back(*clusterRef);
 	  
-	  for ( vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
-		it != PFRecHits.end(); ++it) {
-	    
-	    const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
-	    double energyRecHit = RefPFRecHit->energy();
-	    if (RefPFRecHit->detId() != SeedDetID) {
-	      float diffEta =  RefPFRecHit->position().eta() - SeedEta;
-	      sigmaEtaEta += (diffEta*diffEta) * (energyRecHit/SeedClusEnergy);
-	    }
-	  }
-	  if (sigmaEtaEta == 0.) sigmaEtaEta = 0.00000001;
+	  PFClusterWidthAlgo pfwidh(pfClust_vec);
+	  sigmaEtaEta = pfwidh.pflowSigmaEtaEta();
+
+
 	}
 	else {
 	  reco::PFClusterRef clusterRef = elements[(assogsf_index[ielegsf])].clusterRef();	  	  
@@ -1134,7 +1115,6 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	EtotBremPinPoutMode = Ene_ecalbrem /(Ein_gsf - Eout_gsf);
 	DEtaGsfEcalClust  = fabs(deta_gsfecal);
 	SigmaEtaEta = log(sigmaEtaEta);
-	
 	
 	lateBrem = -1;
 	firstBrem = -1;
@@ -1330,6 +1310,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
   PFEnergyResolution pfresol_;
   PFEnergyCalibration pfcalib_;
   bool DebugIDCandidates = false;
+//   vector<reco::PFCluster> pfClust_vec(0);
+//   pfClust_vec.clear();
 
   unsigned int cgsf=0;
   for (map<unsigned int,vector<unsigned int> >::iterator igsf = associatedToGsf_.begin();
@@ -1474,6 +1456,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	eecal++;
 	
 	const reco::PFCluster& cl(*clust->clusterRef());
+	//pfClust_vec.push_back((*clust->clusterRef()));
 
 	// The electron RAW energy is the energy of the corrected GSF cluster	
 	double ps1,ps2;
@@ -1594,6 +1577,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	    if( assobrem_index[ibrem] !=  ecalGsf_index) {
 	      elementsToAdd.push_back(assobrem_index[ibrem]);
 	      reco::PFClusterRef clusterRef = elements[(assobrem_index[ibrem])].clusterRef();
+	      //pfClust_vec.push_back(*clusterRef);
 	      // to get a calibrated PS energy 
 	      double ps1=0;
 	      double ps2=0;
@@ -1743,7 +1727,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	// Add Vertex
 	temp_Candidate.setVertex(RefGSF->vertex());
 
-	
+
 	if( DebugIDCandidates ) 
 	  cout << "SetCandidates:: I am after doing candidate " <<endl;
 	

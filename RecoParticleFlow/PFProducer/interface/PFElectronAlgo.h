@@ -4,8 +4,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "TMVA/Reader.h"
 #include <iostream>
 
