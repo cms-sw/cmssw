@@ -541,6 +541,12 @@ public:
     else if(fabs(eta)>1.5)
       return parScale[3]*pt;
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(1);
+    }
+  }
 
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.00000001, 0.000000001, 0.00000001, 0.00000001};
