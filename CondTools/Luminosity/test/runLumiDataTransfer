@@ -38,8 +38,8 @@ def main():
    if 'CMSSW_BASE' not in os.environ:
       print 'CMSSW is not set up! Please run "cmsenv"'
       sys.exit(2)
-   parser = OptionParser()
-   usage = "usage: \%prog [options] \n"
+   usage = "usage: \%prog [options] commandconfigfile"
+   parser = OptionParser(usage=usage)
    parser.add_option("-f","--filename",action="store",dest="rootfilename",
                      help="path and name to lumi root file (REQUIRED)")
    parser.add_option("-t","--tagname",action="store",dest="tagname",
@@ -93,27 +93,28 @@ def main():
         if Config.has_option(sectionName,'rootfilename'):
            rootfilename=Config.get(sectionName,'rootfilename')
         else:
-           raise ConfigParser.ParsingError, "option rootfilename is required"
+           raise ValueError, "option rootfilename is required"
         if Config.has_option(sectionName,'tagname'):
            tagname=Config.get(sectionName,'tagname')
         else:
-           raise ConfigParser.ParsingError, "option tagname is required"
+           raise ValueError, "option tagname is required"
         if Config.has_option(sectionName,'dbconnect'):
            connect=Config.get(sectionName,'dbconnect')
         else:
-           raise ConfigParser.ParsingError, "option dbconnect is required"
+           raise ValueError, "option dbconnect is required"
         if Config.has_option(sectionName,'authpath'):
            authpath=Config.get(sectionName,'authpath')
         else:
-           raise ConfigParser.ParsingError, "option authpath is required"
+           raise ValueError, "option authpath is required"
         if Config.has_option(sectionName,'inputTemplate'):
            inputTemplate=Config.get(sectionName,'inputTemplate')
         else:
-           raise ConfigParser.ParsingError, "option inputTemplate is required"
+           raise ValueError, "option inputTemplate is required"
            
-      except:
-        print("exception on %s!" % option)
-        exit(2)
+      except Exception,er:
+        print str(er)
+        sys.exit(2) 
+
    else: 
       if not options.rootfilename:
          parser.error('option -f or --filename is required')
