@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.3 2009/10/25 15:36:49 chrjones Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.4 2009/10/28 14:39:59 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
       if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           !m_item->modelInfo(index).isSelected()) {
-         std::cout <<"  doSelect "<<index<<std::endl;
+         //std::cout <<"  doSelect "<<index<<std::endl;
          m_item->select(index);
       }
    }
@@ -68,7 +68,7 @@ FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
       if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           m_item->modelInfo(index).isSelected()) {
-         std::cout <<"  doUnselect "<<index<<std::endl;
+         //std::cout <<"  doUnselect "<<index<<std::endl;
          m_item->unselect(index);
       }
    }
@@ -130,7 +130,7 @@ void
 FWFromTEveCaloDataSelector::doUnselect()
 {
    assert(m_changeManager);
-   std::cout <<"FWFromTEveCaloDataSelector::doUnselect()"<<std::endl;
+   //std::cout <<"FWFromTEveCaloDataSelector::doUnselect()"<<std::endl;
    
    FWChangeSentry sentry(*m_changeManager);
    const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();

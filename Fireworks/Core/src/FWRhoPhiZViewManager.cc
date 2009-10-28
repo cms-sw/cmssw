@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.54 2009/10/23 22:06:29 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.55 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -278,14 +278,14 @@ FWRhoPhiZViewManager::colorsChanged()
 void
 FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 {
-   std::cout <<"selection added "<<iElement<< std::endl;
+   //std::cout <<"selection added "<<iElement<< std::endl;
    if(0!=iElement) {
-      std::cout <<"  non null"<<std::endl;
+      //std::cout <<"  non null"<<std::endl;
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
       if(0 != userData) {
-         std::cout <<"    have userData"<<std::endl;
-         std::cout <<"      calo"<<std::endl;
+         //std::cout <<"    have userData"<<std::endl;
+         //std::cout <<"      calo"<<std::endl;
          bool last = m_eveSelection->BlockSignals(kTRUE);
          FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
          base->doSelect();
@@ -297,7 +297,7 @@ FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 void
 FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
 {
-   std::cout <<"selection removed"<<std::endl;
+   //std::cout <<"selection removed"<<std::endl;
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
       if(0 != userData) {
@@ -313,7 +313,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
 void
 FWRhoPhiZViewManager::selectionCleared()
 {
-   std::cout<<"selection cleared"<<std::endl;
+   //std::cout<<"selection cleared"<<std::endl;
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }

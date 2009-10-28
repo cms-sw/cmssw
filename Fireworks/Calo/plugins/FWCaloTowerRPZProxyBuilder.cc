@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.13 2009/10/28 14:46:17 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.14 2009/10/28 15:18:40 chrjones Exp $
 //
 
 // system include files
@@ -124,7 +124,7 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       // do this by moving them to the end of the list and then clearing only the end of the list
       // this avoids needing any additional memory
       TEveCaloData::vCellId_t& selected = m_data->GetCellsSelected();
-      std::cout <<"FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels "<< selected.size()<<std::endl;
+      //std::cout <<"FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels "<< selected.size()<<std::endl;
       
       TEveCaloData::vCellId_t::iterator itEnd = selected.end();
       for(TEveCaloData::vCellId_t::iterator it = selected.begin();
