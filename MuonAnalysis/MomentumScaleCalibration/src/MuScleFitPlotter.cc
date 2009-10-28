@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/10/06 08:43:07 $
-//  $Revision: 1.9 $
+//  $Date: 2009/10/14 12:58:35 $
+//  $Revision: 1.10 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -77,8 +77,8 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
       if( momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
           momPdgId==553 || momPdgId==100553 || momPdgId==200553 ) {
         if( momPdgId == 23 ) mothersFound[0] = 1;
-        if( momPdgId == 443 ) mothersFound[3] = 1;
-        if( momPdgId == 553 ) mothersFound[5] = 1;
+        if( momPdgId == 443 ) mothersFound[5] = 1;
+        if( momPdgId == 553 ) mothersFound[3] = 1;
 	mapHisto["hGenMu"]->Fill(mcIter->p4());
 	cout<<"genmu "<<mcIter->p4()<<endl;
 	if(mcIter->charge()>0){
