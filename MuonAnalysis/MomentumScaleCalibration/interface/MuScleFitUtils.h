@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/10/19 09:51:47 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/10/21 14:07:47 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -15,7 +15,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include <DataFormats/FWLite/interface/Handle.h>
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TGraphErrors.h"
