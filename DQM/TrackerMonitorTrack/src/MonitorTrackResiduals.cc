@@ -34,7 +34,7 @@ MonitorTrackResiduals::~MonitorTrackResiduals() {
 }
 
 
-void MonitorTrackResiduals::beginJob(const edm::EventSetup& es) {
+void MonitorTrackResiduals::beginJob(void) {
   ModOn = conf_.getParameter<bool>("Mod_On");
   reset_me_after_each_run = conf_.getParameter<bool>("ResetAfterRun");
 }

@@ -11,7 +11,7 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.15 2008/07/09 18:40:10 ebutz Exp $
+// $Id: MonitorTrackResiduals.h,v 1.16 2009/10/19 19:05:11 dutta Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,7 +34,7 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   ~MonitorTrackResiduals();
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob(void);
   virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   // Own methods 
