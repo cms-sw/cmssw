@@ -13,12 +13,13 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.2 2009/08/18 13:54:31 yilmaz Exp $
+// $Id: HiMixingModule.cc,v 1.2 2009/10/22 17:15:59 yilmaz Exp $
 //
 //
 
 
 // system include files
+#include <vector>
 #include <memory>
 #include <iostream>
 
@@ -54,8 +55,6 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Services/src/Memory.h"
 
-
-#include <vector>
 #include <string>
 
 using namespace std;
@@ -68,90 +67,82 @@ namespace edm{
 
    class HiMixingModule;
 
-class HiMixingWorkerBase{
-public:
-   explicit HiMixingWorkerBase(){;}
-
-   HiMixingWorkerBase(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) :
+   class HiMixingWorkerBase{
+   public:
+      explicit HiMixingWorkerBase(){;}
+      
+      HiMixingWorkerBase(std::string& object, std::vector<InputTag>& tags, std::string& label) :
       object_(object),
-      tag1_(tag1),
-      tag2_(tag2),
+      tags_(tags),
       label_(label)
-   {;}
-   virtual ~HiMixingWorkerBase(){;}
-   //   virtual void put(edm::Event &e) = 0;
-   virtual void addSignals(edm::Event &e) = 0;
+      {;}
+      virtual ~HiMixingWorkerBase(){;}
+      //   virtual void put(edm::Event &e) = 0;
+      virtual void addSignals(edm::Event &e) = 0;
 
-   std::string object_;
-   InputTag tag1_;
-   InputTag tag2_;
-   std::string label_;
-};
+      std::string object_;
+      std::vector<InputTag> tags_;
+      std::string label_;
+   };
 
-
+   
    template <class T>
    class HiMixingWorker : public HiMixingWorkerBase {
    public:
-      HiMixingWorker(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) : HiMixingWorkerBase(object,tag1,tag2, label) {;}
+      HiMixingWorker(std::string& object, std::vector<InputTag>& tags, std::string& label) : HiMixingWorkerBase(object,tags, label) {;}
       ~HiMixingWorker(){;}
-     void addSignals(edm::Event &e){
-
-	 cout<<"addSignals Working"<<endl;
-
-	 Handle<std::vector<T> > handle1;
-	 Handle<std::vector<T> > handle2;
-	 bool get1 = e.getByLabel(tag1_,handle1);
-	 bool get2 = e.getByLabel(tag2_,handle2);
-
-         if(get1 && get2){
+      void addSignals(edm::Event &e){
+	 std::vector<Handle<std::vector<T> > > handles;
+	 bool get = true;
+	 for(size_t itag = 0; itag < tags_.size(); ++itag){
+	    std::cout<<"itag "<<itag<<std::endl;
+	    std::cout<<"label "<<tags_[itag].label()<<std::endl;
+	    std::cout<<"instance "<<tags_[itag].instance()<<std::endl;
+	    Handle<std::vector<T> > hand;
+	    handles.push_back(hand);
+	    get = get && e.getByLabel(tags_[itag],handles[itag]);
+	    if(!get)  LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
+						       <<object_
+						       <<", instance "
+						       <<tags_[itag].instance()
+						       <<" whereas the other one is fine.";
+	 }
+	 
+         if(get){
 	    std::auto_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );	    
-	    // Following should be reconsidered, what should be the bkg, is bcr useful?
-	    crFrame->addSignals(handle2.product(),e.id());
-	    crFrame->addPileups(0,const_cast< std::vector<T> * >(handle1.product()),1);	 
+	    crFrame->addSignals(handles[0].product(),e.id());
+	    for(size_t itag = 1; itag < tags_.size(); ++itag){
+	       crFrame->addPileups(0,const_cast< std::vector<T> * >(handles[itag].product()),itag);	 
+	    }
 	    e.put(crFrame,label_);
-	 }else if(get1 || get2){
-	    LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
-					     <<object_
-					     <<", instance "
-					     <<tag1_.instance()
-					     <<" whereas the other one is fine.";
 	 }
       }
    };
-
+   
 template <>
 void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
-   Handle<HepMCProduct> handle1;
-   Handle<HepMCProduct> handle2;
-   bool get1 = e.getByLabel(tag1_,handle1);
-   bool get2 = e.getByLabel(tag2_,handle2);
 
-   if(get1 && get2){
-      std::auto_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
-
-      // Following should be reconsidered, what should be the bkg, is bcr useful? 
-
-      /*
-	std::vector<HepMCProduct> vec1;
-	std::vector<HepMCProduct> vec2;
-	vec1.push_back(*(handle1.product()));
-	vec2.push_back(*(handle2.product()));
-	crFrame->addSignals(&vec2,e.id());
-	crFrame->addPileups(0,&vec1,e.id().event());
-      */
-
-      crFrame->addSignals(handle2.product(),e.id());
-      crFrame->addPileups(0, const_cast<HepMCProduct *>(handle1.product()),1);
-
-      e.put(crFrame,label_);
-   }else if(get1 || get2){
-      LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
-				       <<object_
-				       <<", instance "
-				       <<tag1_.instance()
-				       <<" whereas the other one is fine.";
+   std::vector<Handle<HepMCProduct> > handles;
+   bool get = true;
+   for(size_t itag = 0; itag< tags_.size(); ++itag){
+      Handle<HepMCProduct> hand;
+      handles.push_back(hand);
+      get = get && e.getByLabel(tags_[itag],handles[itag]);
+      if(!get)  LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
+						 <<object_
+						 <<", instance "
+						 <<tags_[itag].instance()
+						 <<" whereas the other one is fine.";
    }
    
+   if(get){
+      std::auto_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
+      crFrame->addSignals(handles[0].product(),e.id());
+      for(size_t itag = 1; itag < tags_.size(); ++itag){
+	 crFrame->addPileups(0, const_cast<HepMCProduct *>(handles[itag].product()),itag);
+      }
+      e.put(crFrame,label_);
+   }
 }
 
 class HiMixingModule : public edm::EDProducer {
@@ -187,7 +178,10 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 
    ParameterSet ps=pset.getParameter<ParameterSet>("mixObjects");
    std::vector<std::string> names = ps.getParameterNames();
-   std::vector<std::string> signals = pset.getParameter<std::vector<std::string> >("signalTag");
+   std::vector<std::string> simtags = pset.getParameter<std::vector<std::string> >("srcSIM");
+   std::vector<std::string> gentags = pset.getParameter<std::vector<std::string> >("srcGEN");
+
+   if(simtags.size() != gentags.size()) LogError("MixingInput")<<"Generator and Simulation input lists are not matching each other"<<endl;
    
    for (std::vector<string>::iterator it=names.begin();it!= names.end();++it){
       
@@ -197,35 +191,37 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
       std::vector<InputTag>  tags=pstag.getParameter<std::vector<InputTag> >("input");
 
       std::string signal;
-      if (object=="HepMCProduct") signal = signals[0];
-      else signal = signals[1];
-
       for(size_t itag = 0; itag < tags.size(); ++itag){
-	 InputTag tag=tags[itag];
-	 InputTag tag2 = InputTag(signal,tag.instance());
-	 
-	 std::string label;
-	 if (verifyRegistry(object,std::string(""),tag,label)){
+         InputTag tag=tags[itag];
+	 std::vector<InputTag> inputs;
+
+	 for(size_t input = 0; input < simtags.size(); ++input){
+	    if (object=="HepMCProduct") signal = gentags[input];
+	    else signal = simtags[input];
+	    inputs.push_back(InputTag(signal,tag.instance()));
+	 }
+
+	 std::string label=tag.label()+tag.instance();
+	 //	 verifyRegistry(object,std::string(""),tag,label);
 	    if (object=="HepMCProduct"){
-	       workers_.push_back(new HiMixingWorker<HepMCProduct>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<HepMCProduct>(object,inputs,label));
 	       produces<CrossingFrame<HepMCProduct> >(label);
 	    }else if (object=="SimTrack"){
-	       workers_.push_back(new HiMixingWorker<SimTrack>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<SimTrack>(object,inputs,label));
 	       produces<CrossingFrame<SimTrack> >(label);
 	    }else if (object=="SimVertex"){
-	       workers_.push_back(new HiMixingWorker<SimVertex>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<SimVertex>(object,inputs,label));
 	       produces<CrossingFrame<SimVertex> >(label);
 	    }else if (object=="PSimHit"){
-	       workers_.push_back(new HiMixingWorker<PSimHit>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<PSimHit>(object,inputs,label));
 	       produces<CrossingFrame<PSimHit> >(label);
 	    }else if (object=="PCaloHit"){
-	       workers_.push_back(new HiMixingWorker<PCaloHit>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<PCaloHit>(object,inputs,label));
 	       produces<CrossingFrame<PCaloHit> >(label);
 	    }else LogInfo("Error")<<"What the hell is this object?!";
 	    
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;	 
 	    cout<<"The COUT : "<<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<endl;	 
-	 }	 
       }
    }  
 }
