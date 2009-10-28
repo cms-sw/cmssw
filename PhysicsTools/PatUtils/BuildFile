@@ -4,10 +4,8 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/GsfTrackReco>
-<use name=PhysicsTools/Utilities>
 <use name=TrackingTools/TransientTrack>
 <use name=root>
-<flags LDFLAGS="-lMLP">
 <export>
   <lib name=PhysicsToolsPatUtils>
   <use name=DataFormats/Math>
@@ -16,7 +14,6 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/GsfTrackReco>
-  <use name=PhysicsTools/Utilities>
   <use name=TrackingTools/TransientTrack>
   <use name=root>
 </export>

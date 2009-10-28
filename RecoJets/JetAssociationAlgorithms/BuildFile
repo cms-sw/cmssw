@@ -5,7 +5,6 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=MagneticField/Engine>
-<use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryParametrization>
