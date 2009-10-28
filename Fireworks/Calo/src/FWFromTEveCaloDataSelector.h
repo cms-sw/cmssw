@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id$
+// $Id: FWFromTEveCaloDataSelector.h,v 1.1 2009/10/23 22:05:57 chrjones Exp $
 //
 
 // system include files
@@ -28,12 +28,15 @@
 // forward declarations
 class TH2F;
 class FWEventItem;
+class FWModelChangeManager;
 
 class FWFromSliceSelector {
 public:
    FWFromSliceSelector( TH2F* iHist,
                        const FWEventItem*);
    void doSelect(const TEveCaloData::CellId_t&);
+   void doUnselect(const TEveCaloData::CellId_t&);
+   FWModelChangeManager* changeManager() const;
 private:
     TH2F* m_hist;
    const FWEventItem* m_item;
@@ -52,6 +55,7 @@ public:
    
    // ---------- member functions ---------------------------
    void doSelect();
+   void doUnselect();
    
    void addSliceSelector(int iSlice, const FWFromSliceSelector&);
 private:
@@ -62,6 +66,7 @@ private:
    // ---------- member data --------------------------------
    std::vector<FWFromSliceSelector> m_sliceSelectors;
    TEveCaloData* m_data;
+   FWModelChangeManager* m_changeManager;
    
 
 };
