@@ -1,3 +1,9 @@
+2009-10-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-07-05
+	* shmem and sem keys assigned by uid
+	* ShmBuffer always tries to remove existing shm segments for same uid
+	
 2009-08-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-07-04

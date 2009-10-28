@@ -20,6 +20,10 @@
 #include <cstdlib>
 #include <cstring>
 
+// the shmem keys are henceforth going to be FIXED for a give userid
+// prior to creation, the application will attempt to get ownership
+// of existing segments by the same key and destroy them
+
 #define SHM_DESCRIPTOR_KEYID           1 /* Id used on ftok for 1. shmget key */
 #define SHM_KEYID                      2 /* Id used on ftok for 2. shmget key */
 #define SEM_KEYID                      1 /* Id used on ftok for semget key    */
@@ -30,6 +34,8 @@
 using namespace std;
 using namespace evf;
 
+
+//obsolete!!!
 const char* FUShmBuffer::shmKeyPath_ =
   (getenv("FUSHM_KEYFILE") == NULL ? "/dev/null" : getenv("FUSHM_KEYFILE"));
 const char* FUShmBuffer::semKeyPath_ =
@@ -963,8 +969,8 @@ unsigned int FUShmBuffer::size(bool         segmentationMode,
 //______________________________________________________________________________
 key_t FUShmBuffer::getShmDescriptorKey()
 {
-  key_t result=ftok(shmKeyPath_,SHM_DESCRIPTOR_KEYID);
-  if (result==(key_t)-1) cout<<"FUShmBuffer::getShmDescriptorKey: ftok() failed "
+  key_t result=getuid()*1000+SHM_DESCRIPTOR_KEYID;
+  if (result==(key_t)-1) cout<<"FUShmBuffer::getShmDescriptorKey: failed "
 			     <<"for file "<<shmKeyPath_<<"!"<<endl;
   return result;
 }
@@ -973,7 +979,7 @@ key_t FUShmBuffer::getShmDescriptorKey()
 //______________________________________________________________________________
 key_t FUShmBuffer::getShmKey()
 {
-  key_t result=ftok(shmKeyPath_,SHM_KEYID);
+  key_t result=getuid()*1000+SHM_KEYID;
   if (result==(key_t)-1) cout<<"FUShmBuffer::getShmKey: ftok() failed "
 			     <<"for file "<<shmKeyPath_<<"!"<<endl;
   return result;
@@ -983,7 +989,7 @@ key_t FUShmBuffer::getShmKey()
 //______________________________________________________________________________
 key_t FUShmBuffer::getSemKey()
 {
-  key_t result=ftok(semKeyPath_,SEM_KEYID);
+  key_t result=getuid()*1000+SEM_KEYID;
   if (result==(key_t)-1) cout<<"FUShmBuffer::getSemKey: ftok() failed "
 			     <<"for file "<<semKeyPath_<<"!"<<endl;
   return result;
@@ -993,7 +999,19 @@ key_t FUShmBuffer::getSemKey()
 //______________________________________________________________________________
 int FUShmBuffer::shm_create(key_t key,int size)
 {
-  int shmid=shmget(key,size,IPC_CREAT|0644);
+  // first check and possibly remove existing segment with same id
+  int shmid=shmget(key,1,0644);//using minimal size any segment with key "key" will be connected
+  if(shmid!=-1){
+    // an existing segment was found, remove it
+    shmid_ds shmstat;
+    int result=shmctl(shmid,IPC_STAT,&shmstat);
+    cout << "FUShmBuffer found segment for key 0x " << hex << key << dec
+	 << " created by process " << shmstat.shm_cpid << " owned by "
+	 << shmstat.shm_perm.uid << " permissions " 
+	 << hex << shmstat.shm_perm.mode << dec << endl;
+    result=shmctl(shmid,IPC_RMID,&shmstat);
+  }
+  shmid=shmget(key,size,IPC_CREAT|0644);
   if (shmid==-1) {
     int err=errno;
     cout<<"FUShmBuffer::shm_create("<<key<<","<<size<<") failed: "
