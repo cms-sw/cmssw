@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.10 2009/09/14 13:09:15 saout Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.11 2009/09/23 09:31:32 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -38,7 +38,7 @@ class GenParticleProducer : public edm::EDProducer {
   bool fillDaughters(reco::GenParticleCollection& cand, const HepMC::GenParticle * part, size_t index);
   bool fillIndices(const HepMC::GenEvent * mc, std::vector<const HepMC::GenParticle*>& particles, std::vector<int>& barCodeVector, int offset);
   std::map<int, size_t> barcodes_;
-  const reco::GenParticleRefProd* ref_;
+  reco::GenParticleRefProd ref_;
 
  private:
   /// source collection name  
@@ -183,7 +183,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
   //  auto_ptr<SubEventMap> subsPtr( new SubEventMap() );
   auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
-  ref_ = &(evt.getRefBeforePut<GenParticleCollection>());
+  ref_ = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
   //  SubEventMap & subs = *subsPtr;
   size_t offset = 0;
@@ -209,7 +209,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	   reco::GenParticle & cand = cands[ i ];
 	   // convert HepMC::GenParticle to new reco::GenParticle
 	   convertParticle(cand, part);
-	   cand.resetDaughters( ref_->id() );
+	   cand.resetDaughters( ref_.id() );
 	}
 
 	for( size_t d = offset; d < offset + num_particles; ++ d ) {
@@ -228,7 +228,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	   }
 	   if(sub_id < 0) sub_id = 0;
 	   int new_id = sub_id + suboffset;
-	   GenParticleRef dref( *ref_, d );
+	   GenParticleRef dref( ref_, d );
 	   //	   subs.insert(dref,new_id);   // For SubEventMap
 	   cands[d].setCollisionId(new_id); // For new GenParticle
 	   LogDebug("VertexId")<<"SubEvent offset 3 : "<<suboffset;
@@ -251,7 +251,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	reco::GenParticle & cand = cands[ i ];
 	// convert HepMC::GenParticle to new reco::GenParticle
 	convertParticle(cand, part);
-	cand.resetDaughters( ref_->id() );
+	cand.resetDaughters( ref_.id() );
      }
      
      // fill references to daughters
@@ -299,8 +299,8 @@ bool GenParticleProducer::fillDaughters(reco::GenParticleCollection& cands, cons
       for( ; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
 	 const HepMC::GenParticle * mother = * motherIt;
 	 size_t m = barcodes_.find( mother->barcode() )->second;
-	 cands[ m ].addDaughter( GenParticleRef( *ref_, index ) );
-	 cands[ index ].addMother( GenParticleRef( *ref_, m ) );
+	 cands[ m ].addDaughter( GenParticleRef( ref_, index ) );
+	 cands[ index ].addMother( GenParticleRef( ref_, m ) );
       }
    }
 
