@@ -38,7 +38,7 @@ class preprodmc(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,RECO,VALIDATION:validation_preprod,DQM:DQMOfflinePOG'
+        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_preprod,DQM:DQMOfflinePOG'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -75,7 +75,7 @@ class preprodmc(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = \
-          """RAW2DIGI,RECO,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
+          """RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
         options.isMC = False
         options.isData = True
         options.eventcontent = None
