@@ -8,6 +8,7 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include <TTree.h>
 #include "SymmetryFit.h"
+class TProfile;
 class Book;
 
 class LA_Filler_Fitter {
@@ -101,7 +102,7 @@ class LA_Filler_Fitter {
   
   static unsigned guess_bin(const TH1* const);
   static unsigned find_rebin(const TH1* const);
-  static TH1* rms_from_x_xx(const std::string, const TH1* const, const TH1* const);
+  static TH1* rms_profile(const std::string, const TProfile* const);
   static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );
 
   int ensembleSize_, ensembleBins_;

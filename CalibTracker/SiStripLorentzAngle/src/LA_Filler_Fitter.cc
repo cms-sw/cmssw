@@ -11,6 +11,7 @@
 #include <TF1.h>
 #include <TTree.h>
 #include <TGraphErrors.h>
+#include <TProfile.h>
 
 void LA_Filler_Fitter::
 fill(TTree* tree, Book& book) {
@@ -67,7 +68,6 @@ fill(TTree* tree, Book& book) {
       if(methods_ & SYMM)    book.fill( sign*tthetaT,         sqrt(var), granular+ method(SYMM,0)     ,360, -1.0,1.0 );
 
       if(methods_ & MULTI){  book.fill( sign*(tthetaT-tthetaL),     var, granular+method(MULTI,0)+"_var" +W ,360,-1.0,1.0 );
-	                     book.fill( sign*(tthetaT-tthetaL), var*var, granular+method(MULTI,0)+"_var2"+W ,360,-1.0,1.0 );
 			     book.fill( sign*(tthetaT-tthetaL),          granular+ method(MULTI,0)+A1       ,360,-1.0,1.0 ); }
 
       if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),           granular+"_field"            , 101, 1, 5 );
@@ -180,19 +180,15 @@ make_and_fit_multisymmchi2(Book& book) {
     TH1* const all = book[base+"_all"];         rebin_hists.push_back(all);
     TH1* const var_w2 = book[base+"_var_w2"];   rebin_hists.push_back(var_w2);
     TH1* const var_w3 = book[base+"_var_w3"];   rebin_hists.push_back(var_w3);
-    TH1* const var2_w2 = book[base+"_var2_w2"]; rebin_hists.push_back(var2_w2);
-    TH1* const var2_w3 = book[base+"_var2_w3"]; rebin_hists.push_back(var2_w3);
 
     const unsigned rebin = std::max(find_rebin(var_w2),find_rebin(var_w3));
     BOOST_FOREACH(TH1*const hist, rebin_hists) hist->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
 
     TH1* const prob_w1 = subset_probability(base+"_prob_w1",w1,all);   book.book(base+"_prob_w1",prob_w1);
-    TH1* const rmsv_w2 = rms_from_x_xx(base+"_rms_w2",var_w2,var2_w2); book.book(base+"_rms_w2",rmsv_w2);
-    TH1* const rmsv_w3 = rms_from_x_xx(base+"_rms_w3",var_w3,var2_w3); book.book(base+"_rms_w3",rmsv_w3);
+    TH1* const rmsv_w2 = rms_profile(base+"_rms_w2",(TProfile*const)var_w2); book.book(base+"_rms_w2",rmsv_w2);
+    TH1* const rmsv_w3 = rms_profile(base+"_rms_w3",(TProfile*const)var_w3); book.book(base+"_rms_w3",rmsv_w3);
     
     book.erase(base+"_all");
-    book.erase(base+"_var2_w2");
-    book.erase(base+"_var2_w3");
     book.erase(base+"_w1");
 
     std::vector<TH1*> fit_hists;
@@ -224,19 +220,14 @@ find_rebin(const TH1* const hist) {
 }
 
 TH1* LA_Filler_Fitter::
-rms_from_x_xx(const std::string name, const TH1* const m, const TH1* const mm) {
-  const int bins = m->GetNbinsX();
-  TH1* const rms = new TH1F(name.c_str(),"",bins, m->GetBinLowEdge(1),  m->GetBinLowEdge(bins) + m->GetBinWidth(bins) );
+rms_profile(const std::string name, const TProfile* const prof) {
+  const int bins = prof->GetNbinsX();
+  TH1* const rms = new TH1F(name.c_str(),"",bins, prof->GetBinLowEdge(1),  prof->GetBinLowEdge(bins) + prof->GetBinWidth(bins) );
   for(int i = 1; i<=bins; i++) {
-    const double M = m->GetBinContent(i);
-    const double MM = mm->GetBinContent(i);
-    const double Me = m->GetBinError(i);
-    const double MMe = mm->GetBinError(i);
-
-    if(Me) {
-      rms->SetBinContent(i, sqrt( MM - M*M ) );
-      rms->SetBinError(i, sqrt( 0.5*MMe*MMe + Me*Me ) );
-    }
+    const double Me = prof->GetBinError(i);
+    const double neff = prof->GetBinEntries(i); //Should be prof->GetBinEffectiveEntries(i);, not availible this version ROOT.  This is only ok for unweighted fills
+    rms->SetBinContent(i, Me*sqrt(neff) );
+    rms->SetBinError(i, Me/sqrt(2) );
   }
   return rms;
 }
