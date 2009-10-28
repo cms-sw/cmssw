@@ -70,7 +70,9 @@ DcsStatus::DcsStatus() :
    bunchNumber_(0),
    version_(0),
    collectionTime_(0,0),
-   ready_(0)
+   ready_(0),
+   magnetCurrent_((float)0.0),
+   magnetTemperature_((float)0.0)
 { 
 }
 
@@ -90,7 +92,9 @@ DcsStatus::DcsStatus(const unsigned char * rawData)
   {
     collectionTime_.set_tv_sec(static_cast<long>(raw->dcsStatus.collectionTime_sec));
     collectionTime_.set_tv_nsec(raw->dcsStatus.collectionTime_nsec);
-    ready_       = raw->dcsStatus.ready;
+    ready_             = raw->dcsStatus.ready;
+    magnetCurrent_     = raw->dcsStatus.magnetCurrent;
+    magnetTemperature_ = raw->dcsStatus.magnetTemperature;
   }
 }
 
@@ -116,6 +120,10 @@ std::ostream& operator<<(std::ostream& s, const DcsStatus& c)
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
+  s << line << std::endl;
+
+  sprintf(line," MagnetCurrent: %e    MagnetTemperature: %e", 
+	  c.magnetCurrent(), c.magnetTemperature());
   s << line << std::endl;
 
   sprintf(line," Ready: %d  0x%8.8X", c.ready(), c.ready());
