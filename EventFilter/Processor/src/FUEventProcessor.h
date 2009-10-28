@@ -155,6 +155,9 @@ namespace evf
 
     xdata::Boolean                   outPut_;
 
+    xdata::Boolean                   autoRestartSlaves_;
+    xdata::UnsignedInteger32         slaveRestartDelaySecs_;
+
     xdata::Boolean                   hasShMem_;
     xdata::Boolean                   hasPrescaleService_;
     xdata::Boolean                   hasModuleWebRegistry_;

@@ -41,7 +41,7 @@ namespace evf{
 
   public:
 
-    FWEPWrapper(log4cplus::Logger &);
+    FWEPWrapper(log4cplus::Logger &, unsigned int instance);
     virtual ~FWEPWrapper();
 
 
@@ -201,6 +201,7 @@ namespace evf{
     xdaq::ApplicationDescriptor*     xappDesc_;
     xdaq::ApplicationContext*        xappCtxt_;
     std::string                      configuration_;
+    xdata::UnsignedInteger32         instance_;
     friend class FUEventProcessor;
   };
 }

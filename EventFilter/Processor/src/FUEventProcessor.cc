@@ -55,10 +55,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   : xdaq::Application(s)
   , fsm_(this)
   , log_(getApplicationLogger())
-  , evtProcessor_(log_)
+  , evtProcessor_(log_, getApplicationDescriptor()->getInstance())
   , runNumber_(0)
   , epInitialized_(false)
   , outPut_(true)
+  , autoRestartSlaves_(false)
+  , slaveRestartDelaySecs_(10)
   , hasShMem_(true)
   , hasPrescaleService_(true)
   , hasModuleWebRegistry_(true)
@@ -235,12 +237,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\"> 2.0.0 </div>"
+  ost  << "<div id=\"ve\"> 2.0.1 </div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
-       << "<div id=\"sw\">" << hasServiceWebRegistry_.toString() << "</div>"
-       << "<div id=\"ms\">" << hasShMem_.toString() << "</div>";
+       << "<div id=\"sw\">" << hasServiceWebRegistry_.toString() << "</div>";
   
   xdata::Serializable *monsleep = 0;
   xdata::Serializable *lstimeout = 0;
@@ -323,14 +324,17 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
+    localLog(reasonForFailedState_);
   }
   catch(cms::Exception &e) {
     reasonForFailedState_ = e.explainSelf();
     fsm_.fireFailed(reasonForFailedState_,this);
+    localLog(reasonForFailedState_);
   }    
   catch(std::exception &e) {
     reasonForFailedState_ = e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
+    localLog(reasonForFailedState_);
   }
   catch(...) {
     fsm_.fireFailed("Unknown Exception",this);
@@ -378,6 +382,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	{
 	  isChildProcess_=true;
 	  fsm_.disableRcmsStateNotification();
+	  ostringstream ost1;
+	  ost1 << "-I- Slave Process " << retval << " forked for slot " << i; 
+	  localLog(ost1.str());
 	  return enableMPEPSlave(i);
 	  // the loop is broken in the child 
 	}
@@ -815,7 +822,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
       if(subs_[i].alive()==0) ost << " process exited with status " << WEXITSTATUS(sl);
       else if(WIFSIGNALED(sl)!=0) ost << " process terminated with signal " << WTERMSIG(sl);
       else ost << " process stopped ";
-      subs_[i].countdown()=10;
+      subs_[i].countdown()=slaveRestartDelaySecs_.value_;
       subs_[i].setReasonForFailed(ost.str());
       ostringstream ost1;
       ost1 << "-E- Slave " << subs_[i].pid() << ost.str();
@@ -826,32 +833,35 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
   if(stopping) return true;
   if(running)
     {
-
-      for(unsigned int i = 0; i < nbSubProcesses_; i++)
-	{
-	  if(subs_[i].alive() != 1){
-	    if(subs_[i].countdown()-- == 0)
-	      {
-		pid_t rr = subs_[i].forkNew();
-		if(rr==0)
-		  {
-		    isChildProcess_=true;
-		    fsm_.disableRcmsStateNotification();
-		    fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
-		    fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
-		    fsm_.fireEvent("Enable",this); // need to set state in fsm first to allow stopDone transition
-		    enableMPEPSlave(i);
-		    return false; // exit the supervisor loop immediately in the child !!!
-		  }
-		else
-		  {
-		    ostringstream ost1;
-		    ost1 << "-I- New Process " << rr << " forked for slot " << i; 
-		    localLog(ost1.str());
-		  }
-	      }
+      if(autoRestartSlaves_.value_){
+	pthread_mutex_lock(&stop_lock_);
+	for(unsigned int i = 0; i < subs_.size(); i++)
+	  {
+	    if(subs_[i].alive() != 1){
+	      if(subs_[i].countdown()-- == 0)
+		{
+		  pid_t rr = subs_[i].forkNew();
+		  if(rr==0)
+		    {
+		      isChildProcess_=true;
+		      fsm_.disableRcmsStateNotification();
+		      fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+		      fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
+		      fsm_.fireEvent("Enable",this); // need to set state in fsm first to allow stopDone transition
+		      enableMPEPSlave(i);
+		      return false; // exit the supervisor loop immediately in the child !!!
+		    }
+		  else
+		    {
+		      ostringstream ost1;
+		      ost1 << "-I- New Process " << rr << " forked for slot " << i; 
+		      localLog(ost1.str());
+		    }
+		}
+	    }
 	  }
-	}
+	pthread_mutex_unlock(&stop_lock_);
+      }
       xdata::Serializable *lsid = 0; 
       xdata::Serializable *psid = 0;
       xdata::Serializable *epMAltState = 0; 
@@ -1035,8 +1045,8 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	  else std::cout << "msgrcv returned error " << errno << std::endl;
 	}
     }
-  evtProcessor_.fireScalersUpdate();
   evtProcessor_.updateRollingReport();
+  evtProcessor_.fireScalersUpdate();
   return true;
 }
 
@@ -1187,16 +1197,19 @@ bool FUEventProcessor::enableCommon()
     catch(cms::Exception &e) {
       reasonForFailedState_ = e.explainSelf();
       fsm_.fireFailed(reasonForFailedState_,this);
+      localLog(reasonForFailedState_);
       return false;
     }    
     catch(std::exception &e) {
       reasonForFailedState_  = e.what();
       fsm_.fireFailed(reasonForFailedState_,this);
+      localLog(reasonForFailedState_);
       return false;
     }
     catch(...) {
       reasonForFailedState_ = "Unknown Exception";
       fsm_.fireFailed(reasonForFailedState_,this);
+      localLog(reasonForFailedState_);
       return false;
     }
     if(sc != 0) {
@@ -1204,12 +1217,14 @@ bool FUEventProcessor::enableCommon()
       oss<<"EventProcessor::runAsync returned status code " << sc;
       reasonForFailedState_ = oss.str();
       fsm_.fireFailed(reasonForFailedState_,this);
+      localLog(reasonForFailedState_);
       return false;
     }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
+    localLog(reasonForFailedState_);
     return false;
   }
   try{
@@ -1267,6 +1282,7 @@ bool FUEventProcessor::enableMPEPSlave(int ind)
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
+    localLog(reasonForFailedState_);
   }
   bool retval =  enableCommon();
   startScalersWorkLoop();
@@ -1284,9 +1300,8 @@ bool FUEventProcessor::stopClassic()
       {
 	//	epMState_ = evtProcessor_->currentStateName();
 	reasonForFailedState_ = "EventProcessor stop timed out";
-	localLog(reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
-
+	localLog(reasonForFailedState_);
       }
     if(hasShMem_) detachDqmFromShm();
   }
@@ -1305,7 +1320,7 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
   MsgBuf msg(0,MSQM_MESSAGE_TYPE_STOP);
   MsgBuf msg1(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_STOP);
 
-  for(unsigned int i = 0; i < nbSubProcesses_.value_; i++)
+  for(unsigned int i = 0; i < subs_.size(); i++)
     {
       pthread_mutex_lock(&stop_lock_);
       if(subs_[i].alive()>0)subs_[i].post(msg,false);
@@ -1324,6 +1339,7 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 	reasonForFailedState_ = ost.str();
 	LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
+	localLog(reasonForFailedState_);
 	break;
       }
       pthread_mutex_unlock(&stop_lock_);

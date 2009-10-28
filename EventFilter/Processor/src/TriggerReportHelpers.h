@@ -51,6 +51,7 @@ namespace evf{
     //max number of paths in a menu is 500
     //max number of endpaths in a menu is 20
     unsigned int           lumiSection;
+    unsigned int           prescaleIndex;
     edm::EventSummary      eventSummary;
     int                    trigPathsInMenu;
     int                    endPathsInMenu;
@@ -65,17 +66,19 @@ namespace evf{
       TriggerReportHelpers() 
 	: tableFormatted_(false)
 	, lumiSectionIndex_(0)
+	, prescaleIndex_(0)
 	, cache_(sizeof(TriggerReportStatic),MSQS_MESSAGE_TYPE_TRR)
 	{}
       void resetFormat(){tableFormatted_ = false;}
       void printReportTable();
       void printTriggerReport(edm::TriggerReport &);
-      void triggerReportToTable(edm::TriggerReport &, unsigned int, bool = true);
+      void triggerReportToTable(edm::TriggerReport &, unsigned int, unsigned int, bool = true);
       void packedTriggerReportToTable();
       void formatReportTable(edm::TriggerReport &
 			     , std::vector<edm::ModuleDescription const*>&
 			     , bool noNukeLegenda);
       xdata::Table &getTable(){return triggerReportAsTable_;} 
+      xdata::Table &getTableWithNames(){return triggerReportAsTableWithNames_;} 
       bool checkLumiSection(unsigned int ls) {return (ls == lumiSectionIndex_);}
       void packTriggerReport(edm::TriggerReport &);
       void sumAndPackTriggerReport(MsgBuf &);
@@ -87,12 +90,13 @@ namespace evf{
     private:
       // scalers table
       xdata::Table triggerReportAsTable_;
+      xdata::Table triggerReportAsTableWithNames_;
       xdata::String pathLegenda_;
       bool         tableFormatted_;
       std::vector<int> l1pos_;
       std::vector<int> pspos_;
       static const std::string columns[5];
-      std::vector<std::string>              paths_;
+      std::vector<xdata::String>            paths_;
       std::vector<xdata::UnsignedInteger32> l1pre_;
       std::vector<xdata::UnsignedInteger32> ps_;
       std::vector<xdata::UnsignedInteger32> accept_;
@@ -104,6 +108,7 @@ namespace evf{
       std::vector<unsigned int> pexcept_;
       std::vector<unsigned int> pfailed_;
       unsigned int lumiSectionIndex_;
+      unsigned int prescaleIndex_;
       edm::TriggerReport trp_;
       MsgBuf  cache_;
     };

@@ -44,7 +44,7 @@
 namespace evf{
 
   const std::string FWEPWrapper::unknown = "unknown";
-  FWEPWrapper::FWEPWrapper(log4cplus::Logger &log) 
+  FWEPWrapper::FWEPWrapper(log4cplus::Logger &log, unsigned int instance) 
     : evtProcessor_(0)
     , inRecovery_(false)
     , recoveryCount_(0)
@@ -70,7 +70,7 @@ namespace evf{
     , asMonitoring_(0)
     , wlMonitoringActive_(false)
     , watching_(false)
-    , firstLsTimeOut_(200)
+    , firstLsTimeOut_(10000000)
     , residualTimeOut_(0)
     , lastLsTimedOut_(false)
     , lastLsWithEvents_(0)
@@ -80,7 +80,7 @@ namespace evf{
     , lsid_(0)
     , psid_(0)
     , localLsIncludingTimeOuts_(0)
-    , lsTimeOut_(105)
+    , lsTimeOut_(10000000)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
     , lumiSectionsCtr_(lsRollSize_+1)
@@ -88,6 +88,7 @@ namespace evf{
     , rollingLsIndex_(lsRollSize_-1)
     , rollingLsWrap_(false)
     , rcms_(0)
+    , instance_(instance)
   {
     //list of variables for scalers flashlist
     names_.push_back("lumiSectionIndex");
@@ -583,7 +584,7 @@ namespace evf{
     if( it == scalersComplete_.end())
       {
 	it = scalersComplete_.append();
-	//@@@@@@EM TODO find a fix for this	//	it->setField("instance",instance_);
+	it->setField("instance",instance_);
       }
     timeval tv;
     if(useLock) {
@@ -691,7 +692,7 @@ namespace evf{
 
     if(trh_.checkLumiSection(ls))
       {
-	trh_.triggerReportToTable(tr,ls,false);
+	trh_.triggerReportToTable(tr,ls,ps,false);
 	trh_.packTriggerReport(tr);
       }
     else
@@ -702,10 +703,10 @@ namespace evf{
 	    //	      trh_.printReportTable();
 	    //send xmas message with data
 	  }
-	trh_.triggerReportToTable(tr,ls);
+	trh_.triggerReportToTable(tr,ls,ps);
 	trh_.packTriggerReport(tr);
       }
-    it->setField("triggerReport",trh_.getTable());
+    it->setField("triggerReport",trh_.getTableWithNames());
     // send xmas message with data
     //      triggerReportAsString_ = triggerReportToString(tr);
       
@@ -720,6 +721,7 @@ namespace evf{
 
   bool FWEPWrapper::fireScalersUpdate()
   {
+    trh_.printReportTable();
     scalersUpdateAttempted_++;
     try{
       scalersInfoSpace_->lock();
@@ -1174,11 +1176,45 @@ namespace evf{
     trh_.packedTriggerReportToTable();
     if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
     rollingLsIndex_--;
+    xdata::UnsignedInteger32* lsp = 0;
+    xdata::UnsignedInteger32* psp = 0;
     TriggerReportStatic *tr = trh_.getPackedTriggerReportAsStruct();
     lsTriplet lst;
     lst.ls = tr->lumiSection;
+    lsid_ = tr->lumiSection;
+    psid_ = tr->prescaleIndex;
     lst.proc = tr->eventSummary.totalEvents;
     lst.acc = tr->eventSummary.totalEventsPassed;
+    try{
+      xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
+      if(lsid!=0){
+	lsp = ((xdata::UnsignedInteger32*)lsid); 
+	lsp->value_= tr->lumiSection;;
+      }
+    }
+    catch(xdata::exception::Exception e){
+    }
+    xdata::Serializable *psid = 0;
+    try{
+      psid = applicationInfoSpace_->find("prescaleSetIndex");
+      if(psid!=0) {
+	psp = ((xdata::UnsignedInteger32*)psid);
+	psp->value_ = tr->prescaleIndex;
+      }
+    }
+    catch(xdata::exception::Exception e){
+    }
+    xdata::Table::iterator it = scalersComplete_.begin();
+    if( it == scalersComplete_.end())
+      {
+	it = scalersComplete_.append();
+	it->setField("instance",instance_);
+      }
+    if(lsp)
+      it->setField("lsid", *lsp);
+    if(psp)
+      it->setField("psid", *psp);
+    it->setField("triggerReport",trh_.getTableWithNames());
     lumiSectionsCtr_[rollingLsIndex_] = lst;
 
   }

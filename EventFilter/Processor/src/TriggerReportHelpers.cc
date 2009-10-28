@@ -11,10 +11,11 @@
 namespace evf{
   namespace fuep{
 const std::string TriggerReportHelpers::columns[5] = {"l1Pass","psPass","pAccept","pExcept","pReject"};
-void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned int ls, bool lumiComplete)
+void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned int ls, unsigned int ps, bool lumiComplete)
 {
 
   lumiSectionIndex_ = ls;  
+  prescaleIndex_ = ps;
   for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
     if(l1pos_[i]>=0) {
       l1pre_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed 
@@ -27,6 +28,7 @@ void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned
       pl1pre_[i] = tr.trigPathSummaries[i].timesRun;
     }
     triggerReportAsTable_.setValueAt(i,columns[0],l1pre_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[0],l1pre_[i]);
     if(pspos_[i]>=0) {
       ps_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[pspos_[i]].timesPassed 
 	+ (lumiComplete ? - pps_[i] : ps_[i].value_);
@@ -43,18 +45,22 @@ void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned
       pps_[i] = tr.trigPathSummaries[i].timesRun;
     }
     triggerReportAsTable_.setValueAt(i,columns[1],ps_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[1],ps_[i]);
     accept_[i] = tr.trigPathSummaries[i].timesPassed 
 	+ (lumiComplete ? - paccept_[i] : accept_[i].value_);
     paccept_[i] = tr.trigPathSummaries[i].timesPassed; 
     triggerReportAsTable_.setValueAt(i,columns[2], accept_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[2], accept_[i]);
     except_[i] = tr.trigPathSummaries[i].timesExcept 
 	+ (lumiComplete ? - pexcept_[i] : except_[i].value_);
     pexcept_[i] = tr.trigPathSummaries[i].timesExcept;
     triggerReportAsTable_.setValueAt(i,columns[3], except_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[3], except_[i]);
     failed_[i] = tr.trigPathSummaries[i].timesFailed 
 	+ (lumiComplete ? - pfailed_[i] : failed_[i].value_);
     pfailed_[i] = tr.trigPathSummaries[i].timesFailed;
     triggerReportAsTable_.setValueAt(i,columns[4], failed_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[4], failed_[i]);
   }
 }
 
@@ -66,14 +72,19 @@ void TriggerReportHelpers::packedTriggerReportToTable()
   for(int i=0; i<trs->trigPathsInMenu; i++) {
     l1pre_[i] = trs->trigPathSummaries[i].timesPassedL1;
     triggerReportAsTable_.setValueAt(i,columns[0],l1pre_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[0],l1pre_[i]);
     ps_[i] = trs->trigPathSummaries[i].timesPassedPs;
     triggerReportAsTable_.setValueAt(i,columns[1],ps_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[1],ps_[i]);
     accept_[i] = trs->trigPathSummaries[i].timesPassed;
     triggerReportAsTable_.setValueAt(i,columns[2], accept_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[2], accept_[i]);
     except_[i] = trs->trigPathSummaries[i].timesExcept;
     triggerReportAsTable_.setValueAt(i,columns[3], except_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[3], except_[i]);
     failed_[i] = trs->trigPathSummaries[i].timesFailed;
     triggerReportAsTable_.setValueAt(i,columns[4], failed_[i]);
+    triggerReportAsTableWithNames_.setValueAt(i,columns[4], failed_[i]);
 
   }
 }
@@ -111,17 +122,21 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   pexcept_.resize(tr.trigPathSummaries.size(),0);
   pfailed_.resize(tr.trigPathSummaries.size(),0);
   triggerReportAsTable_.clear();
+  triggerReportAsTableWithNames_.clear();
   triggerReportAsTable_.addColumn(columns[0],"unsigned int 32");
   triggerReportAsTable_.addColumn(columns[1],"unsigned int 32");
   triggerReportAsTable_.addColumn(columns[2],"unsigned int 32");
   triggerReportAsTable_.addColumn(columns[3],"unsigned int 32");
   triggerReportAsTable_.addColumn(columns[4],"unsigned int 32");
+  triggerReportAsTableWithNames_ = triggerReportAsTable_;
+  triggerReportAsTableWithNames_.addColumn("pathName","string");
 
   for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    xdata::Table::iterator it = triggerReportAsTable_.append();
+    triggerReportAsTable_.append();
+    xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
     paths_[i] = tr.trigPathSummaries[i].name;
-
-    ost << i << "=" << paths_[i] << ", ";
+    it->setField("pathName",paths_[i]);
+    ost << i << "=" << paths_[i].value_ << ", ";
     for(unsigned int j=0;j<tr.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
       std::string label = tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel;
       for(unsigned int k = 0; k < descs.size(); k++)
@@ -143,7 +158,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
 void TriggerReportHelpers::printReportTable()
 {
   std::cout << "report table for LS #" << lumiSectionIndex_ << std::endl;
-  triggerReportAsTable_.writeTo(std::cout);
+  triggerReportAsTableWithNames_.writeTo(std::cout);
 }
 void TriggerReportHelpers::printTriggerReport(edm::TriggerReport &tr)
 {
@@ -253,6 +268,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
 {
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
   trp->lumiSection = lumiSectionIndex_;
+  trp->prescaleIndex = prescaleIndex_;
   //copy the event summary
   trp->eventSummary.totalEvents = 
     tr.eventSummary.totalEvents - trp_.eventSummary.totalEvents;
@@ -327,6 +343,8 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
 
   // add check for LS consistency
   trs->lumiSection = trp->lumiSection;
+  trs->prescaleIndex = trp->prescaleIndex;
+  lumiSectionIndex_ = trp->lumiSection;
   //add to the event summary
   trs->eventSummary.totalEvents += trp->eventSummary.totalEvents;
   trs->eventSummary.totalEventsPassed += trp->eventSummary.totalEventsPassed;
@@ -367,6 +385,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
 
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
   trp->lumiSection = 0;
+  trp->prescaleIndex = 0;
   //copy the event summary
   trp->eventSummary.totalEvents = 0;
   trp->eventSummary.totalEventsPassed = 0;
