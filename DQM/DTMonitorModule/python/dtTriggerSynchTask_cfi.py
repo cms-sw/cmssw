@@ -6,7 +6,7 @@ dtTriggerSynchMonitor = cms.EDAnalyzer("DTLocalTriggerSynchTask",
     DCCInputTag    = cms.InputTag('dttfDigis'),
     DDUInputTag    = cms.InputTag('muonDTDigis'),
     SEGInputTag    = cms.InputTag('dt4DSegments'),
-    bxTimeInterval = cms.double(24.95),
+    bxTimeInterval = cms.double(25),
     rangeWithinBX  = cms.bool(True),
     fineDelay      = cms.int32(0),
     angleRange     = cms.double(30.),
@@ -17,7 +17,7 @@ dtTriggerSynchMonitor = cms.EDAnalyzer("DTLocalTriggerSynchTask",
             tofCorrType = cms.int32(0),
             wirePropCorrType = cms.int32(0),
             doWirePropCorrection = cms.bool(False),
-            doT0Correction = cms.bool(True), #CB che metto qui???
+            doT0Correction = cms.bool(False),
             debug = cms.untracked.bool(False)
     ),
     tTrigMode = cms.string('DTTTrigSyncFromDB')
