@@ -122,8 +122,6 @@ ptdat CSCTFPtLUT::Pt(const unsigned& delta_phi_12, const unsigned& track_eta,
   return Pt(address);
 }
 
-// Taken from spbits.h :
-#define MODE_ACC 15 // mode for accelerator tracks
 
 ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 {
@@ -247,7 +245,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
       break;
-    case 11:
     case 12:
     case 14:
       type = 2;
@@ -271,7 +268,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       break;
     case 13:
-    case 15:
       type = 4;
 
       if(charge) absPhi12 = address.delta_phi();
@@ -292,10 +288,21 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
       break;
-    case 1:
+    case 11:
+      // singles trigger
+      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(31);
+      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(31);
+      break;
+    case 15:
+      // halo trigger
       ptR_front = trigger_ptscale->getPtScale()->getLowEdge(5);
       ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(5);
       break;
+    case 1:
+      // tracks that fail delta phi cuts
+      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(5);
+      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(5); 
+     break;
     default: // Tracks in this category are not considered muons.
       ptR_front = trigger_ptscale->getPtScale()->getLowEdge(0);
       ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(0);
@@ -314,20 +321,25 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       if (rear_pt  < 5) rear_pt  = 5;
     }
 
-  if( mode==MODE_ACC ){ // halo muon track:
-    result.front_rank = 1;
-    result.rear_rank  = 1;
-  } else { // any other tracks:
-    result.front_rank = front_pt | front_quality << 5;
-    result.rear_rank  = rear_pt  | rear_quality << 5;
-  }
+  result.front_rank = front_pt | front_quality << 5;
+  result.rear_rank  = rear_pt  | rear_quality << 5;
+
   result.charge_valid_front = 1; //ptMethods.chargeValid(front_pt, quality, eta, pt_method);
   result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);
+
+
+  if (mode == 1) { 
+    std::cout << "F_pt: "      << front_pt      << std::endl;
+    std::cout << "R_pt: "      << rear_pt       << std::endl;
+    std::cout << "F_quality: " << front_quality << std::endl;
+    std::cout << "R_quality: " << rear_quality  << std::endl;
+    std::cout << "F_rank: " << std::hex << result.front_rank << std::endl;
+    std::cout << "R_rank: " << std::hex << result.rear_rank  << std::endl;
+  }
 
   return result;
 }
 
-#undef MODE_ACC
 
 unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) const
 {
@@ -373,7 +385,8 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
       quality = 1;
       break;
     case 11:
-      quality = 3;
+      // single LCTs
+      quality = 1;
       break;
     case 12:
       quality = 3;
@@ -385,11 +398,13 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
       quality = 2;
       break;
     case 15:
-      quality = 2;
+      // halo triggers
+      quality = 1;
       break;
       //DEA: keep muons that fail delta phi cut
     case 1:
       quality = 1;
+      break;
     default:
       quality = 0;
       break;
@@ -407,6 +422,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
 	 && ((lowQualityFlag&4)==0) ) quality = 0;
 
     return quality;
+
 }
 
 void CSCTFPtLUT::readLUT()
