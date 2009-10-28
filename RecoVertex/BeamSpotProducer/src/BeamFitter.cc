@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.14 2009/10/27 20:59:29 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.15 2009/10/28 16:20:04 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -198,9 +198,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		}
 
 	}
-	std::cout << "algo_ = " << falgo << std::endl;
-	std::cout << "algoname track = " << track->algoName() << std::endl;
-    
+	    
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
     
