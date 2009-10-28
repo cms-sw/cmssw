@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/03 16:10:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/10/16 08:40:03 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -23,7 +23,7 @@
 
 // DB & Calib
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
-#include "CondFormats/DTObjects/interface/DTTPGParameters.h"
+#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -88,6 +88,19 @@ void DTLocalTriggerSynchTest::beginJob(const edm::EventSetup& c){
   
 }
 
+void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
+
+  LogVerbatim(category()) << "[" << testName << "Test]: beginRun" << endl;
+
+  if (parameters.getParameter<bool>("fineParamDiff")) {
+    ESHandle<DTTPGParameters> wPhaseHandle;
+    c.get<DTTPGParametersRcd>().get(wPhaseHandle);
+    wPhaseMap = (*wPhaseHandle);
+  }
+
+}
+  
+
 
 void DTLocalTriggerSynchTest::runClientDiagnostic() {
 
@@ -134,22 +147,35 @@ void DTLocalTriggerSynchTest::endJob(){
   DTLocalTriggerBaseTest::endJob();
 
   if ( parameters.getParameter<bool>("writeDB")) {
-    LogProblem(category()) << "[" << testName << "Test]: writeDB flag set to true. Producing peak position database." << endl; // CB Fixe logger category	  
+    LogVerbatim(category()) << "[" << testName << "Test]: writeDB flag set to true. Producing peak position database." << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
     hwSource =  parameters.getParameter<bool>("dbFromDCC") ? "DCC" : "DDU";
     std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
     std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
       for (; chambIt!=chambEnd; ++chambIt) { 
+
 	DTChamberId chId = (*chambIt)->id();
-	float fineDelay  = 0;
+	float fineDelay = 0;
+	int coarseDelay = static_cast<int>((getFloatFromME(chId,"tTrig_SL1") + getFloatFromME(chId,"tTrig_SL3"))*0.5/bxTime);
+
+	bool fineDiff   = parameters.getParameter<bool>("fineParamDiff");
+	bool coarseDiff = parameters.getParameter<bool>("coarseParamDiff");
+
 
 	TH1F *ratioH     = getHisto<TH1F>(dbe->get(getMEName(ratioHistoTag,"", chId)));    
 	if (ratioH->GetEntries()>1) { // CB Set min entries from parameter	      
 	  TF1 *fitF=ratioH->GetFunction("pol8");
 	  if (fitF) { fineDelay=fitF->GetMaximumX(0,bxTime); }
 	}
-	delayMap->set(chId,0,fineDelay,DTTimeUnits::ns);
+	if (fineDiff || coarseDiff) {
+	  float wFine;
+	  int wCoarse;
+	  wPhaseMap.get(chId,wCoarse,wFine,DTTimeUnits::ns);
+	  if (fineDiff)   { fineDelay = wFine - fineDelay; }
+	  if (coarseDiff) { coarseDelay = wCoarse - coarseDelay; }
+	} 
+	delayMap->set(chId,coarseDelay,fineDelay,DTTimeUnits::ns);
       }
 
       string delayRecord = "DTTPGParametersRcd"; // CB Read from cfg???
@@ -160,7 +186,7 @@ void DTLocalTriggerSynchTest::endJob(){
       for (; dbIt!=dbEnd; ++dbIt) {
 	LogProblem(category()) << "[" << testName << "Test]: DB entry for Wh " << (*dbIt).first.wheelId 
 			       << " Sec " << (*dbIt).first.sectorId 
-			       << " St " << (*dbIt).first.wheelId 
+			       << " St " << (*dbIt).first.stationId 
 			       << " has coarse " << (*dbIt).second.nClock
 			       << " and phase " << (*dbIt).second.tPhase << std::endl;
       }
@@ -178,22 +204,32 @@ void DTLocalTriggerSynchTest::makeRatioME(TH1F* numerator, TH1F* denominator, Mo
   
 }
 
-// float DTLocalTriggerSynchTest::findMaximum(TH1F* histo) {
+float DTLocalTriggerSynchTest::getFloatFromME(DTChamberId chId, std::string meType) {
+   
+   stringstream wheel; wheel << chId.wheel();
+   stringstream station; station << chId.station();
+   stringstream sector; sector << chId.sector();
 
-//   try {
-//     histo->Fit("pol8","CQO");
-//     TF1 *fitFunc= histo->GetFunction("pol8");
-//     if (fitFunc) {
-//       return fitFunc->GetMaximumX();
-//     } else {
-//       edm::LogProblem(category()) << "[" << testName << "Test]: Error getting maximum for " << histo->GetName() << " returned 0" << endl;
-//       return 0;
-//     }
-//   } catch (...) {
-//     edm::LogProblem(category()) << "[" << testName << "Test]: Error fitting " << histo->GetName() << " returned 0" << endl;
-//   }
+   string folderName = topFolder(hwSource=="DCC") + "Wheel" +  wheel.str() +
+     "/Sector" + sector.str() + "/Station" + station.str() + "/" ; 
 
-// }
+   string histoname = sourceFolder + folderName 
+     + meType
+     + "_W" + wheel.str()  
+     + "_Sec" + sector.str()
+     + "_St" + station.str();
+
+   MonitorElement* me = dbe->get(histoname);
+   if (me) { 
+     return me->getFloatValue(); 
+   }
+   else { 
+     LogProblem(category()) << "[" << testName << "Test]: " << histoname << " is not a valid ME. 0 returned" << std::endl;
+   }
+   
+   return 0;
+
+ }
 
 void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype, string subfolder) {
   

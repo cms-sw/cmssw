@@ -12,13 +12,15 @@ triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
     # root folder for booking of histograms
     folderRoot = cms.untracked.string(''),
     # correlated fraction test tresholds
-    bxTimeInterval = cms.double(24.95),
-    rangeWithinBX  = cms.bool(True),
-    writeDB        = cms.bool(True),
-    dbFromDCC      = cms.bool(False),
-    numHistoTag    = cms.string("TrackCrossingTimeAll"),
-    denHistoTag    = cms.string("TrackCrossingTimeHH"),
-    ratioHistoTag  = cms.string("TrackCrossingTimeAllOverHH")                                  
+    bxTimeInterval  = cms.double(25),
+    rangeWithinBX   = cms.bool(True),
+    writeDB         = cms.bool(True),
+    dbFromDCC       = cms.bool(False),
+    fineParamDiff   = cms.bool(False),
+    coarseParamDiff = cms.bool(False),
+    numHistoTag     = cms.string("TrackCrossingTimeAll"),
+    denHistoTag     = cms.string("TrackCrossingTimeHH"),
+    ratioHistoTag   = cms.string("TrackCrossingTimeAllOverHH")                                  
 )
 
 
