@@ -72,11 +72,16 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   algo_=NULL;
 }
 void EcalTrigPrimProducer::beginRun(const edm::Run & run,edm::EventSetup const& setup) {
+  
+  bool famos = ps_.getParameter<bool>("Famos");
+
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
+
+  // get a first version of the records
+  cacheID_=this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
-
-  bool famos = ps_.getParameter<bool>("Famos");
+void EcalTrigPrimProducer::beginJob() {
 
   //  get  binOfMax
   //  try first in cfg, then in ProductRegistry
@@ -115,10 +120,6 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
 
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
-
-  // get a first version of the records
-  cacheID_=this->getRecords(setup);
 }
 
 unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
