@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/10/13 07:45:31 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/10/13 12:02:38 $
+ *  $Revision: 1.27 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -498,8 +498,10 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   iRun.put(pOutString,fName);
   iRun.put(pOut1,fName);
   iRun.put(pOut1s,fName);
+  iRun.put(pOut1d,fName);
   iRun.put(pOut2,fName);
   iRun.put(pOut2s,fName);
+  iRun.put(pOut2d,fName);
   iRun.put(pOut3,fName);
   iRun.put(pOutProf,fName);
   iRun.put(pOutProf2,fName);
