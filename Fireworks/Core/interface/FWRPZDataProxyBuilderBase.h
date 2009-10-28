@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.3 2008/11/26 01:55:31 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.4 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
 
 // forward declarations
 class FWEventItem;
@@ -64,14 +65,14 @@ public:
    static
    void setUserData(const FWEventItem* iItem,
                     TEveElementList* iElements,
-                    std::vector<FWModelId>& iIds);
+                    std::vector<FWModelIdFromEveSelector>& iIds);
 
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static
    std::string typeOfBuilder();
 
 protected:
-   std::vector<FWModelId>& ids() {
+   std::vector<FWModelIdFromEveSelector>& ids() {
       return m_ids;
    }
    const FWEventItem* item() const {
@@ -103,7 +104,7 @@ private:
 
    TEveElementList m_rhoPhiProjs;
    TEveElementList m_rhoZProjs;
-   std::vector<FWModelId> m_ids;
+   std::vector<FWModelIdFromEveSelector> m_ids;
 
    float m_layer;
 

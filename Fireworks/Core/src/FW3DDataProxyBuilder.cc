@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.3 2008/12/04 15:29:40 dmytro Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -147,7 +147,7 @@ FW3DDataProxyBuilder::build()
          if(m_ids.size()<m_item->size()) {
             m_ids.resize(m_item->size());
          }
-         std::vector<FWModelId>::iterator itId = m_ids.begin();
+         std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
          for(TEveElement::List_i it = newElements->BeginChildren(),
                                  itEnd = newElements->EndChildren();
              it != itEnd;

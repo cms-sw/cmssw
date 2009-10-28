@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.12 2008/12/03 20:54:40 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.13 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
 
 // forward declarations
 class FWEventItem;
@@ -33,7 +34,7 @@ class TH2;
 class TObject;
 class TEveElementList;
 class TEveElement;
-class FWModelId;
+class FWModelIdFromEveSelector;
 class TEveCaloDataHist;
 
 class FW3DLegoDataProxyBuilder
@@ -68,7 +69,7 @@ protected:
    const FWEventItem* item() const {
       return m_item;
    }
-   std::vector<FWModelId>& ids() {
+   std::vector<FWModelIdFromEveSelector>& ids() {
       return m_ids;
    }
 
@@ -91,7 +92,7 @@ private:
 
    // ---------- member data --------------------------------
    const FWEventItem* m_item;
-   std::vector<FWModelId> m_ids;
+   std::vector<FWModelIdFromEveSelector> m_ids;
 
    bool m_modelsChanged;
    bool m_haveViews;

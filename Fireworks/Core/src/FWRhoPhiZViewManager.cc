@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.53 2009/10/23 12:49:24 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.54 2009/10/23 22:06:29 chrjones Exp $
 //
 
 // system include files
@@ -103,6 +103,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
+   m_eveSelection->Connect("SelectionRepeated(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWRhoPhiZViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWRhoPhiZViewManager",this,"selectionCleared()");
 
@@ -277,26 +278,18 @@ FWRhoPhiZViewManager::colorsChanged()
 void
 FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 {
-   //std::cout <<"selection added "<<iElement<< std::endl;
+   std::cout <<"selection added "<<iElement<< std::endl;
    if(0!=iElement) {
+      std::cout <<"  non null"<<std::endl;
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
       if(0 != userData) {
-         if(dynamic_cast<TEveCaloData*>(iElement)) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
-            base->doSelect();
-            m_eveSelection->BlockSignals(last);
-         }else {
-            FWModelId* id = static_cast<FWModelId*>(userData);
-            if( not id->item()->modelInfo(id->index()).isSelected() ) {
-               bool last = m_eveSelection->BlockSignals(kTRUE);
-               //std::cout <<"   selecting"<<std::endl;
-               
-               id->select();
-               m_eveSelection->BlockSignals(last);
-            }
-         }
+         std::cout <<"    have userData"<<std::endl;
+         std::cout <<"      calo"<<std::endl;
+         bool last = m_eveSelection->BlockSignals(kTRUE);
+         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
+         base->doSelect();
+         m_eveSelection->BlockSignals(last);
       }
    }
 }
@@ -304,17 +297,15 @@ FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 void
 FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
 {
-   //std::cout <<"selection removed"<<std::endl;
+   std::cout <<"selection removed"<<std::endl;
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
-      if(0 != userData && 0 == dynamic_cast<TEveCaloData*>(iElement)) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   removing"<<std::endl;
-            id->unselect();
-            m_eveSelection->BlockSignals(last);
-         }
+      if(0 != userData) {
+         FWFromEveSelectorBase* base = static_cast<FWFromEveSelectorBase*>(userData);
+         bool last = m_eveSelection->BlockSignals(kTRUE);
+         //std::cout <<"   removing"<<std::endl;
+         base->doUnselect();
+         m_eveSelection->BlockSignals(last);
       }
    }
 }
@@ -322,6 +313,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
 void
 FWRhoPhiZViewManager::selectionCleared()
 {
+   std::cout<<"selection cleared"<<std::endl;
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }
