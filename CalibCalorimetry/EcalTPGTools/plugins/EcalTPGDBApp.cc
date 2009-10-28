@@ -131,7 +131,7 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
   for (CIfeped p = dataset_ped.begin(); p != dataset_ped.end(); p++) {
     ecid_xt = p->first;
     rd_ped  = p->second;
-    int sm_num=ecid_xt.getID1();
+    //int sm_num=ecid_xt.getID1();
     int xt_num=ecid_xt.getID2();
     ped_m12[xt_num]=rd_ped.getPedMeanG12();
     ped_m6[xt_num]=rd_ped.getPedMeanG6();
@@ -180,10 +180,10 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
   std::vector<MonRunIOV> mon_run_vec =  mon_list.getRuns();
   cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
   int mon_runs = mon_run_vec.size();  
-  int sm_num = 0;  
+  //int sm_num = 0;  
 
   if(mon_runs>0) {
-    for (int ii=0 ; ii<mon_run_vec.size(); ii++) cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
+    for (int ii=0 ; ii<(int)mon_run_vec.size(); ii++) cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
     
     // for the first run of the list we retrieve the pedestals
     int run=0;

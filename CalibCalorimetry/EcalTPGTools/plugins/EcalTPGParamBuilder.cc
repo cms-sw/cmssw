@@ -75,7 +75,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   string DBsid    = pSet.getParameter<std::string>("DBsid") ;
   string DBuser   = pSet.getParameter<std::string>("DBuser") ;
   string DBpass   = pSet.getParameter<std::string>("DBpass") ;
-  uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
+  //uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
   
   tag_   = pSet.getParameter<std::string>("TPGtag") ;
   version_ = pSet.getParameter<unsigned int>("TPGversion") ;
@@ -478,10 +478,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     stripListEB.push_back(elId.rawId() & 0xfffffff8) ;
     int dccNb = theMapping_->DCCid(towid) ;
-    int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
-    int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
-    int xtalInStrip = elId.channelId() ;       // from 1 to 5
+    //int tccNb = theMapping_->TCCid(towid) ;
+    //int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
+    //int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
+    //int xtalInStrip = elId.channelId() ;       // from 1 to 5
     const EcalElectronicsId Id = theMapping_->getElectronicsId(id) ;
     int CCUid = Id.towerId() ;
     int VFEid = Id.stripId() ;
@@ -670,10 +670,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
     stripListEE.push_back(elId.rawId() & 0xfffffff8) ;
     int dccNb = Id.dccId() ;
-    int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ;
-    int stripInTower = elId.pseudoStripId() ;
-    int xtalInStrip = elId.channelId() ;
+    //int tccNb = theMapping_->TCCid(towid) ;
+    //int towerInTCC = theMapping_->iTT(towid) ;
+    //int stripInTower = elId.pseudoStripId() ;
+    //int xtalInStrip = elId.channelId() ;
     int CCUid = Id.towerId() ;
     int VFEid = Id.stripId() ;
     int xtalInVFE = Id.xtalId() ;
@@ -688,7 +688,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       int iz = id.positiveZ() ;
       if (iz ==0) iz = -1 ;
       
-      for(int k=0; k<my_CrystalEcalLogicId_EE.size(); k++) {
+      for(int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
 
 	int z= my_CrystalEcalLogicId_EE[k].getID1() ;
 	int x= my_CrystalEcalLogicId_EE[k].getID2() ;
@@ -880,7 +880,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       // now we store in the DB the correspondence btw channels and groups 
       map<EcalLogicID, FEConfigWeightDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<my_StripEcalLogicId.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
 	FEConfigWeightDat wut;
 	int igroup=0;
 	wut.setWeightGroupId(igroup);
@@ -891,7 +891,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
 
       // endcap loop
-      for (int ich=0; ich<my_StripEcalLogicId1_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
        	std::cout << " endcap weight = " << ich << std::endl;
 	FEConfigWeightDat wut;
 	int igroup=0;
@@ -900,7 +900,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	dataset2[my_StripEcalLogicId1_EE[ich]] = wut;
       }
       // endcap loop
-      for (int ich=0; ich<my_StripEcalLogicId2_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
        	std::cout << " endcap weight = " << ich << std::endl;
 	FEConfigWeightDat wut;
 	int igroup=0;
@@ -963,7 +963,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       // now we store in the DB the correspondence btw channels and groups 
       map<EcalLogicID, FEConfigFgrDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<my_TTEcalLogicId.size() ; ich++){
+      for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
 	FEConfigFgrDat wut;
 	int igroup=0;
 	wut.setFgrGroupId(igroup);
@@ -974,7 +974,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
 
       // endcap loop
-      for (int ich=0; ich<my_RTEcalLogicId_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_RTEcalLogicId_EE.size() ; ich++){
 	//	std::cout << " endcap FGR " << std::endl;
 	FEConfigFgrDat wut;
 	int igroup=0;
@@ -987,7 +987,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       // endcap TT loop for the FEfgr EE Tower
       map<EcalLogicID, FEConfigFgrEETowerDat> dataset3;
-      for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
 	FEConfigFgrEETowerDat fgreett;
 	fgreett.setLutValue(lut_tower);
 	dataset3[my_TTEcalLogicId_EE[ich]]=fgreett;
@@ -995,13 +995,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       // endcap strip loop for the FEfgr EE strip
       map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
-      for (int ich=0; ich<my_StripEcalLogicId1_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
 	FEConfigFgrEEStripDat zut;
 	zut.setThreshold(threshold);
 	zut.setLutFgr(lut_strip);
 	dataset4[my_StripEcalLogicId1_EE[ich]] = zut;
       }
-      for (int ich=0; ich<my_StripEcalLogicId2_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
 	FEConfigFgrEEStripDat zut;
 	zut.setThreshold(threshold);
 	zut.setLutFgr(lut_strip);
@@ -1022,7 +1022,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     std::cout<<"going to write the sliding "<< endl;
       map<EcalLogicID, FEConfigSlidingDat> dataset;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<my_StripEcalLogicId.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
@@ -1032,7 +1032,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
 
       // endcap loop
-      for (int ich=0; ich<my_StripEcalLogicId1_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
@@ -1040,7 +1040,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	// you have to calculate the right index here 
 	dataset[my_StripEcalLogicId1_EE[ich]] = wut;
       }
-      for (int ich=0; ich<my_StripEcalLogicId2_EE.size() ; ich++){
+      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
@@ -1127,7 +1127,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // now we store in the DB the correspondence btw channels and LUT groups 
     map<EcalLogicID, FEConfigLUTDat> dataset2;
     // in this case I decide in a stupid way which channel belongs to which group 
-    for (int ich=0; ich<my_TTEcalLogicId.size() ; ich++){
+    for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
       FEConfigLUTDat lut;
       int igroup=0;
       lut.setLUTGroupId(igroup);
@@ -1137,7 +1137,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
 
     // endcap loop 
-    for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
+    for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
       std::cout << " endcap LUTDat" << std::endl;
       FEConfigLUTDat lut;
       int igroup=1;
@@ -1159,9 +1159,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // last we insert the FE_CONFIG_MAIN table 
  if (writeToDB_) {
    
-   int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
+   /*int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
 					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
-
+   */
  }
 
 
@@ -1685,7 +1685,7 @@ void EcalTPGParamBuilder::realignBaseline(linStruc & lin, bool forceBase12to0)
 
   for (int i=0 ; i<3 ; i++) {
     //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
-    lin.pedestal_[i] = base[i] ;
+    //lin.pedestal_[i] = base[i] ;
   }
 
 }
