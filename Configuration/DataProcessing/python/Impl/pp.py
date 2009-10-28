@@ -15,7 +15,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
-    
+from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
 
 
 class pp(Scenario):
@@ -58,9 +58,10 @@ class pp(Scenario):
         )
         cb.prepare()
 
+
         for tier in writeTiers: 
           addOutputModule(process, tier, process.RECOEventContent)        
- 
+
         return process
 
     def expressProcessing(self, globalTag,  writeTiers = [],

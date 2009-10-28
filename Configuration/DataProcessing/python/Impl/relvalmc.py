@@ -15,7 +15,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
-    
+from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
 
 
 class relvalmc(Scenario):
