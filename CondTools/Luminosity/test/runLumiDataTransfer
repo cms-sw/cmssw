@@ -6,7 +6,7 @@ python script to run EDAnalyzer LumiSectionDataPopCon
 
 """
 import sys,os,string,shutil
-import ConfigParser
+from ConfigParser import ConfigParser
 from optparse import OptionParser
 
 def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
@@ -32,7 +32,8 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
    f.write('process.PoolDBOutputService.connect="'+databaseConnect+'"\n')
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
    f.write('process.p = cms.Path(process.lumidatatransfer)')
-   
+
+
 def main():
    if 'CMSSW_BASE' not in os.environ:
       print 'CMSSW is not set up! Please run "cmsenv"'
@@ -59,36 +60,83 @@ def main():
    parser.add_option("-v","--verbose",action="store_true",dest="verbose",
                      help="verbose mode")
    (options, args) = parser.parse_args()
-   if args[0]:
-      print 'parse parameters from config file ',args[0]
    
-   if not options.rootfilename:
-      parser.error('option -f or --filename is required')
-   if not options.tagname:
-      parser.error('option -t or --tagname is required')
-   if not options.connect:
-      parser.error('option -c or --connect is required')
-   if not options.authPath:
-      parser.error('option -P or --authPath is required')
-   if not options.inputTemplate:
-      parser.error('option -i or --inputTemplate is required')
-   rootfilename=options.rootfilename
-   tagname=options.tagname
-   connect=options.connect
-   authpath=options.authPath
-   inputTemplate=options.inputTemplate
+   rootfilename=''
+   tagname=''
+   connect=''
+   authpath=''
+   inputTemplate=''
    logdatabase=''
    outputFilename='outputcfg.py'
    dryrun=False
    allowForceFirstSince=False
    verbose=False
-   if options.logdatabase:
-      logdatabase=options.logdatabase
-   if options.outputFilename:
-      outputFilename=options.outputFilename
-   verbose=options.verbose
-   dryrun=options.dryrun
-   allowForceFirstSince=options.allowforcefirstsince
+   
+   if args[0]:
+      print 'parse parameters from config file ',args[0]
+      Config=ConfigParser()
+      Config.read(args[0])
+      sectionName='TRANSFERTOEVT'
+      try:
+        if Config.has_option(sectionName,'logconnect') :
+           logdatabase=Config.get(sectionName,'logconnect')
+        if Config.has_option(sectionName,'outputfilename') :
+           outputFilename=Config.get(sectionName,'outputfilename')
+        
+        if Config.has_option(sectionName,'dryrun'):
+           dryrun=Config.getboolean(sectionName,'dryrun')
+        
+        if Config.has_option(sectionName,'allowforcefirstsince'):
+           allowForceFirstSince=Config.getboolean(sectionName,'allowforcefirstsince')
+        if Config.has_option(sectionName,'verbose'):
+           verbose=Config.getboolean(sectionName,'verbose')
+        if Config.has_option(sectionName,'rootfilename'):
+           rootfilename=Config.get(sectionName,'rootfilename')
+        else:
+           raise ConfigParser.ParsingError, "option rootfilename is required"
+        if Config.has_option(sectionName,'tagname'):
+           tagname=Config.get(sectionName,'tagname')
+        else:
+           raise ConfigParser.ParsingError, "option tagname is required"
+        if Config.has_option(sectionName,'dbconnect'):
+           connect=Config.get(sectionName,'dbconnect')
+        else:
+           raise ConfigParser.ParsingError, "option dbconnect is required"
+        if Config.has_option(sectionName,'authpath'):
+           authpath=Config.get(sectionName,'authpath')
+        else:
+           raise ConfigParser.ParsingError, "option authpath is required"
+        if Config.has_option(sectionName,'inputTemplate'):
+           inputTemplate=Config.get(sectionName,'inputTemplate')
+        else:
+           raise ConfigParser.ParsingError, "option inputTemplate is required"
+           
+      except:
+        print("exception on %s!" % option)
+        exit(2)
+   else: 
+      if not options.rootfilename:
+         parser.error('option -f or --filename is required')
+      if not options.tagname:
+         parser.error('option -t or --tagname is required')
+      if not options.connect:
+         parser.error('option -c or --connect is required')
+      if not options.authPath:
+         parser.error('option -P or --authPath is required')
+      if not options.inputTemplate:
+         parser.error('option -i or --inputTemplate is required')
+      rootfilename=options.rootfilename
+      tagname=options.tagname
+      connect=options.connect
+      authpath=options.authPath
+      inputTemplate=options.inputTemplate
+      if options.logdatabase:
+         logdatabase=options.logdatabase
+      if options.outputFilename:
+         outputFilename=options.outputFilename
+      verbose=options.verbose
+      dryrun=options.dryrun
+      allowForceFirstSince=options.allowforcefirstsince
    if verbose:
       print 'rootfilename:\t',rootfilename
       print 'tagname:\t',tagname
