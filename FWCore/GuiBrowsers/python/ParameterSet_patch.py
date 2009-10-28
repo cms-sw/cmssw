@@ -1,13 +1,15 @@
 from copy import deepcopy
 import inspect
 
-#### patches needed for deepcopy of process ####
+#### helpers for inspection ####
 
 def auto_inspect():
     stack = inspect.stack()
     while 'ParameterSet' in stack[0][1]:
         stack = stack[1:]
     return stack
+
+#### patches needed for deepcopy of process ####
 
 import FWCore.ParameterSet.DictTypes as typ
     
@@ -35,62 +37,63 @@ def new___init__(self,name):
     self.old___init__(name)
     self.__dict__['_Process__history'] = []
     self.__dict__['_Process__enableRecording'] = 0
-    self.__dict__['_Process__modifiedmodules'] = []
+    self.__dict__['_Process__modifiedobjects'] = []
 cms.Process.old___init__=cms.Process.__init__
 cms.Process.__init__=new___init__
 
-def new_modifiedModules(self):
-    return self.__dict__['_Process__modifiedmodules']
-cms.Process.modifiedModules=new_modifiedModules
+def new_modifiedObjects(self):
+    return self.__dict__['_Process__modifiedobjects']
+cms.Process.modifiedObjects=new_modifiedObjects
 
-def new_resetModifiedModules(self):
-    self.__dict__['_Process__modifiedmodules'] = []
-cms.Process.resetModifiedModules=new_resetModifiedModules
+def new_resetModifiedObjects(self):
+    self.__dict__['_Process__modifiedobjects'] = []
+cms.Process.resetModifiedObjects=new_resetModifiedObjects
 
 def new__place(self, name, mod, d):
     self.old__place(name, mod, d)
     if self._okToPlace(name, mod, d):
-        self.__dict__['_Process__modifiedmodules'].append(mod)
+        self.__dict__['_Process__modifiedobjects'].append(mod)
 cms.Process.old__place=cms.Process._place
 cms.Process._place=new__place
 
 def new__placeSource(self, name, mod):
     self.old__placeSource(name, mod)
-    self.__dict__['_Process__modifiedmodules'].append(mod)
+    self.__dict__['_Process__modifiedobjects'].append(mod)
 cms.Process.old__placeSource=cms.Process._placeSource
 cms.Process._placeSource=new__placeSource
 
 def new__placeLooper(self, name, mod):
     self.old__placeLooper(name, mod)
-    self.__dict__['_Process__modifiedmodules'].append(mod)
+    self.__dict__['_Process__modifiedobjects'].append(mod)
 cms.Process.old__placeLooper=cms.Process._placeLooper
 cms.Process._placeLooper=new__placeLooper
 
 def new__placeService(self, typeName, mod):
     self.old__placeService(typeName, mod)
-    self.__dict__['_Process__modifiedmodules'].append(mod)
+    self.__dict__['_Process__modifiedobjects'].append(mod)
 cms.Process.old__placeService=cms.Process._placeService
 cms.Process._placeService=new__placeService
 
 def new_setSchedule_(self, sch):
     self.old_setSchedule_(sch)
-    self.__dict__['_Process__modifiedmodules'].append(sch)
+    self.__dict__['_Process__modifiedobjects'].append(sch)
 cms.Process.old_setSchedule_=cms.Process.setSchedule_
 cms.Process.setSchedule_=new_setSchedule_
 
 def new_setLooper_(self, lpr):
     self.old_setLooper_(lpr)
-    self.__dict__['_Process__modifiedmodules'].append(lpr)
+    self.__dict__['_Process__modifiedobjects'].append(lpr)
 cms.Process.old_setLooper_=cms.Process.setLooper_
 cms.Process.setLooper_=new_setLooper_
 
 def new_history(self):
     return self.__dict__['_Process__history']
 cms.Process.history=new_history
+
 def new_resetHistory(self):
     self.__dict__['_Process__history'] = []
     self.resetModified()
-    self.resetModifiedModules()
+    self.resetModifiedObjects()
 cms.Process.resetHistory=new_resetHistory
 
 def new_addAction(self,tool):
@@ -104,74 +107,58 @@ cms.Process.deleteAction=new_deleteAction
 
 def new_disableRecording(self):
     if self.__dict__['_Process__enableRecording'] == 0:
-        modification = self.dumpModified()[1]
+        # remeber modifications in history
+        modification = self.dumpModifications(False)
         if modification!="":
             self.__dict__['_Process__history'].append(modification)
+        # start recording modified objects
         self.resetModified()
+        self.resetModifiedObjects()
     self.__dict__['_Process__enableRecording'] += 1
 cms.Process.disableRecording=new_disableRecording
 
 def new_enableRecording(self):
     self.__dict__['_Process__enableRecording'] -= 1
     if self.__dict__['_Process__enableRecording'] == 0:
+        # remeber modified objects
+        modifiedobjects = self.dumpModifiedObjects()
+        self.__dict__['_Process__modifiedobjects'].extend(modifiedobjects)
+        # start recording modifications
         self.resetModified()
 cms.Process.enableRecording=new_enableRecording
 
 def new_recurseResetModified_(self, o):
     properties = []
-    if hasattr(o, "resetModified"):
+    if isinstance(o, cms._ModuleSequenceType):
         o.resetModified()
-    if hasattr(o, "parameterNames_"):
+    if isinstance(o, cms._Parameterizable):
+        o.resetModified()
         for key in o.parameterNames_():
-            value = getattr(o, key)
+            value = getattr(o,key)
             self.recurseResetModified_(value)
+    if isinstance(o, cms._ValidatingListBase):
+        for index,item in enumerate(o):
+            self.recurseResetModified_(item)
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
-def new_recurseDumpModified_(self, name, o):
-    """
+def new_recurseDumpModifications_(self, name, o, comments=True):
     dumpPython = ""
-    if hasattr(o, "parameterNames_"):      
-        for key in o.parameterNames_():
-            value = getattr(o, key)
-            dump = self.recurseDumpModified_(name + "." + key, value)
-            if dumpPython != "" and dump != "":
-                dumpPython += "\n"
-            dumpPython += dump
-    elif hasattr(o, "isModified") and o.isModified():
-        if isinstance(o, cms.InputTag):
-            pythonValue="\"" + str(o.value()) + "\""
-        elif hasattr(o, "pythonValue"):
-            pythonValue=o.pythonValue()
-        elif hasattr(o, "value"):
-            pythonValue=o.value()
-        else:
-            pythonValue=o
-        dump = "process." + name + " = " + str(pythonValue)
-        if dumpPython != "" and dump != "":
-            dumpPython += "\n"
-        dumpPython += dump
-    return dumpPython
-    """
-    
-    # gfball's interpretation.
-    # Recurse over items that are Parameterizable (all modules, parametersets), printing out modifications as comments then the current value as python.
-    # This should cover everything defined in items_() below except for sequence types. However, looking at the code although _ModuleSequenceType has a parameter '_isModified' there are no conditions under which it is set.
-    # 
-    dumpPython = ""
-    # Test this is a parameterizable object. This ignores any parameters never placed in a PSet, but I don't think they're interesting anyway?
     if isinstance(o, cms._ModuleSequenceType):
         if o._isModified:
-            for mod in o._modifications:
-                if mod['action']=='replace':
-                    dumpPython += "# MODIFIED BY %(file)s:%(line)s replace %(old)s with %(new)s\n"%mod
-                if mod['action']=='remove':
-                    dumpPython += "# MODIFIED BY %(file)s:%(line)s remove %(old)s\n"%mod
-                if mod['action']=='append':
-                    dumpPython += "# MODIFIED BY %(file)s:%(line)s append %(new)s\n"%mod
-            dumpPython += "process.%s = %s\n"%(name,o.dumpPython({}))
+            if dumpPython != "":
+                dumpPython += "\n"
+            if comments:
+                for mod in o._modifications:
+                    if mod['action']=='replace':
+                        dumpPython += "# MODIFIED BY %(file)s:%(line)s replace %(old)s with %(new)s\n"%mod
+                    if mod['action']=='remove':
+                        dumpPython += "# MODIFIED BY %(file)s:%(line)s remove %(old)s\n"%mod
+                    if mod['action']=='append':
+                        dumpPython += "# MODIFIED BY %(file)s:%(line)s append %(new)s\n"%mod
+            dumpPython += "process.%s = %s"%(name,o.dumpPython({}))
     
+    # Test this is a parameterizable object. This ignores any parameters never placed in a PSet, but I don't think they're interesting anyway?
     if isinstance(o, cms._Parameterizable):
-        
         # Build a dictionary parametername->[modifications of that param,...] so that we group all modification statements for a single parameter together.
         mod_dict = {}          
         for mod in o._modifications:
@@ -182,43 +169,49 @@ def new_recurseDumpModified_(self, name, o):
         
         # Loop over modified parameters at this level, printing them
         for paramname in mod_dict:
-            for mod in mod_dict[paramname]:
-                dumpPython += "# MODIFIED BY %(file)s:%(line)s; %(old)s -> %(new)s\n" % mod
-            dumpPython += "process.%s.%s = %s\n\n" % (name,paramname,getattr(o,paramname)) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
+            if dumpPython != "":
+                dumpPython += "\n"
+            if comments:
+                for mod in mod_dict[paramname]:
+                    dumpPython += "# MODIFIED BY %(file)s:%(line)s; %(old)s -> %(new)s\n" % mod
+            dumpPython += "process.%s.%s = %s" % (name,paramname,getattr(o,paramname)) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
             
         # Loop over any child elements
         for key in o.parameterNames_():
             value = getattr(o,key)
-            dumpPython += self.recurseDumpModified_("%s.%s"%(name,key),value)
+            dumpPython += self.recurseDumpModifications_("%s.%s"%(name,key),value,comments)
     
     # Test if we have a VPSet (I think the code above would miss checking a VPSet for modified children too)
     if isinstance(o, cms._ValidatingListBase):
         for index,item in enumerate(o):
-            dumpPython += self.recurseDumpModified_("%s[%s]"%(name,index),item)
+            dumpPython += self.recurseDumpModifications_("%s[%s]"%(name,index),item,comments)
     return dumpPython    
-    
-cms.Process.recurseDumpModified_=new_recurseDumpModified_
+cms.Process.recurseDumpModifications_=new_recurseDumpModifications_
 
 def new_resetModified(self):
-    modification = self.dumpModified()[0]
-    self.__dict__['_Process__modifiedmodules'].extend(modification)
     for name, o in self.items_():
         self.recurseResetModified_(o)
 cms.Process.resetModified=new_resetModified
 
-def new_dumpModified(self):
-    dumpModified = ""
+def new_dumpModifications(self,comments=True):
+    dumpModifications = ""
+    for name, o in self.items_():
+        dumpPython = self.recurseDumpModifications_(name, o, comments)
+        if dumpPython != "":
+            if dumpModifications != "":
+                dumpModifications += "\n"
+            dumpModifications += dumpPython
+    return dumpModifications
+cms.Process.dumpModifications=new_dumpModifications
+
+def new_dumpModifiedObjects(self):
     modifiedObjects = []
     for name, o in self.items_():
-        dumpPython = self.recurseDumpModified_(name, o)
-        if dumpPython != "":
-            if dumpModified != "":
-                dumpModified += "\n"
-            dumpModified += dumpPython
-            if not o in modifiedObjects:
-                modifiedObjects += [o]
-    return (modifiedObjects, dumpModified)
-cms.Process.dumpModified=new_dumpModified
+        if self.recurseDumpModifications_(name, o, False) != "" and\
+            not o in modifiedObjects:
+            modifiedObjects += [o]
+    return modifiedObjects
+cms.Process.dumpModifiedObjects=new_dumpModifiedObjects
 
 def new_moduleItems_(self):
     items = []
@@ -283,6 +276,11 @@ def new_Parameterizable_resetModified(self):
         if isinstance(param, cms._Parameterizable):
             param.resetModified()
 cms._Parameterizable.resetModified = new_Parameterizable_resetModified
+
+def new_ParameterTypeBase_resetModified(self):
+    self._isModified=False
+    self._modifications = []
+cms._ParameterTypeBase.resetModified = new_ParameterTypeBase_resetModified
 
 #### sequence history ####
 
