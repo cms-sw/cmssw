@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.16 2009/10/27 19:25:03 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.17 2009/10/28 08:43:57 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -33,7 +33,6 @@ FWMuonDetailView::FWMuonDetailView():
    m_viewer(0),
    m_data(0)
 { 
-  // getEveWindow()->DestroyWindow();
 }
 
 FWMuonDetailView::~FWMuonDetailView()
@@ -93,9 +92,9 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    TEveLegoEventHandler* eh =
       new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
    m_viewer->SetEventHandler(eh);
-   m_viewer->CurrentCamera().Reset();
 
-   viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
    gEve->Redraw3D();
 }
 
