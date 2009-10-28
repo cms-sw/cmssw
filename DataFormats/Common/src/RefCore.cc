@@ -10,7 +10,7 @@ namespace edm {
       transients_(prodPtr, prodGetter, transient) {}
 
   EDProduct const*
-  RefCore::getProductPtr() const {
+  RefCore::getProductPtr(char const* type) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
     // EDProductGetter::instance() is called will be one where a
@@ -43,7 +43,34 @@ namespace edm {
 	<< "a functioning EDProducterGetter for the context in which this\n"
 	<< "call is mode\n";
     }
-    return productGetter()->getIt(id_);
+    EDProduct const* product = productGetter()->getIt(id_);
+    if (product == 0) {
+      throw edm::Exception(errors::ProductNotFound)
+	<< "RefCore: A request to resolve a reference to a product of type: "
+	<< type
+        << "with ProductID "<< id_
+	<< "\ncan not be satisfied because the product cannot be found."
+	<< "\nProbably the branch containing the product is not stored in the input file.\n";
+    }
+    return product;
+  }
+
+  void
+  RefCore::wrongTypeException(char const* expectedType, char const* actualType) const {
+    throw edm::Exception(errors::InvalidReference,"WrongType")
+	<< "RefCore: A request to convert a contained product of type: "
+	<<  actualType << "\n"
+	<< " to type " << expectedType
+	<< "\nfor ProductID "<< id_
+	<< " can not be satisfied\n";
+  }
+
+  void
+  RefCore::nullPointerForTransientException(char const* type) const {
+    throw edm::Exception(errors::ProductNotFound)
+	<< "RefCore: A request to resolve a transient reference to a product of type: "
+	<< type
+	<< "\ncan not be satisfied because the pointer to the product is null.\n";
   }
 
   bool

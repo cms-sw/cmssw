@@ -45,7 +45,11 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
 
-    EDProduct const* getProductPtr() const;
+    EDProduct const* getProductPtr(char const* type) const;
+
+    void wrongTypeException(char const* expectedType, char const* actualType) const;
+
+    void nullPointerForTransientException(char const* type) const;
 
     void swap(RefCore &);
     
