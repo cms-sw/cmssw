@@ -8,10 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.4 2009/10/28 14:39:59 chrjones Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.5 2009/10/28 15:37:04 chrjones Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
+#include <algorithm>
 #include "TH2.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -46,6 +48,22 @@ FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
           !m_item->modelInfo(index).isSelected()) {
          //std::cout <<"  doSelect "<<index<<std::endl;
          m_item->select(index);
+      }
+   }
+}
+
+void 
+FWFromSliceSelector::clear()
+{
+   const CaloTowerCollection* towers=0;
+   m_item->get(towers);
+   
+   int index = 0;
+   
+   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower,++index) {
+      if( m_item->modelInfo(index).m_displayProperties.isVisible() &&
+         m_item->modelInfo(index).isSelected()) {
+         m_item->unselect(index);
       }
    }
 }
@@ -117,6 +135,9 @@ FWFromTEveCaloDataSelector::doSelect()
 {
    assert(m_changeManager);
    FWChangeSentry sentry(*m_changeManager);
+   std::for_each(m_sliceSelectors.begin(),
+                 m_sliceSelectors.end(),
+                 boost::bind(&FWFromSliceSelector::clear,_1));
    const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
    for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
        it != itEnd;

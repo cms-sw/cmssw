@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.h,v 1.1 2009/10/23 22:05:57 chrjones Exp $
+// $Id: FWFromTEveCaloDataSelector.h,v 1.2 2009/10/28 14:39:59 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ public:
                        const FWEventItem*);
    void doSelect(const TEveCaloData::CellId_t&);
    void doUnselect(const TEveCaloData::CellId_t&);
+   void clear();
    FWModelChangeManager* changeManager() const;
 private:
     TH2F* m_hist;
