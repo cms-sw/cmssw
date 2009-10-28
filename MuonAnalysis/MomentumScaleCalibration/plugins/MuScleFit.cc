@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/19 10:55:03 $
-//  $Revision: 1.62 $
+//  $Date: 2009/10/21 14:08:10 $
+//  $Revision: 1.63 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -329,7 +329,7 @@ MuScleFit::~MuScleFit () {
 
 // Begin job
 // ---------
-void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
+void MuScleFit::beginOfJob () {
 
   // Read probability distributions from the database of a local root file.
   // These are 2-D PDFs containing a grid of 1000x1000 values of the
