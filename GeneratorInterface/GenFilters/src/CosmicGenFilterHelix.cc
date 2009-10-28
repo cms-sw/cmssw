@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.8 2008/08/15 20:25:06 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.9 2008/12/05 18:49:32 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -93,6 +93,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   for (HepMC::GenEvent::particle_const_iterator iPart = mCEvt->particles_begin(),
 	 endPart = mCEvt->particles_end(); iPart != endPart; ++iPart) {
     int charge = 0; // there is no method providing charge in GenParticle :-(
+    if ((*iPart)->status() != 1) continue; // look only at stable particles
     if (!this->charge((*iPart)->pdg_id(), charge)) continue;
 
     // Get the position and momentum
