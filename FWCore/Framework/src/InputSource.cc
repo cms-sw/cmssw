@@ -442,6 +442,7 @@ namespace edm {
     Run run(rp, moduleDescription());
     endRun(run);
     run.commit_();
+    runPrematurelyRead_ = false;
   }
 
   void
@@ -457,6 +458,7 @@ namespace edm {
     LuminosityBlock lb(lbp, moduleDescription());
     endLuminosityBlock(lb);
     lb.commit_();
+    lumiPrematurelyRead_ = false;
   }
 
   void 
