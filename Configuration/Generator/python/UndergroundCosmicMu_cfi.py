@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from GeneratorInterface.GenFilters.CosmicGenFilterHelix_cff import * 
 
 generator = cms.EDProducer("CosMuoGenProducer",
     ZCentrOfTarget = cms.double(0.0),
@@ -26,3 +27,7 @@ generator = cms.EDProducer("CosMuoGenProducer",
     MTCCHalf = cms.bool(False),
     Verbosity = cms.bool(False)
 )
+
+
+#Filter
+ProductionFilterSequence = cms.Sequence(generator*cosmicInTracker)
