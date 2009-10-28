@@ -1,6 +1,7 @@
 2009-10-28  Emilio Meschi  <emilio.meschi@cern.ch>
 
-	* tag V00-07-05
+	* tag V00-07-06 (V00-07-05 used by andreas for undocumented fixes for 
+	64-bit compilation)
 	* shmem and sem keys assigned by uid
 	* ShmBuffer always tries to remove existing shm segments for same uid
 	
