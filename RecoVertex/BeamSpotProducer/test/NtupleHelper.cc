@@ -96,7 +96,9 @@ zData  NtupleHelper::Loop(int maxEvents)
 		   TMath::Abs(z0)<60 &&
 		   nPixelLayerMeas>=3 &&
 		   nTotLayerMeas >= 11 &&
-		   normchi2 < 2 ) { 
+		   normchi2 < 2 &&
+	   quality &&
+	   algo ) { 
 		   //TMath::Abs(d0)<0.06 ) {
 		   //(chi2/ndof)<5 && TMath::Prob(chi2, (int)ndof)>0.02 && TMath::Abs(eta)<2.2 ) {
 		   zvector.push_back(data(z0,sigmaz0,d0,sigmaD,phi,pt,1.));

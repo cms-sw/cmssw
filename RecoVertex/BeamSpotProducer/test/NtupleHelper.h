@@ -51,6 +51,8 @@ public :
    Int_t nTotLayerMeas;
    Int_t nStripLayerMeas;
    Int_t nPixelLayerMeas;
+   Bool_t quality;
+   Bool_t algo;
 
    // List of branches
    TBranch        *b_run;   //!
@@ -70,6 +72,8 @@ public :
    TBranch *b_eta;
    TBranch *b_theta;
    TBranch *b_charge;
+   TBranch *b_quality;
+   TBranch *b_algo;
 
    NtupleHelper(const char* fname ,TTree *tree=0);
    virtual ~NtupleHelper();
@@ -162,6 +166,8 @@ void NtupleHelper::Init(TTree *tree)
    fChain->SetBranchAddress("eta",&eta);
    fChain->SetBranchAddress("theta",&theta);
    fChain->SetBranchAddress("charge",&charge);
+   fChain->SetBranchAddress("quality",&quality);
+   fChain->SetBranchAddress("algo",&algo);
 
    std::cout << "[NtupleHelper] tree initialized " << std::endl;
    Notify();
@@ -196,6 +202,8 @@ Bool_t NtupleHelper::Notify()
    b_nStripLayerMeas = fChain->GetBranch("nStripLayerMeas");
    b_normchi2 = fChain->GetBranch("normchi2");
    b_eta = fChain->GetBranch("eta");
+   b_quality = fChain->GetBranch("quality");
+   b_algo = fChain->GetBranch("algo");
 
    std::cout << "[NtupleHelper] branches notified" << std::endl;
    return kTRUE;

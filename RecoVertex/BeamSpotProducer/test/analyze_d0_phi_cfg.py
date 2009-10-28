@@ -58,7 +58,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1) #1500
+    input = cms.untracked.int32(500) #1500
 )
 process.p = cms.Path(process.d0_phi_analyzer)
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']

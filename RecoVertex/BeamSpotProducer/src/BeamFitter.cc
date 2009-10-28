@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.13 2009/10/27 14:38:20 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.14 2009/10/27 20:59:29 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -84,6 +84,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
 	ftree_->Branch("vx",&fvx,"fvx/D");
  	ftree_->Branch("vy",&fvy,"fvy/D");
+	ftree_->Branch("quality",&fquality,"fquality/O");
+	ftree_->Branch("algo",&falgo,"falgo/O");
 	ftree_->Branch("run",&frun,"frun/i");
 	ftree_->Branch("lumi",&flumi,"flumi/i");
   }
@@ -93,6 +95,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
   fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
   frun = flumi = -1;
+  fquality = falgo = true;
 }
 
 BeamFitter::~BeamFitter() {
@@ -168,16 +171,19 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 //     }
 
     // Track quality
-    bool quality_ok=true;
-	bool algo_ok = true;
+    //bool quality_ok=true;
+	//bool algo_ok = true;
 	
+		fquality = true;
+		falgo = true;
+
 	if (! isMuon_ ) {
 		if (quality_.size()!=0) {
-			quality_ok = false;
+			fquality = false;
 			for (unsigned int i = 0; i<quality_.size();++i) {
 				if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
 				if (track->quality(quality_[i])) {
-					quality_ok = true;
+					fquality = true;
 					break;
 				}
 			}
@@ -188,10 +194,12 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		
 		if (algorithm_.size()!=0) {
 			if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
-				algo_ok = false;
+				falgo = false;
 		}
 
 	}
+	std::cout << "algo_ = " << falgo << std::endl;
+	std::cout << "algoname track = " << track->algoName() << std::endl;
     
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
@@ -201,8 +209,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
         && fnPixelLayerMeas >= trk_MinNPixLayers_
 		&& fnormchi2 < trk_MaxNormChi2_
 		&& fpt > trk_MinpT_
-		&& algo_ok
-		&& quality_ok
+		&& falgo
+		&& fquality
 		&& std::abs( fd0 ) < trk_MaxIP_
 		&& std::abs( fz0 ) < trk_MaxZ_
 		&& std::abs( feta ) < trk_MaxEta_
