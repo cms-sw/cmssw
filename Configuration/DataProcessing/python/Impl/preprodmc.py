@@ -2,7 +2,7 @@
 """
 _pp_
 
-Scenario supporting RelVal MC production
+Scenario supporting pre-production
 
 """
 
@@ -18,9 +18,9 @@ from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStrea
     
 
 
-class relvalmc(Scenario):
+class preprodmc(Scenario):
     """
-    _relvalmc_
+    _preprodmc_
 
     Implement configuration building for RelVal MC production 
 
@@ -31,14 +31,14 @@ class relvalmc(Scenario):
         """
         _promptReco_
 
-        Prompt reco for RelVal MC production
+        Prompt reco for pre-production
 
         """
         
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,RECO,VALIDATION,DQM'
+        options.step = 'RAW2DIGI,RECO,VALIDATION:validation_preprod,DQM:DQMOfflinePOG'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -67,7 +67,7 @@ class relvalmc(Scenario):
         """
         _expressProcessing_
 
-        Express processing for RelVal MC production
+        Express processing for pre-production
 
         """
 
@@ -109,7 +109,7 @@ class relvalmc(Scenario):
         """
         _alcaReco_
 
-        AlcaReco processing & skims for RelVal MC production
+        AlcaReco processing & skims for pre-production
 
         """
         options = Options()
@@ -168,12 +168,12 @@ class relvalmc(Scenario):
         """
         _dqmHarvesting_
 
-        DQM Harvesting for RelVal MC production
+        DQM Harvesting for pre-production
 
         """
         options = defaultOptions
         options.scenario = "pp"
-        options.step = "HARVESTING:validationHarvesting+dqmHarvesting"
+        options.step = "HARVESTING:validationpreprodHarvesting+dqmHarvestingPOG"
         options.isMC = False
         options.isData = True
         options.beamspot = None
