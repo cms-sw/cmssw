@@ -58,7 +58,7 @@ class preprodmc(Scenario):
         cb.prepare()
 
         for tier in writeTiers: 
-          addOutputModule(process, tier, process.RECOEventContent)        
+          addOutputModule(process, tier, "RECO")        
  
         return process
 
@@ -118,7 +118,7 @@ class preprodmc(Scenario):
         options.step = 'ALCA:MuAlStandAloneCosmics+DQM,ENDJOB'
         options.isMC = False
         options.isData = True
-        options.conditions = "FrontierConditions_GlobalTag,CRAFT_V16P::All" 
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.beamspot = None
         options.eventcontent = None
         options.relval = None
