@@ -1,5 +1,7 @@
+<use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/StdDictionaries>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TauReco>
@@ -14,6 +16,7 @@
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
+  <use name=DataFormats/StdDictionaries>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TauReco>

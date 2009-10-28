@@ -1,9 +1,15 @@
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Math>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Candidate>
 <export>
     <lib name=PhysicsToolsJetCharge>
+    <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
     <use name=DataFormats/Math>
+    <use name=DataFormats/TrackReco>
+    <use name=DataFormats/Candidate>
 </export>
 
 

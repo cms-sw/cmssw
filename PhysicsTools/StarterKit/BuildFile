@@ -1,6 +1,7 @@
 <use name=DataFormats/Candidate>
 <use name=DataFormats/PatCandidates>
 <use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/CandUtils>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=DataFormats/Provenance>
@@ -12,6 +13,7 @@
   <use name=DataFormats/Candidate>
   <use name=DataFormats/PatCandidates>
   <use name=PhysicsTools/UtilAlgos>
+  <use name=PhysicsTools/CandUtils>
   <use name=FWCore/ServiceRegistry>
   <use name=root>
 </export>
