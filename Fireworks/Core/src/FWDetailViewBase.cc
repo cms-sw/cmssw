@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.12 2009/10/12 18:02:45 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.13 2009/10/27 19:23:15 amraktad Exp $
 //
 
 // system include files
@@ -81,17 +81,17 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveVi
 
    // left canvas
    slot = wp->NewSlotWithWeight(1);
-   slot->SetShowTitleBar(kFALSE);
    TRootEmbeddedCanvas*  ec = new TRootEmbeddedCanvas();
-   slot->MakeFrame(ec);
+   TEveWindowFrame* wf = slot->MakeFrame(ec);
+   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
    canvas = ec->GetCanvas();
 
    // viewer GL
    slot = wp->NewSlotWithWeight(3);
-   slot->SetShowTitleBar(kFALSE);
    eveViewer = new TEveViewer("Detail view");
    eveViewer->SpawnGLEmbeddedViewer();   gEve->GetViewers()->AddElement(eveViewer);
    slot->ReplaceWindow(eveViewer);
+   slot->SetShowTitleBar(kFALSE);
 
    // scene
    scene = gEve->SpawnNewScene("Detailed view");
