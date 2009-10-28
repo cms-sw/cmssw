@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.17 $
+ * $Date: 2009/08/28 17:47:47 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBOccupancyClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

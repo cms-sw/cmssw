@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2009/02/27 13:54:05 $
- * $Revision: 1.90 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <algorithm>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -98,9 +100,9 @@ EBBeamCaloClient::~EBBeamCaloClient() {
 
 }
 
-void EBBeamCaloClient::beginJob(DQMStore* dqmStore) {
+void EBBeamCaloClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBBeamCaloClient: beginJob" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/08/23 20:07:16 $
- * $Revision: 1.88 $
+ * $Date: 2009/08/27 15:41:04 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -75,9 +77,9 @@ EETriggerTowerClient::~EETriggerTowerClient() {
 
 }
 
-void EETriggerTowerClient::beginJob(DQMStore* dqmStore) {
+void EETriggerTowerClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EETriggerTowerClient: beginJob" << endl;
 

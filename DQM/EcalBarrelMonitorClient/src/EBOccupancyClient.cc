@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.35 $
+ * $Date: 2009/08/28 17:47:48 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -76,9 +78,9 @@ EBOccupancyClient::~EBOccupancyClient() {
 
 }
 
-void EBOccupancyClient::beginJob(DQMStore* dqmStore) {
+void EBOccupancyClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBOccupancyClient: beginJob" << endl;
 

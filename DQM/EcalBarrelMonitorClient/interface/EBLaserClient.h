@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2009/08/03 23:44:18 $
- * $Revision: 1.87 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EBLaserClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

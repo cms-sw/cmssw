@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.33 $
+ * $Date: 2009/08/27 15:31:30 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -45,7 +45,7 @@ virtual ~EBClusterClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.29 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EBTimingClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

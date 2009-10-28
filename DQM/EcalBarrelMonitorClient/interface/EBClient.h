@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.24 2009/02/27 13:54:04 dellaric Exp $
+// $Id: EBClient.h,v 1.25 2009/08/27 15:31:30 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.24 $
-  \date $Date: 2009/02/27 13:54:04 $
+  \version $Revision: 1.25 $
+  \date $Date: 2009/08/27 15:31:30 $
 */
 
 
@@ -28,10 +28,10 @@ class EBClient {
   */
   virtual void analyze(void)      = 0;
 
-  /*! \fn virtual void beginJob(DQMStore* dqmStore)
+  /*! \fn virtual void beginJob(void)
     \brief begin of job method
   */
-  virtual void beginJob(DQMStore* dqmStore)     = 0;
+  virtual void beginJob(void)     = 0;
 
   /*! \fn virtual void endJob(void)
     \brief end of job method

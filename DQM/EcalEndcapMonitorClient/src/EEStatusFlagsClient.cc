@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.27 $
+ * $Date: 2009/09/23 07:26:02 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -75,9 +77,9 @@ EEStatusFlagsClient::~EEStatusFlagsClient() {
 
 }
 
-void EEStatusFlagsClient::beginJob(DQMStore* dqmStore) {
+void EEStatusFlagsClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEStatusFlagsClient: beginJob" << endl;
 

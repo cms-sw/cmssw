@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2009/08/21 11:52:28 $
- * $Revision: 1.147 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -87,9 +89,9 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient() {
 
 }
 
-void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore) {
+void EBPedestalOnlineClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 

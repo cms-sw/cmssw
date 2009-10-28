@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.249 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.250 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -207,9 +209,9 @@ EBLaserClient::~EBLaserClient() {
 
 }
 
-void EBLaserClient::beginJob(DQMStore* dqmStore) {
+void EBLaserClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBLaserClient: beginJob" << endl;
 

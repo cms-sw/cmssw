@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.119 $
+ * $Date: 2009/08/27 15:31:32 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -75,9 +77,9 @@ EBTriggerTowerClient::~EBTriggerTowerClient() {
 
 }
 
-void EBTriggerTowerClient::beginJob(DQMStore* dqmStore) {
+void EBTriggerTowerClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
 

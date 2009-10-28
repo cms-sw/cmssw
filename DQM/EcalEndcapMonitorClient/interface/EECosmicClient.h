@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2009/08/10 15:50:01 $
- * $Revision: 1.26 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EECosmicClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

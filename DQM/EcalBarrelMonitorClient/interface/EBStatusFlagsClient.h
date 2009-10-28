@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.16 $
+ * $Date: 2009/09/23 07:25:51 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EBStatusFlagsClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

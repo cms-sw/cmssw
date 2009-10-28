@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2009/08/03 23:44:21 $
- * $Revision: 1.32 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EELedClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

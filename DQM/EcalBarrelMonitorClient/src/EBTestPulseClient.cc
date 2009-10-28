@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.214 $
+ * $Date: 2009/08/27 15:31:32 $
+ * $Revision: 1.215 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -134,9 +136,9 @@ EBTestPulseClient::~EBTestPulseClient() {
 
 }
 
-void EBTestPulseClient::beginJob(DQMStore* dqmStore) {
+void EBTestPulseClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBTestPulseClient: beginJob" << endl;
 

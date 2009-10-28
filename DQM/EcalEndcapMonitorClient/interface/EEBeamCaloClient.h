@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2009/02/27 13:54:07 $
- * $Revision: 1.23 $
+ * $Date: 2009/08/27 15:41:01 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -42,7 +42,7 @@ virtual ~EEBeamCaloClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

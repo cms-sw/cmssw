@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.37 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -11,6 +11,8 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -87,9 +89,9 @@ EEBeamHodoClient::~EEBeamHodoClient() {
 
 }
 
-void EEBeamHodoClient::beginJob(DQMStore* dqmStore) {
+void EEBeamHodoClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEBeamHodoClient: beginJob" << endl;
 

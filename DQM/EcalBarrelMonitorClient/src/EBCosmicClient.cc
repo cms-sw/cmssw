@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2009/08/10 15:49:28 $
- * $Revision: 1.119 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -71,9 +73,9 @@ EBCosmicClient::~EBCosmicClient() {
 
 }
 
-void EBCosmicClient::beginJob(DQMStore* dqmStore) {
+void EBCosmicClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBCosmicClient: beginJob" << endl;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/08/13 18:12:38 $
- * $Revision: 1.50 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -41,7 +41,7 @@ virtual ~EBSummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2009/08/10 15:49:28 $
- * $Revision: 1.59 $
+ * $Date: 2009/08/27 15:31:30 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBCosmicClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

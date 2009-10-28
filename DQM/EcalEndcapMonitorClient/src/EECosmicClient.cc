@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2009/08/10 15:50:01 $
- * $Revision: 1.66 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,8 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -76,9 +78,9 @@ EECosmicClient::~EECosmicClient() {
 
 }
 
-void EECosmicClient::beginJob(DQMStore* dqmStore) {
+void EECosmicClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EECosmicClient: beginJob" << endl;
 

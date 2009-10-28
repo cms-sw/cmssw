@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/08/26 18:12:24 $
- * $Revision: 1.100 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -165,9 +167,9 @@ EELedClient::~EELedClient() {
 
 }
 
-void EELedClient::beginJob(DQMStore* dqmStore) {
+void EELedClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EELedClient: beginJob" << endl;
 

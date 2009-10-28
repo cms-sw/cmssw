@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.51 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBPedestalOnlineClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

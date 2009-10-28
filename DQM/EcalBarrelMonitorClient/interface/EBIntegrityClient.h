@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.71 $
+ * $Date: 2009/08/27 15:31:30 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,7 +44,7 @@ virtual ~EBIntegrityClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

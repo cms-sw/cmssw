@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/08/26 18:26:07 $
- * $Revision: 1.91 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -104,9 +106,9 @@ EEIntegrityClient::~EEIntegrityClient() {
 
 }
 
-void EEIntegrityClient::beginJob(DQMStore* dqmStore) {
+void EEIntegrityClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEIntegrityClient: beginJob" << endl;
 

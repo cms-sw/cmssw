@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.184 $
+ * $Date: 2009/09/23 07:26:02 $
+ * $Revision: 1.185 $
  * \author G. Della Ricca
  *
 */
@@ -13,12 +13,14 @@
 #include <map>
 #include <math.h>
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -207,9 +209,9 @@ EESummaryClient::~EESummaryClient() {
 
 }
 
-void EESummaryClient::beginJob(DQMStore* dqmStore) {
+void EESummaryClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EESummaryClient: beginJob" << endl;
 

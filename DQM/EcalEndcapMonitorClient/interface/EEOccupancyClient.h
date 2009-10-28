@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.18 $
+ * $Date: 2009/08/28 17:47:48 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EEOccupancyClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

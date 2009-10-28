@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2009/08/21 11:52:28 $
- * $Revision: 1.214 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.215 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -104,9 +106,9 @@ EBIntegrityClient::~EBIntegrityClient() {
 
 }
 
-void EBIntegrityClient::beginJob(DQMStore* dqmStore) {
+void EBIntegrityClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBIntegrityClient: beginJob" << endl;
 

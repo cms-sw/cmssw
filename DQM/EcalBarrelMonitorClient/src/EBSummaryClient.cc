@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.196 $
+ * $Date: 2009/09/23 07:25:51 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  *
 */
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -160,9 +162,9 @@ EBSummaryClient::~EBSummaryClient() {
 
 }
 
-void EBSummaryClient::beginJob(DQMStore* dqmStore) {
+void EBSummaryClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBSummaryClient: beginJob" << endl;
 

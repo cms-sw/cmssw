@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2009/08/26 18:12:24 $
- * $Revision: 1.91 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -155,9 +157,9 @@ EEPedestalClient::~EEPedestalClient() {
 
 }
 
-void EEPedestalClient::beginJob(DQMStore* dqmStore) {
+void EEPedestalClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEPedestalClient: beginJob" << endl;
 

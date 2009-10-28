@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2009/02/27 13:54:07 $
- * $Revision: 1.25 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,7 +44,7 @@ virtual ~EEIntegrityClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

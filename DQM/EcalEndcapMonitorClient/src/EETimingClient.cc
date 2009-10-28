@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2009/08/21 11:52:29 $
- * $Revision: 1.86 $
+ * $Date: 2009/08/27 15:41:04 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -92,9 +94,9 @@ EETimingClient::~EETimingClient() {
 
 }
 
-void EETimingClient::beginJob(DQMStore* dqmStore) {
+void EETimingClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EETimingClient: beginJob" << endl;
 

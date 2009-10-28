@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsClient.h
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.16 $
+ * $Date: 2009/09/23 07:26:02 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EEStatusFlagsClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

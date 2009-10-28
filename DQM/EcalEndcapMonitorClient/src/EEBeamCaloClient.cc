@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.56 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <algorithm>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -98,9 +100,9 @@ EEBeamCaloClient::~EEBeamCaloClient() {
 
 }
 
-void EEBeamCaloClient::beginJob(DQMStore* dqmStore) {
+void EEBeamCaloClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEBeamCaloClient: beginJob" << endl;
 

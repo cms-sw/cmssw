@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2009/02/27 13:54:05 $
- * $Revision: 1.70 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -13,6 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -79,9 +81,9 @@ EBClusterClient::~EBClusterClient() {
 
 }
 
-void EBClusterClient::beginJob(DQMStore* dqmStore) {
+void EBClusterClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBClusterClient: beginJob" << endl;
 

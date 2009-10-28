@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.58 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -11,6 +11,8 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -79,9 +81,9 @@ EEClusterClient::~EEClusterClient() {
 
 }
 
-void EEClusterClient::beginJob(DQMStore* dqmStore) {
+void EEClusterClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EEClusterClient: beginJob" << endl;
 

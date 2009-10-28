@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/10/26 17:33:10 $
- * $Revision: 1.464 $
+ * $Date: 2009/10/27 08:21:06 $
+ * $Revision: 1.465 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -617,10 +617,10 @@ void EcalBarrelMonitorClient::beginJob(void) {
   }
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob(dqmStore_);
+    clients_[i]->beginJob();
   }
 
-  if ( summaryClient_ ) summaryClient_->beginJob(dqmStore_);
+  if ( summaryClient_ ) summaryClient_->beginJob();
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2009/08/21 11:52:28 $
- * $Revision: 1.92 $
+ * $Date: 2009/08/27 15:31:32 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,8 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -92,9 +94,9 @@ EBTimingClient::~EBTimingClient() {
 
 }
 
-void EBTimingClient::beginJob(DQMStore* dqmStore) {
+void EBTimingClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBTimingClient: beginJob" << endl;
 

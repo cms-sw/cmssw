@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2009/08/13 18:12:38 $
- * $Revision: 1.42 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,7 +46,7 @@ virtual ~EBTriggerTowerClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

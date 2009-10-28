@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.25 $
+ * $Date: 2009/09/23 07:25:51 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -75,9 +77,9 @@ EBStatusFlagsClient::~EBStatusFlagsClient() {
 
 }
 
-void EBStatusFlagsClient::beginJob(DQMStore* dqmStore) {
+void EBStatusFlagsClient::beginJob(void) {
 
-  dqmStore_ = dqmStore;
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( debug_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
 

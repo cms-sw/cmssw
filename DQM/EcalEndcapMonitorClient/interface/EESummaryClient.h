@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/08/26 18:34:43 $
- * $Revision: 1.42 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -41,7 +41,7 @@ virtual ~EESummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

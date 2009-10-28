@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2009/08/13 18:12:42 $
- * $Revision: 1.32 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,7 +46,7 @@ virtual ~EETriggerTowerClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);

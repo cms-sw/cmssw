@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2009/02/27 13:54:07 $
- * $Revision: 1.27 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -45,7 +45,7 @@ virtual ~EEClusterClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dqmStore);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
