@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.43 2009/06/09 16:35:35 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.44 2009/10/27 05:41:39 loizides Exp $
 
 use strict;
 use DBI;
@@ -339,7 +339,7 @@ $hostname = 'csc-C2D08-11'     if $hostname eq 'csc-daq00';
 
 unless($hostname eq 'srv-C2D05-03'      || 
        $hostname eq 'srv-C2D05-02'      || 
-       $hostname eq 'csc-C2D07-08'      || #csc
+       $hostname eq 'csc-C2D08-11'      || #csc
        $hostname eq 'vmepcS2B18-39'     || #tracker
        $hostname eq 'srv-C2D05-19'      || #dqm
        $hostname =~ 'srv-C2C06-'        || 
