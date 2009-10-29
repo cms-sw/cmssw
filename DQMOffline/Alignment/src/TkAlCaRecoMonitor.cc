@@ -47,7 +47,7 @@ void TkAlCaRecoMonitor::beginJob() {
 
   maxJetPt_ = conf_.getParameter<double>("maxJetPt");
 
-  dqmStore_->setCurrentFolder(MEFolderName);
+  dqmStore_->setCurrentFolder(MEFolderName+"/TkAlignmentSpecific");
   fillInvariantMass_ = conf_.getParameter<bool>("fillInvariantMass");
   runsOnReco_ = conf_.getParameter<bool>("runsOnReco");
   useSignedR_ = conf_.getParameter<bool>("useSignedR");
