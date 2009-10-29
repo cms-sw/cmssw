@@ -8,6 +8,7 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode, i
   thresholdHO_(levelHO),
   thresholdHF_(levelHF)
 {
+  usingDBvalues = false;
 }
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode) : 
@@ -17,6 +18,7 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode) :
   thresholdHE_ = -1;
   thresholdHO_ = -1;
   thresholdHF_ = -1;
+  usingDBvalues = true;
 }
 
 
@@ -27,7 +29,7 @@ bool HcalZSAlgoRealistic::keepMe(const HBHEDataFrame& inp, int threshold, uint32
   
   bool keepIt=false;
   //int mask = 999;
-  if ((threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
