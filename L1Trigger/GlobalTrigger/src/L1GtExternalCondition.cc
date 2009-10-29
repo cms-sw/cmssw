@@ -1,8 +1,8 @@
 /**
- * \class L1GtBptxCondition
+ * \class L1GtExternalCondition
  *
  *
- * Description: evaluation of a CondBptx condition.
+ * Description: evaluation of a CondExternal condition.
  *
  * Implementation:
  *    Simply put the result read in the L1GtConditionEvaluation
@@ -16,19 +16,19 @@
  */
 
 // this class header
-#include "L1Trigger/GlobalTrigger/interface/L1GtBptxCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtExternalCondition.h"
 
 // system include files
 #include <iostream>
 
 // user include files
 //   base classes
-#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
 // constructors
 //     default
-L1GtBptxCondition::L1GtBptxCondition() :
+L1GtExternalCondition::L1GtExternalCondition() :
     L1GtConditionEvaluation() {
 
     m_conditionResult = false;
@@ -36,10 +36,10 @@ L1GtBptxCondition::L1GtBptxCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition* bptxTemplate,
+L1GtExternalCondition::L1GtExternalCondition(const L1GtCondition* externalTemplate,
         const bool result) :
             L1GtConditionEvaluation(),
-            m_gtBptxTemplate(static_cast<const L1GtBptxTemplate*>(bptxTemplate)),
+            m_gtExternalTemplate(static_cast<const L1GtExternalTemplate*>(externalTemplate)),
             m_conditionResult(result) {
 
     // maximum number of objects received for the evaluation of the condition
@@ -49,9 +49,9 @@ L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition* bptxTemplate,
 }
 
 // copy constructor
-void L1GtBptxCondition::copy(const L1GtBptxCondition &cp) {
+void L1GtExternalCondition::copy(const L1GtExternalCondition &cp) {
 
-    m_gtBptxTemplate = cp.gtBptxTemplate();
+    m_gtExternalTemplate = cp.gtExternalTemplate();
     m_conditionResult = cp.conditionResult();
 
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
@@ -62,7 +62,7 @@ void L1GtBptxCondition::copy(const L1GtBptxCondition &cp) {
 
 }
 
-L1GtBptxCondition::L1GtBptxCondition(const L1GtBptxCondition& cp) :
+L1GtExternalCondition::L1GtExternalCondition(const L1GtExternalCondition& cp) :
     L1GtConditionEvaluation() {
 
     copy(cp);
@@ -70,28 +70,28 @@ L1GtBptxCondition::L1GtBptxCondition(const L1GtBptxCondition& cp) :
 }
 
 // destructor
-L1GtBptxCondition::~L1GtBptxCondition() {
+L1GtExternalCondition::~L1GtExternalCondition() {
 
     // empty
 
 }
 
 // equal operator
-L1GtBptxCondition& L1GtBptxCondition::operator= (const L1GtBptxCondition& cp)
+L1GtExternalCondition& L1GtExternalCondition::operator= (const L1GtExternalCondition& cp)
 {
     copy(cp);
     return *this;
 }
 
 // methods
-void L1GtBptxCondition::setGtBptxTemplate(
-        const L1GtBptxTemplate* bptxTemplate) {
+void L1GtExternalCondition::setGtExternalTemplate(
+        const L1GtExternalTemplate* externalTemplate) {
 
-    m_gtBptxTemplate = bptxTemplate;
+    m_gtExternalTemplate = externalTemplate;
 
 }
 
-const bool L1GtBptxCondition::evaluateCondition() const {
+const bool L1GtExternalCondition::evaluateCondition() const {
 
     // clear the m_combinationsInCond vector
     (*m_combinationsInCond).clear();
@@ -101,9 +101,9 @@ const bool L1GtBptxCondition::evaluateCondition() const {
 
 }
 
-void L1GtBptxCondition::print(std::ostream& myCout) const {
+void L1GtExternalCondition::print(std::ostream& myCout) const {
 
-    m_gtBptxTemplate->print(myCout);
+    m_gtExternalTemplate->print(myCout);
     L1GtConditionEvaluation::print(myCout);
 
 }

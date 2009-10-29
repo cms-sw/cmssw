@@ -40,6 +40,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
@@ -60,6 +61,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfRingEtSumsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtBptxCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtExternalCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -449,6 +451,30 @@ void L1GlobalTriggerGTL::run(
                     }
 
                     //                  delete bptxCondition;
+
+                }
+                    break;
+                case CondExternal: {
+                    bool externalCondResult = true;
+
+                    // FIXME need a solution to read External with real value
+
+                    L1GtExternalCondition* externalCondition = new L1GtExternalCondition(
+                            itCond->second, externalCondResult);
+
+                    externalCondition->setVerbosity(m_verbosity);
+                    externalCondition->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = externalCondition;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        std::ostringstream myCout;
+                        externalCondition->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+                    }
+
+                    //                  delete externalCondition;
 
                 }
                     break;
