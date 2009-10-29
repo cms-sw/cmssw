@@ -16,8 +16,17 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 		if( header_.format_version() )
 			unpackError |= counters_.unpack(buf);
 
-		for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++)
-			unpackError |= record_[tbin].unpack(buf,header_.active(),header_.suppression(),tbin);
+		if( header_.format_version()<3 || !header_.suppression() ){
+			for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++)
+				unpackError |= record_[tbin].unpack(buf,header_.active(),header_.suppression(),tbin);
+		} else {
+			for(unsigned short tbin=0, actual_tbin = ((buf + 7) >> 8) & 0x7; tbin<header_.nTBINs(); tbin++){
+				bzero(record_[tbin],sizeof(record_[tbin]));
+				if( tbin != actual_tbin ) continue; // Skip supressed empty tbins in the format version >=5.3
+				unpackError |= record_[tbin].unpack(buf,header_.active(),header_.suppression(),tbin);
+				actual_tbin = ((buf + 7) >> 8) & 0x7
+			}
+		}
 
 		// Set LCTs for each track in each time bin
 		for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++){

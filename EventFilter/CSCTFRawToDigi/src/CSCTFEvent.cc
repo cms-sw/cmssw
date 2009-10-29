@@ -53,12 +53,14 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 
 			// calculate expected record length (internal variable 'shift' counts 16-bit words)
 			for(unsigned short tbin=0,shift=0; tbin<header.nTBINs() && !header.empty(); tbin++){
+				// In the format version >=5.3 with zero_supression only non-epmty time bins are record
+				if( header.format_version()>=3 && header_.suppression() && ((spWord[shift+7]>>8) & 0x7) != tbin ) continue;
 				// check if didn't pass end of event, keep in mind that 'index' counts 64-bit words, and 'sp_record_length' - 16-bits
 				if( length <= index+spWordCountExpected+1 ){
 					coruptions |= OUT_OF_BUFFER;
 					break;
 				} else {
-					// Data Block Header always exists
+					// Data Block Header always exists if we got so far
 					spWordCountExpected += 2;
 					// 15 ME data blocks
 					for(unsigned int me_block=0; me_block<15; me_block++)
@@ -102,7 +104,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			else {
 				coruptions |= CONFIGURATION;
 				break;
-			} 
+			}
 		}
 
 		index++;
