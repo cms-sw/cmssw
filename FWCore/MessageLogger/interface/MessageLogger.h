@@ -15,7 +15,6 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.33 2009/08/12 22:22:00 fischler Exp $
 //
 // =================================================
 // Change log
@@ -57,17 +56,21 @@
 //		    suppression as if it were at the LogError level, rather
 //		    than the non-suppressible LogAbsolute.
 //
-// 12 ge 12/09/08   MessageLogger now works even when compiled with -DNDEBUG.
+// 12 ge  9/12/08   MessageLogger now works even when compiled with -DNDEBUG.
 //                  The problem was that Suppress_LogDebug_ was missing the operator<<
 //                  needed for streaming `std::iomanip`s.
 //
-// 13 mf  3/23/09   ap.get() used whenever possible suppression, to avoid
+// 13 wmtan 11/18/08 Use explicit non-inlined destructors
+//
+// 14 mf  3/23/09   ap.get() used whenever possible suppression, to avoid
 //		    null pointer usage
 //
-// 14 mf  8/11/09   provision for control of standalone threshold and ignores
+// 15 mf  8/11/09   provision for control of standalone threshold and ignores
 //
-// 15 mf  10/2/09  Correct mission in logVerbatim and others of check for
+// 16 mf  10/2/09  Correct mission in logVerbatim and others of check for
 //		   whether this severity is enabled
+//
+// 17 wmtan 10/29/09 Out of line LogDebug_ and LogTrace_ constructors.
 //
 // =================================================
 
@@ -96,17 +99,17 @@ public:
     : ap ( edm::MessageDrop::instance()->warningEnabled ? 
       new MessageSender(ELwarning,id) : 0 )
   { }
-  ~LogWarning();
+  ~LogWarning();						// Change log 13
 
   template< class T >
     LogWarning & 
     operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }
   LogWarning & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { if(ap.get()) (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }
   LogWarning & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { if(ap.get()) (*ap) << f; return *this; }     
+				      { if(ap.get()) (*ap) << f; return *this; }     
 private:
   std::auto_ptr<MessageSender> ap; 
   LogWarning( LogWarning const& );				// Change log 9
@@ -119,21 +122,21 @@ public:
   explicit LogError( std::string const & id ) 
     : ap( new MessageSender(ELerror,id) )
   { }
-  ~LogError();
+  ~LogError();							// Change log 13
 
   template< class T >
     LogError & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
   LogError & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+				      { (*ap) << f; return *this; }
   LogError & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
-  LogError( LogError const& );	 				// Change log 9
+  LogError( LogError const& );					// Change log 9
 
 };  // LogError
 
@@ -143,17 +146,17 @@ public:
   explicit LogSystem( std::string const & id ) 
     : ap( new MessageSender(ELsevere,id) )
   { }
-  ~LogSystem();
+  ~LogSystem();							// Change log 13
 
   template< class T >
     LogSystem & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
   LogSystem & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+				      { (*ap) << f; return *this; }
   LogSystem & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -168,17 +171,17 @@ public:
     : ap ( edm::MessageDrop::instance()->infoEnabled ? 
       new MessageSender(ELinfo,id) : 0 )
   { }
-  ~LogInfo();
+  ~LogInfo();							// Change log 13
 
   template< class T >
     LogInfo & 
     operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }
   LogInfo & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { if(ap.get()) (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }
   LogInfo & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { if(ap.get()) (*ap) << f; return *this; }     
+				      { if(ap.get()) (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -191,21 +194,21 @@ class LogVerbatim						// change log 2
 {
 public:
   explicit LogVerbatim( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->infoEnabled ? 		// change log 15
+    : ap ( edm::MessageDrop::instance()->infoEnabled ?		// change log 16
       new MessageSender(ELinfo,id,true) : 0 ) // the true is the verbatim arg 
   { }
-  ~LogVerbatim(); 
+  ~LogVerbatim();						// Change log 13
 
   template< class T >
     LogVerbatim & 
     operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
-    								// Change log 13
+								// Change log 14
   LogVerbatim & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { if(ap.get()) (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }
   LogVerbatim & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { if(ap.get()) (*ap) << f; return *this; }   
+				      { if(ap.get()) (*ap) << f; return *this; }   
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -218,21 +221,21 @@ class LogPrint							// change log 3
 {
 public:
   explicit LogPrint( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->warningEnabled ? 	// change log 15
+    : ap ( edm::MessageDrop::instance()->warningEnabled ?	// change log 16
       new MessageSender(ELwarning,id,true) : 0 ) // the true is the Print arg 
   { }
-  ~LogPrint(); 
+  ~LogPrint();							// Change log 13
 
   template< class T >
     LogPrint & 
     operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
-    								// Change log 13
+								// Change log 14
   LogPrint & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				{ if(ap.get()) (*ap) << f; return *this; }
+				{ if(ap.get()) (*ap) << f; return *this; }
   LogPrint & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				{ if(ap.get()) (*ap) << f; return *this; }      
+				{ if(ap.get()) (*ap) << f; return *this; }      
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -248,17 +251,17 @@ public:
   explicit LogProblem( std::string const & id ) 
     : ap( new MessageSender(ELerror,id,true) )
   { }
-  ~LogProblem(); 
+  ~LogProblem();						// Change log 13
 
   template< class T >
     LogProblem & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
   LogProblem & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+				      { (*ap) << f; return *this; }
   LogProblem & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -273,17 +276,17 @@ public:
   explicit LogImportant( std::string const & id ) 
     : ap( new MessageSender(ELerror,id,true) )
   { }
-  ~LogImportant(); 
+  ~LogImportant();						 // Change log 13
 
   template< class T >
     LogImportant & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
   LogImportant & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+				      { (*ap) << f; return *this; }
   LogImportant & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -298,17 +301,17 @@ public:
   explicit LogAbsolute( std::string const & id ) 
     : ap( new MessageSender(ELsevere,id,true) )
   { }
-  ~LogAbsolute(); 
+  ~LogAbsolute();						// Change log 13
 
   template< class T >
     LogAbsolute & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
   LogAbsolute & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+				      { (*ap) << f; return *this; }
   LogAbsolute & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -325,13 +328,7 @@ void LogStatistics();
 class LogDebug_
 {
 public:
-  explicit LogDebug_( std::string const & id, std::string const & file, int line ) 
-    : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true) // Change log 8	
-  { *this 
-          << " " 						// change log 1
-	  << stripLeadingDirectoryTree(file) 			// Change log 10
-	  << ":" << line << "\n"; }
-								
+  explicit LogDebug_( std::string const & id, std::string const & file, int line ); // Change log 17
   explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8	
   ~LogDebug_(); 
 
@@ -363,16 +360,13 @@ private:
   std::auto_ptr<MessageSender> ap; 
   bool debugEnabled;
   std::string stripLeadingDirectoryTree (const std::string & file) const;
-  								// change log 10
+								// change log 10
 };  // LogDebug_
 
 class LogTrace_
 {
 public:
-  explicit LogTrace_( std::string const & id ) 
-    : ap( new MessageSender(ELsuccess,id,true) )
-    , debugEnabled(true) 					// Change log 8
-  {  }
+  explicit LogTrace_( std::string const & id );			// Change log 13
   explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8	
   ~LogTrace_(); 
 
@@ -416,9 +410,9 @@ class Suppress_LogDebug_
   // will produce absolutely no executable code.
 public:
   template< class T >
-    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }
-    Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }
-    Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; }
+    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }	// Change log 12
+    Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }	// Change log 12
+    Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; } // Change log 12
 };  // Suppress_LogDebug_
 
   bool isDebugEnabled();
@@ -429,7 +423,7 @@ public:
   void GroupLogStatistics(std::string const & category);
   bool isMessageProcessingSetUp();
 
-  // Change Log 14
+  // Change Log 15
   // The following two methods have no effect except in stand-alone apps
   // that do not create a MessageServicePresence:
   void setStandAloneMessageThreshold    (std::string const & severity);
