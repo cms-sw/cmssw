@@ -21,4 +21,5 @@
  <use name="RecoTracker/TkTrackingRegions">
  <use name="SimDataFormats/Track">
  <use name="TrackingTools/PatternTools">
+ <use name=FastSimulation/Tracking>
 </library>
