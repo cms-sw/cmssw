@@ -14,7 +14,7 @@ C...Sets values of commonblock variables.
       integer pad
       double precision  MUONRW, GAMMAJRW, ZJRW, ZPRW, HLTRW, 
      &  SUSYRW, WWRW, PTPOWER
-      common /EXPAR/ CSAMODE, pad, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
+      common /EXPAR/ pad, CSAMODE, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
      &  HLTRW, SUSYRW, WWRW, PTPOWER
 
       save   /EXPAR/
@@ -547,7 +547,7 @@ C..TXGIVE V:1.03,   01/09/2006 by Filip Moortgat
       integer pad
       double precision  MUONRW, GAMMAJRW, ZJRW, ZPRW, HLTRW, 
      &  SUSYRW, WWRW, PTPOWER
-      common /EXPAR/CSAMODE, pad, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
+      common /EXPAR/ pad, CSAMODE, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
      &  HLTRW, SUSYRW, WWRW, PTPOWER
       save   /EXPAR/
 

@@ -82,10 +82,11 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
     }
 };
 
-struct {
+struct PYJETS_LOCAL {
 	int n, npad, k[5][pyjets_maxn];
 	double p[5][pyjets_maxn], v[5][pyjets_maxn];
-} pyjets_local;
+}; 
+PYJETS_LOCAL pyjets_local;
 
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
