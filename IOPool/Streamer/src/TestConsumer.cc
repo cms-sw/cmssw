@@ -1,6 +1,7 @@
 
 #include "IOPool/Streamer/src/TestConsumer.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/shared_ptr.hpp"
 
