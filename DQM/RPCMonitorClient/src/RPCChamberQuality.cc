@@ -50,8 +50,7 @@ void RPCChamberQuality::beginJob(const EventSetup& iSetup){
 // }
 
 
-
-void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
+void RPCChamberQuality::beginRun(const Run& r, const EventSetup& iSetup){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
   
   init_ = false;  
