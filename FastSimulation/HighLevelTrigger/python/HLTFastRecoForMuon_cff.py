@@ -17,5 +17,6 @@ hltL3Muons.L3TrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 # from FastSimulation.Muons.TSGFromL2_cfi import *
 # from FastSimulation.Muons.HLTL3TkMuons_cfi import *
 from FastSimulation.Muons.TrackCandidateFromL2_cfi import *
-
+from FastSimulation.Muons.TSGFromL2_cfi import *
+hltL3TrajectorySeed = FastSimulation.Muons.TSGFromL2_cfi.hltL3TrajectorySeed.clone()
 
