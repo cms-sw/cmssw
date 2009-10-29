@@ -11,9 +11,11 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include <iostream>
 #include <string>
 #include <map>
+
 
 
 class PFElectronTranslator : public edm::EDProducer
@@ -38,6 +40,7 @@ class PFElectronTranslator : public edm::EDProducer
   // makes a basic cluster from PFBlockElement and add it to the collection ; the corrected energy is taken
   // from the PFCandidate
   void createBasicCluster(const reco::PFBlockElement & ,  reco::BasicClusterCollection & basicClusters,
+			  std::vector<const reco::PFCluster *> &,
 			  const reco::PFCandidate & coCandidate) const;
   // makes a preshower cluster from of PFBlockElement and add it to the collection
   void createPreshowerCluster(const reco::PFBlockElement & PFBE, 
@@ -79,6 +82,8 @@ class PFElectronTranslator : public edm::EDProducer
   std::vector<reco::GsfTrackRef> GsfTrackRef_;
   // the collection of basic clusters associated to a GSF track
   std::vector<reco::BasicClusterCollection> basicClusters_;
+  // the correcsponding PFCluster ref
+  std::vector<std::vector<const reco::PFCluster *> > pfClusters_;
   // the collection of preshower clusters associated to a GSF track
   std::vector<reco::PreshowerClusterCollection> preshowerClusters_;
   // the super cluster collection (actually only one) associated to a GSF trck

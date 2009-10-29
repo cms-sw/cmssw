@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFElectronTranslator.h"
+#include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
@@ -10,7 +11,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 
 PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
@@ -65,6 +65,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   // clear the vectors
   GsfTrackRef_.clear();
   basicClusters_.clear();
+  pfClusters_.clear();
   preshowerClusters_.clear();
   superClusters_.clear();
   basicClusterPtr_.clear();
@@ -92,6 +93,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     gsfPFCandidateIndex_.push_back(i);
     
     basicClusters_.push_back(reco::BasicClusterCollection());
+    pfClusters_.push_back(std::vector<const reco::PFCluster *>());
     preshowerClusters_.push_back(reco::PreshowerClusterCollection());
 
     for(unsigned iele=0; iele<cand.elementsInBlocks().size(); ++iele) {
@@ -113,7 +115,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
 	  // the Brem photons are saved as daughter PFCandidate; this 
 	  // is convenient to access the corrected energy
 	  //	  std::cout << " Found candidate "  << correspondingDaughterCandidate(coCandidate,pfbe) << " " << coCandidate << std::endl;
-	  createBasicCluster(pfbe,basicClusters_[iGSF],correspondingDaughterCandidate(cand,pfbe));
+	  createBasicCluster(pfbe,basicClusters_[iGSF],pfClusters_[iGSF],correspondingDaughterCandidate(cand,pfbe));
 	}
       if(pfbe.type()==reco::PFBlockElement::PS1)
 	{
@@ -208,12 +210,16 @@ void PFElectronTranslator::fetchGsfCollection(edm::Handle<reco::GsfTrackCollecti
 // The basic cluster is a copy of the PFCluster -> the energy is not corrected 
 // It should be possible to get the corrected energy (including the associated PS energy)
 // from the PFCandidate daugthers ; Needs some work 
-void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE, reco::BasicClusterCollection & basicClusters, const reco::PFCandidate & coCandidate) const
+void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE, 
+					      reco::BasicClusterCollection & basicClusters, 
+					      std::vector<const reco::PFCluster *> & pfClusters,
+					      const reco::PFCandidate & coCandidate) const
 {
   reco::PFClusterRef myPFClusterRef= PFBE.clusterRef();
   if(myPFClusterRef.isNull()) return;  
 
   const reco::PFCluster & myPFCluster (*myPFClusterRef);
+  pfClusters.push_back(&myPFCluster);
 //  std::cout << " Creating BC " << myPFCluster.energy() << " " << coCandidate.ecalEnergy() <<" "<<  coCandidate.rawEcalEnergy() <<std::endl;
 //  std::cout << " # hits " << myPFCluster.hitsAndFractions().size() << std::endl;
 
@@ -368,7 +374,9 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	  edm::LogError("PFElectronTranslator") << " Major problem in PFElectron Translator" << std::endl;
 	}
       
-
+      // compute the width
+      PFClusterWidthAlgo pfwidth(pfClusters_[iGSF]);
+      
       double correctedEnergy=pfCand[gsfPFCandidateIndex_[iGSF]].ecalEnergy();
       reco::SuperCluster mySuperCluster(correctedEnergy,math::XYZPoint(posX,posY,posZ));
       // protection against empty basic cluster collection ; the value is -2 in this case
@@ -411,9 +419,13 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	}
       
 
-      // Commented until the new DataFormat allows it
+      // Set the preshower energy
       mySuperCluster.setPreshowerEnergy(pfCand[gsfPFCandidateIndex_[iGSF]].pS1Energy()+
 					pfCand[gsfPFCandidateIndex_[iGSF]].pS2Energy());
+
+      // Set the cluster width
+      mySuperCluster.setEtaWidth(pfwidth.pflowEtaWidth());
+      mySuperCluster.setPhiWidth(pfwidth.pflowPhiWidth());
 
       superClusters.push_back(mySuperCluster);
    }

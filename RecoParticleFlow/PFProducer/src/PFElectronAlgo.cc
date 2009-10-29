@@ -1013,12 +1013,12 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  
 	  deta_gsfecal = clusterRef->position().eta() - Etaout_gsf;
 	  
-	  vector<reco::PFCluster> pfClust_vec(0);
+	  vector< const reco::PFCluster * > pfClust_vec(0);
 	  pfClust_vec.clear();
-	  pfClust_vec.push_back(*clusterRef);
+	  pfClust_vec.push_back(&(*clusterRef));
 	  
-	  PFClusterWidthAlgo pfwidh(pfClust_vec);
-	  sigmaEtaEta = pfwidh.pflowSigmaEtaEta();
+	  PFClusterWidthAlgo pfwidth(pfClust_vec);
+	  sigmaEtaEta = pfwidth.pflowSigmaEtaEta();
 
 
 	}
