@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.92 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -98,7 +98,7 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps) {
 
   }
 
-  threshCry_ = 0.;
+  threshCry_ = 0.01;
 
 }
 
@@ -377,10 +377,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate1 = num00 / numTot;
+            float errorRate1 = num00 / ( numTot + num01 + num02 + num03 );
             if ( errorRate1 > threshCry_ )
               val = true;
-            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / ( numTot + num01 + num02 + num03 ) / 3.;
             if ( errorRate1 > threshCry_ )
               val = true;
           } else {
@@ -485,10 +485,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate2 = num00 / numTot;
+            float errorRate2 = num00 / ( numTot + num04 + num05 );
             if ( errorRate2 > threshCry_ )
               val = true;
-            errorRate2 = ( num04 + num05 ) / numTot / 2.;
+            errorRate2 = ( num04 + num05 ) / ( numTot + num04 + num05 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = true;
           } else {
@@ -560,10 +560,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate1 = num00 / numTot;
+            float errorRate1 = num00 / ( numTot + num06 + num07 );
             if ( errorRate1 > threshCry_ )
               val = true;
-            errorRate1 = ( num06 + num07 ) / numTot / 2.;
+            errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
             if ( errorRate1 > threshCry_ )
               val = true;
           } else {
@@ -640,10 +640,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         val = false;
         if ( numTot > 0 ) {
-          float errorRate2 = num00 / numTot;
+          float errorRate2 = num00 / ( numTot + num08 + num09 );
           if ( errorRate2 > threshCry_ )
             val = true;
-          errorRate2 = ( num08 + num09 ) / numTot / 2.;
+          errorRate2 = ( num08 + num09 ) / ( numTot/25. + num08 + num09 ) / 2.;
           if ( errorRate2 > threshCry_ )
             val = true;
         } else {
@@ -842,13 +842,13 @@ void EEIntegrityClient::analyze(void) {
           val = 1.;
           // number of events on a channel
           if ( numTot > 0 ) {
-            float errorRate1 =  num00 / numTot;
+            float errorRate1 =  num00 / ( numTot + num01 + num02 + num03 );
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / ( numTot + num01 + num02 + num03 ) / 3.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num04 + num05 ) / numTot / 2.;
+            float errorRate2 = ( num04 + num05 ) / ( numTot + num04 + num05 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {
@@ -976,10 +976,10 @@ void EEIntegrityClient::analyze(void) {
           val = 1.;
           // number of events on a channel
           if ( numTotmem > 0 ) {
-            float errorRate1 = ( num06 + num06 ) / numTotmem / 2.;
+            float errorRate1 = ( num06 + num07 ) / ( numTotmem + num06 + num07 )/ 2.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num08 + num09 ) / numTotmem / 2.;
+            float errorRate2 = ( num08 + num09 ) / ( numTotmem/25. + num08 + num09 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.215 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -98,7 +98,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps) {
 
   }
 
-  threshCry_ = 0.;
+  threshCry_ = 0.01;
 
 }
 
@@ -354,10 +354,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate1 = num00 / numTot;
+            float errorRate1 = num00 / ( numTot + num01 + num02 + num03 );
             if ( errorRate1 > threshCry_ )
               val = true;
-            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / ( numTot + num01 + num02 + num03 ) / 3.;
             if ( errorRate1 > threshCry_ )
               val = true;
           } else {
@@ -435,10 +435,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate2 = num00 / numTot;
+            float errorRate2 = num00 / ( numTot/25. + num04 + num05 );
             if ( errorRate2 > threshCry_ )
               val = true;
-            errorRate2 = ( num04 + num05 ) / numTot / 2.;
+            errorRate2 = ( num04 + num05 ) / ( numTot/25. + num04 + num05 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = true;
           } else {
@@ -508,10 +508,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           val = false;
           if ( numTot > 0 ) {
-            float errorRate1 = num00 / numTot;
+            float errorRate1 = num00 / ( numTot + num06 + num07 );
             if ( errorRate1 > threshCry_ )
               val = true;
-            errorRate1 = ( num06 + num07 ) / numTot / 2.;
+            errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
             if ( errorRate1 > threshCry_ )
               val = true;
           } else {
@@ -588,10 +588,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         val = false;
         if ( numTot > 0 ) {
-          float errorRate2 = num00 / numTot;
+          float errorRate2 = num00 / ( numTot/25. + num08 + num09 );
           if ( errorRate2 > threshCry_ )
             val = true;
-          errorRate2 = ( num08 + num09 ) / numTot / 2.;
+          errorRate2 = ( num08 + num09 ) / ( numTot/25. + num08 + num09 ) / 2.;
           if ( errorRate2 > threshCry_ )
             val = true;
         } else {
@@ -793,13 +793,13 @@ void EBIntegrityClient::analyze(void) {
           val = 1.;
           // number of events on a channel
           if ( numTot > 0 ) {
-            float errorRate1 =  num00 / numTot;
+            float errorRate1 =  num00 / ( numTot + num01 + num02 + num03 );
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / ( numTot + num01 + num02 + num03 ) / 3.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num04 + num05 ) / numTot / 2.;
+            float errorRate2 = ( num04 + num05 ) / ( numTot/25. + num04 + num05 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {
@@ -905,10 +905,10 @@ void EBIntegrityClient::analyze(void) {
           val = 1.;
           // number of events on a channel
           if ( numTotmem > 0 ) {
-            float errorRate1 = ( num06 + num07 ) / numTotmem / 2.;
+            float errorRate1 = ( num06 + num07 ) / ( numTotmem + num06 + num07 ) / 2.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num08 + num09 ) / numTotmem / 2.;
+            float errorRate2 = ( num08 + num09 ) / ( numTotmem/25. + num08 + num09 ) / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {
