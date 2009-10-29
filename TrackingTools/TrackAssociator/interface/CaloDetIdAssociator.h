@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.12 2009/09/23 15:03:50 dmytro Exp $
+// $Id: CaloDetIdAssociator.h,v 1.13 2009/10/02 19:48:02 heltsley Exp $
 //
 //
 
@@ -42,62 +42,18 @@ class CaloDetIdAssociator: public DetIdAssociator{
    
    virtual void setGeometry(const CaloGeometry* ptr){ geometry_ = ptr; };
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord){
-      edm::ESHandle<CaloGeometry> geometryH;
-      iRecord.getRecord<CaloGeometryRecord>().get(geometryH);
-      setGeometry(geometryH.product());
-   };
+   virtual void setGeometry(const DetIdAssociatorRecord& iRecord);
 
    virtual const GeomDet* getGeomDet(const DetId& id) const { return 0; };
 
  protected:
-   virtual void check_setup() const
-     {
-	DetIdAssociator::check_setup();
-	if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
-     };
+   virtual void check_setup() const;
    
-   virtual GlobalPoint getPosition(const DetId& id) const {
-      return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
-   };
+   virtual GlobalPoint getPosition(const DetId& id) const;
    
-   virtual std::set<DetId> getASetOfValidDetIds() const {
-      std::set<DetId> setOfValidIds;
-      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
-
-      return setOfValidIds;
-   };
+   virtual std::set<DetId> getASetOfValidDetIds() const;
    
-   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id) const {
-      const CaloSubdetectorGeometry* subDetGeom = geometry_->getSubdetectorGeometry(id);
-      if(! subDetGeom){
-         LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
-	 return std::vector<GlobalPoint>();
-      }
-      const CaloCellGeometry* cellGeom = subDetGeom->getGeometry(id);
-      if(! cellGeom) {
-	 LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
-	 return std::vector<GlobalPoint>();
-      } 
-      const CaloCellGeometry::CornersVec& cor (cellGeom->getCorners() ) ; 
-      const std::vector<GlobalPoint> points( cor.begin(), cor.end() ) ;
-      /*
-      for(std::vector<GlobalPoint>::const_iterator itr=points.begin();itr!=points.end();itr++)
-	{
-	   //FIX ME
-	   // the following is a protection from the NaN bug in CaloGeometry
-	   if(isnan(itr->mag())||itr->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
-	      edm::LogWarning("TrackAssociator") << "Critical error! Bad calo detector unit geometry:\n\tDetId:" 
-		<< id.rawId() << "\t mag(): " << itr->mag() << "\n" << DetIdInfo::info( id )
-		  << "\nSkipped the element";
-	      return std::vector<GlobalPoint>();
-	   }
-	}
-       */
-      return points;
-   };
+   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id) const;
 
    virtual bool insideElement(const GlobalPoint& point, const DetId& id) const {
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
@@ -109,5 +65,6 @@ class CaloDetIdAssociator: public DetIdAssociator{
 			       const double tolerance = -1,
 			       const SteppingHelixStateInfo* = 0 ) const;
    const CaloGeometry* geometry_;
+   std::vector<GlobalPoint> dummy_;
 };
 #endif

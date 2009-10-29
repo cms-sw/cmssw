@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.19.4.1 2009/07/01 04:50:44 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.20 2009/09/06 16:34:11 dmytro Exp $
 //
 //
 
@@ -169,15 +169,15 @@ void DetIdAssociator::buildMap()
    std::set<DetId> validIds = getASetOfValidDetIds();
    LogTrace("TrackAssociator")<< "Number of valid DetIds: " <<  validIds.size();
    for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
-      std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
-      LogTrace("TrackAssociatorVerbose")<< "Found " << points.size() << " global points to describe geometry of DetId: " 
+      std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr);
+      LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
 	<< id_itr->rawId();
       int etaMax(-1);
       int etaMin(-1);
       int phiMax(-1);
       int phiMin(-1);
       // this is a bit overkill, but it should be 100% proof (when debugged :)
-      for(std::vector<GlobalPoint>::const_iterator iter = points.begin(); iter != points.end(); iter++)
+      for(std::vector<GlobalPoint>::const_iterator iter = points.first; iter != points.second; iter++)
 	{
 	   LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
 	     iter->phi() << ", " << iter->z();
@@ -317,8 +317,8 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi) const
    for(std::set<DetId>::const_iterator itr = set.begin(); itr!=set.end(); itr++)
      {
 	LogTrace("TrackAssociator") << "\tDetId " << itr->rawId() << ", geometry (x,y,z,rho,eta,phi):";
-	std::vector<GlobalPoint> points = getDetIdPoints(*itr);
-	for(std::vector<GlobalPoint>::const_iterator point = points.begin(); point != points.end(); point++)
+	std::pair<const_iterator,const_iterator> points = getDetIdPoints(*itr);
+	for(std::vector<GlobalPoint>::const_iterator point = points.first; point != points.second; point++)
 	  LogTrace("TrackAssociator") << "\t\t" << point->x() << ", " << point->y() << ", " << point->z() << ", "
 	  << point->perp() << ", " << point->eta() << ", " << point->phi();
      }
@@ -345,3 +345,20 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 
 }
 
+bool DetIdAssociator::nearElement(const GlobalPoint& point, 
+				  const DetId& id, 
+				  const double distance) const 
+{
+  GlobalPoint center = getPosition(id);
+  double deltaPhi(fabs(point.phi()-center.phi()));
+  if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
+  return (point.eta()-center.eta())*(point.eta()-center.eta()) + deltaPhi*deltaPhi < distance*distance;
+}
+
+void DetIdAssociator::check_setup() const
+{
+  if (nEta_==0) throw cms::Exception("FatalError") << "Number of eta bins is not set.\n";
+  if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
+  // if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
+  if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
+}

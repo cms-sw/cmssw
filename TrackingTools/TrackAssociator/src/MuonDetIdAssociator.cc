@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.9 2009/04/29 12:15:09 jribnik Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.10 2009/05/12 13:27:09 jribnik Exp $
 //
 //
 
@@ -93,8 +93,10 @@ bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& i
    return geometry_->idToDet(id)->surface().bounds().inside(lp);
 }
 
-std::vector<GlobalPoint> MuonDetIdAssociator::getDetIdPoints(const DetId& id) const {
-   std::vector<GlobalPoint> points;
+std::pair<DetIdAssociator::const_iterator,DetIdAssociator::const_iterator> 
+MuonDetIdAssociator::getDetIdPoints(const DetId& id) const 
+{
+   points_.clear();
    const GeomDet* geomDet = getGeomDet( id );
    
    // the coners of muon detector elements are not stored and can be only calculated
@@ -109,14 +111,21 @@ std::vector<GlobalPoint> MuonDetIdAssociator::getDetIdPoints(const DetId& id) co
    // calculation from the edge, we will use exact geometry to get it right.
 	    
    const Bounds* bounds = &(geometry_->idToDet(id)->surface().bounds());
-   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
-   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
+   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
    
-   return  points;
+   return std::pair<const_iterator,const_iterator>(points_.begin(),points_.end());
+}
+
+void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
+{
+  edm::ESHandle<GlobalTrackingGeometry> geometryH;
+  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
+  setGeometry(geometryH.product());
 }

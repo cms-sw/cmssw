@@ -7,7 +7,7 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
 					 const SteppingHelixStateInfo* initialState
 					 ) const
 {
-   const std::vector<GlobalPoint>& points = getDetIdPoints(id);
+   const std::pair<const_iterator,const_iterator>& points = getDetIdPoints(id);
    // fast check
    bool xLess(false), xIn(false), xMore(false);
    bool yLess(false), yIn(false), yMore(false);
@@ -18,8 +18,8 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
    if ( xMin>xMax ) std::swap(xMin,xMax);
    if ( yMin>yMax ) std::swap(yMin,yMax);
    if ( zMin>zMax ) std::swap(zMin,zMax);
-   for ( std::vector<GlobalPoint>::const_iterator it = points.begin();
-	 it != points.end(); ++it ){
+   for ( std::vector<GlobalPoint>::const_iterator it = points.first;
+	 it != points.second; ++it ){
      if ( it->x()<xMin ){
        xLess = true;
      } else {
@@ -97,8 +97,8 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
    // otherwise we are outside, i.e. the volume is not crossed
    bool allBehind = true;
    bool allTooFar = true;
-   std::vector<GlobalPoint>::const_iterator p = points.begin();
-   if ( p == points.end() ) {
+   std::vector<GlobalPoint>::const_iterator p = points.first;
+   if ( p == points.second ) {
       edm::LogWarning("TrackAssociator") << "calo geometry for element " << id.rawId() << "is empty. Ignored"; 
       return false; 
    }
@@ -112,7 +112,7 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
       if ( localPoint.z() < trajectorySegmentLength )  allTooFar = false;
    }
    ++p;
-   for (; p!=points.end(); ++p){
+   for (; p!=points.second; ++p){
       localPoint = plane->toLocal(*p);
       double localPhi = localPoint.phi();
       if ( localPoint.z() < 0 ) 
@@ -153,11 +153,12 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
    // from the closest line segment
    if (absoluteTolerance < 0 ) return false;
    double distanceToClosestLineSegment = 1e9;
-   for ( unsigned int i=0; i+1 < points.size(); ++i )
-     for ( unsigned int j=i+1; j < points.size(); ++j )
+   std::vector<GlobalPoint>::const_iterator i,j;
+   for ( i = points.first; i != points.second; ++i )
+     for ( j = i+1; j != points.second; ++j )
        {
-	  LocalPoint p1(plane->toLocal(points[i]));
-	  LocalPoint p2(plane->toLocal(points[j]));
+	  LocalPoint p1(plane->toLocal(*i));
+	  LocalPoint p2(plane->toLocal(*j));
 	  // now we deal with high school level math to get
 	  // the triangle paramaters
 	  double side1squared = p1.perp2();
@@ -181,4 +182,48 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
        }
    if ( distanceToClosestLineSegment < absoluteTolerance ) return true;
    return false;
+}
+
+void CaloDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
+{
+  edm::ESHandle<CaloGeometry> geometryH;
+  iRecord.getRecord<CaloGeometryRecord>().get(geometryH);
+  setGeometry(geometryH.product());
+}
+
+void CaloDetIdAssociator::check_setup() const
+{
+  DetIdAssociator::check_setup();
+  if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
+}
+   
+GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
+  return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
+}
+   
+std::set<DetId> CaloDetIdAssociator::getASetOfValidDetIds() const 
+{
+  std::set<DetId> setOfValidIds;
+  const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
+  for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
+    setOfValidIds.insert(*it);
+  
+  return setOfValidIds;
+}
+   
+std::pair<DetIdAssociator::const_iterator, DetIdAssociator::const_iterator> 
+CaloDetIdAssociator::getDetIdPoints(const DetId& id) const 
+{
+  const CaloSubdetectorGeometry* subDetGeom = geometry_->getSubdetectorGeometry(id);
+  if(! subDetGeom){
+    LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
+    return std::pair<const_iterator,const_iterator>(dummy_.end(),dummy_.end());
+  }
+  const CaloCellGeometry* cellGeom = subDetGeom->getGeometry(id);
+  if(! cellGeom) {
+    LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
+    return std::pair<const_iterator,const_iterator>(dummy_.end(),dummy_.end());
+  } 
+  const CaloCellGeometry::CornersVec& cor (cellGeom->getCorners() ) ; 
+  return std::pair<const_iterator,const_iterator>( cor.begin(), cor.end() ) ;
 }

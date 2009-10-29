@@ -21,7 +21,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id$
+// $Id: DetIdAssociator.h,v 1.15 2009/09/06 16:34:11 dmytro Exp $
 //
 //
 
@@ -49,6 +49,7 @@ class DetIdAssociator{
       float dPhiPlus;
       float dPhiMinus;
    };
+   typedef std::vector<GlobalPoint>::const_iterator const_iterator;
 	
    DetIdAssociator();
    DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize);
@@ -118,20 +119,14 @@ class DetIdAssociator{
    virtual void setConditions(const DetIdAssociatorRecord&) {};
    
  protected:
-   virtual void check_setup() const
-     {
-	if (nEta_==0) throw cms::Exception("FatalError") << "Number of eta bins is not set.\n";
-	if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
-	// if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
-	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
-     }
+   virtual void check_setup() const;
    
    virtual void dumpMapContent( int, int ) const;
    virtual void dumpMapContent( int, int, int, int ) const;
    
    virtual GlobalPoint getPosition(const DetId&) const = 0;
    virtual std::set<DetId> getASetOfValidDetIds() const = 0;
-   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) const = 0;
+   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId&) const = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;
    virtual bool crossedElement(const GlobalPoint&, 
@@ -139,12 +134,9 @@ class DetIdAssociator{
 			       const DetId&,
 			       const double toleranceInSigmas = -1,
 			       const SteppingHelixStateInfo* = 0 ) const { return false; }
-   virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) const {
-     GlobalPoint center = getPosition(id);
-     double deltaPhi(fabs(point.phi()-center.phi()));
-     if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
-     return (point.eta()-center.eta())*(point.eta()-center.eta()) + deltaPhi*deltaPhi < distance*distance;
-   };
+   virtual bool nearElement(const GlobalPoint& point, 
+			    const DetId& id, 
+			    const double distance) const;
    
    // map parameters
    const int nPhi_;

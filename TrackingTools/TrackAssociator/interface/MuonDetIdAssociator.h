@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.6 2009/04/29 21:58:10 jribnik Exp $
+// $Id: MuonDetIdAssociator.h,v 1.7 2009/05/12 13:27:09 jribnik Exp $
 //
 //
 
@@ -41,11 +41,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
    
    virtual void setGeometry(const GlobalTrackingGeometry* ptr){ geometry_ = ptr; }
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord){
-      edm::ESHandle<GlobalTrackingGeometry> geometryH;
-      iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
-      setGeometry(geometryH.product());
-   };
+   virtual void setGeometry(const DetIdAssociatorRecord& iRecord);
 
    virtual void setCSCBadChambers(const CSCBadChambers* ptr){ cscbadchambers_ = ptr; }
 
@@ -65,7 +61,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
    
    virtual std::set<DetId> getASetOfValidDetIds() const;
    
-   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id) const;
+   virtual std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id) const;
 
    virtual bool insideElement(const GlobalPoint& point, const DetId& id) const;
 
@@ -73,5 +69,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
 
    const CSCBadChambers* cscbadchambers_;
    bool includeBadChambers_;
+   mutable std::vector<GlobalPoint> points_;
+
 };
 #endif
