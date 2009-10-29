@@ -24,9 +24,10 @@ C...Commonblocks.
       SAVE /PYDAT1/,/PYINT1/,/PYINT2/,/PYSUBS/
 C... CSA specific 
       integer CSAMODE
+      integer pad
       double precision  MUONRW, GAMMAJRW, ZJRW, ZPRW, HLTRW,
      &  SUSYRW, WWRW, PTPOWER
-      common /EXPAR/CSAMODE, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
+      common /EXPAR/ CSAMODE,pad, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
      &  HLTRW, SUSYRW, WWRW, PTPOWER
  
 C...Set default weight for WTXS.

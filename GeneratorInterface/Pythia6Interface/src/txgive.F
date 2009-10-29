@@ -11,9 +11,10 @@ C...Sets values of commonblock variables.
       save   /TXPAR/
 ***
       integer CSAMODE
+      integer pad
       double precision  MUONRW, GAMMAJRW, ZJRW, ZPRW, HLTRW, 
      &  SUSYRW, WWRW, PTPOWER
-      common /EXPAR/CSAMODE, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
+      common /EXPAR/ CSAMODE, pad, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
      &  HLTRW, SUSYRW, WWRW, PTPOWER
 
       save   /EXPAR/
@@ -543,14 +544,16 @@ C..TXGIVE V:1.03,   01/09/2006 by Filip Moortgat
       implicit none
 
       integer CSAMODE
+      integer pad
       double precision  MUONRW, GAMMAJRW, ZJRW, ZPRW, HLTRW, 
      &  SUSYRW, WWRW, PTPOWER
-      common /EXPAR/CSAMODE, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
+      common /EXPAR/CSAMODE, pad, MUONRW, GAMMAJRW, ZJRW, ZPRW, 
      &  HLTRW, SUSYRW, WWRW, PTPOWER
       save   /EXPAR/
 
 
       CSAMODE = 0
+      pad = 0
       MUONRW = -1        
       GAMMAJRW = -1
       ZJRW = -1
