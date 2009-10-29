@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.3 2009/10/27 16:58:16 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.4 2009/10/27 18:31:02 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -560,7 +560,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       sort(vectorEta_StripPhi.begin(),vectorEta_StripPhi.end());
 
       //MONO OR STEREO
-      int step;
+      int step = 0;
       if (map_boolStereo[labelHisto] == false) step = 1;
       if (map_boolStereo[labelHisto] == true) step = 2;
 
