@@ -846,7 +846,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
     unsigned int numberOfErrors = 0;
     
     // Look at FED errors now
-    int FedChNErrArray[40][37]={40*37*0}, FedChLErrArray[40][37]={40*37*0}, FedETypeNErrArray[40][15]={40*37*0};
+    int FedChNErrArray[40][37]={{0}}, FedChLErrArray[40][37]={{0}}, FedETypeNErrArray[40][15]={{0}};
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       int FedId = di->getFedId();                  // FED the error came from
