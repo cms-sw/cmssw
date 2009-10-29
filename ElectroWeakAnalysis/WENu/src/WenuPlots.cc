@@ -167,7 +167,18 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double met    = myMet->et();
   double metPhi = myMet->phi();
   double mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
+
   double trackIso = myElec->trackIso();
+  double ecaliso = myElec->ecalIso();
+  double hcaliso = myElec->hcalIso();
+  double sihih = myElec->scSigmaIEtaIEta();
+  double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
+  double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
+  double HoE = myElec->hadronicOverEm();
+
+
+
+
   //
   //
   //
@@ -208,10 +219,28 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   if(fabs(scEta)<1.479){
     h_met_EB->Fill(met);
     h_mt_EB->Fill(mt);
+
+    h_EB_trkiso->Fill( myElec->trackIso() );
+    h_EB_ecaliso->Fill( myElec->ecalIso() );
+    h_EB_hcaliso->Fill( myElec->hcalIso() );
+    h_EB_sIetaIeta->Fill( myElec->scSigmaIEtaIEta() );
+    h_EB_dphi->Fill( myElec->deltaPhiSuperClusterTrackAtVtx() );
+    h_EB_deta->Fill( myElec->deltaEtaSuperClusterTrackAtVtx() );
+    h_EB_HoE->Fill( myElec->hadronicOverEm() );
+
   }
   if(fabs(scEta)>1.479){
     h_met_EE->Fill(met);
     h_mt_EE->Fill(mt);
+
+    h_EE_trkiso->Fill( myElec->trackIso() );
+    h_EE_ecaliso->Fill( myElec->ecalIso() );
+    h_EE_hcaliso->Fill( myElec->hcalIso() );
+    h_EE_sIetaIeta->Fill( myElec->scSigmaIEtaIEta() );
+    h_EE_dphi->Fill( myElec->deltaPhiSuperClusterTrackAtVtx() );
+    h_EE_deta->Fill( myElec->deltaEtaSuperClusterTrackAtVtx() );
+    h_EE_HoE->Fill( myElec->hadronicOverEm() );
+
   }
 
 
@@ -333,6 +362,26 @@ WenuPlots::beginJob(const edm::EventSetup&)
   h_scEta = new TH1F("h_scEta", "h_scEta", 200, -3, 3);
   h_scPhi = new TH1F("h_scPhi", "h_scPhi", 200, -4, 4);
 
+
+  //VALIDATION PLOTS
+  //EB
+  h_EB_trkiso = new TH1F("h_EB_trkiso","h_EB_trkiso",200 , 0.0, 9.0);
+  h_EB_ecaliso = new TH1F("h_EB_ecaliso","h_EB_ecaliso",200, 0.0 , 9.0);
+  h_EB_hcaliso = new TH1F("h_EB_hcaliso","h_EB_hcaliso",200, 0.0 , 9.0);
+  h_EB_sIetaIeta = new TH1F("h_EB_sIetaIeta","h_EB_sIetaIeta",200, 0.0 , 0.02 );
+  h_EB_dphi = new TH1F("h_EB_dphi","h_EB_dphi",200, -0.03 , 0.03 );
+  h_EB_deta = new TH1F("h_EB_deta","h_EB_deta",200, -0.01 , 0.01) ;
+  h_EB_HoE = new TH1F("h_EB_HoE","h_EB_HoE",200, 0.0 , 0.2 );
+  //EE
+  h_EE_trkiso = new TH1F("h_EE_trkiso","h_EE_trkiso",200 , 0.0, 9.0);
+  h_EE_ecaliso = new TH1F("h_EE_ecaliso","h_EE_ecaliso",200, 0.0 , 9.0);
+  h_EE_hcaliso = new TH1F("h_EE_hcaliso","h_EE_hcaliso",200, 0.0 , 9.0);
+  h_EE_sIetaIeta = new TH1F("h_EE_sIetaIeta","h_EE_sIetaIeta",200, 0.0 , 0.1 );
+  h_EE_dphi = new TH1F("h_EE_dphi","h_EE_dphi",200, -0.03 , 0.03 );
+  h_EE_deta = new TH1F("h_EE_deta","h_EE_deta",200, -0.01 , 0.01) ;
+  h_EE_HoE = new TH1F("h_EE_HoE","h_EE_HoE",200, 0.0 , 0.2 );
+
+
   //
   //
   h_trackIso_eb_NmOne = 
@@ -407,6 +456,23 @@ WenuPlots::endJob() {
   h_scEt->Write();
   h_scEta->Write();
   h_scPhi->Write();
+
+  h_EB_trkiso->Write();
+  h_EB_ecaliso->Write();
+  h_EB_hcaliso->Write();
+  h_EB_sIetaIeta->Write();
+  h_EB_dphi->Write();
+  h_EB_deta->Write();
+  h_EB_HoE->Write();
+
+  h_EE_trkiso->Write();
+  h_EE_ecaliso->Write();
+  h_EE_hcaliso->Write();
+  h_EE_sIetaIeta->Write();
+  h_EE_dphi->Write();
+  h_EE_deta->Write();
+  h_EE_HoE->Write();
+
   //
   h_trackIso_eb_NmOne->Write();
   h_trackIso_ee_NmOne->Write();

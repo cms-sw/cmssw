@@ -63,6 +63,23 @@ class ZeePlots : public edm::EDAnalyzer {
   TH1F *h_e_ETA;
   TH1F *h_e_PHI;
 
+  TH1F *h_EB_trkiso;
+  TH1F *h_EB_ecaliso;
+  TH1F *h_EB_hcaliso;
+  TH1F *h_EB_sIetaIeta;
+  TH1F *h_EB_dphi;
+  TH1F *h_EB_deta;
+  TH1F *h_EB_HoE;
+
+  TH1F *h_EE_trkiso;
+  TH1F *h_EE_ecaliso;
+  TH1F *h_EE_hcaliso;
+  TH1F *h_EE_sIetaIeta;
+  TH1F *h_EE_dphi;
+  TH1F *h_EE_deta;
+  TH1F *h_EE_HoE;
+
+
   //
   // the selection cuts
   Double_t trackIso_EB_;

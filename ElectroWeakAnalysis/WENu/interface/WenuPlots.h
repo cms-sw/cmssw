@@ -69,6 +69,23 @@ class WenuPlots : public edm::EDAnalyzer {
   TH1F *h_scEt;
   TH1F *h_scEta;
   TH1F *h_scPhi;
+
+  TH1F *h_EB_trkiso;
+  TH1F *h_EB_ecaliso;
+  TH1F *h_EB_hcaliso;
+  TH1F *h_EB_sIetaIeta;
+  TH1F *h_EB_dphi;
+  TH1F *h_EB_deta;
+  TH1F *h_EB_HoE;
+
+  TH1F *h_EE_trkiso;
+  TH1F *h_EE_ecaliso;
+  TH1F *h_EE_hcaliso;
+  TH1F *h_EE_sIetaIeta;
+  TH1F *h_EE_dphi;
+  TH1F *h_EE_deta;
+  TH1F *h_EE_HoE;
+
   //
   TH1F *h_trackIso_eb_NmOne;
   TH1F *h_trackIso_ee_NmOne;
