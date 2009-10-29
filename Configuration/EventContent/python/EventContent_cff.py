@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.21 2009/07/31 12:29:06 fambrogl Exp $
+#  $Id: EventContent_cff.py,v 1.22 2009/10/05 16:47:19 futyand Exp $
 #
 #
 #
@@ -265,7 +265,7 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_MuonCSCWireDigi_*',
                                                'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*',
                                                'keep PixelDigiedmDetSetVector_siPixelDigis_*_*',
-                                               'keep StripDigiedmDetSetVector_siStripDigis_*_*',
+                                               'keep SiStripDigiedmDetSetVector_siStripDigis_*_*',
                                                'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*',
                                                'keep HBHEDataFramesSorted_hcalDigis_*_*',
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
