@@ -124,10 +124,8 @@ void SiStripActionExecutor::fillDummyStatus(){
 //
 // -- Fill Status
 //
-void SiStripActionExecutor::fillStatus(DQMStore* dqm_store) {
-  qualityChecker_->fillStatus(dqm_store);
-}
-void SiStripActionExecutor::createFaultyModuleMEs(DQMStore *dqm_store) {
+void SiStripActionExecutor::fillStatus(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& detcabling) {
+  qualityChecker_->fillStatus(dqm_store, detcabling);
 }
 //
 // -- 

@@ -15,6 +15,7 @@
 class DQMStore;
 class MonitorElement;
 class TkDetMap;
+class SiStripDetCabling;
 
 class SiStripQualityChecker {
 
@@ -28,9 +29,8 @@ class SiStripQualityChecker {
  void bookStatus(DQMStore* dqm_store);     
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore* dqm_store);
+  void fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
   void printStatusReport();
-  const std::map<uint32_t,uint16_t> & getBadModuleList(DQMStore* dqm_store);
   void fillFaultyModuleStatus(DQMStore* dqm_store);
   
  private:
@@ -39,14 +39,14 @@ class SiStripQualityChecker {
     MonitorElement* DetFraction;
     MonitorElement* SToNFlag;
     MonitorElement* SummaryFlag;
+    std::string     detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore* dqm_store);
+  void fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
   void fillTrackingStatus(DQMStore* dqm_store);
-  void fillSubDetStatus(DQMStore* dqm_store,SubDetMEs& mes,
-                                 unsigned int xbin,float& gflag);
-  void getModuleStatus(DQMStore* dqm_store,int& ndet,int& errdet);
-  void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& ndet, int& errdet);
+  void fillSubDetStatus(DQMStore* dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
+  void getModuleStatus(DQMStore* dqm_store, int& errdet);
+  void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
   void initialiseBadModuleList();  
@@ -77,5 +77,6 @@ class SiStripQualityChecker {
   int globalStatusFilling_;
 
   TkDetMap* tkDetMap_;
+
 };
 #endif

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/06/07 16:27:47 $
- * $Revision: 1.51 $
+ * $Date: 2009/10/07 12:39:11 $
+ * $Revision: 1.52 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -133,7 +133,6 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
      edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
      summaryFrequency_ = -1;
   }
-  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
   nLumiSecs_ = 0;
   nEvents_   = 0;
 }
@@ -158,6 +157,7 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   } 
   if (condDataMon_) condDataMon_->beginRun(eSetup);
+  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
 }
 //
 // -- Begin Luminosity Block
@@ -176,7 +176,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       actionExecutor_->fillDummyStatus();
       actionExecutor_->createDummyShiftReport();
     } else {
-      actionExecutor_->fillStatus(dqmStore_);
+      actionExecutor_->fillStatus(dqmStore_, detCabling_);
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
@@ -227,7 +227,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   }
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillStatus(dqmStore_);
+    actionExecutor_->fillStatus(dqmStore_, detCabling_);
   }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {

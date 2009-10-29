@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.29 2009/09/29 14:35:39 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.30 2009/10/07 12:39:11 dutta Exp $
 //
 //
 
@@ -38,6 +38,9 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+// Cabling
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include <iostream>
 #include <iomanip>
@@ -126,7 +129,6 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
       const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
       
-
       vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
@@ -137,7 +139,6 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   }
   if (nFEDs > 0) trackerFEDsFound_ = true;
   else trackerFEDsFound_ = false;
-  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
   if (!usedWithEDMtoMEConverter_) {
     if (!openInputFile()) createSummary_ = false;
   }
@@ -164,28 +165,39 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
 
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
-  // create Summary Plots
-  if (createSummary_ && trackerFEDsFound_)  actionExecutor_->createSummaryOffline(dqmStore_);
-  // Fill Global Status
-  if (globalStatusFilling_ > 0) {
-    actionExecutor_->createStatus(dqmStore_);
-    if (!trackerFEDsFound_) actionExecutor_->fillDummyStatus();
-    else actionExecutor_->fillStatus(dqmStore_);
+
+  // Access Cabling
+  edm::ESHandle< SiStripDetCabling > det_cabling;
+  eSetup.get<SiStripDetCablingRcd>().get(det_cabling);
+  if (globalStatusFilling_ > 0) actionExecutor_->createStatus(dqmStore_);
+
+  if (!trackerFEDsFound_) {
+    if (globalStatusFilling_ > 0)  actionExecutor_->fillDummyStatus();
+    return;
   }
-  bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
-  // Create TrackerMap
-  if (!usedWithEDMtoMEConverter_ && create_tkmap && trackerFEDsFound_) {
-    edm::ParameterSet tkMapPSet = configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters");
 
-    vector<string> tkMapOptions = configPar_.getUntrackedParameter< vector<string> >("TkMapOptions" );
-    if (actionExecutor_->readTkMapConfiguration()) {
+  // Fill Global Status
+  if (globalStatusFilling_ > 0) actionExecutor_->fillStatus(dqmStore_, det_cabling);
 
-      for(vector<string>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
-	string map_type = (*it);
-	actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
+  if (!usedWithEDMtoMEConverter_) {
+
+    // create Summary Plots
+    if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
+
+    // Create TrackerMap
+    bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
+    if (create_tkmap) {
+      edm::ParameterSet tkMapPSet = configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters");
+      vector<string> tkMapOptions = configPar_.getUntrackedParameter< vector<string> >("TkMapOptions" );
+      if (actionExecutor_->readTkMapConfiguration()) {
+	
+	for(vector<string>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
+	  string map_type = (*it);
+	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
+	}
       }
-    }
-  } 
+    } 
+  }
 }
 /** 
 * @brief 

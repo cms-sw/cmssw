@@ -4,7 +4,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/QReport.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
@@ -102,6 +101,12 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 	
 	SubDetMEs local_mes;
 	
+        if (det == "TECF")      local_mes.detectorTag = "TEC+";
+        else if (det == "TECB") local_mes.detectorTag = "TEC-";         
+        else if (det == "TIDF") local_mes.detectorTag = "TID+";
+        else if (det == "TIDB") local_mes.detectorTag = "TID-";
+        else                    local_mes.detectorTag = det;
+
 	string me_name;
 	me_name = "SiStrip_" + det;
 	local_mes.SummaryFlag = dqm_store->bookFloat(me_name);
@@ -213,11 +218,11 @@ void SiStripQualityChecker::resetStatus() {
 //
 // -- Fill Status
 //
-void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
+void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling) {
   if (!bookedStripStatus_ || !bookedTrackingStatus_) bookStatus(dqm_store);
 
   fillDummyStatus();
-  fillDetectorStatus(dqm_store);
+  fillDetectorStatus(dqm_store, cabling);
   fillTrackingStatus(dqm_store);
 
   int faulty_moduleflag  = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
@@ -226,7 +231,7 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
 //
 // Fill Detector Status
 //
-void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
+void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling) {
   unsigned int xbin = 0;
   float global_flag = 0;
   dqm_store->cd();
@@ -246,7 +251,7 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
     SubDetMEs local_mes = it->second;
     xbin++;
     float flag;
-    fillSubDetStatus(dqm_store, local_mes, xbin,flag);
+    fillSubDetStatus(dqm_store, cabling, local_mes, xbin,flag);
     global_flag += flag; 
   }
   global_flag = global_flag/xbin*1.0;
@@ -296,7 +301,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
 //
 // -- Get Errors from Module level histograms
 //
-void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& errdet) {
+void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, int& errdet) {
   vector<string> mids;
   SiStripUtility::getModuleFolderList(dqm_store, mids);
   for (vector<string>::const_iterator im = mids.begin();
@@ -309,7 +314,6 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
 
     vector<MonitorElement*> meVec = dqm_store->getContents((*im));
     if (meVec.size() == 0) continue;
-    ndet++; 
     uint16_t flag = 0;
     for (vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
@@ -335,6 +339,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store,int& ndet,int& e
 // -- Fill Sub detector Reports
 //
 void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store, 
+		     const edm::ESHandle< SiStripDetCabling >& cabling,
                          SubDetMEs& mes, unsigned int xbin, float& gflag) {
   int status_flag  = pSet_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   
@@ -355,15 +360,15 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     ybin++;
     dqm_store->cd((*ic));
     meVec = dqm_store->getContents((*ic));
-    int ndet = 0;
+    uint16_t ndet = 100;
     int errdet = 0;       
 
     int ston_stat = 1;
-
-
-    
-    if (status_flag == 1) getModuleStatus(dqm_store, ndet, errdet);
-    else if (status_flag == 2) getModuleStatus(meVec, ndet, errdet);
+    int lnum = atoi(dname.substr(dname.find_last_of("_")+1).c_str());
+    ndet = cabling->connectedNumber(mes.detectorTag, lnum);
+     
+    if (status_flag == 1) getModuleStatus(dqm_store, errdet);
+    else if (status_flag == 2) getModuleStatus(meVec, errdet);
 
     for (vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
@@ -380,6 +385,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
+      cout << dname << " total det " << ndet << " error " << errdet << endl;
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
       if (ston_stat > 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
@@ -435,9 +441,8 @@ void SiStripQualityChecker::printStatusReport() {
 //
 // -- Get Module Status from Layer Level Histograms
 //
-void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, int& ndet, int& errdet) { 
+void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes,int& errdet) { 
   
-  int ndet_me = 0;
   string lname;
   map<uint32_t,uint16_t> bad_modules;
   for (vector<MonitorElement*>::const_iterator it = layer_mes.begin();
@@ -449,18 +454,14 @@ void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, 
     string name = me->getName();
     vector<DQMChannel>  bad_channels_me;
     if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
-      ndet_me = me->getNbinsX();
       bad_channels_me = qreports[0]->getBadChannels();
       lname = "";
     } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && name.find("TkHMap") != string::npos) {
-      TProfile2D* h  = me->getTProfile2D();
-      float frac = me->getEntries() *1.0/ h->GetBinEntries(h->GetBin(1, 1));
-      ndet_me = static_cast<int> (frac);
       bad_channels_me = qreports[0]->getBadChannels();
       lname = name.substr(name.find("TkHMap_")+7);
       lname = lname.substr(lname.find("_T")+1);
+
     }
-    if (ndet_me > ndet)  ndet = ndet_me;
     for (vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++){
       int xval = (*it).getBinX();
       int yval = (*it).getBinY();
@@ -501,15 +502,7 @@ void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, 
    }
  }
 //
-// -- Get List of Bad Modules
-//
-const std::map<uint32_t,uint16_t> & SiStripQualityChecker::getBadModuleList(DQMStore* dqm_store)  {
-
-  if (badModuleList.size() == 0) fillStatus(dqm_store);
-  return badModuleList;
-}
-//
-// -- Create Moneitor Elements for Modules
+// -- Create Monitor Elements for Modules
 //
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   if (badModuleList.size() == 0) return;
