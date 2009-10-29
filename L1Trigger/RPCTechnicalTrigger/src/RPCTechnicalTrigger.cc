@@ -29,18 +29,26 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   
   //...........................................................................
   
-  m_configFile         = iConfig.getUntrackedParameter<std::string>("ConfigFile");
-  m_verbosity          = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  m_rpcDigiLabel       = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
-  m_ttBits             = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
-  m_ttNames            = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useEventSetup        = iConfig.getUntrackedParameter<int>("UseEventSetup", 1);
-  m_useRPCSimLink      = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
-  m_rpcSimLinkInstance = iConfig.getParameter<std::string>("RPCSimLinkInstance");
+  std::string configFile  = iConfig.getUntrackedParameter<std::string>("ConfigFile");
+  m_verbosity             = iConfig.getUntrackedParameter<int>("Verbosity", 0);
+  m_rpcDigiLabel          = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
+  m_ttBits                = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
+  m_ttNames               = iConfig.getParameter< std::vector<std::string> >("BitNames");
+  m_useEventSetup         = iConfig.getUntrackedParameter<int>("UseEventSetup", 1);
+  m_useRPCSimLink         = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
+  m_rpcSimLinkInstance    = iConfig.getParameter<std::string>("RPCSimLinkInstance");
+
+
+  edm::FileInPath f1("L1Trigger/RPCTechnicalTrigger/data/" + configFile);
+  m_configFile = f1.fullPath();
 
   if ( m_verbosity ) {
     LogTrace("RPCTechnicalTrigger")
       << m_rpcDigiLabel << '\n'
+      << std::endl;
+
+    LogTrace("RPCTechnicalTrigger")
+      << "\nConfiguration file used for UseEventSetup = 0 \n" << m_configFile << '\n'
       << std::endl;
   }
   
@@ -406,7 +414,7 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   } else {
     
     // read hardware configuration from file
-    m_readConfig = new TTUConfigurator( m_configFile.c_str() );
+    m_readConfig = new TTUConfigurator( m_configFile );
     
     if ( m_readConfig->m_hasConfig ) {
       m_readConfig->process();

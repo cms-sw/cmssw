@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUConfigurator.cc,v 1.1 2009/06/04 11:52:59 aosorio Exp $
 // Include files 
 
 
@@ -15,10 +15,10 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUConfigurator::TTUConfigurator( const char * infile ) {
+TTUConfigurator::TTUConfigurator( const std::string& infile ) {
   
   m_in = new std::ifstream();
-  m_in->open( infile );
+  m_in->open( infile.c_str() );
   
   if(!m_in->is_open()) {
     std::cout << "TTUConfigurator> cannot open file" << std::endl;
