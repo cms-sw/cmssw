@@ -1,6 +1,10 @@
 # Fragment to switch off HCAL zero suppression as an option
 # by cmsDriver customisation
 
+# to generate Unsuppressed digis, one has to set the following parameter:
+# useConfigZSvalues = cms.int32(1)
+# in SimCalorimetry/HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
+
 import FWCore.ParameterSet.Config as cms
 def customise(process):
 
