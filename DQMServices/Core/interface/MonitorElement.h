@@ -128,6 +128,11 @@ public:
   void setResetMe(bool flag)
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
+#if __WORDSIZE > 32
+  void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
+  void Fill(unsigned long long x) { Fill(static_cast<int64_t>(x)); }
+#endif
+
   void Fill(uint64_t x) { Fill(static_cast<int64_t>(x)); }
   void Fill(int32_t x)  { Fill(static_cast<int64_t>(x)); }
   void Fill(uint32_t x) { Fill(static_cast<int64_t>(x)); }
