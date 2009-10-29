@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.9 2009/09/24 14:55:25 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.10 2009/10/22 14:43:31 amraktad Exp $
 //
 
 // system include files
@@ -276,8 +276,8 @@ void FWTableViewManager::destroyItem (const FWEventItem *item)
 	       itEnd = m_items.end();
 	  it != itEnd; ++it) {
 	  if (*it == item) {
-	       m_items.erase(it);
-	       break;
+             *it = 0;
+             break;
 	  }
      }
      // tell the views to update their item lists

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.16 2009/09/24 14:54:56 chrjones Exp $
+// $Id: FWTableView.cc,v 1.17 2009/10/06 11:26:22 amraktad Exp $
 //
 
 // system include files
@@ -444,7 +444,7 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 		    it = m_manager->items().begin(), 
 		    itEnd = m_manager->items().end();
 	       it != itEnd; ++it) {
-	       if ((*it)->name() == collectionName) {
+	       if (*it && (*it)->name() == collectionName) {
 		    m_collection->Select(it - m_manager->items().begin(), true);
 		    break;
 	       }
@@ -518,10 +518,18 @@ void FWTableView::updateItems ()
 {
      int selected = m_collection->GetSelected();
      m_collection->RemoveAll();
+     int index =0;
      for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(), 
 	       itEnd = m_manager->items().end();
-	  it != itEnd; ++it) {
-	  m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
+	  it != itEnd; ++it,++index) {
+        if(*it) {
+           m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
+        }
+        if(m_iColl == index && 0 == *it) {
+           //the collection we were showing is now gone
+           m_iColl = 0;
+           selected = 0;
+        }
      }
      if (selected < m_collection->GetNumberOfEntries())
 	  m_collection->Select(selected, false);
@@ -564,6 +572,7 @@ void FWTableView::selectCollection (Int_t i_coll)
 {
 //      printf("selected collection %d, ", i_coll);
      const FWEventItem *item = m_manager->items()[i_coll];
+     assert(0!=item);
 //      printf("%s\n", item->modelType()->GetName());
      m_iColl = i_coll;
 //      m_validator = new FWExpressionValidator;
