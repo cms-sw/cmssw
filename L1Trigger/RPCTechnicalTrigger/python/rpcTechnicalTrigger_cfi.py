@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Default configurations
 
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
-                                      RPCDigiLabel = cms.InputTag("simMuonRPCDigis"),
+                                      RPCDigiLabel = cms.InputTag("muonRPCDigis"),
                                       RPCSimLinkInstance = cms.string("RPCDigiSimLink"),
                                       UseRPCSimLink = cms.untracked.int32(0),
                                       Verbosity  = cms.untracked.int32(0),
