@@ -2,20 +2,20 @@
 [oval run] =================================================
 [oval run] USER : chamont
 [oval run] HOST : lxcmsf3.cern.ch
-[oval run] MY_GLOBAL_TAG = MC_31X_V9
+[oval run] MY_GLOBAL_TAG = MC_3XY_V12
 [oval run] run tool: scram
 [oval run] final instruction: cmsDriver.py step2 -s RAW2DIGI,RECO,VALIDATION --filein file:QcdPt80Pt120Raw.root -n 3 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Reco.py --fileout=QcdPt80Pt120Reco.root
 [oval run] =================================================
 
-18-Oct-2009 23:56:56 CEST  Initiating request to open file file:QcdPt80Pt120Raw.root
-18-Oct-2009 23:57:05 CEST  Successfully opened file file:QcdPt80Pt120Raw.root
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 18-Oct-2009 23:58:19 CEST
+29-Oct-2009 19:04:18 CET  Initiating request to open file file:QcdPt80Pt120Raw.root
+29-Oct-2009 19:04:22 CET  Successfully opened file file:QcdPt80Pt120Raw.root
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 29-Oct-2009 19:05:23 CET
 analyzing new event 
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 18-Oct-2009 23:58:49 CEST
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 29-Oct-2009 19:05:51 CET
 analyzing new event 
-Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 18-Oct-2009 23:59:09 CEST
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 29-Oct-2009 19:05:59 CET
 analyzing new event 
-18-Oct-2009 23:59:18 CEST  Closed file file:QcdPt80Pt120Raw.root
+29-Oct-2009 19:06:08 CET  Closed file file:QcdPt80Pt120Raw.root
 
 =============================================
 

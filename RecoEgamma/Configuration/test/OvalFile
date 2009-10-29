@@ -3,7 +3,7 @@ configurations used for the RelVal samples. It is trying
 SingleElectronPt35 and QcdPt80-120 with 10 events.
 Type "oval p".
 
-<var name="MY_GLOBAL_TAG" value="MC_3XY_V10">
+<var name="MY_GLOBAL_TAG" value="MC_3XY_V12">
 
 <diffline expr="(Begin processing the \S* record)">
 <diffline expr="^Histo ">
