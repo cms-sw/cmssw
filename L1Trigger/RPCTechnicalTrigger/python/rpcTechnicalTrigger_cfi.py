@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                       RPCDigiLabel = cms.InputTag("muonRPCDigis"),
-                                      RPCSimLinkInstance = cms.string("RPCDigiSimLink"),
+                                      RPCSimLinkInstance = cms.InputTag("RPCDigiSimLink"),
                                       UseRPCSimLink = cms.untracked.int32(0),
                                       Verbosity  = cms.untracked.int32(0),
                                       UseEventSetup = cms.untracked.int32(0),
-                                      ConfigFile = cms.untracked.string("hardware-pseudoconfig.txt"),
+                                      ConfigFile = cms.string("hardware-pseudoconfig.txt"),
                                       BitNumbers=cms.vuint32(24,25,26,27,28,29,30),
                                       BitNames=cms.vstring('L1Tech_RPC_TTU_barrel_Cosmics/v0',
                                                            'L1Tech_RPC_TTU_pointing_Cosmics/v0',

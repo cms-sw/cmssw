@@ -65,11 +65,8 @@ if useEventSetup >= 1:
 #..............................................................................................................
 
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
-
-#.. use the provided hardware configuration parameters
-process.rpcTechnicalTrigger.UseDatabase   = cms.untracked.int32(0)
 process.rpcTechnicalTrigger.UseRPCSimLink = cms.untracked.int32(1)
-process.rpcTechnicalTrigger.ConfigFile    = cms.untracked.string("hardware-pseudoconfig.txt")
+process.rpcTechnicalTrigger.RPCDigiLabel = cms.InputTag("simMuonRPCDigis")
 
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('rpcttbits.root'),

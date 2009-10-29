@@ -66,11 +66,6 @@ if useEventSetup >= 1:
 
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
 
-#.. use the provided hardware configuration parameters
-process.rpcTechnicalTrigger.UseEventSetup = cms.untracked.int32(0)
-process.rpcTechnicalTrigger.ConfigFile    = cms.untracked.string("hardware-pseudoconfig.txt")
-process.rpcTechnicalTrigger.RPCDigiLabel  = cms.InputTag("muonRPCDigis")
-
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('rpcttbits.root'),
                                outputCommands = cms.untracked.vstring('drop *','keep L1GtTechnicalTriggerRecord_*_*_*') )

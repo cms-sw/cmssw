@@ -29,15 +29,14 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   
   //...........................................................................
   
-  std::string configFile  = iConfig.getUntrackedParameter<std::string>("ConfigFile");
+  std::string configFile  = iConfig.getParameter<std::string>("ConfigFile");
   m_verbosity             = iConfig.getUntrackedParameter<int>("Verbosity", 0);
   m_rpcDigiLabel          = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
   m_ttBits                = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
   m_ttNames               = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useEventSetup         = iConfig.getUntrackedParameter<int>("UseEventSetup", 1);
+  m_useEventSetup         = iConfig.getUntrackedParameter<int>("UseEventSetup", 0);
   m_useRPCSimLink         = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
-  m_rpcSimLinkInstance    = iConfig.getParameter<std::string>("RPCSimLinkInstance");
-
+  m_rpcSimLinkInstance    = iConfig.getParameter<edm::InputTag>("RPCSimLinkInstance");
 
   edm::FileInPath f1("L1Trigger/RPCTechnicalTrigger/data/" + configFile);
   m_configFile = f1.fullPath();
