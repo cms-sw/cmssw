@@ -7,14 +7,14 @@ class PFClusterWidthAlgo
 {
  public:
   //constructor
-  PFClusterWidthAlgo(const std::vector<reco::PFCluster>& pfclust);
+  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust);
   
   //destructor
   ~PFClusterWidthAlgo();
 
-  double pflowPhiWidth(){return phiWidth_;}
-  double pflowEtaWidth(){return etaWidth_;}
-  double pflowSigmaEtaEta(){return sigmaEtaEta_;}
+  inline double pflowPhiWidth() const {return phiWidth_;}
+  inline double pflowEtaWidth() const {return etaWidth_;}
+  inline double pflowSigmaEtaEta() const {return sigmaEtaEta_;}
 
  private:
   
