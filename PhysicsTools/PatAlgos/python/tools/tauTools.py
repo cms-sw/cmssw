@@ -13,6 +13,8 @@ def redoPFTauDiscriminators(process,
     tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
     if tauType == 'fixedConeHighEffPFTau':
         tauDiscriminationSequence = process.patFixedConeHighEffPFTauDiscrimination
+    elif tauType == 'fixedConePFTau':
+        tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
     elif tauType == 'shrinkingConePFTau':
         tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
     elif tauType == 'caloTau':

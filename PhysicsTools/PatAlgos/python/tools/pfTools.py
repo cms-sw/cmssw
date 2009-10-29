@@ -218,6 +218,8 @@ def usePF2PAT(process,runPF2PAT=True):
                                            process.allLayer1Objects
                                            )
 
+    
+    print 'MB: runPF2PAT: '+str(runPF2PAT)
     removeCleaning(process)
     
     # -------- OBJECTS ------------
