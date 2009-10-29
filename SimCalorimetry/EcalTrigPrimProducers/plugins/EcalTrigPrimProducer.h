@@ -40,7 +40,8 @@ class EcalTrigPrimProducer : public edm::EDProducer
   virtual ~EcalTrigPrimProducer();
   
   void beginJob();
-  void beginRun(const edm::Run & run, const edm::EventSetup & es);
+  void beginRun(edm::Run & run, const edm::EventSetup & es);
+  void endRun(edm::Run &, const edm::EventSetup &);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
  private:

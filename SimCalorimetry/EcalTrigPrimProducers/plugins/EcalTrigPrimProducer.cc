@@ -1,3 +1,4 @@
+
 /** \class EcalTrigPrimProducer
  *
  * EcalTrigPrimProducer produces a EcalTrigPrimDigiCollection
@@ -61,7 +62,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
   debug_(iConfig.getParameter<bool>("Debug")),ps_(iConfig)
-{
+{  
   //register your products
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
@@ -71,8 +72,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
   algo_=NULL;
 }
-void EcalTrigPrimProducer::beginRun(const edm::Run & run,edm::EventSetup const& setup) {
-  
+
+void EcalTrigPrimProducer::beginRun(edm::Run & run,edm::EventSetup const& setup) {
   bool famos = ps_.getParameter<bool>("Famos");
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
@@ -81,8 +82,12 @@ void EcalTrigPrimProducer::beginRun(const edm::Run & run,edm::EventSetup const& 
   cacheID_=this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::beginJob() {
+void EcalTrigPrimProducer::endRun(edm::Run & run,edm::EventSetup const& setup) {
+  delete algo_;
+}
 
+void EcalTrigPrimProducer::beginJob() {
+  
   //  get  binOfMax
   //  try first in cfg, then in ProductRegistry
   //  =6 is default (1-10 possible values)
@@ -119,7 +124,6 @@ void EcalTrigPrimProducer::beginJob() {
     binOfMaximum_=6;
     edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
-
 }
 
 unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
@@ -188,13 +192,7 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
-{
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  delete algo_;
-
-}
+{}
 
 
 // ------------ method called to produce the data  ------------
@@ -204,7 +202,6 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   // update constants if necessary
   if (iSetup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier()!=cacheID_) cacheID_=this->getRecords(iSetup);
-
 
   // get input collections
 
