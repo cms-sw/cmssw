@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.13 2009/08/24 07:41:41 neadam Exp $
+// $Id: HLXMonitor.h,v 1.14 2009/10/01 16:46:57 neadam Exp $
 //
 //
 
@@ -150,6 +150,9 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * HistInstantLumiEtSum;
       MonitorElement * HistInstantLumiOccSet1;
       MonitorElement * HistInstantLumiOccSet2;
+      MonitorElement * HistInstantLumiEtSumError;
+      MonitorElement * HistInstantLumiOccSet1Error;
+      MonitorElement * HistInstantLumiOccSet2Error;
       MonitorElement * HistIntegratedLumiEtSum;
       MonitorElement * HistIntegratedLumiOccSet1;
       MonitorElement * HistIntegratedLumiOccSet2;

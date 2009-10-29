@@ -344,7 +344,6 @@ HLXMonitor::SetupHists()
    AvgOccAboveSet2->setAxisTitle( AvgXTitle, 1 );
    AvgOccAboveSet2->setAxisTitle( AvgOccYTitle, 2 );
 
-
    // Luminosity Histograms
    dbe_->setCurrentFolder(monitorName_+"/Luminosity");
 
@@ -411,6 +410,7 @@ HLXMonitor::SetupHists()
    std::string HistEtSumYTitle = "Average E_{T} Sum";
    std::string HistOccYTitle = "Average Occupancy";
    std::string HistLumiYTitle = "Luminosity";
+   std::string HistLumiErrorYTitle = "Luminosity Error (%)";
    std::string BXvsTimeXTitle = "Time (LS)";
    std::string BXvsTimeYTitle = "BX";
 
@@ -530,6 +530,22 @@ HLXMonitor::SetupHists()
    HistInstantLumiOccSet2->setAxisTitle( HistXTitle, 1 );
    HistInstantLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
 
+   HistInstantLumiEtSumError   = dbe_->book1D( "HistInstantLumiEtSumError", "Luminosity Error: Et Sum",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiEtSumError->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiEtSumError->setAxisTitle( HistLumiErrorYTitle, 2 );
+   
+   HistInstantLumiOccSet1Error = dbe_->book1D( "HistInstantLumiOccSet1Error", "Luminosity Error: Occ Set1",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiOccSet1Error->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiOccSet1Error->setAxisTitle( HistLumiErrorYTitle, 2 ); 
+   
+   HistInstantLumiOccSet2Error = dbe_->book1D( "HistInstantLumiOccSet2Error", "Luminosity Error: Occ Set2",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiOccSet2Error->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiOccSet2Error->setAxisTitle( HistLumiErrorYTitle, 2 );
+
+
    HistIntegratedLumiEtSum   = dbe_->book1D( "HistIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
    MAX_LS, 0.5, (double)MAX_LS+0.5);
    HistIntegratedLumiEtSum->setAxisTitle( HistXTitle, 1 );
@@ -638,6 +654,10 @@ void HLXMonitor::SetupEventInfo( )
 
    reportSummary_ = dbe_->bookFloat("reportSummary");
    reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18, 0., 18., 2, -1.5, 1.5);
+   TH2F *summaryHist = reportSummaryMap_->getTH2F();
+   summaryHist->GetYaxis()->SetBinLabel(1,"HF-");
+   summaryHist->GetYaxis()->SetBinLabel(2,"HF+");
+   summaryHist->GetXaxis()->SetTitle("Wedge #");
 
    // Fill the report summary objects with default values, since these will only
    // be filled at the change of run.
@@ -887,6 +907,19 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
       HistInstantLumiOccSet1->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc1));
       HistInstantLumiOccSet2->setBinContent(lsBinOld,sectionInstantSumOcc2);
       HistInstantLumiOccSet2->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc2));
+    
+      double etDenom   = fabs(sectionInstantSumEt);
+      if( etDenom < 1e-10 ) etDenom = 1e-10;
+      double occ1Denom   = fabs(sectionInstantSumOcc1);
+      if( occ1Denom < 1e-10 ) occ1Denom = 1e-10;
+      double occ2Denom   = fabs(sectionInstantSumOcc2);
+      if( occ2Denom < 1e-10 ) occ2Denom = 1e-10;
+      double etError   = 100.0*sqrt(sectionInstantErrSumEt)/etDenom;
+      double occ1Error = 100.0*sqrt(sectionInstantErrSumOcc1)/occ1Denom;
+      double occ2Error = 100.0*sqrt(sectionInstantErrSumOcc2)/occ2Denom;
+      HistInstantLumiEtSumError->setBinContent(lsBinOld,etError);
+      HistInstantLumiOccSet1Error->setBinContent(lsBinOld,occ1Error);
+      HistInstantLumiOccSet2Error->setBinContent(lsBinOld,occ2Error);
       
       double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld-1);
       double histNewBinContent = histOldBinContent + sectionInstantSumEt; 
@@ -1184,8 +1217,8 @@ void HLXMonitor::FillReportSummary(){
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
       unsigned int iWedge = HLXHFMap[iHLX] + 1;
       unsigned int iEta = 2;
-      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
       float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
       reportSummaryMap_->setBinContent(iWedge,iEta,frac);
       overall += frac;
    }   
@@ -1267,6 +1300,9 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(HistInstantLumiEtSum);
    dbe_->softReset(HistInstantLumiOccSet1);
    dbe_->softReset(HistInstantLumiOccSet2);
+   dbe_->softReset(HistInstantLumiEtSumError);
+   dbe_->softReset(HistInstantLumiOccSet1Error);
+   dbe_->softReset(HistInstantLumiOccSet2Error);
    dbe_->softReset(HistIntegratedLumiEtSum);
    dbe_->softReset(HistIntegratedLumiOccSet1);
    dbe_->softReset(HistIntegratedLumiOccSet2);
