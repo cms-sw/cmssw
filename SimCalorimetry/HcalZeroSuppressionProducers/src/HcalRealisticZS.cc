@@ -32,7 +32,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     //this constructor will be called if notUsingDBzsValues is set to 1 in
     //HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
     //which means that channel-by-channel ZS thresholds from DB will not be used
-    if ( conf.getParameter<int>("notUsingDBzsValues") )
+    if ( conf.getParameter<int>("useConfigZSvalues") )
       algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode,
 							   conf.getParameter<int>("HBlevel"),
 							   conf.getParameter<int>("HElevel"),
