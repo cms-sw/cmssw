@@ -1,4 +1,5 @@
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "FWCore/Utilities/interface/Digest.h"
 #include <ostream>
 #include <sstream>
 

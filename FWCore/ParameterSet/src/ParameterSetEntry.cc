@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <sstream>
 #include <iostream>
 namespace edm {

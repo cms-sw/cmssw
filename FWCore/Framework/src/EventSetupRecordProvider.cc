@@ -20,6 +20,7 @@
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 //
