@@ -433,7 +433,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
 	  // Check that the first rechit is indeed the first seeding hit
-	  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
+	  //if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
 	  
 	  // Count the number of crossed layers
 	  if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 
