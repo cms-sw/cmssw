@@ -12,18 +12,15 @@
  */
 
 void DoKSTest(TFile *histfile, 
-	      TString sample1 = "/uscmst1b_scratch/lpc1/lpctrig/apana/data/MinBias/lumi8e29/*", 
-	      TString sample2 = "/uscmst1b_scratch/lpc1/lpctrig/apana/data/MinBias/lumi1e31_newL1/*",
+	      TChain *ch1,
+	      TChain *ch2,
 	      TString var = "ohMuL3Eta", TString cut = "", Int_t nbin = 100, Int_t min = -5.0, Int_t max = 5.0,
 	      Double_t ksthreshold = 0.001)
 {
   gROOT->SetStyle("Plain");
 
-  TChain *ch1 = new TChain("HltTree");
-  TChain *ch2 = new TChain("HltTree");
-
-  ch1->Add(sample1);
-  ch2->Add(sample2);
+  cout << ch1->GetEntries() << endl
+       << ch2->GetEntries() << endl;
 
   TH1F *h1 = new TH1F("h1","h1",nbin,min,max);
   TH1F *h2 = new TH1F("h2","h2",nbin,min,max);
@@ -35,7 +32,13 @@ void DoKSTest(TFile *histfile,
   ch1->Draw(var + " >> h1",cut,"e");
   ch2->Draw(var + " >> h2",cut,"e");
 
-  h1->Scale(1.0 * h2->GetEntries()/h1->GetEntries()); 
+  // Scale to equal aread
+  //  h1->Scale(1.0 * h2->GetEntries()/h1->GetEntries()); 
+
+  // Scale to number of produced events per sample
+  h1->Scale(1.0 / ch1->GetEntries());
+  h2->Scale(1.0 / ch2->GetEntries());
+
   if(h1->GetMaximum() > h2->GetMaximum())
     h1->SetMaximum(1.5 * h1->GetMaximum());
   else
@@ -67,41 +70,57 @@ void DoKSTest(TFile *histfile,
   delete h2;
 }
 
-void ValidateOpenHLTNtuples(TString dir1 = "/uscmst1b_scratch/lpc1/lpctrig/apana/data/MinBias/lumi8e29/Summer08_MinBias_hltanalyzer_redoL1_StartupV8_L1StartupMenu_8*", 
-			    TString dir2 = "/uscmst1b_scratch/lpc1/lpctrig/apana/data/MinBias/lumi1e31_newL1/Summer08_MinBias_hltanalyzer_redoL1_StartupV8_L1DefaultMenu_*",
-			    Double_t threshold = 0.001)
+void ValidateOpenHLTNtuples(TString d1 = "rfio:/castor/cern.ch/user/f/fwyzard/OpenHLT/MinBias/lumi8e29/Summer08_MinBias_hltanalyzer_redoL1_StartupV8_L1StartupMenu_5.root",
+			    TString d2 = "rfio:/castor/cern.ch/user/a/apana/Summer09_312/MinBias/8e29/Summer08_MinBias_hltanalyzer_Startup31X_V2_5.root",
+			    Double_t threshold = 1000.001)
 {
   TFile *f = new TFile("openhltvalidation.root","recreate");
 
-  DoKSTest(f, dir1, dir2, "L1MuEta", "L1MuPt > -1", 100, -5, 5, threshold);   
-  DoKSTest(f, dir1, dir2, "L1MuPhi", "L1MuPt > -1", 100, -4, 4, threshold);    
-  DoKSTest(f, dir1, dir2, "L1MuPt", "L1MuPt > -1", 100, 0, 100, threshold);    
-  DoKSTest(f, dir1, dir2, "ohMuL2Eta", "", 100, -5, 5, threshold);  
-  DoKSTest(f, dir1, dir2, "ohMuL2Phi", "", 100, -4, 4, threshold);   
-  DoKSTest(f, dir1, dir2, "ohMuL2Pt", "", 100, 0, 100, threshold);   
-  DoKSTest(f, dir1, dir2, "ohMuL3Eta", "", 100, -5, 5, threshold);
-  DoKSTest(f, dir1, dir2, "ohMuL3Phi", "", 100, -4, 4, threshold); 
-  DoKSTest(f, dir1, dir2, "ohMuL3Pt", "", 100, 0, 100, threshold); 
-  DoKSTest(f, dir1, dir2, "ohMuL3Iso", "", 2, 0, 2, threshold);
+  TChain *dir1 = new TChain("HltTree");
+  TChain *dir2 = new TChain("HltTree");
 
-  DoKSTest(f, dir1, dir2, "L1IsolEmEta", "L1IsolEmEt > -1", 100, -5, 5, threshold);    
-  DoKSTest(f, dir1, dir2, "L1IsolEmPhi", "L1IsolEmEt > -1", 100, -4, 4, threshold);     
-  DoKSTest(f, dir1, dir2, "L1IsolEmEt", "L1IsolEmEt > -1", 100, 0, 100, threshold);     
-  DoKSTest(f, dir1, dir2, "L1NIsolEmEta", "L1NIsolEmEt > -1", 100, -5, 5, threshold);     
-  DoKSTest(f, dir1, dir2, "L1NIsolEmPhi", "L1NIsolEmEt > -1", 100, -4, 4, threshold);      
-  DoKSTest(f, dir1, dir2, "L1NIsolEmEt", "L1NIsolEmEt > -1", 100, 0, 100, threshold);      
-  DoKSTest(f, dir1, dir2, "ohEleEta", "", 100, -5, 5, threshold); 
-  DoKSTest(f, dir1, dir2, "ohElePhi", "", 100, -4, 4, threshold);  
-  DoKSTest(f, dir1, dir2, "ohEleEt", "", 100, 0, 100, threshold);  
-  DoKSTest(f, dir1, dir2, "ohElePixelSeeds", "", 10, 0, 10, threshold);
-  DoKSTest(f, dir1, dir2, "ohEleHiso", "", 100, 0, 20, threshold);
-  DoKSTest(f, dir1, dir2, "ohEleTiso", "ohEleTiso > -1", 100, 0, 20, threshold);
+  dir1->Add(d1);
+  dir2->Add(d2);
 
-  DoKSTest(f, dir1, dir2, "ohPhotEta", "", 100, -5, 5, threshold);  
-  DoKSTest(f, dir1, dir2, "ohPhotPhi", "", 100, -4, 4, threshold);   
-  DoKSTest(f, dir1, dir2, "ohPhotEt", "", 100, 0, 100, threshold);   
-  DoKSTest(f, dir1, dir2, "ohPhotHiso", "", 100, 0, 20, threshold);
-  DoKSTest(f, dir1, dir2, "ohPhotEiso", "", 100, 0, 20, threshold);
+  //  dir1->Add("rfio:/castor/cern.ch/user/f/fwyzard/OpenHLT/MinBias/lumi8e29/Summer08_MinBias_hltanalyzer_redoL1_StartupV8_L1StartupMenu_6*.root");
+  //  dir1->Add("rfio:/castor/cern.ch/user/f/fwyzard/OpenHLT/MinBias/lumi8e29/Summer08_MinBias_hltanalyzer_redoL1_StartupV8_L1StartupMenu_7*.root");
+
+  //  dir2->Add("rfio:/castor/cern.ch/user/a/apana/Summer09_312/MinBias/8e29/Summer08_MinBias_hltanalyzer_Startup31X_V2_5.root");
+  //  dir2->Add("rfio:/castor/cern.ch/user/a/apana/Summer09_312/MinBias/8e29/Summer08_MinBias_hltanalyzer_Startup31X_V2_6.root");
+  //  dir2->Add("rfio:/castor/cern.ch/user/a/apana/Summer09_312/MinBias/8e29/Summer08_MinBias_hltanalyzer_Startup31X_V2_7.root");
+
+
+
+  DoKSTest(f, dir1, dir2, "ohEleEtaLW[0]", "ohElePixelSeedsLW[0] > 0", 100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "ohElePhiLW[0]", "ohElePixelSeedsLW[0] > 0", 100, -4, 4, threshold);
+  DoKSTest(f, dir1, dir2, "ohEleEtLW[0]", "ohElePixelSeedsLW[0] > 0", 100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "ohElePixelSeedsLW[0]", "", 10, 0, 10, threshold);
+  DoKSTest(f, dir1, dir2, "ohEleHisoLW[0]", "ohElePixelSeedsLW[0] > 0", 100, 0, 20, threshold);
+  DoKSTest(f, dir1, dir2, "ohEleTisoLW[0]", "ohElePixelSeedsLW[0] > 0 && ohEleTisoLW[0] > -1", 100, 0, 20, threshold);
+
+  DoKSTest(f, dir1, dir2, "L1MuEta[0]", "L1MuPt[0] > -1", 100, -5, 5, threshold);   
+  DoKSTest(f, dir1, dir2, "L1MuPhi[0]", "L1MuPt[0] > -1", 100, -4, 4, threshold);    
+  DoKSTest(f, dir1, dir2, "L1MuPt[0]", "L1MuPt[0] > -1", 100, 0, 100, threshold);    
+  DoKSTest(f, dir1, dir2, "ohMuL2Eta[0]", "", 100, -5, 5, threshold);  
+  DoKSTest(f, dir1, dir2, "ohMuL2Phi[0]", "", 100, -4, 4, threshold);   
+  DoKSTest(f, dir1, dir2, "ohMuL2Pt[0]", "", 100, 0, 100, threshold);   
+  DoKSTest(f, dir1, dir2, "ohMuL3Eta[0]", "", 100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "ohMuL3Phi[0]", "", 100, -4, 4, threshold); 
+  DoKSTest(f, dir1, dir2, "ohMuL3Pt[0]", "", 100, 0, 100, threshold); 
+  DoKSTest(f, dir1, dir2, "ohMuL3Iso[0]", "", 2, 0, 2, threshold);
+
+  DoKSTest(f, dir1, dir2, "L1IsolEmEta[0]", "L1IsolEmEt[0] > -1", 100, -5, 5, threshold);    
+  DoKSTest(f, dir1, dir2, "L1IsolEmPhi[0]", "L1IsolEmEt[0] > -1", 100, -4, 4, threshold);     
+  DoKSTest(f, dir1, dir2, "L1IsolEmEt[0]", "L1IsolEmEt[0] > -1", 100, 0, 100, threshold);     
+  DoKSTest(f, dir1, dir2, "L1NIsolEmEta[0]", "L1NIsolEmEt[0] > -1", 100, -5, 5, threshold);     
+  DoKSTest(f, dir1, dir2, "L1NIsolEmPhi[0]", "L1NIsolEmEt[0] > -1", 100, -4, 4, threshold);      
+  DoKSTest(f, dir1, dir2, "L1NIsolEmEt[0]", "L1NIsolEmEt[0] > -1", 100, 0, 100, threshold); 
+
+  DoKSTest(f, dir1, dir2, "ohPhotEta[0]", "", 100, -5, 5, threshold);  
+  DoKSTest(f, dir1, dir2, "ohPhotPhi[0]", "", 100, -4, 4, threshold);   
+  DoKSTest(f, dir1, dir2, "ohPhotEt[0]", "", 100, 0, 100, threshold);   
+  DoKSTest(f, dir1, dir2, "ohPhotHiso[0]", "", 100, 0, 20, threshold);
+  DoKSTest(f, dir1, dir2, "ohPhotEiso[0]", "", 100, 0, 20, threshold);
 
   DoKSTest(f, dir1, dir2, "L1HfRing1EtSumNegativeEta", "", 20, 0, 20, threshold);   
   DoKSTest(f, dir1, dir2, "L1HfRing1EtSumPositiveEta", "", 20, 0, 20, threshold);    
@@ -112,25 +131,25 @@ void ValidateOpenHLTNtuples(TString dir1 = "/uscmst1b_scratch/lpc1/lpctrig/apana
   DoKSTest(f, dir1, dir2, "L1HfTowerCountNegativeEtaRing2", "", 20, 0, 20, threshold);      
   DoKSTest(f, dir1, dir2, "L1HfTowerCountPositiveEtaRing2", "", 20, 0, 20, threshold);      
 
-  DoKSTest(f, dir1, dir2, "L1CenJetEta", "L1CenJetEt > -1", 100, -5, 5, threshold);
-  DoKSTest(f, dir1, dir2, "L1CenJetPhi", "L1CenJetEt > -1", 100, -4, 4, threshold);
-  DoKSTest(f, dir1, dir2, "L1CenJetEt", "L1CenJetEt > -1", 100, 0, 100, threshold);
-  DoKSTest(f, dir1, dir2, "L1ForJetEta", "L1ForJetEt > -1", 100, -5, 5, threshold);
-  DoKSTest(f, dir1, dir2, "L1ForJetPhi", "L1ForJetEt > -1", 100, -4, 4, threshold);
-  DoKSTest(f, dir1, dir2, "L1ForJetEt", "L1ForJetEt > -1", 100, 0, 100, threshold);
-  DoKSTest(f, dir1, dir2, "recoJetCorCalEta", "", 100, -5, 5, threshold);
-  DoKSTest(f, dir1, dir2, "recoJetCorCalPhi", "", 100, -4, 4, threshold);
-  DoKSTest(f, dir1, dir2, "recoJetCorCalPt", "", 100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "L1CenJetEta[0]", "L1CenJetEt[0] > -1", 100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "L1CenJetPhi[0]", "L1CenJetEt[0] > -1", 100, -4, 4, threshold);
+  DoKSTest(f, dir1, dir2, "L1CenJetEt[0]", "L1CenJetEt[0] > -1", 100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "L1ForJetEta[0]", "L1ForJetEt[0] > -1", 100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "L1ForJetPhi[0]", "L1ForJetEt[0] > -1", 100, -4, 4, threshold);
+  DoKSTest(f, dir1, dir2, "L1ForJetEt[0]", "L1ForJetEt[0] > -1", 100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "recoJetCorCalEta[0]", "", 100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "recoJetCorCalPhi[0]", "", 100, -4, 4, threshold);
+  DoKSTest(f, dir1, dir2, "recoJetCorCalPt[0]", "", 100, 0, 100, threshold);
   DoKSTest(f, dir1, dir2, "recoMetCal", "", 100, 0, 100, threshold);
   DoKSTest(f, dir1, dir2, "recoMetCalSum", "", 100, 0, 100, threshold);
 
-  DoKSTest(f, dir1, dir2, "ohTauPhi","",100, -4, 4, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauEta","",100, -5, 5, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauPt","",100, 0, 100, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauL25Tpt","",100, 0, 100, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauL3Tpt","",100, 0, 100, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauL25Tiso","",2, 0, 2, threshold);
-  DoKSTest(f, dir1, dir2, "ohTauL3Tiso","",2, 0, 2, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauPhi[0]","",100, -4, 4, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauEta[0]","",100, -5, 5, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauPt[0]","",100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauL25Tpt[0]","",100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauL3Tpt[0]","",100, 0, 100, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauL25Tiso[0]","",2, 0, 2, threshold);
+  DoKSTest(f, dir1, dir2, "ohTauL3Tiso[0]","",2, 0, 2, threshold);
 
   f->Close();
 }
