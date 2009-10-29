@@ -1,4 +1,3 @@
-<use name=GeneratorInterface/Core>
 <use name=GeneratorInterface/Pythia6Interface>
 
 <library file="*Filter.cc,Pythia6Hadronizer.cc,*hadron.f" name=GeneratorInterfacePythia6Filters>
