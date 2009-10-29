@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 #==============================================================================
@@ -97,7 +98,10 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
-    )
+    ),
+    
+    # Corrections
+    superClusterErrorFunction = cms.string("EcalClusterEnergyUncertainty")
 
 )
 

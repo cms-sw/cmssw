@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.80 2009/10/10 09:09:18 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.81 2009/10/15 13:25:35 chamont Exp $
 //
 //
 
@@ -22,8 +22,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -141,7 +141,8 @@ GsfElectronAlgo::GsfElectronAlgo
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals),
-   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
+   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
+   superClusterErrorFunction_(0)
  {
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
@@ -181,6 +182,15 @@ GsfElectronAlgo::GsfElectronAlgo
   reducedBarrelRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
   reducedEndcapRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
   pfMVA_ = conf.getParameter<edm::InputTag>("pfMVA") ;
+
+  // function for corrector
+  std::string superClusterErrorFunctionName
+   = conf.getParameter<std::string>("superClusterErrorFunction") ;
+  if (superClusterErrorFunctionName!="")
+   {
+    superClusterErrorFunction_
+     = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,conf) ;
+   }
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
@@ -232,6 +242,8 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
   hcalHelper_->checkSetup(es) ;
   hcalHelperPflow_->checkSetup(es) ;
 //   }
+  if (superClusterErrorFunction_)
+   { superClusterErrorFunction_->init(es) ; }
  }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
@@ -754,7 +766,7 @@ void GsfElectronAlgo::createElectron
   theClassifier.correct(*ele);
   // energy corrections only for ecalDriven electrons
   if (ele->core()->ecalDrivenSeed()) {
-    ElectronEnergyCorrector theEnCorrector;
+    ElectronEnergyCorrector theEnCorrector(superClusterErrorFunction_);
     theEnCorrector.correct(*ele, applyEtaCorrection_);
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,vtxTSOS_);

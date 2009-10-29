@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.23 2009/05/31 15:58:20 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.24 2009/10/15 13:28:05 chamont Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 
 using namespace reco;
 
-GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
+GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 {
   //register your products
   produces<GsfElectronCollection>();

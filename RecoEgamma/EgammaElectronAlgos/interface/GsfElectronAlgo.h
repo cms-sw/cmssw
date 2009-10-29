@@ -1,3 +1,4 @@
+
 #ifndef GsfElectronAlgo_H
 #define GsfElectronAlgo_H
 
@@ -16,6 +17,7 @@
 class ElectronHcalHelper ;
 class MultiTrajectoryStateTransform ;
 class MultiTrajectoryStateMode ;
+class EcalClusterFunctionBaseClass ;
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
@@ -127,9 +129,6 @@ class GsfElectronAlgo {
     void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
        edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> & reducedEERecHits ) ;
-
-    //Gsf mode calculations
-    GlobalVector computeMode( const TrajectoryStateOnSurface & tsos ) ;
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef );
@@ -310,6 +309,8 @@ class GsfElectronAlgo {
     unsigned long long cacheIDTopo_;
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
+
+    EcalClusterFunctionBaseClass * superClusterErrorFunction_ ;
 
  } ;
 
