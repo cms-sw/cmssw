@@ -6,6 +6,7 @@ Type "oval p".
 <var name="MY_GLOBAL_TAG" value="MC_3XY_V10">
 
 <diffline expr="(Begin processing the \S* record)">
+<diffline expr="^Histo ">
 
 <environment name="SingleElectronPt35">
 
@@ -20,6 +21,11 @@ Type "oval p".
   <environment name="SingleElectronPt35Harv">
     <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SingleElectronPt35Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Harv.py --no_exec">
     <executable name="cmsRun" args="MyElectronPt35Harv.py">
+  </environment>
+
+  <environment name="SingleElectronPt35List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__ElectronPt35__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
   </environment>
 
 </environment>
@@ -39,6 +45,11 @@ Type "oval p".
     <executable name="cmsRun" args="MyPhotonPt35Harv.py">
   </environment>
 
+  <environment name="SinglePhotonPt35List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__PhotonPt35__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
+  </environment>
+
 </environment>
 
 <environment name="QcdPt80Pt120">
@@ -54,6 +65,11 @@ Type "oval p".
   <environment name="QcdPt80Pt120Harv">
     <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:QcdPt80Pt120Reco.root --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Harv.py --no_exec">
     <executable name="cmsRun" args="MyQcdPt80Pt120Harv.py">
+  </environment>
+
+  <environment name="QcdPt80Pt120List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__QcdPt80Pt120__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
   </environment>
 
 </environment>
