@@ -28,7 +28,7 @@ using namespace std;
 RPCChamberQuality::RPCChamberQuality(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
   
-  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 9);
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   prefixDir_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
 }
@@ -61,8 +61,6 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
   
   stringstream histoName;
   
-  rpcdqm::utils rpcUtils;
-
   
   for(int w=-2; w<3;w++){
     
@@ -95,7 +93,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(12, "RB3+_B", 2);
     me->setBinLabel(13, "RB3+_F", 2);
     me->setBinLabel(14, "RB4,-,--_B", 2);
-    me->setBinLabel(15, "RB4,-,--_F", 2);
+    me->setBinLabel(15, "RB4,-,--,F", 2);
     me->setBinLabel(16, "RB4+,-+_B", 2);
     me->setBinLabel(17, "RB4+,-+_F", 2);
     me->setBinLabel(18, "RB4+-_B", 2);
@@ -120,29 +118,17 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(7, "Bad.Shape", 1);
     
   }//end loop on wheels
-
-  for(int i=-3; i<4; i++) { // ENDCAP
-    if(i!=0) {
-      histoName.str("");
-      histoName<<"RPCChamberQuality_Ring_vs_Segment_Disk"<<i;       //  2D histo for RPC Qtest
-      me = 0;
-      me = dbe_->get(prefixDir_+"/"+ histoName.str());
-      if (0!=me) {
-	dbe_->removeElement(me->getName());
-      }
-      me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  36, 0.5, 36.5, 6, 0.5, 6.5);
-      rpcUtils.labelXAxisSegment(me);
-      rpcUtils.labelYAxisRing(me, 2);
-    } //if 
-  } // for
+  
 }
 
 void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
-  LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End of LS transition, performing DQM client operation";
+void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  }
+
+void RPCChamberQuality::endRun(const Run& r, EventSetup const& iSetup) {
+  LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End run";
 
    MonitorElement * RpcEvents = NULL;
    stringstream meName;
@@ -163,7 +149,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
    
   
   //check some statements and prescale Factor
-  if(numLumBlock_%prescaleFactor_ == 0) {
+  if(nLumBlock_%prescaleFactor_ == 0) {
     
     ESHandle<RPCGeometry> rpcGeo;
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -181,12 +167,9 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     MonitorElement * Chip=NULL;
     MonitorElement * HV=NULL;
     MonitorElement * LV=NULL;
+   
     
-    float dead =0;
-    float firstbin= 0;
-    float noisystrips = 0;
-    float mult = 0;
-    float asy = 0;
+   
     for (int i=-2; i<3; i++) {    
       
       meName.str("");
@@ -197,11 +180,9 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Distribution_Wheel"<<i; 
       RCQD = dbe_ -> get(meName.str());
       
-      RCQD->Reset();
-      RCQ->Reset();
       //get HV Histo
       meName.str("");                        
-      meName<<"RPC/RecHits/SummaryHistograms/HVStatus_Wheel_"<<i;
+      meName<<"RPC/RecHits/SummaryHistograms/HVStatus_Wheel_"<<i; 
       HV = dbe_ -> get(meName.str());
 	
       //get LV Histo
@@ -237,7 +218,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	    if (RCQ) RCQ -> setBinContent(x,y, 2);
 	    if (RCQD) RCQD -> Fill(2, 1);
 	  }else {                                                              //DEAD
-	    
+	    float dead =0;
 	    if(myMe) dead= myMe -> getBinContent(x,y);
 	    if(dead>=0.80 && rpcEvents>50000) {
 	      // declare as DEAD chamber. fill map by a number
@@ -258,7 +239,11 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	      meName<<"RPC/RecHits/SummaryHistograms/RPCNoisyStrips_Roll_vs_Sector_Wheel" << i;
 	      NoisySt = dbe_ -> get(meName.str());
 		
- 	      if(CLS && NoisySt){
+    
+	      float firstbin= 0;
+	      float noisystrips = 0;
+
+	      if(CLS && NoisySt){
 		firstbin = CLS -> getBinContent(x,y);
 		noisystrips = NoisySt -> getBinContent(x,y);
 	      }	
@@ -272,13 +257,15 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 		if (RCQD)	  RCQD -> Fill(3, 1);
 	      }else {
 		//check Multiplicity to spot noisely Chamber
-		
+	
+	
 		meName.str("");
 		meName<<"RPC/RecHits/SummaryHistograms/NumberOfDigi_Mean_Roll_vs_Sector_Wheel" << i;
 		//meName<<"RPC/RecHits/SummaryHistograms/ClusterSizeIn1Bin_Roll_vs_Sector_Wheel" << i;
 		MULT = dbe_ -> get(meName.str());
 		  
-		
+		  float mult = 0;
+
 		  if(MULT) mult = MULT -> getBinContent(x,y);
 		  
 		  if(mult>=6) {
@@ -289,7 +276,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 		    meName.str("");
 		    meName<<"RPC/RecHits/SummaryHistograms/AsymmetryLeftRight_Roll_vs_Sector_Wheel" << i;
 		    Chip = dbe_ -> get(meName.str());
-		   
+		    float asy = 0;
 
 		    if (Chip) asy = Chip->getBinContent(x,y);
 
@@ -306,78 +293,8 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	  }
 	}
       } // loop by chamber
-    } // loop by Wheels
-
-
-    // Endcap
-    MonitorElement * meDEAD = NULL;
-    myMe=NULL;
-    CLS=NULL;
-    MULT=NULL;
-    NoisySt=NULL;
-    Chip=NULL;
-    HV=NULL;
-    LV=NULL;
-    
-    for(int i=-3; i<4; i++) {
-      if(i!=0) {
-	meName.str("");
-	meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Ring_vs_Segment_Disk"<<i; 
-	RCQ = dbe_ -> get(meName.str());
-	if(RCQ) RCQ->Reset();
-	mme.str("");
-	mme << "RPC/RecHits/SummaryHistograms/DeadChannelFraction_Ring_vs_Segment_Disk"<<i;
-	meDEAD = dbe_->get(mme.str());
-	
-	for(int x=1; x<37; x++) {
-	  for (int y=1; y<7; y++) {
-	    dead=0;
-	    
-	    if (meDEAD) dead = meDEAD->getBinContent(x,y);
-	    else cout<<"not found ME"<<endl;
-	    
-	    if(dead>=0.8) RCQ -> setBinContent(x,y,6);
-	    else if (dead>=0.33 && dead<0.8) RCQ->setBinContent(x,y,5);
-	    else {
-	      mme.str("");
-	      mme << "RPC/RecHits/SummaryHistograms/ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<i;
-	      CLS = dbe_->get(mme.str());
-	      
-	      mme.str("");
-	      mme << "RPC/RecHits/SummaryHistograms/RPCNoisyStrips_Ring_vs_Segment_Disk"<<i;
-	      NoisySt = dbe_->get(mme.str());
-	      if(CLS && NoisySt) {
-		firstbin = CLS->getBinContent(x,y);
-		noisystrips = NoisySt -> getBinContent(x,y);
-	      }
-	      if(firstbin>0.88) RCQ -> setBinContent(x,y,3);
-	      else if(noisystrips>0) RCQ -> setBinContent(x,y,3);
-	      else {
-		mme.str("");
-		mme << "RPC/RecHits/SummaryHistograms/NumberOfDigi_Mean_Ring_vs_Segment_Disk"<<i;
-		MULT = dbe_->get(mme.str());
-		
-		if(MULT) mult=MULT->getBinContent(x,y);
-		if(mult>=6) RCQ->setBinContent(x,y,4);
-		else {
-		  mme.str("");
-		  mme << "RPC/RecHits/SummaryHistograms/AsymmetryLeftRight_Ring_vs_Segment_Disk"<<i;
-		  myMe = dbe_->get(mme.str());
-		  if(myMe) asy = myMe->getBinContent(x,y);
-		  if(asy>0.35) RCQ->setBinContent(x,y,7);
-		  else RCQ->setBinContent(x,y,1);
-		}
-	      }
-	    }
-	  
-	  } //loop by Xaxis
-	} //loop by Yaxis
-      } //if on 0
-    } // loop by Endcap
-    
-    
-    
-  } //loop by LimiBloks
+    } // loop by minimum Events     
+  } //loop by Wheels
 }
 
 

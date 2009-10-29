@@ -43,6 +43,8 @@ public:
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
+   //End Run
+   void endRun(const edm::Run& r, const edm::EventSetup& c);
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -62,16 +64,16 @@ public:
   bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
+
   bool init_;
   DQMStore* dbe_;
  
   int nLumiSegs_;
   std::string globalFolder_;
+  
+  int numberDisk_;
 
 
-  std::pair<int, int> FEDRange_;
-  int numberOfDisks_;  
-  int NumberOfFeds_;
   enum RPCQualityFlags{DEAD = 6, PARTIALLY_DEAD=5};
 
 };

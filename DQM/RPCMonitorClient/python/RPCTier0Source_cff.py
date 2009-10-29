@@ -7,9 +7,6 @@ rpcdigidqm.dqmexpert = True
 rpcdigidqm.dqmsuperexpert = False
 rpcdigidqm.DigiDQMSaveRootFile = False
 
-#Efficiency
-from DQM.RPCMonitorDigi.RPCEfficiency_cfi import *
-
 
 # FED integrity
 from DQM.RPCMonitorClient.RPCFEDIntegrity_cfi import rpcFEDIntegrity
@@ -23,4 +20,6 @@ rpcEventInfo = cms.EDFilter("DQMEventInfo",
 )
 
 
-rpcTier0Source = cms.Sequence(rpcdigidqm*rpcEventInfo*rpcFEDIntegrity*rpcMonitorRaw*rpcMonitorLinkSynchro*rpcEfficiency)
+
+rpcTier0Source = cms.Sequence(rpcdigidqm*rpcEventInfo) #*rpcFEDIntegrity*rpcMonitorRaw*rpcMonitorLinkSynchro)
+
