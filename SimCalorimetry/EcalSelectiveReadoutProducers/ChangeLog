@@ -1,3 +1,10 @@
+V02-04-01
+---------
+
+2009-10-29  author  <author@pcsaccms02.cern.ch>
+
+	* python/ecalDigis_craft_cfi.py: syntax error fix
+
 V02-04-00
 ---------
 
