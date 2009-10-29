@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/08/27 18:27:39 $
- * $Revision: 1.67 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -384,7 +384,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     if ( dcchs->size() == 0 ) {
-      LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " is empty";
+      LogInfo("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " is empty";
       return;
     }
 

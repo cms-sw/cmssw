@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2009/08/27 18:27:39 $
- * $Revision: 1.190 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -384,7 +384,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     if ( dcchs->size() == 0 ) {
-      LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
+      LogInfo("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
       return;
     }
 
