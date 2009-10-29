@@ -42,6 +42,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 
 // forward declarations
 
@@ -199,6 +200,7 @@ private:
     void addHfRingEtSumsCondition(const TableMenuCond&);
     void addCastorCondition(const TableMenuCond&);
     void addBptxCondition(const TableMenuCond&);
+    void addExternalCondition(const TableMenuCond&);
     void addCorrelationCondition(const TableMenuCond&);
 
     /// add the conditions from a menu to the corresponding list
@@ -243,6 +245,7 @@ private:
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
     std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
     std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
+    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;

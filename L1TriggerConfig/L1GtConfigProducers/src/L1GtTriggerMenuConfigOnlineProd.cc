@@ -71,6 +71,7 @@ void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
     m_vecHfBitCountsTemplate.resize(numberConditionChips);
     m_vecHfRingEtSumsTemplate.resize(numberConditionChips);
     m_vecBptxTemplate.resize(numberConditionChips);
+    m_vecExternalTemplate.resize(numberConditionChips);
 
     m_vecCorrelationTemplate.resize(numberConditionChips);
     m_corMuonTemplate.resize(numberConditionChips);
@@ -164,6 +165,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
                         m_vecHfBitCountsTemplate,
                         m_vecHfRingEtSumsTemplate,
                         m_vecBptxTemplate,
+                        m_vecExternalTemplate,
                         m_vecCorrelationTemplate,
                         m_corMuonTemplate,
                         m_corCaloTemplate,
@@ -935,6 +937,8 @@ L1GtConditionCategory L1GtTriggerMenuConfigOnlineProd::strToEnumCondCategory(
         return CondHfRingEtSums;
     } else if (strCategory == "CondBptx") {
         return CondBptx;
+    } else if (strCategory == "CondExternal") {
+        return CondExternal;
     } else if (strCategory == "CondNull") {
         return CondNull;
     } else {
@@ -979,6 +983,8 @@ L1GtConditionType L1GtTriggerMenuConfigOnlineProd::strToEnumCondType(const std::
         return TypeHfRingEtSums;
     } else if (strType == "Bptx") {
         return TypeBptx;
+    } else if (strType == "TypeExternal") {
+        return TypeExternal;
     } else {
         edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
                 << "\n Warning: string " << strType
@@ -1026,6 +1032,8 @@ L1GtObject L1GtTriggerMenuConfigOnlineProd::strToEnumL1GtObject(const std::strin
         return Castor;
     } else if (strObject == "BPTX") {
         return BPTX;
+    } else if (strObject == "GtExternal") {
+        return GtExternal;
     } else {
         edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
                 << "\n Warning: string " << strObject
@@ -1587,6 +1595,50 @@ void L1GtTriggerMenuConfigOnlineProd::addBptxCondition(const TableMenuCond& cond
 
 }
 
+void L1GtTriggerMenuConfigOnlineProd::addExternalCondition(const TableMenuCond& condDB) {
+
+    L1GtExternalTemplate externalCond(condDB.cond);
+    externalCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - logical conditions have no objects associated in GT
+    // one put however a "External" object type
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    externalCond.setObjectType(objType);
+
+    // irrelevant, set to false for completeness
+    externalCond.setCondGEq(false);
+
+    // logical conditions have no ObjectParameter, no CorrelationParameter
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        externalCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecExternalTemplate[*itChip] ).push_back(externalCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << externalCond << "\n" << std::endl;
+        }
+    }
+
+}
 
 void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCond& condDB) {
 
@@ -1790,6 +1842,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
             case HfRingEtSums:
             case Castor:
             case BPTX:
+            case GtExternal:
             case TechTrig: {
                 wrongSubcondition = true;
                 edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
@@ -1914,6 +1967,12 @@ void L1GtTriggerMenuConfigOnlineProd::addConditions() {
             case CondBptx: {
 
                 addBptxCondition(*constIt);
+
+            }
+                break;
+            case CondExternal: {
+
+                addExternalCondition(*constIt);
 
             }
                 break;
