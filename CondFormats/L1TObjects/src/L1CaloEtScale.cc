@@ -118,6 +118,7 @@ std::ostream& operator << (std::ostream& os, const L1CaloEtScale obj) {
   for (unsigned i=0; i<obj.getThresholds().size(); i++) {
     os << "  Threshold " << i << " = " << obj.getThresholds().at(i) << " GeV" << endl;
   }
+  return os ;
 }
 
 

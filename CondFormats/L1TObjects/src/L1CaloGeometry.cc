@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:36 EDT 2006
-// $Id: L1CaloGeometry.cc,v 1.3 2009/07/17 17:37:10 wsun Exp $
+// $Id: L1CaloGeometry.cc,v 1.4 2009/09/28 22:59:14 wsun Exp $
 //
 
 // system include files
@@ -519,7 +519,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
    os << "L1CaloGeometry:" << std::endl ;
 
    os << "Central/tau eta bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctCentralEtaBinsPerHalf() ; ++i )
+   for( unsigned int i = 0 ; i < obj.numberGctCentralEtaBinsPerHalf() ; ++i )
      {
        os << "  bin " << i << ": "
 	  << obj.etaBinLowEdge( i ) << " / "
@@ -529,7 +529,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
      }
 
    os << "Forward eta bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctForwardEtaBinsPerHalf() ; ++i )
+   for( unsigned int i = 0 ; i < obj.numberGctForwardEtaBinsPerHalf() ; ++i )
      {
        os << "  bin " << i << ": "
 	  << obj.etaBinLowEdge( i, false ) << " / "
@@ -539,7 +539,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
      }
 
    os << "Global eta bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctCentralEtaBinsPerHalf() +
+   for( unsigned int i = 0 ; i < obj.numberGctCentralEtaBinsPerHalf() +
 	  obj.numberGctForwardEtaBinsPerHalf() ; ++i )
      {
        os << "  bin " << i << ": "
@@ -550,7 +550,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
      }
 
    os << "EM/jet phi bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctEmJetPhiBins() ; ++i )
+   for( unsigned int i = 0 ; i < obj.numberGctEmJetPhiBins() ; ++i )
      {
        os << "  bin " << i << ": "
 	  << obj.emJetPhiBinLowEdge( i ) << " / "
@@ -560,7 +560,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
      }
 
    os << "Et sum phi bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctEtSumPhiBins() ; ++i )
+   for( unsigned int i = 0 ; i < obj.numberGctEtSumPhiBins() ; ++i )
      {
        os << "  bin " << i << ": "
 	  << obj.etSumPhiBinLowEdge( i ) << " / "
@@ -570,7 +570,7 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
      }
 
    os << "Ht sum phi bins: low / center / high" << std::endl ;
-   for( int i = 0 ; i < obj.numberGctHtSumPhiBins() ; ++i )
+   for( unsigned int i = 0 ; i < obj.numberGctHtSumPhiBins() ; ++i )
      {
        os << "  bin " << i << ": "
 	  << obj.htSumPhiBinLowEdge( i ) << " / "
@@ -578,6 +578,8 @@ std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj )
 	  << obj.htSumPhiBinHighEdge( i )
 	  << std::endl ;
      }
+
+   return os ;
 }
 
 //
