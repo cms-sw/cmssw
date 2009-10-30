@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_RUN_INFO'
+process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
+#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_RUN_INFO'
 process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
