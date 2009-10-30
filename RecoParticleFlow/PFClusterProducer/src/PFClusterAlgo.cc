@@ -463,11 +463,15 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   double diff = 1.;
 
   // if(debug_) niter=2;
+  vector<double> ener;
+  vector<double> dist;
+  vector<double> frac;
+  vector<math::XYZVector> tmp;
   while ( iter++ < niter && diff > 1E-8 ) {
 
     // Store previous iteration's result and reset pfclusters     
-    vector<double> ener;
-    vector<math::XYZVector> tmp;
+    ener.clear();
+    tmp.clear();
 
     for ( unsigned ic=0; ic<curpfclusters.size(); ic++ ) {
       ener.push_back( curpfclusters[ic].energy() );
@@ -497,8 +501,8 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       
       // int layer = rh.layer();
              
-      vector<double> dist;
-      vector<double> frac;
+      dist.clear();
+      frac.clear();
       double fractot = 0.;
 
       bool isaseed = isSeed(rhindex);
@@ -660,8 +664,6 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       double delta = ROOT::Math::VectorUtil::DeltaR(curpfclusters[ic].position(),tmp[ic]);
       if ( delta > diff ) diff = delta;
     }
-    ener.clear();
-    tmp.clear();
   }
   
   // Issue a warning message if the number of iterations 
