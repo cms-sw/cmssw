@@ -1,5 +1,6 @@
 #include <typeinfo>
 #include "rz_harm_poly.h"
+#include <cstdlib>
 
 using namespace magfieldparam;
 
@@ -53,7 +54,7 @@ rz_harm_poly::rz_harm_poly(const unsigned N)
 rz_harm_poly::~rz_harm_poly()
 {
    if (--Cnt) {
-      if (abs(M) >= MaxM) { //a number of objects still left
+     if (abs(M) >= int(MaxM)) { //a number of objects still left
          M = 0;
          MaxM = GetMaxM();
       }
@@ -182,7 +183,7 @@ rz_harm_poly rz_harm_poly::LadderUp()
    if (p_out.data.size()) {
       p_out.L = L;
       p_out.M = M+1;
-      if (abs(p_out.M) > MaxM) MaxM = abs(p_out.M);
+      if (abs(p_out.M) > int(MaxM)) MaxM = abs(p_out.M);
       p_out.Scale(1./sqrt(double((L-M)*(L+M+1))));
    }
    return p_out;
@@ -220,7 +221,7 @@ rz_harm_poly rz_harm_poly::LadderDwn()
    if (p_out.data.size()) {
       p_out.L = L;
       p_out.M = M-1;
-      if (abs(p_out.M) > MaxM) MaxM = abs(p_out.M);
+      if (abs(p_out.M) > int(MaxM)) MaxM = abs(p_out.M);
       p_out.Scale(1./sqrt(double((L+M)*(L-M+1))));
    }
    return p_out;
