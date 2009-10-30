@@ -2,8 +2,8 @@
 
 /** \class FastTSGFromPropagation
  *
- *  $Date: 2009/10/29 22:42:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/30 13:16:10 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -263,7 +263,6 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	 }
        }
        */
-       cout << " "<< endl;
        LogTrace(theCategory) << "result: "<<result.size();
        return;
      }
