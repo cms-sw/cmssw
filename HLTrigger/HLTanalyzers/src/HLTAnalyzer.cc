@@ -41,6 +41,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
   genEventInfo_     = conf.getParameter<edm::InputTag> ("genEventInfo");
   simhits_          = conf.getParameter<edm::InputTag> ("simhits");
+  xSection_         = conf.getUntrackedParameter<double> ("xSection",1.);
+  filterEff_        = conf.getUntrackedParameter<double> ("filterEff",1.);
 
   // keep this separate from l1extramc_ as needed by FastSim:
   //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -148,6 +150,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   // Initialize the tree
   HltTree = new TTree("HltTree", "");
+
+  treeWeight=xSection_*filterEff_;
+  cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << endl;
 
   // Setup the different analysis
   jet_analysis_.setup(conf, HltTree);
@@ -534,7 +539,8 @@ void HLTAnalyzer::endJob() {
 
   if (m_file)
     m_file->cd();
-
+  
+  HltTree->SetWeight(treeWeight);
   HltTree->Write();
   delete HltTree;
   HltTree = 0;

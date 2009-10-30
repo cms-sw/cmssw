@@ -4,14 +4,18 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### GEN objects
     mctruth                         = cms.InputTag("genParticles"),
     # genEventScale                   = cms.InputTag("genEventScale"),
-    genEventInfo                   = cms.InputTag("generator"),
+    genEventInfo                    = cms.InputTag("generator"),
 
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
 
+    ## Input x-section weight and filter efficiency
+    xSection                        = cms.untracked.double(1.),
+    filterEff                       = cms.untracked.double(1.),
+
     ### Trigger objects
-    l1GctHFBitCounts                 = cms.InputTag("hltGctDigis"),
-    l1GctHFRingSums                  = cms.InputTag("hltGctDigis"),
+    l1GctHFBitCounts                = cms.InputTag("hltGctDigis"),
+    l1GctHFRingSums                 = cms.InputTag("hltGctDigis"),
     l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap::HLT"),
     l1GtReadoutRecord               = cms.InputTag("hltGtDigis::HLT"),
 

@@ -65,6 +65,8 @@ private:
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
 
+  double xSection_, filterEff_, treeWeight;
+
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventInfo_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
