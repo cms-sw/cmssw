@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalPreshowerMonitorModule.ESRawDataTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESIntegrityTask_cfi import *
 #from DQM.EcalPreshowerMonitorModule.ESFEDIntegrityTask_cfi import *
-#from DQM.EcalPreshowerMonitorModule.ESPedestalTask_cfi import *
+from DQM.EcalPreshowerMonitorModule.ESPedestalTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESOccupancyTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDcsInfoTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDataCertificationTask_cfi import *
@@ -18,5 +18,6 @@ ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerRawDataTask*ecalPr
 
 ecalPreshowerCertificationSequence = cms.Sequence(ecalPreshowerDcsInfoTask*ecalPreshowerDataCertificationTask*ecalPreshowerDaqInfoTask)
 
+ecalPreshowerLocalTasksSequence = cms.Sequence(ecalPreshowerPedestalTask)
 
 
