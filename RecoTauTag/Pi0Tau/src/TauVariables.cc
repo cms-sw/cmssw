@@ -13,7 +13,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id: TauVariables.cc,v 1.4 2008/02/16 06:32:50 dwjang Exp $
+// $Id: TauVariables.cc,v 1.3 2007/06/01 22:00:53 dwjang Exp $
 //
 //
 
@@ -41,7 +41,7 @@ TauVariables::TauVariables(const reco::Tau3D *tau, const edm::Handle<reco::CaloT
   use3DAngle_ = false;
   signalConeSize_    = 0.175;
   isolationConeSize_ = 0.524;
-  useVariableSignalCone_ = true;
+  useVariableSignalCone_ = false;
   signalConeFunction_ = 5.0;
   useVariableIsolationCone_ = false;
   isolationConeFunction_ = 5.0;
@@ -114,10 +114,10 @@ void TauVariables::makeVariables(){
 
 
   if(useVariableSignalCone_){
-    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->calojetRef()->et(),0.05));
+    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->calojetRef()->energy(),0.05));
   }
   if(useVariableIsolationCone_){
-    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->calojetRef()->et(),0.05));
+    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->calojetRef()->energy(),0.05));
   }
 
 

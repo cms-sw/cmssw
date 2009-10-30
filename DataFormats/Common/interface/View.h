@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.7 2008/03/02 17:30:14 gpetrucc Exp $
+// $Id: View.h,v 1.8 2008/06/03 21:30:15 wmtan Exp $
 //
 
 #include <vector>
@@ -85,7 +85,9 @@ namespace edm
 
     typedef boost::indirect_iterator<typename seq_t::const_iterator> const_iterator;
 
-    typedef typename seq_t::size_type size_type;
+    // This should be a typedef to seq_t::size_type but because this type is used as a template 
+    // argument in a persistened class it must be stable for different architectures  
+    typedef unsigned int  size_type;
     typedef typename seq_t::difference_type difference_type;
 
     typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator> const_reverse_iterator;

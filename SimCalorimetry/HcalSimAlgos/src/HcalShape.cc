@@ -5,6 +5,7 @@ HcalShape::HcalShape()
 : nbin_(256),
   nt_(nbin_, 0.)
 {
+   setTpeak(32.0);
    computeShape();
 }
 
@@ -13,6 +14,7 @@ HcalShape::HcalShape(const HcalShape&d):
   nbin_(d.nbin_),
   nt_(d.nt_)
 {
+  setTpeak(32.0);
 }
 
 
@@ -121,6 +123,11 @@ double HcalShape::operator () (double time_) const
     return 0.0;
   }
 
+}
+
+double HcalShape::derivative (double time_) const
+{
+  return 0.0;
 }
 
 

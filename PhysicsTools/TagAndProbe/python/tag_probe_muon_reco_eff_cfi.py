@@ -59,7 +59,8 @@ muonTagProbeMap = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(120.0),
     TagCollection = cms.InputTag("tagCands"),
     MassMinCut = cms.untracked.double(50.0),
-    ProbeCollection = cms.InputTag("tkProbeCands")
+    ProbeCollection = cms.InputTag("tkProbeCands"),
+    PassingProbeCollection = cms.InputTag("TkStaMatched")
 )
 
 # find generator particles matching by DeltaR

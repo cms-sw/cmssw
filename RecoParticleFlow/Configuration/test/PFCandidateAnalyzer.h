@@ -39,10 +39,6 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
 
  private:
   
-  void 
-    fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
-			     const edm::InputTag& tag, 
-			     const edm::Event& iSetup) const;
 
   void printElementsInBlocks(const reco::PFCandidate& cand,
 			     std::ostream& out=std::cout) const;

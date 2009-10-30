@@ -1,11 +1,11 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.26 2008/07/03 21:26:38 srappocc Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.27 2008/11/14 19:20:51 rwolf Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 TtSemiEvtSolution::TtSemiEvtSolution() : 
   mcHyp_  ("ttSemiEvtMCHyp"), 

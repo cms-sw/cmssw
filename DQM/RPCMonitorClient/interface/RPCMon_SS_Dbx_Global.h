@@ -1,6 +1,8 @@
 #ifndef RPCMon_SS_Dbx_Global_H
 #define RPCMon_SS_Dbx_Global_H
 
+#include <vector>
+#include <map>
 #include <string>
 
 #include <FWCore/Framework/interface/Event.h>
@@ -28,7 +30,6 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
       bool  saveRootFile_;
       std::string rootFileName_;
  DQMStore* dbe_;
- int   numberOfRings_;
 };
 
 

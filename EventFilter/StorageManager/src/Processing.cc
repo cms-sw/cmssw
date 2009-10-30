@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.12 2009/08/12 15:25:18 biery Exp $
+// $Id: Processing.cc,v 1.11.2.1 2009/09/25 09:57:48 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -21,7 +21,7 @@ using namespace stor;
 
 Processing::Processing( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Processing::do_entryActionWork()
@@ -34,7 +34,7 @@ void Processing::do_entryActionWork()
 
 Processing::~Processing()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Processing::do_exitActionWork()
@@ -48,9 +48,9 @@ string Processing::do_stateName() const
   return string( "Processing" );
 }
 
-void Processing::do_moveToFailedState( const std::string& reason ) const
+void Processing::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Processing::logEndRunRequest( const EndRun& request )
@@ -66,8 +66,9 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
   bool completed = outermost_context().getFragmentStore()->addFragment(frag);
   if ( completed )
   {
-    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
-
+    // The run number check has to be done before the event is added to the
+    // queues, as for some event types, e.g. error events, the run number
+    // match is enforced.
     try
     {
       uint32 runNumber = outermost_context().getSharedResources()->_configuration->getRunNumber();
@@ -75,10 +76,12 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     }
     catch(stor::exception::RunNumberMismatch &e)
     {
-      outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
-      XCEPT_RETHROW(stor::exception::RunNumberMismatch, e.message(), e);
+      // Just raise an alarm, but continue to process the event
+      outermost_context().getSharedResources()->_statisticsReporter->
+        alarmHandler()->notifySentinel(AlarmHandler::ERROR, e);
     }
     outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
+    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
   }
   else
   {

@@ -1,21 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-UEAnalysisRootpleOnlyMC = cms.EDFilter("AnalysisRootpleProducerOnlyMC",
-    ChgGenJetCollectionName = cms.untracked.InputTag("IC5ChgGenJet"),
-    MCEvent = cms.untracked.InputTag("generator"),
+ueAnalysisRootple = cms.EDFilter("AnalysisRootpleProducerOnlyMC",
+    #label of Jet made with only charged MC particles
+    ChgGenJetCollectionName = cms.untracked.InputTag("iterativeCone5ChgGenJetsSeed10"),
+    #label of MC event
+    MCEvent = cms.untracked.InputTag("source"),
+    #label of charged MC particles
     ChgGenPartCollectionName = cms.untracked.InputTag("chargeParticles"),
-    GammaGenPartCollectionName = cms.untracked.InputTag("gammaParticles"),
-    GenJetCollectionName = cms.untracked.InputTag("IC5GenJet")
+    #label of Jet made with MC particles
+    GenJetCollectionName = cms.untracked.InputTag("iterativeCone5GenJetsSeed10")
 )
-
-UEAnalysisRootpleOnlyMC500 = cms.EDFilter("AnalysisRootpleProducerOnlyMC",
-    ChgGenJetCollectionName = cms.untracked.InputTag("IC5ChgGenJet500"),
-    MCEvent = cms.untracked.InputTag("generator"),
-    ChgGenPartCollectionName = cms.untracked.InputTag("chargeParticles"),
-    GammaGenPartCollectionName = cms.untracked.InputTag("gammaParticles"),
-    GenJetCollectionName = cms.untracked.InputTag("IC5GenJet500")
-)
-
-UEAnalysisOnlyMC = cms.Sequence(UEAnalysisRootpleOnlyMC*UEAnalysisRootpleOnlyMC500)
 
 

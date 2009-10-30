@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi 
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
-import Validation.RecoMuon.MultiTrackValidator_cfi
+import Validation.RecoTrack.MultiTrackValidator_cfi
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -78,9 +78,9 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
-trackValidator.minpT = cms.double(-1)
-trackValidator.maxpT = cms.double(3)
-trackValidator.nintpT = cms.int32(40)
+#trackValidator.minpT = cms.double(-1)
+#trackValidator.maxpT = cms.double(3)
+#trackValidator.nintpT = cms.int32(40)
 
 tracksValidation = cms.Sequence(cutsRecoTracksHp*
                                 cutsRecoTracksZero*

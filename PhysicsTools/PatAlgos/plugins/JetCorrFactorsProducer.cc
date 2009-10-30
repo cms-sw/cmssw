@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.9 2009/07/21 08:34:42 rwolf Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.11 2009/10/12 19:43:32 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -20,6 +20,7 @@ using namespace pat;
 JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig) :
   useEMF_ (iConfig.getParameter<bool>( "useEMF" )), 
   jetsSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" )),
+  jetCorrSet_(iConfig.getParameter<std::string>( "corrSample" )),
   moduleLabel_(iConfig.getParameter<std::string>( "@module_label" )),
   jetCorrector_(0), jetCorrectorGlu_(0), jetCorrectorUds_(0), 
   jetCorrectorC_(0), jetCorrectorB_(0) 
@@ -27,13 +28,14 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
   // configure constructor strings for CombinedJetCorrector
   // if there is no corrector defined the string should be 
   // 'none'
-  configure(std::string("L1"), iConfig.getParameter<std::string>( "L1Offset"   ) );
-  configure(std::string("L2"), iConfig.getParameter<std::string>( "L2Relative" ) );
-  configure(std::string("L3"), iConfig.getParameter<std::string>( "L3Absolute" ) );
-  configure(std::string("L4"), iConfig.getParameter<std::string>( "L4EMF"      ) );
-  configure(std::string("L5"), iConfig.getParameter<std::string>( "L5Flavor"   ) );
-  configure(std::string("L6"), iConfig.getParameter<std::string>( "L6UE"       ) );
-  configure(std::string("L7"), iConfig.getParameter<std::string>( "L7Parton"   ) );
+  edm::ParameterSet corrLevels = iConfig.getParameter<edm::ParameterSet>( "corrLevels");
+  configure(std::string("L1"), corrLevels.getParameter<std::string>( "L1Offset"   ) );
+  configure(std::string("L2"), corrLevels.getParameter<std::string>( "L2Relative" ) );
+  configure(std::string("L3"), corrLevels.getParameter<std::string>( "L3Absolute" ) );
+  configure(std::string("L4"), corrLevels.getParameter<std::string>( "L4EMF"      ) );
+  configure(std::string("L5"), corrLevels.getParameter<std::string>( "L5Flavor"   ) );
+  configure(std::string("L6"), corrLevels.getParameter<std::string>( "L6UE"       ) );
+  configure(std::string("L7"), corrLevels.getParameter<std::string>( "L7Parton"   ) );
 
   CorrType corr=kPlain;
   // determine correction type for the flavor dependend corrections
@@ -103,18 +105,39 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
     jetCorrectorC_       = new CombinedJetCorrector(levels_, tags_, flavorTag(corr, type, kCharm ));
     jetCorrectorB_       = new CombinedJetCorrector(levels_, tags_, flavorTag(corr, type, kBeauty));
   }
+  
+  jtuncrtl1_ = new JetCorrectionUncertainty( moduleLabel_+"L1.txt" );
+  jtuncrtl2_ = new JetCorrectionUncertainty( moduleLabel_+"L2.txt" );
+  jtuncrtl3_ = new JetCorrectionUncertainty( moduleLabel_+"L3.txt" );
+  jtuncrtl4_ = new JetCorrectionUncertainty( moduleLabel_+"L4.txt" );
+  jtuncrtl5_ = new JetCorrectionUncertainty( moduleLabel_+"L5.txt" );
+  jtuncrtl6_ = new JetCorrectionUncertainty( moduleLabel_+"L6.txt" );
+  jtuncrtl7_ = new JetCorrectionUncertainty( moduleLabel_+"L7.txt" );
+  
   // produces valuemap of jet correction factors
   produces<JetCorrFactorsMap>();
 }
 
 JetCorrFactorsProducer::~JetCorrFactorsProducer() 
 {
+  delete jtuncrtl1_;
+  delete jtuncrtl2_;
+  delete jtuncrtl3_;
+  delete jtuncrtl4_;
+  delete jtuncrtl5_;
+  delete jtuncrtl6_;
+  delete jtuncrtl7_;
 }
 
 void 
 JetCorrFactorsProducer::configure(std::string level, std::string tag)
 {
   if( !tag.compare("none")==0 ){
+    // add the correction set to the jet corrector tag, if necessary
+    // at the moment that's true for level=='L2' and level=='L3'
+    if(level=="L2" || level=="L3"){
+      tag = jetCorrSet_+"_"+tag;
+    }
     // take care to add the deliminator when the string is non-empty
     if( !tags_  .empty() && !(tags_  .rfind(":")==tags_  .size()) ) tags_   += ":";
     if( !levels_.empty() && !(levels_.rfind(":")==levels_.size()) ) levels_ += ":";
@@ -282,8 +305,25 @@ JetCorrFactorsProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       l7.c   = l6.c;
       l7.b   = l6.b;
     }
-    // create the actual object with scalefactos we want the valuemap to refer to
-    JetCorrFactors aJetCorr( moduleLabel_, l1, l2, l3, l4, l5, l6, l7 );
+    // jet correction uncertainties
+    std::vector<float> uncert(14);
+    uncert[ 0]=jtuncrtl1_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L1 + 1 sigma
+    uncert[ 1]=jtuncrtl1_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L1 - 1 sigma
+    uncert[ 2]=jtuncrtl2_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L2 + 1 sigma
+    uncert[ 3]=jtuncrtl2_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L2 - 1 sigma
+    uncert[ 4]=jtuncrtl3_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L3 + 1 sigma
+    uncert[ 5]=jtuncrtl3_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L3 - 1 sigma
+    uncert[ 6]=jtuncrtl4_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L4 + 1 sigma
+    uncert[ 7]=jtuncrtl4_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L4 - 1 sigma
+    uncert[ 8]=jtuncrtl5_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L5 + 1 sigma
+    uncert[ 9]=jtuncrtl5_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L5 - 1 sigma
+    uncert[10]=jtuncrtl6_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L6 + 1 sigma
+    uncert[11]=jtuncrtl6_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L6 - 1 sigma
+    uncert[12]=jtuncrtl7_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L7 + 1 sigma
+    uncert[13]=jtuncrtl7_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L7 - 1 sigma
+    
+    // create the actual object with scalefactors we want the valuemap to refer to
+    JetCorrFactors aJetCorr( moduleLabel_, l1, l2, l3, l4, l5, l6, l7, uncert );
     jetCorrs.push_back(aJetCorr);
   }
 
@@ -304,16 +344,21 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 {
   edm::ParameterSetDescription iDesc;
   iDesc.add<bool>("useEMF", false);
-  iDesc.add<edm::InputTag>("jetSource", edm::InputTag("iterativeCone5CaloJets")); 
+  iDesc.add<edm::InputTag>("jetSource", edm::InputTag("ak5CaloJets")); 
+  iDesc.add<std::string>("corrSample", "Summer09");
   iDesc.add<std::string>("sampleType", "dijet");
-  iDesc.add<std::string>("L1Offset", "none");
-  iDesc.add<std::string>("L2Relative", "Summer08Redigi_L2Relative_IC5Calo");
-  iDesc.add<std::string>("L3Absolute", "Summer08Redigi_L2Relative_IC5Calo");
-  iDesc.add<std::string>("L4EMF", "none");
-  iDesc.add<std::string>("L5Flavor", "L5Flavor_IC5");
-  iDesc.add<std::string>("L6UE", "none");
-  iDesc.add<std::string>("L7Parton", "L7Parton_IC5");
-  descriptions.add("PATTauProducer", iDesc);
+
+  edm::ParameterSetDescription corrLevels;
+  corrLevels.add<std::string>("L1Offset", "none");
+  corrLevels.add<std::string>("L2Relative", "L2Relative_IC5Calo");
+  corrLevels.add<std::string>("L3Absolute", "L2Relative_IC5Calo");
+  corrLevels.add<std::string>("L4EMF", "none");
+  corrLevels.add<std::string>("L5Flavor", "L5Flavor_IC5");
+  corrLevels.add<std::string>("L6UE", "none");
+  corrLevels.add<std::string>("L7Parton", "L7Parton_IC5");
+  iDesc.add("corrLevels", corrLevels);
+
+  descriptions.add("JetCorrFactorsProducer", iDesc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

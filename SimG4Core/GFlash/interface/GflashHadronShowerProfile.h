@@ -6,10 +6,6 @@
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashShowino.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandGamma.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandChiSquare.h"
 
 #include "G4VFastSimulationModel.hh"
 #include "G4TouchableHandle.hh"
@@ -66,10 +62,6 @@ protected:
   G4TouchableHandle  theGflashTouchableHandle;
 
   GflashHistogram* theHisto;
-
-  CLHEP::RandGaussQ* theRandGauss;
-  CLHEP::RandGamma*  theRandGamma;
-  CLHEP::RandPoissonQ*  theRandPoissonQ;
 
   G4double energyScale[Gflash::kNumberCalorimeter]; 
   G4double averageSpotEnergy[Gflash::kNumberCalorimeter]; 

@@ -1,5 +1,6 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrection.h"
 #include "TVector2.h"
+#include "TMath.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -12,15 +13,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-//photon conversion MC truth:
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
-#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 
 //////From DummyHepMCAnalyzer.cc:
 #include "FWCore/Framework/interface/EDAnalyzer.h"

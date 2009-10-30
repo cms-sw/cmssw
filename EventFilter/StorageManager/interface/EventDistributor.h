@@ -1,4 +1,4 @@
-// $Id: EventDistributor.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: EventDistributor.h,v 1.5 2009/09/23 13:02:47 mommsen Exp $
 /// @file: EventDistributor.h 
 
 #ifndef StorageManager_EventDistributor_h
@@ -35,8 +35,8 @@ namespace stor {
    * header.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/23 13:02:47 $
    */
 
   class EventDistributor
@@ -119,20 +119,21 @@ namespace stor {
 
     SharedResourcesPtr _sharedResources;
 
-    typedef std::vector<EventStreamSelector> EvtSelList;
+    typedef boost::shared_ptr<EventStreamSelector> EvtSelPtr;
+    typedef std::vector<EvtSelPtr> EvtSelList;
     EvtSelList _eventStreamSelectors;
 
-    typedef std::vector<DQMEventSelector> DQMEvtSelList;
+    typedef boost::shared_ptr<DQMEventSelector> DQMEvtSelPtr;
+    typedef std::vector<DQMEvtSelPtr> DQMEvtSelList;
     DQMEvtSelList _dqmEventSelectors;
 
-    typedef std::vector<ErrorStreamSelector> ErrSelList;
+    typedef boost::shared_ptr<ErrorStreamSelector> ErrSelPtr;
+    typedef std::vector<ErrSelPtr> ErrSelList;
     ErrSelList _errorStreamSelectors;
 
-    typedef std::vector<EventConsumerSelector> ConsSelList;
+    typedef boost::shared_ptr<EventConsumerSelector> ConsSelPtr;
+    typedef std::vector<ConsSelPtr> ConsSelList;
     ConsSelList _eventConsumerSelectors;
-
-    // temporary
-    std::vector<unsigned char> _tempEventArea;
 
   };
   

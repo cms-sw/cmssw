@@ -7,15 +7,13 @@ from PhysicsTools.PatAlgos.tools.tauTools import *
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-def adaptPFMuons(process,module):
-
-    
+def adaptPFMuons(process,module):    
     print "Adapting PF Muons "
     print "***************** "
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral"),
@@ -45,7 +43,7 @@ def adaptPFElectrons(process,module):
     warningIsolation()
     print 
     module.useParticleFlow = True
-    module.isolation   = cms.PSet()
+    module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged"),
         pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral"),
@@ -70,6 +68,9 @@ def adaptPFElectrons(process,module):
     print module.isoDeposits
     print 
     
+    print "removing traditional isolation"
+    process.patDefaultSequence.remove(getattr(process, 'patElectronIsolation'))
+
     
 
 
@@ -95,27 +96,74 @@ def adaptPFPhotons(process,module):
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
 
-def adaptPFTaus(process,tauType = 'fixedConePFTau' ):
-# MICHAL: tauType can be changed only to shrinkig cone one, otherwise request is igonred
-    oldTaus = process.allLayer1Taus.tauSource
-    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper 
 
-    if tauType == 'shrinkingConePFTau': 
-        print "PF2PAT: tauType changed from default \'fixedConePFTau\' to \'shrinkingConePFTau\'"
-        process.allLayer0TausDiscrimination.PFTauProducer = cms.InputTag(tauType+"Producer")
-        process.allLayer0Taus.src = cms.InputTag(tauType+"Producer")
-        process.pfTauSequence.replace(process.fixedConePFTauProducer,
-                                      process.shrinkingConePFTauProducer)
-        
-    if (tauType != 'shrinkingConePFTau' and tauType != 'fixedConePFTau'):
-        print "PF2PAT: TauType \'"+tauType+"\' is not supported. Default \'fixedConePFTau\' is used instead."
-        tauType = 'fixedConePFTau'
-        
+def reconfigureLayer0Taus(process, 
+      tauType='shrinkingConePFTau', 
+      layer0Selection=["DiscriminationByIsolation", "DiscriminationByLeadingPionPtCut"],
+      selectionDependsOn=["DiscriminationByLeadingTrackFinding"],
+      producerFromType=lambda producer: producer+"Producer"):
+   print "Layer1Taus will be produced from taus of type: %s that pass %s" \
+	 % (tauType, layer0Selection)
+ 
+   # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
+   producerName = producerFromType(tauType)
+   # Set as the source for the all layer0 taus selector
+   process.allLayer0Taus.src = producerName
+   # Start our layer0 base sequence
+   process.allLayer0TausBaseSequence = cms.Sequence(getattr(process,
+      producerName))
+   # Get our prediscriminants
+   for predisc in selectionDependsOn:
+      # Get the prototype
+      originalName = tauType+predisc # i.e. fixedConePFTauProducerDiscriminationByLeadingTrackFinding
+      clonedName = "allLayer0TausBase"+predisc
+      clonedDisc = getattr(process, originalName).clone()
+      # Register in our process
+      setattr(process, clonedName, clonedDisc)
+      process.allLayer0TausBaseSequence += getattr(process, clonedName)
+      # Adapt this discriminator for the cloned prediscriminators 
+      adaptTauDiscriminator(clonedDisc, newTauProducer="allLayer0TausBase", 
+	    newTauTypeMapper=producerIsTauTypeMapper,
+	    preservePFTauProducer=True)
+   # Reconfigure the layer0 PFTau selector discrimination sources
+   process.allLayer0Taus.discriminators = cms.VPSet()
+   for selection in layer0Selection:
+      # Get our discriminator that will be used to select layer0Taus
+      originalName = tauType+selection
+      clonedName = "allLayer0TausBase"+selection
+      clonedDisc = getattr(process, originalName).clone()
+      # Register in our process
+      setattr(process, clonedName, clonedDisc)
+      # Adapt our cloned discriminator to the new prediscriminants
+      adaptTauDiscriminator(clonedDisc, newTauProducer="allLayer0TausBase",
+	    newTauTypeMapper=producerIsTauTypeMapper, preservePFTauProducer=True)
+      process.allLayer0TausBaseSequence += clonedDisc
+      # Add this selection to our layer0Tau selectors
+      process.allLayer0Taus.discriminators.append(cms.PSet(
+         discriminator=cms.InputTag(clonedName), selectionCut=cms.double(0.5)))
+
+
+def adaptPFTaus(process,tauType = 'shrinkingConePFTau' ):
+    oldTaus = process.allLayer0Taus.src
+    # Set up the collection used as a preselection to use this tau type
+    reconfigureLayer0Taus(process, tauType)
+    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
     redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
                             process.allLayer1Taus.tauSource,
                             tauType)
-    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+    #switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+    switchToPFTauByType(process, pfTauType=tauType,
+	  pfTauLabelNew=process.allLayer1Taus.tauSource,
+	  pfTauLabelOld=oldTaus)
 
+    process.makeAllLayer1Taus.remove(process.patPFCandidateIsoDepositSelection)
+
+#helper function for PAT on PF2PAT sample
+def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau'): 
+    process.load("PhysicsTools.PFCandProducer.pfTaus_cff")
+    process.allLayer0Taus.src = cms.InputTag(tauType+'Producer')
+            
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import allLayer1PFParticles
@@ -145,7 +193,8 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    process.patDefaultSequence.remove(process.patMETCorrections)
+    process.patDefaultSequence.remove(getattr(process, 'makeLayer1METs'))
+
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
@@ -153,7 +202,7 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         input,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=None, 
+                        jetCorrLabel=('IC5','PF'), 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
 
@@ -194,8 +243,8 @@ def usePF2PAT(process,runPF2PAT=True):
     switchToPFJets( process, cms.InputTag('pfNoTau') )
     
     # Taus
-    adaptPFTaus( process ) #default (i.e. fixedConePFTau)
-    #adaptPFTaus( process, tauType='shrinkingConePFTau' )
+    #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
+    adaptPFTaus( process, tauType='fixedConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))

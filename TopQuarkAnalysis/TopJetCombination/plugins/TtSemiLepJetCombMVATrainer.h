@@ -35,7 +35,7 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
 
   WDecay::LeptonType readLeptonType(const std::string& str);
 
-  edm::InputTag leptons_;
+  edm::InputTag leps_;
   edm::InputTag jets_;
   edm::InputTag mets_;
   edm::InputTag matching_;

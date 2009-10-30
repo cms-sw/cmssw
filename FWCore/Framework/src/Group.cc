@@ -33,7 +33,8 @@ namespace edm {
     assert(status() != Uninitialized);
     setProvenance(productProvenance);
     assert(productProvenancePtr());
-    setProduct(edp);
+    assert (!product());
+    groupData().product_.reset(edp.release());  // Group takes ownership
     status_() = Present;
   }
 
@@ -116,18 +117,18 @@ namespace edm {
 
   void
   Group::mergeTheProduct(std::auto_ptr<EDProduct> edp) const {
-  if (product()->isMergeable()) {
-    product()->mergeProduct(edp.get());
-  } else if (product()->hasIsProductEqual()) {
-    if (!product()->isProductEqual(edp.get())) {
-      LogWarning("RunLumiMerging")
-            << "Group::mergeGroup\n"
-            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-            << "Using the first, ignoring the second\n"
-            << "className = " << branchDescription().className() << "\n"
-            << "moduleLabel = " << moduleLabel() << "\n"
-            << "instance = " << productInstanceName() << "\n"
-            << "process = " << processName() << "\n";
+    if (product()->isMergeable()) {
+      product()->mergeProduct(edp.get());
+    } else if (product()->hasIsProductEqual()) {
+      if (!product()->isProductEqual(edp.get())) {
+        LogError("RunLumiMerging")
+              << "Group::mergeGroup\n"
+              << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+              << "Using the first, ignoring the second\n"
+              << "className = " << branchDescription().className() << "\n"
+              << "moduleLabel = " << moduleLabel() << "\n"
+              << "instance = " << productInstanceName() << "\n"
+              << "process = " << processName() << "\n";
       }
     } else {
       LogWarning("RunLumiMerging")
@@ -156,8 +157,11 @@ namespace edm {
   }
 
   void
-  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
+  InputGroup::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (!product());
+    if (prod.get() == 0 || !prod->isPresent()) {
+      setProductUnavailable();
+    }
     groupData().product_.reset(prod.release());  // Group takes ownership
   }
 
@@ -187,7 +191,6 @@ namespace edm {
         if (productstatus::uninitialized(provStatus) || productstatus::unknown(provStatus)) {
 	  theStatus_ = NeverCreated;
         } else {
-	  assert(productstatus::notPresent(provStatus));
 	  setStatus(provStatus);
         }
       }
@@ -201,14 +204,20 @@ namespace edm {
   // If it is not known if there is a real product, it returns false.
   bool
   InputGroup::productUnavailable_() const {
+    if (productIsUnavailable()) {
+      return true;
+    }
     // If there is a product, we know if it is real or a dummy.
     if (product()) {
       bool unavailable = !(product()->isPresent());
       assert (!productstatus::presenceUnknown(status()));
       assert(unavailable == productstatus::notPresent(status()));
+      if (unavailable) {
+	setProductUnavailable();
+      }
       return unavailable;
     }
-    return productstatus::notPresent(status());
+    return false;
   }
 
   // This routine returns true if it is known that currently there is no real product.

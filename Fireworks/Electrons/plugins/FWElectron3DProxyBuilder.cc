@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectron3DProxyBuilder.cc,v 1.3 2009/01/23 21:35:45 amraktad Exp $
+// $Id: FWElectron3DProxyBuilder.cc,v 1.2 2009/01/06 20:07:48 chrjones Exp $
 //
 
 // system include files
@@ -106,11 +106,13 @@ FWElectron3DProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIn
    if ( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
                                        m_propagator.get(),
+                                       &oItemHolder,
                                        item()->defaultDisplayProperties().color() );
    else
-      track = fireworks::prepareTrack( iData,
-				       m_propagator.get(),
-				       item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareSimpleTrack( iData,
+                                             m_propagator.get(),
+                                             &oItemHolder,
+                                             item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement( track );
 }

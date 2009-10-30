@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.37 2009/05/08 18:53:12 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.36 2009/04/07 14:10:54 chrjones Exp $
 //
 
 #define private public
@@ -48,7 +48,6 @@
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
 //
@@ -255,11 +254,7 @@ FWRhoPhiZView::doCompression(bool flag)
 void
 FWRhoPhiZView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
-
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-      m_viewer->GetGLViewer()->SwitchColorSet();
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
 }
 
 void

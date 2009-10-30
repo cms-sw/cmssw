@@ -89,12 +89,4 @@ void
 lumi::LuminosityInfo::setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,const LumiAlgoType algotype){
   std::copy(BXs.begin(),BXs.begin()+lumi::BXMAX,std::back_inserter(m_bx));
 }
-void
-lumi::LuminosityInfo::print( std::ostream& s ) const{
-  s<<"lumi section id :"<<m_sectionid <<", ";
-  s<<"lumi data version : "<<m_versionid<<", ";
-  s<<"lumi average : "<<m_lumiavg<<", ";
-  s<<"lumi error : "<<m_lumierror<<", ";
-  s<<"lumi quality : "<<m_quality<<", ";
-  s<<"lumi deadfrac : "<<m_deadfrac<<std::endl;
-}
+

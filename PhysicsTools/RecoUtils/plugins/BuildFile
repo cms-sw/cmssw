@@ -9,5 +9,4 @@
 <use name=DataFormats/Candidate>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/L1GlobalTrigger>
-<use name=HLTrigger/HLTcore>
 </library>

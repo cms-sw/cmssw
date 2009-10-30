@@ -26,7 +26,3 @@
  <use name=rootrflx>	
  <flags EDM_PLUGIN=1>
 </library>
-<library file="TBufferBlobStreamingService2.cc TBufferBlobStreamer.cc" name=CondCoreDBCommonTBufferBlobStreamingService2>
- <use name=rootrflx>	
- <flags EDM_PLUGIN=1>
-</library>

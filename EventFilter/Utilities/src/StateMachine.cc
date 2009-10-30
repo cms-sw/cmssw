@@ -36,6 +36,7 @@ using namespace evf;
 StateMachine::StateMachine(xdaq::Application* app)
   : logger_(app->getApplicationLogger())
   , appInfoSpace_(app->getApplicationInfoSpace())
+  , doStateNotification_(true)
   , workLoopConfiguring_(0)
   , workLoopEnabling_(0)
   , workLoopStopping_(0)
@@ -163,15 +164,18 @@ void StateMachine::stateChanged(toolbox::fsm::FiniteStateMachine & fsm)
     }
   }
   else if (state=="Halted"||state=="Ready"||state=="Enabled"||state=="Failed") {
-    try {
-      rcmsStateNotifier_.stateChanged(state,appNameAndInstance_+
-				      " has reached target state " +
-				      state);
-    }
-    catch (xcept::Exception& e) {
-      LOG4CPLUS_ERROR(logger_,"Failed to notify state change: "
-		      <<xcept::stdformat_exception_history(e));
-    }
+    if(doStateNotification_)
+      {
+	try {
+	  rcmsStateNotifier_.stateChanged(state,appNameAndInstance_+
+					  " has reached target state " +
+					  state);
+	}
+	catch (xcept::Exception& e) {
+	  LOG4CPLUS_ERROR(logger_,"Failed to notify state change: "
+			  <<xcept::stdformat_exception_history(e));
+	}
+      }
   }
 }
 

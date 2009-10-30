@@ -135,7 +135,7 @@ void ESIntegrityClient::analyze(void) {
 
   Double_t nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
-  
+
   MonitorElement* me;
   
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking").c_str());
@@ -152,20 +152,28 @@ void ESIntegrityClient::analyze(void) {
 
   int xval = 0;
   int nevFEDs = 0;
-  for (int i=1; i<=56; ++i) 
-    if (nevFEDs < hFED_->GetBinContent(i))
-      nevFEDs = (int) hFED_->GetBinContent(i);
-  
+  if (hFED_) {
+    for (int i=1; i<=56; ++i) 
+      if (nevFEDs < hFED_->GetBinContent(i))
+	nevFEDs = (int) hFED_->GetBinContent(i);
+  }
+
   // FED integrity
   for (int i=1; i<=56; ++i) {
-    if (hFED_->GetBinContent(i) > 0) 
-      fedStatus_[i-1] = 1;      
-    if (hFiber_->GetBinContent(i+58) > 0) {
-      fiberStatus_[i-1] = 1;
-      //nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
+    if (hFED_) {
+      if (hFED_->GetBinContent(i) > 0) 
+	fedStatus_[i-1] = 1;      
     }
-    if (hSLinkCRCErr_->GetBinContent(i) > 0) 
-      slinkCRCStatus_[i] = 1;
+    if (hFiber_) {
+      if (hFiber_->GetBinContent(i+58) > 0) {
+	fiberStatus_[i-1] = 1;
+	//nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
+      }
+    }
+    if (hSLinkCRCErr_) {
+      if (hSLinkCRCErr_->GetBinContent(i) > 0) 
+	slinkCRCStatus_[i] = 1;
+    }
   }
 
   // obtain MEs from ESRawDataTask
@@ -182,10 +190,12 @@ void ESIntegrityClient::analyze(void) {
   hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
 
   for (int i=1; i<=56; ++i) {
-    if (hL1ADiff_->GetBinContent(i) > 0 || hBXDiff_->GetBinContent(i) > 0) {
-      syncStatus_[i-1] = 1;
-      if (hL1ADiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hL1ADiff_->GetBinContent(i);
-      if (hBXDiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hBXDiff_->GetBinContent(i);
+    if (hL1ADiff_ && hBXDiff_) {
+      if (hL1ADiff_->GetBinContent(i) > 0 || hBXDiff_->GetBinContent(i) > 0) {
+	syncStatus_[i-1] = 1;
+	if (hL1ADiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hL1ADiff_->GetBinContent(i);
+	if (hBXDiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hBXDiff_->GetBinContent(i);
+      }
     }
     //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
   }
@@ -213,23 +223,31 @@ void ESIntegrityClient::analyze(void) {
     xval = 3;
     Int_t kErr = 0;
     for (int j=1; j<16; ++j) { 
-      if (hKF1_->GetBinContent(i, j+1)>0) {
-	xval = 2;
-	kErr++;
+      if (hKF1_) {
+	if (hKF1_->GetBinContent(i, j+1)>0) {
+	  xval = 2;
+	  kErr++;
+	}
       }
-      if (hKF2_->GetBinContent(i, j+1)>0) {
-	xval = 4;
-	kErr++;
+      if (hKF2_) {
+	if (hKF2_->GetBinContent(i, j+1)>0) {
+	  xval = 4;
+	  kErr++;
+	}
       }
     }
-    if (hKBC_->GetBinContent(i)>0) {
-      xval = 5;
-      kErr++;
-    } 
-    if (hKEC_->GetBinContent(i)>0) {
-      xval = 6;
-      kErr++;
-    } 
+    if (hKBC_) {
+      if (hKBC_->GetBinContent(i)>0) {
+	xval = 5;
+	kErr++;
+      } 
+    }
+    if (hKEC_) {
+      if (hKEC_->GetBinContent(i)>0) {
+	xval = 6;
+	kErr++;
+      } 
+    }
     if (kErr>1) xval = 7; 
     kchip_xval[i] = xval;
   }
@@ -253,11 +271,13 @@ void ESIntegrityClient::analyze(void) {
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
 	  nErr = 0;
 	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	    if (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) 
-	      xval = 3;
-	    else {
-	      xval = 4; // FED problem
-	      nErr++;
+	    if (hFED_) {
+	      if (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) 
+		xval = 3;
+	      else {
+		xval = 4; // FED problem
+		nErr++;
+	      }
 	    }
 	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
 	      xval = 2; // fiber problem

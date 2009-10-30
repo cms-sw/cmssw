@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.14 2009/07/09 15:48:31 futyand Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.15.2.1 2009/10/12 16:56:27 lsexton Exp $
 #
 #
 #
@@ -67,10 +67,12 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 #
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*',
+    splitLevel = cms.untracked.int32(0))
 )
 FEVTHLTALLEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 #replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
 #
@@ -80,7 +82,8 @@ FEVTHLTALLEventContent = cms.PSet(
 #
 RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -95,7 +98,8 @@ AODEventContent = cms.PSet(
 RAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep  FEDRawDataCollection_rawDataCollector_*_*', 
-        'keep  FEDRawDataCollection_source_*_*')
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -104,7 +108,8 @@ RAWEventContent = cms.PSet(
 #
 #
 RAWSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -113,7 +118,8 @@ RAWSIMEventContent = cms.PSet(
 #
 RECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -131,7 +137,8 @@ AODSIMEventContent = cms.PSet(
 #
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -141,7 +148,8 @@ FEVTSIMEventContent = cms.PSet(
 #
 ALCARECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep edmTriggerResults_*_*_*')
+        'keep edmTriggerResults_*_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 

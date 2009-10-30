@@ -10,7 +10,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
+
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -28,7 +28,7 @@ public:
   typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
   HcalSignalGenerator(const edm::InputTag & inputTag)
-  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theShape(0),  theInputTag(inputTag) {}
+  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theShape(0), theInputTag(inputTag) {}
 
   virtual ~HcalSignalGenerator() {}
 
@@ -85,14 +85,6 @@ public:
       for(typename COLLECTION::const_iterator it  = digis->begin();
           it != digis->end(); ++it) 
       {
-        // for the first signal, set the starting cap id
-        if((it == digis->begin()) && theElectronicsSim)
-        {
-          int startingCapId = (*it)[0].capid();
-          theElectronicsSim->setStartingCapId(startingCapId);
-          theParameterMap->setFrameSize(it->id(), it->size());
-        }
-
         theNoiseSignals.push_back(samplesInPE(*it));
       }
     }
@@ -107,13 +99,13 @@ private:
     //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
     const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
     HcalCoderDb coder (*channelCoder, *theShape);
+
     CaloSamples result;
     coder.adc2fC(digi, result);
     fC2pe(result);
     return result;
   }
 
-    
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   const edm::EventPrincipal * theEventPrincipal;

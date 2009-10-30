@@ -3,5 +3,6 @@
 </export>
 
 <use name=geant4core>
+<use name=DetectorDescription/Core>
 <use name=FWCore/MessageLogger>
-<use name=rootmath>
+

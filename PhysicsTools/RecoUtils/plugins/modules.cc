@@ -35,4 +35,3 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, GenParticleExpressionVariable, "GenPar
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
 DEFINE_EDM_PLUGIN(VariableComputerFactory, L1BitComputer, "L1BitComputer");
-DEFINE_EDM_PLUGIN(VariableComputerFactory, HLTBitComputer, "HLTBitComputer");

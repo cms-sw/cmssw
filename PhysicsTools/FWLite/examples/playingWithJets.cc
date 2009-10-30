@@ -1,7 +1,8 @@
 // -*- C++ -*-
 
 // CMS includes
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -75,6 +76,9 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
+   // create labels
+   edm::InputTag jetLabel ("selectedLayer1Jets");
+
    for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
@@ -82,12 +86,12 @@ int main (int argc, char* argv[])
       //////////////////////////////////
 
       // Get jets
-      fwlite::Handle< vector<pat::Jet> > h_jet;
-      h_jet.getByLabel(eventCont,"selectedLayer1Jets");
-      assert ( h_jet.isValid() );
+      edm::Handle< vector< pat::Jet > > jetHandle;
+      eventCont.getByLabel (jetLabel, jetHandle);
+      assert ( jetHandle.isValid() );
 
-      const vector< pat::Jet >::const_iterator kJetEnd = h_jet->end();
-      for (vector< pat::Jet >::const_iterator jetIter = h_jet->begin(); 
+      const vector< pat::Jet >::const_iterator kJetEnd = jetHandle->end();
+      for (vector< pat::Jet >::const_iterator jetIter = jetHandle->begin(); 
            jetIter != kJetEnd; 
            ++jetIter) 
       {	   
@@ -103,15 +107,15 @@ int main (int argc, char* argv[])
       } // for jetIter
 
       // Do we have at least two jets?
-      if (h_jet->size() < 2)
+      if (jetHandle->size() < 2)
       {
          // Nothing to do here
          continue;
       }
 
       // Store invariant mass and delta phi between two leading jets.
-      eventCont.hist("invarMass")->Fill( (h_jet->at(0).p4() + h_jet->at(1).p4()).M() );
-      eventCont.hist("phijet1jet2")->Fill( deltaPhi( h_jet->at(0).phi(), h_jet->at(1).phi() ) );
+      eventCont.hist("invarMass")->Fill( (jetHandle->at(0).p4() + jetHandle->at(1).p4()).M() );
+      eventCont.hist("phijet1jet2")->Fill( deltaPhi( jetHandle->at(0).phi(), jetHandle->at(1).phi() ) );
    } // for eventCont
 
       

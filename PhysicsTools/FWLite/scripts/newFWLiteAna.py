@@ -101,6 +101,10 @@ if __name__ == '__main__':
     parser.add_option ('--copy', dest='copy', type='string', default = 'blank',
                        help='Copies example. COPY should either be a file'
                        ' _or_ an example in PhysicsTools/FWLite/examples')
+    parser.add_option ('--newPackage', dest='newPackage', action='store_true',
+                       help='Will create Package/Subpackage folders if necessary')
+    parser.add_option ('--toTest', dest='toTest', action='store_true',
+                       help='Will create files in test/ instead of bin/')
     (options, args) = parser.parse_args()
     # get the name of the copy file and make sure we can find everything
     copy = options.copy
@@ -151,10 +155,17 @@ if __name__ == '__main__':
         print "Error: Could not extract necessary info from Buildfile. Aborting."
         sys.exit()
     # print buildPiece
-    firstDir = base + '/src/' + pieces[0]
-    dirList = [firstDir,
-               firstDir + '/' + pieces[1],
-               firstDir + '/' + pieces[1] + '/bin']
+    firstDir  = base + '/src/' + pieces[0]
+    secondDir = firstDir + '/' + pieces[1]
+    if options.toTest:
+        bin = '/test'
+    else:
+        bin = '/bin'
+    if not os.path.exists (secondDir) and \
+       not options.newPackage:
+        raise RuntimeError, "%s does not exist.  Use '--newPackage' to create" \
+              % ("/".join (pieces[0:2]) )
+    dirList = [firstDir, secondDir, secondDir + bin]
     targetCC = dirList[2] + '/' + target + '.cc'
     targetBuild = dirList[2] + '/BuildFile'
     if os.path.exists (targetCC):

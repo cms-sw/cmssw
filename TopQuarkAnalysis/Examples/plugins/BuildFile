@@ -1,6 +1,6 @@
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/TopTools>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>

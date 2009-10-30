@@ -21,7 +21,7 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   if( tccId_ != expTccId_ ){
 
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC")
+      edm::LogWarning("IncorrectBlock")
         <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
         <<"\n TCC Block Skipped ...";  
@@ -33,7 +33,7 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   //Check number of TT Flags
   if( nTTs_ != expNumbTTs_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC")
+      edm::LogWarning("IncorrectBlock")
        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
        <<"\n Number of TTs "<<nTTs_<<" is different from expected "<<expNumbTTs_
        <<"\n TCC Block Skipped ..."; 

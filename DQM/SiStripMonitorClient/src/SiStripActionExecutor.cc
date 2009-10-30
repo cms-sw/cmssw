@@ -127,6 +127,8 @@ void SiStripActionExecutor::fillDummyStatus(){
 void SiStripActionExecutor::fillStatus(DQMStore* dqm_store) {
   qualityChecker_->fillStatus(dqm_store);
 }
+void SiStripActionExecutor::createFaultyModuleMEs(DQMStore *dqm_store) {
+}
 //
 // -- 
 //

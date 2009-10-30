@@ -62,7 +62,6 @@ class OHltRateCounter {
   vector<int> sPureCount;
   vector<int> pureCount;
   vector< vector<int> > overlapCount;
-  vector<int> prescaleCount;
 
 };
 #endif

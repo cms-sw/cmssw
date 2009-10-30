@@ -150,7 +150,9 @@ void HLTBJet::analyze(
 
 void HLTBJet::analyseJets(const edm::View<reco::Jet> & jets)
 {
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) ); 
   NohBJetL2 = size;
   for (size_t i = 0; i < size; ++i) {
     ohBJetL2Energy[i] = jets[i].energy();
@@ -163,7 +165,9 @@ void HLTBJet::analyseJets(const edm::View<reco::Jet> & jets)
 
 void HLTBJet::analyseCorrectedJets(const edm::View<reco::Jet> & jets)
 {
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
   NohBJetL2Corrected = size;
   for (size_t i = 0; i < size; ++i) {
     ohBJetL2CorrectedEnergy[i] = jets[i].energy();
@@ -187,7 +191,9 @@ void HLTBJet::analyseLifetime(
     edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
   for (size_t i = 0; i < size; i++) {
     ohBJetIPL25Tag[i] = tagsL25[i].second;
     ohBJetIPL3Tag[i]  = tagsL3[i].second;
@@ -207,7 +213,9 @@ void HLTBJet::analyseLifetimeLoose(
     edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL3Relaxed << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
   for (size_t i = 0; i < size; i++) {
     ohBJetIPLooseL25Tag[i] = tagsL25[i].second;
     ohBJetIPLooseL3Tag[i]  = tagsL3[i].second;
@@ -227,7 +235,9 @@ void HLTBJet::analyseSoftmuon(
     edm::LogWarning("OpenHLT") << kBTagSoftmuonBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
   for (size_t i = 0; i < size; i++) {
     ohBJetMuL25Tag[i] = (tagsL25[i].second > 0.) ? 1 : 0;
     ohBJetMuL3Tag[i]  = tagsL3[i].second;
@@ -247,7 +257,9 @@ void HLTBJet::analysePerformance(
     edm::LogWarning("OpenHLT") << kBTagPerformanceBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
-  size_t size = std::min(kMaxBJets, jets.size());
+  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
+  // so, for the comparison, we cast back to size_t
+  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
   for (size_t i = 0; i < size; i++) {
     ohBJetPerfL25Tag[i] = (tagsL25[i].second > 0.) ? 1 : 0;
     ohBJetPerfL3Tag[i]  = (tagsL3[i].second  > 0.) ? 1 : 0;

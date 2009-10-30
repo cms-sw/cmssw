@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/31 06:53:58 $
- * $Revision: 1.88 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -11,8 +11,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -44,9 +44,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   meEtSpectrumEmulMax_ = 0;
   meEtBxReal_ = 0;
   meOccupancyBxReal_ = 0;
-  meTCCTimingCalo_ = 0;
-  meTCCTimingMuon_ = 0;
-
+  
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meEtMapEmul_);
@@ -58,10 +56,6 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
   EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
-  
-  HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
-  HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
   outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
@@ -111,9 +105,7 @@ void EBTriggerTowerTask::reset(void) {
   if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Reset();
   if ( meEtBxReal_ ) meEtBxReal_->Reset();
   if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Reset();
-  if ( meTCCTimingCalo_ ) meTCCTimingCalo_->Reset();
-  if ( meTCCTimingMuon_ ) meTCCTimingMuon_->Reset();
-
+  
   for (int i = 0; i < 36; i++) {
 
     if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
@@ -180,23 +172,9 @@ void EBTriggerTowerTask::setup( const char* nameext,
     meEtBxReal_->setAxisTitle("energy (ADC)", 2);
 
     sprintf(histo, "EBTTT TP occupancy vs bx %s", nameext);
-    meOccupancyBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
-    meOccupancyBxReal_->setAxisTitle("bunch crossing", 1);
-    meOccupancyBxReal_->setAxisTitle("TP number", 2);
-
-    if ( HLTCaloHLTBit_ != "" ) {
-      sprintf(histo, "EBTTT TCC timing calo triggers %s", nameext);
-      meTCCTimingCalo_ = dqmStore_->book2D(histo, histo, 36, 37, 73, 7, -1., 6.);
-      meTCCTimingCalo_->setAxisTitle("nTCC", 1);
-      meTCCTimingCalo_->setAxisTitle("TP data matching emulator", 2);
-    }
-
-    if ( HLTMuonHLTBit_ != "" ) {
-      sprintf(histo, "EBTTT TCC timing muon triggers %s", nameext);
-      meTCCTimingMuon_ = dqmStore_->book2D(histo, histo, 36, 37, 73, 7, -1., 6.);
-      meTCCTimingMuon_->setAxisTitle("nTCC", 1);
-      meTCCTimingMuon_->setAxisTitle("TP data matching emulator", 2);
-    }
+    meEtBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meEtBxReal_->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_->setAxisTitle("TP number", 2);
 
   } else {
     sprintf(histo, "EBTTT Et spectrum %s", nameext);
@@ -292,20 +270,11 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<edm::TriggerResults> hltResults;
-
-    if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      
-      processDigis( e,
-                    emulDigis,
-                    meEtMapEmul_,
-                    meVetoEmul_,
-                    realDigis,
-                    hltResults);
-      
-    } else {
-      LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
-    }
+    processDigis( e,
+                  emulDigis,
+                  meEtMapEmul_,
+                  meVetoEmul_,
+                  realDigis);
 
   } else {
     LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
@@ -317,11 +286,7 @@ void
 EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<edm::TriggerResults> & hltResults) {
-
-  int bx = e.bunchCrossing();
-  int nTP = 0;
+                                  const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
   //  map<EcalTrigTowerDetId, int> crystalsInTower;
   int readoutCrystalsInTower[108][68];
@@ -353,35 +318,9 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
   }
 
-  bool caloTrg = false;
-  bool muonTrg = false;
+  int bx = e.bunchCrossing();
+  int nTP = 0;
 
-  if ( hltResults.isValid() ) {
-
-    int ntrigs = hltResults->size();
-    if ( ntrigs!=0 ) {
-
-      edm::TriggerNames triggerNames;
-      triggerNames.init( *hltResults );
-
-      for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
-        std::string trigName = triggerNames.triggerName(itrig);
-        bool accept = hltResults->accept(itrig);
-
-        if ( trigName == HLTCaloHLTBit_ ) caloTrg = accept;
-        
-        if ( trigName == HLTMuonHLTBit_ ) muonTrg = accept;
-
-      }
-      
-    } else {
-      LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
-    } 
-
-  } else {
-    LogWarning("EBTriggerTowerTask") << " HLT results not available"; 
-  } 
-  
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
@@ -454,17 +393,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
         if(readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
           for(int j=0; j<6; j++) {
-            if(matchSample[j]) {
-
-              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-              
-              int index = ( j==0 ) ? -1 : j;
-              
-              if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
-              
-              if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );              
-
-            }
+            if(matchSample[j]) meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
           }
         }
 

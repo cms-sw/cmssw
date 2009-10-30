@@ -63,7 +63,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global h
 
   else {
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized runtype and sequence: "<<type<<" "<<sequence;
+      edm::LogError("IncorrectHeader") <<"Unrecognized runtype and sequence: "<<type<<" "<<sequence;
     }
     EcalDCCHeaderInfos->setRunType(-1);
     WasDecodingOk_ = false;
@@ -134,7 +134,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
 
     else {
       if( ! DCCDataUnpacker::silentMode_ ){
-        edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
+        edm::LogError("IncorrectHeader") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
       }
       theHeader->setRunType(-1);
       WasDecodingOk_ = false;
@@ -146,7 +146,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
   
   else {
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
+      edm::LogError("IncorrectHeader") <<"Unrecognized detailed trigger type";
     }
     theHeader->setRunType(-1);
     WasDecodingOk_ = false;
@@ -212,7 +212,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   }
   else {
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized run type: "<<theHeader->getRunType();
+      edm::LogError("IncorrectHeader") <<"Unrecognized run type: "<<theHeader->getRunType();
     }
     WasDecodingOk_ = false;
   }

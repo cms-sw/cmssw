@@ -41,7 +41,6 @@ allLayer1PFParticles = cms.EDProducer("PATPFParticleProducer",
     # resolution
     addResolutions  = cms.bool(False),
     resolutions     = cms.PSet(),
-
 )
 
 

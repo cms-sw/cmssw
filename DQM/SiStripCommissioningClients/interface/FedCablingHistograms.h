@@ -12,8 +12,8 @@ class FedCablingHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  FedCablingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
-  FedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
+  FedCablingHistograms( DQMOldReceiver* );
+  FedCablingHistograms( DQMStore* );
   virtual ~FedCablingHistograms();
   
   typedef SummaryPlotFactory<FedCablingAnalysis*> Factory;

@@ -15,6 +15,7 @@ from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
+from Validation.MuonIdentification.muonIdVal_cff import *
 
 from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
 
@@ -26,7 +27,7 @@ from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
 globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
                                 +tracksValidation
                                 +METRelValSequence
-                                +recoMuonValidationFastSim+muIsoVal_seq
+                                +recoMuonValidationFastSim+muIsoVal_seq+muonIdValDQMSeq
                                 +recoMuonValidationHLTFastSim_seq
                                # +myPartons
                                # +iterativeCone5Flavour

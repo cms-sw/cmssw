@@ -73,7 +73,7 @@ EcalRawToRecHitFacility::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalRawToRecHitFacility::beginJob(const edm::EventSetup& iSetup)
+EcalRawToRecHitFacility::beginRun(edm::Run &iRun, const edm::EventSetup& iSetup)
 {
   //put this here to access the worker before anything starts.
   //there is no mis-use of the beginJob. This does not impact the rest of the processing.
@@ -82,13 +82,10 @@ EcalRawToRecHitFacility::beginJob(const edm::EventSetup& iSetup)
 
   edm::ESHandle<EcalUnpackerWorkerBase> worker;
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, worker);
-  worker->set(iSetup); 
-  LogDebug("EcalRawToRecHit|Facility")<<"worker set in beginJob."
-				      << watcher.lap();
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-EcalRawToRecHitFacility::endJob() {
+EcalRawToRecHitFacility::endRun( const edm::Run & iRun ) {
 }

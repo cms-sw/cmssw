@@ -46,7 +46,7 @@ void RectangularEtaPhiTrackingRegion::
 }
 
 HitRZCompatibility* RectangularEtaPhiTrackingRegion::
-checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSetup& iSetup) const
+checkRZ(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSetup& iSetup) const
 {
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -69,8 +69,8 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
     float cotLeft = min(vcotMax, (double) sinh(theEtaRange.max()));
     return new HitEtaCheck( isBarrel, outer, cotLeft, cotRight);
   }
-  float hitZErr = 0.;
-  float hitRErr = 0.;
+  float hitZErr = hitErrZ(layer);
+  float hitRErr = hitErrR(layer);
 
   PixelRecoPointRZ  outerL, outerR;
   if (layer->location() == GeomDetEnumerators::barrel) {
@@ -153,10 +153,8 @@ OuterEstimator *
     float scatt = 3 * msSigma(ptMin(), cotTheta);
     float bendR = longitudinalBendingCorrection(radius,ptMin(),iSetup);
 
-    float hitErrRPhi = 0.;
-    float hitErrZ = 0.;
-    float corrPhi = (scatt+ hitErrRPhi)/radius;
-    float corrZ = scatt/sinTheta + bendR*fabs(cotTheta) + hitErrZ;
+    float corrPhi = (scatt+ hitErrRPhi(layer))/radius;
+    float corrZ = scatt/sinTheta + bendR*fabs(cotTheta) + hitErrZ(layer);
 
     phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
     zPrediction.setTolerance(HitZCheck::Margin(corrZ,corrZ));
@@ -211,10 +209,8 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
     MultipleScatteringParametrisation msSigma(layer,iSetup);
     float scatt = 3 * msSigma(ptMin(),cotTheta);
     float bendR = longitudinalBendingCorrection(hitRWindow.max(),ptMin(),iSetup);
-    float hitErrRPhi = 0.;
-    float hitErrR = 0.;
-    float corrPhi = (scatt+hitErrRPhi)/detRWindow.min();
-    float corrR   = scatt/fabs(cosTheta) + bendR + hitErrR;
+    float corrPhi = (scatt+hitErrRPhi(layer))/detRWindow.min();
+    float corrR   = scatt/fabs(cosTheta) + bendR + hitErrR(layer);
 
     phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
     rPrediction.setTolerance(HitRCheck::Margin(corrR,corrR));

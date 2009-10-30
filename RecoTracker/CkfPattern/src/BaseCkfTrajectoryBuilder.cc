@@ -112,10 +112,6 @@ createStartingTrajectory( const TrajectorySeed& seed) const
   seedMeasurements(seed, seedMeas);
   for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++)
     result.push(*i);            
-
-  LogDebug("CkfPattern")
-    <<" initial trajectory from the seed: "<<PrintoutHelper::dumpCandidate(result,true);
-  
   return result;
 }
 
