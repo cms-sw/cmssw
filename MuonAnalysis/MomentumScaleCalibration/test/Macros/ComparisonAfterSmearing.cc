@@ -26,14 +26,13 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
   TH1D * resolVSptSmeared = 0;
   if( resolDirSmeared != 0 ) {
     resolVSptSmeared = (TH1D*) resolDirSmeared->Get(resolName);
-    cout << "resolName = " << resolName << endl;
   }
 
   TString resolVSptName("from reco-gen comparison");
   TCanvas * c = new TCanvas(canvasNameMC, canvasNameMC, 1000, 800);
   c->cd();
-  TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
-  legend->SetTextSize(0.02);
+  TLegend * legend = new TLegend(0.55,0.71,0.98,1.);
+  legend->SetTextSize(0.03);
   legend->SetFillColor(0); // Have a white background
   if( resolDirSmeared == 0 ) legend->AddEntry(resolVSpt, resolVSptName);
   else legend->AddEntry(resolVSpt, resolVSptName+" ideal");
@@ -53,21 +52,22 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
     legend->AddEntry(resolVSptSmeared, resolVSptName + " smeared");
     resolVSptSmeared->Draw("SAME");
   }
-  legend->Draw("same");
+  legend->Draw();
   outputFile->cd();
   c->Write();
 
   TCanvas * c2 = new TCanvas(canvasNameFunc, canvasNameFunc, 1000, 800);
   c2->cd();
-  TLegend * legend2 = new TLegend(0.7,0.71,0.98,1.);
-  legend2->SetTextSize(0.02);
+  TLegend * legend2 = new TLegend(0.55,0.71,0.98,1.);
+  legend2->SetTextSize(0.03);
   legend2->SetFillColor(0); // Have a white background
   TString functionLegendName("from resolution function");
+  TString functionLegendNameIdeal;
   TString functionLegendNameSmeared;
   TString functionLegendNameMisaligned;
 
-  functionLegendName += " ideal";
-  legend2->AddEntry(functionResolVSpt, functionLegendName);
+  functionLegendNameIdeal = functionLegendName + " ideal";
+  legend2->AddEntry(functionResolVSpt, functionLegendNameIdeal);
   functionResolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   functionResolVSpt->GetYaxis()->SetTitle(yAxisTitle);  
   functionResolVSpt->SetMaximum(Ymax);
@@ -106,16 +106,16 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   
   TCanvas * c = new TCanvas(canvasName, canvasName, 1000, 800);
   c->cd();
-  TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
-  legend->SetTextSize(0.02);
-  legend->SetFillColor(0); // Have a white background
+  TLegend * legend3 = new TLegend(0.65,0.71,0.98,1.);
+  legend3->SetTextSize(0.03);
+  legend3->SetFillColor(0); // Have a white background
   TString LegendName(stringName);
   TString LegendNameAligned;
   TString LegendNameSmeared;
   TString LegendNameMisaligned;
   
   LegendNameAligned = LegendName + "ideal MC";
-  legend->AddEntry(Aligned, LegendNameAligned);
+  legend3->AddEntry(Aligned, LegendNameAligned);
   Aligned->GetXaxis()->SetTitle(xAxisTitle);
   Aligned->GetYaxis()->SetTitle(yAxisTitle);  
   Aligned->Rebin(rebinX);
@@ -126,7 +126,7 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   LegendNameMisaligned = LegendName + "fake data";
   Misaligned->SetMarkerColor(kRed);
   Misaligned->SetLineColor(kRed);
-  legend->AddEntry(Misaligned, LegendNameMisaligned);
+  legend3->AddEntry(Misaligned, LegendNameMisaligned);
   Misaligned->Rebin(rebinX);
   Misaligned->Sumw2();
   Misaligned->DrawNormalized("sames");
@@ -134,12 +134,12 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   LegendNameSmeared = LegendName + "smeared MC";
   Smeared->SetMarkerColor(kBlue);
   Smeared->SetLineColor(kBlue);
-  legend->AddEntry(Smeared, LegendNameSmeared);  
+  legend3->AddEntry(Smeared, LegendNameSmeared);  
   Smeared->Rebin(rebinX);
   Smeared->Sumw2();
   Smeared->DrawNormalized("sames");
   
-  legend->Draw("same");
+  legend3->Draw();
   outputFile->cd();
   c->Write();
 
@@ -181,7 +181,7 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
 
   drawZ("hRecBestRes_Pt", functionResolFileAligned, functionResolFileMisaligned ,
 	"ZPt", outputFile, "Z pt from ",
-	"Z Transverse momentum", "Z pt [GeV]", "a.u.", 1, 100, 0,
+	"Z Transverse momentum", "Z pt [GeV]", "a.u.", 1, 100, 1,
 	functionResolFileSmeared);
 
   // SigmaMass/Mass
@@ -198,7 +198,7 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "hFunctionResolMassVSMu_ResoVSPt_prof", functionResolDirAligned, functionResolDirMisaligned,
        "massResolVSptMC","massResolVSptFunc", outputFile,
        "resolution on mass vs pt",
-       "pt(GeV)", "#sigmaM/M",0.09,
+       "muon pt(GeV)", "res #sigmaM/M",0.09,
        functionResolDirSmeared, resolDirSmeared );
   // VsEta
   resolDirAligned = (TDirectory*) resolFileAligned->Get("DeltaMassOverGenMassVsEta");
@@ -209,8 +209,8 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
   draw("DeltaMassOverGenMassVsEta_resol", resolDirAligned, resolDirMisaligned,
        "hFunctionResolMassVSMu_ResoVSEta_prof", functionResolDirAligned, functionResolDirMisaligned,
        "massResolVSetaMC", "massResolVSetaFunc", outputFile,
-       "resolution on mass vs eta",
-       "eta", "#sigmaM/M",0.09,
+       "resolution on mass vs #eta",
+       "muon #eta", "#sigmaM/M",0.09,
        functionResolDirSmeared, resolDirSmeared );
 
 
@@ -231,14 +231,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "hFunctionResolPt_ResoVSPt_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptMC", "resolPtVSptFunc", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
   // VS Pt RMS
   draw("hResolPtGenVSMu_ResoVSPt_resolRMS", resolDirAligned, resolDirMisaligned,
        "hFunctionResolPt_ResoVSPt_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptRMSMC", "resolPtVSptRMSFunc", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
 
   //=====> Barrel
@@ -247,14 +247,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "hFunctionResolPt_ResoVSPt_Bar_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptBarMC", "resolPtVSptBarFunc", outputFile,
        "resolution on pt vs pt, barrel",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
   // VS Pt RMS
   draw("hResolPtGenVSMu_ResoVSPt_Bar_resolRMS", resolDirAligned, resolDirMisaligned,
        "hFunctionResolPt_ResoVSPt_Bar_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptBarRMSMC", "resolPtVSptBarRMSFunc", outputFile,
        "resolution on pt vs pt, barrel",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
 
   
@@ -264,14 +264,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
 //        "hFunctionResolPt_ResoVSPt_Endc_1.7_prof", functionResolDirAligned,functionResolDirMisaligned,
 //        "resolPtVSptEndc_1.7", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 //   // VS Pt RMS
 //   draw("hResolPtGenVSMu_ResoVSPt_Endc_1.7_resolRMS", resolDirAligned, resolDirMisaligned,
 //        "hFunctionResolPt_ResoVSPt_Endc_1.7_prof", functionResolDirAligned, functionResolDirMisaligned,
 //        "resolPtVSptEndc1.7RMS", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 
 //   //=====> Endcap 2
@@ -280,14 +280,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
 //        "hFunctionResolPt_ResoVSPt_Endc_2.0_prof", functionResolDirAligned, functionResolDirMisaligned,
 //        "resolPtVSptEndc2.0", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 //   // VS Pt RMS
 //   draw("hResolPtGenVSMu_ResoVSPt_Endc_2.0_resolRMS", resolDirAligned, resolDirMisaligned,
 //        "hFunctionResolPt_ResoVSPt_Endc_2.0_prof", functionResolDirAligned, functionResolDirMisaligned,
 //        "resolPtVSptEndc2.0RMS", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 
 //   //=====> Endcap 3
@@ -296,14 +296,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
 //        "hFunctionResolPt_ResoVSPt_Endc_2.4_prof", functionResolDirAligned, functionResolDirMisaligned,
 //        "resolPtVSptEndc2.4", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 //   // VS Pt RMS
 //   draw("hResolPtGenVSMu_ResoVSPt_Endc_2.4_resolRMS", resolDirAligned,resolDirMisaligned, 
 //        "hFunctionResolPt_ResoVSPt_Endc_2.4_prof", functionResolDirAligned, functionResolDirMisaligned,
 //        "resolPtVSptEndc2.4RMS", outputFile,
 //        "resolution on pt vs pt, endcap",
-//        "pt(GeV)", "#sigmapt/pt",0.09,
+//        "muon pt(GeV)", "#sigmapt/pt",0.09,
 //        functionResolDirSmeared, resolDirSmeared );
 
 
@@ -313,14 +313,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "hFunctionResolPt_ResoVSPt_Ovlap_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptOvlapMC",  "resolPtVSptOvlapFunc", outputFile,
        "resolution on pt vs pt, overlap",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
   // VS Pt RMS
   draw("hResolPtGenVSMu_ResoVSPt_Ovlap_resolRMS", resolDirAligned, resolDirMisaligned,
        "hFunctionResolPt_ResoVSPt_Ovlap_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSptOvlapRMSMC", "resolPtVSptOvlapRMSFunc", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt/pt",0.09,
+       "muon pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirSmeared, resolDirSmeared );
 
   // VS Eta
@@ -328,14 +328,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSetaMC", "resolPtVSetaFunc", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt/pt",0.09,
+       "muon #eta", "#sigmapt/pt",0.15,
        functionResolDirSmeared, resolDirSmeared );
   // VS Eta RMS
   draw("hResolPtGenVSMu_ResoVSEta_resolRMS", resolDirAligned, resolDirMisaligned,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirAligned, functionResolDirMisaligned,
-       "resolPtVSetaRMSMC", "resolPtVSetaRMSMC", outputFile,
+       "resolPtVSetaRMSMC", "resolPtVSetaRMSFunc", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt/pt",0.09,
+       "muon #eta", "#sigmapt/pt",0.15,
        functionResolDirSmeared, resolDirSmeared );
 
 

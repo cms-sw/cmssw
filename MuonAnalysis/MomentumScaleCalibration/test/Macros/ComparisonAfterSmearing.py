@@ -16,7 +16,7 @@ resonanceType = "Z"
 macrosDir = os.popen("echo $CMSSW_BASE", "r").read().strip()
 macrosDir += "/src/MuonAnalysis/MomentumScaleCalibration/test/Macros/"
 
-gROOT.ProcessLine(".x "+macrosDir+"ResolCompareForSmearing.cc("+firstFile+", "+secondFile+", "+thirdFile+")")
+gROOT.ProcessLine(".x "+macrosDir+"ComparisonAfterSmearing.cc("+firstFile+", "+secondFile+", "+thirdFile+")")
 
 
 
