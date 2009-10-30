@@ -312,16 +312,16 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     }
   }
 
-  if(ievt_ <= 10){
-    if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
-                                 << "Number of EB digis passing the SR: "
-                                 << selectedBarrelDigis->size()
-                                 << " / " << barrelDigis.size() << "\n";
-    if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
-                                 << "\nNumber of EE digis passing the SR: "
-                                 << selectedEndcapDigis->size()
-                                 << " / " << endcapDigis.size() << "\n";
-  }
+//   if(ievt_ <= 10){
+//     if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
+//                                  << "Number of EB digis passing the SR: "
+//                                  << selectedBarrelDigis->size()
+//                                  << " / " << barrelDigis.size() << "\n";
+//     if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
+//                                  << "\nNumber of EE digis passing the SR: "
+//                                  << selectedEndcapDigis->size()
+//                                  << " / " << endcapDigis.size() << "\n";
+//   }
   
   if(ebSrFlags) ebSrFlags->reserve(34*72);
   if(eeSrFlags) eeSrFlags->reserve(624);
@@ -370,9 +370,9 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	  //}
 	  if(eeSrFlags) eeSrFlags->push_back(EESrFlag(id, flag));
 	} else  if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
-	  cout << __FILE__ << ":" << __LINE__ << ": "
-	       <<  "negative interest in EE for SC "
-	       << id << "\n";
+      //	  cout << __FILE__ << ":" << __LINE__ << ": "
+      //	       <<  "negative interest in EE for SC "
+      //	       << id << "\n";
 	}
       } //next iY
     } //next iX
