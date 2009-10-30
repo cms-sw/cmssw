@@ -2,8 +2,8 @@
 
 /** \class FastTSGFromPropagation
  *
- *  $Date: 2009/09/21 00:51:39 $
- *  $Revision: 1.32.2.1 $
+ *  $Date: 2009/10/29 22:42:41 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -121,156 +121,150 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
        TrackerRecHit theSeedHits;
        std::vector<TrackerRecHit> outerHits;
 
-       // Check SimTrack
-       TrackingRecHit* aTrackingRecHit;
-       FreeTrajectoryState simtrack_trackerstate;
-       for( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-	 const SimTrack & simtrack = (*simTracks)[theSimTrackIds[tkId]];
-	 SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(theSimTrackIds[tkId]);
-	 SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	 SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	 SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-	 
-	 GlobalPoint position(simtrack.trackerSurfacePosition().x(),
-			      simtrack.trackerSurfacePosition().y(),
-			      simtrack.trackerSurfacePosition().z());
-	 GlobalVector momentum(simtrack.trackerSurfaceMomentum().x(),
-			       simtrack.trackerSurfaceMomentum().y(),
-			       simtrack.trackerSurfaceMomentum().z());
-	 int charge = (int)simtrack.charge();
-	 GlobalTrajectoryParameters glb_parameters(position, momentum, charge, &*theService->magneticField().product());
-	 simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
-	 
-	 int outerId = 0;
-	 bool isMatch = false;
-	 for( iterRecHit = theRecHitRangeIteratorBegin;
-	      iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-	   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
-	   // get the outermost rechit from simtrack w.r.t. this TM
-	   for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
-		itm != alltm.end(); itm++) {
-	     const TrajectoryStateOnSurface seedState = itm->predictedState();
-		    double ypos = theSeedHits.globalPosition().y();
-		    double preY = seedState.globalPosition().y();
-		    int id = theSeedHits.hit()->geographicalId().rawId();
-		    if( preY < 0 ) {
-			if( id > outerId ) {
-			    outerId = id;
-			}
-		    }
-		    else {
-			if( id > outerId ) {
-			    outerId = id;
-			}
-		    }
-	     if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
-	       aTrackingRecHit = theSeedHits.hit()->clone();
-	       TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
-	       if( !recHit ) continue;
-	       TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
-	       if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
-		 edm::OwnVector<TrackingRecHit> container;
-		 container.push_back(recHit->hit()->clone());
-		 TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
-		    // check direction
-		    const BasicTrajectorySeed* aSeed = &ts;
-		    PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-	            TrajectoryStateTransform tsTransform;
-		    const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
-	            TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
-	            if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
-	         isMatch = true;
-		 result.push_back(ts);
+       //std::vector<TrajectorySeed>  tmpTS;
+       bool isMatch = false;
+       for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++) {
+	   const TrajectoryStateOnSurface seedState = itm->predictedState();
+	   double preY = seedState.globalPosition().y();
+
+	   // Check SimTrack
+	   TrackingRecHit* aTrackingRecHit;
+	   FreeTrajectoryState simtrack_trackerstate;
+	   for( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+	       const SimTrack & simtrack = (*simTracks)[theSimTrackIds[tkId]];
+	       SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(theSimTrackIds[tkId]);
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+
+	       GlobalPoint position(simtrack.trackerSurfacePosition().x(),
+	      		            simtrack.trackerSurfacePosition().y(),
+	      		            simtrack.trackerSurfacePosition().z());
+	       GlobalVector momentum(simtrack.trackerSurfaceMomentum().x(),
+			             simtrack.trackerSurfaceMomentum().y(),
+			             simtrack.trackerSurfaceMomentum().z());
+	       int charge = (int)simtrack.charge();
+	       GlobalTrajectoryParameters glb_parameters(position, momentum, charge, &*theService->magneticField().product());
+	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
+
+	       int outerId = 0;
+	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
+		   int id = theSeedHits.hit()->geographicalId().rawId();
+		   if( preY < 0 ) {
+		       if( id > outerId ) outerId = id;
+		   }
+		   else {
+		       if( id > outerId ) outerId = id;
+		   }
 	       }
-	     }
+	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
+		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
+		       aTrackingRecHit = theSeedHits.hit()->clone();
+	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
+	               if( !recHit ) continue;
+	               TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
+	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
+			   edm::OwnVector<TrackingRecHit> container;
+			   container.push_back(recHit->hit()->clone());
+			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
+			   // check direction
+			   const BasicTrajectorySeed* aSeed = &ts;
+			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
+			   TrajectoryStateTransform tsTransform;
+			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
+			   TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+			   if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
+			   result.push_back(ts);
+			   isMatch = true;
+		       }
+		   }
+	       }
 	   }
-	 }
-	 if( !isMatch && result.size() == 0 ) {
-	   double direction = 0;
-	   for( iterRecHit = theRecHitRangeIteratorBegin;
-	      iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-	      theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
-	      if( theSeedHits.hit()->geographicalId().rawId() == outerId ) {
-	        TrajectoryStateOnSurface seedState;
-	 
-	        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
-		  itm != alltm.end(); itm++) {
-	          seedState = itm->predictedState();
-		  double ypos = theSeedHits.globalPosition().y();
-		  double preY = seedState.globalPosition().y();
-		  if( ypos*preY < 0 ) continue;
-		  aTrackingRecHit = theSeedHits.hit()->clone();
-		  TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
-		  if( !recHit ) continue;
-		  TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
-		  if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
-		    edm::OwnVector<TrackingRecHit> container;
-		    container.push_back(recHit->hit()->clone());
-		    TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
-
-		    // check direction
-		    const BasicTrajectorySeed* aSeed = &ts;
-		    PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-	            TrajectoryStateTransform tsTransform;
-		    const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
-	            TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
-	            if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
-		    if( direction < tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() ) {
-			direction = tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector();
-		    }
-		  }
-		}
-	      }
-	   }
-	   // push_back
-	   for( iterRecHit = theRecHitRangeIteratorBegin;
-	      iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-	      theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
-	      if( theSeedHits.hit()->geographicalId().rawId() == outerId ) {
-	        TrajectoryStateOnSurface seedState;
-	 
-	        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
-		  itm != alltm.end(); itm++) {
-	          seedState = itm->predictedState();
-		  double ypos = theSeedHits.globalPosition().y();
-		  double preY = seedState.globalPosition().y();
-		  if( ypos*preY < 0 ) continue;
-		  aTrackingRecHit = theSeedHits.hit()->clone();
-		  TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
-		  if( !recHit ) continue;
-		  TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
-		  if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
-		    edm::OwnVector<TrackingRecHit> container;
-		    container.push_back(recHit->hit()->clone());
-		    TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
-
-		    // check direction
-		    const BasicTrajectorySeed* aSeed = &ts;
-		    PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-	            TrajectoryStateTransform tsTransform;
-		    const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
-	            TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
-	            if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
-		    if( direction == tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() ) {
-		        result.push_back(ts);
-		    }
-		  }
-		}
-	      }
-	   }
-	 }
        }
-     
+       int _index = -1;
+       if( !isMatch ) {
+	 // if there is no hits w.r.t. TM, find outermost hit
+	 int count = 0;
+         for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++) {
+	   const TrajectoryStateOnSurface seedState = itm->predictedState();
+	   double preY = seedState.globalPosition().y();
 
-       LogTrace(theCategory) << "result: "<<result.size();
-       for( unsigned ir = 0; ir < result.size(); ir++ ) {
-	 const BasicTrajectorySeed* aSeed = &((result)[ir]);
+	   // Check SimTrack
+	   TrackingRecHit* aTrackingRecHit;
+	   FreeTrajectoryState simtrack_trackerstate;
+	   for( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+	       const SimTrack & simtrack = (*simTracks)[theSimTrackIds[tkId]];
+	       SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(theSimTrackIds[tkId]);
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+	       SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+
+	       GlobalPoint position(simtrack.trackerSurfacePosition().x(),
+	      		            simtrack.trackerSurfacePosition().y(),
+	      		            simtrack.trackerSurfacePosition().z());
+	       GlobalVector momentum(simtrack.trackerSurfaceMomentum().x(),
+			             simtrack.trackerSurfaceMomentum().y(),
+			             simtrack.trackerSurfaceMomentum().z());
+	       int charge = (int)simtrack.charge();
+	       GlobalTrajectoryParameters glb_parameters(position, momentum, charge, &*theService->magneticField().product());
+	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
+
+	       int outerId = 0;
+	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
+		   int id = theSeedHits.hit()->geographicalId().rawId();
+		   if( preY < 0 ) {
+		       if( id > outerId ) outerId = id;
+		   }
+		   else {
+		       if( id > outerId ) outerId = id;
+		   }
+	       }
+	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
+		   if( outerId == theSeedHits.hit()->geographicalId().rawId() ) {
+		       aTrackingRecHit = theSeedHits.hit()->clone();
+	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
+	               if( !recHit ) continue;
+	               TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
+	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
+			   edm::OwnVector<TrackingRecHit> container;
+			   container.push_back(recHit->hit()->clone());
+			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
+			   // check direction
+			   const BasicTrajectorySeed* aSeed = &ts;
+			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
+			   TrajectoryStateTransform tsTransform;
+			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
+			   TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+			   if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
+			   result.push_back(ts);
+		       }
+		   }
+	       }
+	   }
+         }
+       }
+
+       /*
+       for( unsigned ir = 0; ir < tmpTS.size(); ir++ ) {
+	 const BasicTrajectorySeed* aSeed = &((tmpTS)[ir]);
 	 PTrajectoryStateOnDet PTSOD = aSeed->startingState();
 	 TrajectoryStateTransform tsTransform;
 	 DetId seedDetId(PTSOD.detId());
 	 const GeomDet * g = theGeometry->idToDet(seedDetId);
 	 TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+		 cout << "tsos3 = " << tsos.globalMomentum() << endl;
+	 if( _index == ir ) {
+		 cout << "tsos4 = " << tsos.globalMomentum() << endl;
+	     result.push_back(tmpTS[ir]);
+	 }
        }
+       */
+       cout << " "<< endl;
+       LogTrace(theCategory) << "result: "<<result.size();
        return;
      }
   }
