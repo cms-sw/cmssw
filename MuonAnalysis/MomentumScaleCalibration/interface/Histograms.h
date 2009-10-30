@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/10/05 09:15:48 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/10/30 10:49:45 $
+ *  $Revision: 1.18 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -223,8 +223,8 @@ class HParticle : public Histograms {
     Histograms(name),
     // Kinematical variables
     hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, maxPt) ),
-    hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.2, 3.2) ),
-    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -3.2, 3.2) ),
+    hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0) ),
+    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -3.0, 3.0) ),
     hPhi_(     new TH1F (name+"_Phi",     "phi angle", 64, -3.2, 3.2) ),
     hMass_(    new TH1F (name+"_Mass",    "mass", 10000, minMass, maxMass) ),
     // hMass_fine_ = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
@@ -237,8 +237,8 @@ class HParticle : public Histograms {
   {
     // Kinematical variables
     hPt_ =      new TH1F (name+"_Pt", "transverse momentum", 100, 0, maxPt);
-    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.2, 3.2);
-    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 60, -3.2, 3.2);
+    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0);
+    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 60, -3.0, 3.0);
     hPhi_ =     new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
     hMass_ =    new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
     // hMass_fine_ = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
@@ -431,9 +431,9 @@ class HPartVSEta : public Histograms
   {
     name_ = name;
     hPtVSEta_ = new TH2F( name+"_PtVSEta", "transverse momentum vs pseudorapidity", 
-                          64, -3.2, 3.2, 200, 0, maxPt );
+                          64, -3.0, 3.0, 200, 0, maxPt );
     hMassVSEta_ = new TH2F( name+"_MassVSEta", "mass vs pseudorapidity", 
-                            64, -3.2, 3.2, 40, minMass, maxMass );
+                            64, -3.0, 3.0, 40, minMass, maxMass );
     // TD profile histograms
     // ---------------------
     hPtVSEta_prof_ = new TProfile( name+"_PtVSEta_prof", "mass vs pseudorapidity", 
@@ -828,7 +828,7 @@ class HResolutionVSPart : public Histograms
       hResoVSPt_Endc_20_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", 100, 0, maxPt, yMinPt, yMaxPt );
       hResoVSPt_Endc_24_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", 100, 0, maxPt, yMinPt, yMaxPt );
       hResoVSPt_Ovlap_prof_  = new TProfile(name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -2.5, 2.5, yMinEta, yMaxEta );
+      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -3.0, 3.0, yMinEta, yMaxEta );
       hResoVSPhi_prof_       = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
     }
   }
@@ -1120,9 +1120,9 @@ class HFunctionResolution : public Histograms
     totBinsX_ = 100;
     totBinsY_ = 60;
     xMin_ = 0.;
-    yMin_ = -3.2;
+    yMin_ = -3.0;
     double xMax = ptMax;
-    double yMax = 3.2;
+    double yMax = 3.0;
     deltaX_ = xMax - xMin_;
     deltaY_ = yMax - yMin_;
     hReso_        = new TH1F( name+"_Reso", "resolution", 1000, 0, 1 );
