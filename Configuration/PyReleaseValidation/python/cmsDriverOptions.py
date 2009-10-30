@@ -5,6 +5,7 @@
 import optparse
 import sys
 import os
+import re
 import Configuration.PyReleaseValidation
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defaultOptions
 import traceback
@@ -216,8 +217,10 @@ parser.add_option("--no_exec",
 if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
-# check whether steps are compatible
-if ("HLT" in options.step and "RECO" in options.step):
+# check whether steps are compatible, but make sure we don't trigger on AlCaxyzHLT and L1Reco
+hltRe = re.compile('.*[,\s]HLT[,\s].*')
+recoRe = re.compile('.*[,\s]RECO[,\s].*')
+if ( hltRe.match(str(options.step)) and recoRe.match(str(options.step))):
     print "ERROR: HLT and RECO cannot be run in the same process"
     sys.exit(1)
     
