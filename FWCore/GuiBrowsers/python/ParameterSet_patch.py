@@ -173,8 +173,15 @@ def new_recurseDumpModifications_(self, name, o, comments=True):
                 dumpPython += "\n"
             if comments:
                 for mod in mod_dict[paramname]:
+                    if isinstance(mod['old'],cms._ParameterTypeBase):
+                      mod['old'] = mod['old'].dumpPython().replace('\n','')
+                    if isinstance(mod['new'],cms._ParameterTypeBase):
+                      mod['new'] = mod['new'].dumpPython().replace('\n','')
                     dumpPython += "# MODIFIED BY %(file)s:%(line)s; %(old)s -> %(new)s\n" % mod
-            dumpPython += "process.%s.%s = %s\n" % (name,paramname,getattr(o,paramname)) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
+            paramvalue = getattr(o,paramname)
+            if isinstance(paramvalue,cms._ParameterTypeBase):
+              paramvalue = paramvalue.dumpPython().replace('\n','')
+            dumpPython += "process.%s.%s = %s\n" % (name,paramname,paramvalue) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
             
         # Loop over any child elements
         for key in o.parameterNames_():
