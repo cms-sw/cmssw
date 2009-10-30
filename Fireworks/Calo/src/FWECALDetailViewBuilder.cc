@@ -1,30 +1,28 @@
-// hack
-#define protected public
 #include "TEveCaloData.h"
-#undef protected
-
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
 #include "TEveCalo.h"
+#include "TColor.h"
+#include "TAxis.h"
+#include "TGLViewer.h"
+#include "THLimitsFinder.h"
+#include "TEveCaloLegoOverlay.h"
+
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
-#include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/fw3dlego_xbins.h"
-
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "TColor.h"
-#include "TAxis.h"
-#include "TGLViewer.h"
-#include "TEveCaloLegoOverlay.h"
 
 #include <utility>
 
@@ -49,7 +47,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no barrel ECAL rechits are available, "
-         "showing crystal location but not energy" << std::endl;
+            "showing crystal location but not energy" << std::endl;
       }
    } else {
       try {
@@ -59,7 +57,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no endcap ECAL rechits are available, "
-         "showing crystal location but not energy" << std::endl;
+            "showing crystal location but not energy" << std::endl;
       }
    }
 
@@ -75,59 +73,27 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    // fill
    fillData(hits, data);
 
-   // make grid
+   // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   if (fabs(m_eta) < 1.5) {
-      etaMin = m_eta-m_size*0.0172;
-      etaMax = m_eta+m_size*0.0172;
-      phiMin = m_phi-m_size*0.0172;
-      phiMax = m_phi+m_size*0.0172;
-      data->fEtaMin = etaMin;
-      data->fEtaMax = etaMax;
-      data->fPhiMin = phiMin;
-      data->fPhiMax = phiMax;
-   }else{
-      data->GetEtaLimits(etaMin, etaMax);
-      data->GetPhiLimits(phiMin, phiMax);
-   }
-
-   // make tower grid
-   std::vector<double> etaBinsWithinLimits;
-   etaBinsWithinLimits.push_back(etaMin);
-   for (unsigned int i=0; i<83; ++i)
-      if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
-         etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
-   etaBinsWithinLimits.push_back(etaMax);
-   Double_t* eta_bins = new Double_t[etaBinsWithinLimits.size()];
-   for (unsigned int i=0; i<etaBinsWithinLimits.size(); ++i)
-      eta_bins[i] = etaBinsWithinLimits[i];
-
-   std::vector<double> phiBinsWithinLimits;
-   phiBinsWithinLimits.push_back(phiMin);
-   for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
-      if ( phi > phiMin && phi < phiMax )  // it's stupid, I know, but I'm lazy right now
-         phiBinsWithinLimits.push_back(phi);
-   phiBinsWithinLimits.push_back(phiMax);
-   Double_t* phi_bins = new Double_t[phiBinsWithinLimits.size()];
-   for (unsigned int i=0; i<phiBinsWithinLimits.size(); ++i)
-      phi_bins[i] = phiBinsWithinLimits[i];
-
+   data->GetEtaLimits(etaMin, etaMax);
+   data->GetPhiLimits(phiMin, phiMax);
+   Double_t bl, bh, bw;
+   Int_t    bn, n = 20;
+   THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
+   data->SetEtaBins( new TAxis(bn, bl, bh));
+   THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
+   data->SetPhiBins( new TAxis(bn, bl, bh));
    if (fabs(m_eta) > 1.5) {
-      data->SetAxisFromBins((etaMax-etaMin)*0.05, (phiMax-phiMin)*0.05); // 5% percision
       data->GetEtaBins()->SetTitle("X[cm]");
       data->GetPhiBins()->SetTitle("Y[cm]");
    } else {
-      data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
-      data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
       data->GetEtaBins()->SetTitleFont(122);
-      data->GetEtaBins()->SetTitleSize(0.03);
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(122);
       data->GetPhiBins()->SetTitle("f");
-      data->GetPhiBins()->SetTitleSize(0.03);
    }
-   delete [] eta_bins;
-   delete [] phi_bins;
+   data->GetPhiBins()->SetTitleSize(0.03);
+   data->GetEtaBins()->SetTitleSize(0.03);
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
