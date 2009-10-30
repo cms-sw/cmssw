@@ -645,9 +645,6 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	}
       }
       // if(debug_) cout<<" end add cell"<<endl;
-      
-      dist.clear();
-      frac.clear();
     }
     
     // Determine the new cluster position and check 
