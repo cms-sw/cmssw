@@ -5,16 +5,16 @@
 #include <string>
 #include <iostream>
 
-class GeometryFile{
+class FileBlob{
 
  public:
-  GeometryFile() {};
+  FileBlob() {};
   /// constructor from file to read
-  GeometryFile(const std::string & fname, bool zip);
+  FileBlob(const std::string & fname, bool zip);
   /// constructor from  stream to read
-  GeometryFile(std::istream & is, bool zip);
+  FileBlob(std::istream & is, bool zip);
 
-  ~GeometryFile(){};
+  ~FileBlob(){};
 
   /// read from real file
   void read(const std::string&);
@@ -41,6 +41,8 @@ class GeometryFile{
   bool compressed;
   unsigned int isize;
 };
+
+typedef FileBlob GeometryFile;
 
 #endif
 

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="GeometryFile" >
-   <Class table="GEOMETRYFILE" id_columns="ID" name="GeometryFile" mapping_version="GeometryFile_basic" >
-     <Blob column="GEOMETRYFILE_BLOB" name="blob" />
+  <PoolContainer name="FileBlob" >
+   <Class table="FILEBLOB" id_columns="ID" name="FileBlob" mapping_version="FileBlob_automatic_default" >
+     <Blob column="DBLOB" name="blob" />
      <Primitive column="DCOMPRESSED" name="compressed" />
      <Primitive column="DISIZE" name="isize" />
    </Class >

@@ -6,7 +6,7 @@
 #include <string>
 #include <zlib.h>
 
-GeometryFile::GeometryFile(const std::string & fname, bool zip):isize(0){
+FileBlob::FileBlob(const std::string & fname, bool zip):isize(0){
   compressed = zip;
   /*  
   std::cout << "isize = " << isize 
@@ -18,14 +18,14 @@ GeometryFile::GeometryFile(const std::string & fname, bool zip):isize(0){
   blob.reserve(isize);
   read(fname);
 }
-GeometryFile::GeometryFile(std::istream& is, bool zip):isize(0) {
+FileBlob::FileBlob(std::istream& is, bool zip):isize(0) {
   compressed = zip;
   if (isize==0) isize= computeStreamSize(is);
   blob.reserve(isize);
   read(is);
 }
 
-void GeometryFile::read(std::istream & is) {
+void FileBlob::read(std::istream & is) {
   if(compressed){
     std::vector<unsigned char> in;
     in.reserve(isize);
@@ -43,7 +43,7 @@ void GeometryFile::read(std::istream & is) {
     int zerr =  compress2(&*blob.begin(), &destLen,
                           &*in.begin(), in.size(),
                           9);
-    if (zerr!=0) edm::LogError("GeometryFile")<< "Compression error " << zerr;
+    if (zerr!=0) edm::LogError("FileBlob")<< "Compression error " << zerr;
     blob.resize(destLen);  
   }else{
     //std::cout << "reading uncompressed" << std::endl;
@@ -55,14 +55,14 @@ void GeometryFile::read(std::istream & is) {
   }
 }
 
-void GeometryFile::write(std::ostream & os) const {
+void FileBlob::write(std::ostream & os) const {
   if(compressed){
     std::vector<unsigned char> out(isize);
     uLongf destLen = out.size();
     int zerr =  uncompress(&*out.begin(),  &destLen,
                            &*blob.begin(), blob.size());
     if (zerr!=0 || out.size()!=destLen) 
-      edm::LogError("GeometryFile")<< "uncompressing error " << zerr
+      edm::LogError("FileBlob")<< "uncompressing error " << zerr
                                    << " original size was " << isize
                                    << " new size is " << destLen;
     os.write((const char *)(&*out.begin()),out.size());
@@ -71,7 +71,7 @@ void GeometryFile::write(std::ostream & os) const {
   }
 }
 
-std::vector<unsigned char>* GeometryFile::getUncompressedBlob() const { 
+std::vector<unsigned char>* FileBlob::getUncompressedBlob() const { 
   std::vector<unsigned char>*  newblob;
   if(compressed)
   {
@@ -81,7 +81,7 @@ std::vector<unsigned char>* GeometryFile::getUncompressedBlob() const {
     int zerr =  uncompress(&*(newblob->begin()),  &destLen,
                            &*blob.begin(), blob.size());
     if (zerr!=0 || newblob->size()!=destLen) 
-      edm::LogError("GeometryFile")<< "uncompressing error " << zerr
+      edm::LogError("FileBlob")<< "uncompressing error " << zerr
                                    << " original size was " << isize
                                    << " new size is " << destLen;
   }else{
@@ -90,7 +90,7 @@ std::vector<unsigned char>* GeometryFile::getUncompressedBlob() const {
   return newblob;
  }
 
-void GeometryFile::getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const {
+void FileBlob::getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const {
   if(compressed)
   {
     myblobcopy.reserve(isize);
@@ -98,7 +98,7 @@ void GeometryFile::getUncompressedBlob( std::vector<unsigned char>& myblobcopy )
     int zerr =  uncompress(&*myblobcopy.begin(),  &destLen,
 			   &*blob.begin(), blob.size());
     if (zerr!=0 || myblobcopy.size()!=destLen) 
-      edm::LogError("GeometryFile")<< "uncompressing error " << zerr
+      edm::LogError("FileBlob")<< "uncompressing error " << zerr
                                    << " original size was " << isize
                                    << " new size is " << destLen;
   }else{
@@ -107,29 +107,29 @@ void GeometryFile::getUncompressedBlob( std::vector<unsigned char>& myblobcopy )
   
 }
 
-void GeometryFile::read(const std::string & fname) {
+void FileBlob::read(const std::string & fname) {
      std::ifstream ifile(fname.c_str());
-     if (!ifile) { edm::LogError("GeometryFile")<< "file " << fname << " does not exist...";}
+     if (!ifile) { edm::LogError("FileBlob")<< "file " << fname << " does not exist...";}
      else read(ifile);
      ifile.close();
 }
  
-void GeometryFile::write(const std::string & fname) const {
+void FileBlob::write(const std::string & fname) const {
   std::ofstream ofile(fname.c_str());
   write(ofile);
   ofile.close();
 }
 
-unsigned int GeometryFile::computeFileSize(const std::string & fname) {
+unsigned int FileBlob::computeFileSize(const std::string & fname) {
   unsigned int is=0;
   std::ifstream ifile(fname.c_str());
-  if (!ifile) { edm::LogError("GeometryFile")<< "file " << fname << " does not exist...";}
+  if (!ifile) { edm::LogError("FileBlob")<< "file " << fname << " does not exist...";}
   else is = computeStreamSize(ifile);
   ifile.close();
   return is;
 }
 
-unsigned int GeometryFile::computeStreamSize(std::istream & is) {
+unsigned int FileBlob::computeStreamSize(std::istream & is) {
   unsigned int rs=0;
   char c;
   while (is.get(c)) rs++;
