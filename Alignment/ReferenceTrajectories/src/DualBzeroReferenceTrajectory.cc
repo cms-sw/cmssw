@@ -17,9 +17,9 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory( const TrajectoryStat
 							    PropagationDirection propDir,
 							    double mass,
 							    double momentumEstimate )
-  : DualReferenceTrajectory( referenceTsos.localParameters().mixedFormatVector().kSize - 1,
-			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,  (materialEffects >= breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0 ),
-    theMomentumEstimate( momentumEstimate )
+  : DualReferenceTrajectory(referenceTsos.localParameters().mixedFormatVector().kSize - 1,
+			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1),
+    theMomentumEstimate(momentumEstimate)
 {
     theValidityFlag = DualReferenceTrajectory::construct( referenceTsos,
 							forwardRecHits,

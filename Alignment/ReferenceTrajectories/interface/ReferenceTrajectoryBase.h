@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2009/08/12 14:54:11 $
- * by         : $Author: flucke $
+ * last update: $Date: 2009/09/15 16:21:55 $
+ * by         : $Author: ckleinw $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -158,7 +158,8 @@ public:
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nMsPar = 0, unsigned int nMsMeas = 0 );
+  ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits, unsigned int nMsPar,
+			  unsigned int nMsMeas);
 
   unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
   bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;
