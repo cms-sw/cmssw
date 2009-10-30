@@ -2,17 +2,10 @@
 #define DataFormats_Provenance_Hash_h
 
 #include <string>
-#include <ostream>
-
-#include "FWCore/Utilities/interface/Digest.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 
 /*----------------------------------------------------------------------
   
 Hash:
-
-$Id: Hash.h,v 1.6 2008/12/18 05:00:31 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -23,16 +16,26 @@ $Id: Hash.h,v 1.6 2008/12/18 05:00:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
 
-  namespace detail
-  {
+  namespace detail {
     // This string is the 16-byte, non-printable version.
     std::string const& InvalidHash();
+  }
+
+  namespace hash_detail {
+    typedef std::string value_type;
+    value_type compactForm_(value_type const& hash);
+    void fixup_(value_type& hash);
+    bool isCompactForm_(value_type const& hash);
+    bool isValid_(value_type const& hash);
+    void throwIfIllFormed(value_type const& hash);
+    void toString_(std::string& result, value_type const& hash);
+    std::ostream& print_(std::ostream& os, value_type const& hash);
   }
 
   template <int I>
   class Hash {
   public:
-    typedef std::string value_type;
+    typedef hash_detail::value_type value_type;
 
     Hash();
     explicit Hash(value_type const& v);
@@ -47,10 +50,10 @@ namespace edm {
     // representation of an MD5 checksum.
     bool isValid() const;
 
-    bool operator< (Hash<I> const& other) const;
-    bool operator> (Hash<I> const& other) const;
-    bool operator== (Hash<I> const& other) const;
-    bool operator!= (Hash<I> const& other) const;
+    bool operator<(Hash<I> const& other) const;
+    bool operator>(Hash<I> const& other) const;
+    bool operator==(Hash<I> const& other) const;
+    bool operator!=(Hash<I> const& other) const;
     std::ostream& print(std::ostream& os) const;
     void toString(std::string& result) const;
     void swap(Hash<I>& other);
@@ -58,7 +61,7 @@ namespace edm {
     // Return the 16-byte (non-printable) string form.
     value_type compactForm() const;
     
-    bool isCompactForm()const;
+    bool isCompactForm() const;
     
   private:
 
@@ -66,15 +69,10 @@ namespace edm {
     /// bytes. If it does not, throw an exception.
     void throwIfIllFormed() const;
 
-    // 'Fix' the string data member of this Hash, i.e., if it is in
-    // the hexified (32 byte) representation, make it be in the
-    // 16-byte (unhexified) representation.
-    void fixup();
-    
-    template< typename Op>
+    template<typename Op>
       bool
       compareUsing(Hash<I> const& iOther, Op op) const {
-        if(this->isCompactForm() == iOther.isCompactForm()) {
+        if(hash_detail::isCompactForm_(hash_) == hash_detail::isCompactForm_(iOther.hash_)) {
           return op(this->hash_,iOther.hash_);
         }
         Hash<I> tMe(*this);
@@ -94,173 +92,103 @@ namespace edm {
 
   template <int I>
   inline
-  Hash<I>::Hash() : 
-    hash_() 
-  {
-    fixup();
+  Hash<I>::Hash() : hash_() {
+    hash_detail::fixup_(hash_);
   }
 
   template <int I>
   inline
-  Hash<I>::Hash(typename Hash<I>::value_type const& v) :
-    hash_(v)
-  {
-    fixup();
+  Hash<I>::Hash(typename Hash<I>::value_type const& v) : hash_(v) {
+    hash_detail::fixup_(hash_);
   }
 
   template <int I>
   inline
-  Hash<I>::Hash(Hash<I> const& iOther):
-    hash_(iOther.hash_)
-  {
-      fixup();
+  Hash<I>::Hash(Hash<I> const& iOther) : hash_(iOther.hash_) {
+    hash_detail::fixup_(hash_);
   }
 
   template <int I>
   inline
   Hash<I> const& 
-  Hash<I>::operator=(Hash<I> const& iRHS)
-  {
+  Hash<I>::operator=(Hash<I> const& iRHS) {
     hash_=iRHS.hash_;
-    fixup();
+    hash_detail::fixup_(hash_);
     return *this;
   }
   
   template <int I>
   inline
   bool 
-  Hash<I>::isValid() const
-  {
-    return isCompactForm() ? (hash_ != edm::detail::InvalidHash()) : (hash_.size()!=0);
+  Hash<I>::isValid() const {
+    return hash_detail::isValid_(hash_);
   }
   
   template <int I>
   inline
   bool
-  Hash<I>::operator< (Hash<I> const& other) const
-  {
-    return this->compareUsing(other, std::less<std::string >());
+  Hash<I>::operator<(Hash<I> const& other) const {
+    return this->compareUsing(other, std::less<std::string>());
   }
 
   template <int I>
   inline
   bool 
-  Hash<I>::operator> (Hash<I> const& other) const 
-  {
-    return this->compareUsing(other, std::greater<std::string >());
+  Hash<I>::operator>(Hash<I> const& other) const {
+    return this->compareUsing(other, std::greater<std::string>());
   }
 
   template <int I>
   inline
   bool 
-  Hash<I>::operator== (Hash<I> const& other) const 
-  {
-    return this->compareUsing(other, std::equal_to<std::string >());
+  Hash<I>::operator==(Hash<I> const& other) const {
+    return this->compareUsing(other, std::equal_to<std::string>());
   }
 
   template <int I>
   inline
   bool 
-  Hash<I>::operator!= (Hash<I> const& other) const 
-  {
-    return this->compareUsing(other, std::not_equal_to<std::string >());
+  Hash<I>::operator!=(Hash<I> const& other) const {
+    return this->compareUsing(other, std::not_equal_to<std::string>());
   }
 
   template <int I>
   inline
   std::ostream& 
-  Hash<I>::print(std::ostream& os) const
-  {
-    Hash<I> tMe(*this);
-    cms::MD5Result temp;
-    copy_all(tMe.hash_, temp.bytes);
-    os << temp.toString();
-    return os;
+  Hash<I>::print(std::ostream& os) const {
+    return hash_detail::print_(os, hash_);
   }
 
   template <int I>
   inline
   void
-  Hash<I>::toString(std::string& result) const
-  {
-    Hash<I> tMe(*this);
-    cms::MD5Result temp;
-    copy_all(tMe.hash_, temp.bytes);
-    result += temp.toString();
+  Hash<I>::toString(std::string& result) const {
+    hash_detail::toString_(result, hash_);
   }
 
   template <int I>
   inline
   void 
-  Hash<I>::swap(Hash<I>& other) 
-  {
-    fixup();
+  Hash<I>::swap(Hash<I>& other) {
+    hash_detail::fixup_(hash_);
     hash_.swap(other.hash_);
-    fixup();
+    hash_detail::fixup_(hash_);
   }
 
   template <int I>
   inline
   typename Hash<I>::value_type
-  Hash<I>::compactForm() const
-  {
-    if (this->isCompactForm()) {
-      return hash_;
-    }
-    Hash<I> tMe(*this);
-    return tMe.compactForm();
-  }
-
-  template <int I>
-  inline
-  void 
-  Hash<I>::throwIfIllFormed() const 
-  {
-    // Fixup not needed here.
-    if (hash_.size() % 2 == 1)
-      {
-	throw edm::Exception(edm::errors::LogicError)
-	  << "Ill-formed Hash instance. "
-	  << "Please report this to the core framework developers";
-      }
+  Hash<I>::compactForm() const {
+    return hash_detail::compactForm_(hash_);
   }
 
   // Note: this template is not declared 'inline' because of the
   // switch statement.
 
   template <int I>
-  void 
-  Hash<I>::fixup() {
-    switch (hash_.size()) {
-      case 0:
-      {
-	hash_ = edm::detail::InvalidHash();
-      }	
-      case 16: 
-      {
-	break;
-      }
-      case 32:
-      {
-	cms::MD5Result temp;
-	temp.fromHexifiedString(hash_);
-	hash_ = temp.compactForm();
-	break;
-      }
-      default:
-      {
-	throw edm::Exception(edm::errors::LogicError)
-	  << "edm::Hash<> instance with data in illegal state:\n"
-	  << hash_
-	  << "\nPlease report this to the core framework developers";
-      }
-    }
-  }
-
-  template <int I>
   inline
   bool Hash<I>::isCompactForm() const {
-    return 16 == hash_.size();
+    return hash_detail::isCompactForm_(hash_);
   }
   
 
@@ -268,16 +196,14 @@ namespace edm {
   template <int I>
   inline
   void
-  swap(Hash<I>& a, Hash<I>& b) 
-  {
+  swap(Hash<I>& a, Hash<I>& b) {
     a.swap(b);
   }
 
   template <int I>
   inline
   std::ostream&
-  operator<< (std::ostream& os, Hash<I> const& h)
-  {
+  operator<<(std::ostream& os, Hash<I> const& h) {
     return h.print(os);
   }
 
