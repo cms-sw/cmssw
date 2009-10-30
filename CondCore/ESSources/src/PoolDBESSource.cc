@@ -57,7 +57,7 @@ namespace {
 
   void dumpInfo(std::ostream & out, std::string const & recName, cond::DataProxyWrapperBase const & proxy) {
     cond::SequenceState state(proxy.proxy()->iov().state());
-    out << recName << ": "
+    out << recName << " / " << proxy.label() << ": " 
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
 	<< state.size() << ", " << state.revision()  << ", "
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
@@ -140,8 +140,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     metadata.getEntryByTag(it->tag,result);
     nsess.transaction().commit();
 
-    cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), nsess,
-                                                                         cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+    cond::DataProxyWrapperBase * pb =  
+      cond::ProxyFactory::get()->create(buildName(it->recordname), nsess,
+					cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+    
     ProxyP proxy(pb);
     proxy->addInfo(it->pfn, it->tag);
     //      proxy->addInfo(conn.connectStr(), it->tag);
