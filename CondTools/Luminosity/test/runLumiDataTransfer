@@ -2,10 +2,11 @@
 """
 runLumiDataTransfer
 
-python script to run EDAnalyzer LumiSectionDataPopCon
+python script to generate the configuration for
+and run EDAnalyzer LumiSectionDataPopCon 
 
 """
-import sys,os,string,shutil
+import sys,os,string,shutil,os.path
 from ConfigParser import ConfigParser
 from optparse import OptionParser
 
@@ -14,7 +15,8 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
                                   logdbConnect,authenticationPath,
                                   allowForceFirstSince,debugMode):
    """
-   
+   generate configuration file for LumiSectionDataPopCon EDAnalyzer.
+   filenames are all should be in absolute path
    """
    # copy the template file to the new cfg.py file
    shutil.copyfile(cfgTemplate,filename)
@@ -33,11 +35,18 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
    f.write('process.p = cms.Path(process.lumidatatransfer)')
 
-
 def main():
-   if 'CMSSW_BASE' not in os.environ:
-      print 'CMSSW is not set up! Please run "cmsenv"'
-      sys.exit(2)
+   """
+   Assumptions:
+   inputdir is the working(run) dir default to currentdir
+   authpath is default to inputdir
+   tnsadminpath is default to $TNS_ADMIN if available, otherwise to inputdir
+   inputTemplatefile is taken from cmsswsrc/CondTools/Luminosity/test
+   
+   outputdir is the job output dir default to currentdir
+   output job config file is in outputdir
+   output logfile is in outputdir
+   """
    usage = "usage: \%prog [options] commandconfigfile"
    parser = OptionParser(usage=usage)
    parser.add_option("-f","--filename",action="store",dest="rootfilename",
@@ -46,14 +55,17 @@ def main():
                      help="tag name (REQUIRED)")
    parser.add_option("-c","--connect",action="store",dest="connect",
                      help="connect string to database (REQUIRED)")
-   parser.add_option("-P","--authPath",action="store",dest="authPath",
-                     help="path to authentication file(REQUIRED)")
-   parser.add_option("-i","--inputTemplate",action="store",dest="inputTemplate",
-                     help="path to authentication file(REQUIRED)")
+   parser.add_option("-P","--authPath",action="store",dest="authpath",
+                     help="path to authentication file default to inputdir(OPTIONAL)")
+   parser.add_option("-T","--TNSAdminPath",action="store",dest="tnsadminpath",
+                     help="path to tnsadmin file default to TNS_ADMIN if available otherwise to inputdir(OPTIONAL)")
+   parser.add_option("-i","--inputdir",action="store",dest="inputdir",
+                     help="path to job input dir default to currentdir(OPTIONAL)")
+   parser.add_option("-s","--cmsswsrc",action="store",dest="cmsswsrc",help="path to CMSSW/src directory default to $CMSSW_BASE/src (OPTIONAL)")
    parser.add_option("-l","--logdatabase",action="store",dest="logdatabase",
                      help="log database connect string (OPTIONAL)")
-   parser.add_option("-o","--outputFilename",action="store",dest="outputFilename",
-                     help="output config file(OPTIONAL)")
+   parser.add_option("-o","--outputdir",action="store",dest="outputdir",
+                     help="job output dir(OPTIONAL)")
    parser.add_option("-d","--dryrun",action="store_true",dest="dryrun",
                      help="dryrun mode-only write the config file (OPTIONAL)")
    parser.add_option("-a","--allowForceFirstSince",action="store_true",dest="allowforcefirstsince",help="set allowForceFirstSince parameter to True (OPTIONAL)")
@@ -67,25 +79,41 @@ def main():
    authpath=''
    inputTemplate=''
    logdatabase=''
-   outputFilename='outputcfg.py'
+   outputdir=os.getcwd()
+   inputdir=os.getcwd()
+   outputFilename='LumiRootTransfer.py'
    dryrun=False
    allowForceFirstSince=False
+   cmsswsrc=''
+   tnsadminpath=''
+   if os.environ.has_key('TNS_ADMIN'):
+      tnsadminpath=os.environ['TNS_ADMIN']
+      
+   if os.environ.has_key('CMSSW_BASE'):
+      cmsswsrc=os.path.join(os.environ['CMSSW_BASE'],'src')
+      
    verbose=False
    
-   if args[0]:
+   if len(args)!=0:
       print 'parse parameters from config file ',args[0]
       Config=ConfigParser()
       Config.read(args[0])
       sectionName='TRANSFERTOEVT'
       try:
-        if Config.has_option(sectionName,'logconnect') :
-           logdatabase=Config.get(sectionName,'logconnect')
-        if Config.has_option(sectionName,'outputfilename') :
-           outputFilename=Config.get(sectionName,'outputfilename')
-        
+        if Config.has_option(sectionName,'authpath') :
+           authpath=Config.get(sectionName,'authpath')
+        if Config.has_option(sectionName,'tnsadminpath') :
+           tnsadminpath=Config.get(sectionName,'tnsadminpath')
+        if Config.has_option(sectionName,'inputdir') :
+           inputdir=Config.get(sectionName,'inputdir')
+        if Config.has_option(sectionName,'cmsswsrc') :
+           cmsswsrc=Config.get(sectionName,'cmsswsrc')
+        if Config.has_option(sectionName,'logdatabase') :
+           logdatabase=Config.get(sectionName,'logdatabase')
+        if Config.has_option(sectionName,'outputdir') :
+           outputdir=Config.get(sectionName,'outputdir')
         if Config.has_option(sectionName,'dryrun'):
            dryrun=Config.getboolean(sectionName,'dryrun')
-        
         if Config.has_option(sectionName,'allowforcefirstsince'):
            allowForceFirstSince=Config.getboolean(sectionName,'allowforcefirstsince')
         if Config.has_option(sectionName,'verbose'):
@@ -102,15 +130,6 @@ def main():
            connect=Config.get(sectionName,'dbconnect')
         else:
            raise ValueError, "option dbconnect is required"
-        if Config.has_option(sectionName,'authpath'):
-           authpath=Config.get(sectionName,'authpath')
-        else:
-           raise ValueError, "option authpath is required"
-        if Config.has_option(sectionName,'inputTemplate'):
-           inputTemplate=Config.get(sectionName,'inputTemplate')
-        else:
-           raise ValueError, "option inputTemplate is required"
-           
       except Exception,er:
         print str(er)
         sys.exit(2) 
@@ -122,42 +141,70 @@ def main():
          parser.error('option -t or --tagname is required')
       if not options.connect:
          parser.error('option -c or --connect is required')
-      if not options.authPath:
-         parser.error('option -P or --authPath is required')
-      if not options.inputTemplate:
-         parser.error('option -i or --inputTemplate is required')
+      
       rootfilename=options.rootfilename
       tagname=options.tagname
       connect=options.connect
-      authpath=options.authPath
-      inputTemplate=options.inputTemplate
+      if options.authpath:
+         authpath=options.authpath
+      if options.tnsadminpath:
+         tnsadminpath=options.tnsadminpath
+      if options.inputdir:
+         inputdir=options.inputdir
+      if options.cmsswsrc:
+         cmsswsrc=options.cmsswsrc
       if options.logdatabase:
          logdatabase=options.logdatabase
-      if options.outputFilename:
-         outputFilename=options.outputFilename
+      if options.outputdir:
+         outputdir=options.outputdir
       verbose=options.verbose
       dryrun=options.dryrun
       allowForceFirstSince=options.allowforcefirstsince
+   if len(authpath)==0:
+      authpath=inputdir
+   if len(tnsadminpath)==0:
+      tnsadminpath=inputdir
+   outputFilename=os.path.join(outputdir,outputFilename)
+   inputTemplate=os.path.join(cmsswsrc,'CondTools','Luminosity','test','LumiRootTransfer.py.template')
    if verbose:
       print 'rootfilename:\t',rootfilename
       print 'tagname:\t',tagname
       print 'connect:\t',connect
       print 'authpath:\t',authpath
-      print 'inputTemplate:\t',inputTemplate
+      print 'tnsadminpath:\t',tnsadminpath
+      print 'inputdir:\t',inputdir
+      
+      print 'cmsswsrc:\t',cmsswsrc
       if len(logdatabase)==0:
          print 'logdatabase:\t logging off'
       else:
          print 'logdatabase:\t',logdatabase
-      print 'outputFilename:\t',outputFilename
+      print 'outputdir:\t',outputdir
       if allowForceFirstSince:
          print 'allowForceFirstSince:\t True'
       if dryrun:
          print 'dryrun mode'
-   
+      print 'outputFilename',outputFilename
+      print 'inputTemplate',inputTemplate
+      
    writeLumiSectionDataPopConCfg(outputFilename,inputTemplate,rootfilename,tagname,connect,logdatabase,authpath,allowForceFirstSince,verbose)
    if not dryrun:
-      print '====== running config file ',outputFilename
-      os.system('cmsRun '+outputFilename)
+      #print '====== running config file ',outputFilename
+      #os.system('cmsRun '+outputFilename)
+      currentdir=os.getcwd()
+      os.chdir(cmsswsrc)
+      (stdin,stdout_and_stderr)=os.popen4("scramv1 runtime -sh")
+      lines=[]
+      for line in stdout_and_stderr.readlines():
+         if line.find("export LD_LIBRARY_PATH=")!=-1 or line.find("export PATH=")!=-1 or line.find("export PYTHONPATH=")!=-1:
+            lines.append(line.split('\n')[0])
+      lines.append(' '.join(['cmsRun',outputFilename]))
+      os.chdir(outputdir)
+      (stdin,stdout_and_stderr)=os.popen4(' '.join(lines))
+      outfd=open(os.path.join(outputdir,'jobreport.txt'),'w',0)
+      outfd.write( stdout_and_stderr.read())
+      outfd.close()
+      os.chdir(currentdir)
    else:
       print 'written cfg file as ',outputFilename
       
