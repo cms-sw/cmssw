@@ -43,55 +43,43 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   typename edm::SortedCollection<Digi>::const_iterator digiItr1;
   typename edm::Handle<edm::SortedCollection<Digi> > digiCollection2;
   typename edm::SortedCollection<Digi>::const_iterator digiItr2;
-  
-  if(unsuppressed) {  // ZDC
+
+   if(unsuppressed) {  // ZDC
      iEvent.getByLabel ("simHcalUnsuppressedDigis", digiCollection1); 
-  }
+   }
   else iEvent.getByLabel (inputTag1_, digiCollection1);
-  
-  iEvent.getByLabel (inputTag2_, digiCollection2);
-  
+
+  iEvent.getByLabel (inputTag2_,digiCollection2);
+ 
   int size1 = 0;
   int size2 = 0;
-  
-  for (digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++) {
-    size1++;
-  }
-  //  for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
-  //    size2++;
-  //  }
-  //  std::cout << "Digi collections   size1 = "<< size1 
-  //	    << "   size2 = " << size2 << std::endl;
 
+  for(digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++)size1++;
+  for(digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++)size2++;
 
+  std::cout<<"Digi Collection size1 =" << size1 << "  size2 =" << size2 << std::endl;
   // CYCLE over first DIGI collection ======================================
-  
-  for (digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++) {
-    
-    size2++;
 
+  for (digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++) {
+    //    size1++;    
     HcalGenericDetId HcalGenDetId(digiItr1->id());
     int tsize =  (*digiItr1).size();
     int match = 0;
-    
+ 
     if(HcalGenDetId.isHcalZDCDetId()){
-
-      std::cout<<digiItr1->id()<<std::endl;
-      
-      //for zdc
+      std::cout<<"Collection 1"<<digiItr1->id()<<std::endl;
       HcalZDCDetId element(digiItr1->id());
       int zside =  element.zside();
       int section = element.section();
       int channel = element.channel();
       int gsub = HcalGenDetId.genericSubdet();
-
       std::cout<< " Zdc genSubdet="<< gsub << " zside=" <<zside
 	       << " section= "<< section << " channel " <<channel
 	       <<std::endl; 
-
       for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
+	std::cout<<"Collection 2"<<digiItr2->id()<<std::endl;
   	HcalZDCDetId element2(digiItr2->id());
-	if( element == element2) {
+	if(element == element2) {
 	  match = 1;
 	  int identical = 1; 
 	  for (int i=0; i<tsize; i++) {
@@ -237,6 +225,7 @@ void Digi2Raw2Digi::beginJob() {}
 void Digi2Raw2Digi::endJob() {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
+
 
 Digi2Raw2Digi::~Digi2Raw2Digi() {}
 
