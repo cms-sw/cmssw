@@ -64,6 +64,9 @@ open CONFIGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/tmp/monitor-$runnum
 print CONFIGFILE <<EOF1;
 import FWCore.ParameterSet.Config as cms
 
+import os
+os.environ['TNS_ADMIN']='/etc'
+
 dbName = ''
 dbHostName = ''
 dbHostPort = 1521
@@ -446,7 +449,7 @@ EOF2
 
 close CONFIGFILE;
 
-$task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; TNS_ADMIN=/etc ; time cmsRun monitor-$runnum.py";
+$task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; time cmsRun monitor-$runnum.py";
 
 if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log" ) {
   system("rm -f $config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log >> /dev/null 2>&1");
