@@ -97,7 +97,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
-   lego->SetDrawNumberCellPixels(20);
+   lego->SetDrawNumberCellPixels(50);
    // scale and translate to real world coordinates
    lego->SetEta(etaMin, etaMax);
    lego->SetPhiWithRng((phiMin+phiMax)*0.5, (phiMax-phiMin)*0.5); // phi range = 2* phiOffset
