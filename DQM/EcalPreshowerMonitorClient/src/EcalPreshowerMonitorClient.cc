@@ -143,21 +143,24 @@ void EcalPreshowerMonitorClient::beginRun(void) {
 
 void EcalPreshowerMonitorClient::endJob(void) {
 
-   if(debug_){ 
+   if (debug_) { 
       cout << "EcalPreshowerMonitorClient: endJob, ievt = " << ievt_ << endl;
    }
 
    if ( ! end_run_ ) {
-
       this->analyze(); 
       this->endRun();
-
    }
 
    if ( outputFile_.size() != 0 ) {
       cout<<"Store Result in "<<outputFile_<<endl;
       dqmStore_->save(outputFile_);
    }
+
+   for ( unsigned int i=0; i<clients_.size(); i++ ) {
+     clients_[i]->endJob();
+   }
+
 }
 
 void EcalPreshowerMonitorClient::endRun() {
