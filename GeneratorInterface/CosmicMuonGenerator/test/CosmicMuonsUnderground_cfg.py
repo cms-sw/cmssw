@@ -15,7 +15,7 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(500)
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100000)
 )
 process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('cosmic.root')
@@ -27,6 +27,7 @@ process.generator.MinP = 3.
 process.generator.MaxTheta = 89.
 #process.generator.MinTheta = 91.
 #process.generator.MaxTheta = 180.
+#process.generator.ElossScaleFactor = 0. #default=1.
 ##process.generator.MinEnu = 10.
 ##process.generator.MaxEnu = 100000.
 #Neutrino production altitude (in [mm])
