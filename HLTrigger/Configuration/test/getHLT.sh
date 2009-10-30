@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_4_0/pre2/HLT"     # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_4_0/pre2/\$TABLE" # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_4_0/pre4/HLT"     # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_4_0/pre4/\$TABLE" # no explicit version, take te most recent 
 TABLES="8E29 1E31 GRun HIon"           # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
