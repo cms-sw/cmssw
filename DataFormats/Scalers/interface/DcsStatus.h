@@ -58,7 +58,7 @@ class DcsStatus
     FPIX        =    29,
     ESp         =    30,
     ESm         =    31,
-    nPartitions =    26
+    nPartitions =    24
   };
 
 
