@@ -230,8 +230,8 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
     
-    recondValidity.first = std::max(recordValidity.first,validity.first);
-    recondValidity.second = std::min(recordValidity.second,validity.second);
+    recordValidity.first = std::max(recordValidity.first,validity.first);
+    recordValidity.second = std::min(recordValidity.second,validity.second);
   }      
    
     // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
