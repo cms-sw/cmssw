@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 14:37:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/09/25 12:03:21 $
+ *  $Revision: 1.11 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -236,6 +236,29 @@ void DTCCBConfigHandler::getNewObjects() {
     ccbMap.insert( std::pair<int,DTCCBId>( ccb, ccbId ) );
   }
 
+  // get brick types
+  std::cout << "retrieve brick types" << std::endl;
+  std::map<int,int> bktMap;
+  coral::AttributeList emptyBindVariableList;
+  std::auto_ptr<coral::IQuery>
+         brickTypeQuery( isession->nominalSchema().newQuery() );
+  brickTypeQuery->addToTableList( "CFGBRICKS" );
+  brickTypeQuery->addToTableList( "BRKT2CSETT" );
+  std::string bTypeCondition = "CFGBRICKS.BRKTYPE=BRKT2CSETT.BRKTYPE";
+  brickTypeQuery->addToOutputList( "CFGBRICKS.BRKID" );
+  brickTypeQuery->addToOutputList( "BRKT2CSETT.CSETTYPE" );
+  brickTypeQuery->setCondition( bTypeCondition, emptyBindVariableList );
+  coral::ICursor& brickTypeCursor = brickTypeQuery->execute();
+  while( brickTypeCursor.next() ) {
+    const coral::AttributeList& row = brickTypeCursor.currentRow();
+    int id = row["CFGBRICKS.BRKID"    ].data<int>();
+    int bt = row["BRKT2CSETT.CSETTYPE"].data<short>();
+//    std::cout << "brick " << id << " type " << bt << std::endl;
+// @@FIX - TEMPORARY PATCH
+    if ( bt > 3 ) bt = 3;
+    bktMap.insert( std::pair<int,int>( id, bt ) );
+  }
+
   // get RH relations
   std::cout << "retrieve RH relations" << std::endl;
   std::map<int,int> cfgMap;
@@ -431,6 +454,7 @@ void DTCCBConfigHandler::getNewObjects() {
     std::vector<DTConfigKey>::const_iterator cfgIend = cfl.end();
     while ( cfgIter != cfgIend ) {
     const DTConfigKey& cfgEntry = *cfgIter++;
+    int cft = cfgEntry.confType;
     int cfg = cfgEntry.confKey;
 
     // retrieve ccb config map
@@ -462,11 +486,28 @@ void DTCCBConfigHandler::getNewObjects() {
       if ( brkIter == brkIend ) continue;
       std::vector<int>* brkPtr = brkIter->second;
       if ( brkPtr == 0 ) continue;
+//      const std::vector<int>& bkFull ( *brkPtr );
       // brick id lists in payload
+      std::vector<int> bkList;
+      bkList.reserve( 20 );
+      std::map<int,int>::const_iterator bktIter = bktMap.begin();
+      std::map<int,int>::const_iterator bktIend = bktMap.end();
+      std::vector<int>::const_iterator bkiIter = brkPtr->begin();
+      std::vector<int>::const_iterator bkiIend = brkPtr->end();
+      while ( bkiIter != bkiIend ) {
+        int brickId = *bkiIter++;
+        bktIter = bktMap.find( brickId );
+	if ( bktIter == bktIend ) continue;
+        if ( bktIter->second == cft ) bkList.push_back( brickId );
+      }
       fullConf->appendConfigKey( chaId.wheelId,
                                  chaId.stationId,
                                  chaId.sectorId,
-                                 *brkPtr );
+                                 bkList );
+//      fullConf->appendConfigKey( chaId.wheelId,
+//                                 chaId.stationId,
+//                                 chaId.sectorId,
+//                                 *brkPtr );
     }
     }
     cond::Time_t snc = runEntry.first;

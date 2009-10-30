@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 19:05:48 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -18,6 +18,7 @@
 
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 //#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 //#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
@@ -84,7 +85,15 @@ DTDBSession::DTDBSession( const std::string& dbFile,
       throw cms::Exception("edm::SiteLocalConfigService is not available");
     }
    }
-   m_connection = new cond::Connection( connect, -1 );
+//   m_connection = new cond::Connection( connect, -1 );
+   if ( cond::ConnectionHandler::Instance().getConnection(connect) == 0 ) {
+     std::cout << "register " << connect << std::endl;
+     cond::ConnectionHandler::Instance().registerConnection(connect,*m_session,0);
+   }
+   else {
+     std::cout << "already registered " << connect << std::endl;
+   }
+   m_connection = cond::ConnectionHandler::Instance().getConnection(connect);
 //   m_pooldb = new cond::PoolStorageManager( connect, catconnect, m_session );
 
 }
@@ -93,7 +102,7 @@ DTDBSession::DTDBSession( const std::string& dbFile,
 // Destructor --
 //--------------
 DTDBSession::~DTDBSession() {
-  delete m_connection;
+//  delete m_connection;
   delete m_session;
 }
 

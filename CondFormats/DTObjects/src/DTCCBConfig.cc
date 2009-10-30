@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/15 15:57:23 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -137,29 +137,26 @@ DTCCBConfig::configKeyMap() const {
   std::vector< std::pair<DTCCBId,int>* >::iterator t_iend = tempList.end();
   while ( t_iter != t_iend ) {
     std::pair<DTCCBId,int>* ptr = *t_iter++;
-    if ( ptr != 0 ) {
-      DTCCBId& ccbId = ptr->first;
-      std::vector<int> cfgKeys;
-      cfgKeys.push_back( ptr->second );
-      std::vector< std::pair<DTCCBId,int>* >::iterator n_iter( t_iter );
-      while( n_iter != t_iend ) {
-        std::pair<DTCCBId,int>* pck = *n_iter;
-        if ( pck != 0 ) {
-          DTCCBId& chkId = pck->first;
-          if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
-               ( chkId.stationId == ccbId.stationId ) && 
-               ( chkId. sectorId == ccbId. sectorId ) ) {
-            cfgKeys.push_back( pck->second );
-            delete *n_iter;
-            *n_iter = 0;
-          }
-        }
-        ++n_iter;
+    if ( ptr == 0 ) continue;
+    DTCCBId& ccbId = ptr->first;
+    std::vector<int> cfgKeys;
+    cfgKeys.push_back( ptr->second );
+    std::vector< std::pair<DTCCBId,int>* >::iterator n_iter( t_iter );
+    while( n_iter != t_iend ) {
+      std::pair<DTCCBId,int>*& pck = *n_iter++;
+      if ( pck == 0 ) continue; 
+      DTCCBId& chkId = pck->first;
+      if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
+           ( chkId.stationId == ccbId.stationId ) && 
+           ( chkId. sectorId == ccbId. sectorId ) ) {
+        cfgKeys.push_back( pck->second );
+        delete pck;
+        pck = 0;
       }
-      keyList.push_back( std::pair< DTCCBId,std::vector<int> >( ccbId,
-                                                                cfgKeys ) );
-      delete ptr;
     }
+    keyList.push_back( std::pair< DTCCBId,std::vector<int> >( ccbId,
+                                                              cfgKeys ) );
+    delete ptr;
   }
   return keyList;
 
