@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.cc,v 1.6 2009/10/13 15:08:34 mommsen Exp $
+// $Id: EventStreamSelector.cc,v 1.7 2009/10/30 19:36:18 wmtan Exp $
 /// @file: EventStreamSelector.cc
 
 #include <vector>
@@ -38,29 +38,8 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
   {
     _eventSelector.reset( new edm::EventSelector( pset, tnames ) );
   }
-<<<<<<< EventStreamSelector.cc
   catch ( edm::Exception& e )
   {
-    errorMsg << e.what();
-    
-    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
-  }
-  catch( std::exception &e )
-  {
-    errorMsg << e.what();
-
-    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
-  }
-  catch(...)
-=======
-  catch ( edm::Exception& e )
->>>>>>> 1.4.4.3
-  {
-<<<<<<< EventStreamSelector.cc
-    errorMsg << "Unknown exception";
-
-    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
-=======
     errorMsg << e.what();
     
     XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
@@ -76,7 +55,6 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
     errorMsg << "Unknown exception";
 
     XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
->>>>>>> 1.4.4.3
   }
 
   _initialized = true;
