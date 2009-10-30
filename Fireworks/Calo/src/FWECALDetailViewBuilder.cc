@@ -106,7 +106,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale*0.5);
    lego->RefMainTrans().SetPos((etaMax+etaMin)*0.5, (phiMax+phiMin)*0.5, 0);
    lego->SetAutoRebin(kFALSE);
-   lego->Set2DMode(TEveCaloLego::kValSize);
+   lego->Set2DMode(TEveCaloLego::kValSizeOutline);
    lego->SetName("ECALDetail Lego");
    return lego;
 
