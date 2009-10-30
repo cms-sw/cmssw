@@ -483,12 +483,9 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     typedef L1CSCTrackCollection::const_iterator ctcIt;
     //loop over csc-tracks (ie pairs<l1track,digi_vec>)
     for(ctcIt tcit=ctf_trk_data_->begin(); tcit!=ctf_trk_data_->end(); tcit++) {
-      
-      /// J.Gartner: Restrict Comparator to middle of readout window
-      //if((tcit->first.bx() > -2) && (tcit->first.bx() < 2))
-      if((tcit->first.bx() < -1) && (tcit->first.bx() > 1))
+      /// restrict comparison to middle of readout window (J.Gartner)
+      if((tcit->first.bx() < -1) || (tcit->first.bx() > 1))
 	continue;
-
       //store the muon candidate
       //csc::L1Track ttr = tcit->first;
       //L1MuRegionalCand cand(ttr);    
@@ -510,10 +507,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ctf_trc_data = &ctf_trc_data_v;
     //same for emulator collection
     for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
-
-      if((tcit->first.bx() < -1) && (tcit->first.bx() > 1))
+      if((tcit->first.bx() < -1) || (tcit->first.bx() > 1))
 	continue;
-
       ctf_trc_emul_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
       CSCCorrelatedLCTDigiCollection ldc = tcit->second;
       for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
