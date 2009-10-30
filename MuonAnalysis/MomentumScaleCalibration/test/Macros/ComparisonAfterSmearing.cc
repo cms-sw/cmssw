@@ -14,7 +14,7 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
       const TString & functionResolName, TDirectory * functionResolDir, TDirectory * functionResolDirMisaligned,
       const TString & canvasNameMC, const TString & canvasNameFunc, TFile * outputFile,
       const TString & title = "", const TString & xAxisTitle = "", const TString & yAxisTitle = "", double Ymax,
-      TDirectory * functionResolDirSmeared = 0, TDirectory * resolDirSmeared = 0 )
+      TDirectory * functionResolDirSmeared = 0, TDirectory * resolDirSmeared = 0, double Xmin = 0, double Xmax = 80)
 {
   TProfile * functionResolVSpt = (TProfile*) functionResolDir->Get(functionResolName);
   TProfile * functionResolVSptMisaligned = (TProfile*) functionResolDirMisaligned->Get(functionResolName);
@@ -40,8 +40,8 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
   resolVSpt->Draw();
   resolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   resolVSpt->GetYaxis()->SetTitle(yAxisTitle);
+  resolVSpt->GetXaxis()->SetRangeUser(Xmin,Xmax);
   resolVSpt->SetMaximum(Ymax);
-  //  resolVSpt->SetMinimum(-Ymax/2);
   resolVSpt->SetMinimum(0);
   resolVSpt->Draw();
   resolVSptMisaligned->SetLineColor(kRed);
@@ -70,8 +70,8 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
   legend2->AddEntry(functionResolVSpt, functionLegendNameIdeal);
   functionResolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   functionResolVSpt->GetYaxis()->SetTitle(yAxisTitle);  
+  functionResolVSpt->GetXaxis()->SetRangeUser(Xmin,Xmax);
   functionResolVSpt->SetMaximum(Ymax);
-  //  resolVSpt->SetMinimum(-Ymax/2);
   functionResolVSpt->SetMinimum(0);
   functionResolVSpt->Draw();
 
@@ -105,9 +105,10 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   if( SmearedFile != 0 ) Smeared = (TH1F*) SmearedFile->Get(HistoName);
   
   TCanvas * c = new TCanvas(canvasName, canvasName, 1000, 800);
-  c->cd();
-  TLegend * legend3 = new TLegend(0.65,0.71,0.98,1.);
-  legend3->SetTextSize(0.03);
+  c->Divide(1,2);
+  c->cd(1);
+  TLegend * legend3 = new TLegend(0.65,0.55,0.98,1.);
+  legend3->SetTextSize(0.06);
   legend3->SetFillColor(0); // Have a white background
   TString LegendName(stringName);
   TString LegendNameAligned;
@@ -116,11 +117,11 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   
   LegendNameAligned = LegendName + "ideal MC";
   legend3->AddEntry(Aligned, LegendNameAligned);
-  Aligned->GetXaxis()->SetTitle(xAxisTitle);
-  Aligned->GetYaxis()->SetTitle(yAxisTitle);  
   Aligned->Rebin(rebinX);
   Aligned->GetXaxis()->SetRangeUser(Xmin,Xmax);
   Aligned->Sumw2();
+  Aligned->GetXaxis()->SetTitle(xAxisTitle);
+  Aligned->GetYaxis()->SetTitle(yAxisTitle);  
   Aligned->DrawNormalized();
   
   LegendNameMisaligned = LegendName + "fake data";
@@ -138,8 +139,29 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   Smeared->Rebin(rebinX);
   Smeared->Sumw2();
   Smeared->DrawNormalized("sames");
-  
   legend3->Draw();
+
+  c->cd(2);
+  TH1F *RatioIdFake = (TH1F*) Aligned->Clone();
+  TH1F *RatioSmeFake = (TH1F*) Aligned->Clone();
+
+  TString LegendNameRatio1, LegendNameRatio2;
+  TLegend * legend4 = new TLegend(0.65,0.71,0.98,1.);
+  LegendNameRatio1 = "Z pt MC/Z pt fake";
+  RatioIdFake->Divide(Aligned,Misaligned);
+  ///RatioIdFake->Add(Aligned,Misaligned,1,-1);
+  RatioIdFake->SetLineColor(kRed);
+  RatioIdFake->Draw("e");  
+  legend4->AddEntry(RatioIdFake,LegendNameRatio1); 
+  LegendNameRatio2 = "Z pt MC smeared/Z pt fake";
+  RatioSmeFake->Divide(Smeared,Misaligned);
+  //RatioSmeFake->Add(Smeared,Misaligned,1,-1);
+  RatioSmeFake->SetLineColor(kBlue);
+  RatioSmeFake->SetTitle("ratio");
+  RatioSmeFake->Draw("esames");  
+  legend4->AddEntry(RatioSmeFake,LegendNameRatio2); 
+  legend4->Draw();
+
   outputFile->cd();
   c->Write();
 
@@ -211,7 +233,7 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "massResolVSetaMC", "massResolVSetaFunc", outputFile,
        "resolution on mass vs #eta",
        "muon #eta", "#sigmaM/M",0.09,
-       functionResolDirSmeared, resolDirSmeared );
+       functionResolDirSmeared, resolDirSmeared, -3, 3 );
 
 
   // sigmaPt/Pt
@@ -329,14 +351,14 @@ void ComparisonAfterSmearing(const TString & stringNumAligned = "Ideal", const T
        "resolPtVSetaMC", "resolPtVSetaFunc", outputFile,
        "resolution on pt vs #eta",
        "muon #eta", "#sigmapt/pt",0.15,
-       functionResolDirSmeared, resolDirSmeared );
+       functionResolDirSmeared, resolDirSmeared, -3, 3 );
   // VS Eta RMS
   draw("hResolPtGenVSMu_ResoVSEta_resolRMS", resolDirAligned, resolDirMisaligned,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirAligned, functionResolDirMisaligned,
        "resolPtVSetaRMSMC", "resolPtVSetaRMSFunc", outputFile,
        "resolution on pt vs #eta",
        "muon #eta", "#sigmapt/pt",0.15,
-       functionResolDirSmeared, resolDirSmeared );
+       functionResolDirSmeared, resolDirSmeared, -3, 3  );
 
 
 }
