@@ -73,4 +73,7 @@ DEFINE_ANOTHER_FWK_MODULE(DTTriggerEfficiencyTest);
 #include "DQM/DTMonitorClient/src/DTLocalTriggerSynchTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerSynchTest);
 
+#include "DQM/DTMonitorClient/src/DTFineDelayCorr.h"
+DEFINE_ANOTHER_FWK_MODULE(DTFineDelayCorr);
+
 

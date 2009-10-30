@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/09 13:20:05 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/10/08 14:47:07 $
+ *  $Revision: 1.13 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -136,7 +136,7 @@ string DTLocalTriggerBaseTest::fullName (string htype) {
 }
 
 string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, const DTChamberId & chambid) {
-
+ 
   stringstream wheel; wheel << chambid.wheel();
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
