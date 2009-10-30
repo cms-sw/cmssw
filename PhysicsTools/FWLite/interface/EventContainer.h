@@ -97,7 +97,7 @@ namespace fwlite
          bool atEnd() const;
       
          
-         TriggerNames const& triggerNames (edm::TriggerResults const& triggerResults) 
+         edm::TriggerNames const& triggerNames (edm::TriggerResults const& triggerResults) 
          { return m_eventBasePtr->triggerNames (triggerResults); }
 
          Long64_t fileIndex()          const 
