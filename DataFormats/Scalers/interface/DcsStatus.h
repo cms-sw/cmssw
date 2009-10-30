@@ -49,8 +49,6 @@ class DcsStatus
     DTm         =    15,
     CSCp        =    16,
     CSCm        =    17,
-    DTTF        =    18,
-    CSCTF       =    19,
     CASTOR      =    20,
     TIBTID      =    24,
     TOB         =    25,
