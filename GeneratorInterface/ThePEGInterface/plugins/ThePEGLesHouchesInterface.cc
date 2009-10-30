@@ -15,6 +15,8 @@
 #include <ThePEG/LesHouches/LesHouches.h>
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
