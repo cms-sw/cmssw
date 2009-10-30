@@ -13,6 +13,5 @@
   <class name="SimpleL7PartonCorrector"/>
   <class name="CombinedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
-  <class name="SmearedJet"/>
 </selection>
 </lcgdict>
