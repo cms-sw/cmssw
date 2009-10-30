@@ -131,25 +131,25 @@ HLXMonitor::SetupHists()
       dbe_->setCurrentFolder(monitorName_+"/HFPlus/Wedge"+tempStreamer.str());
 
       Set1Below[iWedge]   = dbe_->book1D("Set1_Below",   
-				    "HF+ Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 1",  
+				    "HF+ Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 1",  
 				    NBINS, XMIN, XMAX);
       Set1Between[iWedge] = dbe_->book1D("Set1_Between", 
-				    "HF+ Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 1",
+				    "HF+ Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 1",
 				    NBINS, XMIN, XMAX);
       Set1Above[iWedge]   = dbe_->book1D("Set1_Above",   
-				    "HF+ Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 1",  
+				    "HF+ Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 1",  
 				    NBINS, XMIN, XMAX);
       Set2Below[iWedge]   = dbe_->book1D("Set2_Below",   
-				    "HF+ Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 2",  
+				    "HF+ Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 2",  
 				    NBINS, XMIN, XMAX);
       Set2Between[iWedge] = dbe_->book1D("Set2_Between", 
-				    "HF+ Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 2",
+				    "HF+ Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 2",
 				    NBINS, XMIN, XMAX);
       Set2Above[iWedge]   = dbe_->book1D("Set2_Above",   
-				    "HF+ Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 2",  
+				    "HF+ Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
 				    NBINS, XMIN, XMAX);    
       ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				    "HF+ Wedge "+wedgeNum.str()+" E_{T} Sum",                
+				    "HF+ Wedge "+wedgeNum.str()+": E_{T} Sum",                
 				    NBINS, XMIN, XMAX);    
 
       dbe_->tagContents(monitorName_+"/HFPlus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -169,25 +169,25 @@ HLXMonitor::SetupHists()
 
 	 dbe_->setCurrentFolder(monitorName_+"/HFMinus/Wedge"+tempStreamer.str());
 	 Set1Below[iWedge]   = dbe_->book1D("Set1_Below",
-				       "HF- Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 1",  
+				       "HF- Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 1",  
 				       NBINS, XMIN, XMAX);
 	 Set1Between[iWedge] = dbe_->book1D("Set1_Between",
-				       "HF- Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 1",
+				       "HF- Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 1",
 				       NBINS, XMIN, XMAX);
 	 Set1Above[iWedge]   = dbe_->book1D("Set1_Above",   
-				       "HF- Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 1",  
+				       "HF- Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 1",  
 				       NBINS, XMIN, XMAX); 
 	 Set2Below[iWedge]   = dbe_->book1D("Set2_Below",   
-				       "HF- Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 2",  
+				       "HF- Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 2",  
 				       NBINS, XMIN, XMAX); 
 	 Set2Between[iWedge] = dbe_->book1D("Set2_Between", 
-				       "HF- Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 2",
+				       "HF- Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 2",
 				       NBINS, XMIN, XMAX); 
 	 Set2Above[iWedge]   = dbe_->book1D("Set2_Above",   
-				       "HF- Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 2",  
+				       "HF- Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
 				       NBINS, XMIN, XMAX); 
 	 ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				       "HF- Wedge "+wedgeNum.str()+" E_{T} Sum",                
+				       "HF- Wedge "+wedgeNum.str()+": E_{T} Sum",                
 				       NBINS, XMIN, XMAX); 
 
 	 dbe_->tagContents(monitorName_+"/HFMinus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -244,7 +244,7 @@ HLXMonitor::SetupHists()
    std::string CompEtSumYTitle = "E_{T} Sum per active tower";
    std::string CompOccYTitle   = "Occupancy per active tower";
 
-   HFCompareEtSum = dbe_->book1D("HFCompareEtSum","E_{T} Sum - cyclic trigger ",NUM_HLX, 0, NUM_HLX );
+   HFCompareEtSum = dbe_->book1D("HFCompareEtSum","E_{T} Sum",NUM_HLX, 0, NUM_HLX );
    HFCompareEtSum->setAxisTitle( CompXTitle, 1 );
    HFCompareEtSum->setAxisTitle( CompEtSumYTitle, 2 );
  
@@ -860,14 +860,16 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    int fillBin = lumiSectionCount+1;
    if( fillBin > 128 )
    {
-      for( int iBin = 1; iBin<128; iBin++ )
+      // If we are already more than 2 LS's in, move everything back by one bin
+      // and fill the last bin with the new value.
+      for( int iBin = 1; iBin<128; ++iBin )
       {
-	 RecentInstantLumiEtSum->setBinContent(iBin,RecentInstantLumiEtSum->getBinContent(iBin));
-	 RecentInstantLumiOccSet1->setBinContent(iBin,RecentInstantLumiOccSet1->getBinContent(iBin));
-	 RecentInstantLumiOccSet2->setBinContent(iBin,RecentInstantLumiOccSet2->getBinContent(iBin));
-	 RecentIntegratedLumiEtSum->setBinContent(iBin,RecentIntegratedLumiEtSum->getBinContent(iBin));
-	 RecentIntegratedLumiOccSet1->setBinContent(iBin,RecentIntegratedLumiOccSet1->getBinContent(iBin));
-	 RecentIntegratedLumiOccSet2->setBinContent(iBin,RecentIntegratedLumiOccSet2->getBinContent(iBin));
+	 RecentInstantLumiEtSum->setBinContent(iBin,RecentInstantLumiEtSum->getBinContent(iBin+1));
+	 RecentInstantLumiOccSet1->setBinContent(iBin,RecentInstantLumiOccSet1->getBinContent(iBin+1));
+	 RecentInstantLumiOccSet2->setBinContent(iBin,RecentInstantLumiOccSet2->getBinContent(iBin+1));
+	 RecentIntegratedLumiEtSum->setBinContent(iBin,RecentIntegratedLumiEtSum->getBinContent(iBin+1));
+	 RecentIntegratedLumiOccSet1->setBinContent(iBin,RecentIntegratedLumiOccSet1->getBinContent(iBin+1));
+	 RecentIntegratedLumiOccSet2->setBinContent(iBin,RecentIntegratedLumiOccSet2->getBinContent(iBin+1));
       }
       fillBin = 128;
    }
@@ -991,18 +993,47 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	    double normOccSet2Between = (double)section.occupancy[iHLX].data[set2BetweenIndex][iBX]/(double)norm[1];
 	    double normOccSet2Above   = (double)section.occupancy[iHLX].data[set2AboveIndex][iBX]/(double)norm[1];
 
+	    // Weights ... 1/dy**2
+	    double wOccSet1Below   =  1;
+	    double wOccSet1Between =  1;
+	    double wOccSet1Above   =  1;
+	    double wOccSet2Below   =  1;
+	    double wOccSet2Between =  1;
+	    double wOccSet2Above   =  1;
+
+	    if(normOccSet1Below > 0 && normOccSet1Below < 1) 
+	       wOccSet1Below   =  (double)norm[0]/normOccSet1Below*(1-normOccSet1Below);
+	    if(normOccSet1Between > 0 && normOccSet1Between < 1) 
+	       wOccSet1Between =  (double)norm[0]/normOccSet1Between*(1-normOccSet1Between);
+	    if(normOccSet1Above > 0 && normOccSet1Above < 1) 
+	       wOccSet1Above   =  (double)norm[0]/normOccSet1Above*(1-normOccSet1Above);
+	    if(normOccSet2Below > 0 && normOccSet2Below < 1) 
+	       wOccSet2Below   =  (double)norm[1]/normOccSet2Below*(1-normOccSet2Below);
+	    if(normOccSet2Between > 0 && normOccSet2Between < 1) 
+	       wOccSet2Between =  (double)norm[1]/normOccSet2Between*(1-normOccSet2Between);
+	    if(normOccSet2Above > 0 && normOccSet2Above < 1) 
+	       wOccSet2Above   =  (double)norm[1]/normOccSet2Above*(1-normOccSet2Above);
+
 	    // Averages & check sum
 	    if( iBX < NUM_BUNCHES-100 )
 	    {
 	       AvgEtSum->Fill( iWedge,normEt);
 	
+// 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below,   wOccSet1Below   );
+// 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between, wOccSet1Between );
+// 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above,   wOccSet1Above   );
+	   
+// 	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below,   wOccSet2Below   );
+// 	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between, wOccSet2Between );
+// 	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above,   wOccSet2Above   );
+
 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below   );
 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between );
 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above   );
 	   
-	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below    );
-	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between  );
-	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above    );
+	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below   );
+	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between );
+	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above   );
 
 	       if( iWedge < 18 )
 	       {
