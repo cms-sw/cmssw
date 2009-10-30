@@ -15,7 +15,7 @@
 #include <map>
 #include <set>
 // user include files
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -26,8 +26,7 @@ namespace edm{
   class ParameterSet;
 }
 namespace cond{
-  class CoralTransaction;
-  class Connection;
+  class DbSession;
   class BasePayloadProxy;
   class DataProxyWrapperBase;
 }
@@ -53,7 +52,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
  private:
 
   // ----------member data ---------------------------
-  cond::DBSession m_session;
+  cond::DbConnection m_connection;
  
   ProxyMap m_proxies;
 
@@ -77,7 +76,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 
  private:
 
-   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
+   void fillTagCollectionFromDB( cond::DbSession& coraldb,
 				const std::string& roottag,
 				std::map<std::string,cond::TagMetadata>& 
 				 replacement);
