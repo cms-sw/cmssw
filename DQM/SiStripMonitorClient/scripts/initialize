@@ -275,6 +275,8 @@ system qq[perl], qq[-pi -e], qq[s! sourceURL.*!$input_url!], qq[$dqm_python/inpu
 
 system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_playback_cfi.py]; 
 system qq[perl], qq[-pi -e], qq[s!9090!9190!], qq[$dqm_python/environment_playback_cfi.py]; 
+system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_cfi.py];
+system qq[perl], qq[-pi -e], qq[s!9090!9190!], qq[$dqm_python/environment_cfi.py]; 
 
 #
 # start processes

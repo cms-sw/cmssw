@@ -238,7 +238,7 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store, const edm::E
   string mdir = "MechanicalView"; 
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
   string mechanicalview_dir = dqm_store->pwd();
- 
+
   initialiseBadModuleList();
   for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
        it != SubDetMEsMap.end(); it++) {
@@ -382,10 +382,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 	if (me->getEntries() > 100 && istat == dqm::qstatus::ERROR) ston_stat = 0;
       }
     }
-
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
-      cout << dname << " total det " << ndet << " error " << errdet << endl;
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
       if (ston_stat > 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
