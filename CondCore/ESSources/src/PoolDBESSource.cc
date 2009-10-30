@@ -203,7 +203,8 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }
 
   cond::ValidityInterval recordValidity(0,cond::TIMELIMIT);
-
+  cond::TimeType timetype;
+  bool userTime=true;
   for (ProxyMap::const_iterator p=b;p!=e;++p) {
     // refresh if required...
     if (doRefresh)  { 
@@ -220,33 +221,32 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }
     
     
-    cond::TimeType timetype = (*p).second->proxy()->timetype();
+    timetype = (*p).second->proxy()->timetype();
     
     cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
-    bool userTime= (0==abtime);
+    userTime = (0==abtime);
     
     //std::cout<<"abtime "<<abtime<<std::endl;
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
     
-    recondValidity.first = std::max(recondValidity.first,validity.fist);
-    recondValidity.second = std::min(recondValidity.second,validity.second);
+    recondValidity.first = std::max(recordValidity.first,validity.first);
+    recondValidity.second = std::min(recordValidity.second,validity.second);
   }      
    
     // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
     
-   if (!userTime) {
-     edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
-     edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
-       : cond::toIOVSyncValue(recordValidity.second, timetype, false);
+  if (!userTime) {
+    edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
+    edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
+      : cond::toIOVSyncValue(recordValidity.second, timetype, false);
     
     //std::cout<<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
     
-     oInterval = edm::ValidityInterval( start, stop );
+    oInterval = edm::ValidityInterval( start, stop );
    }
-  }
-  
 }
+  
 
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
