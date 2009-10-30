@@ -2,17 +2,21 @@ process = cms.Process("VeeVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+#process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'STARTUP_V1::All'
 process.GlobalTag.globaltag = 'GLOBALTAG::All'
+#process.GlobalTag.globaltag = 'MC_3XY_V10:All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(NEVENT)

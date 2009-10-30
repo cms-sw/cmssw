@@ -36,7 +36,8 @@ IdealTag = 'IDEAL_31X'
 StartupTag = 'STARTUP_31X'
 # This tag is the new replacement (as of 31X) for MC, IDEAL becomes DESIGN
 # MC_31X_V9 works for CMSSW_3_4_0_preX
-MCTag = 'MC_31X_V9'
+MCTag = 'MC_3XY_V10'
+#MCTag = 'MC_3XY_V12'
 
 # PileUp: PU, No PileUp: noPU
 PileUp = 'noPU'
@@ -102,7 +103,8 @@ def do_validation(samples, GlobalTag):
             # If the job is harvesting, check if the file is already harvested
             harvestedfile = './DQM_V0001_R000000001__' + GlobalTag + '__' + sample + '__Validation.root'
             if(( Sequence == "harvesting" and os.path.isfile(harvestedfile)) == False):
-                cmd = 'dbsql "find dataset.createdate, dataset where dataset like *'
+#                cmd = 'dbsql "find dataset.createdate, dataset where dataset like *'
+		cmd = 'dbsql "find dataset where dataset like *'
                 cmd += sample + '/' + NewRelease + '_' + GlobalTag + '*GEN-SIM-RECO*" '
                 cmd += '| grep ' + sample + ' | grep -v test | sort | tail -1 | cut -f2 '
                 print cmd
@@ -132,6 +134,7 @@ def do_validation(samples, GlobalTag):
                     # if not harvesting, find secondary file names
                     if(Sequence != 'harvesting'):
                         cmd3 = 'dbsql "find dataset.parent where dataset like ' + dataset + '" | grep ' + sample
+			print cmd3
                         parentdataset = os.popen(cmd3).readline()
                         print 'Parent dataset: ', parentdataset, '\n'
                         if parentdataset != "":

@@ -113,6 +113,7 @@ void
 TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   using CLHEP::HepLorentzVector;
   
    Handle<edm::SimVertexContainer> simVtcs;
    iEvent.getByLabel( simG4_, simVtcs);
