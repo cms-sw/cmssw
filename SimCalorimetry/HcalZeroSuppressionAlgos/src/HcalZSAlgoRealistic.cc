@@ -52,7 +52,7 @@ bool HcalZSAlgoRealistic::keepMe(const HODataFrame& inp, int threshold, uint32_t
   
   bool keepIt=false;
   //  int mask = 999;
-  if ((threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
@@ -75,7 +75,7 @@ bool HcalZSAlgoRealistic::keepMe(const HODataFrame& inp, int threshold, uint32_t
   
   bool keepIt=false;
   //  int mask = 999;
-  if ((threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
