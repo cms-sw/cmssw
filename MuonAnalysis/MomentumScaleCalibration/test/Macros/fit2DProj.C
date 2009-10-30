@@ -46,8 +46,8 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
 
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
                         TFile * outputFile, const TString & resonanceType = "Upsilon", const double & xDisplace = 0., const TString & append = "");
-void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
-                const TString & title = "", const TString & resonanceType = "Upsilon", const int rebinX = 0, const int rebinY = 0, const int fitType = 1, const TString & outputFileName = "filegraph.root" );
+void macroPlot( TString name, TString nameGen, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
+                const TString & title = "", const TString & resonanceType = "Upsilon", const int rebinX = 0, const int rebinY = 0, const int fitType = 1, const TString & outputFileName = "filegraph.root", const bool genMass = false );
 
 Double_t gaussian(Double_t *x, Double_t *par);
 Double_t lorentzian(Double_t *x, Double_t *par);
@@ -334,9 +334,9 @@ TF1* linLorentzianFit(TH1* histoY){
 }
 
 /****************************************************************************************/
-void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title,
+void macroPlot( TString name, TString nameGen, const TString & nameFile1, const TString & nameFile2, const TString & title,
                 const TString & resonanceType, const int rebinX, const int rebinY, const int fitType,
-                const TString & outputFileName) {
+                const TString & outputFileName, const bool genMass) {
 
   gROOT->SetBatch(true);
 
@@ -347,6 +347,7 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   TGraphErrors *grM_1 = fit2DProj(name, nameFile1, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_1");
   TGraphErrors *grM_2 = fit2DProj(name, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_2");
+  TGraphErrors *grM_Gen = fit2DProj(nameGen, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "");
 
   TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
   c->SetGridx();
@@ -354,6 +355,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     
   grM_1->SetMarkerColor(1);
   grM_2->SetMarkerColor(2);
+  if(genMass)
+    grM_Gen->SetMarkerColor(4);
  
   TString xAxisTitle;
 
@@ -361,15 +364,15 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   if( name.Contains("Eta") ) {
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
-    xAxisTitle = "#eta";
+    xAxisTitle = "muon #eta";
   }
   else if( name.Contains("PhiPlus") || name.Contains("PhiMinus") ) {
     x[0] = -3.2; x[1] = 3.2;
-    xAxisTitle = "#phi(rad)";
+    xAxisTitle = "muon #phi(rad)";
   }
   else {
     x[0] = 0.; x[1] = 200;
-    xAxisTitle = "pt(GeV)";
+    xAxisTitle = "muon pt(GeV)";
   }
   if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=0.; y[1]=6.; }
   else if( resonanceType.Contains("Upsilon") ) { y[0]=8.; y[1]=12.; }
@@ -379,23 +382,29 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   TGraph *gr = new TGraph(2,x,y);
   gr->SetMarkerStyle(8);
   gr->SetMarkerColor(108);
-  gr->GetYaxis()->SetTitle("Mass(GeV)   ");
+  gr->GetYaxis()->SetTitle("Res Mass(GeV)   ");
   gr->GetYaxis()->SetTitleOffset(1);
   gr->GetXaxis()->SetTitle(xAxisTitle);
   gr->SetTitle(title);
 
   // Text for the fits
-  TPaveText * paveText1 = new TPaveText(0.20,0.15,0.49,0.35,"NDC");
+  TPaveText * paveText1 = new TPaveText(0.20,0.15,0.49,0.28,"NDC");
   paveText1->SetFillColor(0);
   paveText1->SetTextColor(1);
   paveText1->SetTextSize(0.02);
   paveText1->SetBorderSize(1);
-  TPaveText * paveText2 = new TPaveText(0.59,0.15,0.88,0.35,"NDC");
+  TPaveText * paveText2 = new TPaveText(0.59,0.15,0.88,0.28,"NDC");
   paveText2->SetFillColor(0);
   paveText2->SetTextColor(2);
   paveText2->SetTextSize(0.02);
   paveText2->SetBorderSize(1);
 
+  TPaveText * paveText3 = new TPaveText(0.59,0.32,0.88,0.45,"NDC");
+  paveText3->SetFillColor(0);
+  paveText3->SetTextColor(4);
+  paveText3->SetTextSize(0.02);
+  paveText3->SetBorderSize(1);
+  
   /*****************PARABOLIC FIT (ETA)********************/
   if( name.Contains("Eta") ) {
     cout << "Fitting eta" << endl;
@@ -412,6 +421,14 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","", "", -3, 3);
     // grM_2->Fit("fit2","R");
     setTPaveText(fit2, paveText2);
+    if(genMass){
+      TF1 *fit3 = new TF1("fit3",onlyParabolic,-3.2,3.2,2);
+      fit3->SetLineWidth(2);
+      fit3->SetLineColor(4);
+      if( grM_Gen->GetN() > 0 ) grM_Gen->Fit("fit3","", "", -3, 3);
+      // grM_2->Fit("fit2","R");
+      setTPaveText(fit3, paveText3);
+    }
   }
   /*****************SINUSOIDAL FIT (PHI)********************/
   if( name.Contains("Phi") ) {
@@ -433,6 +450,17 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     fit2->SetParLimits(2,-3.14,3.14);
     if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","","",-3,3);
     setTPaveText(fit2, paveText2);
+
+    if(genMass){
+      TF1 *fit3 = new TF1("fit3",sinusoidal,-3.2,3.2,3);
+      fit3->SetParameters(9.45,1,1);
+      fit3->SetParNames("offset","amplitude","phase");
+      fit3->SetLineWidth(2);
+      fit3->SetLineColor(4);
+      fit3->SetParLimits(2,-3.14,3.14);
+      if( grM_Gen->GetN() > 0 ) grM_Gen->Fit("fit3","","",-3,3);
+      setTPaveText(fit3, paveText3);
+    }
   }
   /*****************************************/ 
   if( name.Contains("Pt") ) {
@@ -460,20 +488,39 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
       grM_2->Fit("fit2","","",0.,27.);
     }
     setTPaveText(fit2, paveText2);
+
+    if(genMass){
+      TF1 * fit3 = new TF1("fit3", "[0]", 0., 150.);
+      fit3->SetParameters(0., 1.);
+      fit3->SetParNames("scale","pt coefficient");
+      fit3->SetLineWidth(2);
+      fit3->SetLineColor(4);
+      if( grM_Gen->GetN() > 0 ) {
+	if( name.Contains("Z") ) grM_Gen->Fit("fit3","","",0.,150.);
+	grM_Gen->Fit("fit3","","",0.,27.);
+      }
+      setTPaveText(fit3, paveText3);
+    }
   }
 
   c->cd();
   gr->Draw("AP");
   grM_1->Draw("P");
   grM_2->Draw("P");
+  if(genMass)
+    grM_Gen->Draw("P");
 
   paveText1->Draw("same");
   paveText2->Draw("same");
+  if(genMass)
+    paveText3->Draw("same");
 
   TLegend *leg = new TLegend(0.65,0.85,1,1);
   leg->SetFillColor(0);
   leg->AddEntry(grM_1,"before calibration","P");
   leg->AddEntry(grM_2,"after calibration","P");
+  if(genMass)
+    leg->AddEntry(grM_Gen, "generated mass", "P");
   leg->Draw("same");
 
   outputFile->cd();

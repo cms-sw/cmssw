@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/10/14 12:58:35 $
-//  $Revision: 1.10 $
+//  $Date: 2009/10/28 16:54:58 $
+//  $Revision: 1.11 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ MuScleFitPlotter::~MuScleFitPlotter(){
 // --------------------------------------------------------------
 void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
 {
-  bool prova = false;
+  //  bool prova = false;
   //Loop on generated particles
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes;
   reco::Particle::LorentzVector genRes;

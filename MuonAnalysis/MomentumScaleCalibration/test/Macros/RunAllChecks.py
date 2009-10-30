@@ -19,7 +19,7 @@ def arguments(comp, resType = "Z", firstFile = "0", secondFile = "1") :
         fitType = "2"
     else :
         fitType = "1"
-    return "\"hRecBestResVSMu_MassVS"+comp+"\", \""+firstFile+"_MuScleFit.root\", \""+secondFile+"_MuScleFit.root\", \"Resonance mass vs "+name+"\", \""+resType+"\", 4, 4, "+fitType+", \"filegraph_"+name+".root\""
+    return "\"hRecBestResVSMu_MassVS"+comp+"\", \"hGenResVSMu_MassVS"+comp+"\", \""+firstFile+"_MuScleFit.root\", \""+secondFile+"_MuScleFit.root\", \"Resonance mass vs "+name+"\", \""+resType+"\", 4, 4, "+fitType+", \"filegraph_"+name+".root\""
 
 import os
 
@@ -40,10 +40,10 @@ print macrosDir+"Run.C"
 gROOT.ProcessLine(".L "+macrosDir+"fit2DProj.C+");
 fileNum1 = firstFile.strip("\"")
 fileNum2 = secondFile.strip("\"")
-gROOT.ProcessLine( "macroPlot("+arguments("Pt", resonanceType, fileNum1, fileNum2)+")" )
-gROOT.ProcessLine( "macroPlot("+arguments("Eta", resonanceType, fileNum1, fileNum2)+")" )
-gROOT.ProcessLine( "macroPlot("+arguments("PhiPlus", resonanceType, fileNum1, fileNum2)+")" )
-gROOT.ProcessLine( "macroPlot("+arguments("PhiMinus", resonanceType, fileNum1, fileNum2)+")" )
+gROOT.ProcessLine( "macroPlot("+arguments("Pt", resonanceType, fileNum1, fileNum2)+", false)" )
+gROOT.ProcessLine( "macroPlot("+arguments("Eta", resonanceType, fileNum1, fileNum2)+", false)" )
+gROOT.ProcessLine( "macroPlot("+arguments("PhiPlus", resonanceType, fileNum1, fileNum2)+", false)" )
+gROOT.ProcessLine( "macroPlot("+arguments("PhiMinus", resonanceType, fileNum1, fileNum2)+", false)" )
 
 # Resolution
 # ----------

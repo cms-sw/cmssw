@@ -538,7 +538,7 @@ public:
       return parScale[1]*pt;
     else if(fabs(eta)>1.1 && fabs(eta)<1.5)
       return parScale[2]*pt;
-    else if(fabs(eta)>1.5)
+    else
       return parScale[3]*pt;
   }
   // Fill the scaleVec with neutral parameters
@@ -663,6 +663,63 @@ class smearFunctionType5 : public smearFunctionBase {
     double tmp = 2*atan(exp(-eta));
     cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
     smearEta(eta);
+  }
+};
+
+//Smearing for MC correction based on the resolution function Type 15 for misaligned MC
+class smearFunctionType6 : public smearFunctionBase {
+ public:
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    double sigmaSmear = 0;
+    double sigmaPtAl = 0;
+    double sigmaPtMisal = 0;
+    double ptPart = parSmear[0] + parSmear[1]*1/pt + pt*parSmear[2];
+    double fabsEta = fabs(eta);    
+    
+    sigmaPtAl = parSmear[14]*etaByPoints(eta, parSmear[15]);
+    
+    if (fabs(eta)<=1.4){
+      sigmaPtMisal = ptPart + parSmear[3] + parSmear[4]*fabs(eta) + parSmear[5]*eta*eta;
+      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+      pt = pt*gRandom_->Gaus(1,sigmaSmear);
+    }
+    else if (eta>1.4){//eta in right endcap
+      double par = parSmear[3] + parSmear[4]*1.4 + parSmear[5]*1.4*1.4 - (parSmear[6] + parSmear[7]*(1.4-parSmear[8]) + parSmear[9]*(1.4-parSmear[8])*(1.4-parSmear[8]));
+      sigmaPtMisal = par + ptPart + parSmear[6] + parSmear[7]*fabs((fabsEta-parSmear[8])) + parSmear[9]*(fabsEta-parSmear[8])*(fabsEta-parSmear[8]);
+      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+      pt = pt*gRandom_->Gaus(1,sigmaSmear);
+    }
+    else{//eta in left endcap
+      double par =  parSmear[3] + parSmear[4]*1.4 + parSmear[5]*1.4*1.4 - (parSmear[10] + parSmear[11]*(1.4-parSmear[12]) + parSmear[13]*(1.4-parSmear[12])*(1.4-parSmear[12]));
+      sigmaPtMisal = par + ptPart + parSmear[10] + parSmear[11]*fabs((fabsEta-parSmear[12])) + parSmear[13]*(fabsEta-parSmear[12])*(fabsEta-parSmear[12]);
+      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+      pt = pt*gRandom_->Gaus(1,sigmaSmear);
+    }  
+    
+  }
+  
+ protected:
+  /**
+   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
+   */
+  double etaByPoints(const double & inEta, const double & border) {
+    Double_t eta = fabs(inEta);
+    if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
+    else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
+    else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
+    else if( 0.6 < eta && eta <= 0.8 ) return 0.0117338;
+    else if( 0.8 < eta && eta <= 1.0 ) return 0.0138142;
+    else if( 1.0 < eta && eta <= 1.2 ) return 0.0165826;
+    else if( 1.2 < eta && eta <= 1.4 ) return 0.0183663;
+    else if( 1.4 < eta && eta <= 1.6 ) return 0.0169904;
+    else if( 1.6 < eta && eta <= 1.8 ) return 0.0173289;
+    else if( 1.8 < eta && eta <= 2.0 ) return 0.0205821;
+    else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
+    else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
+    // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
+    else if( 2.4 < eta && eta <= 2.6 ) return border;
+    return ( 0. );
   }
 };
 

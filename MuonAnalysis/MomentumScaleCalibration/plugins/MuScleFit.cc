@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/21 14:08:10 $
-//  $Revision: 1.63 $
+//  $Date: 2009/10/28 16:54:25 $
+//  $Revision: 1.64 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -738,6 +738,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
           double genMass = (genMu.first + genMu.second).mass();
           // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
           if( genMass != 0 ) {
+	    mapHisto_["hGenResVSMu"]->Fill((genMu.first), (genMu.first + genMu.second), -1);
+	    mapHisto_["hGenResVSMu"]->Fill((genMu.second), (genMu.first + genMu.second), +1);
             double diffMass = (recoMass - genMass)/genMass;
             // double diffMass = recoMass - genMass;
             // Fill if for both muons
@@ -873,7 +875,8 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::SmearType==3  && MuScleFitUtils::parSmear.size()!=5) ||
       (MuScleFitUtils::SmearType==4  && MuScleFitUtils::parSmear.size()!=6) ||
       (MuScleFitUtils::SmearType==5  && MuScleFitUtils::parSmear.size()!=7) ||
-      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>5) {
+      (MuScleFitUtils::SmearType==6  && MuScleFitUtils::parSmear.size()!=16) ||
+      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>6) {
     cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << endl;
     abort();
   }

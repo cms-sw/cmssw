@@ -23,7 +23,6 @@ draw( const TString & resolName, TDirectory * resolDir,
   TH1D * resolVSptAfter = 0;
   if( resolDirAfter != 0 ) {
     resolVSptAfter = (TH1D*) resolDirAfter->Get(resolName);
-    cout << "resolName = " << resolName << endl;
   }
 
   TString resolVSptName("from reco-gen comparison");
@@ -34,13 +33,13 @@ draw( const TString & resolName, TDirectory * resolDir,
   legend->SetFillColor(0); // Have a white background
   if( resolDirAfter == 0 ) legend->AddEntry(resolVSpt, resolVSptName);
   else legend->AddEntry(resolVSpt, resolVSptName+" before");
-  cout << "resolVSpt = " << resolVSpt << endl;
   resolVSpt->SetTitle(title);
   resolVSpt->Draw();
   resolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   resolVSpt->GetYaxis()->SetTitle(yAxisTitle);
   resolVSpt->SetMaximum(Ymax);
-  resolVSpt->SetMinimum(-Ymax/2);
+  //  resolVSpt->SetMinimum(-Ymax/2);
+  resolVSpt->SetMinimum(0);
   resolVSpt->Draw();
   if( resolDirAfter != 0 ) {
     resolVSptAfter->SetLineColor(kGreen);
@@ -108,7 +107,7 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
        "hFunctionResolMassVSMu_ResoVSPt_prof", functionResolDirBefore,
        "massResolVSpt", outputFile,
        "resolution on mass vs pt",
-       "pt(GeV)", "#sigmaM/M",0.2,
+       "pt(GeV)", "#sigmaM/M",0.15,
        functionResolDirAfter, resolDirAfter );
   // VsEta
   resolDirBefore = (TDirectory*) resolFileBefore->Get("DeltaMassOverGenMassVsEta");
@@ -118,7 +117,7 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
        "hFunctionResolMassVSMu_ResoVSEta_prof", functionResolDirBefore,
        "massResolVSeta", outputFile,
        "resolution on mass vs eta",
-       "eta", "#sigmaM/M",0.2,
+       "eta", "#sigmaM/M",0.09,
        functionResolDirAfter, resolDirAfter );
 
 
@@ -129,33 +128,117 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
   else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolPtGenVSMu");
   functionResolDirBefore = (TDirectory*) functionResolFileBefore->Get("hFunctionResolPt");
   functionResolDirAfter = (TDirectory*) functionResolFileAfter->Get("hFunctionResolPt");
+
+  //=====> All
   // VS Pt
   draw("hResolPtGenVSMu_ResoVSPt_resol", resolDirBefore,
        "hFunctionResolPt_ResoVSPt_prof", functionResolDirBefore,
        "resolPtVSpt", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt/pt",0.05,
+       "pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirAfter, resolDirAfter );
   // VS Pt RMS
   draw("hResolPtGenVSMu_ResoVSPt_resolRMS", resolDirBefore,
        "hFunctionResolPt_ResoVSPt_prof", functionResolDirBefore,
        "resolPtVSptRMS", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt/pt",0.05,
+       "pt(GeV)", "#sigmapt/pt",0.09,
        functionResolDirAfter, resolDirAfter );
+
+  //=====> Barrel
+  // VS Pt
+  draw("hResolPtGenVSMu_ResoVSPt_Bar_resol", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Bar_prof", functionResolDirBefore,
+       "resolPtVSptBar", outputFile,
+       "resolution on pt vs pt, barrel",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_Bar_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Bar_prof", functionResolDirBefore,
+       "resolPtVSptBarRMS", outputFile,
+       "resolution on pt vs pt, barrel",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+
+  //=====> Endcap 1
+  // VS Pt
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_1.7_resol", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_1.7_prof", functionResolDirBefore,
+       "resolPtVSptEndc_1.7", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_1.7_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_1.7_prof", functionResolDirBefore,
+       "resolPtVSptEndc1.7RMS", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+
+  //=====> Endcap 2
+  // VS Pt
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_2.0_resol", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_2.0_prof", functionResolDirBefore,
+       "resolPtVSptEndc2.0", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_2.0_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_2.0_prof", functionResolDirBefore,
+       "resolPtVSptEndc2.0RMS", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+
+  //=====> Endcap 3
+  // VS Pt
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_2.4_resol", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_2.4_prof", functionResolDirBefore,
+       "resolPtVSptEndc2.4", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_Endc_2.4_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Endc_2.4_prof", functionResolDirBefore,
+       "resolPtVSptEndc2.4RMS", outputFile,
+       "resolution on pt vs pt, endcap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+
+
+  //=====> overlap
+  // VS Pt
+  draw("hResolPtGenVSMu_ResoVSPt_Ovlap_resol", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Ovlap_prof", functionResolDirBefore,
+       "resolPtVSptOvlap", outputFile,
+       "resolution on pt vs pt, overlap",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+  // VS Pt RMS
+  draw("hResolPtGenVSMu_ResoVSPt_Ovlap_resolRMS", resolDirBefore,
+       "hFunctionResolPt_ResoVSPt_Ovlap_prof", functionResolDirBefore,
+       "resolPtVSptOvlapRMS", outputFile,
+       "resolution on pt vs pt",
+       "pt(GeV)", "#sigmapt/pt",0.09,
+       functionResolDirAfter, resolDirAfter );
+
   // VS Eta
   draw("hResolPtGenVSMu_ResoVSEta_resol", resolDirBefore,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirBefore,
        "resolPtVSeta", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt/pt",0.05,
+       "#eta", "#sigmapt/pt",0.15,
        functionResolDirAfter, resolDirAfter );
   // VS Eta RMS
   draw("hResolPtGenVSMu_ResoVSEta_resolRMS", resolDirBefore,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirBefore,
        "resolPtVSetaRMS", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt/pt",0.05,
+       "#eta", "#sigmapt/pt",0.15,
        functionResolDirAfter, resolDirAfter );
 
   // sigmaCotgTheta

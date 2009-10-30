@@ -61,6 +61,7 @@ smearFunctionBase * smearFunctionService( const int identifier )
   case ( 3 ): return ( new smearFunctionType3 ); break;
   case ( 4 ): return ( new smearFunctionType4 ); break;
   case ( 5 ): return ( new smearFunctionType5 ); break;
+  case ( 6 ): return ( new smearFunctionType6 ); break;
   default: cout << "Error: undefined smear type = " << identifier << endl; exit(1); break;
   }
 }

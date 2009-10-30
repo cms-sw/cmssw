@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/09/24 07:46:54 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/10/05 09:15:48 $
+ *  $Revision: 1.17 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -784,8 +784,8 @@ class HResolutionVSPart : public Histograms
 {
  public:
   HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
-                    const double & yMinEta = -1, const double & yMaxEta = 1,
-                    const double & yMinPt = -1, const double & yMaxPt = 1,
+                    const double & yMinEta = -1, const double & yMaxEta = 2,
+                    const double & yMinPt = -1, const double & yMaxPt = 2,
                     const bool doProfiles = false) : Histograms(outputFile, name), doProfiles_(doProfiles)
   {
     // Kinematical variables
@@ -807,19 +807,29 @@ class HResolutionVSPart : public Histograms
 
     hReso_           = new TH1F( name+"_Reso", "resolution", 200, -1, 1 );
     hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, maxPt, 60, -3, 3 );
-    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 400, yMinPt, yMaxPt );
-    hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 400, yMinEta, yMaxEta );
-    hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 400, yMinEta, yMaxEta );
-    hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 400, -1, 1 );
-    hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 400, -1, 1 );
+    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSPt_Bar_   = new TH2F( name+"_ResoVSPt_Bar", "resolution VS pt Barrel", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSPt_Endc_17_  = new TH2F( name+"_ResoVSPt_Endc_1.7", "resolution VS pt Endcap (1.4<eta<1.7)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSPt_Endc_20_  = new TH2F( name+"_ResoVSPt_Endc_2.0", "resolution VS pt Endcap (1.7<eta<2.0)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSPt_Endc_24_  = new TH2F( name+"_ResoVSPt_Endc_2.4", "resolution VS pt Endcap (2.0<eta<2.4)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSPt_Ovlap_ = new TH2F( name+"_ResoVSPt_Ovlap", "resolution VS pt overlap", 200, 0, maxPt, 200, yMinPt, yMaxPt );
+    hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 200, yMinEta, yMaxEta );
+    hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 200, yMinEta, yMaxEta );
+    hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 200, -1, 1 );
+    hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 200, -1, 1 );
     hAbsReso_        = new TH1F( name+"_AbsReso", "resolution", 100, 0, 1 );
     hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1 );
     hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1 );
     hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1 );
     if( doProfiles_ ) {
-      hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSEta_prof_ = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -2.5, 2.5, yMinEta, yMaxEta );
-      hResoVSPhi_prof_ = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
+      hResoVSPt_prof_    = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSPt_Bar_prof_    = new TProfile(name+"_ResoVSPt_Bar_prof", "resolution VS pt Barrel", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSPt_Endc_17_prof_   = new TProfile(name+"_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSPt_Endc_20_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSPt_Endc_24_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSPt_Ovlap_prof_  = new TProfile(name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -2.5, 2.5, yMinEta, yMaxEta );
+      hResoVSPhi_prof_       = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
     }
   }
   
@@ -828,6 +838,11 @@ class HResolutionVSPart : public Histograms
     hReso_           = (TH1F *) file->Get(name+"_Reso");
     hResoVSPtEta_    = (TH2F *) file->Get(name+"_ResoVSPtEta");
     hResoVSPt_       = (TH2F *) file->Get(name+"_ResoVSPt");
+    hResoVSPt_Bar_   = (TH2F *) file->Get(name+"_ResoVSPt");
+    hResoVSPt_Endc_17_  = (TH2F *) file->Get(name+"_ResoVSPt");
+    hResoVSPt_Endc_20_  = (TH2F *) file->Get(name+"_ResoVSPt");
+    hResoVSPt_Endc_24_  = (TH2F *) file->Get(name+"_ResoVSPt");
+    hResoVSPt_Ovlap_ = (TH2F *) file->Get(name+"_ResoVSPt");
     hResoVSEta_      = (TH2F *) file->Get(name+"_ResoVSEta");
     hResoVSTheta_    = (TH2F *) file->Get(name+"_ResoVSTheta");
     hResoVSPhiPlus_  = (TH2F *) file->Get(name+"_ResoVSPhiPlus");
@@ -838,6 +853,11 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPhi_   = (TH2F *) file->Get(name+"_AbsResoVSPhi");
     if( doProfiles_ ) {
       hResoVSPt_prof_  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
+      hResoVSPt_Bar_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_prof"); 
+      hResoVSPt_Endc_17_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_1.7_prof"); 
+      hResoVSPt_Endc_20_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_2.0_prof"); 
+      hResoVSPt_Endc_24_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_2.4_prof"); 
+      hResoVSPt_Ovlap_prof_= (TProfile *) file->Get(name+"_ResoVSPt_prof"); 
       hResoVSEta_prof_ = (TProfile *) file->Get(name+"_ResoVSEta_prof");
       hResoVSPhi_prof_ = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
     }
@@ -847,6 +867,11 @@ class HResolutionVSPart : public Histograms
     delete hReso_;
     delete hResoVSPtEta_;
     delete hResoVSPt_;
+    delete hResoVSPt_Bar_;
+    delete hResoVSPt_Endc_17_;
+    delete hResoVSPt_Endc_20_;
+    delete hResoVSPt_Endc_24_;
+    delete hResoVSPt_Ovlap_;
     delete hResoVSEta_;
     delete hResoVSTheta_;
     delete hResoVSPhiMinus_;
@@ -857,6 +882,11 @@ class HResolutionVSPart : public Histograms
     delete hAbsResoVSPhi_;
     if( doProfiles_ ) {
       delete hResoVSPt_prof_;
+      delete hResoVSPt_Bar_prof_;  
+      delete hResoVSPt_Endc_17_prof_; 
+      delete hResoVSPt_Endc_20_prof_; 
+      delete hResoVSPt_Endc_24_prof_; 
+      delete hResoVSPt_Ovlap_prof_;
       delete hResoVSEta_prof_;
       delete hResoVSPhi_prof_;
     }
@@ -868,6 +898,17 @@ class HResolutionVSPart : public Histograms
     hReso_->Fill(resValue);
     hResoVSPtEta_->Fill(pt, eta,resValue); 
     hResoVSPt_->Fill(pt,resValue); 
+    if(fabs(eta)<=0.9)
+      hResoVSPt_Bar_->Fill(pt,resValue);
+    else if(fabs(eta)>0.9 && fabs(eta)<=1.4)
+      hResoVSPt_Ovlap_->Fill(pt,resValue);
+    else if(fabs(eta)>1.4 && fabs(eta)<=1.7)
+      hResoVSPt_Endc_17_->Fill(pt,resValue);
+    else if(fabs(eta)>1.7 && fabs(eta)<=2.0)
+      hResoVSPt_Endc_20_->Fill(pt,resValue);
+    else
+      hResoVSPt_Endc_24_->Fill(pt,resValue);
+     
     hResoVSEta_->Fill(eta,resValue);
     hResoVSTheta_->Fill(p4.Theta(),resValue);
     if(charge>0)
@@ -880,6 +921,17 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPhi_->Fill(p4.Phi(),fabs(resValue));     
     if( doProfiles_ ) {
       hResoVSPt_prof_->Fill(p4.Pt(),resValue); 
+      if(fabs(eta)<=0.9)
+	hResoVSPt_Bar_prof_->Fill(p4.Pt(),resValue); 
+      else if(fabs(eta)>0.9 && fabs(eta)<=1.4)
+	hResoVSPt_Ovlap_prof_->Fill(pt,resValue);
+      else if(fabs(eta)>1.4 && fabs(eta)<=1.7)
+	hResoVSPt_Endc_17_prof_->Fill(pt,resValue);
+      else if(fabs(eta)>1.7 && fabs(eta)<=2.0)
+	hResoVSPt_Endc_20_prof_->Fill(pt,resValue);
+      else
+	hResoVSPt_Endc_24_prof_->Fill(pt,resValue);
+      
       hResoVSEta_prof_->Fill(p4.Eta(),resValue); 
       hResoVSPhi_prof_->Fill(p4.Phi(),resValue); 
     }
@@ -891,6 +943,11 @@ class HResolutionVSPart : public Histograms
     hReso_->Write();
     hResoVSPtEta_->Write();
     hResoVSPt_->Write();
+    hResoVSPt_Bar_->Write();
+    hResoVSPt_Endc_17_->Write();
+    hResoVSPt_Endc_20_->Write();
+    hResoVSPt_Endc_24_->Write();
+    hResoVSPt_Ovlap_->Write();
     hResoVSEta_->Write();
     hResoVSTheta_->Write();
     hResoVSPhiMinus_->Write();
@@ -901,6 +958,11 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPhi_->Write();
     if( doProfiles_ ) {
       hResoVSPt_prof_->Write();
+      hResoVSPt_Bar_prof_->Write();
+      hResoVSPt_Endc_17_prof_->Write();
+      hResoVSPt_Endc_20_prof_->Write();
+      hResoVSPt_Endc_24_prof_->Write();
+      hResoVSPt_Ovlap_prof_->Write();
       hResoVSEta_prof_->Write();
       hResoVSPhi_prof_->Write();
     }
@@ -910,6 +972,11 @@ class HResolutionVSPart : public Histograms
     hReso_->Clear();
     hResoVSPtEta_->Clear();
     hResoVSPt_->Clear();
+    hResoVSPt_Bar_->Clear();
+    hResoVSPt_Endc_17_->Clear();
+    hResoVSPt_Endc_20_->Clear();
+    hResoVSPt_Endc_24_->Clear();
+    hResoVSPt_Ovlap_->Clear();
     hResoVSEta_->Clear();
     hResoVSTheta_->Clear();
     hResoVSPhiPlus_->Clear();
@@ -920,6 +987,11 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPhi_->Clear();
     if( doProfiles_ ) {
       hResoVSPt_prof_->Clear();
+      hResoVSPt_Bar_prof_->Clear();
+      hResoVSPt_Endc_17_prof_->Clear();
+      hResoVSPt_Endc_20_prof_->Clear();
+      hResoVSPt_Endc_24_prof_->Clear();
+      hResoVSPt_Ovlap_prof_->Clear();
       hResoVSEta_prof_->Clear();
       hResoVSPhi_prof_->Clear();
     }
@@ -929,7 +1001,17 @@ class HResolutionVSPart : public Histograms
   TH1F* hReso_;
   TH2F* hResoVSPtEta_;
   TH2F* hResoVSPt_;
+  TH2F* hResoVSPt_Bar_;
+  TH2F* hResoVSPt_Endc_17_;
+  TH2F* hResoVSPt_Endc_20_;
+  TH2F* hResoVSPt_Endc_24_;
+  TH2F* hResoVSPt_Ovlap_;
   TProfile* hResoVSPt_prof_;
+  TProfile* hResoVSPt_Bar_prof_;
+  TProfile* hResoVSPt_Endc_17_prof_;
+  TProfile* hResoVSPt_Endc_20_prof_;
+  TProfile* hResoVSPt_Endc_24_prof_;
+  TProfile* hResoVSPt_Ovlap_prof_;
   TH2F* hResoVSEta_;
   TH2F* hResoVSTheta_;
   TProfile* hResoVSEta_prof_;
@@ -1057,6 +1139,11 @@ class HFunctionResolution : public Histograms
       }
     }
     hResoVSPt_prof_       = new TProfile( name+"_ResoVSPt_prof", "resolution VS pt", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Bar_prof_   = new TProfile( name+"_ResoVSPt_Bar_prof", "resolution VS pt Barrel", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_17_prof_  = new TProfile( name+"_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_20_prof_  = new TProfile( name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_24_prof_  = new TProfile( name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Ovlap_prof_ = new TProfile( name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", totBinsX_, xMin_, xMax, yMin_, yMax);
     hResoVSEta_prof_      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", totBinsY_, yMin_, yMax, 0, 1);
     //hResoVSTheta_prof_    = new TProfile( name+"_ResoVSTheta_prof", "resolution VS theta", 30, 0, TMath::Pi(), 0, 1);
     hResoVSPhiPlus_prof_  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 14, -3.2, 3.2, 0, 1);
@@ -1075,6 +1162,11 @@ class HFunctionResolution : public Histograms
     delete[] resoCount_;
     // Free the profile histograms
     delete hResoVSPt_prof_;
+    delete hResoVSPt_Bar_prof_;
+    delete hResoVSPt_Endc_17_prof_;
+    delete hResoVSPt_Endc_20_prof_;
+    delete hResoVSPt_Endc_24_prof_;
+    delete hResoVSPt_Ovlap_prof_;
     delete hResoVSEta_prof_;
     //delete hResoVSTheta_prof_;
     delete hResoVSPhiPlus_prof_;
@@ -1101,6 +1193,16 @@ class HFunctionResolution : public Histograms
 
       // hResoVSPtEta->Fill(p4.Pt(), p4.Eta(), resValue);
       hResoVSPt_prof_->Fill(p4.Pt(),resValue);
+      if(fabs(p4.Eta())<=0.9)
+	hResoVSPt_Bar_prof_->Fill(p4.Pt(),resValue);
+      else if(fabs(p4.Eta())>0.9 && fabs(p4.Eta())<=1.4 )
+	hResoVSPt_Ovlap_prof_->Fill(p4.Pt(),resValue);
+      else if(fabs(p4.Eta())>1.4 && fabs(p4.Eta())<=1.7 )
+	hResoVSPt_Endc_17_prof_->Fill(p4.Pt(),resValue);
+      else if(fabs(p4.Eta())>1.7 && fabs(p4.Eta())<=2.0 )
+	hResoVSPt_Endc_20_prof_->Fill(p4.Pt(),resValue);
+      else
+      	hResoVSPt_Endc_24_prof_->Fill(p4.Pt(),resValue);
       hResoVSEta_prof_->Fill(p4.Eta(),resValue);
       //hResoVSTheta_prof_->Fill(p4.Theta(),resValue);
       if(charge>0)
@@ -1127,6 +1229,11 @@ class HFunctionResolution : public Histograms
     hResoVSPtEta_->Write();
 
     hResoVSPt_prof_->Write();
+    hResoVSPt_Bar_prof_->Write();
+    hResoVSPt_Endc_17_prof_->Write();
+    hResoVSPt_Endc_20_prof_->Write();
+    hResoVSPt_Endc_24_prof_->Write();
+    hResoVSPt_Ovlap_prof_->Write();
     hResoVSEta_prof_->Write();
     //hResoVSTheta_prof_->Write();
     hResoVSPhiMinus_prof_->Write();
@@ -1149,6 +1256,11 @@ class HFunctionResolution : public Histograms
     hReso_->Clear();
     hResoVSPtEta_->Clear();
     hResoVSPt_prof_->Clear();
+    hResoVSPt_Bar_prof_->Clear();
+    hResoVSPt_Endc_17_prof_->Clear();
+    hResoVSPt_Endc_20_prof_->Clear();
+    hResoVSPt_Endc_24_prof_->Clear();
+    hResoVSPt_Ovlap_prof_->Clear();
     hResoVSEta_prof_->Clear();
     //hResoVSTheta_prof_->Clear();
     hResoVSPhiPlus_prof_->Clear();
@@ -1168,6 +1280,11 @@ class HFunctionResolution : public Histograms
   double ** resoVsPtEta_;
   int ** resoCount_;
   TProfile* hResoVSPt_prof_;
+  TProfile* hResoVSPt_Bar_prof_;
+  TProfile* hResoVSPt_Endc_17_prof_;
+  TProfile* hResoVSPt_Endc_20_prof_;
+  TProfile* hResoVSPt_Endc_24_prof_;
+  TProfile* hResoVSPt_Ovlap_prof_;
   TProfile* hResoVSEta_prof_;
   //TProfile* hResoVSTheta_prof_;
   TProfile* hResoVSPhiMinus_prof_;

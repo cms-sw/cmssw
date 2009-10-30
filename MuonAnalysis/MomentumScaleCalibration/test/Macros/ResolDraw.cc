@@ -58,6 +58,11 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false, cons
   vecNames.push_back("DeltaMassOverGenMassVsEta");
 
   vecNames.push_back(mainNamePt + "_ResoVSPt");
+  vecNames.push_back(mainNamePt + "_ResoVSPt_Bar");
+  vecNames.push_back(mainNamePt + "_ResoVSPt_Endc_1.7");
+  vecNames.push_back(mainNamePt + "_ResoVSPt_Endc_2.0");
+  vecNames.push_back(mainNamePt + "_ResoVSPt_Endc_2.4");
+  vecNames.push_back(mainNamePt + "_ResoVSPt_Ovlap");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
   vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");
   vecNames.push_back(mainNamePt + "_ResoVSPhiPlus");

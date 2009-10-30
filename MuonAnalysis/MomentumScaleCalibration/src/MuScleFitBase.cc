@@ -29,7 +29,8 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
   // If not finding Z, use a smaller mass window
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass, maxPt);
-
+  //Generated Mass versus pt
+  mapHisto_["hGenResVSMu"] = new HMassVSPart ("hGenResVSMu", minMass, maxMass, maxPt);
   // Likelihood values VS muon variables
   // -------------------------------------
   mapHisto_["hLikeVSMu"]       = new HLikelihoodVSPart ("hLikeVSMu");
