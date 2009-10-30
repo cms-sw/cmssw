@@ -12,8 +12,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2009/08/24 11:22:14 $
-  * $Revision: 1.18 $
+  * $Date: 2009/10/12 15:10:05 $
+  * $Revision: 1.19 $
   * \author W. Fisher - FNAL
   */
 
@@ -71,6 +71,7 @@ private:
   MonitorElement* ErrorFlagSummary_;
   MonitorElement* ErrorFlagSummaryZS_;
   MonitorElement* EtCorr_[2];
+  MonitorElement* FGCorr_[2];
 
   // TP Occupancy
   MonitorElement* TPOccupancy_;
@@ -86,6 +87,11 @@ private:
   MonitorElement* MissingData_;
   MonitorElement* MissingEmul_;
 
+  // TP Map for ZS run
+  MonitorElement* MismatchedEtZS_;
+  MonitorElement* MissingDataZS_;
+  MonitorElement* MissingEmulZS_;
+
   // Energy Plots
   // 0 - HBHE
   // 1 - HF
@@ -96,6 +102,9 @@ private:
   MonitorElement* EnergyPlotsEmulOnly_[2];
   MonitorElement* EnergyPlotsMissingData_[2];
   MonitorElement* EnergyPlotsMissingEmul_[2];
+  // For ZS run
+  MonitorElement* EnergyPlotsMissingDataZS_[2];
+  MonitorElement* EnergyPlotsMissingEmulZS_[2];
 
 };
 #endif

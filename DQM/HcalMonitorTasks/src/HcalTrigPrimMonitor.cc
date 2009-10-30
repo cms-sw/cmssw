@@ -78,7 +78,14 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     EtCorr_[0] = m_dbe->book2D(type,type,50,0,256,50,0,256);
 
     type = "EtCorr HF";
-    EtCorr_[1] = m_dbe->book2D(type,type,50,0,100,50,0,100);
+    EtCorr_[1] = m_dbe->book2D(type,type,50,0,256,50,0,256);
+
+    type = "FGCorr HBHE";
+    FGCorr_[0] = m_dbe->book2D(type,type,2,0,2,2,0,2);
+
+    type = "FGCorr HF";
+    FGCorr_[1] = m_dbe->book2D(type,type,2,0,2,2,0,2);
+
     //---------------------------------------------
 
     //-------------- TP Occupancy ----------------
@@ -104,6 +111,17 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     MissingData_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     type = "Missing Emul";
     MissingEmul_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    //---------------------------------------------
+
+    //-------------- TP Occupancy for ZS----------------
+    m_dbe->setCurrentFolder(baseFolder_ + "/TP Map for ZS");
+
+    type = "Mismatched Et ZS";
+    MismatchedEtZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Missing Data ZS";
+    MissingDataZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Missing Emul ZS";
+    MissingEmulZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     //---------------------------------------------
 
     //------------ Energy Plots ------------------
@@ -142,6 +160,19 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     EnergyPlotsMissingData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
     type = "Energy HF - Missing Emul";
     EnergyPlotsMissingEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+
+    // ZS 
+    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots for ZS");
+
+    type = "Energy HBHE - Missing Data - ZS";
+    EnergyPlotsMissingDataZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Missing Emul - ZS";
+    EnergyPlotsMissingEmulZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Missing Data - ZS";
+    EnergyPlotsMissingDataZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Missing Emul - ZS";
+    EnergyPlotsMissingEmulZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+
   }
 
   return;
@@ -167,7 +198,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   HcalBaseMonitor::processEvent();
 
-  buildFrontEndErrMap(rawraw, emap);
+  //buildFrontEndErrMap(rawraw, emap);
   ErrorFlagPerEvent_[0] = 0;
   ErrorFlagPerEvent_[1] = 0;
   ErrorFlagPerEventZS_[0] = 0;
@@ -198,14 +229,18 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
         EnergyPlotsMissingEmul_[IsHF]->Fill(dataEt);
       }
       // Check ZS Alarm Threshold
-      if (dataTPmax > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingEmul);
+      if (dataTPmax > ZSAlarmThreshold_) {
+        ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingEmul);
+        MissingEmulZS_->Fill(ieta, iphi);
+        EnergyPlotsMissingEmulZS_[IsHF]->Fill(dataTPmax);
+      }
       continue;
     }
     
-    if (FrontEndErrors.find( data->id().rawId() ) != FrontEndErrors.end()) {
+    //if (FrontEndErrors.find( data->id().rawId() ) != FrontEndErrors.end()) {
       //Front End Format Error
-      continue;
-    }
+    // continue;
+    //}
 
 
     for (int i=0; i < data->size(); ++i){
@@ -233,27 +268,33 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
       }
 
       //TODO: Message log Unknown errflag for debug
+      //if (errflag != kZeroTP) FGCorr_[IsHF]->Fill(dataFG, emulFG);
       // Fill histogram for non-zero TPs
       switch (errflag){
         case kMatched:
           MatchedTP_->Fill(ieta, iphi);
           EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          FGCorr_[IsHF]->Fill(dataFG, emulFG);
           break;
         case kMismatchedEt:
           MismatchedEt_->Fill(ieta, iphi);
           EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          FGCorr_[IsHF]->Fill(dataFG, emulFG);
           break;
         case kMismatchedFG:
           MismatchedFG_->Fill(ieta, iphi);
           EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          FGCorr_[IsHF]->Fill(dataFG, emulFG);
           EnergyPlotsMismatchedFG_[IsHF]->Fill(dataEt);
           break;
         case kDataOnly:
           DataOnly_->Fill(ieta, iphi);
           EnergyPlotsDataOnly_[IsHF]->Fill(dataEt);
+          break;
         case kEmulOnly:
           EmulOnly_->Fill(ieta, iphi);
           EnergyPlotsEmulOnly_[IsHF]->Fill(emulEt);
+          break;
         default:
           break;
       }
@@ -276,17 +317,23 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
         int diff = abs(data->sample(i).compressedEt() - emul->sample(i).compressedEt());
         if (diff > maxdiff) maxdiff = diff;
       }
-      if (maxdiff > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+      if (maxdiff > ZSAlarmThreshold_) {
+        ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+        MismatchedEtZS_->Fill(ieta, iphi);
+      }
     }
     else {
       int dataEtSOI = data->SOI_compressedEt();
-      int mindiff = 0;
+      int mindiff = 1024;
       for (int i=data->presamples()-1; i<=data->presamples()+1 && i<emul->size(); ++i){
         if (i<0) continue;
         int diff = abs(emul->sample(i).compressedEt() - dataEtSOI);
         if (diff < mindiff) mindiff = diff;
       }
-      if (mindiff > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+      if (mindiff > ZSAlarmThreshold_) {
+        ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+        MismatchedEtZS_->Fill(ieta, iphi);
+      }
     }
   }
 
@@ -309,12 +356,17 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
         if (emulEt > emulTPmax) emulTPmax = emulEt;
         EnergyPlotsMissingData_[IsHF]->Fill(emulEt);
       }
-      if (emulTPmax > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingData);
+      if (emulTPmax > ZSAlarmThreshold_) {
+        ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingData);
+        MissingDataZS_->Fill(ieta, iphi);
+        EnergyPlotsMissingDataZS_[IsHF]->Fill(emulTPmax);
+      }
     }
   } //loop emul TP digis
 
   // Fill Summary (Per Event)
   for (unsigned int IsHF=0; IsHF<=1; ++IsHF){
+    // Non ZS run
     if (ErrorFlagPerEvent_[IsHF] == 0) {
       // 0 - Good = No Error Flag per event
       // 1 - Bad
@@ -322,6 +374,8 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
       ErrorFlagSummary_->Fill(kMatched, IsHF);
     }
     else Summary_->Fill(1, IsHF);
+
+   // ZS run
     if (ErrorFlagPerEventZS_[IsHF] == 0) {
       SummaryZS_->Fill(0, IsHF);
       ErrorFlagSummaryZS_->Fill(kMatched, IsHF);

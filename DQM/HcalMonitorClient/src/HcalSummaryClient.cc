@@ -287,8 +287,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
-      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -300,8 +300,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"));
-      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -313,8 +313,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"));
-      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -325,8 +325,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"));
-      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -341,8 +341,8 @@ void HcalSummaryClient::setup(void)
       std::cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<std::endl;
       return;
     }
-  reportMap->getTH2F()->SetMaximum(1);
-  reportMap->getTH2F()->SetMinimum(-1);
+  //reportMap->getTH2F()->SetMaximum(1);
+  //reportMap->getTH2F()->SetMinimum(-1);
   for (int i=1;i<=5;++i)
     reportMap->setBinContent(i,1,-1);
 
