@@ -111,7 +111,7 @@
   <class name="std::map<std::string, L1GtAlgorithm>"/>
   <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
   <class name="std::pair<std::string, L1GtAlgorithm>"/>
-  <class name="L1GtTriggerMenu">
+  <class name="L1GtTriggerMenu" class_version="L1GtTriggerMenu_V01">
     <field name="m_conditionMap" transient="true" />
   </class>
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01"/>
