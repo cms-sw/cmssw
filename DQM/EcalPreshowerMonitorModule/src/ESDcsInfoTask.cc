@@ -42,7 +42,7 @@ ESDcsInfoTask::~ESDcsInfoTask() {
 
 }
 
-void ESDcsInfoTask::beginJob(const EventSetup& c){
+void ESDcsInfoTask::beginJob(void) {
 
   char histo[200];
   

@@ -46,7 +46,7 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps) {
 ESPedestalTask::~ESPedestalTask() {
 }
 
-void ESPedestalTask::beginJob(const edm::EventSetup & c) {
+void ESPedestalTask::beginJob(void) {
   ievt_ = 0;
 }
 

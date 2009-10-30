@@ -42,7 +42,7 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
 ESIntegrityTask::~ESIntegrityTask() {
 }
 
-void ESIntegrityTask::beginJob(const EventSetup& c) {
+void ESIntegrityTask::beginJob(void) {
 
    ievt_ = 0;
 

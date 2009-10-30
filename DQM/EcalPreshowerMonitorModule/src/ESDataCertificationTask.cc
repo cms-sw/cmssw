@@ -42,7 +42,7 @@ ESDataCertificationTask::~ESDataCertificationTask() {
 
 }
 
-void ESDataCertificationTask::beginJob(const EventSetup& c){
+void ESDataCertificationTask::beginJob(void) {
 
   char histo[200];
   

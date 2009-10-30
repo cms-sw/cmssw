@@ -64,8 +64,7 @@ ESDaqInfoTask::~ESDaqInfoTask() {
    delete es_mapping_;
 }
 
-
-void ESDaqInfoTask::beginJob(const EventSetup& c){
+void ESDaqInfoTask::beginJob(void) {
 
    char histo[200];
 

@@ -17,7 +17,7 @@ class ESPedestalTask : public edm::EDAnalyzer {
 
    private:
 
-      void beginJob(const edm::EventSetup & c);
+      void beginJob(void);
       void analyze(const edm::Event&, const edm::EventSetup&);
       void endJob(void);
       void setup(void);

@@ -4,41 +4,33 @@
 #include <string>
 #include <vector>
 
-// user include files
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
-
 
 #include "DQM/EcalPreshowerMonitorClient/interface/EcalPreshowerMonitorClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESIntegrityClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESSummaryClient.h"
 
-
 using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& ps){
+EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& ps) {
 
-
-   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-   outputFile_	= ps.getUntrackedParameter<string>("OutputFile","");
-   inputFile_	= ps.getUntrackedParameter<string>("InputFile","");
-   prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
-   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+   verbose_    = ps.getUntrackedParameter<bool>("verbose", false);
+   outputFile_ = ps.getUntrackedParameter<string>("OutputFile","");
+   inputFile_  = ps.getUntrackedParameter<string>("InputFile","");
+   prefixME_   = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
+   debug_      = ps.getUntrackedParameter<bool>("debug", false);
 
    prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
-
 
    //Initial enabledClients
    enabledClients_.push_back("Integrity");
@@ -64,8 +56,6 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
       hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
    }
 
-
-
    //Setup Clients
    if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ){
       clients_.push_back( new ESIntegrityClient(ps) );
@@ -84,9 +74,7 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
    }
 }
 
-
-EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
-{
+EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient() {
 
    if ( verbose_ ) cout << "Finish EcalPreshowerMonitorClient" << endl;
 
@@ -97,8 +85,7 @@ EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
    if ( enableMonitorDaemon_ ) delete mui_;
 }
 
-
-void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
+void EcalPreshowerMonitorClient::beginJob() {
 
    if(debug_){ 
       cout<<"EcalPreshowerMonitorClient: beginJob"<<endl;
@@ -138,9 +125,7 @@ void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
    }
 }
 
-
-
-void EcalPreshowerMonitorClient::beginRun(void){
+void EcalPreshowerMonitorClient::beginRun(void) {
 
    if(debug_){ 
       cout << "EcalPreshowerMonitorClient: beginRun" << endl;
@@ -155,7 +140,6 @@ void EcalPreshowerMonitorClient::beginRun(void){
       clients_[i]->beginRun();
    }
 }
-
 
 void EcalPreshowerMonitorClient::endJob(void) {
 
@@ -176,7 +160,6 @@ void EcalPreshowerMonitorClient::endJob(void) {
    }
 }
 
-
 void EcalPreshowerMonitorClient::endRun() {
 
    if(debug_){ 
@@ -192,8 +175,7 @@ void EcalPreshowerMonitorClient::endRun() {
 
 }
 
-
-void EcalPreshowerMonitorClient::analyze(void){
+void EcalPreshowerMonitorClient::analyze(void) {
 
    if ( enableMonitorDaemon_ ) mui_->doMonitoring();
 
@@ -218,8 +200,6 @@ void EcalPreshowerMonitorClient::analyze(const Event & e, const EventSetup & c) 
    }
 
 }
-
-
 
 void EcalPreshowerMonitorClient::htmlOutput(int run) {
 

@@ -21,7 +21,7 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       void analyze(const edm::Event& e, const edm::EventSetup& c);
 
       /// BeginJob
-      void beginJob(const edm::EventSetup& c);
+      void beginJob(void);
 
       /// EndJob
       void endJob(void);

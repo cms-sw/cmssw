@@ -101,21 +101,16 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
 
 }
 
+ESOccupancyTask::~ESOccupancyTask() {
+}
 
-ESOccupancyTask::~ESOccupancyTask(){}
-
-void ESOccupancyTask::beginJob(const edm::EventSetup & c)
-{
+void ESOccupancyTask::beginJob(void) {
 }
 
 void ESOccupancyTask::endJob() {
-
-   // cout<<"Reach EndJob of ESOccupancyTask"<<endl;
-
 }
 
-void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
-{
+void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 
    runNum_ = e.id().run();
    eCount_++;
