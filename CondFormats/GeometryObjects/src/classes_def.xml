@@ -10,11 +10,7 @@
    <field name="m_dimension" mapping="blob"/>
    <field name="m_indexes" mapping="blob"/>
  </class>
- 
- <class name="FileBlob" class_version="0">
-   <field name="blob" mapping="blob"/>
- </class>
- 
+  
  <class name="RecoIdealGeometry" class_version="0">
    <field name="pDetIds" iotype="vector<DetId>" mapping="blob"/>
    <field name="pPars" mapping="blob"/>
