@@ -16,6 +16,7 @@
 #include <vector>
 #include <assert.h>
 #include <stdexcept>
+#include <set>
 
 using namespace std;
 using namespace pos::PortCardSettingNames;
@@ -205,7 +206,13 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   colNames.push_back("PLL_CTR3"    );
   colNames.push_back("PLL_CTR4"    );
   colNames.push_back("PLL_CTR5"    );
-         
+
+  //these are arbitrary integers that control the sort order
+  unsigned int othercount=100;
+  unsigned int delay25count=50;
+  aohcount_=1000;
+  unsigned int pllcount=1;
+
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -250,6 +257,8 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     "channelAddress_\t" << channelAddress_  << endl <<
     "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
  */ 
+
+
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
       std::string settingName;
@@ -282,8 +291,11 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     	  unsigned int last_CTR2 = 0x0;
     	  if ( containsSetting(k_PLL_CTR2) ) last_CTR2 = getdeviceValuesForSetting( k_PLL_CTR2 );
     	
-    	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)) );
-    	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values) );
+	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)) );
+	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values) );
+
+	  key_.push_back( pllcount++); //these are arbitrary integers that control the sort order
+	  key_.push_back(pllcount++);
        }
       // FIXMR
       else // no special handling for this name
@@ -333,9 +345,18 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		   << endl ;
 */
 	      device_.push_back(p);
+	      if (settingName.find("AOH")!=string::npos)      key_.push_back(aohcount_++);
+	      else if (settingName.find("Delay25")!=string::npos) key_.push_back(delay25count++);
+	      else if (settingName.find("PLL")!=string::npos) key_.push_back(pllcount++);
+	      else key_.push_back(othercount++);
+
 	    }
 	}
     } // End of table columns
+
+
+  sortDeviceList();
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -443,6 +464,28 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   in.close();
 
 }
+
+void PixelPortCardConfig::sortDeviceList() {
+
+  std::set < pair < unsigned int,  pair <unsigned int, unsigned int> > > sorted;
+
+  for (unsigned int i=0; i<device_.size(); i++ ) {
+    //cout<<key_.at(i)<<"\t"<<device_.at(i).first<<"  "<<device_.at(i).second<<endl;    
+    sorted.insert( make_pair(key_.at(i) , device_.at(i) ));
+  }
+
+//  cout<<" -=-=-=-= done with sorting -=-=-="<<endl;
+  device_.clear();
+  for ( set < pair < unsigned int, pair <unsigned int, unsigned int> > >::iterator i=sorted.begin() ; i!=sorted.end() ; ++i) {
+    device_.push_back(i->second);
+  }
+
+  //  for (unsigned int i=0; i<device_.size(); i++ ) {
+  //    cout<<"  \t"<<device_.at(i).first<<"  "<<device_.at(i).second<<endl;    
+  //  }
+  
+}
+
 
 unsigned int PixelPortCardConfig::new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const
 {
@@ -583,6 +626,7 @@ void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned i
 		
 		pair<unsigned int, unsigned int> p(i2c_address, i2c_value);
 		device_.push_back(p);
+		key_.push_back(aohcount_++);
 		return;
 	}
 }
