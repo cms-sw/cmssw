@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2009/02/24 18:53:56 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/09/16 16:43:35 $
+ *  $Revision: 1.19 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -291,7 +291,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     
     double distance = match_d(muonTSOS,(*is).second);
     double chi2 = match_Chi2(muonTSOS,(*is).second);
-    double loc_chi2 = match_dist(muonTSOS,(*is).second);
+    //unused    double loc_chi2 = match_dist(muonTSOS,(*is).second);
     double deltaR = match_Rpos(muonTSOS,(*is).second);
     
     // compute quality as the relative ratio to the minimum found for each variable
