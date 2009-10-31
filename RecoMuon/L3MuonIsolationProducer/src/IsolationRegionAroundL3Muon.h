@@ -60,7 +60,7 @@ public:
     ev.getByLabel(theInputTrkSrc, trks);
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
-      double vz = (theVertexZconstrained) ? vz = iTrk->dz() : originz;
+      double vz = (theVertexZconstrained) ? iTrk->dz() : originz;
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
           new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(vz)), 
