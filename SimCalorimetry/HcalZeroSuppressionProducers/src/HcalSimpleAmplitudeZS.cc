@@ -19,17 +19,8 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
   const edm::ParameterSet& psHBHE=conf.getParameter<edm::ParameterSet>("hbhe");
-  int mode=psHBHE.getParameter<int>("mode");
-  HcalZeroSuppressionAlgo::ZSMode zmode;
-  switch (mode) {
-  case(0): zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; break;
-  case(1): zmode=HcalZeroSuppressionAlgo::zs_TriggerTowerOR; break;
-  case(2): zmode=HcalZeroSuppressionAlgo::zs_AllDepthsOR; break;
-  default:
-    edm::LogWarning("Hcal") << "Unknown zero suppression mode " << mode << " for HBHE. Using single-channel mode.";
-    zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; 
-  }
-  hbhe_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(zmode,
+  bool markAndPass=psHBHE.getParameter<bool>("markAndPass");
+  hbhe_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
 							     psHBHE.getParameter<int>("level"),
 							     psHBHE.getParameter<int>("firstSample"),
 							     psHBHE.getParameter<int>("samplesToAdd"),
@@ -37,16 +28,8 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   produces<HBHEDigiCollection>();  
 
   const edm::ParameterSet& psHO=conf.getParameter<edm::ParameterSet>("ho");
-  mode=psHO.getParameter<int>("mode");
-  switch (mode) {
-  case(0): zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; break;
-  case(1): zmode=HcalZeroSuppressionAlgo::zs_TriggerTowerOR; break;
-  case(2): zmode=HcalZeroSuppressionAlgo::zs_AllDepthsOR; break;
-  default:
-    edm::LogWarning("Hcal") << "Unknown zero suppression mode " << mode << " for HO. Using single-channel mode.";
-    zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; 
-  }
-  ho_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(zmode,
+  markAndPass=psHO.getParameter<bool>("markAndPass");
+  ho_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
 							   psHO.getParameter<int>("level"),
 							   psHO.getParameter<int>("firstSample"),
 							   psHO.getParameter<int>("samplesToAdd"),
@@ -54,16 +37,8 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   produces<HODigiCollection>();
   
   const edm::ParameterSet& psHF=conf.getParameter<edm::ParameterSet>("hf");
-  mode=psHF.getParameter<int>("mode");
-  switch (mode) {
-  case(0): zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; break;
-  case(1): zmode=HcalZeroSuppressionAlgo::zs_TriggerTowerOR; break;
-  case(2): zmode=HcalZeroSuppressionAlgo::zs_AllDepthsOR; break;
-  default:
-    edm::LogWarning("Hcal") << "Unknown zero suppression mode " << mode << " for HF. Using single-channel mode.";
-    zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; 
-  }  
-  hf_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(zmode,	
+  markAndPass=psHO.getParameter<bool>("markAndPass");
+  hf_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,	
 							   psHF.getParameter<int>("level"),
 							   psHF.getParameter<int>("firstSample"),
 							   psHF.getParameter<int>("samplesToAdd"),

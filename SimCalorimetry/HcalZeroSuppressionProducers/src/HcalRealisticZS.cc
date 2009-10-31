@@ -16,24 +16,15 @@ using namespace std;
 HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
-  int mode=conf.getParameter<int>("mode");
-  HcalZeroSuppressionAlgo::ZSMode zmode;
-  switch (mode) {
-  case(0): zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; break;
-  case(1): zmode=HcalZeroSuppressionAlgo::zs_TriggerTowerOR; break;
-  case(2): zmode=HcalZeroSuppressionAlgo::zs_AllDepthsOR; break;
-  default:
-    edm::LogWarning("Hcal") << "Unknown zero suppression mode " << mode << " for HBHE. Using single-channel mode.";
-    zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; 
-  }
+  bool markAndPass=conf.getParameter<bool>("markAndPass");
   
-    algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode));
+    algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(markAndPass));
   
     //this constructor will be called if useConfigZSvalues is set to 1 in
     //HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
     //which means that channel-by-channel ZS thresholds from DB will NOT be used
     if ( conf.getParameter<int>("useConfigZSvalues") )
-      algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode,
+      algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(markAndPass,
 							   conf.getParameter<int>("HBlevel"),
 							   conf.getParameter<int>("HElevel"),
 							   conf.getParameter<int>("HOlevel"),

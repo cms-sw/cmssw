@@ -18,6 +18,7 @@ import FWCore.ParameterSet.Config as cms
 simHcalDigis = cms.EDFilter("HcalRealisticZS",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     mode = cms.int32(0),
+    markAndPass = cms.bool(False),
     HBlevel = cms.int32(8),
     HElevel = cms.int32(9),
     HOlevel = cms.int32(8),

@@ -12,21 +12,21 @@ simHcalDigis = cms.EDFilter("HcalSimpleAmplitudeZS",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     hbhe = cms.PSet(
         firstSample = cms.int32(4),
-        mode = cms.int32(2),
+        markAndPass = cms.bool(False),
         samplesToAdd = cms.int32(2),
         twoSided = cms.bool(False),
         level = cms.int32(2)
     ),
     hf = cms.PSet(
         firstSample = cms.int32(3),
-        mode = cms.int32(2),
+        markAndPass = cms.bool(False),
         samplesToAdd = cms.int32(1),
         twoSided = cms.bool(False),
         level = cms.int32(2)
     ),
     ho = cms.PSet(
         firstSample = cms.int32(4),
-        mode = cms.int32(0),
+        markAndPass = cms.bool(False),
         samplesToAdd = cms.int32(2),
         twoSided = cms.bool(False),
         level = cms.int32(2)
