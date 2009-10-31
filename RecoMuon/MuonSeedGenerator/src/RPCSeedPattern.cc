@@ -2,7 +2,7 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/06/08 11:59:46 $
+ *  $Date: 2009/10/15 14:28:38 $
  *  $Revision: 1.1 $
  *  \author Haiyun.Teng - Peking University
  *
@@ -111,11 +111,13 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::seed(const edm::EventSetu
     }
 
     // Check the pattern
-    if(isPatternChecked == false)
-        if(AlgorithmType != 3)
-            checkSimplePattern(eSetup);
-        else
-            checkSegmentAlgorithmSpecial(eSetup);
+    if(isPatternChecked == false){
+      if(AlgorithmType != 3){
+	checkSimplePattern(eSetup);
+      } else {
+	checkSegmentAlgorithmSpecial(eSetup);
+      }
+    }
 
     return createSeed(isGoodSeed, eSetup);
 }
@@ -766,7 +768,7 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup)
             cout << "Current isClockwise is : " << isClockwise << endl;
         }
         cout << "Check isClockwise is : " << isClockwise << endl;
-        if(abs(isClockwise) != (NumberofHitsinSeed-1))
+        if((unsigned int)abs(isClockwise) != (NumberofHitsinSeed-1))
         {
             cout << "Pattern find error in Phi direction" << endl;
             isGoodPattern = 0;

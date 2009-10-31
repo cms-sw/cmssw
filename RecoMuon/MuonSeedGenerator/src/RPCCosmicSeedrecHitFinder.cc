@@ -195,7 +195,7 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
             int ClusterSize = thisRPCRecHit->clusterSize();
             delete thisTrackingRecHit;
             // Check BX
-            if(abs(currentBX) > BxRange)
+            if((unsigned int)abs(currentBX) > BxRange)
                 continue;
 
             // Check cluster size

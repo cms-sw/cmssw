@@ -111,7 +111,7 @@ void RPCSeedrecHitFinder::complete(unsigned int LayerIndex) {
         int ClusterSize = thisRPCRecHit->clusterSize();
         delete thisTrackingRecHit;
         // Check BX
-        if(abs(BX) > BxRange)
+        if((unsigned int)abs(BX) > BxRange)
             continue;
         // Check cluster size
         bool Clustercheck = false;
