@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Oct 29 17:24:36 CET 2008
-// $Id$
+// $Id: RPCSeedGenerator.cc,v 1.5 2009/10/15 14:26:56 hyteng Exp $
 //
 //
 
@@ -89,7 +89,8 @@ class RPCSeedGenerator : public edm::EDProducer {
         ~RPCSeedGenerator();
 
     private:
-        virtual void beginJob(const edm::EventSetup& iSetup);
+        virtual void beginJob();
+        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
         virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
         virtual void endJob();
 
@@ -267,7 +268,7 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 }
 
-void RPCSeedGenerator::beginJob(const edm::EventSetup& iSetup) {
+void RPCSeedGenerator::beginJob() {
 
     // Set link and EventSetup of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
     cout << "set link and Geometry EventSetup of RPCSeedFinder, RPCSeedrecHitFinder, RPCCosmicSeedrecHitFinder, RPCSeedLayerFinder and RPCSeedOverlapper" << endl;
@@ -275,8 +276,10 @@ void RPCSeedGenerator::beginJob(const edm::EventSetup& iSetup) {
     Finder.setOutput(&goodweightedSeeds, &candidateweightedSeeds);
     recHitFinder.setOutput(&Finder);
     CosmicrecHitFinder.setOutput(&Finder);
-    CosmicrecHitFinder.setEdge(iSetup);
     LayerFinder.setOutput(&recHitFinder, &CosmicrecHitFinder);
+}
+void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
+    CosmicrecHitFinder.setEdge(iSetup);
     Overlapper.setEventSetup(iSetup);
     Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
 }
