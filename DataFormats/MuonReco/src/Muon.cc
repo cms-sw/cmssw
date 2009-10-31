@@ -180,7 +180,7 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
             }
             if( ( fabs(edgeX/xErr) < fabs(sigmaCut) && edgeY/yErr < fabs(sigmaCut) ) ||
 		( fabs(edgeY/yErr) < fabs(sigmaCut) && edgeX/xErr < fabs(sigmaCut) ) ) // inside gap
-               curMask = 1<<(stationIndex-1)+4*(detectorIndex-1);
+               curMask = 1<<((stationIndex-1)+4*(detectorIndex-1));
          }
 
          totMask += curMask; // add to total mask
