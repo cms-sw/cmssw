@@ -1,14 +1,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/21 17:05:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/05 00:02:26 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTTTrigSyncTOFCorr.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -23,8 +24,6 @@ DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config){
   theVPropWire = config.getParameter<double>("vPropWire"); // FIXME: Default was 24.4 cm/ns
   theTOFCorrType = config.getParameter<int>("tofCorrType"); // FIXME: Default was 1
   debug = config.getUntrackedParameter<bool>("debug");
-  // spacing of BX in ns
-  theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
 
 }
 
@@ -137,12 +136,4 @@ bool DTTTrigSyncTOFCorr::debug;
 
 
 
-double DTTTrigSyncTOFCorr::emulatorOffset(const DTWireId& wireId,
-					 double &tTrig,
-					 double &t0cell) {
-  tTrig = theTTrig;
-  t0cell = 0.;
-
-  return int(tTrig/theBXspace)*theBXspace;
-}
 
