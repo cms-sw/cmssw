@@ -4,6 +4,7 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
+#include <algorithm>
 
 HcalGeometry::HcalGeometry() :
    theTopology    ( new HcalTopology ),

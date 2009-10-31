@@ -3,6 +3,7 @@
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "CastorGeometryData.h"
+#include <algorithm>
 
 CastorGeometry::CastorGeometry() :
    theTopology( new CastorTopology ), 
