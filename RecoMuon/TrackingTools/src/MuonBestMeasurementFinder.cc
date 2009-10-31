@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2007/12/19 15:46:40 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/12/12 18:38:19 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -98,7 +98,7 @@ pair<double,int> MuonBestMeasurementFinder::lookAtSubRecHits(TrajectoryMeasureme
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   unsigned int npts=0;
-  double thisChi2 = 0.;
+  // unused  double thisChi2 = 0.;
 
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
   TrajectoryStateOnSurface predState = measurement->predictedState();                          // temporarily introduced by DT
