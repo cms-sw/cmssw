@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.4 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.5 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 // forward declarations
 class FWEventItem;
 class FWRhoPhiZView;
+class TEveCaloDataHist;
 
 class FWRPZDataProxyBuilderBase
 {
@@ -70,6 +71,10 @@ public:
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static
    std::string typeOfBuilder();
+   
+   ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
+   virtual void useCalo(TEveCaloDataHist*);
+
 
 protected:
    std::vector<FWModelIdFromEveSelector>& ids() {

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.31 2009/04/07 14:07:27 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.32 2009/10/23 12:49:23 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,9 @@ class TEveSelection;
 class TEveElement;
 class TEveWindowSlot;
 class FWSelectionManager;
+
+class TEveCalo3D;
+class TEveCaloDataHist;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
@@ -117,6 +120,9 @@ private:
 
    FWSelectionManager* m_selectionManager;
    bool m_isBeingDestroyed;
+   
+   TEveCalo3D* m_calo3d;
+   TEveCaloDataHist* m_caloData;
 };
 
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.4 2009/10/22 22:00:47 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.5 2009/10/22 23:13:17 chrjones Exp $
 //
 
 #ifndef Fireworks_Calo_CaloTowerProxyRPZBuilder_h
@@ -18,6 +18,8 @@ public:
    FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name);
    virtual ~FWCaloTowerRPZProxyBuilderBase();
 
+   void useCalo(TEveCaloDataHist*);
+   
 protected:
    void itemBeingDestroyedImp(const FWEventItem*);
 
@@ -34,7 +36,7 @@ private:
    const FWCaloTowerRPZProxyBuilderBase& operator=(const FWCaloTowerRPZProxyBuilderBase&); // stop default
 
    // ---------- member data --------------------------------
-   static TEveCaloDataHist* m_data;
+   TEveCaloDataHist* m_data;
 
    bool         m_handleEcal;
    const char*  m_histName;

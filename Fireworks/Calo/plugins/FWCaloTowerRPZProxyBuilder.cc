@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.14 2009/10/28 15:18:40 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.15 2009/10/28 15:37:04 chrjones Exp $
 //
 
 // system include files
@@ -16,8 +16,6 @@
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 
-TEveCaloDataHist* FWCaloTowerRPZProxyBuilderBase::m_data = 0;
-
 FWCaloTowerRPZProxyBuilderBase::FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name):
    FWRPZDataProxyBuilder(),
    m_handleEcal(handleEcal),
@@ -32,7 +30,7 @@ FWCaloTowerRPZProxyBuilderBase::~FWCaloTowerRPZProxyBuilderBase()
 {
    // Destructor.
 
-   if( 0 !=m_data && 0 != m_hist) {m_data->DecDenyDestroy();}
+   if( 0 !=m_data) {m_data->DecDenyDestroy();}
 }
 
 //______________________________________________________________________________
@@ -56,15 +54,7 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
       m_hist = new TH2F(m_histName,"CaloTower ECAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
       TH1::AddDirectory(status);
       newHist = true;
-   }
 
-   if ( !m_data )  {
-      m_data = new TEveCaloDataHist();
-      FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_data);
-      //make sure it is accessible via the base class
-      m_data->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
-   }
-   if ( newHist ) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(m_histName, 0., iItem->defaultDisplayProperties().color());
       FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_data->GetUserData());
@@ -72,8 +62,6 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
       FWFromTEveCaloDataSelector* sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
       assert(0!=sel);
       sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,iItem));
-      //make sure it does not go away
-      m_data->IncDenyDestroy();
    }
    
    m_hist->Reset();
@@ -86,16 +74,9 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
          }
       }
    }
-   if ( m_calo3d == 0 ) {
-      m_calo3d = new TEveCalo3D(m_data, "RPZCalo3D");
-      m_calo3d->SetBarrelRadius(129);
-      m_calo3d->SetEndCapPos(310);
-   }
    if ( *product == 0)
    {
       *product = new TEveElementList("RPZCalo3DHolder");
-      (*product)->AddElement(m_calo3d);
-      gEve->AddElement(*product);
    }
 }
 
@@ -183,6 +164,14 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       m_data->DataChanged();
    }
 }
+
+void 
+FWCaloTowerRPZProxyBuilderBase::useCalo(TEveCaloDataHist* ioHist) 
+{
+   m_data = ioHist;
+   m_data->IncDenyDestroy();
+}
+
 
 
 REGISTER_FWRPZDATAPROXYBUILDERBASE(FWECalCaloTowerRPZProxyBuilder,CaloTowerCollection,"ECal");

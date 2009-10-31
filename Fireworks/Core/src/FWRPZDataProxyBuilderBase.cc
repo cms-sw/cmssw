@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.9 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.10 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -301,3 +301,9 @@ FWRPZDataProxyBuilderBase::typeOfBuilder()
 {
    return std::string();
 }
+
+void 
+FWRPZDataProxyBuilderBase::useCalo(TEveCaloDataHist*)
+{
+}
+

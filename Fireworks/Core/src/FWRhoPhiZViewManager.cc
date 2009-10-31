@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.55 2009/10/28 14:46:16 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.56 2009/10/28 15:37:04 chrjones Exp $
 //
 
 // system include files
@@ -34,8 +34,10 @@
 #include "TEvePointSet.h"
 #include "TGeoManager.h"
 
-//TEMP
+#include "TH2.h"
+
 #include "TEveCaloData.h"
+#include "TEveCalo.h"
 
 #include <iostream>
 #include <exception>
@@ -62,6 +64,9 @@
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
+
+#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 //
@@ -133,6 +138,22 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
    
+   m_caloData = new TEveCaloDataHist();
+   m_caloData->IncDenyDestroy();
+   FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_caloData);
+   //make sure it is accessible via the base class
+   m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));  
+   Bool_t status = TH1::AddDirectoryStatus();
+   TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+   TH2F* background = new TH2F("background","",
+                               82, fw3dlego::xbins, 72/1, -3.1416, 3.1416);
+   TH1::AddDirectory(status);
+   m_caloData->AddHistogram(background);
+   
+   m_calo3d = new TEveCalo3D(m_caloData, "RPZCalo3D");
+   m_calo3d->SetBarrelRadius(129);
+   m_calo3d->SetEndCapPos(310);
+   m_calo3d->IncDenyDestroy();
 }
 
 FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
@@ -143,6 +164,9 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 
    m_eveStore->DestroyElements();
    m_eveStore->Destroy();
+   
+   m_calo3d->DecDenyDestroy();
+   m_caloData->DecDenyDestroy();
 }
 
 
@@ -172,6 +196,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TEveWindowSlot* iParent)
    }
    pView->resetCamera();
 
+   pView->importElements(m_calo3d,0);
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
          builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoPhiView(pView);
@@ -202,6 +227,8 @@ FWRhoPhiZViewManager::createRhoZView(TEveWindowSlot* iParent)
       pView->replicateGeomElement(*it);
    }
    pView->resetCamera();
+   
+   pView->importElements(m_calo3d,0);
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
          builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoZView(pView);
@@ -235,6 +262,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
          boost::shared_ptr<FWRPZDataProxyBuilderBase> pB( builder );
          builder->setItem(iItem);
          m_builders.push_back(pB);
+         pB->useCalo(m_caloData);
          pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
       }
    }
