@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.6 2009/01/19 10:11:45 tucker Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.7 2009/10/06 13:50:36 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -74,7 +74,7 @@ public:
   ~MuonsFromRefitTracksProducer() {}
 
 private:
-  virtual void beginJob(const EventSetup&) {}
+  virtual void beginJob() {}
   virtual void produce(Event&, const EventSetup&);
   virtual void endJob() {}
 

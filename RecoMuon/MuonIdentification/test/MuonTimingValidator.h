@@ -4,8 +4,8 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2009/10/07 13:12:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/16 09:07:34 $
+ *  $Revision: 1.3 $
  *  \author P. Traczyk    CERN
  */
 
@@ -61,7 +61,7 @@ public:
   typedef std::pair< TrackRef, SimTrackRef> CandMuonSim;
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

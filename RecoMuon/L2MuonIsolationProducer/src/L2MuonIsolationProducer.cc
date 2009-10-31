@@ -64,7 +64,7 @@ L2MuonIsolationProducer::~L2MuonIsolationProducer(){
 }
 
 ///beginJob
-void L2MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup){
+void L2MuonIsolationProducer::beginJob(){
 
 }
 

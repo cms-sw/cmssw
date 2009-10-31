@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/26 07:46:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/16 17:52:33 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -54,7 +54,7 @@ STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset){
 STAMuonAnalyzer::~STAMuonAnalyzer(){
 }
 
-void STAMuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void STAMuonAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();

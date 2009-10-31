@@ -49,7 +49,7 @@ TrackReader::~TrackReader(){}
 
 
 // Operations
-void TrackReader::beginJob(const EventSetup& eventSetup){}
+void TrackReader::beginJob(){}
 
 void TrackReader::endJob(){}
  

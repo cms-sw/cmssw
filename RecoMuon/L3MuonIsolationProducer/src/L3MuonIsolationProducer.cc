@@ -52,7 +52,7 @@ L3MuonIsolationProducer::~L3MuonIsolationProducer(){
   if (theExtractor) delete theExtractor;
 }
 
-void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
+void L3MuonIsolationProducer::beginJob()
 {
 
   //

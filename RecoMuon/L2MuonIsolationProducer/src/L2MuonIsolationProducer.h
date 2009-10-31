@@ -27,7 +27,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   virtual ~L2MuonIsolationProducer(); 
 
   /// setup the job  
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
 
   /// Produce isolation maps
   virtual void produce(edm::Event&, const edm::EventSetup&);

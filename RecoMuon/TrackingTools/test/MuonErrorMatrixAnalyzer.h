@@ -7,7 +7,7 @@
  * to give an empirical parametrization of the track parameters errors.
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -52,7 +52,7 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
      
  private:
   /// framework methods
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
      

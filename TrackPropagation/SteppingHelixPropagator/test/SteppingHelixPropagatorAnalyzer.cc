@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.18 2008/06/16 05:19:51 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.19 2009/05/26 08:11:34 fabiocos Exp $
 //
 //
 
@@ -95,7 +95,7 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  void beginJob(edm::EventSetup const&);
+  void beginJob();
 
 protected:
   struct GlobalSimHit {
@@ -217,7 +217,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
 
 }
 
-void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
+void SteppingHelixPropagatorAnalyzer::beginJob(){
 }
 
 

@@ -285,7 +285,7 @@ void MuIsoValidation::RecordData(MuonIterator muon){
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuIsoValidation::beginJob(const edm::EventSetup&)
+MuIsoValidation::beginJob()
 {
   
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"

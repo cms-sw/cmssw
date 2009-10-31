@@ -20,7 +20,7 @@ class MuIsoDepositAnalyzer : public edm::EDAnalyzer {
 public:
   MuIsoDepositAnalyzer(const edm::ParameterSet& conf);
   ~MuIsoDepositAnalyzer();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() { }
 private:
@@ -41,7 +41,7 @@ MuIsoDepositAnalyzer::~MuIsoDepositAnalyzer()
 {
 }
 
-void MuIsoDepositAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void MuIsoDepositAnalyzer::beginJob()
 {
 }
 

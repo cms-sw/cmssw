@@ -13,7 +13,7 @@
 //
 // Original Author:  Adam A Everett
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.4 2009/10/16 09:07:34 ptraczyk Exp $
+// $Id: MuonTimingValidator.cc,v 1.5 2009/10/19 16:39:48 ptraczyk Exp $
 //
 //
 
@@ -283,7 +283,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonTimingValidator::beginJob(const edm::EventSetup&)
+MuonTimingValidator::beginJob()
 {
    hFile = new TFile( out.c_str(), open.c_str() );
    hFile->cd();

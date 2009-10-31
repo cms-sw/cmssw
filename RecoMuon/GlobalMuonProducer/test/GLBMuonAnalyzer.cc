@@ -1,8 +1,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2007/10/16 17:49:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/28 18:05:04 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -58,7 +58,7 @@ GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet& pset){
 GLBMuonAnalyzer::~GLBMuonAnalyzer(){
 }
 
-void GLBMuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void GLBMuonAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();

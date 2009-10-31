@@ -229,7 +229,7 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonErrorMatrixAdjuster::beginJob(const edm::EventSetup&)
+MuonErrorMatrixAdjuster::beginJob()
 {
   theMatrixProvider = new MuonErrorMatrix(theMatrixProvider_pset);
 }

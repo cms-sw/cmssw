@@ -26,7 +26,7 @@ public:
   virtual ~L3MuonIsolationProducer(); 
 
   /// initialisation
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   
   /// Produce isolation maps
   virtual void produce(edm::Event&, const edm::EventSetup&);

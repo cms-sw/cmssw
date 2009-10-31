@@ -4,8 +4,8 @@
 /** \class TrajectoryReader
  *  No description available.
  *
- *  $Date: 2007/03/07 14:21:49 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/03 16:17:36 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 // Base Class Headers
@@ -45,7 +45,7 @@ class TrajectoryReader: public edm::EDAnalyzer {
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   // Operations
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void endJob();
   
 protected:

@@ -21,7 +21,7 @@ class IsolationExample : public edm::EDAnalyzer {
 public:
   IsolationExample(const edm::ParameterSet& conf);
   ~IsolationExample();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() { }
 private:
@@ -50,7 +50,7 @@ IsolationExample::~IsolationExample()
 {
 }
 
-void IsolationExample::beginJob(const edm::EventSetup& iSetup)
+void IsolationExample::beginJob()
 {
 }
 

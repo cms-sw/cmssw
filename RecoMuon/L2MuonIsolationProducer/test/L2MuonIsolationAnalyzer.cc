@@ -48,7 +48,7 @@ L2MuonIsolationAnalyzer::L2MuonIsolationAnalyzer(const ParameterSet& pset) :
 L2MuonIsolationAnalyzer::~L2MuonIsolationAnalyzer(){
 }
 
-void L2MuonIsolationAnalyzer::beginJob(const EventSetup& eventSetup){
+void L2MuonIsolationAnalyzer::beginJob(){
   // Create output files
   theTxtFile = fopen(theTxtFileName.data(), "w");
 

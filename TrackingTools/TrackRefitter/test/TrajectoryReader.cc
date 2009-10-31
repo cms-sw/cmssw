@@ -45,7 +45,7 @@ TrajectoryReader::~TrajectoryReader(){}
 
 
 // Operations
-void TrajectoryReader::beginJob(const EventSetup& eventSetup){
+void TrajectoryReader::beginJob(){
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");

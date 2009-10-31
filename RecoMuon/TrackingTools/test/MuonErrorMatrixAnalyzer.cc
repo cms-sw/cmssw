@@ -373,7 +373,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 // ------------ method called once each job just before starting event loop  ------------
 
 void 
-MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
+MuonErrorMatrixAnalyzer::beginJob()
 {
   if (theErrorMatrixStore_Reported_pset.empty()){
     theErrorMatrixStore_Reported =0;}

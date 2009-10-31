@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2008/04/28 17:36:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/07 18:00:04 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -67,7 +67,7 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
 
    private:
 
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -313,7 +313,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 }
 
-void CosmicMuonValidator::beginJob(const edm::EventSetup&)
+void CosmicMuonValidator::beginJob()
 {
 
   cout<<"Prepare histograms "<<"\n";
