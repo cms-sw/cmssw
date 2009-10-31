@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2009/05/08 09:56:38 $
- * $Revision: 1.7 $
+ * $Date: 2009/05/08 15:24:25 $
+ * $Revision: 1.8 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -259,7 +259,7 @@ GlobalMuonMatchAnalyzer::endJob() {
   if( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
-void GlobalMuonMatchAnalyzer::beginRun(const edm::EventSetup& setup)
+void GlobalMuonMatchAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& setup)
 {
   // Tk Associator
   edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;
