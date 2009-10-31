@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.9 2008/07/18 12:10:34 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.10 2008/10/22 10:43:07 delaer Exp $
 //
 //
 
@@ -450,7 +450,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) 
                              << " at " << int(leadingPosition) << "." << std::endl
                              << "Angular correction: " << it->second.second 
-                             << " giving a final value of " << int(leadingCharge*fabs(it->second.second));
+                             << " giving a final value of " << int(leadingCharge*fabs(it->second.second)) 
+			     << " for fed key = " << connectionMap_[it->first] << " (detid=" << it->first << ")" ;
   	 // apply corrections to the leading charge, but only if it has not saturated.
   	 if(leadingCharge<255) {
   	   // correct the leading charge for the crossing angle
@@ -555,7 +556,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFineDelayHit::beginJob(const edm::EventSetup& iSetup)
+SiStripFineDelayHit::beginRun (edm::Run &, edm::EventSetup const &iSetup)
 {
    // Retrieve FED cabling object
    edm::ESHandle<SiStripFedCabling> cabling;

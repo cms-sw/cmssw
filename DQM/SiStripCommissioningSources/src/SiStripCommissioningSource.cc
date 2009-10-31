@@ -133,20 +133,6 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   
   base_ = dir.str();
   
-  // ---------- FED and FEC cabling ----------
-  
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get( fed_cabling ); 
-  fedCabling_ = const_cast<SiStripFedCabling*>( fed_cabling.product() ); 
-  fecCabling_ = new SiStripFecCabling( *fed_cabling );
-  if ( fecCabling_->crates().empty() ) {
-    std::stringstream ss;
-    ss << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Empty std::vector returned by FEC cabling object!" 
-       << " Check if database connection failed...";
-    edm::LogWarning(mlDqmSource_) << ss.str();
-  }
-
   // ---------- Reset ---------- 
 
   tasksExist_ = false;
@@ -158,6 +144,29 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   clearCablingTasks();
   clearTasks();
   
+}
+void SiStripCommissioningSource::beginRun( edm::Run const &, edm::EventSetup const &setup) {
+  LogTrace(mlDqmSource_)
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " Configuring..." << std::endl;
+  
+  // ---------- FED and FEC cabling ----------
+  
+  edm::ESHandle<SiStripFedCabling> fed_cabling;
+  setup.get<SiStripFedCablingRcd>().get( fed_cabling ); 
+  fedCabling_ = const_cast<SiStripFedCabling*>( fed_cabling.product() ); 
+  LogDebug("commissioning") << "initialized FED cabling. Number of FEDs is " << fedCabling_->feds().size();
+  std::stringstream ss1;
+  edm::LogWarning(mlDqmSource_) << ss1.str();
+  fecCabling_ = new SiStripFecCabling( *fed_cabling );
+  if ( fecCabling_->crates().empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripCommissioningSource::" << __func__ << "]"
+       << " Empty std::vector returned by FEC cabling object!" 
+       << " Check if database connection failed...";
+    edm::LogWarning(mlDqmSource_) << ss.str();
+  }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -620,7 +629,6 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
         // note: the key is not computed using the same formula as in commissioning histograms.
         // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
         uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
-
 
         // Retrieve digis for given FED key and check if found
         std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
