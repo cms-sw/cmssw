@@ -7,8 +7,8 @@
 
 /** \class HcalZeroSuppessionAlgo
   *  
-  * $Date: 2007/09/24 15:28:01 $
-  * $Revision: 1.2 $
+  * $Date: 2009/09/14 11:03:38 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 
@@ -16,7 +16,6 @@ class HcalDbService;
 
 class HcalZeroSuppressionAlgo {
 public:
-  enum ZSMode { zs_SingleChannel=0, zs_TriggerTowerOR=1, zs_AllDepthsOR=2 };
   void suppress(const HBHEDigiCollection& input, HBHEDigiCollection& output);
   void suppress(const HODigiCollection& input, HODigiCollection& output);
   void suppress(const HFDigiCollection& input, HFDigiCollection& output);
@@ -28,11 +27,11 @@ public:
   //  template <class DIGI> bool keepMe(const DIGI& inp, int threshold);
 
 protected:
-  HcalZeroSuppressionAlgo(ZSMode mode);
+  HcalZeroSuppressionAlgo(bool markAndPass);
   const HcalDbService* m_dbService;
   
 private:
-  ZSMode m_mode;
+  bool m_markAndPass;
 };
 
 #endif

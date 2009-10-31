@@ -4,8 +4,8 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include <iostream>
 
-HcalZSAlgoEnergy::HcalZSAlgoEnergy(HcalZeroSuppressionAlgo::ZSMode mode,int level, int start, int samples, bool twosided) : 
-  HcalZeroSuppressionAlgo(mode),
+HcalZSAlgoEnergy::HcalZSAlgoEnergy(bool mp,int level, int start, int samples, bool twosided) : 
+  HcalZeroSuppressionAlgo(mp),
   threshold_(level),
   firstsample_(start),
   samplecount_(samples),

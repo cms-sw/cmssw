@@ -11,13 +11,13 @@
   * pedestal, and compare with digital threshold (in ADC counts).  The algorithm
   * can keep both positive and negative side fluctuations if "two sided" is enabled.
   *
-  * $Date: 2006/06/26 22:12:33 $
-  * $Revision: 1.1 $
+  * $Date: 2007/07/12 19:33:49 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalZSAlgoEnergy : public HcalZeroSuppressionAlgo {
 public:
-  HcalZSAlgoEnergy(ZSMode mode, int level, int start, int samples, bool twosided);
+  HcalZSAlgoEnergy(bool markAndPass, int level, int start, int samples, bool twosided);
   void prepare(const HcalDbService* db);
   void done();
 protected:
