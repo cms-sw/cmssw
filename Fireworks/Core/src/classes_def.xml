@@ -33,4 +33,5 @@
   <class name="FWTriggerTableView"/>
   <class name="FWGUIEventFilter"/>
   <class name="FWEventSelector"/>
+  <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
 </lcgdict>

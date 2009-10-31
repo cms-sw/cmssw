@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.42 2009/10/22 14:47:24 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.43 2009/10/27 19:25:03 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -441,4 +441,4 @@ FWElectronDetailView::setBackgroundColor(Color_t col)
    FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
-REGISTER_FWDETAILVIEW(FWElectronDetailView);
+REGISTER_FWDETAILVIEW(FWElectronDetailView,Electron);

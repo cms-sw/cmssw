@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.23 2009/10/08 17:39:57 amraktad Exp $
+// $Id: FWTrackDetailView.cc,v 1.24 2009/10/12 17:54:06 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -96,4 +96,4 @@ FWTrackDetailView::setBackgroundColor(Color_t col)
    m_hitsView->setBackgroundColor(col);
 }
 
-REGISTER_FWDETAILVIEW(FWTrackDetailView);
+REGISTER_FWDETAILVIEW(FWTrackDetailView,Track);

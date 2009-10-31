@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.19 2009/09/23 20:26:27 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.20 2009/10/08 17:44:11 amraktad Exp $
 //
 #include <map>
 #include <string>
@@ -32,14 +32,14 @@ class FWDetailViewManager
 public:
    FWDetailViewManager(FWColorManager*);
    virtual ~FWDetailViewManager();
-   bool haveDetailViewFor(const FWModelId&) const;
-   void openDetailViewFor(const FWModelId& );
+   std::vector<std::string> detailViewsFor(const FWModelId&) const;
+   void openDetailViewFor(const FWModelId&, const std::string&);
    void colorsChanged();
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
    const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
-   std::string findViewerFor(const std::string&) const;
+   std::vector<std::string> findViewersFor(const std::string&) const;
 
 protected:
    FWColorManager                *m_colorManager;
@@ -49,6 +49,6 @@ protected:
    FWDetailViewBase              *m_detailView;
 
    std::map<std::string, FWDetailViewBase *>  m_detailViews;
-   mutable std::map<std::string, std::string> m_typeToViewers;
+   mutable std::map<std::string, std::vector<std::string> > m_typeToViewers;
 };
 #endif

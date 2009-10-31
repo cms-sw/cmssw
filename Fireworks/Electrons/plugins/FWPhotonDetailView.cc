@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.19 2009/10/12 17:54:05 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.20 2009/10/27 19:25:03 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -159,4 +159,4 @@ FWPhotonDetailView::setBackgroundColor(Color_t col)
    FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
-REGISTER_FWDETAILVIEW(FWPhotonDetailView);
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon);

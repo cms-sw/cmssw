@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.1 2009/09/23 20:25:29 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.2 2009/09/24 00:43:07 chrjones Exp $
 //
 
 // system include files
@@ -31,14 +31,16 @@ enum MenuOptions {
    kSetVisibleMO,
    kSetColorMO,
    kOpenDetailViewMO,
-   kOpenObjectControllerMO,
+   kAfterOpenDetailViewMO,
+   kOpenObjectControllerMO=100,
    kOpenCollectionControllerMO,
-   kNumOfMO
+   kLastOfMO
 };
 
 //
 // static data member definitions
 //
+static const char* const kOpenDetailView = "Open Detailed View ...";
 
 //
 // constructors and destructor
@@ -52,7 +54,8 @@ m_colorPopup(0),
 m_selectionManager(iSM),
 m_detailViewManager(iDVM),
 m_colorManager(iCM),
-m_guiManager(iGM)
+m_guiManager(iGM),
+m_nDetailViewChoices(0)
 {
 }
 
@@ -123,12 +126,6 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          
          break;
       }
-      case kOpenDetailViewMO:
-      {
-         assert(m_selectionManager->selected().size()==1);
-         m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin())) ;
-         break;
-      }
       case kOpenObjectControllerMO:
       {
          m_guiManager->showModelPopup();
@@ -139,7 +136,16 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_guiManager->showEDIFrame();
          break;
       }
+      case kOpenDetailViewMO:
       default:
+      {
+         assert(iChoice<kOpenObjectControllerMO);
+         assert(m_selectionManager->selected().size()==1);
+         std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
+         assert(0!=viewChoices.size());
+         m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin()),viewChoices[iChoice-kOpenDetailViewMO]) ;
+         break;
+      }
          break;
    }
 }
@@ -177,12 +183,44 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY) const
    }
 
    if(m_selectionManager->selected().size()==1) {
-      if(m_detailViewManager->haveDetailViewFor(*(m_selectionManager->selected().begin())) ) {
+      std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
+      //CDJ NEED TO ADD ALL CHOICES HERE
+      if(viewChoices.size()>0) {
+         if(m_nDetailViewChoices != viewChoices.size()) {
+            if(m_nDetailViewChoices>viewChoices.size()) {
+               for(unsigned int index = m_nDetailViewChoices; index != viewChoices.size(); --index) {
+                  m_modelPopup->DeleteEntry(kOpenDetailViewMO+index);
+               }
+            } else {
+               if(not (m_nDetailViewChoices==0 && viewChoices.size()==1)) {
+                  for(unsigned int index = m_nDetailViewChoices; index != viewChoices.size(); ++index) {
+                     m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO+index);
+                  }
+               }
+            }
+         }
+         m_nDetailViewChoices = viewChoices.size();
+         const std::string kStart("Open ");
+         const std::string kEnd(" Detail View ...");
+         for(unsigned int index=0; index != m_nDetailViewChoices; ++index) {
+            m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
+         }
          m_modelPopup->EnableEntry(kOpenDetailViewMO);
       } else {
+         for(int i =m_nDetailViewChoices-1; i > 0; --i) {
+            m_modelPopup->DeleteEntry(kOpenDetailViewMO+i);
+         }
+         m_nDetailViewChoices=0;
+         m_modelPopup->GetEntry(kOpenDetailViewMO)->GetLabel()->SetString(kOpenDetailView);
          m_modelPopup->HideEntry(kOpenDetailViewMO);
       }
    } else {
+      m_nDetailViewChoices=0;
+      for(int i =m_nDetailViewChoices-1; i > 0; --i) {
+         m_modelPopup->DeleteEntry(kOpenDetailViewMO+i);
+      }
+      m_nDetailViewChoices=0;
+      m_modelPopup->GetEntry(kOpenDetailViewMO)->GetLabel()->SetString(kOpenDetailView);
       m_modelPopup->HideEntry(kOpenDetailViewMO);
    }
    m_x=iX;
@@ -198,7 +236,7 @@ FWModelContextMenuHandler::createModelContext() const
       
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
-      m_modelPopup->AddEntry("Open Detailed View ...",kOpenDetailViewMO);
+      m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
       m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
       m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);

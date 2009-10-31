@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.1 2009/09/23 20:25:29 chrjones Exp $
+// $Id: FWModelContextMenuHandler.h,v 1.2 2009/09/24 00:43:07 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ private:
    FWGUIManager* m_guiManager;
    mutable Int_t m_x;
    mutable Int_t m_y;
+   mutable unsigned int m_nDetailViewChoices;
 };
 
 

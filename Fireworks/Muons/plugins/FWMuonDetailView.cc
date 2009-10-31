@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.17 2009/10/28 08:43:57 dmytro Exp $
+// $Id: FWMuonDetailView.cc,v 1.18 2009/10/28 10:28:13 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -233,4 +233,4 @@ FWMuonDetailView::setBackgroundColor(Color_t col)
    FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
-REGISTER_FWDETAILVIEW(FWMuonDetailView);
+REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon);

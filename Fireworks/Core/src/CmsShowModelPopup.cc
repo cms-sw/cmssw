@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.19 2009/05/27 15:40:12 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.20 2009/08/12 19:19:12 chrjones Exp $
 //
 
 // system include file
@@ -45,6 +45,12 @@
 //
 // static data member definitions
 //
+
+void
+CmsShowModelPopupDetailViewButtonAdapter::wasClicked()
+{
+   m_popup->clicked(m_index);
+}
 
 //
 // constructors and destructor
@@ -84,10 +90,11 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    m_isVisibleButton->SetEnabled(kFALSE);
    AddFrame(m_isVisibleButton);
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   m_openDetailedViewButton = new TGTextButton(this,"Open Detailed View");
-   m_openDetailedViewButton->SetEnabled(kFALSE);
-   AddFrame(m_openDetailedViewButton);
-   m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
+   m_openDetailedViewButtons.push_back(new TGTextButton(this,"Open Detailed View"));
+   m_openDetailedViewButtons.back()->SetEnabled(kFALSE);
+   AddFrame(m_openDetailedViewButtons.back());
+   m_adapters.push_back( new CmsShowModelPopupDetailViewButtonAdapter(this,0));
+   m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowModelPopup", this, "changeModelColor(Color_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
@@ -112,6 +119,11 @@ CmsShowModelPopup::~CmsShowModelPopup()
    m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeModelColor(Pixel_t)");
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
    disconnectAll();
+   
+   for(std::vector<CmsShowModelPopupDetailViewButtonAdapter*>::iterator it = m_adapters.begin(), itEnd = m_adapters.end();
+       it != itEnd; ++it) {
+      delete *it;
+   }
 }
 
 //
@@ -166,7 +178,38 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
       }
       if(m_models.size()==1) {
          m_modelLabel->SetText(item->modelName(id.index()).c_str());
-         m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
+         std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(id);
+         m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
+         //be sure we show just the right number of buttons
+         if(m_openDetailedViewButtons.size()<=viewChoices.size()) {
+            for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.end();
+                it != itEnd; ++it) {
+               ShowFrame(*it);
+            }
+            //now we make additional buttons
+            for(unsigned int index=m_openDetailedViewButtons.size(); index < viewChoices.size();++index){ 
+               m_openDetailedViewButtons.push_back(new TGTextButton(this,"Open Detailed View"));
+               AddFrame(m_openDetailedViewButtons.back());
+               m_adapters.push_back( new CmsShowModelPopupDetailViewButtonAdapter(this,index));
+               m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");               
+            }
+         } else {
+            if(viewChoices.size()>0) {
+               for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.begin()+viewChoices.size();
+                   it != itEnd; ++it) {
+                  ShowFrame(*it);
+               }
+            }
+         }
+         //set the names
+         unsigned int index=0;
+         std::string kBegin("Open ");
+         std::string kEnd(" Detail View ...");
+         for(std::vector<std::string>::iterator it = viewChoices.begin(), itEnd = viewChoices.end();
+             it != itEnd;
+             ++it,++index) {
+            m_openDetailedViewButtons[index]->SetText((kBegin+*it+kEnd).c_str());
+         }
       }
       m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(item->modelInfo(id.index()).displayProperties().color()), kFALSE);
       m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
@@ -201,7 +244,12 @@ CmsShowModelPopup::disconnectAll() {
    m_isVisibleButton->SetDisabledAndSelected(kTRUE);
    m_colorSelectWidget->SetEnabled(kFALSE);
    m_isVisibleButton->SetEnabled(kFALSE);
-   m_openDetailedViewButton->SetEnabled(kFALSE);
+   m_openDetailedViewButtons.front()->SetEnabled(kFALSE);
+   m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
+   for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.end();
+       it != itEnd; ++it) {
+      HideFrame(*it);
+   }
 }
 
 void
@@ -235,9 +283,19 @@ CmsShowModelPopup::toggleModelVisible(Bool_t on) {
 void
 CmsShowModelPopup::openDetailedView()
 {
-   m_detailViewManager->openDetailViewFor( *(m_models.begin()) );
+   std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_models.begin()));
+
+   m_detailViewManager->openDetailViewFor( *(m_models.begin()), viewChoices.front() );
 }
 
+void
+CmsShowModelPopup::clicked(int iIndex)
+{
+   std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_models.begin()));
+   
+   m_detailViewManager->openDetailViewFor( *(m_models.begin()), *(viewChoices.begin()+iIndex) );
+   
+}   
 //
 // const member functions
 //
