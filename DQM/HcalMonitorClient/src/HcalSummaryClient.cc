@@ -343,6 +343,7 @@ void HcalSummaryClient::setup(void)
       return;
     }
   reportMap->getTH2F()->SetMinimum(-1);
+  reportMap->getTH2F()->SetMaximum(+1);
   for (int i=1;i<=reportMap->getTH2F()->GetNbinsX();++i)
     reportMap->setBinContent(i,1,-1);
 
