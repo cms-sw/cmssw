@@ -26,7 +26,7 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
-#include "Fireworks/Tracks/interface/FWTrackHitsDetailView.h"
+#include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/CmsMagField.h"
@@ -38,6 +38,7 @@ m_viewer(0)
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 {
+    getEveWindow()->DestroyWindow();
 }
 
 void
@@ -47,34 +48,43 @@ FWTrackHitsDetailView::pickCameraCenter()
 }
 
 void
-FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
+FWTrackHitsDetailView::switchRenderStyle()
 {
-   TEveViewer*  ev = new TEveViewer("Track hits detail view");
-   gEve->GetViewers()->AddElement(ev);
-   m_viewer = ev->SpawnGLEmbeddedViewer();
-   base->ReplaceWindow(ev);
-   TEveScene* scene = gEve->SpawnNewScene("hits scene");
-   ev->AddScene(scene);
-   setEveWindow(ev);
+   if ( m_viewer->Style() == TGLRnrCtx::kWireFrame)
+      m_viewer->SetStyle(TGLRnrCtx::kOutline);
+   else
+      m_viewer->SetStyle(TGLRnrCtx::kWireFrame);
+   
+   m_viewer->RequestDraw();
+}
 
-   FWGUISubviewArea* toolBar = FWGUISubviewArea::getToolBarFromWindow(ev);
-   CSGAction* action = new CSGAction(this, "pickCameraCenter");
-   // layout hints kLeft does not work, have to do more complicated way
-   TGTextButton* textButton = new TGTextButton(toolBar, "pC");
-   textButton->SetToolTipText("Pick camera center");
-   TList* flist = toolBar->GetList();
-   TGFrameElement *nw = new TGFrameElement(textButton, new TGLayoutHints( kLHintsNormal));
-   flist->AddFirst(nw);
-   toolBar->SetWidth(toolBar->GetWidth()+30);
-   toolBar->MapSubwindows();
-
-   TGFrame* frame = (TGFrame*)(toolBar->GetParent());
-   frame->Layout();
-
-   TQObject::Connect(textButton, "Clicked()", "CSGAction", action, "activate()");
-   action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
-
-   TracksRecHitsUtil::addHits(*track, id.item(), scene);
+void
+FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
+{   
+   TEveScene*  scene(0);
+   TEveViewer* viewer(0);
+   TCanvas*    canvas(0);
+   TGVerticalFrame* guiFrame;
+   TEveWindow* eveWindow = FWDetailViewBase::makePackViewerGui(base, canvas, guiFrame, viewer, scene);
+   eveWindow->SetElementName("Track Hits Detail View");
+   setEveWindow(eveWindow);
+   m_viewer = (TGLEmbeddedViewer*)viewer->GetGLViewer();
+   
+   {
+      CSGAction* action = new CSGAction(this, "pickCameraCenter");
+      action->createTextButton(guiFrame);
+      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
+   }
+   {
+      CSGAction* action = new CSGAction(this, "switchRenderStyle");
+      action->createTextButton(guiFrame);
+      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::switchRenderStyle));   
+   }
+   TGCompositeFrame* p = (TGCompositeFrame*)guiFrame->GetParent();
+   p->MapSubwindows();
+   p->Layout();
+    
+    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    for (TEveElement::List_i i=scene->BeginChildren(); i!=scene->EndChildren(); ++i)
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
@@ -87,7 +97,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
       text->SetFontMode(TGLFont::kPolygon);
 
       TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
-      text->RefMainTrans().Move3LF(-bb->GetDX()*0.5, -bb->GetDY()*0.5, 2*bb->GetDZ());
+      text->RefMainTrans().Move3LF(0, 0, 2*bb->GetDZ());
       text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
       Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
       Float_t a = 0.1*bb->GetDX()/text->GetFontSize();
@@ -136,3 +146,5 @@ FWTrackHitsDetailView::setBackgroundColor(Color_t col)
 {
    FWColorManager::setColorSetViewer(m_viewer, col);
 }
+
+REGISTER_FWDETAILVIEW(FWTrackHitsDetailView, Hits);

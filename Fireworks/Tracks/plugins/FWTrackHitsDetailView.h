@@ -21,6 +21,7 @@ public:
 
    void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
    void pickCameraCenter();
+   void switchRenderStyle();
 
    virtual void setBackgroundColor(Color_t);
 
