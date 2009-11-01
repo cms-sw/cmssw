@@ -20,6 +20,5 @@
    <use name=DataFormats/BTauReco>
    <use name=DataFormats/PatCandidates>
    <use name=CommonTools/Utils>
-   <use name=PhysicsTools/UtilAlgos>
 </library>
  

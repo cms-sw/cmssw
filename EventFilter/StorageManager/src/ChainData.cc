@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.1.2.2 2009/10/13 14:13:54 mommsen Exp $
+// $Id: ChainData.cc,v 1.1 2009/09/29 11:59:20 dshpakov Exp $
 
 #include "toolbox/mem/Reference.h"
 

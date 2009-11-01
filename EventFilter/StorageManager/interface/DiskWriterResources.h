@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.h,v 1.4 2009/09/16 13:30:47 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.3.4.1 2009/09/25 09:57:43 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
@@ -23,8 +23,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.3.4.1 $
+   * $Date: 2009/09/25 09:57:43 $
    */
 
   class DiskWriterResources

@@ -24,3 +24,5 @@ resolutionTest = cms.EDAnalyzer("DTResolutionTest",
     sigmaTest =  cms.untracked.bool(False),
     slopeTest =  cms.untracked.bool(False)
 )
+
+

@@ -21,7 +21,6 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Tue May 19  2009
-// $Id: MessageServicePSetValidation.h,v 1.1 2009/06/14 23:45:25 fischler Exp $
 //
 
 // system include files
@@ -33,6 +32,7 @@
 // user include files
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 

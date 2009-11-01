@@ -7,8 +7,8 @@
  *
  *  Specify the object type via the template parameter Type.
  *
- *  $Date: 2008/11/30 19:41:09 $
- *  $Revision: 1.2 $
+ *  $Date: $
+ *  $Revision: $
  *  \author Chung Khim Lae
  */
 

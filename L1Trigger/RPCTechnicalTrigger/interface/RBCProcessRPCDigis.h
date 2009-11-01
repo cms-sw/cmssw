@@ -65,7 +65,7 @@ public:
   
   void rewind() {};
   void showfirst() {};
-
+  
 protected:
   
 private:
@@ -98,8 +98,6 @@ private:
   std::vector<int> m_wheelid;
   std::vector<int> m_sec1id;
   std::vector<int> m_sec2id;
-  
-  std::map<int, Counters*> m_digiCounters;
-      
+    
 };
 #endif // RBCPROCESSRPCDIGIS_H

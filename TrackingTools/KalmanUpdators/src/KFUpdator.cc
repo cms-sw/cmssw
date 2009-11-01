@@ -4,8 +4,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
-#include "DataFormats/Math/interface/ProjectMatrix.h"
 
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 				           const TransientTrackingRecHit& aRecHit) const {
@@ -39,13 +37,12 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   AlgebraicVector5 x = tsos.localParameters().vector();
   const AlgebraicSymMatrix55 &C = (tsos.localError().matrix());
   // Measurement matrix
-  ProjectMatrix<double,5,D>  pf;
   MatD5 H; 
   VecD r, rMeas; 
   SMatDD V, VMeas;
 
   KfComponentsHolder holder; 
-  holder.template setup<D>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+  holder.template setup<D>(&r, &V, &H, &rMeas, &VMeas, x, C);
   aRecHit.getKfComponents(holder);
   
   //MatD5 H = asSMatrix<D,5>(aRecHit.projectionMatrix());
@@ -59,45 +56,26 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   //SMatDD V = asSMatrix<D>(aRecHit.parametersError());
   //SMatDD R = V + me.measuredError<D>(aRecHit);
   SMatDD R = V + VMeas;
-  bool ok = invertPosDefMatrix(R);
-  // error check moved at the end
-  //R.Invert();
-
-  // Compute Kalman gain matrix
-  Mat5D K;
-  AlgebraicMatrix55 M = AlgebraicMatrixID();
-  if (holder.useProjFunc() ) {
-    K = C*pf.project(R);
-    pf.projectAndSubtractFrom(M,K);
-  }
-  else {
-    K = (C * ROOT::Math::Transpose(H)) * R;
-    M -=  K * H;
-  }
-
-  // Compute local filtered state vector
-  AlgebraicVector5 fsv = x + K * r;
-  // Compute covariance matrix of local filtered state vector
-  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
-
-
-  /*
-  // expanded similariy
-  AlgebraicSymMatrix55 fse; 
-  ROOT::Math::AssignSym::Evaluate(fse, (M* C) * ( ROOT::Math::Transpose(M)));
-  AlgebraicSymMatrix55 tmp;
-  ROOT::Math::AssignSym::Evaluate(tmp, (K*V) * (ROOT::Math::Transpose(K)));
-  fse +=  tmp;
-  */
-
-  if (ok) {
-    return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
-				     LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()), tsos.surfaceSide() );
-  }else {
+  int ierr = ! R.Invert(); 
+  if (ierr != 0) {
     edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
     return TrajectoryStateOnSurface();
   }
+  //R.Invert();
 
+  // Compute Kalman gain matrix
+  Mat5D K = C * ROOT::Math::Transpose(H) * R;
+
+  // Compute local filtered state vector
+  AlgebraicVector5 fsv = x + K * r;
+
+  // Compute covariance matrix of local filtered state vector
+  AlgebraicMatrix55 I = AlgebraicMatrixID();
+  AlgebraicMatrix55 M = I - K * H;
+  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
+
+  return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
+				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()), tsos.surfaceSide() );
 }
 #endif
 
@@ -125,7 +103,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   // and covariance matrix of residuals
   SMatDD V = asSMatrix<D>(aRecHit.parametersError());
   SMatDD R = V + me.measuredError<D>(aRecHit);
-  int ierr = !  invertPosDefMatrix(R);; // if (ierr != 0) throw exception;
+  int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
   //R.Invert();
 
   // Compute Kalman gain matrix

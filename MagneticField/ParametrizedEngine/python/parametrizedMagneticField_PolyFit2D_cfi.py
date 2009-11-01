@@ -9,8 +9,7 @@ idealMagneticFieldRecordSource = cms.ESSource("EmptyESSource",
 ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
     version = cms.string('PolyFit2D'),
     parameters = cms.PSet(
-    #BValue = cms.double(4.01242188708911)
-    BValue = cms.double(3.8114)
+        BValue = cms.double(4.01242188708911)
     ),
     label = cms.untracked.string('')
 )

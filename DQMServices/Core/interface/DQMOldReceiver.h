@@ -1,9 +1,9 @@
 #ifndef DQMSERVICES_CORE_DQM_CONNECTOR_H
 # define DQMSERVICES_CORE_DQM_CONNECTOR_H
-# define DQM_DEPRECATED __attribute__((deprecated))
 
 # include <string>
 
+class DQMNet;
 class DQMStore;
 class DQMOldReceiver
 {
@@ -28,35 +28,38 @@ public:
      sources or collectors); if flag=true, client will accept downstream connections
   */
   
-  DQMOldReceiver(void) DQM_DEPRECATED;
+  DQMOldReceiver(void);
  
   /// Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
   /// using <client_name>;
   DQMOldReceiver(const std::string &hostname, int port,
 	       const std::string &client_name,
 	       int unusedReconnectDelaySecs = -1,
-	       bool unusedActAsServer = false) DQM_DEPRECATED;
+	       bool unusedActAsServer = false);
 
-  ~DQMOldReceiver(void) DQM_DEPRECATED;
+  ~DQMOldReceiver(void);
 
   /// get pointer to back-end interface
-  DQMStore *getStore(void) DQM_DEPRECATED
+  DQMStore *getStore(void)
     { return store_; }
-  DQMStore *getBEInterface(void) DQM_DEPRECATED
-    { return store_; }
+  DQMStore *getBEInterface(void)
+    { return getStore(); }
 
   /** this is the "main" loop where we receive monitoring or
       send subscription requests;
       if client acts as server, method runQTests is also sending monitoring & 
       test results to clients downstream;
       returns success flag */
-  bool update(void) DQM_DEPRECATED;
-  bool doMonitoring(void) DQM_DEPRECATED;
-  int getNumUpdates(void) const DQM_DEPRECATED { return 0; }
+  bool update(void);
+  bool doMonitoring(void);
+  int getNumUpdates(void) const { return numUpdates_; }
 
 private:
   /// use to get hold of structure with monitoring elements that class owns
   DQMStore *store_;
-} DQM_DEPRECATED;
+  /// client pointer
+  DQMNet *net_;
+  int numUpdates_;
+};
 
 #endif // DQMSERVICES_CORE_DQM_CONNECTOR_H

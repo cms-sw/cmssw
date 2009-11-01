@@ -10,6 +10,9 @@
 //                      but not but a factor of 2**K
 //   06-05-16   mf      Added code to establish interval and to use skipped
 //			and interval when determinine in add() whehter to react
+//   06-05-19   wmtan   Bug fix.  skipped = 0, not skipped == 0.
+//			and interval when determinine in add() whehter to react
+//   09-04-15   wmtan   Use smart pointers with new, not bare pointers
 //
 // ----------------------------------------------------------------------
 

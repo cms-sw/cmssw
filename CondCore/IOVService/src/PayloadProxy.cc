@@ -1,17 +1,16 @@
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "DataSvc/RefException.h"
 
 
 namespace cond {
 
 
-  BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
-                                     const std::string & token,
-                                     bool errorPolicy) :
-    m_doThrow(errorPolicy), m_iov(session,token,true,false) {
+  BasePayloadProxy::BasePayloadProxy(cond::Connection& conn,
+				     const std::string & token, bool errorPolicy) :
+    m_doThrow(errorPolicy), m_iov(conn,token,true,false) {
     
   }
 
@@ -26,21 +25,21 @@ namespace cond {
   void  BasePayloadProxy::make() {
     bool ok = false;
     if ( isValid()) {
-      cond::DbTransaction& trans = m_element.db().transaction();
-      trans.start(true);
+      cond::PoolTransaction & db = *m_element.db();
+      db.start(true);
       try {
-        ok = load(&m_element.db().poolCache(),m_element.token());
+	ok = load(&db.poolDataSvc(),m_element.token());
       }	catch( const pool::Exception& e) {
-        if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
-        ok = false;
+	if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
+	ok = false;
       }
-      trans.commit();
+      db.commit();
     }
 
     if (!ok) {
       m_element.set(cond::invalidTime,cond::invalidTime,"");
       if (m_doThrow)
-        throw cond::Exception("Condition Payload loader: invalid data");
+	throw cond::Exception("Condition Payload loader: invalid data");
     }
   }
 

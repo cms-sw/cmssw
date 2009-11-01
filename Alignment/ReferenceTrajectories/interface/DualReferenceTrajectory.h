@@ -53,7 +53,7 @@ public:
 
 protected:
 
-  DualReferenceTrajectory( unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nBreakPoints = 0 );
+  DualReferenceTrajectory( unsigned int nPar, unsigned int nHits);
 
   /** internal method to calculate members
    */

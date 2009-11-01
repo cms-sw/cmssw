@@ -26,6 +26,11 @@ namespace edm {
   class Timestamp;
   class BranchMapper;
 }
+
+namespace cms {
+  class Exception; // In FWCore/Utilities
+}
+
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"

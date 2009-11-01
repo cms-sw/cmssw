@@ -6,10 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "TMVA/Reader.h"
 #include <iostream>
-
-namespace reco { 
-  class PFCandidate;
-}
+class reco::PFCandidate;
 
 class PFConversionAlgo {
  public:

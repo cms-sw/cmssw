@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2009/03/04 13:11:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/20 20:47:52 $
+ *  $Revision: 1.16 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -93,7 +93,7 @@ class RecoTrackSelector {
 
   size_t size() const { return selected_.size(); }
   
- protected:
+ private:
   double ptMin_;
   double minRapidity_;
   double maxRapidity_;

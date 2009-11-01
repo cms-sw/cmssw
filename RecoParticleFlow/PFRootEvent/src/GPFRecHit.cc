@@ -1,6 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "TPad.h"
 #include "TObject.h"
 #include "TGraph.h"

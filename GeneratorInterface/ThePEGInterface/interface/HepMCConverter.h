@@ -78,8 +78,7 @@ public:
    * units of \a lunit.
    */
   static GenEvent * convert(const Event & ev, bool nocopies = false,
-			    Energy eunit = Traits::defaultEnergyUnit(),
-			    Length lunit = Traits::defaultLengthUnit());
+			    Energy eunit = GeV, Length lunit = millimeter);
 
   /**
    * Convert a ThePEG::Event to a HepMC::GenEvent. The caller supplies
@@ -160,9 +159,9 @@ private:
   GenVertex * createVertex(Vertex * v); 
 
   /**
-   * Create and set a PdfInfo object for the event
+   * Create a PdfInfo object from the event
    */
-  void setPdfInfo(const Event & e);
+  PdfInfo * createPdfInfo(const Event & e);
 
   /**
    * Sort vertices topologically

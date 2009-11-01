@@ -144,9 +144,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   string mvaWeightFileEleID
     = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
 
-  bool applyCrackCorrectionsForElectrons
-    = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
-
   string path_mvaWeightFileEleID;
   if(usePFElectrons_)
     {
@@ -192,8 +189,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   //PFElectrons: call the method setpfeleparameters
   pfAlgo_->setPFEleParameters(mvaEleCut,
 			      path_mvaWeightFileEleID,
-			      usePFElectrons_,
-			      applyCrackCorrectionsForElectrons);
+			      usePFElectrons_);
   
   pfAlgo_->setPFConversionParameters(usePFConversions);
   

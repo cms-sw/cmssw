@@ -13,12 +13,6 @@ C        -checks range of (y,q)
 C
 C    initialisation: reads tabularized values of cross section
 C
-
-C    Modified by Sheila Amaral, 16 Oct 2009
-C
-C    Implemented the file path using environment variable CMSSW_BASE
-C    The .dat files should be in data/ directory
-
       SUBROUTINE read_hcs_file
       IMPLICIT NONE   
 
@@ -31,7 +25,7 @@ C   Local variables
       REAL*8 hcstab(12,25,3)
       COMMON / hcstab / hcstab
          
-      CHARACTER hcs_name*120   !! 
+      CHARACTER hcs_name*30   !! 
       COMMON/ hcsfile / hcs_name          
       
       REAL*8 x1,x2
@@ -40,23 +34,12 @@ C   Local variables
      
 C  Choose value of s_0
 C  The *.dat files must reside in the directory where the program is run.      
-C
-      character cmsdir*82
-      call getenv('CMSSW_BASE',cmsdir)
-
-C
       IF(MSTP(198).EQ.1) THEN
-         hcs_name = cmsdir(1:index(cmsdir,' ')-1)
-     $            //'/src/GeneratorInterface/GenExtensions/data/'
-     $            //'dJYs05rc1.dat'
+         hcs_name = "dJYs05rc1.dat"
       ELSEIF(MSTP(198).EQ.2) THEN
-         hcs_name = cmsdir(1:index(cmsdir,' ')-1)
-     $            //'/src/GeneratorInterface/GenExtensions/data/'
-     $            //'dJYs1rc1.dat'
+         hcs_name = "dJYs1rc1.dat"
       ELSEIF(MSTP(198).EQ.3) THEN
-         hcs_name = cmsdir(1:index(cmsdir,' ')-1)
-     $            //'/src/GeneratorInterface/GenExtensions/data/'
-     $            //'dJYs2rc1.dat'
+         hcs_name = "dJYs2rc1.dat"
       ELSE
          WRITE(*,*) 
          WRITE(*,*) 'ERROR: MSTP(198) must be 1,2 or 3!'

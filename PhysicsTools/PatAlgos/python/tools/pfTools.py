@@ -159,6 +159,12 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau' ):
 
     process.makeAllLayer1Taus.remove(process.patPFCandidateIsoDepositSelection)
 
+#helper function for PAT on PF2PAT sample
+def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau'): 
+    process.load("PhysicsTools.PFCandProducer.pfTaus_cff")
+    process.allLayer0Taus.src = cms.InputTag(tauType+'Producer')
+            
+
 def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import allLayer1PFParticles
     # make modules

@@ -1,6 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+# rootfile="relval214/qcd80-120_output.root"
+# rootfile="relval220pre1/qcd80-120_output.root"
+# rootfile="relval220/qcd80-120_output.root"
+# rootfile="relval220_ideal/qcd80-120_output.root"
+# rootfile="relval220_ideal/qcd80-120_fastsim_output.root"
+# rootfile="relval214/ttbar_output.root"
+# rootfile="relval220pre1/ttbar_output.root"
+# rootfile="relval220/ttbar_output.root"
+# rootfile="relval220_ideal/ttbar_output.root"
 rootfile="relval220_ideal/ttbar_fastsim_output.root"
+
 
 # calojetcoll="iterativeCone5CaloJets"
 calojetcoll="hltIterativeCone5CaloJets"
@@ -30,20 +40,20 @@ reftrigM35="hlt1MET25"
 hltnameM35="HLT_MET35"
 folderMET35="HLT/HLTJETMET/SingleMET35"
 
-probetrigM45="hlt1MET45"
-reftrigM45="hlt1MET25"
-hltnameM45="HLT_MET45"
-folderMET45="HLT/HLTJETMET/SingleMET45"
+probetrigM50="hlt1MET50"
+reftrigM50="hlt1MET25"
+hltnameM50="HLT_MET50"
+folderMET50="HLT/HLTJETMET/SingleMET50"
 
-probetrigM60="hlt1MET60"
-reftrigM60="hlt1MET25"
-hltnameM60="HLT_MET60"
-folderMET60="HLT/HLTJETMET/SingleMET60"
+probetrigM65="hlt1MET65"
+reftrigM65="hlt1MET25"
+hltnameM65="HLT_MET65"
+folderMET65="HLT/HLTJETMET/SingleMET65"
 
-probetrigM100="hlt1MET100"
-reftrigM100="hlt1MET25"
-hltnameM100="HLT_MET100"
-folderMET100="HLT/HLTJETMET/SingleMET100"
+probetrigM75="hlt1MET75"
+reftrigM75="hlt1MET25"
+hltnameM75="HLT_MET75"
+folderMET75="HLT/HLTJETMET/SingleMET75"
 
 probetrigQJ30="hltquadjet30"
 reftrigQJ30="hlt1jet30"
@@ -79,7 +89,7 @@ SingleJetPathVal50 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -108,7 +118,7 @@ SingleJetPathVal80 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                  
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -137,7 +147,7 @@ SingleJetPathVal110 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -166,7 +176,7 @@ SingleJetPathVal180 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -195,17 +205,17 @@ SingleMETPathVal35 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                  
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal45 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal50 = cms.EDFilter("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
-    DQMFolder             = cms.untracked.string(folderMET45),
+    DQMFolder             = cms.untracked.string(folderMET50),
 #    L1SeedFilter          = cms.untracked.InputTag("hltSingleTauL1SeedFilter","","HLT"),
 #    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterSingleTauEcalIsolation","","HLT"),
 #    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterL25SingleTau","","HLT"),
@@ -218,23 +228,23 @@ SingleMETPathVal45 = cms.EDFilter("HLTJetMETValidation",
     OutputFileName        = cms.untracked.string(rootfile),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
 #    RefFilter             = cms.untracked.InputTag("hltL1s1Level1jet15","","HLT"),
-    RefFilter             = cms.untracked.InputTag(reftrigM45,"","HLT"),
-    ProbeFilter           = cms.untracked.InputTag(probetrigM45,"","HLT"),
-    HLTPath               = cms.untracked.InputTag(hltnameM45),                                  
+    RefFilter             = cms.untracked.InputTag(reftrigM50,"","HLT"),
+    ProbeFilter           = cms.untracked.InputTag(probetrigM50,"","HLT"),
+    HLTPath               = cms.untracked.InputTag(hltnameM50),                                  
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                  
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal60 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal65 = cms.EDFilter("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
-    DQMFolder             = cms.untracked.string(folderMET60),
+    DQMFolder             = cms.untracked.string(folderMET65),
 #    L1SeedFilter          = cms.untracked.InputTag("hltSingleTauL1SeedFilter","","HLT"),
 #    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterSingleTauEcalIsolation","","HLT"),
 #    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterL25SingleTau","","HLT"),
@@ -247,23 +257,23 @@ SingleMETPathVal60 = cms.EDFilter("HLTJetMETValidation",
     OutputFileName        = cms.untracked.string(rootfile),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
 #    RefFilter             = cms.untracked.InputTag("hltL1s1Level1jet15","","HLT"),
-    RefFilter             = cms.untracked.InputTag(reftrigM60,"","HLT"),
-    ProbeFilter           = cms.untracked.InputTag(probetrigM60,"","HLT"),
-    HLTPath               = cms.untracked.InputTag(hltnameM60),                                  
+    RefFilter             = cms.untracked.InputTag(reftrigM65,"","HLT"),
+    ProbeFilter           = cms.untracked.InputTag(probetrigM65,"","HLT"),
+    HLTPath               = cms.untracked.InputTag(hltnameM65),                                  
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                  
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal100 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal75 = cms.EDFilter("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
-    DQMFolder             = cms.untracked.string(folderMET100),
+    DQMFolder             = cms.untracked.string(folderMET75),
 #    L1SeedFilter          = cms.untracked.InputTag("hltSingleTauL1SeedFilter","","HLT"),
 #    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterSingleTauEcalIsolation","","HLT"),
 #    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterL25SingleTau","","HLT"),
@@ -276,13 +286,13 @@ SingleMETPathVal100 = cms.EDFilter("HLTJetMETValidation",
     OutputFileName        = cms.untracked.string(rootfile),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
 #    RefFilter             = cms.untracked.InputTag("hltL1s1Level1jet15","","HLT"),
-    RefFilter             = cms.untracked.InputTag(reftrigM100,"","HLT"),
-    ProbeFilter           = cms.untracked.InputTag(probetrigM100,"","HLT"),
-    HLTPath               = cms.untracked.InputTag(hltnameM100),                                  
+    RefFilter             = cms.untracked.InputTag(reftrigM75,"","HLT"),
+    ProbeFilter           = cms.untracked.InputTag(probetrigM75,"","HLT"),
+    HLTPath               = cms.untracked.InputTag(hltnameM75),                                  
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),                                  
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -311,7 +321,7 @@ QuadJetPathVal30 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -341,7 +351,7 @@ QuadJetPathVal60 = cms.EDFilter("HLTJetMETValidation",
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("iterativeCone5GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
-    GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
+    GenMETCollection      = cms.untracked.InputTag("genMetTrue"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
@@ -352,9 +362,9 @@ QuadJetPathVal60 = cms.EDFilter("HLTJetMETValidation",
 #SingleJetValidation = cms.Sequence(SingleJetPathVal + SingleJetL2Val + SingleJetL25Val+SingleJetL3Val)
 SingleJetValidation = cms.Sequence(SingleJetPathVal50 + SingleJetPathVal80 + SingleJetPathVal110 + SingleJetPathVal180 +
                                    SingleMETPathVal35 +
-                                   SingleMETPathVal45 +
-                                   SingleMETPathVal60 +
-                                   SingleMETPathVal100 +
+                                   SingleMETPathVal50 +
+                                   SingleMETPathVal65 +
+                                   SingleMETPathVal75 +
                                    QuadJetPathVal30 + QuadJetPathVal60
                                    )
 

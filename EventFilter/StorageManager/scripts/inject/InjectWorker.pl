@@ -10,11 +10,10 @@ use Cwd;
 use Cwd 'abs_path';
 
 ############################################################################################################
-my $debug       = 0;  # toggled by SM_DEBUG        (enable debug printouts)
-my $nodbint     = 0;  # toggled by SM_DONTACCESSDB (dont access any DB at all)
-my $nodbwrite   = 0;  # toggled by SM_DONTWRITEDB  (dont write to DB but retrieve HLT key from run info db)
-my $justnoti    = 0;  # toggled by SM_JUSTNOTI     (only notify Tier0)
-my $nofilecheck = 0;  # toggled by SM_NOFILECHECK  (dont do checks if files are locally accessible)
+my $debug       = 0;  # toggled by SM_DEBUG
+my $nodbint     = 0;  # toggled by SM_DONTACCESSDB
+my $justnoti    = 0;  # toggled by SM_JUSTNOTI (only if SM_DONTACCESSDB)
+my $nofilecheck = 0;  # toggled by SM_NOFILECHECK
 ############################################################################################################
 
 # global vars
@@ -331,15 +330,10 @@ if (defined $ENV{'SM_NOFILECHECK'}) {
 
 if (defined $ENV{'SM_DONTACCESSDB'}) { 
     $nodbint=1;
-    $nodbwrite=1;
-}
-
-if (defined $ENV{'SM_DONTWRITEDB'}) { 
-    $nodbwrite=1;
-}
-
-if (defined $ENV{'SM_JUSTNOTI'}) { 
-    $justnoti=1;
+    
+    if (defined $ENV{'SM_JUSTNOTI'}) { 
+        $justnoti=1;
+    }
 }
 
 # redirect signals
@@ -502,9 +496,9 @@ my $hltHandle;    #for HLT key queries
 my $SQLh;
 my %hltkeys;      #cache hlt keys
 
-if ($nodbwrite==0) { 
+if ($nodbint==0) { 
 
-    if ($debug) {print "Setting up DB connection for $dbi and $reader write access\n";}
+    if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     my $retry = 0;
     while (!$retry) {
         $retry=1;
@@ -530,19 +524,10 @@ if ($nodbwrite==0) {
         "VALUES (?,?,?,?,?,?," . 
         "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
     $injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
-
-} else { # no DB write interaction
-    if ($debug) {
-        print "Don't write access DB flag set \n".
-            "Following commands would have been processed: \n";
-    }
-}
-
-if ($nodbint==0) {
-
+        
     # this is for HLT key queries
-    if ($debug) {print "Setting up DB connection for $dbihlt and $reader read access\n";}
-    my $retry = 0;
+    if ($debug) {print "Setting up DB connection for $dbihlt and $reader\n";}
+    $retry = 0;
     while (!$retry) {
         $retry=1;
         $dbhlt = DBI->connect($dbihlt,$reader,$phrase) or $retry=0;
@@ -552,16 +537,17 @@ if ($nodbint==0) {
         }
     }
 
-    my $timestr = gettimestr();
+    $timestr = gettimestr();
     print "$timestr: Setup DB connection for HLT key retrieval\n";
     
     $SQLh = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER " . 
         "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
     $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
 
-} else { # no DB read interaction
+} else { # no DB interaction
     if ($debug) {
-        print "Don't even read access DB flag set";
+        print "Don't access DB flag set \n".
+            "Following commands would have been processed: \n";
     }
 }
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.4 2009/10/22 22:00:47 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.h,v 1.1 2009/01/19 17:59:13 amraktad Exp $
 //
 
 #ifndef Fireworks_Calo_CaloTowerProxyRPZBuilder_h
@@ -7,7 +7,6 @@
 
 class TH2F;
 class TEveCaloDataHist;
-#include "TEveCaloData.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
@@ -15,8 +14,14 @@ class TEveCaloDataHist;
 class FWCaloTowerRPZProxyBuilderBase : public FWRPZDataProxyBuilder
 {
 public:
-   FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name);
-   virtual ~FWCaloTowerRPZProxyBuilderBase();
+   FWCaloTowerRPZProxyBuilderBase() : m_towers(0), m_handleEcal(true), m_histName("blank"), m_hist(0), m_sliceIndex(-1) {
+      setHighPriority( true );
+   }
+   FWCaloTowerRPZProxyBuilderBase(bool handleEcal, const char* name) : m_towers(0), m_handleEcal(handleEcal), m_histName(name), m_hist(0), m_sliceIndex(-1) {
+      setHighPriority( true );
+   }
+   virtual ~FWCaloTowerRPZProxyBuilderBase() {
+   }
 
 protected:
    void itemBeingDestroyedImp(const FWEventItem*);
@@ -36,10 +41,10 @@ private:
    // ---------- member data --------------------------------
    static TEveCaloDataHist* m_data;
 
-   bool         m_handleEcal;
+   bool m_handleEcal;
    const char*  m_histName;
    TH2F*        m_hist;
-   Int_t        m_sliceIndex;
+   Int_t m_sliceIndex;
 };
 
 //
@@ -49,8 +54,10 @@ private:
 class FWECalCaloTowerRPZProxyBuilder : public FWCaloTowerRPZProxyBuilderBase
 {
 public:
-   FWECalCaloTowerRPZProxyBuilder(): FWCaloTowerRPZProxyBuilderBase(true, "ecal3D") {}
-   virtual ~FWECalCaloTowerRPZProxyBuilder() {}
+   FWECalCaloTowerRPZProxyBuilder() : FWCaloTowerRPZProxyBuilderBase(true, "ecal3D") {
+   }
+   virtual ~FWECalCaloTowerRPZProxyBuilder() {
+   }
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
@@ -68,8 +75,10 @@ private:
 class FWHCalCaloTowerRPZProxyBuilder : public FWCaloTowerRPZProxyBuilderBase
 {
 public:
-   FWHCalCaloTowerRPZProxyBuilder() : FWCaloTowerRPZProxyBuilderBase(false, "hcal3D") {}
-   virtual ~FWHCalCaloTowerRPZProxyBuilder() {}
+   FWHCalCaloTowerRPZProxyBuilder() : FWCaloTowerRPZProxyBuilderBase(false, "hcal3D") {
+   }
+   virtual ~FWHCalCaloTowerRPZProxyBuilder() {
+   }
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();

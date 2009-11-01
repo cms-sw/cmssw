@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.1 2009/01/19 17:59:12 amraktad Exp $
 
 
 // system include files
@@ -39,11 +39,10 @@ FWCaloTowerLegoHistBuilderBase::applyChangesToAllModels()
 {
    if(m_towers && item()) {
       m_hist->Reset();
-      
       if(item()->defaultDisplayProperties().isVisible()) {
          assert(item()->size() >= m_towers->size());
          fillHist();
-      }      
+      }
    }
 }
 
@@ -57,12 +56,8 @@ FWECalCaloTowerLegoHistBuilder::fillHist()
 {
    unsigned int index=0;
    for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-      const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-      if(info.displayProperties().isVisible()) {
+      if(item()->modelInfo(index).displayProperties().isVisible()) {
          (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
-      }
-      if(info.isSelected()) {
-         addToSelect(tower->eta(),tower->phi());
       }
    }
 }
@@ -79,12 +74,8 @@ FWHCalCaloTowerLegoHistBuilder::fillHist()
 {
    unsigned int index=0;
    for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-      const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-      if(info.displayProperties().isVisible()) {
+      if(item()->modelInfo(index).displayProperties().isVisible()) {
          m_hist->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
-      }
-      if(info.isSelected()) {
-         addToSelect(tower->eta(),tower->phi());
       }
    }
 }

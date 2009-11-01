@@ -6,8 +6,8 @@
  *  Magnetic Field engine wrapper for V. Maroussov's 2D parametrization
  *  of the MT data.
  *
- *  $Date: 2008/05/06 12:09:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/23 14:49:56 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane
  */
 
@@ -19,9 +19,8 @@ namespace magfieldparam { class BFit; }
 
 class PolyFit2DParametrizedMagneticField : public MagneticField {
  public:
-  /// Constructor. Fitted bVal for the nominal currents are:
-  /// 2.0216; 3.5162;  3.8114; 4.01242188708911
-  PolyFit2DParametrizedMagneticField(double bVal = 3.8114);
+  /// Constructor
+  PolyFit2DParametrizedMagneticField(double bVal = 4.01242188708911);
 
   /// Constructor. Parameters taken from a PSet
   PolyFit2DParametrizedMagneticField(const edm::ParameterSet& parameters);

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 14:09:07 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/07/16 09:11:45 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,8 +47,6 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
   permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.01); 
   // top folder for the histograms in DQMStore
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
-
-  doCalibAnalysis = ps.getUntrackedParameter<bool>("doCalibAnalysis",false);
 }
 
 
@@ -88,8 +86,8 @@ void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
 
 
   stringstream meanRange; meanRange << (permittedMeanRange*10000);
-  string histoTitle = "Fraction of SLs with |mean of res.| > " + meanRange.str() + "#mum";
-  wheelMeanHistos[3] = dbe->book2D("MeanResGlbSummary",histoTitle.c_str(),12,1,13,5,-2,3);
+  string histoTitle = "SuperLayers with |mean of res.| > " + meanRange.str() + "#mum";
+  wheelMeanHistos[3] = dbe->book2D("MeanSummaryRes",histoTitle.c_str(),12,1,13,5,-2,3);
   wheelMeanHistos[3]->setAxisTitle("Sector",1);
   wheelMeanHistos[3]->setAxisTitle("Wheel",2);
 
@@ -107,8 +105,8 @@ void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
 			      50,0.0,0.2);
 
   stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
-  histoTitle = "Fraction of SLs with #sigma res. > " + sigmaRange.str() + "#mum";
-  wheelSigmaHistos[3] = dbe->book2D("SigmaResGlbSummary",histoTitle.c_str(),12,1,13,5,-2,3);
+  histoTitle = "SuperLayers with #sigma res. > " + sigmaRange.str() + "#mum";
+  wheelSigmaHistos[3] = dbe->book2D("SigmaSummaryRes",histoTitle.c_str(),12,1,13,5,-2,3);
   wheelSigmaHistos[3]->setAxisTitle("Sector",1);
   wheelSigmaHistos[3]->setAxisTitle("Wheel",2);
 
@@ -224,26 +222,20 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	    MeanHistos[make_pair(slID.wheel(),binSect)]->setBinContent(binSL, mean);	
 	    SigmaHistos[make_pair(slID.wheel(),binSect)]->setBinContent(binSL, sigma);
 	    
-	    // set the weight
+	    // test the values of mean and sigma
+	    if(meanInRange(mean) && sigmaInRange(sigma)) {
 	    double weight = 1/11.;
 	    if((binSect == 4 || binSect == 10) && slID.station() == 4)  weight = 1/22.;
-	    
-	    // test the values of mean and sigma
-	    if(meanInRange(mean) && sigmaInRange(sigma)) { // sigma and mean ok
 	      globalResSummary->Fill(binSect, slID.wheel(), weight);
-	      wheelMeanHistos[3]->Fill(binSect,slID.wheel(),weight);
-	      wheelSigmaHistos[3]->Fill(binSect,slID.wheel(),weight);
 	    } else {
-	      if(!meanInRange(mean)) { // only sigma ok
+	      if(!meanInRange(mean)) {
 		wheelMeanHistos[slID.wheel()]->Fill(binSect,binSL);
-	      } else {
-		wheelMeanHistos[3]->Fill(binSect,slID.wheel(),weight);
+		wheelMeanHistos[3]->Fill(binSect,slID.wheel());
 	      }
-	      if(!sigmaInRange(sigma)) { // only mean ok
+	      if(!sigmaInRange(sigma)) {
 		wheelSigmaHistos[slID.wheel()]->Fill(binSect,binSL);
-	      } else {
-		wheelSigmaHistos[3]->Fill(binSect,slID.wheel(),weight);
-	      }
+		wheelSigmaHistos[3]->Fill(binSect,slID.wheel());
+	      }				   
 	    }
 	  }
 	  delete gfit;
@@ -256,13 +248,10 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	  double weight = 1/11.;
 	  if((binSect == 4 || binSect == 10) && slID.station() == 4)  weight = 1/22.;
 	  globalResSummary->Fill(binSect, slID.wheel(), weight);
-	  wheelMeanHistos[3]->Fill(binSect,slID.wheel(),weight);
-	  wheelSigmaHistos[3]->Fill(binSect,slID.wheel(),weight);
+
 	}
-      } else {
-	LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
-	  << "[DTResolutionAnalysisTask] Histo: " << getMEName(slID) << " not found" << endl;
       }
+
     } // loop on SLs
   } // Loop on Stations
 
@@ -278,7 +267,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   string histoName =  "MeanSummaryRes_W" + wheel.str();
   stringstream meanRange; meanRange << (permittedMeanRange*10000);
   string histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
+  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
   wheelMeanHistos[wh]->setAxisTitle("Sector",1);
   wheelMeanHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(2,"MB1_SL2",2);
@@ -291,8 +280,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelMeanHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
-//   wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-//   wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
+  wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+  wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
   
 
 
@@ -300,7 +289,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   histoName =  "SigmaSummaryRes_W" + wheel.str();
   stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
   histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
+  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
   wheelSigmaHistos[wh]->setAxisTitle("Sector",1);
   wheelSigmaHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(2,"MB1_SL2",2);
@@ -313,8 +302,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-//   wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-//   wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
+  wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+  wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
 
 }
 
@@ -400,22 +389,12 @@ string DTResolutionAnalysisTest::getMEName(const DTSuperLayerId & slID) {
     topHistoFolder + "/Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/";
-
-  if(doCalibAnalysis) folderName =
-	"DT/DTCalibValidation/Wheel" +  wheel.str() +
-	"/Station" + station.str() + "/Sector" + sector.str() + "/";
   
   string histoname = folderName + "hResDist" 
     + "_W" + wheel.str() 
     + "_St" + station.str() 
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
-
-  if(doCalibAnalysis) histoname = folderName + "hResDist_STEP3" 
-    + "_W" + wheel.str() 
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str();
   
   return histoname;
   

@@ -4,7 +4,6 @@
 #include "TH1F.h"
 #include "TLegend.h"
 #include "TObjString.h"
-#include "TROOT.h"
 #include "TString.h"
 #include "TStyle.h"
 #include <iostream>
@@ -20,7 +19,7 @@ void effic(char* filename1, char* filename2 = 0) {
         if (f1->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
             d1 = (TDirectoryFile*)gDirectory;
     if (! d1)
-        if (f1->cd("/DQMData/Run 1/Muons/Run summary/MuonIdentificationV"))
+        if (f1->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
             d1 = (TDirectoryFile*)gDirectory;
     if (! d1) {
         std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename1 << std::endl;
@@ -40,7 +39,7 @@ void effic(char* filename1, char* filename2 = 0) {
             if (f2->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
                 d2 = (TDirectoryFile*)gDirectory;
         if (! d2)
-            if (f2->cd("/DQMData/Run 1/Muons/Run summary/MuonIdentificationV"))
+            if (f2->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
                 d2 = (TDirectoryFile*)gDirectory;
         if (! d2) {
             std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename2 << std::endl;
@@ -48,7 +47,6 @@ void effic(char* filename1, char* filename2 = 0) {
         }
     }
 
-    gROOT->ForceStyle();
     gStyle->SetOptStat(0);
 
     // Retrieve CMSSW versions for TLegend

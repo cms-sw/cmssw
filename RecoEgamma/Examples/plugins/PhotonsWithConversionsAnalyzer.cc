@@ -68,7 +68,7 @@ PhotonsWithConversionsAnalyzer::~PhotonsWithConversionsAnalyzer() {
 }
 
 
-void PhotonsWithConversionsAnalyzer::beginJob()
+void PhotonsWithConversionsAnalyzer::beginJob( const edm::EventSetup& )
 {
 
 

@@ -68,8 +68,7 @@ class PFAlgo {
 				  std::vector<double> factors45);   
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
-			  bool usePFElectrons,
-			  bool applyCrackCorrections=true);
+			  bool usePFElectrons);
 
   void setPFConversionParameters( bool usePFConversions );
   
@@ -197,7 +196,6 @@ class PFAlgo {
   std::vector<double> setchi2Values_;
   double mvaEleCut_;
   bool usePFElectrons_;
-  bool applyCrackCorrectionsElectrons_;
   PFElectronAlgo *pfele_;
   bool usePFConversions_;
   PFConversionAlgo* pfConversion_;

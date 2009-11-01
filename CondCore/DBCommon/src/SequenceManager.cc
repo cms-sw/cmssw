@@ -1,3 +1,4 @@
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/ISchema.h"
@@ -13,7 +14,7 @@
 #include "RelationalAccess/SchemaException.h"
 #include <memory>
 //#include <iostream>
-cond::SequenceManager::SequenceManager(cond::DbSession& coraldb,
+cond::SequenceManager::SequenceManager(cond::CoralTransaction& coraldb,
 				       const std::string& sequenceTableName):
   m_coraldb(coraldb),
   m_sequenceTableName( sequenceTableName ),

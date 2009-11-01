@@ -13,9 +13,9 @@ namespace cond {
     typedef std::vector<cond::Time_t> DataT;
     typedef PayloadProxy<DataT> super;
 
-    PayloadProxy(cond::DbSession& session,
+    PayloadProxy(cond::Connection& conn,
 		 const std::string & token, bool errorPolicy, const char * source=0) :
-      super(session, token, errorPolicy) {
+      super(conn, token, errorPolicy) {
       m_name = source;
     }
     

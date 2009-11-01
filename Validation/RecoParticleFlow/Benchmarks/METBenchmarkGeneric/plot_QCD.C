@@ -1,8 +1,9 @@
 {
-  gSystem->Load("libFWCoreFWLite.so");
-  gSystem->Load("libValidationRecoParticleFlow.so");
-  gSystem->Load("libCintex.so");
-  ROOT::Cintex::Cintex::Enable();
+//gSystem->Load("libTH2Analyzer");
+  gSystem->Load("../../../../../tmp/slc4_ia32_gcc345/src/Validation/RecoParticleFlow/plugins/ValidationRecoParticleFlow_plugins/libValidationRecoParticleFlow_plugins.so");
+  gROOT->LoadMacro("../Tools/NicePlot.C");
+  InitNicePlot();
+  gROOT->LoadMacro("../Tools/Comparator.C");
 
 //gStyle->SetOptStat(1111);
 
@@ -16,9 +17,8 @@
   float ptMin = 0;
   float ptMax = 9999;
  
-  Styles styles;
-  Style* style1 = styles.spred;
-  Style* style2 = styles.spblue;
+  Style* style1 = spred;
+  Style* style2 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
   string outdir = "Plots";
@@ -30,132 +30,176 @@
   comp.SetStyles(style1, style2, "Particle Flow Met", "Calo Met");
 
   TCanvas c0("c0", "legend", 400, 200);
-  Styles::FormatPad( &c0, false ); 
+  FormatPad( &c0, false ); 
   comp.Legend().Draw();
-  Styles::SavePlot("legend", outdir.c_str() );
+  SavePlot("legend", outdir.c_str() );
 
   comp.SetAxis(5, -200,200);
   TCanvas c1a("c1a", "DeltaMET");
-  Styles::FormatPad( &c1a, false); 
+  FormatPad( &c1a, false); 
   comp.DrawSlice("DeltaEtvsEt", 0., 10000., mode);
-  Styles::SavePlot("deltaMET", outdir.c_str() );
+//comp.Draw("DeltaEt", mode);
+  SavePlot("deltaMET", outdir.c_str() );
 
   comp.SetAxis(5, -500,500);
   TCanvas c1al("c1al", "DeltaMET_log");
-  Styles::FormatPad( &c1al, false , false, true  ); 
+  FormatPad( &c1al, false , false, true  ); 
   comp.DrawSlice("DeltaEtvsEt", 0., 10000., mode);
-  Styles::SavePlot("deltaMET_log", outdir.c_str() );
+  SavePlot("deltaMET_log", outdir.c_str() );
 
   comp.SetAxis(5);
   TCanvas c1b("c1b", "MET");
-  Styles::FormatPad( &c1b, false );
+  FormatPad( &c1b, false );
   comp.SetAxis(2,0,120);
   comp.Draw("EtRec", mode);
-  Styles::SavePlot("MET", outdir.c_str() );
+  SavePlot("MET", outdir.c_str() );
 
   TCanvas c2a("c2a", "MEX");
-  Styles::FormatPad( &c2a, false );
+  FormatPad( &c2a, false );
   comp.SetAxis(2,-100,100);
   comp.Draw("ExRec", mode);
-  Styles::SavePlot("MEX", outdir.c_str() );
+  SavePlot("MEX", outdir.c_str() );
 
   TCanvas c2b("c2b", "MEY");
-  Styles::FormatPad( &c2b, false );
+  FormatPad( &c2b, false );
   comp.Draw("EyRec", mode);
-  Styles::SavePlot("MEY", outdir.c_str() );
+  SavePlot("MEY", outdir.c_str() );
 
   TCanvas c2c("c2c", "DeltaMEX");
-  Styles::FormatPad( &c2c, false );
+  FormatPad( &c2c, false );
   comp.SetAxis(2,-100,100);
   comp.Draw("DeltaEx", mode);
-  Styles::SavePlot("DeltaMEX", outdir.c_str() );
+  SavePlot("DeltaMEX", outdir.c_str() );
 
   TCanvas c2d("c2d", "DeltaMEY");
-  Styles::FormatPad( &c2d, false );
+  FormatPad( &c2d, false );
   comp.Draw("DeltaEy", mode);
-  Styles::SavePlot("DeltaMEY", outdir.c_str() );
+  SavePlot("DeltaMEY", outdir.c_str() );
 
   comp.SetAxis(10, -3.2,3.2);
   TCanvas c3a("c3a", "DeltaPhi");
-  Styles::FormatPad( &c3a, false );
+  FormatPad( &c3a, false );
   comp.DrawSlice("DeltaPhivsEt", 20., 10000., mode);
-  Styles::SavePlot("deltaPhi", outdir.c_str() );
+//comp.Draw("DeltaPhi", mode);
+  SavePlot("deltaPhi", outdir.c_str() );
 
   TCanvas c3b("c3b", "pf vs Gen");
-  Styles::FormatPad( &c3b, false );
-  gStyle->SetPalette(1);
-  TDirectory* dir = comp.dir0();
-  dir->cd();
-  TH2F *h2 = (TH2F*) dir->Get("EtRecvsEt");
-  h2->Draw("colz");
-  Styles::SavePlot("PF_vs_Gen", outdir.c_str() );
+  FormatPad( &c3b, false );
+  comp.Draw2D_file1("EtRecvsEt", mode);
+  SavePlot("PF_vs_Gen", outdir.c_str() );
 
   TCanvas c4("c4", "Calo vs Gen");
-  Styles::FormatPad( &c4, false );
-  gStyle->SetPalette(1);
-  TDirectory* dir = comp.dir1();
-  dir->cd();
-  TH2F *h2 = (TH2F*) dir->Get("EtRecvsEt");
-  h2->Draw("colz");
-  Styles::SavePlot("Calo_vs_Gen", outdir.c_str() );
+  FormatPad( &c4, false );
+  comp.Draw2D_file2("EtRecvsEt", mode);
+  SavePlot("Calo_vs_Gen", outdir.c_str() );
+
+//  TCanvas c5("c5", "MET response");
+//  FormatPad( &c5, false );
+//  comp.DrawResp("DeltaEtOverEtvsEt", 0, 200, mode, -0.4, 0.4);
+//  SavePlot("MET_Response", outdir.c_str() );
 
   TCanvas c6("c6", "genMET");
-  Styles::FormatPad( &c6, false );
+  FormatPad( &c6, false );
   comp.SetAxis(2,0,120);
   comp.Draw("EtGen", mode);
-  Styles::SavePlot("genMET", outdir.c_str() );
+  SavePlot("genMET", outdir.c_str() );
   comp.SetAxis(1);
+
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c7("c7", "DeltaMET_20_50");
+//  FormatPad( &c7, false );
+//  comp.DrawSlice("DeltaEtvsEt", 20., 50., mode);
+//  SavePlot("deltaMET_20_50", outdir.c_str() );
+//
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c8("c8", "DeltaMET_50_100");
+//  FormatPad( &c8, false );
+//  comp.DrawSlice("DeltaEtvsEt", 50., 100., mode);
+//  SavePlot("deltaMET_50_100", outdir.c_str() );
+//
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c9("c9", "DeltaMET_100_200");
+//  FormatPad( &c9, false );
+//  comp.DrawSlice("DeltaEtvsEt", 100., 200., mode);
+//  SavePlot("deltaMET_100_200", outdir.c_str() );
+//
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c10("c10", "DeltaPhi_20_50");
+//  FormatPad( &c10, false );
+//  comp.DrawSlice("DeltaPhivsEt", 20., 50., mode);
+//  SavePlot("deltaPhi_20_50", outdir.c_str() );
+//
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c11("c11", "DeltaPhi_50_100");
+//  FormatPad( &c11, false );
+//  comp.DrawSlice("DeltaPhivsEt", 50., 100., mode);
+//  SavePlot("deltaPhi_50_100", outdir.c_str() );
+//
+//  comp.SetAxis(10, -200,200);
+//  TCanvas c12("c12", "DeltaPhi_100_200");
+//  FormatPad( &c12, false );
+//  comp.DrawSlice("DeltaPhivsEt", 100., 200., mode);
+//  SavePlot("deltaPhi_100_200", outdir.c_str() );
 
   comp.SetAxis(20, 0,3000);
   TCanvas c13t("c13t", "TrueSumEt");
-  Styles::FormatPad( &c13t, false );
+  FormatPad( &c13t, false );
   comp.Draw("TrueSumEt", mode);
-  Styles::SavePlot("TrueSumEt", outdir.c_str() );
+  SavePlot("TrueSumEt", outdir.c_str() );
 
   TCanvas c13("c13", "SumEt");
-  Styles::FormatPad( &c13, false );
+  FormatPad( &c13, false );
   comp.Draw("SumEt", mode);
-  Styles::SavePlot("SumEt", outdir.c_str() );
+  SavePlot("SumEt", outdir.c_str() );
 
   comp.SetAxis(5, -1000,1000);
   TCanvas c13b("c13b", "DeltaSumEt");
-  Styles::FormatPad( &c13b, false );
+  FormatPad( &c13b, false );
   comp.DrawSlice("DeltaSetvsSet", 0., 3000., mode);
-  Styles::SavePlot("DeltaSumEt", outdir.c_str() );
+  SavePlot("DeltaSumEt", outdir.c_str() );
 
-  mode = Comparator::GRAPH;
-  Style* style1gr = styles.sgr1;
-  Style* style2gr = styles.sgr2;
-  comp.SetStyles(style1gr, style2gr, "Particle Flow Met", "Calo Met");
-  comp.SetAxis(1, 0.0,3000.);
+  mode = Comparator::NORMAL;
+
   TCanvas c14("c14", "SET response");
-  Styles::FormatPad( &c14, false );
-  comp.DrawMeanSlice("DeltaSetOverSetvsSet", 300, mode);
-  Styles::SavePlot("SET_Response", outdir.c_str() );
+  FormatPad( &c14, false );
+//comp.DrawResp("DeltaSetOverSetvsSet", 0., 3000., mode, -1., 0.);
+  comp.DrawMeanSlice("DeltaSetOverSetvsSet", 0, 3000, 10, -1., 0.,"SET response;trueSET", "cst");
+  SavePlot("SET_Response", outdir.c_str() );
 
   TCanvas c15("c15", "sigmaDeltaMEX");
-  Styles::FormatPad( &c15, false );
-//  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 0, 3000, 15, 0.0, 65.0, "Sigma(DeltaMEX);trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX",false);
-  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 200, mode);
-  Styles::SavePlot("sigmaDeltaMEX", outdir.c_str() );
+  FormatPad( &c15, false );
+////////  comp.DrawSigmaEt2("DeltaMexvsSet", 0., 3000., mode);
+  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 0, 3000, 15, 0.0, 65.0, "Sigma(DeltaMEX);trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX",false);
+  SavePlot("sigmaDeltaMEX", outdir.c_str() );
 
   TCanvas c16("c16", "<recoSet/TrueSet>");
-  Styles::FormatPad( &c16, false );
-  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 300, mode);
-  Styles::SavePlot("recSetOverTrueSet", outdir.c_str() );
+  FormatPad( &c16, false );
+//  comp.DrawResp("RecSetOverTrueSetvsTrueSet", 0., 3000., mode, 0., 1., "trueSET");
+  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 0, 3000, 10, 0., 1.,"recoSet/TrueSet;trueSET", "cst");
+  SavePlot("recSetOverTrueSet", outdir.c_str() );
 
-//  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
-//  Styles::FormatPad( &c17, false );
-//  comp.DrawGaussSigmaOverMeanSlice("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0, 3000, 15, 0.0, 80.0, "Sigma(DeltaMEX)/ recoSET/trueSET;trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX_ratio");
-//  Styles::SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
+  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
+  FormatPad( &c17, false );
+////  comp.DrawSigmaEt_var("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0., 3000., mode);
+  comp.DrawGaussSigmaOverMeanSlice("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0, 3000, 15, 0.0, 80.0, "Sigma(DeltaMEX)/ recoSET/trueSET;trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX_ratio");
+  SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
 
-  comp.SetStyles(style1, style2, "Particle Flow Met", "Calo Met");
-  mode = Comparator::SCALE;
+//  TCanvas c13("c13", "sigmaMET_MET");
+//  FormatPad( &c13, false );
+//  comp.DrawSigmaEt_Et("DeltaEtvsEt", 20., 200., mode);
+//  SavePlot("sigmaMET_MET", outdir.c_str() );
+
+//  TCanvas c14("c14", "sigmaPhi");
+//  FormatPad( &c14, false );
+//  comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
+//  SavePlot("sigmaPhi", outdir.c_str() );
+
+// mode = Comparator::SCALE;
 
 //  TCanvas c14("c14", "test");
-//  Styles::FormatPad( &c14, false );
+//  FormatPad( &c14, false );
 //  comp.Draw2D_file1("DeltaEtvsEt", mode);
 //  comp.DrawSlice("DeltaEtvsEt", 40., 60., mode);
-//  Styles::SavePlot("test", outdir.c_str() );
+//  SavePlot("test", outdir.c_str() );
 
 }

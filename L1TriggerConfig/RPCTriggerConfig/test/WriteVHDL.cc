@@ -53,8 +53,6 @@
 
 
 #include <fstream>
-#include <bitset>
-
 //
 // class decleration
 //
@@ -82,7 +80,7 @@ class WriteVHDL : public edm::EDAnalyzer {
 
       std::string writeVersion();
       
-      std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector,std::string pacT);
+      std::string writeCNT(std::string pacT);
 
       std::string writePACandLPDef(const edm::EventSetup& iSetup, 
                                    int tower, int logsector, std::string PACt);
@@ -208,7 +206,7 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
                            fout << writeVersion();
                            break;
                       case 'N':
-                           fout << writeCNT(evtSetup, tower, logsector, pacT);
+                           fout << writeCNT(pacT);
                            break;
                       case 'P':
                            fout << writePACandLPDef(evtSetup, tower, logsector, pacT);
@@ -263,65 +261,19 @@ std::string WriteVHDL::writeVersion(){
   return ret.str();
 }
 
-std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, std::string pacT){
+std::string WriteVHDL::writeCNT(std::string pacT){
    
    std::stringstream ret;
-   int nT=0, nE=0, refGrps = 0;
-   if (pacT == "E") {
+   int nT=0, nE=0;
+   if (pacT == "E")
       nE=12;
-   }
-   else if (pacT == "T") {
+   else if (pacT == "T")
       nT=12;
-   }
    else
       throw cms::Exception("") << "Unknown PAC type \n";
    
    ret << "constant TT_EPACS_COUNT         :natural := " << nE << ";" <<  std::endl;
    ret << "constant TT_TPACS_COUNT         :natural := " << nT << ";" <<  std::endl;
-   
-   // calculate number of RefGruops used
-   if (pacT == "E") {
-   
-      tower = std::abs(tower);
-
-      edm::ESHandle<L1RPCConfig> conf;
-      iSetup.get<L1RPCConfigRcd>().get(conf);
-
-      const RPCPattern::RPCPatVec *pats = &conf.product()->m_pats;
-      int ppt = conf.product()->getPPT();
-      int segment = 0;
-
-      if (ppt == 1 || ppt == 12) {
-        sector = 0;
-      }
-
-
-      const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
-      RPCPattern::RPCPatVec::const_iterator it;
-
-      for ( int iPAC = 0; iPAC < 12 ; ++iPAC){
-
-        if (ppt == 144 || ppt == 12) segment = iPAC;
-
-        for (it = pats->begin(); it!=itEnd; ++it){
-
-           // select right pac
-           if ( it->getTower() != tower ||
-                it->getLogSector() != sector ||
-                it->getLogSegment() != segment ) continue;
-   
-           if (it->getPatternType() != RPCPattern::PAT_TYPE_E ) {
-             throw cms::Exception("WriteVHDL") 
-               << "Expected E type pattern, got different one" << std::endl;
-           }
-           if (refGrps < it->getRefGroup() ) refGrps = it->getRefGroup();
-           
-         } // patsIter
-      } // segment iter
-   } // if type E
-
-   ret  << "constant TT_REF_GROUP_NUMBERS   :natural := " << refGrps + 1 << ";" <<  std::endl;
-
    
    return ret.str();
 }
@@ -397,8 +349,7 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
     sector = 0;
  // }
 
-  int noOfQualitiesWritten = 0; 
-
+ 
   for (;it!=itEnd;++it) {
      
      // there is only one PACCellQuality for 12 comparators!
@@ -413,19 +364,12 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
         ret <<", "<<std::endl<<" (";
      }
 
-     std::bitset<6> fp(it->m_FiredPlanes) ;
-     ret  << (int)it->m_QualityTabNumber <<",\""
-//           << (int)it->m_FiredPlanes<<"\","
-           << fp.to_string<char,std::char_traits<char>, std::allocator<char> >() <<"\","
-           << (int)it->m_QualityValue<<")";
-     ++noOfQualitiesWritten;
+     ret  << it->m_QualityTabNumber <<",\""
+           << it->m_FiredPlanes<<"\","
+           << it->m_QualityValue<<")";
+     
   }
   
-  if (noOfQualitiesWritten == 1 && std::abs(tower) == 9) {
-
-
-  }
-
   ret<< ");" <<std::endl <<std::endl;
   
   return ret.str();
@@ -477,12 +421,6 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
        if (!firstRun) ret << ",";
        firstRun = false;
        
-       int sign =  it->getSign();
-       
-       if (sign == 0) sign = 1;
-       else if (sign == 1) sign = 0;
-       else throw cms::Exception("BAD sign") << "Bad sign definition: " << sign << std::endl;
-       
        ret   << "( " << iPAC << ", " << pacT
              << ", " << it->getRefGroup()
              << ", " << it->getQualityTabNumber()
@@ -494,7 +432,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
              << ",(" << it->getStripFrom(4) << "," << to[4] << ")" // pl5
              << ",(" << it->getStripFrom(5) << "," << to[5] << ")" // pl6
              << ")"  // planes end
-             << ", " << sign
+             << ", " << it->getSign()
              << ", " << it->getCode()
              << ") -- " << globalPatNo++ << std::endl;
        
@@ -546,10 +484,6 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
     evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
 
-    edm::ESHandle<L1RPCConeDefinition> coneDef;
-    evtSetup.get<L1RPCConeDefinitionRcd>().get(coneDef);
-
-
     static edm::ESHandle<RPCReadOutMapping>  map;
     static bool isMapValid = false;
 
@@ -587,35 +521,26 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       int detId = roll->id().rawId();
       //iterate over strips
       
-      for (int strip = 1; strip<= roll->nstrips(); ++strip){
+      for (int strip = 0; strip< roll->nstrips(); ++strip){
 
           std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, 
                     L1RPCConeBuilder::TStripConVec::const_iterator> 
                     itPair = coneBuilder->getConVec(detId, strip);
 
-          if (itPair.first!=itPair.second){
-              throw cms::Exception("") << " FIXME found uncompressed connection. " << tower << "\n";
-          }
 
-          std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator>
-                           compressedConnPair = coneBuilder->getCompConVec(detId);
+          L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
 
-          L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
-
-          for (; itComp!=compressedConnPair.second; ++itComp){
-              int logstrip = itComp->getLogStrip(strip,coneDef->getLPSizeVec());
-              if (logstrip==-1) continue;
-
+          for (; it!=itPair.second;++it){
 
               // iterate over all PACs 
-              if (itComp->m_tower != tower) continue;
+              if (it->m_tower != tower) continue;
 
               int dccInputChannel = getDCCNumber(tower, sector);
               int PACstart = sector*12;
               int PACend = PACstart+11;
 
               for(int PAC = PACstart; PAC <= PACend; ++PAC){
-                   if (itComp->m_PAC != PAC ) continue;
+                   if (it->m_PAC != PAC ) continue;
   
                    LinkBoardElectronicIndex a;
                    std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
@@ -638,10 +563,10 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
                      if(!beg) ret<<","; else beg = false;
 
-	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)itComp->m_logplane - 1<<",\t"
+	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)it->m_logplane - 1<<",\t"
                          <<linkStrip.first.tbLinkInputNum<<",\t"
                          <<linkStrip.first.lbNumInLink<<",\t"
-                         << logstrip<<",\t "
+                         << (int)it->m_logstrip<<",\t "
                          <<linkStrip.second.packedStrip()<<", \t";
                       ret << 1 << ") --" << roll->id() << std::endl;	
 

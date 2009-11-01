@@ -7,7 +7,6 @@ from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvestingSequence_cff im
 from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
 from HLTriggerOffline.special.hltAlCaPostVal_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
-from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 
@@ -23,7 +22,6 @@ hltpostvalidation = cms.Sequence(
     +SusyExoPostVal
    #+ExamplePostVal
     +hltvalidationqt
-    +HLTHiggsPostVal
     )
 
 hltpostvalidation_fastsim = cms.Sequence( 
@@ -36,7 +34,6 @@ hltpostvalidation_fastsim = cms.Sequence(
     +JetMETPostVal
     +HLTAlCaPostVal
     +SusyExoPostVal
-    +HLTHiggsPostVal
     )
 
 hltpostvalidation_preprod = cms.Sequence( 
@@ -45,9 +42,9 @@ hltpostvalidation_preprod = cms.Sequence(
     +hltriggerFourVectorClient
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
-   #+HLTHiggsPostVal
     )
 
 hltpostvalidation_prod = cms.Sequence( 
     hltriggerFourVectorClient
     )
+

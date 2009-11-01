@@ -20,9 +20,8 @@
 using namespace std;
 using namespace reco;
 PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
-			       string mvaWeightFileEleID,
-			       bool applyCrackCorrections):
-  mvaEleCut_(mvaEleCut),applyCrackCorrections_(applyCrackCorrections)
+			       string mvaWeightFileEleID):
+  mvaEleCut_(mvaEleCut)
 {
   // Set the tmva reader
   tmvaReader_ = new TMVA::Reader();
@@ -57,9 +56,8 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
   // should be cleaned as often as often as possible
   elCandidate_.clear();
   allElCandidate_.clear();
-  electronConstituents_.clear();
+  photonCandidates_.clear();
   fifthStepKfTrack_.clear();
-  convGsfTrack_.clear();
   // SetLinks finds all the elements (kf,ecal,ps,hcal,brems) 
   // associated to each gsf track
   bool blockHasGSF = SetLinks(blockRef,associatedToGsf,
@@ -112,6 +110,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
   vector<unsigned int> trackIs(0);
   vector<unsigned int> gsfIs(0);
 
+
   std::vector<bool> localactive(elements.size(),true);
  
 
@@ -163,7 +162,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
   if(IsThereAGSFTrack) {
     
 
-    // LocalLock the Elements associated to a Kf tracks and not to a Gsf
+    // LocalLock the Elements associated to a Kf tracks and not to any Gsf
     // The clusters associated both to a kf track and to a brem tangend 
     // are then assigned only to the kf track
     // Could be improved doing this after. 
@@ -185,18 +184,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	if(ecalKfElems.size() > 0) { 
 	  unsigned int ecalKf_index = ecalKfElems.begin()->second;
 	  if(localactive[ecalKf_index]==true) {
-	    // Check if this clusters is however well linked to a primary gsf track
+	    // Check if this clusters is however well linked to a gsf track
 	    // if this the case the cluster is not locked.
 	    
 	    bool isGsfLinked = false;
 	    for(unsigned int iGsf=0; iGsf<gsfIs.size(); iGsf++) {  
-	      // if the ecal cluster is associated contemporary to a KF track
-	      // and to a GSF track from conv, it is assigned to the KF track 
-	      // In this way we can loose some cluster but it is safer for double counting. 
-	      const reco::PFBlockElementGsfTrack * GsfEl  =  
-		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsfIs[iGsf]]));
-	      if(GsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
-
 	      std::multimap<double, unsigned int> ecalGsfElems;
 	      block.associatedElements( gsfIs[iGsf],linkData,
 					ecalGsfElems,
@@ -235,7 +227,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
       if (!localactive[(gsfIs[iEle])]) continue;  
 
-     
+      IsThereAGoodGSFTrack = true;
       localactive[gsfIs[iEle]] = false;
       bool ClosestEcalWithKf = false;
 
@@ -243,10 +235,6 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
       const reco::PFBlockElementGsfTrack * GsfEl  =  
 	dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[(gsfIs[iEle])]));
-
-      // if GsfTrack fron converted bremsstralung continue
-      if(GsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
-      IsThereAGoodGSFTrack = true;
       float eta_gsf = GsfEl->positionAtECALEntrance().eta();
       
 
@@ -291,8 +279,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	  ecalGsf_dist = block.dist(gsfIs[iEle],ClosestEcalGsf_index,
 				    linkData,reco::PFBlock::LINKTEST_ALL);
 	
-	  // Check that this cluster is not closer to another primary Gsf track
-	  
+	  // Check that this cluster is not closer to another Gsf track
 	   std::multimap<double, unsigned int> ecalOtherGsfElems;
 	   block.associatedElements( ClosestEcalGsf_index,linkData,
 				     ecalOtherGsfElems,
@@ -300,12 +287,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				     reco::PFBlock::LINKTEST_ALL);
 	
 	   if(ecalOtherGsfElems.size()>0) {
-	     // get if it is closed to a conv brem gsf tracks
-	     const reco::PFBlockElementGsfTrack * gsfCheck  =  
-	       dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
-
-	     if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]&&
-		gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {	     
+	     if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) {	     
 	       ecalGsf_dist = CutGSFECAL;
 	       ClosestEcalGsf_index = CutIndex;
 	     }
@@ -328,11 +310,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				    reco::PFBlockElement::GSF,
 				    reco::PFBlock::LINKTEST_ALL);
 	  if(ecalOtherGsfElems.size() > 0) {
-	    const reco::PFBlockElementGsfTrack * gsfCheck  =  
-	      dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
-
-	    if(ecalOtherGsfElems.begin()->second != gsfIs[iEle] &&
-	       gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {
+	    if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) {
 	      ecalGsf_dist = CutGSFECAL;
 	      ClosestEcalGsf_index = CutIndex;
 	      ClosestEcalWithKf = false;
@@ -391,37 +369,10 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				    sortedBremElems,
 				    reco::PFBlockElement::BREM,
 				    reco::PFBlock::LINKTEST_ALL);
-	  // check that this brem is that one coming from the same *primary* gsf
-	  bool isGoodBrem = false;
-	  unsigned int sortedBrem_index =  CutIndex;
-	  for (std::multimap<double, unsigned int>::iterator ibs = sortedBremElems.begin();
-	       ibs != sortedBremElems.end();ibs++) {
-	    unsigned int temp_sortedBrem_index = ibs->second;
-	    std::multimap<double, unsigned int> sortedGsfElems;
-	    block.associatedElements( temp_sortedBrem_index,linkData,
-				      sortedGsfElems,
-				      reco::PFBlockElement::GSF,
-				      reco::PFBlock::LINKTEST_ALL);
-	    bool enteredInPrimaryGsf = false;
-	    for (std::multimap<double, unsigned int>::iterator igs = sortedGsfElems.begin();
-		 igs != sortedGsfElems.end();igs++) {
-	      const reco::PFBlockElementGsfTrack * gsfCheck  =  
-		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[igs->second]));
-
-	      if(gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {
-		if(igs->second ==  gsfIs[iEle]) {
-		  isGoodBrem = true;
-		  sortedBrem_index = temp_sortedBrem_index;
-		}
-		enteredInPrimaryGsf = true;
-		break;
-	      }
-	    }
-	    if(enteredInPrimaryGsf)
-	      break;
-	  }
-
-	  if(isGoodBrem) { 
+	  // check that this brem is that one coming from the same gsf
+	  float checkBremGsf_dist = block.dist(sortedBremElems.begin()->second,gsfIs[iEle],
+					       linkData,reco::PFBlock::LINKTEST_ALL);
+	  if(checkBremGsf_dist > 0.) { 
 
 	    //  Check that this cluster is not closer to another Gsf Track
 	    // The check is not performed on KF track because the ecal clusters are aready locked.
@@ -431,16 +382,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      reco::PFBlockElement::GSF,
 				      reco::PFBlock::LINKTEST_ALL);
 	    if (ecalOtherGsfElems.size() > 0) {
-	      const reco::PFBlockElementGsfTrack * gsfCheck  =  
-		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
-	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle] &&
-		 gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {
-		continue;
-	      }
+	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) continue;
 	    }
 
 	    const reco::PFBlockElementBrem * BremEl  =  
-	      dynamic_cast<const reco::PFBlockElementBrem*>((&elements[sortedBrem_index]));
+	      dynamic_cast<const reco::PFBlockElementBrem*>((&elements[sortedBremElems.begin()->second]));
 
 	    reco::PFClusterRef clusterRef = 
 	      elements[ecalBrem_index].clusterRef();
@@ -451,15 +397,15 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    //if((0.0075*sortedBremEcal_chi2 + 100.*sortedBremEcal_deta -1.5) < 0.) {
 	    if(sortedBremEcal_deta < 0.015) {
 	    
-	      cleanedEcalBremElems.insert(pair<unsigned int,unsigned int>(sortedBrem_index,ecalBrem_index));
+	      cleanedEcalBremElems.insert(pair<unsigned int,unsigned int>( sortedBremElems.begin()->second,ecalBrem_index));
 	      
 	      unsigned int BremTrajP = BremEl->indTrajPoint();
 	      if (BremTrajP > latestBrem_trajP) {
 		latestBrem_trajP = BremTrajP;
-		latestBrem_index = sortedBrem_index;
+		latestBrem_index = sortedBremElems.begin()->second;
 	      }
 	      if (DebugSetLinksDetailed)
-		cout << " brem Index " <<  sortedBrem_index 
+		cout << " brem Index " <<  sortedBremElems.begin()->second 
 		     << " associated cluster " << ecalBrem_index << " BremTrajP " << BremTrajP <<endl;
 	      
 	      // > 1 ecal clusters could be associated to the same brem twice: allowed N-1 link. 
@@ -468,11 +414,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      localactive[ecalBrem_index] = false;  // the cluster
 	      bool  alreadyfound = false;
 	      for(unsigned int ii=0;ii<keyBremIndex.size();ii++) {
-		if (sortedBrem_index == keyBremIndex[ii]) alreadyfound = true;
+		if (sortedBremElems.begin()->second == keyBremIndex[ii]) alreadyfound = true;
 	      }
 	      if (alreadyfound == false) {
-		keyBremIndex.push_back(sortedBrem_index);
-		localactive[sortedBrem_index] = false;   // the brem
+		keyBremIndex.push_back(sortedBremElems.begin()->second);
+		localactive[sortedBremElems.begin()->second] = false;   // the brem
 	      }
 	    }
 	  }
@@ -580,69 +526,6 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	  keyBremIndex.erase(keyBremIndex.begin()+elToErase);
 	}	
       }
-
-      // Get Extra Clusters from converted brem gsf tracks. The locallock method
-      // tells me if the ecal cluster has been already assigned to the primary
-      // gsf track or to a brem
-
-
-
-      for(unsigned int iConv=0; iConv<gsfIs.size(); iConv++) {  
-	if(iConv != iEle) {
-
-	  const reco::PFBlockElementGsfTrack * gsfConv  =  
-	    dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[(gsfIs[iConv])]));
-	  
-	  // look at only to secondary gsf tracks
-	  if(gsfConv->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)){
-	    if (DebugSetLinksDetailed)
-	      cout << "  PFElectronAlgo:: I'm running on convGsfBrem " << endl;
-	    // check if they are linked to the primary
-	    float conv_dist = block.dist(gsfIs[iConv],gsfIs[iEle],
-					 linkData,reco::PFBlock::LINKTEST_ALL);
-	    if(conv_dist > 0.) {
-	      // find the closest ecal cluster associated to conversions
-
-	      std::multimap<double, unsigned int> ecalConvElems;
-	      block.associatedElements( gsfIs[iConv],linkData,
-					ecalConvElems,
-					reco::PFBlockElement::ECAL,
-					reco::PFBlock::LINKTEST_ALL );    
-	      if(ecalConvElems.size() > 0) {
-		// the ecal cluster is still active?
-		if(localactive[(ecalConvElems.begin()->second)] == true) {
-		  if (DebugSetLinksDetailed)
-		    cout << "  PFElectronAlgo:: convGsfBrem has a ECAL cluster linked and free" << endl;
-		  // Check that this cluster is not closer to another primary Gsf track
-		  std::multimap<double, unsigned int> ecalOtherGsfPrimElems;
-		  block.associatedElements( ecalConvElems.begin()->second,linkData,
-					    ecalOtherGsfPrimElems,
-					    reco::PFBlockElement::GSF,
-					    reco::PFBlock::LINKTEST_ALL);
-		  if(ecalOtherGsfPrimElems.size()>0) {
-		    unsigned int gsfprimcheck_index = ecalOtherGsfPrimElems.begin()->second;
-		    const reco::PFBlockElementGsfTrack * gsfCheck  =  
-		      dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsfprimcheck_index]));
-		    if(gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) continue;
-		    
-		    reco::PFClusterRef clusterRef = elements[ecalConvElems.begin()->second].clusterRef();
-		    if (DebugSetLinksDetailed)
-		      cout << " PFElectronAlgo: !!!!!!! convGsfBrem ECAL cluster has been stored !!!!!!! "
-			   << " Energy " << clusterRef->energy() << " eta,phi "  << clusterRef->position().eta()
-			   <<", " <<  clusterRef->position().phi() << endl;
-		 
-		    GsfElemIndex.push_back(ecalConvElems.begin()->second);
-		    convGsfTrack_.push_back(make_pair(ecalConvElems.begin()->second,gsfIs[iConv]));
-		    localactive[ecalConvElems.begin()->second] = false;
-		    
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-
 
       EcalIndex.insert(EcalIndex.end(),GsfElemIndex.begin(),GsfElemIndex.end());
       if(KfGsf_index < CutIndex) 
@@ -770,7 +653,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      unsigned int index = it->second;
 	      if(localactive[index] == true) {
 		
-		// Check that this cluster is not closer to another KF
+		// Check that this cluster is not closer to another GSF
 		std::multimap<double, unsigned> sortedKf;
 		block.associatedElements( index,  linkData,
 					  sortedKf,
@@ -1001,7 +884,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  double ps1,ps2;
 	  ps1=ps2=0.;
 	  //	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	  
-	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
+	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2);	  
 	  //	  std::cout << "Test " << Ene_ecalgsf <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 
 
@@ -1043,7 +926,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	}
 	else {
 	  reco::PFClusterRef clusterRef = elements[(assogsf_index[ielegsf])].clusterRef();	  	  
-	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,applyCrackCorrections_);	 
+	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	 
 	  Ene_extraecalgsf += TempClus_energy;
 	  if (DebugIDOutputs)
 	    cout << " setIdOutput! Extra ECAL Cluster E " 
@@ -1081,7 +964,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    if( assobrem_index[ibrem] !=  ecalGsf_index) {
 	      reco::PFClusterRef clusterRef = 
 		elements[(assobrem_index[ibrem])].clusterRef();
-	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,applyCrackCorrections_);
+	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem);
 	      Ene_ecalbrem += BremClus_energy;
 	      NumBrem++;
 	      if (DebugIDOutputs) cout << " setIdOutput::BREM Cluster " 
@@ -1479,7 +1362,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	double ps1,ps2;
 	ps1=ps2=0.;
 	//	float EE=pfcalib_.energyEm(cl,ps1Ene,ps2Ene);
-	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
+	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2);	  
 	//	std::cout << "Test "<< EE << " " <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 	//	float RawEE = cl.energy();
 
@@ -1497,55 +1380,52 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	  cout << "SetCandidates:: EcalCluster: EneNoCalib " << clust->clusterRef()->energy()  
 	       << " eta,phi " << ceta << "," << cphi << " Calib " <<  EE << " dE " <<  dE <<endl;
 
-	bool elecCluster=false;
 	if (FirstEcalGsf) {
 	  FirstEcalGsf = false;
-	  elecCluster=true;
 	  ecalGsf_index = assogsf_index[ielegsf];
 	  //	  std::cout << " PFElectronAlgo / Seed " << EE << std::endl;
 	  RawEene += EE;
 	}
-	
-	// create a photon/electron candadte
-	math::XYZTLorentzVector clusterMomentum;
-	math::XYZPoint direction=cl.position()/cl.position().R();
-	clusterMomentum.SetPxPyPzE(EE*direction.x(),
-				  EE*direction.y(),
-				  EE*direction.z(),
-				  EE);
-	reco::PFCandidate cluster_Candidate((elecCluster)?charge:0,
-					    clusterMomentum, 
-					    (elecCluster)? reco::PFCandidate::e : reco::PFCandidate::gamma);
-	
-	cluster_Candidate.setPs1Energy(ps1);
-	cluster_Candidate.setPs1Energy(ps2);
-	cluster_Candidate.setEcalEnergy(EE);
-	//	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
-	// The Raw Ecal energy will be the energy of the basic cluster. 
-	// It will be the corrected energy without the preshower
-	cluster_Candidate.setRawEcalEnergy(EE-ps1-ps2);
-	cluster_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
-	cluster_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
-	// store the photon candidate
-	std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-	  electronConstituents_.find(cgsf);
-	if(itcheck==electronConstituents_.end())
-	  {		  
-	    // beurk
-	    std::vector<reco::PFCandidate> tmpVec;
-	    tmpVec.push_back(cluster_Candidate);
-	    electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
-					 (cgsf,tmpVec));
-	  }
-	else
+	else // in this case one should make a photon ! 
 	  {
-	    itcheck->second.push_back(cluster_Candidate);
+	      math::XYZTLorentzVector photonMomentum;
+	      math::XYZPoint direction=cl.position()/cl.position().R();
+	      photonMomentum.SetPxPyPzE(EE*direction.x(),
+					EE*direction.y(),
+					EE*direction.z(),
+					EE);
+	      reco::PFCandidate photon_Candidate(0,photonMomentum, reco::PFCandidate::gamma);
+	      
+	      photon_Candidate.setPs1Energy(ps1);
+	      photon_Candidate.setPs1Energy(ps2);
+	      photon_Candidate.setEcalEnergy(EE);
+	      //	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
+	      // yes, EE, we want the raw ecal energy of the daugther to have the same definition
+	      // as the GSF cluster
+	      photon_Candidate.setRawEcalEnergy(EE);
+	      photon_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
+	      photon_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
+	      // store the photon candidate
+	      std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
+		photonCandidates_.find(cgsf);
+	      if(itcheck==photonCandidates_.end())
+		{		  
+		  // beurk
+		  std::vector<reco::PFCandidate> tmpVec;
+		  tmpVec.push_back(photon_Candidate);
+		  photonCandidates_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
+					   (cgsf,tmpVec));
+		}
+	      else
+		{
+		  itcheck->second.push_back(photon_Candidate);
+		}
+	      
 	  }
-	
-      Eene+=EE;
-      ps1TotEne+=ps1;
-      ps2TotEne+=ps2;
-      dene+=dE*dE;
+	Eene+=EE;
+	ps1TotEne+=ps1;
+	ps2TotEne+=ps2;
+	dene+=dE*dE;
       }
       
 
@@ -1597,7 +1477,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      // to get a calibrated PS energy 
 	      double ps1=0;
 	      double ps2=0;
-	      float EE = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2,applyCrackCorrections_);
+	      float EE = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2);
 	      
 	      // float RawEE  = clusterRef->energy();
 	      float ceta = clusterRef->position().eta();
@@ -1606,8 +1486,6 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      if( DebugIDCandidates ) 
 		cout << "SetCandidates:: BremCluster: Ene " << EE << " dE " <<  dE <<endl;	  
 	      Eene+=EE;
-
-
 	      ps1TotEne+=ps1;
 	      ps2TotEne+=ps2;
 	      // Removed 4 March 2009. Florian. The Raw energy is the (corrected) one of the GSF cluster only
@@ -1637,13 +1515,13 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 
 	      // store the photon candidate
 	      std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-		electronConstituents_.find(cgsf);
-	      if(itcheck==electronConstituents_.end())
+		photonCandidates_.find(cgsf);
+	      if(itcheck==photonCandidates_.end())
 		{		  
 		  // beurk
 		  std::vector<reco::PFCandidate> tmpVec;
 		  tmpVec.push_back(photon_Candidate);
-		  electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
+		  photonCandidates_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
 					   (cgsf,tmpVec));
 		}
 	      else
@@ -1758,8 +1636,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	reco::PFCandidate extendedElCandidate(temp_Candidate);
 	// now add the photons to this candidate
 	std::map<unsigned int, std::vector<reco::PFCandidate> >::const_iterator itcluster=
-	  electronConstituents_.find(cgsf);
-	if(itcluster!=electronConstituents_.end())
+	  photonCandidates_.find(cgsf);
+	if(itcluster!=photonCandidates_.end())
 	  {
 	    const std::vector<reco::PFCandidate> & theClusters=itcluster->second;
 	    unsigned nclus=theClusters.size();
@@ -1822,7 +1700,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
       if (assoele_type == reco::PFBlockElement::ECAL) {
 	unsigned int keyecalgsf = assogsf_index[ielegsf];
 
-	// added protection against fifth step
+	// add protection against fifth step
 	if(fifthStepKfTrack_.size() > 0) {
 	  for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
 	    if(fifthStepKfTrack_[itr].first == keyecalgsf) {
@@ -1830,27 +1708,6 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 	    }
 	  }
 	}
-
-	// added locking for conv gsf tracks and kf tracks
-	if(convGsfTrack_.size() > 0) {
-	  for(unsigned int iconv = 0; iconv < convGsfTrack_.size(); iconv++) {
-	    if(convGsfTrack_[iconv].first == keyecalgsf) {
-	      // lock the GSF track
-	      active[(convGsfTrack_[iconv].second)] = false;
-	      // lock also the KF track associated
-	      std::multimap<double, unsigned> convKf;
-	      block.associatedElements( convGsfTrack_[iconv].second,
-					linkData,
-					convKf,
-					reco::PFBlockElement::TRACK,
-					reco::PFBlock::LINKTEST_ALL );
-	      if(convKf.size() > 0) {
-		active[convKf.begin()->second] = false;
-	      }
-	    }
-	  }
-	}
-
 
 	vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(keyecalgsf)->second;
 	for(unsigned int ips =0; ips<assoecalgsf_index.size();ips++) {

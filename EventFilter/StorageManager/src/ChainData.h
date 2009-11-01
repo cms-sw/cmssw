@@ -345,30 +345,6 @@ namespace stor
     }; // class ErrorEventMsgData
 
 
-    /////////////////////////////
-    //// EndLumiSectMsgData: ////
-    /////////////////////////////
-
-    class EndLumiSectMsgData : public ChainData
-    {
-
-    public:
-
-      explicit EndLumiSectMsgData( toolbox::mem::Reference* pRef );
-      ~EndLumiSectMsgData() {}
-
-    protected:
-
-      uint32 do_runNumber() const;
-      uint32 do_lumiSection() const;
-
-    private:
-
-      mutable uint32 _runNumber;
-      mutable uint32 _lumiSection;
-
-    }; // class EndLumiSectMsgData
-
 
   } // namespace detail
 

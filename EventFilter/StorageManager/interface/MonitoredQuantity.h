@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.4 2009/08/18 08:54:13 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.3.2.2 2009/09/25 09:57:44 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.3.2.2 $
+   * $Date: 2009/09/25 09:57:44 $
    */
 
   class MonitoredQuantity

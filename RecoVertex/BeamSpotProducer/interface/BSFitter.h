@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.7 2009/09/17 21:49:42 jengbou Exp $
+ version $Id: BSFitter.h,v 1.6 2009/08/31 22:34:53 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -23,7 +23,6 @@ ________________________________________________________________**/
 #include "TMatrixD.h"
 #include "TMath.h"
 #include "Minuit2/VariableMetricMinimizer.h"
-#include "TH1F.h"
 
 // C++ standard
 #include <vector>
@@ -101,9 +100,7 @@ class BSFitter {
 	reco::BeamSpot::ResCovMatrix GetResMatrix() {
 		return fres_matrix;
 	}
-
-	TH1F * GetVzHisto() { return h1z; }
-	
+			
   private:
 
 	ModularFunctionMinimizer* theFitter;
@@ -141,7 +138,6 @@ class BSFitter {
 	double fMaxZ;
 	double fconvergence;
 	int fminNtrks;
-	TH1F *h1z;
 };
 
 #endif

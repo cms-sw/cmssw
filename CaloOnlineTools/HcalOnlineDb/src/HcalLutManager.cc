@@ -24,6 +24,7 @@
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+
 using namespace std;
 using namespace oracle::occi;
 using namespace hcal;
@@ -49,14 +50,11 @@ HcalLutManager::HcalLutManager(std::vector<HcalGenericDetId> & map)
 }
 
 
-HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap,
-			       const HcalChannelQuality * _cq,
-			       uint32_t _status_word_to_mask)
+HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap, const HcalChannelQuality * _cq)
 {
   init();
   emap = _emap;
   cq   = _cq;
-  status_word_to_mask = _status_word_to_mask;
 }
 
 
@@ -67,8 +65,6 @@ void HcalLutManager::init( void )
   db = 0;
   lmap = 0;
   emap = 0;
-  cq   = 0;
-  status_word_to_mask = 0x0000;
 }
 
 
@@ -327,14 +323,14 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
   return _xml;
 }
 
-//
-//_____ get HO from ASCII master here ___________________________________
-//
+
 std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( string _filename, string _tag, int _crate, bool split_by_crate )
 {
   cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " entries" << endl;
@@ -343,10 +339,6 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
   HcalLutSet _set = getLutSetFromFile( _filename );
   int lut_set_size = _set.lut.size(); // number of different luts
   cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << endl;
-
-  // setup "zero" LUT for channel masking
-  std::vector<unsigned int> zeroLut;
-  for (size_t adc = 0; adc < 128; adc++) zeroLut.push_back(0);
 
   RooGKCounter _counter;
   //loop over all EMap channels
@@ -403,16 +395,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
 	  _cfg.iphi*10000 + _cfg.depth*1000 +
 	  (row->ieta>0)*100 + abs(row->ieta) +
 	  (((row->subdet.find("HF")!=string::npos) && abs(row->ieta)==29)?(4*10000):(0));
-	//
-	// consider channel status here
-	DetId _detId(row->rawId);
-	uint32_t status_word = cq->getValues(_detId)->getValue();
-	if ((status_word & status_word_to_mask) > 0){
-	  _cfg.lut = zeroLut;
-	}
-	else{
-	  _cfg.lut = _set.lut[lut_index];
-	}
+	_cfg.lut = _set.lut[lut_index];
 	if (split_by_crate ){
 	  _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
 	  _counter.count();
@@ -453,7 +436,6 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
       int _iphi  = _iter.getIphi();
       int _depth = _iter.getDepth();
 
-      // FIXME: this is probably wrong, raw ids are different
       HcalElectronicsId _eId(_iter.getHcalGenericDetId().rawId());
       int aCrate      = _eId . readoutVMECrateId();
       int aSlot       = _eId . htrSlot();
@@ -697,12 +679,11 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
   cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " entries" << endl;
-
-  std::vector<unsigned int> zeroLut;
-  for (size_t adc = 0; adc < 128; adc++) zeroLut.push_back(0);
 
   RooGKCounter _counter;
   //loop over all EMap channels
@@ -749,18 +730,14 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       else if ( row->subdet.find("HF")!=string::npos ) _subdet = HcalForward;
       else _subdet = HcalOther;
       HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
-      //
-      // consider channel status here
-      uint32_t status_word = cq->getValues(_detid)->getValue();
-      if ((status_word & status_word_to_mask) > 0){
-	_cfg.lut = zeroLut;
-      }
-      else{
-	std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
-	for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	  unsigned int _temp = (unsigned int)(*_i);
-	  _cfg.lut.push_back(_temp);
-	}
+      //cout << "### DEBUG: rawid = " << _detid.rawId() << ", " << _subdet << endl;    
+      //cout << "### DEBUG: subdetector = " << row->subdet << endl;    
+      std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
+      for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+	unsigned int _temp = (unsigned int)(*_i);
+	//if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	//unsigned int _temp = 0;
+	_cfg.lut.push_back(_temp);
       }
       if (split_by_crate ){
 	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
@@ -1449,27 +1426,13 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
     int crate_end = _f->rfind(".xml.dat");
     crate_number . push_back(getInt(_f->substr(crate_begin+1,crate_end-crate_begin-1)));
   }
-  //
-  //_____ fix due to the new convention: version/subversion combo must be unique for every payload
-  //
-  char _buf[128];
-  time_t _offset = time(NULL);
-  sprintf( _buf, "%d", (uint32_t)_offset );
-  conf.version.append(".");
-  conf.version.append(_buf);
-  CSconf.version = conf.version;
-  //
   for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       //conf . trig_prim_lookuptbl_data_file += ".dat";
       conf . crate = crate_number[ _file - file_name . begin() ];
-      //
-      //_____ fix due to the new convention: version/subversion combo must be unique for every payload
-      //
-      sprintf( _buf, "%.2d", conf.crate );
-      conf.subversion.clear();
-      conf.subversion.append(_buf);
+      
+      char _buf[128];
       sprintf( _buf, "CRATE%.2d", conf . crate );
       string _namelabel;
       _namelabel . append( _buf );

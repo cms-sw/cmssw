@@ -304,16 +304,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       return; 
     }
   
-  //HcalBaseMonitor::processEvent();
-
-  // Skip events in which minimal good digis found -- still getting some strange (calib?) events through DQM
-
-  DigiUnpackerErrorCount->Fill(report.badQualityDigis());
-  if (report.badQualityDigis()>9000)
-    {
-      return;
-    }
   HcalBaseMonitor::processEvent();
+
   hbHists.count_bad=0;
   hbHists.count_good=0;
   heHists.count_bad=0;
@@ -351,9 +343,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       else 
 	continue; // skip anything that isn't HB, HE, HO, HF
       // extra protection against nonsensical values -- prevents occasional crashes
-      if (rEta < 85 && rEta >= 0 
-	  && (rPhi-1) >= 0 && (rPhi-1)<72 
-	  && (rDepth-1) >= 0 && (rDepth-1)<4)
+      if (rEta < 85 && rEta > 0 
+	  && (rPhi-1) > 0 && (rPhi-1)<72 
+	  && (rDepth-1) > 0 && (rDepth-1)<4)
 	{
 	  ++badunpackerreport[rEta][rPhi-1][rDepth-1];
 	  ++baddigis[rEta][rPhi-1][rDepth-1];  
@@ -472,6 +464,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     ++diginum[count_good];
 
   // Fill bad quality histograms
+  DigiUnpackerErrorCount->Fill(report.badQualityDigis());
   DigiUnpackerErrorFrac->Fill(1.*report.badQualityDigis()/(report.badQualityDigis()+count_good));
   DigiBQ->Fill(count_bad);
   if (count_bad>0 || count_good>0)

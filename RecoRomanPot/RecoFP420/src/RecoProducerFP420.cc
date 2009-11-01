@@ -19,27 +19,36 @@ RecoProducerFP420::RecoProducerFP420(const edm::ParameterSet& conf):conf_(conf) 
 
   length         = conf_.getParameter<double>("BeamLineLength" );//m
   verbosity      = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  m_rpp420_f     = conf_.getParameter<double>("RP420f");//mm
+  m_rpp420_b     = conf_.getParameter<double>("RP420b");//mm
+  m_zreff        = conf_.getParameter<double>("zreff");//mm
+  m_zrefb        = conf_.getParameter<double>("zrefb");//mm
   beam1filename  = conf_.getParameter<string>("Beam1");
   beam2filename  = conf_.getParameter<string>("Beam2");  
 
   edm::LogInfo ("RecoProducerFP420") << "RecoProducerFP420 parameters: \n" 
-				     << "   Verbosity: " << verbosity << "\n"
-				     << "   length:    " << length << "\n";
-  if (verbosity > 1) {
-    std::cout << "  RecoProducerFP420: constructor    " << std::endl;
-    std::cout << "   BeamLineLength:    " << length << std::endl;
-  }
-  
+			  << "   Verbosity: " << verbosity << "\n"
+			  << "   RP420f:    " << m_rpp420_f << "\n"
+			  << "   RP420b:    " << m_rpp420_b << "\n";
+    if (verbosity > 1) {
+      std::cout << "  RecoProducerFP420: constructor    " << std::endl;
+      std::cout << "   BeamLineLength:    " << length << std::endl;
+      std::cout << "   RP420f:    " << m_rpp420_f << std::endl;
+      std::cout << "   RP420b:    " << m_rpp420_b << std::endl;
+      std::cout << "   zreff:    " <<m_zreff  << std::endl;
+      std::cout << "   zrefb:    " <<m_zrefb  << std::endl;
+    }
+
   //  edm::FileInPath b1("SimTransport/HectorData/twiss_ip5_b1_v6.5.txt");
   //  edm::FileInPath b2("SimTransport/HectorData/twiss_ip5_b2_v6.5.txt");
-  
-  edm::FileInPath b1(beam1filename.c_str());
-  edm::FileInPath b2(beam2filename.c_str());
-  
-  
+
+edm::FileInPath b1(beam1filename.c_str());
+edm::FileInPath b2(beam2filename.c_str());
+
+
   m_beamline1 = new H_BeamLine(  1, length + 0.1 ); // (direction, length)
   m_beamline2 = new H_BeamLine( -1, length + 0.1 ); //
-  
+
   try {
     m_beamline1->fill( b1.fullPath(),  1, "IP5" );
     m_beamline2->fill( b2.fullPath(), -1, "IP5" );
@@ -48,10 +57,13 @@ RecoProducerFP420::RecoProducerFP420(const edm::ParameterSet& conf):conf_(conf) 
     msg += " caught in RecoProducerFP420... \nERROR: Could not locate SimTransport/HectorData data files.";
     edm::LogError ("DataNotFound") << msg;
   }
-  
+
+  m_rp420_f = new H_RecRPObject( m_rpp420_f*0.001, (m_rpp420_f + m_zreff)*0.001, *m_beamline1 );// m
+  m_rp420_b = new H_RecRPObject( m_rpp420_b*0.001, (m_rpp420_b + m_zrefb)*0.001, *m_beamline2 );// m
+
   m_beamline1->offsetElements( 120, -0.097 );
   m_beamline2->offsetElements( 120, +0.097 );
-  
+
   m_beamline1->calcMatrix();
   m_beamline2->calcMatrix();
 
@@ -61,8 +73,7 @@ RecoProducerFP420::RecoProducerFP420(const edm::ParameterSet& conf):conf_(conf) 
 
 RecoProducerFP420::~RecoProducerFP420(){}
 
-std::vector<RecoFP420>  RecoProducerFP420::reconstruct(int direction, double x1_420, double y1_420, double x2_420, double y2_420, double z1_420, double z2_420){
-  // ==================================================================================  
+std::vector<RecoFP420>  RecoProducerFP420::reconstruct(int direction, double x1_420, double y1_420, double x2_420, double y2_420){
   // ==================================================================================  
   std::vector<RecoFP420> rhits;
   int restracks = 10;// max # tracks
@@ -73,7 +84,6 @@ std::vector<RecoFP420>  RecoProducerFP420::reconstruct(int direction, double x1_
 // #define TM 1    #define AM 2   #define PM 3
   m_tx0=-100., m_ty0=-100., m_x0=-100., m_y0=-100.;
   if ( direction == 1 ) {
-    m_rp420_f = new H_RecRPObject( z1_420*0.001, z2_420*0.001, *m_beamline1 );// m
     if ( m_rp420_f ) {
       if (verbosity >1) {
 	std::cout << "  RecoProducerFP420: input coord. in um   " << std::endl;
@@ -92,7 +102,6 @@ std::vector<RecoFP420>  RecoProducerFP420::reconstruct(int direction, double x1_
     }// if ( m_rp420_f
   }// if ( dire
   else if ( direction == 2 ) {
-    m_rp420_b = new H_RecRPObject( z1_420*0.001, z2_420*0.001, *m_beamline2 );// m
     if ( m_rp420_b ) {
       m_rp420_b->setPositions( x1_420, y1_420, x2_420 ,y2_420 );// input coord. in um
       m_e   = m_rp420_b->getE( AM );// GeV

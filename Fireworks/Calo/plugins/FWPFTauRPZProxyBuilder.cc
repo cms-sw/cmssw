@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWPFTauRPZProxyBuilder.cc,v 1.3 2009/08/24 04:54:33 dmytro Exp $
+// $Id: FWRPZProxyBuilder 2009/4/27 Yanjun Tu $
 //
 
 // include files
@@ -8,7 +8,8 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
+//#include "Fireworks/Core/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
@@ -127,9 +128,10 @@ FWPFTauRPZProxyBuilder::buildTauRhoPhi(const FWEventItem* iItem,
      TEveTrack* track(0);
      if ( i->isAvailable() )
        {
-	 track = fireworks::prepareTrack(**i,
-					 m_propagator.get(),
-					 item()->defaultDisplayProperties().color() );
+	 track = fireworks::prepareSimpleTrack(**i,
+					       m_propagator.get(),
+					       &container,
+					       item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();
      if(track)container.AddElement(track);
@@ -194,9 +196,10 @@ FWPFTauRPZProxyBuilder::buildTauRhoZ(const FWEventItem* iItem,
      TEveTrack* track(0);
      if ( i->isAvailable() )
        {
-	 track = fireworks::prepareTrack(**i,
-					 m_propagator.get(),
-					 item()->defaultDisplayProperties().color() );
+	 track = fireworks::prepareSimpleTrack(**i,
+					       m_propagator.get(),
+					       &container,
+					       item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();
      if(track)container.AddElement(track);

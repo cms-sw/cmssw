@@ -23,14 +23,14 @@ namespace pat {
       double generatedEvtPlane() const {return phi_;}
 
    private:
+      reco::CentralityCollection cents_;
+      reco::EvtPlaneCollection planes_;
       bool isMC_;
       double b_;
       int npart_;
       int ncoll_;
       int nhard_;
       double phi_;
-      reco::CentralityCollection cents_;
-      reco::EvtPlaneCollection planes_;
    };
 
 }

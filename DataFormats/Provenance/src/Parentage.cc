@@ -1,5 +1,6 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "FWCore/Utilities/interface/Digest.h"
 #include <ostream>
 #include <sstream>
 

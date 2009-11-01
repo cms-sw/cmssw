@@ -1,4 +1,4 @@
-// $Id: Starting.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Starting.cc,v 1.6.4.2 2009/10/13 14:13:55 mommsen Exp $
 /// @file: Starting.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"

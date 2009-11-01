@@ -125,11 +125,6 @@ private:
 
     };
 
-    struct TableMenuTechTrig {
-        short bitNumberSh;
-        std::string techName;
-    };
-
     /// methods to retrieve the tables from DB
 
     /// retrieve table with general menu parameters from DB
@@ -147,9 +142,6 @@ private:
     /// retrieve table with object parameters from DB
     bool tableMenuObjectParametersFromDB(const std::string& gtSchema, const std::string& objKey);
 
-    /// retrieve table with technical triggers from DB
-    bool tableMenuTechTrigFromDB(const std::string& gtSchema, const std::string& objKey);
-
 private:
 
     /// return for an algorithm with bitNr the mapping between the integer index in logical expression
@@ -164,9 +156,6 @@ private:
 
     /// build the algorithm map in the menu
     void buildAlgorithmMap();
-
-    /// build the technical trigger map in the menu
-    void buildTechnicalTriggerMap();
 
     /// string to enum L1GtConditionCategory conversion
     L1GtConditionCategory strToEnumCondCategory(const std::string& strCategory);
@@ -219,7 +208,6 @@ private:
     std::vector<TableMenuAlgoCond> m_tableMenuAlgoCond;
     std::vector<TableMenuCond> m_tableMenuCond;
     std::vector<TableMenuObjectParameters> m_tableMenuObjectParameters;
-    std::vector<TableMenuTechTrig> m_tableMenuTechTrig;
 
 private:
 

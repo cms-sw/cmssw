@@ -22,10 +22,10 @@ struct TkOffTreeVariables
       = rDirection = phiDirection = zDirection = rOrZDirection = 0.;
     // Int_t's
     moduleId = subDetId
-      = layer = side = half = rod 
+      = layer = side = rod 
       = ring = petal 
       = blade = panel 
-      = outerInner = module = 0;
+      = outerInner = 0;
     // Bool_t's
     isDoubleSide = isStereo = false;
     // std::string's
@@ -50,34 +50,32 @@ struct TkOffTreeVariables
     entries = 0;
   }
 
-
   ///////////////////////////////////////////////////////////////////////////////
   // Data members:
   // They do not follow convention to have '_' at the end since they will appear 
   // as such in the TTree and that is ugly.
   ///////////////////////////////////////////////////////////////////////////////
-  
   Float_t meanLocalX, meanNormLocalX, 
-    meanX, meanNormX,                            //mean value read out from module histograms
+    meanX, meanNormX,    //mean value read out from modul histograms
     meanY, meanNormY, 
-    medianX, medianY,                            //median read out from module histograms
+    medianX, medianY,   //Median read out from modul histograms
     chi2PerDofX, chi2PerDofY,
-    rmsLocalX, rmsNormLocalX, rmsX, rmsNormX,    //rms value read out from modul histograms
+    rmsLocalX, rmsNormLocalX, rmsX, rmsNormX,  //rms value read out from modul histograms
     rmsY, rmsNormY,sigmaX,sigmaNormX,
     fitMeanX, fitSigmaX, fitMeanNormX, fitSigmaNormX,
     fitMeanY, fitSigmaY, fitMeanNormY, fitSigmaNormY,
-    posR, posPhi, posEta,                        //global coordiantes    
-    posX, posY, posZ,                            //global coordiantes 
+    posR, posPhi, posEta,                     //global coordiantes    
+    posX, posY, posZ,             //global coordiantes 
     numberOfUnderflows, numberOfOverflows, numberOfOutliers,
     rDirection, phiDirection, zDirection, rOrZDirection;
-  
-  UInt_t  entries, moduleId, subDetId,  //number of entries for each module //moduleId == detId
-    layer, side, half, rod,             //half = TPB: halfBarrel, TPE: halfCylinder, TIB: halfShell
+  UInt_t  entries, moduleId, subDetId, //number of entries for each modul //modul Id = detId and subdetector Id
+    layer, side, rod, 
     ring, petal, 
     blade, panel, 
-    outerInner, module;  //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal
+    outerInner; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal
 
-  Bool_t isDoubleSide, isStereo; // (!isDoubleSide) is a detUnit, (isDoubleSide) is a Det (glued Modules) // (!isStereo) is a rPhi-module, (isStereo) is the stereo module from a Det
+  /** A non-zero value means a stereo module, null means not stereo. */
+  Bool_t isDoubleSide, isStereo; //if (isDoubleSide==0 && isStereo==0) then module is a rphi module
   std::string histNameLocalX, histNameNormLocalX, histNameX, histNameNormX,
     histNameY, histNameNormY;    
 };

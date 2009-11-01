@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.53 2009/10/23 12:49:24 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.49 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -32,15 +32,12 @@
 #include "TGeoManager.h"
 #include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
-#include "TGeoManager.h"
 
-//TEMP
-#include "TEveCaloData.h"
+#include "TGeoManager.h"
 
 #include <iostream>
 #include <exception>
 #include <boost/bind.hpp>
-#include <sstream>
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
@@ -61,7 +58,7 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
-#include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
+#include <sstream>
 
 //
 //
@@ -95,11 +92,17 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    iGUIMgr->registerViewBuilder(kRhoZViewTypeName,f);
 
    //setup geometry projections
-   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RPhi));
-   m_rhoZGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RhoZ));
+   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager);
+   //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
+
+   m_rhoZGeomProjMgr.reset(new TEveProjectionManager);
+   m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
+   //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
 
    m_eveStore = new TEveElementList();
 
+   //kTRUE tells it to reset the camera so we see everything
+   //gEve->Redraw3D(kTRUE);
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
@@ -134,6 +137,11 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    
 }
 
+// FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
+// {
+//    // do actual copying here;
+// }
+
 FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 {
    m_isBeingDestroyed=true;
@@ -144,6 +152,17 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
    m_eveStore->Destroy();
 }
 
+//
+// assignment operators
+//
+// const FWRhoPhiZViewManager& FWRhoPhiZViewManager::operator=(const FWRhoPhiZViewManager& rhs)
+// {
+//   //An exception safe implementation is
+//   FWRhoPhiZViewManager temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
 
 //
 // member functions
@@ -223,6 +242,7 @@ FWRhoPhiZViewManager::setupGeometry()
    }
 }
 
+
 void
 FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
@@ -282,20 +302,13 @@ FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
       if(0 != userData) {
-         if(dynamic_cast<TEveCaloData*>(iElement)) {
+         FWModelId* id = static_cast<FWModelId*>(userData);
+         if( not id->item()->modelInfo(id->index()).isSelected() ) {
             bool last = m_eveSelection->BlockSignals(kTRUE);
-            FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
-            base->doSelect();
+            //std::cout <<"   selecting"<<std::endl;
+
+            id->select();
             m_eveSelection->BlockSignals(last);
-         }else {
-            FWModelId* id = static_cast<FWModelId*>(userData);
-            if( not id->item()->modelInfo(id->index()).isSelected() ) {
-               bool last = m_eveSelection->BlockSignals(kTRUE);
-               //std::cout <<"   selecting"<<std::endl;
-               
-               id->select();
-               m_eveSelection->BlockSignals(last);
-            }
          }
       }
    }
@@ -307,7 +320,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
    //std::cout <<"selection removed"<<std::endl;
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
-      if(0 != userData && 0 == dynamic_cast<TEveCaloData*>(iElement)) {
+      if(0 != userData) {
          FWModelId* id = static_cast<FWModelId*>(userData);
          if( id->item()->modelInfo(id->index()).isSelected() ) {
             bool last = m_eveSelection->BlockSignals(kTRUE);
@@ -317,6 +330,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
          }
       }
    }
+
 }
 
 void
@@ -352,6 +366,9 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
    }
 }
 
+//
+// const member functions
+//
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
    if ( !detIdToGeo() ) return;
@@ -393,6 +410,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
          iter.next();
       }
    }
+
    m_eveStore->AddElement(container);
 }
 
@@ -723,30 +741,29 @@ TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
 {
    TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
-
+   list->SetPickable(kFALSE);
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   ref->SetNextPoint(0.,0.,0.);
    list->AddElement(ref);
-
+   ref->SetNextPoint(0.,0.,0.);
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
+   list->AddElement(el);
    el->SetLineColor(colorManager().geomColor(kFWTrackerColorIndex));
    el->AddLine(0, 123,-300, 0, 123, 300);
    el->AddLine(0, 123, 300, 0,-123, 300);
    el->AddLine(0,-123, 300, 0,-123,-300);
    el->AddLine(0,-123,-300, 0, 123,-300);
-   list->AddElement(el);
-
-   m_eveStore->AddElement(list);
-
    float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( list );
+   m_rhoZGeomProjMgr->ImportElements( list ); // hack
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
+
+   m_eveStore->AddElement(list);
 }
 
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
@@ -759,21 +776,20 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    for ( unsigned int i = 1; i <= nSegments; ++i )
       el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
                   r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
-
+   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   ref->SetNextPoint(0.,0.,0.);
    el->AddElement(ref);
-
-   m_eveStore->AddElement(el);
-
-   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   ref->SetNextPoint(0.,0.,0.);
    m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
    m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->ImportElements( el ); // hack
    m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
+
+   m_eveStore->AddElement(el);
 }
 
 FWTypeToRepresentations
@@ -795,4 +811,5 @@ FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
       }
    }
    return returnValue;
+
 }

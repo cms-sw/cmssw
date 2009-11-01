@@ -2,7 +2,7 @@
 # set of tools to create and submit validation webpages 
 # author: Colin
 
-import shutil, sys, os, re, glob, string 
+import shutil, sys, os, re, glob
 
 from optparse import OptionParser
 
@@ -57,11 +57,6 @@ class webpage:
                 # : print a warning
                 shutil.copy(picfile, self.outputDir_) 
             except Exception:
-                print 'File %s does not exist. Did you generate the comparison plots?' % picfile
-                print 'Aborting the script.\n'
-                print 'Solution 1: run without the -m "" option, to run the compare.C macro'
-                print 'Solution 2: run with the -m "myMacro.C" option, to run another macro'
-                sys.exit(1)
                 raise
         return images
 
@@ -133,9 +128,6 @@ class website:
 
 class benchmark:
  
-    # arg can be either the full name of a benchmark, or 
-    # an extension, in which case, the release and benchmark name are guessed 
-    # from the environment variables. 
     def __init__(self, arg=None):
 
         release = None
@@ -147,19 +139,11 @@ class benchmark:
             (release, benchName, extension) = decodePath( arg )
 
         if release == None:
-            # we get there if:
-            # - arg == None
-            # - the decoding of arg as a full benchmark name has failed. 
+        
             self.release_ = os.environ['CMSSW_VERSION']
         
             # benchmark directory, as the current working directory
             self.benchmark_ = os.path.basename( os.getcwd() )
-
-            # underscore are not allowed in extension names 
-            if arg!=None and arg.count('_'):
-                print 'sorry, as said many times, underscores are not allowed in the extension ;P'
-                sys.exit(5)
-            
             extension = arg
         else:
             self.release_ = release

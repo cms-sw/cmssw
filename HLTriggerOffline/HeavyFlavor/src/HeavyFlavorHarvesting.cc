@@ -51,13 +51,8 @@ void HeavyFlavorHarvesting::endRun(const edm::Run &, const edm::EventSetup &){
   
 void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
 //get hold of numerator and denominator histograms
-  vector<string> numDenEffMEnames = pset.getUntrackedParameter<vector<string> >("NumDenEffMEnames");
-  if(numDenEffMEnames.size()!=3){
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "NumDenEffMEnames must have three names"<<endl;
-    return;
-  }
-  string denMEname = myDQMrootFolder+"/"+numDenEffMEnames[1];
-  string numMEname = myDQMrootFolder+"/"+numDenEffMEnames[0];
+  string denMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
+  string numMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
   MonitorElement *denME = dqmStore->get(denMEname);
   MonitorElement *numME = dqmStore->get(numMEname);
   if(denME==0 || numME==0){
@@ -72,7 +67,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
     return;
   }
   //figure out the directory and efficiency name  
-  string effName = numDenEffMEnames[2];
+  string effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
   string effDir = myDQMrootFolder;
   string::size_type slashPos = effName.rfind('/');
   if ( string::npos != slashPos ) {

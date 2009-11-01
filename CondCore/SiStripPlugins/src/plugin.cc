@@ -45,9 +45,6 @@ REGISTER_PLUGIN(SiStripModuleLVRcd,SiStripModuleHV);
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 REGISTER_PLUGIN(SiStripDetVOffRcd,SiStripDetVOff);
 
-#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
-REGISTER_PLUGIN(SiStripLatencyRcd,SiStripLatency);
-
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 REGISTER_PLUGIN(SiStripRunSummaryRcd,SiStripRunSummary);
 

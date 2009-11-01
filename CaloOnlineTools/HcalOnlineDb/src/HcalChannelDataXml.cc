@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelDataXml.cc,v 1.4 2009/10/14 00:09:01 kukartse Exp $
+// $Id: HcalChannelDataXml.cc,v 1.2 2009/07/16 16:29:35 kukartse Exp $
 //
 
 #include <iostream>
@@ -27,8 +27,6 @@ using namespace std;
 HcalChannelDataXml::HcalChannelDataXml(){
   comment = hcal_ass.getRandomQuote();
   //init_data();
-  dataset_count = 0;
-  global_timestamp = time(NULL);
 }
 
 
@@ -145,31 +143,17 @@ DOMNode * HcalChannelDataXml::add_dataset( void ){
   //
   //_____ set defaults
   //
-  //
-  //_____ fix due to the new convention: version/subversion combo must be unique for every payload
-  //
-  char _buf[128];
-  //time_t _offset = time(NULL);
-  time_t _offset = global_timestamp;
-  sprintf( _buf, "%d", (uint32_t)_offset );
-  std::string _version;
-  _version.clear();
-  _version.append(tag_name);
-  _version.append(".");
-  _version.append(_buf);
-  //
   DOMElement * dataset_elem = (DOMElement *)dataset_node;
   setTagValue(dataset_elem, "COMMENT_DESCRIPTION", dataset_comment);
   setTagValue(dataset_elem, "CREATE_TIMESTAMP", getTimestamp(time(0)));
   setTagValue(dataset_elem, "CREATED_BY_USER", username);
-  setTagValue(dataset_elem, "VERSION", _version);
-  setTagValue(dataset_elem, "SUBVERSION", dataset_count);
+  setTagValue(dataset_elem, "VERSION", tag_name);
+  setTagValue(dataset_elem, "SUBVERSION", 1);
   //
   //_____ set the chanel table name consistent with the header HINT
   //
   setTagValue(dataset_elem, "EXTENSION_TABLE_NAME", channel_map);
   //
-  if (dataset_node) ++dataset_count;
   return dataset_node;
 }
 

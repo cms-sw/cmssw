@@ -7,10 +7,9 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
   for (int i=0; i<2; ++i) 
     for (int j=0; j<2; ++j) 
       for (int k=0; k<40; ++k) 
-	for (int m=0; m<40; ++m) {
+	for (int m=0; m<40; ++m) 
 	  fed_[i][j][k][m] = -1; 
-	  kchip_[i][j][k][m] = -1;
-	}
+  
   
   // read in look-up table
   int nLines, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -27,7 +26,6 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
       else z = iz;
       
       fed_[z-1][ip-1][ix-1][iy-1] = fed;
-      kchip_[z-1][ip-1][ix-1][iy-1] = kchip;
     }
 
   } else {
@@ -102,17 +100,3 @@ void ESElectronicsMapper::GetListofFEDs(std::vector<int> eeFEDs, std::vector<int
   esFEDs.erase(it, esFEDs.end());
 
 }
-
-int ESElectronicsMapper::getKCHIP(const ESDetId& id) { 
-
-  int zside;
-  if (id.zside()<0) zside = 2;
-  else zside = id.zside();
-
-  return kchip_[zside-1][id.plane()-1][id.six()-1][id.siy()-1]; 
-} 
-
-int ESElectronicsMapper::getKCHIP(int zside, int plane, int x, int y) { 
-
-  return kchip_[zside-1][plane-1][x-1][y-1]; 
-} 

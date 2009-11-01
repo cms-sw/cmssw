@@ -28,6 +28,7 @@
 //
 
 // system include files
+#include <map>
 #include <vector>
 
 // user include files

@@ -1,8 +1,8 @@
 #ifndef  PopConSourceHandler_H
 #define  PopConSourceHandler_H
 
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
@@ -54,48 +54,48 @@ namespace popcon {
     
     class Ref {
     public:
-      Ref() : m_dbsession(0){}
-      Ref(cond::DbSession& dbsession, std::string token) : 
-        m_dbsession(dbsession){
-	      m_dbsession.transaction().start(true);
-	      m_dw = m_dbsession.getTypedObject<Wrapper>(token);
-	      m_d = m_dbsession.getTypedObject<T>(token);
+      Ref() : m_pooldb(0){}
+      Ref(cond::PoolTransaction& pooldb, std::string token) : 
+        m_pooldb(&pooldb){
+	m_pooldb->start(true);
+	m_dw = pool::Ref<Wrapper>(&(pooldb.poolDataSvc()),token);
+	m_d = pool::Ref<T>(&(pooldb.poolDataSvc()),token);
       }
       ~Ref() {
-        if(m_dbsession.isOpen())
-          m_dbsession.transaction().commit();
+	if (m_pooldb)
+	  m_pooldb->commit();
       }
       
-      Ref(const Ref & ref) :
-        m_dbsession(ref.m_dbsession), m_dw(ref.m_dw), m_d(ref.m_d) {
-        //ref.m_dbsession=0; // avoid commit;
+      Ref(const Ref & ref) : 
+	m_pooldb(ref.m_pooldb), m_dw(ref.m_dw), m_d(ref.m_d) {
+	ref.m_pooldb=0; // avoid commit;
       }
       
       Ref & operator=(const Ref & ref) {
-        m_dbsession = ref.m_dbsession;
-        m_dw = ref.m_dw;
-        m_d = ref.m_d;
-        ref.m_dbsession=0; // avoid commit;
-        return *this;
+	m_pooldb = ref.m_pooldb;
+	m_dw = ref.m_dw;
+	m_d = ref.m_d; 
+	ref.m_pooldb=0; // avoid commit;
+	return *this;
       }
       
       T const * ptr() const {
-        if(m_dw) return &m_dw->data();
-        return m_d.ptr();
+	if (m_dw) return &m_dw->data();
+	return m_d.ptr();
+
       }
-      
       T const * operator->() const {
-        return ptr();
+	return ptr();
       }
       // dereference operator
       T const & operator*() const {
-        return *ptr();
+	return *ptr();
       }
-      
+
       
     private:
-      
-      cond::DbSession m_dbsession;
+
+      mutable cond::PoolTransaction *m_pooldb;
       pool::Ref<Wrapper> m_dw;
       pool::Ref<T> m_d;
     };
@@ -111,25 +111,25 @@ namespace popcon {
     
     // return last paylod of the tag
     Ref lastPayload() const {
-      return Ref(m_session,tagInfo().lastPayloadToken);
+      return Ref(m_connection->poolTransaction(),tagInfo().lastPayloadToken);
     }
     
     // return last successful log entry for the tag in question
     cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
     
     
-    void initialize (cond::DbSession dbSession,
+    void initialize (cond::Connection* connection,
 		     cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
-      m_session = dbSession;
+      m_connection = connection;
       m_tagInfo = &tagInfo;
       m_logDBEntry = &logDBEntry;
     }
     
     // this is the only mandatory interface
-    std::pair<Container const *, std::string const>  operator()(cond::DbSession session,
+    std::pair<Container const *, std::string const>  operator()(cond::Connection* connection,
 								cond::TagInfo const & tagInfo, 
 								cond::LogDBEntry const & logDBEntry) const {
-      const_cast<self*>(this)->initialize(session, tagInfo, logDBEntry);
+      const_cast<self*>(this)->initialize(connection, tagInfo, logDBEntry);
       return std::pair<Container const *, std::string const>(&(const_cast<self*>(this)->returnData()), userTextLog());
     }
     
@@ -184,7 +184,7 @@ namespace popcon {
 
   private:
     
-    mutable cond::DbSession m_session;
+    cond::Connection* m_connection;
     
     cond::TagInfo const * m_tagInfo;
     

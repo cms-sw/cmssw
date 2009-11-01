@@ -57,7 +57,7 @@ MCPhotonAnalyzer::~MCPhotonAnalyzer() {
 }
 
 
-void MCPhotonAnalyzer::beginJob()
+void MCPhotonAnalyzer::beginJob( const edm::EventSetup& )
 {
 
 

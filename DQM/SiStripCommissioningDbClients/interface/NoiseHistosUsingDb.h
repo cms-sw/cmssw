@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.h,v 1.2 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: NoiseHistosUsingDb.h,v 1.1 2008/03/17 17:40:54 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_NoiseHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_NoiseHistosUsingDb_H
@@ -10,12 +10,10 @@ class NoiseHistosUsingDb : public CommissioningHistosUsingDb, public NoiseHistog
   
  public:
 
-  NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                      DQMOldReceiver*,
+  NoiseHistosUsingDb( DQMOldReceiver*,
 		      SiStripConfigDb* const );
   
-  NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                      DQMStore*,
+  NoiseHistosUsingDb( DQMStore*,
 		      SiStripConfigDb* const );
   
   virtual ~NoiseHistosUsingDb();

@@ -96,7 +96,7 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     #Trigger Primitive collection. Must be one of the following values:
     # 0: low interest, 1: mid interest, 3: high interest
     # 4: forced low interest, 5: forced mid interest, 7: forced high interest
-    defaultTtf_ = cms.int32(4)
+    defaultTtf_ = cms.int32(4),
 
     # SR->action flag map
     actions = cms.vint32(1, 3, 3, 3, 5, 7, 7, 7)

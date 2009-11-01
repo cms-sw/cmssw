@@ -98,6 +98,7 @@ subst = s.substitute(title = title,
                      date = webpage.date_
                      )
 
+print showTags
 ofile = open( '%s/index.html' % outputDir, 'w' )
 ofile.write( subst )
 
@@ -108,5 +109,5 @@ subst2 = s2.substitute( username = os.environ['USER'] )
 ofile2 = open( '%s/infoNotFound.html' % outputDir, 'w' )
 ofile2.write( subst2 )
 
-print 'webpage directory successfully created in', outputDir
+
 

@@ -1,6 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "TObject.h"
 #include "TPad.h"
 #include "TMarker.h"

@@ -15,8 +15,9 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 						  MaterialEffects materialEffects,
 						  PropagationDirection propDir,
 						  double mass )
-  : ReferenceTrajectoryBase( referenceTsos.localParameters().mixedFormatVector().kSize,
-			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1, (materialEffects >= breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0)
+  : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
+			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
+			    0, 0)
 {
   theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
 				     mass, materialEffects, propDir, magField );
@@ -24,8 +25,8 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 
 
 
-DualReferenceTrajectory::DualReferenceTrajectory( unsigned int nPar, unsigned int nHits, unsigned int nBreakPoints )
-  : ReferenceTrajectoryBase( nPar, nHits, nBreakPoints )
+DualReferenceTrajectory::DualReferenceTrajectory(unsigned int nPar, unsigned int nHits)
+  : ReferenceTrajectoryBase(nPar, nHits, 0, 0)
 {}
 
 

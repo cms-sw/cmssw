@@ -96,11 +96,6 @@ DTChamberEfficiency::~DTChamberEfficiency()
 {
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: destructor called";
-
-  // free memory
-  delete theService;
-  delete theMeasurementExtractor;
-  delete theEstimator;
 }
 
 void DTChamberEfficiency::beginJob(const EventSetup& eventSetup) {

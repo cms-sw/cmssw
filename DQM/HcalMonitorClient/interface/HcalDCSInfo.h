@@ -52,7 +52,7 @@ class HcalDCSInfo: public edm::EDAnalyzer {
  private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob(edm::EventSetup const& eSetup);
 
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
@@ -74,7 +74,6 @@ class HcalDCSInfo: public edm::EDAnalyzer {
 private:
 
   DQMStore* dqmStore_;
-  MonitorElement * DCSSummaryMap_;
   MonitorElement * DCSFraction_;
   MonitorElement * DCSFractionHB_;
   MonitorElement * DCSFractionHE_;

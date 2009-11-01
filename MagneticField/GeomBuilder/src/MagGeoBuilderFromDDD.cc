@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/11 07:16:32 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/05/25 16:02:09 $
+ *  $Revision: 1.24 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -470,10 +470,6 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 					    (*vol)->shape(),
 					    (*vol)->sides(),
 					    mp, sf);
-
-    if ((*vol)->copyno==(*vol)->masterSector) {
-      (*vol)->magVolume->ownsFieldProvider(true);
-    }
 
     (*vol)->magVolume->setIsIron((*vol)->isIron());
 

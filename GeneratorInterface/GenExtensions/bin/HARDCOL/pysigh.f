@@ -1,18 +1,17 @@
 C=====================================================================
-C  This routine was modified from the PYTHIA 6.420 code, which is
+C  This routine was modified from the PYTHIA 6.421 code, which is
 C              (C) Torbjorn Sjostrand, Lund 2008.
 C
-C  The modifications are part of the HARDCOL package for 
-C  hard color singlet exchange, and refer to PYTHIA version 6.420.
 C  Modifications implemented by Rikard Enberg, 2001-2003 and 2008.  
-C  See http://www.isv.uu.se/thep/hardcol/      
+C  See http://www.isv.uu.se/thep/hardcol/ 
 C
-C The modification for PYTHIA v6.420 was implemented by Sheila Amaral
-C Modified: 16 Oct 2009
+C  The modifications are part of the HARDCOL package for 
+C  hard color singlet exchange, and refer to PYTHIA version 6.421.
+C  Modifications implemented by Sheila Amaral, 2009.
 C=====================================================================
-
-C***********************************************************************
  
+C***********************************************************************
+
 C...PYSIGH
 C...Differential matrix elements for all included subprocesses
 C...Note that what is coded is (disregarding the COMFAC factor)
@@ -126,7 +125,6 @@ C=====================================================================
 C=====================================================================
 C END HARDCOL MODIFICATION
 C=====================================================================
-
 
 C...Reset number of channels and cross-section
       NCHN=0
@@ -796,7 +794,6 @@ C...Exotics (Z'/W'/LQ/R/f*/H++/Z_R/W_R/G*).
 C... Universal Extra Dimensions
          CALL PYXUED(NCHN,SIGS)
 
-
 C=====================================================================
 C BEGIN HARDCOL MODIFICATION
 C=====================================================================
@@ -938,7 +935,6 @@ C=====================================================================
 C END HARDCOL MODIFICATION
 C=====================================================================
 
-
       ENDIF
  
 C...Multiply with parton distributions
@@ -958,3 +954,4 @@ C...Multiply with parton distributions
  
       RETURN
       END
+ 

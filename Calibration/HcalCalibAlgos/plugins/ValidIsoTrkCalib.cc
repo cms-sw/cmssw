@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/Sandbox/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.3 2009/08/28 16:08:45 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.2 2009/08/25 18:55:09 andrey Exp $
 //
 
 // system include files
@@ -42,11 +42,6 @@ https://twiki.cern.ch/twiki/bin/view/Sandbox/ValidIsoTrkCalib
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -64,7 +59,6 @@ public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
   ~ValidIsoTrkCalib();
  
-double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
   
 private:
   virtual void beginJob(const edm::EventSetup&) ;
@@ -91,14 +85,12 @@ private:
   InputTag hoLabel_;
   InputTag trackLabel_;
   InputTag trackLabel1_;
-  
+
   //std::string m_inputTrackLabel;
   //std::string m_hcalLabel;
 
   double associationConeSize_;
   string AxB_;
-  double calibrationConeSize_;
-
   bool allowMissingInputs_;
   string outputFileName_;
   string calibFactorsFileName_;
@@ -131,15 +123,7 @@ private:
   //  TTree* tree;
   TTree *tTree, *fTree;
 
-  Float_t xTrkEcal;
-  Float_t yTrkEcal;
-  Float_t zTrkEcal;
-
-  Float_t xTrkHcal;
-  Float_t yTrkHcal;
-  Float_t zTrkHcal;
-
-
+  //Variables from mooney validator
   int Nhits;
   float eClustBefore;  //Calo energy before calibration
   float eClustAfter;   //After calibration
@@ -183,48 +167,6 @@ private:
   
 };
 
-double ValidIsoTrkCalib::getDistInPlaneSimple(const GlobalPoint caloPoint,
-                            const GlobalPoint rechitPoint)
-{
-
-  // Simplified version of getDistInPlane
-  // Assume track direction is origin -> point of hcal intersection
-
-  const GlobalVector caloIntersectVector(caloPoint.x(),
-                                         caloPoint.y(),
-                                         caloPoint.z());
-
-  const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
-
-  const GlobalVector rechitVector(rechitPoint.x(),
-                                  rechitPoint.y(),
-                                  rechitPoint.z());
-
-  const GlobalVector rechitUnitVector = rechitVector.unit();
-  double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
-  double rechitdist = caloIntersectVector.mag()/dotprod;
-
-
-  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
-  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
-                                         effectiveRechitVector.y(),
-                                         effectiveRechitVector.z());
-
-
-  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
-
-  if (dotprod > 0.)
-  {
-    return distance_vector.mag();
-  }
-  else
-  {
-    return 999999.;
-
-  }
-
-
-}
 
 
 ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
@@ -254,7 +196,6 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
 
 
   AxB_=iConfig.getParameter<std::string>("AxB");
-  calibrationConeSize_=iConfig.getParameter<double>("calibrationConeSize");
 
   MinNTrackHitsBarrel =  iConfig.getParameter<int>("MinNTrackHitsBarrel");
   MinNTECHitsEndcap =  iConfig.getParameter<int>("MinNTECHitsEndcap");
@@ -450,17 +391,6 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       float etahcal=info.trkGlobPosAtHcal.eta();
       float phihcal=info.trkGlobPosAtHcal.phi();
 
-
-        xTrkEcal=info.trkGlobPosAtEcal.x();
-        yTrkEcal=info.trkGlobPosAtEcal.y();
-        zTrkEcal=info.trkGlobPosAtEcal.z();
-
-        xTrkHcal=info.trkGlobPosAtHcal.x();
-        yTrkHcal=info.trkGlobPosAtHcal.y();
-        zTrkHcal=info.trkGlobPosAtHcal.z();
-
-        GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
-
       //cout<<"Point 0.3.  Matched :: pt: "<<trit->pt()<<" wholeEnergy: "<<trackE<<"  emEnergy: "<<emEnergy<<"  eta: "<<etahcal<<" phi: "<<phihcal<<endl;
       //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
       /*
@@ -625,18 +555,14 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  
 
 
-	  int numbercell=100; //always collect Wide clastor!
-
-	  //if(AxB_=="5x5" || AxB_=="3x3" || AxB_=="7x7"|| AxB_=="Cone")
+	  int numbercell=2; //always collect 5x5 clastor!
 
 	  //if(AxB_=="3x3") numbercell = 1;
 	  //if(AxB_=="5x5") numbercell = 2;
-	  //if(AxB_=="Cone") numbercell = 1000;
-
+	  
 	  if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>=20 && abs(DIPHI)<=numbercell+1)) )
 	    {
-	      const GlobalPoint pos2 = geo->getPosition(hhit->detid());
-
+	            
 	      if(passCuts && hhit->energy()>0)
 		{
 		  
@@ -651,50 +577,39 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		  
 		  if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm) iTime = hhit->time();	  
 		  
-		  if(AxB_!="3x3" && AxB_!="5x5" && AxB_!="Cone") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
+		  if(AxB_!="3x3" && AxB_!="5x5") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
+		  
+		  e5x5Before += hhit->energy();
+		  e5x5After += hhit->energy()*factor;
 		  
 		  
-		  if (abs(DIETA)<=2 && (abs(DIPHI)<=2 || (abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=4) && !( (abs(MaxHit.ietahitm)==21 || abs(MaxHit.ietahitm)==22) && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>2) ) )
-		    {
-
-		      e5x5Before += hhit->energy();
-		      e5x5After += hhit->energy()*factor;
-		    }
-		  
-		  
-		  if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || (abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2) && !(abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>1) ) )
-		    {
-
-		      e3x3Before += hhit->energy();
-		      e3x3After += hhit->energy()*factor;
-		    }
-		      
-		      
 		  if(AxB_=="5x5") 
 		    {
 		      
-		      if (abs(DIETA)<=2 && (abs(DIPHI)<=2 || ( abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=4) ) )
+		      HTime[numHits]=  hhit->time();
+		      numHits++;
+		      
+		      
+		      eClustBefore += hhit->energy();
+		      eClustAfter += hhit->energy()*factor;
+		      
+		      
+		      if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || (abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2)) )
 			{
-			  if (abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>3) continue;
-			  
-			  HTime[numHits]=  hhit->time();
-			  numHits++;
-			  
-			  
-			  eClustBefore += hhit->energy();
-			  eClustAfter += hhit->energy()*factor;
-			  
-			  
-			  if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
-			    {	
-			      eBeforeDepth1 += hhit->energy();
-			      eAfterDepth1 += hhit->energy()*factor;
-			    }
-			  else if((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
-			    {
-			      eBeforeDepth2 += hhit->energy();
-			      eAfterDepth2 += hhit->energy()*factor;
-			    }
+			  e3x3Before += hhit->energy();
+			  e3x3After += hhit->energy()*factor;
+			}
+		      
+		      
+		      if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
+			{	
+			  eBeforeDepth1 += hhit->energy();
+			  eAfterDepth1 += hhit->energy()*factor;
+			}
+		      else if((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
+			{
+			  eBeforeDepth2 += hhit->energy();
+			  eAfterDepth2 += hhit->energy()*factor;
 			}
 		    }//end of 5x5
 		  
@@ -704,7 +619,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		    {
 		      if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || ( abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2) ) )
 			{
-			  if (abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>2) continue;
+			      if (abs(MaxHit.ietahitm)==20 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>1) continue;
 				
           		  HTime[numHits]=  hhit->time();
 			  numHits++;			      
@@ -713,8 +628,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 			  eClustBefore += hhit->energy();
 			  eClustAfter += hhit->energy() * factor;
 			  
-			  //e3x3Before += hhit->energy();
-			  //e3x3After += hhit->energy()*factor;
+			  e3x3Before += hhit->energy();
+			  e3x3After += hhit->energy()*factor;
 			  
 			  if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
 			    {	
@@ -729,31 +644,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 			  
 			}
 		    }//end of 3x3
-		  
-		  
-		  
-                  if (AxB_=="Cone" && getDistInPlaneSimple(gP,pos2) < calibrationConeSize_) {
-		    
-		    HTime[numHits]=  hhit->time();
-		    numHits++;			      
-		    		    
-		    eClustBefore += hhit->energy();
-		    eClustAfter += hhit->energy() * factor;
-		    
-		    if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
-		      {	
-			eBeforeDepth1 += hhit->energy();
-			eAfterDepth1 += hhit->energy() * factor;
-		      }
-		    else if((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
-		      {
-			eBeforeDepth2 += hhit->energy();
-			eAfterDepth2 += hhit->energy() * factor;
-		      }
-		    
-		    
-		  }//end of Cone
-		  
+		
 		}//end of passCuts
 	      
 	    }//end of DIETA DIPHI
@@ -881,12 +772,6 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup&)
   fTree->Branch("iTime", &iTime, "iTime/F");
   fTree->Branch("HTime", HTime, "HTime[numHits]/F");
 
-    fTree->Branch("xTrkEcal", &xTrkEcal, "xTrkEcal/F");
-    fTree->Branch("yTrkEcal", &yTrkEcal, "yTrkEcal/F");
-    fTree->Branch("zTrkEcal", &zTrkEcal, "zTrkEcal/F");
-    fTree->Branch("xTrkHcal", &xTrkHcal, "xTrkHcal/F");
-    fTree->Branch("yTrkHcal", &yTrkHcal, "yTrkHcal/F");
-    fTree->Branch("zTrkHcal", &zTrkHcal, "zTrkHcal/F");
 
 }
 

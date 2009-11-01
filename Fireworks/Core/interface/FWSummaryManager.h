@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.10 2009/08/26 19:06:03 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.8 2009/04/09 21:19:34 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ public:
    virtual ~FWSummaryManager();
 
    // ---------- const member functions ---------------------
-   TGCompositeFrame* widget() const;
+   TGFrame* widget() const;
    
    // ---------- static member functions --------------------
 
@@ -62,7 +62,6 @@ public:
    void requestForFilter(FWEventItem*);
    void requestForError(FWEventItem*);
    void requestForController(FWEventItem*);
-   void requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
 
    void colorsChanged();
 private:

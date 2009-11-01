@@ -19,9 +19,7 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "Fireworks/Core/interface/FWDetIdInfo.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+
 
 void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElementList** product)
 {
@@ -61,71 +59,42 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
                            TEveElement* trkList)
 {
    try {
-     std::set<unsigned int> ids;
       for(trackingRecHit_iterator recIt = track.recHitsBegin(); recIt != track.recHitsEnd(); ++recIt){
          if((*recIt)->isValid()){
             DetId detid = (*recIt)->geographicalId();
             TString name("");
-	    switch (detid.det())
-	      {
-	      case DetId::Tracker:
-		switch (detid.subdetId())
-		  {
-		  case SiStripDetId::TIB:
-		    name = "TIB ";
-		    break;
-		  case SiStripDetId::TOB:
-		    name = "TOB ";
-		    break;
-		  case SiStripDetId::TID:
-		    name = "TID ";
-		    break;
-		  case SiStripDetId::TEC:
-		    name = "TEC ";
-		    break;
-		  case PixelSubdetector::PixelBarrel:
-		    name = "Pixel Barrel ";
-		    break;
-		  case PixelSubdetector::PixelEndcap:
-		    name = "Pixel Endcap ";
-                  default:
-                    break;
-		  }
-		break;
+            switch (detid.subdetId())
+            {
+               case SiStripDetId::TIB:
+                  name = "TIB ";
+                  break;
+               case SiStripDetId::TOB:
+                  name = "TOB ";
+                  break;
+               case SiStripDetId::TID:
+                  name = "TID ";
+                  break;
+               case SiStripDetId::TEC:
+                  name = "TEC ";
+                  break;
+               case PixelSubdetector::PixelBarrel:
+                  name = "Pixel Barrel ";
+                  break;
+               case PixelSubdetector::PixelEndcap:
+                  name = "Pixel Endcap ";
+            }
 
-	      case DetId::Muon:
-		switch (detid.subdetId())
-		  {
-		  case MuonSubdetId::DT:
-		    name = "DT";
-		    detid = DetId(DTChamberId(detid)); // get rid of layer bits
-		    break;
-		  case MuonSubdetId::CSC:
-		    name = "CSC";
-		    break;
-		  case MuonSubdetId::RPC:
-		    name = "RPC";
-		    break;
-                  default:
-                    break;
-		  }
-		break;
 
-              default:
-                break;
-	      }
-	    if ( ! ids.insert(detid.rawId()).second ) continue;
             if (iItem->getGeom()) {
                TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
                if(0!=shape) {
-                  shape->SetMainTransparency(65);
-                  shape->SetPickable(kTRUE);
+                  shape->SetMainTransparency(50);
                   shape->SetMainColor(iItem->defaultDisplayProperties().color());
+                  shape->SetPickable(kTRUE);
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {
-		 std::cout << "Failed to get shape extract for a tracking rec hit: " << 
-		   "\n" << FWDetIdInfo::info(detid) << std::endl;
+                  std::cout << "Failed to get shape extract for tracking rec hit: " << detid.rawId() << std::endl;
                }
             }
          }  // if the hit isValid().

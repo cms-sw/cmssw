@@ -6,7 +6,7 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/06/30 13:48:15 $
+ *  $Date: 2009/03/30 17:08:03 $
  *  $Revision: 1.1 $
  *  \author K. Hatakeyama - Rockefeller University
  */
@@ -45,7 +45,12 @@ class METAnalyzer : public METAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-               const edm::TriggerResults&);
+               const edm::TriggerResults&,
+	       const reco::MET& MET);
+
+  void setSource(std::string source) {
+    _source = source;
+  }
 
   int evtCounter;
 
@@ -54,20 +59,31 @@ class METAnalyzer : public METAnalyzerBase {
   
   edm::ParameterSet parameters;
   // Switch for verbosity
-  int _verbose;
-  
   std::string metname;
   std::string _source;
 
-  edm::InputTag theTcMETCollectionLabel;
-
+  /// number of Jet or MB HLT trigger paths 
+  unsigned int nHLTPathsJetMB_;
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
-
-  int _trig_JetMB;
+  // list of Jet or MB HLT trigger index
+  std::vector<unsigned int> HLTPathsJetMBByIndex_;
 
   // Et threshold for MET plots
   double _etThreshold;
+
+  //histo binning parameters
+  int    etaBin;
+  double etaMin;
+  double etaMax;
+
+  int    phiBin;
+  double phiMin;
+  double phiMax;
+
+  int    ptBin;
+  double ptMin;
+  double ptMax;
 
   //the histos
   MonitorElement* jetME;

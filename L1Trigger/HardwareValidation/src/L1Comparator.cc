@@ -260,8 +260,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[DTF]) {
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DT",dtf_data);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
-  //iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
-    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DATA",dtf_trk_data_);
+    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
   } 
   //extract the regional cands
@@ -483,12 +482,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     typedef L1CSCTrackCollection::const_iterator ctcIt;
     //loop over csc-tracks (ie pairs<l1track,digi_vec>)
     for(ctcIt tcit=ctf_trk_data_->begin(); tcit!=ctf_trk_data_->end(); tcit++) {
-      
-      /// J.Gartner: Restrict Comparator to middle of readout window
-      //if((tcit->first.bx() > -2) && (tcit->first.bx() < 2))
-      if((tcit->first.bx() < -1) && (tcit->first.bx() > 1))
-	continue;
-
       //store the muon candidate
       //csc::L1Track ttr = tcit->first;
       //L1MuRegionalCand cand(ttr);    
@@ -510,10 +503,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ctf_trc_data = &ctf_trc_data_v;
     //same for emulator collection
     for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
-
-      if((tcit->first.bx() < -1) && (tcit->first.bx() > 1))
-	continue;
-
       ctf_trc_emul_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
       CSCCorrelatedLCTDigiCollection ldc = tcit->second;
       for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
@@ -662,9 +651,9 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
-  isValidDE[DTF][0] =     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
-//isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1]&=        dtf_emul .isValid();
-  isValidDE[CTP][0]=     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
+  isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
+//isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1]&=    dtf_trk_emul_.isValid();
+  isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
   if (m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
     isValidDE[CTP][0]&=   ctp_ano_data_.isValid(); isValidDE[CTP][1]&=    ctp_ano_emul_.isValid();
     isValidDE[CTP][0]&=   ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
@@ -780,13 +769,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
     }
 
-    /*
-    /// skip further collection checks (temporary)
     if(glt_evm_data.isValid() && glt_evm_emul.isValid())
       DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
     if(glt_obj_data.isValid() && glt_obj_emul.isValid())
       DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
-    */
 
     char ok[10];
     char dumptofile[1000];
@@ -984,12 +970,6 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
 
-  if(verbose()) 
-    std::cout << "L1Comparator -- result of GT embedded comparison.\n" 
-	      << "L1GlobalTriggerReadoutRecord:: data and emulator agree? "
-	      << ((*data==*emul)?"yes":"no")
-	      << std::endl;
-
   m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
 
   bool thematch = true;
@@ -1000,7 +980,6 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
 
   if(m_dumpMode==0 && match)
     return match;    
-
 
   /*
   //expand to check mismatching  stage
@@ -1210,13 +1189,6 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerEvmReadoutRecord> emul) {
 
-  if(verbose()) 
-    std::cout << "L1Comparator -- result of GT embedded comparison.\n" 
-	      << "L1GlobalTriggerEvmReadoutRecord data and emulator agree? "
-	      << ((*data==*emul)?"yes":"no")
-	      << std::endl;
-
-
   m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
   
   bool match = true;
@@ -1362,7 +1334,6 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> da
 bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
 				 edm::Handle<L1GlobalTriggerObjectMapRecord> emul) {
-
 
   m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
 

@@ -10,29 +10,31 @@ class TGLabel;
 class TGTextButton;
 class FWColorManager;
 
-class CmsShowBrightnessPopup : public TGTransientFrame
+class CmsShowColorPopup : public TGTransientFrame
 {
 public:
-   CmsShowBrightnessPopup( const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
-   virtual ~CmsShowBrightnessPopup();
+   CmsShowColorPopup( const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+   virtual ~CmsShowColorPopup();
 
    // ---------- member functions ---------------------------
 
   virtual void CloseWindow() { UnmapWindow(); }
 
+  void changeBackgroundColor() ;
   void defaultBrightness();
   void setBrightness(int);
    
   void setModel( FWColorManager* mng);
 
 private:
-   CmsShowBrightnessPopup(const CmsShowBrightnessPopup&);
-   const CmsShowBrightnessPopup& operator=(const CmsShowBrightnessPopup&);
+   CmsShowColorPopup(const CmsShowColorPopup&);
+   const CmsShowColorPopup& operator=(const CmsShowColorPopup&);
 
    // ---------- member data --------------------------------
 
    FWColorManager* m_colorManager;
 
+   TGTextButton*   m_bgButton;
    TGSlider*       m_slider;
 };
 

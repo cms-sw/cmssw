@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.4 2009/09/16 09:53:23 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.5 2009/09/23 13:04:45 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
    * Holds the registration information from a event consumer.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/16 09:53:23 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/23 13:04:45 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase

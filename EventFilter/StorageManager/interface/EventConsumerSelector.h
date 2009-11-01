@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.4 2009/09/23 13:03:59 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/09/23 13:03:59 $
    */
 
   class EventConsumerSelector

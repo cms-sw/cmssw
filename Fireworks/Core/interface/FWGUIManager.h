@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.78 2009/10/27 01:43:29 dmytro Exp $
+// $Id: FWGUIManager.h,v 1.71 2009/08/12 19:21:03 chrjones Exp $
 //
 
 // system include files
@@ -75,11 +75,6 @@ class FWGUIEventDataAdder;
 
 class CmsShowTaskExecutor;
 
-class CmsShowMain;
-
-class FWModelContextMenuHandler;
-class TGWindow;
-
 namespace fwlite {
    class Event;
 }
@@ -89,9 +84,8 @@ class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
 class FWColorManager;
-class CmsShowBrightnessPopup;
+class CmsShowColorPopup;
 class CmsShowHelpPopup;
-class CmsShowSearchFiles;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -102,7 +96,6 @@ public:
                 FWModelChangeManager*,
                 FWColorManager*,
                 const FWViewManagerManager*,
-		CmsShowMain*,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
    void     evePreTerminate();
@@ -118,24 +111,16 @@ public:
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
 
-   void showBrightnessPopup();
+   void showColorPopup();
 
    void createModelPopup();
    void showModelPopup();
    void showViewPopup();
    void popupViewClosed();
-   
-   void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
 
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
-
-
-  void createSearchFiles ();
-  void resetSearchFiles ();
-
-  void openWebRootFiles(char *);
 
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;
@@ -145,6 +130,8 @@ public:
 
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
+
+   static FWGUISubviewArea* getGUISubviewArea(TEveWindow*);
 
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build
@@ -156,13 +143,13 @@ public:
 
    void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
-   void disablePrevious(bool);
-   void disableNext(bool);
+   void disablePrevious();
+   void disableNext();
    void setPlayMode(bool);
    void updateStatus(const char* status);
    void clearStatus();
    void loadEvent(const fwlite::Event& event);
-   void fileChanged(const TFile*);
+   void newFile(const TFile*);
 
    CSGAction* getAction(const std::string name);
 
@@ -174,23 +161,21 @@ public:
 
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
    sigc::signal<void, const std::string&> changedEventFilter_;
-   sigc::signal<void, bool> changedEventFilterStatus_;
-   sigc::signal<void, int, int> changedEventId_;
+   sigc::signal<void, int> changedEventId_;
+   sigc::signal<void, int> changedRunId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
 
    sigc::signal<void> changedRunEntry_;
    sigc::signal<void> changedEventEntry_;
-   sigc::signal<void, const TGWindow*> showEventFilter_;
+   sigc::signal<void> changedFileterEntry_;
 
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
    void openEveBrowserForDebugging() const;
    void setDelayBetweenEvents(Float_t);
 
-   // void eventFilterChanged();       // CmsShowMainFrame -> CmsShowNavigator
-   void eventFilterStatusChanged(); // CmsShowMainFrame -> CmsShowNavigator
-   void eventFilterMessage(const std::string&); // CmsShowNavigator -> CmsShowMainFrame
+   void eventFilterChanged();
    void runIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);
@@ -199,10 +184,6 @@ public:
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
-   void showEventFilter();
-  CmsShowMainFrame* getMainFrame(){
-    return m_cmsShowMainFrame;
-  }
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
 
@@ -273,8 +254,6 @@ private:
 
    FWDetailViewManager* m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
-   
-   FWModelContextMenuHandler* m_contextMenuHandler;
 
    const TFile* m_openFile;
    FWGUIEventDataAdder* m_dataAdder;
@@ -283,16 +262,11 @@ private:
    CmsShowEDI* m_ediFrame;
    CmsShowModelPopup* m_modelPopup;
    CmsShowViewPopup*  m_viewPopup;
-   CmsShowBrightnessPopup* m_brightnessPopup;
+   CmsShowColorPopup* m_colorPopup;
 
    // help
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
 
-  
-   CmsShowSearchFiles *m_searchFiles;
-   CmsShowMain *m_cmsShowMain;
-  
-  
    TGTab             *m_textViewTab;
    TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;

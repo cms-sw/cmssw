@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.9 2009/09/29 07:54:45 mommsen Exp $
+// $Id: StateMachine.h,v 1.8.4.1 2009/10/13 14:13:53 mommsen Exp $
 /// @file: StateMachine.h 
 
 #ifndef StorageManager_StateMachine_h
@@ -78,8 +78,8 @@ namespace stor
      Abstract base for state classes
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
 
   class Operations
@@ -120,8 +120,8 @@ namespace stor
      State machine class
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
 
   class StateMachine: public bsc::state_machine<StateMachine,Normal>
@@ -167,8 +167,8 @@ namespace stor
      Failed state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Failed: public bsc::state<Failed,StateMachine>, public Operations
   {
@@ -191,8 +191,8 @@ namespace stor
      Normal state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Normal: public bsc::state<Normal,StateMachine,Constructed>, public Operations
   {
@@ -218,8 +218,8 @@ namespace stor
      Constructed state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.10 $
+     $Date: 2009/10/21 10:34:56 $
   */
   class Constructed: public bsc::state<Constructed,Normal>, public Operations
   {
@@ -245,8 +245,8 @@ namespace stor
      Halted state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Halted: public bsc::state<Halted,Normal>, public Operations
   {
@@ -272,8 +272,8 @@ namespace stor
      Ready state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Ready: public bsc::state<Ready,Normal,Stopped>, public Operations
   {
@@ -301,8 +301,8 @@ namespace stor
      Stopped state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Stopped: public bsc::state<Stopped,Ready>, public Operations
   {
@@ -331,8 +331,8 @@ namespace stor
      Enabled state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Enabled: public bsc::state<Enabled,Ready,Starting>, public Operations
   {
@@ -363,8 +363,8 @@ namespace stor
      Starting state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Starting: public bsc::state<Starting,Enabled>, public Operations
   {
@@ -399,8 +399,8 @@ namespace stor
      Stopping state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Stopping: public bsc::state<Stopping,Enabled>, public Operations
   {
@@ -431,8 +431,8 @@ namespace stor
      Halting state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Halting: public bsc::state<Halting,Enabled>, public Operations
   {
@@ -463,8 +463,8 @@ namespace stor
      Running state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Running: public bsc::state<Running,Enabled,Processing>, public Operations
   {
@@ -497,8 +497,8 @@ namespace stor
      Processing state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class Processing: public bsc::state<Processing,Running>, public Operations
   {
@@ -529,8 +529,8 @@ namespace stor
      DrainingQueues state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class DrainingQueues: public bsc::state<DrainingQueues,Running>, public Operations
   {
@@ -561,8 +561,8 @@ namespace stor
      FinishingDQM state
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2009/09/29 07:54:45 $
+     $Revision: 1.8.4.1 $
+     $Date: 2009/10/13 14:13:53 $
   */
   class FinishingDQM: public bsc::state<FinishingDQM,Running>, public Operations
   {

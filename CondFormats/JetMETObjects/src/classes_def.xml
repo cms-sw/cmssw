@@ -11,8 +11,7 @@
   <class name="SimpleL4EMFCorrector"/>
   <class name="SimpleL5FlavorCorrector"/>
   <class name="SimpleL7PartonCorrector"/>
-  <class name="CombinedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
-  <class name="SmearedJet"/>
+  <class name="CombinedJetCorrector"/>
 </selection>
 </lcgdict>

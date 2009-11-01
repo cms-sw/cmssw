@@ -34,7 +34,7 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_rpcDigiLabel       = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
   m_ttBits             = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
   m_ttNames            = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useEventSetup        = iConfig.getUntrackedParameter<int>("UseEventSetup", 1);
+  m_useDatabase        = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
   m_useRPCSimLink      = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
   m_rpcSimLinkInstance = iConfig.getParameter<std::string>("RPCSimLinkInstance");
 
@@ -71,20 +71,6 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_WheelTtu[1 ] = 1;
   m_WheelTtu[2 ] = 1;
   
-  //...........................................................................
-  //For the pointing Logic: declare here the first sector of each quadrant
-  //
-  m_quadrants.push_back(2);
-  m_quadrants.push_back(3);
-  m_quadrants.push_back(4);
-  m_quadrants.push_back(5);
-  m_quadrants.push_back(6);
-  m_quadrants.push_back(7);
-  m_quadrants.push_back(8);
-  m_quadrants.push_back(9);
-  m_quadrants.push_back(10);
-  m_quadrants.push_back(11);
-
   //...........................................................................
   
   m_ievt = 0;
@@ -161,7 +147,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
-  
+
   if ( ! m_hasConfig ) {
     edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
     iEvent.put(output);
@@ -194,9 +180,9 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     m_ttu[k]->processTtu( m_input );
     
-    //work out Pointing Logic to Tracker
-    for( m_firstSector = m_quadrants.begin(); m_firstSector != m_quadrants.end(); ++m_firstSector)
-      m_ttuRbcLine[k]->processTtu( m_input , (*m_firstSector) );
+    //work out Pointing Logic to Tracker: quad 1 to 4
+    for(int quad=1; quad < 5; ++quad)
+      m_ttuRbcLine[k]->processTtu( m_input , quad );
     
     //...for trigger 1
     for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
@@ -385,7 +371,7 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   //..  Get Board Specifications (hardware configuration)
   
-  if ( m_useEventSetup >= 1 ) {
+  if ( m_useDatabase >= 1 ) {
     
     edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
     evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
@@ -471,77 +457,79 @@ bool RPCTechnicalTrigger::searchCoincidence( int wheel1, int wheel2 )
   
   std::map<int, TTUResults*>::iterator itr;
   bool topRight(false);
+  bool topLeft(false);
   bool botLeft(false);
+  bool botRight(false);
   
   int indxW1 = m_WheelTtu[wheel1];
   int indxW2 = m_WheelTtu[wheel2];
-  
-  int k(0);
+
   int key(0);
-  bool finalTrigger(false);
-  int maxTopQuadrants = 4;
+  key = 1000 * ( indxW1 ) + 1;
+  itr = m_ttuResultsByQuadrant.find( key );
   
-  //work out Pointing Logic to Tracker
+  //Top Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topRight = (*itr).second->getTriggerForWheel(wheel1);
   
-  for( m_firstSector = m_quadrants.begin(); m_firstSector != m_quadrants.end(); ++m_firstSector) {
-    
-    key = 1000 * ( indxW1 ) + (*m_firstSector);
-    
-    itr = m_ttuResultsByQuadrant.find( key );
-    if ( itr != m_ttuResultsByQuadrant.end() )
-      topRight  =  (*itr).second->getTriggerForWheel(wheel1);
-
-    //std::cout << "W1: " << wheel1 << " " << "sec: " << (*m_firstSector) << " dec: " << topRight << '\n';
-    
-    key = 1000 * ( indxW2 ) + (*m_firstSector) + 5;
-    
-    itr = m_ttuResultsByQuadrant.find( key );
-    
-    if ( itr != m_ttuResultsByQuadrant.end() )
-      botLeft   = (*itr).second->getTriggerForWheel(wheel2);
-    
-    //std::cout << "W2: " << wheel2 << " " << "sec: " << (*m_firstSector) + 5 << " dec: " << botLeft << '\n';
-    
-    finalTrigger |= ( topRight && botLeft );
-    
-    ++k;
-    
-    if ( k > maxTopQuadrants)
-      break;
-        
-  }
+  key = 1000 * ( indxW1 ) + 2;
+  itr = m_ttuResultsByQuadrant.find( key );
   
-  //Try the opposite now
-
-  k=0;
+  //Top Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topLeft  =  (*itr).second->getTriggerForWheel(wheel1);
   
-  for( m_firstSector = m_quadrants.begin(); m_firstSector != m_quadrants.end(); ++m_firstSector) {
-    
-    key = 1000 * ( indxW2 ) + (*m_firstSector);
-    
-    itr = m_ttuResultsByQuadrant.find( key );
-    if ( itr != m_ttuResultsByQuadrant.end() )
-      topRight  =  (*itr).second->getTriggerForWheel(wheel1);
-
-    //std::cout << "W1: " << wheel1 << " " << "sec: " << (*m_firstSector) << " dec: " << topRight << '\n';
-    
-    key = 1000 * ( indxW1 ) + (*m_firstSector) + 5;
-    
-    itr = m_ttuResultsByQuadrant.find( key );
-    
-    if ( itr != m_ttuResultsByQuadrant.end() )
-      botLeft   = (*itr).second->getTriggerForWheel(wheel2);
-    
-    //std::cout << "W2: " << wheel2 << " " << "sec: " << (*m_firstSector) + 5 << " dec: " << botLeft << '\n';
-    
-    finalTrigger |= ( topRight && botLeft );
-    
-    ++k;
-    
-    if ( k > maxTopQuadrants)
-      break;
-        
-  }
+  key = 1000 * ( indxW2 ) + 3;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botLeft   = (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW2 ) + 4;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botRight   = (*itr).second->getTriggerForWheel(wheel2);
+  
+  //....
+  
+  bool resultOne     = ( topRight && botLeft ) || ( topLeft && botRight );
+     
+  //...........................................
+  
+  key = 1000 * ( indxW2 ) + 1;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topRight = (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW2 ) + 2;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topLeft  =  (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW1 ) + 3;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botLeft   = (*itr).second->getTriggerForWheel(wheel1);
+  
+  key = 1000 * ( indxW1 ) + 4;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botRight   = (*itr).second->getTriggerForWheel(wheel1);
+  
+  bool resultTwo     = ( topRight && botLeft ) || ( topLeft && botRight );
+  
+  bool finalTrigger  = resultOne || resultTwo;
   
   return finalTrigger;
   

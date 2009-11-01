@@ -32,7 +32,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 //for angle cut
@@ -138,10 +137,7 @@ namespace reco { namespace modules {
     bool checkPXLQuality_;
     double pxlTPLProbX_;
     double pxlTPLProbY_;
-    std::vector<int32_t> pxlTPLqBin_;
-  
-    bool checkPXLCorrClustCharge(const TrajectoryMeasurement &meas);
-    double PXLcorrClusChargeCut_;
+    int pxlTPLqBin_;
 
     edm::ESHandle<TrackerGeometry> theGeometry;
     edm::ESHandle<MagneticField>   theMagField;
@@ -295,8 +291,7 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     checkPXLQuality_(iConfig.getParameter<bool>("usePixelQualityFlag") ),
     pxlTPLProbX_(iConfig.getParameter<double>("PxlTemplateProbXCut")),
     pxlTPLProbY_(iConfig.getParameter<double>("PxlTemplateProbYCut")),
-    pxlTPLqBin_(iConfig.getParameter<std::vector<int32_t> >("PxlTemplateqBinCut")),
-    PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
+    pxlTPLqBin_(iConfig.getParameter<int32_t>("PxlTemplateqBinCut")),
     tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") )
 {
 
@@ -307,13 +302,6 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     }
     if(rejectLowAngleHits_ && !useTrajectories_){
       throw cms::Exception("Configuration") << "Wrong configuration of TrackerTrackHitFilter. You cannot apply the cut on the track angle without using Trajectories!\n";
-    }
-    if (!useTrajectories_ && PXLcorrClusChargeCut_>0){
-      throw cms::Exception("Configuration") << "Wrong configuration of TrackerTrackHitFilter. You cannot apply the cut on the corrected pixel cluster charge without using Trajectories!\n";
-    }
-
-    if(pxlTPLqBin_.size()>2){
-      std::cout<<"Warning from TrackerTrackHitFilter: vector with qBin cuts has size > 2. Additional items will be ignored."<<std::endl;
     }
 
 
@@ -624,17 +612,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 	verdict=-6;//override previous verdicts
       }
     }
-
-    /*
-    //this has been included in checkHitAngle(*itTrajMeas) 
-    if (verdict == 0) {
-    if( PXLcorrClusChargeCut_>0.0  && !checkPXLCorrClustCharge(*itTrajMeas) ){//check angle of track on module if requested
-    verdict=-7;//override previous verdicts
-    }
-    }
-    */
-
-
+ 
     if(verdict==0){// Hit TAKEN !!!!
 
 	if(tagOverlaps_){	///---OverlapBegin
@@ -747,52 +725,42 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 
     if(subdet_cnt>2){ //SiStrip
       if( subdetStoN_[subdet_cnt-1]){//check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
-	const std::type_info &type = typeid(*therechit);
-	const SiStripCluster* cluster;
-	if (type == typeid(SiStripRecHit2D)) {
-	  const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
-	  if (hit!=0) 	 cluster = &*(hit->cluster());
-	  else{
-	    edm::LogError("TrackerTrackHitFilter")<< "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()<< "(detID="<<id.rawId()<<")\n ";
-	    keepthishit = false;
-	  }
-	}
-	else if (type == typeid(SiStripRecHit1D)) {
-	  const SiStripRecHit1D* hit = dynamic_cast<const SiStripRecHit1D*>(therechit);
-	  if (hit!=0) 	 cluster = &*(hit->cluster());
-	  else{
-	    edm::LogError("TrackerTrackHitFilter")<< "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()<< "(detID="<<id.rawId()<<")\n ";
-	    keepthishit = false;
-	  }
-	}
-	//the following two cases should not happen anymore since CMSSW > 2_0_X because of hit splitting in stereo modules
-	//const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
-	//const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
-	else{
-	  throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << 
-	    " not supported. (use c++filt to demangle the name)";
-	}
+
+      const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
+      
+      //the following two cases should not happen anymore since CMSSW > 2_0_X because of hit splitting in stereo modules
+      //const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
+      //const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
+      
+      if (hit!=0) {
+	const SiStripCluster* cluster = &*(hit->cluster());
+	SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup);
 	
-	if(keepthishit){
-	  SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup); 
-	  if ( (subdetStoNlowcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt-1])  ) keepthishit = false;	
-	  if ( (subdetStoNhighcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt-1])  ) keepthishit = false;	
-	  //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<clusterInfo.signalOverNoise()<<std::endl;
-	}
-	
+	if ( (subdetStoNlowcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt-1])  ) keepthishit = false;	
+	if ( (subdetStoNhighcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt-1])  ) keepthishit = false;	
+	//if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<clusterInfo.signalOverNoise()<<std::endl;
+      }
+      else{
+   edm::LogError("TrackerTrackHitFilter")<< "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()<< "(detID="<<id.rawId()<<")\n ";
+	keepthishit = false;
+      }
       }//end if  subdetStoN_[subdet_cnt]&&...
-    
+      
     }//end if subdet_cnt >2
     else if (subdet_cnt<=2){//pixel 
       //pixels have naturally a very low noise (because of their low capacitance). So the S/N cut is 
       //irrelevant in this case. Leave it dummy
       keepthishit = true;
-
-      /**************
-       * Cut on cluster charge corr by angle embedded in the checkHitAngle() function
-       * 
-       *************/
-
+      /********* Rejects pixel hits with 'low' uncorrected cluster charge
+		 
+      if(rejectBadClusterPixelHits_){
+      const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
+      const SiPixelCluster* pixelcluster = &*(pixelhit->cluster());
+      if(pixelcluster->size()==1 && pixelcluster->charge()<thePixelClusterthreshold){keepthishit = false;}
+	 }
+	 
+	 */
+      //std::cout<<"Accessing Pixel hit prob in SubDet #"<<subdet_cnt<<":"<<std::flush;
       if(checkPXLQuality_){
       const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
       if(pixelhit!=0){
@@ -801,18 +769,16 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	float xprob   =pixelhit->clusterProbability(1);//x  log_e( probability of the pixel cluster )
 	float yprob   =pixelhit->clusterProbability(2);//y  log_e( probability of the pixel cluster )
 	bool haspassed_tplreco= pixelhit->hasFilledProb(); //the cluster was associted to a template
-	int qbin      =pixelhit->qBin(); //R==meas_charge/pred_charge:  Qbin=0 ->R>1.5 , =1->1<R<1.5 ,=2->0.85<R<1 ,
-	                                 // Qbin=3->0.95*Qminpred<R<0.85 ,=4->, =5->meas_charge<0.95*Qminpred
-
+	int qbin      =pixelhit->qBin(); //R==meas_charge/pred_charge:  Qbin=0 ->R>1.5 , =1->1<R<1.5 ,=2->0.85<R<1 ,=3->0.95*Qminpred<R<0.85 ,=4->, =5->meas_charge<0.95*Qminpred
 	//	if(haspassed_tplreco)	std::cout<<"  CLUSTPROB=\t"<<xprob<<"\t"<<yprob<<"\t"<<combprob<<"\t"<<qbin<<std::endl;
 	//	else std::cout<<"CLUSTPROBNOTDEF=\t"<<xprob<<"\t"<<yprob<<"\t"<<combprob<<"\t"<<qbin<<std::endl;
 
 	keepthishit = false;
-	//	std::cout<<"yyyyy "<<qbin<<" "<<xprob<<"  "<<yprob<<std::endl;
-	if( haspassed_tplreco && xprob>pxlTPLProbX_ && yprob>pxlTPLProbY_ && qbin>pxlTPLqBin_[0] && qbin<=pxlTPLqBin_[1] )keepthishit = true;
+	qbin=-1;//deactivated for now...
+	if( haspassed_tplreco && xprob>pxlTPLProbX_ && yprob>pxlTPLProbY_ && qbin<=pxlTPLqBin_ )keepthishit = true;
 
       }
-      else {std::cout<<"HIT IN PIXEL ("<<subdet_cnt <<") but PixelRecHit is EMPTY!!!"<<std::endl;}
+      else {std::cout<<"HIT IN PIXEL ("<<subdet_cnt <<")but PixelRecHit is EMPTY!!!"<<std::endl;}
       }//end if check pixel quality flag
     }
     //    else  throw cms::Exception("TrackerTrackHitFilter") <<"Loop over subdetector out of range when applying the S/N cut: "<<subdet_cnt;
@@ -828,7 +794,6 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
   
   bool angle_ok=false;
-  bool corrcharge_ok=true;
   TrajectoryStateOnSurface tsos = meas.updatedState();
   /*  
   edm::LogDebug("TrackerTrackHitFilter")<<"TSOS parameters: ";
@@ -844,84 +809,15 @@ bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
     float mom_z=tsos.localDirection().z();
     //we took LOCAL momentum, i.e. respect to surface. Thus the plane is z=0
     float angle=TMath::ASin(TMath::Abs(mom_z) / sqrt(pow(mom_x,2)+pow(mom_y,2)+pow(mom_z,2) )  );
-    if(!rejectLowAngleHits_ || angle>=TrackAngleCut_) angle_ok=true;// keep this hit
+    if(angle>=TrackAngleCut_) angle_ok=true;// keep this hit
     // else  std::cout<<"Hit rejected because angle is "<< angle<<" ( <"<<TrackAngleCut_<<" )"<<std::endl;
-
-    if(angle_ok &&  PXLcorrClusChargeCut_>0.0){
-      //
-      //get the hit from the TM and check that it is in the pixel
-      TransientTrackingRecHit::ConstRecHitPointer hitpointer = meas.recHit();
-      if(hitpointer->isValid()){
-      const TrackingRecHit *hit=(*hitpointer).hit();
-      if( (hit->geographicalId()).subdetId()<=2  ){//do it only for pixel hits
-	corrcharge_ok=false;
-	float clust_alpha= atan2( mom_z, mom_x );
-	float clust_beta=  atan2( mom_z, mom_y );
-	
-	//Now get the cluster charge
-	
-	const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
-	float clust_charge=pixelhit->cluster()->charge();
-	float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
-							      1.0/pow( tan(clust_beta ), 2 ) + 
-							      1.0 )
-						      );
-	//std::cout<<"xxxxx "<<clust_charge<<" "<<corr_clust_charge<<"  " <<pixelhit->qBin()<<"  "<<pixelhit->clusterProbability(1)<<"  "<<pixelhit->clusterProbability(2)<< std::endl;
-	if(corr_clust_charge>PXLcorrClusChargeCut_){
-	  corrcharge_ok=true;
-	}
-      }       //end if hit is in pixel
-      }//end if hit is valid
-      
-    }//check corr cluster charge for pixel hits
-
-  }//end if TSOS is valid
+  }
   else{
     edm::LogWarning("TrackerTrackHitFilter") <<"TSOS not valid ! Impossible to calculate track angle.";
   }
   
-  return angle_ok&&corrcharge_ok; 
+  return angle_ok; 
 }//end TrackerTrackHitFilter::checkHitAngle
-
-
-bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement &meas){
-  /*
-    Code taken from DPGAnalysis/SiPixelTools/plugins/PixelNtuplizer_RealData.cc
-  */
-
-  bool corrcharge_ok=false;
-  //get the hit from the TM and check that it is in the pixel
-  TransientTrackingRecHit::ConstRecHitPointer hitpointer = meas.recHit();
-  if(!hitpointer->isValid()) return corrcharge_ok;
-  const TrackingRecHit *hit=(*hitpointer).hit();
-  if( (hit->geographicalId()).subdetId()>2  ){//SiStrip hit, skip
-     return corrcharge_ok;
-  }
-
-  TrajectoryStateOnSurface tsos = meas.updatedState();  
-  if(tsos.isValid()){
-    float mom_x=tsos.localDirection().x();
-    float mom_y=tsos.localDirection().y();
-    float mom_z=tsos.localDirection().z();
-    float clust_alpha= atan2( mom_z, mom_x );
-    float clust_beta=  atan2( mom_z, mom_y );
-
-    //Now get the cluster charge
- 
-      const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
-      float clust_charge=pixelhit->cluster()->charge();
-      float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
-							  1.0/pow( tan(clust_beta ), 2 ) + 
-							  1.0 )
-						  );
-      if(corr_clust_charge>PXLcorrClusChargeCut_)corrcharge_ok=true;
-    
-  }//end if TSOS is valid
-  return corrcharge_ok;
-
-}//end TrackerTrackHitFilter::checkPXLCorrClustCharge
-
-
 
 int TrackerTrackHitFilter::layerFromId (const DetId& id) const
 {

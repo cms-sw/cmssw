@@ -1,0 +1,98 @@
+
+class Style : public TH1F {
+};
+
+Style *s1;
+Style *s2;
+Style *sg1;
+Style *sback;
+Style *spred;
+Style *spblue;
+
+void InitNicePlot() {
+gROOT->SetStyle("Plain");
+ gStyle->SetPalette(1);
+ gStyle->SetHistMinimumZero(kTRUE);
+
+  s1 = new Style(); 
+
+  s1->SetLineWidth(2);   
+  s1->SetLineColor(1);   
+
+  s2 = new Style(); 
+
+  s2->SetLineWidth(2);   
+  s2->SetLineColor(4);   
+
+  sg1 = new Style();
+
+  sg1->SetMarkerColor(4);
+  sg1->SetLineColor(4);
+  sg1->SetLineWidth(2);  
+  sg1->SetMarkerStyle(21);
+
+  sback =  new Style();
+  sback->SetFillStyle(1001);  
+  sback->SetFillColor(5);  
+ 
+  spred = new Style();
+  spred->SetLineColor(2); 
+  spred->SetLineWidth(2);  
+  spred->SetFillStyle(1001); 
+  spred->SetFillColor(kRed-8); 
+
+  spblue = new Style();
+  spblue->SetLineColor(4); 
+  spblue->SetLineWidth(2); 
+  //spblue->SetFillStyle(3005); 
+  // spblue->SetFillColor(4);   
+}
+
+
+void FormatHisto( TH1* h, const Style* s ) {
+  //  h->SetStats(0);
+  h->SetTitle("CMS Preliminary");
+
+  h->GetYaxis()->SetTitleSize(0.06);
+  h->GetYaxis()->SetTitleOffset(1.2);
+  h->GetXaxis()->SetTitleSize(0.06);
+  h->GetYaxis()->SetLabelSize(0.045);
+  h->GetXaxis()->SetLabelSize(0.045);
+
+  h->SetLineWidth( s->GetLineWidth() );
+  h->SetLineColor( s->GetLineColor() );
+  h->SetFillStyle( s->GetFillStyle() );
+  h->SetFillColor( s->GetFillColor() );
+}
+
+void FormatPad( TPad* pad, bool grid = true, bool logx = false, bool logy = false) {
+  
+  
+  pad->SetGridx(grid);
+  pad->SetGridy(grid);
+
+  if (logx) pad->SetLogx();
+  if (logy) pad->SetLogy();
+
+  pad->SetBottomMargin(0.14);
+  pad->SetLeftMargin(0.15);
+  pad->SetRightMargin(0.05);
+  pad->Modified();
+  pad->Update();
+}
+
+
+void SavePlot(const char* name, const char* dir) {
+  string eps = dir;
+  eps += "/";
+  eps += name;
+  eps += ".eps";
+  gPad->SaveAs( eps.c_str() );
+
+  string png = dir;
+  png += "/";
+  png += name;
+  png += ".png";
+  gPad->SaveAs( png.c_str() );
+
+}

@@ -25,7 +25,7 @@
 class SiPixelQuality {
 
  public:
-  struct disabledModuleType { 
+  typedef struct disabledModuleType { 
     uint32_t DetID;  
     int      errorType;
     unsigned short BadRocs;

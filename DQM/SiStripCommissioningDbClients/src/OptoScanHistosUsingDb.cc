@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.17 2008/07/01 14:36:41 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -11,37 +11,23 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMOldReceiver* mui,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                             mui,
-                             sistrip::OPTO_SCAN ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::OPTO_SCAN ),
-    OptoScanHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                        mui )
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
+    CommissioningHistosUsingDb( db, mui, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
-  skipGainUpdate_ = this->pset().getParameter<bool>("SkipGainUpdate");
-  if (skipGainUpdate_)
-    LogTrace(mlDqmClient_)
-      << "[OptoScanHistosUsingDb::" << __func__ << "]"
-      << " Skipping db update of gain parameters.";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMStore* bei,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
-                                sistrip::OPTO_SCAN ),
-    OptoScanHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                        bei )
+  : CommissioningHistosUsingDb( db, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -148,8 +134,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 	   << " from "
 	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
 	   << static_cast<uint16_t>( desc->getBias(ichan) );
-        if (!skipGainUpdate_) desc->setGain( ichan, gain );
-        desc->setBias( ichan, anal->bias()[gain] );
+	desc->setGain( ichan, gain );
+	desc->setBias( ichan, anal->bias()[gain] );
 	updated++;
 	ss << " to "
 	   << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 

@@ -1,22 +1,14 @@
 #ifndef PF_DisplayManager_h
 #define PF_DisplayManager_h
 
+#include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <TCanvas.h>
 #include <TObject.h>
 #include <TLine.h>
 #include <TBox.h>
-#include <TEllipse.h>
 #include <string>
 #include <map>
 
@@ -28,8 +20,6 @@ class GPFTrack;
 class GPFSimParticle;
 class GPFBase;
 class GPFGenParticle;
-class PFRootEventManager;
-class TH2F; 
 
 class DisplayManager {
   

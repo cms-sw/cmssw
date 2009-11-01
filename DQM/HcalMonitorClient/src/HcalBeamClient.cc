@@ -122,7 +122,7 @@ void HcalBeamClient::beginJob(){
 	}
     }    
   return;
-} // void HcalBeamClient::beginJob()
+} // void HcalBeamClient::beginJob(const EventSetup& eventSetup);
 
 
 void HcalBeamClient::beginRun(void)

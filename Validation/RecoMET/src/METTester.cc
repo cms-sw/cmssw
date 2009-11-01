@@ -26,6 +26,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+//#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -41,9 +42,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 #include <vector>
 #include <utility>
@@ -58,19 +56,14 @@
 
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
-  METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
   inputMETLabel_           = iConfig.getParameter<edm::InputTag>("InputMETLabel");
-  if(METType_ == "TCMET") {
-  inputTrackLabel_         = iConfig.getParameter<edm::InputTag>("InputTrackLabel");    
-  inputMuonLabel_          = iConfig.getParameter<edm::InputTag>("InputMuonLabel");
-  inputElectronLabel_      = iConfig.getParameter<edm::InputTag>("InputElectronLabel");
-  inputBeamSpotLabel_      = iConfig.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  }
+  METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
   finebinning_             = iConfig.getUntrackedParameter<bool>("FineBinning");
-  FolderName_              = iConfig.getUntrackedParameter<std::string>("FolderName");
+  FolderName_           = iConfig.getUntrackedParameter<std::string>("FolderName");
 }
 
-
+//void METTester::beginJob(const edm::EventSetup& iSetup)
+//void METTester::beginJob()
 void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   // get ahold of back-end interface
@@ -166,13 +159,10 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET", 2000,-0.5,1999.5);
 	    me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
 	    me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",1000,-0.5,9999.5);
-
-	    me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
-	    me["hNeutralHadEtFraction"]   = dbe_->book1D("METTask_GenNeutralHadEtFraction", "METTask_GenNeutralHadEtFraction", 120, 0.0, 1.2 );
-	    me["hChargedEMEtFraction"]    = dbe_->book1D("METTask_GenChargedEMEtFraction", "METTask_GenChargedEMEtFraction", 120, 0.0, 1.2);
-	    me["hChargedHadEtFraction"]   = dbe_->book1D("METTask_GenChargedHadEtFraction", "METTask_GenChargedHadEtFraction", 120, 0.0,1.2);
-	    me["hMuonEtFraction"]         = dbe_->book1D("METTask_GenMuonEtFraction", "METTask_GenMuonEtFraction", 120, 0.0, 1.2 );
-	    me["hInvisibleEtFraction"]    = dbe_->book1D("METTask_GenInvisibleEtFraction", "METTask_GenInvisibleEtFraction", 120, 0.0, 1.2 );
+	    me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",800,-0.5,3999.5);
+	    me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",800,-0.5,3999.5);
+	    me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",800,-0.5,3999.5);
+	    me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",800,-0.5,3999.5);    
 	    
 	  }
 	else
@@ -185,13 +175,10 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	       me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
 	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
 	       me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",10001,0,10001);
-	       me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
-	       me["hNeutralHadEtFraction"]   = dbe_->book1D("METTask_GenNeutralHadEtFraction", "METTask_GenNeutralHadEtFraction", 120, 0.0, 1.2 );
-	       me["hChargedEMEtFraction"]    = dbe_->book1D("METTask_GenChargedEMEtFraction", "METTask_GenChargedEMEtFraction", 120, 0.0, 1.2);
-	       me["hChargedHadEtFraction"]   = dbe_->book1D("METTask_GenChargedHadEtFraction", "METTask_GenChargedHadEtFraction", 120, 0.0,1.2);
-	       me["hMuonEtFraction"]         = dbe_->book1D("METTask_GenMuonEtFraction", "METTask_GenMuonEtFraction", 120, 0.0, 1.2 );
-	       me["hInvisibleEtFraction"]    = dbe_->book1D("METTask_GenInvisibleEtFraction", "METTask_GenInvisibleEtFraction", 120, 0.0, 1.2 );
-
+	       me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",4001,0,4001);
+	       me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",4001,0,4001);
+	       me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",4001,0,4001);
+	       me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",4001,0,4001);
 	  }
       }
     else if (METType_ == "MET")
@@ -286,30 +273,8 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
 	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
-
-	    if( METType_ == "TCMET" ) {
-	      me["htrkPt"] = dbe_->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
-	      me["htrkEta"] = dbe_->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
-	      me["htrkNhits"] = dbe_->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
-	      me["htrkChi2"] = dbe_->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
-	      me["htrkD0"] = dbe_->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
-	      me["helePt"] = dbe_->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
-	      me["heleEta"] = dbe_->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
-	      me["heleHoE"] = dbe_->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
-	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
-	    }
-	    else if( METType_ == "corMetGlobalMuons" ) {
-	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
-	    }
-	  }
+	    
+	   }
 	else
 	  {
 	    //FineBin
@@ -323,35 +288,13 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMExCorrection"]      = dbe_->book1D("METTask_MExCorrection","METTask_MExCorrection", 2000, -500.0,500.0);
 	    me["hMEyCorrection"]      = dbe_->book1D("METTask_MEyCorrection","METTask_MEyCorrection", 2000, -500.0,500.0);
 	    me["hMuonCorrectionFlag"]     = dbe_->book1D("METTask_CorrectionFlag", "METTask_CorrectionFlag", 5, -0.5, 4.5);	  	   
-
+	    
 	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue",2000,-1000,1000);
 	    me["hMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_METResolution_GenMETCalo","METTask_METResolution_GenMETCalo",2000,-1000,1000);
 	    
 	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
 	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
 
-	    if( METType_ == "TCMET" ) {
-	      me["htrkPt"] = dbe_->book1D("METTask_trackPt", "METTask_trackPt", 250, 0, 500);
-	      me["htrkEta"] = dbe_->book1D("METTask_trackEta", "METTask_trackEta", 250, -2.5, 2.5);
-	      me["htrkNhits"] = dbe_->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
-	      me["htrkChi2"] = dbe_->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 100, 0, 20);
-	      me["htrkD0"] = dbe_->book1D("METTask_trackD0", "METTask_trackd0", 200, -1, 1);
-	      me["helePt"] = dbe_->book1D("METTask_electronPt", "METTask_electronPt", 250, 0, 500);
-	      me["heleEta"] = dbe_->book1D("METTask_electronEta", "METTask_electronEta", 250, -2.5, 2.5);
-	      me["heleHoE"] = dbe_->book1D("METTask_electronHoverE", "METTask_electronHoverE", 100, 0, 0.5);
-	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 250, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 250, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 100, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 200, -1, 1);
-	    }
-	    else if( METType_ == "corMetGlobalMuons" ) {
-	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 250, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 250, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 100, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 200, -1, 1);
-	    }
 	  }
 	
 	if(METType_ == "TCMET")
@@ -369,12 +312,14 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMuonCorrectionFlag"]->setBinLabel(3,"Tracker Fit");
 	    me["hMuonCorrectionFlag"]->setBinLabel(4,"STA Fit");
 	  }
+	
       }
     else
       {
 	edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
       }
   }
+
 }
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -393,12 +338,11 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	const CaloMETCollection *calometcol = calo.product();
 	calomet = &(calometcol->front());
       }
-
-
       // ==========================================================
       // Reconstructed MET Information
       double caloSumET = calomet->sumEt();
       double caloMETSig = calomet->mEtSig();
+      //      double caloEz = calomet->e_longitudinal();
       double caloMET = calomet->pt();
       double caloMEx = calomet->px();
       double caloMEy = calomet->py();
@@ -423,6 +367,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hCaloMETPhi"]->Fill(caloMETPhi);
       me["hCaloSumET"]->Fill(caloSumET);
       me["hCaloMETSig"]->Fill(caloMETSig);
+      //      me["hCaloEz"]->Fill(caloEz);
       me["hCaloMaxEtInEmTowers"]->Fill(caloMaxEtInEMTowers);
       me["hCaloMaxEtInHadTowers"]->Fill(caloMaxEtInHadTowers);
       me["hCaloEtFractionHadronic"]->Fill(caloEtFractionHadronic);
@@ -494,20 +439,11 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double genMEy = genmet->py();
       double genMETPhi = genmet->phi();
       double genMETSig = genmet->mEtSig();
-      /*
       double genEmEnergy = genmet->emEnergy();
       double genHadEnergy = genmet->hadEnergy();
       double genInvisibleEnergy= genmet->invisibleEnergy();
       double genAuxiliaryEnergy= genmet->auxiliaryEnergy();
-      */
-
-      double NeutralEMEtFraction = genmet->NeutralEMEtFraction() ;
-      double NeutralHadEtFraction = genmet->NeutralHadEtFraction() ;
-      double ChargedEMEtFraction = genmet->ChargedEMEtFraction () ;
-      double ChargedHadEtFraction = genmet->ChargedHadEtFraction();
-      double MuonEtFraction = genmet->MuonEtFraction() ;
-      double InvisibleEtFraction = genmet->InvisibleEtFraction() ;
-
+      
       me["hNevents"]->Fill(0);
       me["hGenMEx"]->Fill(genMEx);
       me["hGenMEy"]->Fill(genMEy);
@@ -516,14 +452,10 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hGenSumET"]->Fill(genSumET);
       me["hGenMETSig"]->Fill(genMETSig);
       //me["hGenEz"]->Fill(genEz);
-
-      me["hNeutralEMEtFraction"]->Fill( NeutralEMEtFraction );
-      me["hNeutralHadEtFraction"]->Fill( NeutralHadEtFraction );
-      me["hChargedEMEtFraction"]->Fill( ChargedEMEtFraction );
-      me["hChargedHadEtFraction"]->Fill( ChargedHadEtFraction );
-      me["hMuonEtFraction"]->Fill( MuonEtFraction );
-      me["hInvisibleEtFraction"]->Fill( InvisibleEtFraction );
-
+      me["hGenEmEnergy"]->Fill(genEmEnergy);
+      me["hGenHadEnergy"]->Fill(genHadEnergy);
+      me["hGenInvisibleEnergy"]->Fill(genInvisibleEnergy);
+      me["hGenAuxiliaryEnergy"]->Fill(genAuxiliaryEnergy);
       me["hNevents"]->Fill(0.5);
     }
   else if( METType_ == "PFMET")
@@ -624,20 +556,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       const MET *tcMet;
       edm::Handle<METCollection> htcMetcol;
-      iEvent.getByLabel(inputMETLabel_, htcMetcol);
-
-      edm::Handle< reco::MuonCollection > muon_h;
-      iEvent.getByLabel(inputMuonLabel_, muon_h);
-      
-      edm::Handle< edm::View<reco::Track> > track_h;
-      iEvent.getByLabel(inputTrackLabel_, track_h);
-      
-      edm::Handle< edm::View<reco::GsfElectron > > electron_h;
-      iEvent.getByLabel(inputElectronLabel_, electron_h);
-      
-      edm::Handle< reco::BeamSpot > beamSpot_h;
-      iEvent.getByLabel(inputBeamSpotLabel_, beamSpot_h);
-      
+      iEvent.getByLabel(inputMETLabel_,htcMetcol);
       if(!htcMetcol.isValid()){
 	edm::LogInfo("OutputInfo") << "falied to retrieve data require by MET Task";
 	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
@@ -648,33 +567,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  const METCollection *tcMetcol = htcMetcol.product();
 	  tcMet = &(tcMetcol->front());
 	}
-      
-      if(!muon_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
-      }
-      
-      if(!track_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
-      }
-      
-      if(!electron_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
-      }
-      
-      if(!beamSpot_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
-      }
 
-      math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-      
       // Reconstructed TCMET Information                                                                                                     
       double SumET = tcMet->sumEt();
       double MET = tcMet->pt();
@@ -682,7 +575,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double MEy = tcMet->py();
       double METPhi = tcMet->phi();
       double METSig = tcMet->mEtSig();
-
       me["hMEx"]->Fill(MEx);
       me["hMEy"]->Fill(MEy);
       me["hMET"]->Fill(MET);
@@ -690,52 +582,24 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hSumET"]->Fill(SumET);
       me["hMETSig"]->Fill(METSig);
       me["hNevents"]->Fill(0.5);
-      
-      for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-	me["htrkPt"]->Fill( trkit->pt() );
-	me["htrkEta"]->Fill( trkit->eta() );
-	me["htrkNhits"]->Fill( trkit->numberOfValidHits() );
-	me["htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
-
-	double d0 = -1 * trkit->dxy( bspot );
- 
-	me["htrkD0"]->Fill( d0 );
-	}
-
-      for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	me["helePt"]->Fill( eleit->p4().pt() );  
-	me["heleEta"]->Fill( eleit->p4().eta() );
-	me["heleHoE"]->Fill( eleit->hadronicOverEm() );
-      }
-      
-      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
-
-	const reco::TrackRef siTrack = muonit->innerTrack();
-
-	me["hmuPt"]->Fill( muonit->p4().pt() );
-	me["hmuEta"]->Fill( muonit->p4().eta() );
-	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-
-	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-
-	me["hmuD0"]->Fill( d0 );
-      }
 
       edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
       iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
       
-      const unsigned int nMuons = muon_h->size();      
-      
+      edm::Handle< reco::MuonCollection > muon_Handle;
+      iEvent.getByLabel("muons", muon_Handle);
+
+      const unsigned int nMuons = muon_Handle->size();      
       for( unsigned int mus = 0; mus < nMuons; mus++ ) 
 	{
-	  reco::MuonRef muref( muon_h, mus);
+	  reco::MuonRef muref( muon_Handle, mus);
 	  reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
 	  
-	  me["hMExCorrection"] -> Fill(muCorrData.corrX());
-	  me["hMEyCorrection"] -> Fill(muCorrData.corrY());
+	  me["hMExCorrection"] -> Fill(muCorrData.corrY());
+	  me["hMEyCorrection"] -> Fill(muCorrData.corrX());
 	  me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
 	}
+
       
       edm::Handle<GenMETCollection> genTrue;
       iEvent.getByLabel("genMetTrue", genTrue);
@@ -764,8 +628,11 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	me["hMETPhiResolution_GenMETCalo"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
       } else {
 	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
-      }          
+      }    
+      
+
     }
+
 
   else if( inputMETLabel_.label() == "corMetGlobalMuons" )
     {
@@ -803,31 +670,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       edm::Handle< reco::MuonCollection > muon_Handle;
       iEvent.getByLabel("muons", muon_Handle);
-
-      edm::Handle< reco::BeamSpot > beamSpot_h;
-      iEvent.getByLabel(inputBeamSpotLabel_, beamSpot_h);
-
-      if(!beamSpot_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
-      }
-
-      math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-
-      for( reco::MuonCollection::const_iterator muonit = muon_Handle->begin(); muonit != muon_Handle->end(); muonit++ ) {
-
-	const reco::TrackRef siTrack = muonit->innerTrack();
-
-	me["hmuPt"]->Fill( muonit->p4().pt() );
-	me["hmuEta"]->Fill( muonit->p4().eta() );
-	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-
-	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-
-	me["hmuD0"]->Fill( d0 );
-      }
 
       const unsigned int nMuons = muon_Handle->size();      
       for( unsigned int mus = 0; mus < nMuons; mus++ ) 
@@ -876,5 +718,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void METTester::endJob() 
-{ 
+{
+ 
 }

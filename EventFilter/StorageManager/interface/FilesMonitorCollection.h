@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.9 2009/09/18 15:37:33 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.4.2.2 2009/09/25 09:57:43 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/09/18 15:37:33 $
+   * $Revision: 1.4.2.2 $
+   * $Date: 2009/09/25 09:57:43 $
    */
   
   class FilesMonitorCollection : public MonitorCollection

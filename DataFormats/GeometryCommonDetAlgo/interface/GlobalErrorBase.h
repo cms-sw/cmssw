@@ -33,7 +33,7 @@ public:
   /**
    * Default constructor, creating a null 3*3 matrix (all values are 0)
    */
-  GlobalErrorBase(): theCartesianError(new AlgebraicSymMatrix33()) {}
+  GlobalErrorBase(): theCartesianError(new AlgebraicSymMatrix(3,0)) {}
 
   /** 
    * Constructor that allocates a null GlobalErrorBase (it does not create the error matrix at all)
@@ -45,13 +45,13 @@ public:
    * The symmetric matrix stored as a lower triangular matrix
    */
   GlobalErrorBase(T c11, T c21, T c22, T c31, T c32, T c33):
-                   theCartesianError(new AlgebraicSymMatrix33()) {
-    (*theCartesianError)(0,0)=c11;
-    (*theCartesianError)(1,0)=c21;
-    (*theCartesianError)(1,1)=c22;
-    (*theCartesianError)(2,0)=c31;
-    (*theCartesianError)(2,1)=c32;
-    (*theCartesianError)(2,2)=c33;
+                   theCartesianError(new AlgebraicSymMatrix(3,0)) {
+    (*theCartesianError)(1,1)=c11;
+    (*theCartesianError)(2,1)=c21;
+    (*theCartesianError)(2,2)=c22;
+    (*theCartesianError)(3,1)=c31;
+    (*theCartesianError)(3,2)=c32;
+    (*theCartesianError)(3,3)=c33;
   }
   
   /**
@@ -59,7 +59,7 @@ public:
    */
   GlobalErrorBase(const AlgebraicSymMatrix & err) {
     if (err.num_row() == 3)
-      theCartesianError = new AlgebraicSymMatrix33(asSMatrix<3>(err));
+      theCartesianError = new AlgebraicSymMatrix(err);
     else {
       theCartesianError = 0;
       //throw DetLogicError("Not 3x3 Error Matrix: set pointer to 0");
@@ -72,32 +72,32 @@ public:
    * Constructor from SymMatrix. The original matrix has to be a 3*3 matrix.
    */
   GlobalErrorBase(const AlgebraicSymMatrix33 & err) : 
-      theCartesianError(new AlgebraicSymMatrix33(err)) { }
+      theCartesianError(new AlgebraicSymMatrix(asHepMatrix(err))) { }
   
   ~GlobalErrorBase() {}
 
   T cxx() const {
-    return (*theCartesianError)(0,0);
-  }
-  
-  T cyx() const {
-    return (*theCartesianError)(1,0);
-  }
-  
-  T cyy() const {
     return (*theCartesianError)(1,1);
   }
   
-  T czx() const {
-    return (*theCartesianError)(2,0);
-  }
-  
-  T czy() const {
+  T cyx() const {
     return (*theCartesianError)(2,1);
   }
   
-  T czz() const {
+  T cyy() const {
     return (*theCartesianError)(2,2);
+  }
+  
+  T czx() const {
+    return (*theCartesianError)(3,1);
+  }
+  
+  T czy() const {
+    return (*theCartesianError)(3,2);
+  }
+  
+  T czz() const {
+    return (*theCartesianError)(3,3);
   }
   
   /**
@@ -105,14 +105,14 @@ public:
    * /return The SymMatrix
    */
   AlgebraicSymMatrix matrix() const {
-    return asHepMatrix(*theCartesianError);
+    return *theCartesianError;
   }
  /**
    * Access method to the matrix,
    * /return The SymMatrix
    */
-  const AlgebraicSymMatrix33 & matrix_new() const {
-    return *theCartesianError;
+  AlgebraicSymMatrix33 matrix_new() const {
+    return asSMatrix<3>(*theCartesianError);
   }
 
 
@@ -139,15 +139,25 @@ public:
   }
 
   GlobalErrorBase operator+ (const GlobalErrorBase& err) const {
-    return GlobalErrorBase(*theCartesianError + *err.theCartesianError);
+    return GlobalErrorBase( this->cxx()+err.cxx(), 
+                           this->cyx()+err.cyx(),
+                           this->cyy()+err.cyy(),
+			   this->czx()+err.czx(),
+			   this->czy()+err.czy(),
+			   this->czz()+err.czz());
   }
   GlobalErrorBase operator- (const GlobalErrorBase& err) const {
-    return GlobalErrorBase(*theCartesianError - *err.theCartesianError);
+    return GlobalErrorBase( this->cxx()-err.cxx(), 
+                           this->cyx()-err.cyx(),
+                           this->cyy()-err.cyy(),
+			   this->czx()-err.czx(),
+			   this->czy()-err.czy(),
+			   this->czz()-err.czz());
   }
  
 private:
 
-  DeepCopyPointer<AlgebraicSymMatrix33> theCartesianError;
+  DeepCopyPointer<AlgebraicSymMatrix> theCartesianError;
 
 
 

@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.18 2009/09/18 15:17:16 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.4.2.1 2009/09/25 09:57:44 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.18 $
-   * $Date: 2009/09/18 15:17:16 $
+   * $Revision: 1.4.2.1 $
+   * $Date: 2009/09/25 09:57:44 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection

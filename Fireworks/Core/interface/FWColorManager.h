@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.16 2009/10/05 16:15:25 amraktad Exp $
+// $Id: FWColorManager.h,v 1.10 2009/05/21 16:34:43 dmytro Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 
 // forward declarations
 class FWModelChangeManager;
-class TGLViewer;
 
 enum FWGeomColorIndex {
    kFWMuonBarrelMainColorIndex,
@@ -51,9 +50,7 @@ public:
    // ---------- const member functions ---------------------
    Color_t background() const {return m_background;}
    Color_t foreground() const {return m_foreground;}
-   Bool_t  isColorSetDark() const {return m_background == kBlackIndex;}
-   Bool_t  isColorSetLight() const {return m_background == kWhiteIndex;}
- 
+   
    Color_t indexToColor(unsigned int) const;
    unsigned int numberOfIndicies() const;
    
@@ -66,23 +63,21 @@ public:
    
    Color_t geomColor(FWGeomColorIndex) const;
    
-   enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
+   enum BackgroundColorIndex {kBlackIndex, kWhiteIndex};
    BackgroundColorIndex backgroundColorIndex() const;
    // ---------- static member functions --------------------
    
-   static Bool_t setColorSetViewer(TGLViewer*, Color_t);
    // ---------- member functions ---------------------------
    void defaultBrightness();
    void setBrightness(int);
    int  brightness ();
    void setBackgroundColorIndex(BackgroundColorIndex);
-   void setBackgroundAndBrightness(BackgroundColorIndex, int);
-   void switchBackground();
+
+  void setBackgroundAndBrightness(BackgroundColorIndex, int);
 
    mutable sigc::signal<void> colorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
    mutable sigc::signal<void> colorsHaveChangedFinished_;
-
 private:
    FWColorManager(const FWColorManager&); // stop default
    

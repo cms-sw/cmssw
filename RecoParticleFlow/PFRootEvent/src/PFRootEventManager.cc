@@ -164,7 +164,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-  // PFJet benchmark options and output jetfile to be open before input file!!!--
+// PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -201,8 +201,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("pfmet_benchmark", "on/off", doPFMETBenchmark_);
   
   if (doPFMETBenchmark_) {
-    //COLIN : looks like this benchmark is not written in the standard output file. Any particular reason for it? 
-    
+
     doMet_ = false;
     options_->GetOpt("MET", "on/off", doMet_);
 
@@ -231,7 +230,6 @@ void PFRootEventManager::readOptions(const char* file,
     DeltaPhicut = 0.8;
     options_->GetOpt("pfmet_benchmark", "deltaphicut", DeltaPhicut);
     
-
     std::vector<unsigned int> vIgnoreParticlesIDs;
     options_->GetOpt("pfmet_benchmark", "trueMetIgnoreParticlesIDs", vIgnoreParticlesIDs);
     //std::cout << "FL: vIgnoreParticlesIDs.size() = " << vIgnoreParticlesIDs.size() << std::endl;
@@ -245,19 +243,6 @@ void PFRootEventManager::readOptions(const char* file,
     if (trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()) std::cout << "Warning: PFRootEventManager: trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()" << std::endl;
     else metManager_->SetSpecificIdCut(&trueMetSpecificIdCut,&trueMetSpecificEtaCut);
 
-  }
-
-  doPFCandidateBenchmark_ = true;
-  options_->GetOpt("pfCandidate_benchmark", "on/off", doPFCandidateBenchmark_); 
-  if (doPFCandidateBenchmark_) {    
-    cout<<"+++ Setting PFCandidate benchmark"<<endl;
-    TDirectory* dir = outFile_->mkdir("DQMData");
-    dir = dir->mkdir("PFTask");    
-    dir = dir->mkdir("Benchmarks");
-    dir = dir->mkdir("particleFlow");
-    pfCandidateBenchmark_.setDirectory( dir );
-    pfCandidateBenchmark_.setup();
-    //COLIN need to set the subdirectory.  
   }
 
   // input root file --------------------------------------------
@@ -859,9 +844,6 @@ void PFRootEventManager::readOptions(const char* file,
     double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
     options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
 
-    bool applyCrackCorrections=true;
-    options_->GetOpt("particle_flow","electron_crackCorrection",applyCrackCorrections);
-
     string mvaWeightFileEleID = "";
     options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
 		     mvaWeightFileEleID);
@@ -870,8 +852,7 @@ void PFRootEventManager::readOptions(const char* file,
     try { 
       pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
-				 usePFElectrons,
-				 applyCrackCorrections);
+				 usePFElectrons);
     }
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Electron parameters: "
@@ -1223,19 +1204,6 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<gsfTracksbranchname<< endl; 
   } 
 
-  useConvBremGsfTracks_ = false;
-  options_->GetOpt("particle_flow", "useConvBremGsfTracks", useConvBremGsfTracks_);
-  if(useConvBremGsfTracks_) {
-    string convBremGsfTracksbranchname; 
-    options_->GetOpt("root","convBremGsfrecTracks_branch",convBremGsfTracksbranchname); 
-    convBremGsfrecTracksBranch_ = tree_->GetBranch(convBremGsfTracksbranchname.c_str()); 
-    if(!convBremGsfrecTracksBranch_) { 
-      cerr<<"PFRootEventManager::ReadOptions : convBremGsfrecTracks_branch not found : " 
-	  <<convBremGsfTracksbranchname<< endl; 
-    } 
-  }
-  
-
   //muons
   string muonbranchname;
   options_->GetOpt("root","muon_branch",muonbranchname); 
@@ -1459,8 +1427,7 @@ void PFRootEventManager::setAddresses() {
   if( primaryVertexBranch_ ) primaryVertexBranch_->SetAddress(&primaryVertices_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
-  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_);
-  if( convBremGsfrecTracksBranch_ ) convBremGsfrecTracksBranch_->SetAddress(&convBremGsfrecTracks_);
+  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
   if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
   if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
   if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
@@ -1506,17 +1473,15 @@ void PFRootEventManager::write() {
 
   if(doPFJetBenchmark_) PFJetBenchmark_.write();
   if(doPFMETBenchmark_) metManager_->write();
-  
-  
-  if(outFile_) {
-    outFile_->Write();
-//     outFile_->cd(); 
-//     // write histos here
-//     cout<<"writing output to "<<outFile_->GetName()<<endl;
-//     h_deltaETvisible_MCEHT_->Write();
-//     h_deltaETvisible_MCPF_->Write();
-//     if(outTree_) outTree_->Write();
-//     if(doPFCandidateBenchmark_) pfCandidateBenchmark_.write();
+
+  if(!outFile_) return;
+  else {
+    outFile_->cd(); 
+    // write histos here
+    cout<<"writing output to "<<outFile_->GetName()<<endl;
+    h_deltaETvisible_MCEHT_->Write();
+    h_deltaETvisible_MCPF_->Write();
+    if(outTree_) outTree_->Write();
   }
 }
 
@@ -1531,29 +1496,28 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(verbosity_ == VERBOSE  || 
      // entry < 3000 ||
-     (entry < 100 && entry%10 == 0) || 
-     (entry < 1000 && entry%100 == 0) || 
+     entry < 100 && entry%10 == 0 || 
+     entry < 1000 && entry%100 == 0 || 
      entry%1000 == 0 ) 
     cout<<"process entry "<< entry << endl;
   
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
-    cout<<"number of vertices             : "<<primaryVertices_.size()<<endl;
-    cout<<"number of recTracks            : "<<recTracks_.size()<<endl;
-    cout<<"number of gsfrecTracks         : "<<gsfrecTracks_.size()<<endl;
-    cout<<"number of convBremGsfrecTracks : "<<convBremGsfrecTracks_.size()<<endl;
-    cout<<"number of muons                : "<<muons_.size()<<endl;
-    cout<<"number of nuclear ints         : "<<nuclear_.size()<<endl;
-    cout<<"number of conversions          : "<<conversion_.size()<<endl;
-    cout<<"number of v0                   : "<<v0_.size()<<endl;
-    cout<<"number of stdTracks            : "<<stdTracks_.size()<<endl;
-    cout<<"number of true particles       : "<<trueParticles_.size()<<endl;
-    cout<<"number of ECAL rechits         : "<<rechitsECAL_.size()<<endl;
-    cout<<"number of HCAL rechits         : "<<rechitsHCAL_.size()<<endl;
-    cout<<"number of HFEM rechits         : "<<rechitsHFEM_.size()<<endl;
-    cout<<"number of HFHAD rechits        : "<<rechitsHFHAD_.size()<<endl;
-    cout<<"number of PS rechits           : "<<rechitsPS_.size()<<endl;
+    cout<<"number of vertices       : "<<primaryVertices_.size()<<endl;
+    cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
+    cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
+    cout<<"number of muons          : "<<muons_.size()<<endl;
+    cout<<"number of nuclear ints   : "<<nuclear_.size()<<endl;
+    cout<<"number of conversions    : "<<conversion_.size()<<endl;
+    cout<<"number of v0             : "<<v0_.size()<<endl;
+    cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
+    cout<<"number of true particles : "<<trueParticles_.size()<<endl;
+    cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
+    cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
+    cout<<"number of HFEM rechits   : "<<rechitsHFEM_.size()<<endl;
+    cout<<"number of HFHAD rechits   : "<<rechitsHFHAD_.size()<<endl;
+    cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
   }  
 
   if( doClustering_ ) clustering(); 
@@ -1594,12 +1558,11 @@ bool PFRootEventManager::processEntry(int entry) {
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
-  //COLIN the PFJet and PFMET benchmarks are very messy. 
-  //COLIN    compare with the filling of the PFCandidateBenchmark, which is one line. 
-  
   // evaluate PFJet Benchmark 
+  
   if(doPFJetBenchmark_) { // start PFJet Benchmark
 
+          
     PFJetBenchmark_.process(pfJets_, genJets_);
     double resPt = PFJetBenchmark_.resPtMax();
     double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
@@ -1632,8 +1595,6 @@ bool PFRootEventManager::processEntry(int entry) {
     //   else return false;
   }// end PFJet Benchmark
 
-  //COLIN would  be nice to move this long code to a separate function. 
-  // is it necessary to re-set everything at each event?? 
   if(doPFMETBenchmark_) { // start PFMet Benchmark
 
     // Fill here the various met benchmarks
@@ -1663,10 +1624,6 @@ bool PFRootEventManager::processEntry(int entry) {
       metManager_->FillHisto("corrCalo");
     }
   }// end PFMET Benchmark
-
-  if( doPFCandidateBenchmark_ ) {
-    pfCandidateBenchmark_.fill( *pfCandidates_ );
-  }
     
   // evaluate tau Benchmark   
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
@@ -1755,9 +1712,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(gsfrecTracksBranch_) {
     gsfrecTracksBranch_->GetEntry(entry);
-  }
-  if(convBremGsfrecTracksBranch_) {
-    convBremGsfrecTracksBranch_->GetEntry(entry);
   }
   if(muonsBranch_) {
     muonsBranch_->GetEntry(entry);
@@ -1851,10 +1805,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     PreprocessRecTracks( gsfrecTracks_);
   }
    
-  if(convBremGsfrecTracksBranch_) {
-    PreprocessRecTracks( convBremGsfrecTracks_);
-  }
-
   //   if(clustersECALBranch_ && !doClustering_) {
   //     for(unsigned i=0; i<clustersECAL_->size(); i++) 
   //       (*clustersECAL_)[i].calculatePositionREP();
@@ -2351,13 +2301,10 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
-  
+
   edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
-								edm::ProductID(5) );  
-  
-  edm::OrphanHandle< reco::GsfPFRecTrackCollection > convBremGsftrackh( &convBremGsfrecTracks_, 
-									edm::ProductID(5) );  
-  
+                                                          edm::ProductID(5) );  
+
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
@@ -2384,7 +2331,7 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
+  pfBlockAlgo_.setInput( trackh, gsftrackh, 
 			 muonh,nuclh,convh,v0,
 			 ecalh, hcalh, hfemh, hfhadh, psh,
 			 trackMask,gsftrackMask,
@@ -2621,7 +2568,7 @@ PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candid
 
 
 
-///COLIN need to get rid of this mess. 
+
 double 
 PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates) {
   //std::cout << "building jets from MC particles," 
@@ -2671,7 +2618,7 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
     }
     
     if(!tauFound || tooManyTaus ) {
-      // cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
       return -9999;
     }
     

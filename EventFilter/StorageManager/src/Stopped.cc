@@ -1,4 +1,4 @@
-// $Id: Stopped.cc,v 1.9 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Stopped.cc,v 1.8.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: Stopped.cc
 
 #include "EventFilter/StorageManager/interface/Notifier.h"

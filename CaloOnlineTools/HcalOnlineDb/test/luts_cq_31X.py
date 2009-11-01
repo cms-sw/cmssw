@@ -50,10 +50,10 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
                       cms_hcl_hcal_cond.v_hcal_channel_quality cq 
                where 
                       tag_name=:1 
-               --and 
-                      --cq.VERSION=:2 
+               and 
+                      cq.VERSION=:2 
                AND 
-                      cq.interval_of_validity_begin<=:2 
+                      cq.interval_of_validity_begin<=:3 
                group by 
                       cq.channel_map_id 
                order by 
@@ -72,8 +72,7 @@ process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 process.generateLuts = cms.EDAnalyzer("HcalLutGenerator",
                                       tag = cms.string('CRAFTPhysicsV2'),
-                                      HO_master_file = cms.string('inputLUTcoder_CRUZET_part4_HO.dat'),
-                                      status_word_to_mask = cms.uint32(0x8000)
+                                      HO_master_file = cms.string('inputLUTcoder_CRUZET_part4_HO.dat')
                                       )
 
 

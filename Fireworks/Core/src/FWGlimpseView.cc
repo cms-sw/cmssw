@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.32 2009/10/06 11:26:22 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.25 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
+#include "TEveRGBAPalette.h"
 #include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
 #include "TGLScenePad.h"
@@ -58,8 +59,6 @@
 #include "TGeoArb8.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -92,10 +91,6 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
-
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
-   m_embeddedViewer->SetEventHandler(eh);
-   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
 
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
@@ -267,9 +262,8 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 
 void
 FWGlimpseView::setBackgroundColor(Color_t iColor) {
-   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
 }
-
 //
 // const member functions
 //

@@ -24,80 +24,32 @@ process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('L1TriggerObjects'),
         tag = cms.string('hcal-l1trigger-test-v1'),
-        version = cms.string('obsolete'),
+        version = cms.string('hcal-l1trigger-test-v1'),
         subversion = cms.int32(1),
-        accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
+        accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-SELECT 
-      OBJECTNAME, 
-      SUBDET, 
-      IETA, 
-      IPHI, 
-      DEPTH, 
-      TYPE, 
-      SECTION, 
-      ISPOSITIVEETA, 
-      SECTOR, 
-      MODULE, 
-      CHANNEL, 
-      AVERAGE_PEDESTAL, 
-      RESPONSE_CORRECTED_GAIN, 
-      FLAG, 
-      'fake_metadata_name', 
-      'fake_metadata_value' 
-FROM ( 
-     select 
-            MIN(theview.record_id) as record_id, 
-            MAX(theview.interval_of_validity_begin) as iov_begin, 
-            theview.channel_map_id 
-     from 
-            cms_hcl_hcal_cond.v_hcal_L1_TRIGGER_OBJECTS theview 
-     where 
-            tag_name=:1 
-     AND 
-            theview.interval_of_validity_begin<=:2 
-     group by 
-            theview.channel_map_id 
-     order by 
-            theview.channel_map_id 
-) fp 
-inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS sp 
-on 
-fp.record_id=sp.record_id 
- 
-union 
- 
-SELECT 
-       'fakeobjectname', 
-       'fakesubdetector', 
-       -1, 
-       -1, 
-       -1, 
-       -1, 
-       'fakesection', 
-       -1, 
-       -1, 
-       -1, 
-       -1, 
-       -999999.0, 
-       -999999.0, 
-       -999999, 
-       TRIGGER_OBJECT_METADATA_NAME,
-       TRIGGER_OBJECT_METADATA_VALUE 
-FROM ( 
-     select 
-            MIN(theview.record_id) as record_id, 
-	    MAX(theview.interval_of_validity_begin) as iov_begin 
-     from 
-            cms_hcl_hcal_cond.v_hcal_L1_TRIGGER_OBJECTS_MDA theview 
-     where 
-            tag_name=:1 
-     AND 
-            theview.interval_of_validity_begin<=:2 
-) fp 
-inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA sp 
-on 
-fp.record_id=sp.record_id 
+        SELECT o.OBJECTNAME, o.SUBDET, o.IETA, o.IPHI, o.DEPTH, o.TYPE, o.SECTION, o.ISPOSITIVEETA, o.SECTOR, o.MODULE, o.CHANNEL,
+               o.AVERAGE_PEDESTAL, o.RESPONSE_CORRECTED_GAIN, o.FLAG,
+               m.TRIGGER_OBJECT_METADATA_VALUE as LUT_TAG_NAME, n.TRIGGER_OBJECT_METADATA_VALUE as ALGO_NAME
+        FROM CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS o
+        inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA m
+        on
+           --o.tag_name=m.tag_name
+        --AND
+           --o.version=m.version
+        --AND
+           m.TRIGGER_OBJECT_METADATA_NAME='lut tag'
+        inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA n
+        on
+           --o.tag_name=n.tag_name
+        --AND 
+           --o.version=n.version
+        --AND
+           n.TRIGGER_OBJECT_METADATA_NAME='lut tag'
+        WHERE
+        o.TAG_NAME=:1
+        and
+        o.VERSION=:2
         ''')
     ))
 )

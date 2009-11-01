@@ -1,26 +1,23 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/PluginManager/interface/SharedLibrary.h"
-
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
 #include <iostream>
 //#include "CondCore/DBCommon/interface/Ref.h"
 int main(){
-  edmplugin::PluginManager::Config config;
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
   try{
-    cond::DbConnection connection;
-    connection.configuration().setPoolAutomaticCleanUp( false );
-    connection.configure();
-    cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    cond::DBSession* session=new cond::DBSession;
+    session->open();
+    cond::Connection myconnection("sqlite_file:mytest.db",-1); 
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     cond::IOVService iovmanager(pooldb);
-    pooldb.transaction().start(false);
+    pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     editor->create(cond::timestamp,1);
     for(int i=0; i<5; ++i){
@@ -30,16 +27,17 @@ int main(){
       for(int j=0; j<10; ++j){
         myobj->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> myobjRef = pooldb.storeObject(myobj,"testPayloadObj");
-      editor->append(i+10, myobjRef.toString());
+      cond::TypedRef<testPayloadObj> myobjRef(pooldb,myobj);
+      myobjRef.markWrite("testPayloadObj");
+      editor->append(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     iovmanager.deleteAll(true);
-    pooldb.transaction().commit();
+    pooldb.commit();
 
     delete editor;
-    pooldb.transaction().start(false);
+    pooldb.start(false);
     //same data, delete by tag this time
     cond::IOVEditor* editorNew=iovmanager.newIOVEditor();
     editorNew->create(cond::timestamp,1);
@@ -50,18 +48,19 @@ int main(){
       for(int j=0; j<15; ++j){
         cid->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> cidRef = pooldb.storeObject(cid,"testPayloadObj");
-      std::cout<<"token"<<cidRef.toString()<<std::endl;
-      editorNew->append(i+10, cidRef.toString());
+      cond::TypedRef<testPayloadObj> cidRef(pooldb,cid);
+      cidRef.markWrite("testPayloadObj");
+      std::cout<<"token"<<cidRef.token()<<std::endl;
+      editorNew->append(i+10, cidRef.token());
     }
     std::cout<<"end of loop1"<<std::endl;
 
     iovtoken=editorNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
-    pooldb.transaction().commit();
+    pooldb.commit();
     delete editorNew;
 
-    pooldb.transaction().start(false);
+    pooldb.start(false);
     cond::IOVEditor* editorNewNew=iovmanager.newIOVEditor();
     editorNewNew->create(cond::timestamp, 1);
     for(int i=0; i<10; ++i){
@@ -70,16 +69,19 @@ int main(){
       for(int j=0; j<7; ++j){
         abc->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> abcRef = pooldb.storeObject(abc,"testPayloadObj");
-      editorNewNew->append(i+10, abcRef.toString());
+      cond::TypedRef<testPayloadObj> abcRef(pooldb,abc);
+      abcRef.markWrite("testPayloadObj");
+      editorNewNew->append(i+10, abcRef.token());
     }
     iovtoken=editorNewNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
-    pooldb.transaction().commit();
-    //pooldb.transaction().start();
+    pooldb.commit();
+    //pooldb.start();
     //editorNewNew->deleteEntries(true);
-    //pooldb.transaction().commit();
+    //pooldb.commit();
     delete editorNewNew;
+    myconnection.disconnect();
+    delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){

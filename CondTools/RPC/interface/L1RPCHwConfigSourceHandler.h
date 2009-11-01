@@ -64,8 +64,6 @@ namespace popcon
     int m_validate;
     int m_firstBX;
     int m_lastBX;
-    std::vector<int> m_disableCrates;
-    std::vector<int> m_disableTowers;
     std::string m_connect;
     std::string m_authpath;
     std::string m_host;

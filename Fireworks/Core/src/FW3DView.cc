@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.20 2009/10/04 19:26:29 amraktad Exp $
+// $Id: FW3DView.cc,v 1.14 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
@@ -45,12 +45,18 @@
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
+#include "TEveRGBAPalette.h"
+#include "TEveLegoEventHandler.h"
+#include "TGLWidget.h"
 #include "TGLScenePad.h"
+#include "TGLFontManager.h"
+#include "TEveTrans.h"
 #include "TGeoTube.h"
+#include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
+#include "TEveText.h"
 #include "TEveWindow.h"
 #include "TGeoArb8.h"
-#include "TEveGeoNode.h"
-#include "TEveScene.h"
 
 
 // user include files
@@ -58,14 +64,14 @@
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
+
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
-
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "TEveGeoNode.h"
+#include "TEveScene.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "TEvePolygonSetProjected.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 //
@@ -104,10 +110,6 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
-   m_embeddedViewer->SetEventHandler(eh);
-   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
-   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
@@ -509,9 +511,8 @@ FW3DView::setTransparency( )
 //______________________________________________________________________________
 
 void
-FW3DView::setBackgroundColor(Color_t iColor)
-{
-   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
+FW3DView::setBackgroundColor(Color_t iColor) {
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
 }
 
 //

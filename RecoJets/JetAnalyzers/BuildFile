@@ -5,6 +5,7 @@
 <use name=root>
 <use name=DataFormats/Candidate>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>	
 <use name=DataFormats/JetReco>
 <use name=DataFormats/HepMCCandidate>
@@ -12,15 +13,11 @@
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
-<use name=DataFormats/FEDRawData>
 <use name=TBDataFormats/HcalTBObjects>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=JetMETCorrections/Objects>
 <use name=JetMETCorrections/MCJet>
 #<flags SEAL_PLUGIN_NAME="RecoJetsJetAnalyzers">
-
-<use name=PhysicsTools/UtilAlgos>
-<use name=FWCore/ServiceRegistry> # GF: Not sure whether really needed...
 
 <export>
    <lib name=RecoJetsJetAnalyzers>
@@ -29,13 +26,13 @@
    <use name=FWCore/ParameterSet>
    <use name=Geometry/CaloGeometry>
    <use name=Geometry/Records>
+   <use name=Geometry/CaloEventSetup>
    <use name=DataFormats/Candidate>
    <use name=DataFormats/JetReco>
    <use name=DataFormats/HepMCCandidate>
    <use name=DataFormats/HcalRecHit>
    <use name=DataFormats/HcalDigi>
    <use name=DataFormats/HcalDetId>
-   <use name=DataFormats/FEDRawData>
    <use name=TBDataFormats/HcalTBObjects>
    <use name=SimDataFormats/GeneratorProducts>
 </export>

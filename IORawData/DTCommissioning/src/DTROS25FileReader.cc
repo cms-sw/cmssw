@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/23 08:44:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/09/04 08:03:22 $
+ *  $Revision: 1.10 $
  *  \author M. Zanetti
  */
 
@@ -18,6 +18,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/Exception.h>
 
 #include <string>
 #include <iosfwd>

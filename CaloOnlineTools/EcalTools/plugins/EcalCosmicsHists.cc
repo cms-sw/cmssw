@@ -58,7 +58,6 @@ using namespace std;
 // constructors and destructor
 //
 EcalCosmicsHists::EcalCosmicsHists(const edm::ParameterSet& iConfig) :
-  ecalRawDataColl_(iConfig.getParameter<edm::InputTag>("ecalRawDataColl")),
   ecalRecHitCollectionEB_ (iConfig.getParameter<edm::InputTag>("ecalRecHitCollectionEB")),
   ecalRecHitCollectionEE_ (iConfig.getParameter<edm::InputTag>("ecalRecHitCollectionEE")),
   barrelClusterCollection_ (iConfig.getParameter<edm::InputTag>("barrelClusterCollection")),
@@ -180,7 +179,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   
   Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(ecalRawDataColl_, DCCHeaders);
+  iEvent.getByLabel("ecalEBunpacker", DCCHeaders);
   if(!DCCHeaders.isValid())
     LogWarning("EcalCosmicsHists") << "DCC headers not available";
 
@@ -1091,7 +1090,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double bestPhiSeed = 1000;
       EBDetId bestTrackDet;
       EBDetId bestSeed;
-      int bestTrack = -1;
+      int bestTrack;
       std::map<EBDetId,EBDetId> trackDetIdToSeedMap;
 
       //edm::LogVerbatim("TrackAssociator") << "NumTracks:" << trackDetIdMap.size() << " numClusters:" << seeds.size();

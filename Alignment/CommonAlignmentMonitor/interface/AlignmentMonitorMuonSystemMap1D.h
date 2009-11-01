@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignmentMonitor_AlignmentMonitorMuonSystemMap1D_H
 
 /** \class AlignmentMonitorMuonSystemMap1D
- *  $Date: 2009/08/29 18:18:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/23 05:09:05 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -74,16 +74,6 @@ private:
   MuonSystemMapPlot1D *m_CSCvsphi_me42[2];
 
   std::vector<MuonSystemMapPlot1D*> m_plots;
-
-  long m_counter_event;
-  long m_counter_track;
-  long m_counter_trackpt;
-  long m_counter_trackokay;
-  long m_counter_dt;
-  long m_counter_13numhits;
-  long m_counter_2numhits;
-  long m_counter_csc;
-  long m_counter_cscnumhits;
 };
 
 #endif // Alignment_CommonAlignmentMonitor_AlignmentMonitorMuonSystemMap1D_H

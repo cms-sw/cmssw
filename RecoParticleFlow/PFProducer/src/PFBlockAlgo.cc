@@ -291,15 +291,13 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   if( type1==type2 ) {
     // cannot link 2 elements of the same type. 
     // except if the elements are 2 tracks
-    if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF) return;
+    if( type1!=PFBlockElement::TRACK ) return;
     // cannot link two primary tracks  (except if they come from a V0)
-    if( type1 ==PFBlockElement::TRACK) {
-      if ( 
-	  ((!el1->isSecondary()) && (!el2->isSecondary())) && 
-	  ((!el1->trackType(reco::PFBlockElement::T_FROM_V0)) || 
-	   (!el2->trackType(reco::PFBlockElement::T_FROM_V0)))
-	  ) return;
-    }
+    else if ( 
+	     ((!el1->isSecondary()) && (!el2->isSecondary())) && 
+	     ((!el1->trackType(reco::PFBlockElement::T_FROM_V0)) || 
+	      (!el2->trackType(reco::PFBlockElement::T_FROM_V0)))
+	     ) return;
   }
 
   linktype = static_cast<PFBlockLink::Type>
@@ -474,31 +472,6 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	dist = 0.001;
       } else { 
 	dist = -1.;
-      }
-      break;
-    }
-  case PFBlockLink::GSFandGSF:
-    {
-      const reco::PFBlockElementGsfTrack * lowGsfEl  =  
-	dynamic_cast<const reco::PFBlockElementGsfTrack*>(lowEl);
-      const reco::PFBlockElementGsfTrack * highGsfEl  =  
-	dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      
-      GsfPFRecTrackRef lowgsfref = lowGsfEl->GsftrackRefPF();
-      GsfPFRecTrackRef highgsfref = highGsfEl->GsftrackRefPF();
-      assert( !lowgsfref.isNull() );
-      assert( !highgsfref.isNull() );
-      
-      if( (lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
-	   highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) ||
-	  (highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
-	   lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV))) {
-	if(lowgsfref->trackId() == highgsfref->trackId()) {
-	  dist = 0.001;
-	}
-	else {
-	  dist = -1.;
-	}
       }
       break;
     }
@@ -1418,10 +1391,9 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
  
   if (debug_) cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
 		   << Pt << " DPt = " << DPt << endl;
-  if ( ( DPtovPtCut_[Algo] > 0. && 
-	 DPt/Pt > DPtovPtCut_[Algo]*sigmaHad ) || 
-       NHit < NHitCut_[Algo] ) { 
-    // (Algo >= 3 && LostHits != 0) ) {
+  if ( DPt/Pt > DPtovPtCut_[Algo]*sigmaHad || 
+       NHit < NHitCut_[Algo] || 
+       (Algo >= 3 && LostHits != 0) ) {
     if (debug_) cout << " PFBlockAlgo: skip badly measured track"
 		     << ", P = " << P 
 		     << ", Pt = " << Pt 

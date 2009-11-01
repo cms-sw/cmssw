@@ -87,6 +87,9 @@ class DcsStatus
   bool ready(int partitionNumber) const 
   { return(  (ready_ & ( 1 << partitionNumber )) != 0 );}
 
+  float magnetCurrent() const     { return(magnetCurrent_);}
+  float magnetTemperature() const { return(magnetTemperature_);}
+
   /// equality operator
   int operator==(const DcsStatus& e) const { return false; }
 
@@ -104,6 +107,8 @@ protected:
 
   TimeSpec collectionTime_;
   unsigned int ready_;
+  float magnetCurrent_;
+  float magnetTemperature_;
 };
 
 /// Pretty-print operator for DcsStatus

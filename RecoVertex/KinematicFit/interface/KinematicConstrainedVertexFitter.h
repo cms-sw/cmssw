@@ -61,7 +61,6 @@ private:
 
  float theMaxDiff;
  int theMaxStep; 				       
- float theMaxInitial;//max of initial value
  LinearizationPointFinder * finder;				       
  KinematicConstrainedVertexUpdator * updator;
  VertexKinematicConstraint * vCons;

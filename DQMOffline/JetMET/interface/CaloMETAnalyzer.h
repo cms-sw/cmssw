@@ -1,15 +1,17 @@
 #ifndef CaloMETAnalyzer_H
 #define CaloMETAnalyzer_H
 
+
 /** \class CaloMETAnalyzer
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/10/08 11:03:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/30 17:04:25 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
+
 
 #include <memory>
 #include <fstream>
@@ -29,12 +31,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -48,34 +44,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
 
-  /// Finish up a job
-  void endJob();
-
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-               const edm::TriggerResults&);
+               const edm::TriggerResults&,
+	       const reco::CaloMET& caloMET);
 
-  /// Initialize run-based parameters
-  void beginRun(const edm::Run&,  const edm::EventSetup&);
-
-  /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore *dbe);
-
-  // Book MonitorElements
-  void bookMESet(std::string);
-  void bookMonitorElement(std::string, bool);
-
-  // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::CaloMET&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, bool);
-  void makeRatePlot(std::string, double);
-
-  void validateMET(const reco::CaloMET&, edm::Handle<edm::View<Candidate> >);
-
-  bool selectHighPtJetEvent(const edm::Event&);
-  bool selectLowPtJetEvent(const edm::Event&);
-  bool selectWElectronEvent(const edm::Event&);
-  bool selectWMuonEvent(const edm::Event&);
+  void setSource(std::string source) {
+    _source = source;
+  }
 
   int evtCounter;
 
@@ -84,106 +60,63 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   
   edm::ParameterSet parameters;
   // Switch for verbosity
-  int _verbose;
-
   std::string metname;
-  std::string _source; // HLT? FU?
-  
-  edm::InputTag theCaloMETCollectionLabel;
+  std::string _source;
 
-  edm::InputTag theCaloTowersLabel;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
-
+  /// number of Jet or MB HLT trigger paths 
+  unsigned int nHLTPathsJetMB_;
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
-
-  std::string _hlt_HighPtJet;
-  std::string _hlt_LowPtJet;
-  std::string _hlt_HighMET;
-  std::string _hlt_LowMET;
-  std::string _hlt_Ele;
-  std::string _hlt_Muon;
-  
-  int _trig_JetMB;
-  int _trig_HighPtJet;
-  int _trig_LowPtJet;
-  int _trig_HighMET;
-  int _trig_LowMET;
-  int _trig_Ele;
-  int _trig_Muon;
-
-  double _highPtJetThreshold;
-  double _lowPtJetThreshold;
-  double _highMETThreshold;
-  double _lowMETThreshold;
+  // list of Jet or MB HLT trigger index
+  std::vector<unsigned int> HLTPathsJetMBByIndex_;
 
   // Et threshold for MET plots
   double _etThreshold;
 
-  // JetID helper
-  reco::helper::JetIDHelper *jetID;
-
   //
   bool _allhist;
-  bool _allSelection;
 
-  //
-  std::vector<std::string> _FolderNames;
+  //histo binning parameters
+  int    etaBin;
+  double etaMin;
+  double etaMax;
 
-  //
-  DQMStore *_dbe;
+  int    phiBin;
+  double phiMin;
+  double phiMax;
+
+  int    ptBin;
+  double ptMin;
+  double ptMax;
 
   //the histos
-  MonitorElement* metME;
+  MonitorElement* jetME;
 
-  MonitorElement* meTriggerName_HighPtJet;
-  MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
-  MonitorElement* meTriggerName_Ele;
-  MonitorElement* meTriggerName_Muon;
+  MonitorElement* hNevents;
+  MonitorElement* hCaloMEx;
+  MonitorElement* hCaloMEy;
+  MonitorElement* hCaloEz;
+  MonitorElement* hCaloMETSig;
+  MonitorElement* hCaloMET;
+  MonitorElement* hCaloMETPhi;
+  MonitorElement* hCaloSumET;
+  MonitorElement* hCaloMExLS;
+  MonitorElement* hCaloMEyLS;
 
-  MonitorElement* meNevents;
-  MonitorElement* meCaloMEx;
-  MonitorElement* meCaloMEy;
-  MonitorElement* meCaloEz;
-  MonitorElement* meCaloMETSig;
-  MonitorElement* meCaloMET;
-  MonitorElement* meCaloMETPhi;
-  MonitorElement* meCaloSumET;
-  MonitorElement* meCaloMExLS;
-  MonitorElement* meCaloMEyLS;
+  MonitorElement* hCaloMaxEtInEmTowers;
+  MonitorElement* hCaloMaxEtInHadTowers;
+  MonitorElement* hCaloEtFractionHadronic;
+  MonitorElement* hCaloEmEtFraction;
 
-  MonitorElement* meCaloMETIonFeedbck;
-  MonitorElement* meCaloMETHPDNoise;
-  MonitorElement* meCaloMETRBXNoise;
-
-  MonitorElement* meCaloMETPhi002;
-  MonitorElement* meCaloMETPhi010;
-  MonitorElement* meCaloMETPhi020;
-
-  MonitorElement* meCaloMaxEtInEmTowers;
-  MonitorElement* meCaloMaxEtInHadTowers;
-  MonitorElement* meCaloEtFractionHadronic;
-  MonitorElement* meCaloEmEtFraction;
-
-  MonitorElement* meCaloEmEtFraction002;
-  MonitorElement* meCaloEmEtFraction010;
-  MonitorElement* meCaloEmEtFraction020;
-
-  MonitorElement* meCaloHadEtInHB;
-  MonitorElement* meCaloHadEtInHO;
-  MonitorElement* meCaloHadEtInHE;
-  MonitorElement* meCaloHadEtInHF;
-  MonitorElement* meCaloHadEtInEB;
-  MonitorElement* meCaloHadEtInEE;
-  MonitorElement* meCaloEmEtInHF;
-  MonitorElement* meCaloEmEtInEE;
-  MonitorElement* meCaloEmEtInEB;
-
-  MonitorElement* meCaloMETRate;
+  MonitorElement* hCaloHadEtInHB;
+  MonitorElement* hCaloHadEtInHO;
+  MonitorElement* hCaloHadEtInHE;
+  MonitorElement* hCaloHadEtInHF;
+  MonitorElement* hCaloHadEtInEB;
+  MonitorElement* hCaloHadEtInEE;
+  MonitorElement* hCaloEmEtInHF;
+  MonitorElement* hCaloEmEtInEE;
+  MonitorElement* hCaloEmEtInEB;
 
 };
 #endif

@@ -16,14 +16,14 @@ TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProduce
 
 # Pixel barrel errors
 BPixError = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
+    useErrorsFromParam = cms.untracked.bool(True),
     hitErrorRPhi = cms.double(0.0027),
     hitErrorRZ = cms.double(0.006)
 )
 
 # Pixel endcap errors
 FPixError = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
+    useErrorsFromParam = cms.untracked.bool(True),
     hitErrorRPhi = cms.double(0.0051),
     hitErrorRZ = cms.double(0.0036)
 )
@@ -35,9 +35,6 @@ GroupedCkfTrajectoryBuilder.alwaysUseInvalidHits = False
 GroupedCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
 
 # Propagator, pion mass
-MaterialPropagator.Mass          = cms.double(0.139)
-OppositeMaterialPropagator.Mass  = cms.double(0.139)
-RungeKuttaTrackerPropagator.Mass = cms.double(0.139)
+MaterialPropagator.Mass         = 0.139
+OppositeMaterialPropagator.Mass = 0.139
 
-#from TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi import *
-#KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut = cms.double(999999.)

@@ -20,7 +20,8 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 						bool useRefittedState,
 						bool constructTsosWithErrors )
 
-  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(), materialEffects )
+  : ReferenceTrajectoryBase(TwoBodyDecayParameters::dimension,
+			    recHits.first.size() + recHits.second.size(), 0, 0)
 {
   if ( hitsAreReverse )
   {
@@ -51,7 +52,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
-  : ReferenceTrajectoryBase( 0, 0, ReferenceTrajectoryBase::none )
+  : ReferenceTrajectoryBase( 0, 0, 0, 0)
 {}
 
 

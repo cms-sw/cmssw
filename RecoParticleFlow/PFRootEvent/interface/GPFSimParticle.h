@@ -6,6 +6,7 @@
   from physical object of class PFSimpleParticle
 */  
  
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
 

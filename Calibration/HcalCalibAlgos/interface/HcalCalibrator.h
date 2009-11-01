@@ -19,7 +19,6 @@
 //---------------------
 
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 
 class HcalCalibrator : public edm::EDAnalyzer {
@@ -50,17 +49,13 @@ private:
  
   double mMaxEtThirdJet;
   double mMinDPhiDiJets;
-  bool   mSumDepths;
-  bool   mSumSmallDepths;
-  bool   mCombinePhi;    
-  int    mHbClusterSize;
-  int    mHeClusterSize; 
-
-  bool   mUseConeClustering;
-  double mMaxConeDist;
-
-  int    mCalibAbsIEtaMax;
-  int    mCalibAbsIEtaMin;
+  bool  mSumDepths;
+  bool  mSumSmallDepths;
+  bool  mCombinePhi;    
+  int   mHbClusterSize;
+  int   mHeClusterSize; 
+  int   mCalibAbsIEtaMax;
+  int   mCalibAbsIEtaMin;
 
   double mMaxProbeJetEmFrac;
   double mMaxTagJetEmFrac;
@@ -74,9 +69,6 @@ private:
  
   std::string mOutputCorCoefFileName;
   std::string mHistoFileName;
-
-
-  const CaloGeometry* mTheCaloGeometry;
 
   
   bool allowMissingInputs_;

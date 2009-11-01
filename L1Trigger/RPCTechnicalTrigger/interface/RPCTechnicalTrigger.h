@@ -98,7 +98,7 @@ private:
   edm::ESHandle<RPCGeometry> m_rpcGeometry;
   
   int m_verbosity;
-  int m_useEventSetup;
+  int m_useDatabase;
   std::string m_configFile;
   std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;
@@ -177,12 +177,9 @@ private:
   std::map<int,int> m_WheelTtu;
   
   std::map<int,TTUResults*> m_ttuResultsByQuadrant;
-
-  std::vector<int> m_quadrants;
   
-  std::vector<int>::iterator m_firstSector;
   
-    
+  
 };
 
 #endif // RPCTECHNICALTRIGGER_H

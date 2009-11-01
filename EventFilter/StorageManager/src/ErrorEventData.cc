@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: ErrorEventData.cc,v 1.1 2009/09/29 15:29:59 dshpakov Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 

@@ -82,7 +82,7 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
   return;
 } // void HcalHotCellClient::init(...)
 
-void HcalHotCellClient::beginJob()
+void HcalHotCellClient::beginJob(const EventSetup& eventSetup)
 {
   if (showTiming_)
     {
@@ -113,10 +113,10 @@ void HcalHotCellClient::beginJob()
     }
 
   return;
-} // void HcalHotCellClient::beginJob()
+} // void HcalHotCellClient::beginJob(const EventSetup& eventSetup);
 
 
-void HcalHotCellClient::beginRun(const EventSetup& eventSetup)
+void HcalHotCellClient::beginRun(void)
 {
   if ( debug_>1 ) std::cout << "HcalHotCellClient: beginRun" << std::endl;
 

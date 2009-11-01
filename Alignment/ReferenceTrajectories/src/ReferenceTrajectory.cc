@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2009/09/15 16:21:55 $
-//  by         : $Author: ckleinw $
+//  last update: $Date: 2009/10/14 14:31:27 $
+//  by         : $Author: flucke $
 
 #include <memory>
 
@@ -151,8 +151,14 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       const AlgebraicMatrix localToCurvilinear =  asHepMatrix<5>(startTrafo.jacobian());
       allLocalToCurv.push_back(localToCurvilinear);
       if (nextStep == 0.) { 
-	 // brokenLinesFine will not work, brokenLinesCoarse combines close by layers
-	 if (materialEffects == brokenLinesFine) return false;
+	edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct"
+				   << "step 0. from id " << previousHitPtr->det()->geographicalId()
+				   << " to " << hitPtr->det()->geographicalId() << ".";
+	// brokenLinesFine will not work, brokenLinesCoarse combines close by layers
+	if (materialEffects == brokenLinesFine) {
+	  edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct" << "Skip track.";
+	  return false;
+	}
       }
       allSteps.push_back(nextStep);
       allCurvlinJacobians.push_back(nextCurvlinJacobian);
@@ -195,17 +201,24 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   } // end of loop on hits
 
   switch (materialEffects) {
-  case none: break;
+  case none:
+    break;
   case multipleScattering:
   case energyLoss:
   case combined:
-    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs); break;
+    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges,
+				allDeltaParameterCovs);
+    break;
   case breakPoints:
-    this->addMaterialEffectsBp (allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs, allLocalToCurv); break;
+    this->addMaterialEffectsBp (allJacobians, allProjections, allCurvatureChanges,
+				allDeltaParameterCovs, allLocalToCurv);
+    break;
   case brokenLinesCoarse:
-    this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv, allSteps); break;
+    this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv, allSteps);
+    break;
   case brokenLinesFine:
-    this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs, allLocalToCurv, allSteps);
+    this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges,
+				allDeltaParameterCovs, allLocalToCurv, allSteps);
   }
  
   if (refTsos.hasError()) {
@@ -218,8 +231,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   } else {
     theTrajectoryPositionCov = AlgebraicSymMatrix(theDerivatives.num_row(), 1);
   }
-
-  // delete aMaterialEffectsUpdator; // not needed since auto_ptr
 
   return true;
 }
@@ -257,6 +268,9 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
 				    const PropagationDirection propDir, const MagneticField *magField) const
 {
   // propagate to next layer
+  /** From TrackingTools/ GeomPropagators/ interface/ AnalyticalPropagator.h
+   * NB: this propagator assumes constant, non-zero magnetic field parallel to the z-axis!
+   */
   AnalyticalPropagator aPropagator(magField, propDir);
   const std::pair<TrajectoryStateOnSurface, double> tsosWithPath =
     aPropagator.propagateWithPath(previousTsos, newSurface);

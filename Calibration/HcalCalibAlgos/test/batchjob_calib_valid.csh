@@ -7,19 +7,18 @@ echo 'Start'
 
 #cmsrel CMSSW_3_1_0_pre10
 #cd CMSSW_3_1_0_pre10/src
-cmsrel CMSSW_3_1_4
-cd CMSSW_3_1_4/src
+cmsrel CMSSW_3_1_2
+cd CMSSW_3_1_2/src
 cmsenv
 cvs co Calibration/HcalCalibAlgos
-cp /afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/plugins/ValidIsoTrkCalib.cc Calibration/HcalCalibAlgos/plugins
 scram b
 cd Calibration/HcalCalibAlgos/test
 
 #set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/data
-set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/data
+set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/data
 
 # if you want to validate your own calibration, copy it to data/ from your local place: 
-cp $respcorrdir/calibConst_IsoTrk_testCone_26.3cm.txt ../data/response_corrections.txt
+cp $respcorrdir/response_corrections.txt ../data/response_corrections.txt
 
 cat > validator.py <<@EOF
 
@@ -49,9 +48,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
 process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt")
-process.ValidationIsoTrk.AxB = cms.string("Cone")
-#process.ValidationIsoTrk.AxB = cms.string("3x3")
-process.ValidationIsoTrk.calibrationConeSize = cms.double(26)
+process.ValidationIsoTrk.AxB = cms.string("3x3")
 process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
 
 #process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_10_${1}.root")
@@ -87,7 +84,7 @@ process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIso
 
 cmsRun validator.py
 
-set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/test
+set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/test
 #set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/test
 #set outdir=/castor/cern.ch/user/a/andrey/pi50_310_pre10
 #set outdir=/castor/cern.ch/user/a/andrey/pi300_310_pre10

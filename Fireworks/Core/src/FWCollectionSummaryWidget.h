@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.5 2009/08/20 16:12:34 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.3 2009/05/27 15:40:48 chrjones Exp $
 //
 
 // system include files
@@ -45,8 +45,6 @@ namespace fireworks {
    class Context;
 }
 
-class FWCollectionSummaryWidgetConnectionHolder;
-
 class FWCollectionSummaryWidget : public TGCompositeFrame
 {
 
@@ -74,7 +72,6 @@ public:
    void requestForFilter(FWEventItem*); // *SIGNAL*
    void requestForErrorInfo(FWEventItem*); // *SIGNAL*
    void requestForController(FWEventItem*); // *SIGNAL*
-   void requestForModelContextMenu(Int_t,Int_t); // *SIGNAL*
    
    void infoClicked();
    void stateClicked();
@@ -83,7 +80,7 @@ public:
    ClassDef(FWCollectionSummaryWidget,0);
    
    void itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY);
-   void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
+   void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod);
 
 private:
    FWCollectionSummaryWidget(const FWCollectionSummaryWidget&); // stop default
@@ -115,8 +112,6 @@ private:
    FWCollectionSummaryTableManager* m_tableManager;
    FWTableWidget* m_tableWidget;
    bool m_backgroundIsWhite;
-   
-   FWCollectionSummaryWidgetConnectionHolder* m_connectionHolder;
 };
 
 

@@ -137,20 +137,16 @@ namespace cms
       CaloSpecificAlgo calospecalgo;
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
-      //Run algorithm to calculate CaloMET Significance and add to the MET Object
-      SignCaloSpecificAlgo sign_calomet;
+      //Run algorithm to calculate CaloMET Significance and add to the CaloMET Object
+      SignCaloSpecificAlgo signcalospecalgo;
       metsig::SignAlgoResolutions resolutions(conf_);
-
-      signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
-      calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
-      calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
+      calomet.SetMetSignificance( signcalospecalgo.addSignificance(input,output,resolutions,noHF,globalThreshold) );
 
       //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
       calometcoll.reset(new CaloMETCollection);
       calometcoll->push_back( calomet ) ;
-      event.put( calometcoll );  
-      
+      event.put( calometcoll );           
     }
     //-----------------------------------
     else if( METtype == "TCMET" )
@@ -169,7 +165,6 @@ namespace cms
 	std::auto_ptr<PFMETCollection> pfmetcoll;
 	pfmetcoll.reset (new PFMETCollection);
 	pfmetcoll->push_back( pf.addInfo(input, output) );
-	metsig::SignAlgoResolutions resolutions(conf_);
 	event.put( pfmetcoll );
       }
     //-----------------------------------

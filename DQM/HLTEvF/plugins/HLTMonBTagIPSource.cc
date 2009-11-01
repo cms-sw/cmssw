@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/10/02 08:43:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/09/10 13:07:02 $
+ *  $Revision: 1.7 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -47,7 +47,6 @@ HLTMonBTagIPSource::HLTMonBTagIPSource(const edm::ParameterSet & config) :
   m_storeROOT(      config.getUntrackedParameter<bool>("storeROOT", false) ),
   m_size(           config.getParameter<unsigned int>("interestingJets") ),
   m_dbe(),
-  m_init(           false ),
   m_pathIndex(      (unsigned int) -1 ),
   m_L1FilterIndex(  (unsigned int) -1 ),
   m_L2FilterIndex(  (unsigned int) -1 ),
@@ -174,21 +173,11 @@ void HLTMonBTagIPSource::endJob() {
 void HLTMonBTagIPSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
   HLTConfigProvider configProvider;
   if (not configProvider.init(m_processName))
-  {
-    edm::LogWarning("ConfigurationError") << "process name \"" << m_processName << "\" is not valid.";
-    m_init = false;
-    return;
-  }
+    throw cms::Exception("ConfigurationError") << "process name \"" << m_processName << "\" is not valid.";
 
   m_pathIndex = configProvider.triggerIndex( m_pathName );
   if (m_pathIndex == configProvider.size())
-  {
-    edm::LogWarning("ConfigurationError") << "trigger name \"" << m_pathName << "\" is not valid.";
-    m_init = false;
-    return;
-  }
-
-  m_init = true;
+    throw cms::Exception("ConfigurationError") << "trigger name \"" << m_pathName << "\" is not valid.";
 
   // if their call fails, these will be set to one after the last valid module for their path
   // so they will never be "passed"
@@ -222,9 +211,6 @@ void HLTMonBTagIPSource::endLuminosityBlock(const edm::LuminosityBlock & lumi, c
 
 void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup & setup) {
   if (not m_dbe.isAvailable())
-    return;
-
-  if (not m_init)
     return;
 
   edm::Handle<edm::TriggerResults> h_triggerResults;

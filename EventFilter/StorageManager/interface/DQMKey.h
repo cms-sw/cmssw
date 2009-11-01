@@ -1,4 +1,4 @@
-// $Id: DQMKey.h,v 1.3.4.1 2009/09/25 10:38:52 mommsen Exp $
+// $Id: DQMKey.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMKey.h 
 
 #ifndef StorageManager_DQMKey_h
@@ -13,8 +13,8 @@ namespace stor {
    * Definition of the DQMKey used in the storage manager
    *
    * $Author: mommsen $
-   * $Revision: 1.3.4.1 $
-   * $Date: 2009/09/25 10:38:52 $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   struct DQMKey

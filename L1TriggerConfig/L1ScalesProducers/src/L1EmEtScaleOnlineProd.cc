@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1EmEtScaleOnlineProd.cc,v 1.1 2009/03/18 11:03:04 efron Exp $
+// $Id: L1EmEtScaleOnlineProd.cc,v 1.2 2008/11/07 21:07:44 wsun Exp $
 //
 //
 
@@ -158,12 +158,8 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
                                 "CMS_GT",
                                 "L1T_SCALE_CALO_ET_THRESHOLD",
                                 "L1T_SCALE_CALO_ET_THRESHOLD.ID",
-				m_omdsReader.basicQuery( "L1T_SCALE_CALO_ET_THRESHOLD_ID",
-							"CMS_RCT",
-							"L1CALOEMETTHRESH",
-							"L1CALOEMETTHRESH.NAME",
-							scaleKeyResults
-							));
+				scaleKeyResults
+				);
 
 
 
@@ -181,31 +177,13 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
        scaleResults.fillVariable(*thresh,tempScale);
        m_thresholds.push_back(tempScale);
      }
-  
-     l1t::OMDSReader::QueryResults lsbResults =
-       m_omdsReader.basicQuery("INPUTLSB",
-			       "CMS_RCT",
-			       "L1CALOEMETTHRESH",
-			       "L1CALOEMETTHRESH.NAME",
-			       scaleKeyResults
-			       );
-   if( lsbResults.queryFailed() ||
-	 lsbResults.numberRows() != 1 ) // check query successful
-       {
-	 edm::LogError( "L1-O2O" ) << "Problem with L1EmEtScale key." ;
-	 return boost::shared_ptr< L1CaloEtScale >() ;
-       }
 
-     double m_lsb;
-     lsbResults.fillVariable(m_lsb);
-
-     //     std::cout << " input lsb " << m_lsb <<std::endl;
 
      //~~~~~~~~~ Instantiate new L1EmEtScale object. ~~~~~~~~~
 
      // Default objects for Lindsey 
 
-     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( m_lsb,m_thresholds ) );
+     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( m_thresholds.at(1),m_thresholds ) );
 }
 
 

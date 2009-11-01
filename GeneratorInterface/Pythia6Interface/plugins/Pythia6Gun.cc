@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/08/26 19:33:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/09/01 17:57:24 $
+ *  $Revision: 1.12 $
  *  \author Julia Yarba
  */
 
@@ -209,7 +209,8 @@ void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
 
    attachPy6DecaysToGenEvent();
 
-   if ( evt.id().event() <= fMaxEventsToPrint )
+   int evtN = evt.id().event();
+   if ( evtN <= fMaxEventsToPrint )
    {
       if ( fPylistVerbosity )
       {

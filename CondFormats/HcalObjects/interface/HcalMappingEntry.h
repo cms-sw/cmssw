@@ -10,6 +10,7 @@
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 
 
+
 /*****************************Classes****************************/
 
 class HBHEHFLogicalMapEntry {

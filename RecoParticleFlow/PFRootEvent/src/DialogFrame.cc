@@ -6,9 +6,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 
-#include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
-
 #include <TROOT.h>
 #include <TTree.h>
 #include "TLine.h"
@@ -61,8 +58,8 @@ void DialogFrame::createCanvasAttr()
   closeCanvasAttr(); 
   attrView_=0;
   attrView_ = new TCanvas("graphic Attributes","graphic Attributes",180,300);
-  const char *action1="win->DialogFrame::modifyAttr()";
-  const char *action2="win->DialogFrame::closeCanvasAttr()";
+  char *action1="win->DialogFrame::modifyAttr()";
+  char *action2="win->DialogFrame::closeCanvasAttr()";
   TButton *accept_ = new TButton("modify",action1,0.1,0.2,0.5,0.3);
   TButton *cancel_ = new TButton("cancel",action2,0.54,0.2,0.9,0.3);
   double x[3];

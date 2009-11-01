@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/21 17:05:47 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/09 18:51:54 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -38,9 +38,6 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   // Switch on/off the correction for the signal propagation along the wire
   doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
   theWirePropCorrType = config.getParameter<int>("wirePropCorrType");
-  // spacing of BX in ns
-  theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
-
 }
 
 
@@ -202,39 +199,3 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
 
 // Set the verbosity level
 bool DTTTrigSyncFromDB::debug = false;
-
-
-double DTTTrigSyncFromDB::emulatorOffset(const DTWireId& wireId,
-					 double &tTrig,
-					 double &t0cell) {
-  float t0 = 0;
-  float t0rms = 0;
-  if(doT0Correction)
-    {
-      // Read the t0 from pulses for this wire (ns)
-       tZeroMap->get(wireId,
-		     t0,
-		     t0rms,
-	             DTTimeUnits::ns);
-
-    }
-
-  // Read the ttrig for this wire
-  float ttrigMean = 0;
-  float ttrigSigma = 0;
-  float kFactor = 0;
-  // FIXME: should check the return value of the DTTtrigRcd::get(..) method
-  if(tTrigMap->get(wireId.superlayerId(),
-		   ttrigMean,
-		   ttrigSigma,
-		   kFactor,
-		   DTTimeUnits::ns) != 0) {
-    cout << "[DTTTrigSyncFromDB]*Error: ttrig not found for SL: " << wireId.superlayerId() << endl;
-//     FIXME: LogError.....
-  }
-  
-  tTrig = ttrigMean + kFactor * ttrigSigma;
-  t0cell = t0;
-
-  return int(tTrig/theBXspace)*theBXspace + t0cell;
-}

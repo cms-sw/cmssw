@@ -9,7 +9,5 @@
 #include "CondFormats/JetMETObjects/interface/SimpleL4EMFCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL5FlavorCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL7PartonCorrector.h"
-#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/SmearedJet.h"
-
+#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"

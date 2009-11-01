@@ -510,11 +510,6 @@ void L1GtBoard::print(std::ostream& myCout) const
                 }
 
                     break;
-                case GtExternal: {
-                    myCout << " GtExternal ";
-                }
-
-                    break;
                 default: {
                     myCout << " ERROR: Unknown type " << (*itObj);
                 }

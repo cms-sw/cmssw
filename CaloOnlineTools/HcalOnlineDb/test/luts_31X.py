@@ -28,10 +28,9 @@ process.GlobalTag.globaltag = 'GR09_31X_V5P::All'
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 process.generateLuts = cms.EDAnalyzer("HcalLutGenerator",
-                                      tag = cms.string('CRAFTPhysicsV2'),
-                                      HO_master_file = cms.string('inputLUTcoder_CRUZET_part4_HO.dat'),
-                                      status_word_to_mask = cms.uint32(0x8000)
-                                      )
+                                         tag = cms.string('CRAFTPhysicsV2'),
+                                         HO_master_file = cms.string('inputLUTcoder_CRUZET_part4_HO.dat')
+                                         )
 
 
 process.p = cms.Path(process.generateLuts)

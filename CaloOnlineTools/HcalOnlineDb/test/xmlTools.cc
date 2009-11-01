@@ -114,11 +114,6 @@ int main( int argc, char **argv )
     ("test-channel-quality", "Test channel quality operations")
     ("test-channel-iterator", "Test iterator class for HCAL channels")
     ("test-new-developer", "Test area for a new developer")
-    ("get-iovs-from-omds", "For a given tag, get the list of unique IOVs ordered by insertion time")
-    ("test-tags-iovs-from-pool", "Test the extraction of lists of tags and IOVs from a Pool database")
-    ("list-iovs-for-o2o", "For a given tag, dump a list of IOVs that need to be copied via O2O or report error if O2O is impossible")
-    ("pool-connect-string", po::value<string>(), "Connect string to the Pool database")
-    ("make-channel-quality-xml", "Create channel quiality loader XML with all channels")
     ;
 
   try{
@@ -135,7 +130,18 @@ int main( int argc, char **argv )
 
     if (vm.count("quicktest")) {
       HcalO2OManager m;
-      m.getListOfNewIovs_test();
+      std::string connect = "frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL";
+      std::vector<std::string> alltags = m.getListOfPoolTags(connect);
+      std::copy (alltags.begin(),
+		 alltags.end(),
+		 std::ostream_iterator<std::string>(std::cout,"\n")
+		 );
+      std::string tag = "HcalPedestals_ADC_v7.03_hlt";
+      std::vector<uint32_t> allIovs = m.getListOfPoolIovs(tag,connect);
+      std::copy (allIovs.begin(),
+		 allIovs.end(),
+		 std::ostream_iterator<uint32_t>(std::cout,"\n")
+		 );
       return 0;
     }
     
@@ -429,12 +435,10 @@ int main( int argc, char **argv )
       HcalChannelQualityXml xml;
       //DOMNode * ds = xml.add_dataset();
       xml.set_header_run_number(1);
-      xml.set_elements_tag_name("gak_v2");
-      xml.set_elements_iov_begin(1000);
+      xml.set_elements_tag_name("AllChannelsMasked16Jul2009v1");
+      xml.set_elements_iov_begin(80000);
       //xml.add_hcal_channel_dataset(39, 15, 1, "HF", 1, 0, "test channel quality comment field");
       //xml.set_all_channels_on_off( 0, 1, 1, 1);
-      xml.set_all_channels_status( 2, 2, 2, 2);
-      /*
       HcalChannelQualityXml::ChannelQuality cq;
       cq.status=2;
       cq.onoff=1;
@@ -446,18 +450,6 @@ int main( int argc, char **argv )
       cq.status=1;
       _mcq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(50311,cq));
       xml.addChannelQualityGeom(_mcq);
-      */
-      xml.write("channel_quality.xml");
-      return 0;
-    }
-    
-    
-    if (vm.count("make-channel-quality-xml")) {
-      HcalChannelQualityXml xml;
-      xml.set_header_run_number(1);
-      xml.set_elements_tag_name("gak_v2");
-      xml.set_elements_iov_begin(10000);
-      xml.set_all_channels_status( 4, 4, 4, 4);
       xml.write("channel_quality.xml");
       return 0;
     }
@@ -490,88 +482,6 @@ int main( int argc, char **argv )
 	cout << iter.getHcalGenericDetId() << endl;
       }
       return 0;
-    }
-    
-    
-    if (vm.count("get-iovs-from-omds")) {
-      if (!vm.count("tag-name")) {
-	cout << "Tag name is not specified! Exiting..." << "\n";
-	return -1;
-      }
-      else{
-	string _tag = vm["tag-name"].as<string>();
-	HcalO2OManager m;
-	std::vector<uint32_t> _iovs;
-	m.getListOfOmdsIovs(_iovs, _tag);
-	std::copy (_iovs.begin(),
-		   _iovs.end(),
-		   std::ostream_iterator<uint32_t>(std::cout,"\n")
-		   );
-	return 0;
-      }
-    }
-    
-    
-    if (vm.count("test-tags-iovs-from-pool")) {
-      HcalO2OManager m;
-      // default connect string
-      //std::string connect = "frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL";
-      // for the private network (hcaldqm04):
-      //std::string connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_HCAL";
-      std::string connect = "sqlite:testExample.db";
-      std::vector<std::string> alltags = m.getListOfPoolTags(connect);
-      std::copy (alltags.begin(),
-		 alltags.end(),
-		 std::ostream_iterator<std::string>(std::cout,"\n")
-		 );
-      std::string tag = "HcalPedestals_ADC_v7.03_hlt";
-      std::vector<uint32_t> allIovs;
-      m.getListOfPoolIovs(allIovs, tag,connect);
-      std::copy (allIovs.begin(),
-		 allIovs.end(),
-		 std::ostream_iterator<uint32_t>(std::cout,"\n")
-		 );
-      return 0;
-    }
-    
-
-    if (vm.count("list-iovs-for-o2o")) {
-      if (!vm.count("tag-name")) {
-	cout << "Tag name is not specified! Exiting..." << "\n";
-	return -1;
-      }
-      else if (!vm.count("pool-connect-string")) {
-	cout << "Pool connect string is not specified! Exiting..." << "\n";
-	return -1;
-      }
-      else{
-	string _tag = vm["tag-name"].as<string>();
-	string pool_connect_string = vm["pool-connect-string"].as<string>();
-	//cout << "DEBUG: " << pool_connect_string << endl;
-	HcalO2OManager m;
-	std::vector<uint32_t> _iovs;
-	std::vector<uint32_t> omds_iovs;
-	std::vector<uint32_t> pool_iovs;
-	m.getListOfOmdsIovs(omds_iovs, _tag);
-	m.getListOfPoolIovs(pool_iovs, _tag, pool_connect_string);
-	int n_iovs = m.getListOfNewIovs(_iovs,
-					omds_iovs,
-					pool_iovs);
-	if (n_iovs == -1){
-	  std::cout << "HcalO2OManager: O2O is not possible" << std::endl;
-	}
-	else if (n_iovs == 0){
-	  std::cout << "HcalO2OManager: O2O is not needed, the tag is up to date" << std::endl;
-	}
-	else{
-	  std::copy (_iovs.begin(),
-		     _iovs.end(),
-		     std::ostream_iterator<uint32_t>(std::cout,"\n")
-		     );
-	}
-	return 0;
-      }
-      cout << "This should never be printed out. Something is fishy!" << endl;
     }
     
     
@@ -919,15 +829,6 @@ int main( int argc, char **argv )
   //else
   if ( rbx )
     {
-      //
-      //_____ fix due to the new convention: version/subversion combo must be unique for every payload
-      //
-      char _buf[128];
-      time_t _offset = time(NULL);
-      sprintf( _buf, "%d", (uint32_t)_offset );
-      version.append(".");
-      version.append(_buf);
-
       cout << "type: " << rbx_type << endl;
       cout << "TAG_NAME: " << tag << endl;
       cout << "comment: " << comment << endl;
@@ -1101,19 +1002,8 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 
   string _prefix = tag;
   string _comment = comment;
-
-  //
-  //_____ fix due to the new convention: version/subversion combo must be unique for every payload
-  //
-  char _buf[128];
-  time_t _offset = time(NULL);
-  sprintf( _buf, "%d", (uint32_t)_offset );
-  std::string _version;
-  _version.clear();
-  _version.append(tag);
-  _version.append(".");
-  _version.append(_buf);
-  int dataset_count = 0;
+  string _version = "GRuMM_test:1";
+  string _subversion = "1";
 
   baseConf . tag_name = _prefix;
   baseConf . comment_description = _comment;
@@ -1165,9 +1055,7 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
       
       conf . comment_description = _comment;
       conf . version = _version;
-      sprintf( _buf, "%.2d", dataset_count );
-      conf.subversion.clear();
-      conf.subversion.append(_buf);
+      conf . subversion = _subversion;
       conf . eta = eta_abs;
       conf . z = side;
       conf . phi = phi;
@@ -1202,7 +1090,6 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
       conf . zero_suppression = _zs;
 
       doc . addZS( &conf );
-      ++dataset_count;
     }
     //Always terminate statement
     _connection -> terminateStatement(stmt);
@@ -1360,7 +1247,7 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
 {
   string _prefix = "oracle_"; 
   string _tag = tag_;
-  int dataset_count = 0; // subversion-to-be, must be unique within the version
+  string _subversion = "1";
 
   std::vector<string> brickFileList;
   char filename[1024];
@@ -1411,20 +1298,13 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
       }
 
       _conf . version = _version;
-      //
-      //_____ making a unique substring within the version __________________
-      //
-      char _buf[128];
-      sprintf( _buf, "%.2d", dataset_count );
-      _conf.subversion.clear();
-      _conf.subversion.append(_buf);
+      _conf . subversion = _subversion;
       _conf . comment_description = _comment;
 
       XMLRBXPedestalsLoader p( &_baseConf );
 
       p . addRBXSlot( &_conf, (*_file), type_ );
       p . write( (*_file) + ".oracle.xml" );
-      ++dataset_count;
     }
 
   return 0;

@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.5 2009/09/23 13:06:41 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.4.4.2 2009/09/25 10:39:31 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -7,6 +7,8 @@
 
 #include "EventFilter/StorageManager/interface/EventConsumerSelector.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace stor;
 

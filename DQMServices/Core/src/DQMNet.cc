@@ -1,45 +1,68 @@
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/src/DQMError.h"
-#include "classlib/iobase/InetServerSocket.h"
-#include "classlib/iobase/LocalServerSocket.h"
-#include "classlib/iobase/Filename.h"
 #include "classlib/sysapi/InetSocket.h" // for completing InetAddress
+#include "classlib/iobase/Filename.h"
 #include "classlib/utils/TimeInfo.h"
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringFormat.h"
 #include "classlib/utils/StringOps.h"
 #include "classlib/utils/SystemError.h"
 #include "classlib/utils/Regexp.h"
+#include "TBufferFile.h"
+#include "TObjString.h"
+#include "TObject.h"
+#include "TProfile2D.h"
+#include "TProfile.h"
+#include "TH3F.h"
+#include "TH2F.h"
+#include "TH2S.h"
+#include "TH2D.h"
+#include "TH1F.h"
+#include "TH1S.h"
+#include "TH1D.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <iostream>
-#include <sstream>
 #include <cassert>
-#include <cfloat>
-#include <inttypes.h>
 
-#define MESSAGE_SIZE_LIMIT	(8*1024*1024)
+#define MESSAGE_SIZE_LIMIT	(2*1024*1024)
 #define SOCKET_BUF_SIZE		(8*1024*1024)
 #define SOCKET_READ_SIZE	(SOCKET_BUF_SIZE/8)
 #define SOCKET_READ_GROWTH	(SOCKET_BUF_SIZE)
 
 using namespace lat;
 
-static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
+static const Regexp s_rxmeval ("<(.*)>(i|f|s|qr)=(.*)</\\1>");
+static const Regexp s_rxmeqr  ("^st\\.(\\d+)\\.(.*)$");
+
+//////////////////////////////////////////////////////////////////////
+// Parse an integer parameter in an image spec.  If @ap starts with
+// the parameter prefix @a name of length @a len, extracts the number
+// that follows the prefix into @a value and advances @a p to the next
+// character after the extracted value.  Returns true if the parameter
+// was parsed, false otherwise.
+static bool parseInt (const char *&p, const char *name, size_t len, int &value)
+{
+  if (! strncmp(p, name, len))
+  {
+    value = strtol(p+len, (char **) &p, 10);
+    return true;
+  }
+  return false;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
 std::ostream &
 DQMNet::logme (void)
 {
-  Time now = Time::current();
-  return std::cout
-    << now.format(true, "%Y-%m-%d %H:%M:%S.")
-    << now.nanoformat(3, 3)
+  return std::cerr
+    << Time::current().format(true, "%Y-%m-%d %H:%M:%S")
     << " " << appname_ << "[" << pid_ << "]: ";
 }
 
@@ -68,7 +91,7 @@ DQMNet::discard (Bucket *&b)
 /** Handle errors with a peer socket.  Zaps the socket send queue,
     the socket itself, detaches the socket from the selector, and
     purges any pending wait requests linked to the socket.  */
-void
+bool
 DQMNet::losePeer(const char *reason,
 		 Peer *peer,
 		 IOSelectEvent *ev,
@@ -97,15 +120,15 @@ DQMNet::losePeer(const char *reason,
 
   sel_.detach (s);
   s->close();
-  removePeer(peer, s);
+  removePeer (peer, s);
   delete s;
+  return true;
 }
 
 /// Queue an object request to the data server.
 void
-DQMNet::requestObjectData(Peer *p, const char *name, size_t len)
+DQMNet::requestObject(Peer *p, const char *name, size_t len)
 {
-  // Issue request to peer.
   Bucket **msg = &p->sendq;
   while (*msg)
     msg = &(*msg)->next;
@@ -130,7 +153,7 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, P
   // the other peer vanishes?  The current implementation stands a
   // chance for the waiter to wait indefinitely -- although we do
   // force terminate the wait after a while.
-  requestObjectData(owner, name.size() ? &name[0] : 0, name.size());
+  requestObject(owner, name.size() ? &name[0] : 0, name.size());
   WaitObject wo = { Time::current(), name, info, p };
   waiting_.push_back(wo);
   p->waiting++;
@@ -156,98 +179,16 @@ DQMNet::releaseFromWait(WaitList::iterator i, Object *o)
 
 // Release everyone waiting for the object @a o.
 void
-DQMNet::releaseWaiters(const std::string &name, Object *o)
+DQMNet::releaseWaiters(Object *o)
 {
   for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
-    if (i->name == name)
+    if (i->name == o->name)
       releaseFromWait(i++, o);
     else
       ++i;
 }
 
 //////////////////////////////////////////////////////////////////////
-/// Pack quality results in @a qr into a string @a into for
-/// peristent storage, such as network transfer or archival.
-void
-DQMNet::packQualityData(std::string &into, const QReports &qr)
-{
-  char buf[64];
-  std::ostringstream qrs;
-  QReports::const_iterator qi, qe;
-  for (qi = qr.begin(), qe = qr.end(); qi != qe; ++qi)
-  {
-    int pos = 0;
-    sprintf(buf, "%d%c%n%.*g", qi->code, 0, &pos, DBL_DIG+2, qi->qtresult);
-    qrs << buf << '\0'
-	<< buf+pos << '\0'
-	<< qi->qtname << '\0'
-	<< qi->algorithm << '\0'
-	<< qi->message << '\0'
-	<< '\0';
-  }
-  into = qrs.str();
-}
-
-/// Unpack the quality results from string @a from into @a qr.
-/// Assumes the data was saved with packQualityData().
-void
-DQMNet::unpackQualityData(QReports &qr, uint32_t &flags, const char *from)
-{
-  const char *qdata = from;
-
-  // Count how many qresults there are.
-  size_t nqv = 0;
-  while (*qdata)
-  {
-    ++nqv;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-  }
-
-  // Now extract the qreports.
-  qdata = from;
-  qr.reserve(nqv);
-  while (*qdata)
-  {
-    qr.push_back(DQMNet::QValue());
-    DQMNet::QValue &qv = qr.back();
-
-    qv.code = atoi(qdata);
-    while (*qdata) ++qdata;
-    switch (qv.code)
-    {
-    case dqm::qstatus::STATUS_OK:
-      break;
-    case dqm::qstatus::WARNING:
-      flags |= DQMNet::DQM_PROP_REPORT_WARN;
-      break;
-    case dqm::qstatus::ERROR:
-      flags |= DQMNet::DQM_PROP_REPORT_ERROR;
-      break;
-    default:
-      flags |= DQMNet::DQM_PROP_REPORT_OTHER;
-      break;
-    }
-
-    qv.qtresult = atof(++qdata);
-    while (*qdata) ++qdata;
-
-    qv.qtname = ++qdata;
-    while (*qdata) ++qdata;
-
-    qv.algorithm = ++qdata;
-    while (*qdata) ++qdata;
-
-    qv.message = ++qdata;
-    while (*qdata) ++qdata;
-    ++qdata;
-  }
-}
-
-#if 0
 // Deserialise a ROOT object from a buffer at the current position.
 static TObject *
 extractNextObject(TBufferFile &buf)
@@ -261,6 +202,16 @@ extractNextObject(TBufferFile &buf)
   buf.SetBufferOffset(pos);
   buf.ResetMap();
   return c ? buf.ReadObject(c) : 0;
+}
+
+// Abort the construction of an object.
+static bool
+abortReconstructObject(DQMNet::Object &o)
+{
+  o.qreports.clear();
+  delete o.object;
+  o.object = 0;
+  return false;
 }
 
 // Reconstruct an object from the raw data.
@@ -277,13 +228,80 @@ DQMNet::reconstructObject(Object &o)
   // Extract the reference object.
   o.reference = extractNextObject(buf);
 
+  // Calculate quality report base name.
+  int slash = StringOps::rfind(o.name, '/');
+  std::string qrbase;
+  qrbase.reserve(o.name.size()+2);
+  qrbase = (slash == -1 ? o.name : o.name.substr(slash+1, std::string::npos));
+  qrbase += ".";
+
   // Extract quality reports.
-  unpackQualityData(o.qreports, o.flags, o.qdata.c_str());
+  while (TObjString *qrstr = dynamic_cast<TObjString *>(extractNextObject(buf)))
+  {
+    RegexpMatch m;
+    if (! s_rxmeval.match(qrstr->GetName(), 0, 0, &m))
+    {
+      logme()
+	<< "ERROR: unexpected quality report string '"
+	<< qrstr->GetName() << "' for object '"
+	<< o.name << "'\n";
+      return abortReconstructObject(o);
+    }
+
+    std::string label = m.matchString(qrstr->GetName(), 1);
+    std::string type = m.matchString(qrstr->GetName(), 2);
+    std::string value = m.matchString(qrstr->GetName(), 3);
+
+    if (type != "qr")
+    {
+      logme()
+	<< "ERROR: expected a 'qr' for a quality report '"
+	<< qrstr->GetName() << "' but found '" << type
+	<< "' instead\n";
+      return abortReconstructObject(o);
+    }
+
+    std::string qrname = label;
+    qrname.replace(0, qrbase.size(), "");
+    if (qrname == label)
+    {
+      logme()
+	<< "ERROR: quality report label in '"
+	<< qrstr->GetName()
+	<< "' does not match object name '"
+	<< o.name << "'\n";
+      return abortReconstructObject(o);
+    }
+
+    m.reset();
+    if (! s_rxmeqr.match(value, 0, 0, &m))
+    {
+      logme()
+	<< "ERROR: quality test value '"
+	<< value << "' is incorrectly formatted\n";
+      return abortReconstructObject(o);
+    }
+
+    QValue qval;
+    qval.code = 0;
+    qval.qtname = qrname;
+    qval.message = m.matchString(value, 2);
+    std::string strcode = m.matchString(value, 1);
+    const char *p = strcode.c_str();
+    if (! parseInt(p, "", 0, qval.code) || *p)
+    {
+      logme()
+	<< "ERROR: failed to determine quality test code from '"
+	<< value << "'\n";
+      return abortReconstructObject(o);
+    }
+
+    o.qreports.push_back(qval);
+  }
+
   return true;
 }
-#endif
 
-#if 0
 bool
 DQMNet::reinstateObject(DQMStore *store, Object &o)
 {
@@ -291,87 +309,70 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     return false;
 
   // Reconstruct the main object
-  MonitorElement *obj = 0;
-  store->setCurrentFolder(*o.dirname);
-  switch (o.flags & DQM_PROP_TYPE_MASK)
+  std::string folder = o.name;
+  std::string name = o.name;
+  folder.erase(folder.rfind('/'), std::string::npos);
+  name.erase(0, name.rfind('/')+1);
+  store->setCurrentFolder(folder);
+  if (TProfile2D *t = dynamic_cast<TProfile2D *>(o.object))
+    store->bookProfile2D(name, t);
+  else if (TProfile *t = dynamic_cast<TProfile *>(o.object))
+    store->bookProfile(name, t);
+  else if (TH3F *t = dynamic_cast<TH3F *>(o.object))
+    store->book3D(name, t);
+  else if (TH2D *t = dynamic_cast<TH2D *>(o.object))
+    store->book2DD(name, t);
+  else if (TH2F *t = dynamic_cast<TH2F *>(o.object))
+    store->book2D(name, t);
+  else if (TH2S *t = dynamic_cast<TH2S *>(o.object))
+    store->book2S(name, t);
+  else if (TH1D *t = dynamic_cast<TH1D *>(o.object))
+    store->book1DD(name, t);
+  else if (TH1F *t = dynamic_cast<TH1F *>(o.object))
+    store->book1D(name, t);
+  else if (TH1S *t = dynamic_cast<TH1S *>(o.object))
+    store->book1S(name, t);
+  else if (TObjString *t = dynamic_cast<TObjString *>(o.object))
   {
-  case DQM_PROP_TYPE_INT:
-    obj = store->bookInt(o.objname);
-    obj->Fill(atoll(o.scalar.c_str()));
-    break;
+    RegexpMatch m;
+    if (! s_rxmeval.match(t->GetName(), 0, 0, &m))
+    {
+      logme()
+	<< "ERROR: unexpected monitor element string '"
+	<< t->GetName() << "' for object '"
+	<< o.name << "'\n";
+      return false;
+    }
 
-  case DQM_PROP_TYPE_REAL:
-    obj = store->bookFloat(name);
-    obj->Fill(atof(o.scalar.c_str()));
-    break;
+    // std::string label = m.matchString(t->GetName(), 1);
+    std::string type = m.matchString(t->GetName(), 2);
+    std::string value = m.matchString(t->GetName(), 3);
 
-  case DQM_PROP_TYPE_STRING:
-    obj = store->bookString(name, o.scalar);
-    break;
-
-  case DQM_PROP_TYPE_TH1F:
-    obj = store->book1D(name, dynamic_cast<TH1F *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH1S:
-    obj = store->book1S(name, dynamic_cast<TH1S *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH1D:
-    obj = store->book1DD(name, dynamic_cast<TH1D *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH2F:
-    obj = store->book2D(name, dynamic_cast<TH2F *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH2S:
-    obj = store->book2S(name, dynamic_cast<TH2S *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH2D:
-    obj = store->book2DD(name, dynamic_cast<TH2D *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH3F:
-    obj = store->book3D(name, dynamic_cast<TH3F *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH3S:
-    obj = store->book3S(name, dynamic_cast<TH3S *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_TH3D:
-    obj = store->book3DD(name, dynamic_cast<TH3D *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_PROF:
-    obj = store->bookProfile(name, dynamic_cast<TProfile *>(o.object));
-    break;
-
-  case DQM_PROP_TYPE_PROF2D:
-    obj = store->bookProfile2D(name, dynamic_cast<TProfile2D *>(o.object));
-    break;
-
-  default:
-    logme()
-      << "ERROR: unexpected monitor element of type "
-      << (o.flags & DQM_PROP_TYPE_MASK) << " called '"
-      << *o.dirname << '/' << o.objname << "'\n";
-    return false;
+    if (type == "i")
+      store->bookInt(name)->Fill(atoll(value.c_str()));
+    else if (type == "f")
+      store->bookFloat(name)->Fill(atof(value.c_str()));
+    else if (type == "s")
+      store->bookString(name, value);
+    else
+    {
+      logme()
+	<< "ERROR: unexpected string monitor element of type '"
+	<< type << "' (from '" << t->GetName() << "') for object '"
+	<< o.name << "'\n";
+      return false;
+    }
   }
 
-  // Reconstruct tag and qreports.
-  if (obj)
-  {
-    obj->data_.tag = o.tag;
-    obj->data_.qreports = o.qreports;
-  }
+  // Reconstruct tags.  (FIXME: untag old tags first?)
+  for (size_t i = 0, e = o.tags.size(); i < e; ++i)
+    store->tag(o.name, o.tags[i]);
+
+  // FIXME: Reference and quality reports?
 
   // Inidicate success.
   return true;
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Check if the network layer should stop.
@@ -387,7 +388,7 @@ void
 DQMNet::releaseFromWait(Bucket *msg, WaitObject &w, Object *o)
 {
   if (o)
-    sendObjectToPeer(msg, *o, true);
+    sendObjectToPeer (msg, *o, true, sendScalarAsText_);
   else
   {
     uint32_t words [3];
@@ -401,55 +402,73 @@ DQMNet::releaseFromWait(Bucket *msg, WaitObject &w, Object *o)
   }
 }
 
+// Extract data value of a scalar object @a o into @a objdata.
+bool
+DQMNet::extractScalarData(DataBlob &objdata, Object &o)
+{
+  if (! o.flags & DQM_FLAG_SCALAR)
+    return false;
+
+  TObject *obj = o.object;
+  if (! obj && o.rawdata.size())
+  {
+    TBufferFile buf(TBufferFile::kRead, o.rawdata.size(), &o.rawdata[0], kFALSE);
+    buf.InitMap();
+    buf.Reset();
+    obj = extractNextObject(buf);
+  }
+
+  if (TObjString *ostr = dynamic_cast<TObjString *>(obj))
+  {
+    const TString &s = ostr->String();
+    objdata.insert(objdata.end(),
+		   (unsigned char *) s.Data(),
+		   (unsigned char *) s.Data() + s.Length());
+    return true;
+  }
+
+  return false;
+}
+
 // Send an object to a peer.  If not @a data, only sends a summary
 // without the object data, except the data is always sent for scalar
-// objects.
+// objects.  If @a text is @c true, sends an ASCII text version of the
+// scalar value instead.
 void
-DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data)
+DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text)
 {
-  uint32_t flags = o.flags & ~DQM_PROP_DEAD;
+  uint32_t flags = o.flags & ~DQM_FLAG_ZOMBIE;
   DataBlob objdata;
 
-  if ((flags & DQM_PROP_TYPE_MASK) <= DQM_PROP_TYPE_SCALAR)
-    objdata.insert(objdata.end(),
-		   &o.scalar[0],
-		   &o.scalar[0] + o.scalar.size());
-  else if (data)
+  if (text && extractScalarData(objdata, o))
+    flags |= DQM_FLAG_TEXT;
+  else if (data || (flags & DQM_FLAG_SCALAR))
     objdata.insert(objdata.end(),
 		   &o.rawdata[0],
 		   &o.rawdata[0] + o.rawdata.size());
 
-  uint32_t words [9];
-  uint32_t namelen = o.dirname->size() + o.objname.size() + 1;
+  uint32_t words [8];
+  uint32_t namelen = o.name.size();
+  uint32_t taglen  = o.tags.size() * sizeof(uint32_t);
   uint32_t datalen = objdata.size();
-  uint32_t qlen = o.qdata.size();
 
-  if (o.dirname->empty())
-    --namelen;
-
-  words[0] = 9*sizeof(uint32_t) + namelen + datalen + qlen;
+  words[0] = 8*sizeof(uint32_t) + namelen + taglen + datalen;
   words[1] = DQM_REPLY_OBJECT;
   words[2] = flags;
   words[3] = (o.version >> 0 ) & 0xffffffff;
   words[4] = (o.version >> 32) & 0xffffffff;
-  words[5] = o.tag;
-  words[6] = namelen;
+  words[5] = namelen;
+  words[6] = taglen / sizeof(uint32_t);
   words[7] = datalen;
-  words[8] = qlen;
 
   msg->data.reserve(msg->data.size() + words[0]);
-  copydata(msg, &words[0], 9*sizeof(uint32_t));
+  copydata(msg, &words[0], 8*sizeof(uint32_t));
   if (namelen)
-  {
-    copydata(msg, &(*o.dirname)[0], o.dirname->size());
-    if (! o.dirname->empty())
-      copydata(msg, "/", 1);
-    copydata(msg, &o.objname[0], o.objname.size());
-  }
+    copydata(msg, &o.name[0], namelen);
+  if (taglen)
+    copydata(msg, &o.tags[0], taglen);
   if (datalen)
     copydata(msg, &objdata[0], datalen);
-  if (qlen)
-    copydata(msg, &o.qdata[0], qlen);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -464,7 +483,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
   {
   case DQM_MSG_UPDATE_ME:
     {
-      if (len != 2*sizeof(uint32_t))
+      if (len != 3*sizeof(uint32_t))
       {
 	logme()
 	  << "ERROR: corrupt 'UPDATE_ME' message of length " << len
@@ -472,12 +491,27 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	return false;
       }
 
+      // Get the update status: whether this is a full update.
+      uint32_t full;
+      memcpy(&full, data + 2*sizeof(uint32_t), sizeof(uint32_t));
+
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'UPDATE ME' from peer "
-	  << p->peeraddr << ", size " << len << std::endl;
+	  << p->peeraddr << ", full = " << full << std::endl;
 
       p->update = true;
+      p->updatefull = full;
+
+      if (full && ! requestFullUpdates_)
+      {
+	if (debug_)
+	  logme()
+	    << "WARNING: forcing full update request mode on due to "
+	    << "request from " << p->peeraddr << std::endl;
+	requestFullUpdates_ = true;
+	requestFullUpdatesFromPeers();
+      }
     }
     return true;
 
@@ -486,10 +520,12 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'LIST OBJECTS' from peer "
-	  << p->peeraddr << ", size " << len << std::endl;
+	  << p->peeraddr << std::endl;
 
       // Send over current status: list of known objects.
-      sendObjectListToPeer(msg, true, false);
+      lock();
+      sendObjectListToPeer(msg, p->updatefull, true, false);
+      unlock();
     }
     return true;
 
@@ -498,7 +534,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'GET OBJECT' from peer "
-	  << p->peeraddr << ", size " << len << std::endl;
+	  << p->peeraddr << std::endl;
 
       if (len < 3*sizeof(uint32_t))
       {
@@ -520,17 +556,17 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	return false;
       }
 
+      lock();
       std::string name ((char *) data + 3*sizeof(uint32_t), namelen);
       Peer *owner = 0;
       Object *o = findObject(0, name, &owner);
       if (o)
       {
-	o->lastreq = Time::current().ns();
-	if (o->rawdata.empty()
-	    && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
+	o->lastreq = Time::current();
+	if (o->rawdata.empty())
 	  waitForData(p, name, "", owner);
 	else
-	  sendObjectToPeer(msg, *o, true);
+	  sendObjectToPeer(msg, *o, true, sendScalarAsText_);
       }
       else
       {
@@ -543,6 +579,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	copydata(msg, &words[0], sizeof(words));
 	copydata(msg, &name[0], name.size());
       }
+      unlock();
     }
     return true;
 
@@ -556,25 +593,26 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	return false;
       }
 
+      if (debug_)
+	logme()
+	  << "DEBUG: received message 'LIST BEGIN' from "
+	  << p->peeraddr << std::endl;
+
       // Get the update status: whether this is a full update.
       uint32_t flags;
       memcpy(&flags, data + 3*sizeof(uint32_t), sizeof(uint32_t));
 
-      if (debug_)
-	logme()
-	  << "DEBUG: received message 'LIST BEGIN "
-	  << (flags ? "FULL" : "INCREMENTAL")
-	  << "' from " << p->peeraddr
-	  << ", size " << len << std::endl;
-
       // If we are about to receive a full list of objects, flag all
-      // objects as possibly dead.  Subsequent object notifications
-      // will undo this for the live objects.  We cannot delete
-      // objects quite yet, as we may get inquiry from another client
-      // while we are processing the incoming list, so we keep the
-      // objects tentatively alive as long as we've not seen the end.
+      // objects dead.  Subsequent object notifications will undo this
+      // for the live objects.  This tells us the object has been
+      // removed, but we can keep making it available for a while if
+      // there continues to be interest in it.
       if (flags)
-	markObjectsDead(p);
+      {
+	lock();
+	markObjectsZombies(p);
+	unlock();
+      }
     }
     return true;
 
@@ -592,19 +630,21 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       uint32_t flags;
       memcpy(&flags, data + 3*sizeof(uint32_t), sizeof(uint32_t));
 
-      // If we received a full list of objects, now purge all dead
-      // objects. We need to do this in two stages in case we receive
+      // If we received a full list of objects, flag all zombie objects
+      // now dead. We need to do this in two stages in case we receive
       // updates in many parts, and end up sending updates to others in
       // between; this avoids us lying live objects are dead.
       if (flags)
-	purgeDeadObjects(p);
+      {
+	lock();
+	markObjectsDead(p);
+	unlock();
+      }
 
       if (debug_)
 	logme()
-	  << "DEBUG: received message 'LIST END "
-	  << (flags ? "FULL" : "INCREMENTAL")
-	  << "' from " << p->peeraddr
-	  << ", size " << len << std::endl;
+	  << "DEBUG: received message 'LIST END' from "
+	  << p->peeraddr << std::endl;
 
       // Indicate we have received another update from this peer.
       // Also indicate we should flush to our clients.
@@ -615,7 +655,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 
   case DQM_REPLY_OBJECT:
     {
-      uint32_t words[9];
+      uint32_t words[8];
       if (len < sizeof(words))
       {
 	logme()
@@ -625,66 +665,66 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       }
 
       memcpy (&words[0], data, sizeof(words));
-      uint32_t &namelen = words[6];
+      uint32_t &namelen = words[5];
+      uint32_t &taglen = words[6];
       uint32_t &datalen = words[7];
-      uint32_t &qlen = words[8];
 
-      if (len != sizeof(words) + namelen + datalen + qlen)
+      if (len != sizeof(words) + namelen + taglen*sizeof(uint32_t) + datalen)
       {
 	logme()
 	  << "ERROR: corrupt 'OBJECT' message of length " << len
 	  << " from peer " << p->peeraddr
 	  << ", expected length " << sizeof(words)
 	  << " + " << namelen
+	  << " + " << (taglen*sizeof(uint32_t))
 	  << " + " << datalen
-	  << " + " << qlen
 	  << std::endl;
 	return false;
       }
 
       unsigned char *namedata = data + sizeof(words);
-      unsigned char *objdata = namedata + namelen;
-      unsigned char *qdata = objdata + datalen;
-      unsigned char *enddata = qdata + qlen;
+      unsigned char *tagdata = namedata + namelen;
+      unsigned char *objdata = tagdata + taglen*sizeof(uint32_t);
+      unsigned char *enddata = objdata + datalen;
       std::string name ((char *) namedata, namelen);
       assert (enddata == data + len);
 
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'OBJECT " << name
-	  << "' from " << p->peeraddr
-	  << ", size " << len << std::endl;
+	  << "' from " << p->peeraddr << std::endl;
 
       // Mark the peer as a known object source.
       p->source = true;
 
       // Initialise or update an object entry.
+      lock();
       Object *o = findObject(p, name);
       if (! o)
 	o = makeObject(p, name);
 
-      o->flags = words[2] | DQM_PROP_NEW | DQM_PROP_RECEIVED;
-      o->tag = words[5];
+      o->flags = words[2] | DQM_FLAG_NEW | DQM_FLAG_RECEIVED;
       o->version = ((uint64_t) words[4] << 32 | words[3]);
+      o->tags.clear();
+      o->tags.insert(o->tags.end(), (uint32_t *) tagdata, (uint32_t *) objdata);
       o->rawdata.clear();
-      o->scalar.clear();
-      o->qdata.clear();
-      if ((o->flags & DQM_PROP_TYPE_MASK) <= DQM_PROP_TYPE_SCALAR)
-        o->scalar.insert(o->scalar.end(), objdata, qdata);
-      else
-        o->rawdata.insert(o->rawdata.end(), objdata, qdata);
-      o->qdata.insert(o->qdata.end(), qdata, enddata);
+      o->rawdata.insert (o->rawdata.end(), objdata, enddata);
+
+      bool hadobject = (o->object != 0);
+      delete o->object;
+      o->object = 0;
+      delete o->reference;
+      o->reference = 0;
 
       // If we had an object for this one already and this is a list
       // update without data, issue an immediate data get request.
-      if (o->lastreq
-	  && ! datalen
-	  && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
-	requestObjectData(p, (namelen ? &name[0] : 0), namelen);
+      if (hadobject && ! datalen)
+	requestObject(p, (namelen ? &name[0] : 0), namelen);
 
       // If we have the object data, release from wait.
       if (datalen)
-	releaseWaiters(name, o);
+	releaseWaiters(o);
+      unlock();
     }
     return true;
 
@@ -713,26 +753,27 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       }
 
       unsigned char *namedata = data + sizeof(words);
-      std::string name((char *) namedata, namelen);
+      unsigned char *enddata = namedata + namelen;
+      std::string name ((char *) namedata, namelen);
+      assert (enddata == data + len);
 
       if (debug_)
 	logme()
 	  << "DEBUG: received message 'NONE " << name
-	  << "' from " << p->peeraddr
-	  << ", size " << len << std::endl;
+	  << "' from " << p->peeraddr << std::endl;
 
       // Mark the peer as a known object source.
       p->source = true;
 
-      // If this was a known object, kill it.
-      if (Object *o = findObject(p, name))
-      {
-	o->flags |= DQM_PROP_DEAD;
-	purgeDeadObjects(p);
-      }
+      // If this was a known object, update its entry.
+      lock();
+      Object *o = findObject(p, name);
+      if (o)
+	o->flags |= DQM_FLAG_DEAD;
 
       // If someone was waiting for this, let them go.
-      releaseWaiters(name, 0);
+      releaseWaiters(o);
+      unlock();
     }
     return true;
 
@@ -750,7 +791,6 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 bool
 DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 {
-  lock();
   assert (getPeer(dynamic_cast<Socket *> (ev->source)) == p);
 
   // If there is a problem with the peer socket, discard the peer
@@ -764,13 +804,10 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       logme()
 	<< "WARNING: connection to the DQM server at " << p->peeraddr
 	<< " lost (will attempt to reconnect in 15 seconds)\n";
-      losePeer(0, p, ev);
+      return losePeer(0, p, ev);
     }
     else
-      losePeer("WARNING: lost peer connection ", p, ev);
-
-    unlock();
-    return true;
+      return losePeer("WARNING: lost peer connection ", p, ev);
   }
 
   // If we can write to the peer socket, pump whatever we can into it.
@@ -793,9 +830,8 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       }
       catch (Error &e)
       {
-	losePeer("WARNING: unable to write to peer ", p, ev, &e);
-	unlock();
-	return true;
+	return losePeer("WARNING: unable to write to peer ",
+			p, ev, &e);
       }
 
       p->sendpos += done;
@@ -845,12 +881,9 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       if (next && next->portable() == SysErr::ErrTryAgain)
 	sz = 1; // Ignore it, and fake no end of data.
       else
-      {
 	// Houston we have a problem.
-	losePeer("WARNING: failed to read from peer ", p, ev, &e);
-	unlock();
-	return true;
-      }
+	return losePeer("WARNING: failed to read from peer ",
+			p, ev, &e);
     }
 
     // Process fully received messages as long as we can.
@@ -863,11 +896,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       memcpy (&msglen, &data[0]+consumed, sizeof(msglen));
 
       if (msglen >= MESSAGE_SIZE_LIMIT)
-      {
-	losePeer("WARNING: excessively large message from ", p, ev);
-	unlock();
-	return true;
-      }
+	return losePeer("WARNING: excessively large message from ", p, ev);
 
       if (data.size()-consumed >= msglen)
       {
@@ -891,7 +920,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	  {
 	    Bucket **prev = &p->sendq;
             while (*prev)
-	      prev = &(*prev)->next;
+               prev = &(*prev)->next;
 
             *prev = new Bucket;
             (*prev)->next = 0;
@@ -900,11 +929,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	}
 
 	if (! valid)
-	{
-	  losePeer("WARNING: data stream error with ", p, ev);
-	  unlock();
-	  return true;
-	}
+	  return losePeer("WARNING: data stream error with ", p, ev);
 
 	consumed += msglen;
       }
@@ -922,7 +947,6 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
   }
 
   // Yes, please keep processing events for this socket.
-  unlock();
   return false;
 }
 
@@ -942,28 +966,12 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   assert (! s->isBlocking());
 
   // Record it to our list of peers.
-  lock();
   Peer *p = createPeer(s);
-  std::string localaddr;
-  if (InetSocket *inet = dynamic_cast<InetSocket *>(s))
-  {
-    InetAddress peeraddr = inet->peername();
-    InetAddress myaddr = inet->sockname();
-    p->peeraddr = StringFormat("%1:%2")
-		  .arg(peeraddr.hostname())
-		  .arg(peeraddr.port());
-    localaddr = StringFormat("%1:%2")
-		.arg(myaddr.hostname())
-		.arg(myaddr.port());
-  }
-  else if (LocalSocket *local = dynamic_cast<LocalSocket *>(s))
-  {
-    p->peeraddr = local->peername().path();
-    localaddr = local->sockname().path();
-  }
-  else
-    assert(false);
-
+  InetAddress peeraddr = ((InetSocket *) s)->peername();
+  InetAddress myaddr = ((InetSocket *) s)->sockname();
+  p->peeraddr = StringFormat("%1:%2")
+		.arg(peeraddr.hostname())
+		.arg(peeraddr.port());
   p->mask = IORead|IOUrgent;
   p->socket = s;
 
@@ -971,11 +979,10 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   if (debug_)
     logme()
       << "INFO: new peer " << p->peeraddr << " is now connected to "
-      << localaddr << std::endl;
+      << myaddr.hostname() << ":" << myaddr.port() << std::endl;
 
   // Attach it to the listener.
   sel_.attach(s, p->mask, CreateHook(this, &DQMNet::onPeerData, p));
-  unlock();
 
   // We are never done.
   return false;
@@ -1051,6 +1058,8 @@ DQMNet::updateMask(Peer *p)
 //////////////////////////////////////////////////////////////////////
 DQMNet::DQMNet (const std::string &appname /* = "" */)
   : debug_ (false),
+    sendScalarAsText_ (false),
+    requestFullUpdates_ (false),
     appname_ (appname.empty() ? "DQMNet" : appname.c_str()),
     pid_ (getpid()),
     server_ (0),
@@ -1071,6 +1080,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   upstream_.next   = downstream_.next   = 0;
   upstream_.port   = downstream_.port   = 0;
   upstream_.update = downstream_.update = false;
+  upstream_.warned = downstream_.warned = false;
 }
 
 DQMNet::~DQMNet(void)
@@ -1092,6 +1102,26 @@ void
 DQMNet::delay(int delay)
 {
   delay_ = delay;
+}
+
+/// Enable or disable sending scalar monitoring values as text, rather
+/// than their ROOT object values.  Must be called before run() or
+/// start().
+void
+DQMNet::sendScalarAsText(bool doit)
+{
+  sendScalarAsText_ = doit;
+}
+
+/// Enable or disable requests for full updates.  Set this to get the
+/// "old" DQM networking behaviour to automatically fetch all upstream
+/// content when it changes, rather than fetching it lazily as needed.
+/// You must call this method if you use receive(); any other use is
+/// strongly discouraged.  Must be called before run() or start().
+void
+DQMNet::requestFullUpdates(bool doit)
+{
+  requestFullUpdates_ = doit;
 }
 
 /// Start a server socket for accessing this DQM node remotely.  Must
@@ -1127,41 +1157,6 @@ DQMNet::startLocalServer(int port)
   }
   
   logme() << "INFO: DQM server started at port " << port << std::endl;
-}
-
-/// Start a server socket for accessing this DQM node over a file
-/// system socket.  Must be called before calling run() or start().
-/// May throw an Exception if the server socket cannot be initialised.
-void
-DQMNet::startLocalServer(const char *path)
-{
-  if (server_)
-  {
-    logme() << "ERROR: DQM server was already started.\n";
-    return;
-  }
-
-  try
-  {
-    server_ = new LocalServerSocket(path, 10);
-    server_->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
-    server_->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
-    server_->setBlocking(false);
-    sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
-  }
-  catch (Error &e)
-  {
-    // FIXME: Do we need to do this when we throw an exception anyway?
-    // FIXME: Abort instead?
-    logme()
-      << "ERROR: Failed to start server at path " << path << ": "
-      << e.explain() << std::endl;
-
-    raiseDQMError("DQMNet::startLocalServer", "Failed to start server at path"
-		  " %s: %s", path, e.explain().c_str());
-  }
-  
-  logme() << "INFO: DQM server started at path " << path << std::endl;
 }
 
 /// Tell the network layer to connect to @a host and @a port and
@@ -1298,6 +1293,17 @@ DQMNet::run(void)
 	    // "In progress" just means the connection is in progress.
 	    // The connection is ready when the socket is writeable.
 	    // Anything else is a real problem.
+	    if (! ap->warned)
+	    {
+	      logme()
+	        << "NOTE: DQM server at " << ap->host << ":" << ap->port
+		<< " is unavailable.  Connection will be established"
+	        << " automatically on the background once the server"
+		<< " becomes available.  Error from the attempt was: "
+		<< e.explain() << '\n';
+	      ap->warned = true;
+	    }
+
 	    if (s)
 	      s->abort();
 	    delete s;
@@ -1309,8 +1315,11 @@ DQMNet::run(void)
 	// the upstream collector, queue a request for updates.
 	if (s)
 	{
+	  lock();
 	  Peer *p = createPeer(s);
 	  ap->peer = p;
+	  ap->warned = false;
+	  unlock();
 
 	  InetAddress peeraddr = ((InetSocket *) s)->peername();
 	  InetAddress myaddr = ((InetSocket *) s)->sockname();
@@ -1324,8 +1333,9 @@ DQMNet::run(void)
 	  sel_.attach(s, p->mask, CreateHook(this, &DQMNet::onPeerData, p));
 	  if (ap == &upstream_)
 	  {
-	    uint32_t words[4] = { 2*sizeof(uint32_t), DQM_MSG_LIST_OBJECTS,
-				  2*sizeof(uint32_t), DQM_MSG_UPDATE_ME };
+	    uint32_t words[5] = { 2*sizeof(uint32_t), DQM_MSG_LIST_OBJECTS,
+				  3*sizeof(uint32_t), DQM_MSG_UPDATE_ME,
+				  requestFullUpdates_ };
 	    p->sendq = new Bucket;
 	    p->sendq->next = 0;
 	    copydata(p->sendq, words, sizeof(words));
@@ -1343,15 +1353,21 @@ DQMNet::run(void)
     // Pump events for a while.
     sel_.dispatch(delay_);
     now = Time::current();
-    lock();
 
     // Check if flush is required.  Flush only if one is needed.
     // Always sends the full object list, but only rarely.
+    // Compact objects no longer in active use before sending
+    // out the update.
     if (flush_ && now > nextFlush)
     {
       flush_ = false;
       nextFlush = now + TimeSpan(0, 0, 0, 15 /* seconds */, 0);
+
+      lock();
+      purgeDeadObjects(now - TimeSpan(0, 0, 2 /* minutes */, 0, 0),
+		       now - TimeSpan(0, 0, 20 /* minutes */, 0, 0));
       sendObjectListToPeers(true);
+      unlock();
     }
 
     // Update the data server and peer selection masks.  If we
@@ -1362,6 +1378,7 @@ DQMNet::run(void)
     updatePeerMasks();
 
     // Release peers that have been waiting for data for too long.
+    lock();
     Time waitold = now - TimeSpan(0, 0, 2 /* minutes */, 0, 0);
     for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
@@ -1373,9 +1390,27 @@ DQMNet::run(void)
       else
 	++i;
     }
-
     unlock();
   }
+}
+
+int
+DQMNet::receive(DQMStore *)
+{
+  logme() << "ERROR: receive() method is not supported.\n";
+  return 0;
+}
+
+void
+DQMNet::updateLocalObject(Object &o)
+{
+  logme() << "ERROR: updateLocalObject() method is not supported.\n";
+}
+
+void
+DQMNet::removeLocalObject(const std::string &name)
+{
+  logme() << "ERROR: removeLocalObject() method is not supported.\n";
 }
 
 // Tell the network cache that there have been local changes that
@@ -1396,11 +1431,45 @@ DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */)
   local_ = static_cast<ImplPeer *>(createPeer((Socket *) -1));
 }
 
-/// Give a hint of how much capacity to allocate for local objects.
-void
-DQMBasicNet::reserveLocalSpace(uint32_t size)
+int
+DQMBasicNet::receive(DQMStore *store)
 {
-  local_->objs.resize(size);
+  int updates = 0;
+
+  lock();
+  PeerMap::iterator pi, pe;
+  ObjectMap::iterator oi, oe;
+  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
+  {
+    ImplPeer &p = pi->second;
+    if (&p == local_)
+      continue;
+
+    updates += p.updates;
+
+    for (oi = p.objs.begin(), oe = p.objs.end(); oi != oe; )
+    {
+      Object &o = oi->second;
+      if (o.flags & DQM_FLAG_DEAD)
+      {
+	std::string folder = o.name;
+	std::string name = o.name;
+	folder.erase(folder.rfind('/'), std::string::npos);
+	name.erase(0, name.rfind('/')+1);
+	store->setCurrentFolder(folder);
+	store->removeElement(name);
+	p.objs.erase(oi++);
+      }
+      else if ((o.flags & DQM_FLAG_RECEIVED) && reinstateObject(store, o))
+      {
+	o.flags &= ~DQM_FLAG_RECEIVED;
+	++oi;
+      }
+    }
+  }
+  unlock();
+
+  return updates;
 }
 
 /// Update the network cache for an object.  The caller must call
@@ -1408,47 +1477,49 @@ DQMBasicNet::reserveLocalSpace(uint32_t size)
 void
 DQMBasicNet::updateLocalObject(Object &o)
 {
-  o.dirname = &*local_->dirs.insert(*o.dirname).first;
-  std::pair<ObjectMap::iterator, bool> info(local_->objs.insert(o));
-  if (! info.second)
+  ObjectMap::iterator pos = local_->objs.find(o.name);
+  if (pos == local_->objs.end())
+    local_->objs.insert(ObjectMap::value_type(o.name, o));
+  else
   {
-    // Somewhat hackish. Sets are supposedly immutable, but we
-    // need to change the non-key parts of the object. Erasing
-    // and re-inserting would produce too much memory churn.
-    Object &old = const_cast<Object &>(*info.first);
-    std::swap(old.flags,     o.flags);
-    std::swap(old.tag,       o.tag);
-    std::swap(old.version,   o.version);
-    std::swap(old.qreports,  o.qreports);
-    std::swap(old.rawdata,   o.rawdata);
-    std::swap(old.scalar,    o.scalar);
-    std::swap(old.qdata,     o.qdata);
+    std::swap(pos->second.version,   o.version);
+    std::swap(pos->second.tags,      o.tags);
+    std::swap(pos->second.qreports,  o.qreports);
+    std::swap(pos->second.flags,     o.flags);
+    std::swap(pos->second.rawdata,   o.rawdata);
+
+    delete pos->second.object;
+    pos->second.object = 0;
+    delete pos->second.reference;
+    pos->second.reference = 0;
+    pos->second.lastreq = 0;
   }
 }
 
-/// Delete all local objects not in @a known.  Returns true if
-/// something was removed.  The caller must call sendLocalChanges()
+/// Delete the local object.  The caller must call sendLocalChanges()
 /// later to push out the changes.
-bool
-DQMBasicNet::removeLocalExcept(const std::set<std::string> &known)
+void
+DQMBasicNet::removeLocalObject(const std::string &path)
 {
-  size_t removed = 0;
-  std::string path;
-  ObjectMap::iterator i, e;
-  for (i = local_->objs.begin(), e = local_->objs.end(); i != e; )
+  local_->objs.erase(path);
+}
+
+void
+DQMBasicNet::requestFullUpdatesFromPeers(void)
+{
+  for (PeerMap::iterator i = peers_.begin(), e = peers_.end(); i != e; ++i)
   {
-    path.clear();
-    path.reserve(i->dirname->size() + i->objname.size() + 2);
-    path += *i->dirname;
-    if (! path.empty())
-      path += '/';
-    path += i->objname;
+    ImplPeer &p = i->second;
+    if (! p.source)
+      continue;
 
-    if (! known.count(path))
-      ++removed, local_->objs.erase(i++);
-    else
-      ++i;
+    Bucket **msg = &p.sendq;
+    while (*msg)
+      msg = &(*msg)->next;
+    *msg = new Bucket;
+    (*msg)->next = 0;
+
+    uint32_t words[3] = { 3*sizeof(uint32_t), DQM_MSG_UPDATE_ME, 1 };
+    copydata(*msg, words, sizeof(words));
   }
-
-  return removed > 0;
 }

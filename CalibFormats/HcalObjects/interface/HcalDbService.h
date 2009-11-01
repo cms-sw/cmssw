@@ -47,7 +47,6 @@ class HcalDbService {
   const HcalZSThreshold* getHcalZSThreshold (const HcalGenericDetId& fId) const;
   const HcalLUTCorr* getHcalLUTCorr (const HcalGenericDetId& fId) const;
   const HcalPFCorr* getHcalPFCorr (const HcalGenericDetId& fId) const;
-  const HcalLutMetadata* getHcalLutMetadata () const;
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; buildCalibrations(); }
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; buildCalibWidths(); }
@@ -62,7 +61,6 @@ class HcalDbService {
   void setData (const HcalL1TriggerObjects* fItem) {mL1TriggerObjects = fItem;}
   void setData (const HcalLUTCorrs* fItem) {mLUTCorrs = fItem; }
   void setData (const HcalPFCorrs* fItem) {mPFCorrs = fItem; }
-  void setData (const HcalLutMetadata* fItem) {mLutMetadata = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
@@ -85,7 +83,6 @@ class HcalDbService {
   const HcalTimeCorrs* mTimeCorrs;
   const HcalLUTCorrs* mLUTCorrs;
   const HcalPFCorrs* mPFCorrs;
-  const HcalLutMetadata* mLutMetadata;
   //  bool mPedestalInADC;
   HcalCalibrationsSet mCalibSet;
   HcalCalibrationWidthsSet mCalibWidthSet;

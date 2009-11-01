@@ -13,7 +13,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 
-#include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
@@ -22,15 +21,15 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFGenParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h"
 
-#include <TH2.h>
+
 #include <TTree.h>
 #include <TVector3.h>
 #include <TH2F.h>
 #include <TEllipse.h>
-#include <TLine.h>
-#include <TLatex.h>
-#include <TList.h>
-#include <TColor.h>
+#include "TLine.h"
+#include "TLatex.h"
+#include "TList.h"
+#include "TColor.h"
 #include <TMath.h>
 #include <TApplication.h>
 
@@ -1466,7 +1465,7 @@ void DisplayManager::retrieveBadBrems()
 
        
           if (ecalElems.size()==0) {
-	    //             std::cout<<" PfBlock Nb "<<ibl<<" -- brem elem  "<<(*iter).index()<<"-type "<<(*iter).type()<<" not drawn"<<std::flush<<std::endl;
+             std::cout<<" PfBlock Nb "<<ibl<<" -- brem elem  "<<(*iter).index()<<"-type "<<(*iter).type()<<" not drawn"<<std::flush<<std::endl;
        	     const reco::PFBlockElementBrem * Brem =  dynamic_cast<const reco::PFBlockElementBrem*>(&(*iter)); 
 	     reco::GsfPFRecTrackRef trackref = Brem->GsftrackRefPF();
 	     unsigned ind=trackref.key()*40+Brem->indTrajPoint();

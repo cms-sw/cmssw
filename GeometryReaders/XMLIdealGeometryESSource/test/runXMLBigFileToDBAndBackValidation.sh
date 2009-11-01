@@ -14,18 +14,15 @@
 # What I want to know is 1 where the config file is located (for domcount and dddreport)
 # and 2 what the sub-string corresponding to that is in the Configuration/StandardSequences.
 cmsenv
-if ($#argv == 0) then
-    setenv geometry "GeometryIdeal"
-    setenv geomxml "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/cmsIdealGeometryXML_cfi.py"
-else
-    if ($#argv == 1) then
-	setenv geometry `echo ${1}`
-	setenv geomxml "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/cmsIdealGeometryXML_cfi.py"
-    else 
-	setenv geometry `echo ${1}`
-	setenv geomxml `echo ${2}`
-    endif
-endif
+if ($#argv == 0) then                                                                                                                                                                                    
+   setenv geometry "GeometryIdeal"                                                                                                                                                                      
+else                                                                                                                                                                                                     
+   setenv geometry `echo ${1}`                                                                                                                                                                          
+endif                                                                                                                                                                                                    
+                                                                                                                                                                                                        
+set geomtemp = `(grep "Geometry.CMSCommonData" ${CMSSW_RELEASE_BASE}/src/Configuration/StandardSequences/python/${geometry}_cff.py | awk 'split($2,a,"."){print a[3]}')` 
+#awk -F\. '{print $3}')`
+set geomxml = "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/${geomtemp}.py"
 
 echo "START - All messages in this script pertain to geometry data described in Configuration/StandardSequence ${geometry}"
 echo "        and xml files in: ${geomxml}" 

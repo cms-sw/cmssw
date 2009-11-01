@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.7 2009/09/17 11:04:43 mommsen Exp $
+// $Id: StreamHandler.h,v 1.4.4.2 2009/09/25 09:57:44 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.4.4.2 $
+   * $Date: 2009/09/25 09:57:44 $
    */
   
   class StreamHandler

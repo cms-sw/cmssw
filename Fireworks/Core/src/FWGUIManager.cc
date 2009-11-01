@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.156 2009/10/27 01:43:29 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.142 2009/08/13 19:11:16 amraktad Exp $
 //
 
 // system include files
@@ -67,7 +67,6 @@
 #include "Fireworks/Core/src/accessMenuBar.h"
 
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 
@@ -81,7 +80,6 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
-#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
@@ -89,10 +87,6 @@
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
-
-#include "Fireworks/Core/src/FWModelContextMenuHandler.h"
-
-#include "Fireworks/Core/interface/CmsShowNavigator.h"
 
 //
 // constants, enums and typedefs
@@ -115,7 +109,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			   CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
@@ -129,19 +122,16 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_editableSelected(0),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
-   m_contextMenuHandler(0),
    m_dataAdder(0),
    m_ediFrame(0),
    m_modelPopup(0),
    m_viewPopup(0),
-   m_brightnessPopup(0),
+   m_colorPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
-   m_searchFiles(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
-   m_cmsShowMain = iCmsShowMain;
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
@@ -176,8 +166,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-      m_detailViewManager = new FWDetailViewManager(m_colorManager);
-      m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
+      m_detailViewManager = new FWDetailViewManager(m_cmsShowMainFrame);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
@@ -185,12 +174,9 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
-      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*m_colorManager, &FWColorManager::switchBackground));
-      getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
+      getAction(cmsshow::sShowColorInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showColorPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-      assert(getAction(cmsshow::sSearchFiles) != 0);
-      getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createSearchFiles));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
@@ -201,9 +187,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
       TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "showEventFilter()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterState, "Clicked()", "FWGUIManager", this, "eventFilterStatusChanged()");
-      // TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "eventFilterChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
@@ -229,8 +213,6 @@ FWGUIManager::~FWGUIManager()
    delete m_editableSelected;
    delete m_cmsShowMainFrame;
    delete m_ediFrame;
-   delete m_contextMenuHandler;
-
 }
 
 void
@@ -293,7 +275,6 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
    if (slot == 0) slot =  m_viewSecPack->NewSlotWithWeight(1);
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* view = itFind->second(slot);
-   view->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2));
    TEveWindow *ew = ef->GetEveWindow();
    ew->SetElementName(iName.c_str());
    ew->SetUserData(view);
@@ -314,7 +295,7 @@ FWGUIManager::enableActions(bool enable)
 }
 
 void
-FWGUIManager::fileChanged(const TFile* iFile)
+FWGUIManager::newFile(const TFile* iFile)
 {
    m_openFile = iFile;
    char title[128];
@@ -357,15 +338,15 @@ FWGUIManager::autoRewindAction()
 }
 
 void
-FWGUIManager::disablePrevious(bool flag)
+FWGUIManager::disablePrevious()
 {
-   m_cmsShowMainFrame->enablePrevious(!flag);
+   m_cmsShowMainFrame->enablePrevious(false);
 }
 
 void
-FWGUIManager::disableNext(bool flag)
+FWGUIManager::disableNext()
 {
-   m_cmsShowMainFrame->enableNext(!flag);
+   m_cmsShowMainFrame->enableNext(false);
 }
 
 void
@@ -373,7 +354,7 @@ FWGUIManager::setPlayMode(bool play)
 {
    m_cmsShowMainFrame->m_runEntry->SetState(!play);
    m_cmsShowMainFrame->m_eventEntry->SetState(!play);
-   // m_cmsShowMainFrame->m_filterEntry->SetState(!play);
+   m_cmsShowMainFrame->m_filterEntry->SetState(!play);
 }
 
 void
@@ -504,7 +485,7 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 
    for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
    {
-      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(*it);
+      FWGUISubviewArea* ar = getGUISubviewArea(*it);
       ar->setSwapIcon(current != (*it));
       if (checkInfoBtn && selected)
          ar->setInfoButton(selected == (*it));
@@ -547,8 +528,7 @@ FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
    // release button on previously selected
    if (m_viewPopup && m_viewPopup->GetEveWindow())
    {
-      FWGUISubviewArea* ar = 
-         FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
+      FWGUISubviewArea* ar = getGUISubviewArea(m_viewPopup->GetEveWindow());
       ar->setInfoButton(kFALSE);
    }
 
@@ -581,6 +561,13 @@ FWGUIManager::createList(TGSplitFrame *p)
    addLabel->SetTextJustify(kTextLeft);
 
    addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
+   FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign.png"),
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-over.png"),
+                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-disabled.png"));
+   addDataButton->SetToolTipText("Show additional collections");
+   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
+   addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
 
@@ -590,13 +577,7 @@ FWGUIManager::createList(TGSplitFrame *p)
                                            this,
                                            m_changeManager,
                                            m_colorManager);
-   const unsigned int backgroundColor=0x2f2f2f;
-   TGTextButton* addDataButton = new TGTextButton(m_summaryManager->widget(),"Add Collection");
-   addDataButton->SetBackgroundColor(backgroundColor);
-   addDataButton->SetTextColor(0xFFFFFF);
-   addDataButton->SetToolTipText("Show additional collections");
-   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
-   m_summaryManager->widget()->AddFrame(addDataButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
+
    listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 
    return listFrame;
@@ -634,14 +615,14 @@ FWGUIManager::showEDIFrame(int iToShow)
 }
 
 void
-FWGUIManager::showBrightnessPopup()
+FWGUIManager::showColorPopup()
 {
-  if (! m_brightnessPopup)
+  if (! m_colorPopup)
   {
-      m_brightnessPopup = new CmsShowBrightnessPopup(m_cmsShowMainFrame, 200, 200);
+      m_colorPopup = new CmsShowColorPopup(m_cmsShowMainFrame, 200, 200);
   }
-  m_brightnessPopup->MapWindow();
-  m_brightnessPopup->setModel(m_colorManager);
+  m_colorPopup->MapWindow();
+  m_colorPopup->setModel(m_colorManager);
 }
 
 void
@@ -663,7 +644,7 @@ FWGUIManager::popupViewClosed()
 {
    if (m_viewPopup->GetEveWindow())
    {
-      FWGUISubviewArea* sa = FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
+      FWGUISubviewArea* sa = getGUISubviewArea(m_viewPopup->GetEveWindow());
       sa->setInfoButton(kFALSE);
    }
 }
@@ -703,36 +684,6 @@ void FWGUIManager::createHelpPopup ()
    m_helpPopup->MapWindow();
 }
 
-
-
-void FWGUIManager::createSearchFiles ()
-{
-   if (m_searchFiles == 0) {
-  
-     m_searchFiles = new CmsShowSearchFiles("", "Searching Files",
-					    m_cmsShowMainFrame,
-					    800, 600);
-     m_searchFiles->browser()->Connect("Clicked(char*)", "FWGUIManager", this,
-                           "openWebRootFiles(char *)");
-     m_searchFiles->Connect("CloseWindow()", "FWGUIManager", this,
-                            "resetSearchFiles()");
-     m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-   }
-   m_searchFiles->MapWindow();
-}
-
-void FWGUIManager::openWebRootFiles (char *fileName)
-{
- 
-  if (fileName) m_cmsShowMain->navigator()->loadFile(fileName);
-}
-void FWGUIManager::resetSearchFiles ()
-{
-   m_searchFiles->DontCallClose();
-   m_searchFiles->UnmapWindow();
-}
-
-
 void FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
@@ -744,15 +695,6 @@ void FWGUIManager::createShortcutPopup ()
    }
    m_shortcutPopup->MapWindow();
 }
-
-void 
-FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
-{
-   if(!m_selectionManager->selected().empty()) {
-      m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY);
-   }
-}
-
  //
 // const member functions
 //
@@ -761,6 +703,18 @@ FWGUIManager*
 FWGUIManager::getGUIManager()
 {
    return m_guiManager;
+}
+
+FWGUISubviewArea*
+FWGUIManager::getGUISubviewArea(TEveWindow* w)
+{
+   // horizontal frame
+   TGFrameElement *el = (TGFrameElement*) w->GetEveFrame()->GetList()->First();
+   TGCompositeFrame* hf = (TGCompositeFrame*)el->fFrame;
+   // subview last in the horizontal frame
+   el = (TGFrameElement*)hf->GetList()->Last();
+   FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
+   return ar;
 }
  
 void
@@ -1204,24 +1158,17 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
-   m_cmsShowMainFrame->m_eventEntry->SetText("",kFALSE);
-   m_cmsShowMainFrame->m_eventEntry->SetFocus();
+   changedRunId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber());
 }
 
 void FWGUIManager::eventIdChanged()
 {
-  changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber(),
-		       m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
+   changedEventId_.emit(m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
 }
 
-void FWGUIManager::showEventFilter()
+void FWGUIManager::eventFilterChanged()
 {
-  showEventFilter_.emit(m_cmsShowMainFrame);
-}
-
-void FWGUIManager::eventFilterStatusChanged()
-{
-  changedEventFilterStatus_.emit(m_cmsShowMainFrame->m_filterState->IsOn());
+   changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
 }
 
 void
@@ -1230,17 +1177,7 @@ FWGUIManager::finishUpColorChange()
    gEve->FullRedraw3D(kFALSE,kTRUE);
 }
 
-void FWGUIManager::eventFilterMessage(const std::string& message)
-{
-  if ( message.empty() ){
-    // if (m_cmsShowMainFrame->m_filterState->IsOn()) warning
-    m_cmsShowMainFrame->m_filterState->SetOn(kFALSE);
-    m_cmsShowMainFrame->m_filterEditButton->SetText("Event Filtering is OFF");
-  } else {
-    m_cmsShowMainFrame->m_filterState->SetOn(kTRUE);
-    m_cmsShowMainFrame->m_filterEditButton->SetText(message.c_str());
-  }
-}
+
 
 //
 // static member functions

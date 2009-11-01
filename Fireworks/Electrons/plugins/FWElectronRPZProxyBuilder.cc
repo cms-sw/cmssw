@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWElectronRPZProxyBuilder.cc,v 1.8 2009/08/24 04:54:33 dmytro Exp $
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.6 2009/01/06 20:41:11 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Candidates/interface/prepareSimpleTrack.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
 //#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
@@ -121,11 +121,13 @@ FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned 
    if ( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
                                        m_propagator.get(),
+                                       &oItemHolder,
                                        item()->defaultDisplayProperties().color() );
    else
-      track = fireworks::prepareTrack( iData,
-				       m_propagator.get(),
-				       item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareSimpleTrack( iData,
+                                             m_propagator.get(),
+                                             &oItemHolder,
+                                             item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement(track);
 }
@@ -142,11 +144,13 @@ FWElectronRPZProxyBuilder::buildRhoZ(const reco::GsfElectron& iData, unsigned in
    if ( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
                                        m_propagator.get(),
+                                       &oItemHolder,
                                        item()->defaultDisplayProperties().color() );
    else
-      track = fireworks::prepareTrack( iData,
-				       m_propagator.get(),
-				       item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareSimpleTrack( iData,
+                                             m_propagator.get(),
+                                             &oItemHolder,
+                                             item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement(track);
 

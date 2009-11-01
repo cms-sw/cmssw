@@ -1,4 +1,5 @@
 #include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 /*
   BranchMapper

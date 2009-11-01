@@ -5,8 +5,8 @@
 #include <string>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "DataSvc/Ref.h"
 #include "DataSvc/RefException.h"
@@ -24,7 +24,7 @@ template< class RecordT, class DataT >
   edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
   }
   */
-  OldDataProxy( cond::DbSession session, std::map<std::string,std::string>::iterator& pDatumToToken ): m_session(session), m_pDatumToToken(pDatumToToken) { 
+  OldDataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pDatumToToken ): m_connection(connection), m_pDatumToToken(pDatumToToken) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -43,29 +43,31 @@ template< class RecordT, class DataT >
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
     DataT const * result=0;
     //std::cout<<"DataT make "<<std::endl;
-    m_session.transaction().start(true);      
+    cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+    pooldb.start(true);      
     // FIXME (clean this mess)
     try {
-      pool::Ref<DataWrapper> mydata = m_session.getTypedObject<DataWrapper>(m_pDatumToToken->second);
+      pool::Ref<DataWrapper> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
       if (mydata) {
-        try{
-          result = &mydata->data();
-        } catch( const pool::Exception& e) {
-          throw cond::Exception("DataProxy::make: null result");
-        }
-        m_data.copyShallow(mydata);
-        m_session.transaction().commit();
-        return result;
+	try{
+	  result = &mydata->data();
+	}
+	catch( const pool::Exception& e) {
+	throw cond::Exception("DataProxy::make: null result");
+	}
+	m_data.copyShallow(mydata);
+	pooldb.commit();
+	return result;
       }
     } catch(const pool::Exception&){}
 
     // compatibility mode....
-    pool::Ref<DataT> myodata = m_session.getTypedObject<DataT>(m_pDatumToToken->second);
+    pool::Ref<DataT> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
     result = myodata.ptr();
     if (!result) throw cond::Exception("DataProxy::make: null result");
     m_OldData.copyShallow(myodata);
 
-    m_session.transaction().commit();
+    pooldb.commit();
     return result;
   }
   virtual void invalidateCache() {
@@ -76,7 +78,7 @@ template< class RecordT, class DataT >
   //DataProxy(); // stop default
   const OldDataProxy& operator=( const OldDataProxy& ); // stop default
   // ---------- member data --------------------------------
-  cond::DbSession m_session;
+  cond::Connection* m_connection;
   std::map<std::string,std::string>::iterator m_pDatumToToken;
 
   pool::Ref<DataWrapper> m_data;

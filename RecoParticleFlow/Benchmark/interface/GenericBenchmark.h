@@ -19,8 +19,6 @@ class DQMStore; // CMSSW_2_X_X
 
 class BenchmarkTree;
 
-
-//COLIN: this class REALLY needs to be cleaned up and rationalized, on the model of PFCandidateBenchmark.
 class GenericBenchmark{
 
  public:
@@ -96,8 +94,6 @@ class GenericBenchmark{
 
   TH1F *hEtGen;
   TH1F *hEtaGen;
-  TH2F *hEtvsEtaGen;
-  TH2F *hEtvsPhiGen;
   TH1F *hPhiGen;
 
   TH1F *hNGen;
@@ -105,8 +101,6 @@ class GenericBenchmark{
   TH1F *hEtSeen;
   TH1F *hEtaSeen;
   TH1F *hPhiSeen;
-  TH2F *hEtvsEtaSeen;
-  TH2F *hEtvsPhiSeen;
 
   TH1F *hEtRec;
   TH1F *hExRec;
@@ -205,24 +199,16 @@ void GenericBenchmark::fill(const C *RecoCollection,
     hEtaGen->Fill(gen_particle->eta() );
     hPhiGen->Fill(gen_particle->phi() );
     hEtGen->Fill(gen_particle->et() );
-    hEtvsEtaGen->Fill(gen_particle->eta(),gen_particle->et() );
-    hEtvsPhiGen->Fill(gen_particle->phi(),gen_particle->et() );
 
     const reco::Candidate *rec_particle = algo_->matchByDeltaR(gen_particle,
 							       RecoCollection);
     nGen++;
     if(! rec_particle) continue; // no match
-    // must make a cut on delta R - so let's do the cut
+    // must make a cut on delta R 
 
-    double deltaR = algo_->deltaR(rec_particle,gen_particle);
-    if (deltaR>deltaR_cut && deltaR_cut != -1.)
-      continue;
-    
     hEtaSeen->Fill(gen_particle->eta() );
     hPhiSeen->Fill(gen_particle->phi() );
     hEtSeen->Fill(gen_particle->et() );
-    hEtvsEtaSeen->Fill(gen_particle->eta(),gen_particle->et() );
-    hEtvsPhiSeen->Fill(gen_particle->phi(),gen_particle->et() );
 
     hPhiRec->Fill(rec_particle->phi() );
     hEtRec->Fill(rec_particle->et() );

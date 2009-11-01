@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.18 2009/07/08 18:59:12 lowette Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.17 2008/02/06 16:40:42 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -278,7 +278,7 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
 
   } else {
 
-    uint16_t lld_ch = 0;
+    uint16_t lld_ch;
     if ( nApvPairs() == 2 ) {
 
       if      ( apv_pair == 0 ) { lld_ch = 1; }

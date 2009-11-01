@@ -1,17 +1,12 @@
 #ifndef ECAL_CHANNELSTATUS_HANDLER_H
 #define ECAL_CHANNELSTATUS_HANDLER_H
 
-#include <typeinfo>
 #include <vector>
+#include <typeinfo>
 #include <string>
 #include <map>
-#include <sstream>
 #include <iostream>
-#include <fstream>
-#include <math.h>
 #include <time.h>
-#include "TTree.h"
-#include "TFile.h"
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -28,22 +23,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-
-#include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonTimingLaserBlueCrystalDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/all_od_types.h"
-#include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
-#include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -53,11 +37,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 
-#include "TProfile2D.h"
+
 
 using namespace std;
 using namespace oracle::occi;
@@ -68,87 +50,41 @@ namespace edm {
   class EventSetup;
 }
 
-namespace popcon {
-  
-  
-  class EcalChannelStatusHandler : public popcon::PopConSourceHandler<EcalChannelStatus>
-    {
-      
-    public:
-      EcalChannelStatusHandler(edm::ParameterSet const &);
-      ~EcalChannelStatusHandler(); 
-      
-      void getNewObjects();
-      void setElectronicsMap(const EcalElectronicsMapping*);
-      
-      std::string id() const { return m_name;}
-      EcalCondDBInterface* econn;
+namespace popcon
+{
 
-      
-      // checks on pedestals
-      float checkPedestalValueGain12( EcalPedestals::Item* item);
-      float checkPedestalValueGain6( EcalPedestals::Item* item);
-      float checkPedestalValueGain1( EcalPedestals::Item* item);
-      float checkPedestalRMSGain12( EcalPedestals::Item* item );
-      float checkPedestalRMSGain6( EcalPedestals::Item* item );
-      float checkPedestalRMSGain1( EcalPedestals::Item* item );
-      
-      // check which laser sectors are on
-      void nBadLaserModules( map<EcalLogicID, MonLaserBlueDat> dataset_mon );
 
-      // to mask channels reading from pedestal
-      void pedOnlineMasking();
-      void pedMasking();
-      void laserMasking();
-      void physicsMasking();
+	class EcalChannelStatusHandler : public popcon::PopConSourceHandler<EcalChannelStatus>
+	{
 
-      // to read the daq configuration
-      void daqOut(RunIOV myRun);
+		public:
+                        EcalChannelStatusHandler(edm::ParameterSet const & );
+			~EcalChannelStatusHandler(); 
+                        
 
-      // real analysis
-      void pedAnalysis( map<EcalLogicID, MonPedestalsDat> dataset_mon, map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon );
-      void laserAnalysis( map<EcalLogicID, MonLaserBlueDat> dataset_mon );
-      void cosmicsAnalysis( map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, map<EcalLogicID, MonLaserBlueDat> laser_mon, map<EcalLogicID, MonOccupancyDat> occupancy_mon );
-      
-    private:
-      
-      unsigned long m_firstRun ;
-      unsigned long m_lastRun ;
-      
-      std::string m_location;
-      std::string m_gentag;
-      std::string m_runtype;			
-      std::string m_sid;
-      std::string m_user;
-      std::string m_pass;
-      std::string m_locationsource;
-      std::string m_name;
+			bool checkPedestal(EcalPedestals::Item* item);
+			
+			void getNewObjects();
+			std::string id() const { return m_name;}
+			EcalCondDBInterface* econn;
 
-      bool isGoodLaserEBSm[36][2];
-      bool isGoodLaserEESm[18][2];
-      bool isEBRef1[36][2];
-      bool isEBRef2[36][2];
-      bool isEERef1[18][2];
-      bool isEERef2[18][2];
+		private:
 
-      EcalElectronicsMapping ecalElectronicsMap_;
 
-      ofstream *ResFileEB;
-      ofstream *ResFileEE;
-      ofstream *ResFileNewEB;
-      ofstream *ResFileNewEE;
-      ofstream *daqFile;
-      ofstream *daqFile2;
+			unsigned long m_firstRun ;
+			unsigned long m_lastRun ;
+			
+			std::string m_location;
+			std::string m_gentag;
+			std::string m_sid;
+			std::string m_user;
+			std::string m_pass;
+                        std::string m_locationsource;
+                        std::string m_name;
 
-      map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
-      map<DetId, float> maskedPedEB, maskedPedEE;
-      map<DetId, float> maskedLaserEB, maskedLaserEE;
-      map<DetId, float> maskedPhysicsEB, maskedPhysicsEE;
 
-      TProfile2D *newBadEB_;
-      TProfile2D *newBadEEP_;
-      TProfile2D *newBadEEM_;
-    };
+
+	};
 }
 #endif
 

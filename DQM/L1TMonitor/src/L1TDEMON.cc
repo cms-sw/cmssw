@@ -447,7 +447,8 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     if(sid==GCT) { 
       //GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-      //if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
+      //skip jets for now
+      if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
     }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
@@ -459,10 +460,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //masking: gres -- I.Mikulec: mask bits 0,5,16,21,22,23
       //mask = (~(0x0e10021));
     }
-    if(sid==DTF) {
-      if(cid!=DTtftrk) continue;
-    }
-    if(sid==RPC || sid==CTF || sid==RPC) { 
+    if(sid==DTF || sid==RPC || sid==CTF || sid==RPC) { 
       //select mu regional cands only for dtf,ctf,rpc
       //if(cid!=MUrtf) continue;
       //masking: gres dttf only -- I.Mikulec: lowest 16 bits only
@@ -568,21 +566,55 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const int w64=64;
     GltDEDigi gltdigimon = deRecord->getGlt();
 
-    const std::vector<bool>& edecbitv = gltdigimon.gltDecBits[0];
-    const std::vector<bool>& ddecbitv = gltdigimon.gltDecBits[1];
-    const std::vector<bool>& etchbitv = gltdigimon.gltTchBits[0] ;
-    const std::vector<bool>& dtchbitv = gltdigimon.gltTchBits[1];
+    std::vector<bool> edecbitv(w64*2);
+    std::vector<bool> ddecbitv(w64*2);
+    std::vector<bool> etchbitv(w64);
+    std::vector<bool> dtchbitv(w64);
+    edecbitv.reserve(w64*2);
+    ddecbitv.reserve(w64*2);
+    etchbitv.reserve(w64);
+    dtchbitv.reserve(w64);
+
+    //decision word sizes defined in
+    //DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h
+    /*
+    std::cout << "xxx l1tdemon sizes:" 
+	      << " " << (gltdigimon.gltDecBits)[0].size()
+	      << " " << (gltdigimon.gltDecBits)[1].size()
+	      << " " << (gltdigimon.gltTchBits)[0].size()
+	      << " " << (gltdigimon.gltTchBits)[1].size()
+	      << "\n" << std::flush;
+    */
+
+    std::vector<bool>::iterator it;
+    for( it = (gltdigimon.gltDecBits)[0].begin();
+	 it!= (gltdigimon.gltDecBits)[0].end(); it++ )
+      edecbitv.push_back(*it);
+    for( it = (gltdigimon.gltDecBits)[1].begin();
+	 it!= (gltdigimon.gltDecBits)[1].end(); it++ )
+      ddecbitv.push_back(*it);
+    for( it = (gltdigimon.gltTchBits)[0].begin();
+	 it!= (gltdigimon.gltTchBits)[0].end(); it++ )
+      etchbitv.push_back(*it);
+    for( it = (gltdigimon.gltTchBits)[1].begin();
+	 it!= (gltdigimon.gltTchBits)[1].end(); it++ )
+      dtchbitv.push_back(*it);
 
     std::vector<bool> 
       dedecbitv  (2*w64,false), 
       debitmaskv (2*w64,false), 
       gtbitmasked(2*w64,false);
+    for(int i=0; i<w64*2; i++) dedecbitv  [i]=false;
+    for(int i=0; i<w64*2; i++) debitmaskv [i]=false;
+    //for(int i=0; i<w64*2; i++) gtbitmasked[i]=false;
 
+    for(int i=0; i<2*w64; i++)
+      gtbitmasked[i] = false; //no masking!
     for(int i=0; i<2*w64; i++) {
-      dedecbitv[i]=(ddecbitv[i]^edecbitv[i]);
+      dedecbitv[i]=(ddecbitv[i]&&edecbitv[i]);
       debitmaskv[i]=(dedecbitv[i]&& !gtbitmasked[i]);
-      if(ddecbitv[i])  dword[GLT]->Fill(i,1);
-      if(edecbitv[i])  eword[GLT]->Fill(i,1);
+      if(ddecbitv[i])  dword [GLT]->Fill(i,1);
+      if(edecbitv[i])  eword [GLT]->Fill(i,1);
       if(dedecbitv[i]) deword[GLT]->Fill(i,1);
       //if(debitmaskv[i])masked[GLT]->Fill(i,1);
     }
@@ -604,7 +636,6 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       std::cout << "\n";
     }      
   }
-
 
   ///correlations: fill histograms
   double wei=1.;

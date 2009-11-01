@@ -1,5 +1,6 @@
 #include <iostream>
 #include "GeneratorInterface/HiGenCommon/interface/EcalGenEvtSelector.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;
 
 EcalGenEvtSelector::EcalGenEvtSelector(const edm::ParameterSet& pset) : BaseHiGenEvtSelector(pset){

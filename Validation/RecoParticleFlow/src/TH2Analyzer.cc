@@ -1,44 +1,36 @@
 #include "Validation/RecoParticleFlow/interface/TH2Analyzer.h"
 
-#include "TH2D.h"
-#include "TH1D.h"
-#include "TF1.h"
-#include "TPad.h"
+#include <TH2D.h>
+#include <TH1D.h>
 
 #include <string>
 #include <iostream>
-#include <sstream>
 
 using namespace std; 
 
 void TH2Analyzer::Eval( int rebinFactor ) {
-  //std::cout << "Eval!" << std::endl;
   
   Reset();
 
-  const string bname = hist2D_->GetName();
+  string bname = hist2D_->GetName();
 
-  const string rebinName = bname + "_rebin";
+  string rebinName = bname + "_rebin";
   rebinnedHist2D_ = (TH2D*) hist2D_ -> Clone( rebinName.c_str() );
   rebinnedHist2D_->RebinX( rebinFactor );
 
-  const string averageName = bname + "_average";  
+  string averageName = bname + "_average";  
   average_ = new TH1D( averageName.c_str(),"arithmetic average", 
 		       rebinnedHist2D_->GetNbinsX(),
 		       rebinnedHist2D_->GetXaxis()->GetXmin(),
 		       rebinnedHist2D_->GetXaxis()->GetXmax() );
   
-  const string rmsName = bname + "_RMS";  
+  string rmsName = bname + "_RMS";  
   RMS_ = new TH1D( rmsName.c_str(), "RMS",
 		   rebinnedHist2D_->GetNbinsX(),
 		   rebinnedHist2D_->GetXaxis()->GetXmin(),
 		   rebinnedHist2D_->GetXaxis()->GetXmax() );
 
-  const string sigmaGaussName = bname + "_sigmaGauss"; 
-  sigmaGauss_ = new TH1D(sigmaGaussName.c_str(), "sigmaGauss",
-			 rebinnedHist2D_->GetNbinsX(),
-			 rebinnedHist2D_->GetXaxis()->GetXmin(),
-			 rebinnedHist2D_->GetXaxis()->GetXmax() );
+
 
   ProcessSlices( rebinnedHist2D_ );
 }
@@ -47,7 +39,6 @@ void TH2Analyzer::Reset() {
   if( rebinnedHist2D_ ) delete rebinnedHist2D_;
   if( average_ ) delete average_;
   if( RMS_ ) delete RMS_;
-  if( sigmaGauss_ ) delete sigmaGauss_;
   
   for( unsigned i=0; i<parameters_.size(); ++i) {
     delete parameters_[i];
@@ -59,63 +50,22 @@ void TH2Analyzer::Reset() {
 
 void TH2Analyzer::ProcessSlices( const TH2D* histo) {
   
-  //std::cout << "ProcessSlices!" << std::endl;
-
   TH1::AddDirectory(0);
 
   for( int i=1; i<=histo->GetNbinsX(); ++i) {
     TH1D* proj =  histo->ProjectionY("toto", i, i);
-    const double mean = proj->GetMean();
-    const double rms = proj->GetRMS();
-    //std::cout << "mean = " << mean << std::endl;
-    //std::cout << "rms = " << rms << std::endl;
+    double mean = proj->GetMean();
+    double rms = proj->GetRMS();
+    cout<<mean<<" "<<rms<<endl;
     average_->SetBinContent( i, mean);
-    average_->SetBinError( i, proj->GetMeanError());
     RMS_->SetBinContent(i, rms);
-    RMS_->SetBinError(i, proj->GetRMSError());
-    ProcessSlice(i, proj );
+    ProcessSlice( proj );
   }
 
   TH1::AddDirectory(1);
 } 
 
 
-void TH2Analyzer::ProcessSlice(const int i, TH1D* proj ) const {
-
-  //const double mean = proj->GetMean();
-  const double rms = proj->GetRMS();
-  //std::cout << "FL: mean = " << mean << std::endl;
-  //std::cout << "FL: rms = " << rms << std::endl;
-
-  if (rms!=0.0)
-  {
-    const double fitmin=proj->GetMean()-proj->GetRMS();
-    const double fitmax=proj->GetMean()+proj->GetRMS();
+void TH2Analyzer::ProcessSlice( const TH1D* histo ) const {
   
-    //std::cout << "i = " << i << std::endl;
-    //std::cout << "fitmin = " << fitmin << std::endl;
-    //std::cout << "fitmax = " << fitmax << std::endl;
-  
-    //proj->Draw();
-    TF1* f1= new TF1("f1", "gaus", fitmin, fitmax);
-    f1->SetParameters(proj->GetRMS(),proj->GetMean(),proj->GetBinContent(proj->GetMaximumBin()));
-    proj->Fit("f1","R", "", proj->GetXaxis()->GetXmin(), proj->GetXaxis()->GetXmax());
-  
-    //std::ostringstream oss;
-    //oss << i;
-    //const std::string plotfitname="Plots/fitbin_"+oss.str()+".eps";
-    //gPad->SaveAs( plotfitname.c_str() );
-    //std::cout << "param1 = " << f1->GetParameter(1) << std::endl;
-    //std::cout << "param2 = " << f1->GetParameter(2) << std::endl;
-    //std::cout << "paramError2 = " << f1->GetParError(2) << std::endl;
-  
-    sigmaGauss_->SetBinContent(i, f1->GetParameter(2));
-    sigmaGauss_->SetBinError(i, f1->GetParError(2));
-    delete f1;
-  }
-  else
-  {
-    sigmaGauss_->SetBinContent(i, 0.0);
-    sigmaGauss_->SetBinError(i, 0.0);
-  }
 }

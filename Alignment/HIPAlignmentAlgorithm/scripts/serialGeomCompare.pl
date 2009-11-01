@@ -1,4 +1,4 @@
-#! /usr/bin/env perl 
+#!/usr/bin/perl
 use File::Basename;
 
 print "Configuring the python executables and run scripts...\n";

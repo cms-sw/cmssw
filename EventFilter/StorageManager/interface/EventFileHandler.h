@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.7 2009/09/17 11:04:43 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.4.4.2 2009/09/25 09:57:43 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -21,8 +21,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.4.4.2 $
+   * $Date: 2009/09/25 09:57:43 $
    */
   
   class EventFileHandler : public FileHandler

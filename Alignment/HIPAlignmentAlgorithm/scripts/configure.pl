@@ -1,28 +1,10 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 use File::Basename;
 
 print "Configuring the python executables and run scripts...\n";
 
 $odir = $ARGV[0];
-#$datafile = $ARGV[1];
-#$flag   = $ARGV[2];
-
-#prendo dal file
-$datafile1 = $ARGV[1];
-
-open (datafile1) or die "Can't open the file!";
-@dataFileInput1 = <datafile1>;
-
-$j = 0;
-
-foreach $data1 ( @dataFileInput1 ) {
-
-$data1 =~ m/\,/;
-$datafile = $`;
-$flag1 = $';
-$flag1 =~ m/$/;
-$flag = $`;
-#$flag = $';
+$datafile = $ARGV[1];
 
 print "Output directory: $odir \n";
 print "Datafile: $datafile \n";
@@ -52,9 +34,7 @@ open (SELECTION) or die "Can't open the file!";
 @selectionsInput = <SELECTION>;
 
 ## setting up parallel jobs
-
-
-
+$j = 0;
 
 foreach $data ( @dataFileInput ) {
 	$j++;
@@ -67,41 +47,34 @@ foreach $data ( @dataFileInput ) {
 	" );
 	# run script
 	open OUTFILE,"$odir/job$j/runScript.csh";
-        insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
-	insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
 	# replaces for align job
 	replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
 	replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
 	replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
-##flag
-	replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );	
+	insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
+	insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
 	# replaces for runScript
-        replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
+    replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
 	replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
 	close OUTFILE;
 	system "chmod a+x $odir/job$j/runScript.csh";
 }
 
-}
-
 system( "
-mkdir $odir/main/;
+mkdir $odir/main;
 cp python/initial_tpl.py $odir/main/initial_cfg.py;
 cp python/collect_tpl.py $odir/main/collect_cfg.py;
 cp python/upload_tpl.py $odir/upload_cfg.py;
 cp scripts/runScript.csh $odir/main/.;
-cp scripts/runControl.csh $odir/main/.;
-cp scripts/checkError.sh $odir/main/.;
 ");
 ## setting up initial job
 replace( "$odir/main/initial_cfg.py", "<PATH>", "$odir" );
 insertBlock( "$odir/main/initial_cfg.py", "<COMMON>", @commonFileInput );
-replace( "$odir/main/initial_cfg.py", "<FLAG>", "" );	
+
 ## setting up collector job
 replace( "$odir/main/collect_cfg.py", "<PATH>", "$odir" );
 replace( "$odir/main/collect_cfg.py", "<JOBS>", "$j" );
 insertBlock( "$odir/main/collect_cfg.py", "<COMMON>", @commonFileInput );
-replace( "$odir/main/collect_cfg.py", "<FLAG>", "" );	
 replace( "$odir/main/runScript.csh", "<ODIR>", "$odir/main" );
 replace( "$odir/main/runScript.csh", "<JOBTYPE>", "collect_cfg.py" );
 system "chmod a+x $odir/main/runScript.csh";

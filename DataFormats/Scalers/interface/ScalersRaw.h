@@ -173,6 +173,8 @@ struct DcsStatusRaw_v4
   unsigned int collectionTime_sec;
   unsigned int collectionTime_nsec;
   unsigned int ready;
+  float magnetCurrent;
+  float magnetTemperature;
 };
 
 struct ScalersEventRecordRaw_v1
@@ -208,6 +210,19 @@ struct ScalersEventRecordRaw_v3
 };
 
 struct ScalersEventRecordRaw_v4
+{
+  unsigned long long header;
+  int version;
+  struct TriggerScalersRaw_v3 trig;
+  struct LumiScalersRaw_v1    lumi;
+  struct BeamSpotOnlineRaw_v4 beamSpotOnline;
+  struct DcsStatusRaw_v4      dcsStatus;
+  unsigned long long bx[ScalersRaw::N_BX_v2];
+  unsigned long long trailer;
+};
+
+
+struct ScalersEventRecordRaw_v5
 {
   unsigned long long header;
   int version;

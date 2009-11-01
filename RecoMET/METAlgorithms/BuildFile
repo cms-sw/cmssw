@@ -1,6 +1,5 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/CaloTowers>
-<use name=DataFormats/JetReco>
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=rootphysics>
@@ -12,7 +11,6 @@
 <use name=DataFormats/ParticleFlowCandidate>
 <export>
  <lib name=RecoMETMETAlgorithms>
- <use name=DataFormats/JetReco>	
  <use name=DataFormats/METReco>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/Common>

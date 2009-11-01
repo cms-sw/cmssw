@@ -2,17 +2,16 @@
 #define CondCoreDBCommon_SQLReport_H
 #include <string>
 #include <sstream>
-#include "CondCore/DBCommon/interface/DbConnection.h"
 
 namespace cond {
 
-  class DbConnection;
+  class DBSession;
   
   class SQLReport {
 
     public:
 
-    explicit SQLReport(DbConnection& connection);
+    explicit SQLReport(DBSession& session);
 
     virtual ~SQLReport(){}
     
@@ -24,7 +23,7 @@ namespace cond {
 
     SQLReport();
 
-    DbConnection m_connection;
+    DBSession& m_session;
     
     std::stringstream m_report;
     
@@ -32,7 +31,7 @@ namespace cond {
 }
 
 inline
-cond::SQLReport::SQLReport(DbConnection& connection):m_connection(connection),m_report(){
+cond::SQLReport::SQLReport(DBSession& session):m_session(session),m_report(){
 }
 
 #endif //  CondCoreDBCommon_SQLReport_H

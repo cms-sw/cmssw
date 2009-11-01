@@ -3,6 +3,7 @@
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
 #include "ZdcHardcodeGeometryData.h"
+#include <algorithm>
 
 ZdcGeometry::ZdcGeometry() :
    theTopology( new ZdcTopology ),

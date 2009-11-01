@@ -1,12 +1,10 @@
 <flags GENREFLEX_ARGS="--">
-<use name=CondFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>
 <use name=rootrflx>
 <use name=boost>
 
 <export>
-  <use name=CondFormats/Common>
   <use name=boost>
   <use name=rootrflx>
   <use name=DataFormats/EcalDetId>

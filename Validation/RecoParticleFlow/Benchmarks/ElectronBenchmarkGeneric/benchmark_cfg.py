@@ -6,13 +6,10 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0009/880AA097-75B7-DE11-B848-001D09F23C73.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/CC9C9FAC-86B6-DE11-8A1B-001D09F24FEC.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/A44075CB-7FB6-DE11-8010-000423D98868.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/6E433585-84B6-DE11-A3E1-001D09F2437B.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/285A7AC1-82B6-DE11-BA29-001D09F2525D.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/12755919-88B6-DE11-8FF2-000423D996C8.root', 
-        '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/04B93222-89B6-DE11-93E9-001D09F29524.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/602FA642-089F-DE11-A825-001D09F24EE3.root', 
+        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/5C215805-059F-DE11-8E4B-001D09F24DA8.root', 
+        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/344D8640-069F-DE11-836A-001D09F29114.root', 
+        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0014/86C594B6-029F-DE11-90F9-001D09F26C5C.root')
 )
 process.pfAllElectrons = cms.EDProducer("PdgIdPFCandidateSelector",
     pdgId = cms.vint32(11, -11),
@@ -23,8 +20,8 @@ process.pfAllElectrons = cms.EDProducer("PdgIdPFCandidateSelector",
 process.gensource = cms.EDProducer("GenParticlePruner",
     src = cms.InputTag("genParticles"),
     select = cms.vstring('drop *', 
-        'keep pdgId = 211', 
-        'keep pdgId = -211')
+        'keep+ pdgId = 23', 
+        'drop pdgId !=11 && pdgId !=-11')
 )
 
 
@@ -55,7 +52,7 @@ process.pfElectronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     minDeltaEt = cms.double(-100.0),
     OutputFile = cms.untracked.string('benchmark.root'),
     StartFromGen = cms.bool(False),
-    deltaRMax = cms.double(0.05),
+    deltaRMax = cms.double(0.2),
     maxDeltaEt = cms.double(50.0),
     InputTruthLabel = cms.InputTag("gensource"),
     InputRecoLabel = cms.InputTag("pfAllElectrons"),

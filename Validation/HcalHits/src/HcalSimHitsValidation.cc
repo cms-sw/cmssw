@@ -124,26 +124,29 @@ void HcalSimHitsValidation::endJob() {
     else                       phi_factor = 18.;
     
     float cnorm;
+    int ibin;
 
-    //Occupancy vs. iEta TH1Fs
-    cnorm = occupancy_vs_ieta_HB1->getBinContent(i) / (phi_factor * nevtot); 
+    if (ieta > 0) ibin = i + 1;
+    else          ibin = i;
+  
+    cnorm = occupancy_vs_ieta_HB1->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HB1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HB2->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HB2->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HB2->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HE1->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE1->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HE2->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE2->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE2->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HE3->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE3->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE3->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HO->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HO->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HO->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HF1->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HF1->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HF1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HF2->getBinContent(i) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HF2->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HF2->setBinContent(i, cnorm);
   }
 
@@ -194,8 +197,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //Approximate calibration constants
   const float calib_HB = 120.;
   const float calib_HE = 190.;
-  const float calib_HF1 = 1.0/0.383;
-  const float calib_HF2 = 1.0/0.368;
+  const float calib_HF = 3.;
   
   edm::Handle<PCaloHitContainer> hcalHits;
   ev.getByLabel("g4SimHits","HcalHits",hcalHits);
@@ -223,22 +225,20 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     //Energy in Cone 
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
     
-    if (r < partR){      
+    if ( r < partR ){ // just energy in the small cone
+      // alternative: ietamax -> closest to MC eta  !!!
       eta_diff = fabs(eta_MC - etaS);
       if(eta_diff < etaMax) {
 	etaMax  = eta_diff; 
 	ietaMax = cell.ieta(); 
       }
       //Approximation of calibration
-      if      (sub == 1)               HcalCone += en*calib_HB;
-      else if (sub == 2)               HcalCone += en*calib_HE;
-      else if (sub == 4 && depth == 1) HcalCone += en*calib_HF1;
-      else if (sub == 4 && depth == 2) HcalCone += en*calib_HF2;
+      if      (sub == 1) HcalCone += en*calib_HB;
+      else if (sub == 2) HcalCone += en*calib_HE;
+      else if (sub == 4) HcalCone += en*calib_HF;
+      else               HcalCone += en;
     }
     
-    //Account for lack of ieta = 0
-    if (ieta > 0) ieta--;
-
     //HB
     if (sub == 1){
       meSimHitsEnergyHB->Fill(en);
@@ -304,8 +304,11 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double en   = SimHits->energy();    
   
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
-    
-    if (r < partR) EcalCone += en;   
+       
+    if ( r < partR ){ // just energy in the small cone
+      // alternative: ietamax -> closest to MC eta  !!!
+      EcalCone += en;
+    }
   }
 
   //Ecal EE SimHits
@@ -321,19 +324,19 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    
-    
+  
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
-    
-    if (r < partR) EcalCone += en;   
+       
+    if ( r < partR ){ // just energy in the small cone
+      // alternative: ietamax -> closest to MC eta  !!!
+      EcalCone += en;
+    }
   }
+   
+  meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
+  meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
+  meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
 
-  if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
-    if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
-    
-    meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
-    meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
-    meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
-  }
   
   nevtot++;
 }

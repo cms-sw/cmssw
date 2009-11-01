@@ -1,5 +1,5 @@
 
-root outfile benchmark.root
+root outfile tauBenchmark.root
 root outtree 1
 
 //colin	mode 1
@@ -36,9 +36,6 @@ root clusters_PS_branch    recoPFClusters_particleFlowClusterPS__PROD.obj
 root MCTruth_branch        edmHepMCProduct_generator__PROD.obj
 // GSF Track branch
 root gsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec__PROD.obj
-// Conversions GSF Track branch
-root convBremGsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec_Secondary_PROD.obj
-
 // Muon branch
 root muon_branch           recoMuons_muons__PROD.obj
 // Conversion branch
@@ -307,8 +304,8 @@ particle_flow	on/off	1
 
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
-particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1. 
-particle_flow NHit_Cut 3 3 3 3 3
+particle_flow DPtoverPt_Cut  1.0 1.0 0.8 0.5 0.5
+particle_flow NHit_Cut 3 3 3 6 6
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS
@@ -317,7 +314,7 @@ particle_flow muon_ECAL 0.5 0.5
 
 // Treatment of potential fake tracks
 // Number of sigmas for fake track detection
-particle_flow   nsigma_TRACK  1.0
+particle_flow   nsigma_TRACK  2.0
 // Absolute pt error to detect fake tracks in the first three iterations
 particle_flow   pt_error 1.0
 // Factors to be applied in the four and fifth steps to the pt error
@@ -330,11 +327,7 @@ particle_flow   nsigma_HCAL    1.0
 // PFElectrons
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1
-particle_flow   electron_crackCorrection 1
 particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
-
-// PF Converted Bremsstrahlung recovery
-particle_flow   useConvBremGsfTracks    0
 
 // PFConversions
 particle_flow   usePFConversions      0
@@ -503,11 +496,6 @@ pfmet_benchmark deltaphicut 3.8
 pfmet_benchmark trueMetIgnoreParticlesIDs 1 2 3 4 5 6 12 14 16 21 39 1000022
 pfmet_benchmark trueMetSpecificIdCut 13
 pfmet_benchmark trueMetSpecificEtaCut 2.4
-
-// PFCandidateBenchmark options   ------------------------------------------
-
-pfCandidate_benchmark on/off		1
-pfCandidate_benchmark subdirectory	Currently_not_used
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

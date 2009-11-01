@@ -32,8 +32,6 @@
 #include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
@@ -51,8 +49,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 
 #include "EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -72,16 +68,11 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   algo_=NULL;
 }
 void EcalTrigPrimProducer::beginRun(const edm::Run & run,edm::EventSetup const& setup) {
-  
-  bool famos = ps_.getParameter<bool>("Famos");
-
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
-
-  // get a first version of the records
-  cacheID_=this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::beginJob() {
+void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
+
+  bool famos = ps_.getParameter<bool>("Famos");
 
   //  get  binOfMax
   //  try first in cfg, then in ProductRegistry
@@ -120,6 +111,10 @@ void EcalTrigPrimProducer::beginJob() {
     edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
 
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
+
+  // get a first version of the records
+  cacheID_=this->getRecords(setup);
 }
 
 unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
@@ -133,10 +128,6 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
   edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
   setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
   const EcalTPGPedestals * ecaltpPed = theEcalTPGPedestals_handle.product();
-  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
-  setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
-  const EcalTPGCrystalStatus * ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
-
 
   //for strips
   edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
@@ -151,8 +142,8 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
   edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
   setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
   const EcalTPGFineGrainStripEE * ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();     
- 
-  algo_->setPointers(ecaltpLin,ecaltpPed,ecaltpgSlidW,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgFgStripEE,ecaltpgBadX);
+
+  algo_->setPointers(ecaltpLin,ecaltpPed,ecaltpgSlidW,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgFgStripEE);
 
   // .. and for EcalFenixTcp
   // get parameter records for towers
@@ -172,16 +163,11 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
   setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
   const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
 
-  edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
-  setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
-  const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
+    edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
+    setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
+    const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
 
-  edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
-  setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
-  const EcalTPGTowerStatus * ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
-
-
-  algo_->setPointers2(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT);
+  algo_->setPointers2(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut, ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE);
 
   // we will suppose that everything is to be updated if the EcalTPGLinearizationConstRcd has changed
   return setup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier();

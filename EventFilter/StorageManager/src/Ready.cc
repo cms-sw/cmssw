@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.10 2009/09/23 13:53:30 mommsen Exp $
+// $Id: Ready.cc,v 1.8.4.1 2009/09/25 09:57:48 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"

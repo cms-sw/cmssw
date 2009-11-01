@@ -24,7 +24,7 @@ hltMonMuBits = cms.EDAnalyzer("HLTMonBitSummary",
                                 "HLTMuonDimuonL3Filter",
                                 "HLTMuonIsoFilter"
                                ),
-    denominator = cms.untracked.string('HLT_L1Mu20'),
+    denominator = cms.untracked.string('HLT_L1MuOpen'),
     
     TriggerResultsTag = cms.InputTag('TriggerResults','','HLT'),
 

@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
     StreamedProduct::StreamedProduct(EDProduct const* prod,

@@ -14,6 +14,7 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/src/Solid.h"
 //***** Explicit template instantiation of Singleton
 #include "DetectorDescription/Base/interface/Singleton.icc"
 template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;

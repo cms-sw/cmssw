@@ -4,7 +4,7 @@ source ${BaseDir}/MakeAllPlots.sh
 
 function UpdatePlots ()
 {
-    local StorageDir=$4
+    local StorageDir=/storage/data2/SiStrip/historic_dqm/HistoryDQM
 
     if [ ! -e ${StorageDir}/backup ]; then
 	mkdir ${StorageDir}/backup
@@ -21,17 +21,11 @@ function UpdatePlots ()
     mv ${StorageDir}/Last40Runs ${StorageDir}/backup
     mv HistoricDQMPlots ${StorageDir}/Last40Runs
     cp index.html ${StorageDir}/Last40Runs
-
-    # Done by hand for the special case of RPC
-    cp RPC/index.html ${StorageDir}/Last40Runs/Plots_RPCHistoricInfoClient
-
+ 
     # Create new trends for all runs
     MakeAllPlots "${argument1}" "${argument2}" $CMSSW_version 1 20000000000
     rm -rf ${StorageDir}/backup/AllRuns
     mv ${StorageDir}/AllRuns ${StorageDir}/backup
     mv HistoricDQMPlots ${StorageDir}/AllRuns
     cp index.html ${StorageDir}/AllRuns
-
-    # Done by hand for the special case of RPC
-    cp RPC/index.html ${StorageDir}/AllRuns/Plots_RPCHistoricInfoClient
 }

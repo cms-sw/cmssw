@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: EventMsgData.cc,v 1.1 2009/09/29 14:58:15 dshpakov Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 

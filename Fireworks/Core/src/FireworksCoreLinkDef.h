@@ -6,7 +6,6 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 #include "Fireworks/Core/src/FWCompactVerticalLayout.h"
-#include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -28,7 +27,7 @@
 #pragma link C++ class FWSummaryManager;
 
 #pragma link C++ class FWCompactVerticalLayout;
-#pragma link C++ class FWModelContextMenuHandler;
+
 
 
 

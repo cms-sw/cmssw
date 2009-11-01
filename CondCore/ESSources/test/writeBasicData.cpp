@@ -1,12 +1,17 @@
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
 //#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 //#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 int main(){
   try{
@@ -14,27 +19,28 @@ int main(){
     cond::TimeType timetype = cond::runnumber;
     cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue;
 
-    cond::DbConnection connection;
-    connection.configuration().setMessageLevel( coral::Error );
-    connection.configure();
-    cond::DbSession session = connection.createSession();
-    session.open( "sqlite_file:mytest.db" );
-
-    cond::IOVService iovmanager( session );
+    cond::DBSession* session=new cond::DBSession;
+    session->configuration().setMessageLevel(cond::Error);
+    cond::Connection myconnection("sqlite_file:mytest.db",-1);
+    session->open();
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+    cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
-    session.transaction().start(false);
+    pooldb.start(false);
     ioveditor->create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
-        Pedestals::Item item;
+	Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"PedestalsRcd");
-      std::string payloadToken=myref.toString();
+      cond::TypedRef<Pedestals> myref(pooldb,myped);
+      myref.markWrite("PedestalsRcd");
+      std::string payloadToken=myref.token();
       ioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     //last one
@@ -45,33 +51,35 @@ int main(){
       item.m_variance=5.12*ichannel;
       myped->m_pedestals.push_back(item);
     }
-    pool::Ref<Pedestals> myref = session.storeObject(myped,"PedestalsRcd");
-    std::string payloadToken=myref.toString();
+    cond::TypedRef<Pedestals> myref(pooldb,myped);
+    myref.markWrite("PedestalsRcd");
+    std::string payloadToken=myref.token();
     ioveditor->append(9001,payloadToken);
     mytestiovtoken=ioveditor->token();
     std::cout<<"mytest iov token "<<mytestiovtoken<<std::endl;
-    session.transaction().commit();
+    pooldb.commit();
     delete ioveditor;
     
     std::string mypedestalsiovtoken;
     cond::IOVEditor* ioveditor2=iovmanager.newIOVEditor();
-    session.transaction().start(false);
+    pooldb.start(false);
     ioveditor2->create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
-        Pedestals::Item item;
+	Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"PedestalsRcd");
-      std::string payloadToken=myref.toString();
+      cond::TypedRef<Pedestals> myref(pooldb,myped);
+      myref.markWrite("PedestalsRcd");
+      std::string payloadToken=myref.token();
       ioveditor2->append(cond::Time_t(5+2*i),payloadToken);
     }
     mypedestalsiovtoken=ioveditor2->token();
     std::cout<<"mytest iov token "<<mypedestalsiovtoken<<std::endl;
-    session.transaction().commit();
+    pooldb.commit();
     delete ioveditor2;
 
     //
@@ -79,31 +87,36 @@ int main(){
     //
     std::string anothermytestiovtoken;
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
-    session.transaction().start(false);
+    pooldb.start(false);
     anotherioveditor->create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
-        Pedestals::Item item;
+	Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"anotherPedestalsRcd");
-      std::string payloadToken=myref.toString();
+      cond::TypedRef<Pedestals> myref(pooldb,myped);
+      myref.markWrite("anotherPedestalsRcd");
+      std::string payloadToken=myref.token();
       anotherioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     anothermytestiovtoken=anotherioveditor->token();
-    session.transaction().commit();
+    pooldb.commit();
     std::cout<<"anothermytest iov token "<<anothermytestiovtoken<<std::endl;
     delete anotherioveditor;
     
-    cond::MetaData metadata( session );
-    session.transaction().start(false);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::MetaData metadata(coraldb);
+    coraldb.start(false);
     metadata.addMapping("mytest",mytestiovtoken);
     metadata.addMapping("mypedestals",mypedestalsiovtoken);
     metadata.addMapping("anothermytest",anothermytestiovtoken);
-    session.transaction().commit();
+    coraldb.commit();
+    myconnection.disconnect();
+    delete session;
+    session=0;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: mk_satamap.pl,v 1.6 2009/02/06 17:15:29 gbauer Exp $
+# $Id: mk_satamap.pl,v 1.7 2009/08/17 13:26:47 gbauer Exp $
 #
 # Make sata mapping of volume serial numbers, suitable for intput to "makeall" script
 #

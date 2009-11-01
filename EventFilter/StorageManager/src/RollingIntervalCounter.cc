@@ -1,5 +1,5 @@
 /**
- * $Id: RollingIntervalCounter.cc,v 1.2.6.1 2009/09/14 16:44:18 mommsen Exp $
+ * $Id: RollingIntervalCounter.cc,v 1.2 2009/05/09 01:28:22 elmer Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"

@@ -54,31 +54,31 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (SimVtx.isValid()) theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << SimVertexCollection_.label(); }
   
-  const reco::SuperClusterCollection* BarrelSuperClusters = 0;
+  const reco::SuperClusterCollection* BarrelSuperClusters;
   Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
   evt.getByLabel(BarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
   if (pHybridBarrelSuperClusters.isValid()) { BarrelSuperClusters = pHybridBarrelSuperClusters.product(); } 
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << BarrelSuperClusterCollection_.label(); }
 
-  const reco::SuperClusterCollection* EndcapSuperClusters = 0;
+  const reco::SuperClusterCollection* EndcapSuperClusters;
   Handle<reco::SuperClusterCollection> pMulti5x5EndcapSuperClusters;
   evt.getByLabel(EndcapSuperClusterCollection_, pMulti5x5EndcapSuperClusters);
   if (pMulti5x5EndcapSuperClusters.isValid()) EndcapSuperClusters = pMulti5x5EndcapSuperClusters.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << EndcapSuperClusterCollection_.label(); }
   
-  const EcalRecHitCollection *ebRecHits = 0;
+  const EcalRecHitCollection *ebRecHits;
   Handle< EcalRecHitCollection > pEBRecHits;
   evt.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
   if (pEBRecHits.isValid()) ebRecHits = pEBRecHits.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << reducedBarrelRecHitCollection_.label(); }
   
-  const EcalRecHitCollection *eeRecHits = 0;
+  const EcalRecHitCollection *eeRecHits;
   Handle< EcalRecHitCollection > pEERecHits;
   evt.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
   if (pEERecHits.isValid()) eeRecHits = pEERecHits.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << reducedEndcapRecHitCollection_.label(); }
   
-  const CaloTopology *topology = 0;
+  const CaloTopology *topology;
   ESHandle<CaloTopology> pTopology;
   es.get<CaloTopologyRecord>().get(pTopology);
   if(pTopology.isValid()) topology = pTopology.product();
@@ -380,7 +380,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
 	  std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
 	  if(association != geantToIndex_.end() )
 	    motherId = association->second;
-	  //int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+	  int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
 	  
 	  if ( theSimTracks[motherId].trackId() == (*iPhoTk)->trackId() ) {
 	    /// store this electron since it's from a converted photon

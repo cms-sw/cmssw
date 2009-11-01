@@ -111,80 +111,63 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   double vtime = version * 1e-9;
   if (vtime - lastFlush_ < publishFrequency_)
     return;
+  lastFlush_ = vtime;
 
   // OK, send an update.
   if (net_)
   {
-    DQMNet::Object o;
-    std::set<std::string> seen;
-    std::string fullpath;
-
     // Lock the network layer so we can modify the data.
     net_->lock();
     bool updated = false;
 
     // Find updated contents and update the network cache.
     DQMStore::MEMap::iterator i, e;
-    net_->reserveLocalSpace(store_->data_.size());
     for (i = store_->data_.begin(), e = store_->data_.end(); i != e; ++i)
     {
-      const MonitorElement &me = *i;
-      fullpath.clear();
-      fullpath += *me.data_.dirname;
-      if (! me.data_.dirname->empty())
-        fullpath += '/';
-      fullpath += me.data_.objname;
-
-      if (filter_ && filter_->search(fullpath) < 0)
-	continue;
-
-      seen.insert(fullpath);
+      MonitorElement &me = i->second;
       if (! me.wasUpdated())
 	continue;
 
-      o.lastreq = 0;
-      o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
-      o.flags = me.data_.flags;
-      o.tag = me.data_.tag;
+      if (filter_ && filter_->search(me.data_.name) < 0)
+	continue;
+
+      assert(me.data_.object);
+
+      DQMNet::Object o;
       o.version = version;
-      o.dirname = me.data_.dirname;
-      o.objname = me.data_.objname;
-      o.scalar.clear();
-      o.rawdata.clear();
-      o.qdata.clear();
+      o.name = me.data_.name;
+      o.tags = me.data_.tags;
+      o.object = 0;
+      o.reference = 0;
+      o.flags = me.data_.flags;
+      o.lastreq = 0;
 
-      // Pack object and reference, scalar and quality data.
-      switch (me.kind())
+      TBufferFile buffer (TBufferFile::kWrite);
+      buffer.WriteObject(me.data_.object);
+      if (me.data_.reference)
+	buffer.WriteObject(me.data_.reference);
+      else
+	buffer.WriteObjectAny(0, 0);
+
+      // Save the quality test results.
+      DQMNet::QReports::iterator qi, qe;
+      for (qi = me.data_.qreports.begin(), qe = me.data_.qreports.end(); qi != qe; ++qi)
       {
-      case MonitorElement::DQM_KIND_INT:
-      case MonitorElement::DQM_KIND_REAL:
-      case MonitorElement::DQM_KIND_STRING:
-	me.packScalarData(o.scalar, "");
-	break;
-
-      default:
-	{
-          TBufferFile buffer(TBufferFile::kWrite);
-          buffer.WriteObject(me.object_);
-          if (me.reference_)
-	    buffer.WriteObject(me.reference_);
-          else
-	    buffer.WriteObjectAny(0, 0);
-          o.rawdata.resize(buffer.Length());
-          memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
-          DQMNet::packQualityData(o.qdata, me.data_.qreports);
-	  break;
-	}
+	TObjString s (me.qualityTagString(*qi).c_str());
+	buffer.WriteObject(&s);
       }
 
-      // Update.
+      // Save this ensemble to the buffer.
+      o.rawdata.resize(buffer.Length());
+      memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
       net_->updateLocalObject(o);
       updated = true;
     }
 
     // Find removed contents and clear the network cache.
-    if (net_->removeLocalExcept(seen))
-      updated = true;
+    std::vector<std::string>::iterator ri, re;
+    for (ri = store_->removed_.begin(), re = store_->removed_.end(); ri != re; ++ri, updated = true)
+      net_->removeLocalObject(*ri);
 
     // Unlock the network layer.
     net_->unlock();
@@ -195,7 +178,6 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   }
 
   store_->reset();
-  lastFlush_ = lat::Time::current().ns() * 1e-9;
 }
 
 // Disengage the network service.

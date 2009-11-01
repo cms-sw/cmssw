@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.6 2009/09/17 11:04:43 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.4.4.2 2009/09/25 09:57:43 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -16,8 +16,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.4.4.2 $
+   * $Date: 2009/09/25 09:57:43 $
    */
   
   class FRDFileHandler : public FileHandler

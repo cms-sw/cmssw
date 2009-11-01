@@ -15,47 +15,27 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.h,v 1.3 2009/10/21 11:27:11 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 //
 //
 // 
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
-#include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "TF1.h"
-#include "TMatrixD.h"
-
 
 class SignCaloSpecificAlgo 
 {
  public:
-
-  SignCaloSpecificAlgo();
-  ~SignCaloSpecificAlgo();
-
-  
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
   typedef std::vector <const reco::Candidate*> TowerCollection;
-  void usePreviousSignif(const std::vector<double> &values);
-  void usePreviousSignif(const TMatrixD &matrix){matrix_=matrix;}
-  double getSignificance(){return significance_;}
-  TMatrixD getSignificanceMatrix()const {return matrix_;}
+  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
 
-  void calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers,  CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
+  double addSignificance(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
   
- private:
-  
-  std::vector<metsig::SigInputObj> makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Candidate> > towers, const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalthreshold);
-  
-  double significance_;
-  TMatrixD matrix_;
 };
 
 #endif

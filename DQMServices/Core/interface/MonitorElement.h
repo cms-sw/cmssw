@@ -33,63 +33,61 @@ class QCriterion;
 /** The base class for all MonitorElements (ME) */
 class MonitorElement
 {
-  friend class DQMStore;
-  friend class DQMService;
 public:
-  struct Scalar
+  struct Value
   {
     int64_t		num;
     double		real;
     std::string		str;
+    TObject		*tobj;
   };
 
   enum Kind
   {
-    DQM_KIND_INVALID	= DQMNet::DQM_PROP_TYPE_INVALID,
-    DQM_KIND_INT	= DQMNet::DQM_PROP_TYPE_INT,
-    DQM_KIND_REAL	= DQMNet::DQM_PROP_TYPE_REAL,
-    DQM_KIND_STRING	= DQMNet::DQM_PROP_TYPE_STRING,
-    DQM_KIND_TH1F	= DQMNet::DQM_PROP_TYPE_TH1F,
-    DQM_KIND_TH1S	= DQMNet::DQM_PROP_TYPE_TH1S,
-    DQM_KIND_TH1D	= DQMNet::DQM_PROP_TYPE_TH1D,
-    DQM_KIND_TH2F	= DQMNet::DQM_PROP_TYPE_TH2F,
-    DQM_KIND_TH2S	= DQMNet::DQM_PROP_TYPE_TH2S,
-    DQM_KIND_TH2D	= DQMNet::DQM_PROP_TYPE_TH2D,
-    DQM_KIND_TH3F	= DQMNet::DQM_PROP_TYPE_TH3F,
-    DQM_KIND_TPROFILE	= DQMNet::DQM_PROP_TYPE_TPROF,
-    DQM_KIND_TPROFILE2D	= DQMNet::DQM_PROP_TYPE_TPROF2D
+    DQM_KIND_INVALID,
+    DQM_KIND_INT,
+    DQM_KIND_REAL,
+    DQM_KIND_STRING,
+    DQM_KIND_TH1F,
+    DQM_KIND_TH1S,
+    DQM_KIND_TH1D,
+    DQM_KIND_TH2F,
+    DQM_KIND_TH2S,
+    DQM_KIND_TH2D,
+    DQM_KIND_TH3F,
+    DQM_KIND_TPROFILE,
+    DQM_KIND_TPROFILE2D
   };
 
   typedef std::vector<QReport>::const_iterator QReportIterator;
 
-private:
-  DQMNet::CoreObject	data_;       //< Core object information.
-  Scalar		scalar_;     //< Current scalar value.
-  TH1			*object_;    //< Current ROOT object value.
-  TH1			*reference_; //< Current ROOT reference object.
-  TH1			*refvalue_;  //< Soft reference if any.
-  std::vector<QReport>	qreports_;   //< QReports associated to this object.
+  static const uint32_t DQM_FLAG_RESET      = 0x01000000;
+  static const uint32_t DQM_FLAG_ACCUMULATE = 0x02000000;
 
-  MonitorElement *initialise(Kind kind);
-  MonitorElement *initialise(Kind kind, TH1 *rootobj);
-  MonitorElement *initialise(Kind kind, const std::string &value);
+private:
+  Kind			kind_;
+  DQMNet::CoreObject	data_;
+  std::string		name_;
+  std::string		path_;
+  std::vector<QReport>	qreports_;
+  size_t		nqerror_;    //< errors from last set of quality tests
+  size_t		nqwarning_;  //< warnings from last set of quality tests
+  size_t		nqother_;    //< other quality reports (not an error, warning or ok)
+
+  Value			curvalue_;
+  TH1			*refvalue_;
+  
+  MonitorElement *initialise(Kind kind, const std::string &path);
+  MonitorElement *initialise(Kind kind, const std::string &path, TH1 *rootobj);
+  MonitorElement *initialise(Kind kind, const std::string &path, const std::string &value);
 
 public:
   MonitorElement(void);
-  MonitorElement(const std::string *path, const std::string &name);
-  MonitorElement(const MonitorElement &);
-  MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
-
-  /// Compare monitor elements, for ordering in sets.
-  bool operator<(const MonitorElement &x) const
-    {
-      return DQMNet::setOrder(data_, x.data_);
-    }
 
   /// Get the type of the monitor element.
   Kind kind(void) const
-    { return Kind(data_.flags & DQMNet::DQM_PROP_TYPE_MASK); }
+    { return kind_; }
 
   /// Get the object flags.
   uint32_t flags(void) const
@@ -97,36 +95,33 @@ public:
 
   /// get name of ME
   const std::string &getName(void) const
-    { return data_.objname; }
+    { return name_; }
 
   /// get pathname of parent folder
   const std::string &getPathname(void) const
-    { return *data_.dirname; }
+    { return path_; }
 
   /// get full name of ME including Pathname
-  const std::string getFullname(void) const
-    {
-      std::string path;
-      path.reserve(data_.dirname->size() + data_.objname.size() + 2);
-      path += *data_.dirname;
-      if (! data_.dirname->empty())
-	path += '/';
-      path += data_.objname;
-      return path;
-    }
+  const std::string &getFullname(void) const
+    { return data_.name; }
 
   /// true if ME was updated in last monitoring cycle
   bool wasUpdated(void) const
-    { return data_.flags & DQMNet::DQM_PROP_NEW; }
+    { return data_.flags & DQMNet::DQM_FLAG_NEW; }
 
   /// Mark the object updated.
   void update(void)
-    { data_.flags |= DQMNet::DQM_PROP_NEW; }
+    { data_.flags |= DQMNet::DQM_FLAG_NEW; }
 
   /// specify whether ME should be reset at end of monitoring cycle (default:false);
   /// (typically called by Sources that control the original ME)
   void setResetMe(bool flag)
-    { data_.flags |= DQMNet::DQM_PROP_RESET; }
+    { data_.flags |= DQM_FLAG_RESET; }
+
+#if __WORDSIZE > 32
+  void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
+  void Fill(unsigned long long x) { Fill(static_cast<int64_t>(x)); }
+#endif
 
   void Fill(uint64_t x) { Fill(static_cast<int64_t>(x)); }
   void Fill(int32_t x)  { Fill(static_cast<int64_t>(x)); }
@@ -150,22 +145,19 @@ public:
 
   std::string valueString(void) const;
   std::string tagString(void) const;
-  std::string tagLabelString(void) const;
   std::string qualityTagString(const DQMNet::QValue &qv) const;
-  void packScalarData(std::string &into, const char *prefix) const;
-  void packQualityData(std::string &into) const;
 
   /// true if at least of one of the quality tests returned an error
   bool hasError(void) const
-    { return data_.flags & DQMNet::DQM_PROP_REPORT_ERROR; }
+    { return nqerror_ > 0; }
 
   /// true if at least of one of the quality tests returned a warning
   bool hasWarning(void) const
-    { return data_.flags & DQMNet::DQM_PROP_REPORT_WARN; }
+    { return nqwarning_ > 0; }
 
   /// true if at least of one of the tests returned some other (non-ok) status
   bool hasOtherReport(void) const
-    { return data_.flags & DQMNet::DQM_PROP_REPORT_OTHER; }
+    { return nqother_ > 0; }
 
   /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport *getQReport(const std::string &qtname) const;
@@ -243,21 +235,21 @@ private:
 
   /// whether ME contents should be accumulated over multiple monitoring periods; default: false
   bool isAccumulateEnabled(void) const
-    { return data_.flags & DQMNet::DQM_PROP_ACCUMULATE; }
+    { return data_.flags & DQM_FLAG_ACCUMULATE; }
 
 private:
   /// reset "was updated" flag
   void resetUpdate(void)
-    { data_.flags &= ~DQMNet::DQM_PROP_NEW; }
+    { data_.flags &= ~DQMNet::DQM_FLAG_NEW; }
 
   /// true if ME should be reset at end of monitoring cycle
   bool resetMe(void) const
-    { return data_.flags & DQMNet::DQM_PROP_RESET; }
+    { return data_.flags & DQM_FLAG_RESET; }
 
   /// if true, will accumulate ME contents (over many periods)
   /// until method is called with flag = false again
   void setAccumulate(bool flag)
-    { data_.flags |= DQMNet::DQM_PROP_ACCUMULATE; }
+    { data_.flags |= DQM_FLAG_ACCUMULATE; }
 
   TAxis *getAxis(const char *func, int axis) const;
 
@@ -301,34 +293,33 @@ public:
   TProfile *getRefTProfile(void) const;
   TProfile2D *getRefTProfile2D(void) const;
 
-  int64_t getIntValue(void) const
+  const int64_t &getIntValue(void) const
     {
-      assert(kind() == DQM_KIND_INT);
-      return scalar_.num;
+      assert(kind_ == DQM_KIND_INT);
+      return curvalue_.num;
     }
 
-  double getFloatValue(void) const
+  const double &getFloatValue(void) const
     {
-      assert(kind() == DQM_KIND_REAL);
-      return scalar_.real;
+      assert(kind_ == DQM_KIND_REAL);
+      return curvalue_.real;
     }
 
   const std::string &getStringValue(void) const
     {
-      assert(kind() == DQM_KIND_STRING);
-      return scalar_.str;
+      assert(kind_ == DQM_KIND_STRING);
+      return curvalue_.str;
     }
 
-  DQMNet::TagList getTags(void) const // DEPRECATED
-    {
-      DQMNet::TagList tags;
-      if (data_.flags & DQMNet::DQM_PROP_TAGGED)
-	tags.push_back(data_.tag);
-      return tags;
-    }
+  const DQMNet::TagList &getTags(void) const
+    { return data_.tags; }
 
-  const uint32_t getTag(void) const
-    { return data_.tag; }
+private:
+  friend class DQMStore;
+  friend class DQMService;
+
+  //MonitorElement(const MonitorElement &);
+  //MonitorElement &operator=(const MonitorElement &);
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H

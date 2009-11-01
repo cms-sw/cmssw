@@ -1,13 +1,11 @@
 #ifndef DataFormats_ParticleFlowReco_PFBrem_h
 #define DataFormats_ParticleFlowReco_PFBrem_h
 
-//COLIN: one must include the correct header when inheriting from a class
-//#include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
 
 namespace reco {
 
-  
+ 
   class PFBrem : public PFRecTrack {
 
   public:

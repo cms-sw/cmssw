@@ -5,7 +5,7 @@ isoValMuonWithCharged = cms.EDProducer(
     deposits = cms.VPSet(
     cms.PSet(
     src = cms.InputTag("isoDepMuonWithCharged"),
-    deltaR = cms.double(0.4),
+    deltaR = cms.double(0.5),
     weight = cms.string('1'),
     vetos = cms.vstring(),
     skipDefaultVeto = cms.bool(True),

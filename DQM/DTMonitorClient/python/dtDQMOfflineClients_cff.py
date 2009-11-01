@@ -6,9 +6,6 @@ segmentTest.normalizeHistoPlots = True
 #segmentTest.detailedAnalysis = True
 from DQM.DTMonitorClient.dtOfflineSummaryClients_cfi import *
 from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *
-from DQM.DTMonitorClient.dtTriggerEfficiencyTest_cfi import *
-from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
-blockedROChannelTest.offlineMode = True;
 
 dtQualityTests = cms.EDFilter("QualityTester",
                          #reportThreshold = cms.untracked.string('red'),
@@ -21,8 +18,5 @@ dtQualityTests = cms.EDFilter("QualityTester",
 dtClients = cms.Sequence(segmentTest+
                          dtResolutionAnalysisTest+
                          dtChamberEfficiencyClient+
-                         triggerEffTest+
-                         blockedROChannelTest+
                          dtOfflineSummaryClients)
-
 

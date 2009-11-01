@@ -5,8 +5,8 @@
  * *
  *  DQM Client to Summarize LS by LS the status of the Read-Out channels.
  *
- *  $Date: 2009/06/10 10:03:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/05/20 14:17:01 $
+ *  $Revision: 1.12 $
  *  \author G. Cerminara - University and INFN Torino
  *   
  */
@@ -21,7 +21,6 @@
 class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
-class DTTimeEvolutionHisto;
 
 class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
@@ -44,8 +43,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   /// Endjob
   void endJob();
 
@@ -66,10 +63,7 @@ private:
   int prescaleFactor;
 
   int nevents;
-  int neventsPrev;
   unsigned int nLumiSegs;
-  unsigned int prevNLumiSegs;
-  double prevTotalPerc;
 
   int run;
 
@@ -82,10 +76,6 @@ private:
   std::map<int, MonitorElement*> wheelHitos;
   MonitorElement *summaryHisto;
 
-  bool offlineMode;
-
-  std::map<int, double> resultsPerLumi;
-  DTTimeEvolutionHisto* hSystFractionVsLS;
 
 
   class DTRobBinsMap {
@@ -104,7 +94,7 @@ private:
 
     double getChamberPercentage();
 
-    void readNewValues();
+
     
   private:
     int getValueRobBin(int robBin) const;
@@ -113,8 +103,6 @@ private:
 
     const MonitorElement* meROS;
 
-    std::string hName;
-    const DQMStore* theDbe;
   };
 
   std::map<DTChamberId, DTRobBinsMap> chamberMap;

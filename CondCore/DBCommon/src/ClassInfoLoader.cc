@@ -59,9 +59,4 @@ namespace cond {
     return type;
   }
 
-  std::string classNameForTypeId( const std::type_info& typeInfo ){
-    TypeH reflexType = TypeH::ByTypeInfo( typeInfo );
-    return reflexType.Name();
-  }
-
 }

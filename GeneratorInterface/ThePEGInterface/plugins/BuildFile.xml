@@ -1,3 +1,4 @@
+<use name="FWCore/Framework"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/ThePEGInterface"/>
 <use name="hepmc"/>

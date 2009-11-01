@@ -61,20 +61,15 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
 	  const CSCDetId cscDetId(id.rawId());
 	  const CSCDetId chamberId(cscDetId.endcap(), cscDetId.station(), cscDetId.ring(), cscDetId.chamber());
 
-	  // not sure why we sometimes get layer == 0
-	  if (cscDetId.layer() != 0) {
+	  // have we seen this chamber before?
+	  if (m_csc.find(chamberId) == m_csc.end()) {
+	    m_chamberIds.push_back(chamberId);
 
-	     // have we seen this chamber before?
-	     if (m_csc.find(chamberId) == m_csc.end()) {
-		m_chamberIds.push_back(chamberId);
+	    AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);
+	    m_csc[chamberId] = new MuonCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
+	  }
 
-		AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);
-		m_csc[chamberId] = new MuonCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
-	     }
-
-	     m_csc[chamberId]->addResidual(&tsos, hit);
-
-	  } // end if cscDetId.layer() != 0
+	  m_csc[chamberId]->addResidual(&tsos, hit);
 	}
 
       } // end if track propagation is valid

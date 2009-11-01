@@ -15,13 +15,7 @@
 
 <class name="ESADCToGeVConstant"/>
 
-<class name="ESThresholds"/>
-
-<class name="ESGain"/>
-
 <class name="ESIntercalibConstants"/>
-
-<class name="ESEEIntercalibConstants"/>
 
 <class name="ESChannelStatus"/>
 <class name="ESChannelStatusCode"/>

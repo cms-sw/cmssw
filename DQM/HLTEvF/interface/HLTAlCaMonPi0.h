@@ -47,7 +47,7 @@ public:
 
 protected:
    
-  void beginJob();
+  void beginJob(const edm::EventSetup& c);
 
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 

@@ -41,7 +41,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 
 /* #include "DataFormats/EgammaReco/interface/BasicCluster.h" */
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -53,8 +53,6 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-#include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
-#include "RecoParticleFlow/Benchmark/interface/PFCandidateBenchmark.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -442,9 +440,6 @@ class PFRootEventManager {
   /// GSF standard reconstructed tracks branch 
   TBranch*   gsfrecTracksBranch_;
 
-  /// Secondary GSF standard reconstructed tracks branch 
-  TBranch*   convBremGsfrecTracksBranch_;
-
   ///Muons branch
   TBranch*   muonsBranch_; 
   
@@ -550,9 +545,6 @@ class PFRootEventManager {
   /// reconstructed GSF tracks
   reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
-  /// reconstructed secondary GSF tracks
-  reco::GsfPFRecTrackCollection  convBremGsfrecTracks_; 
-
   /// standard reconstructed tracks
   reco::TrackCollection    stdTracks_;
   
@@ -679,8 +671,6 @@ class PFRootEventManager {
   /// particle flow algorithm
   PFAlgo          pfAlgo_;
 
-  // ------------------- benchmarks -------------------------------
-
   /// PFJet Benchmark
   PFJetBenchmark PFJetBenchmark_;
 
@@ -688,9 +678,6 @@ class PFRootEventManager {
   double MET1cut;
   double DeltaMETcut;
   double DeltaPhicut;
-
-  PFCandidateBenchmark pfCandidateBenchmark_;
-  bool                 doPFCandidateBenchmark_;
 
   /// native jet algorithm 
   /// \todo make concrete
@@ -796,10 +783,6 @@ class PFRootEventManager {
 
   /// Use of V0 in PFAlgo
   bool   useV0_;
-
-  /// Use Secondary Gsf Tracks
-  bool useConvBremGsfTracks_;
-
 
   // MC Truth tools              ---------------------------------------
 

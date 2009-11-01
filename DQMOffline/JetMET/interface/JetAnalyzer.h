@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2009/06/30 13:48:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/05/28 14:52:03 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -31,7 +31,6 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include <string>
 using namespace std;
@@ -49,9 +48,6 @@ class JetAnalyzer : public JetAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
-
-  /// Finish up a job
-  void endJob();
 
   /// Get the analysis
     //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&,
@@ -75,18 +71,13 @@ class JetAnalyzer : public JetAnalyzerBase {
   int getNJets() {
     return  _NJets;
   }
+
   void setJetLoPass(int pass) {
     _JetLoPass = pass;
   }
 
   void setJetHiPass(int pass) {
     _JetHiPass = pass;
-  }
-  void setDPhi(double dphi) {
-    _DPhi = dphi;
-  }
-  double getDPhi() {
-    return  _DPhi;
   }
 
 
@@ -105,10 +96,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   int   _leadJetFlag;
   int   _NJets;
   double _ptThreshold;
-  double _fHPDMax;
-  double _resEMFMin;
-  int _n90HitsMin;
-  double _DPhi;
 
   //histo binning parameters
   int    etaBin;
@@ -133,9 +120,6 @@ class JetAnalyzer : public JetAnalyzerBase {
 
   //the histos
   MonitorElement* jetME;
-
-  // JetID helper
-  reco::helper::JetIDHelper *jetID;
 
   // Calo Jets
 
@@ -216,7 +200,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mP;
   MonitorElement* mMass;
   MonitorElement* mNJets;
-  MonitorElement* mDPhi;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
@@ -237,9 +220,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEmEnergyInHF;
   //  MonitorElement* mEnergyFractionHadronic;
   //  MonitorElement* mEnergyFractionEm;
-  MonitorElement* mN90Hits;
-  MonitorElement* mfHPD;
-  MonitorElement* mresEMF;
+  MonitorElement* mN90;
 
 
   // Events passing the jet triggers

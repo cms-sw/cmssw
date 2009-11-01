@@ -24,6 +24,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
@@ -70,6 +71,7 @@
    <use name=FWCore/ParameterSet>
    <use name=FWCore/Utilities>
    <use name=Geometry/CaloGeometry>
+   <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/CSCGeometry>
    <use name=Geometry/DTGeometry>

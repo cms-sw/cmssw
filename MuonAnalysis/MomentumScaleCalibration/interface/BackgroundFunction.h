@@ -59,12 +59,6 @@ public:
       delete[] backgroundFunction_;
     }
   }
-  /// Get the ith background function
-  backgroundFunctionBase * function( const unsigned int i )
-  {
-    if( backgroundFunctionVec_.size() > i ) return backgroundFunction_[i];
-    else return 0;
-  }
 
 protected:
   /// Parser of the parameters file

@@ -11,7 +11,6 @@ class JetCorrectionUncertainty {
   JetCorrectionUncertainty (const std::string& fDataFile);
   virtual ~JetCorrectionUncertainty ();
 
-  void setParameters (const std::string& fDataFile);
   virtual double uncertaintyXYZT (double fPx, double fPy, double fPz, double fE, std::string fDirection) const;
   virtual double uncertaintyPtEta (double fPt, double fEta, std::string fDirection) const;
   virtual double uncertaintyEtEtaPhiP (double fEt, double fEta, double fPhi, double fP, std::string fDirection) const;

@@ -10,9 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.tester = cms.EDFilter("DQMSourceExample",
-    prescaleEvt = cms.untracked.int32(1),
-    prescaleLS = cms.untracked.int32(1))
+process.tester = cms.EDFilter("DQMSourceExample")
 
 process.p = cms.Path(process.tester)
 

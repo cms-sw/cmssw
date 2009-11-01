@@ -3,8 +3,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.2 $
-///  $Date: 2008/10/20 12:58:22 $
+///  $Revision: 1.3 $
+///  $Date: 2009/03/27 14:33:55 $
 ///  (last update by $Author: flucke $)
  
 #include "Alignment/ReferenceTrajectories/interface/DualKalmanTrajectory.h"
@@ -39,7 +39,7 @@ DualKalmanTrajectory::DualKalmanTrajectory(const Trajectory::DataContainer &traj
 					   PropagationDirection propDir,
 					   double mass, int residualMethod)
   : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
-			    forwardRecHitNums.size() + backwardRecHitNums.size() - 1)
+			    forwardRecHitNums.size() + backwardRecHitNums.size() - 1, 0, 0)
 {
   theValidityFlag = this->construct(trajMeasurements, referenceTsos,
 				    forwardRecHitNums, backwardRecHitNums,
@@ -50,7 +50,7 @@ DualKalmanTrajectory::DualKalmanTrajectory(const Trajectory::DataContainer &traj
 
 //-----------------------------------------------------------------------------------------------
 DualKalmanTrajectory::DualKalmanTrajectory(unsigned int nPar, unsigned int nHits)
-  : ReferenceTrajectoryBase(nPar, nHits)
+  : ReferenceTrajectoryBase(nPar, nHits, 0, 0)
 {}
 
 

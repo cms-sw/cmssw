@@ -25,6 +25,8 @@
 // Collaborating Class Headers --
 //-------------------------------
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 //----------------
 // Constructors --
 //----------------

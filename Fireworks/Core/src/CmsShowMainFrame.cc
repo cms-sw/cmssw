@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.65 2009/10/09 19:58:29 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.58 2009/08/13 19:11:15 amraktad Exp $
 //
 // hacks
 #define private public
@@ -93,7 +93,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
-   CSGAction *showBrightnessInsp = new CSGAction(this, cmsshow::sShowBrightnessInsp.c_str());
+   CSGAction *showColorInsp = new CSGAction(this, cmsshow::sShowColorInsp.c_str());
 
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
@@ -105,9 +105,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
-   CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -131,68 +130,63 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
-   
+
    openData->createMenuEntry(fileMenu);
-   searchFiles->createMenuEntry(fileMenu);
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
-    
+
    exportImage->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
 
    quit->createMenuEntry(fileMenu);
 
-   openData->createShortcut(kKey_O, "CTRL", GetId());
-   loadConfig->createShortcut(kKey_L, "CTRL", GetId());
-   saveConfig->createShortcut(kKey_S, "CTRL", GetId());
-   saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
-   exportImage->createShortcut(kKey_P, "CTRL", GetId());
-   quit->createShortcut(kKey_Q, "CTRL", GetId());
+   openData->createShortcut(kKey_O, "CTRL");
+   loadConfig->createShortcut(kKey_L, "CTRL");
+   saveConfig->createShortcut(kKey_S, "CTRL");
+   saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT");
+   exportImage->createShortcut(kKey_P, "CTRL");
+   quit->createShortcut(kKey_Q, "CTRL");
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    undo->createMenuEntry(editMenu);
-   undo->createShortcut(kKey_Z, "CTRL", GetId());
+   undo->createShortcut(kKey_Z, "CTRL");
    redo->createMenuEntry(editMenu);
-   redo->createShortcut(kKey_Z, "CTRL+SHIFT", GetId());
+   redo->createShortcut(kKey_Z, "CTRL+SHIFT");
    editMenu->AddSeparator();
 
    cut->createMenuEntry(editMenu);
-   cut->createShortcut(kKey_X, "CTRL", GetId());
+   cut->createShortcut(kKey_X, "CTRL");
    copy->createMenuEntry(editMenu);
-   copy->createShortcut(kKey_C, "CTRL", GetId());
+   copy->createShortcut(kKey_C, "CTRL");
    paste->createMenuEntry(editMenu);
-   paste->createShortcut(kKey_V, "CTRL", GetId());
+   paste->createShortcut(kKey_V, "CTRL");
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
-
-   colorset->createMenuEntry(viewMenu);
-   colorset->createShortcut(kKey_B, "CTRL", GetId());
- 
-   showBrightnessInsp->createMenuEntry(viewMenu);
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   showColorInsp->createMenuEntry(viewMenu);
 
    viewMenu->AddSeparator();
 
    nextEvent->createMenuEntry(viewMenu);
-   nextEvent->createShortcut(kKey_Right, "CTRL", GetId());
+   nextEvent->createShortcut(kKey_Right, "CTRL");
    previousEvent->createMenuEntry(viewMenu);
-   previousEvent->createShortcut(kKey_Left, "CTRL", GetId());
+   previousEvent->createShortcut(kKey_Left, "CTRL");
    goToFirst->createMenuEntry(viewMenu);
    goToLast->createMenuEntry(viewMenu);
    playEvents->createMenuEntry(viewMenu);
-   playEvents->createShortcut(kKey_Space, "CTRL", GetId());
+   playEvents->createShortcut(kKey_Space, "CTRL");
    playEventsBack->createMenuEntry(viewMenu);
-   playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT", GetId());
+   playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT");
    autoRewind->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
 
    showObjInsp->createMenuEntry(windowMenu);
-   showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
+   showObjInsp->createShortcut(kKey_I, "CTRL");
    showEventDisplayInsp->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showAddCollection->createMenuEntry(windowMenu);
@@ -211,8 +205,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
    
-   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
@@ -275,9 +267,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    /**************************************************************************/
 
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
-   TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
+   TImage *imgSld  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
-   TString sldBtn = coreIcondir +"slider-button.png";
+   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
 
    m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
    sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
@@ -289,9 +281,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
    fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 5));
-
-   m_delaySliderListener =  new FWIntValueListener();
-   TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 
    /**************************************************************************/
    // delay label
@@ -316,7 +305,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    // text/num entries
 
    Int_t maxW =  fullbar->GetWidth() - controlFrame->GetWidth();
-   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 48, kFixedSize, backgroundColor);
+   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 44, kFixedSize, backgroundColor);
    Int_t entryHeight = 20;
 
    // upper row
@@ -331,32 +320,17 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
    makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff);
    m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger);
-   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,2,0,0));
+   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
 
    runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
 
    texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
 
    // lower row
-   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
-   // m_filterEntry = new TGTextEntry(filterFrame, "");
-   // filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
-   // m_filterButton = new
-   
-   TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
-   m_filterState = new TGCheckButton(filterFrame,"");
-   m_filterState->SetBackgroundColor(backgroundColor);
-   m_filterState->SetTextColor(0xFFFFFF);
-   m_filterState->SetToolTipText("Enable/disable event filtering");
-   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
-   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
-
-   m_filterEditButton = new TGTextButton(filterFrame,"Event filtering is OFF");
-   m_filterEditButton->SetBackgroundColor(backgroundColor);
-   m_filterEditButton->SetTextColor(0xFFFFFF);
-   m_filterEditButton->SetToolTipText("Edit event selection");
-   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
-
+   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
+   makeFixedSizeLabel(filterFrame, "Filter", backgroundColor, 0xffffff);
+   m_filterEntry = new TGTextEntry(filterFrame, "");
+   filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 
@@ -410,6 +384,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
    SetWindowName("cmsShow");
+   m_delaySliderListener =  new FWIntValueListener();
+   TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 }
 
 // CmsShowMainFrame::CmsShowMainFrame(const CmsShowMainFrame& rhs)
@@ -419,6 +395,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
 CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
+   for(std::vector<CSGAction*>::iterator it= m_actionList.begin(),itEnd = m_actionList.end();
+       it != itEnd;
+       ++it) {
+      delete *it;
+   }
+   //delete m_statBar;
 }
 
 //
@@ -436,6 +418,9 @@ CmsShowMainFrame::~CmsShowMainFrame() {
 //
 // member functions
 //
+void CmsShowMainFrame::addToActionMap(CSGAction *action) {
+   m_actionList.push_back(action);
+}
 
 CSGAction*
 CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
@@ -445,7 +430,35 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
    return action;
 }
 
+Bool_t CmsShowMainFrame::activateMenuEntry(int entry) {
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if (entry == (*it_act)->getMenuEntry()) {
+         (*it_act)->activated.emit();
+         return kTRUE;
+      }
+   }
+   return kFALSE;
+}
 
+Bool_t CmsShowMainFrame::activateToolBarEntry(int entry) {
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if ((*it_act)->getToolBarData() && (*it_act)->getToolBarData()->fId == entry) {
+         (*it_act)->activated.emit();
+         return kTRUE;
+      }
+   }
+   return kFALSE;
+}
+
+Long_t CmsShowMainFrame::getToolTipDelay() const {
+   return m_tooltipDelay;
+}
+
+void CmsShowMainFrame::defaultAction() {
+   printf("Default action!\n");
+}
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
 
@@ -455,7 +468,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
    if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetIntNumber()))
       m_eventEntry->SetIntNumber(event.id().event());
 
-   m_timeText->SetText( fw::getLocalTime( event ).c_str() );
+   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
    char title[128];
    snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
    m_lumiBlock->SetText( title );
@@ -480,10 +493,28 @@ void CmsShowMainFrame::quit() {
    getAction(cmsshow::sQuit)->activated();
 }
 
+CSGAction*
+CmsShowMainFrame::getAction(const std::string& name)
+{
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if ((*it_act)->getName() == name)
+         return *it_act;
+   }
+   std::cout << "No action is found with name \"" << name << "\"" << std::endl;
+   return 0;
+}
+
 void
 CmsShowMainFrame::enableActions(bool enable)
 {
-   CSGActionSupervisor::enableActions(enable);
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if (enable)
+         (*it_act)->globalEnable();
+      else
+         (*it_act)->globalDisable();
+   }
 
    m_runEntry->SetEditDisabled(!enable);
    m_eventEntry->SetEditDisabled(!enable);
@@ -567,11 +598,10 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
    if (event->fType == kGKeyPress) {
-      const std::vector<CSGAction*>& alist = getListOfActions();
-      std::vector<CSGAction*>::const_iterator it_act;
+      std::vector<CSGAction*>::iterator it_act;
       Int_t keycode;
       Int_t modcode;
-      for (it_act = alist.begin(); it_act != alist.end(); ++it_act) {
+      for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
          keycode = (*it_act)->getKeycode();
          modcode = (*it_act)->getModcode();
          if ((event->fCode == (UInt_t)keycode) &&
@@ -585,6 +615,19 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
       }
    }
    return kFALSE;
+}
+
+void CmsShowMainFrame::resizeMenu(TGPopupMenu *menu) {
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if ((*it_act)->getMenu() == menu && (*it_act)->getKeycode() != 0) {
+         (*it_act)->resizeMenuEntry();
+      }
+   }
+}
+
+const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
+   return m_actionList;
 }
 
 void

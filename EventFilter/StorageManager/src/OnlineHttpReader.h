@@ -30,12 +30,12 @@ namespace edm
 		 edm::InputSourceDescription const& desc);
     virtual ~OnlineHttpReader();
 
-    virtual std::auto_ptr<edm::EventPrincipal> read();
+    virtual edm::EventPrincipal* read();
     void readHeader();
     void registerWithEventServer();
 
   private:  
-    std::auto_ptr<edm::EventPrincipal> getOneEvent();
+    edm::EventPrincipal* getOneEvent();
 
     virtual void setRun(RunNumber_t r);
 

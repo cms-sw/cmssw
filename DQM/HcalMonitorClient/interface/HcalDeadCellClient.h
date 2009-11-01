@@ -25,15 +25,15 @@ class HcalDeadCellClient : public HcalBaseClient {
   void calculateProblems(void); // calculates problem histogram contents
 
   /// BeginJob
-  void beginJob();
+  void beginJob(const EventSetup& c);
   
   /// EndJob
   void endJob(std::map<HcalDetId, unsigned int>& myqual); 
 
 
   /// BeginRun
-  void beginRun(const EventSetup& c);
-
+  void beginRun(void);
+  
   /// EndRun
   void endRun(void);
   

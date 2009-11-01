@@ -27,13 +27,13 @@ class HcalHotCellClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  void beginJob();
+  void beginJob(const EventSetup& c);
   
   /// EndJob
   void endJob(std::map<HcalDetId, unsigned int>& myqual);
   
   /// BeginRun
-  void beginRun(const EventSetup& c);
+  void beginRun(void);
   
   /// EndRun
   void endRun(void);

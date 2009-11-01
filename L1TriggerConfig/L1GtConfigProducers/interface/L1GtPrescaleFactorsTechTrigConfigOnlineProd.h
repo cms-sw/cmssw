@@ -48,8 +48,7 @@ public:
 
 private:
 
-    bool m_isDebugEnabled;
-
+    ///
 };
 
 #endif

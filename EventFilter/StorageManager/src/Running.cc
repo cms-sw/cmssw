@@ -1,4 +1,4 @@
-// $Id: Running.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Running.cc,v 1.6.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: Running.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"

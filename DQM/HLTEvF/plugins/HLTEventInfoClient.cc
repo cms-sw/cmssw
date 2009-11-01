@@ -63,7 +63,7 @@ void HLTEventInfoClient::initialize(){
 }
 
 //--------------------------------------------------------
-void HLTEventInfoClient::beginJob(){
+void HLTEventInfoClient::beginJob(const EventSetup& context){
 
   if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
   // get backendinterface  

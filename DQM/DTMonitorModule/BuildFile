@@ -11,7 +11,6 @@
 <use name=Geometry/DTGeometry>
 <use name=DataFormats/DTRecHit>
 <use name=HLTrigger/HLTcore>
-<use name=CalibMuon/DTDigiSync>
 <use name=RecoMuon/MeasurementDet>
 <use name=RecoMuon/TrackingTools>
 <use name=boost>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Romain Rougny
 //         Created:  Tue Feb  3 15:18:02 CET 2009
-// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.4 2009/02/20 14:21:37 rougny Exp $
+// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.3 2009/02/10 18:02:51 rougny Exp $
 //
 //
 
@@ -90,7 +90,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   int nnoisy = 0;
   int ndead = 0;
 
-  int detid=0;
+  uint32_t detid=0;
   int NDetid = 0;
   
   //checking for noisy pixels that won't be inserted ...
@@ -125,14 +125,14 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     // Get the module sizes
     const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
     const PixelTopology & topol = pixDet->specificTopology();
-    int nrows = topol.nrows();      // rows in x
-    int ncols = topol.ncolumns();   // cols in y
+    size_t nrows = topol.nrows();      // rows in x
+    size_t ncols = topol.ncolumns();   // cols in y
     
     float ped;
     float gainforthiscol[2];
     float pedforthiscol[2];
     int nusedrows[2];
-    int nrowsrocsplit;
+    size_t nrowsrocsplit;
     if(record_=="SiPixelGainCalibrationOfflineRcd")
       nrowsrocsplit = theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver();
     if(record_=="SiPixelGainCalibrationForHLTRcd")
@@ -143,7 +143,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
 
     if(DEBUG) cout<<"=>=>=>=> Starting Loop for each rows/cols "<<endl;
 
-    for(int icol=0; icol<=ncols-1; icol++){
+    for(size_t icol=0; icol<=ncols-1; icol++){
       
       if(DEBUG) cout<<"=>=>=>=> Starting a new column"<<endl;
 
@@ -151,7 +151,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       gainforthiscol[0]=gainforthiscol[1]=0;
       pedforthiscol[0]=pedforthiscol[1]=0;
       
-      for(int jrow=0; jrow<=nrows-1; jrow++){
+      for(size_t jrow=0; jrow<=nrows-1; jrow++){
 	
 	if(DEBUG) cout<<"=>=>=>=> We are in col,row "<<icol<<","<<jrow<<endl;
 	
@@ -166,8 +166,8 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
 	
 	bool isPixelDeadOld = false;
 	bool isColumnDeadOld = false;
-// 	bool isPixelDeadNew = false;
-// 	bool isColumnDeadNew = false;
+	bool isPixelDeadNew = false;
+	bool isColumnDeadNew = false;
 	
 	bool isPixelNoisyOld = false;
 	bool isColumnNoisyOld = false;
@@ -213,7 +213,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
 
 	//Check if pixel is in new noisy list
 	for(std::map <int,std::vector<std::pair<int,int> > >::const_iterator it=noisypixelkeeper.begin();it!=noisypixelkeeper.end();it++) 
-          for(unsigned int i=0;i<(it->second).size();i++)
+          for(int i=0;i<(it->second).size();i++)
 	    if(it->first==detid && (it->second.at(i)).first==icol && (it->second.at(i)).second==jrow)
 	      isPixelNoisyNew = true;
 	
@@ -433,10 +433,10 @@ SiPixelGainCalibrationRejectNoisyAndDead::SiPixelGainCalibrationRejectNoisyAndDe
   conf_(iConfig),
   SiPixelGainCalibrationOfflineService_(iConfig),
   SiPixelGainCalibrationForHLTService_(iConfig),
-  noisypixellist_(iConfig.getUntrackedParameter<std::string>("noisyPixelList","noisypixel.txt")),
   insertnoisypixelsindb_(iConfig.getUntrackedParameter<int>("insertNoisyPixelsInDB",1)),
-  record_(iConfig.getUntrackedParameter<std::string>("record","SiPixelGainCalibrationOfflineRcd")),
-  DEBUG(iConfig.getUntrackedParameter<bool>("debug",false))
+  DEBUG(iConfig.getUntrackedParameter<bool>("debug",false)),
+  noisypixellist_(iConfig.getUntrackedParameter<std::string>("noisyPixelList","noisypixel.txt")),
+  record_(iConfig.getUntrackedParameter<std::string>("record","SiPixelGainCalibrationOfflineRcd"))
 {
    //now do what ever initialization is needed
 

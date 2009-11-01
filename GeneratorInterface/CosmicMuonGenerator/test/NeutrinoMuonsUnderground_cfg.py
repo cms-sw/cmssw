@@ -13,8 +13,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
-    #input = cms.untracked.int32(10000)
+    #input = cms.untracked.int32(500)
+    input = cms.untracked.int32(10000)
 )
 process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('cosmic.root')
@@ -29,5 +29,4 @@ process.generator.MaxTheta = 180.
 process.generator.MaxEnu = 100000.
 
 # Plug z-position [mm] (default=-14000.)
-#process.generator.PlugVz = 5000.;
 #process.generator.PlugVz = -33000.;

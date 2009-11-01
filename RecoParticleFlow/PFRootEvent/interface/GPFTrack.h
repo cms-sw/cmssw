@@ -6,6 +6,7 @@
   from physical object of class PFRecTrack
 */  
  
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "TGraph.h"

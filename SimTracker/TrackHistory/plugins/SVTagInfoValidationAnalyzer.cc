@@ -127,7 +127,6 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet
                                     );
     
     //--- RecoToSim
-    TH1Index_["rs_All_MatchQuality"]= fs_->make<TH1D>( "rs_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01 );
     TH1Index_["rs_All_FlightDistance2d"]= fs_->make<TH1D>( "rs_All_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5 );
     TH1Index_["rs_SecondaryVertex_FlightDistance2d"]= fs_->make<TH1D>( "rs_SecondaryVertex_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5 );
     TH1Index_["rs_BSV_FlightDistance2d"]= fs_->make<TH1D>( "rs_BSV_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5 );
@@ -144,7 +143,6 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet
 
 
     //--- SimToReco
-    TH1Index_["sr_All_MatchQuality"]= fs_->make<TH1D>( "sr_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
     TH1Index_["sr_All_nRecVtx"]= fs_->make<TH1D>( "sr_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5 );
     TH1Index_["sr_SecondaryVertex_nRecVtx"]= fs_->make<TH1D>( "sr_SecondaryVertex_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5 );
     TH1Index_["sr_BSV_nRecVtx"]= fs_->make<TH1D>( "sr_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5 );
@@ -221,10 +219,6 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
       // Classify the vertices
       classifier_.evaluate(svTagInfo, vindex);
 
-      //quality of the match
-      double rs_quality = tracer.quality();
- 
-
       // Fill the histogram with the categories
       for (Int_t i = 0; i != numberVertexClassifier_; ++i) {
 
@@ -235,9 +229,6 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
       }
       if ( !classifier_.is(VertexCategories::Fake) ) {
 
-        cout << "R2S: MatchQuality = " << rs_quality << endl;
-
-        TH1Index_["rs_All_MatchQuality"]->Fill( rs_quality );
 	fillRecoToSim("rs_All", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
 	TH1Index_["rs_All_FlightDistance2d"]->Fill( svTagInfo->flightDistance( vindex, true ).value() );
         rs_nall++;
@@ -287,7 +278,8 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
         nfake++;
       }
 
-   }//end loop over vertices in svTagInfo
+
+    }//end loop over vertices in svTagInfo
 
   }//loop over svTagInfo
 
@@ -313,14 +305,9 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
 
     classifier_.evaluate(trackingVertex);
  	
-    double sr_quality = tracer.quality();
- 
     if ( classifier_.is(VertexCategories::Reconstructed) ) {
 
-      cout << "S2R: MatchQuality = " << sr_quality << endl;
-
-      //cout << "    S2R VertexCategories::Reconstructed" << endl;
-      TH1Index_["sr_All_MatchQuality"]->Fill( sr_quality );      
+      //cout << "    S2R VertexCategories::Reconstructed" << endl;      
       fillSimToReco("sr_All", tracer.recoVertex(), trackingVertex);
       sr_nall++;
 

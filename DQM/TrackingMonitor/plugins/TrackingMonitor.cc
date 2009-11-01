@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/14 16:20:08 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/08 13:22:02 $
+ *  $Revision: 1.5 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -81,13 +81,11 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   int    ThetaBin   = conf_.getParameter<int>("ThetaBin");
   double ThetaMin   = conf_.getParameter<double>("ThetaMin");
   double ThetaMax   = conf_.getParameter<double>("ThetaMax");
-  dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
  
   histname = "NumberOfTracks_";
   NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
 
   if (conf_.getParameter<bool>("doSeedParameterHistos")) {
-  dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
 
   histname = "NumberOfSeeds_";
   NumberOfSeeds = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
@@ -109,7 +107,6 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "NumberOfTrackCandidates_";
   NumberOfTrackCandidates = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
 }
-  dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
   histname = "NumberOfMeanRecHitsPerTrack_";
   NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
@@ -172,7 +169,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     totalRecHits += track->found();
     totalLayers += track->hitPattern().trackerLayersWithMeasurement();
 
-    theTrackAnalyzer->analyze(iEvent, iSetup, *track);
+    theTrackAnalyzer->analyze(iEvent, iSetup, *track, bs);
   }
 
   double meanrechits = 0, meanlayers = 0;

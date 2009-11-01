@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/30 13:37:58 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/28 14:52:03 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -27,9 +27,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _JetLoPass   = 0;
   _JetHiPass   = 0;
   _ptThreshold = 5.;
-  _n90HitsMin =0;
-  _fHPDMax=1.;
-  _resEMFMin=0.;
 }
 
 // ***********************************************************
@@ -46,9 +43,6 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // monitoring of eta parameter
   etaBin = parameters.getParameter<int>("etaBin");
@@ -77,9 +71,7 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   //
   _ptThreshold = parameters.getParameter<double>("ptThreshold");
-  _n90HitsMin = parameters.getParameter<int>("n90HitsMin");
-  _fHPDMax = parameters.getParameter<double>("fHPDMax");
-  _resEMFMin = parameters.getParameter<double>("resEMFMin");
+
   // Generic Jet Parameters
   mPt                      = dbe->book1D("Pt",  "Pt", ptBin, ptMin, ptMax);
   mPt_1                    = dbe->book1D("Pt1", "Pt1", 100, 0, 100);
@@ -176,10 +168,8 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mEmEnergyInHF           = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
   //  mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1);
   //  mEnergyFractionEm       = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1);
-  mDPhi                   = dbe->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
-  mN90Hits                = dbe->book1D("N90Hits", "N90Hits", 50, 0, 50);
-  mfHPD                   = dbe->book1D("fHPD", "fHPD", 50, 0, 1.);
-  mresEMF                 = dbe->book1D("resEMF", "resEMF", 50, 0, 1.);
+  mN90                    = dbe->book1D("N90", "N90", 50, 0, 50);
+
 
 }
 
@@ -188,29 +178,21 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 //			  const reco::CaloJet& jet) {
 
 
-// ***********************************************************
-void JetAnalyzer::endJob() {
-
-  delete jetID;
-
-}
-
 
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			  const reco::CaloJet& jet) {
+
   LogTrace(jetname)<<"[JetAnalyzer] Analyze Calo Jet";
 
-  jetID->calculate(iEvent, jet);
-
   if (jet.pt() < _ptThreshold) return;
-  if(jetID->n90Hits()<_n90HitsMin || jetID->fHPD()>=_fHPDMax || jetID->restrictedEMF()<_resEMFMin) return;
 
   jetME->Fill(1);
 
   // Leading jet
   // Histograms are filled once per event
   if (_leadJetFlag == 1) { 
+
     if (mEtaFirst) mEtaFirst->Fill (jet.eta());
     if (mPhiFirst) mPhiFirst->Fill (jet.phi());
     if (mEFirst)   mEFirst->Fill (jet.energy());
@@ -319,9 +301,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (mEmEnergyInEE)    mEmEnergyInEE->Fill (jet.emEnergyInEE());
   if (mEmEnergyInHF)    mEmEnergyInHF->Fill (jet.emEnergyInHF());
 
-  if (mDPhi)    mDPhi->Fill (_DPhi);
-  if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
-  if (mfHPD)            mfHPD->Fill (jetID->fHPD());
-  if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
+  if (mN90)             mN90->Fill (jet.n90());  
+
+
 
 }

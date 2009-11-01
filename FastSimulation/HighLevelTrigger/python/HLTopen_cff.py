@@ -400,17 +400,17 @@ DoHLTAlCaPi0Eta8E29 = cms.Path(
 DoHLTIsoTrack = cms.Path(
     HLTBeginSequence +
     hltL1sIsoTrack1E31 +
-    hltPreIsoTrack1E31 +
-    HLTL2HcalIsolTrackSequence +
-    hltIsolPixelTrackProd1E31 +
-    hltIsolPixelTrackL2Filter1E31 +
+##    #hltPreIsoTrack1E31 +
+#    HLTL2HcalIsolTrackSequence +
+#    hltIsolPixelTrackProd1E31 +
+#    hltIsolPixelTrackL2Filter1E31 +
     HLTDoLocalStripSequence +
-    hltHITPixelPairSeedGenerator1E31 +
-    hltHITPixelTripletSeedGenerator1E31 +
-    hltHITSeedCombiner1E31 +
-    hltHITCkfTrackCandidates1E31 +
-    hltHITCtfWithMaterialTracks1E31 +
-    hltHITIPTCorrector1E31 +
+#    hltHITPixelPairSeedGenerator1E31 +
+#    hltHITPixelTripletSeedGenerator1E31 +
+#    hltHITSeedCombiner1E31 +
+#    hltHITCkfTrackCandidates1E31 +
+#    hltHITCtfWithMaterialTracks1E31 +
+#    hltHITIPTCorrector1E31 +
     cms.SequencePlaceholder("HLTEndSequence"))
 
 

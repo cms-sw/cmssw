@@ -9,19 +9,17 @@
 #include "CondFormats/ESObjects/interface/ESWeightSet.h"
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
-#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatusCode.h"
-#include "CondFormats/ESObjects/interface/ESThresholds.h"
-#include "CondFormats/ESObjects/interface/ESGain.h"
 
 namespace{
   struct dictionary {
-
     ESCondObjectContainer<ESPedestal> ESPedestalsMap;
     ESPedestalsMap::const_iterator ESPedestalsMapIterator;
 
     ESPedestals pedmap;
+
+ 
 
     ESWeightStripGroups gg;
  
@@ -34,12 +32,7 @@ namespace{
  
     ESIntercalibConstants intercalib;
  
-    ESEEIntercalibConstants eseeintercalib;
-
     ESChannelStatus channelStatus;
-
-    ESThresholds threshold; 
-
-    ESGain gain;
+ 
   };
 }

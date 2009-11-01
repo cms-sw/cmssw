@@ -127,8 +127,7 @@ void HcalDataFormatClient::analyze(void){
   int spg2offset=0;
   int spg3offset=0;
   int chn2offset=0;
-  float evtcnt=1.0;
-  float tsFactor=1.0;
+  float scale=1.0;
   float val=0.0;
   //Normalize everything by the -1,-1 underflow bin
   for (int fednum=0; fednum<NUMDCCS; fednum++) {
@@ -137,7 +136,7 @@ void HcalDataFormatClient::analyze(void){
     for (int spgnum=0; spgnum<15; spgnum++) {
       spg3offset = 1 + (4*spgnum); //3 bins, plus one of margin, each spigot
       //Warning! Assumes interchangable scaling factors among these histograms!
-      evtcnt= LRBDataCorruptionIndicators_->GetBinContent(-1,-1);
+      scale= LRBDataCorruptionIndicators_->GetBinContent(-1,-1);
       for (int xbin=1; xbin<=3; xbin++) {
 	for (int ybin=1; ybin<=3; ybin++) {
 	  if (!LRBDataCorruptionIndicators_) continue;
@@ -146,21 +145,21 @@ void HcalDataFormatClient::analyze(void){
 	  if (val) 
 	    LRBDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							spg3offset+ybin,
-							( (float)val/(float)evtcnt ));
+							( (float)val/(float)scale ));
 	  if (!HalfHTRDataCorruptionIndicators_) continue;
 	  val = HalfHTRDataCorruptionIndicators_->GetBinContent(fed3offset+xbin,
 								spg3offset+ybin);
 	  if (val) 
 	    HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							    spg3offset+ybin,
-							    ( (float)val/(float)evtcnt ));
+							    ( (float)val/(float)scale ));
 	  if (!DataFlowInd_ || xbin>2) continue;  //DataFlowInd_;  2x by 3y
 	  val = DataFlowInd_->GetBinContent(fed2offset+xbin,
 					    spg3offset+ybin);
 	  if (val) 
 	    DataFlowInd_->SetBinContent(fed2offset+xbin,
-					spg3offset+ybin,	
-				( (float)val/(float)evtcnt ));
+					spg3offset+ybin,
+					( (float)val/(float)scale ));
 	}
       }
     }
@@ -172,57 +171,39 @@ void HcalDataFormatClient::analyze(void){
     fed2offset = 1 + (3*fednum); //2 bins, plus one of margin, each DCC 
     for (int spgnum=0; spgnum<15; spgnum++) {
       spg2offset = 1 + (3*spgnum); //2 bins, plus one of margin, each spigot
-      evtcnt = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
+      scale = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
   							   spg2offset);
-      numTS_[(fednum*NUMSPGS)+spgnum]=ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset,
-										   spg2offset+1);
-
       for (int xbin=1; xbin<=2; xbin++) {
   	for (int ybin=1; ybin<=2; ybin++) {
   	  val = ChannSumm_DataIntegrityCheck_->GetBinContent(fed2offset+xbin,
   							     spg2offset+ybin);
-	  if ( (val) && (evtcnt) ) {
-	    //Lower pair of bins don't scale with just the timesamples per event.
-	    if (ybin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]; 
-	    else {
-	      if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
-	      else tsFactor=1.0;
-	    }
+  	  if ( (val) && (scale) ) {
   	    ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset+xbin,
   							 spg2offset+ybin,
-  							 val/(evtcnt*tsFactor));
+  							 val/scale);
 	    val=0.0;
 	  }
   	}
       }
-      //Clear the evtcnt and numTS, which clutter the final plot.
-      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset  ,
-						   spg2offset  , 0.0);
-      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset  ,
-						   spg2offset+1, 0.0);
+      //Clear the scaler, which clutters the final plot.
+      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset,
+						   spg2offset, 0.0);
 
       if (!Chann_DataIntegrityCheck_[fednum]) continue;  
       for (int chnnum=0; chnnum<24; chnnum++) {
   	chn2offset = 1 + (3*chnnum); //2 bins, plus one of margin, each channel
 	if (! (Chann_DataIntegrityCheck_[fednum]))  
 	  continue;
-  	evtcnt = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset,
-								  spg2offset);
+  	scale = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset,
+  								 spg2offset);
   	for (int xbin=1; xbin<=2; xbin++) {
   	  for (int ybin=1; ybin<=2; ybin++) {
   	    val = Chann_DataIntegrityCheck_[fednum]->GetBinContent(chn2offset+xbin,
   								   spg2offset+ybin);
-  	    if ( (val) && (evtcnt) ) {
-	      //Lower pair of bins don't scale with just the timesamples per event.
-	      if (ybin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]; 
-	      else {
-		if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
-		else tsFactor=1.0;
-	      }
+  	    if ( (val) && (scale) )
   	      Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset+xbin,
   							       spg2offset+ybin,
-  							       val/(evtcnt*tsFactor));
-	    }
+  							       val/scale);
   	  }
   	}
 	Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset,
@@ -296,26 +277,27 @@ void HcalDataFormatClient::getHistograms(bool getEmAll){
     sprintf(name,"DataFormatMonitor/Data Flow/BCN from DCCs");
     dccBCN_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Difference HTR - DCC");
+    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Difference Between Ref HTR and DCC");
+    BCNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Inconsistent - HTR vs Ref HTR");
+    BCNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Difference Between Ref HTR and DCC");
+    EvtNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Inconsistent - HTR vs Ref HTR");
+    EvtNumberSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Difference Between Ref HTR and DCC");
     OrNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Inconsistent - HTR vs DCC");
+    sprintf(name,"DataFormatMonitor/Corruption/03 OrN Inconsistent - HTR vs Ref HTR");
     OrNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
     sprintf(name,"DataFormatMonitor/Corruption/04 HTR BCN when OrN Diff");
     BCNwhenOrNDiff_  = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Difference HTR - DCC");
-    BCNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/05 BCN Inconsistent - HTR vs DCC");
-    BCNSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Difference HTR - DCC");
-    EvtNCheck_  = getHisto(name, process_, dbe_, debug_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/Corruption/06 EvN Inconsistent - HTR vs DCC");
-    EvtNumberSynch_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
   
     sprintf(name,"DataFormatMonitor/Diagnostics/Unpacking - HcalHTRData check failures");
     InvHTRData_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
@@ -745,19 +727,19 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/DCC Plots/BCN from DCCs");
   dccBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Difference HTR - DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Difference Between Ref HTR and DCC");
   BCNCheck_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Difference HTR - DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Difference Between Ref HTR and DCC");
   EvtNCheck_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/ZZ HTR Expert Plots/BCN of Fiber Orbit Message");
   FibBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Inconsistent - HTR vs DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/EvN Inconsistent - HTR vs Ref HTR");
   EvtNumberSynch_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Inconsistent - HTR vs DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/BCN Inconsistent - HTR vs Ref HTR");
   BCNSynch_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Plots/ZZ HTR Expert Plots/HTR Firmware Version");
