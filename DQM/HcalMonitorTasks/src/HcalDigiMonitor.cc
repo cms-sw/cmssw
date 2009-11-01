@@ -826,22 +826,27 @@ void HcalDigiMonitor::fill_Nevents()
     } // for (int sub=0;sub<4;++sub)
 
   // Loop over eta, phi, depth
-  for (int phi=0;phi<72;++phi)
+  for (int d=0;d<4;++d)
     {
-      iPhi=phi+1;
-      DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
-      for (int eta=0;eta<83;++eta)
-	{
-	  // DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
-	  iEta=eta-41;
-	  if (phi==0)
-	    DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
-	  valid=false;
+      iDepth=d+1;
+      DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
+      DigiOccupancyByDepth.depth[d]->setBinContent(0,0,ievt_);
+      DigiErrorsBadDigiSize.depth[d]->setBinContent(0,0,ievt_);
+      DigiErrorsUnpacker.depth[d]->setBinContent(0,0,ievt_);
+      DigiErrorsBadFibBCNOff.depth[d]->setBinContent(0,0,ievt_);
 
-	  for (int d=0;d<4;++d)
+      for (int phi=0;phi<72;++phi)
+	{
+	  iPhi=phi+1;
+	  DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
+	  for (int eta=0;eta<83;++eta)
 	    {
-	      iDepth=d+1;
-	      DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
+	      // DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
+	      iEta=eta-41;
+	      if (phi==0)
+		DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
+	      valid=false;
+	
 	      // HB
 	      if (validDetId(HcalBarrel, iEta, iPhi, iDepth))
 		{
@@ -871,7 +876,7 @@ void HcalDigiMonitor::fill_Nevents()
 		      // Use this for testing purposes only
 		      //DigiErrorsByDepth[d]->Fill(iEta, iPhi, ievt_);
 		    } // if (hbHists.check)
-		} 
+		} // validDetId(HB)
 	      // HE
 	      if (validDetId(HcalEndcap, iEta, iPhi, iDepth))
 		{
@@ -899,7 +904,7 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (heHists.check)
-		} 
+		} // valid HE found
 	      // HO
 	      if (validDetId(HcalOuter,iEta,iPhi,iDepth))
 		{
@@ -925,7 +930,7 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (hoHists.check)
-		}
+		}//validDetId(HO)
 	      // HF
 	      if (validDetId(HcalForward,iEta,iPhi,iDepth))
 		{
@@ -954,9 +959,9 @@ void HcalDigiMonitor::fill_Nevents()
 						       baddigis[calcEta][phi][d]);
 		    } // if (hfHists.check)
 		}
-	    } // for (int d=0;...)
+	    } // for (int eta=0;...)
 	} // for (int phi=0;...)
-    } // for (int eta=0;...)
+    } // for (int d=0;...)
 
   // Now fill all the unphysical cell values
   FillUnphysicalHEHFBins(DigiErrorsByDepth);
