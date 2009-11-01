@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.10 2008/10/22 10:43:07 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.11 2009/10/31 22:42:11 delaer Exp $
 //
 //
 
@@ -446,7 +446,17 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	     leadingPosition = leadingStrip;
   	   }
   	 }
-  	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
+
+         // look for an existing detset
+	 std::vector< edm::DetSet<SiStripRawDigi> >::iterator newdsit = output.begin();
+	 for(;newdsit!=output.end()&&newdsit->detId()!=connectionMap_[it->first];++newdsit) {}
+	 // if there is no detset yet, create it.
+         if(newdsit==output.end()) {
+	   edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
+	   output.push_back(newds);
+	   newdsit = output.end()-1;
+	 }
+
          LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) 
                              << " at " << int(leadingPosition) << "." << std::endl
                              << "Angular correction: " << it->second.second 
@@ -465,9 +475,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	 unsigned int tof = abs(int(round(it->second.first*10)));
   	 tof = tof>255 ? 255 : tof;
   	 SiStripRawDigi newSiStrip(leadingCharge + (tof<<8));
-  	 newds.push_back(newSiStrip);
-  	 //store into the detsetvector
-  	 output.push_back(newds);
+  	 newdsit->push_back(newSiStrip);
   	 LogDebug("produce") << "New edm::DetSet<SiStripRawDigi> added.";
          }
          if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
