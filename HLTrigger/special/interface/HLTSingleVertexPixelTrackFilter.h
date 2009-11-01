@@ -1,4 +1,4 @@
-// $Id$
+// $Id: HLTSingleVertexPixelTrackFilter.h,v 1.1 2009/10/22 18:03:50 davidlw Exp $
 
 #ifndef HLTSingleVertexPixelTrackFilter_h
 #define HLTSingleVertexPixelTrackFilter_h
@@ -23,6 +23,7 @@ class HLTSingleVertexPixelTrackFilter : public HLTFilter {
       double min_Pt_;          // min pt cut
       double max_Pt_;          // max pt cut
       double max_Eta_;          // max eta cut
+      double max_Vz_;          // max vz cut
       int min_trks_;  // minimum number of tracks from one vertex
       float min_sep_;          // minimum separation of two tracks in phi-eta
 };

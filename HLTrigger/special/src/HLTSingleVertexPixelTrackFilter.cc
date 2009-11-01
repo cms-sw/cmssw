@@ -1,4 +1,4 @@
-// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.1 2009/10/22 18:04:11 davidlw Exp $
+// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.2 2009/10/23 11:50:39 davidlw Exp $
 
 #include "HLTrigger/special/interface/HLTSingleVertexPixelTrackFilter.h"
 
@@ -29,6 +29,7 @@ HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::Para
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
     max_Pt_  (iConfig.getParameter<double>("MaxPt")),
     max_Eta_  (iConfig.getParameter<double>("MaxEta")),
+    max_Vz_  (iConfig.getParameter<double>("MaxVz")),
     min_trks_  (iConfig.getParameter<int>("MinTrks")),
     min_sep_  (iConfig.getParameter<double>("MinSep"))
 {
@@ -79,6 +80,7 @@ bool HLTSingleVertexPixelTrackFilter::filter(edm::Event& iEvent, const edm::Even
        {
             int ntracksize = verticesItr->tracksSize();
             double vz = verticesItr->z();
+            if(fabs(vz) > max_Vz_) continue;
             if( ntracksize > nmax) 
             {
               vzmax = vz;
