@@ -49,13 +49,14 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   
   // Some fraction of events show up with all digis reporting bad
   // (All digis invalid/error?)
-  // Require digi fraction > 0.20 before this is considered an error by the summary client
+  // Require digi fraction > 0.05 before this is considered an error by the summary client
+  // DigiMonitor task requires at least 10 good digis be present before report unpacker is checked -- that eliminates most of these problems
   if (digiMon_.onoff)
     digiMon_.Setup("DigiMonitor_Hcal/problem_digis",
 		   " Problem Digi Rate",
 		   "DigiMonitor_Hcal/ ProblemDigis",
 		   "Digi",
-		   0.20);
+		   0.05);
   if (recHitMon_.onoff)
     recHitMon_.Setup("RecHitMonitor_Hcal/problem_rechits",
 		     " Problem RecHit Rate",
@@ -341,9 +342,8 @@ void HcalSummaryClient::setup(void)
       std::cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<std::endl;
       return;
     }
-  //reportMap->getTH2F()->SetMaximum(1);
-  //reportMap->getTH2F()->SetMinimum(-1);
-  for (int i=1;i<=5;++i)
+  reportMap->getTH2F()->SetMinimum(-1);
+  for (int i=1;i<=reportMap->getTH2F()->GetNbinsX();++i)
     reportMap->setBinContent(i,1,-1);
 
   return;
