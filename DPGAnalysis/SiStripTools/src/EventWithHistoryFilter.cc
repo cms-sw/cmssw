@@ -9,7 +9,7 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
+//#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistoryFilter.h"
 
@@ -171,9 +171,10 @@ const int EventWithHistoryFilter::getAPVLatency(const edm::EventSetup& iSetup) c
   const int latency = apvlat->singleLatency()!=255 ? apvlat->singleLatency(): -1;
 
   // thrown an exception if latency value is invalid
-
+  /*
   if(latency < 0  && !isAPVLatencyNotNeeded()) 
     throw cms::Exception("InvalidAPVLatency") << " invalid APVLatency found ";
+  */
 
   return latency;
 
@@ -188,9 +189,10 @@ const int EventWithHistoryFilter::getAPVMode(const edm::EventSetup& iSetup) cons
   const int mode = apvlat->singleMode()!=0 ? apvlat->singleMode() : -1;
 
   // thrown an exception if mode value is invalid
-
+  /*
   if(mode < 0 && !isAPVModeNotNeeded()) 
     throw cms::Exception("InvalidAPVMode") << " invalid APVMode found ";
+  */
 
   return mode;
 
@@ -208,10 +210,12 @@ const std::vector<int> EventWithHistoryFilter::getAPVPhase(const edm::Event& iEv
 
   const std::vector<int> phases = apvPhases->getPhases(_partition.c_str());
 
+  /*
   if(!_noAPVPhase) {
     if(phases.size()==0) throw cms::Exception("NoPartitionAPVPhase") 
       << " No APV phase for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
   }
+  */
 
   return phases;
 }
