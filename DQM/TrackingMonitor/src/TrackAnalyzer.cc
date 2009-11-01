@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/14 16:18:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/26 06:07:52 $
+ *  $Revision: 1.6 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -166,8 +166,6 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track azimuthal angle",1);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track distance of closest approach (cm)",2);
  
-  if(doBSPlots_) dqmStore_->setCurrentFolder(MEFolderName);
-  
   if(doAllPlots_)
     {
    dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
@@ -182,6 +180,8 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
       DistanceOfClosestApproachVsEta->setAxisTitle("Track distance of closest approach",2);
     }
  
+  dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+
   histname = "xPointOfClosestApproach_";
   xPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VXBin, VXMin, VXMax);
   xPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the x-axis");

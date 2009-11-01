@@ -1,40 +1,11 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerTopology>
-<use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
-<use name=TrackingTools/TrackFitters>
-
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/MuonReco>
-<use name=PhysicsTools/UtilAlgos>
-<use name=RecoMuon/TrackingTools>
-<use name=RecoTracker/Record>
 <use name=TrackingTools/DetLayers>
-<use name=RecoMuon/GlobalTrackingTools>
 <export>
    <lib name=DQMTrackingMonitor>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DQM/SiStripCommon>
-   <use name=DQMServices/Core>
-   <use name=Geometry/CommonTopologies>
-   <use name=Geometry/TrackerTopology>
-   <use name=Geometry/TrackerGeometryBuilder>
-   <use name=TrackingTools/TransientTrackingRecHit> 
-   <use name=TrackingTools/TransientTrack> 
-   <use name=TrackingTools/TrackFitters>
-   <use name=DataFormats/TrackReco>
-   <use name=DataFormats/MuonReco>
-   <use name=PhysicsTools/UtilAlgos>
-   <use name=RecoMuon/TrackingTools>
-   <use name=RecoTracker/Record>
-   <use name=TrackingTools/DetLayers>
-   <use name=RecoMuon/GlobalTrackingTools>
 </export>
