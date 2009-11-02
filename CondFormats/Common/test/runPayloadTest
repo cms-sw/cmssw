@@ -15,3 +15,6 @@ echo "<use name=Collection>" >> bfile
 echo "<use name=ObjectRelationalAccess>" >> bfile
 echo "</bin>" >> bfile
 
+mv bfile BuildFile
+scramv1 b
+$CMSSW_BASE/test/$SCRAM_ARCH/$1_test
