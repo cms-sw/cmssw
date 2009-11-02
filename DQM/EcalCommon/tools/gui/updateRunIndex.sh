@@ -5,8 +5,8 @@ ulimit -c 0
 cd ${HOME}/DQM/dqm-GUI
 
 LD_LIBRARY_PATH=
-source sw/cmsset_default.sh
-source sw/slc4_ia32_gcc345/cms/dqmgui/5.0.2/etc/profile.d/env.sh
+source rpms/cmsset_default.sh
+source rpms/slc4_ia32_gcc345/cms/dqmgui/5.1.0/etc/profile.d/env.sh
 
 if [ -e /tmp/updateRunIndex.lock ]; then
   echo "Lock file is present, exit"
