@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.46 2009/10/23 11:34:58 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.47 2009/10/23 12:49:24 amraktad Exp $
 //
 
 #define private public
@@ -43,6 +43,7 @@
 #include "TEveProjectionAxes.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TH2F.h"
+#include "THStack.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
@@ -420,13 +421,15 @@ void
 FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
 {
    if ( !calo->GetData() ) return;
-   for ( int i = 0; i < calo->GetData()->GetNSlices(); ++i ) {
-      std::string histName(calo->GetData()->RefSliceInfo(i).fHist->GetName());
-      if ( histName.find(name,0) != std::string::npos  )
+
+   TEveCaloDataHist* data = (TEveCaloDataHist*)data;
+   TList* hists = data->GetStack()->GetHists();
+   for (Int_t i =0; i < hists->GetSize(); ++i)
+   {
+      std::string histName(hists->At(i)->GetName());
+      if ( histName.find(name,0) != std::string::npos)
       {
-         calo->GetData()->RefSliceInfo(i).fThreshold = value;
-         calo->ElementChanged();
-         calo->DataChanged();
+         data->SetSliceThreshold(i, value);
          break;
       }
    }
