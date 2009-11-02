@@ -9,7 +9,7 @@ process = cms.Process("HCALDQM")
 #  variables used in multiple places
 #-----------------------------------                      
 
-maxevents=-1          # maximum number of events to process
+maxevents=5000          # maximum number of events to process
 checkNevents=1000       # histograms are filled 'every checkNevents' events
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
@@ -39,20 +39,17 @@ if source=="PoolSource":
                                 
                                 fileNames = cms.untracked.vstring
                                 (
-        # CRAFT 09 ZS run
-        #'/store/data/CRAFT09/Calo/RAW/v1/000/110/972/FEA7E7DF-E788-DE11-8BAB-001617E30CC8.root',
+        # Recent
+        #'/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
         # Calibration triggers only
         '/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/84ED101B-03C0-DE11-B33C-000423D94E70.root',
-        '/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/76EC00B4-01C0-DE11-80F8-000423D944FC.root'
+        #'/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/76EC00B4-01C0-DE11-80F8-000423D944FC.root'
         # cosmics run with known hot cell in HF
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
         # NON-ZERO-SUPPRESSED RUN
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/904/02944F1F-EB9E-DD11-8D88-001D09F2A465.root',
-        # ZERO-SUPPRESSED RUN
-        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/042/0A36AA7D-978F-DD11-BA36-000423D6C8E6.root'
-        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/675/5A40BDBD-0399-DD11-88A4-001617E30CE8.root'
         )
                                 )
 
@@ -90,6 +87,7 @@ elif source=="HcalTBSource":
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
+# Set collector host to machine where gui output to be collected
 process.DQM.collectorHost = 'lxplus249'
 process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
