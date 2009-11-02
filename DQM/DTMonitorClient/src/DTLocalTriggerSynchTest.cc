@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/16 08:40:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/28 17:08:40 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -62,8 +62,11 @@ void DTLocalTriggerSynchTest::beginJob(const edm::EventSetup& c){
   numHistoTag   = parameters.getParameter<string>("numHistoTag");
   denHistoTag   = parameters.getParameter<string>("denHistoTag");
   ratioHistoTag = parameters.getParameter<string>("ratioHistoTag");
-  bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
+  bxTime        = parameters.getParameter<double>("bxTimeInterval");
   rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
+  nBXLow        = parameters.getParameter<int>("nBXLow");
+  nBXHigh       = parameters.getParameter<int>("nBXHigh");
+  minEntries    = parameters.getParameter<int>("minEntries");
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -119,20 +122,27 @@ void DTLocalTriggerSynchTest::runClientDiagnostic() {
 	TH1F *numH     = getHisto<TH1F>(dbe->get(getMEName(numHistoTag,"", chId)));
 	TH1F *denH     = getHisto<TH1F>(dbe->get(getMEName(denHistoTag,"", chId)));
 	    
-	if (numH && denH && numH->GetEntries()>1 && denH->GetEntries()>1) { // CB Set min entries from parameter	      
+	if (numH && denH && numH->GetEntries()>minEntries && denH->GetEntries()>minEntries) {	      
 	  std::map<std::string,MonitorElement*> innerME = chambME[indexCh];
 	  MonitorElement* ratioH = innerME.find(fullName(ratioHistoTag))->second;
 	  makeRatioME(numH,denH,ratioH);
 	  try {
 	    getHisto<TH1F>(ratioH)->Fit("pol8","CQO");
 	  } catch (...) {
-	    edm::LogProblem(category()) << "[" << testName << "Test]: Error fitting " << ratioH->getName() << " returned 0" << endl;
+	    edm::LogPrint(category()) << "[" << testName 
+				     << "Test]: Error fitting " 
+				     << ratioH->getName() << " returned 0" << endl;
 	  }
 	} else { 
 	  if (!numH || !denH) {
-	    LogProblem(category()) << "[" << testName << "Test]: At least one of the required Histograms was not found for chamber " << chId << " Peaks not computed" << endl;
+	    LogPrint(category()) << "[" << testName 
+				<< "Test]: At least one of the required Histograms was not found for chamber " 
+				<< chId << ". Peaks not computed" << endl;
 	  } else {
-	    LogProblem(category()) << "[" << testName << "Test]: Number of plots entries for " << chId << " is less than 1.  Peaks not computed" << endl;
+	    LogPrint(category()) << "[" << testName 
+				<< "Test]: Number of plots entries for " 
+				<< chId << " is less than minEntries=" 
+				<< minEntries <<".  Peaks not computed" << endl;
 	  }
 	}
 
@@ -147,7 +157,8 @@ void DTLocalTriggerSynchTest::endJob(){
   DTLocalTriggerBaseTest::endJob();
 
   if ( parameters.getParameter<bool>("writeDB")) {
-    LogVerbatim(category()) << "[" << testName << "Test]: writeDB flag set to true. Producing peak position database." << endl;
+    LogVerbatim(category()) << "[" << testName 
+			    << "Test]: writeDB flag set to true. Producing peak position database." << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
     hwSource =  parameters.getParameter<bool>("dbFromDCC") ? "DCC" : "DDU";
@@ -164,10 +175,15 @@ void DTLocalTriggerSynchTest::endJob(){
 
 
 	TH1F *ratioH     = getHisto<TH1F>(dbe->get(getMEName(ratioHistoTag,"", chId)));    
-	if (ratioH->GetEntries()>1) { // CB Set min entries from parameter	      
+	if (ratioH->GetEntries()>minEntries) {	      
 	  TF1 *fitF=ratioH->GetFunction("pol8");
 	  if (fitF) { fineDelay=fitF->GetMaximumX(0,bxTime); }
+	} else {
+	  LogInfo(category()) << "[" << testName 
+			      << "Test]: Ratio histogram for chamber " << chId
+			      << " is empty. Worst Phase value set to 0." << endl;
 	}
+
 	if (fineDiff || coarseDiff) {
 	  float wFine;
 	  int wCoarse;
@@ -178,18 +194,18 @@ void DTLocalTriggerSynchTest::endJob(){
 	delayMap->set(chId,coarseDelay,fineDelay,DTTimeUnits::ns);
       }
 
-      string delayRecord = "DTTPGParametersRcd"; // CB Read from cfg???
-      DTCalibDBUtils::writeToDB(delayRecord,delayMap);
-
       std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> >::const_iterator dbIt  = delayMap->begin();
       std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> >::const_iterator dbEnd = delayMap->end();
       for (; dbIt!=dbEnd; ++dbIt) {
-	LogProblem(category()) << "[" << testName << "Test]: DB entry for Wh " << (*dbIt).first.wheelId 
-			       << " Sec " << (*dbIt).first.sectorId 
-			       << " St " << (*dbIt).first.stationId 
-			       << " has coarse " << (*dbIt).second.nClock
-			       << " and phase " << (*dbIt).second.tPhase << std::endl;
+	LogVerbatim(category()) << "[" << testName << "Test]: DB entry for Wh " << (*dbIt).first.wheelId 
+				<< " Sec " << (*dbIt).first.sectorId 
+				<< " St " << (*dbIt).first.stationId 
+				<< " has coarse " << (*dbIt).second.nClock
+				<< " and phase " << (*dbIt).second.tPhase << std::endl;
       }
+      
+      string delayRecord = "DTTPGParametersRcd";
+      DTCalibDBUtils::writeToDB(delayRecord,delayMap);
       
   }
 
@@ -246,13 +262,13 @@ void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype,
 
   dbe->setCurrentFolder(folder);
 
-  LogInfo(category()) << "[" << testName << "Test]: booking " << folder << "/" <<HistoName;
+  LogPrint(category()) << "[" << testName << "Test]: booking " << folder << "/" <<HistoName;
 
   
   uint32_t indexChId = chambId.rawId();
-  float min = rangeInBX ?      0 :  -bxTime;
-  float max = rangeInBX ? bxTime : 2*bxTime;
-  int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : 3*bxTime));
+  float min = rangeInBX ?      0 : nBXLow*bxTime;
+  float max = rangeInBX ? bxTime : nBXHigh*bxTime;
+  int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
   chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"All/HH ratio vs Muon Arrival Time",nbins,min,max);
 

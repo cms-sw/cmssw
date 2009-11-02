@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/10/16 08:40:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/28 17:08:40 $
+ *  $Revision: 1.2 $
  *  \author  C. Battilana - CIEMAT
  *   
  */
@@ -59,6 +59,9 @@ protected:
   std::string ratioHistoTag;
   double bxTime;
   bool rangeInBX;
+  int nBXLow;
+  int nBXHigh;
+  int minEntries;
   bool writeDB;
   DTTPGParameters wPhaseMap;
 
