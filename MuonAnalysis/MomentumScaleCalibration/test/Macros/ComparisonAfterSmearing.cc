@@ -93,6 +93,48 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
   c2->Write();
 }
 
+TF1 * expRelativisticBWintPhotFit(const string & index)
+{
+  ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator * fobj = new ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator;
+  TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), fobj, 60, 120, fobj->parNum(), "ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator");
+  functionToFit->SetParameter(0, 2.);
+  functionToFit->SetParameter(1, 90.);
+  functionToFit->SetParameter(2, 800.);
+  functionToFit->SetParameter(3, 1.);
+  functionToFit->SetParameter(4, 0.);
+  functionToFit->SetParameter(5, 0.);
+
+  functionToFit->SetParLimits(3, 0., 1.);
+  functionToFit->SetParLimits(4, 0., 1.);
+
+  return functionToFit;
+}
+
+// Product between an exponential term and the relativistic Breit-Wigner with Z/gamma interference term and photon propagator
+// --------------------------------------------------------------------------------------------------------------------------
+class ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator
+{
+ public:
+  ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator()
+  {
+    parNum_ = 6;
+    twoOverPi_ = 2./TMath::Pi();
+  }
+  double operator() (double *x, double *p)
+  {
+
+    // if( p[3]+p[4] > 1 ) return -10000.;
+
+    double squaredMassDiff = pow((x[0]*x[0] - p[1]*p[1]), 2);
+    double denominator = squaredMassDiff + pow(x[0], 4)*pow(p[0]/p[1], 2);
+    return p[2]*exp(-p[5]*x[0])*( p[3]*twoOverPi_*pow(p[1]*p[0], 2)/denominator + (1-p[3]-p[4])*p[1]*squaredMassDiff/denominator + p[4]/(x[0]*x[0]));
+  }
+  int parNum() const { return parNum_; }
+ protected:
+  int parNum_;
+  double twoOverPi_;
+};
+
 drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
        const TString & canvasName, TFile * outputFile, const TString & stringName,
        const TString & title = "", const TString & xAxisTitle = "", const TString & yAxisTitle = "", double Xmin = 0, double Xmax = 120, int rebinX = 1,
@@ -119,26 +161,44 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   legend3->AddEntry(Aligned, LegendNameAligned);
   Aligned->Rebin(rebinX);
   Aligned->GetXaxis()->SetRangeUser(Xmin,Xmax);
-  Aligned->Sumw2();
+  //  Aligned->Sumw2();
   Aligned->GetXaxis()->SetTitle(xAxisTitle);
   Aligned->GetYaxis()->SetTitle(yAxisTitle);  
-  Aligned->DrawNormalized();
-  
+  Aligned->Draw("e");
+  if(HistoName == "hRecBestRes_Mass"){
+    TF1 * functionToFitId = expRelativisticBWintPhotFit("Ideal");
+    Aligned->Fit(functionToFitId, "MN", "", 60, 120);  
+    functionToFitId->Draw("same");
+  }
+
   LegendNameMisaligned = LegendName + "fake data";
   Misaligned->SetMarkerColor(kRed);
   Misaligned->SetLineColor(kRed);
   legend3->AddEntry(Misaligned, LegendNameMisaligned);
   Misaligned->Rebin(rebinX);
-  Misaligned->Sumw2();
-  Misaligned->DrawNormalized("sames");
+  //  Misaligned->Sumw2();
+  Misaligned->Draw("esames");
+  if(HistoName == "hRecBestRes_Mass"){
+    TF1 * functionToFitFake = expRelativisticBWintPhotFit("Fake");
+    Misaligned->Fit(functionToFitFake, "MN", "", 60, 120);  
+    functionToFitFake->SetLineColor(kRed);
+    functionToFitFake->Draw("same");
+  }
 
   LegendNameSmeared = LegendName + "smeared MC";
   Smeared->SetMarkerColor(kBlue);
   Smeared->SetLineColor(kBlue);
   legend3->AddEntry(Smeared, LegendNameSmeared);  
   Smeared->Rebin(rebinX);
-  Smeared->Sumw2();
-  Smeared->DrawNormalized("sames");
+  //  Smeared->Sumw2();
+  Smeared->Draw("esames");
+  if(HistoName == "hRecBestRes_Mass"){
+    TF1 * functionToFitSmear = expRelativisticBWintPhotFit("Smear");
+    Smeared->Fit(functionToFitSmear, "MN", "", 60, 120);  
+    functionToFitSmear->SetLineColor(kBlue);
+    functionToFitSmear->Draw("same");
+  }
+
   legend3->Draw();
 
   c->cd(2);
@@ -148,17 +208,19 @@ drawZ( const TString & HistoName, TFile * AlignedFile, TFile * MisalignedFile,
   TString LegendNameRatio1, LegendNameRatio2;
   TLegend * legend4 = new TLegend(0.65,0.71,0.98,1.);
   LegendNameRatio1 = "Z pt MC/Z pt fake";
-  RatioIdFake->Divide(Aligned,Misaligned);
-  ///RatioIdFake->Add(Aligned,Misaligned,1,-1);
+  RatioIdFake->Add(Aligned,Misaligned,1,-1);  
+  //  RatioIdFake->Sumw2();
+  //  RatioIdFake->Divide(Aligned,Misaligned);
+  
   RatioIdFake->SetLineColor(kRed);
-  RatioIdFake->Draw("e");  
+  RatioIdFake->Draw("");  
   legend4->AddEntry(RatioIdFake,LegendNameRatio1); 
   LegendNameRatio2 = "Z pt MC smeared/Z pt fake";
-  RatioSmeFake->Divide(Smeared,Misaligned);
-  //RatioSmeFake->Add(Smeared,Misaligned,1,-1);
+  RatioSmeFake->Add(Smeared,Misaligned,1,-1);  
+  // RatioSmeFake->Divide(Smeared,Misaligned);
   RatioSmeFake->SetLineColor(kBlue);
-  RatioSmeFake->SetTitle("ratio");
-  RatioSmeFake->Draw("esames");  
+  RatioSmeFake->SetTitle("diff");
+  RatioSmeFake->Draw("sames");  
   legend4->AddEntry(RatioSmeFake,LegendNameRatio2); 
   legend4->Draw();
 
