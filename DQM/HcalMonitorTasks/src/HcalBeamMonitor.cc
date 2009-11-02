@@ -922,7 +922,8 @@ void HcalBeamMonitor::endLuminosityBlock()
 	      //cout <<"DEAD CELL AT "<<x-1<<", "<<2*y-1<<"  OCC ENTRIES = "<<HFlumi_occ_LS->getTH2F()->Integral()<<endl;
 	    } // dead cell check
 
-	  if (HFlumi_occ_LS->getBinContent(x,y)>0.5*Nentries)
+	  // hot if present in more than 25% of events in the LS
+	  if (HFlumi_occ_LS->getBinContent(x,y)>0.25*Nentries)
 	    {
 	      HFlumi_total_hotcells->Fill(x-1,2*y-1,1);
 	      //HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
