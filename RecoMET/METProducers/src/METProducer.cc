@@ -138,7 +138,7 @@ namespace cms
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
-      SignCaloSpecificAlgo sign_calomet;
+      SignCaloSpecificAlgo signcalospecalgo;
       metsig::SignAlgoResolutions resolutions(conf_);
 
       signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
@@ -168,8 +168,12 @@ namespace cms
 	PFSpecificAlgo pf;
 	std::auto_ptr<PFMETCollection> pfmetcoll;
 	pfmetcoll.reset (new PFMETCollection);
-	pfmetcoll->push_back( pf.addInfo(input, output) );
+	// add resolutions and calculate significance
 	metsig::SignAlgoResolutions resolutions(conf_);
+	pf.runSignificance(resolutions);
+	
+	pfmetcoll->push_back( pf.addInfo(input, output) );
+	
 	event.put( pfmetcoll );
       }
     //-----------------------------------
