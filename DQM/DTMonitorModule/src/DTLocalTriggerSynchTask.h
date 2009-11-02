@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerSynchTask.h
  *
- * $Date: 2008/06/10 14:59:22 $
- * $Revision: 1.18 $
+ * $Date: 2009/10/16 08:38:49 $
+ * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -82,6 +82,8 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
 
   float bxTime;
   bool rangeInBX;
+  int nBXLow;
+  int nBXHigh;
   float angleRange;
   float minHitsPhi;
   int fineDelay;

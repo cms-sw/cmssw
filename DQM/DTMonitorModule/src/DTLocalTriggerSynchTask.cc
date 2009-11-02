@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2008/07/25 10:20:48 $
- * $Revision: 1.29 $
+ * $Date: 2009/10/16 08:38:49 $
+ * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -68,9 +68,10 @@ void DTLocalTriggerSynchTask::beginJob(const edm::EventSetup& context){
 
   bxTime     = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
   rangeInBX  = parameters.getParameter<bool>("rangeWithinBX");
+  nBXLow     = parameters.getParameter<int>("nBXLow");
+  nBXHigh    = parameters.getParameter<int>("nBXHigh");
   angleRange = parameters.getParameter<double>("angleRange");
   minHitsPhi = parameters.getParameter<int>("minHitsPhi");
-  fineDelay  = parameters.getParameter<int>("fineDelay");
 
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setCurrentFolder("DT/90-LocalTriggerSynch/");
@@ -82,8 +83,7 @@ void DTLocalTriggerSynchTask::beginJob(const edm::EventSetup& context){
 
   for (; chambIt!=chambEnd; ++chambIt) { 
     bookHistos((*chambIt)->id());
-    triggerHistos[(*chambIt)->id().rawId()]["FineDelay"]->Fill(fineDelay);
-  }   
+  } 
   
 }
 
@@ -255,9 +255,9 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
 
   string histoTag[5] = { "SEG_TrackCrossingTime", "DCC_TrackCrossingTimeAll", "DCC_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
  
-  float min = rangeInBX ?      0 :  -bxTime;
-  float max = rangeInBX ? bxTime : 2*bxTime;
-  int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : 3*bxTime));
+  float min = rangeInBX ?      0 : nBXLow*bxTime;
+  float max = rangeInBX ? bxTime : nBXHigh*bxTime;
+  int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
   for (int iHisto=0;iHisto<5;++iHisto) {
     string histoName = histoTag[iHisto] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -270,9 +270,9 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
     triggerHistos[chRawId][histoTag[iHisto]] = dbe->book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
   }
 
-  string floatTag[3] = { "FineDelay", "tTrig_SL1", "tTrig_SL3" };
+  string floatTag[2] = { "tTrig_SL1", "tTrig_SL3" };
 
-  for (int iFloat=0;iFloat<3;++iFloat) { 
+  for (int iFloat=0;iFloat<2;++iFloat) { 
     string floatName = floatTag[iFloat] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     triggerHistos[chRawId][floatTag[iFloat]] = dbe->bookFloat(floatName);
   }
