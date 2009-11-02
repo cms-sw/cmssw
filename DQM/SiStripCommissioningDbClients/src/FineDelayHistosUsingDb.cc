@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.15 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.16 2009/09/04 09:36:08 lowette Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -75,7 +75,7 @@ void FineDelayHistosUsingDb::configure( const edm::ParameterSet& pset,
   setup.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker_=&(* estracker);
   SamplingHistograms::configure(pset,setup);
-  cosmic_ = pset.getParameter<bool>("cosmic");
+  cosmic_ = this->pset().getParameter<bool>("cosmic");
 }
 
 // -----------------------------------------------------------------------------

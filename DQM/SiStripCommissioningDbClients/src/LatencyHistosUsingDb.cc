@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.20 2009/09/04 09:57:41 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -394,6 +394,6 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 
 void LatencyHistosUsingDb::configure( const edm::ParameterSet& pset, const edm::EventSetup& es)
 {
-  perPartition_ = pset.getParameter<bool>("OptimizePerPartition");
+  perPartition_ = this->pset().getParameter<bool>("OptimizePerPartition");
 }
 

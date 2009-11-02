@@ -1,11 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
+# process declaration
 process = cms.Process("SiStripCommissioningOfflineDbClient")
 
-process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
-process.load("DQM.SiStripCommon.DaqMonitorROOTBackEnd_cfi")
+#############################################
+# General setup
+#############################################
 
+# message logger
+process.load('DQM.SiStripCommissioningSources.OfflineMessageLogger_cff')
+
+# DQM service
+process.load('DQM.SiStripCommissioningSources.OfflineDQM_cff')
+
+# config db settings
 process.load("OnlineDB.SiStripConfigDb.SiStripConfigDb_cfi")
 process.SiStripConfigDb.UsingDb = True                                            # true means use database (not xml files)
 process.SiStripConfigDb.ConfDb  = 'overwritten/by@confdb'                         # database connection account ( or use CONFDB env. var.)
@@ -13,8 +22,26 @@ process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = 'DBPART'    
 process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER     # specify run number ("0" means use major/minor versions, which are by default set to "current state")
 #process.SiStripConfigDb.TNS_ADMIN = '/etc'                                        # location of tnsnames.ora, needed at P5, not in TAC
     
+# input source
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
+
+
+#############################################
+# extra setup for latency & fine delay
+#############################################
+
+# geometry
+process.load('DQM.SiStripCommissioningSources.P5Geometry_cff')
+# magnetic field (0T by default)
+process.load('MagneticField.Engine.uniformMagneticField_cfi')
+# fake global position
+process.load('Alignment.CommonAlignmentProducer.GlobalPosition_Fake_cff')
+
+
+##############################################
+# modules & path for analysis
+##############################################
 
 process.load("DQM.SiStripCommissioningDbClients.OfflineDbClient_cff")
 process.db_client.FilePath         = cms.untracked.string('DATALOCATION')

@@ -12,28 +12,32 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   SaveClientFile   = cms.untracked.bool(True),
   SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
   # individual parameters
-  ApvTimingParameters	   = cms.PSet(
+  ApvTimingParameters      = cms.PSet(
     TargetDelay = cms.int32(-1)        # -1: latest tick (old default), otherwise target delay for all ticks' rising edge
   ),
   CalibrationParameters    = cms.PSet(),
   DaqScopeModeParameters   = cms.PSet(),
   FastFedCablingParameters = cms.PSet(),
   FedCablingParameters     = cms.PSet(),
-  FedTiming		   = cms.PSet(),
-  FineDelayParameters	   = cms.PSet(),
-  LatencyParams 	   = cms.PSet(),
-  NoiseParameters	   = cms.PSet(),
-  OptoScanParameters	   = cms.PSet(
+  FedTimingParameters      = cms.PSet(),
+  FineDelayParameters      = cms.PSet(
+    cosmic =  cms.bool(True)
+  ),
+  LatencyParamameters      = cms.PSet(
+    OptimizePerPartition = cms.bool(False)
+  ),
+  NoiseParameters          = cms.PSet(),
+  OptoScanParameters       = cms.PSet(
     TargetGain = cms.double(0.8),     # target gain (0.8 ~ 640ADC for tickmark)
     SkipGainUpdate = cms.bool(False)  # wether to keep the gain the same as already on the db
   ),
-  PedestalsParameters	   = cms.PSet(
+  PedestalsParameters      = cms.PSet(
     DeadStripMax  = cms.double(5),   # number times the noise spread below mean noise
     NoisyStripMin = cms.double(5),   # number times the noise spread above mean noise
     HighThreshold = cms.double(5),   # analysis-wide high threshold for the fed zero suppression
     LowThreshold  = cms.double(2)    # analysis-wide low threshold for the fed zero suppression
   ),
-  PedsOnlyParameters	   = cms.PSet(),
-  SamplingParameters	   = cms.PSet(),
-  VpspScanParameters	   = cms.PSet(),
+  PedsOnlyParameters       = cms.PSet(),
+  SamplingParameters       = cms.PSet(),
+  VpspScanParameters       = cms.PSet(),
 )
