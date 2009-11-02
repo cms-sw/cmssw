@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/06/22 15:58:20 $
- * $Revision: 1.19 $
+ * $Date: 2009/06/23 09:48:55 $
+ * $Revision: 1.20 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.19 2009/06/22 15:58:20 tapper Exp $
+ * $Id: L1TGCT.h,v 1.20 2009/06/23 09:48:55 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.20  2009/06/23 09:48:55  tapper
+ * Added missing occupancy plot for central and forward jets.
+ *
  * Revision 1.19  2009/06/22 15:58:20  tapper
  * Added MET vs MHT correlation plots (both for magnitude and phi). Still untested!
  *
@@ -136,7 +139,7 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  // GCT stuff
+  // Jet and EM stuff
   MonitorElement* l1GctAllJetsEtEtaPhi_; 
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
   MonitorElement* l1GctForJetsEtEtaPhi_;
@@ -157,20 +160,28 @@ private:
   MonitorElement* l1GctIsoEmRank_;
   MonitorElement* l1GctNonIsoEmRank_;
 
+  MonitorElement* l1GctAllJetsOccRankBx_;
+  MonitorElement* l1GctAllEmOccRankBx_;
+
+  // Energy sums stuff
   MonitorElement* l1GctEtMiss_;
   MonitorElement* l1GctEtMissPhi_;
   MonitorElement* l1GctEtMissOf_;
+  MonitorElement* l1GctEtMissOccBx_;
   MonitorElement* l1GctHtMiss_;
   MonitorElement* l1GctHtMissPhi_;
   MonitorElement* l1GctHtMissOf_;
+  MonitorElement* l1GctHtMissOccBx_;
   MonitorElement* l1GctEtMissHtMissCorr_;
   MonitorElement* l1GctEtMissHtMissCorrPhi_;
   MonitorElement* l1GctEtTotal_;
   MonitorElement* l1GctEtTotalOf_;
+  MonitorElement* l1GctEtTotalOccBx_;
   MonitorElement* l1GctEtHad_;
   MonitorElement* l1GctEtHadOf_;
+  MonitorElement* l1GctEtHadOccBx_;
   
-  //HF Rings stuff
+  // HF Rings stuff
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
   MonitorElement* l1GctHFRing2PosEtaNegEta_;
   MonitorElement* l1GctHFRing1TowerCountPosEtaNegEta_;
@@ -185,31 +196,8 @@ private:
   MonitorElement* l1GctHFRing2ETSumNegEta_;
   MonitorElement* l1GctHFRingRatioPosEta_;
   MonitorElement* l1GctHFRingRatioNegEta_;
-
-  // GCT electron stuff
-  MonitorElement* l1GctIsoEmRankCand0_;
-  MonitorElement* l1GctIsoEmRankCand1_;
-  MonitorElement* l1GctIsoEmRankCand2_;
-  MonitorElement* l1GctIsoEmRankCand3_;
-
-  MonitorElement* l1GctNonIsoEmRankCand0_;
-  MonitorElement* l1GctNonIsoEmRankCand1_;
-  MonitorElement* l1GctNonIsoEmRankCand2_;
-  MonitorElement* l1GctNonIsoEmRankCand3_;
-
-  //GCT jet stuff
-  MonitorElement* l1GctCenJetsRankCand0_;
-  MonitorElement* l1GctCenJetsRankCand1_;
-  MonitorElement* l1GctCenJetsRankCand2_;
-  MonitorElement* l1GctCenJetsRankCand3_;
-  MonitorElement* l1GctForJetsRankCand0_;
-  MonitorElement* l1GctForJetsRankCand1_;
-  MonitorElement* l1GctForJetsRankCand2_;
-  MonitorElement* l1GctForJetsRankCand3_;
-  MonitorElement* l1GctTauJetsRankCand0_;
-  MonitorElement* l1GctTauJetsRankCand1_;
-  MonitorElement* l1GctTauJetsRankCand2_;
-  MonitorElement* l1GctTauJetsRankCand3_;
+  MonitorElement* l1GctHFRingETSumOccBx_;
+  MonitorElement* l1GctHFRingTowerCountOccBx_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

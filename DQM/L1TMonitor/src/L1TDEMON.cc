@@ -446,8 +446,12 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(cid!=RCTrgn) continue;
     }
     if(sid==GCT) { 
-      //GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-      //if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
+      // For the moment just include EM and jet objects, energy sums being debugged in the expert DQM first.
+      if(cid!=GCTisolaem && 
+         cid!=GCTnoisoem &&
+         cid!=GCTcenjets &&
+         cid!=GCTforjets &&
+         cid!=GCTtaujets) continue;
     }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
