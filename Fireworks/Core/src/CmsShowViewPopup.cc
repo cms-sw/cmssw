@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.14 2009/07/20 17:30:05 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.15 2009/10/27 20:04:39 amraktad Exp $
 //
 
 // system include files
@@ -77,9 +77,9 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    
    // annotation
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   m_annotation = new TGTextButton(this,"Pick Annotation");
+   m_annotation = new TGCheckButton(this,"Pick Annotation");
    AddFrame(m_annotation);
-   m_annotation->Connect("Clicked()","CmsShowViewPopup",this,"pickAnnotation()");
+   m_annotation->Connect("Clicked()","CmsShowViewPopup",this,"doAnnotation()");
   
   // content frame
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
@@ -118,8 +118,9 @@ CmsShowViewPopup::reset(TEveWindow* ew)
    // fill content
    if(viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
-
       m_viewLabel->SetText(viewBase->typeName().c_str());
+      m_annotation->SetDown(kFALSE, kFALSE);
+
       for(FWParameterizable::const_iterator itP = viewBase->begin(), itPEnd = viewBase->end();
           itP != itPEnd;
           ++itP) {
@@ -209,14 +210,26 @@ CmsShowViewPopup::backgroundColorWasChanged()
 }
 
 void
-CmsShowViewPopup::pickAnnotation()
+CmsShowViewPopup::doAnnotation()
 {
    TEveViewer* ev = dynamic_cast<TEveViewer*>(m_eveWindow);
    if (ev) ev->GetGLViewer()->PickAnnotate();
 }
 
-//
-// const member functions
+void
+CmsShowViewPopup::annotationWasChanged()
+{
+   // update viewer GUI
+   TEveViewer* ev = dynamic_cast<TEveViewer*>(m_eveWindow);
+   if (ev) 
+   {
+      m_annotation->SetDown((ev->GetGLViewer()->GetPushAction() == TGLViewer::kPushAnnotate), kFALSE);
+      gClient->NeedRedraw(m_annotation);
+   }
+
+}
+
+// Const member functions
 //
 
 //

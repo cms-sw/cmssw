@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.10 2009/07/06 19:14:53 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.11 2009/10/27 20:04:39 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,8 @@ public:
    void saveImage();
    void changeBackground();
    void backgroundColorWasChanged();
-   void pickAnnotation();
+   void doAnnotation();
+   void annotationWasChanged();
 
    TEveWindow* GetEveWindow() const { return m_eveWindow; }
 
@@ -82,7 +83,7 @@ private:
    TGCompositeFrame* m_viewContentFrame;
    TGButton*         m_saveImageButton;
    TGTextButton*     m_changeBackground;
-   TGTextButton*     m_annotation;
+   TGCheckButton*    m_annotation;
 
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;

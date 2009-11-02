@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.78 2009/10/27 01:43:29 dmytro Exp $
+// $Id: FWGUIManager.h,v 1.79 2009/10/27 01:55:28 dmytro Exp $
 //
 
 // system include files
@@ -119,6 +119,8 @@ public:
    void showEDIFrame(int iInfoToShow=-1);
 
    void showBrightnessPopup();
+
+   void annotationWasChanged();
 
    void createModelPopup();
    void showModelPopup();

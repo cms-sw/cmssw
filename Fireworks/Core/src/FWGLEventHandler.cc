@@ -1,4 +1,5 @@
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #define protected public
 #include "TGLViewer.h"
 #undef protected
@@ -170,7 +171,7 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
       {
          // This should be 'tool' dependant.
          fGLViewer->fPushAction = TGLViewer::kPushStd;
-         fGLViewer->RefreshPadEditor(fGLViewer);
+         FWGUIManager::getGUIManager()->annotationWasChanged();
          return kTRUE;
       }
       else if (fGLViewer->fDragAction == TGLViewer::kDragOverlay && fGLViewer->fCurrentOvlElm)
