@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/03 16:42:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/22 09:15:29 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -26,15 +26,17 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Histograms.h"
-
+#include "TStyle.h"
 #include "TFile.h"
-
+//#include "utils.C"
 #include <iostream>
 #include <map>
 
 
 using namespace std;
 using namespace edm;
+//TStyle * mystyle;
+
 
 // Constructor
 DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
@@ -78,6 +80,12 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
 // Destructor
 DTSegment2DSLPhiQuality::~DTSegment2DSLPhiQuality(){
+}
+
+void DTSegment2DSLPhiQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+    edm::EventSetup const& c){
+  
+
 }
 
 void DTSegment2DSLPhiQuality::endJob() {
@@ -259,7 +267,5 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 }
 
 
-
-
-
-
+// Fit a histogram in the range (minfit, maxfit) with a gaussian and
+// draw it in the range (min, max)

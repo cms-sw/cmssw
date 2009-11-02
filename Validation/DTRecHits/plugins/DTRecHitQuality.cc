@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/03 12:57:17 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/06 17:22:52 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -26,17 +26,19 @@
 
 
 #include "Histograms.h"
-
+#include "utils.C"
+//#include "../test/macros.C"
 #include "TFile.h"
-
+#include "TStyle.h"
+//#include "TLine.h"
 #include <iostream>
 #include <map>
-
+#include "TROOT.h"
 using namespace std;
 using namespace edm;
-
-
-
+//#include "utils.C"
+//#include "macros.C"
+//TStyle * mystyle;
 
 
 // Constructor
@@ -123,8 +125,22 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
 DTRecHitQuality::~DTRecHitQuality(){
 }
 
+void DTRecHitQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+    edm::EventSetup const& c){
+  Tutils * util = new Tutils;
+  util->drawGFit(hRes_S3RPhi->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  util->drawGFit(hRes_S3RZ->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  util->drawGFit(hRes_S3RZ_W0->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  util->drawGFit(hRes_S3RZ_W1->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  util->drawGFit(hRes_S3RZ_W2->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
 
+  util->drawGFit(hRes_S3RPhi->hPull->getTH1(),-5,5,-5,5);
+  util->drawGFit(hRes_S3RZ->hPull->getTH1(),-5,5,-5,5);
+  util->drawGFit(hRes_S3RZ_W0->hPull->getTH1(),-5,5,-5,5);
+  util->drawGFit(hRes_S3RZ_W1->hPull->getTH1(),-5,5,-5,5);
+  util->drawGFit(hRes_S3RZ_W2->hPull->getTH1(),-5,5,-5,5);
 
+}
 void DTRecHitQuality::endJob() {
   // Write the histos to file
   if(doall){
@@ -613,3 +629,6 @@ float DTRecHitQuality::recHitPositionError(const DTRecHit1DPair& recHit) {
 float DTRecHitQuality::recHitPositionError(const DTRecHit1D& recHit) {
   return sqrt(recHit.localPositionError().xx());
 }
+
+
+
