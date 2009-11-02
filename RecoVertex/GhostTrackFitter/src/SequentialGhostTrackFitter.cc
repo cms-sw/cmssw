@@ -67,7 +67,6 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(
 				pred = updater.update(pred, *state,
 				                      ndof, chi2);
 		}
-// std::cout << "pred(" << iteration << ", " << chi2 << ", " << ndof << ") = " << pred.prediction() << std::endl;
 
 		if (++iteration >= maxIteration ||
 		    stable(lastPred, pred))

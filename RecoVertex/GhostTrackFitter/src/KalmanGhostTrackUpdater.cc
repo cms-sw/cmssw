@@ -97,8 +97,12 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 	KalmanState kalmanState;
 	kalmanInitState(pred, state, kalmanState);
 
+	if (state.weight() < 1.0e-3)
+		return pred;
+
 	// inverted combined error
-	Matrix2S invErr = kalmanState.measErr + kalmanState.measPredErr;
+	Matrix2S invErr = kalmanState.measPredErr +
+	                  (1.0 / state.weight()) * kalmanState.measErr;
 	if (!invErr.Invert())
 		return pred;
 
@@ -106,11 +110,9 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 	Matrix42 gain = pred.covariance() * Transpose(kalmanState.h) * invErr;
 
 	// new prediction
-	Vector4 newPred = pred.prediction() + state.weight() *
-						(gain * kalmanState.residual);
+	Vector4 newPred = pred.prediction() + (gain * kalmanState.residual);
 	Matrix44 tmp44 = SMatrixIdentity();
-	tmp44 = (tmp44 - sqr(state.weight()) *
-		              (gain * kalmanState.h)) * pred.covariance();
+	tmp44 = (tmp44 - gain * kalmanState.h) * pred.covariance();
 	Matrix4S newError(tmp44.LowerBlock());
 
 	// filtered residuals
@@ -137,11 +139,30 @@ void KalmanGhostTrackUpdater::contribution(
 	KalmanState kalmanState;
 	kalmanInitState(pred, state, kalmanState);
 
-	if (kalmanState.measErr.Invert()) {
-		ndof = 2.;
-		chi2 = Similarity(kalmanState.residual, kalmanState.measErr);
-	} else {
+	if (state.weight() < 1.0e-3) {
 		ndof = 0.;
 		chi2 = 0.;
 	}
+
+	// inverted combined error
+	Matrix2S invErr = kalmanState.measPredErr +
+	                  (1.0 / state.weight()) * kalmanState.measErr;
+	if (!invErr.Invert()) {
+		ndof = 0.;
+		chi2 = 0.;
+	}
+
+	// gain
+	Matrix42 gain = pred.covariance() * Transpose(kalmanState.h) * invErr;
+
+	// filtered residuals
+	Matrix22 tmp22 = SMatrixIdentity();
+	tmp22 = (tmp22 - kalmanState.h * gain);
+	Vector2 filtRes = tmp22 * kalmanState.residual;
+	tmp22 *= kalmanState.measErr;
+	Matrix2S filtResErr(tmp22.LowerBlock());
+	filtResErr.Invert();
+
+	ndof = 2.;
+	chi2 = Similarity(filtRes, filtResErr);
 }                            
