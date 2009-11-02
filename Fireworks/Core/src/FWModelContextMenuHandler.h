@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.2 2009/09/24 00:43:07 chrjones Exp $
+// $Id: FWModelContextMenuHandler.h,v 1.3 2009/10/31 22:37:35 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 // forward declarations
 class TGPopupMenu;
+class TGMenuEntry;
 class FWSelectionManager;
 class FWDetailViewManager;
 class FWColorManager;
@@ -66,9 +67,10 @@ private:
    FWDetailViewManager* m_detailViewManager;
    FWColorManager* m_colorManager;
    FWGUIManager* m_guiManager;
+   mutable TGMenuEntry* m_seperator;
    mutable Int_t m_x;
    mutable Int_t m_y;
-   mutable unsigned int m_nDetailViewChoices;
+   mutable unsigned int m_nDetailViewEntries;
 };
 
 

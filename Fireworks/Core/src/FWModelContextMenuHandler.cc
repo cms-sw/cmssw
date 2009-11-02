@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.3 2009/10/31 22:37:35 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.4 2009/11/02 15:51:09 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,8 @@ m_selectionManager(iSM),
 m_detailViewManager(iDVM),
 m_colorManager(iCM),
 m_guiManager(iGM),
-m_nDetailViewChoices(0)
+m_seperator(0),
+m_nDetailViewEntries(0)
 {
 }
 
@@ -186,42 +187,33 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY) const
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
       if(viewChoices.size()>0) {
-         if(m_nDetailViewChoices != viewChoices.size()) {
-            if(m_nDetailViewChoices>viewChoices.size()) {
-               for(unsigned int index = m_nDetailViewChoices; index != viewChoices.size(); --index) {
-                  m_modelPopup->DeleteEntry(kOpenDetailViewMO+index-1);
-               }
-            } else {
-               if(not (m_nDetailViewChoices==0 && viewChoices.size()==1)) {
-                  for(unsigned int index = m_nDetailViewChoices; index != viewChoices.size(); ++index) {
-                     m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO+index);
-                  }
-               }
+         if(m_nDetailViewEntries < viewChoices.size()) {
+            for(unsigned int index = m_nDetailViewEntries;
+                index != viewChoices.size();
+                ++index) {
+               m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO+index,0,0,m_seperator);
             }
+            m_nDetailViewEntries=viewChoices.size();
          }
-         m_nDetailViewChoices = viewChoices.size();
          const std::string kStart("Open ");
          const std::string kEnd(" Detail View ...");
-         for(unsigned int index=0; index != m_nDetailViewChoices; ++index) {
+         for(unsigned int index=0; index != viewChoices.size(); ++index) {
             m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
+            m_modelPopup->EnableEntry(index+kOpenDetailViewMO);
          }
-         m_modelPopup->EnableEntry(kOpenDetailViewMO);
+         for(unsigned int i =viewChoices.size(); i <m_nDetailViewEntries; ++i) {
+            m_modelPopup->HideEntry(kOpenDetailViewMO+i);
+         }
+         
       } else {
-         for(int i =m_nDetailViewChoices-1; i > 0; --i) {
-            m_modelPopup->DeleteEntry(kOpenDetailViewMO+i);
+         for(unsigned int i =0; i <m_nDetailViewEntries; ++i) {
+            m_modelPopup->HideEntry(kOpenDetailViewMO+i);
          }
-         m_nDetailViewChoices=0;
-         m_modelPopup->GetEntry(kOpenDetailViewMO)->GetLabel()->SetString(kOpenDetailView);
-         m_modelPopup->HideEntry(kOpenDetailViewMO);
       }
    } else {
-      m_nDetailViewChoices=0;
-      for(int i =m_nDetailViewChoices-1; i > 0; --i) {
-         m_modelPopup->DeleteEntry(kOpenDetailViewMO+i);
+      for(unsigned int i =0; i <m_nDetailViewEntries; ++i) {
+         m_modelPopup->HideEntry(kOpenDetailViewMO+i);
       }
-      m_nDetailViewChoices=0;
-      m_modelPopup->GetEntry(kOpenDetailViewMO)->GetLabel()->SetString(kOpenDetailView);
-      m_modelPopup->HideEntry(kOpenDetailViewMO);
    }
    m_x=iX;
    m_y=iY;
@@ -237,7 +229,10 @@ FWModelContextMenuHandler::createModelContext() const
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
       m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
+      m_nDetailViewEntries=1;
       m_modelPopup->AddSeparator();
+      m_seperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
+      assert(0!=m_seperator);
       m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
       m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);
 
