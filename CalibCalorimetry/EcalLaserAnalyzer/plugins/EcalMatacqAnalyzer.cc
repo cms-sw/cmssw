@@ -1,7 +1,7 @@
 /* 
  *  \class EcalMatacqAnalyzer
  *
- *  $Date: 2008/05/16 12:14:25 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */
@@ -13,7 +13,7 @@
 #include <TChain.h>
 #include <vector>
 
-#include <EcalMatacqAnalyzer.h>
+#include <CalibCalorimetry/EcalLaserAnalyzer/plugins/EcalMatacqAnalyzer.h>
 
 #include <sstream>
 #include <iostream>
