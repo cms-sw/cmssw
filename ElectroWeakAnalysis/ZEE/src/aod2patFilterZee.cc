@@ -140,8 +140,8 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pat::Electron myElectron(mygsfelec);
     // now set the isolations from the Gsf electron
     myElectron.setTrackIso(elec->dr03TkSumPt());
-    myElectron.setECalIso(elec->dr04EcalRecHitSumEt());
-    myElectron.setHCalIso(elec->dr04HcalTowerSumEt());
+    myElectron.setEcalIso(elec->dr04EcalRecHitSumEt());
+    myElectron.setHcalIso(elec->dr04HcalTowerSumEt());
 
     patElectrons->push_back(myElectron);
   }
