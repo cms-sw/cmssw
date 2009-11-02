@@ -596,6 +596,13 @@ namespace evf{
     bool localTimeOut = false;
     try{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
+      xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
+      if(psid) {
+	ps = ((xdata::UnsignedInteger32*)(psid))->value_;
+	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
+	it->setField("psid",*psid);
+      }
+
       if(lsid) {
 	ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
 
@@ -603,17 +610,17 @@ namespace evf{
 	if(to!=0)
 	  {
 	    localTimeOut = to->value_;
-	    if(to->value_)
+	    if(to->value_) // there was a timeout
 	      {
 		if(lastLsTimedOut_)localLsIncludingTimeOuts_.value_++;
 		else localLsIncludingTimeOuts_.value_ = ls;
 		lastLsTimedOut_ = true; 
 		lastLsWithTimeOut_ = ls;
 	      }
-	    else
+	    else // there was no timeout
 	      {
 		lastLsWithEvents_ = ls;
-		if(lastLsTimedOut_)
+		if(lastLsTimedOut_) // last ls before this timed out so these are events in the middle of an LS
 		  {
 		    if(localLsIncludingTimeOuts_.value_ < (ls-1)) //cover timed out LS not yet accounted for when events return;
 		      for(localLsIncludingTimeOuts_.value_++; localLsIncludingTimeOuts_.value_ < ls; localLsIncludingTimeOuts_.value_++)
@@ -628,7 +635,7 @@ namespace evf{
 			    (rollingLsWrap_ ? lumiSectionsCtr_[0].acc : lumiSectionsCtr_[rollingLsIndex_+1].acc);
 			  lumiSectionsCtr_[rollingLsIndex_] = lst;
 			  it->setField("lsid", localLsIncludingTimeOuts_);
-			  fireScalersUpdate();
+			  //fireScalersUpdate(); // need to find a solution in FUEventProcessor - but do not call here
 			}
 
 		    timeval tv1;
@@ -645,16 +652,18 @@ namespace evf{
 
 	it->setField("lsid", localLsIncludingTimeOuts_);
       }
-      xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
-      if(psid) {
-	ps = ((xdata::UnsignedInteger32*)(psid))->value_;
-	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
-	it->setField("psid",*psid);
-      }
     }
     catch(xdata::exception::Exception e){
-      LOG4CPLUS_INFO(log_,
+      LOG4CPLUS_ERROR(log_,
 		     "exception when obtaining ls or ps id");
+      if(useLock){
+	mwr->closeBackDoor("DaqSource");
+      }
+      return false;
+    }
+    catch(...){
+      LOG4CPLUS_ERROR(log_,
+		     "unknown exception when obtaining ls or ps id");
       if(useLock){
 	mwr->closeBackDoor("DaqSource");
       }
@@ -664,9 +673,12 @@ namespace evf{
     if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
     else lsidTimedOutAsString_ = "";
 
-    if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
-
-
+    if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) {
+      if(useLock){
+	mwr->closeBackDoor("DaqSource");
+      }
+      return true;
+    }
 
     if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
     rollingLsIndex_--;
@@ -706,18 +718,11 @@ namespace evf{
 	trh_.triggerReportToTable(tr,ls,ps);
 	trh_.packTriggerReport(tr);
       }
+
     it->setField("triggerReport",trh_.getTableWithNames());
-    // send xmas message with data
-    //      triggerReportAsString_ = triggerReportToString(tr);
-      
-    //Print the trigger report message in debug format.
-    //      trh_.printTriggerReport(tr);
-  
-  
+
     return true;
   }
-
-
 
   bool FWEPWrapper::fireScalersUpdate()
   {

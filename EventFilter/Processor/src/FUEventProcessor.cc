@@ -141,6 +141,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   ispace->fireItemAvailable("nbSubProcesses",       &nbSubProcesses_              );
   ispace->fireItemAvailable("superSleepSec",        &superSleepSec_               );
+  ispace->fireItemAvailable("autoRestartSlaves",    &autoRestartSlaves_           );
+  ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
   
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);

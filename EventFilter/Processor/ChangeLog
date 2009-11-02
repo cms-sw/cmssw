@@ -1,3 +1,8 @@
+2009-11-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-02
+	* fix bug for LS timeouts causing lock to be acquired twice
+
 2009-10-28 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-00-01
