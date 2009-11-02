@@ -135,7 +135,7 @@ cond::Utilities::addBlobStreamerOption(){
 
 void
 cond::Utilities::addSQLOutputOption(){
-  addOption<bool>("sql","sql","dump the sql output (optional)");  
+  addOption<bool>("sql","S","dump the sql output (optional)");  
 }
 
 void cond::Utilities::parseCommand( int argc, char** argv ){
