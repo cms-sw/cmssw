@@ -1,6 +1,7 @@
 <use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=PhysicsTools/UtilAlgos>
 <use name=SimTracker/TrackAssociation>
+<use name=SimTracker/Records>
 <use name=TrackingTools/TrackFitters>
 <use name=CalibTracker/SiStripCommon>
 <use name=Geometry/TrackerGeometryBuilder>
