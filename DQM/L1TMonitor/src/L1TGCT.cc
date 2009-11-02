@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/07/22 19:40:24 $
- * $Revision: 1.43 $
+ * $Date: 2009/11/02 17:00:05 $
+ * $Revision: 1.44 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.44  2009/11/02 17:00:05  tapper
+ * Changes to L1TdeGCT (to include energy sums), to L1TDEMON (should not make any difference now) and L1TGCT to add multiple BXs.
+ *
  * Revision 1.43  2009/07/22 19:40:24  puigh
  * Update binning to reflect instrumentation
  *
@@ -318,6 +321,9 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "NEG ETA RING2 ET SUM", R3BINS, R3MIN, R3MAX);
     l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
     l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
+
+    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HFRING BIT PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
+    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HFRING ET SUM PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
     
     // Rank histograms
     l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
@@ -450,7 +456,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1TauJets label was " << gctTauJetsSource_ ;
   }
-  
+
   // Missing ET
   if (l1EtMiss.isValid()) { 
     for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
