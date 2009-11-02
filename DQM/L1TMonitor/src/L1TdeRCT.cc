@@ -46,6 +46,10 @@ const unsigned int TPGETABINS = 64;
 const float TPGETAMIN = -32.;
 const float TPGETAMAX = 32.;
 
+const unsigned int TPGRANK = 256;
+const float TPGRANKMIN = -.5;
+const float TPGRANKMAX = 255.5;
+
 
 const unsigned int DEBINS = 127;
 const float DEMIN = -63.5;
@@ -153,7 +157,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
     rctInputTPGEcalRank_ =
-  dbe->book1D("rctInputTPGEcalRank", "rctInputTPGEcalRank", ELBINS, ELMIN, ELMAX) ;
+  dbe->book1D("rctInputTPGEcalRank", "rctInputTPGEcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
 
     rctInputTPGHcalOcc_ =
   dbe->book2D("rctInputTPGHcalOcc", "rctInputTPGHcalOcc", TPGETABINS, TPGETAMIN,
@@ -163,7 +167,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe->book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
 
     rctInputTPGHcalRank_ =
-  dbe->book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", HCALBINS, HCALMIN, HCALMAX) ;
+  dbe->book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
 
     dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/");
 
@@ -402,7 +406,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctRegSpIneff1D_ =
-      dbe->book1D("rctRegSpIneff1D", "1D region efficiency, energy matching required",
+      dbe->book1D("rctRegSpIneff1D", "1D region inefficiency, energy matching required",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctRegEff2D_ =
@@ -1314,15 +1318,17 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctIsoEmEff2Occ1D_->Fill(chnl);
-              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99001);
+              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98012);
               // Weight is for ROOT; should just exceed 0.99
               // NOTE: Weight is different for eff 2 because this isn't filled initially
-              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
+              // for current definition of Eff2 and Ineff2 we need to add additional
+              // factor 0.99 since we divide over eff1 which is 0.99001 e.g. we use 0.99001**2 !
+              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.0099);
             }
             else
             {
               rctIsoEmIneff2Occ1D_->Fill(chnl);
-              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99);
+              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.9801);
             }
           }
 
@@ -1346,15 +1352,16 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctNisoEmEff2Occ1D_->Fill(chnl);
-              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99001);
+              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98012);
               // Weight is for ROOT; should just exceed 0.99
               // NOTE: Weight is different for eff 2 because this isn't filled initially
-              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
+              // see comments fo Iso
+              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.0099);
             }
             else
             {
               rctNisoEmIneff2Occ1D_->Fill(chnl);
-              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99);
+              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.9801);
             }
           }
 
@@ -1517,16 +1524,19 @@ if(first)
 
             if(singlechannelhistos_) rctRegEffChannel_[chnl]->Fill(regionEmulRank[i] - regionDataRank[i]);
 
+           // see comments for Iso Eff2
+
             if(regionEmulRank[i] == regionDataRank[i]) 
              { 
              rctRegSpEffOcc1D_->Fill(chnl);
-             rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99001);
-             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.01);
+//             rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99001);
+             rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98012);
+             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.0099);
              }
             else 
              {
              rctRegSpIneffOcc1D_->Fill(chnl);
-             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99);
+             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.9801);
              }
             // Weight is for ROOT; should just exceed 0.99
             // NOTE: Weight is different for eff 2 because this isn't filled initially
