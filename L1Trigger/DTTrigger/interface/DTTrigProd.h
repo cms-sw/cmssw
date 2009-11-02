@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2008/03/04 00:13:30 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Battilana
  *
@@ -55,6 +55,10 @@ private:
 
   // Debug Flag
   bool my_debug;
+
+  // Lut dump file parameters
+  bool my_lut_dump_flag;
+  short int my_lut_btic;
 
   // ParameterSet
   edm::ParameterSet my_params;

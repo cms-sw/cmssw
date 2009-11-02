@@ -12,7 +12,7 @@
 //   22/VI/04 SV : last trigger code update
 //   16/I/07  SV : new DTConfig update
 //   3/IV/07  SV : setTracoAcceptance moved from card to chip
-//
+//   30/10/09 SV : lut parameters from DB are used in code
 //------------------------------------------------------------
 
 //-----------------------
@@ -90,6 +90,17 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
   //offset from geometry (x1-x3 FE view): converted from cm to ST units (0.9999 for rounding)
   _ibtioff=static_cast<int>(config()->BTIC()/(_geom->cellPitch())*(_geom->phiSLOffset()/0.9999));  
 
+  // 091030 SV lut parameters from DB
+  // SV 08/12/12 : added flag for computing luts from DB parameters
+  if( config()->lutFromDB()==1 )
+  {
+    int board = int( (n-1)/4 );
+    int traco = fmod( double(n-1),4. );
+    _lutsCCB = new Lut();
+
+    _luts = 0;
+  }
+  else
   //this is always the case with new DTConfig SV 15/I/2007
   //if( config()->trigSetupGeom()==0 ){
   {
@@ -130,6 +141,7 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
     int board = int( (n-1)/4 );
     int traco = fmod( double(n-1),4. );
     _lutsCCB = new Lut(sid.station(),board,traco);
+    // 091030 SV this constructur is obsolete now, use setForTestBeam instead
   }//end TB2004
 */
 }
@@ -176,6 +188,10 @@ DTTracoChip::~DTTracoChip(){
   if(config()->trigSetupGeom()==2)
     delete _lutsCCB;
   */
+
+  if( config()->lutFromDB()==1 )
+    delete _lutsCCB;
+
 }
 
 //--------------
@@ -1227,6 +1243,27 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
     idpsir = _luts->getBendAng( tct->X(), tct->K(), flag);
   }
  */
+
+  // 091030 SV angles computed from DB lut parameters
+  if( config()->lutFromDB()==1 )
+  {
+    ipsi = _lutsCCB->get_k( (tct->K()+511) );
+
+    int flag = 0;
+    int qual=tct->data().qdec();
+    if(qual==3 || qual==1)                //case 0:outer
+      flag=0;
+    if(qual==2 || qual==0)                //case 1:inner
+      flag=1;
+    if(qual==6 || qual==5 || qual==4)     //case 2:correlated
+      flag=2;
+
+    iphir = _lutsCCB->get_x( (tct->X()+512*flag) );
+
+    idpsir = ipsi - iphir/8;
+  }
+  else
+  // compute angles from CMSSW geometry 
   //if( config()->trigSetupGeom()==0 )
   {
     DTTracoTrigData td = tct->data();
@@ -1249,6 +1286,7 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
     // if outside range set to lower edge
     if( ipsi>= DTConfigTraco::RESOLPSI || ipsi< -DTConfigTraco::RESOLPSI ) 
       ipsi=-DTConfigTraco::RESOLPSI;
+
 
     // psi_r
     float fpsir = _card->CMSPosition(&td).phi()-_geom->phiCh();
@@ -1281,6 +1319,8 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
     std::cout << "K = " << tct->K() << " X = " << tct->X(); 
     std::cout << " ipsi = " << ipsi << " iphir = " << iphir;
     std::cout << " idpsir = " << idpsir << std::endl;
+    if( config()->lutFromDB()==1 )
+      std::cout << "Angles are calculated from LUT parameters from DB!" << std::endl; 
   }// end debugging
 
 }

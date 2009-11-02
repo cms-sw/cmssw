@@ -14,6 +14,7 @@
 //   V/05 SV: NEWGEO
 //   9/V/05 SV: mt ports ing K units, bug fixed  
 //   30/III/07 SV : config with DTConfigManager every single chip 
+//   2/XI/09 SV : bti acceptance windows included
 //--------------------------------------------------
 
 //-----------------------

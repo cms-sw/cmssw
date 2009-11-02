@@ -9,7 +9,7 @@
 //   C. Grandi
 //   Modifications: 
 //   S. Vanini : NEWGEO implementation
-//
+//   S. Vanini 090902 : dumpLUT method implemented
 //--------------------------------------------------
 
 //-----------------------
@@ -26,6 +26,8 @@
 //---------------
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -320,6 +322,162 @@ DTTrigGeom::dumpGeom() const {
   std::cout << "First TRACO position:";
   std::cout << localPosition(DTTracoId(statId(),1)) << std::endl;
   std::cout << "******************************************************" << std::endl;
+}
+
+void 
+DTTrigGeom::dumpLUT(short int btic) {
+
+  // chamber id
+  int wh = wheel();
+  int st = station();
+  int se = sector();
+
+  // open txt file 
+  string name = "Lut";
+ /* name += "_wh_";
+  if(wh<0)
+	name += "-";
+  name += abs(wh) + '0';
+  name += "_st_";
+  name += st + '0';
+  name += "_se_";
+  if(se<10)
+	name += se + '0';
+  else 
+  {
+	name += 1 + '0';
+	name += (se-10) + '0';
+  }
+  */ 
+  name += ".txt";
+
+  ofstream fout;
+  fout.open(name.c_str(),ofstream::app);
+
+// *** dump file header
+//  fout << "Identification: wheel\t" << wh;
+//  fout << "\tstation\t" << st;
+//  fout << "\tsector\t" << se;
+  fout << wh;
+  fout << "\t" << st;
+  fout << "\t" << se;
+
+  // SL shift
+  float xBTI1_3 	= localPosition( DTBtiId(DTSuperLayerId(wheel(),station(),sector(),3),1) ).x();
+  float xBTI1_1 	= localPosition( DTBtiId(DTSuperLayerId(wheel(),station(),sector(),1),1) ).x();
+  float SL_shift 	= xBTI1_3 - xBTI1_1;
+  //  std::cout << " SL shift " << SL_shift << std::endl;
+
+  // traco 1 and 2 global position
+  LocalPoint traco1 	= localPosition(DTTracoId(statId(),1));
+  LocalPoint traco2 	= localPosition(DTTracoId(statId(),2));
+  GlobalPoint traco_1 	= toGlobal(traco1);
+  GlobalPoint traco_2 	= toGlobal(traco2);
+  // std::cout << " tr1 x " << traco_1.x() << " tr2 x " << traco_2.x() << std::endl;
+
+  float d;
+  float xcn;
+  int xcn_sign;
+  GlobalPoint pp = _stat->toGlobal(LocalPoint(0,0,ZcenterSL()));
+  // std::cout << "Position: x=" << pp.x() << "cm, y=" << pp.y() << "cm, z=" << pp.z() << std::endl;  
+    
+  if(sector()==1 || sector() ==7){  
+  	d = fabs(traco_1.x());
+  	xcn = fabs(traco_1.y());
+  	if (SL_shift > 0) 
+		xcn = xcn+SL_shift;
+  	xcn_sign = static_cast<int>(pp.y()/fabs(pp.y()))*static_cast<int>(traco_1.y()/fabs(traco_1.y()));
+  	if(station() == 2 || (station() == 4 && sector() == 1)) 
+		xcn_sign = - xcn_sign;
+  	xcn = xcn*xcn_sign;
+  }
+  else {
+  	float m1 = (traco_2.y()-traco_1.y())/(traco_2.x()-traco_1.x());
+  	float q1 = traco_1.y()-m1*traco_1.x();
+  	float m = tan(phiCh());
+  	float xn = q1/(m-m1);
+  	float yn = m*xn;
+  
+  	d = sqrt(xn*xn+yn*yn);
+  	xcn = sqrt( (xn-traco_1.x())*(xn-traco_1.x()) + (yn-traco_1.y())*(yn-traco_1.y()) );
+  	if (SL_shift > 0) 
+		xcn = xcn+SL_shift;
+  
+  	float diff = (pp.x()-traco_1.x())*traco_1.y();
+  	xcn_sign = static_cast<int>(diff/fabs(diff));
+  	xcn = xcn*xcn_sign;
+  }
+  // std::cout << " d " << d << " xcn " << xcn << " sign " << xcn_sign << std::endl; 
+  //fout << "\td\t" << d << "\txcn\t" << xcn << "\t"; 
+
+// *** dump TRACO LUT command
+  fout << "\tA8";
+  //short int btic = 31;
+  //cout << "CHECK BTIC " << btic << endl;
+  short int Low_byte = (btic & 0x00FF);   // output in hex bytes format with zero padding
+  short int High_byte =( btic>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;	
+    
+  // convert parameters from IEE32 float to DSP float format
+  short int DSPmantissa = 0;
+  short int DSPexp = 0;
+
+  // d parameter conversion and dump
+  IEEE32toDSP(d, DSPmantissa, DSPexp);
+  Low_byte = (DSPmantissa & 0x00FF);   // output in hex bytes format with zero padding
+  High_byte =( DSPmantissa>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;	
+  Low_byte = (DSPexp & 0x00FF);
+  High_byte =( DSPexp>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;	
+
+  // xnc parameter conversion and dump
+  DSPmantissa = 0;
+  DSPexp = 0;
+  IEEE32toDSP(xcn, DSPmantissa, DSPexp);
+  Low_byte = (DSPmantissa & 0x00FF);   // output in hex bytes format with zero padding
+  High_byte =( DSPmantissa>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;	
+  Low_byte = (DSPexp & 0x00FF);
+  High_byte =( DSPexp>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;	
+
+  // sign bits 
+  short int xcn_sgn = (short)xcn_sign;
+  Low_byte = (xcn_sign & 0x00FF);   // output in hex bytes format with zero padding
+  High_byte =( xcn_sign>>8 & 0x00FF);
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte << dec << "\n"; 
+
+  fout.close();
+
+  return;
+ 
+}
+
+void 
+DTTrigGeom::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
+{
+  long int *pl, lm;
+  bool sign=false;
+
+  DSPmantissa = 0;
+  DSPexp = 0;
+
+  if( f!=0.0 )
+  {
+        pl = (long *)&f;
+        if((*pl & 0x80000000)!=0) 
+		sign=true;	  
+        lm = ( 0x800000 | (*pl & 0x7FFFFF)); // [1][23bit mantissa]
+        lm >>= 9; //reduce to 15bits
+	lm &= 0x7FFF;
+        DSPexp = ((*pl>>23)&0xFF)-126;
+	DSPmantissa = (short)lm;
+	if(sign) 
+		DSPmantissa = - DSPmantissa;  // convert negative value in 2.s complement	
+
+  }
+  return;
 }
 
 

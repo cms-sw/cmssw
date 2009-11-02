@@ -547,6 +547,16 @@ DTTrig::dumpGeom() {
   }
 }
 
+void 
+DTTrig::dumpLuts(short int lut_btic) {
+  for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
+    ((*it).second)->dumpLUT(lut_btic);
+  }
+ 
+  return;
+
+}
+
 std::vector<DTBtiTrigData> 
 DTTrig::BtiTrigs() {
   /*check();*/

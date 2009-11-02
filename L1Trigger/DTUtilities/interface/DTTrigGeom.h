@@ -4,8 +4,8 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2008/06/30 13:41:04 $
- *   $Revision: 1.6 $
+ *   $Date: 2008/09/05 15:52:40 $
+ *   $Revision: 1.7 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -192,6 +192,10 @@ class DTTrigGeom {
 
     /// Dump the geometry
     void dumpGeom() const;
+
+    /// Dump the LUT for this chamber
+    void dumpLUT(short int btic);
+    void IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp);
 
   private:
 

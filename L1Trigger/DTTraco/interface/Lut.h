@@ -1,41 +1,61 @@
+//---------------------------------------------------------
+//
+/**  \class Lut
+ *
+ *   Class for computing Traco LUTS from given parameters
+ * 
+ *   $Date: 2009/10/30 $
+ * 
+ *   \author S. Vanini
+ */
+//
+//---------------------------------------------------------
 #ifndef LUT_H
 #define LUT_H
 
+
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigLUTs.h"
+
+//---------------
+// C++ Headers --
+//---------------
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <math.h>
 
+#define ANGRESOL	512.0	
+#define POSRESOL	4096.0
+#define SL_D		23.5	//(cm)SL Distance 
+#define CELL_PITCH	4.2	//(cm)Wire Distance 
+#define SL_DIFF		11.75   // (cm )Distance of SL from station center
+
 class Lut {
 
  public:
 
-  Lut( int station, int board, int traco );
+  Lut();
   ~Lut();
 
+  // set lut parameters methods
+  void setForTestBeam( int station, int board, int traco );
+  void setFromConfig(DTConfigLUTs * config, int wheel);
+
+  // get luts
   int get_x( int addr );
   int get_k( int addr );
 
- private:
+  // DSP <-> IEEE32 conversions
+  void IEEE32toDSP(float f, short *DSPmantissa, short *DSPexp);
+  void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f);
 
-  int nStat;
-  int nBoard;
-  int nTraco;
-  float* tracoPos;
+public:
+  float m_d;		//distance vertex - normal
+  float m_Xcn;		//Distance correlator - normal
+  int m_ST;		//TRACO BTIC parameter
+  int m_wheel;		//Wheel sign (+1 or -1)
 
-  float SL_DIFF;
-  float CELL_H;
-  float CELL_PITCH;
-  int ANGRESOL;
-  int POSRESOL;
-
-  float m_d;
-  float m_ST;
-  float m_Xc;
-  float m_Xn;
-  float m_shift;
-  float m_stsize;
-  float m_distp2;
-
+private:
+  float m_pitch_d_ST;	//=pitch/ST private:
 };
 #endif
