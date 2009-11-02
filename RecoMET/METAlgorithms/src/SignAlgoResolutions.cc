@@ -14,19 +14,27 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.3 2008/07/30 17:02:54 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.4 2008/08/01 09:16:46 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <math.h>
 
 double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const {
+  // derive p from et and eta;
+  double theta = 2*atan(exp(-eta));
+  double p = et / sin(theta); // rough assumption: take e and p equivalent...
+  return eval(type,func,et,phi,eta,p);
+
+}
+
+double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta, const double &p) const {
 
   functionPars x(3);
   x[0]=et;
   x[1]=phi;
   x[2]=eta;
-  
+  x[4]=p;
   return getfunc(type,func,x);
 
 }
@@ -34,8 +42,38 @@ metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfi
   addResolutions(iConfig);
 }
 
+metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate *candidate) const {
+  double eta = candidate->eta();
+  double phi = candidate->phi();
+  double et = candidate->energy()*sin(candidate->theta());
+  resolutionType thetype;
+  std::string name;
+  switch (candidate->particleId()) 
+    {
+    case 1: 
+      thetype=PFtype1;name="PFChargedHadron"; break;
+    case 2: 
+      thetype=PFtype2;name="PFChargedEM"; break;
+    case 3: 
+      thetype=PFtype3;name="PFMuon"; break;
+    case 4: 
+      thetype=PFtype4;name="PFNeutralEM"; break;
+    case 5: 
+      thetype=PFtype5;name="PFNeutralHadron"; break;
+    case 6: 
+      thetype=PFtype6;name="PFtype6"; break;
+    case 7:
+      thetype=PFtype7;name="PFtype7"; break;
+    default:
+      thetype=PFtype7;name="PFunknown"; break;
+  }
+  double d_et = eval(thetype,ET,et,phi,eta);
+  double d_phi = eval(thetype,PHI,et,phi,eta);
+  metsig::SigInputObj resultingobj(name,et,phi,d_et,d_phi);
+  return resultingobj;
+}
 void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfig){
-  // for now: do this by hand:
+  // for now: do this by hand - this can obviously also be done via ESSource etc.
   functionPars etparameters(3,0);
   functionPars phiparameters(1,0);
   // set the parameters per function:
@@ -101,6 +139,87 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   phiparameters[0]=hfphi[0];
   addfunction(caloHF,ET,etparameters);
   addfunction(caloHF,PHI,phiparameters);
+
+
+  // PF objects:
+  // type 1:
+  std::vector<double> pf1et = iConfig.getParameter<std::vector<double> >("PF_EtResType1");
+  std::vector<double> pf1phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType1");
+  etparameters[0]=pf1et[0];
+  etparameters[1]=pf1et[1];
+  etparameters[2]=pf1et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype1,ET,etparameters);
+  addfunction(PFtype1,PHI,phiparameters);
+
+  // PF objects:
+  // type 2:
+  std::vector<double> pf2et = iConfig.getParameter<std::vector<double> >("PF_EtResType2");
+  std::vector<double> pf2phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType2");
+  etparameters[0]=pf2et[0];
+  etparameters[1]=pf2et[1];
+  etparameters[2]=pf2et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype2,ET,etparameters);
+  addfunction(PFtype2,PHI,phiparameters);
+
+  // PF objects:
+  // type 3:
+  std::vector<double> pf3et = iConfig.getParameter<std::vector<double> >("PF_EtResType3");
+  std::vector<double> pf3phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType3");
+  etparameters[0]=pf3et[0];
+  etparameters[1]=pf3et[1];
+  etparameters[2]=pf3et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype3,ET,etparameters);
+  addfunction(PFtype3,PHI,phiparameters);
+
+  // PF objects:
+  // type 4:
+  std::vector<double> pf4et = iConfig.getParameter<std::vector<double> >("PF_EtResType4");
+  std::vector<double> pf4phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType4");
+  etparameters[0]=pf4et[0];
+  etparameters[1]=pf4et[1];
+  etparameters[2]=pf4et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype4,ET,etparameters);
+  addfunction(PFtype4,PHI,phiparameters);
+
+  // PF objects:
+  // type 5:
+  std::vector<double> pf5et = iConfig.getParameter<std::vector<double> >("PF_EtResType5");
+  std::vector<double> pf5phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType5");
+  etparameters[0]=pf5et[0];
+  etparameters[1]=pf5et[1];
+  etparameters[2]=pf5et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype5,ET,etparameters);
+  addfunction(PFtype5,PHI,phiparameters);
+
+  // PF objects:
+  // type 6:
+  std::vector<double> pf6et = iConfig.getParameter<std::vector<double> >("PF_EtResType6");
+  std::vector<double> pf6phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType6");
+  etparameters[0]=pf6et[0];
+  etparameters[1]=pf6et[1];
+  etparameters[2]=pf6et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype6,ET,etparameters);
+  addfunction(PFtype6,PHI,phiparameters);
+
+  
+  // PF objects:
+  // type 7:
+  std::vector<double> pf7et = iConfig.getParameter<std::vector<double> >("PF_EtResType7");
+  std::vector<double> pf7phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType7");
+  etparameters[0]=pf7et[0];
+  etparameters[1]=pf7et[1];
+  etparameters[2]=pf7et[2];
+  phiparameters[0]=hfphi[0];
+  addfunction(PFtype7,ET,etparameters);
+  addfunction(PFtype7,PHI,phiparameters);
+
+  //  std::cout << "done adding parameters! " << std::endl;
   return;
 }
 
@@ -126,10 +245,16 @@ double metsig::SignAlgoResolutions::getfunc(const metsig::resolutionType & type,
     return result;
   
   functionPars values = (functionmap_.find(mypair))->second;
-  if(func==metsig::ET)
-    result = EtFunction(x,values);
-  else if(func==metsig::PHI)
-    result = PhiFunction(x,values);
+  switch ( func ){
+  case metsig::ET :
+    return EtFunction(x,values);
+  case metsig::PHI :
+    return PhiFunction(x,values);
+  case metsig::TRACKP :
+    return PFunction(x,values);
+  case metsig::CONSTPHI :
+    return PhiConstFunction(x,values);
+  }
   
   //  std::cout << "returning function " << type << " " << func << " " << result << " " << x[0] << std::endl; 
 
@@ -158,4 +283,14 @@ double metsig::SignAlgoResolutions::PhiFunction(const functionPars &x,const  fun
   double result = par[0]*et;
   return result;
 
+}
+double metsig::SignAlgoResolutions::PFunction(const functionPars &x, const functionPars & par) const
+{
+  // not currently implemented
+  return 0;
+}
+
+double metsig::SignAlgoResolutions::PhiConstFunction(const functionPars& x, const functionPars &par) const
+{
+  return par[0];
 }

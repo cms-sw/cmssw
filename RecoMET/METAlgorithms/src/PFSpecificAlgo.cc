@@ -7,6 +7,7 @@ authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 using namespace reco;
@@ -45,6 +46,13 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   double type6Et = 0.0;
   double type7Et = 0.0;
   
+  // added by FB for significance:
+  // this class calculates the significance
+  metsig::significanceAlgo metsigalgo;
+  // it takes a vector of objects as input. a SigInputObj contains an object's et, phi and its uncertainties on those. It is in principle also possible to add correlations
+  std::vector<metsig::SigInputObj> metSigInputVector;
+  // end of significance specific objects 
+
   for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; ++iParticle )
   {   
     const Candidate* candidate = &(*iParticle);
@@ -60,6 +68,10 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
 	const double theta = iParticle->theta();
 	const double e     = iParticle->energy();
 	const double et    = e*sin(theta);
+	if(alsocalcsig){
+	  metSigInputVector.push_back(resolutions_.evalPF(pfCandidate));
+	}
+
 	if (pfCandidate->particleId() == 1) ChargedHadEt += et;
 	if (pfCandidate->particleId() == 2) ChargedEMEt += et;
 	if (pfCandidate->particleId() == 3) MuonEt += et;
@@ -87,5 +99,25 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
   const Point vtx(0.0,0.0,0.0);
   PFMET specificPFMET( specific, met.sumet, p4, vtx );
+
+  // add the information collected during the loop to the significance algo:
+  // add the objects:
+  metsigalgo.addObjects(metSigInputVector);
+  // the following recipe is supplied for debugging, feel free to compare to 'normal' calculated quantities.
+  // and calculate the significance itself  - not done here normally
+  //  double met_r_signif, met_phi_signif, met_set_signif; // these are just the normal met,metphi and scalarmet
+  // double significance = metsigalgo.significance(met_r_signif,met_phi_signif,met_set_signif);
+  // add the MET significance information (which is a 2x2 matrix) to the MET object:
+  specificPFMET.setSignificanceMatrix(metsigalgo.getSignifMatrix());
+  // clean up metsignificance specific code:
+  metSigInputVector.clear();
+  metSigInputVector.resize(0);
+
   return specificPFMET;
+}
+
+void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions & resolutions)
+{
+  alsocalcsig=true;
+  resolutions_=resolutions;
 }

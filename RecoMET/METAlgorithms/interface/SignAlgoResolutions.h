@@ -16,7 +16,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id$
+// $Id: SignAlgoResolutions.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 //
 //
 
@@ -25,14 +25,18 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include <map>
 #include <iostream>
 #include <vector>
 
 namespace metsig {
 
-  enum resolutionType { caloEE, caloEB, caloHE, caloHO, caloHF, caloHB, jet, electron, tau, muon };
-  enum resolutionFunc { ET, PHI };
+  enum resolutionType { caloEE, caloEB, caloHE, caloHO, caloHF, caloHB, jet, electron, tau, muon,PFtype1,PFtype2, PFtype3, PFtype4, PFtype5, PFtype6, PFtype7 };
+  enum resolutionFunc { ET, PHI,TRACKP,CONSTPHI };
 
   class SignAlgoResolutions{
     
@@ -41,8 +45,10 @@ namespace metsig {
     SignAlgoResolutions(const edm::ParameterSet &iConfig);
 
     void addResolutions(const edm::ParameterSet &iConfig);
-    double eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const; // for example getvalue(caloHF,ET,et,phi,eta);
-    
+    double eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta, const double &p) const; // for example getvalue(caloHF,ET,et,phi,eta,p);
+    double eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const; // for example getvalue(caloHF,ET,et,phi,eta,p);
+    metsig::SigInputObj evalPF(const reco::PFCandidate* candidate) const;
+    bool isFilled() const {return functionmap_.size()>0;}
   private:
     double getfunc(const resolutionType & type,const resolutionFunc & func,  std::vector<double> & x) const;
     void addfunction(const resolutionType type, const resolutionFunc func, std::vector<double> parameters);
@@ -53,6 +59,8 @@ namespace metsig {
  
     double EtFunction( const functionPars &x,  const functionPars &  par) const;
     double PhiFunction( const functionPars &x,  const functionPars & par) const;
+    double PFunction( const functionPars &x, const functionPars &par) const;
+    double PhiConstFunction(const functionPars &x, const functionPars &par) const;
   };
 }
 #endif
