@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowClonePtrCandidate.h,v 1.2 2008/05/08 15:45:59 srappocc Exp $
+ * \version $Id: ShallowClonePtrCandidate.h,v 1.3 2008/12/05 12:15:18 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -55,6 +55,7 @@ namespace reco {
     virtual const Candidate * mother( size_type i ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type i );
+    using reco::LeafCandidate::daughter; // avoid hiding the base
     /// has master clone pointer
     virtual bool hasMasterClonePtr() const;
     /// returns reference to master clone pointer

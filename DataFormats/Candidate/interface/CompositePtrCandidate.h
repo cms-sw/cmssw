@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositePtrCandidate.h,v 1.4 2008/07/10 15:19:17 cbern Exp $
+ * \version $Id: CompositePtrCandidate.h,v 1.5 2008/12/05 12:15:18 hegner Exp $
  *
  */
 
@@ -53,6 +53,7 @@ namespace reco {
     virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
+    using reco::LeafCandidate::daughter; // avoid hiding the base
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference

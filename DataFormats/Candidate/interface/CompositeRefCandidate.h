@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.23 2007/12/10 12:16:40 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.24 2008/12/05 12:15:18 hegner Exp $
  *
  */
 
@@ -53,6 +53,7 @@ namespace reco {
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
+    using reco::LeafCandidate::daughter; // avoid hiding the base
     /// add a daughter via a reference
     void addDaughter( const CandidateRef & );    
     /// add a daughter via a reference

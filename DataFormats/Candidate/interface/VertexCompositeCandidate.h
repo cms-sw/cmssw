@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: VertexCompositeCandidate.h,v 1.7 2008/02/19 13:14:06 llista Exp $
+ * \version $Id: VertexCompositeCandidate.h,v 1.8 2008/12/05 12:15:19 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
@@ -51,6 +51,7 @@ namespace reco {
     virtual double vertexCovariance(int i, int j) const { 
       return covariance_[idx(i, j)]; 
     }
+    using reco::LeafCandidate::vertexCovariance; // avoid hiding the
     /// fill SMatrix
     virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// set chi2 and ndof
