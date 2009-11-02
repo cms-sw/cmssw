@@ -43,9 +43,9 @@ while True:
 
       print 'Registering %s for run %09d' % (path, run)
       if dataset != "":
-        os.system('set -x; visDQMIndex -d add %s %s' % (INDEX, path))
+        os.system('set -x; visDQMIndex add %s %s' % (INDEX, path))
       else:
-        os.system('set -x; visDQMIndex -d add --dataset "/Global/Online/ALL" %s %s' % (INDEX, path))
+        os.system('set -x; visDQMIndex add --dataset "/Global/Online/ALL" %s %s' % (INDEX, path))
       existing[file] = 1
 
 #  if nfiles <= MAXFILES:
