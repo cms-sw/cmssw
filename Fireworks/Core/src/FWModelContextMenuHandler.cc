@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.2 2009/09/24 00:43:07 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.3 2009/10/31 22:37:35 chrjones Exp $
 //
 
 // system include files
@@ -183,13 +183,13 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY) const
    }
 
    if(m_selectionManager->selected().size()==1) {
+      //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-      //CDJ NEED TO ADD ALL CHOICES HERE
       if(viewChoices.size()>0) {
          if(m_nDetailViewChoices != viewChoices.size()) {
             if(m_nDetailViewChoices>viewChoices.size()) {
                for(unsigned int index = m_nDetailViewChoices; index != viewChoices.size(); --index) {
-                  m_modelPopup->DeleteEntry(kOpenDetailViewMO+index);
+                  m_modelPopup->DeleteEntry(kOpenDetailViewMO+index-1);
                }
             } else {
                if(not (m_nDetailViewChoices==0 && viewChoices.size()==1)) {
