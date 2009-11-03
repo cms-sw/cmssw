@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.7 2009/11/03 12:15:03 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.8 2009/11/03 15:24:16 amraktad Exp $
 //
 
 // system include files
@@ -178,17 +178,12 @@ FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
 void 
 FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex)
 {
-   if(!m_viewSeperator) {
-      m_modelPopup->AddSeparator(m_afterViewSeperator);
-      m_viewSeperator=dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
-      assert(0!=m_viewSeperator);
-   }
    if(static_cast<int>(m_nViewEntries) > iEntryIndex) {
       m_modelPopup->GetEntry(iEntryIndex+kViewOptionsMO)->GetLabel()->SetString(iEntryName);
       m_modelPopup->EnableEntry(iEntryIndex+kViewOptionsMO);
    } else {
       assert(static_cast<int>(m_nViewEntries) == iEntryIndex);
-      m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,m_viewSeperator);
+      m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,0);
       ++m_nViewEntries;
    }
 }
@@ -253,6 +248,12 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
    }
    if(m_viewHander) {
       m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this));
+
+      // can add separator only before entry or at the end, same holds unfortunately for menu items
+      // here we add a sparator before first 
+      TGMenuEntry* me = m_modelPopup->GetEntry(kViewOptionsMO);
+      m_modelPopup->AddSeparator(me);
+      m_viewSeperator=dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Before(me));
    }
    
    m_x=iX;
