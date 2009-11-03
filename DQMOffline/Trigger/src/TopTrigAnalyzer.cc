@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: TopTrigAnalyzer.cc,v 1.1 2009/08/14 13:34:12 slaunwhj Exp $
+// $Id: TopTrigAnalyzer.cc,v 1.2 2009/10/02 13:09:43 slaunwhj Exp $
 //
 //
 
@@ -122,8 +122,13 @@ TopTrigAnalyzer::TopTrigAnalyzer(const ParameterSet& pset)
     string targetTrackCollection = iPSet->getUntrackedParameter<string> ("trackCollection");
     double  customD0Cut = iPSet->getUntrackedParameter<double> ("d0cut");
     double customZ0Cut = iPSet->getUntrackedParameter<double> ("z0cut");
-    double customChi2Cut = iPSet->getUntrackedParameter<double> ("chi2cut");
-    int customNHitsCut = iPSet->getUntrackedParameter<int> ("nHits");  
+
+    // the following two parameters are not currently used
+    // but maybe in the future
+    double customChi2Cut = iPSet->getUntrackedParameter<double> ("chi2cut", 30.0);
+    int customNHitsCut = iPSet->getUntrackedParameter<int> ("nHits", 10);
+
+    //
     vector<string> requiredTriggers = iPSet->getUntrackedParameter< vector<string> > ("requiredTriggers");
     
     LogTrace("HLTMuonVal") << "customTargetCollection = " << customName  << std::endl

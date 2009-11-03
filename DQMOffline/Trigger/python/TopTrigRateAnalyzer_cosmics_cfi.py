@@ -21,42 +21,12 @@ topTrigOfflineDQMCosmics = cms.EDAnalyzer("TopTrigAnalyzer",
    # Define the cuts for your muon selections
   customCollection = cms.VPSet(
 
-
-	#cms.untracked.PSet(
-	#  collectionName = cms.untracked.string ("topMuonPt15_anyTrig"),
-	#  trackCollection = cms.untracked.string ("globalTrack"),
-	#  requiredTriggers = cms.untracked.vstring(""),
-	#  d0cut = cms.untracked.double(2.0),
-	#  z0cut = cms.untracked.double(25.0), # 3 meters
-	#  chi2cut = cms.untracked.double(30.0),
-	#  nHits = cms.untracked.int32(20),
-	#  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1"),
-	#  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")
-	#),
-
-	
-
-	#cms.untracked.PSet(
-	#  collectionName = cms.untracked.string ("topMuonPt15_QuadJet15U"),
-	#  trackCollection = cms.untracked.string ("globalTrack"),
-	#  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
-	#  d0cut = cms.untracked.double(0.2),
-	#  z0cut = cms.untracked.double(25.0),
-	#  chi2cut = cms.untracked.double(30.0),
-	#  nHits = cms.untracked.int32(20),
-	#  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1"),
-	#  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")	  
-	#),
-
-
  	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("TopCosmicConfig3"),
 	  trackCollection = cms.untracked.string ("outerTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
  	  d0cut = cms.untracked.double(1000.0),
  	  z0cut = cms.untracked.double(1000.0), # 3 meters
-	  chi2cut = cms.untracked.double(30.0),
-	  nHits = cms.untracked.int32(20),
  	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
  	  hltCuts  = cms.untracked.string ("abs(eta) < 2.0")
  	),
