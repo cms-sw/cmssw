@@ -30,7 +30,7 @@ for F in $FILES; do
   echo "Remove: "$F
   visDQMIndex remove --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
  echo "Add: "$F
-  visDQMIndex -d add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+  visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
 done
 
 echo "Index refresh: end"
