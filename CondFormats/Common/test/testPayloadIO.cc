@@ -54,7 +54,7 @@ try{
     session.open("sqlite_file:test.db");
     
     cond::DbScopedTransaction tr(session);
-    tr.start(true);
+    tr.start(false);
     
     unsigned int iw;
     for (iw = 0; iw < nobjects; ++iw )   {
@@ -79,7 +79,7 @@ try{
     session.open("sqlite_file:test.db");
     
     cond::DbScopedTransaction tr(session);
-    tr.start();
+    tr.start(true);
     
     unsigned int ir;
     for (ir = 0; ir < payTok.size(); ++ir )   {
