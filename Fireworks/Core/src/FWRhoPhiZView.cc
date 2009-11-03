@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.47 2009/10/23 12:49:24 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.48 2009/11/02 12:13:44 amraktad Exp $
 //
 
 #define private public
@@ -53,6 +53,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
 
 //
 // constants, enums and typedefs
@@ -125,6 +126,8 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    nv->AddScene(ns);
    m_viewer.reset(nv);
 
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
+
    m_projMgr.reset(new TEveProjectionManager(iProjType));
    m_projMgr->SetImportEmpty(kTRUE);
    if ( iProjType == TEveProjection::kPT_RPhi ) {
@@ -168,6 +171,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    m_lineWidth.changed_.connect(boost::bind(&FWRhoPhiZView::lineWidthChanged,this));
    m_smoothLine.changed_.connect(boost::bind(&FWRhoPhiZView::lineSmoothnessChanged,this));
+
 }
 
 FWRhoPhiZView::~FWRhoPhiZView()
@@ -399,6 +403,12 @@ FWRhoPhiZView::saveImageTo(const std::string& iName) const
       throw std::runtime_error("Unable to save picture to file");
    }
 }
+
+FWViewContextMenuHandlerBase* 
+FWRhoPhiZView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+}
+
 
 void
 FWRhoPhiZView::updateScaleParameters()

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.19 2009/10/03 17:13:50 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.20 2009/10/23 12:49:23 amraktad Exp $
 //
 
 // system include files
@@ -38,10 +38,14 @@ class TEveProjectionManager;
 class TGFrame;
 class TGLMatrix;
 class TEveCalo2D;
-class FWRhoPhiZViewManager;
 class TEveScene;
 class TEveProjectionAxes;
 class TEveWindowSlot;
+
+class FWRhoPhiZViewManager;
+class FWViewContextMenuHandlerGL;
+
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h" // !!!!!!!!!!!!!!
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -55,16 +59,17 @@ public:
    // ---------- const member functions ---------------------
    TGFrame* frame() const;
    const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
 
+   virtual void addTo(FWConfiguration&) const;
    virtual void saveImageTo(const std::string& iName) const;
+   virtual void setFrom(const FWConfiguration&);
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
    // ---------- member functions ---------------------------
    void resetCamera();
    void destroyElements();
    void replicateGeomElement(TEveElement*);
    void showProjectionAxes( );
-   virtual void setFrom(const FWConfiguration&);
    void setBackgroundColor(Color_t);
 
    //returns the new element created from this import
@@ -96,6 +101,7 @@ private:
    FWEvePtr<TEveScene> m_scene;
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
+   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
 
    // parameters
    FWDoubleParameter m_caloDistortion;
