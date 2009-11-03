@@ -111,8 +111,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   bField = theMagField.product();
 
   //intialize MET, sumEt to caloMET values
-  met_x = calomet.et() * cos( calomet.phi() );
-  met_y = calomet.et() * sin( calomet.phi() );
+  met_x = calomet.px();
+  met_y = calomet.py();
   sumEt = calomet.sumEt();
 
   //calculate tcMET - correct for muons
