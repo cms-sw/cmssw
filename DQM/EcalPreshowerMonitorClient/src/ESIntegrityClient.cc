@@ -32,9 +32,10 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
 
   for (int i=0; i<56; ++i) {
     fedStatus_[i] = -1;
-    fiberStatus_[i] = -1;
     syncStatus_[i] = -1;
     slinkCRCStatus_[i] = -1;
+    for (int j=0; j<36; ++j)
+      fiberStatus_[i][j] = -1;
   }
 
   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -50,10 +51,11 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
       z = (iz==-1) ? 2:iz;
       fed_[z-1][ip-1][ix-1][iy-1] = fed;
       kchip_[z-1][ip-1][ix-1][iy-1] = kchip;
+      fiber_[z-1][ip-1][ix-1][iy-1] = (fiber-1)+(optorx-1)*12;
     }
   } 
   else {
-    cout<<"ESUnpackerV4::ESUnpackerV4 : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+    cout<<"ESIntegrityClient : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
 }
@@ -130,7 +132,7 @@ void ESIntegrityClient::cleanup(void) {
 }
 
 void ESIntegrityClient::analyze(void) {
-  
+
   char histo[200];
 
   Double_t nDI_FedErr[56];
@@ -142,9 +144,13 @@ void ESIntegrityClient::analyze(void) {
   me = dqmStore_->get(histo);
   hFED_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFED_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Status").c_str());
+  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Off").c_str());
   me = dqmStore_->get(histo);
-  hFiber_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiber_ ); 
+  hFiberOff_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiberOff_ ); 
+
+  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Bad Status").c_str());
+  me = dqmStore_->get(histo);
+  hFiberBadStatus_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiberBadStatus_ ); 
 
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES SLink CRC Errors").c_str());
   me = dqmStore_->get(histo);
@@ -164,15 +170,21 @@ void ESIntegrityClient::analyze(void) {
       if (hFED_->GetBinContent(i) > 0) 
 	fedStatus_[i-1] = 1;      
     }
-    if (hFiber_) {
-      if (hFiber_->GetBinContent(i+58) > 0) {
-	fiberStatus_[i-1] = 1;
-	//nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
-      }
-    }
     if (hSLinkCRCErr_) {
       if (hSLinkCRCErr_->GetBinContent(i) > 0) 
 	slinkCRCStatus_[i] = 1;
+    }
+    for (int j=0; j<36; ++j) {
+      if (hFiberBadStatus_) {
+	if (hFiberBadStatus_->GetBinContent(i+58+59*j) > 0) 
+	  fiberStatus_[i-1][j] = 2; // bad
+	else 
+	  fiberStatus_[i-1][j] = 1; // good
+      }
+      if (hFiberOff_) 
+	if (hFiberOff_->GetBinContent(i, j+1) > 0) {
+	  fiberStatus_[i-1][j] = 0; // off
+	}
     }
   }
 
@@ -258,7 +270,8 @@ void ESIntegrityClient::analyze(void) {
       for (int ix=0; ix<40; ++ix)
 	for (int iy=0; iy<40; ++iy) {
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
-	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) kchip_xval[kchip_[iz][ip][ix][iy]-1] = 0;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520]==-1 || fiberStatus_[fed_[iz][ip][ix][iy]-520][fiber_[iz][ip][ix][iy]] == 0)
+	    kchip_xval[kchip_[iz][ip][ix][iy]-1] = 0;
 	  meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-1]); 
 	}
 
@@ -268,9 +281,12 @@ void ESIntegrityClient::analyze(void) {
     for (int ip=0; ip<2; ++ip)
       for (int ix=0; ix<40; ++ix)
 	for (int iy=0; iy<40; ++iy) {
+
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
 	  nErr = 0;
+	  
 	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+
 	    if (hFED_) {
 	      if (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) 
 		xval = 3;
@@ -279,10 +295,14 @@ void ESIntegrityClient::analyze(void) {
 		nErr++;
 	      }
 	    }
-	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+
+	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520][fiber_[iz][ip][ix][iy]] == 2) {
 	      xval = 2; // fiber problem
 	      nErr++;
 	    }
+	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520][fiber_[iz][ip][ix][iy]] == 0) {
+	      xval = 0; // fiber off
+	    } 
 	    if (kchip_xval[kchip_[iz][ip][ix][iy]-1] != 3 && kchip_xval[kchip_[iz][ip][ix][iy]-1] != 0) {
 	      xval = 5; // kchip problem
 	      nErr++;
@@ -299,10 +319,11 @@ void ESIntegrityClient::analyze(void) {
 	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
 	    xval = 0;
 	  } 
+	  
 	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
 	  meDIErrors_[iz][ip]->setBinContent(ix+1, iy+1, nDI_FedErr[fed_[iz][ip][ix][iy]-520]);
 	}
-
+  
 }
 
 void ESIntegrityClient::softReset(bool flag) {
