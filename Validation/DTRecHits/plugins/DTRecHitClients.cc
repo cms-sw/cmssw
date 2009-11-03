@@ -1,7 +1,8 @@
-#include "DTRecHitClients.h"
+#include "Validation/DTRecHits/plugins/DTRecHitClients.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "utils.h"
 
@@ -13,6 +14,9 @@
 
 using namespace std;
 using namespace edm;
+
+DTRecHitClients::DTRecHitClients(const edm::ParameterSet& ps){
+}
 
 void DTRecHitClients::analyze(const Event& e, const EventSetup& context){
   Tutils * util = new Tutils;
@@ -82,3 +86,4 @@ void DTRecHitClients::analyze(const Event& e, const EventSetup& context){
 
   
 }
+//DEFINE_FWK_MODULE(DTRecHitClients);
