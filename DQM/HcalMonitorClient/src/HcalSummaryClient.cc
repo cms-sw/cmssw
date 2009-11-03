@@ -735,7 +735,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
     {
       hist=me->getTH2F();
       counter=hist->GetBinContent(0,0);
-      if (counter>0) 
+      if (counter>1) // a counter value of 1 means that the histogram was already rescaled 
 	{
 	  hist->Scale(1./counter);
 	  // scale to 0-1 to always maintain consistent coloration
