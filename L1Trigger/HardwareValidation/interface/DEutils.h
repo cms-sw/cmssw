@@ -1148,7 +1148,25 @@ inline std::string DEutils<L1CaloEmCollection>::print(col_cit it) const {
 template <> 
 inline std::string DEutils<L1CaloRegionCollection>::print(col_cit it) const {
   std::stringstream ss;
-  ss << *it;
+  ss << "L1CaloRegion:"
+     << " et=" << it->et()
+     << " o/f=" << it->overFlow()
+     << " f/g=" << it->fineGrain()
+     << " tau=" << it->tauVeto()
+     << " rct(crate=" << it->rctCrate()
+     << " card=" << it->rctCard()
+     << " rgn=" << it->rctRegionIndex()
+     << " eta=" << it->rctEta()
+     << " phi=" << it->rctPhi()
+     << ")\n\t\t"
+     << "gct(eta=" << it->gctEta()
+     << " phi=" << it->gctPhi()
+     << ")"
+     << std::hex << " cap_block=" << it->capBlock() 
+     << std::dec << " index=" << it->capIndex()
+     << " bx=" << it->bx()
+     << std::endl;
+  //ss << *it; ///replace due to too long unformatted verbose
   //note: raw() data accessor missing in dataformats
   return ss.str();
 }
