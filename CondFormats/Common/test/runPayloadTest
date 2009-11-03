@@ -1,6 +1,6 @@
 # it assumes that it is NOT run from a release area
 # i..e CMSSW_RELEASE_BASE  is not empty
-# at the moment is the opposite: assume /CondFormats/Common be in CMSSW_BASE
+# at the moment it is the opposite: assumes /CondFormats/Common be in CMSSW_BASE
 
 cmsenv
 cd $CMSSW_BASE/src
@@ -10,21 +10,22 @@ cd  PayloadTest/PayloadTest/test
 cp  $CMSSW_BASE/src/CondFormats/Common/test/testPayloadIO.cc .
 
 echo $1 $2 $3
-cp testPayloadIO.cc $1_test.cc
-sed -i "s/THECLASS/$1/g" $1_test.cc
-sed -i "s/THEPACKAGE/$2/g" $1_test.cc
-sed -i "s/THEHEADER/$3/g" $1_test.cc
+set cname=`echo "$1" | sed 's/[<,>]/_/g'`
+cp testPayloadIO.cc $cname_test.cc
+sed -i "s/THECLASS/$1/g" $cname_test.cc
+sed -i "s/THEPACKAGE/$2/g" $cname_test.cc
+sed -i "s/THEHEADER/$3/g" $cname_test.cc
 
 
-echo "<bin file=$1_test.cc name=CondPayload_$1_testIO>" > bfile
+echo "<bin file=$cname_test.cc name=CondPayload_$cname_testIO>" > bfile
 echo "<use name=CondFormats/$2>" >> bfile
 echo "<use name=CondCore/DBCommon>" >> bfile
 echo "</bin>" >> bfile
 
 mv bfile BuildFile
 scramv1 b
-echo "run CondPayload_$1_test"
-$CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_$1_testIO
+echo "run CondPayload_$cname_test"
+$CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_$cname_testIO
 pool_list_object_relational_mapping -c sqlite_file:test.db
-pool_retrieve_object_relational_mapping -c sqlite_file:test.db -v $1_automatic_default
+pool_retrieve_object_relational_mapping -c sqlite_file:test.db -v "$1_automatic_default"
 cat mapping.xml
