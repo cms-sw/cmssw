@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 # nuno.leonardo@cern.ch 08.02
 
 #global configuration
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
+#from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+#es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 #note: global tag specification moved top parent _cfg , ie
 # : DQM/Integration/pythin/test/l1temulator_dqm_sourceclient-*_cfg.py
 # DQM/L1TMonitor/test/test/testEmulMon_cfg.py : test example
