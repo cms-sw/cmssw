@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/08/18 13:47:04 $
- * $Revision: 1.29 $
+ * $Date: 2009/10/29 19:15:22 $
+ * $Revision: 1.30 $
  * \author J. Berryhill
  *
  */
@@ -233,7 +233,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
     DTstubsTimeTrackMenTimeArrival[i]->getTH2F()->SetMinimum(0);
     
     // axis makeup
-    DTstubsTimeTrackMenTimeArrival[i]->setAxisTitle("bx_{DT stub} - bx_{CSC track}",1);
+    DTstubsTimeTrackMenTimeArrival[i]->setAxisTitle("bx_{CSC track} - bx_{DT stub}",1);
     DTstubsTimeTrackMenTimeArrival[i]->setAxisTitle("subsector"     ,2);
 
     DTstubsTimeTrackMenTimeArrival[i]->setBinLabel(1,"-3",1);
