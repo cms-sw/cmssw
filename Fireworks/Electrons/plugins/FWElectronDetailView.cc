@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.43 2009/10/27 19:25:03 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.44 2009/10/31 22:38:28 chrjones Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -43,7 +43,7 @@ FWElectronDetailView::FWElectronDetailView():
 FWElectronDetailView::~FWElectronDetailView()
 { 
    getEveWindow()->DestroyWindow();
-   m_data->DecDenyDestroy();
+   if(0!=m_data) { m_data->DecDenyDestroy();}
 }
 
 //
