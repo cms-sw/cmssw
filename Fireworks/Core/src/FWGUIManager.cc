@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.159 2009/11/03 00:05:01 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.160 2009/11/03 02:31:12 yanjuntu Exp $
 //
 
 // system include files
@@ -644,12 +644,6 @@ FWGUIManager::showBrightnessPopup()
   }
   m_brightnessPopup->MapWindow();
   m_brightnessPopup->setModel(m_colorManager);
-}
-
-void
-FWGUIManager::annotationWasChanged()
-{
-   m_viewPopup->annotationWasChanged();
 }
 
 void
