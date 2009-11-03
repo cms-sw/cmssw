@@ -18,7 +18,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Sep 17 12:18:18 CDT 2009
-// $Id$
+// $Id: JetIDProducer.h,v 1.1 2009/09/17 19:43:07 srappocc Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetAlgorithms/interface/JetMuonHitsIDHelper.h"
 
 //
 // class decleration
@@ -56,6 +57,7 @@ class JetIDProducer : public edm::EDProducer {
       // ----------member data ---------------------------
   edm::InputTag                 src_;         // input jet source
   reco::helper::JetIDHelper     helper_;      // jet id helper algorithm
+  reco::helper::JetMuonHitsIDHelper muHelper_;    // jet id from muon rechits helper algorithm
 };
 
 

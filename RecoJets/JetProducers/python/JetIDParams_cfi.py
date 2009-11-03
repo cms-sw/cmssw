@@ -6,5 +6,6 @@ JetIDParams = cms.PSet(
         hoRecHitsColl   = cms.InputTag("horeco"),
         hfRecHitsColl   = cms.InputTag("hfreco"),
         ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
+        rpcRecHits      = cms.InputTag("rpcRecHits")
 )

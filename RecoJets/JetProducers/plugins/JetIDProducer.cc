@@ -17,7 +17,8 @@
 //
 JetIDProducer::JetIDProducer(const edm::ParameterSet& iConfig) :
   src_       ( iConfig.getParameter<edm::InputTag>("src") ),
-  helper_    ( iConfig )
+  helper_    ( iConfig ),
+  muHelper_  ( iConfig )
 {
   produces< reco::JetIDValueMap >();
 }
@@ -58,6 +59,9 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // get the id from each jet
     helper_.calculate( iEvent, *ijet );
+
+    muHelper_.calculate( iEvent, iSetup, *ijet );
+
     ids[ijet-jetsBegin].fHPD               =  helper_.fHPD();
     ids[ijet-jetsBegin].fRBX               =  helper_.fRBX();
     ids[ijet-jetsBegin].n90Hits            =  helper_.n90Hits();
@@ -71,6 +75,10 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     ids[ijet-jetsBegin].approximatefHPD    =  helper_.approximatefHPD();
     ids[ijet-jetsBegin].approximatefRBX    =  helper_.approximatefRBX();
     ids[ijet-jetsBegin].hitsInN90          =  helper_.hitsInN90();    
+
+    ids[ijet-jetsBegin].numberOfHits2RPC   = muHelper_.numberOfHits2RPC();
+    ids[ijet-jetsBegin].numberOfHits3RPC   = muHelper_.numberOfHits3RPC();
+    ids[ijet-jetsBegin].numberOfHitsRPC    = muHelper_.numberOfHitsRPC();
   }
   
   // set up the map
