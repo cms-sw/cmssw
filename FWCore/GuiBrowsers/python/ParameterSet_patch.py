@@ -96,6 +96,18 @@ def new_resetHistory(self):
     self.resetModifiedObjects()
 cms.Process.resetHistory=new_resetHistory
 
+def new_dumpHistory(self):
+    dumpPython=""
+    for item in self.__dict__['_Process__history']:
+        if isinstance(item,str):
+            dumpPython += item +"\n"
+        else: # isTool
+            for code in item.dumpPython():
+                dumpPython += code +"\n"
+    dumpPython += self.dumpModifications(False)
+    return dumpPython
+cms.Process.dumpHistory=new_dumpHistory
+
 def new_addAction(self,tool):
     if self.__dict__['_Process__enableRecording'] == 0:
         self.__dict__['_Process__history'].append(tool)
