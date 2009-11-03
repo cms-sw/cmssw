@@ -43,9 +43,11 @@ private:
   DQMStore * dbe_;
 
   std::vector<std::string > HLTPathsByName_;
+  std::vector<std::string > HLTPathDenomName_;
   std::vector<std::string > filterTypes_;
   std::vector<unsigned int> HLTPathsByIndex_;
   std::string denominator_;
+  std::string denominatorWild_;
 
 
   std::vector<unsigned int> count_;
