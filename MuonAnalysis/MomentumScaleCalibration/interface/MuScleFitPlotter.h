@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2009/08/07 15:57:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/28 16:55:44 $
+ *  $Revision: 1.6 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -38,7 +38,7 @@ class MuScleFitPlotter{
   // Operations
   // ----------
   void fillGen1(edm::Handle<reco::GenParticleCollection> genParticles);
-  void fillGen2(edm::Handle<edm::HepMCProduct> evtMC);
+  void fillGen2(edm::Handle<edm::HepMCProduct> evtMC, bool shepaFlag_);
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
   void fillRec(std::vector<reco::LeafCandidate>& muons);

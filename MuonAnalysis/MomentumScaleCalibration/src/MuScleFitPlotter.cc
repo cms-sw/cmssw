@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/10/28 16:54:58 $
-//  $Revision: 1.11 $
+//  $Date: 2009/10/30 10:49:46 $
+//  $Revision: 1.12 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -113,61 +113,96 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
+void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC, bool sherpaFlag_)
 {
   //Loop on generated particles
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 
   reco::Particle::LorentzVector genRes;
-
+  
   int mothersFound[] = {0, 0, 0, 0, 0, 0};
-
-  for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
-       part!=Evt->particles_end(); part++) {
-    int status = (*part)->status();
-    int pdgId = abs((*part)->pdg_id());
-    //cout<<"PDG ID "<< (*part)->pdg_id() <<"    status "<< (*part)->status()
-    //<<"   pt "<<(*part)->momentum().perp()<< "     eta  "<<(*part)->momentum().eta()<<endl    ;
-     //Check if it's a resonance	
-    if( status==2 && 
-        ( pdgId==23  || pdgId==443    || pdgId==100443 ||
-          pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
-      genRes = reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-                                             (*part)->momentum().pz(),(*part)->momentum().e());
-      if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
-      if( pdgId == 443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
-      if( pdgId == 553 ) {
-        // cout << "genRes mass = " << CLHEP::HepLorentzVector(genRes.x(),genRes.y(),genRes.z(),genRes.t()).m() << endl;
-        mapHisto["hGenResUpsilon1S"]->Fill(genRes);
-      }
-    }
-    //Check if it's a muon from a resonance
-    if (pdgId==13 && status==1) {      
-      bool fromRes=false;
-      for (HepMC::GenVertex::particle_iterator mother = 
-	     (*part)->production_vertex()->particles_begin(HepMC::ancestors);
-	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-        int motherPdgId = (*mother)->pdg_id();
-	if (motherPdgId==23  || motherPdgId==443    || motherPdgId==100443 || 
-	    motherPdgId==553 || motherPdgId==100553 || motherPdgId==200553) {
-	  fromRes=true;
-          if( motherPdgId == 23 ) mothersFound[0] = 1;
-          if( motherPdgId == 443 ) mothersFound[3] = 1;
-          if( motherPdgId == 553 ) mothersFound[5] = 1;
+  
+  if( sherpaFlag_ ) {
+    
+    for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
+	 part!=Evt->particles_end(); part++) {
+      if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {//looks for muon in the final state
+	bool fromRes = false;
+	for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);//loops on the mother of the final state muons
+	     mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+	  unsigned int motherPdgId = (*mother)->pdg_id();
+          if( motherPdgId == 13 && (*mother)->status() == 3 ) fromRes = true;
+	}
+	if(fromRes){
+	  if((*part)->pdg_id()==13){
+	    muFromRes.first = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+					     (*part)->momentum().pz(),(*part)->momentum().e()));
+	  }
+	  else if((*part)->pdg_id()==-13){
+	    muFromRes.second = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+					      (*part)->momentum().pz(),(*part)->momentum().e()));	    
+	  }
 	}
       }
-
-      if(fromRes) {	
-	mapHisto["hGenMu"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+      
+    }
+    mapHisto["hGenResZ"]->Fill(muFromRes.first+muFromRes.second);   
+  }
+  else{
+    for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
+	 part!=Evt->particles_end(); part++) {
+      int status = (*part)->status();
+      int pdgId = abs((*part)->pdg_id());
+      //cout<<"PDG ID "<< (*part)->pdg_id() <<"    status "<< (*part)->status()
+      //<<"   pt "<<(*part)->momentum().perp()<< "     eta  "<<(*part)->momentum().eta()<<endl    ;
+      //Check if it's a resonance	
+      // For sherpa the resonance is not saved. The muons from the resonance can be identified
+      // by having as mother a muon of status 3.
+      
+      if (pdgId==13 && status==1) {  
+	if( status==2 && 
+	    ( pdgId==23  || pdgId==443    || pdgId==100443 ||
+	      pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
+	  genRes = reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+						 (*part)->momentum().pz(),(*part)->momentum().e());
+	  
+	  if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
+	  if( pdgId == 443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
+	  if( pdgId == 553 ) {
+	    // cout << "genRes mass = " << CLHEP::HepLorentzVector(genRes.x(),genRes.y(),genRes.z(),genRes.t()).m() << endl;
+	    mapHisto["hGenResUpsilon1S"]->Fill(genRes);
+	  }
+	}
+      
+	//Check if it's a muon from a resonance
+	if (pdgId==13 && status==1) {      
+	  bool fromRes=false;
+	  for (HepMC::GenVertex::particle_iterator mother = 
+		 (*part)->production_vertex()->particles_begin(HepMC::ancestors);
+	       mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+	    int motherPdgId = (*mother)->pdg_id();
+	    if (motherPdgId==23  || motherPdgId==443    || motherPdgId==100443 || 
+		motherPdgId==553 || motherPdgId==100553 || motherPdgId==200553) {
+	      fromRes=true;
+	      if( motherPdgId == 23 ) mothersFound[0] = 1;
+	      if( motherPdgId == 443 ) mothersFound[3] = 1;
+	      if( motherPdgId == 553 ) mothersFound[5] = 1;
+	    }
+	  }
+	  
+	  if(fromRes) {	
+	    mapHisto["hGenMu"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+								   (*part)->momentum().pz(),(*part)->momentum().e()));
+	    mapHisto["hGenMuVSEta"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+									(*part)->momentum().pz(),(*part)->momentum().e()));
+	    if((*part)->pdg_id()==-13)
+	      muFromRes.first = (reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 							       (*part)->momentum().pz(),(*part)->momentum().e()));
-	mapHisto["hGenMuVSEta"]->Fill(reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-								    (*part)->momentum().pz(),(*part)->momentum().e()));
-	if((*part)->pdg_id()==-13)
-	  muFromRes.first = (reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-							   (*part)->momentum().pz(),(*part)->momentum().e()));
-	else
-	  muFromRes.second = (reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-							    (*part)->momentum().pz(),(*part)->momentum().e()));
+	    else
+	      muFromRes.second = (reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+								(*part)->momentum().pz(),(*part)->momentum().e()));
+	  }
+	}
       }
     }
   }

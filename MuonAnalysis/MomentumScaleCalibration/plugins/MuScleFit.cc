@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/28 16:54:25 $
-//  $Revision: 1.64 $
+//  $Date: 2009/10/30 10:49:45 $
+//  $Revision: 1.65 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -460,7 +460,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     try {
       event.getByLabel ("generator", evtMC);
       // Fill gen information only in the first loop
-      if( loopCounter == 0 ) plotter->fillGen2(evtMC);
+      if( loopCounter == 0 ) plotter->fillGen2(evtMC, MuScleFitUtils::sherpa_);
       if( !evtMC.isValid() ) throw 1;
       ifHepMC=true;
     } catch (...) { 
