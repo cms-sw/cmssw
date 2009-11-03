@@ -64,6 +64,12 @@ open CONFIGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/tmp/monitor-$runnum
 print CONFIGFILE <<EOF1;
 import FWCore.ParameterSet.Config as cms
 
+localDAQ  = 1
+globalDAQ = 0
+
+onlyEB = 0
+onlyEE = 0
+
 import os
 os.environ['TNS_ADMIN']='/etc'
 
@@ -167,15 +173,51 @@ process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     #referenceHandling = cms.untracked.string('all')
 )
 
+process.load("HLTrigger.special.HLTTriggerTypeFilter_cfi")
+
+# 0=random, 1=physics, 2=calibration, 3=technical
+process.hltTriggerTypeFilter.SelectedTriggerType = 1
+
 process.load("FWCore.Modules.preScaler_cfi")
 
-process.ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
+process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    cosmicPrescaleFactor = cms.untracked.int32(1),
+    laserPrescaleFactor = cms.untracked.int32(0),
+    ledPrescaleFactor = cms.untracked.int32(0),
+    pedestalPrescaleFactor = cms.untracked.int32(0),
+    testpulsePrescaleFactor = cms.untracked.int32(0),
+    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
+)
+
+process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler",
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    cosmicPrescaleFactor = cms.untracked.int32(0),
     laserPrescaleFactor = cms.untracked.int32(1),
     ledPrescaleFactor = cms.untracked.int32(1),
+    pedestalPrescaleFactor = cms.untracked.int32(0),
+    testpulsePrescaleFactor = cms.untracked.int32(0),
+    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
+)
+
+process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler",
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    cosmicPrescaleFactor = cms.untracked.int32(0),
+    laserPrescaleFactor = cms.untracked.int32(0),
+    ledPrescaleFactor = cms.untracked.int32(0),
     pedestalPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(1),
+    testpulsePrescaleFactor = cms.untracked.int32(0),
     pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
+)
+
+process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    cosmicPrescaleFactor = cms.untracked.int32(0),
+    laserPrescaleFactor = cms.untracked.int32(0),
+    ledPrescaleFactor = cms.untracked.int32(0),
+    pedestalPrescaleFactor = cms.untracked.int32(0),
+    testpulsePrescaleFactor = cms.untracked.int32(1),
+    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
 )
 
 process.source = cms.Source("NewEventStreamFileReader",
@@ -335,15 +377,78 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.preScaler.prescaleFactor = 1
 #process.preScaler.prescaleFactor = 10
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit1*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.ecalEndcapMonitorClient)
 
-process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence)
-process.q = cms.Path(process.ecalDataSequence*~process.ecalPrescaler*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
-process.r = cms.EndPath(process.dqmInfoEB*process.dqmInfoEE*process.ecalBarrelCosmicTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapCosmicTasksSequence*process.ecalEndcapClusterTask*process.dqmQTestEB*process.dqmQTestEE*process.dqmSaver)
+process.load("DQM.EcalBarrelMonitorTasks.EBHltTask_cfi")
+process.ecalBarrelMainSequence = cms.Sequence(process.ecalBarrelPedestalOnlineTask*process.ecalBarrelOccupancyTask*process.ecalBarrelIntegrityTask*process.ecalBarrelStatusFlagsTask*process.ecalBarrelRawDataTask*process.ecalBarrelHltTask)
+
+process.load("DQM.EcalEndcapMonitorTasks.EEHltTask_cfi")
+process.ecalEndcapMainSequence = cms.Sequence(process.ecalEndcapPedestalOnlineTask*process.ecalEndcapOccupancyTask*process.ecalEndcapIntegrityTask*process.ecalEndcapStatusFlagsTask*process.ecalEndcapRawDataTask*process.ecalEndcapHltTask)
+
+process.ecalBarrelPhysicsSequence = cms.Sequence(process.ecalBarrelPedestalOnlineTask*process.ecalBarrelCosmicTask*process.ecalBarrelClusterTask*process.ecalBarrelTriggerTowerTask*process.ecalBarrelTimingTask*process.ecalBarrelSelectiveReadoutTask)
+
+process.ecalEndcapPhysicsSequence = cms.Sequence(process.ecalEndcapPedestalOnlineTask*process.ecalEndcapCosmicTask*process.ecalEndcapClusterTask*process.ecalEndcapTriggerTowerTask*process.ecalEndcapTimingTask*process.ecalEndcapSelectiveReadoutTask)
+
+if localDAQ:
+  process.ecalBarrelPhysicsSequence.remove(process.ecalBarrelPedestalOnlineTask)
+  process.ecalEndcapPhysicsSequence.remove(process.ecalEndcapPedestalOnlineTask)
+
+if globalDAQ:
+  process.ecalBarrelMainSequence.remove(process.ecalBarrelPedestalOnlineTask)
+  process.ecalEndcapMainSequence.remove(process.ecalEndcapPedestalOnlineTask)
+
+process.ecalClusterSequence = cms.Sequence(process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
+
+process.ecalMonitorPath = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence)
+
+process.ecalPhysicsPath = cms.Path(process.ecalDataSequence*process.ecalPhysicsFilter*process.hltTriggerTypeFilter*process.simEcalTriggerPrimitiveDigis*process.ecalClusterSequence*process.ecalBarrelMainSequence*process.ecalBarrelPhysicsSequence*process.ecalEndcapMainSequence*process.ecalEndcapPhysicsSequence)
+
+if localDAQ:
+  process.ecalPhysicsPath.remove(process.hltTriggerTypeFilter)
+
+if globalDAQ:
+  process.ecalPhysicsPath.remove(process.ecalPhysicsFilter)
+
+process.ecalLaserLedPath = cms.Path(process.ecalDataSequence*process.ecalLaserLedFilter*process.ecalUncalibHit1*process.ecalBarrelMainSequence*process.ecalBarrelLaserTask*process.ecalEndcapMainSequence*process.ecalEndcapLaserTask*process.ecalEndcapLedTask)
+
+process.ecalPedestalPath = cms.Path(process.ecalDataSequence*process.ecalPedestalFilter*process.ecalBarrelMainSequence*process.ecalBarrelPedestalTask*process.ecalEndcapMainSequence*process.ecalEndcapPedestalTask)
+
+process.ecalTestPulsePath = cms.Path(process.ecalDataSequence*process.ecalTestPulseFilter*process.ecalUncalibHit2*process.ecalBarrelMainSequence*process.ecalBarrelTestPulseTask*process.ecalEndcapMainSequence*process.ecalEndcapTestPulseTask)
+
+process.ecalMonitorEndPath = cms.EndPath(process.dqmInfoEB*process.dqmInfoEE*process.dqmQTestEB*process.dqmQTestEE*process.dqmSaver)
+
+process.schedule = cms.Schedule(process.ecalMonitorPath,process.ecalPhysicsPath,process.ecalLaserLedPath,process.ecalPedestalPath,process.ecalTestPulsePath,process.ecalMonitorEndPath)
+
+if onlyEE:
+  process.ecalMonitorPath.remove(process.ecalBarrelMonitorSequence)
+  process.ecalPhysicsPath.remove(process.ecalBarrelMainSequence)
+  process.ecalPhysicsPath.remove(process.ecalBarrelPhysicsSequence)
+  process.ecalLaserLedPath.remove(process.ecalBarrelMainSequence)
+  process.ecalLaserLedPath.remove(process.ecalBarrelLaserTask)
+  process.ecalPedestalPath.remove(process.ecalBarrelMainSequence)
+  process.ecalPedestalPath.remove(process.ecalBarrelPedestalTask)
+  process.ecalTestPulsePath.remove(process.ecalBarrelMainSequence)
+  process.ecalTestPulsePath.remove(process.ecalBarrelTestPulseTask)
+  process.ecalMonitorEndPath.remove(process.dqmInfoEB)
+  process.ecalMonitorEndPath.remove(process.dqmQTestEB)
+
+if onlyEB:
+  process.ecalMonitorPath.remove(process.ecalEndcapMonitorSequence)
+  process.ecalPhysicsPath.remove(process.ecalEndcapMainSequence)
+  process.ecalPhysicsPath.remove(process.ecalEndcapPhysicsSequence)
+  process.ecalLaserLedPath.remove(process.ecalEndcapMainSequence)
+  process.ecalLaserLedPath.remove(process.ecalEndcapLaserTask)
+  process.ecalLaserLedPath.remove(process.ecalEndcapLedTask)
+  process.ecalPedestalPath.remove(process.ecalEndcapMainSequence)
+  process.ecalPedestalPath.remove(process.ecalEndcapPedestalTask)
+  process.ecalTestPulsePath.remove(process.ecalEndcapMainSequence)
+  process.ecalTestPulsePath.remove(process.ecalEndcapTestPulseTask)
+  process.ecalMonitorEndPath.remove(process.dqmInfoEE)
+  process.ecalMonitorEndPath.remove(process.dqmQTestEE)
 
 process.ecalEBunpacker.silentMode = False
 
