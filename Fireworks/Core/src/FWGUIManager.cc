@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.157 2009/10/27 01:55:29 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.158 2009/11/02 15:42:58 amraktad Exp $
 //
 
 // system include files
@@ -293,7 +293,9 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
    if (slot == 0) slot =  m_viewSecPack->NewSlotWithWeight(1);
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* view = itFind->second(slot);
-   view->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2));
+   //in future, get context from 'view'
+   FWViewContextMenuHandlerBase* base= view->contextMenuHandler();
+   view->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2,base));
    TEveWindow *ew = ef->GetEveWindow();
    ew->SetElementName(iName.c_str());
    ew->SetUserData(view);
@@ -752,10 +754,10 @@ void FWGUIManager::createShortcutPopup ()
 }
 
 void 
-FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
+FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler)
 {
    if(!m_selectionManager->selected().empty()) {
-      m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY);
+      m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY, iHandler);
    }
 }
 

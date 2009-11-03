@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.4 2009/11/02 15:51:09 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.5 2009/11/02 19:32:08 chrjones Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
 
 //
 // constants, enums and typedefs
@@ -34,6 +35,7 @@ enum MenuOptions {
    kAfterOpenDetailViewMO,
    kOpenObjectControllerMO=100,
    kOpenCollectionControllerMO,
+   kViewOptionsMO=1000,
    kLastOfMO
 };
 
@@ -56,7 +58,10 @@ m_detailViewManager(iDVM),
 m_colorManager(iCM),
 m_guiManager(iGM),
 m_seperator(0),
-m_nDetailViewEntries(0)
+m_viewSeperator(0),
+m_nDetailViewEntries(0),
+m_nViewEntries(0),
+m_viewHander(0)
 {
 }
 
@@ -138,13 +143,19 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          break;
       }
       case kOpenDetailViewMO:
+      case kViewOptionsMO:
       default:
       {
-         assert(iChoice<kOpenObjectControllerMO);
-         assert(m_selectionManager->selected().size()==1);
-         std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-         assert(0!=viewChoices.size());
-         m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin()),viewChoices[iChoice-kOpenDetailViewMO]) ;
+         if(iChoice>=kViewOptionsMO) {
+            assert(0!=m_viewHander);
+            m_viewHander->select(iChoice-kViewOptionsMO,m_x,m_y);
+         }else {
+            assert(iChoice<kOpenObjectControllerMO);
+            assert(m_selectionManager->selected().size()==1);
+            std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
+            assert(0!=viewChoices.size());
+            m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin()),viewChoices[iChoice-kOpenDetailViewMO]) ;
+         }
          break;
       }
          break;
@@ -164,13 +175,31 @@ FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
    }
 }
 
+void 
+FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex)
+{
+   if(!m_viewSeperator) {
+      m_modelPopup->AddSeparator(m_afterViewSeperator);
+      m_viewSeperator=dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
+      assert(0!=m_viewSeperator);
+   }
+   if(static_cast<int>(m_nViewEntries) > iEntryIndex) {
+      m_modelPopup->GetEntry(iEntryIndex+kViewOptionsMO)->GetLabel()->SetString(iEntryName);
+      m_modelPopup->EnableEntry(iEntryIndex+kViewOptionsMO);
+   } else {
+      assert(m_nViewEntries = iEntryIndex);
+      m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,m_viewSeperator);
+      ++m_nViewEntries;
+   }
+}
 
 //
 // const member functions
 //
 void 
-FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY) const
+FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewContextMenuHandlerBase* iHandler) const
 {
+   m_viewHander=iHandler;
    assert(!m_selectionManager->selected().empty());
    createModelContext();
 
@@ -215,6 +244,17 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY) const
          m_modelPopup->HideEntry(kOpenDetailViewMO+i);
       }
    }
+   //add necessary entries from the view
+   m_modelPopup->DeleteEntry(m_viewSeperator);
+   m_viewSeperator=0;
+
+   for(unsigned int i=0; i<m_nViewEntries; ++i) {
+      m_modelPopup->HideEntry(kViewOptionsMO+i);
+   }
+   if(m_viewHander) {
+      m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this));
+   }
+   
    m_x=iX;
    m_y=iY;
    m_modelPopup->PlaceMenu(iX,iY,false,true);
@@ -234,6 +274,7 @@ FWModelContextMenuHandler::createModelContext() const
       m_seperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
       assert(0!=m_seperator);
       m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
+      m_afterViewSeperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
       m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);
 
       m_modelPopup->Connect("Activated(Int_t)",

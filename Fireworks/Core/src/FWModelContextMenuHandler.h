@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.3 2009/10/31 22:37:35 chrjones Exp $
+// $Id: FWModelContextMenuHandler.h,v 1.4 2009/11/02 19:32:08 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class FWDetailViewManager;
 class FWColorManager;
 class FWColorPopup;
 class FWGUIManager;
+class FWViewContextMenuHandlerBase;
 
 class FWModelContextMenuHandler
 {
@@ -45,13 +46,15 @@ public:
    
    // ---------- const member functions ---------------------
    ///NOTE: iX and iY are in global coordinates
-   void showSelectedModelContext(Int_t iX, Int_t iY) const;
+   void showSelectedModelContext(Int_t iX, Int_t iY, FWViewContextMenuHandlerBase*) const;
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
    void chosenItem(Int_t);
    void colorChangeRequested(Int_t);
+   
+   void addViewEntry(const char*, int);
    ClassDef(FWModelContextMenuHandler,0);
 private:
    FWModelContextMenuHandler(const FWModelContextMenuHandler&); // stop default
@@ -68,9 +71,13 @@ private:
    FWColorManager* m_colorManager;
    FWGUIManager* m_guiManager;
    mutable TGMenuEntry* m_seperator;
+   mutable TGMenuEntry* m_viewSeperator;
+   mutable TGMenuEntry* m_afterViewSeperator;
    mutable Int_t m_x;
    mutable Int_t m_y;
    mutable unsigned int m_nDetailViewEntries;
+   mutable unsigned int m_nViewEntries;
+   mutable FWViewContextMenuHandlerBase* m_viewHander;
 };
 
 

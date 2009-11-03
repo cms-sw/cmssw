@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.8 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWViewBase.h,v 1.9 2009/09/24 00:15:16 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // forward declarations
 class TGFrame;
+class FWViewContextMenuHandlerBase;
 
 class FWViewBase : public FWConfigurableParameterizable
 {
@@ -42,6 +43,8 @@ public:
 
    virtual void saveImageTo(const std::string& iName) const = 0;
    void promptForSaveImageTo(TGFrame*) const;
+   
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

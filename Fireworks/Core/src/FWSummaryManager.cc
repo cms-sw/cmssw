@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.16 2009/09/23 20:34:38 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.17 2009/10/05 08:30:51 amraktad Exp $
 //
 
 // system include files
@@ -202,7 +202,7 @@ FWSummaryManager::requestForController(FWEventItem* iItem)
 void 
 FWSummaryManager::requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
 {
-   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY);
+   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY,0);
 }
 
 //
