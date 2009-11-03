@@ -14,6 +14,7 @@
 
 namespace reco {
   struct JetID {
+    // hcal+ecal id
     double fHPD; 
     double fRBX;
     double n90Hits;
@@ -27,6 +28,10 @@ namespace reco {
     double approximatefHPD;
     double approximatefRBX;
     int    hitsInN90;
+    // muon hits id
+    int numberOfHits2RPC;
+    int numberOfHits3RPC;
+    int numberOfHitsRPC;
   };
 
   typedef edm::ValueMap<JetID>   JetIDValueMap;
