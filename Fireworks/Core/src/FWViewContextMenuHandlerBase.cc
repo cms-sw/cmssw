@@ -8,22 +8,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Nov  2 13:46:48 CST 2009
-// $Id$
+// $Id: FWViewContextMenuHandlerBase.cc,v 1.1 2009/11/02 23:59:49 chrjones Exp $
 //
 
 // system include files
+#include "TEveViewer.h"
+#include "TGLViewer.h"
+#include "TGLAnnotation.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
 FWViewContextMenuHandlerBase::MenuEntryAdder::MenuEntryAdder(FWModelContextMenuHandler& iHandler):
 m_handler(&iHandler),m_lastIndex(0) {}
    
@@ -35,37 +32,14 @@ FWViewContextMenuHandlerBase::MenuEntryAdder::addEntry(const char* iEntryName)
 }
 
 
-//
-// constructors and destructor
-//
 FWViewContextMenuHandlerBase::FWViewContextMenuHandlerBase()
 {
 }
-
-// FWViewContextMenuHandlerBase::FWViewContextMenuHandlerBase(const FWViewContextMenuHandlerBase& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWViewContextMenuHandlerBase::~FWViewContextMenuHandlerBase()
 {
 }
 
-//
-// assignment operators
-//
-// const FWViewContextMenuHandlerBase& FWViewContextMenuHandlerBase::operator=(const FWViewContextMenuHandlerBase& rhs)
-// {
-//   //An exception safe implementation is
-//   FWViewContextMenuHandlerBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void 
 FWViewContextMenuHandlerBase::addTo(FWModelContextMenuHandler& iHandler)
 {
@@ -73,10 +47,28 @@ FWViewContextMenuHandlerBase::addTo(FWModelContextMenuHandler& iHandler)
    init(adder);
 }
 
-//
-// const member functions
-//
+//==============================================================================
+//==============================================================================
+void 
+FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& adder)
+{
+   adder.addEntry("Add Annotation");
+}
 
-//
-// static member functions
-//
+void 
+FWViewContextMenuHandlerGL::select(int iEntryIndex, int iX, int iY)
+{
+   if (iEntryIndex == kAnnotate)
+   {
+      TGFrame* f = m_viewer->GetEveFrame();
+      Window_t wdummy;
+      Int_t x,y;
+      gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), f->GetId(), iX, iY, x, y, wdummy);
+
+      TGLViewer* v = m_viewer->GetGLViewer();
+      TGLAnnotation* an = new TGLAnnotation(v, "Annotate ref == 0",  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight());
+      an->SetTextSize(0.05);
+      an->SetTransparency(70);
+   }
+};
+
