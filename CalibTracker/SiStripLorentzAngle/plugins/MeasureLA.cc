@@ -138,40 +138,47 @@ write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) const {
 void MeasureLA::
 store_calibrations() {
   BOOST_FOREACH(edm::ParameterSet p, calibrations) {
-    const std::pair<uint32_t,LA_Filler_Fitter::Method> 
-      key( p.getParameter<uint32_t>("Pitch"), (LA_Filler_Fitter::Method) 
-	   p.getParameter<int32_t>("Method"));
-    offset[key] = p.getParameter<double>("Offset");
-    slope[key] = p.getParameter<double>("Slope");
-    error_scaling[key] = p.getParameter<double>("ErrorScaling");
+    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
+    std::vector<double> slopes(p.getParameter<std::vector<double> >("Slopes"));    assert(slopes.size()==14);
+    std::vector<double> offsets(p.getParameter<std::vector<double> >("Offsets"));  assert(offsets.size()==14);
+    std::vector<double> pulls(p.getParameter<std::vector<double> >("Pulls"));      assert(pulls.size()==14);
+    
+    for(unsigned i=0; i<14; i++) {
+      const std::pair<unsigned,LA_Filler_Fitter::Method> key( i, method);
+      offset[key] = offsets[i];
+      slope[key] = slopes[i];
+      error_scaling[key] = pulls[i];
+    }
   }
 }
 
 inline
 void MeasureLA::
-calibrate(const std::pair<uint32_t,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) const {
-  
+calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) const {
   result.calibratedMeasurement = ( result.measure - offset.find(key)->second ) / slope.find(key)->second ;
   result.calibratedError = result.measureErr * error_scaling.find(key)->second / slope.find(key)->second ;
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
-calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) const {
-  uint32_t pitch = 0;
-  if(layer.find("TIB_layer1") != std::string::npos || layer.find("TIB_layer2") != std::string::npos) pitch=80; else
-    if(layer.find("TIB_layer3") != std::string::npos || layer.find("TIB_layer4") != std::string::npos) pitch=120; else
-      if(layer.find("TOB_layer5") != std::string::npos || layer.find("TOB_layer6") != std::string::npos) pitch=122; else
-	if(layer.find("TOB")   /* Layers 1,2,3,4 */                                    != std::string::npos) pitch=183;
-  return std::make_pair(pitch,method);
+calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) {
+  boost::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
+  const bool TIB = "TIB" == boost::regex_replace(layer, format, "\\1");
+  const bool stereo = "s" == boost::regex_replace(layer, format, "\\3");
+  const unsigned layerNum = boost::lexical_cast<unsigned>(boost::regex_replace(layer, format, "\\2"));
+  return std::make_pair(calibration_index(TIB,stereo,layerNum),method);
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
-calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const {
-  const uint32_t pitch =  
-    SiStripDetId(detid).subDetector() == SiStripDetId::TIB 
-    ? TIBDetId(detid).layer() < 3 ?  80 : 120
-    : TOBDetId(detid).layer() > 4 ? 122 : 183; 
-  return std::make_pair(pitch,method);
+calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) {
+  const bool TIB = SiStripDetId(detid).subDetector() == SiStripDetId::TIB;
+  const bool stereo = TIB ? TIBDetId(detid).stereo() : TOBDetId(detid).stereo();
+  const unsigned layer = TIB ? TIBDetId(detid).layer() : TOBDetId(detid).layer();
+  return std::make_pair(calibration_index(TIB,stereo,layer),method);
+}
+
+unsigned MeasureLA::
+calibration_index(bool TIB, bool stereo, unsigned layer) {
+  return  layer + (TIB?0:6) + (stereo ? 0 : layer<3 ? -1 : 1) ;
 }
       
 }

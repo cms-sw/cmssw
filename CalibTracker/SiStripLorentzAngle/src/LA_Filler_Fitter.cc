@@ -22,14 +22,13 @@ fill(TTree* tree, Book& book) {
 		      const std::vector<unsigned>* LEAF( tsostrackmulti )
 		      const std::vector<float>*    LEAF( tsosdriftx )
 		      const std::vector<float>*    LEAF( tsosdriftz )
-		      const std::vector<float>*    LEAF( tsoslocalpitch )
 		      const std::vector<float>*    LEAF( tsoslocaltheta )
 		      const std::vector<float>*    LEAF( tsoslocalphi )
 		      const std::vector<float>*    LEAF( tsosBdotY )
 		      const std::vector<float>*    LEAF( tsosglobalZofunitlocalY )
 		      ) {
     if(maxEvents_) TTREE_FOREACH_ENTRY_total = std::min(maxEvents_,TTREE_FOREACH_ENTRY_total);
-    for(unsigned i=0; i< clusterwidth->size() ; i++) {  
+    for(unsigned i=0; i< clusterwidth->size() ; i++) {
 
       const SiStripDetId detid((*clusterdetid)[i]);
 
@@ -37,40 +36,34 @@ fill(TTree* tree, Book& book) {
 	  (detid.subDetector()!=SiStripDetId::TIB && 
 	   detid.subDetector()!=SiStripDetId::TOB)    ) 
 	continue;
-      
+
       const double tthetaL = (*tsosdriftx)[i] / (*tsosdriftz)[i];
       const double tthetaT = tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
+
       const int sign = (*tsosglobalZofunitlocalY)[i] < 0  ?  -1  :  1 ;
       const unsigned width = (*clusterwidth)[i];
       const double var = (*clustervariance)[i];
 
       poly<std::string> granular;
+      granular += subdetLabel(detid);
+      if(byLayer_)  granular *= layerLabel(detid);
+      if(byModule_) granular *= moduleLabel(detid);
       if(ensembleBins_) {
 	granular+= "_ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
-	granular+= "_pitch"+boost::lexical_cast<std::string>((int)(10000* (*tsoslocalpitch)[i] ));
 	granular+= "";
 	if(ensembleSize_) granular*= "_sample"+boost::lexical_cast<std::string>(TTREE_FOREACH_ENTRY_index % ensembleSize_);
-      } else {
-	granular += subdetLabel(detid);
-	if(byLayer_) granular *= layerLabel(detid);
-	if(byModule_) granular *= moduleLabel(detid);
       }
 
-      poly<std::string> W; W++;      
-      poly<std::string> A1("_all");  if(width==1) A1*="_w1"; 
-                                else if(width==2)  W*="_w2"; 
-				else if(width==3)  W*="_w3";
+      poly<std::string> VW; VW++;
+      poly<std::string> A1("_all");  if(width==1 && methods_ & PROB1    )      A1*="_w1";
+                                else if(width==2 && methods_ & (AVGV2|RMSV2) ) VW*=method(AVGV2,0);
+				else if(width==3 && methods_ & (AVGV3|RMSV3) ) VW*=method(AVGV3,0);
 
-                             book.fill( sign*tthetaL,                    granular+"_reconstruction"   , 81, -0.6,0.6 );
-      if(methods_ & RATIO)   book.fill( sign*tthetaT,                    granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
-      if(methods_ & WIDTH)   book.fill( sign*tthetaT,             width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
-      if(methods_ & SQRTVAR) book.fill( sign*tthetaT,         sqrt(var), granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
-      if(methods_ & SYMM)    book.fill( sign*tthetaT,         sqrt(var), granular+ method(SYMM,0)     ,360, -1.0,1.0 );
-
-      if(methods_ & MULTI){  book.fill( sign*(tthetaT-tthetaL),     var, granular+method(MULTI,0)+"_var" +W ,360,-1.0,1.0 );
-			     book.fill( sign*(tthetaT-tthetaL),          granular+ method(MULTI,0)+A1       ,360,-1.0,1.0 ); }
-
-      if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),           granular+"_field"            , 101, 1, 5 );
+                            book.fill( sign*tthetaL,                    granular+"_reconstruction" ,360,-1.0,1.0 );
+                            book.fill( sign*(tthetaT-tthetaL),          granular+A1                ,360,-1.0,1.0 );
+                            book.fill( sign*(tthetaT-tthetaL),     var, granular+VW                ,360,-1.0,1.0 );
+      if(methods_ & WIDTH)  book.fill( sign*tthetaT,             width, granular+method(WIDTH)     , 81,-0.6,0.6 );
+      if(ensembleBins_==0)  book.fill( fabs((*tsosBdotY)[i]),           granular+"_field"          ,101,   1,  5 );
     }
   }
 }
@@ -86,27 +79,8 @@ layerLabel(const SiStripDetId detid) {
 }
 
 void LA_Filler_Fitter::
-make_and_fit_ratio(Book& book) {
-  for(Book::iterator it=book.begin(".*"+method(RATIO,0)+"_w1"); it!=book.end(); book.erase(it++)) {
-    if((it->second)->GetEntries() < 30) continue;
-
-    const std::string base = boost::erase_all_copy(it->first,"_w1");
-    TH1* const p = subset_probability(base+"_ratio", it->second, book[base+"_all"] );
-
-    p->Fit("gaus","LLQ");
-    const double mean = p->GetFunction("gaus")->GetParameter(1);
-    const double sigma = p->GetFunction("gaus")->GetParameter(2);
-    p->Fit("gaus","Q","",mean-sigma,mean+sigma);
-    p->SetTitle("Ratio Method;tan#theta_{t};Probability of width==1");
-    book.book(base+"_ratio", p);
-
-    book.erase(base+"_all");
-  }
-}
-
-void LA_Filler_Fitter::
-fit_profile(Book& book, const std::string key) {
-  for(Book::iterator it = book.begin(".*"+key); it!=book.end(); ++it) {
+fit_width_profile(Book& book) {
+  for(Book::iterator it = book.begin(".*"+method(WIDTH)); it!=book.end(); ++it) {
     TH1* const p = it->second;
     if(p->GetEntries() < 400) { delete p; book[it->first]=0; continue;}
     p->SetTitle(";tan#theta_{t};");
@@ -129,79 +103,49 @@ fit_profile(Book& book, const std::string key) {
 
 void LA_Filler_Fitter::
 make_and_fit_symmchi2(Book& book) {
-  for(Book::iterator it = book.begin(".*"+method(SYMM,0)); it!=book.end(); ++it) {
-    TH1* const p = it->second;
-    p->SetTitle(";tan#theta_{t};mean sqrt(variance)");
-    const unsigned rebin = (unsigned)( p->GetNbinsX() / sqrt(2*p->GetEntries()) + 1);
-    p->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
+  for(Book::iterator it = book.begin(".*_all"); it!=book.end(); ++it) {
+    const std::string base = boost::erase_all_copy(it->first,"_all");
+
+    std::vector<Book::iterator> rebin_hists;              
+    Book::iterator    all = it;	                           rebin_hists.push_back(all);   
+    Book::iterator     w1 = book.find(base+"_w1");         rebin_hists.push_back(w1);    
+    Book::iterator var_w2 = book.find(base+method(AVGV2,0)); rebin_hists.push_back(var_w2);
+    Book::iterator var_w3 = book.find(base+method(AVGV3,0)); rebin_hists.push_back(var_w3);
+
+    const unsigned rebin = std::max( var_w2==book.end() ? 0 : find_rebin(var_w2->second), 
+				     var_w3==book.end() ? 0 : find_rebin(var_w3->second) );
+    BOOST_FOREACH(Book::iterator it, rebin_hists) if(it!=book.end()) it->second->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
+
+    TH1* const prob_w1 = w1==book.end()     ? 0 : subset_probability( base+method(PROB1,0) ,w1->second,all->second);         book.book(base+method(PROB1,0),prob_w1);
+    TH1* const rmsv_w2 = var_w2==book.end() ? 0 :        rms_profile( base+method(RMSV2,0), (TProfile*const)var_w2->second); book.book(base+method(RMSV2,0),rmsv_w2);
+    TH1* const rmsv_w3 = var_w3==book.end() ? 0 :        rms_profile( base+method(RMSV3,0), (TProfile*const)var_w3->second); book.book(base+method(RMSV3,0),rmsv_w3);
     
-    const unsigned bins = p->GetNbinsX();
-    const unsigned guess = guess_bin(p);
-    TH1* chi2 = SymmetryFit::symmetryChi2(p, std::make_pair(guess-bins/20,guess+bins/20));
-    if(chi2) { 
-      const unsigned guess2 = p->FindBin(chi2->GetFunction("SymmetryFit")->GetParameter(0));
-      delete chi2;
-      chi2 = SymmetryFit::symmetryChi2(p, std::make_pair(guess2-bins/30,guess2+bins/30));
-      if(chi2) book.book(SymmetryFit::name(p->GetName()), chi2);
-    }
-  }
-}
-
-unsigned LA_Filler_Fitter::
-guess_bin(const TH1* const hist) {
-  const unsigned bins = hist->GetNbinsX();
-  unsigned lower(1), upper(1+bins/20);  double sliding_sum(0);
-  for(unsigned bin=lower; bin<=upper; ++bin) {double c = hist->GetBinContent(bin); if(c==0) upper++; sliding_sum+=c;}
-  unsigned least_low(lower), least_up(upper); double least_sum(sliding_sum);
-  while(upper<=bins) {
-    while( ++upper<=bins && hist->GetBinContent(upper) == 0 ); 
-    if(upper<=bins) {
-      while( hist->GetBinContent(++lower) == 0 );
-      sliding_sum += hist->GetBinContent(upper);
-      sliding_sum -= hist->GetBinContent(lower);
-      if( sliding_sum < least_sum ) {
-	least_sum = sliding_sum;
-	least_low = lower;
-	least_up = upper;
-      }
-    }
-  }
-  return (least_low+least_up)/2;
-}
-
-
-void LA_Filler_Fitter::
-make_and_fit_multisymmchi2(Book& book) {
-  for(Book::iterator it = book.begin(".*"+method(MULTI,0)+"_var_w2"); it!=book.end(); ++it) {
-    const std::string base = boost::erase_all_copy(it->first,"_var_w2");
-
-    std::vector<TH1*> rebin_hists;
-    TH1* const w1 = book[base+"_w1"];           rebin_hists.push_back(w1);
-    TH1* const all = book[base+"_all"];         rebin_hists.push_back(all);
-    TH1* const var_w2 = book[base+"_var_w2"];   rebin_hists.push_back(var_w2);
-    TH1* const var_w3 = book[base+"_var_w3"];   rebin_hists.push_back(var_w3);
-
-    const unsigned rebin = std::max(find_rebin(var_w2),find_rebin(var_w3));
-    BOOST_FOREACH(TH1*const hist, rebin_hists) hist->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
-
-    TH1* const prob_w1 = subset_probability(base+"_prob_w1",w1,all);   book.book(base+"_prob_w1",prob_w1);
-    TH1* const rmsv_w2 = rms_profile(base+"_rms_w2",(TProfile*const)var_w2); book.book(base+"_rms_w2",rmsv_w2);
-    TH1* const rmsv_w3 = rms_profile(base+"_rms_w3",(TProfile*const)var_w3); book.book(base+"_rms_w3",rmsv_w3);
-    
-    book.erase(base+"_all");
-    book.erase(base+"_w1");
+    //book.erase(all);
+    //if(w1!=book.end()) book.erase(w1);
 
     std::vector<TH1*> fit_hists;
-    fit_hists.push_back(prob_w1);  prob_w1->SetTitle("Width==1 Probability;tan#theta_{t}-(dx/dz)_{reco}");
-    fit_hists.push_back(var_w2);   var_w2->SetTitle("Width==2 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
-    fit_hists.push_back(var_w3);   var_w3->SetTitle("Width==3 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
-    fit_hists.push_back(rmsv_w2);  rmsv_w2->SetTitle("Width==2 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
-    fit_hists.push_back(rmsv_w3);  rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    if(prob_w1) {
+      fit_hists.push_back(prob_w1);  prob_w1->SetTitle("Width==1 Probability;tan#theta_{t}-(dx/dz)_{reco}");
+    }
+    if(var_w2!=book.end())  {
+      fit_hists.push_back(var_w2->second);   var_w2->second->SetTitle("Width==2 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
+      fit_hists.push_back(rmsv_w2);                 rmsv_w2->SetTitle("Width==2 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    }
+    if(var_w3!=book.end())  {
+      fit_hists.push_back(var_w3->second);   var_w3->second->SetTitle("Width==3 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
+      fit_hists.push_back(rmsv_w3);                 rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
+    }
 
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
-    TH1* const chi2 = SymmetryFit::symmetryChi2(base, fit_hists, std::make_pair(guess-bins/30, guess+bins/30-1));
-    if(chi2) { book.book(SymmetryFit::name(base), chi2); chi2->SetTitle("MultiSymmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
+    const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30-1);
+
+    BOOST_FOREACH(TH1*const hist, fit_hists) {
+      TH1*const chi2 = SymmetryFit::symmetryChi2(hist,range);
+      if(chi2) {book.book(chi2->GetName(),chi2); chi2->SetTitle("Symmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
+    }
+    //TH1* const chi2 = SymmetryFit::symmetryChi2(base+method(MULTI,0), fit_hists, range);
+    //if(chi2) { book.book(SymmetryFit::name(base+method(MULTI,0)), chi2); chi2->SetTitle("MultiSymmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
   }
 }
 
@@ -268,14 +212,7 @@ result(Method m, const std::string name, const Book& book) {
   if(h) {
     p.entries = (unsigned)(h->GetEntries());
     switch(m) {
-    case RATIO: {
-      const TF1*const f = h->GetFunction("gaus"); if(!f) break;
-      p.measure = f->GetParameter(1);
-      p.measureErr = f->GetParError(1);
-      p.chi2 = f->GetChisquare();
-      p.ndof = f->GetNDF();
-      break; }
-    case WIDTH: case SQRTVAR: {
+    case WIDTH: {
       const TF1*const f = h->GetFunction("LA_profile_fit"); if(!f) break;
       p.measure = f->GetParameter(0);
       p.measureErr = f->GetParError(0);
@@ -283,27 +220,20 @@ result(Method m, const std::string name, const Book& book) {
       p.ndof = f->GetNDF();
       break;
     }
-    case SYMM: {
-      p.entries = (unsigned) book[base+method(SYMM,0)]->GetEntries();
-      const TF1*const f = h->GetFunction("SymmetryFit"); if(!f) break;
-      p.measure = f->GetParameter(0);
-      p.measureErr = f->GetParameter(1);
-      p.chi2 = f->GetParameter(2);
-      p.ndof = (unsigned) (f->GetParameter(3));
-      break;
-    }
-    case MULTI: {
-      p.entries = (unsigned) book[base+method(MULTI,0)+"_prob_w1"]->GetEntries();
-      p.entries+= (unsigned) book[base+method(MULTI,0)+"_var_w2"]->GetEntries();
-      p.entries+= (unsigned) book[base+method(MULTI,0)+"_var_w3"]->GetEntries();
+    case PROB1: case AVGV2: case AVGV3: case RMSV2: case RMSV3: /*case MULTI:*/ {
       const TF1*const f = h->GetFunction("SymmetryFit"); if(!f) break;
       p.measure = p.reco + f->GetParameter(0);
       p.measureErr = f->GetParameter(1);
       p.chi2 = f->GetParameter(2);
       p.ndof = (unsigned) (f->GetParameter(3));
+
+      p.entries = 
+	(m&PROB1)         ? (unsigned) book[base+"_w1"]->GetEntries() : 
+	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,0)]->GetEntries() : 
+	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,0)]->GetEntries() : 0 ;
       break;
     }
-    default:break;
+    default: break;
     }
   }
   return p;

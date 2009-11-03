@@ -37,10 +37,11 @@ class MeasureLA : public edm::ESProducer {
   void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
   void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
-  void calibrate(const std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) const;
-  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const;
-  
+  void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
+  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method);
+  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method);
+  static unsigned calibration_index(bool,bool,unsigned);
+
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;
   const edm::FileInPath fp_;
