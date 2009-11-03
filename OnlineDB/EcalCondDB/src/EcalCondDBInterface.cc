@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.16 2009/06/24 10:26:40 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.17 2009/09/01 10:08:32 dellaric Exp $
 
 #include <iostream>
 #include <string>
@@ -361,6 +361,32 @@ void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
   try {
     iov->setConnection(env, conn);
     iov->updateEndTimeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
+
+void EcalCondDBInterface::updateRunIOVEndTime(RunIOV* iov)
+  throw(runtime_error)
+{
+  try {
+    iov->setConnection(env, conn);
+    iov->updateEndTimeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
+
+void EcalCondDBInterface::updateRunIOVStartTime(RunIOV* iov)
+  throw(runtime_error)
+{
+  try {
+    iov->setConnection(env, conn);
+    iov->updateStartTimeDB();
   } catch(runtime_error &e) {
     conn->rollback();
     throw(e);

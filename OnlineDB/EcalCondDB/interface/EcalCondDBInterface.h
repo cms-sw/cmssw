@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.19 2009/06/24 10:26:40 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.20 2009/09/01 10:08:31 dellaric Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -163,6 +163,10 @@ class EcalCondDBInterface : public EcalDBConnection {
     throw(std::runtime_error);
   // updates the end time of an iov
   void updateRunIOV(RunIOV* iov)
+    throw(std::runtime_error);
+  void updateRunIOVStartTime(RunIOV* iov)
+    throw(std::runtime_error);
+  void updateRunIOVEndTime(RunIOV* iov)
     throw(std::runtime_error);
 
   void updateRunConfig(ODRunConfigInfo* od) throw(std::runtime_error);

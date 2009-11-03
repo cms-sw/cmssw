@@ -36,6 +36,7 @@ class RunIOV : public IIOV {
   int getID(){ return m_ID;} ;
 
   int fetchID() throw(std::runtime_error);
+  int fetchIDByRunAndTag() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
   // operators
@@ -59,6 +60,7 @@ class RunIOV : public IIOV {
 
   int writeDB() throw(std::runtime_error);
   int updateEndTimeDB() throw(std::runtime_error);
+  int updateStartTimeDB() throw(std::runtime_error);
 
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
   void setByRun(std::string location, run_t run) throw(std::runtime_error);

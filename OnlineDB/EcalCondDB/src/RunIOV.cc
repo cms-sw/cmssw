@@ -281,6 +281,96 @@ int RunIOV::updateEndTimeDB()
   return m_ID;
 }
 
+int RunIOV::fetchIDByRunAndTag()
+  throw(runtime_error)
+{
+  // Return from memory if available
+  if (m_ID) {
+    return m_ID;
+  }
+
+  this->checkConnection();
+
+  m_runTag.setConnection(m_env, m_conn);
+  int tagID = m_runTag.fetchID();
+  if (!tagID) { 
+    return 0;
+  }
+
+  DateHandler dh(m_env, m_conn);
+
+  if (m_runEnd.isNull()) {
+    m_runEnd = dh.getPlusInfTm();
+  }
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT iov_id FROM run_iov "
+		 "WHERE tag_id = :tag_id AND "
+		 "run_num = :run_num " );
+    stmt->setInt(1, tagID);
+    stmt->setInt(2, m_runNum);
+  
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+  }
+
+  return m_ID;
+}
+
+
+int RunIOV::updateStartTimeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+
+  // Check if this IOV has already been written
+  if(!this->fetchIDByRunAndTag()){
+    this->writeDB();
+  }
+
+
+  m_runTag.setConnection(m_env, m_conn);
+  int tagID = m_runTag.writeDB();
+  
+  // Validate the data, use infinity-till convention
+  DateHandler dh(m_env, m_conn);
+
+  // we only update the run start here   
+  if (m_runEnd.isNull()) {
+    m_runEnd = dh.getPlusInfTm();
+  }
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    
+    stmt->setSQL("UPDATE run_iov set run_start=:1 where iov_id=:2 " );
+    stmt->setDate(1, dh.tmToDate(m_runStart));
+    stmt->setInt(2, m_ID);
+
+    stmt->executeUpdate();
+
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+  }
+
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(runtime_error("RunIOV::writeDB:  Failed to write"));
+  }
+  
+  return m_ID;
+}
+
 
 
 void RunIOV::setByRun(RunTag* tag, run_t run) 
