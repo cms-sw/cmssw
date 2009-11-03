@@ -67,7 +67,7 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_);
+    return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_[i]);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
@@ -76,7 +76,7 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_);
+    return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_[i]);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
@@ -85,7 +85,7 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_);
+    return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_[i]);
   }
   /// Get the ith resolution function
   resolutionFunctionBase<double * > * function( const unsigned int i )
