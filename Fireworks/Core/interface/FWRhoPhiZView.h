@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.20 2009/10/23 12:49:23 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.21 2009/11/03 12:12:24 amraktad Exp $
 //
 
 // system include files
@@ -44,8 +44,6 @@ class TEveWindowSlot;
 
 class FWRhoPhiZViewManager;
 class FWViewContextMenuHandlerGL;
-
-#include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h" // !!!!!!!!!!!!!!
 
 class FWRhoPhiZView : public FWViewBase
 {
