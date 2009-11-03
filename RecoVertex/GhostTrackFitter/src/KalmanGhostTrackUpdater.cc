@@ -34,7 +34,8 @@ namespace {
 	typedef SMatrix<double, 2, 2> Matrix22;
 
 	struct KalmanState {
-		KalmanState() {}
+		KalmanState(const GhostTrackPrediction &pred,
+		            const GhostTrackState &state);
 
 		Vector2		residual;
 		Matrix2S	measErr, measPredErr;
@@ -42,9 +43,8 @@ namespace {
 	};
 }
 
-static void kalmanInitState(const GhostTrackPrediction &pred,
-                            const GhostTrackState &state,
-                            KalmanState &kalmanState)
+KalmanState::KalmanState(const GhostTrackPrediction &pred,
+                         const GhostTrackState &state)
 {
 	using namespace ROOT::Math;
 
@@ -70,21 +70,21 @@ static void kalmanInitState(const GhostTrackPrediction &pred,
 
 	// measurement in local 2d plane projection
 	Vector2 meas(rho2 * point.z(), y * point.x() - x * point.y());
-	kalmanState.measErr = Similarity(measToLocal,
+	measErr = Similarity(measToLocal,
 		state.tsos().cartesianError().matrix().Sub<Matrix3S>(0, 0));
 
 	// jacobian of representation to measurement transformation
-	kalmanState.h(0, 0) = 1.;
-	kalmanState.h(0, 2) = l;
-	kalmanState.h(1, 1) = -1.;
-	kalmanState.h(1, 3) = -l;
+	h(0, 0) = 1.;
+	h(0, 2) = l;
+	h(1, 1) = -1.;
+	h(1, 3) = -l;
 
 	// predicted measurement
 	Vector2 measPred(rho2 * (vec[0] + l * vec[2]), -vec[1]);
-	kalmanState.measPredErr = Similarity(kalmanState.h, err);
+	measPredErr = Similarity(h, err);
 
 	// residual
-	kalmanState.residual = meas - measPred;
+	residual = meas - measPred;
 }
 
 GhostTrackPrediction KalmanGhostTrackUpdater::update(
@@ -94,8 +94,7 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 {
 	using namespace ROOT::Math;
 
-	KalmanState kalmanState;
-	kalmanInitState(pred, state, kalmanState);
+	KalmanState kalmanState(pred, state);
 
 	if (state.weight() < 1.0e-3)
 		return pred;
@@ -121,7 +120,8 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 	Vector2 filtRes = tmp22 * kalmanState.residual;
 	tmp22 *= kalmanState.measErr;
 	Matrix2S filtResErr(tmp22.LowerBlock());
-	filtResErr.Invert();
+	if (!filtResErr.Invert())
+		return pred;
 
 	ndof += state.weight() * 2.;
 	chi2 += state.weight() * Similarity(filtRes, filtResErr);
@@ -136,33 +136,18 @@ void KalmanGhostTrackUpdater::contribution(
 {
 	using namespace ROOT::Math;
 
-	KalmanState kalmanState;
-	kalmanInitState(pred, state, kalmanState);
+	KalmanState kalmanState(pred, state);
 
-	if (state.weight() < 1.0e-3) {
-		ndof = 0.;
-		chi2 = 0.;
-	}
+	// this is called on the full predicted state,
+	// so the residual is already with respect to the filtered state
 
-	// inverted combined error
-	Matrix2S invErr = kalmanState.measPredErr +
-	                  (1.0 / state.weight()) * kalmanState.measErr;
+	// inverted error
+	Matrix2S invErr = kalmanState.measErr;
 	if (!invErr.Invert()) {
 		ndof = 0.;
 		chi2 = 0.;
 	}
 
-	// gain
-	Matrix42 gain = pred.covariance() * Transpose(kalmanState.h) * invErr;
-
-	// filtered residuals
-	Matrix22 tmp22 = SMatrixIdentity();
-	tmp22 = (tmp22 - kalmanState.h * gain);
-	Vector2 filtRes = tmp22 * kalmanState.residual;
-	tmp22 *= kalmanState.measErr;
-	Matrix2S filtResErr(tmp22.LowerBlock());
-	filtResErr.Invert();
-
 	ndof = 2.;
-	chi2 = Similarity(filtRes, filtResErr);
+	chi2 = Similarity(kalmanState.residual, invErr);
 }                            
