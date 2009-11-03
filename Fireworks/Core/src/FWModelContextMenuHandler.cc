@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.5 2009/11/02 19:32:08 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.6 2009/11/03 00:05:03 chrjones Exp $
 //
 
 // system include files
@@ -187,7 +187,7 @@ FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex)
       m_modelPopup->GetEntry(iEntryIndex+kViewOptionsMO)->GetLabel()->SetString(iEntryName);
       m_modelPopup->EnableEntry(iEntryIndex+kViewOptionsMO);
    } else {
-      assert(m_nViewEntries = iEntryIndex);
+      assert(static_cast<int>(m_nViewEntries) == iEntryIndex);
       m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,m_viewSeperator);
       ++m_nViewEntries;
    }
@@ -252,6 +252,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
       m_modelPopup->HideEntry(kViewOptionsMO+i);
    }
    if(m_viewHander) {
+      m_nViewEntries = 0;
       m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this));
    }
    
@@ -281,7 +282,6 @@ FWModelContextMenuHandler::createModelContext() const
                             "FWModelContextMenuHandler",
                             const_cast<FWModelContextMenuHandler*>(this),
                             "chosenItem(Int_t)");
-      
    }
 }
 
