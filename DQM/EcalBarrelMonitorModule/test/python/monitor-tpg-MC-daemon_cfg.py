@@ -124,7 +124,6 @@ process.ecalUncalibHit.MinAmplEndcap = 16.
 process.ecalUncalibHit.EBdigiCollection = 'simEcalDigis:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
-process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
