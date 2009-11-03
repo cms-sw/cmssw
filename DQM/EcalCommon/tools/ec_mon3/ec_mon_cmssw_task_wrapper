@@ -220,6 +220,10 @@ process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
     pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
 )
 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
 process.source = cms.Source("NewEventStreamFileReader",
 EOF1
 
@@ -377,7 +381,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.preScaler.prescaleFactor = 1
 #process.preScaler.prescaleFactor = 10
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit*process.ecalRecHit)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
