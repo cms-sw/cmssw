@@ -37,7 +37,19 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     HighThreshold = cms.double(5),   # analysis-wide high threshold for the fed zero suppression
     LowThreshold  = cms.double(2)    # analysis-wide low threshold for the fed zero suppression
   ),
+<<<<<<< OfflineDbClient_cff.py
+  PedsOnlyParameters	   = cms.PSet(),
+  PedsFullNoiseParameters  = cms.PSet(
+    DeadStripMax  = cms.double(5),  # number times the noise spread below mean noise
+    NoisyStripMin = cms.double(5),  # number times the noise spread above mean noise
+    HighThreshold = cms.double(5),  # analysis-wide high threshold for the fed zero suppression
+    LowThreshold  = cms.double(2)   # analysis-wide low threshold for the fed zero suppression
+  ),
+  SamplingParameters	   = cms.PSet(),
+  VpspScanParameters	   = cms.PSet(),
+=======
   PedsOnlyParameters       = cms.PSet(),
   SamplingParameters       = cms.PSet(),
   VpspScanParameters       = cms.PSet(),
+>>>>>>> 1.4
 )
