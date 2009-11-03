@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.16 2009/10/17 14:37:19 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.18 2009/11/03 20:08:55 hlliu Exp $
 //
 //
 
@@ -287,6 +287,8 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 
     const reco::TrackRef& tk_l = ll.first;
     const reco::TrackRef& tk_r = rr.first;
+    const TransientTrack ttk_l(tk_l, magField);
+    const TransientTrack ttk_r(tk_r, magField);
     const reco::CaloClusterPtr& bc_l = ll.second;//can be null, so check isNonnull()
     const reco::CaloClusterPtr& bc_r = rr.second;
     
@@ -324,6 +326,15 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 	    appDist = distance;
     }
 
+    //check with analytical track cross, if cross too early, it is not conversion
+    TwoTrackMinimumDistance md;
+    md.calculate  (  ttk_l.initialFreeState(),  ttk_r.initialFreeState() );
+    GlobalPoint thecross = md.crossingPoint();
+    const double cross_r = sqrt(thecross.x()*thecross.x()+thecross.y()*thecross.y());
+
+    if (cross_r<r_cut) return false;
+    
+    //check with tracks innermost position z, except TEC
     if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()){//inner position delta Z cut
 	const double inner_z_l = tk_l->innerPosition().z();
 	const double inner_z_r = tk_r->innerPosition().z();
@@ -346,53 +357,49 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
     TransientTrack ttk_l(tk_l, magField);
     TransientTrack ttk_r(tk_r, magField);
 
-    TwoTrackMinimumDistance md;
-    md.calculate  (  ttk_l.initialFreeState(),  ttk_r.initialFreeState() );
-    GlobalPoint thecross = md.crossingPoint();
-    const double cross_r = sqrt(thecross.x()*thecross.x()+thecross.y()*thecross.y());
+    float sigma = 0.00000000001;
+    float chi = 0.;
+    float ndf = 0.;
+    float mass = 0.000000511;
 
-    if (cross_r>r_cut){
-	float sigma = 0.00000000001;
-	float chi = 0.;
-	float ndf = 0.;
-	float mass = 0.000000511;
+    edm::ParameterSet pSet;
+    pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
+    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+    pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
 
-	edm::ParameterSet pSet;
-	pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
-	pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
-	pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+    KinematicParticleFactoryFromTransientTrack pFactory;
 
-	KinematicParticleFactoryFromTransientTrack pFactory;
+    vector<RefCountedKinematicParticle> particles;
 
-	vector<RefCountedKinematicParticle> particles;
+    particles.push_back(pFactory.particle (ttk_l,mass,chi,ndf,sigma));
+    particles.push_back(pFactory.particle (ttk_r,mass,chi,ndf,sigma));
 
-	particles.push_back(pFactory.particle (ttk_l,mass,chi,ndf,sigma));
-	particles.push_back(pFactory.particle (ttk_r,mass,chi,ndf,sigma));
+    MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
 
-	MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
-
-	KinematicConstrainedVertexFitter kcvFitter;
-	kcvFitter.setParameters(pSet);
-	RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
-	if( myTree->isValid() ) {
-	    myTree->movePointerToTheTop();                                                                                
-	    RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
-	    if (the_photon->currentState().isValid()){                                                                    
-		//const ParticleMass photon_mass = the_photon->currentState().mass();                                       
-		RefCountedKinematicVertex gamma_dec_vertex;                                                               
-		gamma_dec_vertex = myTree->currentDecayVertex();                                                          
-		if( gamma_dec_vertex->vertexIsValid() ){                                                                  
-		    const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
-		    if (chi2Prob>0.005){                                                                                  
-			//const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
-			the_vertex = *gamma_dec_vertex;
-			found = true;
-		    }
+    KinematicConstrainedVertexFitter kcvFitter;
+    kcvFitter.setParameters(pSet);
+    RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
+    if( myTree->isValid() ) {
+	myTree->movePointerToTheTop();                                                                                
+	RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
+	if (the_photon->currentState().isValid()){                                                                    
+	    //const ParticleMass photon_mass = the_photon->currentState().mass();                                       
+	    RefCountedKinematicVertex gamma_dec_vertex;                                                               
+	    gamma_dec_vertex = myTree->currentDecayVertex();                                                          
+	    if( gamma_dec_vertex->vertexIsValid() ){                                                                  
+		const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
+		if (chi2Prob>0.005){                                                                                  
+		    //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
+		    the_vertex = *gamma_dec_vertex;
+		    the_vertex.add(reco::TrackBaseRef(tk_l));
+		    the_vertex.add(reco::TrackBaseRef(tk_r));
+		    found = true;
 		}
 	    }
 	}
-	delete constr;                                                                                                    
     }
+    delete constr;                                                                                                    
+
     return found;
 }
 
