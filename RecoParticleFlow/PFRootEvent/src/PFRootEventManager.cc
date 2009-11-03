@@ -50,6 +50,8 @@ using namespace std;
 using namespace boost;
 using namespace reco;
 
+
+
 PFRootEventManager::PFRootEventManager() {}
 
 
@@ -254,10 +256,11 @@ void PFRootEventManager::readOptions(const char* file,
     TDirectory* dir = outFile_->mkdir("DQMData");
     dir = dir->mkdir("PFTask");    
     dir = dir->mkdir("Benchmarks");
-    dir = dir->mkdir("particleFlow");
-    pfCandidateBenchmark_.setDirectory( dir );
-    pfCandidateBenchmark_.setup();
+    dir = dir->mkdir("particleFlowMatch");
+    pfCandidateManager_.setDirectory( dir );
+    pfCandidateManager_.setup();
     //COLIN need to set the subdirectory.  
+    cout<<"+++ Done "<<endl;
   }
 
   // input root file --------------------------------------------
@@ -1665,7 +1668,7 @@ bool PFRootEventManager::processEntry(int entry) {
   }// end PFMET Benchmark
 
   if( doPFCandidateBenchmark_ ) {
-    pfCandidateBenchmark_.fill( *pfCandidates_ );
+    pfCandidateManager_.fill( *pfCandidates_, genParticlesCMSSW_);
   }
     
   // evaluate tau Benchmark   
