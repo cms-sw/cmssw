@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include <unistd.h>
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
@@ -43,14 +44,14 @@ public:
   }
 
 
-  RunIOV makeRunIOV()
+  RunIOV makeRunIOV(int run_num)
   {
     // The objects necessary to identify a dataset
     LocationDef locdef;
     RunTypeDef rundef;
     RunTag runtag;
 
-    locdef.setLocation(locations[3]);
+    locdef.setLocation("P5_Co");
 
     rundef.setRunType("TEST");
     
@@ -63,13 +64,10 @@ public:
     Tm startTm;
     startTm.setToCurrentGMTime();
 
-    // Our beginning run number will be the seconds representation
-    // of that time, and we will increment our IoV based on 
-    // a microsecond representation
     uint64_t microseconds = startTm.microsTime();
     startmicros = microseconds;
-    run_t run = (int)(microseconds/1000000);
-    startrun = run;
+
+    int startrun = run_num;
 
     cout << "Starting Time:    " << startTm.str() << endl;
     cout << "Starting Micros:  " << startmicros << endl;
@@ -79,8 +77,8 @@ public:
     RunIOV runiov;
 
     startTm.setToMicrosTime(microseconds);
-    cout << "Setting run " << run << " run_start " << startTm.str() << endl;
-    runiov.setRunNumber(run);
+    cout << "Setting run " << startrun << " run_start " << startTm.str() << endl;
+    runiov.setRunNumber(startrun);
     runiov.setRunStart(startTm);
     runiov.setRunTag(runtag);
     
@@ -113,10 +111,10 @@ public:
    *  IOVs are written using automatic updating of the 'RunEnd', as if
    *  the time of the end of the run was not known at the time of writing.
    */
-  void testWrite()
+  void testWrite(int run_num, std::string config_tag)
   {
     cout << "Writing MonPedestalsDatObjects to database..." << endl;
-    RunIOV runiov = this->makeRunIOV();
+    RunIOV runiov = this->makeRunIOV(run_num);
     RunTag runtag = runiov.getRunTag();
     run_t run = runiov.getRunNumber();
 
@@ -138,17 +136,74 @@ public:
     cout << "Done." << endl;
     printIOV(&runiov_prime);
 
+
+
+
+    int c = 1;
+    EcalLogicID ecid;
+    ecid = econn->getEcalLogicID("ECAL");
+
+    // recuperare last version !!!
+
+    FEConfigMainInfo cfg_info;
+    cfg_info.setConfigTag(config_tag);
+    econn->fetchConfigSet(&cfg_info);
+
+    int iversion= cfg_info.getVersion();
+
+
+    // Set the data
+    RunTPGConfigDat cfgdat;
+    map<EcalLogicID, RunTPGConfigDat> dataset;
+
+    cfgdat.setConfigTag(config_tag);
+    cfgdat.setVersion(iversion);
+
+    // Fill the dataset
+    dataset[ecid] = cfgdat;
+
+    // Insert the dataset, identifying by iov
+    cout << "Inserting dataset..." << flush;
+    econn->insertDataSet(&dataset, &runiov);
+    cout << "Done." << endl;
+
+
+
+    sleep(3);
+
+
+
+
+
+
+    cout << "updating start time..." << flush;
+
+    Tm startTm;
+    startTm.setToCurrentGMTime();
+    uint64_t microseconds = startTm.microsTime();
+    startTm.setToMicrosTime(microseconds);
+    runiov.setRunStart(startTm);
+
+    // write to the DB
+    cout << "Inserting run..." << flush;
+    econn->updateRunIOVStartTime(&runiov);
+    cout << "Done." << endl;
+    printIOV(&runiov);
+
+
+    sleep(3);
+
     cout << "updating end time..." << flush;
 
     Tm endTm;
     endTm.setToCurrentGMTime();
-    uint64_t microseconds = endTm.microsTime();
+    microseconds = endTm.microsTime();
     endTm.setToMicrosTime(microseconds);
     runiov.setRunEnd(endTm);
 
     // write to the DB
     cout << "Inserting run..." << flush;
-    econn->updateRunIOV(&runiov);
+    econn->updateRunIOVEndTime(&runiov);
     cout << "Done." << endl;
     printIOV(&runiov);
 
@@ -184,117 +239,6 @@ public:
     }
   }
 
-
-
-  /**
-   *  Write to each of the data tables
-   */
-  void testAllTables()
-  {
-    cout << "Testing writing to all tables..." << endl;
-    tablesTried = 0;
-    tablesOK = 0;
-    
-    // get a dummy logic ID
-    EcalLogicID logicID = econn->getEcalLogicID(-1);
-
-    // RunIOV tables
-    RunIOV runiov = this->makeRunIOV();
-
-    // tables using RunIOV
-    RunDat table01;
-    testTable(&table01, &runiov, &logicID);
-
-    RunConfigDat table01a;
-    testTable(&table01a, &runiov, &logicID);
-
-    RunH4TablePositionDat table01b;
-    testTable(&table01b, &runiov, &logicID);
-
-    // MonRunIOV tables
-    MonRunIOV moniov = this->makeMonRunIOV(&runiov);
-
-    MonPedestalsDat table02;
-    testTable(&table02, &moniov, &logicID);
-
-    MonRunOutcomeDef monRunOutcomeDef;
-    monRunOutcomeDef.setShortDesc("success");
-    MonRunDat table03;
-    table03.setMonRunOutcomeDef(monRunOutcomeDef);
-    testTable(&table03, &moniov, &logicID);
-
-    MonTestPulseDat table04;
-    testTable(&table04, &moniov, &logicID);
-
-    MonPulseShapeDat table05;
-    testTable(&table05, &moniov, &logicID);
-
-    MonDelaysTTDat table06;
-    testTable(&table06, &moniov, &logicID);
-
-    MonShapeQualityDat table07;
-    testTable(&table07, &moniov, &logicID);
-
-    MonPedestalsOnlineDat table08;
-    testTable(&table08, &moniov, &logicID);
-
-    MonPedestalOffsetsDat table09;
-    testTable(&table09, &moniov, &logicID);
-
-    MonCrystalConsistencyDat table10;
-    testTable(&table10, &moniov, &logicID);
-
-    MonTTConsistencyDat table11;
-    testTable(&table11, &moniov, &logicID);
-
-    MonOccupancyDat table12;
-    testTable(&table12, &moniov, &logicID);
-
-    MonLaserBlueDat table14;
-    testTable(&table14, &moniov, &logicID);
-
-    MonLaserGreenDat table15;
-    testTable(&table15, &moniov, &logicID);
-
-    MonLaserRedDat table16;
-    testTable(&table16, &moniov, &logicID);
-
-    MonLaserIRedDat table17;
-    testTable(&table17, &moniov, &logicID);
-
-    MonPNBlueDat table18;
-    testTable(&table18, &moniov, &logicID);
-
-    MonPNGreenDat table19;
-    testTable(&table19, &moniov, &logicID);
-    
-    MonPNRedDat table20;
-    testTable(&table20, &moniov, &logicID);
-    
-    MonPNIRedDat table21;
-    testTable(&table21, &moniov, &logicID);
-
-    MonPNMGPADat table22;
-    testTable(&table22, &moniov, &logicID);
-
-    MonPNPedDat table23;
-    testTable(&table23, &moniov, &logicID);
-
-    MonMemChConsistencyDat table25;
-    testTable(&table25, &moniov, &logicID);
-
-    MonMemTTConsistencyDat table26;
-    testTable(&table26, &moniov, &logicID);
-
-    MonH4TablePositionDat table27;
-    testTable(&table27, &moniov, &logicID);
-
-    MonLaserPulseDat table29;
-    testTable(&table29, &moniov, &logicID);
-
-    cout << "Test of writing to all tables complete" << endl;
-    cout << tablesOK << " of " << tablesTried << " written to successfully" << endl << endl << endl;
-  };
 
 
 
@@ -373,8 +317,11 @@ int main (int argc, char* argv[])
   string sid;
   string user;
   string pass;
+  int run_num;
+  string config_tag;
 
-  if (argc != 5) {
+
+  if (argc != 7) {
     cout << "Usage:" << endl;
     cout << "  " << argv[0] << " <host> <SID> <user> <pass>" << endl;
     exit(-1);
@@ -384,11 +331,14 @@ int main (int argc, char* argv[])
   sid = argv[2];
   user = argv[3];
   pass = argv[4];
+  run_num = atoi(argv[5]);
+  config_tag = argv[6];
+
 
   try {
     CondDBApp app(host, sid, user, pass);
 
-    app.testWrite();
+    app.testWrite(run_num, config_tag);
 
   } catch (exception &e) {
     cout << "ERROR:  " << e.what() << endl;
