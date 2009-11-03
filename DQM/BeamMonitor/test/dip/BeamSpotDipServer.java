@@ -10,26 +10,32 @@ public class BeamSpotDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
-  public final static String subject = "dip/CMS/Tracker/BeamSpot";
+  public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
+  public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   DipFactory dip;
-  DipData message;
-  DipPublication publication;
-  double x;
-  double y;
-  double z;
-  double dxdz;
-  double dydz;
-  double err_x;
-  double err_y;
-  double err_z;
-  double err_dxdz;
-  double err_dydz;
-  double width_x;
-  double width_y;
-  double sigma_z;
-  double err_width_x;
-  double err_width_y;
-  double err_sigma_z;
+  DipData messageCMS;
+  DipData messageLHC;
+  DipPublication publicationCMS;
+  DipPublication publicationLHC;
+  float x;
+  float y;
+  float z;
+  float dxdz;
+  float dydz;
+  float err_x;
+  float err_y;
+  float err_z;
+  float err_dxdz;
+  float err_dydz;
+  float width_x;
+  float width_y;
+  float sigma_z;
+  float err_width_x;
+  float err_width_y;
+  float err_sigma_z;
+  float Size[] = new float[3];
+  float Centroid[] = new float[3];
+  float Tilt[] = new float[2];
 
   boolean keepRunning;
   Random random = new Random((long)0xadeadcdf);
@@ -50,9 +56,15 @@ implements Runnable,DipPublicationErrorHandler
     try
     {
       dip = Dip.create("CmsBeamSpot_"+now.getTime());
-      System.out.println("Making publication " + subject);
-      publication = dip.createDipPublication(subject, this);
-      message = dip.createDipData();
+
+      System.out.println("Making publication " + subjectCMS);
+      publicationCMS = dip.createDipPublication(subjectCMS, this);
+      messageCMS = dip.createDipData();
+
+      System.out.println("Making publication " + subjectLHC);
+      publicationLHC = dip.createDipPublication(subjectLHC, this);
+      messageLHC = dip.createDipData();
+
       keepRunning = true;
     }
     catch ( DipException e )
@@ -63,45 +75,60 @@ implements Runnable,DipPublicationErrorHandler
     {
       while (keepRunning)
       {
-	x = ( random.nextGaussian() + 3.67 );
-	y = ( random.nextGaussian() - 1.23 );
-	z = ( random.nextGaussian() + 9.3456 );
+	x = (float)( random.nextGaussian() + 3.67 );
+	y = (float)( random.nextGaussian() - 1.23 );
+	z = (float)( random.nextGaussian() + 9.3456 );
+	Centroid[0] = x;
+	Centroid[1] = y;
+	Centroid[2] = z;
 
-	err_x = Math.abs( random.nextGaussian() * 0.10 );
-	err_y = Math.abs( random.nextGaussian() * 0.13 );
-	err_z = Math.abs( random.nextGaussian() * 0.18 );
+	err_x = (float)Math.abs( random.nextGaussian() * 0.10 );
+	err_y = (float)Math.abs( random.nextGaussian() * 0.13 );
+	err_z = (float)Math.abs( random.nextGaussian() * 0.18 );
 
-	width_x = Math.abs( random.nextGaussian() * 0.98 );
-	width_y = Math.abs( random.nextGaussian() * 1.20 );
-	sigma_z = Math.abs( random.nextGaussian() * 35.06 );
+	width_x = (float)Math.abs( random.nextGaussian() * 0.98 );
+	width_y = (float)Math.abs( random.nextGaussian() * 1.20 );
+	sigma_z = (float)Math.abs( random.nextGaussian() * 35.06 );
+	Size[0] = width_x;
+	Size[1] = width_y;
+	Size[2] = sigma_z;
 
-	err_width_x = Math.abs( random.nextGaussian() * 0.42 );
-	err_width_y = Math.abs( random.nextGaussian() * 0.56 );
-	err_sigma_z = Math.abs( random.nextGaussian() * 0.89 );
+	err_width_x = (float)Math.abs( random.nextGaussian() * 0.42 );
+	err_width_y = (float)Math.abs( random.nextGaussian() * 0.56 );
+	err_sigma_z = (float)Math.abs( random.nextGaussian() * 0.89 );
 
-	dxdz = ( random.nextGaussian() - 4.0);
-	dydz = ( random.nextGaussian() - 5.0);
-	err_dxdz = Math.abs( random.nextGaussian() *0.59);
-	err_dydz = Math.abs( random.nextGaussian() *0.33);
+	dxdz = (float)( random.nextGaussian() - 4.0);
+	dydz = (float)( random.nextGaussian() - 5.0);
+	Tilt[0] = dxdz;
+	Tilt[1] = dydz;
 
-	message.insert("x",x);
-	message.insert("y",y);
-	message.insert("z",z);
-	message.insert("err_x",err_x);
-	message.insert("err_y",err_y);
-	message.insert("err_z",err_z);
-	message.insert("dxdz",dxdz);
-	message.insert("dydz",dydz);
-	message.insert("err_dxdz",err_dxdz);
-	message.insert("err_dydz",err_dydz);
-	message.insert("width_x",width_x);
-	message.insert("width_y",width_y);
-	message.insert("sigma_z",sigma_z);
-	message.insert("err_width_x",err_width_x);
-	message.insert("err_width_y",err_width_y);
-	message.insert("err_sigma_z",err_sigma_z);
+	err_dxdz = (float)Math.abs( random.nextGaussian() *0.59);
+	err_dydz = (float)Math.abs( random.nextGaussian() *0.33);
 
-	publication.send(message,new DipTimestamp());
+	messageCMS.insert("x",x);
+	messageCMS.insert("y",y);
+	messageCMS.insert("z",z);
+	messageCMS.insert("err_x",err_x);
+	messageCMS.insert("err_y",err_y);
+	messageCMS.insert("err_z",err_z);
+	messageCMS.insert("dxdz",dxdz);
+	messageCMS.insert("dydz",dydz);
+	messageCMS.insert("err_dxdz",err_dxdz);
+	messageCMS.insert("err_dydz",err_dydz);
+	messageCMS.insert("width_x",width_x);
+	messageCMS.insert("width_y",width_y);
+	messageCMS.insert("sigma_z",sigma_z);
+	messageCMS.insert("err_width_x",err_width_x);
+	messageCMS.insert("err_width_y",err_width_y);
+	messageCMS.insert("err_sigma_z",err_sigma_z);
+
+	messageLHC.insert("Size",Size);
+	messageLHC.insert("Centroid",Centroid);
+	messageLHC.insert("Tilt",Tilt);
+
+	DipTimestamp zeit = new DipTimestamp();
+	publicationCMS.send(messageCMS, zeit);
+	publicationLHC.send(messageLHC, zeit);
 	try { Thread.sleep(5000); }
 	catch(InterruptedException e)
 	{
