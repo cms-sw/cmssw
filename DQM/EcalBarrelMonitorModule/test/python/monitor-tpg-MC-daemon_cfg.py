@@ -131,6 +131,8 @@ process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorModule.runType = 13 # PHYSICS_GLOBAL
 
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+
 process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
