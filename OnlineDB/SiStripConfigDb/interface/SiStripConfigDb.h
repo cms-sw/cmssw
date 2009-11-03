@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.76 2009/04/03 16:11:53 lowette Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.77 2009/04/06 16:57:28 lowette Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-//#define USING_DATABASE_MASKING
+#define USING_DATABASE_MASKING
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -79,6 +79,7 @@ class SiStripConfigDb {
   friend class SiStripCondObjBuilderFromDb;
   friend class SiStripPsuDetIdMap;
   
+  
   // Commissioning clients
   friend class SiStripCommissioningDbClient;
   friend class SiStripCommissioningOfflineDbClient;
@@ -88,6 +89,7 @@ class SiStripConfigDb {
   friend class ApvTimingHistosUsingDb;
   friend class OptoScanHistosUsingDb;
   friend class PedestalsHistosUsingDb;
+  friend class PedsFullNoiseHistosUsingDb;
   friend class PedsOnlyHistosUsingDb;
   friend class NoiseHistosUsingDb;
   friend class VpspScanHistosUsingDb;
