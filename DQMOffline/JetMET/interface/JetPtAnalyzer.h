@@ -49,22 +49,12 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
 
   /// Get the analysis
-    //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&,
-    //	       const reco::CaloJet& caloJet);
   void analyze(const edm::Event&, const edm::EventSetup&, 
-	       const reco::CaloJet& caloJet);
+	       const reco::CaloJetCollection& caloJets);
 
   void setSource(std::string source) {
     _source = source;
   }
-
-   void setNJets(int njets) {
-    _NJets = njets;
-  }
-  int getNJets() {
-    return  _NJets;
-  }
-
 
  private:
   // ----------member data ---------------------------
@@ -91,8 +81,6 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   int    ptBin;
   double ptMin;
   double ptMax;
-
-  int   _NJets;
 
   //the histos
   MonitorElement* jetME;

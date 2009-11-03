@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2009/06/30 13:48:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/21 12:50:03 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -54,10 +54,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   void endJob();
 
   /// Get the analysis
-    //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&,
-    //	       const reco::CaloJet& caloJet);
   void analyze(const edm::Event&, const edm::EventSetup&, 
-	       const reco::CaloJet& caloJet);
+	       const reco::CaloJetCollection& caloJets);
 
   void setSource(std::string source) {
     _source = source;
@@ -69,12 +67,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   int getLeadJetFlag() {
     return  _leadJetFlag;
   }
-  void setNJets(int njets) {
-    _NJets = njets;
-  }
-  int getNJets() {
-    return  _NJets;
-  }
   void setJetLoPass(int pass) {
     _JetLoPass = pass;
   }
@@ -82,13 +74,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   void setJetHiPass(int pass) {
     _JetHiPass = pass;
   }
-  void setDPhi(double dphi) {
-    _DPhi = dphi;
-  }
-  double getDPhi() {
-    return  _DPhi;
-  }
-
 
  private:
   // ----------member data ---------------------------
@@ -103,12 +88,11 @@ class JetAnalyzer : public JetAnalyzerBase {
   int   _JetLoPass;
   int   _JetHiPass;
   int   _leadJetFlag;
-  int   _NJets;
+  int _theend;
   double _ptThreshold;
   double _fHPDMax;
   double _resEMFMin;
   int _n90HitsMin;
-  double _DPhi;
 
   //histo binning parameters
   int    etaBin;

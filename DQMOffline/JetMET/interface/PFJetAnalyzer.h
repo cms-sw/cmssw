@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2009/06/30 13:48:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/21 12:50:03 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -40,25 +40,13 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJet& jet);
+  void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);
   //
   void setLeadJetFlag(int flag) {
     _leadJetFlag = flag;
   }
   int getLeadJetFlag() {
     return  _leadJetFlag;
-  }
-  void setNJets(int njets) {
-    _NJets = njets;
-  }
-  int getNJets() {
-    return  _NJets;
-  }
-  void setDPhi(double dphi) {
-    _DPhi = dphi;
-  }
-  double getDPhi() {
-    return  _DPhi;
   }
   void setJetLoPass(int pass) {
     _JetLoPass = pass;
@@ -75,7 +63,6 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   int   _JetLoPass;
   int   _JetHiPass;
   int   _leadJetFlag;
-  int   _NJets;
   double _ptThreshold;
   //histo binning parameters
   int    etaBin;
@@ -97,8 +84,6 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   int    pBin;
   double pMin;
   double pMax;
-
-  double _DPhi;
 
   //the histos
   MonitorElement* jetME;

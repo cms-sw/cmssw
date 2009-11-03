@@ -43,7 +43,8 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #    '/store/relval/CMSSW_3_2_0/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0004/F4C12FBD-2575-DE11-8D8A-001D09F24600.root'
-     '/store/relval/CMSSW_3_2_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0004/B6202E91-2375-DE11-A8FE-000423D98804.root'
+   #  '/store/relval/CMSSW_3_2_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0004/B6202E91-2375-DE11-A8FE-000423D98804.root'
+    '/store/relval/CMSSW_3_4_0_pre1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/2C8CD8FE-B6B5-DE11-ACB8-001D09F2905B.root'
 #       '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/056/591/F2F1483E-416F-DD11-A270-001617E30CE8.root',
 #       '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/057/313/4214986A-196D-DD11-BED7-000423D992DC.root',
 #       '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/057/381/0A45CF4D-336D-DD11-A6EA-000423D6CAF2.root',

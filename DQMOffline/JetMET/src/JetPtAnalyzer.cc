@@ -62,7 +62,7 @@ void JetPtAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mEta                     = dbe->book2D("EtaVsPt", "EtaVsPt",ptBin, ptMin, ptMax, etaBin, etaMin, etaMax);
   mPhi                     = dbe->book2D("PhiVsPt", "PhiVsPt",ptBin, ptMin, ptMax, phiBin, phiMin, phiMax);
   mConstituents            = dbe->book2D("ConstituentsVsPt", "# of ConstituentsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
-  mNJets                   = dbe->book2D("NJetsVsPt", "Number of JetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+  //  mNJets                   = dbe->book2D("NJetsVsPt", "Number of JetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
 
 
 
@@ -87,36 +87,40 @@ void JetPtAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
 // ***********************************************************
 void JetPtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			  const reco::CaloJet& jet) {
-
+			  const reco::CaloJetCollection& caloJets) {
+  //  int numofjets=0;
   LogTrace(jetname)<<"[JetPtAnalyzer] Analyze Calo Jet";
 
-
+  for (reco::CaloJetCollection::const_iterator jet = caloJets.begin(); jet!=caloJets.end(); ++jet){
   //-----------------------------
   jetME->Fill(1);
 
-  if (mEta)  mEta->Fill (jet.pt(),jet.eta());
-  if (mPhi)  mPhi->Fill (jet.pt(),jet.phi());
+  /*  if (jet == caloJets.begin()) {
+    numofjets=caloJets.size();
+    }*/
 
-  if (mNJets)    mNJets->Fill (jet.pt(),_NJets);
-  if (mConstituents) mConstituents->Fill (jet.pt(),jet.nConstituents());
-  if (mHFrac)        mHFrac->Fill (jet.pt(),jet.energyFractionHadronic());
-  if (mEFrac)        mEFrac->Fill (jet.pt(),jet.emEnergyFraction());
+  if (mEta)  mEta->Fill (jet->pt(),jet->eta());
+  if (mPhi)  mPhi->Fill (jet->pt(),jet->phi());
+
+  //  if (mNJets)    mNJets->Fill (jet->pt(),numofjets);
+  if (mConstituents) mConstituents->Fill (jet->pt(),jet->nConstituents());
+  if (mHFrac)        mHFrac->Fill (jet->pt(),jet->energyFractionHadronic());
+  if (mEFrac)        mEFrac->Fill (jet->pt(),jet->emEnergyFraction());
 
  
-  if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill (jet.pt(),jet.maxEInEmTowers());
-  if (mMaxEInHadTowers) mMaxEInHadTowers->Fill (jet.pt(),jet.maxEInHadTowers());
+  if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill (jet->pt(),jet->maxEInEmTowers());
+  if (mMaxEInHadTowers) mMaxEInHadTowers->Fill (jet->pt(),jet->maxEInHadTowers());
 
-  if (mHadEnergyInHO)   mHadEnergyInHO->Fill (jet.pt(),jet.hadEnergyInHO());
-  if (mHadEnergyInHB)   mHadEnergyInHB->Fill (jet.pt(),jet.hadEnergyInHB());
-  if (mHadEnergyInHF)   mHadEnergyInHF->Fill (jet.pt(),jet.hadEnergyInHF());
-  if (mHadEnergyInHE)   mHadEnergyInHE->Fill (jet.pt(),jet.hadEnergyInHE());
-  if (mEmEnergyInEB)    mEmEnergyInEB->Fill (jet.pt(),jet.emEnergyInEB());
-  if (mEmEnergyInEE)    mEmEnergyInEE->Fill (jet.pt(),jet.emEnergyInEE());
-  if (mEmEnergyInHF)    mEmEnergyInHF->Fill (jet.pt(),jet.emEnergyInHF());
+  if (mHadEnergyInHO)   mHadEnergyInHO->Fill (jet->pt(),jet->hadEnergyInHO());
+  if (mHadEnergyInHB)   mHadEnergyInHB->Fill (jet->pt(),jet->hadEnergyInHB());
+  if (mHadEnergyInHF)   mHadEnergyInHF->Fill (jet->pt(),jet->hadEnergyInHF());
+  if (mHadEnergyInHE)   mHadEnergyInHE->Fill (jet->pt(),jet->hadEnergyInHE());
+  if (mEmEnergyInEB)    mEmEnergyInEB->Fill (jet->pt(),jet->emEnergyInEB());
+  if (mEmEnergyInEE)    mEmEnergyInEE->Fill (jet->pt(),jet->emEnergyInEE());
+  if (mEmEnergyInHF)    mEmEnergyInHF->Fill (jet->pt(),jet->emEnergyInHF());
 
-  if (mN90)             mN90->Fill (jet.pt(),jet.n90());  
+  if (mN90)             mN90->Fill (jet->pt(),jet->n90());  
 
-
+  }
 
 }

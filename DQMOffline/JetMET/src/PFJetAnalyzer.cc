@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/30 13:40:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/21 12:50:03 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -22,7 +22,6 @@ PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
   _leadJetFlag = 0;
-  _NJets       = 0;
   _JetLoPass   = 0;
   _JetHiPass   = 0;
   _ptThreshold = 5.;
@@ -168,126 +167,158 @@ void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   
 }
 
-void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::PFJet& jet) {
+void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::PFJetCollection& pfJets) {
 
+  int numofjets=0;
+  double  fstPhi=0.;
+  double  sndPhi=0.;
+  double  diff = 0.;
+  double  corr = 0.;
+  double  dphi = -999. ;
+
+
+
+  for (reco::PFJetCollection::const_iterator jet = pfJets.begin(); jet!=pfJets.end(); ++jet){
   LogTrace(metname)<<"[JetAnalyzer] Analyze PFJet";
 
-  if (jet.pt() < _ptThreshold) return;
+  cout<< "we have pf jets.."<< endl;
 
-  jetME->Fill(2);
+  if (jet == pfJets.begin()) {
+    fstPhi = jet->phi();
+    _leadJetFlag = 1;
+  } else {
+    _leadJetFlag = 0;
+  }
+  if (jet == (pfJets.begin()+1)) sndPhi = jet->phi();
+  //  if (jet->pt() < _ptThreshold) return;
+  if (jet->pt() > _ptThreshold) {
+
+    numofjets++ ;
+    jetME->Fill(2);
 
   // Leading jet
   // Histograms are filled once per event
   if (_leadJetFlag == 1) { 
 
-    if (mEtaFirst) mEtaFirst->Fill (jet.eta());
-    if (mPhiFirst) mPhiFirst->Fill (jet.phi());
-    if (mEFirst)   mEFirst->Fill (jet.energy());
-    if (mPtFirst)  mPtFirst->Fill (jet.pt());
-    if (mNJets)    mNJets->Fill (_NJets);
+    if (mEtaFirst) mEtaFirst->Fill (jet->eta());
+    if (mPhiFirst) mPhiFirst->Fill (jet->phi());
+    if (mEFirst)   mEFirst->Fill (jet->energy());
+    if (mPtFirst)  mPtFirst->Fill (jet->pt());
   }
 
   // --- Passed the low pt jet trigger
   if (_JetLoPass == 1) {
-    if (fabs(jet.eta()) <= 1.3) {
-      if (mPt_Barrel_Lo)           mPt_Barrel_Lo->Fill(jet.pt());
-      if (mEta_Barrel_Lo)          mEta_Barrel_Lo->Fill(jet.eta());
-      if (mPhi_Barrel_Lo)          mPhi_Barrel_Lo->Fill(jet.phi());
-      if (mConstituents_Barrel_Lo) mConstituents_Barrel_Lo->Fill(jet.nConstituents());	
-      if (mHFrac_Barrel_Lo)        mHFrac_Barrel_Lo->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction() );	
+    if (fabs(jet->eta()) <= 1.3) {
+      if (mPt_Barrel_Lo)           mPt_Barrel_Lo->Fill(jet->pt());
+      if (mEta_Barrel_Lo)          mEta_Barrel_Lo->Fill(jet->eta());
+      if (mPhi_Barrel_Lo)          mPhi_Barrel_Lo->Fill(jet->phi());
+      if (mConstituents_Barrel_Lo) mConstituents_Barrel_Lo->Fill(jet->nConstituents());	
+      if (mHFrac_Barrel_Lo)        mHFrac_Barrel_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction() );	
     }
-    if ( (fabs(jet.eta()) > 1.3) && (fabs(jet.eta()) <= 3) ) {
-      if (mPt_EndCap_Lo)           mPt_EndCap_Lo->Fill(jet.pt());
-      if (mEta_EndCap_Lo)          mEta_EndCap_Lo->Fill(jet.eta());
-      if (mPhi_EndCap_Lo)          mPhi_EndCap_Lo->Fill(jet.phi());
-      if (mConstituents_EndCap_Lo) mConstituents_EndCap_Lo->Fill(jet.nConstituents());	
-      if (mHFrac_EndCap_Lo)        mHFrac_EndCap_Lo->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());	
+    if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
+      if (mPt_EndCap_Lo)           mPt_EndCap_Lo->Fill(jet->pt());
+      if (mEta_EndCap_Lo)          mEta_EndCap_Lo->Fill(jet->eta());
+      if (mPhi_EndCap_Lo)          mPhi_EndCap_Lo->Fill(jet->phi());
+      if (mConstituents_EndCap_Lo) mConstituents_EndCap_Lo->Fill(jet->nConstituents());	
+      if (mHFrac_EndCap_Lo)        mHFrac_EndCap_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
     }
-    if (fabs(jet.eta()) > 3.0) {
-      if (mPt_Forward_Lo)           mPt_Forward_Lo->Fill(jet.pt());
-      if (mEta_Forward_Lo)          mEta_Forward_Lo->Fill(jet.eta());
-      if (mPhi_Forward_Lo)          mPhi_Forward_Lo->Fill(jet.phi());
-      if (mConstituents_Forward_Lo) mConstituents_Forward_Lo->Fill(jet.nConstituents());	
-      if (mHFrac_Forward_Lo)        mHFrac_Forward_Lo->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());	
+    if (fabs(jet->eta()) > 3.0) {
+      if (mPt_Forward_Lo)           mPt_Forward_Lo->Fill(jet->pt());
+      if (mEta_Forward_Lo)          mEta_Forward_Lo->Fill(jet->eta());
+      if (mPhi_Forward_Lo)          mPhi_Forward_Lo->Fill(jet->phi());
+      if (mConstituents_Forward_Lo) mConstituents_Forward_Lo->Fill(jet->nConstituents());	
+      if (mHFrac_Forward_Lo)        mHFrac_Forward_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
     }
-    if (mEta_Lo) mEta_Lo->Fill (jet.eta());
-    if (mPhi_Lo) mPhi_Lo->Fill (jet.phi());
-    if (mPt_Lo)  mPt_Lo->Fill (jet.pt());
+    if (mEta_Lo) mEta_Lo->Fill (jet->eta());
+    if (mPhi_Lo) mPhi_Lo->Fill (jet->phi());
+    if (mPt_Lo)  mPt_Lo->Fill (jet->pt());
   }
   
   // --- Passed the high pt jet trigger
   if (_JetHiPass == 1) {
-    if (fabs(jet.eta()) <= 1.3) {
-      if (mPt_Barrel_Hi)           mPt_Barrel_Hi->Fill(jet.pt());
-      if (mEta_Barrel_Hi)          mEta_Barrel_Hi->Fill(jet.eta());
-      if (mPhi_Barrel_Hi)          mPhi_Barrel_Hi->Fill(jet.phi());
-      if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet.nConstituents());	
-      if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());	
+    if (fabs(jet->eta()) <= 1.3) {
+      if (mPt_Barrel_Hi)           mPt_Barrel_Hi->Fill(jet->pt());
+      if (mEta_Barrel_Hi)          mEta_Barrel_Hi->Fill(jet->eta());
+      if (mPhi_Barrel_Hi)          mPhi_Barrel_Hi->Fill(jet->phi());
+      if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet->nConstituents());	
+      if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
     }
-    if ( (fabs(jet.eta()) > 1.3) && (fabs(jet.eta()) <= 3) ) {
-      if (mPt_EndCap_Hi)           mPt_EndCap_Hi->Fill(jet.pt());
-      if (mEta_EndCap_Hi)          mEta_EndCap_Hi->Fill(jet.eta());
-      if (mPhi_EndCap_Hi)          mPhi_EndCap_Hi->Fill(jet.phi());
-      if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet.nConstituents());	
-      if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());	
+    if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
+      if (mPt_EndCap_Hi)           mPt_EndCap_Hi->Fill(jet->pt());
+      if (mEta_EndCap_Hi)          mEta_EndCap_Hi->Fill(jet->eta());
+      if (mPhi_EndCap_Hi)          mPhi_EndCap_Hi->Fill(jet->phi());
+      if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet->nConstituents());	
+      if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
     }
-    if (fabs(jet.eta()) > 3.0) {
-      if (mPt_Forward_Hi)           mPt_Forward_Hi->Fill(jet.pt());
-      if (mEta_Forward_Hi)          mEta_Forward_Hi->Fill(jet.eta());
-      if (mPhi_Forward_Hi)          mPhi_Forward_Hi->Fill(jet.phi());
-      if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet.nConstituents());	
-      if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());	
+    if (fabs(jet->eta()) > 3.0) {
+      if (mPt_Forward_Hi)           mPt_Forward_Hi->Fill(jet->pt());
+      if (mEta_Forward_Hi)          mEta_Forward_Hi->Fill(jet->eta());
+      if (mPhi_Forward_Hi)          mPhi_Forward_Hi->Fill(jet->phi());
+      if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet->nConstituents());	
+      if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
     }
     
-    if (mEta_Hi) mEta_Hi->Fill (jet.eta());
-    if (mPhi_Hi) mPhi_Hi->Fill (jet.phi());
-    if (mPt_Hi)  mPt_Hi->Fill (jet.pt());
+    if (mEta_Hi) mEta_Hi->Fill (jet->eta());
+    if (mPhi_Hi) mPhi_Hi->Fill (jet->phi());
+    if (mPt_Hi)  mPt_Hi->Fill (jet->pt());
   }
 
-  if (mPt)   mPt->Fill (jet.pt());
-  if (mPt_1) mPt_1->Fill (jet.pt());
-  if (mPt_2) mPt_2->Fill (jet.pt());
-  if (mPt_3) mPt_3->Fill (jet.pt());
-  if (mEta)  mEta->Fill (jet.eta());
-  if (mPhi)  mPhi->Fill (jet.phi());
-  if (mPhiVSEta) mPhiVSEta->Fill(jet.eta(),jet.phi());
+  if (mPt)   mPt->Fill (jet->pt());
+  if (mPt_1) mPt_1->Fill (jet->pt());
+  if (mPt_2) mPt_2->Fill (jet->pt());
+  if (mPt_3) mPt_3->Fill (jet->pt());
+  if (mEta)  mEta->Fill (jet->eta());
+  if (mPhi)  mPhi->Fill (jet->phi());
+  if (mPhiVSEta) mPhiVSEta->Fill(jet->eta(),jet->phi());
 
-  if (mConstituents) mConstituents->Fill (jet.nConstituents());
-  if (mHFrac)        mHFrac->Fill (jet.chargedHadronEnergyFraction()+jet.neutralHadronEnergyFraction());
-  if (mEFrac)        mEFrac->Fill (jet.chargedEmEnergyFraction() +jet.neutralEmEnergyFraction());
+  if (mConstituents) mConstituents->Fill (jet->nConstituents());
+  if (mHFrac)        mHFrac->Fill (jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());
+  if (mEFrac)        mEFrac->Fill (jet->chargedEmEnergyFraction() +jet->neutralEmEnergyFraction());
 
-  if (fabs(jet.eta()) <= 1.3) {
-    if (mPt_Barrel)   mPt_Barrel->Fill (jet.pt());
-    if (mPhi_Barrel)  mPhi_Barrel->Fill (jet.phi());
-    if (mE_Barrel)    mE_Barrel->Fill (jet.energy());
+  if (fabs(jet->eta()) <= 1.3) {
+    if (mPt_Barrel)   mPt_Barrel->Fill (jet->pt());
+    if (mPhi_Barrel)  mPhi_Barrel->Fill (jet->phi());
+    if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
   }
-  if ( (fabs(jet.eta()) > 1.3) && (fabs(jet.eta()) <= 3) ) {
-    if (mPt_EndCap)   mPt_EndCap->Fill (jet.pt());
-    if (mPhi_EndCap)  mPhi_EndCap->Fill (jet.phi());
-    if (mE_EndCap)    mE_EndCap->Fill (jet.energy());
+  if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
+    if (mPt_EndCap)   mPt_EndCap->Fill (jet->pt());
+    if (mPhi_EndCap)  mPhi_EndCap->Fill (jet->phi());
+    if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
   }
-  if (fabs(jet.eta()) > 3.0) {
-    if (mPt_Forward)   mPt_Forward->Fill (jet.pt());
-    if (mPhi_Forward)  mPhi_Forward->Fill (jet.phi());
-    if (mE_Forward)    mE_Forward->Fill (jet.energy());
+  if (fabs(jet->eta()) > 3.0) {
+    if (mPt_Forward)   mPt_Forward->Fill (jet->pt());
+    if (mPhi_Forward)  mPhi_Forward->Fill (jet->phi());
+    if (mE_Forward)    mE_Forward->Fill (jet->energy());
   }
 
-  if (mE)    mE->Fill (jet.energy());
-  if (mP)    mP->Fill (jet.p());
-  if (mMass) mMass->Fill (jet.mass());
+  if (mE)    mE->Fill (jet->energy());
+  if (mP)    mP->Fill (jet->p());
+  if (mMass) mMass->Fill (jet->mass());
 
 
-  if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (jet.chargedHadronEnergy());
-  if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (jet.neutralHadronEnergy());
-  if (mChargedEmEnergy) mChargedEmEnergy->Fill(jet.chargedEmEnergy());
-  if (mChargedMuEnergy) mChargedMuEnergy->Fill (jet.chargedMuEnergy ());
-  if (mNeutralEmEnergy) mNeutralEmEnergy->Fill(jet.neutralEmEnergy());
-  if (mChargedMultiplicity ) mChargedMultiplicity->Fill(jet.chargedMultiplicity());
-  if (mNeutralMultiplicity ) mNeutralMultiplicity->Fill(jet.neutralMultiplicity());
-  if (mMuonMultiplicity )mMuonMultiplicity->Fill (jet. muonMultiplicity());
+  if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (jet->chargedHadronEnergy());
+  if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (jet->neutralHadronEnergy());
+  if (mChargedEmEnergy) mChargedEmEnergy->Fill(jet->chargedEmEnergy());
+  if (mChargedMuEnergy) mChargedMuEnergy->Fill (jet->chargedMuEnergy ());
+  if (mNeutralEmEnergy) mNeutralEmEnergy->Fill(jet->neutralEmEnergy());
+  if (mChargedMultiplicity ) mChargedMultiplicity->Fill(jet->chargedMultiplicity());
+  if (mNeutralMultiplicity ) mNeutralMultiplicity->Fill(jet->neutralMultiplicity());
+  if (mMuonMultiplicity )mMuonMultiplicity->Fill (jet-> muonMultiplicity());
   //_______________________________________________________
-  if (mNeutralFraction) mNeutralFraction->Fill (jet.neutralMultiplicity()/jet.nConstituents());
+  if (mNeutralFraction) mNeutralFraction->Fill (jet->neutralMultiplicity()/jet->nConstituents());
 
-  if (mDPhi)    mDPhi->Fill (_DPhi);
-
+  //calculate correctly the dphi
+  if(numofjets>1) {
+    diff = fabs(fstPhi - sndPhi);
+    corr = 2*acos(-1.) - diff;
+    if(diff < acos(-1.)) { 
+      dphi = diff; 
+    } else { 
+      dphi = corr;
+    }
+  }
+  }
+  }
+  if (mNJets)    mNJets->Fill (numofjets);
+  if (mDPhi)    mDPhi->Fill (dphi);
 }
