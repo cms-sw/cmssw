@@ -122,10 +122,15 @@ void ESIntegrityTask::setup(void){
       meOptoBC_->setAxisTitle("ES FED", 1);
       meOptoBC_->setAxisTitle("ES OptoRX", 2);
 
-      sprintf(histo, "ES Fiber Status");
-      meFiberStatus_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 2, -0.5, 1.5);
-      meFiberStatus_->setAxisTitle("ES FED", 1);
-      meFiberStatus_->setAxisTitle("ES Fiber Status", 2);
+      sprintf(histo, "ES Fiber Bad Status");
+      meFiberBadStatus_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 36, 0.5, 36.5);
+      meFiberBadStatus_->setAxisTitle("ES FED", 1);
+      meFiberBadStatus_->setAxisTitle("Fiber Number", 2);
+
+      sprintf(histo, "ES Fiber Off");
+      meFiberOff_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 36, 0.5, 36.5);
+      meFiberOff_->setAxisTitle("ES FED", 1);
+      meFiberOff_->setAxisTitle("Fiber Number", 2);
 
       sprintf(histo, "ES KChip Flag 1 Error codes");
       meKF1_ = dqmStore_->book2D(histo, histo, 1550, -0.5, 1549.5, 16, -0.5, 15.5);
@@ -214,10 +219,12 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
        fiberStatus = dcc.getFEChannelStatus();
        
        for (unsigned int i=0; i<fiberStatus.size(); ++i) {
-	 if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
-	   meFiberStatus_->Fill(dcc.fedId(), 1);
-	 else if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	   meFiberStatus_->Fill(dcc.fedId(), 0);
+	 //if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
+	 //meFiberStatus_->Fill(dcc.fedId(), 1);
+	 if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	   meFiberBadStatus_->Fill(dcc.fedId(), i+1, 1);
+	 if (fiberStatus[i]==7) 
+	   meFiberOff_->Fill(dcc.fedId(), i+1, 1);
        }
        
        runtype_   = dcc.getRunType();

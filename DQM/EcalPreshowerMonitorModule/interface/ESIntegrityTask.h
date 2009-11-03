@@ -62,7 +62,8 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       MonitorElement* meDCCCRCErr_;
       MonitorElement* meOptoRX_;
       MonitorElement* meOptoBC_;
-      MonitorElement* meFiberStatus_;
+      MonitorElement* meFiberBadStatus_;
+      MonitorElement* meFiberOff_;
       MonitorElement* meKF1_;
       MonitorElement* meKF2_;
       MonitorElement* meKBC_;
