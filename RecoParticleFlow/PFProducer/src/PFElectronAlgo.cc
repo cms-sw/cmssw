@@ -15,7 +15,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-#include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterWidthAlgo.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include <iomanip>
 
 using namespace std;
