@@ -87,7 +87,7 @@ class MomentumScaleCorrector : public BaseFunction
 
     // Loop on all the functions and apply them iteratively on the pt corrected by the previous function.
     double pt = lorentzVector.Pt();
-    for( int i=0; i<iterationNum_; ++i ) {
+    for( int i=0; i<=iterationNum_; ++i ) {
       pt = ( scaleFunction_[i]->scale( pt, lorentzVector.Eta(), lorentzVector.Phi(), 1, parArray_[i]) );
     }
     return pt;
