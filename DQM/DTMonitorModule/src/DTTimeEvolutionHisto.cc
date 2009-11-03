@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/24 09:13:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/19 15:57:21 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -100,6 +100,7 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
 	histo->setBinContent(bin, (value + histo->getBinContent(bin+1))/2.);
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
+	histo->setBinError(bin, histo->getBinError(bin+1));
 	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1);
       }
     }
