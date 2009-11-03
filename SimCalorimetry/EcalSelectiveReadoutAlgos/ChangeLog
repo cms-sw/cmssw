@@ -1,3 +1,19 @@
+V02-03-04
+---------
+
+2009-11-03  author  <author@pcsaccms02.cern.ch>
+
+	* src/EcalSelectiveReadoutSuppressor.cc:
+	. fixed a bug introduced with V02-03-00 (rev 1.35) that was resulting in suppression of every digis
+	. restored the cout commented out by previous commit as LogDebug and LogError
+
+V02-03-03
+---------
+
+2009-10-30  author  <author@pcsaccms02.cern.ch>
+
+	* src/EcalSelectiveReadoutSuppressor.cc: Suppress debugging printout
+
 V02-03-01
 ---------
 	
