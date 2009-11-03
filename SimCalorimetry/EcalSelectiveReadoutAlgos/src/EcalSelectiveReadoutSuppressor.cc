@@ -156,11 +156,15 @@ void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest
     //srFlags[iSubDet][3 + FORCED_MASK] = FORCED_MASK | highInterestSrFlag[iSubDet];
     for(size_t i = 0; i < 8; ++i){
       srFlags[iSubDet][i] = actions_[i];
-      if(actions_[i] & ~FORCED_MASK == 0) zsThreshold[iSubDet][i] = numeric_limits<int>::min();
-      else if(actions_[i] & ~FORCED_MASK == 1) zsThreshold[iSubDet][i] = lowInterestThr[iSubDet];
-      else if(actions_[i] & ~FORCED_MASK == 2)  zsThreshold[iSubDet][i] = highInterestThr[iSubDet];
-      else zsThreshold[iSubDet][i] = numeric_limits<int>::max();
+      if((actions_[i] & ~FORCED_MASK) == 0) zsThreshold[iSubDet][i] = numeric_limits<int>::max();
+      else if((actions_[i] & ~FORCED_MASK) == 1) zsThreshold[iSubDet][i] = lowInterestThr[iSubDet];
+      else if((actions_[i] & ~FORCED_MASK) == 2)  zsThreshold[iSubDet][i] = highInterestThr[iSubDet];
+      else zsThreshold[iSubDet][i] = numeric_limits<int>::min();
     }
+
+//     for(size_t i = 0; i < 8; ++i){
+//       cout << "zsThreshold[" << iSubDet << "]["  << i << "] = " << zsThreshold[iSubDet][i] << endl;
+//     }
   }
 }
 
@@ -312,16 +316,18 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     }
   }
 
-//   if(ievt_ <= 10){
-//     if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
-//                                  << "Number of EB digis passing the SR: "
-//                                  << selectedBarrelDigis->size()
-//                                  << " / " << barrelDigis.size() << "\n";
-//     if(selectedEndcapDigis) cout << __FILE__ << ":" << __LINE__ << ": "
-//                                  << "\nNumber of EE digis passing the SR: "
-//                                  << selectedEndcapDigis->size()
-//                                  << " / " << endcapDigis.size() << "\n";
-//   }
+   if(ievt_ <= 10){
+     if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
+			       //       << __FILE__ << ":" << __LINE__ << ": "
+       << "Number of EB digis passing the SR: "
+       << selectedBarrelDigis->size()
+       << " / " << barrelDigis.size() << "\n";
+     if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
+			       //       << __FILE__ << ":" << __LINE__ << ": "
+       << "\nNumber of EE digis passing the SR: "
+       << selectedEndcapDigis->size()
+       << " / " << endcapDigis.size() << "\n";
+   }
   
   if(ebSrFlags) ebSrFlags->reserve(34*72);
   if(eeSrFlags) eeSrFlags->reserve(624);
@@ -370,9 +376,9 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	  //}
 	  if(eeSrFlags) eeSrFlags->push_back(EESrFlag(id, flag));
 	} else  if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
-      //	  cout << __FILE__ << ":" << __LINE__ << ": "
-      //	       <<  "negative interest in EE for SC "
-      //	       << id << "\n";
+      	  edm::LogError("EcalSelectiveReadout") << __FILE__ << ":" << __LINE__ << ": "
+						<<  "negative interest in EE for SC "
+						<< id << "\n";
 	}
       } //next iY
     } //next iX
