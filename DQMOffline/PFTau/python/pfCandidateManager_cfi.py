@@ -7,5 +7,5 @@ pfCandidateManager = cms.EDAnalyzer("PFCandidateManagerAnalyzer",
                                     dRMax = cms.double( 0.2 ),
                                     matchCharge = cms.bool( True ), 
                                     mode = cms.int32( 1 ),
-                                    BenchmarkLabel = cms.string('particleFlowMatch')
+                                    BenchmarkLabel = cms.string('particleFlowManager')
                                     )

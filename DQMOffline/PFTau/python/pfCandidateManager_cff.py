@@ -6,6 +6,6 @@ from DQMOffline.PFTau.pfCandidateManager_cfi import pfCandidateManager
 
 # could create one benchmark / particle type
 
-pfCandidateBenchmarkSequence = cms.Sequence(
+pfCandidateManagerSequence = cms.Sequence(
     pfCandidateManager
     )
