@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.61 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.62 2009/10/26 21:19:25 dmytro Exp $
 //
 
 // system include files
@@ -24,8 +24,6 @@
 #define private public
 #include "TGLOrthoCamera.h"
 #undef private
-
-#include "TEveLegoEventHandler.h"
 
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
@@ -60,6 +58,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 
 //
@@ -97,6 +96,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)ev->GetGLWidget(), (TObject*)ev);
    ev->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
@@ -106,6 +106,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    nv->AddScene(ns);
    m_viewer.reset(nv);
    gEve->AddElement(nv, gEve->GetViewers());
+
 
    if (list->HasChildren())
    {
@@ -286,6 +287,11 @@ const std::string&
 FWEveLegoView::typeName() const
 {
    return staticTypeName();
+}
+
+FWViewContextMenuHandlerBase* 
+FWEveLegoView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
 }
 
 void

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.20 2009/10/04 19:26:29 amraktad Exp $
+// $Id: FW3DView.cc,v 1.21 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -63,6 +63,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -107,6 +108,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
    
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
@@ -116,6 +118,10 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
            dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
       m_cameraFOV = &(camera->fFOV);
 
+   m_viewer=nv;
+   gEve->GetViewers()->AddElement(nv);
+
+   //scenes
    m_scene = gEve->SpawnNewScene(staticTypeName().c_str());
    nv->AddScene(m_scene);
 
@@ -123,8 +129,6 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    nv->AddScene(m_detectorScene);
    m_detectorScene->GetGLScene()->SetSelectable(kFALSE);
 
-   m_viewer=nv;
-   gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,m_scene);
    gEve->AddToListTree(list, kTRUE);
 
@@ -507,6 +511,10 @@ FW3DView::setTransparency( )
 }
 
 //______________________________________________________________________________
+FWViewContextMenuHandlerBase* 
+FW3DView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+}
 
 void
 FW3DView::setBackgroundColor(Color_t iColor)
