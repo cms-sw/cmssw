@@ -94,11 +94,14 @@ process = cms.Process("ECALDQM")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
-import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
-
 import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
+
+import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
+process.ecalUncalibHit1 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
+
+import RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi
+process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi.ecalMaxSampleUncalibRecHit.clone()
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
@@ -332,7 +335,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.preScaler.prescaleFactor = 1
 #process.preScaler.prescaleFactor = 10
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit2*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit1*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
@@ -344,13 +347,16 @@ process.r = cms.EndPath(process.dqmInfoEB*process.dqmInfoEE*process.ecalBarrelCo
 
 process.ecalEBunpacker.silentMode = False
 
-process.ecalUncalibHit2.MinAmplBarrel = 12.
-process.ecalUncalibHit2.MinAmplEndcap = 16.
-process.ecalUncalibHit2.EBdigiCollection = 'ecalEBunpacker:ebDigis'
-process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
-
 process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+
+process.ecalUncalibHit1.MinAmplBarrel = 12.
+process.ecalUncalibHit1.MinAmplEndcap = 16.
+process.ecalUncalibHit1.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHit1.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+
+process.ecalUncalibHit2.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
