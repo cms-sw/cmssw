@@ -120,8 +120,6 @@ process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
-
 process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorModule.runType = 3
