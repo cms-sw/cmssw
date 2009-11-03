@@ -10,7 +10,7 @@
 
 #from pluginCondDBPyInterface import *
 from CondCore.Utilities import iovInspector as inspect
-from ROOT import TCanvas,TH1F, TH2F, gStyle, TChain, TTree
+from ROOT import TCanvas,TH1F, TH2F, gStyle, TChain, TTree, TLegend, TFile
 import EcalPyUtils
 import sys
 from math import sqrt
@@ -115,12 +115,14 @@ def compare(tag1,db1,since1,
       coeff_2_b,coeff_2_e = EcalPyUtils.fromXML(tag2)
 
   gStyle.SetPalette(1)    
- 
+
+  savefile = TFile(filename,"RECREATE")
 
   ebhisto,ebmap, profx, profy= compareBarrel(coeff_1_b,coeff_2_b)
   eephisto,eepmap,eemhisto,eemmap=compareEndcap(coeff_1_e,coeff_2_e)
 
 #make more canvas
+
 
 
   diff_distro_can = TCanvas("EBdiff","EBdiff")
@@ -135,7 +137,7 @@ def compare(tag1,db1,since1,
   diff_distro_can.cd(4)
   profy.Draw()
 
-  diff_distro_can.SaveAs(filename)
+#  diff_distro_can.SaveAs(filename)
 
   c2 = TCanvas("EEdiff","EEdiff")
   c2.Divide(2,2)
@@ -151,7 +153,7 @@ def compare(tag1,db1,since1,
 
   EEfilename = "EE_"+filename
 
-  c2.SaveAs(EEfilename)
+#  c2.SaveAs(EEfilename)
 
 
 
@@ -177,9 +179,9 @@ def compare(tag1,db1,since1,
   bordersfilename = "borders_"+filename
   prof_filename = "profiles_"+filename
   
-  border_diff_distro_can.SaveAs(bordersfilename)
+#  border_diff_distro_can.SaveAs(bordersfilename)
 
-
+  savefile.Write()
 
 
 
@@ -213,8 +215,12 @@ def histo (db, tag,since,filename='histo.root'):
     else :
         coeff_barl,coeff_endc=EcalPyUtils.fromXML(tag)
 
+
+    savefile = TFile(filename,"RECREATE")
+
     ebmap, ebeta, ebphi, eePmap, ebdist, eeMmap, prof_eePL, prof_eePR, prof_eeML, prof_eeMR, ebBorderdist = makedist(coeff_barl, coeff_endc)
-    
+
+
 
     gStyle.SetPalette(1)
 
@@ -230,7 +236,7 @@ def histo (db, tag,since,filename='histo.root'):
     c.cd(4)
     eeMmap.Draw("colz")
 
-    c.SaveAs(filename)
+#    c.SaveAs(filename)
 
     prof_eb_eta = ebeta.ProfileX()
     prof_eb_phi = ebphi.ProfileX()
@@ -238,24 +244,36 @@ def histo (db, tag,since,filename='histo.root'):
     c2 = TCanvas("CCprofiles")
     c2.Divide(2,2)
 
+    leg = TLegend(0.1,0.7,0.48,0.9)
+
     c2.cd(1)
     prof_eb_eta.Draw()
     c2.cd(2)
     prof_eb_phi.Draw()
     c2.cd(3)
+    prof_eePL.SetMarkerStyle(8)
     prof_eePL.Draw()
+    prof_eePR.SetMarkerStyle(8)
     prof_eePR.SetMarkerColor(2)
     prof_eePR.Draw("same")
+    prof_eeML.SetMarkerStyle(8)
     prof_eeML.SetMarkerColor(3)
     prof_eeML.Draw("same")
+    prof_eeMR.SetMarkerStyle(8)
     prof_eeMR.SetMarkerColor(5)
     prof_eeMR.Draw("same")
+    leg.AddEntry(prof_eePL,"Dee1","lp")
+    leg.AddEntry(prof_eePR,"Dee2","lp")
+    leg.AddEntry(prof_eeMR,"Dee3","lp")
+    leg.AddEntry(prof_eeML,"Dee4","lp")
+    leg.Draw()
     c2.cd(4)
     ebBorderdist.Draw()
 
     extrafilename = "profiles_"+filename
-    c2.SaveAs(extrafilename)
-          
+ #   c2.SaveAs(extrafilename)
+
+    savefile.Write()      
 
 
 def getToken(db,tag,since):
@@ -294,7 +312,7 @@ def getObject(db,tag,since):
 
 def makedist(coeff_barl, coeff_endc) :
 
-    ebmap = TH2F("EB","EB",171, -85,86,360,1,361)
+    ebmap = TH2F("EB","EB",360,1,261,171, -85,86)
     eePmap = TH2F("EE","EE",100, 1,101,100,1,101)
     eeMmap = TH2F("EEminus","EEminus",100,1,101,100,1,101)
     ebdist = TH1F("EBdist","EBdist",100,-2,2)
@@ -303,14 +321,14 @@ def makedist(coeff_barl, coeff_endc) :
     ebeta = TH2F("ebeta","ebeta",171,-85,86,100,-2,2)
     ebphi = TH2F("ebphi","ebphi",360,1,361,100,-2,2)
 
-    eePL = TH2F("EEPL","EEPL",50,10,55,100,-2,2)
-    eePR = TH2F("EEPR","EEPR",50,10,55,100,-2,2)
-    eeML = TH2F("EEML","EEML",50,10,55,100,-2,2)
-    eeMR = TH2F("EEMR","EEMR",50,10,55,100,-2,2)
+    eePL = TH2F("EEPL","EEPlus Left",50,10,55,100,-2,2)
+    eePR = TH2F("EEPR","EEPlus Right",50,10,55,100,-2,2)
+    eeML = TH2F("EEML","EEMinus Left",50,10,55,100,-2,2)
+    eeMR = TH2F("EEMR","EEMinus Right",50,10,55,100,-2,2)
     
     for i,c in enumerate(coeff_barl):
         ieta,iphi = EcalPyUtils.unhashEBIndex(i)
-        ebmap.Fill(ieta,iphi,c)
+        ebmap.Fill(iphi,ieta,c)
         ebdist.Fill(c)
         ebeta.Fill(ieta,c)
         ebphi.Fill(iphi,c)
@@ -348,7 +366,7 @@ def compareBarrel(coeff_barl_1,coeff_barl_2) :
   '''Return an histogram and a map of the differences '''
 
   diff_distro_h   = TH1F("diffh","diffh",100,-2,2)
-  diff_distro_m   = TH2F("diffm","diffm",171,-85,86,360,1,361)
+  diff_distro_m   = TH2F("diffm","diffm",360,1,361,171,-85,86)
   diff_distro_m.SetStats(0)
   ebeta = TH2F("ebeta","ebeta",171,-85,86,100,-2,2)
   ebphi = TH2F("ebphi","ebphi",360,1,361,100,-2,2)
@@ -358,7 +376,7 @@ def compareBarrel(coeff_barl_1,coeff_barl_2) :
       diff = c - coeff_barl_2[i]      
       ieta,iphi= EcalPyUtils.unhashEBIndex(i)
       diff_distro_h.Fill(diff) 
-      diff_distro_m.Fill(ieta,iphi,diff)
+      diff_distro_m.Fill(iphi,ieta,diff)
       ebeta.Fill(ieta,diff)
       ebphi.Fill(iphi,diff)
 
@@ -373,7 +391,7 @@ def compareBarrelBorder(coeff_barl_1,coeff_barl_2) :
   '''Return an histogram and a map of the differences '''
 
   diff_distro_border_h   = TH1F("diffborderh","diffh",100,-2,2)
-  diff_distro_border_m   = TH2F("diffborderm","diffm",171,-85,86,360,1,361)
+  diff_distro_border_m   = TH2F("diffborderm","diffm",360,1,361,171,-85,86)
   diff_distro_border_m.SetStats(0)
   
   for i,c in enumerate(coeff_barl_1):  
@@ -382,7 +400,7 @@ def compareBarrelBorder(coeff_barl_1,coeff_barl_2) :
       if (abs(ieta)==85 or abs(ieta)==65 or abs(ieta)==64 or abs(ieta)==45 or abs(ieta)==44 or abs(ieta)==25 or abs(ieta)==24 or abs(ieta)==1 or iphi%20==1 or iphi%20==0):
           diff_distro_border_h.Fill(diff) 
       if (abs(ieta)==85 or abs(ieta)==65 or abs(ieta)==64 or abs(ieta)==45 or abs(ieta)==44 or abs(ieta)==25 or abs(ieta)==24 or abs(ieta)==1 or iphi%20==0 or iphi%20==1): 
-          diff_distro_border_m.Fill(ieta,iphi,diff)
+          diff_distro_border_m.Fill(iphi,ieta,diff)
           
   return diff_distro_border_h, diff_distro_border_m 
 
