@@ -133,6 +133,144 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, Mod
   Draw(hb,ha,mode);
 }
 
+Double_t fitFunction_f(Double_t *x, Double_t *par)
+{
+  const Double_t value=sqrt(par[0]*par[0]+par[1]*par[1]*(x[0]-par[3])+par[2]*par[2]*(x[0]-par[3])*(x[0]-par[3]))/x[0];
+  return value;
+}
+
+void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, const int binxmin,
+				     const int binxmax, const bool cst_binning, Mode mode)
+{
+
+  if (!cst_binning)
+  {
+    std::cout << "non constant binning not yet implemented, sorry." << std::endl;
+    std::cout << "Constant binning will be used." << std::endl;
+  }
+
+  TDirectory* dir = dir1_;
+  dir->cd();
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2, binxmin, binxmax, rebinFactor);
+  TH1D* hrms=TH2Ana.RMS();
+  TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",fitFunction_f,binxmin,binxmax,4);
+  fitfcndgssrms3->SetNpx(500);
+  fitfcndgssrms3->SetLineWidth(3);
+  fitfcndgssrms3->SetLineStyle(2);
+  fitfcndgssrms3->SetLineColor(4);
+  hrms->Fit("fitfcndgssrms3","0R");
+
+  TH1D* ha=TH2Ana.SigmaGauss();
+  TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",fitFunction_f,binxmin,binxmax,4);
+  fitfcndgsse3->SetNpx(500);
+  fitfcndgsse3->SetLineWidth(3);
+  fitfcndgsse3->SetLineStyle(1);
+  fitfcndgsse3->SetLineColor(4);
+  ha->Fit("fitfcndgsse3","0R");
+
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor);
+  TH1D* hrmsb=TH2Anab.RMS();
+  TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",fitFunction_f,binxmin,binxmax,4);
+  fitfcndgssrmsb3->SetNpx(500);
+  fitfcndgssrmsb3->SetLineWidth(3);
+  fitfcndgssrmsb3->SetLineStyle(2);
+  fitfcndgssrmsb3->SetLineColor(2);
+  hrmsb->Fit("fitfcndgssrmsb3","0R");
+
+  TH1D* hb=TH2Anab.SigmaGauss();
+  TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",fitFunction_f,binxmin,binxmax,4);
+  fitfcndgsseb3->SetNpx(500);
+  fitfcndgsseb3->SetLineWidth(3);
+  fitfcndgsseb3->SetLineStyle(1);
+  fitfcndgsseb3->SetLineColor(2);
+  hb->Fit("fitfcndgsseb3","0R");
+
+  Draw(hb,ha,mode);
+  //Draw(hrms,ha,mode);
+  //Draw(ha,ha,mode);
+  fitfcndgssrms3->Draw("same");
+  fitfcndgsse3->Draw("same");
+  fitfcndgssrmsb3->Draw("same");
+  fitfcndgsseb3->Draw("same");
+}
+
+void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFactor, const int binxmin,
+				     const int binxmax, const bool cst_binning, Mode mode)
+{
+
+  if (!cst_binning)
+  {
+    std::cout << "non constant binning not yet implemented, sorry." << std::endl;
+    std::cout << "Constant binning will be used." << std::endl;
+  }
+
+  TDirectory* dir = dir1_;
+  dir->cd();
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2, binxmin, binxmax, rebinFactor);
+  TH1D* hrms=TH2Ana.RMS();
+
+  TH1D* meanXslice = TH2Ana.MeanX();
+  //for( int i=1; i<=meanXslice->GetNbinsX(); ++i) {
+  //  std::cout << "meanXslice->GetBinContent(" << i << ") = "
+  //	      << meanXslice->GetBinContent(i) << std::endl;
+  //  std::cout << "meanXslice->GetBinError(" << i << ") = "
+  //	      << meanXslice->GetBinError(i) << std::endl;
+  //}
+  //Draw(meanXslice,meanXslice,mode);
+  hrms->Divide(meanXslice);
+
+  TF1 *fitXfcndgssrms3 = new TF1("fitXfcndgssrms3",fitFunction_f,binxmin,binxmax,4);
+  fitXfcndgssrms3->SetNpx(500);
+  fitXfcndgssrms3->SetLineWidth(3);
+  fitXfcndgssrms3->SetLineStyle(2);
+  fitXfcndgssrms3->SetLineColor(4);
+  hrms->Fit("fitXfcndgssrms3","0R");
+
+  TH1D* ha=TH2Ana.SigmaGauss();
+  ha->Divide(meanXslice);
+  TF1 *fitXfcndgsse3 = new TF1("fitXfcndgsse3",fitFunction_f,binxmin,binxmax,4);
+  fitXfcndgsse3->SetNpx(500);
+  fitXfcndgsse3->SetLineWidth(3);
+  fitXfcndgsse3->SetLineStyle(1);
+  fitXfcndgsse3->SetLineColor(4);
+  ha->Fit("fitXfcndgsse3","0R");
+
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor);
+  TH1D* hrmsb=TH2Anab.RMS();
+  hrmsb->Divide(meanXslice);
+  TF1 *fitXfcndgssrmsb3 = new TF1("fitXfcndgssrmsb3",fitFunction_f,binxmin,binxmax,4);
+  fitXfcndgssrmsb3->SetNpx(500);
+  fitXfcndgssrmsb3->SetLineWidth(3);
+  fitXfcndgssrmsb3->SetLineStyle(2);
+  fitXfcndgssrmsb3->SetLineColor(2);
+  hrmsb->Fit("fitXfcndgssrmsb3","0R");
+
+  TH1D* hb=TH2Anab.SigmaGauss();
+  hb->Divide(meanXslice);
+  TF1 *fitXfcndgsseb3 = new TF1("fitXfcndgsseb3",fitFunction_f,binxmin,binxmax,4);
+  fitXfcndgsseb3->SetNpx(500);
+  fitXfcndgsseb3->SetLineWidth(3);
+  fitXfcndgsseb3->SetLineStyle(1);
+  fitXfcndgsseb3->SetLineColor(2);
+  hb->Fit("fitXfcndgsseb3","0R");
+
+  Draw(hb,ha,mode);
+  //Draw(hrms,ha,mode);
+  //Draw(ha,ha,mode);
+  fitXfcndgssrms3->Draw("same");
+  fitXfcndgsse3->Draw("same");
+  fitXfcndgssrmsb3->Draw("same");
+  fitXfcndgsseb3->Draw("same");
+}
+
 
 //void Comparator::DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
 //				     const unsigned int nbin, const double Ymin, const double Ymax,

@@ -17,7 +17,6 @@ void TH2Analyzer::Eval( int rebinFactor ) {
   Reset();
 
   const string bname = hist2D_->GetName();
-
   const string rebinName = bname + "_rebin";
   rebinnedHist2D_ = (TH2D*) hist2D_ -> Clone( rebinName.c_str() );
   rebinnedHist2D_->RebinX( rebinFactor );
@@ -40,22 +39,94 @@ void TH2Analyzer::Eval( int rebinFactor ) {
 			 rebinnedHist2D_->GetXaxis()->GetXmin(),
 			 rebinnedHist2D_->GetXaxis()->GetXmax() );
 
+  const string meanXName = bname + "_meanX"; 
+  meanXslice_ = new TH1D(meanXName.c_str(), "meanX",
+			 rebinnedHist2D_->GetNbinsX(),
+			 rebinnedHist2D_->GetXaxis()->GetXmin(),
+			 rebinnedHist2D_->GetXaxis()->GetXmax() );
+
   ProcessSlices( rebinnedHist2D_ );
 }
 
 void TH2Analyzer::Reset() {
-  if( rebinnedHist2D_ ) delete rebinnedHist2D_;
-  if( average_ ) delete average_;
-  if( RMS_ ) delete RMS_;
-  if( sigmaGauss_ ) delete sigmaGauss_;
+  if ( rebinnedHist2D_ ) delete rebinnedHist2D_;
+  if ( average_ ) delete average_;
+  if ( RMS_ ) delete RMS_;
+  if ( sigmaGauss_ ) delete sigmaGauss_;
+  if ( meanXslice_ ) delete meanXslice_;
+
+  //for( unsigned i=0; i<parameters_.size(); ++i) {
+  //  delete parameters_[i];
+  //}
   
-  for( unsigned i=0; i<parameters_.size(); ++i) {
-    delete parameters_[i];
-  }
-  
-  parameters_.clear();
+  //parameters_.clear();
 }
 
+void TH2Analyzer::Eval(const int rebinFactor, const int binxmin,
+		       const int binxmax)
+{
+  Reset();
+  const string bname = hist2D_->GetName();
+  const string rebinName = bname + "_rebin";
+
+  if (binxmax>hist2D_->GetNbinsX())
+  {
+    std::cout << "Error: TH2Analyzer.cc: binxmax>hist2D_->GetNbinsX()" << std::endl;
+    return;
+  }
+
+  //std::cout << "hist2D_->GetXaxis()->GetBinLowEdge(" << binxmin << ") = " << hist2D_->GetXaxis()->GetBinLowEdge(binxmin) << std::endl;
+  //std::cout << "hist2D_->GetXaxis()->GetBinUpEdge(" << binxmax << ") = " << hist2D_->GetXaxis()->GetBinUpEdge(binxmax) << std::endl;
+  //std::cout << "hist2D_->GetNbinsY() = " << hist2D_->GetNbinsY() << std::endl;
+  //std::cout << "hist2D_->GetYaxis()->GetXmin() = " << hist2D_->GetYaxis()->GetXmin() << std::endl;
+  //std::cout << "hist2D_->GetYaxis()->GetXmax() = " << hist2D_->GetYaxis()->GetXmax() << std::endl;
+
+  rebinnedHist2D_ = new TH2D(rebinName.c_str(),"rebinned histo",
+		       binxmax-binxmin+1,
+		       hist2D_->GetXaxis()->GetBinLowEdge(binxmin),
+		       hist2D_->GetXaxis()->GetBinUpEdge(binxmax),
+		       hist2D_->GetNbinsY(),
+		       hist2D_->GetYaxis()->GetXmin(),
+		       hist2D_->GetYaxis()->GetXmax() );
+  for (int binyc=1;binyc<hist2D_->GetNbinsY()+1;++binyc)
+  {
+    for (int binxc=binxmin;binxc<binxmax+1;++binxc)
+    {
+      //std::cout << "hist2D_->GetBinContent(" << binxc << "," << binyc << ") = " << hist2D_->GetBinContent(binxc,binyc) << std::endl;
+      //std::cout << "hist2D_->GetBinError(" << binxc << "," << binyc << ") = " << hist2D_->GetBinError(binxc,binyc) << std::endl;
+      //std::cout << "binxc-binxmin+1 = " << binxc-binxmin+1 << std::endl;
+      rebinnedHist2D_->SetBinContent(binxc-binxmin+1,binyc,hist2D_->GetBinContent(binxc,binyc));
+      rebinnedHist2D_->SetBinError(binxc-binxmin+1,binyc,hist2D_->GetBinError(binxc,binyc));
+    }
+  }
+  rebinnedHist2D_->RebinX( rebinFactor );
+
+  const string averageName = bname + "_average";  
+  average_ = new TH1D( averageName.c_str(),"arithmetic average", 
+		       rebinnedHist2D_->GetNbinsX(),
+		       rebinnedHist2D_->GetXaxis()->GetXmin(),
+		       rebinnedHist2D_->GetXaxis()->GetXmax() );
+  
+  const string rmsName = bname + "_RMS";  
+  RMS_ = new TH1D( rmsName.c_str(), "RMS",
+		   rebinnedHist2D_->GetNbinsX(),
+		   rebinnedHist2D_->GetXaxis()->GetXmin(),
+		   rebinnedHist2D_->GetXaxis()->GetXmax() );
+
+  const string sigmaGaussName = bname + "_sigmaGauss"; 
+  sigmaGauss_ = new TH1D(sigmaGaussName.c_str(), "sigmaGauss",
+			 rebinnedHist2D_->GetNbinsX(),
+			 rebinnedHist2D_->GetXaxis()->GetXmin(),
+			 rebinnedHist2D_->GetXaxis()->GetXmax() );
+
+  const string meanXName = bname + "_meanX"; 
+  meanXslice_ = new TH1D(meanXName.c_str(), "meanX",
+			 rebinnedHist2D_->GetNbinsX(),
+			 rebinnedHist2D_->GetXaxis()->GetXmin(),
+			 rebinnedHist2D_->GetXaxis()->GetXmax() );
+
+  ProcessSlices( rebinnedHist2D_ );
+}
 
 void TH2Analyzer::ProcessSlices( const TH2D* histo) {
   
@@ -73,6 +144,15 @@ void TH2Analyzer::ProcessSlices( const TH2D* histo) {
     average_->SetBinError( i, proj->GetMeanError());
     RMS_->SetBinContent(i, rms);
     RMS_->SetBinError(i, proj->GetRMSError());
+
+    const double error=(histo->GetXaxis()->GetBinUpEdge(i)-histo->GetXaxis()->GetBinLowEdge(i))/2.0;
+    //std::cout << "error = " << error << std::endl;
+    meanXslice_->SetBinContent(i, histo->GetXaxis()->GetBinLowEdge(i)+error);
+    meanXslice_->SetBinError(i, error);
+    //std::cout << "histo->GetXaxis()->GetBinLowEdge(" << i << ") = "
+    //          << histo->GetXaxis()->GetBinLowEdge(i) << std::endl;
+    //std::cout << "meanXslice_->GetBinError(" << i << ") = "
+    //	      << meanXslice_->GetBinError(i) << std::endl;
     ProcessSlice(i, proj );
   }
 

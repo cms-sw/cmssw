@@ -1,8 +1,6 @@
 #ifndef __Validation_RecoParticleFlow_Comparator__
 #define __Validation_RecoParticleFlow_Comparator__
 
-
-
 #include <math.h>
 
 #include <TLegend.h>
@@ -11,7 +9,6 @@
 #include <TF1.h>
 
 /* #include <string> */
-
 
 class Style;
 
@@ -70,6 +67,11 @@ public:
   void DrawMeanSlice(const char* key, const int rebinFactor, Mode mode);
   void DrawSigmaSlice(const char* key, const int rebinFactor, Mode mode);
   void DrawGaussSigmaSlice(const char* key, const int rebinFactor, Mode mode);
+  void DrawGaussSigmaSlice(const char* key, const int rebinFactor, const int binxmin,
+			   const int binxmax, const bool cst_binning, Mode mode);
+  void DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFactor, const int binxmin,
+				    const int binxmax, const bool cst_binning, Mode mode);
+
 
 //  // create nbin slices between binxmin and binxmax. In each slice get the RMS/meanX and sigma/meanX from of gaussian fit.
 //  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
@@ -88,11 +90,6 @@ public:
   
   void Draw( const char* key0, const char* key1, Mode mode);
 
- /*  // cd to a give path */
-/*   void cd(const char* path ) { */
-/*     path_ = path; */
-/*   } */
-  
   // return the two temporary 1d histograms, that have just
   // been plotted
   TH1* h0() {return h0_;}
@@ -138,7 +135,6 @@ private:
   
   TLegend legend_;
 
-/*   std::string path_; */
 };
 
 #endif
