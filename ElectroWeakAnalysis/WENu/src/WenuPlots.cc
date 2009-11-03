@@ -169,12 +169,12 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
 
   double trackIso = myElec->trackIso();
-  double ecaliso = myElec->ecalIso();
-  double hcaliso = myElec->hcalIso();
-  double sihih = myElec->scSigmaIEtaIEta();
-  double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
-  double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
-  double HoE = myElec->hadronicOverEm();
+  //double ecaliso = myElec->ecalIso();
+  //double hcaliso = myElec->hcalIso();
+  //double sihih = myElec->scSigmaIEtaIEta();
+  //double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
+  //double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
+  //double HoE = myElec->hadronicOverEm();
 
 
 
@@ -333,7 +333,7 @@ void
 WenuPlots::beginJob(const edm::EventSetup&)
 {
   //std::cout << "In beginJob()" << std::endl;
-  Double_t Pi = TMath::Pi();
+  //Double_t Pi = TMath::Pi();
   //  TString histo_file = outputFile_;
   //  histofile = new TFile( histo_file,"RECREATE");
 
