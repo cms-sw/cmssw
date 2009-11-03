@@ -34,6 +34,10 @@ class GhostTrackFitter {
 	               const std::vector<TransientTrack> &tracks) const;
 
 	GhostTrack fit(const GhostTrackPrediction &prior,
+	               const GlobalPoint &origin,
+	               const std::vector<TransientTrack> &tracks) const;
+
+	GhostTrack fit(const GhostTrackPrediction &prior,
 	               const std::vector<TransientTrack> &tracks) const;
 
 	class PredictionUpdater {

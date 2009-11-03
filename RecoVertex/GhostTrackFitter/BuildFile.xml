@@ -9,6 +9,7 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/KalmanVertexFit"/>
 <use name="RecoVertex/AdaptiveVertexFit"/>
 <use name="rootmath"/>

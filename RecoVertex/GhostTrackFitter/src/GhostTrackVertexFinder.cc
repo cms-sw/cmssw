@@ -257,7 +257,7 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 
 GhostTrackVertexFinder::GhostTrackVertexFinder() :
 	maxFitChi2_(10.0),
-	mergeThreshold_(2.0),
+	mergeThreshold_(2.5),
 	primcut_(2.3),
 	seccut_(2.5)
 {
@@ -472,6 +472,115 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 	std::vector<TransientVertex> result =
 			vertices(ghostTrack, primary, beamSpot, true, true);
+
+#ifdef DEBUG
+	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
+	    iter != result.end(); ++iter)
+		debugVertex(*iter, ghostTrack.prediction());
+#endif
+
+	return result;
+}
+
+std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
+			const Vertex &primaryVertex,
+			const Track &ghostTrack,
+			const std::vector<TransientTrack> &tracks,
+                        const std::vector<float> &weights) const
+{
+	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
+	                       GhostTrackPrediction(),
+	                       RecoVertex::convertPos(
+	                       			primaryVertex.position()),
+	                       true);
+
+	CachingVertex<5> primary(
+			RecoVertex::convertPos(primaryVertex.position()),
+	                RecoVertex::convertError(primaryVertex.error()),
+			std::vector<RefCountedVertexTrack>(), 0.);
+
+	std::vector<TransientVertex> result = vertices(ghostTrack_, primary);
+
+#ifdef DEBUG
+	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
+	    iter != result.end(); ++iter)
+		debugVertex(*iter, ghostTrack.prediction());
+#endif
+
+	return result;
+}
+
+std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
+			const Vertex &primaryVertex,
+			const Track &ghostTrack,
+			const BeamSpot &beamSpot,
+			const std::vector<TransientTrack> &tracks,
+                        const std::vector<float> &weights) const
+{
+	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
+	                       GhostTrackPrediction(),
+	                       RecoVertex::convertPos(primaryVertex.position()),
+	                       true);
+
+	CachingVertex<5> primary(
+			RecoVertex::convertPos(primaryVertex.position()),
+	                RecoVertex::convertError(primaryVertex.error()),
+			std::vector<RefCountedVertexTrack>(), 0.);
+
+	std::vector<TransientVertex> result =
+			vertices(ghostTrack_, primary, beamSpot, true);
+
+#ifdef DEBUG
+	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
+	    iter != result.end(); ++iter)
+		debugVertex(*iter, ghostTrack.prediction());
+#endif
+
+	return result;
+}
+
+std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
+			const Vertex &primaryVertex,
+			const Track &ghostTrack,
+			const BeamSpot &beamSpot,
+			const std::vector<TransientTrack> &primaries,
+			const std::vector<TransientTrack> &tracks,
+                        const std::vector<float> &weights) const
+{
+	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
+	                       GhostTrackPrediction(),
+	                       RecoVertex::convertPos(primaryVertex.position()),
+	                       true);
+
+	std::vector<RefCountedVertexTrack> primaryVertexTracks;
+	if (!primaries.empty()) {
+		LinearizedTrackStateFactory linTrackFactory;
+		VertexTrackFactory<5> vertexTrackFactory;
+
+		VertexState state(
+		        RecoVertex::convertPos(primaryVertex.position()),
+	                RecoVertex::convertError(primaryVertex.error()));
+
+		for(std::vector<TransientTrack>::const_iterator iter =
+			primaries.begin(); iter != primaries.end(); ++iter) {
+
+			RefCountedLinearizedTrackState linState =
+				linTrackFactory.linearizedTrackState(
+						state.position(), *iter);
+
+			primaryVertexTracks.push_back(
+					vertexTrackFactory.vertexTrack(
+							linState, state));
+		}
+	}
+
+	CachingVertex<5> primary(
+			RecoVertex::convertPos(primaryVertex.position()),
+	                RecoVertex::convertError(primaryVertex.error()),
+			primaryVertexTracks, 0.);
+
+	std::vector<TransientVertex> result =
+			vertices(ghostTrack_, primary, beamSpot, true, true);
 
 #ifdef DEBUG
 	for(std::vector<TransientVertex>::const_iterator iter = result.begin();

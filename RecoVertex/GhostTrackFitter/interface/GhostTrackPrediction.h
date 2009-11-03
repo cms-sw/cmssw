@@ -32,6 +32,16 @@ class GhostTrackPrediction {
 		prediction_(prediction), covariance_(error)
 	{}
 
+	GhostTrackPrediction(const GlobalPoint &priorPosition, 
+	                     const GlobalError &priorError,
+	                     const GlobalVector &direction,
+	                     double coneRadius);
+	GhostTrackPrediction(const GlobalPoint &priorPosition, 
+	                     const GlobalError &priorError,
+	                     const GlobalVector &direction,
+	                     const GlobalError &directionError)
+	{ init(priorPosition, priorError, direction, directionError); }
+
 	GhostTrackPrediction(const CurvilinearTrajectoryParameters &trajectory,
 	                     const CurvilinearTrajectoryError &error);
 	GhostTrackPrediction(const GlobalTrajectoryParameters &trajectory,
@@ -74,6 +84,11 @@ class GhostTrackPrediction {
 	Track track(double ndof = 0., double chi2 = 0.) const;
 
     private:
+	void init(const GlobalPoint &priorPosition, 
+	          const GlobalError &priorError,
+	          const GlobalVector &direction,
+	          const GlobalError &directionError);
+
 	Vector	prediction_;
 	Error	covariance_;
 };

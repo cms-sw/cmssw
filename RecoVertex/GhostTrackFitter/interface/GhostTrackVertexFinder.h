@@ -10,6 +10,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -73,6 +74,27 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 		         const reco::BeamSpot &beamSpot,
 		         const std::vector<TransientTrack> &primaries,
 		         const std::vector<TransientTrack> &tracks) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const reco::Track &ghostTrack,
+		         const std::vector<TransientTrack> &tracks,
+	                 const std::vector<float> &weights = std::vector<float>()) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const reco::Track &ghostTrack,
+		         const reco::BeamSpot &beamSpot,
+		         const std::vector<TransientTrack> &tracks,
+	                 const std::vector<float> &weights = std::vector<float>()) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const reco::Track &ghostTrack,
+		         const reco::BeamSpot &beamSpot,
+		         const std::vector<TransientTrack> &primaries,
+		         const std::vector<TransientTrack> &tracks,
+	                 const std::vector<float> &weights = std::vector<float>()) const;
 
 	std::vector<TransientVertex> vertices(
 		const GhostTrack &ghostTrack,
