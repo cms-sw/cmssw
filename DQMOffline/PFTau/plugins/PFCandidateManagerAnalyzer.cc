@@ -33,17 +33,7 @@ void
 PFCandidateManagerAnalyzer::beginJob()
 {
 
-  // BenchmarkAnalyzer::beginJob();
-  
-  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
-  if(!Benchmark::DQM_) {
-    throw "Please initialize the DQM service in your cfg";
-  }
-
-  // part of the following could be put in the base class
-  string path = "PFTask/Benchmarks/" + benchmarkLabel_ ; 
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  cout<<"path set to "<<path<<endl;
+  BenchmarkAnalyzer::beginJob();
   setup();
 }
 
@@ -62,11 +52,5 @@ PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection, *matchCollection );
 }
 
-// void PFCandidateManagerAnalyzer::endJob() {}
-// {
-
-//COLIN don't want to save several times... 
 void PFCandidateManagerAnalyzer::endJob() {
-  if (outputFile_.size() != 0)
-    Benchmark::DQM_->save(outputFile_);
 }

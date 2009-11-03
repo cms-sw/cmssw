@@ -8,9 +8,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 using namespace reco;
 using namespace edm;
@@ -28,17 +25,7 @@ void
 CandidateBenchmarkAnalyzer::beginJob()
 {
 
-  // BenchmarkAnalyzer::beginJob();
-  
-  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
-  if(!Benchmark::DQM_) {
-    throw "Please initialize the DQM service in your cfg";
-  }
-
-  // part of the following could be put in the base class
-  string path = "PFTask/Benchmarks/" + benchmarkLabel_ ; 
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  cout<<"path set to "<<path<<endl;
+  BenchmarkAnalyzer::beginJob();
   setup();
 }
 
@@ -54,11 +41,6 @@ CandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection );
 }
 
-// void CandidateBenchmarkAnalyzer::endJob() {}
-// {
 
-//COLIN don't want to save several times... 
 void CandidateBenchmarkAnalyzer::endJob() {
-  if (outputFile_.size() != 0)
-    Benchmark::DQM_->save(outputFile_);
 }

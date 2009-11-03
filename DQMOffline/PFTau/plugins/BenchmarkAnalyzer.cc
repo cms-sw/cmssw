@@ -4,15 +4,33 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <string>
+#include <iostream>
+
+using namespace std;
+
 BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   inputLabel_      = iConfig.getParameter<edm::InputTag>("InputCollection");
-  outputFile_      = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_  = iConfig.getParameter<std::string>("BenchmarkLabel"); 
+}
 
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
-  else edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
+
+void 
+BenchmarkAnalyzer::beginJob()
+{  
+  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
+  if(!Benchmark::DQM_) {
+    throw "Please initialize the DQM service in your cfg";
+  }
+
+  // part of the following could be put in the base class
+  string path = "PFTask/" + benchmarkLabel_ ; 
+  Benchmark::DQM_->setCurrentFolder(path.c_str());
+  cout<<"path set to "<<path<<endl;
 }

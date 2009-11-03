@@ -16,6 +16,7 @@ public:
   explicit BenchmarkAnalyzer(const edm::ParameterSet&);
   virtual ~BenchmarkAnalyzer() {}
 
+  virtual void beginJob() = 0;
 
  protected:
 
