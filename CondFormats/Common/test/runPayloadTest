@@ -6,10 +6,10 @@ cmsenv
 cd $CMSSW_BASE/src
 mkdir -p PayloadTest/PayloadTest/test
 cd  PayloadTest/PayloadTest/test
-# cp  CMSSW_RELEASE_BASE/src/CondFormats/Common/test/TestDriver.h .
-# cp  CMSSW_RELEASE_BASE/src/CondFormats/Common/test/TestDriver.cc .
-cp  CMSSW_BASE/src/CondFormats/Common/test/TestDriver.h .
-cp  CMSSW_BASE/src/CondFormats/Common/test/TestDriver.cc .
+# cp  $CMSSW_RELEASE_BASE/src/CondFormats/Common/test/TestDriver.h .
+# cp $ CMSSW_RELEASE_BASE/src/CondFormats/Common/test/TestDriver.cc .
+cp  $CMSSW_BASE/src/CondFormats/Common/test/TestDriver.h .
+cp  $CMSSW_BASE/src/CondFormats/Common/test/TestDriver.cc .
 
 echo $1 $2 $3
 cp TestDriver.cc $1_test.cc
