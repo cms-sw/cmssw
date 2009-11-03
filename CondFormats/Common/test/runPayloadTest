@@ -25,3 +25,6 @@ mv bfile BuildFile
 scramv1 b
 echo "run CondPayload_$1_test"
 $CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_$1_testIO
+pool_list_object_relational_mapping -c sqlite_file:test.db
+pool_retrieve_object_relational_mapping -c sqlite_file:PayloadTest/PayloadTest/test/test.db -v $1_automatic_default
+cat mapping.xml

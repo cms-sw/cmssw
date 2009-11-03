@@ -15,6 +15,12 @@
 #include "DataSvc/Ref.h"
 #include <iostream>
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
+#include <vector>
+
+
+
 #include "CondFormats/THEPACKAGE/interface/THEHEADER.h"
 typedef THECLASS Payload;
 
