@@ -62,7 +62,7 @@ muonMatch.resolveByMatchQuality = True
 
 # layer 1 muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-allLayer1Muons.isolation.tracker = cms.PSet(
+allLayer1Muons.userIsolation.tracker = cms.PSet(
     veto = cms.double(0.015),
     src = cms.InputTag("muIsoDepositTk"),
     deltaR = cms.double(0.3),
