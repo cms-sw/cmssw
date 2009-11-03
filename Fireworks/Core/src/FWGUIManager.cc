@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.158 2009/11/02 15:42:58 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.159 2009/11/03 00:05:01 chrjones Exp $
 //
 
 // system include files
@@ -716,8 +716,13 @@ void FWGUIManager::createHelpPopup ()
 void FWGUIManager::createSearchFiles ()
 {
    if (m_searchFiles == 0) {
-  
-     m_searchFiles = new CmsShowSearchFiles("", "Searching Files",
+     const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+     if(0 == cmspath) {
+       throw std::runtime_error("CMSSW_BASE environment variable not set");
+     }
+     std::string filename= std::string(cmspath) + "/src/Fireworks/Core/data/datacatalog.html";
+
+     m_searchFiles = new CmsShowSearchFiles(filename.c_str(), "Open Remote Data Files",
 					    m_cmsShowMainFrame,
 					    800, 600);
      m_searchFiles->browser()->Connect("Clicked(char*)", "FWGUIManager", this,
@@ -731,8 +736,22 @@ void FWGUIManager::createSearchFiles ()
 
 void FWGUIManager::openWebRootFiles (char *fileName)
 {
- 
-  if (fileName) m_cmsShowMain->navigator()->loadFile(fileName);
+  std::string full_filename = fileName;
+  std::string pre1 = "file://dcap:";
+  std::string pre2 = "file://rfio:";
+  int pos1=full_filename.find(pre1); 
+  int pos2=full_filename.find(pre2); 
+  if(pos1!= (int)std::string::npos)
+    {
+      full_filename.replace(pos1,pre1.size(),"dcap:");
+    }
+  else if(pos2!= (int)std::string::npos)
+    {
+      full_filename.replace(pos2,pre2.size(),"rfio:");
+    }
+
+  //std::cout <<"file name  "<<full_filename<<std::endl;
+  if (fileName) m_cmsShowMain->navigator()->loadFile(full_filename.c_str());
 }
 void FWGUIManager::resetSearchFiles ()
 {
