@@ -58,11 +58,11 @@ try{
     
     unsigned int iw;
     for (iw = 0; iw < nobjects; ++iw )   {
-      pool::Ref<Payload> ref = session.storeObject<Payload>(new Payload,className);
+      pool::Ref<Payload> ref = session.storeObject(new Payload,className);
       payTok.push_back(ref.toString());
       if (withWrapper) {
 	pool::Ref<cond::PayloadWrapper> refW = 
-	  session.storeObject<SimplePtr>(new SimplePtr(new Payload, new cond::GenericSummary(className)));
+	  session.storeObject(new SimplePtr(new Payload, new cond::GenericSummary(className)),DSW_Name);
 	wrapTok.push_back(refW.toString());
      }
     }
