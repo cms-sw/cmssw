@@ -84,12 +84,12 @@ try{
     unsigned int ir;
     for (ir = 0; ir < payTok.size(); ++ir )   {
       pool::Ref<Payload> ref = session.getTypedObject<Payload>(payTok[ir]);
-      Payload & p = *ref;
+      Payload const & p = *ref;
     }
 
     for (ir = 0; ir < wrapTok.size(); ++ir )   {
       pool::Ref<SimplePtr> ref = session.getTypedObject<SimplePtr>(wrapTok[ir]);
-      Payload & p = ref->data();
+      Payload const & p = ref->data();
     }
     
     
