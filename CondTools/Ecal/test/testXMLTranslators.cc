@@ -143,6 +143,8 @@ int main(){
   EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header,
 					     intercalib_errors2);
 
+  cout << "Done testing Intercalib " << endl;
+
   // test xtalgroup
   
   EcalWeightGroupXMLTranslator grouptrans;
@@ -189,6 +191,8 @@ int main(){
 
   grouptrans.writeXML(groupfile2,header2,groups2);
     
+  cout << "Done testing groups " << endl;
+
   EcalGainRatiosXMLTranslator transGainRatios;
   
   EcalGainRatios gainratios;
@@ -232,6 +236,8 @@ int main(){
   transGainRatios.writeXML(newfilegr,header2,gainratios2);
 
   
+  cout << "Done testing gainratios " << endl;
+
   EcalChannelStatusXMLTranslator transChannelStatus;
   
   EcalChannelStatus channelstatus;
@@ -275,6 +281,7 @@ int main(){
   transChannelStatus.writeXML(cscfile2,header2,channelstatus2);
 
 
+  cout << "Done testing channelstatus " << endl;
   
   EcalTBWeightsXMLTranslator transWeight;
   
@@ -340,7 +347,7 @@ int main(){
     EcalLaserAPDPNRatios::EcalLaserAPDPNpair pair;
     pair.p1 =1;
     pair.p2 =2;
-    //    pair.p3 =3;
+    pair.p3 =3;
 
     laserrecord1.setValue(rawid,pair);
     
@@ -356,7 +363,7 @@ int main(){
       EcalLaserAPDPNRatios::EcalLaserAPDPNpair pair;
       pair.p1 =1;
       pair.p2 =2;
-      // pair.p3 =3;
+      pair.p3 =3;
       
       laserrecord1.setValue(rawid,pair);
     
