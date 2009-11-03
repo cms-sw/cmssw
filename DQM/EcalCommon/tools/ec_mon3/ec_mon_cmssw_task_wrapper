@@ -358,23 +358,23 @@ process.ecalUncalibHit1.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalUncalibHit2.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEE'
 
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
-process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
+process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEB'
+process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEB'
 #process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
+process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEB'
 
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
-process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEE'
+process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEE'
 #process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEE'
 #process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit1:EcalUncalibRecHitsEE'
 
 #process.ecalBarrelPedestalTask.MGPAGains = [ 1, 6, 12 ]
 #process.ecalBarrelPedestalTask.MGPAGains = [ 12 ]
