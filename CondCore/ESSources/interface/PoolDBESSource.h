@@ -22,6 +22,7 @@
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include <boost/functional/hash.hpp>
+
 namespace edm{
   class ParameterSet;
 }
@@ -38,7 +39,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
  
 
-  PoolDBESSource( const edm::ParameterSet& );
+  explicit PoolDBESSource( const edm::ParameterSet& );
   ~PoolDBESSource();
   
  protected:
@@ -48,15 +49,20 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 
   virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) ;
 
-  virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;    
+  virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;
+
  private:
 
   // ----------member data ---------------------------
+
   cond::DbConnection m_connection;
- 
+
+  // Container of DataProxy, implemented as multi-map keyed by records
   ProxyMap m_proxies;
 
+
   typedef std::set< cond::TagMetadata > TagCollection;
+  // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
 
   struct Stats {
