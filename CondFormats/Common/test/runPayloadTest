@@ -10,7 +10,7 @@ cd  PayloadTest/PayloadTest/test
 cp  $CMSSW_BASE/src/CondFormats/Common/test/testPayloadIO.cc .
 
 echo $1 $2 $3
-set cname=`echo "$1" | sed 's/[<,>]/_/g'`
+set cname=`echo "$1" | sed 's/[<,:,>]/_/g'`
 cp testPayloadIO.cc ${cname}_test.cc
 sed -i "s/THECLASS/$1/g" ${cname}_test.cc
 sed -i "s/THEPACKAGE/$2/g" ${cname}_test.cc
