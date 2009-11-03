@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre4/8E29/V4 (CMSSW_3_4_X_2009-10-27-1500_HLT2)
+# /dev/CMSSW_3_4_0/pre4/8E29/V5 (CMSSW_3_4_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre4/8E29/V4')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre4/8E29/V5')
 )
 
 
@@ -1124,7 +1124,6 @@ hltIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
 )
 hltMCJetCorJetIcone5HF07 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
-    verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "MCJetCorJetIcone5" ),
     correctors = cms.vstring( 'MCJetCorrectorIcone5HF07' )
 )
@@ -4969,8 +4968,8 @@ hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     MomEEDepth = cms.double( 0.0 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
-    hoInput = cms.InputTag( "hltHoreco" ),
-    hfInput = cms.InputTag( "hltHfreco" ),
+    hoInput = cms.InputTag( "" ),
+    hfInput = cms.InputTag( "" ),
     AllowMissingInputs = cms.bool( True ),
     HcalAcceptSeverityLevel = cms.uint32( 999 ),
     EcalAcceptSeverityLevel = cms.uint32( 1 ),
@@ -4992,7 +4991,7 @@ hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HF1Weights = cms.vdouble(  ),
     HF2Grid = cms.vdouble(  ),
     HF2Weights = cms.vdouble(  ),
-    ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
+    ecalInputs = cms.VInputTag(  )
 )
 hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     jetAlgorithm = cms.string( "IterativeCone" ),
