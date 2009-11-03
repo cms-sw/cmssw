@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/10/12 16:07:43 $
- * $Revision: 1.52 $
+ * $Date: 2009/10/25 22:34:11 $
+ * $Revision: 1.53 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -63,6 +63,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 	     ?(HcalDetId::Undefined)
 	     :(hashedHcalDetId_[thehash]));
   };
+
+  void UpdateMEs ();  //Prescalable copy into MonitorElements
+
  private: 
   HcalDetId hashedHcalDetId_[NUMDCCS * NUMSPIGS * HTRCHANMAX];
   //backstage accounting mechanisms for the ProblemMap
@@ -120,7 +123,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   float ChannSumm_DataIntegrityCheck_     [TWO___FED][TWO__SPGT];
   float Chann_DataIntegrityCheck_[NUMDCCS][TWO_CHANN][TWO__SPGT];
   float DataFlowInd_                      [TWO___FED][THREE_SPG];
-  void UpdateMEs ();  //Prescalable copy into MonitorElements
 
   //Histogram labelling functions
   void label_ySpigots(MonitorElement* me_ptr,int ybins);

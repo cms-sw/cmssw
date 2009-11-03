@@ -432,9 +432,10 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   
   HcalBaseMonitor::processEvent();
   
-  ProblemCells->setBinContent(0,0,ievt_);
+  // Call these to make sure histograms get updated
+  ProblemCells->update();
   for (int depth=0;depth<4;++depth) 
-    ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+    ProblemCellsByDepth.depth[depth]->update();
 
   lastEvtN_ = -1;
   lastBCN_ = -1;
@@ -443,12 +444,12 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   // Fill event counters (underflow bins of histograms)
   // This is the only way we can make these histograms appear in online DQM!
   // Weird!  -- Jeff, 4/27/09
-  meLRBDataCorruptionIndicators_->Fill(-1,-1,1);
-  meHalfHTRDataCorruptionIndicators_->Fill(-1,-1,1);
-  meChannSumm_DataIntegrityCheck_->Fill(-1,-1,1);
+  meLRBDataCorruptionIndicators_->update();
+  meHalfHTRDataCorruptionIndicators_->update();
+  meChannSumm_DataIntegrityCheck_->update();
   for (int f=0; f<NUMDCCS; f++)      
-    meChann_DataIntegrityCheck_[f]->Fill(-1,-1,1);
-  meDataFlowInd_->Fill(-1,-1,1);
+    meChann_DataIntegrityCheck_[f]->update();
+  meDataFlowInd_->update();
 
   // Loop over all FEDs reporting the event, unpacking if good.
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) {

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/21 11:25:02 $
- * $Revision: 1.141 $
+ * $Date: 2009/10/26 15:14:29 $
+ * $Revision: 1.142 $
  * \author W Fisher
  * \author J Temple
  *
@@ -546,6 +546,7 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (rhMon_!=NULL)
     rhMon_->fillRecHitHistosAtEndRun();
 
+  if (dfMon_!=NULL) dfMon_->UpdateMEs();
   /////////////////////////////////////////////////////
   if(detDiagLas_!=NULL) detDiagLas_->fillHistos();
   /////////////////////////////////////////////////////
