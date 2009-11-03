@@ -12,7 +12,7 @@ process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 #process.load("DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff")
-process.load("DQM.DTMonitorClient.dtDQMOfflineClients_cff")
+process.load("DQM.DTMonitorClient.dtDQMOfflineClients_Cosmics_cff")
 process.load("DQM.DTMonitorClient.dtDQMOfflineCertification_cff")
 #process.load("DQMOffline.Configuration.DQMOfflineCosmics_Certification_cff")
 
@@ -27,27 +27,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             #    dropMetaData = cms.untracked.bool(True),
                             processingMode = cms.untracked.string("RunsLumisAndEvents"),
-                            fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_1.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_10.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_12.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_13.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_15.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_16.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_18.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_19.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_2.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_20.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_21.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_22.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_23.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_25.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_3.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_4.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_6.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_8.root",
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/run109815/DTDQMOffline_9.root"
-)
+                            fileNames = cms.untracked.vstring('file:DTDQMOffline.root')
 )
 
 
@@ -76,7 +56,7 @@ process.EDMtoMEConverter.convertOnEndRun = False
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.p1 = cms.Path(process.EDMtoMEConverter*
-                      process.dtClients*
+                      process.dtClientsCosmics*
                       process.dtCertification*
                       process.dqmSaver*
                       process.dqmStoreStats)

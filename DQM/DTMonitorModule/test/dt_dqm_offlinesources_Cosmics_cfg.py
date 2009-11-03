@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
     )
 
 
@@ -49,7 +49,7 @@ process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 
 # offline DQM
-process.load("DQM.DTMonitorModule.dtDQMOfflineSources_cff")
+process.load("DQM.DTMonitorModule.dtDQMOfflineSources_Cosmics_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 
 
@@ -92,7 +92,7 @@ process.unpackers = cms.Sequence(process.gtDigis + process.dttfDigis + process.m
 #process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments + process.muonRecoGR)
 process.reco = cms.Sequence(process.offlineBeamSpot + process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics)
 
-process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
+process.DTDQMOfflineCosmics = cms.Sequence(process.dtSourcesCosmics)
 
 
 #Paths

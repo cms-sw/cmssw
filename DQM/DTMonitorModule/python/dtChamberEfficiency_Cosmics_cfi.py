@@ -6,7 +6,7 @@ from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
 dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
     MuonServiceProxy,
     debug = cms.untracked.bool(True),
-    TrackCollection = cms.InputTag("standAloneMuons"),                                 
+    TrackCollection = cms.InputTag("cosmicMuons"),                                 
     theMaxChi2 = cms.double(100.),
     theNSigma = cms.double(3.),
     theMinNrec = cms.double(20.),
@@ -14,6 +14,6 @@ dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
     theRPCRecHits = cms.InputTag("dummy"),
     cscSegments = cms.InputTag("dummy"),
     RPCLayers = cms.bool(False),
-    NavigationType = cms.string("Standard")
+    NavigationType = cms.string("Direct")
 )
 
