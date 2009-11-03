@@ -27,7 +27,9 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             # tau
             cms.InputTag("caloRecoTauProducer"),
             #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEB")
+            cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+            # muons
+            cms.InputTag("muonEcalDetIds")
             ),
     reducedHitsCollection = cms.string('')
 )
@@ -43,7 +45,9 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             # tau
             cms.InputTag("caloRecoTauProducer"),
             #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEE")
+            cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+            # muons
+            cms.InputTag("muonEcalDetIds")
             ),
     reducedHitsCollection = cms.string('')
 )
