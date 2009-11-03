@@ -11,7 +11,6 @@
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=RecoParticleFlow/Benchmark>
-<flags CXXFLAGS="-g -O0"> 
 <flags EDM_PLUGIN=1>
 </library>
 <export></export>

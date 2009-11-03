@@ -6,8 +6,8 @@
 
   gStyle->SetOptStat(1111);
 
-  string dir = "DQMData/PFTask/Benchmarks/particleFlow/";
-  const char* file = "benchmark.root";
+  string dir = "/DQMData/Run\ 1/PFTask/Run\ summary/particleFlowManager";
+  const char* file = "DQM_V0001_R000000001__A__B__C.root";
 
   float ptMin = 0;
   float ptMax = 9999;
@@ -54,5 +54,10 @@
   elementsInBlocksSize_.Draw();
   styles.FormatPad( gPad, true, false, true);
   styles.FormatHisto( elementsInBlocksSize_, styles.spred );
+  
+  TCanvas c7;
+  delta_pt_.Draw();
+  styles.FormatPad( gPad, true, false, true);
+  styles.FormatHisto( delta_pt_, styles.spred );
   
 }
