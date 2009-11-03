@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.6 2009/11/03 00:05:03 chrjones Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.7 2009/11/03 12:15:03 amraktad Exp $
 //
 
 // system include files
@@ -252,7 +252,6 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
       m_modelPopup->HideEntry(kViewOptionsMO+i);
    }
    if(m_viewHander) {
-      m_nViewEntries = 0;
       m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this));
    }
    
