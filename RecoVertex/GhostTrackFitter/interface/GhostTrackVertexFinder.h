@@ -28,6 +28,9 @@ class GhostTrackFitter;
 class GhostTrackVertexFinder { // : public VertexReconstructor
     public:
 	GhostTrackVertexFinder();
+	GhostTrackVertexFinder(double maxFitChi2, double mergeThreshold,
+	                       double primcut, double seccut,
+	                       bool alwaysUseGhostTrack);
 	~GhostTrackVertexFinder();
 
 	std::vector<TransientVertex>
@@ -126,6 +129,7 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 	double	mergeThreshold_;
 	double	primcut_;
 	double	seccut_;
+	bool	alwaysUseGhostTrack_;
 
 	mutable std::auto_ptr<GhostTrackFitter>	ghostTrackFitter_;
 	mutable std::auto_ptr<VertexFitter<5> > primVertexFitter_;

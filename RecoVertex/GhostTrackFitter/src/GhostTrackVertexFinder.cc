@@ -257,9 +257,21 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 
 GhostTrackVertexFinder::GhostTrackVertexFinder() :
 	maxFitChi2_(10.0),
-	mergeThreshold_(2.5),
+	mergeThreshold_(2.7),
 	primcut_(2.3),
-	seccut_(2.5)
+	seccut_(2.8),
+	alwaysUseGhostTrack_(true)
+{
+}
+
+GhostTrackVertexFinder::GhostTrackVertexFinder(
+		double maxFitChi2, double mergeThreshold, double primcut,
+		double seccut, bool alwaysUseGhostTrack) :
+	maxFitChi2_(maxFitChi2),
+	mergeThreshold_(mergeThreshold),
+	primcut_(primcut),
+	seccut_(seccut),
+	alwaysUseGhostTrack_(alwaysUseGhostTrack)
 {
 }
 
@@ -659,7 +671,7 @@ CachingVertex<5> GhostTrackVertexFinder::mergeVertices(
 	mergeTrackHelper(vertex2.tracks(), linTracks, state,
 	                 isGhostTrack, vtxGhostTrack, vertexTrackFactory);
 
-	if (vtxGhostTrack)
+	if (vtxGhostTrack && alwaysUseGhostTrack_)
 		linTracks.push_back(vtxGhostTrack);
 
 	try {
@@ -890,9 +902,10 @@ bool GhostTrackVertexFinder::reassignTracks(
 			std::vector<RefCountedVertexTrack> linTracks =
 				relinearizeTracks(tracks, iter->vertexState());
 
-			linTracks.push_back(relinearizeTrack(
-				trackBundles[iter - vertices_.begin()].first,
-				iter->vertexState(), vertexTrackFactory));
+			if (alwaysUseGhostTrack_)
+				linTracks.push_back(relinearizeTrack(
+					trackBundles[iter - vertices_.begin()].first,
+					iter->vertexState(), vertexTrackFactory));
 
 			bool primary = iter == vertices_.begin();
 			if (primary && info.hasBeamSpot)
