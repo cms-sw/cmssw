@@ -33,12 +33,21 @@
 
 
 namespace {
+  /* utility ot build the name of the plugin corresponding to a given record
+     se PluginSystem
+   */
   std::string
   buildName( const std::string& iRecordName) {
     return iRecordName+"@NewProxy";
   }
 
 
+  /* utility class to return a IOVs associated to a given "name"
+     This implementation return the IOV associated to a record...
+     It is essentialy a workaround to get the full IOV out of the tag colector
+     that is not accessible as hidden in the ESSource
+     FIXME: need to support label??
+   */
   class CondGetterFromESSource : public cond::CondGetter {
   public:
     CondGetterFromESSource(PoolDBESSource::ProxyMap const & ip) : m_proxies(ip){}
@@ -54,7 +63,7 @@ namespace {
     PoolDBESSource::ProxyMap const & m_proxies;
   };
 
-
+  // dump the state of a DataProxy
   void dumpInfo(std::ostream & out, std::string const & recName, cond::DataProxyWrapperBase const & proxy) {
     cond::SequenceState state(proxy.proxy()->iov().state());
     out << recName << " / " << proxy.label() << ": " 
@@ -69,7 +78,14 @@ namespace {
 }
 
 
-
+/*
+ *  config Param
+ *  RefreshEachRun: if true will refresh the IOV at each new run (or lumiSection)
+ *  DumpStat: if true dump the statistics of all DataProxy (currently on cout)
+ *  DBParameters: configuration set of the connection
+ *  globaltag: The GlobalTag
+ *  toGet: list of record label tag connection-string to add/overwrite the content of the global-tag
+ */
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_connection(), 
   lastRun(0),  // for the refresh
@@ -102,6 +118,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string globaltag;
   if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
 
+  // load additional record/tag info it will overwrite the global tag
   std::map<std::string,cond::TagMetadata> replacement;
   if( iConfig.exists("toGet") ){
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -118,9 +135,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }
 
+  // get the global tag, merge with "replacement" store in "tagCollection"
   session.transaction().start(true);
   fillTagCollectionFromDB(session, globaltag,replacement);
   session.transaction().commit();
+
 
   TagCollection::iterator it;
   TagCollection::iterator itBeg=m_tagCollection.begin();
@@ -132,6 +151,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //  cond::ConnectionHandler::Instance().connect(&m_session);
   for(it=itBeg;it!=itEnd;++it){
 
+    //open db get tag info (i.e. the IOV token...)
     cond::DbSession nsess = m_connection.createSession();
     nsess.open( it->pfn);
     cond::MetaData metadata(nsess);
@@ -140,33 +160,43 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     metadata.getEntryByTag(it->tag,result);
     nsess.transaction().commit();
 
+    /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
+     * construct proxy
+     * contrary to EventSetup the "object-name" is not used as identifier: multipl entries in a record are
+     * dinstinguished only by their label...
+     */
     cond::DataProxyWrapperBase * pb =  
       cond::ProxyFactory::get()->create(buildName(it->recordname), nsess,
 					cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
-    
+    // owenship...
     ProxyP proxy(pb);
+    // add more info (not in constructor to overcome the mess/limitation of the templated factory
     proxy->addInfo(it->pfn, it->tag);
-    //      proxy->addInfo(conn.connectStr(), it->tag);
+    //  instert in the map
     m_proxies.insert(std::make_pair(it->recordname, proxy));
   }
 
+  // expose all other tags to the Proxy! 
   CondGetterFromESSource visitor(m_proxies);
   ProxyMap::iterator b= m_proxies.begin();
   ProxyMap::iterator e= m_proxies.end();
   for (;b!=e;b++) {
     (*b).second->proxy()->loadMore(visitor);
 
+    /// required by eventsetup
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
     if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
       findingRecordWithKey( recordKey );
       usingRecordWithKey( recordKey );
     }
   }
+
   stats.nData=m_proxies.size();
 }
 
 
 PoolDBESSource::~PoolDBESSource() {
+  //dump info FIXME: find a more suitable place...
   if (doDump) {
     std::cout << "PoolDBESSource Statistics" << std::endl
 	      << "Records " << stats.nData
@@ -187,7 +217,8 @@ PoolDBESSource::~PoolDBESSource() {
 
 
 //
-// member functions
+// invoked by EventSetUp: for a given record return the smallest IOV for which iTime is valid
+// limit to next run/lumisection of Refresh is required
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
@@ -197,6 +228,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string recordname=iKey.name();
   oInterval = edm::ValidityInterval::invalidInterval();
   
+  //FIXME use equal_range
   ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
   ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
   if ( b == e) {
@@ -204,6 +236,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
 
+  // compute the smallest interval (assume all objects have the same timetype....)
   cond::ValidityInterval recordValidity(0,cond::TIMELIMIT);
   cond::TimeType timetype;
   bool userTime=true;
@@ -230,13 +263,14 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     
     //std::cout<<"abtime "<<abtime<<std::endl;
     
+    //query the IOVSequence
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
     
     recordValidity.first = std::max(recordValidity.first,validity.first);
     recordValidity.second = std::min(recordValidity.second,validity.second);
   }      
    
-    // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
+  // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
     
   if (!userTime) {
     edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
@@ -250,6 +284,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 }
   
 
+//required by EventSetup System
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
   std::string recordname=iRecordKey.name();
@@ -262,7 +297,6 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   }
 
   for (ProxyMap::const_iterator p=b;p!=e;++p) {  
-
     if(0 != (*p).second.get()) {
       edm::eventsetup::TypeTag type =  (*p).second->type(); 
       edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
@@ -271,6 +305,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   }
 }
 
+// required by the EventSetup System
 void 
 PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,const edm::ValidityInterval& iInterval) 
 {
@@ -279,7 +314,7 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 }
 
 
-
+// fills tagcollection merging with replacement
 void 
 PoolDBESSource::fillTagCollectionFromDB( cond::DbSession& coraldb, 
 					 const std::string& roottag,
@@ -295,6 +330,7 @@ PoolDBESSource::fillTagCollectionFromDB( cond::DbSession& coraldb,
   std::set<cond::TagMetadata>::iterator itBeg=tagcoll.begin();
   std::set<cond::TagMetadata>::iterator itEnd=tagcoll.end();
 
+  // FIXME the logic is a bit perverse: can be surely linearized (at least simplified!) ....
   for(it=itBeg; it!=itEnd; ++it){
     std::string k=it->recordname+"@"+it->labelname;
     std::map<std::string,cond::TagMetadata>::iterator fid=replacement.find(k);

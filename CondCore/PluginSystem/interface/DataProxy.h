@@ -9,7 +9,7 @@
 
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 
-
+// expose a cond::PayloadProxy as a eventsetup::DataProxy
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
@@ -45,6 +45,10 @@ template< class RecordT, class DataT >
 };
 
 namespace cond {
+
+  /* ABI bridging between the cond world and eventsetup world
+   * keep them separated!
+   */
   class DataProxyWrapperBase {
   public:
     typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
@@ -77,6 +81,9 @@ namespace cond {
   };
 }
 
+/* bridge between the cond world and eventsetup world
+ * keep them separated!
+ */
 template< class RecordT, class DataT >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
@@ -86,9 +93,9 @@ public:
   
   
   DataProxyWrapper(cond::DbSession& session,
-		   const std::string & token, std::string const & il, const char * source=0) :
-    cond::DataProxyWrapperBase(il),
-    m_proxy(new PayProxy(session,token,false, source)),
+		   const std::string & iovtoken, std::string const & ilabel, const char * source=0) :
+    cond::DataProxyWrapperBase(ilabel),
+    m_proxy(new PayProxy(session,iovtoken,false, source)),
     m_edmProxy(new DataProxy(m_proxy)){
    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
@@ -97,6 +104,7 @@ public:
     //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
   }
 
+  // constructor from plugin...
   DataProxyWrapper(cond::DbSession& session,
 		   Args const & args) :
     cond::DataProxyWrapperBase(args.second),

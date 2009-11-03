@@ -12,7 +12,7 @@ namespace pool{
 
 namespace cond {
 
-  /* get iov by name (key, tag...)
+  /* get iov by name (key, tag, ...)
 
    */
   class CondGetter {
