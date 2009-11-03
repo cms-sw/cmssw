@@ -61,7 +61,7 @@ try{
       pool::Ref<Payload> ref = session.storeObject(new Payload,className);
       payTok.push_back(ref.toString());
       if (withWrapper) {
-	pool::Ref<PayloadWrapper> refW = 
+	pool::Ref<cond::PayloadWrapper> refW = 
 	  session.storeObject(new SimplePtr(new Payload, new cond::GenericSummary(className)));
 	wrapTok.push_back(refW.toString());
      }
