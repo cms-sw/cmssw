@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/07/30 08:32:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/21 16:08:24 $
+ *  $Revision: 1.5 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -237,7 +237,7 @@ void LmfSource::setRunAndEventInfo(){
     if(filter()){//event to read
       rc = readEvent();
       break;    //either event is read or no more event
-    } else{ //event to skip
+    } else { //event to skip
       rc = readEvent(true);
       if(rc==false){//no more events
 	break;
@@ -256,8 +256,7 @@ void LmfSource::setRunAndEventInfo(){
   setTime(timeStamp_);
   setRunNumber(runNum_);
   setEventNumber(eventNum_);
-  //TODO: set lumi block number
-  //  setLumi(lumiBlock_);
+  setLuminosityBlockNumber_t(lumiBlock_);
 }
 
 bool LmfSource::readEventWithinFile(bool doSkip){
