@@ -381,7 +381,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.preScaler.prescaleFactor = 1
 #process.preScaler.prescaleFactor = 10
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit*process.ecalRecHit)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalUncalibHit1*process.ecalRecHit)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
