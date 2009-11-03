@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.48 2009/11/02 12:13:44 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.49 2009/11/03 12:12:24 amraktad Exp $
 //
 
 #define private public
@@ -53,7 +53,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
-#include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 //
 // constants, enums and typedefs

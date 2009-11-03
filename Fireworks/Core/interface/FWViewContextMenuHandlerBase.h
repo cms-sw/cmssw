@@ -24,12 +24,12 @@
 // user include files
 
 // forward declarations
-class TEveViewer;
 class FWModelContextMenuHandler;
 
 
 class FWViewContextMenuHandlerBase
 {
+
 public:
    FWViewContextMenuHandlerBase();
    virtual ~FWViewContextMenuHandlerBase();
@@ -44,7 +44,12 @@ public:
        which simply increments after each 'addEntry' call and starts at 0 */
       int addEntry(const char* iEntryName);
    };
-
+   
+   // ---------- const member functions ---------------------
+   
+   // ---------- static member functions --------------------
+   
+   // ---------- member functions ---------------------------
    void addTo(FWModelContextMenuHandler&);
    
    /**Called when a menu item was selected
@@ -52,33 +57,17 @@ public:
     iX, iY: Screen coordinates of where mouse was clicked
     */
    virtual void select(int iEntryIndex, int iX, int iY) = 0;
+protected:
    
 private:
-   FWViewContextMenuHandlerBase(const FWViewContextMenuHandlerBase&); // stop default   
+   FWViewContextMenuHandlerBase(const FWViewContextMenuHandlerBase&); // stop default
+   
    const FWViewContextMenuHandlerBase& operator=(const FWViewContextMenuHandlerBase&); // stop default
    
+   ///Called when have to add entries to the context menu
    virtual void init(MenuEntryAdder&) = 0;
-};
 
-//==============================================================================
-//==============================================================================
 
-class FWViewContextMenuHandlerGL
-{
-public:
-   enum GLViewerAction { kAnnotate, kPickCenter, kNone };
-
-   FWViewContextMenuHandlerGL(TEveViewer* v): m_viewer(v) {}
-   virtual ~FWViewContextMenuHandlerGL() {}
-   virtual void select(int iEntryIndex, int iX, int iY);
-
-private:
-   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&); // stop default   
-   const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&); // stop default
-
-   virtual void init(FWViewContextMenuHandlerBase::MenuEntryAdder&);
- 
-   TEveViewer* m_viewer;
 };
 
 #endif
