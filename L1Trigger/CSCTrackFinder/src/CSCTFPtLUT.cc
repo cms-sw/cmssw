@@ -328,14 +328,14 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);
 
 
-  if (mode == 1) { 
+ /* if (mode == 1) { 
     std::cout << "F_pt: "      << front_pt      << std::endl;
     std::cout << "R_pt: "      << rear_pt       << std::endl;
     std::cout << "F_quality: " << front_quality << std::endl;
     std::cout << "R_quality: " << rear_quality  << std::endl;
     std::cout << "F_rank: " << std::hex << result.front_rank << std::endl;
     std::cout << "R_rank: " << std::hex << result.rear_rank  << std::endl;
-  }
+  }*/
 
   return result;
 }
