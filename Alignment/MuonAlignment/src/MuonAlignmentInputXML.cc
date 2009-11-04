@@ -8,19 +8,20 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.12 2009/04/16 08:53:56 flucke Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.13 2009/05/28 05:14:30 pivarski Exp $
 //
 
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Xerces include files
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
-using namespace xercesc_2_7;
+#include "xercesc/parsers/XercesDOMParser.hpp"
+#include "xercesc/dom/DOM.hpp"
+#include "xercesc/sax/HandlerBase.hpp"
+#include "xercesc/util/XMLString.hpp"
+#include "xercesc/util/PlatformUtils.hpp"
+#include "xercesc/util/XercesDefs.hpp"
+XERCES_CPP_NAMESPACE_USE
 
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputXML.h"
@@ -430,7 +431,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    return alignableMuon;
 }
 
-Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const xercesc_2_7::DOMElement *node) const {
+Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
    if (XMLString::equals(node->getNodeName(), str_DTBarrel)) return getDTnode(align::AlignableDTBarrel, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_DTWheel)) return getDTnode(align::AlignableDTWheel, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_DTStation)) return getDTnode(align::AlignableDTStation, alignableNavigator, node);
@@ -445,7 +446,7 @@ Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &al
    else return NULL;
 }
 
-Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const xercesc_2_7::DOMElement *node) const {
+Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
    unsigned int rawId = 0;
 
    DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
@@ -539,7 +540,7 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, 
    return ali;
 }
 
-Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const xercesc_2_7::DOMElement *node) const {
+Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
    unsigned int rawId;
 
    DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
@@ -708,7 +709,7 @@ double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribut
    return output;
 }
 
-void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_setposition(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
   DOMAttr *node_relativeto = node->getAttributeNode(str_relativeto);
   if (node_relativeto == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"relativeto\" attribute" << std::endl;
 
@@ -901,7 +902,7 @@ void MuonAlignmentInputXML::set_one_position(Alignable *ali, const align::Positi
    ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
 }
 
-void MuonAlignmentInputXML::do_setape(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_setape(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_xx = node->getAttributeNode(str_xx);
    DOMAttr *node_xy = node->getAttributeNode(str_xy);
    DOMAttr *node_xz = node->getAttributeNode(str_xz);
@@ -930,7 +931,7 @@ void MuonAlignmentInputXML::do_setape(const xercesc_2_7::DOMElement *node, std::
    }
 }
 
-void MuonAlignmentInputXML::do_setsurveyerr(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_setsurveyerr(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_xx = node->getAttributeNode(str_xx);
    DOMAttr *node_xy = node->getAttributeNode(str_xy);
    DOMAttr *node_xz = node->getAttributeNode(str_xz);
@@ -1004,7 +1005,7 @@ void MuonAlignmentInputXML::do_setsurveyerr(const xercesc_2_7::DOMElement *node,
    }
 }
 
-void MuonAlignmentInputXML::do_moveglobal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_moveglobal(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_x = node->getAttributeNode(str_x);
    DOMAttr *node_y = node->getAttributeNode(str_y);
    DOMAttr *node_z = node->getAttributeNode(str_z);
@@ -1033,7 +1034,7 @@ void MuonAlignmentInputXML::do_moveglobal(const xercesc_2_7::DOMElement *node, s
    } // end loop over alignables
 }
 
-void MuonAlignmentInputXML::do_movelocal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_movelocal(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_x = node->getAttributeNode(str_x);
    DOMAttr *node_y = node->getAttributeNode(str_y);
    DOMAttr *node_z = node->getAttributeNode(str_z);
@@ -1063,7 +1064,7 @@ void MuonAlignmentInputXML::do_movelocal(const xercesc_2_7::DOMElement *node, st
    } // end loop over alignables
 }
 
-void MuonAlignmentInputXML::do_rotatelocal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_rotatelocal(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_axisx = node->getAttributeNode(str_axisx);
    DOMAttr *node_axisy = node->getAttributeNode(str_axisy);
    DOMAttr *node_axisz = node->getAttributeNode(str_axisz);
@@ -1095,7 +1096,7 @@ void MuonAlignmentInputXML::do_rotatelocal(const xercesc_2_7::DOMElement *node, 
    } // end loop over alignables
 }
 
-void MuonAlignmentInputXML::do_rotatebeamline(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+void MuonAlignmentInputXML::do_rotatebeamline(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
    DOMAttr *node_rphi = node->getAttributeNode(str_rphi);
    DOMAttr *node_phi = node->getAttributeNode(str_phi);
    if (node_rphi == NULL  &&  node_phi == NULL) throw cms::Exception("XMLException") << "<rotatebeamline> is missing required \"*phi\" attribute" << std::endl;
