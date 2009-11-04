@@ -167,16 +167,17 @@ void DDLSAX2FileHandler::createDDConstants() const
 
 const std::string& DDLSAX2FileHandler::parent() const
 {
-  if (names_.size() > 1)
+  if (names_.size() > 2)
     {
-      return namesMap_.at(names_.size() - 2);
+      return namesMap_.at(names_.at(names_.size() - 2));
     }
   return namesMap_[0];
 }
 
 const std::string& DDLSAX2FileHandler::self() const
 {
-  if (names_.size() > 2)
-    return namesMap_.at(names_.size() - 1);
+  if (names_.size() > 1) {
+    return namesMap_.at(names_.at(names_.size() - 1));
+  }
   return namesMap_[0];
 }
