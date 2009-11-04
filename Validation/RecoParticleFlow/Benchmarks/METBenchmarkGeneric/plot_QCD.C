@@ -141,13 +141,14 @@
 
   TCanvas c16("c16", "<recoSet/TrueSet>");
   Styles::FormatPad( &c16, false );
-  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 300, mode);
+  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 200, mode);
   Styles::SavePlot("recSetOverTrueSet", outdir.c_str() );
 
-//  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
-//  Styles::FormatPad( &c17, false );
+  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
+  Styles::FormatPad( &c17, false );
 //  comp.DrawGaussSigmaOverMeanSlice("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0, 3000, 15, 0.0, 80.0, "Sigma(DeltaMEX)/ recoSET/trueSET;trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX_ratio");
-//  Styles::SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
+  comp.DrawGaussSigmaOverMeanSlice("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 200, mode);
+  Styles::SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
 
   comp.SetStyles(style1, style2, "Particle Flow Met", "Calo Met");
   mode = Comparator::SCALE;
