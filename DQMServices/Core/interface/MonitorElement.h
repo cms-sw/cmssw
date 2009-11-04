@@ -130,11 +130,11 @@ public:
 
   /// true if ME is meant to be stored for each luminosity section
   bool getLumiFlag(void) const
-    { return data_.flags & DQMNet::DQM_FLAG_LUMI; }
+    { return data_.flags & DQMNet::DQM_PROP_LUMI; }
 
   /// this ME is meant to be stored for each luminosity section
   void setLumiFlag(void)
-    { data_.flags |= DQMNet::DQM_FLAG_LUMI; }
+    { data_.flags |= DQMNet::DQM_PROP_LUMI; }
 
 #if __WORDSIZE > 32
   void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
