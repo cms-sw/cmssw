@@ -1,5 +1,6 @@
 // Authors: F. Ambroglini, L. Fano', F. Bechtel
 #include <QCDAnalysis/UEAnalysis/interface/UEJetValidation.h>
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
  
 using namespace edm;
 using namespace std;
@@ -36,12 +37,12 @@ void UEJetValidation::beginJob( const EventSetup& )
   h2d_jetsizeNchg_chggenjet =
     gendir.make<TH2D>("h2d_jetsizeNchg_chggenjet",
 		   "h2d_jetsizeNchg_chggenjet;p_{T}(chg gen jet) (GeV/c);N(chg) Jet Size (rad)",
-		   300, 0., 600., 100, 0., 1.);
+		   600, 0., 600., 100, 0., 1.);
   
   h2d_jetsizePtsum_chggenjet =
     gendir.make<TH2D>("h2d_jetsizePtsum_chggenjet",
 		   "h2d_jetsizePtsum_chggenjet;p_{T}(chg gen jet) (GeV/c);#Sigmap_{T} Jet Size (rad)",
-		   300, 0., 600., 100, 0., 1.);
+		   600, 0., 600., 100, 0., 1.);
 
   h_dR_tracksjet_calojet                        = new TH1D*[ selectedHLTBits.size() ];
   h_dR_tracksjet_chggenjet                      = new TH1D*[ selectedHLTBits.size() ];
@@ -96,12 +97,12 @@ void UEJetValidation::beginJob( const EventSetup& )
       h_dR_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH1D>( "h_dR_tracksjet_calojet", 
 			"h_dR_tracksjet_calojet;#DeltaR(tracks jet, calo jet) (rad / #pi);", 
-			100,0.,1.);
+			100,0.,5.);
   
       h_dR_tracksjet_chggenjet[iHLTbit] = 
 	dir.make<TH1D>("h_dR_tracksjet_chggenjet",
 		       "h_dR_tracksjet_chggenjet;#DeltaR(tracks jet, chg. gen jet) (rad / #pi);",
-		       100,0.,1.);
+		       100,0.,5.);
   
       h_pTratio_tracksjet_chggenjet[iHLTbit] =
 	dir.make<TH1D>("h_pTratio_tracksjet_chggenjet",
@@ -121,7 +122,7 @@ void UEJetValidation::beginJob( const EventSetup& )
       h_pT_chggenjet[iHLTbit] = 
 	dir.make<TH1D>("h_pT_chggenjet",
 		       "h_pT_chggenjet;All jets: p_{T}(chg. gen jet) (GeV/c);",
-		       300, 0., 600. );
+		       300, 0., 50. ); //600
 
       h_eta_chggenjetMatched[iHLTbit] = 
 	dir.make<TH1D>("h_eta_chggenjetMatched",
@@ -136,42 +137,42 @@ void UEJetValidation::beginJob( const EventSetup& )
       h_pT_chggenjetMatched[iHLTbit] = 
 	dir.make<TH1D>("h_pT_chggenjetMatched",
 		       "h_pT_chggenjetMatched;Matched jets: p_{T}(chg. gen jet) (GeV/c);",
-		       300, 0., 600. );
+		       600, 0., 600. ); //600
       
       h_pT_tracksjet[iHLTbit] = 
 	dir.make<TH1D>("h_pT_tracksjet",
 		       "h_pT_tracksjet;p_{T}(tracks jet) (GeV/c);",
-		       300, 0., 600. );
+		       600, 0.,600. );
 
       h_pT_calojet[iHLTbit] = 
 	dir.make<TH1D>("h_pT_calojet",
 		       "h_pT_calojet;p_{T}(calo jet) (GeV/c);",
-		       300, 0., 600. );
+		       600, 0.,600. );
 
       h_pT_calojet_hadronic[iHLTbit] = 
 	dir.make<TH1D>("h_pT_calojet_hadronic",
 		       "h_pT_calojet_hadronic;p_{T,had}(calo jet) (GeV/c);",
-		       300, 0., 600. );
+		       600, 0., 600. );
 
       h_pT_calojet_electromagnetic[iHLTbit] = 
 	dir.make<TH1D>("h_pT_calojet_electromagnetic",
 		       "h_pT_calojet_electromagnetic;p_{T,em}(calo jet) (GeV/c);",
-		       300, 0., 600. );
+		       600, 0., 600. );
 
       h_nConstituents_tracksjet[iHLTbit] = 
 	dir.make<TH1D>("h_nConstituents_tracksjet",
 		       "h_nConstituents_tracksjet;N_{const}(tracks jet);",
-		       50, 0.5, 50.5 );
+		       50, 0.5, 25.5 );
 
       h_nConstituents_calojet[iHLTbit] = 
 	dir.make<TH1D>("h_nConstituents_calojet",
 		       "h_nConstituents_calojet;N_{const}(calo jet);",
-		       50, 0.5, 50.5 );
+		       50, 0.5, 25.5 );
 
       h_nConstituents_chggenjet[iHLTbit] = 
 	dir.make<TH1D>("h_nConstituents_chggenjet",
 		       "h_nConstituents_chggenjet;N_{const}(chg. gen jet);",
-		       50, 0.5, 50.5 );
+		       50, 0.5, 25.5 );
 
       h_maxDistance_tracksjet[iHLTbit] = 
 	dir.make<TH1D>("h_maxDistance_tracksjet",
@@ -206,92 +207,92 @@ void UEJetValidation::beginJob( const EventSetup& )
       h2d_DrTrackJetCaloJet_PtTrackJet[iHLTbit] = 
 	dir.make<TH2D>("h2d_DrTrackJetCaloJet_PtTrackJet",
 		       "h2d_DrTrackJetCaloJet_PtTrackJet;p_{T}(track jet) (GeV/c);#DeltaR(track jet, calo jet) (rad / #pi)",
-		       300, 0., 600., 100, 0., 1. );
+		       300, 0., 50., 100, 0., 1. );
 
       h2d_DrTrackJetChgGenJet_PtTrackJet[iHLTbit] = 
 	dir.make<TH2D>("h2d_DrTrackJetChgGenJet_PtTrackJet",
 		       "h2d_DrTrackJetChgGenJet_PtTrackJet;p_{T}(track jet) (GeV/c);#DeltaR(track jet, chg gen jet) (rad / #pi)",
-		       300, 0., 600., 100, 0., 1. );
+		       300, 0., 50., 100, 0., 1. );
 
       h2d_pTratio_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH2D>("h2d_pTratio_tracksjet_calojet",
 		       "h2d_pTratio_tracksjet_calojet;p_{T}(track jet) (GeV/c);p_{T}(track jet)/p_{T}(calo jet)",
-		       300, 0., 600., 100, 0., 4.);
+		       600, 0., 600., 100, 0., 4.);
 
       h2d_pTRatio_tracksjet_calojet_hadronic[iHLTbit] = 
 	dir.make<TH2D>("h2d_pTRatio_tracksjet_calojet_hadronic",
 		       "h2d_pTRatio_tracksjet_calojet_hadronic;p_{T}(track jet) (GeV/c);p_{T}(track jet)/p_{T,had}(calo jet)",
-		       300, 0., 600., 100, 0., 4.);
+		       600, 0., 600., 100, 0., 4.);
 
       h2d_pTRatio_tracksjet_calojet_electromagnetic[iHLTbit] = 
 	dir.make<TH2D>("h2d_pTRatio_tracksjet_calojet_electromagnetic",
 		       "h2d_pTRatio_tracksjet_calojet_electromagnetic;p_{T}(tracks jet) (GeV/c);p_{T}(tracks jet)/p_{T,em}(calo jet)",
-		       300, 0., 600., 100, 0., 4.);
+		       600, 0., 600., 100, 0., 4.);
 
       h2d_pTratio_tracksjet_chggenjet[iHLTbit] = 
 	dir.make<TH2D>("h2d_pTratio_tracksjet_chggenjet",
 		       "h2d_pTratio_tracksjet_chggenjet;p_{T}(tracks jet) (GeV/c);p_{T}(chg. gen jet)/p_{T}(calo jet)",
-		       300, 0., 600., 160, 0.96, 1.04);
+		       600, 0., 600., 100, 0.8, 1.04);
 
       h2d_nConstituents_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH2D>("h2d_nConstituents_tracksjet_calojet",
 		       "h2d_nConstituents_tracksjet_calojet;p_{T}(tracks jet) (GeV/c);N_{const}(tracks jet)/N_{const}(calo jet)",
-		       300, 0., 600., 100, 0., 10.);
+		       600, 0., 600., 100, 0., 10.);
 
       h2d_nConstituents_tracksjet_chggenjet[iHLTbit] = 
 	dir.make<TH2D>("h2d_nConstituents_tracksjet_chggenjet",
 		       "h2d_nConstituents_tracksjet_chggenjet;p_{T}(tracks jet) (GeV/c);N_{const}(tracks jet)/N_{const}(chg. gen jet)",
-		       300, 0., 600., 100, 0., 10.);
+		       600, 0., 600., 100, 0., 10.);
   
       h2d_maxDistance_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH2D>("h2d_maxDistance_tracksjet_calojet",
 		       "h2d_maxDistance_tracksjet_calojet;p_{T}(tracks jet) (GeV/c);D_{max}(tracks jet)/D_{max}(calo jet)",
-		       300, 0., 600., 100, 0., 5.);
+		       600, 0., 600., 100, 0., 5.);
   
       h2d_maxDistance_tracksjet_chggenjet[iHLTbit] = 
 	dir.make<TH2D>("h2d_maxDistance_tracksjet_chggenjet",
 		       "h2d_maxDistance_tracksjet_chggenjet;p_{T}(tracks jet) (GeV/c);D_{max}(tracks jet)/D_{max}(chg. gen jet)",
-		       300, 0., 600., 100, 0., 5.);
+		       600, 0.,600., 100, 0., 5.);
 
       h2d_nConstituents_tracksjet[iHLTbit] =
 	dir.make<TH2D>("h2d_nConstituents_tracksjet",
 		       "h2d_nConstituents_tracksjet;p_{T}(tracks jet) (GeV/c);N_{const}(tracks jet)",
-		       300, 0., 600., 50, 0.5, 50.5 );
+		       600, 0., 600., 50, 0.5, 50.5 );
 
       h2d_nConstituents_calojet[iHLTbit] =
 	dir.make<TH2D>("h2d_nConstituents_calojet",
 		       "h2d_nConstituents_calojet;p_{T}(calo jet) (GeV/c);N_{const}(calo jet)",
-		       300, 0., 600., 50, 0.5, 50.5 );
+		       600, 0., 600., 50, 0.5, 50.5 );
 
       h2d_nConstituents_chggenjet[iHLTbit] =
 	dir.make<TH2D>("h2d_nConstituents_chggenjet",
 		       "h2d_nConstituents_chggenjet;p_{T}(chg. gen jet) (GeV/c);N_{const}(chg. gen jet)",
-		       300, 0., 600., 50, 0.5, 50.5 );
+		       300, 0., 50., 50, 0.5, 50.5 );
 
       h2d_maxDistance_tracksjet[iHLTbit] =
 	dir.make<TH2D>("h2d_maxDistance_tracksjet",
 		       "h2d_maxDistance_tracksjet;p_{T}(tracks jet) (GeV/c);D_{max}(tracks jet) (rad)",
-		       300, 0., 600., 100, 0., 1. );
+		       300, 0., 50., 100, 0., 1. );
 
       h2d_maxDistance_calojet[iHLTbit] =
 	dir.make<TH2D>("h2d_maxDistance_calojet",
 		       "h2d_maxDistance_calojet;p_{T}(calo jet) (GeV/c);D_{max}(calo jet) (rad)",
-		       300, 0., 600., 100, 0., 1.);
+		       300, 0., 50., 100, 0., 1.);
 
       h2d_maxDistance_chggenjet[iHLTbit] =
 	dir.make<TH2D>("h2d_maxDistance_chggenjet",
 		       "h2d_maxDistance_chggenjet;p_{T}(chg. gen jet) (GeV/c);D_{max}(chg. gen jet) (rad)",
-		       300, 0., 600., 100, 0., 1.);
+		       300, 0., 50., 100, 0., 1.);
 
       h2d_jetsizeNchg_tracksjet[iHLTbit] =
         dir.make<TH2D>("h2d_jetsizeNchg_tracksjet",
 		       "h2d_jetsizeNchg_tracksjet;p_{T}(tracks jet) (GeV/c);N(chg) Jet Size (rad)",
-                       300, 0., 600., 100, 0., 1.);
+                       300, 0., 50., 100, 0., 1.);
 
       h2d_jetsizePtsum_tracksjet[iHLTbit] =
         dir.make<TH2D>("h2d_jetsizePtsum_tracksjet",
 		       "h2d_jetsizePtsum_tracksjet;p_{T}(tracks jet) (GeV/c);#Sigmap_{T} Jet Size (rad)",
-		       300, 0., 600., 100, 0., 1.);
+		       300, 0., 50., 100, 0., 1.);
 
       h2d_nchg_vs_dR [iHLTbit] =
 	dir.make<TH2D>("h2d_nchg_vs_dR",
@@ -299,7 +300,7 @@ void UEJetValidation::beginJob( const EventSetup& )
 		       30, 0., 0.6, 51, -0.5, 50.5 );
       h2d_ptsum_vs_dR[iHLTbit] = 
 	dir.make<TH2D>("h2d_ptsum_vs_dR",
-		       "h2d_ptsum_vs_dR;#DeltaR(constitutent, jet) (rad);#Sigmap_{T} (GeV/c)",
+		       "h2d_ptsumcd_vs_dR;#DeltaR(constitutent, jet) (rad);#Sigmap_{T} (GeV/c)",
 		       30, 0., 0.6, 150, 0., 300. ); 
     
 
@@ -313,7 +314,15 @@ void UEJetValidation::analyze( const Event& e, const EventSetup& es)
   /// ask for event scale (e.g. pThat) and return if it is outside the requested range
   ///
   double genEventScale( -1. );
-  if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+  // if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+
+ Handle<GenEventInfoProduct> hEventInfo;
+  e.getByLabel(genEventScaleTag , hEventInfo);
+ if (hEventInfo->binningValues().size() > 0)
+   { 
+    genEventScale = hEventInfo->binningValues()[0];
+   }  
+
   if ( genEventScale <  _eventScaleMin ) return;
   if ( genEventScale >= _eventScaleMax ) return;
 
@@ -498,8 +507,8 @@ void UEJetValidation::analyze( const Event& e, const EventSetup& es)
       
       if ( triggerResults.product()->wasrun() )
     	{
-    	  LogDebug("UEJetValidation") << "at least one path out of " << triggerResults.product()->size() 
- 				      << " ran? " << triggerResults.product()->wasrun();
+    	 LogDebug("UEJetValidation")<< "at least one path out of " << triggerResults.product()->size() 
+	      << " ran? " << triggerResults.product()->wasrun();
 	  
     	  if ( triggerResults.product()->accept() ) 
     	    {
@@ -508,17 +517,19 @@ void UEJetValidation::analyze( const Event& e, const EventSetup& es)
     	      const unsigned int n_TriggerResults( triggerResults.product()->size() );
     	      for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
     		{
-    		  LogDebug("UEJetValidation") << "path " << triggerNames.triggerName( itrig ) 
+    		     LogDebug("UEJetValidation") << "path " << triggerNames.triggerName( itrig ) 
  					      << ", module index " << triggerResults.product()->index( itrig )
  					      << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig )
- 					      << ", accept " << triggerResults.product()->accept( itrig );
+		       << ", accept " << triggerResults.product()->accept( itrig );
 		  
       		  if ( triggerResults.product()->accept( itrig ) )
     		    {
 		      vector<string>::iterator it(selectedHLTBits.begin()),itEnd(selectedHLTBits.end());
 		      for( int iHLTbit(0); it != itEnd; ++it, ++iHLTbit)
 			{
-			  std::string selBit( *it );
+			 
+                  
+                          std::string selBit( *it );
 			  bool triggered( selBit == (triggerNames.triggerName( itrig )).c_str() ); 
 
 			  /// fill histograms for trigger selBit
