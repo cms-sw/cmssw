@@ -638,14 +638,17 @@ class parserPerfsuiteMetadata:
 			print "BAD BAD BAD UNHANDLED ERROR" + str(e)
 
 
-		try:
-			result["TestResults"].update(self.parseAllOtherTests())
-		except Exception, e:
-			print "BAD BAD BAD UNHANDLED ERROR" + str(e)
+		#TODO:
+		#Check what Vidmantas was doing in the parseAllOtherTests, de facto it is not used now, so commenting it for now (to avoid the "BAD BAD BAD...."
+		#try:
+		#	result["TestResults"].update(self.parseAllOtherTests())
+		#except Exception, e:
+		#	print "BAD BAD BAD UNHANDLED ERROR" + str(e)
 
 
 		main_cores = [result["General"]["run_on_cpus"]]
 		num_cores = result["General"].get("num_cores", 0)
+		print "Number of cores was: %s"%num_cores
 		#TODO: temporarly - search for cores, use regexp
 		main_cores = [1]
 
