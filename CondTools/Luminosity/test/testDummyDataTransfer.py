@@ -5,6 +5,18 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
 #process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_RUN_INFO'
 process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+process.MessageLogger = cms.Service("MessageLogger",
+   suppressInfo = cms.untracked.vstring(),
+   destinations = cms.untracked.vstring('joboutput'),
+   categories = cms.untracked.vstring('LumiReport'),
+   joboutput = cms.untracked.PSet(
+     threshold = cms.untracked.string('INFO'),
+     noLineBreaks = cms.untracked.bool(True),
+     noTimeStamps = cms.untracked.bool(False),
+     INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+     LumiReport = cms.untracked.PSet( limit = cms.untracked.int32(10000000) )
+   )
+)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
