@@ -2,14 +2,17 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/08/25 21:46:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/11/04 04:16:54 $
+ * $Revision: 1.2 $
  *
  */
 
 #include "DQM/BeamMonitor/interface/BeamConditionsMonitor.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <numeric>
 #include <math.h>
 #include <TMath.h>
@@ -23,26 +26,25 @@ using namespace edm;
 // constructors and destructor
 //
 BeamConditionsMonitor::BeamConditionsMonitor( const ParameterSet& ps ) :
-  countEvt_(0),countLumi_(0)
-{
+  countEvt_(0),countLumi_(0) {
+
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   bsSrc_          = parameters_.getUntrackedParameter<string>("beamSpot","offlineBeamSpot");
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
-
+  
   dbe_            = Service<DQMStore>().operator->();
   
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 }
 
 
-BeamConditionsMonitor::~BeamConditionsMonitor()
-{
+BeamConditionsMonitor::~BeamConditionsMonitor() {
 }
 
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::beginJob(const EventSetup& context){
+void BeamConditionsMonitor::beginJob(const EventSetup& context) {
   
   // book some histograms here
   // create and cd into new folder
@@ -62,45 +64,39 @@ void BeamConditionsMonitor::beginJob(const EventSetup& context){
 
 //--------------------------------------------------------
 void BeamConditionsMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
-  
 }
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-					     const EventSetup& context) {
+void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
+						 const EventSetup& context) {
   countLumi_++;
 }
 
 // ----------------------------------------------------------
-void BeamConditionsMonitor::analyze(const Event& iEvent, 
-				const EventSetup& iSetup )
-{  
-  countEvt_++;
-  Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
-  theBS = *recoBeamSpotHandle;
+void BeamConditionsMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ) {
+
+  countEvt_++;  
+  ESHandle< BeamSpotObjects > beamhandle;
+  iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
+  condBeamSpot = *beamhandle;
+
 }
 
 
 //--------------------------------------------------------
 void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-					   const EventSetup& iSetup) {
-  if (debug_) {
-    cout << "End of lumi block" << endl;
-    cout << "thBS->x0() = " << theBS.x0() << " +/- " << theBS.x0Error() << endl;
-    cout << "thBS->y0() = " << theBS.y0() << " +/- " << theBS.y0Error() << endl;
-  }
-  h_x0_lumi->ShiftFillLast( theBS.x0(), theBS.x0Error(), 1 );
-  h_y0_lumi->ShiftFillLast( theBS.y0(), theBS.y0Error(), 1 );
-}
-//--------------------------------------------------------
-void BeamConditionsMonitor::endRun(const Run& r, const EventSetup& context){
-  
-  
-}
-//--------------------------------------------------------
-void BeamConditionsMonitor::endJob(){
+					       const EventSetup& iSetup) {
 
+  LogInfo("BeamConditions") << condBeamSpot << endl;
+  h_x0_lumi->ShiftFillLast( condBeamSpot.GetX(), condBeamSpot.GetXError(), 1 );
+  h_y0_lumi->ShiftFillLast( condBeamSpot.GetY(), condBeamSpot.GetYError(), 1 );
+
+}
+//--------------------------------------------------------
+void BeamConditionsMonitor::endRun(const Run& r, const EventSetup& context) {  
+}
+//--------------------------------------------------------
+void BeamConditionsMonitor::endJob() {
 }
 
 DEFINE_FWK_MODULE(BeamConditionsMonitor);
