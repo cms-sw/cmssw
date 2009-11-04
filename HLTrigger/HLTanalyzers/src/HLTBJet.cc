@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 #include <utility>
+#include <cstring>
 #include <boost/foreach.hpp>
 
 #include <TTree.h>

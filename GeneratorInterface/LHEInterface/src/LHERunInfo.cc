@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <cstring>
 
 #include <boost/bind.hpp>
 
