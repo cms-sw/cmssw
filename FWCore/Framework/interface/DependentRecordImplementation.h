@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.9 2009/01/29 22:14:43 elmer Exp $
+// $Id: DependentRecordImplementation.h,v 1.10 2009/11/04 15:27:18 wmtan Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
 	    //rethrow but this time with dependent information.
 	    throw NoRecordException<DepRecordT>(this->key());
 	 } catch(cms::Exception& e) {  
-	    e<<"Exception occured while getting dependent record from record \""<<
+	    e<<"Exception occurred while getting dependent record from record \""<<
 	       this->key().type().name()<<"\""<<std::endl;
 	    throw;
 	 }

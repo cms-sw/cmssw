@@ -119,7 +119,7 @@ private:
     }
     catch(...) {
 	LogError("BeginJob")
-	  << "An unknown Exception occured in\n" << description() << "\n";
+	  << "An unknown Exception occurred in\n" << description() << "\n";
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
 	*cached_exception_
@@ -190,7 +190,7 @@ private:
     }
     catch(...) {
 	LogError("EndJob")
-	  << "An unknown Exception occured in\n" << description() << "\n";
+	  << "An unknown Exception occurred in\n" << description() << "\n";
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
 	*cached_exception_

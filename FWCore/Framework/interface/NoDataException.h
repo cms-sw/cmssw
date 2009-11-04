@@ -51,7 +51,7 @@
        \endcode
 
     NOTE: NoDataException<> is only thrown when the data is unavailable. If
-      the data should have been available but a problem occured while obtaining
+      the data should have been available but a problem occurred while obtaining
       the data, then a different type of exception will be thrown.
 
       To catch ALL possible exceptions that can occur from the Data Access 

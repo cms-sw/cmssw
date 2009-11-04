@@ -90,7 +90,7 @@ template<typename T>
          try {
             return it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
          } catch(cms::Exception& iException) {
-            Exception toThrow(errors::Configuration,"Error occured while creating ");
+            Exception toThrow(errors::Configuration,"Error occurred while creating ");
             toThrow<<modtype<<"\n";
             toThrow.append(iException);
             toThrow.raise();
