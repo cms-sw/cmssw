@@ -264,9 +264,12 @@ def main():
     # Produce a small logfile with basic info on the Production area
     _createLogFile("%s/ProductionLog.txt" % stage,date,repdir,ShowTagsResult)
 
-    print "\n Handling IgProf reports..."
-    # add a function to handle the IgProf reports
-    stageIgProfReports(igprof_remotedir,CMSSW_arch,CMSSW_version)
+    #Check if there are IgProf tests:
+    for dirname in os.listdir(repdir):
+        if "IgProf" in dirname:
+            print "\n Handling IgProf reports..."
+            # add a function to handle the IgProf reports
+            stageIgProfReports(igprof_remotedir,CMSSW_arch,CMSSW_version)
     
     print "\n Creating HTML files..."
     # create HTML files

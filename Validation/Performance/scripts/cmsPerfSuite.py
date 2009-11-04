@@ -1540,6 +1540,9 @@ class PerfSuite:
                AbsTarFile = os.path.join(perfsuitedir,TarFile)
                tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
                self.printFlush(tarcmd)
+               #FIXME:
+               #Anything that will be logged after the tar command below will not enter the cmsPerfSuite.log in the tarball (by definition)...
+               #To remain backward compatible the harvesting script needs to be based on the command above to identify the tarball location.
                self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
                
                #Archive it on CASTOR

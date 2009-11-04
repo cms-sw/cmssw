@@ -603,11 +603,18 @@ class parserPerfsuiteMetadata:
 			lmdb_castor_url_is_valid = lambda url: url.startswith("/castor/")
 
 			url = ""
-			if os.environ.has_key("PERFDB_CASTOR_FILE_URL"):
-				url = os.environ["PERFDB_CASTOR_FILE_URL"]
+			try:
+				print "HERE!"
+				url=self.get_tarball_fromlog()
+				print "Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url
 				
-			else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)
-				 self.handleParsingError( "Castor tarball URL not found. Provide interactively")
+			except:
+				if os.environ.has_key("PERFDB_CASTOR_FILE_URL"):
+					url = os.environ["PERFDB_CASTOR_FILE_URL"]
+					
+				else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)
+					print "Failed to get the tarball location from environment variable PERFDB_CASTOR_FILE_URL" 
+					self.handleParsingError( "Castor tarball URL not found. Provide interactively")
 
 			while True:
 				
@@ -618,7 +625,21 @@ class parserPerfsuiteMetadata:
 				url = sys.stdin.readline()
 
 
-		return info 
+		return info
+	def get_tarball_fromlog(self):
+		'''Return the tarball castor location by parsing the cmsPerfSuite.log file'''
+		print "Getting the url from the cmsPerfSuite.log"
+		log=open("cmsPerfSuite.log","r")
+		castor_dir="UNKNOWN_CASTOR_DIR"
+		tarball="UNKNOWN_TARBALL"
+		for line in log.readlines():
+			if 'castordir' in line:
+				castor_dir=line.split()[1]
+			if 'tgz' in line and tarball=="UNKNOWN_TARBALL": #Pick the first line that contains the tar command...
+				if 'tar' in line:
+					tarball=os.path.basename(line.split()[2])
+		castor_tarball=os.path.join(castor_dir,tarball)
+		return castor_tarball
 
 	def parseAll(self):
 		result = {"General": {}, "TestResults":{}, "cmsSciMark":{}, 'unrecognized_jobs': []}
