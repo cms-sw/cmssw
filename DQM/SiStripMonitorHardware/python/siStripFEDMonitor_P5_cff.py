@@ -127,16 +127,16 @@ siStripFEDMonitor.nOutOfSyncHistogramConfig = cms.untracked.PSet(
   Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nTotalBadChannelsHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(True),
-  NBins = cms.untracked.uint32(250),
-  Min = cms.untracked.double(0),
-  Max = cms.untracked.double(500)
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(250),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nTotalBadActiveChannelsHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(True),
-  NBins = cms.untracked.uint32(250),
-  Min = cms.untracked.double(0),
-  Max = cms.untracked.double(500)
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(250),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
