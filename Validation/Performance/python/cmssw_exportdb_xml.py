@@ -247,14 +247,14 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 	out.write(xml)
 	out.close()
 	print "Now copying %s to remote directory %s..."%(xmlFileName,remotedir)
-	#change to the directory to avoid tar replicating /tmp/$USER_perfsuite_xml/ directory structure remotely:
-	os.system("cd %s"%tmp_dir)
+	
 	#FIXME: Here we could decide to archive it on CASTOR on a dedicated directory
 	if ":" in remotedir: #CAVEAT: since we report the timestamp as part of the xml filename we need to be careful..
 		(host,dir)=remotedir.split(":")
-		tarpipe_cmd='tar cf - %s|ssh %s "cd %s;tar xf -"'%(os.path.basename(xmlFileName),host,dir)
+		#change to the directory to avoid tar replicating /tmp/$USER_perfsuite_xml/ directory structure remotely:
+		tarpipe_cmd='cd %s; tar cf - %s|ssh %s "cd %s;tar xf -"'%(tmp_dir,os.path.basename(xmlFileName),host,dir)
 	else:
-		tarpipe_cmd='tar cf - %s|(cd %s;tar xf -)'%(os.path.basename(xmlFileName),remotedir)
+		tarpipe_cmd='cd %s;tar cf - %s|(cd %s;tar xf -)'%(tmp_dir,os.path.basename(xmlFileName),remotedir)
 	try:
 		print tarpipe_cmd
 		os.system(tarpipe_cmd)
