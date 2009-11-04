@@ -48,6 +48,8 @@ void CandidateBenchmark::setup() {
 
 void CandidateBenchmark::fillOne(const reco::Candidate& cand) {
 
+  if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) return;
+
   pt_->Fill( cand.pt() );
   eta_->Fill( cand.eta() );
   phi_->Fill( cand.phi() );

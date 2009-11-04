@@ -28,6 +28,8 @@ class MatchCandidateBenchmark : public Benchmark {
   
   TH2F*   delta_et_Over_et_VS_et_; 
   TH2F*   delta_et_VS_et_; 
+  TH2F*   delta_eta_VS_et_; 
+  TH2F*   delta_phi_VS_et_; 
 
 };
 

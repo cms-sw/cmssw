@@ -23,11 +23,18 @@ using namespace std;
 PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   PFCandidateManager( parameterSet.getParameter<double>("dRMax"),
-		      parameterSet.getParameter<double>("ptMin"),
 		      parameterSet.getParameter<bool>("matchCharge"), 
 		      (Benchmark::Mode) parameterSet.getParameter<int>("mode") ),
   matchLabel_( parameterSet.getParameter<InputTag>("MatchCollection") )
-{}
+{
+  setRange( parameterSet.getParameter<double>("ptMin"),
+	    parameterSet.getParameter<double>("ptMax"),
+	    parameterSet.getParameter<double>("etaMin"),
+	    parameterSet.getParameter<double>("etaMax"),
+	    parameterSet.getParameter<double>("phiMin"),
+	    parameterSet.getParameter<double>("phiMax") );
+
+}
 
 
 void 

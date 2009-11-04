@@ -11,25 +11,32 @@
 
 #include <vector>
 
-/// A benchmark managing several benchmarks
+/// \brief A benchmark managing several benchmarks
+/// 
+/// The benchmarks are filled only for the PFCandidates matched to 
+/// a candidate in the matching collection within the limits in delta R. 
+/// The parameters for this benchmark are:
+/// - the maximum delta R for matching
+/// - the minimum pT of the reconstructed PFCandidate. Low pT PFCandidates have to be removed,
+/// as they lead to a lot of hits in the histograms with delta p_T just a bit larger than p_T_gen
+/// - a bool, specifying if the charge of the candidates should be used in the matching.
+/// - the benchmark mode, driving the size of the histograms. 
 class PFCandidateManager : public Benchmark {
 
  public:
 
   PFCandidateManager( float dRMax = 0.3,
-		      float ptMin = 2,
 		      bool matchCharge = true, 
 		      Benchmark::Mode mode=Benchmark::DEFAULT) 
     : 
     Benchmark(mode), 
     candBench_(mode), pfCandBench_(mode), matchCandBench_(mode), 
-    dRMax_(dRMax), ptMin_(ptMin), matchCharge_(matchCharge) {}
-
+    dRMax_(dRMax), matchCharge_(matchCharge) {}
+  
   virtual ~PFCandidateManager();
   
   /// set the benchmark parameters
   void setParameters( float dRMax = 0.3,
-		      float ptMin = 2, 
 		      bool matchCharge = true, 
 		      Benchmark::Mode mode=Benchmark::DEFAULT );
   
@@ -50,7 +57,6 @@ class PFCandidateManager : public Benchmark {
   MatchCandidateBenchmark matchCandBench_;
 
   float dRMax_;
-  float ptMin_;
   bool  matchCharge_;
 
 };
@@ -70,7 +76,7 @@ void PFCandidateManager::fill(const reco::PFCandidateCollection& candCollection,
   for (unsigned int i = 0; i < candCollection.size(); i++) {
     const reco::PFCandidate& cand = candCollection[i];
 
-    if( cand.pt() < ptMin_ ) break;
+    if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) continue;
     
     int iMatch = matchIndices[i];
 

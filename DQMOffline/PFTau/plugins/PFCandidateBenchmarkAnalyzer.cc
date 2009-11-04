@@ -23,7 +23,15 @@ using namespace std;
 PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   PFCandidateBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
-{}
+{
+  setRange( parameterSet.getParameter<double>("ptMin"),
+	    parameterSet.getParameter<double>("ptMax"),
+	    parameterSet.getParameter<double>("etaMin"),
+	    parameterSet.getParameter<double>("etaMax"),
+	    parameterSet.getParameter<double>("phiMin"),
+	    parameterSet.getParameter<double>("phiMax") );
+
+}
 
 
 void 

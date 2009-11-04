@@ -18,7 +18,15 @@ using namespace std;
 CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   CandidateBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
-{}
+{
+
+  setRange( parameterSet.getParameter<double>("ptMin"),
+	    parameterSet.getParameter<double>("ptMax"),
+	    parameterSet.getParameter<double>("etaMin"),
+	    parameterSet.getParameter<double>("etaMax"),
+	    parameterSet.getParameter<double>("phiMin"),
+	    parameterSet.getParameter<double>("phiMax") );
+}
 
 
 void 

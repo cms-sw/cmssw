@@ -57,7 +57,7 @@ void PFCandidateBenchmark::fill( const reco::PFCandidateCollection& pfCands) {
 
 void PFCandidateBenchmark::fillOne( const reco::PFCandidate& pfCand ) {
 
-  // specific histograms:
+  if( !isInRange(pfCand.pt(), pfCand.eta(), pfCand.phi() ) ) return;
 
   particleId_->Fill( pfCand.particleId() );
   ecalEnergy_->Fill( pfCand.ecalEnergy() );

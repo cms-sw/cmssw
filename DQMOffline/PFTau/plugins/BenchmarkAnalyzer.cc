@@ -12,11 +12,13 @@
 
 using namespace std;
 
-BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet& iConfig)
+BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet& parameterSet)
 {
 
-  inputLabel_      = iConfig.getParameter<edm::InputTag>("InputCollection");
-  benchmarkLabel_  = iConfig.getParameter<std::string>("BenchmarkLabel"); 
+  inputLabel_      = parameterSet.getParameter<edm::InputTag>("InputCollection");
+  benchmarkLabel_  = parameterSet.getParameter<std::string>("BenchmarkLabel"); 
+
+
 }
 
 

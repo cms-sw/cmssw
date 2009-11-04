@@ -38,11 +38,27 @@ class Benchmark{
 
   static DQMStore *DQM_; 
 
-  Benchmark(Mode mode = DEFAULT) : dir_(0), mode_(mode) {}
+  Benchmark(Mode mode = DEFAULT) : 
+    dir_(0), mode_(mode), 
+    ptMin_(0), ptMax_(10e10), 
+    etaMin_(-10), etaMax_(10), 
+    phiMin_(-10), phiMax_(10) {}
+
   virtual ~Benchmark();
 
   void setParameters( Mode mode) { mode_ = mode;}
   
+  void setRange( float ptMin, float ptMax, 
+		 float etaMin, float etaMax, 
+		 float phiMin, float phiMax ) {
+    ptMin_ = ptMin; ptMax_ = ptMax; etaMin_ = etaMin; etaMax_ = etaMax;
+    phiMin_ = phiMin; phiMax_ = phiMax;
+  }
+
+  bool isInRange(float pt, float eta, float phi) const {
+    return pt>ptMin_ && pt<ptMax_ && eta>etaMin_ && eta<etaMax_ && phi>phiMin_ && phi<phiMax_ ? true : false; 
+  }
+
   virtual void setDirectory(TDirectory* dir);
   
   /// write to the TFile, in plain ROOT mode. No need to call this function in DQM mode
@@ -68,6 +84,15 @@ class Benchmark{
   TDirectory* dir_;
 
   Mode        mode_;
+
+  float       ptMin_;
+  float       ptMax_;
+  float       etaMin_;
+  float       etaMax_;
+  float       phiMin_;
+  float       phiMax_;
+
+
 };
 
 #endif 
