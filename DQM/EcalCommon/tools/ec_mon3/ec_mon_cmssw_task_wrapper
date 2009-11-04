@@ -269,36 +269,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
 process.GlobalTag.globaltag = "GR09_H_V4::All"
 
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
-
-process.EcalTrivialConditionRetriever.producedChannelStatus = False
-process.EcalTrivialConditionRetriever.weightsForTB = False
-process.EcalTrivialConditionRetriever.producedEcalPedestals = False
-process.EcalTrivialConditionRetriever.getWeightsFromFile = False
-process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = False
-process.EcalTrivialConditionRetriever.producedEcalIntercalibConstantsMC = False
-process.EcalTrivialConditionRetriever.producedEcalIntercalibErrors = False
-process.EcalTrivialConditionRetriever.producedEcalTimeCalibConstants = False
-process.EcalTrivialConditionRetriever.producedEcalTimeCalibErrors = False
-process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
-process.EcalTrivialConditionRetriever.producedEcalGainRatios = False
-process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = True
-process.EcalTrivialConditionRetriever.producedEcalClusterCrackCorrParameters = False
-process.EcalTrivialConditionRetriever.producedEcalMappingElectronics = False
-process.EcalTrivialConditionRetriever.producedEnergyUncertaintyParameters = False
-process.EcalTrivialConditionRetriever.produceEnergyCorrectionParameters = False
-
-process.EcalTrivialConditionRetriever.adcToGeVEBConstant = cms.untracked.double(0.00875)
-process.EcalTrivialConditionRetriever.adcToGeVEEConstant = cms.untracked.double(0.060)
-process.EcalTrivialConditionRetriever.pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-process.EcalTrivialConditionRetriever.pedWeightsAft = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-process.EcalTrivialConditionRetriever.amplWeights = cms.untracked.vdouble(-0.333, -0.333, -0.333, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0)
-process.EcalTrivialConditionRetriever.amplWeightsAftGain = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0)
-process.EcalTrivialConditionRetriever.jittWeights = cms.untracked.vdouble(0.041, 0.041, 0.041, 0.0, 1.325, -0.050, -0.504, -0.502, -0.390, 0.0)
-process.EcalTrivialConditionRetriever.jittWeightsAft = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 1.098, -0.046, -0.416, -0.419, -0.337, 0.0)
-
-#process.prefer("GlobalTag")
-process.prefer("EcalTrivialConditionRetriever")
+process.prefer("GlobalTag")
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
