@@ -145,17 +145,17 @@ void EcalSimRawData::fwrite(ofstream& f, uint16_t data,
   switch(writeMode_){
   case littleEndian:
     {
-      char c = data&0x00FF;
+      char c = data & 0x00FF;
       f.write(&c, sizeof(c));
-      c = data&0xFF00;
+      c = (data >>8) & 0x00FF;
       f.write(&c, sizeof(c));
     }
     break;
   case bigEndian:
     {
-      char c = data&0xFF00; 
+      char c = (data >>8) & 0x00FF; 
       f.write(&c, sizeof(c));
-      c = data&0x00FF;
+      c = data & 0x00FF;
       f.write(&c, sizeof(c));
     }
     break;
@@ -347,7 +347,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
       
       stringstream s;
       s.str("");
-      char* ext = ".txt"; //only ascii mode supported for TCP
+      const char* ext = ".txt"; //only ascii mode supported for TCP
 
       s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
 	<< setfill(' ') << ext;
@@ -407,7 +407,7 @@ void EcalSimRawData::genTccOut(string basename, int iEvent,
       
       stringstream s;
       s.str("");
-      char* ext = ".txt"; //only ascii mode supported for TCP
+      const char* ext = ".txt"; //only ascii mode supported for TCP
 
       s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
 	<< setfill(' ') << ext;
