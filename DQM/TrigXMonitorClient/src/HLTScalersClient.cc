@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.7 2008/09/04 11:06:02 lorenzo Exp $
+// $Id: HLTScalersClient.cc,v 1.8 2008/09/07 12:16:23 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.8  2008/09/07 12:16:23  wittich
+// protect against divide-by-zero in rate calculation
+//
 // Revision 1.7  2008/09/04 11:06:02  lorenzo
 // changed to _EvF folder
 //
@@ -58,13 +61,14 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
   nLumi_(0),
   currentRate_(0),
   currentLumiBlockNumber_(0),
-  first_(true)
+  first_(true),
+  folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "HLT/HLScalers_EvF"))
 {
   LogDebug("Status") << "constructor" ;
   // get back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
   assert(dbe_ != 0); // blammo!
-  dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
+  dbe_->setCurrentFolder(folderName_);
 
   currentRate_ = dbe_->book1D("cur_rate", 
 			      "current lumi section rate per path",

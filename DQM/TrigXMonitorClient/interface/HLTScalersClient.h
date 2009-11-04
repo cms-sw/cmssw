@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.2 2008/08/24 16:34:56 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.3 2008/08/27 13:48:57 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.3  2008/08/27 13:48:57  wittich
+// re-add Don's 20 entry histograms with full bin labels
+//
 // Revision 1.2  2008/08/24 16:34:56  wittich
 // - rate calculation cleanups
 // - fix error logging with LogDebug
@@ -70,6 +73,7 @@ private:
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
+  std::string folderName_;
 
   unsigned long int scalerCounters_[MAX_PATHS];
   MonitorElement *currentRate_;
