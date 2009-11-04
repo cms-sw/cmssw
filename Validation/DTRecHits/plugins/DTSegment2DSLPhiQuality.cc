@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/22 09:15:29 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/02 17:15:08 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -28,10 +28,10 @@
 #include "Histograms.h"
 #include "TStyle.h"
 #include "TFile.h"
-//#include "utils.C"
+
 #include <iostream>
 #include <map>
-
+//#include "utils.C"
 
 using namespace std;
 using namespace edm;
@@ -84,9 +84,10 @@ DTSegment2DSLPhiQuality::~DTSegment2DSLPhiQuality(){
 
 void DTSegment2DSLPhiQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     edm::EventSetup const& c){
-  
-
 }
+
+
+
 
 void DTSegment2DSLPhiQuality::endJob() {
   // Write the histos to file

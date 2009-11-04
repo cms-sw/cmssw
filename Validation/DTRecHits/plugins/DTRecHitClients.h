@@ -44,9 +44,6 @@ protected:
 private:
 
   DQMStore* dbe;
-  MonitorElement * hRes;
-  MonitorElement *summaryHisto;
-  MonitorElement *glbSummaryHisto;
  };
  
 

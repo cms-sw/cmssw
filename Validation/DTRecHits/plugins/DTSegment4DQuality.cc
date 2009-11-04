@@ -95,62 +95,7 @@ DTSegment4DQuality::~DTSegment4DQuality(){
 }
 void DTSegment4DQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     edm::EventSetup const& c){
-  /*Tutils * aux = new Tutils;
-  aux->drawGFit(h4DHit->hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit->hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit->hResX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit->hResY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit->hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit->hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(h4DHit_W0->hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W0->hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W0->hResX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W0->hResY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W0->hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W0->hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-
-  aux->drawGFit(h4DHit_W1->hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W1->hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W1->hResX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W1->hResY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W1->hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W1->hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-
-  aux->drawGFit(h4DHit_W2->hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W2->hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W2->hResX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W2->hResY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W2->hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(h4DHit_W2->hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-
-  aux->drawGFit(h4DHit->hPullAlpha->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit->hPullBeta->getTH1(),-5,5,2.5,2.5);
-  aux->drawGFit(h4DHit->hPullX->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit->hPullY->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit->hPullBetaRZ->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit->hPullYRZ->getTH1(),-5,5,-2.5,2.5);
-
-  aux->drawGFit(h4DHit_W0->hPullAlpha->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W0->hPullBeta->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W0->hPullX->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W0->hPullY->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W0->hPullBetaRZ->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W0->hPullYRZ->getTH1(),-5,5,-2.5,2.5);
-
-  aux->drawGFit(h4DHit_W1->hPullAlpha->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W1->hPullBeta->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W1->hPullX->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W1->hPullY->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W1->hPullBetaRZ->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W1->hPullYRZ->getTH1(),-5,5,-2.5,2.5);
-
-  aux->drawGFit(h4DHit_W2->hPullAlpha->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W2->hPullBeta->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W2->hPullX->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W2->hPullY->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W2->hPullBetaRZ->getTH1(),-5,5,-2.5,2.5);
-  aux->drawGFit(h4DHit_W2->hPullYRZ->getTH1(),-5,5,-2.5,2.5);*/
 
 }
 
