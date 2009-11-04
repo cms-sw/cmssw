@@ -50,12 +50,17 @@ namespace edmtest
       //record not found
       std::cout <<"Record \"ExEfficiencyRcd"<<"\" does not exist "<<std::endl;
     }
-    edm::ESHandle<condex::Efficiency> hEff;
+    edm::ESHandle<condex::Efficiency> hEff1;
+    edm::ESHandle<condex::Efficiency> hEff2;
     std::cout<<"got eshandle"<<std::endl;
-//    context.get<ExEfficiencyRcd>().get("vinEff",hEff);
-    context.get<ExEfficiencyRcd>().get(hEff);
-     std::cout<<"got context"<<std::endl;
-    condex::Efficiency const &  eff= *hEff.product();
+    context.get<ExEfficiencyRcd>().get("vinEff1",hEff1);
+    context.get<ExEfficiencyRcd>().get("vinEff2",hEff2);
+    std::cout<<"got context"<<std::endl;
+    {
+      condex::Efficiency const &  eff= *hEff2.product();
+      std::cout<<"Efficiency*, type (2) "<< (void*)(&eff) << " " << typeid(eff).name() <<std::endl;
+    }
+    condex::Efficiency const &  eff= *hEff1.product();
     std::cout<<"Efficiency*, type "<< (void*)(&eff) << " " << typeid(eff).name() <<std::endl;
     for (float pt=0;pt<10; pt+=2) {
      std::cout << "\npt="<<pt<<"    :";
