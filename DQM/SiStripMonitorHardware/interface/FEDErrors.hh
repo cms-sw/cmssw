@@ -17,7 +17,7 @@
 #define DQM_SiStripMonitorHardware_FEDErrors_HH
 
 #include <sstream>
-
+#include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"

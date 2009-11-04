@@ -2,7 +2,7 @@
 
 //This class header
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-
+#include <iostream>
 
 
 HCALProperties::HCALProperties(const edm::ParameterSet& fastDet) : CalorimeterProperties()
