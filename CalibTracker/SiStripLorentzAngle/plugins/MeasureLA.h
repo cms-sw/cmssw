@@ -40,7 +40,6 @@ class MeasureLA : public edm::ESProducer {
   void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
   static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method);
   static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method);
-  static unsigned calibration_index(bool,bool,unsigned);
 
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;

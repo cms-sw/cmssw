@@ -165,7 +165,7 @@ calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) 
   const bool TIB = "TIB" == boost::regex_replace(layer, format, "\\1");
   const bool stereo = "s" == boost::regex_replace(layer, format, "\\3");
   const unsigned layerNum = boost::lexical_cast<unsigned>(boost::regex_replace(layer, format, "\\2"));
-  return std::make_pair(calibration_index(TIB,stereo,layerNum),method);
+  return std::make_pair(LA_Filler_Fitter::layer_index(TIB,stereo,layerNum),method);
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
@@ -173,12 +173,7 @@ calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) {
   const bool TIB = SiStripDetId(detid).subDetector() == SiStripDetId::TIB;
   const bool stereo = TIB ? TIBDetId(detid).stereo() : TOBDetId(detid).stereo();
   const unsigned layer = TIB ? TIBDetId(detid).layer() : TOBDetId(detid).layer();
-  return std::make_pair(calibration_index(TIB,stereo,layer),method);
+  return std::make_pair(LA_Filler_Fitter::layer_index(TIB,stereo,layer),method);
 }
 
-unsigned MeasureLA::
-calibration_index(bool TIB, bool stereo, unsigned layer) {
-  return  layer + (TIB?0:6) + (stereo ? 0 : layer<3 ? -1 : 1) ;
-}
-      
 }

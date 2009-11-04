@@ -93,6 +93,7 @@ class LA_Filler_Fitter {
   static std::string subdetLabel(const SiStripDetId);
   static std::string moduleLabel(const SiStripDetId);
   static std::string layerLabel(const SiStripDetId);
+  static unsigned layer_index(bool TIB, bool stereo, unsigned layer) { return  layer + (TIB?0:6) +(stereo?1:0) + ( (layer>2)?1:(layer==1)?-1:0 );}
   
   static TH1* rms_profile(const std::string, const TProfile* const);
   static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );

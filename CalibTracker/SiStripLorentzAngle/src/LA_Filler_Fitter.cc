@@ -97,7 +97,7 @@ fit_width_profile(Book& book) {
 
     int badfit = p->Fit(fit,"IEQ","",-.5,.3);
     if( badfit ) badfit = p->Fit(fit,"IEQ","", -.46,.26);
-    if( badfit ) {delete p; book[it->first]=0;}
+    if( badfit ) { book.erase(it); } //delete p; book[it->first]=0;}
   }
 }
 
