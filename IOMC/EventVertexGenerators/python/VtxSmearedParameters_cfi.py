@@ -58,7 +58,7 @@ Early900GeVCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 #  2.2 TeV collisions, transverse beam size 188 microns
-Early7TeVCollisionVtxSmearingParameters = cms.PSet(
+Early2p2TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(3.2e-07),
