@@ -1,132 +1,331 @@
-//coral includes
-#include "CoralKernel/Context.h"
-#include "CoralKernel/IHandle.h"
-#include "CoralKernel/IProperty.h"
-#include "CoralKernel/IPropertyManager.h"
-#include "CoralBase/MessageStream.h"
-#include "RelationalAccess/IAuthenticationService.h"
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-//pool includes
-#include "POOLCore/IBlobStreamingService.h"
 //local includes
-#include "CondCore/DBCommon/interface/DBSession.h"
-
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
+#include "CondCore/DBCommon/interface/BlobStreamerPluginFactory.h"
+// CMSSW includes
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+// coral includes
+#include "RelationalAccess/ISessionProxy.h"
 // pool includes
-#include <boost/filesystem/operations.hpp>
-//#include <iostream>
-cond::DBSession::DBSession(ConfDefaults confDef){ 
-  config(confDef);
+#include "POOLCore/Token.h"
+#include "FileCatalog/IFileCatalog.h"
+#include "DataSvc/IDataSvc.h"
+#include "DataSvc/DataSvcFactory.h"
+#include "PersistencySvc/IConfiguration.h"
+#include "PersistencySvc/ISession.h"
+#include "PersistencySvc/DatabaseConnectionPolicy.h"
+#include "StorageSvc/DbType.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingUtilities.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
+//#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
+
+namespace cond {
+  class DbSession::SessionImpl {
+    public:
+      SessionImpl();
+      explicit SessionImpl( const DbConnection& connection );
+
+      virtual ~SessionImpl();
+
+      void open( const std::string& connectionString, bool readOnly );
+      void close();
+
+      DbConnection* m_connection;
+      std::string m_connectionString;
+      std::string m_blobStreamingService;
+      pool::IFileCatalog* m_catalogue;
+      pool::IDataSvc* m_dataSvc;
+      coral::ISessionProxy* m_session;
+      DbTransaction* m_transaction;
+      bool m_isOpen;
+  };
+  
 }
 
-void cond::DBSession::config(ConfDefaults confDef) {
-  if (confDef!=coralDefaults) {
-    configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-    configuration().connectionConfiguration()->setConnectionTimeOut(0);
-  }
 
+cond::DbSession::SessionImpl::SessionImpl():
+  m_connection(0),
+  m_connectionString(""),
+  m_blobStreamingService( "" ),
+  m_catalogue(0),
+  m_dataSvc(0),
+  m_session(0),
+  m_transaction(0),
+  m_isOpen(false){
 }
 
+cond::DbSession::SessionImpl::SessionImpl( const DbConnection& connection ):
+  m_connection(new DbConnection(connection)),
+  m_connectionString(""),
+  m_blobStreamingService( "" ),
+  m_catalogue(0),
+  m_dataSvc(0),
+  m_session(0),
+  m_transaction(0),
+  m_isOpen(false){
+}
 
-cond::DBSession::~DBSession(){}
+cond::DbSession::SessionImpl::~SessionImpl(){
+  close();
+  if(m_connection) delete m_connection;
+}
 
-void cond::DBSession::open(){
-  switch ( m_sessionConfig.messageLevel() ) {
-  case cond::Error :
-    { coral::MessageStream::setMsgVerbosity( coral::Error );
-      break;
-    }
-  case cond::Warning :
-    { coral::MessageStream::setMsgVerbosity( coral::Warning );
-      break;
-    }
-  case cond::Debug :
-    { coral::MessageStream::setMsgVerbosity( coral::Debug );
-      break;
-    }
-  case cond::Info :
-    { coral::MessageStream::setMsgVerbosity( coral::Info );
-      break;
-    }
-  default:
-    { coral::MessageStream::setMsgVerbosity( coral::Error ); }
-  }
-  //load authentication service
-  if( m_sessionConfig.authenticationMethod()== cond::XML ) {
+void cond::DbSession::SessionImpl::open( const std::string& connectionString, bool readOnly ){
+  close();
+  if(m_connection){
+    if(!m_connection->isOpen())
+      throw cond::Exception("DbSession::open: cannot open session. Underlying connection is closed.");
     
-    boost::filesystem::path authPath( m_sessionConfig.authName() );
-    if(boost::filesystem::is_directory(m_sessionConfig.authName())){
-      authPath /= boost::filesystem::path("authentication.xml");
+    m_catalogue = new pool::IFileCatalog();
+    m_dataSvc = pool::DataSvcFactory::instance(m_catalogue);
+    // pool configuration
+    m_dataSvc->configuration().setConnectionService( &m_connection->connectionService(), false );
+    m_dataSvc->configuration().enableSessionSharing();
+    std::string pluginName("COND/Services/TBufferBlobStreamingService2");
+    if(!m_blobStreamingService.empty()){
+      pluginName = m_blobStreamingService;
     }
-    std::string authName=authPath.string();
-    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
-    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",&m_pluginmanager);
-  }else{
-    coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService");
+    pool::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create( pluginName, pluginName);
+    if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of pool::IBlobStreamingService has been loaded..");
+    m_dataSvc->configuration().setBlobStreamer( blobStreamer, false );
+    pool::DatabaseConnectionPolicy policy;
+    policy.setWriteModeForNonExisting( pool::DatabaseConnectionPolicy::CREATE );
+    policy.setWriteModeForExisting( pool::DatabaseConnectionPolicy::UPDATE );
+    policy.setReadMode( pool::DatabaseConnectionPolicy::READ );
+    m_dataSvc->session().setDefaultConnectionPolicy( policy );
+    // open the db connection
+    m_connectionString = connectionString;
+    m_session = &m_dataSvc->configuration().sharedSession( connectionString, (readOnly)? coral::ReadOnly: coral::Update );
+    std::string catalogConnectionString("pfncatalog_memory://POOL_RDBMS?");
+    catalogConnectionString.append(connectionString);
+    m_catalogue->setWriteCatalog( catalogConnectionString );
+    m_catalogue->connect();
+    m_catalogue->start();
+    m_transaction = new cond::DbTransaction( *m_session, m_dataSvc->session() );
+    m_isOpen = true;
   }
-  coral::Context::instance().loadComponent( "CORAL/Services/ConnectionService");
-  coral::IAuthenticationService& authServ = authenticationService();
-  coral::IConnectionService& connSrv = connectionService();
-  connSrv.configuration().setAuthenticationService(authServ);
-  coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
-  cond::ConnectionConfiguration* conConfig=m_sessionConfig.connectionConfiguration();
-  if(m_sessionConfig.isSQLMonitoringOn()){
-    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService",&m_pluginmanager);
-    conConfig->setMonitorLevel(coral::monitor::Trace);
-  }
-  if( conConfig ){
-    if( conConfig->isConnectionSharingEnabled() ){
-      conserviceConfig.enableConnectionSharing();
-    }
-    if( conConfig->isPoolAutomaticCleanUpEnabled() ){
-      conserviceConfig.enablePoolAutomaticCleanUp();
-    }else{
-      conserviceConfig.disablePoolAutomaticCleanUp();
-    }
-    conserviceConfig.setConnectionRetrialPeriod( conConfig->connectionRetrialPeriod() );
-    conserviceConfig.setConnectionRetrialTimeOut( conConfig->connectionRetrialTimeOut() );
-    conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
-    conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() );
+  
+}
 
-    if( m_sessionConfig.hasBlobStreamService() ){
-      std::string streamerName=m_sessionConfig.blobStreamerName();
-      if(streamerName.empty()){
-	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService", &m_pluginmanager );
-      }else{
-	coral::Context::instance().loadComponent(streamerName, &m_pluginmanager);
-      }
-    }
+void cond::DbSession::SessionImpl::close(){
+  m_connectionString.clear();
+  if(m_session){
+    m_session = 0;
   }
+  if( m_transaction ) {
+    delete m_transaction;
+    m_transaction = 0;
+  }
+  if(m_catalogue) {
+    m_catalogue->commit();
+    m_catalogue->disconnect();
+    delete m_catalogue;
+    m_catalogue = 0;
+  }
+  if( m_dataSvc ) {
+    m_dataSvc->session().disconnectAll();
+    delete m_dataSvc;
+    m_dataSvc = 0;
+  }
+  m_isOpen = false;
 }
-coral::IConnectionService& 
-cond::DBSession::connectionService(){
-  return *(coral::Context::instance().query<coral::IConnectionService>());
+
+cond::DbSession::DbSession():
+  m_implementation(new SessionImpl()){ 
 }
-coral::IRelationalService& 
-cond::DBSession::relationalService(){
-  return *(coral::Context::instance().query<coral::IRelationalService>());
+
+cond::DbSession::DbSession( const DbConnection& connection ):
+  m_implementation(new SessionImpl(connection)){ 
 }
-coral::IAuthenticationService& 
-cond::DBSession::authenticationService(){
-  return *(coral::Context::instance().query<coral::IAuthenticationService>());
+
+cond::DbSession::DbSession( const DbSession& rhs ):
+  m_implementation( rhs.m_implementation ){ 
 }
-const coral::IMonitoringReporter& 
-cond::DBSession::monitoringReporter() const{
-  return coral::Context::instance().query<coral::IConnectionService>()->monitoringReporter();
+
+cond::DbSession::~DbSession(){
 }
-coral::IWebCacheControl& 
-cond::DBSession::webCacheControl(){
-  return coral::Context::instance().query<coral::IConnectionService>()->webCacheControl();
+
+cond::DbSession& cond::DbSession::operator=( const cond::DbSession& rhs ){
+  if(this!=&rhs) m_implementation = rhs.m_implementation;
+  return *this;
 }
-pool::IBlobStreamingService& 
-cond::DBSession::blobStreamingService(){
-  return *(coral::Context::instance().query<pool::IBlobStreamingService>());
+
+void cond::DbSession::open( const std::string& connectionString, bool readOnly )
+{
+  m_implementation->open( connectionString, readOnly );
 }
-cond::SessionConfiguration& 
-cond::DBSession::configuration(){
-  return m_sessionConfig;
+
+void cond::DbSession::close()
+{
+  m_implementation->close();
+}
+
+bool cond::DbSession::isOpen() const {
+  return m_implementation->m_isOpen;
+}
+
+const std::string& cond::DbSession::connectionString() const {
+  return m_implementation->m_connectionString;
+}
+
+void cond::DbSession::setBlobStreamingService( const std::string& serviceName )
+{
+  m_implementation->m_blobStreamingService = serviceName;
+}
+
+const std::string& cond::DbSession::blobStreamingService() const 
+{
+  return m_implementation->m_blobStreamingService;
+}
+
+cond::DbTransaction& cond::DbSession::transaction()
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::transaction: cannot get transaction. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::transaction: cannot open transaction. Underlying connection is closed.");
+  return *m_implementation->m_transaction;
+}
+
+coral::ISchema& cond::DbSession::schema( const std::string& schemaName )
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::schema: cannot get schema. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::schema: cannot get schema. Underlying connection is closed.");
+  return m_implementation->m_session->schema( schemaName );  
+}
+
+coral::ISchema& cond::DbSession::nominalSchema()
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::nominalSchema: cannot get schema. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::nominalSchema: cannot get schema. Underlying connection is closed.");
+  return m_implementation->m_session->nominalSchema();  
+}
+
+coral::ISessionProxy& cond::DbSession::coralSession()
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::coralSession: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::coralSession: cannot get coral session. Underlying connection is closed.");
+  return *m_implementation->m_session;  
+}
+
+pool::IDataSvc& cond::DbSession::poolCache()
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::poolCache: cannot get pool cache. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::poolCache: cannot get pool cache. Underlying connection is closed.");
+  return *m_implementation->m_dataSvc;
+}
+
+bool cond::DbSession::initializeMapping(const std::string& mappingVersion, const std::string& xmlStream){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::initializeMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::initializeMapping: cannot get coral session. Underlying connection is closed.");
+  bool ret = false;
+  pool::ObjectRelationalMappingSchema mappingSchema( m_implementation->m_session->nominalSchema() );
+  pool::ObjectRelationalMappingUtilities mappingUtil( m_implementation->m_session );
+  if( !mappingSchema.existTables() || !mappingUtil.existsMapping(mappingVersion) ){
+    mappingUtil.buildAndMaterializeMappingFromBuffer( xmlStream.c_str(),false,false );
+    ret = true;
+  }
+  return ret;
+}
+
+bool cond::DbSession::deleteMapping( const std::string& mappingVersion, bool removeTables ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::deleteMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::deleteMapping: cannot get coral session. Underlying connection is closed.");
+  bool ret = false;
+  pool::ObjectRelationalMappingSchema mappingSchema( m_implementation->m_session->nominalSchema() );
+  pool::ObjectRelationalMappingUtilities mappingUtil( m_implementation->m_session );
+  if( mappingSchema.existTables() && mappingUtil.existsMapping( mappingVersion ) ){
+    mappingUtil.removeMapping(mappingVersion,removeTables);
+    ret = true;
+  }
+  return ret;
+}
+
+bool cond::DbSession::importMapping( cond::DbSession& fromDatabase,
+                                     const std::string& contName,
+                                     const std::string& classVersion,
+                                     bool allVersions ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::importMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importMapping: cannot get coral session. Underlying connection is closed.");
+  if(!fromDatabase.m_implementation->m_session)
+    throw cond::Exception("DbSession::importMapping: cannot get source coral session. Session has not been open.");
+  if(!fromDatabase.m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importMapping: cannot get source coral session. Underlying connection is closed.");
+  
+  pool::ObjectRelationalMappingUtilities mappingutil( fromDatabase.m_implementation->m_session );
+  mappingutil.loadMappingInformation( contName, classVersion, allVersions);
+  mappingutil.setSession( m_implementation->m_session,false);
+  return mappingutil.storeMappingInformation(true);  
+}
+
+
+
+bool cond::DbSession::storeObject( pool::RefBase& objectRef, const std::string& containerName  ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::storeObject: cannot access object store. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::storeObject: cannot access object store. Underlying connection is closed.");
+  pool::Placement place;
+  place.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  place.setDatabase(m_implementation->m_connectionString,
+                    pool::DatabaseSpecification::PFN);
+  place.setContainerName(containerName);
+  return objectRef.markWrite(place);
+}
+
+pool::RefBase cond::DbSession::getObject( const std::string& objectId ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::getObject: cannot access object store. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::getObject: cannot access object store. Underlying connection is closed.");
+  pool::RefBase theObject(m_implementation->m_dataSvc, objectId, cond::reflexTypeByToken(objectId).TypeInfo());
+  return theObject;
+}
+
+bool cond::DbSession::deleteObject( const std::string& objectId ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::deleteObject: cannot access object store. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::deleteObject: cannot access object store. Underlying connection is closed.");
+  pool::RefBase objectRef = getObject( objectId );
+  return objectRef.markDelete();
+}
+
+std::string cond::DbSession::importObject( cond::DbSession& fromDatabase, const std::string& objectId ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::importObject: cannot access destination object store. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importObject: cannot access destination object store. Underlying connection is closed.");
+  if(!fromDatabase.m_implementation->m_session)
+    throw cond::Exception("DbSession::importObject: cannot access source object store. Session has not been open.");
+  if(!fromDatabase.m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importObject: cannot access source object store. Underlying connection is closed.");
+  pool::RefBase source = fromDatabase.getObject( objectId );
+  pool::RefBase dest( m_implementation->m_dataSvc,
+                      source.object().get(),
+                      source.objectType().TypeInfo() );
+  pool::Placement destPlace;
+  destPlace.setDatabase(m_implementation->m_connectionString,
+                        pool::DatabaseSpecification::PFN );
+  destPlace.setContainerName(source.token()->contID());
+  destPlace.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  dest.markWrite( destPlace );
+  return dest.toString();
 }
