@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/08/25 21:46:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/08/26 04:02:56 $
+ *  $Revision: 1.2 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -81,6 +81,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_d0_phi0;
   MonitorElement * h_x0_lumi;
   MonitorElement * h_y0_lumi;
+  MonitorElement * h_z0_lumi;
+  MonitorElement * h_sigmaZ0_lumi;
+  MonitorElement * h_trk_z0;
   MonitorElement * h_vx_vy;
   
   // variables for beam fit

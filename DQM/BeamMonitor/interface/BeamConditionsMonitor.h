@@ -3,8 +3,8 @@
 
 /** \class BeamConditionsMonitor
  * *
- *  $Date: 2009/08/05 14:45:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/08/25 21:46:35 $
+ *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -66,7 +66,7 @@ class BeamConditionsMonitor : public edm::EDAnalyzer {
   int countLumi_;      //counter
   
   // ----------member data ---------------------------
-  const reco::BeamSpot * theBS;
+  reco::BeamSpot theBS;
 
   // MonitorElements
   MonitorElement * h_x0_lumi;

@@ -2,8 +2,8 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/08/05 14:45:09 $
- * $Revision: 1.10 $
+ * $Date: 2009/08/25 21:46:56 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -33,7 +33,6 @@ BeamConditionsMonitor::BeamConditionsMonitor( const ParameterSet& ps ) :
   dbe_            = Service<DQMStore>().operator->();
   
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-  
 }
 
 
@@ -49,12 +48,12 @@ void BeamConditionsMonitor::beginJob(const EventSetup& context){
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Conditions");
   
-  h_x0_lumi = dbe_->book1D("x0_lumi_cond","x_{0} vs lumi (Cond)",10,0,10);
+  h_x0_lumi = dbe_->book1D("x0_lumi_cond","x coordinate of beam spot vs lumi (Cond)",10,0,10);
   h_x0_lumi->setAxisTitle("Lumisection",1);
   h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
   h_x0_lumi->getTH1()->SetOption("E1");
 
-  h_y0_lumi = dbe_->book1D("y0_lumi_cond","y_{0} vs lumi (Cond)",10,0,10);
+  h_y0_lumi = dbe_->book1D("y0_lumi_cond","y coordinate of beam spot vs lumi (Cond)",10,0,10);
   h_y0_lumi->setAxisTitle("Lumisection",1);
   h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
   h_y0_lumi->getTH1()->SetOption("E1");
@@ -79,18 +78,20 @@ void BeamConditionsMonitor::analyze(const Event& iEvent,
   countEvt_++;
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
-  theBS = recoBeamSpotHandle.product();
-
+  theBS = *recoBeamSpotHandle;
 }
 
 
 //--------------------------------------------------------
 void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 					   const EventSetup& iSetup) {
-
-  h_x0_lumi->ShiftFillLast( theBS->x0(), theBS->x0Error(), 1 );
-  h_y0_lumi->ShiftFillLast( theBS->y0(), theBS->y0Error(), 1 );
-
+  if (debug_) {
+    cout << "End of lumi block" << endl;
+    cout << "thBS->x0() = " << theBS.x0() << " +/- " << theBS.x0Error() << endl;
+    cout << "thBS->y0() = " << theBS.y0() << " +/- " << theBS.y0Error() << endl;
+  }
+  h_x0_lumi->ShiftFillLast( theBS.x0(), theBS.x0Error(), 1 );
+  h_y0_lumi->ShiftFillLast( theBS.y0(), theBS.y0Error(), 1 );
 }
 //--------------------------------------------------------
 void BeamConditionsMonitor::endRun(const Run& r, const EventSetup& context){

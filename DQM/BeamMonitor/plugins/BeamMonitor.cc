@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/08/26 04:02:56 $
- * $Revision: 1.2 $
+ * $Date: 2009/09/17 21:13:52 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -40,8 +40,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
-
-  //   fBSvector.clear();
 
 }
 
@@ -89,11 +87,24 @@ void BeamMonitor::beginJob(const EventSetup& context){
   h_x0_lumi->setAxisTitle("Lumisection",1);
   h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
   h_x0_lumi->getTH1()->SetOption("E1");
-
+  
   h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",10,0,10);
   h_y0_lumi->setAxisTitle("Lumisection",1);
   h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
   h_y0_lumi->getTH1()->SetOption("E1");
+  
+  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",10,0,10);
+  h_z0_lumi->setAxisTitle("Lumisection",1);
+  h_z0_lumi->setAxisTitle("z_{0} (cm)",2);
+  h_z0_lumi->getTH1()->SetOption("E1");
+  
+  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z of beam spot vs lumi (Fit)",10,0,10);
+  h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
+  h_sigmaZ0_lumi->setAxisTitle("sigma z_{0}",2);
+  h_sigmaZ0_lumi->getTH1()->SetOption("E1");
+  
+  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",150,-30,30);
+  h_trk_z0->setAxisTitle("z_{0} of input tracks (cm)",1);
   
 }
 
@@ -121,15 +132,17 @@ void BeamMonitor::analyze(const Event& iEvent,
 //--------------------------------------------------------
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
-
+  
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
   
   if (resetHistos_) {
+    if (debug_) cout << "Resetting Histograms" << endl;
     h_d0_phi0->Reset();
     h_vx_vy->Reset();
+    h_trk_z0->Reset();
     resetHistos_ = false;
   }
   
@@ -142,7 +155,9 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
       double vx = BSTrk->vx();
       double vy = BSTrk->vy();
+      double z0 = BSTrk->z0();
       h_vx_vy->Fill( vx, vy );
+      h_trk_z0->Fill( z0 );
     }
   }
   nthBSTrk_ = theBSvector.size();
@@ -157,6 +172,8 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
     h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+    h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
   }
   else { // Fill in empty beam spot if beamfit fails
     reco::BeamSpot bs;

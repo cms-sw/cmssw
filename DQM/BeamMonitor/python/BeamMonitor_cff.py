@@ -9,6 +9,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('generalTracks'), ## ctfWithMaterialTracksP5 for CRAFT
+				IsMuonCollection = cms.untracked.bool(False),
                                 WriteAscii = cms.untracked.bool(False),
                                 AsciiFileName = cms.untracked.string('BeamFit.txt'),
 				SaveNtuple = cms.untracked.bool(False),
