@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/10/07 17:55:11 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/10/28 12:44:14 $
+ *  $Revision: 1.24.2.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -52,6 +52,7 @@ class MEtoEDM
     T	        object;
     std::string release;
     int run;
+    int lumi;
     std::string datatier;
   };
 
@@ -62,6 +63,7 @@ class MEtoEDM
 			const T &object,
 			const std::string &release,
 			const int run,
+			const int lumi,
 			const std::string &datatier)
     {
       typename MEtoEdmObjectVector::value_type temp;
@@ -70,6 +72,7 @@ class MEtoEDM
       temp.object = object;
       temp.release = release;
       temp.run = run;
+      temp.lumi = lumi;
       temp.datatier = datatier;
       MEtoEdmObject.push_back(temp);
     }
