@@ -393,8 +393,7 @@ process.preScaler.prescaleFactor = 1
 
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalPrescaler*process.ecalUncalibHit*process.ecalUncalibHit1*process.ecalRecHit)
 
-if localDAQ:
-  process.ecalDataSequence.remove(process.ecalPrescaler)
+process.ecalDataSequence.remove(process.ecalPrescaler)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
