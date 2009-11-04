@@ -29,7 +29,8 @@ simCandlesRules =  (
 
 			#e.g.: --conditions FrontierConditions_GlobalTag,MC_31X_V4::All --eventcontent RECOSIM
 			(("cms_driver_options", ), r"""^cmsDriver.py(.+)$"""),
-			(("", "", "conditions", ""), r"""^cmsDriver.py(.*)--conditions ([^,]+),([^\s]+)(.*)$""", "req"),
+			#Changing the following to allow for new cmsDriver.py --conditions option (that can optionally drop the FrontierConditions_GlobalTag,)
+			(("", "conditions", ""), r"""^cmsDriver.py(.*)--conditions ([^\s]+)(.*)$""", "req"),
 			(("",  "pileup_type", ""), r"""^cmsDriver.py(.*)--pileup=([^\s]+)(.*)$"""),
 			(("",  "step", ""), r"""^cmsDriver.py(.*)--step=([^\s]+)(.*)$""", "req"),
 			#not shure if event content is required
@@ -68,6 +69,9 @@ def read_ConfigurationFromSimulationCandles(path, step, is_pileup):
 		#print simCandlesRules[2][1].match(line) and simCandlesRules[2][1].match(line).groups() or ""
 
 		info, missing_fields = parsingRulesHelper.rulesParser(simCandlesRules, [line], compileRules = False)
+		#Massaging the info dictionary conditions entry to allow for new cmsDriver.py --conditions option:
+		if 'FrontierConditions_GlobalTag' in info['conditions']:
+				info['conditions']=info['conditions'].split(",")[1]
 		#print (info, missing_fields)
 		#if we successfully parsed the line of simulation candles:
 		if not missing_fields:

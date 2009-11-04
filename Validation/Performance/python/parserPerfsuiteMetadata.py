@@ -487,7 +487,7 @@ class parserPerfsuiteMetadata:
 			if 'FrontierConditions_GlobalTag' in info['conditions']:
 				info['conditions']=info['conditions'].split(",")[1]
 			#DEBUG:
-			print "CONDITIONS are: %s"%info['conditions']
+			#print "CONDITIONS are: %s"%info['conditions']
 			#start time - the index after which comes the time stamp
 			""" the following is not available on one of the releases, instead
 			use the first timestamp available on our job - that's the starting time :) """ 
