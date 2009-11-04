@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/07/22 09:15:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/02 17:15:35 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -68,6 +68,7 @@ private:
   HEff2DHit *h2DHitEff_SuperPhi;
   DQMStore* dbe_;
   bool doall;
+  bool local;
   //  TStyle * mystyle;
 };
 #endif

@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/11/04 13:44:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/04 14:32:03 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -78,7 +78,7 @@ private:
   bool doStep1;
   bool doStep2;
   bool doStep3;
-
+  bool local;
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
     map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
