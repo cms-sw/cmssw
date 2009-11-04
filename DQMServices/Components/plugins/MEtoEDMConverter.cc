@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/10/13 12:02:38 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/10/28 10:12:11 $
+ *  $Revision: 1.28 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -47,30 +47,50 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   // get dqm info
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-    
-  // create persistent objects
-  produces<MEtoEDM<TH1F>, edm::InRun>(fName);
-  produces<MEtoEDM<TH1S>, edm::InRun>(fName);
-  produces<MEtoEDM<TH1D>, edm::InRun>(fName);
-  produces<MEtoEDM<TH2F>, edm::InRun>(fName);
-  produces<MEtoEDM<TH2S>, edm::InRun>(fName);
-  produces<MEtoEDM<TH2D>, edm::InRun>(fName);
-  produces<MEtoEDM<TH3F>, edm::InRun>(fName);
-  produces<MEtoEDM<TProfile>, edm::InRun>(fName);
-  produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
-  produces<MEtoEDM<double>, edm::InRun>(fName);
-  produces<MEtoEDM<long long>, edm::InRun>(fName);
-  produces<MEtoEDM<TString>, edm::InRun>(fName);
 
-  firstevent = true;
+  std::string sName;
+
+  // create persistent objects
+
+  sName = fName + "Run";
+  produces<MEtoEDM<TH1F>, edm::InRun>(sName);
+  produces<MEtoEDM<TH1S>, edm::InRun>(sName);
+  produces<MEtoEDM<TH1D>, edm::InRun>(sName);
+  produces<MEtoEDM<TH2F>, edm::InRun>(sName);
+  produces<MEtoEDM<TH2S>, edm::InRun>(sName);
+  produces<MEtoEDM<TH2D>, edm::InRun>(sName);
+  produces<MEtoEDM<TH3F>, edm::InRun>(sName);
+  produces<MEtoEDM<TProfile>, edm::InRun>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::InRun>(sName);
+  produces<MEtoEDM<double>, edm::InRun>(sName);
+  produces<MEtoEDM<long long>, edm::InRun>(sName);
+  produces<MEtoEDM<TString>, edm::InRun>(sName);
+
+  sName = fName + "Lumi";
+  produces<MEtoEDM<TH1F>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH1S>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH1D>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH2F>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH2S>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH2D>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH3F>, edm::InLumi>(sName);
+  produces<MEtoEDM<TProfile>, edm::InLumi>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::InLumi>(sName);
+  produces<MEtoEDM<double>, edm::InLumi>(sName);
+  produces<MEtoEDM<long long>, edm::InLumi>(sName);
+  produces<MEtoEDM<TString>, edm::InLumi>(sName);
+
+  iFirstEvent = true;
+
+  iCount.clear();
 
   assert(sizeof(int64_t) == sizeof(long long));
 
-} // end constructor
+}
 
 MEtoEDMConverter::~MEtoEDMConverter() 
 {
-} // end destructor
+}
 
 void
 MEtoEDMConverter::beginJob()
@@ -82,9 +102,11 @@ MEtoEDMConverter::endJob(void)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
 
-  // information flags
-  std::map<std::string,int> packages; // keep track just of package names
-  unsigned nTH1F = 0; // count various objects we have
+  // keep track just of package names
+  std::map<std::string,int> packages;
+
+  // count various objects we have
+  unsigned nTH1F = 0;
   unsigned nTH1S = 0;
   unsigned nTH1D = 0;
   unsigned nTH2F = 0;
@@ -102,7 +124,9 @@ MEtoEDMConverter::endJob(void)
   // get contents out of DQM
   std::vector<MonitorElement *>::iterator mmi, mme;
   std::vector<MonitorElement *> items(dbe->getAllContents(""));
+
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+
     // keep track of leading directory (i.e. package)
     StringList dir = StringOps::split((*mmi)->getPathname(),"/");
     ++packages[dir[0]];
@@ -210,8 +234,7 @@ MEtoEDMConverter::endJob(void)
     std::cout << "We have " << nTH2D << " TH2D objects" << std::endl;
     std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
-    std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
-	      << std::endl;
+    std::cout << "We have " << nTProfile2D << " TProfile2D objects" << std::endl;
     std::cout << "We have " << nDouble << " Double objects" << std::endl;
     std::cout << "We have " << nInt64 << " Int64 objects" << std::endl;
     std::cout << "We have " << nString << " String objects" << std::endl;
@@ -221,9 +244,8 @@ MEtoEDMConverter::endJob(void)
 
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count.size() << " runs.";
+      << "Terminating having processed " << iCount.size() << " runs.";
 
-  return;
 }
 
 void
@@ -234,22 +256,24 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   int nrun = iRun.run();
   
   // keep track of number of runs processed
-  ++count[nrun];
+  ++iCount[nrun];
 
   if (verbosity) {  // keep track of number of runs processed
     edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << count.size() << " runs total)";
+      << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || count.size() == 1) {
+    if (nrun%frequency == 0 || iCount.size() == 1) {
       edm::LogInfo(MsgLoggerCat)
-	<< "Processing run " << nrun << " (" << count.size() << " runs total)";
+	<< "Processing run " << nrun << " (" << iCount.size() << " runs total)";
     }
   }
 
   // clear contents of monitor elements
   std::vector<MonitorElement *>::iterator mmi, mme;
   std::vector<MonitorElement *> items(dbe->getAllContents(path));
+
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+
     MonitorElement *me = *mmi;
 
     switch (me->kind())
@@ -313,11 +337,31 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 void
 MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
   int run = iRun.run();
-  std::string release = edm::getReleaseVersion();
+  int lumi = 0;
+  putData(iRun, false, run, lumi);
+}
 
-  std::string MsgLoggerCat = "MEtoEDMConverter_endRun";
+void
+MEtoEDMConverter::beginLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+{
+}
+
+void
+MEtoEDMConverter::endLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+{
+  int run = iLumi.id().run();
+  int lumi = iLumi.luminosityBlock();
+  putData(iLumi, true, run, lumi);
+}
+
+template <class T>
+void
+MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi)
+{
+  std::string iRelease = edm::getReleaseVersion();
+
+  std::string MsgLoggerCat = "MEtoEDMConverter_putData";
   
   if (verbosity)
     edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoEDM dataformat histograms.";
@@ -325,6 +369,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   // extract ME information into vectors
   std::vector<MonitorElement *>::iterator mmi, mme;
   std::vector<MonitorElement *> items(dbe->getAllContents(path));
+
   unsigned int n1F=0;
   unsigned int n1S=0;
   unsigned int n1D=0;
@@ -337,8 +382,14 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   unsigned int nDouble=0;
   unsigned int nInt64=0;
   unsigned int nString=0;
+
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+
     MonitorElement *me = *mmi;
+
+    // store only flagged ME
+    if (iLumiOnly && !me->getLumiFlag()) continue;
+
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
@@ -415,67 +466,70 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
     MonitorElement *me = *mmi;
 
+    // store only flagged ME
+    if (iLumiOnly && !me->getLumiFlag()) continue;
+
     // get monitor elements
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
       pOutInt->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getIntValue(),
-				release,run,datatier);
+				iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_REAL:
       pOutDouble->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
-				  release,run,datatier);
+				   iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_STRING:
       pOutString->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getStringValue(),
-				   release,run,datatier);
+				   iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
       pOut1->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1F(),
-			      release,run,datatier);
+			      iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH1S:
       pOut1s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1S(),
-			       release,run,datatier);
+			       iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH1D:
       pOut1d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1D(),
-			       release,run,datatier);
+			       iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
       pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F(),
-			      release,run,datatier);
+			      iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
       pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S(),
-			       release,run,datatier);
+			       iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH2D:
       pOut2d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2D(),
-			       release,run,datatier);
+			       iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
       pOut3->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH3F(),
-			      release,run,datatier);
+			      iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
       pOutProf->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile(),
-			      release,run,datatier);
+			         iRelease,iRun,iLumi,iDataTier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
       pOutProf2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile2D(),
-				  release,run,datatier);
+				  iRelease,iRun,iLumi,iDataTier);
       break;
 
     default:
@@ -485,37 +539,47 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	<< "simple object.\n";
       continue;
     }
-    
-    // remove ME after copy to EDM is done.
-    if (deleteAfterCopy)
-      dbe->removeElement(me->getPathname(),me->getName());
-    
+
+    if (!iLumiOnly) {
+      // remove ME after copy to EDM is done.
+      if (deleteAfterCopy)
+        dbe->removeElement(me->getPathname(),me->getName());
+    }
+
   } // end loop through monitor elements
 
+  std::string sName;
+
+  if (iLumiOnly) {
+    sName = fName + "Lumi";
+  } else {
+    sName = fName + "Run";
+  }
+
   // produce objects to put in events
-  iRun.put(pOutInt,fName);
-  iRun.put(pOutDouble,fName);
-  iRun.put(pOutString,fName);
-  iRun.put(pOut1,fName);
-  iRun.put(pOut1s,fName);
-  iRun.put(pOut1d,fName);
-  iRun.put(pOut2,fName);
-  iRun.put(pOut2s,fName);
-  iRun.put(pOut2d,fName);
-  iRun.put(pOut3,fName);
-  iRun.put(pOutProf,fName);
-  iRun.put(pOutProf2,fName);
+  iPutTo.put(pOutInt,sName);
+  iPutTo.put(pOutDouble,sName);
+  iPutTo.put(pOutString,sName);
+  iPutTo.put(pOut1,sName);
+  iPutTo.put(pOut1s,sName);
+  iPutTo.put(pOut1d,sName);
+  iPutTo.put(pOut2,sName);
+  iPutTo.put(pOut2s,sName);
+  iPutTo.put(pOut2d,sName);
+  iPutTo.put(pOut3,sName);
+  iPutTo.put(pOutProf,sName);
+  iPutTo.put(pOutProf2,sName);
 
 }
 
 void
 MEtoEDMConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if (firstevent) {
+  if (iFirstEvent) {
     if (iEvent.isRealData()) {
-      datatier = "DATA";
+      iDataTier = "DATA";
     } else {
-      datatier = "MC";
+      iDataTier = "MC";
     }
   }
 

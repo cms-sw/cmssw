@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2009/09/29 19:45:45 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/10/29 11:42:24 $
+ *  $Revision: 1.16.4.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -65,33 +66,27 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void endRun(edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(edm::LuminosityBlock&, const edm::EventSetup&);
+
+  template <class T>
+  void putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi);
 
   typedef std::vector<uint32_t> TagList;
 
 private:
-  template <class T> struct mestorage
-  {
-    std::vector<std::string> name;
-    std::vector<std::vector<uint32_t> > tags;
-    std::vector<T> object;
-    std::vector<std::string> release;
-    std::vector<int> run;
-    std::vector<std::string> datatier;
-  };
-
-  
   std::string fName;
   int verbosity;
   int frequency;
   bool deleteAfterCopy;
   std::string path;
 
-  DQMStore *dbe;
+  DQMStore* dbe;
 
   // private statistics information
-  std::map<int,int> count;
-  std::string datatier;
-  bool firstevent;
+  std::map<int,int> iCount;
+  std::string iDataTier;
+  bool iFirstEvent;
 
 }; // end class declaration
 

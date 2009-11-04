@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2009/10/13 07:45:29 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/10/29 11:42:24 $
+ *  $Revision: 1.26.4.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,10 +21,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
 
-  convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi",false);
-  convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun",false);
-
-  prescaleFactor = iPSet.getUntrackedParameter<int>("prescaleFactor", 1);
+  convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi",true);
+  convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun",true);
 
   // reset the release tag
   releaseTag = false;
@@ -63,8 +61,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   classtypes.push_back("Int64");
   classtypes.push_back("String");
 
-  count.clear();
-  countf = 0;
+  iCountf = 0;
+  iCount.clear();
 
   assert(sizeof(int64_t) == sizeof(long long));
 
@@ -81,77 +79,68 @@ void EDMtoMEConverter::endJob()
   std::string MsgLoggerCat = "EDMtoMEConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat)
-      << "Terminating having processed " << count.size() << " runs across "
-      << countf << " files.";
+      << "Terminating having processed " << iCount.size() << " runs across "
+      << iCountf << " files.";
   return;
 }
 
 void EDMtoMEConverter::respondToOpenInputFile(const edm::FileBlock& iFb)
 {
-  ++countf;
-
+  ++iCountf;
   return;
 }
 
-void EDMtoMEConverter::beginRun(const edm::Run& iRun,
-                                const edm::EventSetup& iSetup)
+void EDMtoMEConverter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_beginRun";
 
   int nrun = iRun.run();
 
   // keep track of number of unique runs processed
-  ++count[nrun];
+  ++iCount[nrun];
 
   if (verbosity) {
     edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << count.size() << " runs total)";
+      << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || count.size() == 1) {
+    if (nrun%frequency == 0 || iCount.size() == 1) {
       edm::LogInfo(MsgLoggerCat)
-        << "Processing run " << nrun << " (" << count.size() << " runs total)";
+        << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
     }
   }
 
 }
 
-void EDMtoMEConverter::endRun(const edm::Run& iRun,
-                              const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   if (convertOnEndRun) {
-    convert(iRun, true);
+    getData(iRun, true);
   }
-  return;
 }
 
-void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                            const edm::EventSetup& iSetup)
+void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
-  return;
 }
 
-void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                          const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
   if (convertOnEndLumi) {
-    if (prescaleFactor > 0 &&
-        iLumi.id().luminosityBlock() % prescaleFactor == 0) {
-      const edm::Run& iRun = iLumi.getRun();
-      convert(iRun, false);
-    }
+    const edm::Run& iRun = iLumi.getRun();
+    getData(iRun, false);
+    //to be migrated once sub-systems are ready
+    //getData(iLumi, false);
   }
-  return;
 }
 
-void EDMtoMEConverter::analyze(const edm::Event& iEvent,
-                               const edm::EventSetup& iSetup)
+void EDMtoMEConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  return;
 }
 
-void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
+template <class T>
+void
+EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 {
-  std::string MsgLoggerCat = "EDMtoMEConverter_convert";
+  std::string MsgLoggerCat = "EDMtoMEConverter_getData";
 
   if (verbosity >= 0)
     edm::LogInfo (MsgLoggerCat) << "\nRestoring MonitorElements.";
@@ -160,7 +149,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH1F") {
       edm::Handle<MEtoEDM<TH1F> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -221,7 +210,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH1S") {
       edm::Handle<MEtoEDM<TH1S> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -282,7 +271,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH1D") {
       edm::Handle<MEtoEDM<TH1D> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -343,7 +332,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH2F") {
       edm::Handle<MEtoEDM<TH2F> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -404,7 +393,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH2S") {
       edm::Handle<MEtoEDM<TH2S> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -465,7 +454,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH2D") {
       edm::Handle<MEtoEDM<TH2D> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -526,7 +515,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TH3F") {
       edm::Handle<MEtoEDM<TH3F> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -587,7 +576,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TProfile") {
       edm::Handle<MEtoEDM<TProfile> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -648,7 +637,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "TProfile2D") {
       edm::Handle<MEtoEDM<TProfile2D> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -709,7 +698,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "Double") {
       edm::Handle<MEtoEDM<double> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -773,7 +762,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "Int64") {
       edm::Handle<MEtoEDM<long long> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -822,7 +811,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
         if (dbe) {
           dbe->setCurrentFolder(dir);
           long long ival = 0;
-          if ( endrun ) {
+          if ( iEndRun ) {
             if (name.find("processedEvents") != std::string::npos) {
               if (MonitorElement* me = dbe->get(dir+"/"+name)) {
                 ival = me->getIntValue();
@@ -844,7 +833,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "Int") {
       edm::Handle<MEtoEDM<int> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -893,7 +882,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
         if (dbe) {
           dbe->setCurrentFolder(dir);
           int ival = 0;
-          if ( endrun ) {
+          if ( iEndRun ) {
             if (name.find("processedEvents") != std::string::npos) {
               if (MonitorElement* me = dbe->get(dir+"/"+name)) {
                 ival = me->getIntValue();
@@ -915,7 +904,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 
     if (classtypes[ii] == "String") {
       edm::Handle<MEtoEDM<TString> > metoedm;
-      iRun.getByType(metoedm);
+      iGetFrom.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -986,6 +975,5 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
     }
   }
 
-  return;
 }
 
