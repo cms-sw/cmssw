@@ -37,9 +37,13 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
         for(unsigned int iMuN = 0; iMuN < tcsMuonsVec2[iTC+1].size(); iMuN++) {
           if(tcsMuonsVec2[iTC+1][iMuN].getCode() == 0)
             continue;
-          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst()){
-            if(abs(tcsMuonsVec2[iTC][iMu].getEtaAddr() -
-                    tcsMuonsVec2[iTC+1][iMuN].getEtaAddr()) <= 1)
+          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst())
+          {
+            int eta1 = tcsMuonsVec2[iTC][iMu].getEtaAddr();
+            int eta2 = tcsMuonsVec2[iTC+1][iMuN].getEtaAddr();
+            if ( eta1 > 16 ) eta1 = - ( (~eta1 & 63) + 1);
+            if ( eta2 > 16 ) eta1 = - ( (~eta2 & 63) + 1);
+            if(abs(eta1 - eta2) <= 1)
               if(tcsMuonsVec2[iTC][iMu].getCode() <= tcsMuonsVec2[iTC+1][iMuN].getCode()) {
                 if(tcsMuonsVec2[iTC][iMu].getSegmentAddr() == RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1)
                   tcsMuonsVec2[iTC][iMu].kill();
