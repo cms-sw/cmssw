@@ -35,8 +35,14 @@ namespace{
 int main(int argc, char** ) {
 try{
 
-  std::string className = cond::classNameForTypeId(typeid(THECLASS));
-  std::string DSW_Name("DSW_"+className);
+  // this is the correct container name following cms rules (container name = C++ type name) 
+  //  std::string className = cond::classNameForTypeId(typeid(THECLASS));
+  // std::string DSW_Name("DSW_"+className);
+
+  // for this test we use the class name THECLASS as typed by the user including space, typedefs etc
+  // this makes further mapping query easier at script level....
+  std::string className("THECLASS");
+  std::string DSW_Name("DSW_THECLASS");
 
 
   withWrapper = argc>1;
