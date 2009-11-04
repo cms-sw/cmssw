@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/22 09:15:38 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/04 13:55:03 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -56,6 +56,7 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   sigmaResAlpha = pset.getParameter<double>("sigmaResAlpha");
   sigmaResBeta = pset.getParameter<double>("sigmaResBeta");
   doall = pset.getUntrackedParameter<bool>("doall", false);
+  local = pset.getUntrackedParameter<bool>("local", false);
 
 
   // Create the root file
@@ -76,10 +77,10 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
     if ( debug ) dbe_->showDirStructure();
   }
 
-  h4DHit= new HRes4DHit ("All",dbe_,doall);
-  h4DHit_W0= new HRes4DHit ("W0",dbe_,doall);
-  h4DHit_W1= new HRes4DHit ("W1",dbe_,doall);
-  h4DHit_W2= new HRes4DHit ("W2",dbe_,doall);
+  h4DHit= new HRes4DHit ("All",dbe_,doall,local);
+  h4DHit_W0= new HRes4DHit ("W0",dbe_,doall,local);
+  h4DHit_W1= new HRes4DHit ("W1",dbe_,doall,local);
+  h4DHit_W2= new HRes4DHit ("W2",dbe_,doall,local);
 
   if(doall) {
     hEff_All= new HEff4DHit ("All",dbe_);

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 13:06:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/03 16:44:46 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -72,11 +72,11 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
     if ( debug ) dbe_->showDirStructure();
   }
 
-  h2DHitRPhi = new HRes2DHit ("RPhi",dbe_);
-  h2DHitRZ= new HRes2DHit ("RZ",dbe_);
-  h2DHitRZ_W0= new HRes2DHit ("RZ_W0",dbe_);
-  h2DHitRZ_W1= new HRes2DHit ("RZ_W1",dbe_);
-  h2DHitRZ_W2= new HRes2DHit ("RZ_W2",dbe_);
+  h2DHitRPhi = new HRes2DHit ("RPhi",dbe_,true,true);
+  h2DHitRZ= new HRes2DHit ("RZ",dbe_,true,true);
+  h2DHitRZ_W0= new HRes2DHit ("RZ_W0",dbe_,true,true);
+  h2DHitRZ_W1= new HRes2DHit ("RZ_W1",dbe_,true,true);
+  h2DHitRZ_W2= new HRes2DHit ("RZ_W2",dbe_,true,true);
 
   h2DHitEff_RPhi= new HEff2DHit ("RPhi",dbe_);
   h2DHitEff_RZ= new HEff2DHit ("RZ",dbe_);

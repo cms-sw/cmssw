@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/02 17:15:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/11/04 13:54:51 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -54,6 +54,7 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   //sigma resolution on angle
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
   doall = pset.getUntrackedParameter<bool>("doall", false);
+  local = pset.getUntrackedParameter<bool>("local", false);
 
   // Create the root file
   //theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -74,7 +75,7 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   }
 
   // Book the histos
-  h2DHitSuperPhi = new HRes2DHit ("SuperPhi",dbe_,doall);
+  h2DHitSuperPhi = new HRes2DHit ("SuperPhi",dbe_,doall,local);
   if(doall) h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi",dbe_);
 }
 

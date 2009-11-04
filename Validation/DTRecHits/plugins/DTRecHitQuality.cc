@@ -1,8 +1,9 @@
+
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/06 17:22:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/11/04 13:54:36 $
+ *  $Revision: 1.12 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -52,6 +53,7 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep2 = pset.getUntrackedParameter<bool>("doStep2", false);
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
   doall = pset.getUntrackedParameter<bool>("doall", false);
+  local = pset.getUntrackedParameter<bool>("local", true);
   // if(doall) doStep1
   // Create the root file
   //theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -74,11 +76,11 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     if ( debug ) dbe_->showDirStructure();
     }*/
   if(doall && doStep1){
-    hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_);    // RecHits, 1. step, RPhi
-    hRes_S1RZ= new HRes1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
-    hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
-    hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
-    hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
+    hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_,true,local);    // RecHits, 1. step, RPhi
+    hRes_S1RZ= new HRes1DHit("S1RZ",dbe_,true,local);         // RecHits, 1. step, RZ
+    hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_,true,local);   // RecHits, 1. step, RZ, wheel 0
+    hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_,true,local);   // RecHits, 1. step, RZ, wheel +-1
+    hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2",dbe_,true,local);   // RecHits, 1. step, RZ, wheel +-2
     hEff_S1RPhi= new HEff1DHit("S1RPhi",dbe_);     // RecHits, 1. step, RPhi
     hEff_S1RZ= new HEff1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
     hEff_S1RZ_W0= new HEff1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
@@ -86,11 +88,11 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     hEff_S1RZ_W2= new HEff1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
   }
   if(doall && doStep2){
-    hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
-    hRes_S2RZ= new HRes1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
-    hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
-    hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
-    hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
+    hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_,true,local);     // RecHits, 2. step, RPhi
+    hRes_S2RZ= new HRes1DHit("S2RZ",dbe_,true,local);	    // RecHits, 2. step, RZ
+    hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_,true,local);   // RecHits, 2. step, RZ, wheel 0
+    hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_,true,local);   // RecHits, 2. step, RZ, wheel +-1
+    hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2",dbe_,true,local);   // RecHits, 2. step, RZ, wheel +-2
     hEff_S2RPhi= new HEff1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
     hEff_S2RZ_W0= new HEff1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
     hEff_S2RZ_W1= new HEff1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
@@ -98,11 +100,11 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     hEff_S2RZ= new HEff1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
   }
   if(doStep3){
-    hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_,doall);     // RecHits, 3. step, RPhi
-    hRes_S3RZ= new HRes1DHit("S3RZ",dbe_,doall);	    // RecHits, 3. step, RZ
-    hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall);   // RecHits, 3. step, RZ, wheel 0
-    hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-1
-    hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-2
+    hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_,doall,local);     // RecHits, 3. step, RPhi
+    hRes_S3RZ= new HRes1DHit("S3RZ",dbe_,doall,local);	    // RecHits, 3. step, RZ
+    hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel 0
+    hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel +-1
+    hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel +-2
     if(doall){
       hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
       hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ

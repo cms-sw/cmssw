@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/08/06 17:21:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/04 13:55:14 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -28,26 +28,27 @@ using namespace edm;
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
   public:
-    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true){
+    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local){
       std::string pre ="1D_";
       pre += name_;
       _doall = doall;
       // Position, sigma, residual, pull
       //sprintf (histo_n, "1D_%s_hDist",N); sprintf(histo_t, "1D RHit distance from wire");
       //      hDist=0; hDist = dbe_->book1D(histo_n, histo_t, 100, 0,2.5);
-      dbe_->setCurrentFolder("DT/1DRecHits/Res/");
+      if (local) dbe_->setCurrentFolder("DT/1DRecHits/");
+      else dbe_->setCurrentFolder("DT/1DRecHits/Res/");
       
       if(doall){
 	hDist=0; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
 	//hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
 	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, 0.,1.2, 150, -0.5,0.5);    
 	hResVsDistFE = 0; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);    
-	dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
+	if(!local) dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
  	hPullVsPos= 0; hPullVsPos  = dbe_->book2D (pre+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
 	hPullVsAngle = 0; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, 0.,+1.2, 100, -5,5);
 	hPullVsDistFE = 0; hPullVsDistFE  = dbe_->book2D (pre+"_hPullVsDistFE", "1D RHit pull vs FE distance", 100, 0., 400., 100, -5,5);
       }
-      dbe_->setCurrentFolder("DT/1DRecHits/Res/");
+      if(!local) dbe_->setCurrentFolder("DT/1DRecHits/Res/");
       hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residual", 300, -0.5,0.5);
       //hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
       hResVsEta=0; hResVsEta = dbe_->book2D(pre +"_hResVsEta" , "1D RHit residual vs eta", 50, -1.25,1.25,150,-0.5,0.5);
@@ -56,7 +57,7 @@ class HRes1DHit{
       //hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi", 100, -3.2, 3.2, 150, -1.5,1.5);
       hResVsPos = 0; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -0.5,0.5);    
       //hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
-      dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
+      if (!local) dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
       hPull =0; hPull       = dbe_->book1D (pre+"_hPull", "1D RHit pull", 100, -5,5);
     }
     /*
@@ -156,7 +157,7 @@ class HEff1DHit{
       std::string pre ="1D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("DT/1DRecHits/Eff/");
+      dbe_->setCurrentFolder("DT/1DRecHits/");
       hEtaMuSimHit=0; hEtaMuSimHit = dbe_->book1D(pre+"_hEtaMuSimHit", "SimHit Eta distribution",100, -1.5, 1.5);
       hEtaRecHit=0; hEtaRecHit = dbe_->book1D(pre+"_hEtaRecHit", "SimHit Eta distribution with 1D RecHit",100, -1.5, 1.5);
       hEffVsEta = 0;
@@ -319,11 +320,12 @@ class HEff1DHit{
 // Histos of residuals for 2D rechits
 class HRes2DHit{
   public:
-    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true){
+    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local){
       _doall = doall;
       std::string pre ="2D_";
       pre += name_;
-      dbe_->setCurrentFolder("DT/2DSegments/Res/");
+      if(local) dbe_->setCurrentFolder("DT/2DSegments/");
+      else dbe_->setCurrentFolder("DT/2DSegments/Res/");
       if(doall){
 	hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -3.5, 3.5);
 	hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -3.5, 3.5);
@@ -346,7 +348,7 @@ class HRes2DHit{
       
       hResPos=0;hResPos   = dbe_->book1D (pre+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
 					  150, -0.2, 0.2);
-       dbe_->setCurrentFolder("DT/2DSegments/Pull/");
+      if(!local) dbe_->setCurrentFolder("DT/2DSegments/Pull/");
      
       hPullAngle=0;hPullAngle   = dbe_->book1D (pre+"_hPullAngle", "Pull on 2D segment angle;(angle_{rec}-angle_{sim})/#sigma (rad)", 150, -5, 5);
       hPullPos=0;hPullPos   = dbe_->book1D (pre+"_hPullPos", "Pull on 2D segment position (x at SL center);(x_{rec}-x_{sim} (cm))/#sigma",
@@ -446,7 +448,7 @@ class HEff2DHit{
       std::string pre ="2D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("DT/2DSegments/Eff/");
+      dbe_->setCurrentFolder("DT/2DSegments/");
       hEtaSimSegm=0;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=0;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit",
                                  100, -1.5, 1.5);
@@ -655,12 +657,13 @@ class HEff2DHit{
 // Histos of residuals for 4D rechits
 class HRes4DHit{
   public:
-    HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true){
+    HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true,bool local){
       std::string pre ="4D_";
       pre += name_;
       _doall = doall;
       
-      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
+      if(local) dbe_->setCurrentFolder("DT/4DSegments/");    
+      else dbe_->setCurrentFolder("DT/4DSegments/Res/");    
       if(doall){
 	hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
 	hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
@@ -726,7 +729,7 @@ class HRes4DHit{
 	hResYVsPhiRZ=0;hResYVsPhiRZ    = dbe_->book2D (pre+"_hResYVsPhiRZ",
 						       "4D RecHit residual on position (y) in chamber vs phi in RZ SL;#phi (rad);y_{rec}-y_{sim} (cm)",
 						       100, -3.2, 3.2, 150, -0.6, 0.6);
-	dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+	if(!local) dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
  	hPullAlphaVsEta=0;hPullAlphaVsEta  = dbe_->book2D (pre+"_hPullAlphaVsEta",
 							   "4D RecHit pull on #alpha_x direction vs eta;#eta;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
 							   100, -2.5, 2.5, 100, -5, 5);
@@ -765,7 +768,7 @@ class HRes4DHit{
                                    100, -3.2, 3.2, 150, -5, 5);
 
       }
-      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
+      if(!local) dbe_->setCurrentFolder("DT/4DSegments/Res/");    
       hResAlpha=0;hResAlpha = dbe_->book1D (pre+"_hResAlpha", 
                                   "4D RecHit residual on #alpha_x direction;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
 					    200, -0.015, 0.015);
@@ -789,7 +792,7 @@ class HRes4DHit{
 
       // Pulls
        // Pulls
-	dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+      if(!local) dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
 
       hPullAlpha=0;hPullAlpha = dbe_->book1D (pre+"_hPullAlpha", 
                                    "4D RecHit pull on #alpha_x direction;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
