@@ -93,6 +93,9 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   // Typically don't do that at HLT for electrons, but do it otherwise
   seedCleaning = conf.getParameter<bool>("SeedCleaning");
 
+  // OIHit
+  isHitBased_ = conf.getUntrackedParameter<bool>("HitBased", false);
+
   simTracks_ = conf.getParameter<edm::InputTag>("SimTracks");
   estimatorCut_= conf.getParameter<double>("EstimatorCut");
 }
@@ -433,7 +436,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
 	  // Check that the first rechit is indeed the first seeding hit
-	  //if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
+	  if( !isHitBased_ ) {
+	    if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
+	  }
 	  
 	  // Count the number of crossed layers
 	  if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 

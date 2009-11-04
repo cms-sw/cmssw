@@ -9,6 +9,7 @@ hltL3TrackCandidateFromL2 = FastSimulation.Tracking.TrackCandidateProducer_cfi.t
     SplitHits = cms.bool(False),
     TrackProducers = cms.VInputTag(),
     SimTracks = cms.InputTag('famosSimHits'),
+    isHitBased = cms.untracked.bool(False),
     EstimatorCut = cms.double(200)
 )
 
