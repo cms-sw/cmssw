@@ -5,17 +5,13 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include <vector>
 
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 namespace edm {
   class Event;
   class ParameterSet;
 }
 
 class TrackingRecHit;
+class SiStripRecHit1D;
 class SiStripRecHit2D;
 
 class AlignmentTrackSelector
