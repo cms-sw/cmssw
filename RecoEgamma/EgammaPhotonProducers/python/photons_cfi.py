@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.31 2009/10/29 16:33:42 nancy Exp $
+# $Id: photons_cfi.py,v 1.32 2009/11/03 20:52:15 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.string('photonCore'),
@@ -30,24 +30,24 @@ photons = cms.EDProducer("PhotonProducer",
     minSCEtEndcap = cms.double(10.0),                     
     maxHoverEBarrel = cms.double(0.5),
     maxHoverEEndcap = cms.double(0.5),
-    ecalRecHitSumEtOffsetBarrel = cms.double(999999.),
+    ecalRecHitSumEtOffsetBarrel = cms.double(1.79769e+308),
     ecalRecHitSumEtSlopeBarrel = cms.double(0.),
-    ecalRecHitSumEtOffsetEndcap = cms.double(999999.),
+    ecalRecHitSumEtOffsetEndcap = cms.double(1.79769e+308),
     ecalRecHitSumEtSlopeEndcap = cms.double(0.),
-    hcalTowerSumEtOffsetBarrel = cms.double(999999.),
+    hcalTowerSumEtOffsetBarrel = cms.double(1.79769e+308),
     hcalTowerSumEtSlopeBarrel = cms.double(0.),
-    hcalTowerSumEtOffsetEndcap = cms.double(999999.),
+    hcalTowerSumEtOffsetEndcap = cms.double(1.79769e+308),
     hcalTowerSumEtSlopeEndcap = cms.double(0.),                      
-    nTrackSolidConeBarrel =cms.double(999999.),
-    nTrackSolidConeEndcap =cms.double(999999.),
-    nTrackHollowConeBarrel =cms.double(999999.),
-    nTrackHollowConeEndcap =cms.double(999999.),
-    trackPtSumSolidConeBarrel =cms.double(999999.),
-    trackPtSumSolidConeEndcap =cms.double(999999.),                     
-    trackPtSumHollowConeBarrel =cms.double(999999.),
-    trackPtSumHollowConeEndcap =cms.double(999999.),
-    sigmaIetaIetaCutBarrel=cms.double(999999.),
-    sigmaIetaIetaCutEndcap=cms.double(999999.)
+    nTrackSolidConeBarrel =cms.double(1.79769e+308),
+    nTrackSolidConeEndcap =cms.double(1.79769e+308),
+    nTrackHollowConeBarrel =cms.double(1.79769e+308),
+    nTrackHollowConeEndcap =cms.double(1.79769e+308),
+    trackPtSumSolidConeBarrel =cms.double(1.79769e+308),
+    trackPtSumSolidConeEndcap =cms.double(1.79769e+308),                     
+    trackPtSumHollowConeBarrel =cms.double(1.79769e+308),
+    trackPtSumHollowConeEndcap =cms.double(1.79769e+308),
+    sigmaIetaIetaCutBarrel=cms.double(1.79769e+308),
+    sigmaIetaIetaCutEndcap=cms.double(1.79769e+308)
                          
 
 )
