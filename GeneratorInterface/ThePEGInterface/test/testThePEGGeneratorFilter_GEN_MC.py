@@ -174,7 +174,6 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
     parameterSets = cms.vstring('cmsDefaults', 
         'validationQCD')
 )
-process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -186,7 +185,7 @@ process.schedule = cms.Schedule(process.generation_step,process.endjob_step,proc
 
 # special treatment in case of production filter sequence  
 for path in process.paths: 
-    getattr(process,path)._seq = process.ProductionFilterSequence*getattr(process,path)._seq
+    getattr(process,path)._seq = process.generator*getattr(process,path)._seq
 
 
 # Automatic addition of the customisation function

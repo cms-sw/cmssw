@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.149 
 # Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: Configuration/GenProduction/testThePEGGeneratorFilter -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --datatier GEN -n 100 --eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,MC_31X_V9::All --no_exec --mc --customise=Configuration/GenProduction/custom
+# with command line options: Configuration/GenProduction/testThePEGGeneratorFilter -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --datatier GEN-SIM-RAW -n 100 --eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,MC_31X_V9::All --no_exec --mc --customise=Configuration/GenProduction/custom
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
@@ -44,7 +44,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = process.RAWSIMEventContent.outputCommands,
     fileName = cms.untracked.string('testThePEGGeneratorFilter_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root'),
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN'),
+        dataTier = cms.untracked.string('GEN-SIM-RAW'),
         filterName = cms.untracked.string('')
     ),
     SelectEvents = cms.untracked.PSet(
@@ -179,7 +179,6 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
     parameterSets = cms.vstring('cmsDefaults', 
         'validationQCD')
 )
-process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -196,7 +195,7 @@ process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.endjob_step,process.out_step])
 # special treatment in case of production filter sequence  
 for path in process.paths: 
-    getattr(process,path)._seq = process.ProductionFilterSequence*getattr(process,path)._seq
+    getattr(process,path)._seq = process.generator*getattr(process,path)._seq
 
 
 # Automatic addition of the customisation function
