@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.2 2009/03/06 12:42:16 chamont Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.3 2009/10/07 23:34:44 charlot Exp $
 //
 //
 
@@ -58,14 +58,23 @@ class ElectronSeedAnalyzer : public edm::EDAnalyzer
   float seedDphi1[10], seedDrz1[10], seedDphi2[10], seedDrz2[10];
   float seedPhi1[10], seedRz1[10], seedPhi2[10], seedRz2[10];
   TH1F *histeMC_;
+  TH1F *histeMCmatched_;
+  TH1F *histecaldriveneMCmatched_;
+  TH1F *histtrackerdriveneMCmatched_;
   TH1F *histp_;
   TH1F *histeclu_;
   TH1F *histpt_;
   TH1F *histptMC_;
+  TH1F *histptMCmatched_;
+  TH1F *histecaldrivenptMCmatched_;
+  TH1F *histtrackerdrivenptMCmatched_;
   TH1F *histetclu_;
   TH1F *histeffpt_;
   TH1F *histeta_;
   TH1F *histetaMC_;
+  TH1F *histetaMCmatched_;
+  TH1F *histecaldrivenetaMCmatched_;
+  TH1F *histtrackerdrivenetaMCmatched_;
   TH1F *histetaclu_;
   TH1F *histeffeta_;
   TH1F *histq_;

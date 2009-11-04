@@ -98,14 +98,23 @@ void ElectronSeedAnalyzer::beginJob()
   tree_->Branch("seedRz2",seedRz2,"seedRz2[10]/F");
   tree_->Branch("seedDrz2",seedDrz2,"seedDrz2[10]/F");
   histeMC_ = new TH1F("eMC","MC particle energy",100,0.,100.);
+  histeMCmatched_ = new TH1F("eMCmatched","matched MC particle energy",100,0.,100.);
+  histecaldriveneMCmatched_ = new TH1F("ecaldriveneMCmatched","matched MC particle energy, ecal driven",100,0.,100.);
+  histtrackerdriveneMCmatched_ = new TH1F("trackerdriveneMCmatched","matched MC particle energy, tracker driven",100,0.,100.);
   histp_ = new TH1F("p","seed p",100,0.,100.);
   histeclu_ = new TH1F("clus energy","supercluster energy",100,0.,100.);
   histpt_ = new TH1F("pt","seed pt",100,0.,100.);
   histptMC_ = new TH1F("ptMC","MC particle pt",100,0.,100.);
+  histptMCmatched_ = new TH1F("ptMCmatched","matched MC particle pt",100,0.,100.);
+  histecaldrivenptMCmatched_ = new TH1F("ecaldrivenptMCmatched","matched MC particle pt, ecal driven",100,0.,100.);
+  histtrackerdrivenptMCmatched_ = new TH1F("trackerdrivenptMCmatched","matched MC particle pt, tracker driven",100,0.,100.);
   histetclu_ = new TH1F("Et","supercluster Et",100,0.,100.);
   histeffpt_ = new TH1F("pt eff","seed effciency vs pt",100,0.,100.);
   histeta_ = new TH1F("seed eta","seed eta",100,-2.5,2.5);
   histetaMC_ = new TH1F("etaMC","MC particle eta",100,-2.5,2.5);
+  histetaMCmatched_ = new TH1F("etaMCmatched","matched MC particle eta",100,-2.5,2.5);
+  histecaldrivenetaMCmatched_ = new TH1F("ecaldrivenetaMCmatched","matched MC particle eta, ecal driven",100,-2.5,2.5);
+  histtrackerdrivenetaMCmatched_ = new TH1F("trackerdrivenetaMCmatched","matched MC particle eta, tracker driven",100,-2.5,2.5);
   histetaclu_ = new TH1F("clus eta","supercluster eta",100,-2.5,2.5);
   histeffeta_ = new TH1F("eta eff","seed effciency vs eta",100,-2.5,2.5);
   histq_ = new TH1F("q","seed charge",100,-2.5,2.5);
@@ -120,14 +129,40 @@ void ElectronSeedAnalyzer::endJob()
   histfile_->cd();
   tree_->Print();
   tree_->Write();
+
+  // efficiency vs eta
+  TH1F *histetaEff = (TH1F*)histetaMCmatched_->Clone("histetaEff");
+  histetaEff->Reset();
+  histetaEff->Divide(histetaMCmatched_,histeta_,1,1,"b");
+  histetaEff->Print();
+  histetaEff->GetXaxis()->SetTitle("#eta");
+  histetaEff->GetYaxis()->SetTitle("Efficiency");
+
+  // efficiency vs pt
+  TH1F *histptEff = (TH1F*)histptMCmatched_->Clone("histotEff");
+  histptEff->Reset();
+  histptEff->Divide(histptMCmatched_,histpt_,1,1,"b");
+  histptEff->Print();
+  histptEff->GetXaxis()->SetTitle("p_{T}");
+  histptEff->GetYaxis()->SetTitle("Efficiency");
+
+  histeMCmatched_->Write();
+  histecaldriveneMCmatched_->Write();
+  histtrackerdriveneMCmatched_->Write();
   histeMC_->Write();
   histp_->Write();
   histeclu_->Write();
   histpt_->Write();
+  histptMCmatched_->Write();
+  histecaldrivenptMCmatched_->Write();
+  histtrackerdrivenptMCmatched_->Write();
   histptMC_->Write();
   histetclu_->Write();
   histeffpt_->Write();
   histeta_->Write();
+  histetaMCmatched_->Write();
+  histecaldrivenetaMCmatched_->Write();
+  histtrackerdrivenetaMCmatched_->Write();
   histetaMC_->Write();
   histetaclu_->Write();
   histeffeta_->Write();
@@ -213,6 +248,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     LogDebug("")<<" ElectronSeed outermost state position: "<<t.globalPosition();
     LogDebug("")<<" ElectronSeed outermost state momentum: "<<t.globalMomentum();
     edm::RefToBase<CaloCluster> caloCluster = (*MyS).caloCluster() ;
+    if (caloCluster.isNull()) continue;
     edm::Ref<SuperClusterCollection> theClus = caloCluster.castTo<SuperClusterRef>() ;
     LogDebug("")<<" ElectronSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
     LogDebug("")<<" ElectronSeed outermost state Pt: "<<t.globalMomentum().perp();
@@ -224,7 +260,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
     // retreive SC and compute distances between hit position and prediction the same
     // way as in the PixelHitMatcher
-
+    
     // inputs are charge, cluster position, vertex position, cluster energy and B field
     int charge = int((*MyS).getCharge());
     GlobalPoint xmeas(theClus->position().x(),theClus->position().y(),theClus->position().z());
@@ -481,9 +517,18 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       genPc=(*partIter);
       pAssSim = genPc->momentum();
 
-      if (pAssSim.perp()> 100. || fabs(pAssSim.eta())> 2.5) continue;
+      // EWK fiducial
+      //if (pAssSim.perp()> 100. || fabs(pAssSim.eta())> 2.5) continue;     
+      //if (pAssSim.perp()< 20. || (fabs(pAssSim.eta())> 1.4442 && fabs(pAssSim.eta())< 1.56) || fabs(pAssSim.eta())> 2.5) continue;
+      // reconstruction fiducial
+      //if (pAssSim.perp()< 5. || fabs(pAssSim.eta())> 2.5) continue;
+      if (fabs(pAssSim.eta())> 2.5) continue;
 
-      // looking for the best matching gsf electron
+      histptMC_->Fill(pAssSim.perp());
+      histetaMC_->Fill(pAssSim.eta());
+      histeMC_->Fill(pAssSim.rho());
+
+     // looking for the best matching gsf electron
       bool okSeedFound = false;
       double seedOkRatio = 999999.;
 
@@ -491,10 +536,10 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       reco::ElectronSeed bestElectronSeed;
       for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
 
-    range r=gsfIter->recHits();
-    const GeomDet *det=0;
-    for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-    TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+        range r=gsfIter->recHits();
+        const GeomDet *det=0;
+        for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
+         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -504,6 +549,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
 	if ( deltaR < 0.15 ){
+//	if ( deltaR < 0.3 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpSeedRatio = p/pAssSim.t();
@@ -519,9 +565,9 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       // analysis when the mc track is found
      if (okSeedFound){
 
-	histptMC_->Fill(pAssSim.perp());
-	histetaMC_->Fill(pAssSim.eta());
-	histeMC_->Fill(pAssSim.rho());
+	histptMCmatched_->Fill(pAssSim.perp());
+	histetaMCmatched_->Fill(pAssSim.eta());
+	histeMCmatched_->Fill(pAssSim.rho());
 	if (ip<10) {
 	  mcEnergy[ip] = pAssSim.rho();
 	  mcEta[ip] = pAssSim.eta();
@@ -530,15 +576,102 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	  mcQ[ip] = ((id == 11) ? -1.: +1.);
 	}
       }
+      
+     // efficiency for ecal driven only
+      okSeedFound = false;
+      seedOkRatio = 999999.;
+
+      // find best matched seed
+      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+
+        range r=gsfIter->recHits();
+        const GeomDet *det=0;
+        for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
+         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+
+	float eta = t.globalMomentum().eta();
+	float phi = t.globalMomentum().phi();
+	float p = t.globalMomentum().mag();
+        double dphi = phi-pAssSim.phi();
+        if (fabs(dphi)>CLHEP::pi)
+         dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
+	if (gsfIter->isEcalDriven()) {
+	if ( deltaR < 0.15 ){
+//	if ( deltaR < 0.3 ){
+	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+	//(gsfIter->charge() > 0.) ){
+	  double tmpSeedRatio = p/pAssSim.t();
+	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	    seedOkRatio = tmpSeedRatio;
+	    bestElectronSeed=*gsfIter;
+	    okSeedFound = true;
+	  }
+	//}
+	}
+	} // end if ecal driven
+      } // loop over rec ele to look for the best one
+
+      // analysis when the mc track is found
+     if (okSeedFound){
+
+	histecaldrivenptMCmatched_->Fill(pAssSim.perp());
+	histecaldrivenetaMCmatched_->Fill(pAssSim.eta());
+	histecaldriveneMCmatched_->Fill(pAssSim.rho());
       }
 
-    }
+      // efficiency for tracker driven only
+      okSeedFound = false;
+      seedOkRatio = 999999.;
 
-    }
+      // find best matched seed
+      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+
+        range r=gsfIter->recHits();
+        const GeomDet *det=0;
+        for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
+         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+
+	float eta = t.globalMomentum().eta();
+	float phi = t.globalMomentum().phi();
+	float p = t.globalMomentum().mag();
+        double dphi = phi-pAssSim.phi();
+        if (fabs(dphi)>CLHEP::pi)
+         dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
+	if (gsfIter->isTrackerDriven()) {
+	if ( deltaR < 0.15 ){
+//	if ( deltaR < 0.3 ){
+	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+	//(gsfIter->charge() > 0.) ){
+	  double tmpSeedRatio = p/pAssSim.t();
+	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	    seedOkRatio = tmpSeedRatio;
+	    bestElectronSeed=*gsfIter;
+	    okSeedFound = true;
+	  }
+	//}
+	}
+	} // end if ecal driven
+      } // loop over rec ele to look for the best one
+
+      // analysis when the mc track is found
+     if (okSeedFound){
+
+	histtrackerdrivenptMCmatched_->Fill(pAssSim.perp());
+	histtrackerdrivenetaMCmatched_->Fill(pAssSim.eta());
+	histtrackerdriveneMCmatched_->Fill(pAssSim.rho());
+      }
+
+     } // end if mother W or Z
+
+    } // end if gen part is electron
+
+    } // end loop on vertices
 
     ip++;
 
-  }
+  } // end loop on gen particles
 
   //tree_->Fill();
 
