@@ -114,6 +114,13 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 namespace edm {
 
+  namespace principal_get_adapter_detail {
+    struct deleter {
+      void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const;
+    };
+    void
+    throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
+  }
   class PrincipalGetAdapter {
   public:
     PrincipalGetAdapter(Principal & pcpl,

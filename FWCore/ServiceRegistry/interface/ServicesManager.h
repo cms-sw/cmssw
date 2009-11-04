@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id: ServicesManager.h,v 1.7 2006/08/08 00:37:02 chrjones Exp $
+// $Id: ServicesManager.h,v 1.8 2007/02/14 20:45:11 wdd Exp $
 //
 
 // system include files
@@ -79,8 +79,10 @@ public:
                //do on demand building of the service
                if(0 == type2Maker_.get() || 
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-                      throw edm::Exception(edm::errors::NotFound,"Service Request") 
-                      <<" unable to find requested service with compiler type name '"<<typeid(T).name() <<"'.\n";
+                      Exception::throwThis(errors::NotFound,
+			"Service Request unable to find requested service with compiler type name '",
+			typeid(T).name(),
+			"'.\n");
                } else {
                   itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));

@@ -23,8 +23,6 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.9 2007/12/21 22:42:30 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -55,9 +53,8 @@ namespace edm {
     inline
     void _throw_range(det_id_type i)
   {
-      throw edm::Exception(errors::InvalidReference)
-      << "DetSetLazyVector::operator[] called with index not in collection;\n"
-      << "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetLazyVector::operator[] called with index not in collection;\nindex value: ", i);
   }
   }
   

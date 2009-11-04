@@ -337,21 +337,21 @@ public:
     operator<< (T const & t)  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << t; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << f; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << f; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
 			   // Change log 8:  The tests for ap.get() being null 
@@ -375,21 +375,21 @@ public:
     operator<< (T const & t)  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << t; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << f; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
     { if (!debugEnabled) return *this;				// Change log 8
       if (ap.get()) (*ap) << f; 
-      else throw edm::Exception
+      else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
 			   // Change log 8:  The tests for ap.get() being null 

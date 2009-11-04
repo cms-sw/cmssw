@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.10 2006/06/13 22:32:35 wmtan Exp $
 //
 
 // system include files
@@ -65,8 +64,9 @@ namespace edm {
       template<class T>
          T& get() const {
             if(0 == manager_.get()) {
-               throw edm::Exception(edm::errors::NotFound,"Service")
-               <<" no ServiceRegistry has been set for this thread";
+               Exception::throwThis(errors::NotFound,
+		"Service"
+		" no ServiceRegistry has been set for this thread");
             }
             return manager_-> template get<T>();
          }
@@ -74,8 +74,9 @@ namespace edm {
       template<class T>
          bool isAvailable() const {
             if(0 == manager_.get()) {
-               throw edm::Exception(edm::errors::NotFound,"Service")
-               <<" no ServiceRegistry has been set for this thread";
+               Exception::throwThis(errors::NotFound,
+		"Service"
+		" no ServiceRegistry has been set for this thread");
             }
             return manager_-> template isAvailable<T>();
          }

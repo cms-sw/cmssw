@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.22 2007/05/08 03:18:38 wmtan Exp $
 //
 
 // system include files
@@ -63,13 +62,17 @@ template<typename T>
          {
             boost::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
             
-            if(wm.get()==0) {
-	      throw edm::Exception(errors::Configuration,"UnknownModule")<<T::name() 
-              <<" of type "<< modtype <<" has not been registered.\n"
-              << "Perhaps your module type is misspelled or is not a "
-              << "framework plugin.\n"
-              << "Try running EdmPluginDump to obtain a list of "
-              << "available Plugins.";            
+            if(wm.get() == 0) {
+	      Exception::throwThis(errors::Configuration,
+	      "UnknownModule",
+	       T::name().c_str(),
+              " of type ",
+              modtype.c_str(),
+              " has not been registered.\n"
+              "Perhaps your module type is misspelled or is not a "
+              "framework plugin.\n"
+              "Try running EdmPluginDump to obtain a list of "
+              "available Plugins.");            
             }
             
             //cerr << "Factory: created the worker" << endl;
@@ -77,8 +80,9 @@ template<typename T>
             std::pair<typename MakerMap::iterator,bool> ret =
                makers_.insert(std::make_pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
             
-            if(ret.second==false)
-	      throw edm::Exception(errors::Configuration,"Maker Factory map insert failed");
+            if(ret.second == false) {
+	      Exception::throwThis(errors::Configuration,"Maker Factory map insert failed");
+            }
             
             it = ret.first;
          }
@@ -86,11 +90,12 @@ template<typename T>
          try {
             return it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
          } catch(cms::Exception& iException) {
-            edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
+            Exception toThrow(errors::Configuration,"Error occured while creating ");
             toThrow<<modtype<<"\n";
             toThrow.append(iException);
-            throw toThrow;
+            toThrow.raise();
          }
+         return boost::shared_ptr<base_type>();
       }
    
       // ---------- static member functions --------------------

@@ -36,7 +36,7 @@ namespace edm {
     private:
       typedef typename RefVectorHolderBase::const_iterator_imp const_iterator_imp;
 
-    public:      
+    public:
       struct const_iterator_imp_specific : public const_iterator_imp {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp_specific() { }
@@ -54,25 +54,27 @@ namespace edm {
 	difference_type difference(const_iterator_imp const* o) const { return i - dc(o); }
       private:
 	typename REFV::const_iterator const& dc(const_iterator_imp const* o) const {
-	  if (o == 0)
-	    throw edm::Exception(edm::errors::InvalidReference) 
-	      << "In RefVectorHolder trying to dereference a null pointer\n";
+	  if (o == 0) {
+	    Exception::throwThis(errors::InvalidReference,
+	      "In RefVectorHolder trying to dereference a null pointer\n");
+	  }
 	  const_iterator_imp_specific const* oo = dynamic_cast<const_iterator_imp_specific const*>(o);
-	  if (oo == 0) 
-	    throw edm::Exception(edm::errors::InvalidReference) 
-	      << "In RefVectorHolder trying to cast iterator to wrong type\n";
+	  if (oo == 0) {
+	    Exception::throwThis(errors::InvalidReference,
+	      "In RefVectorHolder trying to cast iterator to wrong type\n");
+	  }
 	  return oo->i;
-	} 
+	}
 	typename REFV::const_iterator i;
       };
-      
+
       typedef typename RefVectorHolderBase::const_iterator const_iterator;
-      
-      const_iterator begin() const { 
-	return const_iterator(new const_iterator_imp_specific(refs_.begin())); 
+
+      const_iterator begin() const {
+	return const_iterator(new const_iterator_imp_specific(refs_.begin()));
       }
-      const_iterator end() const { 
-	return const_iterator(new const_iterator_imp_specific(refs_.end())); 
+      const_iterator end() const {
+	return const_iterator(new const_iterator_imp_specific(refs_.end()));
       }
       virtual void const* product() const {
 	return refs_.product();
@@ -86,7 +88,7 @@ namespace edm {
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
       REFV refs_;
     };
-    
+
     //
     // implementations for RefVectorHolder<REFV>
     //
@@ -117,7 +119,7 @@ namespace edm {
     typename RefVectorHolder<REFV>::size_type RefVectorHolder<REFV>::size() const {
       return refs_.size();
     }
-    
+
     template<typename REFV>
     inline
     void RefVectorHolder<REFV>::clear() {
@@ -160,7 +162,7 @@ namespace edm {
     void RefVectorHolder<REFV>::setRefs(REFV const& refs) {
       refs_ = refs;
     }
-    
+
     // Free swap function
     template <typename REFV>
     inline
@@ -175,27 +177,29 @@ namespace edm {
 
 namespace edm {
   namespace reftobase {
-    
+
     template<typename REFV>
     void RefVectorHolder<REFV>::push_back(RefHolderBase const* h) {
       typedef typename REFV::value_type REF;
       RefHolder<REF> const* rh = dynamic_cast<RefHolder<REF> const*>(h);
-      if(rh == 0)
-	throw edm::Exception(errors::InvalidReference)
-	  << "RefVectorHolder: attempting to cast a RefHolderBase "
-	  << "to an invalid type.\nExpected: "
-	  << typeid(REF).name() << "\n";
+      if(rh == 0) {
+	Exception::throwThis(errors::InvalidReference,
+	  "RefVectorHolder: attempting to cast a RefHolderBase "
+	  "to an invalid type.\nExpected: ",
+	  typeid(REF).name(),
+	  "\n");
+      }
       refs_.push_back(rh->getRef());
     }
 
     template <typename REFV>
-    boost::shared_ptr<RefHolderBase>  
+    boost::shared_ptr<RefHolderBase>
     RefVectorHolder<REFV>::refBase(size_t idx) const {
       return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(refs_[idx]));
     }
 
     template<typename REFV>
-    boost::shared_ptr<RefHolderBase> RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const { 
+    boost::shared_ptr<RefHolderBase> RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
       return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(*i));
     }
 
@@ -211,10 +215,10 @@ namespace edm {
     template<typename REFV>
     struct RefVectorHolderNoFillView {
       static void reallyFillView(RefVectorHolder<REFV>&, void const*, ProductID const&, std::vector<void const*>&) {
-	throw Exception(errors::ProductDoesNotSupportViews)
-	  << "The product type " 
-	  << typeid(typename REFV::collection_type).name()
-	  << "\ndoes not support Views\n";
+	Exception::throwThis(errors::ProductDoesNotSupportViews,
+	  "The product type ",
+	  typeid(typename REFV::collection_type).name(),
+	  "\ndoes not support Views\n");
       }
     };
 
@@ -225,14 +229,14 @@ namespace edm {
 	collection const* product = static_cast<collection const*>(prod);
 	detail::reallyFillView(*product, id, pointers, rvh);
       }
-    };    
+    };
 
     template<typename REFV>
     void RefVectorHolder<REFV>::reallyFillView(void const* prod, ProductID const& id , std::vector<void const*> & pointers) {
-      typedef 
+      typedef
 	typename boost::mpl::if_c<has_fillView<typename REFV::collection_type>::value,
 	RefVectorHolderDoFillView<REFV>,
-	RefVectorHolderNoFillView<REFV> >::type maybe_filler;      
+	RefVectorHolderNoFillView<REFV> >::type maybe_filler;
       maybe_filler::reallyFillView(*this, prod, id, pointers);
     }
   }

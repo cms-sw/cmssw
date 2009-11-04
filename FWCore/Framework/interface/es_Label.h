@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 30 09:35:20 EDT 2005
-// $Id: es_Label.h,v 1.3 2007/11/07 07:54:03 wmtan Exp $
 //
 
 // system include files
@@ -66,10 +65,11 @@ namespace edm {
                labels_.swap(temp);
             } else {
                if( labels_[iIndex] != def() ) {
-                  throw edm::Exception(errors::Configuration,"Duplicate Label")
-                  <<"The index "<<iIndex<<" was previously assigned the label \""
-                  <<labels_[iIndex]<<"\" and then was later assigned \""
-                  <<iString<<"\"";
+                  Exception e(errors::Configuration,"Duplicate Label");
+                  e <<"The index "<<iIndex<<" was previously assigned the label \""
+                    <<labels_[iIndex]<<"\" and then was later assigned \""
+                    <<iString<<"\"";
+                  e.raise();
                }
                labels_[iIndex] = iString;
             }

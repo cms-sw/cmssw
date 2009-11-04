@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.8 2008/01/14 15:50:55 chrjones Exp $
+// $Id: DependentRecordImplementation.h,v 1.9 2009/01/29 22:14:43 elmer Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
 	 EventSetup const& eventSetupT = this->eventSetup();
 	 //can't do the following because of a compiler error in gcc 3.*
 	 // return eventSetupT.get<DepRecordT>();
-	 const DepRecordT* temp;
+	 const DepRecordT* temp = 0;
 	 try { 
 	    eventSetupT.getAvoidCompilerBug(temp);
 	 } catch(NoRecordException<DepRecordT>&) {

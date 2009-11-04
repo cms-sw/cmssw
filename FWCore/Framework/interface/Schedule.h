@@ -400,9 +400,10 @@ namespace edm {
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
       }
       catch (cms::Exception& ex) {
-        throw edm::Exception(errors::EventProcessorFailure,
-                             "EventProcessingStopped", ex)
-          << "Attempt to insert TriggerResults into event failed.\n";
+        Exception e(errors::EventProcessorFailure,
+                           "EventProcessingStopped", ex);
+        e << "Attempt to insert TriggerResults into event failed.\n";
+        e.raise();
       }
 
       if (endpathsAreActive_) runEndPaths<T>(ep, es);
@@ -421,9 +422,10 @@ namespace edm {
       }
       default: {
         state_ = Ready;
-        throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped", ex)
-	  << "an exception occurred during current event processing\n";
+        Exception e(errors::EventProcessorFailure,
+			     "EventProcessingStopped", ex);
+	e << "an exception occurred during current event processing\n";
+        e.raise();
       }
       }
     }

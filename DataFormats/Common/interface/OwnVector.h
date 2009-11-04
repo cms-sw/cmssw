@@ -1,6 +1,5 @@
 #ifndef DataFormats_Common_OwnVector_h
 #define DataFormats_Common_OwnVector_h
-// $Id: OwnVector.h,v 1.36 2008/03/31 21:12:11 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -39,13 +38,13 @@ namespace edm {
     typedef T& reference;
     typedef T const& const_reference;
     typedef P policy_type;
-      
+
     class iterator;
     class const_iterator {
     public:
       typedef T value_type;
       typedef T* pointer;
-      typedef T const& reference; 
+      typedef T const& reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::const_iterator::iterator_category iterator_category;
       const_iterator(typename base::const_iterator const& it) : i(it) { }
@@ -105,12 +104,12 @@ namespace edm {
       friend const_iterator::const_iterator(iterator const&);
       friend class OwnVector<T, P>;
    };
-      
+
     OwnVector();
     OwnVector(size_type);
     OwnVector(OwnVector const&);
     ~OwnVector();
-      
+
     iterator begin();
     iterator end();
     const_iterator begin() const;
@@ -119,9 +118,9 @@ namespace edm {
     bool empty() const;
     reference operator[](size_type);
     const_reference operator[](size_type) const;
-      
+
     OwnVector<T, P> & operator=(OwnVector<T, P> const&);
-      
+
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
     template <typename D> void push_back(D* const& d);
@@ -133,11 +132,11 @@ namespace edm {
     const_reference back() const;
     reference front();
     const_reference front() const;
-    base const& data() const; 
+    base const& data() const;
     void clear();
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
-    template<typename S> 
+    template<typename S>
     void sort(S s);
     void sort();
 
@@ -162,32 +161,32 @@ namespace edm {
     static Ordering<O> ordering(O const& comp) {
       return Ordering<O>(comp);
     }
-    base data_;      
+    base data_;
     typename helpers::PostReadFixupTrait<T>::type fixup_;
     inline void fixup() const { fixup_(data_); }
     inline void touch() { fixup_.touch(); }
   };
-  
+
   template<typename T, typename P>
-  inline OwnVector<T, P>::OwnVector() : data_() { 
+  inline OwnVector<T, P>::OwnVector() : data_() {
   }
-  
+
   template<typename T, typename P>
-  inline OwnVector<T, P>::OwnVector(size_type n) : data_(n) { 
+  inline OwnVector<T, P>::OwnVector(size_type n) : data_(n) {
   }
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(OwnVector<T, P> const& o) : data_(o.size()) {
     size_type current = 0;
-    for (const_iterator i = o.begin(), e = o.end(); i != e; ++i,++current) 
+    for (const_iterator i = o.begin(), e = o.end(); i != e; ++i,++current)
       data_[current] = policy_type::clone(*i);
   }
-  
+
   template<typename T, typename P>
-  inline OwnVector<T, P>::~OwnVector() { 
+  inline OwnVector<T, P>::~OwnVector() {
     destroy();
   }
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
     OwnVector<T,P> temp(o);
@@ -195,60 +194,60 @@ namespace edm {
     fixup_ = o.fixup_;
     return *this;
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
     fixup();
     touch();
     return iterator(data_.begin());
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
     fixup();
     touch();
     return iterator(data_.end());
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::begin() const {
     fixup();
     return const_iterator(data_.begin());
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::end() const {
     fixup();
     return const_iterator(data_.end());
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::size_type OwnVector<T, P>::size() const {
     return data_.size();
   }
-  
+
   template<typename T, typename P>
   inline bool OwnVector<T, P>::empty() const {
     return data_.empty();
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::operator[](size_type n) {
     fixup();
     return *data_[n];
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::operator[](size_type n) const {
     fixup();
     return *data_[n];
   }
-  
+
   template<typename T, typename P>
   inline void OwnVector<T, P>::reserve(size_t n) {
     data_.reserve(n);
   }
-  
+
   template<typename T, typename P>
   template<typename D>
   inline void OwnVector<T, P>::push_back(D*& d) {
@@ -305,52 +304,54 @@ namespace edm {
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::back() {
     T* result = data_.back();
-    if (result == 0)
-      throw edm::Exception(errors::NullPointerError)
-	<< "In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
-	<< "Since OwnVector is allowed to contain null pointers, you much assure that the\n"
-	<< "pointer at the end of the collection is not null before calling back()\n"
-	<< "if you wish to avoid this exception.\n"
-	<< "Consider using OwnVector::is_back_safe()\n";
+    if (result == 0) {
+      Exception::throwThis(errors::NullPointerError,
+	"In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
+	"Since OwnVector is allowed to contain null pointers, you much assure that the\n"
+	"pointer at the end of the collection is not null before calling back()\n"
+	"if you wish to avoid this exception.\n"
+	"Consider using OwnVector::is_back_safe()\n");
+    }
     fixup();
     touch();
     return *data_.back();
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::back() const {
     T* result = data_.back();
-    if (result == 0)
-      throw edm::Exception(errors::NullPointerError)
-	<< "In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
-	<< "Since OwnVector is allowed to contain null pointers, you much assure that the\n"
-	<< "pointer at the end of the collection is not null before calling back()\n"
-	<< "if you wish to avoid this exception.\n"
-	<< "Consider using OwnVector::is_back_safe()\n";
+    if (result == 0) {
+      Exception::throwThis(errors::NullPointerError,
+	"In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
+	"Since OwnVector is allowed to contain null pointers, you much assure that the\n"
+	"pointer at the end of the collection is not null before calling back()\n"
+	"if you wish to avoid this exception.\n"
+	"Consider using OwnVector::is_back_safe()\n");
+    }
     fixup();
     return *data_.back();
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
     fixup();
     touch();
     return *data_.front();
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
     fixup();
     return *data_.front();
   }
-  
+
   template<typename T, typename P>
   inline void OwnVector<T, P>::destroy() {
     typename base::const_iterator b = data_.begin(), e = data_.end();
     for( typename base::const_iterator i = b; i != e; ++ i )
       delete * i;
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::base const& OwnVector<T, P>::data() const {
     fixup();
@@ -377,7 +378,7 @@ namespace edm {
     touch();
     typename base::iterator b = first.i, e = last.i;
     for( typename base::iterator i = b; i != e; ++ i )
-      delete * i;    
+      delete * i;
     return iterator(data_.erase(b, e));
   }
 
@@ -412,10 +413,10 @@ namespace edm {
     for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i, ++key) {
 
       if (*i == 0) {
-        throw edm::Exception(errors::NullPointerError)
-	  << "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
-	  << "into a View and that is not allowed.  It is probably an error that the null\n"
-	  << "pointer was in the OwnVector in the first place.\n";
+        Exception::throwThis(errors::NullPointerError,
+	  "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
+	  "into a View and that is not allowed.  It is probably an error that the null\n"
+	  "pointer was in the OwnVector in the first place.\n");
       }
       else {
 	pointers.push_back(*i);

@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.37 2007/12/21 22:42:29 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.38 2008/03/31 21:12:10 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -165,8 +165,7 @@ namespace edm {
       if (tf == transientMap_.end()) {
 	typename map_type::const_iterator f = map_.find(i);
 	if (f == map_.end())
-	  throw edm::Exception(edm::errors::InvalidReference)
-	    << "can't find reference in AssociationMap at position " << i;
+	  Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
 	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
 	std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
 	  transientMap_.insert(std::make_pair(i, v));

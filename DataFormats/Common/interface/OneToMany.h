@@ -41,8 +41,8 @@ namespace edm {
     static void insert(ref_type & ref, map_type & m,
 			const key_type & k, const data_type & v) {
       if (k.isNull() || v.isNull())
-	throw edm::Exception(edm::errors::InvalidReference)
-	  << "can't insert null references in AssociationMap";
+	Exception::throwThis(errors::InvalidReference,
+	  "can't insert null references in AssociationMap");
       if (ref.key.isNull()) {
 	ref.key = KeyRefProd(k);
 	ref.val = ValRefProd(v);

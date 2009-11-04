@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.15 2008/04/30 17:07:50 gpetrucc Exp $
+ * \version $Id: ValueMap.h,v 1.16 2009/01/30 11:45:36 elmer Exp $
  *
  */
 
@@ -78,17 +78,18 @@ namespace edm {
     private:
       value_map values_;
       void throwFillSize() const {
-	throw Exception(errors::InvalidReference)
-	  << "ValueMap::Filler: handle and reference "
-	  << "collections should the same size\n";	
+	Exception::throwThis(errors::InvalidReference,
+	  "ValueMap::Filler: handle and reference "
+	  "collections should the same size\n");	
       }
       void throwFillID(ProductID id) const {
-	throw Exception(errors::InvalidReference)
-	  << "index map has already been filled for id: " << id << "\n";
+	Exception e(errors::InvalidReference);
+	e << "index map has already been filled for id: " << id << "\n";
+	e.raise();
       }
       void throwAdd() const {
-	throw Exception(errors::InvalidReference)
-	  << "ValueMap: trying to add entries for an already existing product\n";
+	Exception::throwThis(errors::InvalidReference,
+	  "ValueMap: trying to add entries for an already existing product\n");
       }
     };
   }
@@ -209,8 +210,7 @@ namespace edm {
     }
 
     void throwIndexBound() const {
-      throw Exception(errors::InvalidReference)
-	<< "ValueMap: index out of upper boundary\n";
+      Exception::throwThis(errors::InvalidReference, "ValueMap: index out of upper boundary\n");
     }
 
   private:
@@ -220,8 +220,7 @@ namespace edm {
       }
     };
     void throwNotExisting() const {
-      throw Exception(errors::InvalidReference)
-	<< "ValueMap: no associated value for given product and index\n";
+      Exception::throwThis(errors::InvalidReference, "ValueMap: no associated value for given product and index\n");
     }
 
     void add( const ValueMap<T> & o ) {

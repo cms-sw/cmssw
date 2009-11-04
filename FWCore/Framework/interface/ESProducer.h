@@ -216,8 +216,10 @@ class ESProducer : public ESProxyFactoryProducer
          void registerProduct(boost::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
             if(iLabel.labels_.size() <= IIndex ||
                iLabel.labels_[IIndex] == es::Label::def()) {
-               throw edm::Exception(errors::Configuration, "Unnamed Label")
-               <<"the index "<<IIndex<<" was never assigned a name in the 'setWhatProduced' method";
+               Exception::throwThis(errors::Configuration,
+                 "Unnamed Label\nthe index ",
+                 IIndex,
+                 " was never assigned a name in the 'setWhatProduced' method");
             }
 	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
 	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, boost::shared_ptr<T> > FactoryType;

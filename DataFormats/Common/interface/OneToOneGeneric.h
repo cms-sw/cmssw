@@ -6,9 +6,9 @@
 
 namespace edm {
   template<typename CKey, typename CVal, typename index = unsigned int,
-    typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type, 
-    typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type, 
-    typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type, 
+    typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type,
+    typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type,
+    typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type,
     typename ValRef = typename helper::MapRefViewTrait<CVal>::ref_type>
   class OneToOneGeneric {
     /// reference to "key" collection
@@ -41,9 +41,10 @@ namespace edm {
     /// insert in the map
     static void insert(ref_type & ref, map_type & m,
 		       const key_type & k, const data_type & v) {
-      if (k.isNull() || v.isNull())
-	throw edm::Exception(edm::errors::InvalidReference)
-	  << "can't insert null references in AssociationMap";
+      if (k.isNull() || v.isNull()) {
+	Exception::throwThis(errors::InvalidReference,
+	  "can't insert null references in AssociationMap");
+      }
       if (ref.key.isNull()) {
 	ref.key = keyrefprod_type(k);
 	ref.val = valrefprod_type(v);

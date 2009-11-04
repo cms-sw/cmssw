@@ -15,7 +15,7 @@ namespace edm {
       typedef typename base_type::element_type   element_type;
       typedef typename base_type::base_ref_type  base_ref_type;
       typedef typename base_type::const_iterator const_iterator;
-      
+
       IndirectVectorHolder();
       IndirectVectorHolder( const IndirectVectorHolder & other);
       IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p);
@@ -38,8 +38,8 @@ namespace edm {
 	typedef IndirectHolder<T> holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
 	if( h == 0 )
-	  throw edm::Exception( edm::errors::InvalidReference ) 
-	    << "In IndirectHolder<T> trying to push_back wrong reference type";
+	  Exception::throwThis( errors::InvalidReference,
+	    "In IndirectHolder<T> trying to push_back wrong reference type");
 	helper_->push_back( h->helper_ );
       }
       virtual const void * product() const {
@@ -68,29 +68,31 @@ namespace edm {
 	bool equal_to( const const_iterator_imp * o ) const { return i == dc( o ); }
 	bool less_than( const const_iterator_imp * o ) const { return i < dc( o ); }
 	void assign( const const_iterator_imp * o ) { i = dc( o ); }
-	base_ref_type deref() const { 
+	base_ref_type deref() const {
 	  return base_ref_type( * i );
 	}
 	difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
       private:
 	const typename RefVectorHolderBase::const_iterator & dc( const const_iterator_imp * o ) const {
-	  if ( o == 0 )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In IndirectVectorHolder trying to dereference a null pointer";
+	  if ( o == 0 ) {
+	    Exception::throwThis( edm::errors::InvalidReference,
+	      "In IndirectVectorHolder trying to dereference a null pointer");
+	  }
 	  const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
-	  if ( oo == 0 ) 
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In IndirectVectorHolder trying to cast iterator to wrong type ";
+	  if ( oo == 0 ) {
+	    Exception::throwThis( errors::InvalidReference,
+	      "In IndirectVectorHolder trying to cast iterator to wrong type ");
+	  }
 	  return oo->i;
-	}    
+	}
 	typename RefVectorHolderBase::const_iterator i;
       };
 
-      const_iterator begin() const { 
-	return const_iterator( new const_iterator_imp_specific( helper_->begin() ) ); 
+      const_iterator begin() const {
+	return const_iterator( new const_iterator_imp_specific( helper_->begin() ) );
       }
-      const_iterator end() const { 
-	return const_iterator( new const_iterator_imp_specific( helper_->end() ) ); 
+      const_iterator end() const {
+	return const_iterator( new const_iterator_imp_specific( helper_->end() ) );
       }
     };
 
@@ -110,7 +112,7 @@ namespace edm {
       BaseVectorHolder<T>(), helper_( other.helper_->clone() ) { }
 
     template <typename T>
-    IndirectVectorHolder<T>::~IndirectVectorHolder() { 
+    IndirectVectorHolder<T>::~IndirectVectorHolder() {
       delete helper_;
     }
 
@@ -121,7 +123,7 @@ namespace edm {
     }
 
     template <typename T>
-    inline IndirectVectorHolder<T>& 
+    inline IndirectVectorHolder<T>&
     IndirectVectorHolder<T>::operator=(IndirectVectorHolder const& rhs) {
       IndirectVectorHolder temp(rhs);
       swap(temp);
@@ -129,13 +131,13 @@ namespace edm {
     }
 
     template <typename T>
-    BaseVectorHolder<T>* 
+    BaseVectorHolder<T>*
     IndirectVectorHolder<T>::clone() const {
       return new IndirectVectorHolder<T>(*this);
     }
-    
+
     template <typename T>
-    BaseVectorHolder<T>* 
+    BaseVectorHolder<T>*
     IndirectVectorHolder<T>::cloneEmpty() const {
       return new IndirectVectorHolder<T>( helper_->cloneEmpty() );
     }

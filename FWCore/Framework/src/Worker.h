@@ -86,9 +86,9 @@ namespace edm {
 
   protected:
     virtual std::string workerType() const = 0;
-    virtual bool implDoBegin(EventPrincipal&, EventSetup const& c, 
+    virtual bool implDoBegin(EventPrincipal&, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(EventPrincipal&, EventSetup const& c, 
+    virtual bool implDoEnd(EventPrincipal&, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
@@ -108,7 +108,7 @@ namespace edm {
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
     virtual void implPreForkReleaseResources() = 0;
-    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
+    virtual void implPostForkReacquireResources(unsigned int iChildIndex,
                                                unsigned int iNumberOfChildren) = 0;
     RunStopwatch::StopwatchPointer stopwatch_;
 
@@ -176,7 +176,7 @@ namespace edm {
       case Exception: {
 	  // rethrow the cached exception again
 	  // It seems impossible to
-	  // get here a second time until a cms::Exception has been 
+	  // get here a second time until a cms::Exception has been
 	  // thrown prviously.
 	  LogWarning("repeat") << "A module has been invoked a second "
 			       << "time even though it caught an "
@@ -185,7 +185,7 @@ namespace edm {
 			       << "This may be an indication of a "
 			       << "configuration problem.\n";
 
-	  throw *cached_exception_;
+	  cached_exception_->raise();
       }
     }
 
@@ -223,7 +223,7 @@ namespace edm {
 	// as FailModule, so any subsequent OutputModules are still run.
         // For unscheduled modules only treat FailPath as a FailModule but still allow SkipEvent to throw
 	if (cpc && cpc->isEndPath()) {
-	  if ((action == actions::SkipEvent && !cpc->isUnscheduled()) || 
+	  if ((action == actions::SkipEvent && !cpc->isUnscheduled()) ||
                action == actions::FailPath) action = actions::FailModule;
 	}
 	switch(action) {
@@ -246,12 +246,12 @@ namespace edm {
 	      state_ = Fail;
 	      break;
 	  }
-	    
+
 	  default: {
 
 	      // we should not need to include the event/run/module names
 	      // the exception because the error logger will pick this
-	      // up automatically.  I'm leaving it in until this is 
+	      // up automatically.  I'm leaving it in until this is
 	      // verified
 
 	      // here we simply add a small amount of data to the
@@ -282,7 +282,7 @@ namespace edm {
 	  << "A std::bad_alloc exception occurred during a call to the module ";
 	exceptionContext(md_, ep, *cached_exception_)
 	  << "The job has probably exhausted the virtual memory available to the process.\n";
-	throw *cached_exception_;
+	cached_exception_->raise();
     }
     catch(std::exception& e) {
 	if (T::isEvent_) ++timesExcept_;
@@ -292,7 +292,7 @@ namespace edm {
 	  << "A std::exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.what();
-	throw *cached_exception_;
+	cached_exception_->raise();
     }
     catch(std::string& s) {
 	if (T::isEvent_) ++timesExcept_;
@@ -302,7 +302,7 @@ namespace edm {
 	  << "A std::string thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n string = " << s;
-	throw *cached_exception_;
+	cached_exception_->raise();
     }
     catch(char const* c) {
 	if (T::isEvent_) ++timesExcept_;
@@ -312,7 +312,7 @@ namespace edm {
 	  << "A const char* thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n const char* = " << c << "\n";
-	throw *cached_exception_;
+	cached_exception_->raise();
     }
     catch(...) {
 	if (T::isEvent_) ++timesExcept_;
@@ -321,7 +321,7 @@ namespace edm {
 	*cached_exception_
 	  << "An unknown occurred during a previous call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";
-	throw *cached_exception_;
+	cached_exception_->raise();
     }
 
     return rc;

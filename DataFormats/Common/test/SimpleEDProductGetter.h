@@ -32,11 +32,13 @@ class SimpleEDProductGetter : public edm::EDProductGetter
   virtual edm::EDProduct const* getIt(edm::ProductID const& id) const
   { 
     map_t::const_iterator i = database.find(id);
-    if (i == database.end())
-      throw edm::Exception(edm::errors::ProductNotFound, "InvalidID")
-	<< "No product with ProductID " 
-	<< id 
-	<< " is available from this EDProductGetter\n";
+    if (i == database.end()) {
+      edm::Exception e(edm::errors::ProductNotFound, "InvalidID");
+      e << "No product with ProductID " 
+        << id 
+        << " is available from this EDProductGetter\n";
+      e.raise();
+    }
     return i->second.get();
   }
 

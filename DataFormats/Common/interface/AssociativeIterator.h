@@ -35,7 +35,7 @@
  *   }
  *
  *
- * \version $Id: Association.h,v 1.6 2007/12/26 17:24:16 wmtan Exp $
+ * \version $Id: AssociativeIterator.h,v 1.1 2008/04/30 17:07:50 gpetrucc Exp $
  *
  */
 
@@ -207,7 +207,7 @@ class AssociativeIterator {
     template<typename KeyRefType, typename AC, typename IG>
     AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::skipTo(const ProductID &id, size_t offs) {
         pairOk_ = false;
-        throw cms::Exception("NOT IMPLEMENTED");
+        throw Exception(errors::UnimplementedFeature);
     }
     */
 

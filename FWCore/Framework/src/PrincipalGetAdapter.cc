@@ -23,6 +23,27 @@ namespace edm {
   PrincipalGetAdapter::~PrincipalGetAdapter() {
   }
 
+
+  void
+  principal_get_adapter_detail::deleter::operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {
+    delete p.first;
+  }
+
+  void
+  principal_get_adapter_detail::throwOnPutOfNullProduct(
+	char const* principalType,
+	TypeID const& productType,
+	std::string const& productInstanceName) {
+      throw Exception(errors::NullPointerError)
+	<< principalType
+	<< "::put: A null auto_ptr was passed to 'put'.\n"
+	<< "The pointer is of type "
+	<< productType
+        << ".\nThe specified productInstanceName was '"
+	<< productInstanceName
+        << "'.\n";
+  }
+
   BranchType const&
   PrincipalGetAdapter::branchType() const {
     return principal_.branchType();

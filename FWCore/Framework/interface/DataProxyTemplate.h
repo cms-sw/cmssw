@@ -67,7 +67,7 @@ class DataProxyTemplate : public DataProxy
       
       virtual void throwMakeException(const RecordT& /*iRecord*/,
                                        const DataKey& iKey) const {
-         throw MakeDataException (MakeDataExceptionInfo<record_type, value_type>(iKey));
+        throw MakeDataException(MakeDataExceptionInfo<record_type, value_type>(iKey));
       }
 
    private:

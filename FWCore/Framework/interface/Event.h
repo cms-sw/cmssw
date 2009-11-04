@@ -302,10 +302,7 @@ namespace edm {
   {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      throw edm::Exception(edm::errors::NullPointerError)
-        << "Event::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }
 
     // The following will call post_insert if T has such a function,
@@ -464,11 +461,12 @@ namespace edm {
       return false;
     }
     if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
+      Exception e(errors::ProductNotFound);
+      e << "getByLabel: Found more than one product matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
 	<< "Looking for module label: " << moduleLabel << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+      e.raise();
     }
 
     fillView_(bh, result);
@@ -505,12 +503,13 @@ namespace edm {
         return false;
       }
       if (nFound > 1) {
-        throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
-        << "Looking for module label: " << tag.label() << "\n"
-        << "Looking for productInstanceName: " << tag.instance() << "\n"
-        << "Looking for processName: "<<tag.process() <<"\n";
+        Exception e (errors::ProductNotFound);
+        e << "getByLabel: Found more than one product matching all criteria\n"
+	  << "Looking for sequence of type: " << typeID << "\n"
+          << "Looking for module label: " << tag.label() << "\n"
+          << "Looking for productInstanceName: " << tag.instance() << "\n"
+          << "Looking for processName: "<<tag.process() <<"\n";
+        e.raise();
       }
 
       fillView_(bh, result);

@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.35 $
+ * \version $Revision: 1.36 $
  *
- * $Id: RangeMap.h,v 1.35 2008/03/31 21:12:11 wmtan Exp $
+ * $Id: RangeMap.h,v 1.36 2008/07/23 22:50:16 wmtan Exp $
  *
  */
 #include <map>
@@ -118,8 +118,9 @@ namespace edm {
     template<typename CI>
     void put(ID id, CI begin, CI end) {
       typename mapType::const_iterator i = map_.find(id);
-      if(i != map_.end()) 
-      	throw cms::Exception("Error") << "trying to insert duplicate entry";
+      if(i != map_.end()) {
+      	throw Exception(errors::LogicError, "trying to insert duplicate entry");
+      }
       assert(i == map_.end());
       pairType & p = map_[ id ];
       p.first = collection_.size();

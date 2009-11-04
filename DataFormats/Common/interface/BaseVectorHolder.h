@@ -139,8 +139,7 @@ namespace edm {
 	{
   	  if (isInvalid)
   	  {
-    	  throw edm::Exception(edm::errors::InvalidReference)
-            << "Trying to " << why << " an invalid RefToBaseVector<T>::const_iterator";
+    	    Exception::throwThis(edm::errors::InvalidReference, "Trying to ", why, " an invalid RefToBaseVector<T>::const_iterator");
   	  }
 	}
 

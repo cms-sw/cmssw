@@ -9,7 +9,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.28 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -135,12 +134,12 @@ namespace edm {
   inline typename CVal::const_reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[]( const KeyRef & k ) const {
     KeyRef keyRef = KeyReferenceHelper::get( k, ref_.id() );
-    if ( keyRef.id() == ref_.id() ) 
-      return data_[ keyRef.key() ];
-    else 
-      throw edm::Exception(edm::errors::InvalidReference) 
-	<< "AssociationVector: trying to use [] operator passing a reference"
-	<< " with the wrong product id (i.e.: pointing to the wrong collection)";
+    if ( keyRef.id() != ref_.id() ) {
+      Exception::throwThis(edm::errors::InvalidReference, 
+	"AssociationVector: trying to use [] operator passing a reference"
+	" with the wrong product id (i.e.: pointing to the wrong collection)");
+    }
+    return data_[ keyRef.key() ];
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
@@ -148,12 +147,12 @@ namespace edm {
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[]( const KeyRef & k ) {
     KeyRef keyRef = KeyReferenceHelper::get( k, ref_.id() );
     fixed_ = false;
-    if ( keyRef.id() == ref_.id() ) 
-      return data_[ keyRef.key() ];
-    else 
-      throw edm::Exception(edm::errors::InvalidReference) 
-	<< "AssociationVector: trying to use [] operator passing a reference"
-	<< " with the wrong product id (i.e.: pointing to the wrong collection)";
+    if ( keyRef.id() != ref_.id() ) {
+      Exception::throwThis(edm::errors::InvalidReference,
+	"AssociationVector: trying to use [] operator passing a reference"
+	" with the wrong product id (i.e.: pointing to the wrong collection)");
+    }
+    return data_[ keyRef.key() ];
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
@@ -221,7 +220,7 @@ namespace edm {
 //     for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
 //       pointers.push_back(&(*i));
 //     // helpers is not yet filled in.
-//     //throw edm::Exception(errors::UnimplementedFeature, "AssociationVector<T>::fillView(...)");
+//     //Exception::throwThis(errors::UnimplementedFeature, "AssociationVector<T>::fillView(...)");
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>

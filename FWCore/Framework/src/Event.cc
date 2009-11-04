@@ -17,14 +17,10 @@ namespace edm {
 	gotViews_() {
     }
 
-    struct deleter {
-      void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {delete p.first;}
-    };
-
     Event::~Event() {
      // anything left here must be the result of a failure
      // let's record them as failed attempts in the event principal
-      for_all(putProducts_, deleter());
+      for_all(putProducts_, principal_get_adapter_detail::deleter());
     }
 
     EventPrincipal&

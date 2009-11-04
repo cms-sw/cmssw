@@ -189,14 +189,14 @@ private:
       } catch (...) {
         // if we get here, this was NOT a simple tracked parameter goof.
 	// we should just rethrow the ORIGINAL error
-	throw e;
+	e.raise();
       } 
       std::cerr << "Tracked parameter " << id 
                 << " used in MessageLogger configuration.\n"
 		<< "Use of tracked parameters for the message service "
 		<< "is not allowed.\n"
 		<< "The .cfg file should be modified to make this untracked.\n";
-      throw e;		
+      e.raise();		
     } catch (...) {
       // This is not the usual tracked/untracked error; we can't add useful info
       throw;

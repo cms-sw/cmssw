@@ -22,12 +22,12 @@ namespace edm {
       virtual RefVectorHolderBase * clone() const = 0;
       virtual RefVectorHolderBase * cloneEmpty() const = 0;
       virtual void push_back( const RefHolderBase * r ) = 0;
-      // the following structure is public 
+      // the following structure is public
       // to allow reflex dictionary to compile
       //    protected:
       struct const_iterator_imp {
 	typedef ptrdiff_t difference_type;
-	const_iterator_imp() { } 
+	const_iterator_imp() { }
 	virtual ~const_iterator_imp() { }
 	virtual const_iterator_imp * clone() const = 0;
 	virtual void increase() = 0;
@@ -48,100 +48,100 @@ namespace edm {
 	const_iterator( const_iterator_imp * it ) : i( it ) { }
 	const_iterator( const const_iterator & it ) : i( it.isValid() ? it.i->clone() : 0 ) { }
 	~const_iterator() { delete i; }
-	const_iterator & operator=( const const_iterator & it ) { 
+	const_iterator & operator=( const const_iterator & it ) {
 	  if ( isInvalid() ) i = it.i;
-	  else i->assign( it.i ); 
-	  return *this; 
+	  else i->assign( it.i );
+	  return *this;
 	}
-	const_iterator& operator++() { 
+	const_iterator& operator++() {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to increment an inavlid RefToBaseVector<T>::const_iterator\n";
-	  i->increase(); 
-	  return *this; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to increment an inavlid RefToBaseVector<T>::const_iterator\n");
+	  i->increase();
+	  return *this;
 	}
-	const_iterator operator++( int ) { 
+	const_iterator operator++( int ) {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to postincrement an inavlid RefToBaseVector<T>::const_iterator\n";
-	  const_iterator ci = *this; 
-	  i->increase(); 
-	  return ci; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to postincrement an inavlid RefToBaseVector<T>::const_iterator\n");
+	  const_iterator ci = *this;
+	  i->increase();
+	  return ci;
 	}
-	const_iterator& operator--() { 
+	const_iterator& operator--() {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to decrement an inavlid RefToBaseVector<T>::const_iterator\n";
-	  i->decrease(); 
-	  return *this; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to decrement an inavlid RefToBaseVector<T>::const_iterator\n");
+	  i->decrease();
+	  return *this;
 	}
-	const_iterator operator--( int ) { 
+	const_iterator operator--( int ) {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to postdecrement an inavlid RefToBaseVector<T>::const_iterator\n";
-	  const_iterator ci = *this; 
-	  i->decrease(); 
-	  return ci; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to postdecrement an inavlid RefToBaseVector<T>::const_iterator\n");
+	  const_iterator ci = *this;
+	  i->decrease();
+	  return ci;
 	}
-	difference_type operator-( const const_iterator & o ) const { 
+	difference_type operator-( const const_iterator & o ) const {
 	  if ( isInvalid() && o.isInvalid() ) return 0;
 	  if ( isInvalid() || o.isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to compute difference with an inavlid RefToBaseVector<T>::const_iterator\n";
-	  return i->difference( o.i ); 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to compute difference with an inavlid RefToBaseVector<T>::const_iterator\n");
+	  return i->difference( o.i );
 	}
-	const_iterator operator+( difference_type n ) const { 
+	const_iterator operator+( difference_type n ) const {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to compute sum with an inavlid RefToBaseVector<T>::const_iterator\n";
-	  const_iterator_imp * ii = i->clone(); 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to compute sum with an inavlid RefToBaseVector<T>::const_iterator\n");
+	  const_iterator_imp * ii = i->clone();
 	  ii->increase( n );
-	  return const_iterator( ii ); 
+	  return const_iterator( ii );
 	}
-	const_iterator operator-( difference_type n ) const { 
+	const_iterator operator-( difference_type n ) const {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to compute difference with an inavlid RefToBaseVector<T>::const_iterator\n";
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to compute difference with an inavlid RefToBaseVector<T>::const_iterator\n");
 	  const_iterator_imp * ii = i->clone();
 	  ii->decrease( n );
-	  return const_iterator( ii ); 
+	  return const_iterator( ii );
 	}
-	bool operator<( const const_iterator & o ) const { 
+	bool operator<( const const_iterator & o ) const {
 	  if ( isInvalid() && o.isInvalid() ) return false;
 	  if ( isInvalid() || o.isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to compute < operator with an inavlid RefToBaseVector<T>::const_iterator\n";
-	  return i->less_than( o.i ); 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to compute < operator with an inavlid RefToBaseVector<T>::const_iterator\n");
+	  return i->less_than( o.i );
 	}
-	bool operator==( const const_iterator& ci ) const { 
+	bool operator==( const const_iterator& ci ) const {
 	  if ( isInvalid() && ci.isInvalid() ) return true;
 	  if ( isInvalid() || ci.isInvalid() ) return false;
-	  return i->equal_to( ci.i ); 
+	  return i->equal_to( ci.i );
 	}
-	bool operator!=( const const_iterator& ci ) const { 
+	bool operator!=( const const_iterator& ci ) const {
 	  if ( isInvalid() && ci.isInvalid() ) return false;
 	  if ( isInvalid() || ci.isInvalid() ) return true;
-	  return ! i->equal_to( ci.i ); 
+	  return ! i->equal_to( ci.i );
 	}
-	value_type operator * () const { 
+	value_type operator * () const {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to dereference an inavlid RefToBaseVector<T>::const_iterator\n";
-	  return i->deref(); 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to dereference an inavlid RefToBaseVector<T>::const_iterator\n");
+	  return i->deref();
 	}
-	const_iterator & operator -=( difference_type d ) { 
+	const_iterator & operator -=( difference_type d ) {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to decrement an inavlid RefToBaseVector<T>::const_iterator\n";
-	  i->decrease( d ); 
-	  return *this; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to decrement an inavlid RefToBaseVector<T>::const_iterator\n");
+	  i->decrease( d );
+	  return *this;
 	}
-	const_iterator & operator +=( difference_type d ) { 
+	const_iterator & operator +=( difference_type d ) {
 	  if ( isInvalid() )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "Trying to increment an inavlid RefToBaseVector<T>::const_iterator\n";
-	  i->increase( d ); 
-	  return *this; 
+	    Exception::throwThis(errors::InvalidReference,
+	      "Trying to increment an inavlid RefToBaseVector<T>::const_iterator\n");
+	  i->increase( d );
+	  return *this;
 	}
 	bool isValid() const { return i != 0; }
 	bool isInvalid() const { return i == 0; }

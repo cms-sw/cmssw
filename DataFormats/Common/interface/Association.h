@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.6 2007/12/26 17:24:16 wmtan Exp $
+ * \version $Id: Association.h,v 1.7 2008/04/30 17:07:50 gpetrucc Exp $
  *
  */
 
@@ -92,12 +92,10 @@ namespace edm {
   private:
     refprod_type ref_;
     void throwIndexMapBound() const {
-      throw Exception(errors::InvalidReference)
-	<< "Association: index in the map out of upper boundary\n";
+      Exception::throwThis(errors::InvalidReference, "Association: index in the map out of upper boundary\n");
     }
     void throwRefSet() const {
-      throw Exception(errors::InvalidReference) 
-	<< "Association: reference to product already set\n";
+      Exception::throwThis(errors::InvalidReference, "Association: reference to product already set\n");
     }
 
     void add( const Association<C> & o ) {

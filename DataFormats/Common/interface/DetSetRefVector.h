@@ -23,8 +23,6 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.10 2008/03/18 12:48:31 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -59,9 +57,8 @@ namespace edm {
     inline
     void _throw_range(det_id_type i)
     {
-      throw edm::Exception(errors::InvalidReference)
-	<< "DetSetRefVector::operator[] called with index not in collection;\n"
-	<< "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetRefVector::operator[] called with index not in collection;\nindex value: ", i);
     }
   }
 

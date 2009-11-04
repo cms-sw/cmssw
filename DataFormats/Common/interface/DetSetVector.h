@@ -33,8 +33,6 @@ criteria and obey the rules of "strict weak ordering" as will be used to
 find things in the collection.  Not insuring this leads to undefined
 behavior (usually a core dump).
 
-$Id: DetSetVector.h,v 1.21 2008/03/02 17:23:24 gpetrucc Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -73,9 +71,8 @@ namespace edm {
     // Throw an edm::Exception with an appropriate message
     inline
     void _throw_range(det_id_type i) {
-      throw edm::Exception(errors::InvalidReference)
-	<< "DetSetVector::operator[] called with index not in collection;\n"
-	<< "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetVector::operator[] called with index not in collection;\nindex value: ", i);
     }
   }
 
@@ -471,13 +468,13 @@ namespace edm {
     typename Vec::value_type::collection_type::size_type index=0;
     typename Vec::const_iterator itFound = iHandle->find(iDetID);
     if(itFound == iHandle->end()) {
-      throw edm::Exception(errors::InvalidReference) 
-      <<"an edm::Ref to an edm::DetSetVector was given a DetId, "<<iDetID<<", that is not in the DetSetVector";
+      Exception::throwThis(errors::InvalidReference,
+        "an edm::Ref to an edm::DetSetVector was given a DetId, ", iDetID, ", that is not in the DetSetVector");
     }
     index += (itIter- itFound->data.begin());
     if(index >= itFound->data.size()) {
-      throw edm::Exception(errors::InvalidReference) 
-      <<"an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself";
+      Exception::throwThis(errors::InvalidReference,
+        "an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself");
     }
     return Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>

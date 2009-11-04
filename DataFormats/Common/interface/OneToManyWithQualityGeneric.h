@@ -12,15 +12,15 @@
 
 namespace edm {
   template<typename CKey, typename CVal, typename Q, typename index = unsigned int,
-    typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type, 
-    typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type, 
-    typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type, 
+    typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type,
+    typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type,
+    typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type,
     typename ValRef = typename helper::MapRefViewTrait<CVal>::ref_type >
   class OneToManyWithQualityGeneric {
     /// reference to "key" collection
     typedef KeyRefProd keyrefprod_type;
     /// reference to "value" collection
-    typedef ValRefProd valrefprod_type;    
+    typedef ValRefProd valrefprod_type;
     /// internal map associated data
     typedef std::vector<std::pair<index, Q> > map_assoc;
 
@@ -39,20 +39,20 @@ namespace edm {
     typedef helpers::KeyVal<keyrefprod_type, valrefprod_type> ref_type;
     /// transient map type
     typedef std::map<const typename CKey::value_type *,
-    		     std::vector<std::pair<const typename CVal::value_type *, Q > > 
+    		     std::vector<std::pair<const typename CVal::value_type *, Q > >
                     > transient_map_type;
     /// transient key vector
     typedef std::vector<const typename CKey::value_type *> transient_key_vector;
     /// transient val vector
-    typedef std::vector<std::vector<std::pair<const typename CVal::value_type *, Q > > 
+    typedef std::vector<std::vector<std::pair<const typename CVal::value_type *, Q > >
                        > transient_val_vector;
     /// insert in the map
     static void insert(ref_type & ref, map_type & m,
 			const key_type & k, const data_type & v) {
       const ValRef & vref = v.first;
       if (k.isNull() || vref.isNull())
-	throw edm::Exception(edm::errors::InvalidReference)
-	  << "can't insert null references in AssociationMap";
+	Exception::throwThis(errors::InvalidReference,
+	  "can't insert null references in AssociationMap");
       if (ref.key.isNull()) {
 	ref.key = keyrefprod_type(k);
 	ref.val = valrefprod_type(vref);

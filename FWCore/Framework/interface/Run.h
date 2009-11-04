@@ -132,10 +132,7 @@ namespace edm {
   {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      throw edm::Exception(edm::errors::NullPointerError)
-        << "Run::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
     }
 
     // The following will call post_insert if T has such a function,

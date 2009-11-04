@@ -30,9 +30,9 @@ namespace edm {
       //size_type capacity() const { return refVector_.capacity(); }
       //void reserve(size_type n) { refVector_.reserve(n); }
       void clear() { refVector_.clear(); }
-      ProductID id() const { return refVector_.id(); } 
+      ProductID id() const { return refVector_.id(); }
       EDProductGetter const* productGetter() const { return refVector_.productGetter(); }
-      void swap(VectorHolder& other) { 
+      void swap(VectorHolder& other) {
 	this->BaseVectorHolder<T>::swap(other);
 	refVector_.swap(other.refVector_);
       }
@@ -42,18 +42,18 @@ namespace edm {
         return *this;
       }
 
-      const_iterator begin() const { 
-	return const_iterator( new const_iterator_imp_specific( refVector_.begin() ) ); 
+      const_iterator begin() const {
+	return const_iterator( new const_iterator_imp_specific( refVector_.begin() ) );
       }
-      const_iterator end() const { 
-	return const_iterator( new const_iterator_imp_specific( refVector_.end() ) ); 
+      const_iterator end() const {
+	return const_iterator( new const_iterator_imp_specific( refVector_.end() ) );
       }
       virtual void push_back( const BaseHolder<T> * r ) {
 	typedef Holder<T, typename REFV::value_type > holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
 	if( h == 0 )
-	  throw edm::Exception( edm::errors::InvalidReference ) 
-	    << "In VectorHolder<T, REFV> trying to push_back wrong reference type";
+	  Exception::throwThis( errors::InvalidReference,
+	    "In VectorHolder<T, REFV> trying to push_back wrong reference type");
 	refVector_.push_back( h->getRef() );
       }
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const {
@@ -72,7 +72,7 @@ namespace edm {
 
       ref_vector_type refVector_;
 
-      // the following structure is public 
+      // the following structure is public
       // to allow reflex dictionary to compile
     public:
       struct const_iterator_imp_specific : public const_iterator_imp {
@@ -93,14 +93,14 @@ namespace edm {
       private:
 	const typename ref_vector_type::const_iterator & dc( const const_iterator_imp * o ) const {
 	  if ( o == 0 )
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In RefToBaseVector<T> trying to dereference a null pointer";
+	    Exception::throwThis( errors::InvalidReference,
+	      "In RefToBaseVector<T> trying to dereference a null pointer");
 	  const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
-	  if ( oo == 0 ) 
-	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In RefToBaseVector<T> trying to cast iterator to wrong type ";
+	  if ( oo == 0 )
+	    Exception::throwThis( errors::InvalidReference,
+	      "In RefToBaseVector<T> trying to cast iterator to wrong type ");
 	  return oo->i;
-	}    
+	}
 	typename ref_vector_type::const_iterator i;
       };
     };

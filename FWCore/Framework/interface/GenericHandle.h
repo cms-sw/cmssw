@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.15 2008/12/18 04:49:01 wmtan Exp $
+// $Id: GenericHandle.h,v 1.16 2009/03/04 21:15:00 wmtan Exp $
 //
 
 // system include files
@@ -51,7 +51,10 @@ public:
       Handle(std::string const& iName) : 
         type_(Reflex::Type::ByName(iName)), prod_(), prov_(0) {
            if(type_ == Reflex::Type()) {
-              throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
+              Exception::throwThis(errors::NotFound,
+		"Handle<GenericObject> told to use uknown type '",
+		iName.c_str(),
+		"'.\n Please check spelling or that a module uses this type in the job.");
            }
            if(type_.IsTypedef()){
               //For a 'Reflex::Typedef' the 'toType' method returns the actual type
@@ -65,7 +68,7 @@ public:
    Handle(Reflex::Type const& iType):
       type_(iType), prod_(), prov_(0) {
          if(iType == Reflex::Type()) {
-            throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid Reflex::Type";
+            Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid Reflex::Type");
          }
          if(type_.IsTypedef()){
             //For a 'Reflex::Typedef' the 'toType' method returns the actual type
@@ -120,7 +123,7 @@ public:
    }
    Reflex::Object const* product() const { 
      if(this->failedToGet()) { 
-       throw *whyFailed_;
+       whyFailed_->raise();
      } 
      return &prod_;
    }

@@ -4,8 +4,6 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.18 2008/02/15 05:57:03 wmtan Exp $
- *
  */
 
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -158,8 +156,10 @@ namespace edm {
   RefToBaseVector<T>::at(size_type idx) const 
   {
     if ( holder_ == 0 )
-      throw edm::Exception( edm::errors::InvalidReference ) 
-	<< "Trying to dereference null RefToBaseVector<T> in method: at(" << idx  <<")\n";
+      Exception::throwThis( errors::InvalidReference,
+	"Trying to dereference null RefToBaseVector<T> in method: at(",
+	idx,
+	")\n");
     return holder_->at( idx );
   }
 

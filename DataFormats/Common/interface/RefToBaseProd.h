@@ -5,10 +5,8 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.15 2007/10/09 17:42:47 chrjones Exp $
- *
  */
-  
+
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -111,7 +109,7 @@ namespace edm {
 
   namespace refhelper {
     template<typename C,
-	     typename T = typename refhelper::ValueTrait<C>::value, 
+	     typename T = typename refhelper::ValueTrait<C>::value,
 	     typename F = typename refhelper::FindTrait<C, T>::value>
     struct RefToBaseProdTrait {
       typedef RefVector<C, T, F> ref_vector_type;
@@ -165,9 +163,10 @@ namespace edm {
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
     if ( viewCache_.ptr_ == 0 ) {
-      if ( product_.isNull() )
-	throw edm::Exception(errors::InvalidReference)
-	  << "attempting get view from a null RefToBaseProd.\n";
+      if ( product_.isNull() ) {
+	Exception::throwThis(errors::InvalidReference,
+	  "attempting get view from a null RefToBaseProd.\n");
+      }
       ProductID id = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
@@ -175,13 +174,13 @@ namespace edm {
       viewCache_.ptr_ =( new View<T>( pointers, helpers ) );
     }
     return viewPtr();
-  } 
+  }
 
   template<typename T>
   inline
   void RefToBaseProd<T>::swap(RefToBaseProd<T> & other) {
     std::swap( product_, other.product_ );
-    std::swap( viewCache_.ptr_, other.viewCache_.ptr_); 
+    std::swap( viewCache_.ptr_, other.viewCache_.ptr_);
   }
 
   template <typename T>
@@ -231,7 +230,7 @@ namespace edm {
   template <class HandleC>
   inline
   RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
-    product_(handle.id(), handle.product(), 0, false) { 
+    product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
     typedef typename refhelper::RefToBaseProdTrait<typename HandleC::element_type>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
@@ -245,7 +244,7 @@ namespace edm {
   template <typename C, typename F>
   inline
   RefToBaseProd<T>::RefToBaseProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), 
+      product_(ref.id(),
 	       ref.hasProductCache() ?  ref.product() : 0,
 	       ref.productGetter(),
 	       false) {
@@ -261,7 +260,7 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(RefToBase<T> const& ref) :
-    product_(ref.id(), 
+    product_(ref.id(),
 	     ref.hasProductCache() ?  ref.product() : 0,
 	     ref.productGetter(),
 	     false) {

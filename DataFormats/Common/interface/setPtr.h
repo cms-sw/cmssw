@@ -16,13 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: setPtr.h,v 1.3.4.1 2008/11/29 05:22:59 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Common/interface/FillView.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 
@@ -66,9 +66,13 @@ namespace edm {
         if(0 != cast.Address()) {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
         } else {
-          throw cms::Exception("TypeConversionError")
-          << "edm::Ptr<> : unable to convert type " << typeid(element_type).name()
-          << " to " << iToType.name() << "\n";
+          Exception::throwThis(errors::LogicError,
+            "TypeConversionError"
+             "edm::Ptr<> : unable to convert type ",
+             typeid(element_type).name(),
+             " to ",
+             iToType.name(),
+             "\n");
         }
       }
     }

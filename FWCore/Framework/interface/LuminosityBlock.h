@@ -138,10 +138,7 @@ namespace edm {
   LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      throw edm::Exception(edm::errors::NullPointerError)
-        << "LuminosityBlock::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }
 
     // The following will call post_insert if T has such a function,

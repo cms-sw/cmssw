@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMapHelpers.h,v 1.2 2007/01/23 00:25:52 wmtan Exp $
  *
  */
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -34,8 +33,9 @@ namespace edm {
     /// throw if r hasn't the same id as rp
     template<typename RP, typename R>
     void checkRef(const RP & rp, const R & r) {
-      if (rp.id() != r.id())
-	throw edm::Exception(edm::errors::InvalidReference, "invalid reference");
+      if (rp.id() != r.id()) {
+        Exception::throwThis(edm::errors::InvalidReference, "invalid reference");
+      }
     }
   }
 }

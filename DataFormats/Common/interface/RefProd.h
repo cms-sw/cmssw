@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.18 2008/03/18 12:48:31 wmtan Exp $
+$Id: RefProd.h,v 1.19 2008/05/29 21:13:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -247,13 +247,13 @@ namespace edm {
     template <typename T>
     struct RefProdHolderToVector {
       static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-	throw edm::Exception(errors::InvalidReference)
-	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n";
+	Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
+	return std::auto_ptr<BaseVectorHolder<T> >();
       }
       static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	throw edm::Exception(errors::InvalidReference)
-          << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
-       }
+	Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
+	return std::auto_ptr<RefVectorHolderBase>();
+      }
     };
 
     template<typename C, typename T>
@@ -263,12 +263,12 @@ namespace edm {
 
     struct RefProdRefHolderToRefVector {
       static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-	throw edm::Exception(errors::InvalidReference)
-	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
+	Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
+	return std::auto_ptr<RefVectorHolderBase>();
       }
       static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	throw edm::Exception(errors::InvalidReference)
-	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
+	Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
+	return std::auto_ptr<RefVectorHolderBase>();
       }
     };
 
