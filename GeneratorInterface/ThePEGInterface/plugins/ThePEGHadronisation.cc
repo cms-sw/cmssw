@@ -60,10 +60,8 @@ void ThePEGHadronisation::initLHE()
 	ss << proxy_->getID();
 
 	ostringstream logstream;
-
 	ThePEG::Repository::exec("set " + handlerDirectory_ +
 	                         "/LHEReader:ProxyID " + ss.str(), logstream);
-
 	edm::LogInfo("Generator|LHEInterface") << logstream.str();
 }
   
@@ -73,9 +71,7 @@ ThePEGHadronisation::ThePEGHadronisation(const edm::ParameterSet &params) :
 	handlerDirectory_(params.getParameter<string>("eventHandlers"))
 {
 	initRepository(params);
-
 	proxy_ = LHEProxy::create();
-
 	initLHE();
 }
 
@@ -124,7 +120,6 @@ void ThePEGHadronisation::newRunInfo(
 				const boost::shared_ptr<LHERunInfo> &runInfo)
 {
 	proxy_->loadRunInfo(runInfo);
-
 	initGenerator();
 }
 
