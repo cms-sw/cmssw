@@ -3,6 +3,7 @@
 //
 // requires a few sed....
 
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
@@ -27,14 +28,16 @@ typedef THECLASS Payload;
 typedef cond::DataWrapper<Payload> SimplePtr;
 
 namespace{
-  std::string className("THECLASS");
-  std::string DSW_Name("DSW_THECLASS");
 
   bool withWrapper=false;
 }
 
 int main(int argc, char** ) {
 try{
+
+  std::string className = classNameForTypeId(typeid(THECLASS));
+  std::string DSW_Name("DSW_"+className);
+
 
   withWrapper = argc>1;
   
@@ -68,7 +71,11 @@ try{
     }
     
     tr.commit();
-    
+    if (payTok.size()!=nobjects)
+      throw std::string("not all object written!");
+    if (withWrapper &&  wrapTok.size()!=nobjects)
+      throw std::string("not all wrapped object written!");
+ 
   }
 
   //read....
@@ -87,11 +94,18 @@ try{
       Payload const & p = *ref;
     }
 
+    if (ir!=nobjects)
+      throw std::string("not all object read!");
+ 
+
     for (ir = 0; ir < wrapTok.size(); ++ir )   {
       pool::Ref<SimplePtr> ref = session.getTypedObject<SimplePtr>(wrapTok[ir]);
       Payload const & p = ref->data();
     }
-    
+
+    if (withWrapper &&  (ir!=nobjects))
+      throw std::string("not all wrapped object read!");
+   
     
     tr.commit();
     
@@ -104,8 +118,11 @@ try{
 
 
  } catch (const std::exception& e){
-  std::cout << "ERROR:" << e.what() << std::endl;
+  std::cout << "ERROR: " << e.what() << std::endl;
     throw;
+ } catch (const std::string& e){
+  std::cout << "ERROR: " << e << std::endl;
+  throw;
  }
 
   return 0;
