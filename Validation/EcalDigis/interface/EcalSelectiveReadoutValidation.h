@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2009/08/03 12:50:31 $
- * $Revision: 1.9 $
+ * $Date: 2009/08/08 11:49:13 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -66,11 +66,11 @@ protected:
   /// Analyzes the event.
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Calls at job start.
-  void beginJob(const edm::EventSetup& c);
-
-  /// Calls at job end.
-  void endJob(void);
+  /// Calls at begin of run
+  void beginRun(const edm::Run& r, const edm::EventSetup& c); 
+  
+  /// Calls at end of run
+  void endRun(const edm::Run& r, const edm::EventSetup& c); 
 
 private:
   ///distinguishes barral and endcap of ECAL.

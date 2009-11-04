@@ -680,7 +680,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
 void EcalSelectiveReadoutValidation::updateL1aRate(const edm::Event& event){
   const int32_t bx = event.bunchCrossing();
-  if( (bx<1) | (bx>3564) ) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
+  if(bx<1 || bx > 3564) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
                        //  << "bx value, " << bx << " is out of range\n";
   
   int64_t t = event.bunchCrossing() + (event.orbitNumber()-1)*3564;
@@ -1355,21 +1355,21 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){
 }
 
-void EcalSelectiveReadoutValidation::beginJob(const EventSetup& setup){
+void EcalSelectiveReadoutValidation::beginRun(const edm::Run& r, const edm::EventSetup& es){
   // endcap mapping
   edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  setup.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+  es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
   triggerTowerMap_ = hTriggerTowerMap.product();
 
   //electronics map
   ESHandle< EcalElectronicsMapping > ecalmapping;
-  setup.get< EcalMappingRcd >().get(ecalmapping);
+  es.get< EcalMappingRcd >().get(ecalmapping);
   elecMap_ = ecalmapping.product();
 
   initAsciiFile();
 }
 
-void EcalSelectiveReadoutValidation::endJob(){
+void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventSetup& es){
   meL1aRate_->Fill(getL1aRate());
   if(useEventRate_) normalizeHists(ievt_);
   if(outputFile_.size()!=0) dbe_->save(outputFile_);
