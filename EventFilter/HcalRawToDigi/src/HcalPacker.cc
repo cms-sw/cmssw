@@ -47,7 +47,7 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
 			    unsigned short* buffer, int &presamples) {
-  if (did.det()!=DetId::Hcal) return 0;
+  if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) return 0;
   int size=0;
   HcalGenericDetId genId(did);
   
