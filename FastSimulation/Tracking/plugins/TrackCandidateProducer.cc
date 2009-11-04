@@ -433,8 +433,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
-	  // Check that the first rechit is indeed the first seeding hit
-	  if( aSeed->direction()!=oppositeToMomentum ) { //for OIHit 
+	  // NOTE: checking the direction --> specific for OIHit only
+	  if( aSeed->direction()!=oppositeToMomentum ) { 
+	    // Check that the first rechit is indeed the first seeding hit
 	    if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
 	  }
 	  
