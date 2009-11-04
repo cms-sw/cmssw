@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.31 2009/10/09 22:47:39 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.32 2009/10/12 12:34:46 rekovic Exp $
 //
 //
 
@@ -164,6 +164,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
+      std::vector <std::vector <std::string> > triggerFilters_;
+      std::vector <std::vector <uint> > triggerFilterIndices_;
 
       std::string dirname_;
       std::string processname_;
@@ -215,7 +217,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             MonitorElement* const offEtavsoffPhiOnOffUM,
             MonitorElement* const offDRL1Off, 
             MonitorElement* const offDROnOff, 
-            MonitorElement* const l1DRL1On ) 
+            MonitorElement* const l1DRL1On,  
+            MonitorElement* const filters ) 
          {
 
               NOn_ = NOn;
@@ -248,6 +251,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
               offDRL1Off_ =  offDRL1Off; 
               offDROnOff_ =  offDROnOff; 
               l1DRL1On_   =  l1DRL1On;
+              filters_   =  filters;
 
          }
 
@@ -341,6 +345,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
          MonitorElement * getL1DROnL1Histo() {
            return l1DRL1On_;
          }
+         MonitorElement * getFiltersHisto() {
+           return filters_;
+         }
          const std::string getLabel(void ) const {
            return filterName_;
          }
@@ -388,7 +395,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NL1OnUM_(0), l1EtL1OnUM_(0), l1Etavsl1PhiL1OnUM_(0),
           NL1OffUM_(0), offEtL1OffUM_(0), offEtavsoffPhiL1OffUM_(0),
           NOnOffUM_(0), offEtOnOffUM_(0), offEtavsoffPhiOnOffUM_(0),
-          offDRL1Off_(0), offDROnOff_(0), l1DRL1On_(0),
+          offDRL1Off_(0), offDROnOff_(0), l1DRL1On_(0), filters_(0),
           ptmin_(ptmin), ptmax_(ptmax)
 
         {
@@ -425,6 +432,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           MonitorElement *offDRL1Off, 
           MonitorElement *offDROnOff, 
           MonitorElement *l1DRL1On,
+          MonitorElement *filters,
           float ptmin, float ptmax
           ):
 
@@ -443,6 +451,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             offDRL1Off_(offDRL1Off), 
             offDROnOff_(offDROnOff), 
             l1DRL1On_(l1DRL1On),
+            filters_(filters),
             ptmin_(ptmin), ptmax_(ptmax)
         {
         };
@@ -454,6 +463,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
         float getPtMin() const { return ptmin_; }
         float getPtMax() const { return ptmax_; }
+
+        std::vector< std::pair<std::string,unsigned int> > filtersAndIndices;
 
 
       private:
@@ -477,6 +488,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         MonitorElement *NL1OffUM_, *offEtL1OffUM_, *offEtavsoffPhiL1OffUM_;
         MonitorElement *NOnOffUM_, *offEtOnOffUM_, *offEtavsoffPhiOnOffUM_;
         MonitorElement *offDRL1Off_, *offDROnOff_, *l1DRL1On_;
+        MonitorElement *filters_;
         
         float ptmin_, ptmax_;
         

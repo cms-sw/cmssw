@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.47 2009/10/09 22:49:59 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.48 2009/10/12 12:35:46 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -562,6 +562,31 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    } //denompassed
 
+
+   // fill histogram of filter ocupancy for each HLT path
+   unsigned int lastModule = 0;
+
+   unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
+   lastModule = triggerResults->index(pathByIndex);
+
+    //go through the list of filters
+    for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+      
+      int binNumber = v->getFiltersHisto()->getTH1()->GetXaxis()->FindBin(v->filtersAndIndices[filt].first.c_str());      
+      
+      //check if filter passed
+      if(triggerResults->accept(pathByIndex)){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+      //otherwise the module that issued the decision is the first fail
+      //so that all the ones before it passed
+      else if(v->filtersAndIndices[filt].second < lastModule){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+
+    } // end for filt
+
+
  } //pathinfo loop
 
 }
@@ -918,6 +943,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       MonitorElement *NL1OffUM, *offEtL1OffUM, *offEtavsoffPhiL1OffUM=0;
       MonitorElement *NOnOffUM, *offEtOnOffUM, *offEtavsoffPhiOnOffUM=0;
       MonitorElement *offDRL1Off, *offDROnOff, *l1DRL1On=0;
+      MonitorElement *filters=0;
+      
+
       std::string labelname("dummy");
       labelname = v->getPath() + "_wrt_" + v->getDenomPath();
       std::string histoname(labelname+"_NOn");
@@ -1087,9 +1115,67 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        histoname = labelname+"_offDROnOff";
        title = labelname+" offDR online+offline";
        offDROnOff =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, 1.); 
+
+       // -------------------------
+       //
+       //  Filters for each path
+       //
+       // -------------------------
        
+       // get all modules in this HLT path
+       vector<string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
        
-       v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On
+       int numModule = 0;
+       string moduleName, moduleType;
+       unsigned int moduleIndex;
+       
+       //print module name
+       vector<string>::const_iterator iDumpModName;
+       for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
+
+         moduleName = *iDumpModName;
+         moduleType = hltConfig_.moduleType(moduleName);
+         moduleIndex = hltConfig_.moduleIndex(v->getPath(), moduleName);
+
+         LogTrace ("FourVectorHLTOffline") << "Module "      << numModule
+             << " is called " << moduleName
+             << " , type = "  << moduleType
+             << " , index = " << moduleIndex
+             << endl;
+
+         numModule++;
+
+         if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos && moduleType.find("HLTL1NumberFilterXXX") == string::npos ) || 
+            (moduleType.find("Associator") != string::npos) || 
+            (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
+            (moduleType.find("HLTPrescaler") != string::npos) ) {
+
+           std::pair<std::string, int> filterIndexPair;
+           filterIndexPair.first   = moduleName;
+           filterIndexPair.second  = moduleIndex;
+           v->filtersAndIndices.push_back(filterIndexPair);
+
+         }
+
+
+       }//end for modulesName
+
+       //int nbin_sub = 5;
+       int nbin_sub = 10;
+    
+       // count plots for subfilter
+       filters = dbe_->book1D("Filters_" + v->getPath(), 
+                              "Filters_" + v->getPath(),
+                              nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
+       
+       for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+
+         filters->setBinLabel(filt+1, (v->filtersAndIndices[filt]).first);
+
+       }
+
+
+       v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On, filters
 );
 
 
