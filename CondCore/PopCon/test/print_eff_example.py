@@ -10,12 +10,12 @@ process.eff = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
     cms.PSet(
         record = cms.string('ExEfficiencyRcd'),
-        label = cms.string('vinEff1'),
+        label = cms.untracked.string('vinEff1'),
         tag = cms.string('Example_tag1')
     ),
     cms.PSet(
     record = cms.string('ExEfficiencyRcd'),
-    label = cms.string('vinEff2'),
+    label = cms.untracked.string('vinEff2'),
     tag = cms.string('Example_tag1')
     )
     )
