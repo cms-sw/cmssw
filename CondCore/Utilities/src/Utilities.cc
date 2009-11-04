@@ -42,7 +42,10 @@ cond::Utilities::Utilities( const std::string& commandName,
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
-  if(!positionalParameter.empty()) m_positionalOptions.add( positionalParameter.c_str(), -1);
+  if(!positionalParameter.empty()) {
+    m_positionalOptions.add( positionalParameter.c_str(), -1);
+    addOption<std::string>(positionalParameter,"",positionalParameter);
+  }
 }
 
 
