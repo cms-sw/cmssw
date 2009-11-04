@@ -13,7 +13,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("RecoParticleFlow.Configuration.DBS_Samples.RelValQCD_FlatPt_15_3000_Fast_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(5000)
 )
 
 process.load("Validation.RecoParticleFlow.pfCandidateManager_cff")

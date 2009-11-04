@@ -56,8 +56,8 @@
   styles.FormatHisto( elementsInBlocksSize_, styles.spred );
   
   TCanvas c7;
-  delta_pt_.Draw();
-  styles.FormatPad( gPad, true, false, true);
-  styles.FormatHisto( delta_pt_, styles.spred );
+  delta_et_Over_et_VS_et_.Draw("colz");
+  styles.FormatPad( gPad, false, false, false);
+//   styles.FormatHisto( delta_pt_, styles.spred );
   
 }
