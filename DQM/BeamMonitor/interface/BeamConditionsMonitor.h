@@ -3,8 +3,8 @@
 
 /** \class BeamConditionsMonitor
  * *
- *  $Date: 2009/08/25 21:46:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/04 04:16:53 $
+ *  $Revision: 1.2 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -19,6 +19,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 //
 // class declaration
@@ -38,10 +39,10 @@ class BeamConditionsMonitor : public edm::EDAnalyzer {
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
   // Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& context) ;
+			    const edm::EventSetup& context);
   
   // DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
@@ -61,13 +62,13 @@ class BeamConditionsMonitor : public edm::EDAnalyzer {
   bool debug_;
   
   DQMStore* dbe_;
-
+  
   int countEvt_;      //counter
   int countLumi_;      //counter
   
   // ----------member data ---------------------------
-  reco::BeamSpot theBS;
-
+  BeamSpotObjects condBeamSpot;
+  
   // MonitorElements
   MonitorElement * h_x0_lumi;
   MonitorElement * h_y0_lumi;
