@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -14,7 +15,8 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -277,8 +279,9 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 {
   // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
   // (since they provide theta information)
-  if (!hit.isValid() || hit.dimension() < 2) {
-    return false; // some (muon...) stuff really has RecHit1D
+  if (!hit.isValid() ||
+      (hit.dimension() < 2 && !countStereoHitAs2D_ && !dynamic_cast<const SiStripRecHit1D*>(&hit))){
+    return false; // real RecHit1D - but SiStripRecHit1D depends on countStereoHitAs2D_
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
@@ -286,8 +289,9 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
         return true; // pixel is always 2D
       } else { // should be SiStrip now
 	const SiStripDetId stripId(detId);
-	if (stripId.stereo()) return countStereoHitAs2D_; // 1D stereo modules
-        else if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
+	if (stripId.stereo()) return countStereoHitAs2D_; // stereo modules
+        else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
+		 || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
 	//the following two are not used any more since ages... 
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
@@ -295,7 +299,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 	  return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit())); // depends on original...
 	} else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
+                                      << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
@@ -410,7 +414,9 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D *siStripRe
 
 bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const
 {
-	   
+  // FIXME:
+  // adapt to changes after introduction of SiStripRecHit1D...
+  //
   // edm::ESHandle<TrackerGeometry> tracker;
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
@@ -498,7 +504,6 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
       if (!isPixelHit){
 	const std::type_info &type = typeid(*hit);
 
-
 	if (type == typeid(SiStripRecHit2D)) {	
 	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit); 
 	  if(striphit!=0){
@@ -525,7 +530,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
       else{ // test explicitely BPIX/FPIX
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
 	if(pixelhit!=0){
-	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
+	  SiPixelRecHit::ClusterRef pixclust(pixelhit->cluster());
 	  flag = flagMap[pixclust];
 	}
 	else{
