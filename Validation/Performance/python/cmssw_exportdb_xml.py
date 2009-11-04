@@ -236,6 +236,11 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 	# return xml as string (if requested)
 	if (xmlFileName == ""):
 		return xml
+	#Adding a modification to make sure the file is written in /tmp/$USER_perfsuite_xml dir (to allow any used to harvest any workdir without permission issues.
+	tmp_dir="/tmp/%s_perfsuite_xml"%os.getenv("USER")
+	if not os.path.exists(tmp_dir):
+		os.system("mkdir %s"%tmp_dir)
+	xmlFileName=os.path.join(tmp_dir,xmlFileName)
 	# or save that as file
 	out = open(xmlFileName, "w")
 	#print xml locally
