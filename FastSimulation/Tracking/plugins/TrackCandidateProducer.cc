@@ -94,8 +94,6 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   seedCleaning = conf.getParameter<bool>("SeedCleaning");
 
   // OIHit
-  isHitBased_ = conf.getUntrackedParameter<bool>("HitBased", false);
-
   simTracks_ = conf.getParameter<edm::InputTag>("SimTracks");
   estimatorCut_= conf.getParameter<double>("EstimatorCut");
 }
@@ -436,7 +434,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
 	  // Check that the first rechit is indeed the first seeding hit
-	  if( !isHitBased_ ) {
+	  if( aSeed->direction()!=oppositeToMomentum ) { //for OIHit 
 	    if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
 	  }
 	  
