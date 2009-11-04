@@ -66,10 +66,7 @@ private:
 
 #include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/Candidate/src/CompositeCandidate.cc"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "ElectroWeakAnalysis/WMuNu/interface/WMuNuCandidate.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
 
 
   

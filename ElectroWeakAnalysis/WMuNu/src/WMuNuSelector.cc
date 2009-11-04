@@ -62,10 +62,13 @@ private:
 
   int selectByCharge_;
 
-  double nall;
-  double npresel;
+  double nall; 
+  double ntrig, npresel;
   double nsel;
-  double ncharge; 
+  double ncharge;
+  double nkin, nid,nacop,niso,nmass;
+
+
 
   std::map<std::string,TH1D*> h1_;
   std::map<std::string,TH2D*> h2_;
@@ -93,7 +96,7 @@ private:
 
 #include "DataFormats/Common/interface/View.h"
 
-#include "ElectroWeakAnalysis/WMuNu/interface/WMuNuCandidate.h"
+#include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
 
   
 using namespace edm;
@@ -144,9 +147,14 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
 
 void WMuNuSelector::beginJob(const EventSetup &) {
       nall = 0;
+      ntrig=0;
       npresel=0;
-      nsel = 0;
       ncharge = 0;
+      nkin=0;
+      nid=0;
+      nacop=0;
+      niso=0;
+      nsel = 0;
 
    if(plotHistograms_){
      edm::Service<TFileService> fs;
@@ -178,13 +186,29 @@ void WMuNuSelector::beginJob(const EventSetup &) {
 void WMuNuSelector::endJob() {
       double all = nall;
       double epresel = npresel/all;
+      double etrig = ntrig/all;
+      double ekin = nkin/all;
+      double eid = nid/all;
+      double eacop = nacop/all;
+      double eiso = niso/all;
       double esel = nsel/all;
 
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total number of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total number of events triggered: " << ntrig << " [events]";
       LogVerbatim("") << "Total number of events pre-selected: " << npresel << " [events]";
+      LogVerbatim("") << "Total number of events after kinematic cuts: " << nkin << " [events]";
+      LogVerbatim("") << "Total number of events after Muon ID cuts: " << nid << " [events]";
+      LogVerbatim("") << "Total number of events after Acop cut: " << nacop << " [events]";
+      LogVerbatim("") << "Total number of events after iso cut: " << niso << " [events]";
+      LogVerbatim("") << "Total number of events selected: " << esel << " [events]";
+      LogVerbatim("") << "Efficiencies:";
+      LogVerbatim("") << "Trigger Efficiency:                   " << "(" << setprecision(4) << etrig*100. <<" +/- "<< setprecision(2) << sqrt(etrig*(1-etrig)/all)*100. << ")%";
       LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
-      LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Pt, Eta Selection Efficiency:         " << "(" << setprecision(4) << ekin*100. <<" +/- "<< setprecision(2) << sqrt(ekin*(1-ekin)/all)*100. << ")%";
+      LogVerbatim("") << "MuonID Efficiency:                    " << "(" << setprecision(4) << eid*100. <<" +/- "<< setprecision(2) << sqrt(eid*(1-eid)/all)*100. << ")%";
+      LogVerbatim("") << "Acop Efficiency:                      " << "(" << setprecision(4) << eacop*100. <<" +/- "<< setprecision(2) << sqrt(eacop*(1-eacop)/all)*100. << ")%";
+      LogVerbatim("") << "Iso Efficiency:                       " << "(" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%";
       LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
      if ( fabs(selectByCharge_)==1 ){
@@ -250,13 +274,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
 
-      // Preselection cuts:
-
-      if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
-      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
-      if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
-
-       npresel++;
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
@@ -292,8 +309,18 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             }
 
 
-      // Select Ws by charge:  
-  
+      // Preselection cuts:
+
+      if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
+      ntrig++;
+
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
+      if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
+
+      npresel++;
+
+      // Select Ws by charge:
+
       if (selectByCharge_*WMuNu.charge()==-1){ ncharge++;}
 
 
@@ -313,6 +340,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
             if (fabs(eta)>etaCut_) return 0;
 
+            nkin++;
+
+
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2(); LogTrace("")<<"Im here"<<endl;
@@ -328,17 +358,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   if(plotHistograms_){ h1_["hTracker_sel"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
 
+            nid++;
+
             // Acoplanarity cuts
             double acop = WMuNu.acop();
             LogTrace("") << "\t... acoplanarity: " << acop;
-                  if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
-            if (acop>acopCut_) return 0;
-
-
 
             // Isolation cuts
             double SumPt = mu.isolationR03().sumPt; double isovar=SumPt;
-            double Cal   = mu.isolationR03().emEt + mu.isolationR03().hadEt; if(isCombinedIso_)isovar+=Cal;            
+            double Cal   = mu.isolationR03().emEt + mu.isolationR03().hadEt; if(isCombinedIso_)isovar+=Cal;
                   if(plotHistograms_){
                   h1_["hPtSum_sel"]->Fill(SumPt);
                   h1_["hPtSumN_sel"]->Fill(SumPt/pt);
@@ -348,7 +376,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   }
 
             if (isRelativeIso_) isovar /= pt;
-            bool iso = (isovar<isoCut03_);
+            bool iso = (isovar<=isoCut03_);
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " <<iso ;
 
             double met_et = met.pt();
@@ -361,32 +389,39 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << WMuNu.px() << ", " << WMuNu.py() << " [GeV]";
 
 
-            // Plot 2D Histograms before final cuts 
-                  if(plotHistograms_){
-                  h2_["hTMass_PtSum_inclusive"]->Fill(SumPt,massT);   
+            // Plot 2D Histograms before final cuts
+                  if(plotHistograms_ && acop<acopCut_){
+                  h2_["hTMass_PtSum_inclusive"]->Fill(SumPt,massT);
                   h2_["hTMass_PtSumNorm_inclusive"]->Fill(SumPt/pt,massT);
                   h2_["hTMass_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,massT);
-                  h2_["hMET_PtSum_inclusive"]->Fill(SumPt,met_et);   
+                  h2_["hMET_PtSum_inclusive"]->Fill(SumPt,met_et);
                   h2_["hMET_PtSumNorm_inclusive"]->Fill(SumPt/pt,met_et);
                   h2_["hMET_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,met_et);
-                  }     
+                  }
 
             if (!iso) return 0;
-            
+
+            niso++;
+
+             if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
+            if (acop>=acopCut_) return 0;
+
+           nacop++;
+
             if(plotHistograms_){
                   h1_["hMET_sel"]->Fill(met_et);
                   h1_["hTMass_sel"]->Fill(massT);
             }
 
 
-            if (massT<mtMin_ || massT>mtMax_)  return 0;
-            if (met_et<metMin_ || met_et>metMax_) return 0;
+            if (massT<=mtMin_ || massT>=mtMax_)  return 0;
+            if (met_et<=metMin_ || met_et>=metMax_) return 0;
 
-            LogTrace("") << ">>>> Event ACCEPTED";
+           LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;
 
 
-            // (To be continued)
+            // (To be continued ;-) )
 
             return true;
 }

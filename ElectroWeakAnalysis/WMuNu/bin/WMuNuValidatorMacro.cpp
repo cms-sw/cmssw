@@ -10,11 +10,13 @@
 #include "TLegend.h"
 
 int printUsage(){
-    printf("Usage: WMuNuValidatorMacro [-lbh] 'root_file_to_validate' 'reference_root_file'\n\n");
+    printf("Usage: WMuNuValidatorMacro [-lbh] 'root_file_to_validate' 'reference_root_file' 'directory_name'\n\n");
 
     printf("\tOptions:\t -l ==> linear scale for Y axes (default is log-scale)\n");
     printf("\t        \t -b ==> run in batch (no graphics)\n");
+    printf("\t        \t -n ==> normalize reference to data (default = false)\n");
     printf("\t        \t -h ==> print this message\n\n");
+
 
     printf("\tInput files:\t Created via '*Validator.py' configuration files in:\n");
     printf("\t            \t   $CMSSW_BASE/src/ElectroWeakAnalysis/WMuNu/test/\n\n");
@@ -29,22 +31,30 @@ int main(int argc, char** argv){
 
   TString chfile;
   TString chfileref;
+  TString DirectoryLast;
+
 
   int ntrueargs = 0;
   bool logyFlag = true;
+  bool normalize = false;
+
   for (int i=1; i<argc; ++i) {
       if (argv[i][0] == '-') {
             if (argv[i][1]=='l') logyFlag = false;
             else if (argv[i][1]=='b') gROOT->SetBatch();
             else if (argv[i][1]=='h') return printUsage();
+            else if (argv[i][1]=='n') normalize=true;
+
       } else {
             ntrueargs += 1;
             if (ntrueargs==1) chfile = argv[i];
             else if (ntrueargs==2) chfileref = argv[i];
+            else if (ntrueargs==3) DirectoryLast = argv[i];
+
       }
   }
 
-  if (ntrueargs!=2) return printUsage();
+  if (ntrueargs!=3) return printUsage();
 
   TRint* app = new TRint("CMS Root Application", 0, 0);
 
@@ -77,8 +87,10 @@ int main(int argc, char** argv){
   TFile* input_fileref = new TFile(chfileref.Data(),"READONLY");
   bool first_plots_done = false;
 
-  TDirectory* dir_before = input_file->GetDirectory("wmnSelFilter/BeforeCuts");
-  TDirectory* dirref_before = input_fileref->GetDirectory("wmnSelFilter/BeforeCuts");
+  TString directory = DirectoryLast + "/BeforeCuts";
+
+  TDirectory* dir_before = input_file->GetDirectory(directory);
+  TDirectory* dirref_before = input_fileref->GetDirectory(directory);
   TList* list_before = dir_before->GetListOfKeys();
   list_before->Print();
 
@@ -93,7 +105,9 @@ int main(int argc, char** argv){
             if ((i+j)>=list_before_size) continue;
 
             TH1D* h1 = (TH1D*)dir_before->Get(list_before->At(i+j)->GetName()); 
-            h1->SetLineColor(kBlue);
+//            h1->SetLineColor(kBlue);
+//            h1->SetMarkerColor(kBlue);
+            h1->SetMarkerStyle(21);
             h1->SetLineStyle(1);
             h1->SetLineWidth(3);
             h1->SetTitleSize(0.05,"X");
@@ -105,13 +119,21 @@ int main(int argc, char** argv){
 
             TH1D* hr = (TH1D*)dirref_before->Get(list_before->At(i+j)->GetName()); 
             hr->SetLineColor(kRed);
-            hr->SetLineStyle(2);
+//            hr->SetLineStyle(2);
             hr->SetLineWidth(3);
+            hr->SetTitleSize(0.05,"X");
+            hr->SetTitleSize(0.05,"Y");
+            hr->SetXTitle(h1->GetTitle());
+            hr->SetYTitle("");
+            hr->SetTitle("");
+            hr->SetTitleOffset(0.85,"X");
 
-            h1->Draw("hist");
-            hr->DrawNormalized("samehist",h1->Integral());
+            if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
+            else{hr->Draw("hist");}
+            h1->Draw("same,p");
+
             leg->Clear();
-            leg->AddEntry(h1,cmssw_version.Data(),"L");
+            leg->AddEntry(h1,"Skim","L");
             leg->AddEntry(hr,"Reference","L");
             leg->Draw();
       }
@@ -125,8 +147,10 @@ int main(int argc, char** argv){
       c1->SaveAs(chplot);
   }
 
-  TDirectory* dir_lastcut = input_file->GetDirectory("wmnSelFilter/LastCut");
-  TDirectory* dirref_lastcut = input_fileref->GetDirectory("wmnSelFilter/LastCut");
+  TString directory2 = DirectoryLast + "/LastCut";
+
+  TDirectory* dir_lastcut = input_file->GetDirectory(directory2);
+  TDirectory* dirref_lastcut = input_fileref->GetDirectory(directory2);
   TList* list_lastcut = dir_lastcut->GetListOfKeys();
   list_lastcut->Print();
 
@@ -141,7 +165,9 @@ int main(int argc, char** argv){
             if ((i+j)>=list_lastcut_size) continue;
 
             TH1D* h1 = (TH1D*)dir_lastcut->Get(list_lastcut->At(i+j)->GetName()); 
-            h1->SetLineColor(kBlue);
+//            h1->SetLineColor(kBlue);
+//            h1->SetMarkerColor(kBlue);
+            h1->SetMarkerStyle(21);
             h1->SetLineWidth(3);
             h1->SetTitleSize(0.05,"X");
             h1->SetTitleSize(0.05,"Y");
@@ -152,13 +178,23 @@ int main(int argc, char** argv){
 
             TH1D* hr = (TH1D*)dirref_lastcut->Get(list_lastcut->At(i+j)->GetName()); 
             hr->SetLineColor(kRed);
-            hr->SetLineStyle(2);
+//            hr->SetLineStyle(2);
             hr->SetLineWidth(3);
+            hr->SetTitleSize(0.05,"X");
+            hr->SetTitleSize(0.05,"Y");
+            hr->SetXTitle(h1->GetTitle());
+            hr->SetYTitle("");
+            hr->SetTitle("");
+            hr->SetTitleOffset(0.85,"X");
 
-            h1->Draw("hist");
-            hr->DrawNormalized("samehist",h1->Integral());
+//            h1->Draw();
+            if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
+            else{hr->Draw("hist");}
+            h1->Draw("same,p");
+
+
             leg->Clear();
-            leg->AddEntry(h1,cmssw_version.Data(),"L");
+            leg->AddEntry(h1,"Skim" ,"L");
             leg->AddEntry(hr,"Reference","L");
             leg->Draw();
       }
