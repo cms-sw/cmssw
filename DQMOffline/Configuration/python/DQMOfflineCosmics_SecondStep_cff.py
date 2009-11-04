@@ -7,7 +7,7 @@ from DQMOffline.Ecal.ecal_dqm_client_offline_cosmic_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_client_fileT0_cff import *
 from DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
-from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
+from DQM.DTMonitorClient.dtDQMOfflineClients_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cosmic_cff import *
@@ -17,7 +17,7 @@ DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence( ecal_dqm_client_offline *
                                                     hcalOfflineDQMClient *
                                                     SiStripOfflineDQMClient *
                                                     sipixelEDAClient *
-                                                    dtClients *
+                                                    dtClientsCosmics *
                                                     rpcTier0Client *
                                                     cscOfflineCosmicsClients *
                                                     es_dqm_client_offline *
