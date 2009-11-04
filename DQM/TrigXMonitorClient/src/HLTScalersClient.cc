@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.8 2008/09/07 12:16:23 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.9 2009/11/04 03:44:54 lorenzo Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.9  2009/11/04 03:44:54  lorenzo
+// added folder param
+//
 // Revision 1.8  2008/09/07 12:16:23  wittich
 // protect against divide-by-zero in rate calculation
 //
@@ -103,7 +106,7 @@ void HLTScalersClient::beginJob(const edm::EventSetup& c)
 {
   LogDebug("Status") << "beingJob" ;
   if (dbe_) {
-    dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
+    dbe_->setCurrentFolder(folderName_);
   }
 }
 
@@ -125,8 +128,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			const edm::EventSetup& c)
 {
   nLumi_ = lumiSeg.id().luminosityBlock();
-
-  MonitorElement *scalers = dbe_->get("HLT/HLTScalers_EvF/hltScalers");
+  std::string scalHisto_ = folderName_ + "/hltScalers";
+  MonitorElement *scalers = dbe_->get(scalHisto_);
   if ( scalers == 0 ) {
     LogInfo("Status") << "cannot get hlt scalers histogram, bailing out.";
     return;
@@ -143,7 +146,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       int whichHisto = i/kPerHisto;
       int whichBin = i%kPerHisto + 1;
       char pname[256];
-      snprintf(pname, 256, "HLT/HLTScalers_EvF/path%03d", i);
+      snprintf(pname, 256, "%s/path%03d",folderName_.c_str(), i);
       MonitorElement *name = dbe_->get(pname);
       std::string sname;
       if ( name ) {
@@ -159,7 +162,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     first_ = false;
   }
 
-  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers_EvF/nLumiBlock");
+  std::string nLumiHisto_ = folderName_ + "/nLumiBlock";
+  MonitorElement *nLumi = dbe_->get(nLumiHisto_);
   int testval = (nLumi!=0?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
 			<< testval
