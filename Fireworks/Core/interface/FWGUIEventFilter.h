@@ -33,7 +33,6 @@ class FWGUIEventFilter: public TGTransientFrame{
     m_changed = flag;
     m_applyChanges->SetEnabled(flag);
   }
-
 public:
   FWGUIEventFilter(const TGWindow* parent,
 		   std::vector<FWEventSelector*>& sels,
@@ -56,6 +55,9 @@ public:
   void DoExit()
   {
     UnmapWindow();
+  }
+  void textChanged(const char* text){
+     changed(true);
   }
 };
 

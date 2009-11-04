@@ -112,6 +112,7 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel){
   text1->ChangeOptions(0);
   m_columns[1]->AddFrame(text1, new TGLayoutHints(kLHintsCenterX | kLHintsExpandX, 1,1,1,1));
   text1->Connect("TextChanged(char*)", "string",&sel->selection, "assign(char*)");
+  text1->Connect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
   m_cells[1].push_back(text1);
     
   FWGUIValidatingTextEntry* text2 = new FWGUIValidatingTextEntry(m_columns[2], sel->title.c_str());
@@ -119,6 +120,7 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel){
   text2->ChangeOptions(0);
   m_columns[2]->AddFrame(text2, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 1,1,1,1));
   text2->Connect("TextChanged(char*)", "string",&sel->title, "assign(char*)");
+  text2->Connect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
   m_cells[2].push_back(text2);
   
   TGPictureButton* button = new TGPictureButton(m_columns[3], m_icon_enabled);
@@ -136,15 +138,19 @@ void FWGUIEventFilter::newEntry(const char* text){
     // disconnect the last
     m_cells[0].back()->Disconnect("Toggled(bool)",&m_newEntry, "enable(bool)");
     m_cells[1].back()->Disconnect("TextChanged(char*)", &m_newEntry.selection, "assign(char*)");
+    m_cells[1].back()->Disconnect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
     m_cells[1].back()->Disconnect("TextChanged(char*)", this, "newEntry(char*)");
     m_cells[2].back()->Disconnect("TextChanged(char*)", &m_newEntry.title, "assign(char*)");
+    m_cells[2].back()->Disconnect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
     m_cells[3].back()->Disconnect("Clicked()", &m_newEntry, "remove()");
     m_cells[3].back()->Disconnect("Clicked()", this, "update()");
     ((TGPictureButton*)m_cells[3].back())->SetEnabled(false);
     m_sels.push_back(new FWEventSelector(m_newEntry));
     m_cells[0].back()->Connect("Toggled(bool)","FWEventSelector", m_sels.back(), "enable(bool)");
     m_cells[1].back()->Connect("TextChanged(char*)", "string",&m_sels.back()->selection, "assign(char*)");
+    m_cells[1].back()->Connect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
     m_cells[2].back()->Connect("TextChanged(char*)", "string",&m_sels.back()->title, "assign(char*)");
+    m_cells[2].back()->Connect("TextChanged(char*)", "FWGUIEventFilter",this, "textChanged(char*)");
     m_cells[3].back()->Connect("Clicked()","FWEventSelector", m_sels.back(), "remove()");
     m_cells[3].back()->Connect("Clicked()","FWGUIEventFilter", this, "update()");
     ((TGPictureButton*)m_cells[3].back())->SetEnabled(true);
