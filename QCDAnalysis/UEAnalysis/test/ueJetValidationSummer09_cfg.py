@@ -9,7 +9,7 @@ process.load("QCDAnalysis.UEAnalysis.UEAnalysisJetsSISCone_cfi")
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff")
 process.prefer("L2L3JetCorrectorSC5Calo")
 
-process.load("QCDAnalysis.UEAnalysis.UEJetValidation_cfi")
+process.load("QCDAnalysis.UEAnalysis.UEJetValidationSummer09_cfi")
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('UEJetValidation.root')
