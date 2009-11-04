@@ -128,6 +128,14 @@ public:
   void setResetMe(bool flag)
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
+  /// true if ME is meant to be stored for each luminosity section
+  bool getLumiFlag(void) const
+    { return data_.flags & DQMNet::DQM_FLAG_LUMI; }
+
+  /// this ME is meant to be stored for each luminosity section
+  void setLumiFlag(void)
+    { data_.flags |= DQMNet::DQM_FLAG_LUMI; }
+
 #if __WORDSIZE > 32
   void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
   void Fill(unsigned long long x) { Fill(static_cast<int64_t>(x)); }
