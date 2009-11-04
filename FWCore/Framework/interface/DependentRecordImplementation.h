@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.10 2009/11/04 15:27:18 wmtan Exp $
 //
 
 // system include files
