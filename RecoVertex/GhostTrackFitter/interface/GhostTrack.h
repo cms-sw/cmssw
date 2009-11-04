@@ -24,7 +24,7 @@ class GhostTrack {
 	{}
 
 	GhostTrack(const GhostTrackPrediction &prior,
-	           const GhostTrackPrediction &prediction,   
+	           const GhostTrackPrediction &prediction,
 	           const std::vector<TransientTrack> &tracks,
 	           double ndof, double chi2,
 	           const std::vector<float> &weights = std::vector<float>(),
@@ -48,6 +48,9 @@ class GhostTrack {
 	operator Track() const { return prediction_.track(ndof_, chi2_); }
 
     private:
+	void initStates(const std::vector<TransientTrack> &tracks,
+	                const std::vector<float> &weights, double offset);
+
 	GhostTrackPrediction		prediction_;
 	GhostTrackPrediction		prior_;
 	std::vector<GhostTrackState>	states_;
