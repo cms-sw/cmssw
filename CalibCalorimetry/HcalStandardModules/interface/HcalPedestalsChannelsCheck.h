@@ -44,6 +44,7 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TFile.h"
+#include "TColor.h"
 class HcalPedestalsChannelsCheck: public edm::EDAnalyzer
 {
  public:
