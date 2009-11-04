@@ -1,6 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include <cassert> 
+#include <cstring> 
 #include "PrincipalCache.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"

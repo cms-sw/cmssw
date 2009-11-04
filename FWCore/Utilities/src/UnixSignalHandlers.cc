@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
