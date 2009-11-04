@@ -71,7 +71,8 @@ bool ThePEGHadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 void ThePEGHadronizer::statistics()
 {
 	runInfo().setInternalXSec(GenRunInfoProduct::XSec(
-				eg_->integratedXSec() / ThePEG::picobarn));
+		eg_->integratedXSec() / ThePEG::picobarn,
+		eg_->integratedXSecErr() / ThePEG::picobarn));
 }
 
 bool ThePEGHadronizer::generatePartonsAndHadronize()
