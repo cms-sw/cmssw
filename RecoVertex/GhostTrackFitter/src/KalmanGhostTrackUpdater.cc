@@ -48,28 +48,22 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 {
 	using namespace ROOT::Math;
 
-	// used in local 2d plane transformation perpendicular in x-y to pred
-	double x = std::cos(pred.phi());
-	double y = std::sin(pred.phi());
-
 	const GlobalPoint &point = state.tsos().globalPosition();
 
 	// lambda
+	GlobalVector dir = pred.direction();
 	double rho2 = pred.rho2();
-	double l = (point - pred.origin()) * pred.direction() / rho2;
-
-	// predicted state (no transport transformation needed)
-	Vector4 vec = pred.prediction();
-	Matrix4S err = pred.covariance();
+	double l = (point - pred.origin()) * dir / rho2;
 
 	// jacobian of global -> local
 	Matrix23 measToLocal;
 	measToLocal(0, 2) = rho2;
-	measToLocal(1, 0) = y;
-	measToLocal(1, 1) = -x;
+	measToLocal(1, 0) = dir.y();
+	measToLocal(1, 1) = -dir.x();
 
 	// measurement in local 2d plane projection
-	Vector2 meas(rho2 * point.z(), y * point.x() - x * point.y());
+	Vector2 meas(rho2 * point.z(),
+	             dir.y() * point.x() - dir.x() * point.y());
 	measErr = Similarity(measToLocal,
 		state.tsos().cartesianError().matrix().Sub<Matrix3S>(0, 0));
 
@@ -80,8 +74,8 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 	h(1, 3) = -l;
 
 	// predicted measurement
-	Vector2 measPred(rho2 * (vec[0] + l * vec[2]), -vec[1]);
-	measPredErr = Similarity(h, err);
+	Vector2 measPred(rho2 * (pred.z() + l * pred.cotTheta()), -pred.ip());
+	measPredErr = Similarity(h, pred.covariance());
 
 	// residual
 	residual = meas - measPred;
