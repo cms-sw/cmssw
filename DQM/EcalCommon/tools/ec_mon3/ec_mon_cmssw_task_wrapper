@@ -494,7 +494,7 @@ process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
 #process.ecalBarrelPedestalTask.MGPAGainsPN = [ 1, 16 ]
 #process.ecalBarrelPedestalTask.MGPAGainsPN = [ 16 ]
 
-process.ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+process.ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 #process.ecalBarrelTestPulseTask.MGPAGains = [ 1, 6, 12 ]
 #process.ecalBarrelTestPulseTask.MGPAGains = [ 12 ]
 #process.ecalBarrelTestPulseTask.MGPAGainsPN = [ 1, 16 ]
@@ -517,7 +517,7 @@ process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
 #process.ecalEndcapPedestalTask.MGPAGainsPN = [ 1, 16 ]
 #process.ecalEndcapPedestalTask.MGPAGainsPN = [ 16 ]
 
-process.ecalEndcapTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
+process.ecalEndcapTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 #process.ecalEndcapTestPulseTask.MGPAGains = [ 1, 6, 12 ]
 #process.ecalEndcapTestPulseTask.MGPAGains = [ 12 ]
 #process.ecalEndcapTestPulseTask.MGPAGainsPN = [ 1, 16 ]
