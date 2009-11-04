@@ -27,14 +27,11 @@ void CandidateBenchmark::setup() {
   PhaseSpace phiPS(360, -3.1416, 3.1416);
   PhaseSpace etaPS(100, -5,5);
   switch(mode_) {
-  case COARSE:
-    ptPS.n = 50;
+  case DQMOFFLINE:
+  default:
+    ptPS = PhaseSpace(50, 0, 100);
     phiPS.n = 50;
     etaPS.n = 20;
-    break;
-  case FINE:
-    break;
-  default:
     break;
   }
 

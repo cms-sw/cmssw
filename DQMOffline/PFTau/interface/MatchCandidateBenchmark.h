@@ -17,7 +17,7 @@ class MatchCandidateBenchmark : public Benchmark {
   virtual ~MatchCandidateBenchmark();
 
   /// book histograms
-  void setup( bool setupMother = true);
+  void setup();
   
   /// fill histograms with a given particle
   void fillOne( const reco::Candidate& candidate,
@@ -26,7 +26,8 @@ class MatchCandidateBenchmark : public Benchmark {
 
  protected:
   
-  TH1F*   delta_pt_; 
+  TH2F*   delta_et_Over_et_VS_et_; 
+  TH2F*   delta_et_VS_et_; 
 
 };
 

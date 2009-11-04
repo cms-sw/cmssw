@@ -24,14 +24,14 @@ void PFCandidateBenchmark::setup() {
   PhaseSpace hcalEnergyPS(100,0,100);
   PhaseSpace mva_e_piPS(100,-1,1);
   switch(mode_) {
-  case COARSE:
+  case VALIDATION:
+    break;
+  case DQMOFFLINE:
+  default:
     ecalEnergyPS.n = 50;
     hcalEnergyPS.n = 50;
     mva_e_piPS.n = 50;
     break;
-  case FINE:
-    break;
-  default:
     break;
   }
 

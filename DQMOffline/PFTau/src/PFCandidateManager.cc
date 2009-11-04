@@ -29,6 +29,21 @@ void PFCandidateManager::setDirectory(TDirectory* dir) {
 
 } 
 
+void PFCandidateManager::setParameters( float dRMax,
+					float ptMin,
+					bool matchCharge, 
+					Benchmark::Mode mode) {
+  dRMax_ = dRMax;
+  ptMin_ = ptMin;
+  matchCharge_ = matchCharge;
+  mode_ = mode;
+  
+  candBench_.setParameters(mode);
+  pfCandBench_.setParameters(mode);
+  matchCandBench_.setParameters(mode);
+  
+}
+
 void PFCandidateManager::setup() {
   candBench_.setup();
   pfCandBench_.setup();

@@ -58,6 +58,42 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
   else assert(0);
 }
 
+TH2F* Benchmark::book2D(const char* histname, const char* title, 
+			int nbinsx, float* xbins,
+			int nbinsy, float ymin, float ymax ) {
+  if(DQM_) {
+    cout<<"booked "<<histname<<endl;
+    
+    // need to build the y bin array manually, due to a missing 
+    // function in DQMStore
+    vector<float> ybins( nbinsy+1 );
+    double binsize = (ymax - ymin) / nbinsy;
+    for(int i=0; i<=nbinsy; ++i) {
+      ybins[i] = ymin + i*binsize;
+    } 
+    
+    return DQM_->book2D(histname,title,nbinsx, xbins, nbinsy, &ybins[0])->getTH2F();
+  }
+  else if(dir_) {
+    TDirectory *oldpwd = gDirectory; 
+    dir_->cd();
+
+    // need to convert the float bin array into a double bin array,
+    // because the DQMStore functions take floats, while the ROOT functions
+    // take double. 
+    vector<double> xbinsd(nbinsx+1); 
+    for(int i=0; i<=nbinsx; ++i) {
+      xbinsd[i] = xbins[i];
+    }
+
+    TH2F *hist = new TH2F(histname, title, nbinsx, &xbinsd[0], nbinsy, ymin, ymax);
+    cout<<"booked (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
+    oldpwd->cd();
+    return hist;
+  }
+  else assert(0);
+}
+
 
 void Benchmark::write() {
   //COLIN not sure about the root mode 

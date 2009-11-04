@@ -7,6 +7,7 @@
 #include "DQMOffline/PFTau/interface/MatchCandidateBenchmark.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include <vector>
 
@@ -15,14 +16,23 @@ class PFCandidateManager : public Benchmark {
 
  public:
 
-  PFCandidateManager( float dRMax = 0.3, 
+  PFCandidateManager( float dRMax = 0.3,
+		      float ptMin = 2,
 		      bool matchCharge = true, 
 		      Benchmark::Mode mode=Benchmark::DEFAULT) 
     : 
+    Benchmark(mode), 
     candBench_(mode), pfCandBench_(mode), matchCandBench_(mode), 
-    dRMax_(dRMax), matchCharge_(matchCharge) {}
-  virtual ~PFCandidateManager();
+    dRMax_(dRMax), ptMin_(ptMin), matchCharge_(matchCharge) {}
 
+  virtual ~PFCandidateManager();
+  
+  /// set the benchmark parameters
+  void setParameters( float dRMax = 0.3,
+		      float ptMin = 2, 
+		      bool matchCharge = true, 
+		      Benchmark::Mode mode=Benchmark::DEFAULT );
+  
   /// set directory (to use in ROOT)
   void setDirectory(TDirectory* dir);
 
@@ -40,6 +50,7 @@ class PFCandidateManager : public Benchmark {
   MatchCandidateBenchmark matchCandBench_;
 
   float dRMax_;
+  float ptMin_;
   bool  matchCharge_;
 
 };
@@ -59,12 +70,16 @@ void PFCandidateManager::fill(const reco::PFCandidateCollection& candCollection,
   for (unsigned int i = 0; i < candCollection.size(); i++) {
     const reco::PFCandidate& cand = candCollection[i];
 
+    if( cand.pt() < ptMin_ ) break;
+    
     int iMatch = matchIndices[i];
 
     assert(iMatch< static_cast<int>(matchCandCollection.size()));
  
+    //COLIN how to handle efficiency plots?
+
     // filling the histograms in CandidateBenchmark only in case 
-    // of a matching. Is this a good solution? 
+    // of a matching. 
     if( iMatch!=-1 ) {
       candBench_.fillOne(cand);
       pfCandBench_.fillOne(cand);

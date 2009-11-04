@@ -26,13 +26,14 @@ class Benchmark{
     int n; 
     float m;
     float M;
+    PhaseSpace() : n(1), m(0), M(1) {}
     PhaseSpace( int n, float m, float M):n(n), m(m), M(M) {}
   };
 
   enum Mode {
     DEFAULT,
-    COARSE,
-    FINE
+    DQMOFFLINE,
+    VALIDATION
   };
 
   static DQMStore *DQM_; 
@@ -40,7 +41,8 @@ class Benchmark{
   Benchmark(Mode mode = DEFAULT) : dir_(0), mode_(mode) {}
   virtual ~Benchmark();
 
-
+  void setParameters( Mode mode) { mode_ = mode;}
+  
   virtual void setDirectory(TDirectory* dir);
   
   /// write to the TFile, in plain ROOT mode. No need to call this function in DQM mode
@@ -55,6 +57,11 @@ class Benchmark{
   /// book a 2D histogram, either with DQM or plain root.
   TH2F* book2D(const char* histname, const char* title, 
 	       int nbinsx, float xmin, float xmax,
+	       int nbinsy, float ymin, float ymax ); 
+
+  /// book a 2D histogram, either with DQM or plain root.
+  TH2F* book2D(const char* histname, const char* title, 
+	       int nbinsx, float* xbins,
 	       int nbinsy, float ymin, float ymax ); 
 
  
