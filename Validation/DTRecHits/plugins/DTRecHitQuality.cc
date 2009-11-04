@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/06 17:22:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/11/02 17:15:20 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -25,12 +25,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
+<<<<<<< DTRecHitQuality.cc
+=======
 #include "Histograms.h"
 #include "utils.C"
 //#include "../test/macros.C"
 #include "TFile.h"
 #include "TStyle.h"
 //#include "TLine.h"
+>>>>>>> 1.10
 #include <iostream>
 #include <map>
 #include "TROOT.h"
@@ -39,7 +42,6 @@ using namespace edm;
 //#include "utils.C"
 //#include "macros.C"
 //TStyle * mystyle;
-
 
 // Constructor
 DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
@@ -140,7 +142,43 @@ void DTRecHitQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   util->drawGFit(hRes_S3RZ_W1->hPull->getTH1(),-5,5,-5,5);
   util->drawGFit(hRes_S3RZ_W2->hPull->getTH1(),-5,5,-5,5);
 
+<<<<<<< DTRecHitQuality.cc
+void DTRecHitQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+    edm::EventSetup const& c){
+  /*Tutils * aux = new Tutils;
+  aux->drawGFit(hRes_S3RPhi->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  aux->drawGFit(hRes_S3RZ->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  aux->drawGFit(hRes_S3RZ_W0->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  aux->drawGFit(hRes_S3RZ_W1->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+  aux->drawGFit(hRes_S3RZ_W2->hRes->getTH1(),-0.2,0.2,-0.1,0.1);
+
+  aux->drawGFit(hRes_S3RPhi->hPull->getTH1(),-5,5,-5,5);
+  aux->drawGFit(hRes_S3RZ->hPull->getTH1(),-5,5,-5,5);
+  aux->drawGFit(hRes_S3RZ_W0->hPull->getTH1(),-5,5,-5,5);
+  aux->drawGFit(hRes_S3RZ_W1->hPull->getTH1(),-5,5,-5,5);
+  aux->drawGFit(hRes_S3RZ_W2->hPull->getTH1(),-5,5,-5,5);
+
+  aux->plotAndProfileX(hRes_S3RPhi->hResVsEta->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ->hResVsEta->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W0->hResVsEta->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W1->hResVsEta->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W2->hResVsEta->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RPhi->hResVsPhi->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ->hResVsPhi->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W0->hResVsPhi->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W1->hResVsPhi->getTH2F(),-0.6,0.6);
+  aux->plotAndProfileX(hRes_S3RZ_W2->hResVsPhi->getTH2F(),-0.6,0.6);
+
+  aux->plotAndProfileX(hRes_S3RPhi->hResVsPos->getTH2F(),-0.6,0.6,true);
+  aux->plotAndProfileX(hRes_S3RZ->hResVsPos->getTH2F(),-0.6,0.6,true);
+  aux->plotAndProfileX(hRes_S3RZ_W0->hResVsPos->getTH2F(),-0.6,0.6,true);
+  aux->plotAndProfileX(hRes_S3RZ_W1->hResVsPos->getTH2F(),-0.6,0.6,true);
+  aux->plotAndProfileX(hRes_S3RZ_W2->hResVsPos->getTH2F(),-0.6,0.6,true);*/
 }
+
+=======
+}
+>>>>>>> 1.10
 void DTRecHitQuality::endJob() {
   // Write the histos to file
   if(doall){
@@ -629,6 +667,10 @@ float DTRecHitQuality::recHitPositionError(const DTRecHit1DPair& recHit) {
 float DTRecHitQuality::recHitPositionError(const DTRecHit1D& recHit) {
   return sqrt(recHit.localPositionError().xx());
 }
+<<<<<<< DTRecHitQuality.cc
+
+=======
 
 
 
+>>>>>>> 1.10
