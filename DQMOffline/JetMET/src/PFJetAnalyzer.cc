@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/21 12:50:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/03 16:46:53 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -180,8 +180,6 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   for (reco::PFJetCollection::const_iterator jet = pfJets.begin(); jet!=pfJets.end(); ++jet){
   LogTrace(metname)<<"[JetAnalyzer] Analyze PFJet";
-
-  cout<< "we have pf jets.."<< endl;
 
   if (jet == pfJets.begin()) {
     fstPhi = jet->phi();
