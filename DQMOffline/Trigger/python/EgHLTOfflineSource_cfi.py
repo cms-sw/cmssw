@@ -14,6 +14,7 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  #products we need
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                  hltTag = cms.string("HLT"),
+                                 filterInactiveTriggers = cms.bool(True),
                                  EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  ElectronCollection = cms.InputTag("gsfElectrons"),
@@ -74,7 +75,11 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  phoCuts = cms.PSet(egHLTOffPhoCuts,),
                                  phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),          
                                  triggerCuts = cms.VPSet (
-                                   cms.PSet (egHLTOffEleEt10SWCuts),
+                                   cms.PSet (egHLTOffEleEt10LWCuts), #8E29
+                                   cms.PSet (egHLTOffEleEt15LWCuts),
+                                   cms.PSet (egHLTOffEleEt10LWEleIdCuts),
+                                   cms.PSet (egHLTOffDoubleEleEt5Cuts), 
+                                   cms.PSet (egHLTOffEleEt10SWCuts), #1E31
                                    cms.PSet (egHLTOffEleEt15SWCuts),
                                    cms.PSet (egHLTOffEleEt20SWCuts),
                                    cms.PSet (egHLTOffEleEt15SWEleIdCuts),
@@ -83,9 +88,17 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                    cms.PSet (egHLTOffDoubleEleEt10SWCuts),
                                    cms.PSet (egHLTOffPhoEt10Cuts),
                                    cms.PSet (egHLTOffPhoEt15Cuts),
+                                   cms.PSet (egHLTOffPhoEt15LEICuts),
+                                   cms.PSet (egHLTOffPhoEt15HTICuts),
+                                   cms.PSet (egHLTOffPhoEt20Cuts),
                                    cms.PSet (egHLTOffPhoEt25Cuts),
                                    cms.PSet (egHLTOffPhoEt30Cuts),
+                                   cms.PSet (egHLTOffPhoEt10LEITICuts),
+                                   cms.PSet (egHLTOffPhoEt20LEITICuts),
                                    cms.PSet (egHLTOffPhoEt25LEITICuts),
+                                   cms.PSet (egHLTOffDoublePhoEt10Cuts),
+                                   cms.PSet (egHLTOffDoublePhoEt15Cuts),
+                                   cms.PSet (egHLTOffDoublePhoEt15VLEICuts)
                                    
                                  )
                                  

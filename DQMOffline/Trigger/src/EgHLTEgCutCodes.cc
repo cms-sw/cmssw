@@ -18,7 +18,8 @@ ComCodes EgCutCodes::setCodes_()
   codes.setCode("invEInvP",int(INVEINVP));
   
   codes.setCode("hadem",int(HADEM));
-  codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA));
+  codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA)); 
+  codes.setCode("sigmaEtaEta",int(SIGMAETAETA));
   codes.setCode("e2x5Over5x5",int(E2X5OVER5X5));
   codes.setCode("r9",int(R9));
 

@@ -91,9 +91,13 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
   }
 
   //now loading the cuts for every trigger into our vector which stores them
+  //only load cuts for triggers that are in hltFiltersUsed
   std::vector<edm::ParameterSet> trigCutParam(conf.getParameter<std::vector<edm::ParameterSet> >("triggerCuts"));
   for(size_t trigNr=0;trigNr<trigCutParam.size();trigNr++) {
-    trigCuts_.push_back(std::make_pair(TrigCodes::getCode(trigCutParam[trigNr].getParameter<std::string>("trigName")),OffEgSel(trigCutParam[trigNr])));
+    std::string trigName = trigCutParam[trigNr].getParameter<std::string>("trigName");
+    if(std::find(hltFiltersUsed_.begin(),hltFiltersUsed_.end(),trigName)!=hltFiltersUsed_.end()){ //perhaps I should sort hltFiltersUsed_....
+      trigCuts_.push_back(std::make_pair(TrigCodes::getCode(trigName),OffEgSel(trigCutParam[trigNr])));
+    }
   }
 
 

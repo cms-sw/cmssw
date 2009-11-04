@@ -44,9 +44,9 @@ egHLTOffEleBarrelCuts = cms.PSet (
     maxCTFTrkChi2NDof=cms.double(99999),
     requirePixelHitsIfOuterInOuter=cms.bool(True),
 
-    maxHLTDEtaIn=cms.double(0.1),
+    maxHLTDEtaIn=cms.double(0.008),
     maxHLTDPhiIn=cms.double(0.1),
-    maxHLTInvEInvP=cms.double(0.1),
+    maxHLTInvEInvP=cms.double(9999),
     
     )
 
@@ -93,9 +93,9 @@ egHLTOffEleEndcapCuts = cms.PSet (
     maxCTFTrkChi2NDof=cms.double(99999),
     requirePixelHitsIfOuterInOuter=cms.bool(True),
     
-    maxHLTDEtaIn=cms.double(0.1),
+    maxHLTDEtaIn=cms.double(0.008),
     maxHLTDPhiIn=cms.double(0.1),
-    maxHLTInvEInvP=cms.double(0.1),
+    maxHLTInvEInvP=cms.double(9999),
     )
 
 egHLTOffEleCuts = cms.PSet(

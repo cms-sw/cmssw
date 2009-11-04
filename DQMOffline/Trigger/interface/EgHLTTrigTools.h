@@ -12,6 +12,13 @@ namespace egHLT {
     TrigCodes::TrigBitSet getFiltersPassed(const std::vector<std::pair<std::string,int> >& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag);
     template<class T> void setFiltersObjPasses(std::vector<T>& objs,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
     int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
+
+    //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
+    void getActiveFilters(std::vector<std::string>& activeFilters,const std::string& hltTag);
+    //filters a list of filternames removing any filters which are not in active filters, assumes active filters is sorted
+    void filterInactiveTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
+    //filters a list of filterName1:filterName2 removing any entry for which either filter is not in activeFilters, assumes active filters is sorted
+    void filterInactiveTightLooseTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
   }
   
   //I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again

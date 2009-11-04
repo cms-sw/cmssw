@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/Run.h"
 
+
 #include <boost/algorithm/string.hpp>
 
 //#include "DQMOffline/Trigger/interface/EgHLTCutCodes.h"
@@ -41,6 +42,20 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
   diEleTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("diEleTightLooseTrigNames"); 
   phoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("phoTightLooseTrigNames");
   diPhoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("diPhoTightLooseTrigNames"); 
+
+  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers");
+  if(filterInactiveTriggers){
+    std::vector<std::string> activeFilters;
+    std::string hltTag = iConfig.getParameter<std::string>("hltTag");
+    trigTools::getActiveFilters(activeFilters,hltTag);
+    
+    trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+    trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+    trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
+    trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeFilters);
+    trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
+    trigTools::filterInactiveTightLooseTriggers(diPhoTightLooseTrigNames_,activeFilters);				    
+  }
 
 
   std::vector<std::string> hltFiltersUsed;

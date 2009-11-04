@@ -100,7 +100,6 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   void addPhoTrigPath(const std::string& name);
   void getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const;
 
-
 };
  
 
