@@ -486,6 +486,8 @@ class parserPerfsuiteMetadata:
 			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now FrontierConditions_GlobalTag, is now optional):
 			if 'FrontierConditions_GlobalTag' in info['conditions']:
 				info['conditions']=info['conditions'].split(",")[1]
+			#DEBUG:
+			print "CONDITIONS are: %s"%info['conditions']
 			#start time - the index after which comes the time stamp
 			""" the following is not available on one of the releases, instead
 			use the first timestamp available on our job - that's the starting time :) """ 
