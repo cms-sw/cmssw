@@ -194,7 +194,7 @@ class parserPerfsuiteMetadata:
 			#print cpu_attributes
 			f.close()
 			cpu_result = {
-				"num_cores": max ([int(attr[1].strip())+1 for attr in cpu_attributes if attr[0].strip() == "core id"]),
+				"num_cores": max ([int(attr[1].strip())+1 for attr in cpu_attributes if attr[0].strip() == "processor"]), #Bug... Vidmantas used "core id"
 				"cpu_speed_MHZ": max ([attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "cpu MHz"]),
 				"cpu_cache_size": [attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "cache size"][0],
 				"cpu_model_name": [attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "model name"][0]
