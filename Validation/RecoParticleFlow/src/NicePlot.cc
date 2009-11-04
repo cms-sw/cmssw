@@ -46,15 +46,14 @@ Styles::Styles() {
   spblue->SetLineWidth(2);
 
   sgr1 = new Style();
-  sgr1->SetLineWidth(2);
-  sgr1->SetLineColor(2);
+  sgr1->SetLineWidth(1);
+  sgr1->SetLineColor(1);
 
   sgr2 = new Style(); 
-  sgr2->SetLineWidth(2);   
-  sgr2->SetLineColor(4);   
+  sgr2->SetLineWidth(1);
+  sgr2->SetLineColor(1);
+
 }
-
-
 
 void Styles::FormatHisto( TH1* h, const Style* s ) {
   //  h->SetStats(0);
