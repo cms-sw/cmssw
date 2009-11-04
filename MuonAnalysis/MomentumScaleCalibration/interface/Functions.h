@@ -30,7 +30,7 @@ class scaleFunctionBase {
   virtual ~scaleFunctionBase() = 0;
   /// This method is used to reset the scale parameters to neutral values (useful for iterations > 0)
   virtual void resetParameters(vector<double> * scaleVec) const {
-    cout << "ERROR: the setParameters method must be defined in each scale function" << endl;
+    cout << "ERROR: the resetParameters method must be defined in each scale function" << endl;
     cout << "Please add it to the scaleFunction you are using" << endl;
     exit(1);
   }
@@ -65,6 +65,7 @@ public:
     this->parNum_ = 0;
   }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const { return pt; }
+  virtual void resetParameters(vector<double> * scaleVec) const {}
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {}
 };
 // Linear in pt
@@ -75,6 +76,13 @@ public:
   scaleFunctionType1() { this->parNum_ = 2; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return ( (parScale[0] + parScale[1]*pt)*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
@@ -99,6 +107,13 @@ public:
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return ( (parScale[0] + parScale[1]*fabs(eta))*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
     TString thisParName[] = {"Eta offset", "Eta slope"};
@@ -121,6 +136,13 @@ public:
   scaleFunctionType3() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*sin(parScale[2]*phi + parScale[3]))*pt ); 
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01};
@@ -146,6 +168,13 @@ public:
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*fabs(eta))*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
     TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope"};
@@ -170,6 +199,13 @@ public:
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*sin(phi))*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
     TString thisParName[] = {"Pt offset", "Pt slope", "Phi ampl"};
@@ -193,6 +229,13 @@ public:
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*fabs(eta) + 
              parScale[2]*sin(phi))*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
                              TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -220,6 +263,13 @@ public:
              parScale[2]*fabs(eta) + 
              parScale[3]*sin(phi))*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
                              TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01};
@@ -246,6 +296,13 @@ public:
              parScale[2]*fabs(eta) +
              parScale[3]*eta*eta)*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01};
     TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope", "Eta quadr"};
@@ -269,6 +326,13 @@ public:
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + exp(parScale[1]*pt))*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
     TString thisParName[] = {"Pt offset", "Pt expon"};
@@ -287,6 +351,13 @@ public:
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*pt*pt)*pt );
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
     TString thisParName[] = {"Pt offset", "Pt slope", "Pt quadr"};
@@ -304,6 +375,13 @@ public:
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              (double)chg*parScale[2]*sin(phi+parScale[3]))*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.1};
@@ -324,6 +402,13 @@ public:
              parScale[2]*fabs(eta) +
              parScale[3]*eta*eta + 
              (double)chg*parScale[4]*sin(phi+parScale[5]))*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.01, 0.1};
@@ -352,6 +437,13 @@ public:
              parScale[3]*eta*eta + 
              parScale[6]*sin(phi+parScale[7]))*pt );
     // }
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.01, 0.1, 0.01, 0.1};
@@ -431,7 +523,19 @@ public:
       return( ( parScale[2] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
     }
   }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    // For the first, reset to the original pt region separator
+    scaleVec->push_back(originalPtRegionSeparator_);
+    // The next two are the scale in the two regions
+    scaleVec->push_back(1);
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
+    originalPtRegionSeparator_ = parScale[0];
     double thisStep[] = {0.001,
                          0.01, 0.01,
                          0.01, 0.00001};
@@ -456,6 +560,8 @@ public:
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+protected:
+  double originalPtRegionSeparator_;
 };
 
 // 
