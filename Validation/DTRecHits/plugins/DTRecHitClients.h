@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2009/05/20 14:17:01 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/11/03 10:45:41 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -30,19 +30,24 @@ public:
   DTRecHitClients(const edm::ParameterSet& ps);
 
  /// Destructor
- ~DTRecHitClients();
-
-protected:
+  virtual ~DTRecHitClients();
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void endJob();
+void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+					 edm::EventSetup const& c);
+
+protected:
+
 
 private:
 
   DQMStore* dbe;
-
+  MonitorElement * hRes;
   MonitorElement *summaryHisto;
   MonitorElement *glbSummaryHisto;
  };
+ 
 
 #endif

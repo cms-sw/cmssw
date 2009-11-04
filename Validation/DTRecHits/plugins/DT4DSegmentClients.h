@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2009/05/20 14:17:01 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/11/03 14:01:42 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -31,6 +31,7 @@ public:
 
  /// Destructor
  ~DT4DSegmentClients();
+ void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
 protected:
 

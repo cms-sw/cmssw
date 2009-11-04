@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 4D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/06/19 12:03:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/22 09:15:40 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -42,6 +42,8 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
   void endJob();
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+			  edm::EventSetup const& c);
 
 protected:
 
