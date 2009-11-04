@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.15.2.1 2009/10/12 16:56:27 lsexton Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.16 2009/10/20 21:47:14 lsexton Exp $
 #
 #
 #
@@ -139,6 +139,17 @@ FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
     splitLevel = cms.untracked.int32(0)
+)
+
+#
+#
+# FEVTDEBUG Data Tier definition
+#
+#
+FEVTDEBUGEventContent = cms.PSet(
+   outputCommands = cms.untracked.vstring('drop *',
+       'keep *_logErrorHarvester_*_*'),
+   splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -279,6 +290,13 @@ FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
+FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
