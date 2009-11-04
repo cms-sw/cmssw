@@ -14,12 +14,13 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # DQM services
 process.load("DQMServices.Core.DQMStore_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmSaver.convention = 'RelVal'
+process.dqmSaver.convention = 'Offline'
 # FIXME: correct this
 process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
 # Validation RecHits
 process.load("Validation.DTRecHits.DTRecHitQuality_cfi")
+process.load("Validation.DTRecHits.DTRecHitClients_cfi")
 ##process.rechivalidation.doStep2 = False
 # process.rechivalidation.recHitLabel = 'hltDt1DRecHits'
 # process.rechivalidation.segment4DLabel = 'hltDt4DSegments'
@@ -29,7 +30,7 @@ process.load("Validation.DTRecHits.DTRecHitQuality_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(100)
+        input = cms.untracked.int32(-1)
         )
 
 process.options = cms.untracked.PSet(
@@ -66,6 +67,6 @@ process.source = cms.Source("PoolSource",
 
 
 process.analysis = cms.Sequence(process.dtLocalRecoValidation_no2D)
-
-process.p = cms.Path(process.analysis + process.dqmSaver)
+process.clients = cms.Sequence(process.dtLocalRecoValidationClients)
+process.p = cms.Path(process.analysis + process.clients + process.dqmSaver)
 
