@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------
 //
 // ELlimitsTable is a class holding two maps:  One listing various
-//		 limits associated with each id, and one counting occurences
+//		 limits associated with each id, and one counting occurrences
 //		 and tracking latest times of each type of extended-id
 //		 (id + severity + module + subroutine + process).
 //		 In addition, there is a table by severity of defaults,

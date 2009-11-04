@@ -6,7 +6,6 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.18 2008/12/20 17:39:56 wmtan Exp $
 //
 // Change Log
 //
@@ -351,7 +350,7 @@ namespace edm {
 	mmr << 
 	"    count of times module executed; average increase in vsize \n";
 	mmr << 
-	"    maximum increase in vsize; event on which maximum occured \n";
+	"    maximum increase in vsize; event on which maximum occurred \n";
 	mmr << "  (during early ignored events) \n";
 	mmr << "    total and maximum vsize increases \n \n";	
 	for (SignificantModulesMap::iterator im=modules_.begin(); 

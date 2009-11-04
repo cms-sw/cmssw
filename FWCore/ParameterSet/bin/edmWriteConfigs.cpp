@@ -85,7 +85,7 @@ namespace {
     }
     catch(cms::Exception& e) {
       edm::Exception toThrow(edm::errors::LogicError,
-        "Error occured while creating ParameterSetDescriptions\n");
+        "Error occurred while creating ParameterSetDescriptions\n");
         toThrow << "for module of base type \'" << baseType << "\' with plugin name \'" << pluginName << "\'\n";
         toThrow.append(e);
         throw toThrow;
@@ -96,7 +96,7 @@ namespace {
     }
     catch(cms::Exception& e) {
       edm::Exception toThrow(edm::errors::LogicError,
-        "Error occured while writing cfi files using ParameterSetDescriptions\n");
+        "Error occurred while writing cfi files using ParameterSetDescriptions\n");
         toThrow << "for module of base type \'" << baseType << "\' with plugin name \'" << pluginName << "\'\n";
         toThrow.append(e);
         throw toThrow;
