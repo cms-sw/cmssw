@@ -196,15 +196,15 @@ namespace edm {
           fileIndexes_[currentFileIndex] = rootFile_->fileIndexSharedPtr();
       rootFile_->reportOpened(primary() ?
 	 (primarySequence_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
+      if (primarySequence_) {
+        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+      }
     } else {
       if(!skipBadFiles) {
 	throw edm::Exception(edm::errors::FileOpenError) <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
-    }
-    if (primarySequence_) {
-      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
   }
 
