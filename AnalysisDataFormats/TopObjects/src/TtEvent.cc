@@ -1,4 +1,5 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include <cstring>
 
 // find corresponding hypotheses based on JetLepComb
 int
