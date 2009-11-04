@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Nov  2 13:46:26 CST 2009
-// $Id: FWViewContextMenuHandlerBase.h,v 1.1 2009/11/02 23:59:52 chrjones Exp $
+// $Id: FWViewContextMenuHandlerBase.h,v 1.3 2009/11/03 14:01:50 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 // user include files
 
 // forward declarations
+class FWModelId;
 class FWModelContextMenuHandler;
 
 
@@ -56,7 +57,7 @@ public:
     iEntryIndex: the index of the selected menu item.  Same as returned from 'addEntry'
     iX, iY: Screen coordinates of where mouse was clicked
     */
-   virtual void select(int iEntryIndex, int iX, int iY) = 0;
+   virtual void select(int iEntryIndex, const FWModelId &id, int iX, int iY) = 0;
 protected:
    
 private:

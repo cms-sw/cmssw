@@ -4,6 +4,7 @@
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
 
 class TEveViewer;
+class FWModelId;
 
 class FWViewContextMenuHandlerGL
 {
@@ -12,7 +13,7 @@ public:
 
    FWViewContextMenuHandlerGL(TEveViewer* v): m_viewer(v) {}
    virtual ~FWViewContextMenuHandlerGL() {}
-   virtual void select(int iEntryIndex, int iX, int iY);
+   virtual void select(int iEntryIndex, const FWModelId &id, int iX, int iY);
 
 private:
    FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&); // stop default   

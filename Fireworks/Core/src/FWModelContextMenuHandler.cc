@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.9 2009/11/03 16:24:28 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.10 2009/11/03 19:34:58 amraktad Exp $
 //
 
 // system include files
@@ -148,7 +148,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       {
          if(iChoice>=kViewOptionsMO) {
             assert(0!=m_viewHander);
-            m_viewHander->select(iChoice-kViewOptionsMO,m_x,m_y);
+            m_viewHander->select(iChoice-kViewOptionsMO, *(m_selectionManager->selected().begin()), m_x, m_y);
          }else {
             assert(iChoice<kOpenObjectControllerMO);
             assert(m_selectionManager->selected().size()==1);

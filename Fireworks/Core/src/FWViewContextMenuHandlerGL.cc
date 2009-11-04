@@ -3,6 +3,8 @@
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TGLAnnotation.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 void 
 FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& adder)
@@ -11,7 +13,7 @@ FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& a
 }
 
 void 
-FWViewContextMenuHandlerGL::select(int iEntryIndex, int iX, int iY)
+FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX, int iY)
 {
    if (iEntryIndex == kAnnotate)
    {
@@ -20,9 +22,10 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, int iX, int iY)
       Int_t x,y;
       gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), f->GetId(), iX, iY, x, y, wdummy);
 
+      const char* txt = Form("%s %d", id.item()->name().c_str(), id.index());
       TGLViewer* v = m_viewer->GetGLViewer();
-      TGLAnnotation* an = new TGLAnnotation(v, "Annotate ref == 0",  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight());
-      an->SetTextSize(0.05);
+      TGLAnnotation* an = new TGLAnnotation(v, txt,  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight());
+      an->SetTextSize(0.035);
       an->SetTransparency(70);
    }
 };
