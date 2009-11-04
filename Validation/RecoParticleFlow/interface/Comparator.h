@@ -71,20 +71,7 @@ public:
 			   const int binxmax, const bool cst_binning, Mode mode);
   void DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFactor, const int binxmin,
 				    const int binxmax, const bool cst_binning, Mode mode);
-
-
-//  // create nbin slices between binxmin and binxmax. In each slice get the RMS/meanX and sigma/meanX from of gaussian fit.
-//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
-//  void DrawGaussSigmaOverMeanXSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//				   const unsigned int nbin, const double Ymin, const double Ymax,
-//				   const std::string title, const std::string binning_option, const unsigned int rebin,
-//				    const double fitmin, const double fitmax, const std::string epsname);
-//  // create nbin slices between binxmin and binxmax. In each slice get the RMS/mean and sigma/mean from of gaussian fit.
-//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
-//  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const unsigned int binxmin, const unsigned int binxmax,
-//				   const unsigned int nbin, const double Ymin, const double Ymax,
-//				   const std::string title, const std::string binning_option, const unsigned int rebin,
-//				   const double fitmin, const double fitmax, const std::string epsname);
+  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const int rebinFactor, Mode mode);
 
   void Draw( const char* key, Mode mode);
   

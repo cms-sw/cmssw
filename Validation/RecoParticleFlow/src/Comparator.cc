@@ -271,173 +271,38 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   fitXfcndgsseb3->Draw("same");
 }
 
+void Comparator::DrawGaussSigmaOverMeanSlice(const char* key, const char* key2,
+					     const int rebinFactor, Mode mode)
+{
+  TDirectory* dir = dir1_;
+  dir->cd();
 
-//void Comparator::DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//				     const unsigned int nbin, const double Ymin, const double Ymax,
-//				     const std::string title, const std::string binning_option, const unsigned int rebin,
-//				     const double fitmin, const double fitmax, const std::string epsname,
-//				     const bool doFit)
-//{
-//  TDirectory* dir = dir1_;
-//  dir->cd();
-//  gStyle->SetOptStat("");
-//  TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
-//  h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
-////   TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",(void*)Comparator::fitFunction_f,binxmin,binxmax,4);
-////   if (doFit)
-////     {
-////       fitfcndgssrms3->SetNpx(500);
-////       fitfcndgssrms3->SetLineWidth(3);
-////       fitfcndgssrms3->SetLineStyle(2);
-////       fitfcndgssrms3->SetLineColor(4);
-////       sigmaslice->Fit("fitfcndgssrms3","0R");
-////       //sigmaslice->Draw("E1");
-////     }
-//
-//  TH1D* sigmasliceGauss = new TH1D("sigmasliceGauss","Sigmaslice",nbin,binxmin,binxmax);
-//  h2->SigmaGaussSlice(sigmasliceGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname);
-//  sigmasliceGauss->SetTitle(title.c_str());
-//  sigmasliceGauss->SetMaximum(Ymax);
-//  sigmasliceGauss->SetMinimum(Ymin);
-//  sigmasliceGauss->SetMarkerStyle(21);
-//  sigmasliceGauss->SetMarkerColor(4);
-//
-////   TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   if (doFit)
-////     {
-////       fitfcndgsse3->SetNpx(500);
-////       fitfcndgsse3->SetLineWidth(3);
-////       fitfcndgsse3->SetLineStyle(1);
-////       fitfcndgsse3->SetLineColor(4);
-////       sigmasliceGauss->Fit("fitfcndgsse3","0R");
-////     }
-//
-//  dir = dir0_;
-//  dir->cd();
-//  TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmasliceb = new TH1D("sigmasliceb","Sigmasliceb",nbin,binxmin,binxmax);
-//  h2b->SigmaSlice(sigmasliceb,binxmin,binxmax,nbin,binning_option);
-////   TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   if (doFit)
-////     {
-////       fitfcndgssrmsb3->SetNpx(500);
-////       fitfcndgssrmsb3->SetLineWidth(3);
-////       fitfcndgssrmsb3->SetLineStyle(2);
-////       fitfcndgssrmsb3->SetLineColor(2);
-////       sigmasliceb->Fit("fitfcndgssrmsb3","0R");
-////     }
-//
-//  TH1D* sigmaslicebGauss = new TH1D("sigmaslicebGauss","Sigmasliceb",nbin,binxmin,binxmax);
-//  h2b->SigmaGaussSlice(sigmaslicebGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname+"b");
-//  sigmaslicebGauss->SetTitle(title.c_str());
-//  sigmaslicebGauss->SetMaximum(Ymax);
-//  sigmaslicebGauss->SetMinimum(Ymin);
-//  sigmaslicebGauss->SetMarkerStyle(21);
-//  sigmaslicebGauss->SetMarkerColor(2);
-//
-////   TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   if (doFit)
-////     {
-////       fitfcndgsseb3->SetNpx(500);
-////       fitfcndgsseb3->SetLineWidth(3);
-////       fitfcndgsseb3->SetLineStyle(1);
-////       fitfcndgsseb3->SetLineColor(2);
-////       sigmaslicebGauss->Fit("fitfcndgsseb3","0R");
-////     }
-////   sigmasliceGauss->Draw("E1");
-////   if (doFit)
-////     {
-////       fitfcndgssrms3->DrawClone("same"); 
-////       fitfcndgsse3->DrawClone("same"); 
-////     }
-////   sigmaslicebGauss->Draw("E1same");
-////   if (doFit)
-////     {
-////       fitfcndgssrmsb3->DrawClone("same"); 
-////       fitfcndgsseb3->DrawClone("same"); 
-////     }
-//}
-//
-//void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//					      const unsigned int nbin, const double Ymin, const double Ymax,
-//					      const std::string title, const std::string binning_option, const unsigned int rebin,
-//					      const double fitmin, const double fitmax, const std::string epsname)
-//{
-//  TDirectory* dir = dir1_;
-//  dir->cd();
-//  gStyle->SetOptStat("");
-//  TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
-//  h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
-//
-//  TH1D* meanXslice = new TH1D("meanXslice","MeanXslice",nbin,binxmin,binxmax);
-//  h2->MeanXSlice(meanXslice,binxmin,binxmax,nbin,binning_option);
-//  //meanXslice->Draw("E1");
-//  sigmaslice->Divide(meanXslice);
-//  //sigmaslice->Draw("E1");
-//
-////   TF1 *fitFcnrms3 = new TF1("fitFcnrms3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   fitFcnrms3->SetNpx(500);
-////   fitFcnrms3->SetLineWidth(3);
-////   fitFcnrms3->SetLineStyle(2);
-////   fitFcnrms3->SetLineColor(4);
-////   sigmaslice->Fit("fitFcnrms3","0R");
-//
-//  TH1D* sigmasliceGauss = new TH1D("sigmasliceGauss","Sigmaslice",nbin,binxmin,binxmax);
-//  h2->SigmaGaussSlice(sigmasliceGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname);
-//  sigmasliceGauss->Divide(meanXslice);
-//  sigmasliceGauss->SetTitle(title.c_str());
-//  sigmasliceGauss->SetMaximum(Ymax);
-//  sigmasliceGauss->SetMinimum(Ymin);
-//  sigmasliceGauss->SetMarkerStyle(21);
-//  sigmasliceGauss->SetMarkerColor(4);
-//
-////   TF1 *fitFcne3 = new TF1("fitFcne3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   fitFcne3->SetNpx(500);
-////   fitFcne3->SetLineWidth(3);
-////   fitFcne3->SetLineStyle(1);
-////   fitFcne3->SetLineColor(4);
-////   sigmasliceGauss->Fit("fitFcne3","0R");
-//
-//  dir = dir0_;
-//  dir->cd();
-//  TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmasliceb = new TH1D("sigmasliceb","Sigmasliceb",nbin,binxmin,binxmax);
-//  h2b->SigmaSlice(sigmasliceb,binxmin,binxmax,nbin,binning_option);
-//  sigmasliceb->Divide(meanXslice);
-//
-////   TF1 *fitFcnrmsb3 = new TF1("fitFcnrmsb3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   fitFcnrmsb3->SetNpx(500);
-////   fitFcnrmsb3->SetLineWidth(3);
-////   fitFcnrmsb3->SetLineStyle(2);
-////   fitFcnrmsb3->SetLineColor(2);
-////   sigmasliceb->Fit("fitFcnrmsb3","0R");
-//
-//  TH1D* sigmaslicebGauss = new TH1D("sigmaslicebGauss","Sigmasliceb",nbin,binxmin,binxmax);
-//  h2b->SigmaGaussSlice(sigmaslicebGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname+"b");
-//  sigmaslicebGauss->Divide(meanXslice);
-//  sigmaslicebGauss->SetTitle(title.c_str());
-//  sigmaslicebGauss->SetMaximum(Ymax);
-//  sigmaslicebGauss->SetMinimum(Ymin);
-//  sigmaslicebGauss->SetMarkerStyle(21);
-//  sigmaslicebGauss->SetMarkerColor(2);
-//
-////   TF1 *fitFcneb3 = new TF1("fitFcneb3",(void*)(Comparator::fitFunction_f),binxmin,binxmax,4);
-////   fitFcneb3->SetNpx(500);
-////   fitFcneb3->SetLineWidth(3);
-////   fitFcneb3->SetLineStyle(1);
-////   fitFcneb3->SetLineColor(2);
-////   sigmaslicebGauss->Fit("fitFcneb3","0R");
-//
-//  sigmasliceGauss->Draw("E1");
-////   fitFcnrms3->DrawClone("same"); 
-////   fitFcne3->DrawClone("same"); 
-//  sigmaslicebGauss->Draw("E1same");
-////   fitFcnrmsb3->DrawClone("same"); 
-////   fitFcneb3->DrawClone("same"); 
-//}
-//
+  TH2D *h2_b = (TH2D*) dir->Get(key2);
+  TH2Analyzer TH2Ana_b(h2_b, rebinFactor);
+  TH1D* meanslice=TH2Ana_b.Average();
+
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2, rebinFactor);
+
+  TH1D* ha=TH2Ana.SigmaGauss();
+  ha->Divide(meanslice);
+
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b, rebinFactor);
+
+  TH2D *h2b_b = (TH2D*) dir->Get(key2);
+  TH2Analyzer TH2Anab_b(h2b_b, rebinFactor);
+  TH1D* meansliceb=TH2Anab_b.Average();
+
+  TH1D* hb=TH2Anab.SigmaGauss();
+  hb->Divide(meansliceb);
+
+  Draw(hb,ha,mode);
+  //Draw(meansliceb,meanslice,mode);
+}
+
 //void Comparator::DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const unsigned int binxmin, const unsigned int binxmax,
 //					     const unsigned int nbin, const double Ymin, const double Ymax,
 //					     const std::string title, const std::string binning_option, const unsigned int rebin,
