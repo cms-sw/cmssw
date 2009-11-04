@@ -1,5 +1,5 @@
-#ifndef Utilities_EDMException_h
-#define Utilities_EDMException_h
+#ifndef FWCore_Utilities_EDMException_h
+#define FWCore_Utilities_EDMException_h
 
 /**
 
@@ -18,9 +18,12 @@
 
 **/
 
-#include "FWCore/Utilities/interface/CodedException.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
+#include <map>
 #include <string>
+
+#define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
+#define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
 
 namespace edm {
   namespace errors {
@@ -66,7 +69,42 @@ namespace edm {
 
   }
 
-  typedef edm::CodedException<edm::errors::ErrorCodes> Exception;
+  class Exception : public cms::Exception {
+  public:
+    typedef errors::ErrorCodes Code;
+
+    explicit Exception(Code category);
+
+    Exception(Code category, std::string const& message);
+
+    Exception(Code category, std::string const& message, cms::Exception const& another);
+
+    Exception(Exception const& other);
+
+    virtual ~Exception() throw();
+
+    Code categoryCode() const { return category_; }
+
+    int returnCode() const { return static_cast<int>(category_); }
+
+    static std::string codeToString(Code);
+
+    typedef std::map<Code, std::string> CodeMap; 
+
+    static void throwThis(Code category,
+			  char const* message0 = "",
+			  char const* message1 = "",
+			  char const* message2 = "",
+			  char const* message3 = "",
+			  char const* message4 = "");
+    static void throwThis(Code category, char const* message0, int intVal, char const* message2 = "");
+  private:
+
+    virtual void rethrow();
+
+    Code category_;
+  };
+
 }
 
 #endif

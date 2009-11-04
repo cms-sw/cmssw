@@ -41,4 +41,64 @@ namespace edm {
     static errors::FilledMap fm;
     setme = &fm.trans_;
   }
+
+
+  /// -------------- implementation details ------------------
+
+  std::string Exception::codeToString(errors::ErrorCodes c) {
+    extern void getCodeTable(CodeMap*&);
+    CodeMap* trans;
+    getCodeTable(trans);
+    CodeMap::const_iterator i(trans->find(c));
+    return i!=trans->end() ? i->second : std::string("UnknownCode");
+  }
+
+
+  Exception::Exception(errors::ErrorCodes aCategory):
+    cms::Exception(codeToString(aCategory)),
+    category_(aCategory) {
+  }
+
+  Exception::Exception(errors::ErrorCodes aCategory, std::string const& message):
+    cms::Exception(codeToString(aCategory),message),
+    category_(aCategory) {
+  }
+
+  Exception::Exception(errors::ErrorCodes aCategory, std::string const& message, cms::Exception const& another):
+    cms::Exception(codeToString(aCategory),message,another),
+    category_(aCategory) {
+  }
+
+  Exception::Exception(Exception const& other):
+    cms::Exception(other),
+    category_(other.category_) {
+  }
+
+  Exception::~Exception() throw() {
+  }
+
+  void
+  Exception::throwThis(errors::ErrorCodes aCategory,
+		       char const* message0,
+		       char const* message1,
+		       char const* message2,
+		       char const* message3,
+		       char const* message4) {
+    Exception e(aCategory, std::string(message0));
+    e << message1 << message2 << message3 << message4;
+    throw e;
+  }
+
+  void
+  Exception::throwThis(errors::ErrorCodes aCategory, char const* message0, int intVal, char const* message1) {
+    Exception e(aCategory, std::string(message0));
+    e << intVal << message1;
+    throw e;
+  }
+
+  void
+  Exception::rethrow() {
+    throw *this;
+  }
+
 }
