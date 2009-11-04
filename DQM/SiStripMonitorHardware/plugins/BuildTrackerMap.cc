@@ -10,14 +10,21 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.2 2009/08/14 09:22:06 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.3 2009/08/19 17:05:29 amagnan Exp $
 //
 
 #include <sstream>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <list>
 #include <algorithm>
 #include <cassert>
+
+#include "TCanvas.h"
+#include "TH1F.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -61,8 +68,6 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
 
   //input file name
   std::string fileName_;
-  //name of the tkHistoMap to extract
-  std::vector<std::string> tkHistoMapNameVec_;
   //do mechanical view or not
   bool mechanicalView_;
   //folder name for histograms in DQMStore
@@ -72,8 +77,13 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
 
   std::vector<TkHistoMap*> tkHistoMapVec_;
 
+  //name of the tkHistoMap to extract
+  std::vector<std::string> tkHistoMapNameVec_;
+  std::vector<double> minVal_;
+  std::vector<double> maxVal_;
+
   edm::ParameterSet pset_;
-  TrackerMap * tkmap_;
+  std::vector<TrackerMap*> tkmap_;
 
 };
 
@@ -84,10 +94,12 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
 
 BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
   : fileName_(iConfig.getUntrackedParameter<std::string>("InputFileName","DQMStore.root")),
-    tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
     mechanicalView_(iConfig.getUntrackedParameter<bool>("MechanicalView",true)),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","DQMData/")),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
+    tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
+    minVal_(iConfig.getUntrackedParameter<std::vector<double> >("MinValueVec")),
+    maxVal_(iConfig.getUntrackedParameter<std::vector<double> >("MaxValueVec")),
     pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 
@@ -122,17 +134,116 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 void BuildTrackerMapPlugin::read(bool aMechView){
 
   edm::Service<DQMStore>().operator->()->open(fileName_);  
+  TkHistoMap *tkHistoMap[6];
 
-  for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
+  unsigned int nHists = tkHistoMapNameVec_.size();
+  assert (nHists <= 6);
+  assert (nHists >= 4);
 
-    TkHistoMap *tkHistoMap = new TkHistoMap();
-    tkHistoMap->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),aMechView);
+  for (unsigned int i(0); i<nHists; i++){
+
+    tkHistoMap[i] = new TkHistoMap();
+    tkHistoMap[i]->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),aMechView);
     
-    tkHistoMapVec_.push_back(tkHistoMap);
+    tkHistoMapVec_.push_back(tkHistoMap[i]);
   }
 
   std::cout << "Maps read with success." << std::endl;
- 	    
+
+  //get list of detid for which |deltaRMS(APV0-APV1)|>1
+  unsigned int lHistoNumber = 35;
+  TkDetMap lTkDetMap;
+  std::ofstream list,listRms0,listRms1;
+  list.open("./cmBadModuleList.dat",std::ios::out);
+  listRms0.open("./cmBadModuleList_rms0.dat",std::ios::out);
+  listRms1.open("./cmBadModuleList_rms1.dat",std::ios::out);
+  if (!list || !listRms0 || !listRms1) {
+    std::cout << "Warning, can't open output file to write bad module list !" << std::endl;
+    exit(1);
+  }
+
+  TCanvas *lCan = new TCanvas("lCan","",1);
+  TH1F *p_deltaMean = new TH1F("p_deltaMean",";CM_{mean}(APV0)-CM_{mean}(APV1)",500,-2,2);
+  TH1F *p_deltaRMS = new TH1F("p_deltaRMS",";CM_{RMS}(APV0)-CM_{RMS}(APV1)",500,0,3);
+  TH1F *p_MeanAPV0 = new TH1F("p_MeanAPV0",";CM_{mean}(APV0)",500,100,140);
+  TH1F *p_MeanAPV1 = new TH1F("p_MeanAPV1",";CM_{mean}(APV1)",500,100,140);
+  TH1F *p_RMSAPV0 = new TH1F("p_RMSAPV0",";CM_{RMS}(APV0)",500,0,10);
+  TH1F *p_RMSAPV1 = new TH1F("p_RMSAPV1",";CM_{RMS}(APV1)",500,0,10);
+
+
+
+  gStyle->SetOptStat(1111111);
+
+  for(unsigned int layer=1;layer<lHistoNumber;++layer){
+    std::vector<uint32_t> dets;
+    lTkDetMap.getDetsForLayer(layer,dets);
+    for(size_t i=0;i<dets.size();++i){
+      if(dets[i]>0){
+	//if(tkHistoMap[5]->getEntries(dets[i])>0 && tkHistoMap[5]->getValue(dets[i])) {
+	if(nHists > 5){
+	  if (tkHistoMap[5]->getValue(dets[i]) > 1) {
+	    list << dets[i] << " " << tkHistoMap[5]->getValue(dets[i]) << std::endl;
+	  }
+	p_deltaRMS->Fill(tkHistoMap[5]->getValue(dets[i]));
+	}
+	p_MeanAPV0->Fill(tkHistoMap[0]->getValue(dets[i]));
+	p_MeanAPV1->Fill(tkHistoMap[1]->getValue(dets[i]));
+	p_RMSAPV0->Fill(tkHistoMap[2]->getValue(dets[i]));
+	if (tkHistoMap[2]->getValue(dets[i]) > 2)
+	  listRms0 << dets[i] << " " << tkHistoMap[2]->getValue(dets[i]) << std::endl;
+	p_RMSAPV1->Fill(tkHistoMap[3]->getValue(dets[i]));
+	if (tkHistoMap[3]->getValue(dets[i]) > 2)
+	  listRms1 << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
+
+	if(nHists > 4) p_deltaMean->Fill(tkHistoMap[4]->getValue(dets[i]));
+      }
+    }
+  }
+  list.close();
+  listRms0.close();
+  listRms1.close();
+
+  lCan->cd();
+  p_deltaRMS->Draw();
+  //lCan->Print("./deltaRMStotal.png");
+  lCan->Print("./deltaRMStotal.C");
+
+  p_deltaMean->Draw();
+  lCan->Update();
+  lCan->Print("./deltaMeantotal.C");
+
+  TPaveStats *statBox[2] = {0,0};  
+  statBox[0] = (TPaveStats*)p_MeanAPV0->FindObject("stats");
+  statBox[1] = (TPaveStats*)p_MeanAPV1->FindObject("stats");
+
+  p_MeanAPV0->Draw();
+  p_MeanAPV1->SetLineColor(2);
+  p_MeanAPV1->Draw("same");
+  if (statBox[0]) statBox[0]->Draw("same");
+  if (statBox[1]) { 
+    statBox[1]->SetLineColor(2);
+    statBox[1]->SetTextColor(2);
+    statBox[1]->Draw("same");
+  }
+  lCan->Update();
+  lCan->Print("./meanAPVstotal.C");
+
+  statBox[0] = (TPaveStats*)p_RMSAPV0->FindObject("stats");
+  statBox[1] = (TPaveStats*)p_RMSAPV1->FindObject("stats");
+
+  p_RMSAPV0->Draw();
+  p_RMSAPV1->SetLineColor(2);
+  p_RMSAPV1->Draw("same");
+  if (statBox[0]) statBox[0]->Draw("same");
+  if (statBox[1]) { 
+    statBox[1]->SetLineColor(2);
+    statBox[1]->SetTextColor(2);
+    statBox[1]->Draw("same");
+  }
+  lCan->Update();
+  lCan->Print("./rmsAPVstotal.C");
+
+
 }
 
 
@@ -147,9 +258,16 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
   edm::ESHandle<SiStripFedCabling> fedcabling;
   iSetup.get<SiStripFedCablingRcd>().get(fedcabling );
   
-  if (firstEvent) tkmap_ = new TrackerMap(pset_,fedcabling);
+  if (firstEvent) {
+    for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
+      tkmap_.push_back(new TrackerMap(pset_,fedcabling));
+    }
+
+  }
 
   firstEvent = false;
+
+  std::cout << "End of analyze method: tkmap_ size = " << tkmap_.size() << std::endl;
 
 }//analyze method
 
@@ -157,6 +275,7 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
 void 
 BuildTrackerMapPlugin::beginJob(const edm::EventSetup&)
 {
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -167,19 +286,39 @@ BuildTrackerMapPlugin::endJob()
   //iSetup.get<SiStripFedCablingRcd>().get(pDD1);
   std::cout << "Processing endjob with " << tkHistoMapNameVec_.size()<< " elements." << std::endl;
 
+  assert (minVal_.size() == tkHistoMapNameVec_.size());
+  assert (maxVal_.size() == tkHistoMapNameVec_.size());
+
   for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
 
     std::cout << "Processing element " << i << ": " << tkHistoMapNameVec_.at(i) << std::endl;
-    
+    std::cout << "Min, max = " << minVal_.at(i) << " " << maxVal_.at(i) << std::endl;
+
+    TrackerMap* lTkMap = tkmap_.at(i);
+
+    if (!lTkMap) {
+      std::cout << "tkmap_ is NULL for element " << i << "... continuing ..." << std::endl;
+      continue;
+    }
+
     //(pset_,pDD1); 
-    tkmap_->setPalette(1);
-    tkmap_->showPalette(1);
-    tkHistoMapVec_.at(i)->dumpInTkMap(tkmap_);
-    tkmap_->printall(true,0,255,"tmap");
-    tkmap_->save(true,0,0,tkHistoMapNameVec_.at(i)+std::string(".png"));
-    tkmap_->save_as_fedtrackermap(true,0,0,tkHistoMapNameVec_.at(i)+std::string("_FED.png"));
+    lTkMap->setPalette(1);
+    lTkMap->showPalette(1);
+    tkHistoMapVec_.at(i)->dumpInTkMap(lTkMap);
+
+    //to print all figures to create fancy view
+    //lTkMap->printall(true,0,255,tkHistoMapNameVec_.at(i));
+    lTkMap->save(true,
+		 minVal_.at(i),
+		 maxVal_.at(i),
+		 tkHistoMapNameVec_.at(i)+std::string(".png"));
+    lTkMap->save_as_fedtrackermap(true,
+				  minVal_.at(i),
+				  maxVal_.at(i),
+				  tkHistoMapNameVec_.at(i)+std::string("_FED.png"));
 
   }
+
 
 }
 

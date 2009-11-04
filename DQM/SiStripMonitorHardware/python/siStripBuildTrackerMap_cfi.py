@@ -6,6 +6,8 @@ siStripBuildTrackerMap = cms.EDAnalyzer(
     InputFileName = cms.untracked.string('DQMStore.root'),
     #name of tkHistoMap to dump
     TkHistoMapNameVec = cms.untracked.vstring('TkHMap_MeanCMAPV0','TkHMap_MeanCMAPV1','TkHMap_MeanCMAPV0minusAPV1','TkHMap_RmsCMAPV0','TkHMap_RmsCMAPV1','TkHMap_RmsCMAPV0minusAPV1'),
+    MinValueVec = cms.untracked.vdouble(120,120,-20,0,0,0),
+    MaxValueVec = cms.untracked.vdouble(140,140,20,10,10,10),
     MechanicalView = cms.untracked.bool(True),
     #Name of top folder (SiStrip/MechanicalView appended automatically)
     HistogramFolderName = cms.untracked.string('DQMData/'),

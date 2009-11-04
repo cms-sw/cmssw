@@ -95,18 +95,21 @@ private:
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
 
+  MonitorElement *nFEDErrorsvsTime_;
+  MonitorElement *nFEDCorruptBuffersvsTime_;
+  MonitorElement *nFEDsWithFEProblemsvsTime_;
+
+  MonitorElement *nTotalBadChannels_;
+  MonitorElement *nTotalBadActiveChannels_;
+
+  MonitorElement *nTotalBadChannelsvsTime_;
+  MonitorElement *nTotalBadActiveChannelsvsTime_;
+
   MonitorElement *nAPVStatusBit_;
   MonitorElement *nAPVError_;
   MonitorElement *nAPVAddressError_;
   MonitorElement *nUnlocked_;
   MonitorElement *nOutOfSync_;
-
-  MonitorElement *nTotalBadChannelsvsTime_;
-  MonitorElement *nTotalBadActiveChannelsvsTime_;
-
-  MonitorElement *nFEDErrorsvsTime_;
-  MonitorElement *nFEDCorruptBuffersvsTime_;
-  MonitorElement *nFEDsWithFEProblemsvsTime_;
 
   MonitorElement *nAPVStatusBitvsTime_;
   MonitorElement *nAPVErrorvsTime_;

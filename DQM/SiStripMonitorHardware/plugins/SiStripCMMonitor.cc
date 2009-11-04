@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.6 2009/08/12 16:13:58 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.7 2009/09/07 09:33:18 amagnan Exp $
 //
 
 #include <sstream>
@@ -534,7 +534,7 @@ void SiStripCMMonitorPlugin::fillMaps(uint32_t aDetId, unsigned short aChInModul
 {
 
   if (doTkHistoMap_){//if TkHistMap is enabled
-    std::pair<std::map<unsigned int,Statistics>::iterator,bool> alreadyThere[2];
+    std::pair<std::map<unsigned int,Statistics>::iterator,bool> alreadyThere[3];
 
     Statistics lStat;
     lStat.Mean = aMedians.first*1./aChInModule;
@@ -563,11 +563,11 @@ void SiStripCMMonitorPlugin::fillMaps(uint32_t aDetId, unsigned short aChInModul
     lStat.Rms = (aMedians.first-aMedians.second)*(aMedians.first-aMedians.second)*1./aChInModule;
     lStat.Counter = 1./aChInModule;
 
-    alreadyThere[0] = CommonModesAPV0minusAPV1_.insert(std::pair<unsigned int,Statistics>(aDetId,lStat));
-    if (!alreadyThere[0].second) {
-      ((alreadyThere[0].first)->second).Mean += (aMedians.first-aMedians.second)*1./aChInModule;
-      ((alreadyThere[0].first)->second).Rms += (aMedians.first-aMedians.second)*(aMedians.first-aMedians.second)*1./aChInModule;
-      ((alreadyThere[0].first)->second).Counter += 1./aChInModule;
+    alreadyThere[2] = CommonModesAPV0minusAPV1_.insert(std::pair<unsigned int,Statistics>(aDetId,lStat));
+    if (!alreadyThere[2].second) {
+      ((alreadyThere[2].first)->second).Mean += (aMedians.first-aMedians.second)*1./aChInModule;
+      ((alreadyThere[2].first)->second).Rms += (aMedians.first-aMedians.second)*(aMedians.first-aMedians.second)*1./aChInModule;
+      ((alreadyThere[2].first)->second).Counter += 1./aChInModule;
     }
 
   }

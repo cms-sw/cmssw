@@ -58,19 +58,23 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("nFEDsWithMissingFEs",iConfig,pDebugStream);
   getConfigForHistogram("nFEDsWithFEBadMajorityAddresses",iConfig,pDebugStream);
 
+  getConfigForHistogram("nFEDErrorsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDCorruptBuffersvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDsWithFEProblemsvsTime",iConfig,pDebugStream);
+
   getConfigForHistogram("nUnconnectedChannels",iConfig,pDebugStream);
+
+  getConfigForHistogram("nTotalBadChannels",iConfig,pDebugStream);
+  getConfigForHistogram("nTotalBadActiveChannels",iConfig,pDebugStream);
+
+  getConfigForHistogram("nTotalBadChannelsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nTotalBadActiveChannelsvsTime",iConfig,pDebugStream);
 
   getConfigForHistogram("nAPVStatusBit",iConfig,pDebugStream);
   getConfigForHistogram("nAPVError",iConfig,pDebugStream);
   getConfigForHistogram("nAPVAddressError",iConfig,pDebugStream);
   getConfigForHistogram("nUnlocked",iConfig,pDebugStream);
   getConfigForHistogram("nOutOfSync",iConfig,pDebugStream);
-
-  getConfigForHistogram("nTotalBadChannelsvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nTotalBadActiveChannelsvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDErrorsvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDCorruptBuffersvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDsWithFEProblemsvsTime",iConfig,pDebugStream);
 
   getConfigForHistogram("nAPVStatusBitvsTime",iConfig,pDebugStream);
   getConfigForHistogram("nAPVErrorvsTime",iConfig,pDebugStream);
@@ -98,20 +102,23 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
   fillHistogram(nBadChannelStatusBits_,fedLevelCounters.nBadChannels);
   fillHistogram(nBadActiveChannelStatusBits_,fedLevelCounters.nBadActiveChannels);
 
+  fillHistogram(nFEDErrorsvsTime_,aTime,fedLevelCounters.nFEDErrors);
+  fillHistogram(nFEDCorruptBuffersvsTime_,aTime,fedLevelCounters.nCorruptBuffers);
+  fillHistogram(nFEDsWithFEProblemsvsTime_,aTime,fedLevelCounters.nFEDsWithFEProblems);
+
   fillHistogram(nUnconnectedChannels_,chLevelCounters.nNotConnected);
+
+  fillHistogram(nTotalBadChannels_,fedLevelCounters.nTotalBadChannels);
+  fillHistogram(nTotalBadActiveChannels_,fedLevelCounters.nTotalBadActiveChannels);
+
+  fillHistogram(nTotalBadChannelsvsTime_,aTime,fedLevelCounters.nTotalBadChannels);
+  fillHistogram(nTotalBadActiveChannelsvsTime_,aTime,fedLevelCounters.nTotalBadActiveChannels);
   
   fillHistogram(nAPVStatusBit_,chLevelCounters.nAPVStatusBit);
   fillHistogram(nAPVError_,chLevelCounters.nAPVError);
   fillHistogram(nAPVAddressError_,chLevelCounters.nAPVAddressError);
   fillHistogram(nUnlocked_,chLevelCounters.nUnlocked);
   fillHistogram(nOutOfSync_,chLevelCounters.nOutOfSync);
-
-  fillHistogram(nTotalBadChannelsvsTime_,aTime,fedLevelCounters.nTotalBadChannels);
-  fillHistogram(nTotalBadActiveChannelsvsTime_,aTime,fedLevelCounters.nTotalBadActiveChannels);
-
-  fillHistogram(nFEDErrorsvsTime_,aTime,fedLevelCounters.nFEDErrors);
-  fillHistogram(nFEDCorruptBuffersvsTime_,aTime,fedLevelCounters.nCorruptBuffers);
-  fillHistogram(nFEDsWithFEProblemsvsTime_,aTime,fedLevelCounters.nFEDsWithFEProblems);
 
   fillHistogram(nAPVStatusBitvsTime_,aTime,chLevelCounters.nAPVStatusBit);
   fillHistogram(nAPVErrorvsTime_,aTime,chLevelCounters.nAPVError);
@@ -366,14 +373,25 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 				  "#APVs with APVAddressError");
 
   nUnlocked_ = bookHistogram("nUnlocked",
-			   "nUnlocked",
-			   "Number of channels Unlocked per event",
-			   "# channels unlocked");
+			     "nUnlocked",
+			     "Number of channels Unlocked per event",
+			     "# channels unlocked");
 
   nOutOfSync_ = bookHistogram("nOutOfSync",
-			    "nOutOfSync",
-			    "Number of channels OutOfSync per event",
-			    "# channels out-of-sync");
+			      "nOutOfSync",
+			      "Number of channels OutOfSync per event",
+			      "# channels out-of-sync");
+
+  nTotalBadChannels_ = bookHistogram("nTotalBadChannels",
+				     "nTotalBadChannels",
+				     "Number of channels with any error",
+				     "Total # bad enabled channels");
+
+  nTotalBadActiveChannels_ = bookHistogram("nTotalBadActiveChannels",
+					   "nTotalBadActiveChannels",
+					   "Number of active channels with any error",
+					   "Total # bad active channels");
+
 
   nTotalBadChannelsvsTime_ = bookProfile("nTotalBadChannelsvsTime",
 					 "nTotalBadChannelsvsTime",
