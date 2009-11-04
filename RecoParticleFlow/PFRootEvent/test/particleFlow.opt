@@ -508,6 +508,12 @@ pfmet_benchmark trueMetSpecificEtaCut 2.4
 
 pfCandidate_benchmark on/off		1
 pfCandidate_benchmark subdirectory	Currently_not_used
+pfCandidate_benchmark dRMax		0.2
+pfCandidate_benchmark ptMin		2
+pfCandidate_benchmark matchCharge	1
+// mode = 0 (default), 1(light), 2(heavy)
+pfCandidate_benchmark mode		0
+
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 
