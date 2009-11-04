@@ -6,7 +6,8 @@
 #include <sstream>
 #include <cctype>
 #include <time.h>
-#include <boost/cstdint.hpp>
+#include "boost/cstdint.hpp"
+#include "boost/lexical_cast.hpp"
 
 using namespace std;
 
