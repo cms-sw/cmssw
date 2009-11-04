@@ -21,11 +21,24 @@ HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
     std::string name1 = tempstringout.str() + "_peddifplots_1d.png";
     std::string name2 = tempstringout.str() + "_peddifplots_2d.png";
     std::string name3 = tempstringout.str() + "_peddifs.root";
-   TFile * theFile = new TFile(name3.c_str(),"RECREATE");
-   for(int n = 0; n != 4; n++) {etaphi[n]->Write(); difhist[n]->Write();}
+    TFile * theFile = new TFile(name3.c_str(),"RECREATE");
+    for(int n = 0; n != 4; n++) {etaphi[n]->Write(); difhist[n]->Write();}
 
     TStyle *theStyle = new TStyle("style","null");
-    theStyle->SetPalette(1,0);
+//    theStyle->SetPalette(1,0); Replaced with new palette to set cells with no entry = white
+//  big thanks to Jeff Temple!
+    const Int_t NRGBs= 6;
+    const Int_t NCont = 255; //??  Maybe smaller number?
+    Double_t stops[NRGBs]={0.00, 0.49,0.499,0.501,0.51,1.00};
+    Double_t blue[NRGBs]={1.0, 0.0, 1.0, 1.0,0.0,0.0};
+    Double_t green[NRGBs]={0.0,1.0,1.0,1.0,1.0,0.0};
+    Double_t red[NRGBs]={0.0,0.0,1.0,1.0,0.0,1.0};
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+
+   // You need to do the TColor command twice, or else the existing color scheme doesn't get replaced with your new table
+
+    theStyle->SetNumberContours(NCont);
     theStyle->SetCanvasDefH(1200); //Height of canvas
     theStyle->SetCanvasDefW(1600); //Width of canvas
 
@@ -49,15 +62,23 @@ HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
     TCanvas * c2 = new TCanvas("c2","graph",1);
     c2->Divide(2,2);
     c2->cd(1);
+    etaphi[0]->SetMinimum(-1);
+    etaphi[0]->SetMaximum(1);
     etaphi[0]->Draw();
     etaphi[0]->SetDrawOption("colz");
     c2->cd(2);
+    etaphi[1]->SetMinimum(-1);
+    etaphi[1]->SetMaximum(1);
     etaphi[1]->Draw();
     etaphi[1]->SetDrawOption("colz");
     c2->cd(3);
+    etaphi[2]->SetMinimum(-1);
+    etaphi[2]->SetMaximum(1);
     etaphi[2]->Draw();
     etaphi[2]->SetDrawOption("colz");
     c2->cd(4);
+    etaphi[3]->SetMinimum(-1);
+    etaphi[3]->SetMaximum(1);
     etaphi[3]->Draw();
     etaphi[3]->SetDrawOption("colz");
     c2->SaveAs(name2.c_str());
@@ -93,8 +114,9 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
          DetId mydetid = *it;
+ 	 HcalGenericDetId mygenid(it->rawId());
+         if(!mygenid.isHcalDetId()) continue;
          HcalDetId hocheck(mydetid);
-//         if(hocheck.subdet()==3) continue;
          cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
          if (cell == listNewChan.end())
             {
@@ -116,7 +138,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
                if(hocheck.subdet()==3) continue;
                if( (fabs(*oldvalue-*values)>epsilon) || (fabs(*(oldvalue+1)-*(values+1))>epsilon) || (fabs(*(oldvalue+2)-*(values+2))>epsilon) || (fabs(*(oldvalue+3)-*(values+3))>epsilon) ){
 // 	       throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaP";
-               std::cout << HcalGenericDetId(mydetid.rawId()) << std::endl;
+               std::cout << HcalGenericDetId(mydetid.rawId()) << " has changed by "<< avgchange << std::endl;
                failflag = true;
                const HcalPedestal* item = myNewPeds->getValues(mydetid);
                changedchannels->addValues(*item);
@@ -149,6 +171,8 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
              listChangedChan.erase(cell);  // fix 25.02.08
            }
        }
+
+     std::cout << std::endl;
  
      std::vector<DetId> listResult = resultPeds->getAllChannels();
      // get the e-map list of channels
@@ -160,9 +184,11 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
        {
    	  DetId mydetid = DetId(it->rawId());
  	HcalGenericDetId mygenid(it->rawId());
+            if(!mygenid.isHcalDetId()) continue;
  	//	std::cout << "id = " << mygenid << ", hashed id = " << mygenid.hashedId() << std::endl;
  	if (std::find(listResult.begin(), listResult.end(), mydetid ) == listResult.end())
  	  {
+//            if(!mygenid.isHcalId()) continue;
  	    std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;
  	  }
        }
