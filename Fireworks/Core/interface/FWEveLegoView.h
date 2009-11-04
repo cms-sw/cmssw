@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.17 2009/09/18 09:49:43 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.18 2009/11/03 16:56:38 amraktad Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
+#include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
@@ -74,6 +75,7 @@ private:
    void setMinHcalEnergy(double);
    void setCameras();
    void setAutoRebin();
+   void setPixelsPerBin();
    void showScales();
    
    // ---------- member data --------------------------------
@@ -90,6 +92,7 @@ private:
    //double m_minEcalEnergyInit;
    //double m_minHcalEnergyInit;
    FWBoolParameter m_autoRebin;
+   FWDoubleParameter m_pixelsPerBin;
    FWBoolParameter m_showScales;
 
    TGLMatrix*  m_cameraMatrix;

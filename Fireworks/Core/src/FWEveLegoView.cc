@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.62 2009/10/26 21:19:25 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.63 2009/11/03 16:56:39 amraktad Exp $
 //
 
 // system include files
@@ -76,6 +76,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_lego(0),
    m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom",true),
+   m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_showScales(this,"Show scales",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
@@ -99,6 +100,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
+   m_pixelsPerBin.changed_.connect(boost::bind(&FWEveLegoView::setPixelsPerBin,this));
    m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
@@ -262,6 +264,15 @@ FWEveLegoView::setAutoRebin()
 {
    if(m_lego) {
       m_lego->SetAutoRebin(m_autoRebin.value());
+      m_lego->ElementChanged(kTRUE,kTRUE);
+   }
+}
+
+void
+FWEveLegoView::setPixelsPerBin()
+{
+   if(m_lego) {
+      m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
       m_lego->ElementChanged(kTRUE,kTRUE);
    }
 }
