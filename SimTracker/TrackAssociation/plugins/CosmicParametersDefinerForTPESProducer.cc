@@ -45,7 +45,7 @@ CosmicParametersDefinerForTPESProducer::~CosmicParametersDefinerForTPESProducer(
 CosmicParametersDefinerForTPESProducer::ReturnType
 CosmicParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  std::auto_ptr<ParametersDefinerForTP> parametersDefiner_ (new CosmicParametersDefinerForTP());
+  ReturnType parametersDefiner_ (new CosmicParametersDefinerForTP());
   return parametersDefiner_ ;
 }
 

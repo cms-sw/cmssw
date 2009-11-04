@@ -19,8 +19,6 @@ class  CosmicParametersDefinerForTPESProducer: public edm::ESProducer{
   virtual ~CosmicParametersDefinerForTPESProducer(); 
   boost::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
- private:
-  boost::shared_ptr<ParametersDefinerForTP> parametersDefiner_;
 };
 
 

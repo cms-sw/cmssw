@@ -45,7 +45,7 @@ ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer()
 ParametersDefinerForTPESProducer::ReturnType
 ParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  std::auto_ptr<ParametersDefinerForTP> parametersDefiner_ (new ParametersDefinerForTP());
+  ReturnType parametersDefiner_ (new ParametersDefinerForTP());
   return parametersDefiner_ ;
 }
 
