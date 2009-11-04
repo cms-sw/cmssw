@@ -154,6 +154,7 @@ void TH2Analyzer::ProcessSlices( const TH2D* histo) {
     //std::cout << "meanXslice_->GetBinError(" << i << ") = "
     //	      << meanXslice_->GetBinError(i) << std::endl;
     ProcessSlice(i, proj );
+    delete proj;
   }
 
   TH1::AddDirectory(1);
