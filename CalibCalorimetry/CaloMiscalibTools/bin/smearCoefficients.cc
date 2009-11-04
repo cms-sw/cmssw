@@ -7,6 +7,9 @@
 #include <string>
 #include <sstream>
 #include "TRandom.h"
+#include "TH1F.h"
+#include "TFile.h"
+
 
 using namespace std;
 
@@ -17,12 +20,16 @@ void usage(){
   cout << "Read coefficients from  [infile] in xml format,"
        << " smear with a gaussian of mean 1 and sigma" 
        << "[barrelsmear]/[endcapsmear] and write to [outfile]" << endl;
+  cout << "An histogram of the ratio is written in histo.root" << endl;
   cout << "Use EcalCondDB.py to dump constant sets" << endl;
 }
 
 
 int main(int argc, char* argv[]){
 
+  TH1F ebh("eb","eb",30,0.7,1.3);
+  TH1F eeh("ee","ee",30,0.7,1.3);
+ 
   if (argc!=5) {
     usage();
     exit(0);
@@ -68,6 +75,7 @@ int main(int argc, char* argv[]){
     uint32_t rawid = EBDetId::unhashIndex(cellid);
     float smearing = rnd.Gaus(1,smeareb);
     rcd[rawid]= rcd[rawid]*smearing;
+    ebh.Fill(smearing);
   } 
 
     
@@ -84,11 +92,15 @@ int main(int argc, char* argv[]){
       uint32_t rawid = EEDetId::unhashIndex(cellid);
       float smearing = rnd.Gaus(1,smearee);
       rcd[rawid]= rcd[rawid]*smearing;
-
+      eeh.Fill(smearing);
     } // if
   } 
 
 
   EcalIntercalibConstantsXMLTranslator::writeXML(outfile,h,rcd);
   
+  TFile f("histo.root","recreate");
+  ebh.Write();
+  eeh.Write();
+
 }
