@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <vector>
 #include "zlib.h"
+#include <cstring>
 
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"

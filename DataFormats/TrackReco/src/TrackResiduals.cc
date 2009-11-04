@@ -2,6 +2,7 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include <cstdio>
+#include <cstring>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

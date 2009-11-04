@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.23 2009/10/21 16:48:02 cplager Exp $
+// $Id: Event.h,v 1.24 2009/10/23 20:07:20 wdd Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -25,6 +25,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <memory>
+#include <cstring>
 
 #include "TBranch.h"
 #include "Rtypes.h"

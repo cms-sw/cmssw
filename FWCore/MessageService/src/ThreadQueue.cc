@@ -7,6 +7,7 @@
 // 
 
 #include "FWCore/MessageService/interface/ThreadQueue.h"
+#include <cstring>
 
 namespace edm {
 namespace service {

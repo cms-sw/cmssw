@@ -11,6 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include <cstring>
 
 using namespace std;
 using namespace edm;
