@@ -54,7 +54,7 @@ namespace popcon {
     
     class Ref {
     public:
-      Ref() : m_dbsession(0){}
+      Ref() : m_dbsession(){}
       Ref(cond::DbSession& dbsession, std::string token) : 
         m_dbsession(dbsession){
 	      m_dbsession.transaction().start(true);
@@ -75,7 +75,7 @@ namespace popcon {
         m_dbsession = ref.m_dbsession;
         m_dw = ref.m_dw;
         m_d = ref.m_d;
-        ref.m_dbsession=0; // avoid commit;
+        //ref.m_dbsession=0; // avoid commit;
         return *this;
       }
       
