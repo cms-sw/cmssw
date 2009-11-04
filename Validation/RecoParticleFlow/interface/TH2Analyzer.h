@@ -22,14 +22,15 @@ class TH2Analyzer : public TObject {
     Eval(rebin);
   }
 
-  TH2Analyzer( const TH2* h, const int binxmin, const int binxmax, const int rebin) : 
+  TH2Analyzer( const TH2* h, const int binxmin, const int binxmax,
+	       const int rebin, const bool cst_binning=true) : 
     hist2D_(h), 
     rebinnedHist2D_(0),
     average_(0),
     RMS_(0),
     sigmaGauss_(0),
     meanXslice_(0) {
-    Eval(rebin, binxmin, binxmax);
+    Eval(rebin, binxmin, binxmax, cst_binning);
   } 
 
   ~TH2Analyzer() {Reset(); }
@@ -39,7 +40,8 @@ class TH2Analyzer : public TObject {
   void SetHisto( const TH2* h ) {hist2D_ = h;}
 
   void Eval(const int rebinFactor);
-  void Eval(const int rebinFactor, const int binxmin, const int binxmax);
+  void Eval(const int rebinFactor, const int binxmin, const int binxmax,
+	    const bool cst_binning);
   
   TH1D* Average() { return average_; }
   TH1D* RMS() { return RMS_; }

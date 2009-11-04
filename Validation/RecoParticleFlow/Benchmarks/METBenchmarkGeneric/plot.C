@@ -111,7 +111,6 @@
 
   comp.SetStyles(style1, style2, "Particle Flow Met", "Calo Met");
   mode = Comparator::SCALE;
-//comp.DrawMeanSlice("DeltaEtOverEtvsEt", 0, 200, 10, -0.4, 0.4,"MET response;trueMET", "cst");
 
   TCanvas c6("c6", "genMET");
   Styles::FormatPad( &c6, false );
@@ -164,16 +163,14 @@
 
   TCanvas c13("c13", "sigmaMET_MET");
   Styles::FormatPad( &c13, false );
-//comp.DrawGaussSigmaOverMeanXSlice("DeltaEtvsEt", 20, 200, 9, 0.0, 1.1, "Sigma(DeltaMET)/MET;trueMET", "var", 5, -100.0,100.0,"SigmaOverMeanGaussSlice");
-  comp.DrawGaussSigmaOverMeanXSlice("DeltaEtvsEt", 20, 21, 200, true, mode);
+  comp.DrawGaussSigmaOverMeanXSlice("DeltaEtvsEt", 20, 21, 200, false, mode);
   Styles::SavePlot("sigmaMET_MET", outdir.c_str() );
 
   TCanvas c14b("c14b", "sigmaPhi");
   Styles::FormatPad( &c14b, false );
-//comp.DrawGaussSigmaSlice("DeltaPhivsEt", 20, 200, 5, 0.0, 1.3, "Sigma(DeltaPhi);trueMET", "var", 5, -1.0,1.0,"SigmaGaussSlice",true);
-  comp.DrawGaussSigmaSlice("DeltaPhivsEt", 30, 21, 200, true, mode);
+  comp.DrawGaussSigmaSlice("DeltaPhivsEt", 30, 21, 200, false, mode);
   Styles::SavePlot("sigmaPhib", outdir.c_str() );
 
-//// mode = Comparator::SCALE;
+// mode = Comparator::SCALE;
 
 }
