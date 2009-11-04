@@ -289,5 +289,5 @@ def l3seeds(tsg = "old"):
                               
 )
                                      
-hltL3TrajectorySeed = l3seeds("OIHit")
+hltL3TrajectorySeed = l3seeds("OIState")
 
