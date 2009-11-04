@@ -60,8 +60,8 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
 
     virtual std::string extractFileName(std::string fullname);
 
-    virtual std::string & parent();
-    virtual std::string& self();
+    virtual const std::string & parent() const;
+    virtual const std::string& self() const;
 
     // -----------------------------------------------------------------------
     //  Dump information on number and name of elements processed.
@@ -75,8 +75,9 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
     //  Map that holds name and number of elements processed.
     std::map < std::string, int> elementTypeCounter_;
     //  std::vector < std::string > names_;
-    std::map < std::string, std::string* > namesMap_;
-    std::vector < std::string* > names_;
+    //    std::map < std::string, std::string* > namesMap_;
+    std::vector<std::string> namesMap_;
+    std::vector<size_t> names_;
 };
 
 #endif

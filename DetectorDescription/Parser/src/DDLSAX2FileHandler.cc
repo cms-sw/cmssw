@@ -38,10 +38,8 @@
 DDLSAX2FileHandler::DDLSAX2FileHandler()
 {
   createDDConstants();
-  std::string* sp = new std::string("*** root ***");
-  namesMap_[*sp] = sp;
-  names_.push_back(sp);
-  
+  namesMap_.push_back("*** root ***");
+  names_.push_back(namesMap_.size() - 1);
 }
 
 DDLSAX2FileHandler::~DDLSAX2FileHandler()
@@ -58,20 +56,18 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
   
-  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(StrX(qname).localForm()));
-  std::string* nameInt;
-  if (namePtr != namesMap_.end())
-    {
-      nameInt = namePtr->second;
-    }
-  else
-    {
-      std::string * sp = new std::string(StrX(qname).localForm());
-      nameInt = sp;
-      namesMap_[*sp] = nameInt;
-    }
-  names_.push_back(nameInt);
   std::string myElementName(StrX(qname).localForm());
+  size_t i = 0;
+  for ( ; i < namesMap_.size(); ++i) {
+    if ( myElementName == namesMap_.at(i) ) {
+      names_.push_back(i);
+      break;
+    }
+  }
+  if (i >= namesMap_.size()) {
+    namesMap_.push_back(myElementName);
+    names_.push_back(namesMap_.size() - 1);
+  }
 
   ++elementTypeCounter_[myElementName];
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
@@ -97,7 +93,7 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
 				    , const XMLCh* const localname
 				    , const XMLCh* const qname)
 {
-  std::string myElementName = *(names_.back());
+  std::string myElementName = namesMap_.at(names_.at(names_.size() -1));
 
   DCOUT_V('P', "DDLSAX2FileHandler::endElement started");
   DCOUT_V('P', "    " + myElementName);
@@ -125,7 +121,7 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
   DCOUT_V('P', "DDLSAX2FileHandler::characters started");
 
   DDXMLElement* myElement = NULL;
-  myElement = DDLElementRegistry::getElement(*(names_.back()));
+  myElement = DDLElementRegistry::getElement(namesMap_.at(names_.at(names_.size() -1)));
 
   std::string inString = "";
   for (unsigned int i = 0; i < length; ++i)
@@ -169,18 +165,18 @@ void DDLSAX2FileHandler::createDDConstants() const
   DDConstant::createConstantsFromEvaluator();
 }
 
-std::string& DDLSAX2FileHandler::parent() 
+const std::string& DDLSAX2FileHandler::parent() const
 {
   if (names_.size() > 1)
     {
-      return *(names_[names_.size() - 2]);
+      return namesMap_.at(names_.size() - 2);
     }
-  return *(names_[0]);
+  return namesMap_[0];
 }
 
-std::string& DDLSAX2FileHandler::self()
+const std::string& DDLSAX2FileHandler::self() const
 {
   if (names_.size() > 2)
-    return *(names_[names_.size() - 1]);
-  return *(names_[0]);
+    return namesMap_.at(names_.size() - 1);
+  return namesMap_[0];
 }
