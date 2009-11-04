@@ -296,7 +296,7 @@ EcalFEtoDigi::beginJob(const edm::EventSetup& setup){
 
   ///check SM numbering convetion: 1-38 
   /// [or -1 flag to indicate all sm's are to be read in]
-  if(sm_!=-1 && sm_<1 || sm_>36) 
+  if(sm_!=-1 && (sm_<1 || sm_>36)) 
     throw cms::Exception("EcalFEtoDigiInvalidDetId") 
       << "EcalFEtoDigi: Adapt SM numbering convention.\n";
 
