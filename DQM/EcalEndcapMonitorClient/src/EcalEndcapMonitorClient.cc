@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/10/27 08:21:10 $
- * $Revision: 1.227 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.228 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,7 +24,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
