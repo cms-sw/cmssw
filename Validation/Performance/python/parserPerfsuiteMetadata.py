@@ -648,7 +648,8 @@ class parserPerfsuiteMetadata:
 
 		main_cores = [result["General"]["run_on_cpus"]]
 		num_cores = result["General"].get("num_cores", 0)
-		print "Number of cores was: %s"%num_cores
+		#DEBUG
+		#print "Number of cores was: %s"%num_cores
 		#TODO: temporarly - search for cores, use regexp
 		main_cores = [1]
 
