@@ -464,7 +464,7 @@ class parserPerfsuiteMetadata:
 			(("", "candle", ), r"""^(Candle|ONLY) (.+) will be PROCESSED$""", "req"),
 			#e.g.: --conditions FrontierConditions_GlobalTag,MC_31X_V4::All --eventcontent RECOSIM
 			(("cms_driver_options", ), r"""^Using user-specified cmsDriver.py options: (.+)$"""),
-			(("", "cms_driver_conditions_tag", "conditions", ""), r"""^Using user-specified cmsDriver.py options: (.*)--conditions ([^,]+),([^\s]+)(.*)$""", "req"),
+			(("", "conditions", ""), r"""^Using user-specified cmsDriver.py options: (.*)--conditions ([^\s]+)(.*)$""", "req"),
 			# for this we cannot guarrantee that it has been found, TODO: we might count the number of pileup candles and compare with arguments
 			(("",  "pileup_type", ""), r"""^Using user-specified cmsDriver.py options:(.*)--pileup=([^\s]+)(.*)$"""),
 			#not shure if event content is required
@@ -483,6 +483,9 @@ class parserPerfsuiteMetadata:
 		for job_lines in jobs:
 			""" we apply the defined parsing rules to extract the required fields of information into the dictionary (as defined in parsing rules) """
 			info = self._applyParsingRules(parsing_rules, job_lines)
+			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now FrontierConditions_GlobalTag, is now optional):
+			if 'FrontierConditions_GlobalTag' in info['conditions']:
+				info['conditions']=info['conditions'].split(",")[1]
 			#start time - the index after which comes the time stamp
 			""" the following is not available on one of the releases, instead
 			use the first timestamp available on our job - that's the starting time :) """ 
