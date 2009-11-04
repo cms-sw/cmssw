@@ -173,7 +173,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	   //     << " " << i - iMod << " "
            //     << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
            //MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
-           MuonsGrabber::Instance().addMuon(m_GBOutputMuons[region][i], 3, region, halfNum, i);  
+           MuonsGrabber::Instance().addMuon(m_GBOutputMuons[region][i], 3, region, halfNum, i - iMod);  
 
 #else
             std::cout <<"GB 3" << region<< halfNum
