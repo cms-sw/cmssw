@@ -35,7 +35,7 @@ namespace{
 int main(int argc, char** ) {
 try{
 
-  std::string className = classNameForTypeId(typeid(THECLASS));
+  std::string className = cond::classNameForTypeId(typeid(THECLASS));
   std::string DSW_Name("DSW_"+className);
 
 
