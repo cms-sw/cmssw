@@ -17,7 +17,7 @@ process.eff = cms.ESSource("PoolDBESSource",
     cms.PSet(
     record = cms.string('ExEfficiencyRcd'),
     label = cms.untracked.string('vinEff2'),
-    tag = cms.string('Example_tag1')
+    tag = cms.string('Example_tag2')
     )
     )
 )
