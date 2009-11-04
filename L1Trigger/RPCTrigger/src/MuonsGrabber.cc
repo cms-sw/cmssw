@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Sep 17 14:21:01 CEST 2009
-// $Id$
+// $Id: MuonsGrabber.cc,v 1.1 2009/09/23 11:01:55 fruboes Exp $
 //
 
 // system include files
@@ -228,14 +228,15 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
              }
              
              DOMElement* mu = m_doc->createElement(X("mu"));
-             mu->setAttribute(X("num"), X( IntToString( muSegment ).c_str()));
              mu->setAttribute(X("pt"), X( IntToString( int(it->_mu.getPtCode() ) ).c_str()));
              mu->setAttribute(X("qual"), X( IntToString( int(it->_mu.getQuality() ) ).c_str()));
              mu->setAttribute(X("sign"), X( IntToString( int(it->_mu.getSign() ) ).c_str()));
 
              if (int(it->_level) == 0 ) {
+               mu->setAttribute(X("num"), X( IntToString( muSegment ).c_str()));
                pac->appendChild(mu); 
              } else {
+                mu->setAttribute(X("num"), X( IntToString( int(it->_index) ).c_str()));
                 mu->setAttribute(X("phi"), X( IntToString( int(it->_mu.getPhiAddr() ) ).c_str()));
                 mu->setAttribute(X("eta"), X( IntToString( int(it->_mu.getEtaAddr() ) ).c_str()));
                 mu->setAttribute(X("gbD"), X( IntToString( int(it->_mu.getGBData()  ) ).c_str()));
