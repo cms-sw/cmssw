@@ -15,6 +15,8 @@
 <use name=CondFormats/DTObjects>
 <use name=DataFormats/RPCRecHit>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalRecHit>
+
 <use name=Geometry/EcalMapping>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
