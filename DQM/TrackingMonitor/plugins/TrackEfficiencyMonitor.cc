@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/02 14:39:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/03 16:56:39 $
+ *  $Revision: 1.5 $
  *  \author Jeremy Andrea
  */
 
@@ -77,7 +77,7 @@ TrackEfficiencyMonitor::~TrackEfficiencyMonitor()
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(edm::EventSetup const& iSetup) 
+void TrackEfficiencyMonitor::beginJob(void) 
 //-----------------------------------------------------------------------------------
 {
   using namespace edm;

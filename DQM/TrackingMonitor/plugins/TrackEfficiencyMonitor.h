@@ -11,7 +11,7 @@ Monitoring source to measure the track efficiency
 //  Original Author:  Jeremy Andrea
 // Insertion in DQM:  Anne-Catherine Le Bihan
 //          Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackEfficiencyMonitor.h,v 1.4 2008/11/05 18:19:58 mwlebour Exp $
+// $Id: TrackEfficiencyMonitor.h,v 1.1 2009/01/08 09:57:27 alebihan Exp $
 
 #include <memory>
 #include <fstream>
@@ -41,7 +41,7 @@ class TrackEfficiencyMonitor : public edm::EDAnalyzer {
    public:
       explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
       ~TrackEfficiencyMonitor();
-      virtual void beginJob(edm::EventSetup const& iSetup);
+      virtual void beginJob(void);
       virtual void endJob(void);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       

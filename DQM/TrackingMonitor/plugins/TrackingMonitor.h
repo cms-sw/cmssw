@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.1 2008/12/11 11:57:23 giorgia Exp $
+// $Id: TrackingMonitor.h,v 1.2 2009/06/11 18:15:03 boudoul Exp $
 
 #include <memory>
 #include <fstream>
@@ -31,7 +31,7 @@ class TrackingMonitor : public edm::EDAnalyzer {
    public:
       explicit TrackingMonitor(const edm::ParameterSet&);
       ~TrackingMonitor();
-      virtual void beginJob(edm::EventSetup const& iSetup);
+      virtual void beginJob(void);
       virtual void endJob(void);
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);

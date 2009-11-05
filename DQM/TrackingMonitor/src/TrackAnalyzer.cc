@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/26 06:07:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/01 15:36:30 $
+ *  $Revision: 1.7 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -26,7 +26,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) {
 
 TrackAnalyzer::~TrackAnalyzer() { }
 
-void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_) {
+void TrackAnalyzer::beginJob(DQMStore * dqmStore_) {
   using namespace edm;
 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");

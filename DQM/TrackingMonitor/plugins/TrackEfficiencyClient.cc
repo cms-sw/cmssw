@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/08 09:57:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/23 11:49:29 $
+ *  $Revision: 1.2 $
  *  \author Anne-Catherine Le Bihan
  */
 
@@ -51,7 +51,7 @@ TrackEfficiencyClient::~TrackEfficiencyClient()
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyClient::beginJob( const edm::EventSetup &eSetup) 
+void TrackEfficiencyClient::beginJob(void) 
 //-----------------------------------------------------------------------------------
 {  
  

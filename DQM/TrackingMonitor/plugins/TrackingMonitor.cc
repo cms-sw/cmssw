@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/14 16:20:08 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/26 06:08:30 $
+ *  $Revision: 1.7 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -44,7 +44,7 @@ TrackingMonitor::~TrackingMonitor() {
   delete theTrackAnalyzer;
 }
 
-void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
+void TrackingMonitor::beginJob(void) {
 
   using namespace edm;
 
@@ -119,7 +119,7 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
   NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per track");
 
-  theTrackAnalyzer->beginJob(iSetup, dqmStore_);
+  theTrackAnalyzer->beginJob(dqmStore_);
  
 }
 

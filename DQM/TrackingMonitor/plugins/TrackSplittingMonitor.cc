@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/18 18:57:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/08/11 07:58:34 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -42,7 +42,7 @@ TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig) {
 TrackSplittingMonitor::~TrackSplittingMonitor() { 
 }
 
-void TrackSplittingMonitor::beginJob(edm::EventSetup const& iSetup) {
+void TrackSplittingMonitor::beginJob(void) {
 	
   using namespace edm;
   

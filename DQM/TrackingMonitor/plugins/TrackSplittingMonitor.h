@@ -10,7 +10,7 @@
  */
 // Original Author:  Nhan Tran
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackSplittingMonitor.h,v 1.2 2009/06/11 18:15:03 boudoul Exp $
+// $Id: TrackSplittingMonitor.h,v 1.1 2009/07/18 18:57:45 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -37,7 +37,7 @@ class TrackSplittingMonitor : public edm::EDAnalyzer {
 public:
 	explicit TrackSplittingMonitor(const edm::ParameterSet&);
 	~TrackSplittingMonitor();
-	virtual void beginJob(edm::EventSetup const& iSetup);
+	virtual void beginJob(void);
 	virtual void endJob(void);
 	
 	virtual void analyze(const edm::Event&, const edm::EventSetup&);

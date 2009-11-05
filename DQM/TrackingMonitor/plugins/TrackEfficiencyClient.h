@@ -43,7 +43,7 @@ class TrackEfficiencyClient: public edm::EDAnalyzer {
  protected:
 
   /// BeginJob
-  void beginJob(edm::EventSetup const& eSetup);
+  void beginJob(void);
 
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
