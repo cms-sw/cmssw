@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.6 2008/11/06 16:05:49 nc302 Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.7 2009/02/17 16:25:56 muzaffar Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
   ~SiStripFEDCheckPlugin();
  private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   
@@ -172,7 +172,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFEDCheckPlugin::beginJob(const edm::EventSetup&)
+SiStripFEDCheckPlugin::beginJob()
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;

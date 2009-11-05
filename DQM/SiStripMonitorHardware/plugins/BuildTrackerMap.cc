@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.3 2009/08/19 17:05:29 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.4 2009/11/04 10:14:16 amagnan Exp $
 //
 
 #include <sstream>
@@ -58,7 +58,7 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   explicit BuildTrackerMapPlugin(const edm::ParameterSet&);
   ~BuildTrackerMapPlugin();
  private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -273,7 +273,7 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-BuildTrackerMapPlugin::beginJob(const edm::EventSetup&)
+BuildTrackerMapPlugin::beginJob()
 {
 
 }

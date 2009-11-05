@@ -23,7 +23,7 @@ class SiStripFEDDumpPlugin : public edm::EDAnalyzer
   explicit SiStripFEDDumpPlugin(const edm::ParameterSet&);
   ~SiStripFEDDumpPlugin();
  private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -75,7 +75,7 @@ SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFEDDumpPlugin::beginJob(const edm::EventSetup&)
+SiStripFEDDumpPlugin::beginJob()
 {
 }
 

@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.7 2009/09/07 09:33:18 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.8 2009/11/04 10:14:16 amagnan Exp $
 //
 
 #include <sstream>
@@ -81,7 +81,7 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
     double Counter;
   };
 
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -423,7 +423,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripCMMonitorPlugin::beginJob(const edm::EventSetup&)
+SiStripCMMonitorPlugin::beginJob()
 {
   //get DQM store
   dqm_ = &(*edm::Service<DQMStore>());

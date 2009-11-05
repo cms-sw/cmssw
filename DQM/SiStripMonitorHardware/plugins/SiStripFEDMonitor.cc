@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.27 2009/07/30 08:09:57 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.28 2009/08/25 14:12:36 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -59,7 +59,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin();
  private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -323,7 +323,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFEDMonitorPlugin::beginJob(const edm::EventSetup&)
+SiStripFEDMonitorPlugin::beginJob()
 {
   //get DQM store
   dqm_ = &(*edm::Service<DQMStore>());
