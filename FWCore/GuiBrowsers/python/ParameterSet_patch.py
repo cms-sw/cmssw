@@ -87,7 +87,11 @@ cms.Process.old_setLooper_=cms.Process.setLooper_
 cms.Process.setLooper_=new_setLooper_
 
 def new_history(self):
-    return self.__dict__['_Process__history']
+    modifications = self.dumpModifications(False)
+    if modifications!="":
+        return self.__dict__['_Process__history']+[modifications]
+    else:
+        return self.__dict__['_Process__history']
 cms.Process.history=new_history
 
 def new_resetHistory(self):
@@ -98,13 +102,12 @@ cms.Process.resetHistory=new_resetHistory
 
 def new_dumpHistory(self):
     dumpPython=""
-    for item in self.__dict__['_Process__history']:
+    for item in self.history():
         if isinstance(item,str):
             dumpPython += item +"\n"
         else: # isTool
             for code in item.dumpPython():
                 dumpPython += code +"\n"
-    dumpPython += self.dumpModifications(False)
     return dumpPython
 cms.Process.dumpHistory=new_dumpHistory
 
