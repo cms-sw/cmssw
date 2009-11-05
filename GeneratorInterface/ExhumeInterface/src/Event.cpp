@@ -81,7 +81,8 @@ void Exhume::Event::Generate(){
        for(std::map<double, double>::iterator kk = FuncMap_.begin();
 	   kk !=FuncMap_.end();
 	   kk++){
-	 fprintf(dat,"%le\t%le\n",kk->first, kk->second);
+	 //fprintf(dat,"%le\t%le\n",kk->first, kk->second);
+         fprintf(dat,"%e\t%e\n",kk->first, kk->second);
        }
 
        fclose(dat);
@@ -91,7 +92,8 @@ void Exhume::Event::Generate(){
        for(std::map<double, double>::iterator kk = LineShape_.begin();
 	   kk!=LineShape_.end();
 	   kk++){
-	 fprintf(dat, "%le\t%le\n",kk->first, kk->second);
+	 //fprintf(dat, "%le\t%le\n",kk->first, kk->second);
+         fprintf(dat, "%e\t%e\n",kk->first, kk->second);
        }
        fclose(dat);
 

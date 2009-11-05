@@ -10,7 +10,8 @@ class ExhumeAnalyzer : public edm::EDAnalyzer {
 
       void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-      virtual void beginJob(const edm::EventSetup& eventSetup) ;
+      //virtual void beginJob(const edm::EventSetup& eventSetup);
+      virtual void beginJob();
       virtual void endJob() ;
 
    private:
@@ -49,7 +50,7 @@ ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& pset):
    genParticlesTag_(pset.getParameter<edm::InputTag>("GenParticleTag")),
    Ebeam_(pset.getParameter<double>("EBeam")){}
 
-void ExhumeAnalyzer::beginJob(edm::EventSetup const& setup) {
+void ExhumeAnalyzer::beginJob() {
    edm::Service<TFileService> fs;
 
    hist_eta_ = fs->make<TH1D>("hist_eta","#eta system",100,-4.5,4.5);

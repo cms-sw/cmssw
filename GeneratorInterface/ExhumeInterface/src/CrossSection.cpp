@@ -98,9 +98,9 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
 
   //Put data types into a map and pair with a string
   //for formating in/output.
-  TypeMap.insert(PCharPair(typeid(double*).name(),"%lf"));
+  /*TypeMap.insert(PCharPair(typeid(double*).name(),"%lf"));
   TypeMap.insert(PCharPair(typeid(float*).name(),"%f"));
-  TypeMap.insert(PCharPair(typeid(int*).name(),"%d"));
+  TypeMap.insert(PCharPair(typeid(int*).name(),"%d"));*/
   
   //Associate each variable with a string
 
@@ -160,10 +160,10 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
 
     if(typeid(double*).name()==(ii->second).first){
       if(strlen((ii->first).c_str())<6){
-	printf("  %s\t\t\t%17lg\n",
+	printf("  %s\t\t\t%17g\n",
 	       (ii->first).c_str(),*(double*)((ii->second).second));
       }else{
-	printf("  %s\t\t%17lg\n",
+	printf("  %s\t\t%17g\n",
 	       (ii->first).c_str(),*(double*)((ii->second).second));
       }
     }
@@ -205,7 +205,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
 	     <<std::endl;
   //...........................................................................
 
-  double smass=0.0;//for now
+  //double smass=0.0;//for now
   my_pythia_init();
   //pydata();
   //initpydata();
@@ -504,7 +504,7 @@ SetKinematics(const double &SqrtsHat_, const double &y_,
 /////////////////////////////////////////////////////////////////////////////
 void Exhume::CrossSection::Hadronise(){
   
-  int one = 1;
+  //int one = 1;
   int njoin = Partons.size();
 
   int *ijoin = (int*) calloc(njoin, sizeof(int) );
