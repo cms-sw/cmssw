@@ -255,9 +255,12 @@ void PFRootEventManager::readOptions(const char* file,
     cout<<"+++ Setting PFCandidate benchmark"<<endl;
     TDirectory* dir = outFile_->mkdir("DQMData");
     dir = dir->mkdir("PFTask");    
-    dir = dir->mkdir("particleFlowManager");
+    // PJCB dir = dir->mkdir("particleFlowManager");
+    dir = dir->mkdir("Benchmarks");// PJCB
+    dir = dir->mkdir("particleFlowMatch"); //PJCB   
     pfCandidateManager_.setDirectory( dir );
 
+    /* PJCB
     float dRMax = 0.5; 
     options_->GetOpt("pfCandidate_benchmark", "dRMax", dRMax); 
     float ptMin = 2; 
@@ -269,7 +272,7 @@ void PFRootEventManager::readOptions(const char* file,
     
     pfCandidateManager_.setParameters( dRMax, ptMin, matchCharge, 
 				       static_cast<Benchmark::Mode>(mode));
- 
+    */				       
     pfCandidateManager_.setup();
     //COLIN need to set the subdirectory.  
     cout<<"+++ Done "<<endl;
