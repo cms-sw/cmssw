@@ -1,5 +1,34 @@
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentStats.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
+
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "Utilities/General/interface/ClassName.h"
+
 //using namespace edm;
 
 AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
@@ -7,14 +36,15 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
   overlapAM_(iConfig.getParameter<edm::InputTag>("OverlapAssoMap")),
   keepTrackStats_(iConfig.getParameter<bool>("keepTrackStats")),
   keepHitPopulation_(iConfig.getParameter<bool>("keepHitStats")),
-  statstreename_(iConfig.getParameter<string>("TrkStatsFileName")),
-  hitstreename_(iConfig.getParameter<string>("HitStatsFileName")),
+  statsTreeName_(iConfig.getParameter<string>("TrkStatsFileName")),
+  hitsTreeName_(iConfig.getParameter<string>("HitStatsFileName")),
   prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale"))
 {
 
   //sanity checks
 
-
+  //init
+  outtree_=0;
 
 }//end constructor
 
@@ -22,18 +52,18 @@ AlignmentStats::~AlignmentStats(){
 			       //
 }
 
-void AlignmentStats::beginJob( const edm::EventSetup &iSetup){
+void AlignmentStats::beginJob(){// const edm::EventSetup &iSetup
 
   //book track stats tree
-  treefile_=new TFile(statstreename_.c_str(),"RECREATE");
+  treefile_=new TFile(statsTreeName_.c_str(),"RECREATE");
   treefile_->cd();
   outtree_=new TTree("AlignmentTrackStats","Statistics of Tracks used for Alignment");
-  // int nHitsinPXB[MAXTRKS], nHitsinPXE[MAXTRKS], nHitsinTEC[MAXTRKS], nHitsinTIB[MAXTRKS],nHitsinTOB[MAXTRKS],nHitsinTID[MAXTRKS];
+  // int nHitsinPXB[MAXTRKS_], nHitsinPXE[MAXTRKS_], nHitsinTEC[MAXTRKS_], nHitsinTIB[MAXTRKS_],nHitsinTOB[MAXTRKS_],nHitsinTID[MAXTRKS_];
   
 
   outtree_->Branch("Ntracks"    ,&ntracks ,"Ntracks/i");
-  outtree_->Branch("Run"        ,&run     ,"RunNr/I");
-  outtree_->Branch("Event"      ,&event   ,"EventNr/I");
+  outtree_->Branch("Run_"        ,&run_     ,"Run_Nr/I");
+  outtree_->Branch("Event"      ,&event_   ,"EventNr/I");
   outtree_->Branch("Eta"        ,&Eta     ,"Eta[Ntracks]/F");
   outtree_->Branch("Phi"        ,&Phi     ,"Phi[Ntracks]/F");
   outtree_->Branch("P"          ,&P       ,"P[Ntracks]/F");
@@ -49,15 +79,24 @@ void AlignmentStats::beginJob( const edm::EventSetup &iSetup){
     outtree_->Branch("NhitsTOB"       , ,);
   */
 
-  tmppresc=prescale_;
+  tmpPresc_=prescale_;
+  firstEvent_=true;
 
   //load the tracker geometry from the EventSetup
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+  //  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
  
 }//end beginJob
 
 
 void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup){
+
+  //load list of detunits needed then in endJob
+ 
+  if(firstEvent_){
+    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+    firstEvent_=false;
+  }
+
 
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
@@ -67,20 +106,20 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   //take overlap HitAssomap
   edm::Handle<AliClusterValueMap> hMap;
   iEvent.getByLabel(overlapAM_, hMap);
-  AliClusterValueMap OverlapMap=*hMap;
+  const AliClusterValueMap &OverlapMap=*hMap;
 
   // Initialise
-  run=1;
-  event=1;
+  run_=1;
+  event_=1;
   ntracks=0;
-  run=iEvent.id().run();
-  event=iEvent.id().event();
+  run_=iEvent.id().run();
+  event_=iEvent.id().event();
   ntracks=Tracks->size();
   //  if(ntracks>1) std::cout<<"~~~~~~~~~~~~\n For this event processing "<<ntracks<<" tracks"<<std::endl;
 
   unsigned int trk_cnt=0;
   
-  for(int j=0;j<MAXTRKS;j++){
+  for(int j=0;j<MAXTRKS_;j++){
     Eta[j]=-9999.0;
     Phi[j]=-8888.0;
     P[j]  =-7777.0;
@@ -121,7 +160,8 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       DetHitMap::iterator mapiter;
       mapiter= hitmap_.find(rawId);
       if(mapiter!=hitmap_.end() ){//present, increase its value by one
-	hitmap_[rawId]=hitmap_[rawId]+1;
+	//	hitmap_[rawId]=hitmap_[rawId]+1;
+	++(hitmap_[rawId]);
       }
       else{//not present, let's add this key to the map with value=1
 	hitmap_.insert(pair<uint32_t, uint32_t>(rawId, 1));
@@ -129,19 +169,43 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       
       AlignmentClusterFlag inval;
 
+      bool hitInPixel= (subDet==PixelSubdetector::PixelBarrel)||(subDet==PixelSubdetector::PixelEndcap);
+      bool hitInStrip=(subDet==SiStripDetId::TIB) || (subDet==SiStripDetId::TID) ||(subDet==SiStripDetId::TOB) ||(subDet==SiStripDetId::TEC);
+
+      if(!(hitInPixel||hitInStrip)){
+	//skip only this hit, don't stop everything throwing an exception
+	edm::LogError("AlignmentStats")<<"Hit not belonging neither to pixels nor to strips! Skipping it. SubDet= "<<subDet;
+	continue;
+      }
 
       //check also if the hit is an overlap. If yes fill a dedicated hitmap
-      if (subDet>2){
-	//Notice the difference respect to when one loops on Trajectories: the recHit is a TrackingRecHit and not a TransientTrackingRecHit
-	const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-	if(striphit!=0){
-	  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	  inval = OverlapMap[stripclust];
-	  //cout<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
-	}
-	else{
-	  cout<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
-	}
+      if (hitInStrip){
+	const std::type_info &type = typeid(*hit);
+
+	if (type == typeid(SiStripRecHit1D)) {
+	  //Notice the difference respect to when one loops on Trajectories: the recHit is a TrackingRecHit and not a TransientTrackingRecHit
+	  const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
+	  if(striphit!=0){
+	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
+	    inval = OverlapMap[stripclust];
+	  }
+	  else{
+	    //  edm::LogError("AlignmentStats")<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit1D failed!   TypeId of the RecHit: "<<className(*hit);
+	    throw cms::Exception("NullPointerError")<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit1D failed!   TypeId of the RecHit: "<<className(*hit);
+	  }
+	}//end if sistriprechit1D
+	if (type == typeid(SiStripRecHit2D)) {
+	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
+	  if(striphit!=0){
+	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
+	    inval = OverlapMap[stripclust];
+	    //cout<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+	  }
+	  else{
+	    throw cms::Exception("NullPointerError")<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit2D failed!   TypeId of the RecHit: "<<className(*hit);
+	    //	  edm::LogError("AlignmentStats")<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit2D failed!   TypeId of the RecHit: "<<className(*hit);
+	  }
+	}//end if sistriprechit2D
 
       }//end if hit in Strips
       else{
@@ -152,7 +216,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 	  //cout<<"Taken the Pixel Cluster with ProdId "<<pixclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
 	}
 	else{
-	  cout<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Pixel RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
+	  edm::LogError("AlignmentStats")<<"ERROR in <AlignmentStats::analyze>: Dynamic cast of Pixel RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 	}
       }//end else hit is in Pixel
 
@@ -186,12 +250,12 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   //  cout<<"Total number of pixel hits is "<<npxbhits<<endl;
 
-  tmppresc--;
-  if(tmppresc<1){
+  tmpPresc_--;
+  if(tmpPresc_<1){
     outtree_->Fill();
-    tmppresc=prescale_;
+    tmpPresc_=prescale_;
   }
-  if(trk_cnt!=ntracks)std::cout<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks<<std::endl<<std::endl;
+  if(trk_cnt!=ntracks)edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks;
   trk_cnt=0;
 
   return;
@@ -200,13 +264,13 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 void AlignmentStats::endJob(){
 
   treefile_->cd();
-  std::cout<<"Writing out the TrackStatistics in "<<gDirectory->GetPath()<<std::endl;
+  edm::LogInfo("AlignmentStats")<<"Writing out the TrackStatistics in "<<gDirectory->GetPath()<<std::endl;
   outtree_->Write();
   delete outtree_;
 
   //create tree with hit maps (hitstree)
   //book track stats tree
-  TFile *hitsfile=new TFile(hitstreename_.c_str(),"RECREATE");
+  TFile *hitsfile=new TFile(hitsTreeName_.c_str(),"RECREATE");
   hitsfile->cd();
   TTree *hitstree=new TTree("AlignmentHitMap","Maps of Hits used for Alignment");
 
@@ -250,9 +314,24 @@ void AlignmentStats::endJob(){
   AlignableTracker* theAliTracker=new AlignableTracker(&(*trackerGeometry_));
   const std::vector<Alignable*>& Detunitslist=theAliTracker->deepComponents();
   int ndetunits=Detunitslist.size();
-  std::cout<<"Number of DetUnits in the AlignableTracker: "<< ndetunits<<std::endl;
+  edm::LogInfo("AlignmentStats")<<"Number of DetUnits in the AlignableTracker: "<< ndetunits<<std::endl;
 
   for(int det_cnt=0;det_cnt< ndetunits;++det_cnt){
+    
+    //re-initialize for safety
+    id=0;
+    nhits=0;
+    noverlaps=0;
+    posX=-99999.0;
+    posY=-77777.0;
+    posZ=-88888.0;
+    posEta=-6666.0;
+    posPhi=-5555.0;
+    posR=-4444.0;
+    subdet=0;
+    layer=0; 
+    is2D=false;
+    isStereo=false;
 
     //if detunit in vector is found also in the map, look for how many hits were collected 
     //and save in the tree this number
@@ -290,44 +369,44 @@ void AlignmentStats::endJob(){
    subdet=detid.subdetId();
 
    //get layers, petals, etc...
-   if(subdet==1){//PXB
+   if(subdet==PixelSubdetector::PixelBarrel){//PXB
      PXBDetId pxbdet=(id);
      layer=pxbdet.layer();
      is2D=true;
      isStereo=false;
    }
-   else if(subdet==2){
+   else if(subdet==PixelSubdetector::PixelEndcap){
      PXFDetId pxfdet(id);
      layer=pxfdet.disk();
      is2D=true;
      isStereo=false;
    }
-   else if(subdet==3){
+   else if(subdet==SiStripDetId::TIB){
      TIBDetId tibdet(id);
      layer=tibdet.layerNumber();
      is2D=tibdet.isDoubleSide();
      isStereo=tibdet.isStereo();
    }
-   else if(subdet==4){
+   else if(subdet==SiStripDetId::TID){
      TIDDetId tiddet(id);
      layer=tiddet.diskNumber();
      is2D=tiddet.isDoubleSide();
      isStereo=tiddet.isStereo();
    }
-   else if(subdet==5){
+   else if(subdet==SiStripDetId::TOB){
      TOBDetId tobdet(id);
      layer=tobdet.layerNumber();
      is2D=tobdet.isDoubleSide();
      isStereo=tobdet.isStereo();
    }
-   else if(subdet==6){
+   else if(subdet==SiStripDetId::TEC){
      TECDetId tecdet(id);
      layer=tecdet.wheelNumber();
      is2D=tecdet.isDoubleSide();
      isStereo=tecdet.isStereo();
    }
    else{
-     //exception to be thrown
+     edm::LogError("AlignmentStats")<<"Detector not belonging neither to pixels nor to strips! Skipping it. SubDet= "<<subdet;
    }
 
   //write in the hitstree

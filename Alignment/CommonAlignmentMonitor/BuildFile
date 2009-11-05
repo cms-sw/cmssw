@@ -3,6 +3,7 @@
 <use name=Alignment/MuonAlignment>
 <use name=Alignment/TrackerAlignment>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/Alignment>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
