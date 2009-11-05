@@ -152,7 +152,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
      // first get the list of all channels from the update
      std::vector<DetId> listChangedChan = changedchannels->getAllChannels();
  
-     HcalPedestals *resultPeds = new HcalPedestals(); //myRefPeds->isADC() );
+     HcalPedestals *resultPeds = new HcalPedestals(myRefPeds->isADC() );
      for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
        {
          DetId mydetid = *it;
