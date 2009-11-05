@@ -11,7 +11,7 @@ from ConfigParser import ConfigParser
 from optparse import OptionParser
 
 def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
-                                  tagName,databaseConnect,
+                                  jobreport,tagName,databaseConnect,
                                   logdbConnect,authenticationPath,
                                   allowForceFirstSince,debugMode):
    """
@@ -33,6 +33,8 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
    f.write('process.PoolDBOutputService.DBParameters.authenticationPath="'+authenticationPath+'"\n')
    f.write('process.PoolDBOutputService.connect="'+databaseConnect+'"\n')
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
+   f.write('process.MessageLogger.destinations=["'+jobreport+'"]\n')
+   f.write('process.MessageLogger.'+jobreport+'=cms.untracked.PSet(threshold=cms.untracked.string("INFO"),noLineBreaks=cms.untracked.bool(True),noTimeStamps=cms.untracked.bool(True),INFO=cms.untracked.PSet(limit=cms.untracked.int32(0)),LumiReport=cms.untracked.PSet(limit=cms.untracked.int32(10000000)))\n')
    f.write('process.p = cms.Path(process.lumidatatransfer)')
 
 def main():
@@ -69,6 +71,8 @@ def main():
    parser.add_option("-d","--dryrun",action="store_true",dest="dryrun",
                      help="dryrun mode-only write the config file (OPTIONAL)")
    parser.add_option("-a","--allowForceFirstSince",action="store_true",dest="allowforcefirstsince",help="set allowForceFirstSince parameter to True (OPTIONAL)")
+   parser.add_option("-j","--jobreport",action="store",dest="jobreport",help="jobreport file name default to rawdatafilename.log(OPTIONAL)")
+   
    parser.add_option("-v","--verbose",action="store_true",dest="verbose",
                      help="verbose mode")
    (options, args) = parser.parse_args()
@@ -86,6 +90,7 @@ def main():
    allowForceFirstSince=False
    cmsswsrc=''
    tnsadminpath=''
+   jobreport=''
    if os.environ.has_key('TNS_ADMIN'):
       tnsadminpath=os.environ['TNS_ADMIN']
       
@@ -114,6 +119,8 @@ def main():
            outputdir=Config.get(sectionName,'outputdir')
         if Config.has_option(sectionName,'dryrun'):
            dryrun=Config.getboolean(sectionName,'dryrun')
+        if Config.has_option(sectionName,'jobreport'):
+           jobreport=Config.get(sectionName,'jobreport')
         if Config.has_option(sectionName,'allowforcefirstsince'):
            allowForceFirstSince=Config.getboolean(sectionName,'allowforcefirstsince')
         if Config.has_option(sectionName,'verbose'):
@@ -157,6 +164,8 @@ def main():
          logdatabase=options.logdatabase
       if options.outputdir:
          outputdir=options.outputdir
+      if options.jobreport:
+         jobreport=options.jobreport
       verbose=options.verbose
       dryrun=options.dryrun
       allowForceFirstSince=options.allowforcefirstsince
@@ -164,8 +173,13 @@ def main():
       authpath=inputdir
    if len(tnsadminpath)==0:
       tnsadminpath=inputdir
+   if len(jobreport)==0:
+      jobreport=os.path.basename(os.path.splitext(rootfilename)[0])
+      if len(jobreport)==0: #last resort
+         jobreport='jobreport'
    outputFilename=os.path.join(outputdir,outputFilename)
    inputTemplate=os.path.join(cmsswsrc,'CondTools','Luminosity','test','LumiRootTransfer.py.template')
+   
    if verbose:
       print 'rootfilename:\t',rootfilename
       print 'tagname:\t',tagname
@@ -184,10 +198,10 @@ def main():
          print 'allowForceFirstSince:\t True'
       if dryrun:
          print 'dryrun mode'
-      print 'outputFilename',outputFilename
-      print 'inputTemplate',inputTemplate
-      
-   writeLumiSectionDataPopConCfg(outputFilename,inputTemplate,rootfilename,tagname,connect,logdatabase,authpath,allowForceFirstSince,verbose)
+      print 'outputFilename\t',outputFilename
+      print 'inputTemplate\t',inputTemplate
+      print 'popconjobreport\t',jobreport
+   writeLumiSectionDataPopConCfg(outputFilename,inputTemplate,rootfilename,jobreport,tagname,connect,logdatabase,authpath,allowForceFirstSince,verbose)
    if not dryrun:
       #print '====== running config file ',outputFilename
       #os.system('cmsRun '+outputFilename)
@@ -201,7 +215,7 @@ def main():
       lines.append(' '.join(['cmsRun',outputFilename]))
       os.chdir(outputdir)
       (stdin,stdout_and_stderr)=os.popen4(' '.join(lines))
-      outfd=open(os.path.join(outputdir,'jobreport.txt'),'w',0)
+      outfd=open(os.path.join(outputdir,'exestatus.txt'),'w',0)
       outfd.write( stdout_and_stderr.read())
       outfd.close()
       os.chdir(currentdir)

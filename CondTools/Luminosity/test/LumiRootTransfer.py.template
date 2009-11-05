@@ -3,6 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Lumi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
+process.MessageLogger = cms.Service("MessageLogger",
+   suppressInfo = cms.untracked.vstring(),
+   destinations = cms.untracked.vstring('#jobreportname#'),
+   categories = cms.untracked.vstring('LumiReport')
+)
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBSetup,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
