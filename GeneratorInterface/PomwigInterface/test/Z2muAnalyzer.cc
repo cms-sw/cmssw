@@ -1,7 +1,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: Z2muAnalyzer.cc,v 1.3 2008/01/22 21:10:24 muzaffar Exp $
+// $Id: Z2muAnalyzer.cc,v 1.4 2009/05/25 14:10:16 fabiocos Exp $
 //
 // Modified for PomwigInterface test for Z/gamma* -> 2mu
 // 02/2007
@@ -74,10 +74,7 @@ Z2muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-Z2muAnalyzer::beginJob(const edm::EventSetup&)
-{
-}
+void Z2muAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

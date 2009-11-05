@@ -16,7 +16,8 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  //virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob();
   virtual void endJob() ;
 
 private:
@@ -80,7 +81,7 @@ SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
 SDDijetsAnalyzer::~SDDijetsAnalyzer(){
 }
 
-void SDDijetsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
+void SDDijetsAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
   //TH1::SetDefaultSumw2(true);
 

@@ -3,12 +3,12 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=clhep> 
 <use name=hepmc>
+<use name=heppdt>
 <use name=herwig>
 <use name=lhapdf>
 <use name=jimmy>
 <use name=GeneratorInterface/Core>
 <use name=GeneratorInterface/ExternalDecays>
-<use name=GeneratorInterface/PartonShowerVeto>
 <use name=GeneratorInterface/Herwig6Interface> 
 <use name=f77compiler>
 <export>

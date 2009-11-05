@@ -71,10 +71,7 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 // ------------ method called once each job just before starting event loop  ------------
-void 
-PomwigAnalyzer::beginJob(const edm::EventSetup&)
-{
-}
+void PomwigAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
