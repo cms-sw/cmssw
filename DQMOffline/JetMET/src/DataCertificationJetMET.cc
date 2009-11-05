@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.29 2009/07/27 09:44:37 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.30 2009/10/08 10:15:04 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -243,6 +243,42 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   if (verbose_) dbe_->showDirStructure();
 
+  //----------
+
+  dbe_->setCurrentFolder("JetMET/EventInfo/");    
+  MonitorElement*  reportSummary = dbe_->bookFloat("reportSummary");
+  MonitorElement*  CertificationSummary = dbe_->bookFloat("CertificationSummary");
+
+  MonitorElement*  reportSummaryMap = dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
+  MonitorElement*  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
+
+  reportSummaryMap->setBinLabel(1,"CaloTower");
+  reportSummaryMap->setBinLabel(2,"MET");
+  reportSummaryMap->setBinLabel(3,"Jet");
+
+  CertificationSummaryMap->setBinLabel(1,"CaloTower");
+  CertificationSummaryMap->setBinLabel(2,"MET");
+  CertificationSummaryMap->setBinLabel(3,"Jet");
+
+  // 3,4: CaloJet Barrel
+  // 3,3: CaloJet Endcap
+  // 3,2: CaloJet Forward
+  // 3,1: JPT
+  // 3,0: PFJet
+
+  // 2,4: CaloMET
+  // 2,3: CaloMETNoHF
+  // 2,2: TcMET
+  // 2,1: PFMET
+  // 2,0: MuonCorrectedMET
+
+  // 1,4: Barrel
+  // 1,3: EndCap
+  // 1,2: Forward
+
+  reportSummary->Fill(1.);
+  CertificationSummary->Fill(1.);
+
   //----------------------------------------------------------------
   // Book integers/histograms for data certification results
   //----------------------------------------------------------------
@@ -279,7 +315,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   if (RunDir=="Reference") RunDir="";
   if (verbose_) std::cout << RunDir << std::endl;
-  dbe_->setCurrentFolder("JetMET/EventInfo/Certification/");    
+  dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummaryContents/");    
 
   //
   // Layer 1
@@ -745,6 +781,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   mMETDCFL1->Fill(dc_JetMET[0]*dc_JetMET[1]);
   mMETDCFL2[0]->Fill(dc_JetMET[0]);
   mMETDCFL3[0]->Fill(dc_JetMET[1]);
+
+  dbe_->setCurrentFolder("");  
 
 }
 
