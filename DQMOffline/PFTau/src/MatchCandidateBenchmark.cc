@@ -62,7 +62,7 @@ void MatchCandidateBenchmark::setup() {
 			    10, ptBins,
 			    detaPS.n, detaPS.m, detaPS.M );
   
-  delta_phi_VS_et_ = book2D("delta_et_VS_et_", 
+  delta_phi_VS_et_ = book2D("delta_phi_VS_et_", 
 			    ";E_{T, true} (GeV);#Delta#phi",
 			    10, ptBins,
 			    dphiPS.n, dphiPS.m, dphiPS.M );
