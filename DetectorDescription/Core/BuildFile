@@ -3,7 +3,6 @@
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
 <use name="boost">
-<use name="clhep">
 <use name="rootmath">
 <export>
   <lib name="1">
