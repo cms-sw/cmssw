@@ -1,3 +1,9 @@
+2009-11-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-04-00
+	* Merge changes from branch_3_3_X into trunk
+	* Modify DQMHttpSource for changed API in latest DQMServices/Core
+
 2009-11-04 Peter Elmer <Peter.Elmer@cern.ch>
 
 	* tag V05-03-05
