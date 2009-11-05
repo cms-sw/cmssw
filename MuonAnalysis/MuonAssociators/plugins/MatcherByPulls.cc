@@ -14,7 +14,7 @@
 //
 // Original Author:  Giovanni Petrucciani (SNS Pisa and CERN PH-CMG)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MatcherByPulls.cc,v 1.1 2009/05/29 09:44:13 gpetrucc Exp $
+// $Id: MatcherByPulls.cc,v 1.2 2009/09/23 12:32:27 gpetrucc Exp $
 //
 
 
@@ -45,6 +45,7 @@
  *    \____|_|\__,_|___/___/  \__,_|\___|\___|_|\__,_|_|  \__,_|\__|_|\___/|_| |_|
  */                                                                               
 namespace pat {
+    template<typename T>
     class MatcherByPulls : public edm::EDProducer {
         public:
             explicit MatcherByPulls(const edm::ParameterSet&);
@@ -66,8 +67,6 @@ namespace pat {
     };
 }
 
-using pat::MatcherByPulls;
-
 /*     ____                _                   _             
  *    / ___|___  _ __  ___| |_ _ __ _   _  ___| |_ ___  _ __ 
  *   | |   / _ \| '_ \/ __| __| '__| | | |/ __| __/ _ \| '__|
@@ -75,7 +74,8 @@ using pat::MatcherByPulls;
  *    \____\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|   
  *                                                           
  */  
-MatcherByPulls::MatcherByPulls(const edm::ParameterSet &iConfig) :
+template<typename T>
+pat::MatcherByPulls<T>::MatcherByPulls(const edm::ParameterSet &iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
     matched_(iConfig.getParameter<edm::InputTag>("matched")),
     mcSel_(iConfig.getParameter<std::string>("matchedSelector")),
@@ -85,7 +85,8 @@ MatcherByPulls::MatcherByPulls(const edm::ParameterSet &iConfig) :
     produces<edm::ValueMap<float> >("pulls"); 
 }
 
-MatcherByPulls::~MatcherByPulls()
+template<typename T>
+pat::MatcherByPulls<T>::~MatcherByPulls()
 {
 }
 
@@ -96,11 +97,13 @@ MatcherByPulls::~MatcherByPulls()
  *   |_|   |_|  \___/ \__,_|\__,_|\___\___|
  *                                         
  */  
+
+template<typename T>
 void
-MatcherByPulls::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     typedef std::vector<reco::GenParticle> MCColl;
-    edm::Handle<edm::View<reco::RecoCandidate> > src; 
+    edm::Handle<edm::View<T> > src; 
     edm::Handle<MCColl> cands; 
     iEvent.getByLabel(src_,     src);
     iEvent.getByLabel(matched_, cands);
@@ -111,7 +114,7 @@ MatcherByPulls::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<int>   matches(src->size(),-1);
     std::vector<float> pulls(src->size(),  1e39);
     for (size_t i = 0, n = src->size(); i < n; ++i) {
-        const reco::RecoCandidate &tk = (*src)[i];
+        const T &tk = (*src)[i];
         std::pair<int,float> m = algo_.match(tk, *cands, candGood);
         matches[i] = m.first;
         pulls[i]   = m.second;
@@ -132,4 +135,8 @@ MatcherByPulls::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
+
+typedef pat::MatcherByPulls<reco::RecoCandidate> MatcherByPulls;
+typedef pat::MatcherByPulls<reco::Track>         TrackMatcherByPulls;
 DEFINE_FWK_MODULE(MatcherByPulls);
+DEFINE_FWK_MODULE(TrackMatcherByPulls);
