@@ -434,11 +434,12 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	if (isCollector) return;
 	
 	//check if the pointer to the AliHitValueMap is not empty
-	AliClusterValueMap PrescMap;
-	if (eventInfo.hitVM_){
+	/*
+	  AliClusterValueMap PrescMap;
+	  if (eventInfo.hitVM_){
 	  PrescMap=*(eventInfo.hitVM_);
-	} 
-
+	  } 
+	*/
 	TrajectoryStateCombiner tsoscomb;
 	
 	int itr=0;
@@ -517,20 +518,22 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 				const SiStripRecHit1D *stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
 				if (stripHit1D) {
 				  SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
-				  myflag=PrescMap[stripclust];
+				  // myflag=PrescMap[stripclust];
+				  myflag=(*eventInfo.hitVM_)[stripclust];
 				}
 				else{
-				  cout<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
+				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
 				}
 			      }//end if type = SiStripRecHit1D
 			      else if(type == typeid(SiStripRecHit2D)){
 				const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
 				if(stripHit2D){
 				  SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
-				  myflag=PrescMap[stripclust];
+				  //myflag=PrescMap[stripclust];
+				  myflag=(*eventInfo.hitVM_)[stripclust];
 				}
 				else{
-				  cout<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
+				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
 				}
 			      }//end if type == sistriprechit2d
 			    }//end if hit from strips
@@ -538,10 +541,11 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 			      const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
 			      if(pixelhit){
 				SiPixelClusterRefNew  pixelclust(pixelhit->cluster());
-				myflag=PrescMap[pixelclust];
+				//myflag=PrescMap[pixelclust];
+				myflag=(*eventInfo.hitVM_)[pixelclust];
 			      }
 			      else{
-				cout<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
+				 edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
 			      }
 			    }//end 'else' it is a pixel hit
 			    // bool hitTaken=myflag.isTaken();
@@ -551,8 +555,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 			    }
 			  }//end if Prescaled Hits
 			  ////////////////////////////////
-			  if(skiphit)cout<<"ERROR  in <HIPAlignmentAlgorithm::run>: this hit should have been skipped! "<<endl;
-
+			  if(skiphit){
+			    throw cms::Exception("LogicError")<<"ERROR  in <HIPAlignmentAlgorithm::run>: this hit should have been skipped! "<<endl;
+			  }
 
 			  TrajectoryStateOnSurface tsos = tsoscomb.combine(
 									   meas.forwardPredictedState(),
