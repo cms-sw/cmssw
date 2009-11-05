@@ -227,7 +227,6 @@ static std::vector<RefCountedVertexTrack> relinearizeTracks(
 	return finalTracks;
 }
 
-#if 1
 static double trackVertexCompat(const CachingVertex<5> &vtx,
                                 const RefCountedVertexTrack &vertexTrack)
 {
@@ -253,7 +252,6 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 	double mag2 = Mag2(dir);
 	return mag2 * mag2 / Similarity(error.matrix_new(), dir);
 }
-#endif
 
 GhostTrackVertexFinder::GhostTrackVertexFinder() :
 	maxFitChi2_(10.0),
@@ -840,12 +838,7 @@ bool GhostTrackVertexFinder::reassignTracks(
 						vtx = vertices_.begin();
 			    vtx != vertices_.end(); ++vtx) {
 				double compat =
-#if 1
 					trackVertexCompat(*vtx, *track);
-#else
-					trackVertexCompat.estimate(*vtx,
-					                           *track);
-#endif
 
 				compat /= (vtx == vertices_.begin()) ?
 							primcut_ : seccut_;
@@ -959,7 +952,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 		debugVertex(*iter, ghostTrack.prediction());
 
-	std::cout << "----- recursive merging: ---------" << std::endl;
+		std::cout << "----- recursive merging: ---------" << std::endl;
 #endif
 
 		recursiveMerge(vertices, info);

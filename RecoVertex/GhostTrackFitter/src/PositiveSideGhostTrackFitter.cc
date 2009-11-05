@@ -48,7 +48,6 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 
 
 	if (!done) {
-// std::cout << "re-fitting" << std::endl;
 		for(unsigned int i = 0; i < states.size(); i++) {
 			GhostTrackState &state = states[i];
 			double lambda = state.lambda();

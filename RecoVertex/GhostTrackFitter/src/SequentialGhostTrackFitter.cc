@@ -68,8 +68,7 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(
 				                      ndof, chi2);
 		}
 
-		if (++iteration >= maxIteration ||
-		    stable(lastPred, pred))
+		if (++iteration >= maxIteration || stable(lastPred, pred))
 			break;
 
 		postFit(updater, pred, states);
