@@ -4,7 +4,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <string>
+#include <cstring>
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
