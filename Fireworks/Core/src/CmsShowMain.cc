@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.96 2009/10/27 01:55:29 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.97 2009/10/27 10:33:48 dmytro Exp $
 //
 
 // system include files
@@ -978,12 +978,12 @@ CmsShowMain::preFiltering()
 {
    m_guiManager->enableActions(false);
    m_guiManager->updateStatus("Filtering events");
-
 }
 void
 CmsShowMain::postFiltering()
 {
    m_guiManager->enableActions(true);
+   m_guiManager->clearStatus();
 }
 
 void
