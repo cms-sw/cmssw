@@ -666,11 +666,11 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("2");
-  topaaa.addKeyValue("Calo scale", topaaaa);
+  topaaa.addKeyValue("Calo scale (GeV/meter)", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
 }
 {
@@ -695,7 +695,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.953987");
+  topaaaa.addValue("2.01065");
   topaaa.addKeyValue("cameraZoomRho Phi", topaaaa);
 }
 {
@@ -786,6 +786,11 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("Auto rebin on zoom", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("10");
+  topaaa.addKeyValue("Pixels per bin", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1069,11 +1074,11 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("2");
-  topaaa.addKeyValue("Calo scale", topaaaa);
+  topaaa.addKeyValue("Calo scale (GeV/meter)", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
 }
 {
@@ -1088,7 +1093,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.953984");
+  topaaaa.addValue("1.58254");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -1772,7 +1777,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("55");
+  topaaaaa.addValue("56");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1815,12 +1820,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1039");
+  topaaaaa.addValue("1041");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("374");
+  topaaaaa.addValue("377");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
