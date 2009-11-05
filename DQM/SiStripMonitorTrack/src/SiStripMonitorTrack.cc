@@ -55,8 +55,6 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 SiStripMonitorTrack::~SiStripMonitorTrack() { }
 
 //------------------------------------------------------------------------
-//void SiStripMonitorTrack::beginJob(const edm::EventSetup& es)
-
 void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es)
 {
   //get geom 

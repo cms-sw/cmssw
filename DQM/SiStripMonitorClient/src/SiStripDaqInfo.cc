@@ -45,7 +45,7 @@ SiStripDaqInfo::~SiStripDaqInfo() {
 //
 // -- Begin Job
 //
-void SiStripDaqInfo::beginJob( const edm::EventSetup &eSetup) {
+void SiStripDaqInfo::beginJob() {
  
 }
 //

@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.5 2008/01/22 18:52:44 muzaffar Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.6 2008/03/01 00:38:25 dutta Exp $
 //
 //
 
@@ -61,7 +61,7 @@ SiStripMonitorRawData::~SiStripMonitorRawData()
 //
 // -- Begin Job
 //
-void SiStripMonitorRawData::beginJob(edm::EventSetup const&) {
+void SiStripMonitorRawData::beginJob() {
 }
 //
 // -- BeginRun

@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.50 2009/07/18 18:40:53 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.51 2009/09/14 14:14:54 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -112,7 +112,7 @@ void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
+void SiStripMonitorDigi::beginJob(){
 }
 
 

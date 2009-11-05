@@ -48,7 +48,7 @@ SiStripCertificationInfo::~SiStripCertificationInfo() {
 //
 // -- Begin Job
 //
-void SiStripCertificationInfo::beginJob( const edm::EventSetup &eSetup) {
+void SiStripCertificationInfo::beginJob() {
 
 }
 //

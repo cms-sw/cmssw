@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2009/02/25 19:25:09 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/10/07 12:39:11 $
+ *  $Revision: 1.30 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -47,7 +47,7 @@ public:
 private:
 
   /// BeginJob
-  void beginJob(edm::EventSetup const& eSetup);
+  void beginJob();
 
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);

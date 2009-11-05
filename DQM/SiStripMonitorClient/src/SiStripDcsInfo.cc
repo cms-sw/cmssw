@@ -48,7 +48,7 @@ SiStripDcsInfo::~SiStripDcsInfo() {
 //
 // -- Begin Job
 //
-void SiStripDcsInfo::beginJob( const edm::EventSetup &eSetup) {
+void SiStripDcsInfo::beginJob() {
  
 }
 //

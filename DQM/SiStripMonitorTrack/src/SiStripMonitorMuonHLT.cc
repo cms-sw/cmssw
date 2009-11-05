@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.4 2009/10/27 18:31:02 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.5 2009/10/29 15:32:59 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -659,7 +659,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-SiStripMonitorMuonHLT::beginJob (const edm::EventSetup & es)
+SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es)
 {
   if (dbe_)
     {

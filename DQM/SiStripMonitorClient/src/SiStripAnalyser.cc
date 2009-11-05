@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/10/07 12:39:11 $
- * $Revision: 1.52 $
+ * $Date: 2009/10/29 20:59:42 $
+ * $Revision: 1.53 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -126,7 +126,7 @@ SiStripAnalyser::~SiStripAnalyser(){
 //
 // -- Begin Job
 //
-void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
+void SiStripAnalyser::beginJob(){
 
   // Read the summary configuration file
   if (!actionExecutor_->readConfiguration()) {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.34 2008/04/12 15:16:05 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.35 2009/09/14 14:15:52 dutta Exp $
 //
 //
 
@@ -77,7 +77,7 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals()
 //
 // -- Begin Job
 //
-void SiStripMonitorPedestals::beginJob(edm::EventSetup const& eSetup) {
+void SiStripMonitorPedestals::beginJob() {
   theEventInitNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForInit");
   theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
   NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");

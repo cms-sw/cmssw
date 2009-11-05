@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.18 2009/03/25 15:54:52 borrell Exp $
+// $Id: SiStripMonitorDigi.h,v 1.19 2009/06/29 17:49:40 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,7 +25,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(edm::EventSetup const&) ;
+  virtual void beginJob();
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);

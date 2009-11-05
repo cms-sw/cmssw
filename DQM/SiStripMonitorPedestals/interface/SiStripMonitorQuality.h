@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Fri Dec  7 20:49:51 CET 2007
-// $Id: SiStripMonitorQuality.h,v 1.1 2007/12/10 20:28:02 dutta Exp $
+// $Id: SiStripMonitorQuality.h,v 1.2 2008/03/01 00:38:25 dutta Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ class SiStripMonitorQuality : public edm::EDAnalyzer {
   explicit SiStripMonitorQuality(const edm::ParameterSet&);
   ~SiStripMonitorQuality();
   
-  virtual void beginJob(edm::EventSetup const&) ;
+  virtual void beginJob() ;
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);

@@ -268,7 +268,11 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
   dir = "TrackParameters"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
-  vector<MonitorElement*> meVec = dqm_store->getContents(dqm_store->pwd());
+
+  vector<MonitorElement*> meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
+  vector<MonitorElement*> meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
+  vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
+  std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
 
   float gstatus = 1.0;
   for (vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {

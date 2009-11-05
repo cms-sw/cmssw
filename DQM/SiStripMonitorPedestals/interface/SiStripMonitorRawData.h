@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.3 2007/11/13 20:17:32 dutta Exp $
+// $Id: SiStripMonitorRawData.h,v 1.4 2008/03/01 00:38:25 dutta Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class SiStripMonitorRawData : public edm::EDAnalyzer {
   explicit SiStripMonitorRawData(const edm::ParameterSet&);
   ~SiStripMonitorRawData();
   
-  virtual void beginJob(edm::EventSetup const&) ;
+  virtual void beginJob() ;
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);

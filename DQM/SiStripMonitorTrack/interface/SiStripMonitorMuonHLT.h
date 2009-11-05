@@ -72,7 +72,7 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       ~SiStripMonitorMuonHLT();
 
    private:
-      virtual void beginJob(const edm::EventSetup& es) ;
+      virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void createMEs(const edm::EventSetup& es);

@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.14 2008/03/01 00:38:25 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.15 2008/03/04 14:41:51 dutta Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
   explicit SiStripMonitorPedestals(const edm::ParameterSet&);
   ~SiStripMonitorPedestals();
   
-  virtual void beginJob(edm::EventSetup const&) ;
+  virtual void beginJob() ;
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.3 2008/03/01 00:38:25 dutta Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.4 2008/04/12 15:16:05 dutta Exp $
 //
 //
 
@@ -61,7 +61,7 @@ SiStripMonitorQuality::~SiStripMonitorQuality()
 //
 // -- Begin Job
 //
-void SiStripMonitorQuality::beginJob(edm::EventSetup const&) {
+void SiStripMonitorQuality::beginJob() {
 }
 //
 // -- BeginRun

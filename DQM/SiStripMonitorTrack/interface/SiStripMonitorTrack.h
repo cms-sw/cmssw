@@ -58,7 +58,6 @@ public:
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  //  virtual void beginJob(const edm::EventSetup& c);
   virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 

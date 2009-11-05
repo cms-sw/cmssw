@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.30 2009/10/07 12:39:11 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.31 2009/10/29 20:59:42 dutta Exp $
 //
 //
 
@@ -93,7 +93,7 @@ SiStripOfflineDQM::~SiStripOfflineDQM() {
 * @param eSetup
 *   Event Setup object
 */
-void SiStripOfflineDQM::beginJob( const edm::EventSetup &eSetup) {
+void SiStripOfflineDQM::beginJob() {
 
   // Essential: reads xml file to get the histogram names to create summary
   // Read the summary configuration file

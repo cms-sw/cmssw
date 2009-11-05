@@ -1,9 +1,16 @@
 #ifndef _SiStripWebInterface_h_
 #define _SiStripWebInterface_h_
 
-#include "DQM/TrackerCommon/interface/WebInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "xgi/Method.h"
+#include "xdata/UnsignedLong.h"
+#include "cgicc/HTMLClasses.h"
+
+#include "xdaq/Application.h"
+#include "xgi/Utils.h"
+#include "xgi/Method.h"
 
 class DQMStore;
 class SiStripActionExecutorQTest;
