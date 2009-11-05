@@ -20,7 +20,6 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  1 16:46:56 EDT 2007
-// $Id: ParameterSetDescriptionFiller.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
 //
 
 // system include files

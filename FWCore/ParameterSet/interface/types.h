@@ -2,8 +2,6 @@
 #define FWCore_ParameterSet_types_h
 
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.16 2009/09/21 21:12:40 wmtan Exp $
-//
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
 

@@ -18,7 +18,6 @@ and query the component for its allowed ParameterSetDescription.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  1 16:46:53 EDT 2007
-// $Id: ParameterSetDescriptionFillerBase.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
 //
 
 // system include files
