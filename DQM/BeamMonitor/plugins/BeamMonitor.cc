@@ -2,12 +2,13 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/09/17 21:13:52 $
- * $Revision: 1.3 $
+ * $Date: 2009/11/04 04:16:54 $
+ * $Revision: 1.4 $
  *
  */
 
 #include "DQM/BeamMonitor/interface/BeamMonitor.h"
+#include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
@@ -16,7 +17,6 @@
 #include <math.h>
 #include <TMath.h>
 #include <iostream>
-#include "TStyle.h"
 
 using namespace std;
 using namespace edm;
@@ -25,13 +25,14 @@ using namespace edm;
 // constructors and destructor
 //
 BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
-  countEvt_(0),countLumi_(0),nthBSTrk_(0),resetHistos_(false)
-{
+  countEvt_(0),countLumi_(0),nthBSTrk_(0),nFitElements_(3),resetHistos_(false) {
+
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   bsSrc_          = parameters_.getUntrackedParameter<string>("beamSpot","offlineBeamSpot");
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
+  deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
 
   dbe_            = Service<DQMStore>().operator->();
@@ -44,15 +45,14 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 }
 
 
-BeamMonitor::~BeamMonitor()
-{
+BeamMonitor::~BeamMonitor() {
   delete theBeamFitter;
 }
 
 
 //--------------------------------------------------------
-void BeamMonitor::beginJob(const EventSetup& context){
-  
+void BeamMonitor::beginJob(const EventSetup& context) {
+
   // book some histograms here
   const int    dxBin = parameters_.getParameter<int>("dxBin");
   const double dxMin  = parameters_.getParameter<double>("dxMin");
@@ -105,7 +105,45 @@ void BeamMonitor::beginJob(const EventSetup& context){
   
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",150,-30,30);
   h_trk_z0->setAxisTitle("z_{0} of input tracks (cm)",1);
+
+  dbe_->setCurrentFolder(monitorName_+"EventInfo");
+  reportSummary = dbe_->get(monitorName_+"EventInfo/reportSummary");
+  if (reportSummary) dbe_->removeElement(reportSummary->getName());
+
+  reportSummary = dbe_->bookFloat("reportSummary");
+  if(reportSummary) reportSummary->Fill(1.);
+
+  char histo[20];
+  dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
+  for (int n = 0; n < nFitElements_; n++) {
+    switch(n){
+    case 0 : sprintf(histo,"x0_status"); break;
+    case 1 : sprintf(histo,"y0_status"); break;
+    case 2 : sprintf(histo,"z0_status"); break;
+    }
+    reportSummaryContents[n] = dbe_->bookFloat(histo);
+  }
+
+  for (int i = 0; i < nFitElements_; i++) {
+    summaryContent_[i] = 0.;
+    reportSummaryContents[i]->Fill(1.);
+  }
   
+  dbe_->setCurrentFolder(monitorName_+"EventInfo");
+
+  reportSummaryMap = dbe_->get(monitorName_+"EventInfo/reportSummaryMap");
+  if (reportSummaryMap) dbe_->removeElement(reportSummaryMap->getName());
+  
+  reportSummaryMap = dbe_->book2D("reportSummaryMap", "Beam Spot Summary Map", 1, 0, 1, 3, 0, 3);
+  reportSummaryMap->setAxisTitle("",1);
+  reportSummaryMap->setAxisTitle("Fitted Beam Spot",2);
+  reportSummaryMap->setBinLabel(1," ",1);
+  reportSummaryMap->setBinLabel(1,"x_{0}",2);
+  reportSummaryMap->setBinLabel(2,"y_{0}",2);
+  reportSummaryMap->setBinLabel(3,"z_{0}",2);
+  for (int i = 0; i < nFitElements_; i++) {
+    reportSummaryMap->setBinContent(1,i+1,1.);
+  }
 }
 
 //--------------------------------------------------------
@@ -122,17 +160,22 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, 
-			  const EventSetup& iSetup )
-{  
+			  const EventSetup& iSetup ) {  
   countEvt_++;
   theBeamFitter->readEvent(iEvent);
+  Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  theBS = *recoBeamSpotHandle;
 }
 
 
 //--------------------------------------------------------
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
-  
+
+  reportSummary->Reset();
+  reportSummaryMap->Reset();
+
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
@@ -147,11 +190,11 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   
   if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of input tracks" << endl;
-  int i = 0;
+  int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
        BSTrk != theBSvector.end();
-       ++BSTrk, ++i){
-    if (i >= nthBSTrk_){
+       ++BSTrk, ++itrk){
+    if (itrk >= nthBSTrk_){
       h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
       double vx = BSTrk->vx();
       double vy = BSTrk->vy();
@@ -163,6 +206,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   nthBSTrk_ = theBSvector.size();
   if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
   
+  int nfits = countLumi_ / fitNLumi_;
   if (theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
@@ -174,6 +218,16 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
     h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
     h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+
+    if (fabs(theBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) {
+      summaryContent_[0] += 1.;
+    }
+    if (fabs(theBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) {
+      summaryContent_[1] += 1.;
+    }
+    if (fabs(theBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) {
+      summaryContent_[2] += 1.;
+    }
   }
   else { // Fill in empty beam spot if beamfit fails
     reco::BeamSpot bs;
@@ -184,7 +238,23 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       cout << "[BeamFitter] No fitting \n" << endl;      
     }
     h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
-    h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );    
+    h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+  }
+  
+  // Fill summary report
+  for (int n = 0; n < nFitElements_; n++) {
+    reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nfits );
+  }
+
+  summarySum_ = 0;
+  for (int ii = 0; ii < nFitElements_; ii++) {
+    summarySum_ += summaryContent_[ii];
+  }
+  reportSummary_ = summarySum_ / (nFitElements_ * nfits);
+  if (reportSummary) reportSummary->Fill(reportSummary_);
+
+  for ( int bi = 0; bi < nFitElements_ ; bi++) {
+    reportSummaryMap->setBinContent(1,bi+1,summaryContent_[bi] / (float)nfits);
   }
 
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
@@ -196,8 +266,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 //--------------------------------------------------------
 void BeamMonitor::endRun(const Run& r, const EventSetup& context){
-  
-  
+
 }
 //--------------------------------------------------------
 void BeamMonitor::endJob(){

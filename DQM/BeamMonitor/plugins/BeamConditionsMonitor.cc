@@ -2,8 +2,8 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/04 04:16:54 $
- * $Revision: 1.2 $
+ * $Date: 2009/11/04 22:41:24 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -87,7 +87,7 @@ void BeamConditionsMonitor::analyze(const Event& iEvent, const EventSetup& iSetu
 void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 					       const EventSetup& iSetup) {
 
-  LogInfo("BeamConditions") << condBeamSpot << endl;
+  LogInfo("BeamConditions") << "[BeamConditionsMonitor]:" << condBeamSpot << endl;
   h_x0_lumi->ShiftFillLast( condBeamSpot.GetX(), condBeamSpot.GetXError(), 1 );
   h_y0_lumi->ShiftFillLast( condBeamSpot.GetY(), condBeamSpot.GetYError(), 1 );
 
