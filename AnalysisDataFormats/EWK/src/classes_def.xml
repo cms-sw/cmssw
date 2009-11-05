@@ -1,5 +1,20 @@
 <lcgdict>
 
+   <class name="reco::WMuNuCandidatePtr"/>
+   <class name="std::vector<reco::WMuNuCandidatePtr>"/>
+   <class name="edm::Wrapper<std::vector<reco::WMuNuCandidatePtr> >"/>
+   <class name="edm::Ref<std::vector<reco::WMuNuCandidatePtr>,reco::WMuNuCandidatePtr,edm::refhelper::FindUsingAdvance<std::vector<reco::WMuNuCandidatePtr>,reco::WMuNuCandidatePtr> >"/>
+   <class name="edm::RefProd<std::vector<reco::WMuNuCandidatePtr> >"/>
+   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::WMuNuCandidatePtr> > >"/>
+
+   <class name="edm::RefToBase<reco::WMuNuCandidatePtr>" />
+   <class name="edm::reftobase::IndirectHolder<reco::WMuNuCandidatePtr>" />
+   <class name="edm::RefToBaseProd<reco::WMuNuCandidatePtr>" />
+   <class name="edm::RefToBaseVector<reco::WMuNuCandidatePtr>" />
+   <class name="edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidatePtr> >" />
+   <class name="edm::reftobase::BaseVectorHolder<reco::WMuNuCandidatePtr>" />
+
+
    <class name="reco::WMuNuCandidate"/>
    <class name="std::vector<reco::WMuNuCandidate>"/>
    <class name="edm::Wrapper<std::vector<reco::WMuNuCandidate> >"/>
@@ -14,9 +29,11 @@
    <class name="edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidate> >" />
    <class name="edm::reftobase::BaseVectorHolder<reco::WMuNuCandidate>" />
 
+
+
    <!-- 
-   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidate>" />
-   <class name="edm::reftobase::IndirectVectorHolder<reco::WMuNuCandidate>" />
+   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidatePtr>" />
+   <class name="edm::reftobase::IndirectVectorHolder<reco::WMuNuCandidatePtr>" />
  
     -->
  
