@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.22 2009/11/03 16:54:58 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.23 2009/11/05 13:58:58 dmytro Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ public:
    void replicateGeomElement(TEveElement*);
    void showProjectionAxes( );
    void setBackgroundColor(Color_t);
+   void eventEnd();
 
    //returns the new element created from this import
    TEveElement* importElements(TEveElement*, float iLayer);
@@ -104,12 +105,12 @@ private:
    // parameters
    FWDoubleParameter m_caloDistortion;
    FWDoubleParameter m_muonDistortion;
-   FWBoolParameter   m_showProjectionAxes;
-   FWBoolParameter   m_compressMuon;
+   FWBoolParameter m_showProjectionAxes;
+   FWBoolParameter m_compressMuon;
    FWDoubleParameter m_caloFixedScale;
-   FWBoolParameter   m_caloAutoScale;
+   FWBoolParameter m_caloAutoScale;
    FWDoubleParameter m_lineWidth;
-   FWBoolParameter   m_smoothLine;
+   FWBoolParameter m_smoothLine;
    FWBoolParameter*  m_showHF;
    FWBoolParameter*  m_showEndcaps;
 

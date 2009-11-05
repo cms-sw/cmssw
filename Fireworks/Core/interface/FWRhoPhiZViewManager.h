@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.32 2009/10/23 12:49:23 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.33 2009/10/31 21:51:30 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@ public:
    void selectionAdded(TEveElement*);
    void selectionRemoved(TEveElement*);
    void selectionCleared();
+   void eventEnd();
 
 protected:
    virtual void modelChangesComing() ;
@@ -120,7 +121,7 @@ private:
 
    FWSelectionManager* m_selectionManager;
    bool m_isBeingDestroyed;
-   
+
    TEveCalo3D* m_calo3d;
    TEveCaloDataHist* m_caloData;
 };

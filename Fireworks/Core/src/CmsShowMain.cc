@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.97 2009/10/27 10:33:48 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.98 2009/11/05 13:54:04 dmytro Exp $
 //
 
 // system include files
@@ -418,9 +418,11 @@ void CmsShowMain::draw(const fwlite::Event& event)
    if (m_liveMode) m_liveTimer->Reset();
    m_guiManager->updateStatus("loading event ...");
    m_guiManager->enableActions(false);
+   m_viewManager->eventBegin();
    m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(&event);
    // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
+   m_viewManager->eventEnd();
    m_guiManager->clearStatus();
    if(m_isPlaying) {
       if(m_forward) {

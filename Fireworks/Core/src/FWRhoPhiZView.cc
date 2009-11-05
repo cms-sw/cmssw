@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.50 2009/11/03 14:01:51 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.51 2009/11/05 13:58:59 dmytro Exp $
 //
 
 #define private public
@@ -462,5 +462,12 @@ FWRhoPhiZView::lineSmoothnessChanged()
 {
    m_embeddedViewer->SetSmoothLines(m_smoothLine.value());
    m_embeddedViewer->RequestDraw();
+}
+
+void
+FWRhoPhiZView::eventEnd()
+{
+   if (not m_caloAutoScale.value()) return;
+   updateScaleParameters();
 }
 

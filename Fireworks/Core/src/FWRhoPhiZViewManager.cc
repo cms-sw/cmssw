@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.56 2009/10/28 15:37:04 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.57 2009/10/31 21:51:31 chrjones Exp $
 //
 
 // system include files
@@ -137,19 +137,19 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
-   
+
    m_caloData = new TEveCaloDataHist();
    m_caloData->IncDenyDestroy();
    FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_caloData);
    //make sure it is accessible via the base class
-   m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));  
+   m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
    Bool_t status = TH1::AddDirectoryStatus();
    TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
    TH2F* background = new TH2F("background","",
                                82, fw3dlego::xbins, 72/1, -3.1416, 3.1416);
    TH1::AddDirectory(status);
    m_caloData->AddHistogram(background);
-   
+
    m_calo3d = new TEveCalo3D(m_caloData, "RPZCalo3D");
    m_calo3d->SetBarrelRadius(129);
    m_calo3d->SetEndCapPos(310);
@@ -164,7 +164,7 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 
    m_eveStore->DestroyElements();
    m_eveStore->Destroy();
-   
+
    m_calo3d->DecDenyDestroy();
    m_caloData->DecDenyDestroy();
 }
@@ -221,13 +221,13 @@ FWRhoPhiZViewManager::createRhoZView(TEveWindowSlot* iParent)
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(),
-                           itEnd = m_rhoZGeomProjMgr->EndChildren();
+       itEnd = m_rhoZGeomProjMgr->EndChildren();
        it != itEnd;
        ++it) {
       pView->replicateGeomElement(*it);
    }
    pView->resetCamera();
-   
+
    pView->importElements(m_calo3d,0);
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
          builderIter != m_builders.end(); ++builderIter )  {
@@ -290,7 +290,7 @@ FWRhoPhiZViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
-void 
+void
 FWRhoPhiZViewManager::colorsChanged()
 {
    for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it =  m_rhoPhiViews.begin(), itEnd=m_rhoPhiViews.end();
@@ -815,4 +815,14 @@ FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
       }
    }
    return returnValue;
+}
+
+void
+FWRhoPhiZViewManager::eventEnd(){
+   for ( std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator view = m_rhoPhiViews.begin();
+         view != m_rhoPhiViews.end(); ++view )
+      (*view)->eventEnd();
+   for ( std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator view = m_rhoZViews.begin();
+         view != m_rhoZViews.end(); ++view )
+      (*view)->eventEnd();
 }
