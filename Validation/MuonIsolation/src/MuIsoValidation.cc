@@ -444,7 +444,7 @@ void MuIsoValidation::NormalizeHistos() {
     //0th bin doesn't need changed
     
     double entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
-    
+    if (entries==0)continue;
     int n_max = int(param[var][0])+1;
     for(int n=1; n<=n_max; ++n){
       cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
