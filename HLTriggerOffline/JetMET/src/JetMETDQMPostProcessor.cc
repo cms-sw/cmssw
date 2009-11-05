@@ -39,7 +39,7 @@ void JetMETDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& 
    edm::LogWarning("JetMETDQMPostProcessor") << "cannot find directory: " << subDir_ << " , skipping";
     return;
   }
-
+  
   std::vector<std::string> subdirectories = dqm->getSubdirs();
   for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); dir++ ){
     dqm->cd(*dir);
@@ -63,6 +63,7 @@ void JetMETDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& 
     _meTurnOnJetPt->getTH1F()->Divide(_meTurnOnJetPt->getTH1F(),dqm->get(dqm->pwd() + "/_meGenJetPt")->getTH1F(),1,1,"B");
     
     dqm->goUp(); 
+  }
 }
 void JetMETDQMPostProcessor::endJob()
 {
