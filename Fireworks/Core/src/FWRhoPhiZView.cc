@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.49 2009/11/03 12:12:24 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.50 2009/11/03 14:01:51 amraktad Exp $
 //
 
 #define private public
@@ -107,7 +107,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
    m_compressMuon(this,"Compress detectors",false),
-   m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
+   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
    m_lineWidth(this,"Line width",1.0,1.0,10.0),
    m_smoothLine(this,"Smooth line",false),
@@ -119,7 +119,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    TEveViewer* nv = new TEveViewer(iName.c_str());
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
-   gEve->GetViewers()->AddElement(nv); 
+   gEve->GetViewers()->AddElement(nv);
 
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
    m_scene.reset(ns);
@@ -146,11 +146,11 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
    gEve->AddToListTree(m_projMgr.get(),kTRUE); // debug
-   
+
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
-   
+
    m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(m_embeddedViewer->CurrentCamera()) ) ) {
       m_cameraZoom = &(camera->fZoom);
@@ -212,8 +212,7 @@ FWRhoPhiZView::doDistortion()
    }
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
 
 void
@@ -222,9 +221,7 @@ FWRhoPhiZView::doCompression(bool flag)
    m_projMgr->GetProjection()->SetUsePreScale(flag);
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
-
+   gEve->Redraw3D();
 }
 
 void
@@ -342,7 +339,7 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
@@ -386,7 +383,7 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream osIndex;
       osIndex << i;
       std::ostringstream osValue;
@@ -404,7 +401,7 @@ FWRhoPhiZView::saveImageTo(const std::string& iName) const
    }
 }
 
-FWViewContextMenuHandlerBase* 
+FWViewContextMenuHandlerBase*
 FWRhoPhiZView::contextMenuHandler() const {
    return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
 }
@@ -415,21 +412,19 @@ FWRhoPhiZView::updateScaleParameters()
 {
    updateCalo(m_projMgr.get());
    updateCaloLines(m_projMgr.get());
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
 
 void
 FWRhoPhiZView::updateCaloParameters()
 {
    updateCalo(m_projMgr.get());
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
-
-void
-FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
-{
+/*
+   void
+   FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
+   {
    if ( !calo->GetData() ) return;
 
    TEveCaloDataHist* data = (TEveCaloDataHist*)data;
@@ -443,8 +438,8 @@ FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
          break;
       }
    }
-}
-
+   }
+ */
 void FWRhoPhiZView::showProjectionAxes( )
 {
    if ( !m_axes ) return; // just in case
@@ -458,14 +453,14 @@ void FWRhoPhiZView::showProjectionAxes( )
 void
 FWRhoPhiZView::lineWidthChanged()
 {
-  m_embeddedViewer->SetLineScale(m_lineWidth.value());
-  m_embeddedViewer->RequestDraw();
+   m_embeddedViewer->SetLineScale(m_lineWidth.value());
+   m_embeddedViewer->RequestDraw();
 }
 
 void
 FWRhoPhiZView::lineSmoothnessChanged()
 {
-  m_embeddedViewer->SetSmoothLines(m_smoothLine.value());
-  m_embeddedViewer->RequestDraw();
+   m_embeddedViewer->SetSmoothLines(m_smoothLine.value());
+   m_embeddedViewer->RequestDraw();
 }
 

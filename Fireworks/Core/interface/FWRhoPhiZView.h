@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.21 2009/11/03 12:12:24 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.22 2009/11/03 16:54:58 amraktad Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ private:
    void updateScaleParameters();
    void updateCalo(TEveElement*, bool dataChanged = false);
    void updateCaloLines(TEveElement*);
-   void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
+   // void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
    void lineWidthChanged();
    void lineSmoothnessChanged();
 
