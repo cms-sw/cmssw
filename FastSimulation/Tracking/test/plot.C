@@ -22,6 +22,7 @@ void Efficiency(unsigned int iter) {
   
   gROOT->Reset();
   TFile *f = new TFile("testTrackingIterations.root");
+  //  TFile *f = new TFile("testTrackingIterations_fullstat.root");
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
@@ -174,7 +175,8 @@ void Efficiency(unsigned int iter) {
 void Hits(unsigned int iter) {
   
   gROOT->Reset();
-  TFile *f = new TFile("testTrackingIterations.root");
+    TFile *f = new TFile("testTrackingIterations.root");
+    //TFile *f = new TFile("testTrackingIterations_fullstat.root");
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
@@ -266,12 +268,13 @@ void Hits(unsigned int iter) {
 void Layers(unsigned int iter) {
   
   gROOT->Reset();
-  TFile *f = new TFile("testTrackingIterations.root");
+    TFile *f = new TFile("testTrackingIterations.root");
+  //TFile *f = new TFile("testTrackingIterations_fullstat.root");
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
-  std::vector<const char *> titleFull;
-  std::vector<const char *> titleFast;
+  std::vector<char *> titleFull;
+  std::vector<char *> titleFast;
   titleFull.push_back("LayersFull_p_0_2");
   titleFull.push_back("LayersFull_p_2_4");
   titleFull.push_back("LayersFull_p_4_6");
@@ -357,17 +360,21 @@ void Layers(unsigned int iter) {
 void totalEfficiency(unsigned int iter) {
   
   gROOT->Reset();
-  TFile *f = new TFile("testTrackingIterations.root");
+
+    TFile *f = new TFile("testTrackingIterations.root");
+  //TFile *f = new TFile("testTrackingIterations_fullstat.root");
   if(f->IsZombie() ) return;
   f->cd("DQMData"); 
 
   TCanvas *c = new TCanvas("c","",1000, 600);
   c->Divide(1,2);
+  TH2F* iter0Fast;
   TH2F* iter1Fast;
   TH2F* iter2Fast;
   TH2F* iter3Fast;
   TH2F* iter4Fast;
   TH2F* iter5Fast;
+  TH2F* iter0Full;
   TH2F* iter1Full;
   TH2F* iter2Full;
   TH2F* iter3Full;
@@ -375,6 +382,8 @@ void totalEfficiency(unsigned int iter) {
   TH2F* iter5Full;
   TH2F* genPlot;
   genPlot = (TH2F*) gDirectory->Get("genEtaP");
+  iter0Full = (TH2F*) gDirectory->Get("eff0Full");
+  iter0Fast = (TH2F*) gDirectory->Get("eff0Fast");
   iter1Full = (TH2F*) gDirectory->Get("eff1Full");
   iter1Fast = (TH2F*) gDirectory->Get("eff1Fast");
   iter2Full = (TH2F*) gDirectory->Get("eff2Full");
