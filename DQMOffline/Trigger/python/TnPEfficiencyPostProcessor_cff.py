@@ -136,10 +136,10 @@ upsilonClient = cms.EDAnalyzer("DQMGenericTnPClient",
 
 ZPars = cms.untracked.PSet(
     MassDimension = cms.untracked.int32(2),
-    FitFunction = cms.untracked.string("GaussianPlusLinear"),
+    FitFunction = cms.untracked.string("VoigtianPlusExponential"),
     ExpectedMean = cms.untracked.double(91.),
     ExpectedSigma = cms.untracked.double(1.),
-    Width = cms.untracked.double(2.5),
+    FixedWidth = cms.untracked.double(2.5),
     FitRangeLow = cms.untracked.double(65),
     FitRangeHigh = cms.untracked.double(115),
     SignalRangeLow = cms.untracked.double(81),
