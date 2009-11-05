@@ -1,9 +1,57 @@
-#include "Alignment/TrackerAlignment/plugins/OverlapTagger.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventPrincipal.h" 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
+#include "Utilities/General/interface/ClassName.h"
+
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+//#include <boost/regex.hpp>
+
+class TkAlCaOverlapTagger : public edm::EDProducer {
+ public:
+  TkAlCaOverlapTagger(const edm::ParameterSet &iConfig);
+  ~TkAlCaOverlapTagger();
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
+
+ private:
+  edm::InputTag src_;
+  edm::InputTag srcClust_;
+  bool rejectBadMods_;
+  std::vector<unsigned int> BadModsList_;
+
+
+  int layerFromId (const DetId& id) const;
+};
 
 using namespace edm;
 using namespace reco;
 
-OverlapTagger::OverlapTagger(const edm::ParameterSet& iConfig):
+TkAlCaOverlapTagger::TkAlCaOverlapTagger(const edm::ParameterSet& iConfig):
   src_( iConfig.getParameter<edm::InputTag>("src") ),
   srcClust_( iConfig.getParameter<edm::InputTag>("Clustersrc") ),
   rejectBadMods_(  iConfig.getParameter<bool>("rejectBadMods")),
@@ -13,13 +61,13 @@ OverlapTagger::OverlapTagger(const edm::ParameterSet& iConfig):
   produces<AliClusterValueMap>(); //produces the ValueMap (VM) to be stored in the Event at the end
 }
 
-OverlapTagger::~OverlapTagger(){}
+TkAlCaOverlapTagger::~TkAlCaOverlapTagger(){}
 
 
-void OverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
+void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
   edm::Handle<TrajTrackAssociationCollection> assoMap;
   iEvent.getByLabel(src_,  assoMap);
-  // cout<<"\n\n############################\n###  Starting a new OverlapTagger - Ev "<<iEvent.id().run()<<", "<<iEvent.id().event()<<endl;
+  // cout<<"\n\n############################\n###  Starting a new TkAlCaOverlapTagger - Ev "<<iEvent.id().run()<<", "<<iEvent.id().event()<<endl;
 
   AlignmentClusterFlag iniflag;
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelclusters;
@@ -105,13 +153,13 @@ void OverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
 		  //cout<<">>> Storing in the ValueMap a StripClusterRef with Cluster.Key: "<<stripclust.key()<<" ("<<striphit->cluster().key() <<"), Cluster.Id: "<<stripclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
 		}
 		else{
-		  cout<<"ERROR in <OverlapTagger::produce>: ProdId of Strip clusters mismatched: "<<stripclust.id()<<" vs "<<stripclusters.id() <<endl;
+		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Strip clusters mismatched: "<<stripclust.id()<<" vs "<<stripclusters.id();
 		}
 
 		// cout<<"Cluster baricentre: "<<stripclust->barycenter()<<endl;
 	      }
 	      else{
-		cout<<"ERROR in <OverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
+		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 	      }
 	    }
 	    else {//pixel hit
@@ -125,11 +173,11 @@ void OverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
 		  //cout<<">>> Storing in the ValueMap a PixelClusterRef with ProdID: "<<pixclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")" <<endl;//"  and  a Val with ID: "<<flag.id()<<endl;
 		}
 		else{
-		  cout<<"ERROR in <OverlapTagger::produce>: ProdId of Pixel clusters mismatched: "<<pixclust.id()<<" vs "<<pixelclusters.id() <<endl;
+		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Pixel clusters mismatched: "<<pixclust.id()<<" vs "<<pixelclusters.id();
 		}
 	      }
 	      else{
-		cout<<"ERROR in <OverlapTagger::produce>: Dynamic cast of Pixel RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
+		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Pixel RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 	      }
 	    }//end 'else' it is a pixel hit
 
@@ -166,8 +214,8 @@ void OverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
 
   // iEvent.put(stripmap);
   iEvent.put(hitvalmap);
-}//end  OverlapTagger::produce
-int OverlapTagger::layerFromId (const DetId& id) const
+}//end  TkAlCaOverlapTagger::produce
+int TkAlCaOverlapTagger::layerFromId (const DetId& id) const
 {
  if ( uint32_t(id.subdetId())==PixelSubdetector::PixelBarrel ) {
     PXBDetId tobId(id);
@@ -201,4 +249,4 @@ int OverlapTagger::layerFromId (const DetId& id) const
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(OverlapTagger);
+DEFINE_FWK_MODULE(TkAlCaOverlapTagger);

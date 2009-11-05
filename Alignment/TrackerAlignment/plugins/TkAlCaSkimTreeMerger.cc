@@ -1,6 +1,65 @@
-#include "Alignment/TrackerAlignment/plugins/TreeMerger.h"
 
-TreeMerger::TreeMerger(const edm::ParameterSet &iConfig) :
+#ifndef TrackerAlignment_TkAlCaSkimTreeMerger_H
+#define TrackerAlignment_TkAlCaSkimTreeMerger_H
+
+#include <Riostream.h>
+#include <string>
+#include <fstream>
+#include <map>
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventPrincipal.h" 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+
+#include "TFile.h"
+#include "TString.h"
+#include "TChain.h"
+#include "TStopwatch.h"
+
+class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
+
+ public:
+  TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig);
+  ~TkAlCaSkimTreeMerger();
+  void beginJob( const edm::EventSetup &iSetup);
+  void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+ private:
+  TTree *out_;//TTree containing the merged result
+  TTree *firsttree_;//first tree of the list; this gives the structure to all the others 
+  TChain *ch_;//chain containing all the tree you want to merge
+  std::string filelist_;//text file containing the list of input files
+  std::string firstfilename_;
+  std::string treename_;//name of the tree you want to merge (contained in the file)
+  std::string outfilename_;//name of the file where you want to save the output
+ 
+  //Hit Population
+  typedef map<uint32_t,uint32_t>DetHitMap;
+  DetHitMap hitmap_;
+  DetHitMap overlapmap_;
+  int maxhits_;//above this number, the hit population is prescaled. Configurable for each subdet 
+  edm::ParameterSet maxhitsSet_;
+  int maxPXBhits_, maxPXFhits_, maxTIBhits_, maxTIDhits_, maxTOBhits_, maxTEChits_;
+ 
+
+  TStopwatch myclock;
+
+};
+
+
+
+
+#endif
+
+
+TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig) :
     filelist_(iConfig.getParameter<string>("FileList")), 
     treename_(iConfig.getParameter<string>("TreeName")),
     outfilename_(iConfig.getParameter<string>("OutputFile")),
@@ -16,10 +75,13 @@ TreeMerger::TreeMerger(const edm::ParameterSet &iConfig) :
   maxTEChits_=maxhitsSet_.getParameter<int32_t>("TECmaxhits");
   //anything you want to do for initializing
   cout<<"\n\n*** MAX N HITS = "<<maxhits_<<endl<<endl;
+  out_=0;
+  firsttree_=0;
+  ch_=0;
 }
 
 
-TreeMerger::~TreeMerger(){
+TkAlCaSkimTreeMerger::~TkAlCaSkimTreeMerger(){
   //default destructor
   // delete out_;
   // delete firsttree_;
@@ -29,7 +91,7 @@ TreeMerger::~TreeMerger(){
 }
 
 // ------------ method called before analyzing the first event  ------------
-void TreeMerger::beginJob( const edm::EventSetup &iSetup){
+void TkAlCaSkimTreeMerger::beginJob( const edm::EventSetup &iSetup){
  
   myclock.Start();
 
@@ -118,12 +180,12 @@ void TreeMerger::beginJob( const edm::EventSetup &iSetup){
 
 
 // ------------ method called to for each event  ------------
-void TreeMerger::analyze(const edm::Event&, const edm::EventSetup&){
+void TkAlCaSkimTreeMerger::analyze(const edm::Event&, const edm::EventSetup&){
     // cout<<firsttree_->GetEntries()<<endl;
 }//end analyze
 
 // ------------ method called after having analyzed all the events  ------------
-void TreeMerger::endJob(){
+void TkAlCaSkimTreeMerger::endJob(){
 
 
   //address variables in the first tree and in the chain
@@ -256,5 +318,5 @@ void TreeMerger::endJob(){
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TreeMerger);
+DEFINE_FWK_MODULE(TkAlCaSkimTreeMerger);
 
