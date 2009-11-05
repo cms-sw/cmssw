@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.24 2009/10/02 17:55:26 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.25 2009/10/27 01:55:28 dmytro Exp $
 //
 
 // system include files
@@ -15,6 +15,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
+#include "Fireworks/Core/interface/FWFileEntry.h"
 #include "TEventList.h"
 
 // forward declarations
@@ -28,28 +29,7 @@ namespace edm {
    class EventID;
 }
 
-struct FWFileEntry{
-  FWFileEntry():
-    file(0), eventTree(0), event(0){};
-  bool anySelectedEvents() const{
-    if ( eventTree && mainSelection.GetN()>0 ) 
-      return true;
-    else
-      return false;
-  }
-  // file name
-  std::string name;
-  // named lists in order to use in Draw() command living in the file directory 
-  std::vector<TEventList*> lists;
-  std::vector<std::string> selections;
-  // unnamed main selection list
-  TEventList mainSelection;
-  TFile *file;
-  TTree *eventTree;
-  fwlite::Event *event;
-};
-
-class CmsShowNavigator: public FWConfigurable
+class CmsShowNavigator : public FWConfigurable
 {
 public:
 
@@ -68,16 +48,18 @@ public:
    void checkPosition();
    void nextEvent();
    void previousEvent();
-   void firstEvent(); 
+   void firstEvent();
    void firstEventInTheCurrentFile();
    void lastEvent();
    void lastEventInTheCurrentFile();
    void enableEventFiltering( Bool_t);
-   void filterEvents(); 
+   void filterEvents();
    void filterEventsAndReset();
    void goToEvent(Int_t,Int_t);
    void checkForNewFiles();
-   void setMaxNumberOfFilesToChain( unsigned int i ){ m_maxNumberOfFilesToChain = i; }
+   void setMaxNumberOfFilesToChain( unsigned int i ){
+      m_maxNumberOfFilesToChain = i;
+   }
    void showEventFilter(const TGWindow*);
 
    sigc::signal<void, const fwlite::Event&> newEvent_;
@@ -100,7 +82,7 @@ private:
    bool filterEventsWithCustomParser(FWFileEntry& file, int, std::string);
 
    // ---------- member data --------------------------------
-   unsigned int m_maxNumberOfFilesToChain; 
+   unsigned int m_maxNumberOfFilesToChain;
    std::deque<FWFileEntry> m_files;
    std::deque<FWFileEntry>::iterator m_currentFile;
    std::vector<FWEventSelector*> m_selectors;
