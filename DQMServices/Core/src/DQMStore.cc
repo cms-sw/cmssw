@@ -1520,8 +1520,9 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
         if (! me)
         {
 	  std::cout << "*** DQMStore: WARNING: no monitor element '"
-		    << mename << "' for quality test '"
-		    << label << "' \n";
+		    << mename << "' in directory '"
+		    << dir << "' for quality test '"
+		    << label << "'\n";
 	  return false;
         }
 
