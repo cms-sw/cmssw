@@ -10,13 +10,23 @@ harvesting = (os.environ.get('HARVESTING',True))
 print 'harvesting (default=True) = '+str(harvesting)
 #
 # --- [reference histogram (default=jetMETMonitoring_test.root)]
-reference_histogram = (os.environ.get('REFERENCE_HISTOGRAM','jetMETMonitoring_test.root'))
-print 'reference_histogram = '+str(reference_histogram)
+reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_test.root'))
+print 'reference_histogram_file = '+str(reference_histogram_file)
 #
-# --- [input file(s) for certification (default=reco_DQM_test.root)]
-input_root_files = os.environ.get('INPUTFILES','file:reco_DQM_test.root').split(",")
+# --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
+input_root_files = os.environ.get('INPUTFILES','reco_DQM_test.root').split(",")
 print 'input_root_files = '+str(input_root_files)
 print
+
+input_files = []
+if harvesting:
+  for file in input_root_files:        # Second Example
+     input_files.append('file:'+str(file))
+else:
+  test_histogram_file = os.environ.get('TEST_HISTOGRAM_FILE','jetMETMonitoring_test.root')
+  print 'test_histogram_file = '+str(test_histogram_file)
+    
+
 
 #-----------------------------
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -34,7 +44,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1)
 process.source = cms.Source("PoolSource",
     processingMode = cms.untracked.string('RunsAndLumis'),
 #   fileNames = cms.untracked.vstring('file:reco_DQM_cruzet100945.root')
-    fileNames = cms.untracked.vstring(input_root_files)
+    fileNames = cms.untracked.vstring(input_files)
 )
 
 #-----
@@ -45,7 +55,7 @@ process.dqmSaver.referenceHandling = cms.untracked.string('all')
 #-----------------------------
 # Specify root file including reference histograms
 #-----------------------------
-process.DQMStore.referenceFileName = reference_histogram
+process.DQMStore.referenceFileName = reference_histogram_file
 
 #-----------------------------
 # Locate a directory in DQMStore
@@ -69,7 +79,7 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
 #
 #--- When read in RECO file including EDM from ME
 #                             fileName       = cms.untracked.string("jetMETMonitoring_cruzet98154.root"),
-                              fileName       = cms.untracked.string(""),
+                                fileName       = cms.untracked.string(""),
 #
 #--- Do note save here. Save output by dqmSaver
                               OutputFile     = cms.untracked.bool(False),
@@ -77,6 +87,11 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
 #
                               Verbose        = cms.untracked.int32(0)
 )
+
+if harvesting:
+  print
+else:
+  process.dataCertificationJetMET.fileName = cms.untracked.string(test_histogram_file)
 
 #-----------------------------
 # 
