@@ -3,6 +3,7 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
+#include <limits.h>
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
 #include "EventFilter/StorageManager/test/MockAlarmHandler.h"
 #include "EventFilter/StorageManager/test/TestHelper.h"
