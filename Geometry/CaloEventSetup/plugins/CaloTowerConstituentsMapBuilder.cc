@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.1 2007/04/15 23:16:28 wmtan Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.2 2009/05/09 20:30:11 elmer Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include <zlib.h>
 #include <cstdio>
+#include <strings.h>
 
 //
 // constructors and destructor
