@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/08/14 15:03:59 $
- * $Revision: 1.23 $
+ * $Date: 2009/09/06 11:10:15 $
+ * $Revision: 1.24 $
  * $Author: ameyer $
  *
  */
@@ -21,13 +21,23 @@
 using namespace edm;
 using namespace std;
 
+static inline double stampToReal(edm::Timestamp time)
+{ return (time.value() >> 32) + 1e-6*(time.value() & 0xffffffff); }
+
+static inline double stampToReal(const timeval &time)
+{ return time.tv_sec + 1e-6*time.tv_usec; }
+
 DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   
+  struct timeval now;
+  gettimeofday(&now, 0);
+
   parameters_ = ps;
   pEvent_ = 0;
   evtRateCount_ = 0;
-  gettimeofday(&currentTime_,NULL);
-  lastAvgTime_ = currentTime_;
+//  gettimeofday(&currentTime_,NULL);
+//  lastAvgTime_ = currentTime_;
+  lastAvgTime_ = currentTime_ = stampToReal(now);
   
   dbe_ = edm::Service<DQMStore>().operator->();
 
@@ -52,7 +62,8 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   dbe_->setCurrentFolder(currentfolder) ;
   //Process specific contents
   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
-  processTimeStamp_->Fill(getUTCtime(&currentTime_));
+//  processTimeStamp_->Fill(getUTCtime(&currentTime_));
+  processTimeStamp_->Fill(currentTime_);
   processLatency_ = dbe_->bookFloat("processLatency");
   processTimeStamp_->Fill(-1);
   processEvents_ = dbe_->bookInt("processedEvents");
@@ -66,7 +77,8 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   processId_= dbe_->bookInt("processID"); 
   processId_->Fill(gSystem->GetPid());
   processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
-  processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
+//  processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
+  processStartTimeStamp_->Fill(currentTime_);
   runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
   hostName_= dbe_->bookString("hostName",gSystem->HostName());
   processName_= dbe_->bookString("processName",subsystemname);
@@ -85,16 +97,17 @@ DQMEventInfo::~DQMEventInfo(){
 
 void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
     
-  const edm::Timestamp time = r.beginTime();
-
-  float sec = time.value() >> 32; 
-  float usec = 0xFFFFFFFF & time.value() ; 
-
-  // cout << " begin Run " << r.run() << " " << time.value() << endl;
-  // cout << setprecision(16) << getUTCtime(&currentTime_) << endl;
-  // cout << sec+usec/1000000. << endl;
-
-  runStartTimeStamp_->Fill(sec+usec/1000000.);
+//   const edm::Timestamp time = r.beginTime();
+// 
+//   float sec = time.value() >> 32; 
+//   float usec = 0xFFFFFFFF & time.value() ; 
+// 
+//   // cout << " begin Run " << r.run() << " " << time.value() << endl;
+//   // cout << setprecision(16) << getUTCtime(&currentTime_) << endl;
+//   // cout << sec+usec/1000000. << endl;
+// 
+//   runStartTimeStamp_->Fill(sec+usec/1000000.);
+  runStartTimeStamp_->Fill(stampToReal(r.beginTime()));
   
 } 
 
@@ -102,30 +115,43 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
  
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
-  eventId_->Fill(e.id().event());
-  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
+  eventId_->Fill(static_cast<unsigned int>(e.id().event()));
+//  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
+  eventTimeStamp_->Fill(stampToReal(e.time()));
 
   pEvent_++;
   evtRateCount_++;
   processEvents_->Fill(pEvent_);
 
-  lastUpdateTime_=currentTime_;
-  gettimeofday(&currentTime_,NULL);  
-  processTimeStamp_->Fill(getUTCtime(&currentTime_));
-  processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
+//  lastUpdateTime_=currentTime_;
+//  gettimeofday(&currentTime_,NULL);  
+//  processTimeStamp_->Fill(getUTCtime(&currentTime_));
+//  processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
+//
+//  float time = getUTCtime(&lastAvgTime_,&currentTime_);
+//  if(time>=(evtRateWindow_*60.0)){
+//    processEventRate_->Fill((float)evtRateCount_/time);
+  struct timeval now;
+  gettimeofday(&now, 0);
+  lastUpdateTime_ = currentTime_;
+  currentTime_ = stampToReal(now);
 
-  float time = getUTCtime(&lastAvgTime_,&currentTime_);
-  if(time>=(evtRateWindow_*60.0)){
-    processEventRate_->Fill((float)evtRateCount_/time);
+  processTimeStamp_->Fill(currentTime_);
+  processLatency_->Fill(currentTime_ - lastUpdateTime_);
+
+  double delta = currentTime_ - lastAvgTime_;
+  if (delta >= (evtRateWindow_*60.0))
+  {
+    processEventRate_->Fill(evtRateCount_/delta);
     evtRateCount_ = 0;
     lastAvgTime_ = currentTime_;    
   }
 
   return;
 }
-
-double DQMEventInfo::getUTCtime(timeval* a, timeval* b){
-  double deltaT=(*a).tv_sec*1000.0+(*a).tv_usec/1000.0;
-  if(b!=NULL) deltaT=(*b).tv_sec*1000.0+(*b).tv_usec/1000.0 - deltaT;
-  return deltaT/1000.0;
-}
+//
+//double DQMEventInfo::getUTCtime(timeval* a, timeval* b){
+//  double deltaT=(*a).tv_sec*1000.0+(*a).tv_usec/1000.0;
+//  if(b!=NULL) deltaT=(*b).tv_sec*1000.0+(*b).tv_usec/1000.0 - deltaT;
+//  return deltaT/1000.0;
+//}
