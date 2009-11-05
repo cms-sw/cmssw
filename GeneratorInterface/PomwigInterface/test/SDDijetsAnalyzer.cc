@@ -35,7 +35,7 @@ private:
   TH1F* hJetDeltaEta;
   TH1F* hJetDeltaPhi;
   TH1F* hJetDeltaPt;
-  TH1F* hThrust;
+  //TH1F* hThrust;
   TH1F* hEnergyvsEta;
   TH1F* hXiGen;
   TH1F* hProtonPt2;	
@@ -56,7 +56,7 @@ private:
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "CommonTools/CandUtils/interface/Thrust.h"
+//#include "PhysicsTools/CandUtils/interface/Thrust.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -95,7 +95,7 @@ void SDDijetsAnalyzer::beginJob(){
   hJetDeltaEta = fs->make<TH1F>("hJetDeltaEta","hJetDeltaEta",100,-5.,5.);
   hJetDeltaPhi = fs->make<TH1F>("hJetDeltaPhi","hJetDeltaPhi",100,-3.141592,3.141592);
   hJetDeltaPt = fs->make<TH1F>("hJetDeltaPt","hJetDeltaPt",100,0.,100.);
-  hThrust = fs->make<TH1F>("hThrust","hThrust",100,0.,1.);
+  //hThrust = fs->make<TH1F>("hThrust","hThrust",100,0.,1.);
 
   hEnergyvsEta = fs->make<TH1F>("hEnergyvsEta","hEnergyvsEta",100,-15.0,15.0); 		
   hXiGen = fs->make<TH1F>("hXiGen","hXiGen",100,0.,0.21);
@@ -200,13 +200,13 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 	hJetDeltaPt->Fill(jet1->pt() - jet2->pt());	
   }
 
-  //Calculate Thrust
+  /*//Calculate Thrust
   edm::Handle<edm::View<reco::Candidate> > genParticlesVisible;
   ev.getByLabel("genParticlesVisible", genParticlesVisible);
   Thrust mythrust(genParticlesVisible->begin(),genParticlesVisible->end());
   double thrustValue = mythrust.thrust();
   if(debug) std::cout << ">>> Event Thrust: " << thrustValue << std::endl;
-  hThrust->Fill(thrustValue);
+  hThrust->Fill(thrustValue);*/
 				
 }
 
