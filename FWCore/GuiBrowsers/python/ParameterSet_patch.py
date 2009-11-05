@@ -391,3 +391,105 @@ def new__ModuleSequenceType__iadd__(self,other):
     return self.old__iadd__(other)
 cms._ModuleSequenceType.old__iadd__ = cms._ModuleSequenceType.__iadd__
 cms._ModuleSequenceType.__iadd__ = new__ModuleSequenceType__iadd__
+
+if __name__=='__main__':
+    import unittest
+    class TestModificationTracking(unittest.TestCase):
+        def setUp(self):
+            pass
+        def testPSet(self):
+            ex = cms.EDAnalyzer("Example",
+                one = cms.double(0),
+                two = cms.bool(True),
+                ps = cms.PSet(
+                    three = cms.int32(10),
+                    four = cms.string('abc')
+                ),
+                vps = cms.VPSet(
+                    cms.PSet(
+                        five = cms.InputTag('alpha')
+                    ),
+                    cms.PSet(
+                        six = cms.vint32(1,2,3)
+                    )
+                ),
+                seven = cms.vstring('alpha','bravo','charlie'),
+                eight = cms.vuint32(range(10)),
+                nine = cms.int32(0)
+            )
+            ex.zero = cms.string('hello')
+            self.assertEqual(ex._modifications[-1]['name'],'zero')
+            ex.one = cms.double(1)
+            ex.one = cms.double(2)
+            ex.one = cms.double(3)
+            self.assertEqual(ex._modifications[-1]['name'],'one')
+            self.assertEqual(ex._modifications[-2]['name'],'one')
+            self.assertEqual(ex._modifications[-3]['name'],'one')
+            ex.two = False
+            self.assertEqual(ex._modifications[-1]['name'],'two')
+            ex.ps.three.setValue(100) # MISSED
+            #self.assertEqual(ex.ps._modifications.pop()['name'],'three')
+            ex.ps.four = 'def'
+            self.assertEqual(ex.ps._modifications[-1]['name'],'four')
+            ex.vps[0].five = cms.string('beta')
+            self.assertEqual(ex.vps[0]._modifications[-1]['name'],'five')
+            ex.vps[1].__dict__['six'] = cms.vint32(1,4,9) # MISSED
+            #self.assertEqual(ex.vps[1]._modifications[-1]['name'],'six')
+            ex.seven[0] = 'delta' # MISSED
+            #self.assertEqual(ex._modifications[-1]['name'],'seven')
+            ex.eight.pop() # MISSED
+            #self.assertEqual(ex._modifications[-1]['name'],'eight')
+            del ex.nine
+            #self.assertEqual(ex._modifications[-1]['name'],'nine')
+            ex.newvpset = cms.VPSet()
+            self.assertEqual(ex._modifications[-1]['name'],'newvpset')
+            
+            process = cms.Process('unittest')
+            process.ex = ex
+            mods = process.dumpModifications()
+            self.assert_('process.ex.zero' in mods)
+            self.assert_('process.ex.one' in mods)
+            self.assert_('process.ex.two' in mods)
+            #self.assert_('process.ex.three' in mods)
+            self.assert_('process.ex.ps.four' in mods)
+            self.assert_('process.ex.vps[0].five' in mods)
+            #self.assert_('process.ex.vps[1].six' in mods)
+            #self.assert_('process.ex.seven[0]' in mods)
+            #self.assert_('process.ex.eight' in mods)
+            #self.assert_('process.ex.nine' in mods)
+            self.assert_('process.ex.newvpset' in mods)
+            
+        def testSeq(self):
+            process = cms.Process('unittest')
+            for i in range(10):
+              setattr(process,'f%s'%i,cms.EDFilter('f%s'%i))
+            process.seq1 = cms.Sequence(process.f1*process.f2*process.f3)
+            self.assertEqual(process.seq1._modifications,[])
+            process.seq2 = cms.Sequence(process.f4+process.f5+process.f6)
+            self.assertEqual(process.seq2._modifications,[])
+            
+            process.seq1.replace(process.f1,process.f0*process.f1)
+            self.assertEqual(process.seq1._modifications[-1]['action'],'replace')
+            
+            process.seq2.remove(process.f5)
+            self.assertEqual(process.seq2._modifications[-1]['action'],'remove')
+            
+            process.path = cms.Path(process.seq1*process.f7)
+            self.assertEqual(process.path._modifications,[])
+            
+            process.path *= process.seq2
+            self.assertEqual(process.path._modifications[-1]['action'],'append')
+            process.path.remove(process.f6)
+            self.assertEqual(process.path._modifications[-1]['action'],'remove')
+            process.path.replace(process.f2,~process.f2)
+            self.assertEqual(process.path._modifications[-1]['action'],'replace')
+            
+            mods = process.dumpModifications()
+            self.assert_('process.seq1' in mods)
+            self.assert_('process.seq2' in mods)
+            self.assert_('process.path' in mods)
+            
+            
+    unittest.main()
+            
+            
