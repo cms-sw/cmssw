@@ -183,7 +183,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(boost::int64_t & to, std::string const& from)
+  edm::decode(long long & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -206,7 +206,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, boost::int64_t from)
+  edm::encode(std::string & to, long long from)
 {
   bool is_negative = (from < 0);
   if(is_negative)
@@ -276,7 +276,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<boost::int64_t> & to, std::string const& from)
+  edm::decode(std::vector<long long> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -287,7 +287,7 @@ bool
                                              ,  e = temp.end()
       ; b != e ; ++b)
   {
-    boost::int64_t val;
+    long long val;
     if(! decode(val, *b))
       return false;
     to.push_back(val);
@@ -299,12 +299,12 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<boost::int64_t> const& from)
+  edm::encode(std::string & to, std::vector<long long> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for(std::vector<boost::int64_t>::const_iterator b = from.begin()
+  for(std::vector<long long>::const_iterator b = from.begin()
                                       , e = from.end()
      ; b != e ; ++b)
   {
@@ -361,7 +361,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(boost::uint64_t & to, std::string const& from)
+  edm::decode(unsigned long long & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -381,7 +381,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, boost::uint64_t from)
+  edm::encode(std::string & to, unsigned long long from)
 {
   to.clear();
   do  {
@@ -446,7 +446,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<boost::uint64_t> & to, std::string const& from)
+  edm::decode(std::vector<unsigned long long> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -457,7 +457,7 @@ bool
                                              ,  e = temp.end()
       ; b != e ; ++b)
   {
-    boost::uint64_t val;
+    unsigned long long val;
     if(! decode(val, *b))
       return false;
     to.push_back(val);
@@ -469,12 +469,12 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<boost::uint64_t> const& from)
+  edm::encode(std::string & to, std::vector<unsigned long long> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for(std::vector<boost::uint64_t>::const_iterator b = from.begin()
+  for(std::vector<unsigned long long>::const_iterator b = from.begin()
                                            , e = from.end()
      ; b != e ; ++b)
   {

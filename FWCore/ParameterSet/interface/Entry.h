@@ -59,20 +59,20 @@ namespace edm {
     std::vector<unsigned>  getVUInt32() const;
   
     // Int64
-    Entry(std::string const& name, boost::int64_t val, bool is_tracked);
-    boost::int64_t  getInt64() const;
+    Entry(std::string const& name, long long val, bool is_tracked);
+    long long  getInt64() const;
 
     // vInt64
-    Entry(std::string const& name, std::vector<boost::int64_t> const& val, bool is_tracked);
-    std::vector<boost::int64_t>  getVInt64() const;
+    Entry(std::string const& name, std::vector<long long> const& val, bool is_tracked);
+    std::vector<long long>  getVInt64() const;
 
     // Uint64
-    Entry(std::string const& name, boost::uint64_t val, bool is_tracked);
-    boost::uint64_t  getUInt64() const;
+    Entry(std::string const& name, unsigned long long val, bool is_tracked);
+    unsigned long long  getUInt64() const;
 
     // vUint64
-    Entry(std::string const& name, std::vector<boost::uint64_t> const& val, bool is_tracked);
-    std::vector<boost::uint64_t>  getVUInt64() const;
+    Entry(std::string const& name, std::vector<unsigned long long> const& val, bool is_tracked);
+    std::vector<unsigned long long>  getVUInt64() const;
 
     // Double
     Entry(std::string const& name, double val, bool is_tracked);

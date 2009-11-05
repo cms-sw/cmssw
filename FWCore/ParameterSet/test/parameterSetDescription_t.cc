@@ -1348,18 +1348,18 @@ int main(int argc, char* argv[]) {
   ++parIter;
   assert(parIter->node().operator->() == par);
 
-  boost::int64_t c = 3;
-  par = psetDesc.addUntracked<boost::int64_t>(std::string("i64value"), c);
-  pset.addUntrackedParameter<boost::int64_t>("i64value", c);
+  long long c = 3;
+  par = psetDesc.addUntracked<long long>(std::string("i64value"), c);
+  pset.addUntrackedParameter<long long>("i64value", c);
   assert(par != 0);
   assert(par->label() == std::string("i64value"));
   assert(par->type() == edm::k_int64);
   assert(par->isTracked() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("int64"));
 
-  boost::uint64_t d = 4;
-  par = psetDesc.addUntracked<boost::uint64_t>("u64value", d);
-  pset.addUntrackedParameter<boost::uint64_t>("u64value", d);
+  unsigned long long d = 4;
+  par = psetDesc.addUntracked<unsigned long long>("u64value", d);
+  pset.addUntrackedParameter<unsigned long long>("u64value", d);
   assert(par != 0);
   assert(par->label() == std::string("u64value"));
   assert(par->type() == edm::k_uint64);
@@ -1426,15 +1426,15 @@ int main(int argc, char* argv[]) {
   assert(par->type() == edm::k_vuint32);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vuint32"));
 
-  std::vector<boost::int64_t> v3;
-  par = psetDesc.add<std::vector<boost::int64_t> >("v3", v3);
-  pset.addParameter<std::vector<boost::int64_t> >("v3", v3);
+  std::vector<long long> v3;
+  par = psetDesc.add<std::vector<long long> >("v3", v3);
+  pset.addParameter<std::vector<long long> >("v3", v3);
   assert(par->type() == edm::k_vint64);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vint64"));
 
-  std::vector<boost::uint64_t> v4;
-  par = psetDesc.add<std::vector<boost::uint64_t> >("v4", v4);
-  pset.addParameter<std::vector<boost::uint64_t> >("v4", v4);
+  std::vector<unsigned long long> v4;
+  par = psetDesc.add<std::vector<unsigned long long> >("v4", v4);
+  pset.addParameter<std::vector<unsigned long long> >("v4", v4);
   assert(par->type() == edm::k_vuint64);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vuint64"));
 

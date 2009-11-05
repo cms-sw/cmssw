@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_types_h
 
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.15 2009/02/21 22:22:10 chrjones Exp $
+// $Id: types.h,v 1.16 2009/09/21 21:12:40 wmtan Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -52,20 +52,20 @@ namespace edm
   bool  encode(std::string           &, std::vector<unsigned> const&);
 
   // Int64
-  bool  decode(boost::int64_t     &, std::string const&);
-  bool  encode(std::string &, boost::int64_t);
+  bool  decode(long long     &, std::string const&);
+  bool  encode(std::string &, long long);
 
   // vInt64
-  bool  decode(std::vector<boost::int64_t> &, std::string      const&);
-  bool  encode(std::string      &, std::vector<boost::int64_t> const&);
+  bool  decode(std::vector<long long> &, std::string      const&);
+  bool  encode(std::string      &, std::vector<long long> const&);
 
   // Uint64
-  bool  decode(boost::uint64_t    &, std::string const&);
-  bool  encode(std::string &, boost::uint64_t);
+  bool  decode(unsigned long long    &, std::string const&);
+  bool  encode(std::string &, unsigned long long);
 
   // vUint64
-  bool  decode(std::vector<boost::uint64_t> &, std::string           const&);
-  bool  encode(std::string           &, std::vector<boost::uint64_t> const&);
+  bool  decode(std::vector<unsigned long long> &, std::string           const&);
+  bool  encode(std::string           &, std::vector<unsigned long long> const&);
 
   // Double
   bool  decode(double      &, std::string const&);

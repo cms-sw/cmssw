@@ -304,7 +304,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Int64
 
-  Entry::Entry(std::string const& name, boost::int64_t val, bool is_tracked) :
+  Entry::Entry(std::string const& name, long long val, bool is_tracked) :
     name_(name), rep(), type('L'), tracked(is_tracked ? '+' : '-')
   {
     if(!encode(rep, val)) throwEncodeError("int64");
@@ -314,7 +314,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vInt64
 
-  Entry::Entry(std::string const& name, std::vector<boost::int64_t> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<long long> const& val, bool is_tracked) :
     name_(name), rep(), type('l'), tracked(is_tracked ? '+' : '-')
   {
     if(!encode(rep, val)) throwEncodeError("vector<int64>");
@@ -324,7 +324,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Uint64
 
-  Entry::Entry(std::string const& name, boost::uint64_t val, bool is_tracked) :
+  Entry::Entry(std::string const& name, unsigned long long val, bool is_tracked) :
     name_(name), rep(), type('X'), tracked(is_tracked ? '+' : '-')
   {
     if(!encode(rep, val)) throwEncodeError("unsigned int64");
@@ -334,7 +334,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vUint64
 
- Entry::Entry(std::string const& name, std::vector<boost::uint64_t> const& val, bool is_tracked) :
+ Entry::Entry(std::string const& name, std::vector<unsigned long long> const& val, bool is_tracked) :
    name_(name), rep(), type('x'), tracked(is_tracked ? '+' : '-')
  {
    if(!encode(rep, val)) throwEncodeError("vector<unsigned int64>");
@@ -698,11 +698,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Int32
 
-  boost::int64_t
+  long long
   Entry::getInt64() const
   {
     if(type != 'L') throwValueError("int64");
-    boost::int64_t  val;
+    long long  val;
     if(!decode(val, rep)) throwEntryError("int64", rep);
     return val;
   }
@@ -710,11 +710,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vInt32
 
-  std::vector<boost::int64_t>
+  std::vector<long long>
   Entry::getVInt64() const
   {
     if(type != 'l') throwValueError("vector<int64>");
-    std::vector<boost::int64_t>  val;
+    std::vector<long long>  val;
     if(!decode(val, rep)) throwEntryError("vector<int64>", rep);
     return val;
   }
@@ -749,11 +749,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Uint64
 
-  boost::uint64_t
+  unsigned long long
   Entry::getUInt64() const
   {
     if(type != 'X') throwValueError("uint64");
-    boost::uint64_t val;
+    unsigned long long val;
     if(!decode(val, rep)) throwEntryError("uint64", rep);
     return val;
   }
@@ -761,11 +761,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vUint64
 
-  std::vector<boost::uint64_t>
+  std::vector<unsigned long long>
   Entry::getVUInt64() const
   {
     if(type != 'x') throwValueError("vector<uint64>");
-    std::vector<boost::uint64_t>  val;
+    std::vector<unsigned long long>  val;
     if(!decode(val, rep)) throwEntryError("vector<uint64>", rep);
     return val;
   }

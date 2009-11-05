@@ -44,10 +44,10 @@ namespace {
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('i')] = &fillDescriptionFromParameter<std::vector<int> >;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('U')] = &fillDescriptionFromParameter<unsigned>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('u')] = &fillDescriptionFromParameter<std::vector<unsigned> >;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('L')] = &fillDescriptionFromParameter<boost::int64_t>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('l')] = &fillDescriptionFromParameter<std::vector<boost::int64_t> >;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('X')] = &fillDescriptionFromParameter<boost::uint64_t>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('x')] = &fillDescriptionFromParameter<std::vector<boost::uint64_t> >;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('L')] = &fillDescriptionFromParameter<long long>;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('l')] = &fillDescriptionFromParameter<std::vector<long long> >;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('X')] = &fillDescriptionFromParameter<unsigned long long>;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('x')] = &fillDescriptionFromParameter<std::vector<unsigned long long> >;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('D')] = &fillDescriptionFromParameter<double>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('d')] = &fillDescriptionFromParameter<std::vector<double> >;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('B')] = &fillDescriptionFromParameter<bool>;

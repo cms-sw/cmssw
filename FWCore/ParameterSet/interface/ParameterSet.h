@@ -327,12 +327,12 @@ namespace edm {
   // Int64, vInt64
 
   template<>
-  boost::int64_t
-  ParameterSet::getParameter<boost::int64_t>(std::string const& name) const;
+  long long
+  ParameterSet::getParameter<long long>(std::string const& name) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getParameter<std::vector<boost::int64_t> >(std::string const& name) const;
+  std::vector<long long>
+  ParameterSet::getParameter<std::vector<long long> >(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -349,12 +349,12 @@ namespace edm {
   // Uint64, vUint64
 
   template<>
-  boost::uint64_t
-  ParameterSet::getParameter<boost::uint64_t>(std::string const& name) const;
+  unsigned long long
+  ParameterSet::getParameter<unsigned long long>(std::string const& name) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getParameter<std::vector<boost::uint64_t> >(std::string const& name) const;
+  std::vector<unsigned long long>
+  ParameterSet::getParameter<std::vector<unsigned long long> >(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -573,39 +573,39 @@ namespace edm {
   // Uint64, vUint64
 
   template<>
-  boost::uint64_t
-  ParameterSet::getUntrackedParameter<boost::uint64_t>(std::string const& name, boost::uint64_t const& defaultValue) const;
+  unsigned long long
+  ParameterSet::getUntrackedParameter<unsigned long long>(std::string const& name, unsigned long long const& defaultValue) const;
 
   template<>
-  boost::uint64_t
-  ParameterSet::getUntrackedParameter<boost::uint64_t>(std::string const& name) const;
+  unsigned long long
+  ParameterSet::getUntrackedParameter<unsigned long long>(std::string const& name) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(std::string const& name, std::vector<boost::uint64_t> const& defaultValue) const;
+  std::vector<unsigned long long>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(std::string const& name, std::vector<unsigned long long> const& defaultValue) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(std::string const& name) const;
+  std::vector<unsigned long long>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Int64, Vint64
 
   template<>
-  boost::int64_t
-  ParameterSet::getUntrackedParameter<boost::int64_t>(std::string const& name, boost::int64_t const& defaultValue) const;
+  long long
+  ParameterSet::getUntrackedParameter<long long>(std::string const& name, long long const& defaultValue) const;
 
   template<>
-  boost::int64_t
-  ParameterSet::getUntrackedParameter<boost::int64_t>(std::string const& name) const;
+  long long
+  ParameterSet::getUntrackedParameter<long long>(std::string const& name) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(std::string const& name, std::vector<boost::int64_t> const& defaultValue) const;
+  std::vector<long long>
+  ParameterSet::getUntrackedParameter<std::vector<long long> >(std::string const& name, std::vector<long long> const& defaultValue) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(std::string const& name) const;
+  std::vector<long long>
+  ParameterSet::getUntrackedParameter<std::vector<long long> >(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -775,12 +775,12 @@ namespace edm {
   // Int64, vInt64
 
   template<>
-  boost::int64_t
-  ParameterSet::getParameter<boost::int64_t>(char const* name) const;
+  long long
+  ParameterSet::getParameter<long long>(char const* name) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getParameter<std::vector<boost::int64_t> >(char const* name) const;
+  std::vector<long long>
+  ParameterSet::getParameter<std::vector<long long> >(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -797,12 +797,12 @@ namespace edm {
   // Uint64, vUint64
 
   template<>
-  boost::uint64_t
-  ParameterSet::getParameter<boost::uint64_t>(char const* name) const;
+  unsigned long long
+  ParameterSet::getParameter<unsigned long long>(char const* name) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getParameter<std::vector<boost::uint64_t> >(char const* name) const;
+  std::vector<unsigned long long>
+  ParameterSet::getParameter<std::vector<unsigned long long> >(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -969,39 +969,39 @@ namespace edm {
   // Uint64, vUint64
 
   template<>
-  boost::uint64_t
-  ParameterSet::getUntrackedParameter<boost::uint64_t>(char const* name, boost::uint64_t const& defaultValue) const;
+  unsigned long long
+  ParameterSet::getUntrackedParameter<unsigned long long>(char const* name, unsigned long long const& defaultValue) const;
 
   template<>
-  boost::uint64_t
-  ParameterSet::getUntrackedParameter<boost::uint64_t>(char const* name) const;
+  unsigned long long
+  ParameterSet::getUntrackedParameter<unsigned long long>(char const* name) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(char const* name, std::vector<boost::uint64_t> const& defaultValue) const;
+  std::vector<unsigned long long>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(char const* name, std::vector<unsigned long long> const& defaultValue) const;
 
   template<>
-  std::vector<boost::uint64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(char const* name) const;
+  std::vector<unsigned long long>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Int64, Vint64
 
   template<>
-  boost::int64_t
-  ParameterSet::getUntrackedParameter<boost::int64_t>(char const* name, boost::int64_t const& defaultValue) const;
+  long long
+  ParameterSet::getUntrackedParameter<long long>(char const* name, long long const& defaultValue) const;
 
   template<>
-  boost::int64_t
-  ParameterSet::getUntrackedParameter<boost::int64_t>(char const* name) const;
+  long long
+  ParameterSet::getUntrackedParameter<long long>(char const* name) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(char const* name, std::vector<boost::int64_t> const& defaultValue) const;
+  std::vector<long long>
+  ParameterSet::getUntrackedParameter<std::vector<long long> >(char const* name, std::vector<long long> const& defaultValue) const;
 
   template<>
-  std::vector<boost::int64_t>
-  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(char const* name) const;
+  std::vector<long long>
+  ParameterSet::getUntrackedParameter<std::vector<long long> >(char const* name) const;
   
   // ----------------------------------------------------------------------
   // Double, vDouble

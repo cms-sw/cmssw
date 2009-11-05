@@ -676,20 +676,20 @@ namespace edm {
       writeVector<unsigned>(os, indentation, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, boost::int64_t const& value_, ValueFormat format) {
-      writeValue<boost::int64_t>(os, value_, format);
+    void writeValue(std::ostream & os, int indentation, long long const& value_, ValueFormat format) {
+      writeValue<long long>(os, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, std::vector<boost::int64_t> const& value_, ValueFormat format) {
-      writeVector<boost::int64_t>(os, indentation, value_, format);
+    void writeValue(std::ostream & os, int indentation, std::vector<long long> const& value_, ValueFormat format) {
+      writeVector<long long>(os, indentation, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, boost::uint64_t const& value_, ValueFormat format) {
-      writeValue<boost::uint64_t>(os, value_, format);
+    void writeValue(std::ostream & os, int indentation, unsigned long long const& value_, ValueFormat format) {
+      writeValue<unsigned long long>(os, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, std::vector<boost::uint64_t> const& value_, ValueFormat format) {
-      writeVector<boost::uint64_t>(os, indentation, value_, format);
+    void writeValue(std::ostream & os, int indentation, std::vector<unsigned long long> const& value_, ValueFormat format) {
+      writeVector<unsigned long long>(os, indentation, value_, format);
     }
 
     void writeValue(std::ostream & os, int indentation, double const& value_, ValueFormat format) {
@@ -760,10 +760,10 @@ namespace edm {
     bool hasNestedContent(std::vector<int> const& value) { return value.size() > 5U; }
     bool hasNestedContent(unsigned const& value) { return false; }
     bool hasNestedContent(std::vector<unsigned> const& value) { return value.size() > 5U; }
-    bool hasNestedContent(boost::int64_t const& value) { return false; }
-    bool hasNestedContent(std::vector<boost::int64_t> const& value) { return value.size() > 5U; }
-    bool hasNestedContent(boost::uint64_t const& value) { return false; }
-    bool hasNestedContent(std::vector<boost::uint64_t> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(long long const& value) { return false; }
+    bool hasNestedContent(std::vector<long long> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(unsigned long long const& value) { return false; }
+    bool hasNestedContent(std::vector<unsigned long long> const& value) { return value.size() > 5U; }
     bool hasNestedContent(double const& value) { return false; }
     bool hasNestedContent(std::vector<double> const& value) { return value.size() > 5U; }
     bool hasNestedContent(bool const& value) { return false; }
