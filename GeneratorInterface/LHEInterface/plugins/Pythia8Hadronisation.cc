@@ -116,7 +116,7 @@ bool Pythia8Hadronisation::LHAupLesHouches::setEvent(int inProcId)
 		this->setPdf(pdf->id.first, pdf->id.second,
 		             pdf->x.first, pdf->x.second,
 		             pdf->scalePDF,
-		             pdf->xPDF.first, pdf->xPDF.second);
+		             pdf->xPDF.first, pdf->xPDF.second, true);
 
 	hadronisation->onBeforeHadronisation().emit();
 
