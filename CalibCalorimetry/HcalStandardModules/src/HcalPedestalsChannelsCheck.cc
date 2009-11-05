@@ -109,8 +109,10 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
    std::vector<DetId>::iterator cell;
    bool failflag = false;
 
+   if(myNewPeds->isADC() != myRefPeds->isADC()) throw cms::Exception("Peds not in same units!");
+
    // store channels which have changed by more that epsilon
-   HcalPedestals *changedchannels = new HcalPedestals();
+   HcalPedestals *changedchannels = new HcalPedestals(myRefPeds->isADC());
    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
          DetId mydetid = *it;
