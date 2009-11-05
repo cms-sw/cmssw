@@ -214,7 +214,7 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
   
 
   // and the incoming beam particles
-  Traits::setBeamParticles(*geneve,pmap[ev.incoming().first],
+  geneve->set_beam_particles(pmap[ev.incoming().first],
 			   pmap[ev.incoming().second]);
 
   // and the PDF info
