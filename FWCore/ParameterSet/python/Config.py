@@ -395,6 +395,7 @@ class Process(object):
         self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
     def load(self, moduleName):
+        moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
         self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
