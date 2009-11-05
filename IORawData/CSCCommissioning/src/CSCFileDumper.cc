@@ -5,7 +5,7 @@
 //Framework stuff
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
