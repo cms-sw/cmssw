@@ -6,13 +6,18 @@ from DQMOffline.Trigger.EgHLTOffQTests_cfi import *
 egHLTOffDQMSummaryClient = cms.EDFilter("EgHLTOfflineSummaryClient",
                                         egHLTOffFiltersToMon,
                                         sourceModuleName = cms.string('egammaHLTDQM'),
-                                        DQMDirName=cms.string("HLT/EgammaHLTOffline_egammaHLTDQM"),
+                                        DQMDirName=cms.string("HLT/EgOffline"),
+                                        hltTag = cms.string("HLT"),
+                                        filterInactiveTriggers = cms.bool(True),
+                                        runClientEndLumiBlock=cms.bool(False),
+                                        runClientEndRun=cms.bool(True),
+                                        runClientEndJob=cms.bool(False),
                                         egHLTSumQTests=cms.VPSet (
                                             cms.PSet(egHLTEleTrigRelEffQTests),
                                             cms.PSet(egHLTPhoTrigRelEffQTests),
-                                            cms.PSet(egHLTEleTrigTPEffQTests),
-                                            cms.PSet(egHLTTrigEleQTests),
-                                            cms.PSet(egHLTTrigPhoQTests)
+                                         #   cms.PSet(egHLTEleTrigTPEffQTests),
+                                         #   cms.PSet(egHLTTrigEleQTests),
+                                         #   cms.PSet(egHLTTrigPhoQTests)
                                             )
                          #               egHLTSumQTests=cms.vstring('Ele Rel Trig Eff:*trigEffTo*gsfEle_trigCuts*',
                           #                                         'Pho Rel Trig Eff:*trigEffTo*pho_trigCuts*',

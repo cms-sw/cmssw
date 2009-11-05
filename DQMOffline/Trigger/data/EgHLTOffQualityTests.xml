@@ -1,0 +1,37 @@
+<TESTSCONFIGURATION>
+ <QTEST name="egHLTOffTrigRelEff">
+         <TYPE>ContentsYRange</TYPE>     
+         <PARAM name="ymin">0.9</PARAM>
+         <PARAM name="ymax">1</PARAM>
+         <PARAM name="useEmptyBins">0</PARAM>
+         <PARAM name="error">0.80</PARAM>
+         <PARAM name="warning">0.80</PARAM>
+ </QTEST> 
+
+ <QTEST name="egHLTOffTrigTagProbeEff">
+         <TYPE>ContentsYRange</TYPE>     
+         <PARAM name="ymin">0.9</PARAM>
+         <PARAM name="ymax">1</PARAM>
+         <PARAM name="useEmptyBins">0</PARAM>
+         <PARAM name="error">0.90</PARAM>
+         <PARAM name="warning">0.95</PARAM>
+ </QTEST>
+ 
+ <!-- <LINK name="*clientHisto*"> -->
+ <LINK name="*trigEffTo*trigCuts*_vs_et_*">
+         <TestName activate="true">egHLTOffTrigRelEff</TestName>
+ </LINK> 
+ <LINK name="*trigEffTo*trigCuts*_vs_eta_*">
+         <TestName activate="true">egHLTOffTrigRelEff</TestName>
+ </LINK> 
+ <LINK name="*trigEffTo*trigCuts*_vs_phi_*">
+         <TestName activate="true">egHLTOffTrigRelEff</TestName>
+ </LINK> 
+
+ <!-- <LINK name="*trigTagProbeEff*">
+         <TestName activate="true">egHLTOffTrigTagProbeEff</TestName>
+</LINK> 
+-->
+
+</TESTSCONFIGURATION>
+

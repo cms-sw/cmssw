@@ -11,7 +11,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+#include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -47,9 +47,25 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
   runClientEndJob_ = iConfig.getParameter<bool>("runClientEndJob");
 
+  
+
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
+
+  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers");
+  if(filterInactiveTriggers){
+    std::vector<std::string> activeFilters;
+    std::string hltTag = iConfig.getParameter<std::string>("hltTag");
+    egHLT::trigTools::getActiveFilters(activeFilters,hltTag);
+    
+    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
+   				    
+  }
+
 }
 
 

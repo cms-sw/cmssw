@@ -160,6 +160,9 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
   // std::cout <<"here"<<std::endl;
   if(!dbe_) return;
    
+ 
+ 
+
 
   const double weight=1.; //we have the ability to weight but its disabled for now
   nrEventsProcessed_++;

@@ -50,6 +50,11 @@ public:
   //the name of the bin label and the regex pattern to search for the quality tests to pass
   std::vector<SumHistBinData> egHLTSumHistXBins_;
 
+  bool runClientEndLumiBlock_;
+  bool runClientEndRun_;
+  bool runClientEndJob_;
+  
+
   //disabling copying/assignment (in theory this is copyable but lets not just in case)
   EgHLTOfflineSummaryClient(const EgHLTOfflineSummaryClient& rhs){}
   EgHLTOfflineSummaryClient& operator=(const EgHLTOfflineSummaryClient& rhs){return *this;}

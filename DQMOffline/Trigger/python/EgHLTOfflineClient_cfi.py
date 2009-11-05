@@ -5,6 +5,8 @@ from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 egHLTOffDQMClient = cms.EDFilter("EgHLTOfflineClient",
                                  egHLTOffFiltersToMon,
                                  DQMDirName=cms.string("HLT/EgOffline"),
+                                 hltTag = cms.string("HLT"),
+                                 filterInactiveTriggers = cms.bool(True),
                                  runClientEndLumiBlock=cms.bool(False),
                                  runClientEndRun=cms.bool(True),
                                  runClientEndJob=cms.bool(False),

@@ -2,12 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 egHLTEleTrigRelEffQTests = cms.PSet (
     name=cms.string('Ele Rel Trig Eff'),
-    qTestsToCheck = cms.vstring('_trigEffTo*gsfEle_trigCuts*')
+    qTestsToCheck = cms.vstring('_trigEffTo*gsfEle_trigCuts*_vs_et_*',
+                                '_trigEffTo*gsfEle_trigCuts*_vs_eta_*',
+                                '_trigEffTo*gsfEle_trigCuts*_vs_phi_*')
     )
 
 egHLTPhoTrigRelEffQTests = cms.PSet (
     name=cms.string('Pho Rel Trig Eff'),
-    qTestsToCheck = cms.vstring('_trigEffTo*pho_trigCuts*')
+    qTestsToCheck = cms.vstring('_trigEffTo*pho_trigCuts*_vs_et_*',
+                                '_trigEffTo*pho_trigCuts*_vs_eta_*',
+                                '_trigEffTo*pho_trigCuts*_vs_phi_*')
     )
 egHLTEleTrigTPEffQTests = cms.PSet (
     name=cms.string('Ele T&P Trig Eff'),

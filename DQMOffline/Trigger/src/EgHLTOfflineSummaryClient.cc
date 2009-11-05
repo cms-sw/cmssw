@@ -11,7 +11,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+#include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -31,7 +31,23 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
  
   eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames"); 
   phoHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames");
+
+
+  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers");
+  if(filterInactiveTriggers){
+    std::vector<std::string> activeFilters;
+   
+    std::string hltTag = iConfig.getParameter<std::string>("hltTag");
+    egHLT::trigTools::getActiveFilters(activeFilters,hltTag);
+  
+
+    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+  				    
+  }
+
   getEgHLTFiltersToMon_(egHLTFiltersToMon_);
+
 
 
   //std::vector<std::string> egHLTSumQTests = iConfig.getParameter<std::vector<std::string> >("egHLTSumQTests");
@@ -43,6 +59,12 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
     egHLTSumHistXBins_[sumHistBinNr].name = qTestData[sumHistBinNr].getParameter<std::string>("name");
     egHLTSumHistXBins_[sumHistBinNr].qTestPatterns = qTestData[sumHistBinNr].getParameter<std::vector<std::string> >("qTestsToCheck"); 
   }
+
+  runClientEndLumiBlock_ = iConfig.getParameter<bool>("runClientEndLumiBlock");
+  runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
+  runClientEndJob_ = iConfig.getParameter<bool>("runClientEndJob");
+
+ 
 
   //egHLTSumHistXBins_.push_back(std::make_pair("Ele Rel Trig Eff",&EgHLTOfflineSummaryClient::eleTrigRelEffQTestResult_));
   //egHLTSumHistXBins_.push_back(std::make_pair("Pho Rel Trig Eff",&EgHLTOfflineSummaryClient::phoTrigRelEffQTestResult_));
@@ -65,7 +87,7 @@ void EgHLTOfflineSummaryClient::beginJob(const edm::EventSetup& iSetup)
 
 void EgHLTOfflineSummaryClient::endJob() 
 {
-
+  if(runClientEndJob_) runClient_();
 }
 
 void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -76,7 +98,7 @@ void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSe
 
 void EgHLTOfflineSummaryClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  runClient_();
+  if(runClientEndRun_) runClient_();
 }
 
 //dummy analysis function
@@ -87,7 +109,7 @@ void EgHLTOfflineSummaryClient::analyze(const edm::Event& iEvent,const edm::Even
 
 void EgHLTOfflineSummaryClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
 { 
-  runClient_();
+  if(runClientEndLumiBlock_)  runClient_();
 }
 
 void EgHLTOfflineSummaryClient::runClient_()
@@ -127,7 +149,7 @@ MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_()
     hist->SetBit(TH1::kCanRebin);
     for(size_t xBinNr=0;xBinNr<egHLTSumHistXBins_.size();xBinNr++){
       for(size_t yBinNr=0;yBinNr<egHLTFiltersToMon_.size();yBinNr++){
-	hist->Fill(egHLTSumHistXBins_[xBinNr].name.c_str(),egHLTFiltersToMon_[yBinNr].c_str(),1.);
+	hist->Fill(egHLTSumHistXBins_[xBinNr].name.c_str(),egHLTFiltersToMon_[yBinNr].c_str(),-2);
       }
     }
     hist->SetBit(TH1::kCanRebin,false);
@@ -162,14 +184,20 @@ void EgHLTOfflineSummaryClient::getEgHLTFiltersToMon_(std::vector<std::string>& 
 int EgHLTOfflineSummaryClient::getQTestResults_(const std::string& filterName,const std::vector<std::string>& patterns)const
 {
   int nrFail =0;
+  int nrQTests=0;
   for(size_t patternNr=0;patternNr<patterns.size();patternNr++){
     std::vector<MonitorElement*> monElems = dbe_->getMatchingContents(dirName_+"/"+filterName+patterns[patternNr]);
-    
+    // std::cout <<"mon elem "<<dirName_+"/"+filterName+patterns[patternNr]<<"nr monElems "<<monElems.size()<<std::endl;
     for(size_t monElemNr=0;monElemNr<monElems.size();monElemNr++){
+     
+      std::vector<QReport*> qTests = monElems[monElemNr]->getQReports();
+      nrQTests+=qTests.size();
+      //  std::cout <<monElems[monElemNr]->getName()<<" "<<monElems[monElemNr]->hasError()<<" nr test "<<qTests.size()<<std::endl;
       if(monElems[monElemNr]->hasError()) nrFail++;
     }
   }
-  if(nrFail==0) return 1;
+  if(nrQTests==0) return -1;
+  else if(nrFail==0) return 1;
   else return 0;
 }
 
