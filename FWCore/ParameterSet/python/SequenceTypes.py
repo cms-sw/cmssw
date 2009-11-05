@@ -108,6 +108,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
         return returnValue
+    def expandAndClone(self):
+        visitor = ExpandVisitor(type(self))
+        self.visit(visitor)
+        return visitor.result()
     def _postProcessFixup(self,lookuptable):
         self._seq = self._seq._clonesequence(lookuptable)
         return self
@@ -495,8 +499,29 @@ class NodeNameVisitor(object):
         pass
 
 
+class ExpandVisitor(object):
+    """ Expands the sequence into leafs and UnaryOperators """
+    def __init__(self, type):
+        self._type = type
+        self.l = []
+    def enter(self,visitee):
+        if isinstance(visitee,_SequenceLeaf):
+            self.l.append(visitee)
+    def leave(self, visitee):
+        if isinstance(visitee,_UnarySequenceOperator):
+            self.l[-1] = visitee
+    def result(self):
+        # why doesn't (sum(self.l) work?
+        seq = self.l[0]
+        if len(self.l) > 1:
+            for el in self.l[1:]:
+                seq += el
+        return self._type(seq)
+
+    
+
 class DecoratedNodeNameVisitor(object):
-    """ Adds any '!' or '-' needed.  Takes a list"""
+    """ Adds any '!' or '-' needed.  Takes a list """
     def __init__(self,l):
         self.l = l
     def enter(self,visitee):
@@ -671,6 +696,26 @@ if __name__=="__main__":
             s3.replace(s2,m1)
             s3.visit(namesVisitor)
             self.assertEqual(l,['!m1', 'm1'])
+
+        def testExpandAndClone(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            m5 = DummyModule("m5")
+
+            s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
+            s2 = Sequence(m1*m2)
+            s3 = Sequence(~m1*s2)
+
+            p = Path(s1+s3)
+            p2 = p.expandAndClone()
+            l = []
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            p2.visit(namesVisitor)
+            self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
+
+
         def testRemove(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
