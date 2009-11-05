@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.6 2009/10/24 14:52:57 chrjones Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.7 2009/10/25 15:23:03 chrjones Exp $
 //
 
 #include <math.h>
@@ -69,6 +69,8 @@ FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataH
       (*iCaloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
 
       TEveCalo3D* calo3d = new TEveCalo3D(*iCaloData);
+      calo3d->SetMaxTowerH( 300 );
+      calo3d->SetScaleAbs( false );
       calo3d->SetBarrelRadius(129);
       calo3d->SetEndCapPos(310);
       calo3d->SetFrameTransparency(80);
