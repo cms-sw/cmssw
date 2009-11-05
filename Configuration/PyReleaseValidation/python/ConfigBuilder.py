@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.150 $"
+__version__ = "$Revision: 1.151 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -89,6 +89,7 @@ class ConfigBuilder(object):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
+        includeFile = includeFile.replace('/','.')
         self.imports.append(includeFile)
         self.process.load(includeFile)
         return __import__(includeFile)
@@ -135,9 +136,9 @@ class ConfigBuilder(object):
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
             else:
-                evt_type = 'Configuration/Generator/'+evt_type 
-
-            generatorModule = __import__(evt_type)
+                evt_type = ('Configuration.Generator.'+evt_type).replace('/','.') 
+            __import__(evt_type)
+	    generatorModule = sys.modules[evt_type]
             self.process.extend(generatorModule)
             # now add all modules and sequences to the process
             import FWCore.ParameterSet.Modules as cmstypes  
@@ -812,7 +813,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.150 $"),
+              (version=cms.untracked.string("$Revision: 1.151 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -938,7 +939,8 @@ for path in process.paths: \n    getattr(process,path)._seq = process."""+self.p
 
 def installFilteredStream(process, schedule, streamName, definitionFile = "Configuration/StandardSequences/AlCaRecoStreams_cff" ):
 
-    definitionModule = __import__(definitionFile)
+    __import__(definitionFile)
+    definitionModule = sys.modules[definitionFile]
     process.extend(definitionModule)
     stream = getattr(definitionModule,streamName)
     output = cms.OutputModule("PoolOutputModule")
@@ -1013,7 +1015,8 @@ def addALCAPaths(process, listOfALCANames, definitionFile = "Configuration/Stand
 
     Function to add alignment&calibration sequences to an existing process
     """
-    definitionModule = __import__(definitionFile)
+    __import__(definitionFile)
+    definitionModule = sys.modules[definitionFile]
     process.extend(definitionModule)
     
     for alca in listOfALCANames:
