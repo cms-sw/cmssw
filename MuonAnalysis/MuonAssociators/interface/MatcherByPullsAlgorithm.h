@@ -15,7 +15,7 @@
 //
 // Original Author:  Giovanni Petrucciani (SNS Pisa and CERN PH-CMG)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MatcherByPullsAlgorithm.cc,v 1.1 2009/04/14 13:58:52 gpetrucc Exp $
+// $Id: MatcherByPullsAlgorithm.h,v 1.1 2009/05/29 09:44:13 gpetrucc Exp $
 //
 //
 
@@ -54,6 +54,21 @@ class MatcherByPullsAlgorithm {
         /// already sorted by pulls.
         /// This method assumes that matchesToFill is empty when the method is called
         void matchMany(const reco::RecoCandidate &src,
+                const std::vector<reco::GenParticle> &cands,
+                const std::vector<uint8_t>           &good,
+                std::vector<std::pair<double, int> > &matchesToFill) const ;
+
+        /// Match Reco Track to MC Tracks, skipping the ones which are not good
+        /// Return index of matchin and pull, or (-1,9e9)
+        std::pair<int,float>  match(const reco::Track &src, 
+                const std::vector<reco::GenParticle> &cands,
+                const std::vector<uint8_t>           &good) const ;
+
+        /// Match Reco Track to MC Tracks, allowing multiple matches and skipping the ones which are not good
+        /// It will fill in the vector of <double,int> with pull and index for all matching candidates,
+        /// already sorted by pulls.
+        /// This method assumes that matchesToFill is empty when the method is called
+        void matchMany(const reco::Track &src,
                 const std::vector<reco::GenParticle> &cands,
                 const std::vector<uint8_t>           &good,
                 std::vector<std::pair<double, int> > &matchesToFill) const ;

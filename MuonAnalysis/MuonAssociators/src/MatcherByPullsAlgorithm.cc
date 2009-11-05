@@ -68,19 +68,29 @@ MatcherByPullsAlgorithm::match(const reco::Track &tk, const reco::Candidate &c, 
 }
 
 
+
 std::pair<int,float>
 MatcherByPullsAlgorithm::match(const reco::RecoCandidate &src, 
                       const std::vector<reco::GenParticle> &cands,
                       const std::vector<uint8_t>       &good) const 
 {
     const reco::Track * tk = track(src);
-    std::pair<int,float> best(-1,9e9);
-    if (tk == 0) return best;
+    return (tk == 0 ? 
+            std::pair<int,float>(-1,9e9) : 
+            match(*tk, cands, good));
+}
 
-    AlgebraicSymMatrix55 invCov; fillInvCov(*tk, invCov);
+std::pair<int,float>
+MatcherByPullsAlgorithm::match(const reco::Track &tk, 
+                      const std::vector<reco::GenParticle> &cands,
+                      const std::vector<uint8_t>       &good) const 
+{
+    std::pair<int,float> best(-1,9e9);
+
+    AlgebraicSymMatrix55 invCov; fillInvCov(tk, invCov);
     for (int i = 0, n = cands.size(); i < n; ++i) {
         if (!good[i]) continue;
-        std::pair<bool,float> m = match(*tk, cands[i], invCov);
+        std::pair<bool,float> m = match(tk, cands[i], invCov);
         if (m.first && (m.second < best.second)) {
             best.first  = i;
             best.second = m.second;
@@ -88,6 +98,7 @@ MatcherByPullsAlgorithm::match(const reco::RecoCandidate &src,
     }
     return best;
 }
+
 void
 MatcherByPullsAlgorithm::matchMany(const reco::RecoCandidate &src,
                 const std::vector<reco::GenParticle> &cands,
@@ -95,12 +106,20 @@ MatcherByPullsAlgorithm::matchMany(const reco::RecoCandidate &src,
                 std::vector<std::pair<double,int> >  &matchesToFill) const
 {
     const reco::Track * tk = track(src);
-    if (tk == 0) return ;
+    if (tk != 0) matchMany(*tk, cands, good, matchesToFill);
+}
 
-    AlgebraicSymMatrix55 invCov; fillInvCov(*tk, invCov);
+void
+MatcherByPullsAlgorithm::matchMany(const reco::Track &tk,
+                const std::vector<reco::GenParticle> &cands,
+                const std::vector<uint8_t>           &good,
+                std::vector<std::pair<double,int> >  &matchesToFill) const
+{
+
+    AlgebraicSymMatrix55 invCov; fillInvCov(tk, invCov);
     for (int i = 0, n = cands.size(); i < n; ++i) {
         if (!good[i]) continue;
-        std::pair<bool,double> m = match(*tk, cands[i], invCov);
+        std::pair<bool,double> m = match(tk, cands[i], invCov);
         if (m.first) matchesToFill.push_back(std::make_pair(m.second,i));
     }
     std::sort(matchesToFill.begin(),matchesToFill.end());
@@ -117,8 +136,8 @@ const reco::Track *
 MatcherByPullsAlgorithm::track(const reco::RecoCandidate &muon) const {
     switch (track_) {
         case StaTrack : return muon.standAloneMuon().isNonnull() ? muon.standAloneMuon().get() : 0;
-        case TrkTrack : return muon.combinedMuon().isNonnull()   ? muon.combinedMuon().get()   : 0;
-        case GlbTrack : return muon.track().isNonnull()          ? muon.track().get()          : 0;
+        case GlbTrack : return muon.combinedMuon().isNonnull()   ? muon.combinedMuon().get()   : 0;
+        case TrkTrack : return muon.track().isNonnull()          ? muon.track().get()          : 0;
     }
     assert(false);
 }
