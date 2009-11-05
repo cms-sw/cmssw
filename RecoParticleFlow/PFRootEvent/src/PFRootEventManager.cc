@@ -3096,9 +3096,36 @@ PFRootEventManager::printMCCalib(ofstream& out) const {
   double true_phi = genJets_[0].phi();
 
   // One particle-flow jet
-  if ( pfJets_.size() != 1 ) return;
-  double rec_ECALEnergy = pfJets_[0].neutralEmEnergy();
-  double rec_HCALEnergy = pfJets_[0].neutralHadronEnergy();
+  // if ( pfJets_.size() != 1 ) return;
+  double rec_ECALEnergy = 0.;
+  double rec_HCALEnergy = 0.;
+  double deltaRMin = 999.;
+  unsigned int theJet = 0;
+  for ( unsigned int ijet=0; ijet<pfJets_.size(); ++ijet ) { 
+    double rec_ECAL = pfJets_[ijet].neutralEmEnergy();
+    double rec_HCAL = pfJets_[ijet].neutralHadronEnergy();
+    double rec_eta = pfJets_[0].eta();
+    double rec_phi = pfJets_[0].phi();
+    double deltaR = std::sqrt( (rec_eta-true_eta)*(rec_eta-true_eta)
+			     + (rec_phi-true_phi)*(rec_phi-true_phi) ); 
+    if ( deltaR < deltaRMin ) { 
+      deltaRMin = deltaR;
+      rec_ECALEnergy = rec_ECAL;
+      rec_HCALEnergy = rec_HCAL;
+    }
+  }
+  if ( deltaRMin > 0.1 ) return;
+  
+  std::vector <const PFCandidate*> constituents = pfJets_[theJet].getPFConstituents ();
+  double pat_ECALEnergy = 0.;
+  double pat_HCALEnergy = 0.;
+  for (unsigned ic = 0; ic < constituents.size (); ++ic) {
+    if ( constituents[ic]->particleId() < 4 ) continue;
+    if ( constituents[ic]->particleId() == 4 ) 
+      pat_ECALEnergy += constituents[ic]->rawEcalEnergy();
+    else if ( constituents[ic]->particleId() == 5 ) 
+      pat_HCALEnergy += constituents[ic]->rawHcalEnergy();
+  }
 
   double col_ECALEnergy = rec_ECALEnergy * 1.05;
   double col_HCALEnergy = rec_HCALEnergy;
@@ -3113,9 +3140,8 @@ PFRootEventManager::printMCCalib(ofstream& out) const {
 
   out << true_eta << " " << true_phi << " " << true_E 
       << " " <<  rec_ECALEnergy << " " << rec_HCALEnergy
-      << " " <<  col_ECALEnergy << " " << col_HCALEnergy
-      << " " <<  jam_ECALEnergy << " " << jam_HCALEnergy << std::endl;
-
+      << " " <<  pat_ECALEnergy << " " << pat_HCALEnergy
+      << " " << deltaRMin << std::endl;
 }
 
 void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
