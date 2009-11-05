@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/09 15:05:07 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/10/25 17:47:46 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -197,7 +197,7 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   theCertificationContents.push_back(dbe->bookFloat("TK_EC"));
 
 
-  for (int icert=0;icert <theCertificationContents.size();icert++){
+  for (unsigned int icert=0;icert <theCertificationContents.size();icert++){
     theCertificationContents[icert]->Fill(-1);
   }
 }
@@ -754,11 +754,11 @@ void MuonTestSummary::doMultiplicityTests(){
   if(multiplicityHisto){
     if(multiplicityHisto->getEntries()>20){
       double multiplicity_GLB = double(multiplicityHisto->getBinContent(1)+multiplicityHisto->getBinContent(2))/double(multiplicityHisto->getEntries());
-      LogTrace(metname)<<"multiplicity_GLB: "<<multiplicity_GLB<<endl;
+      LogTrace(metname)<<"multiplicity_GLB: "<<multiplicity_GLB<< " ExpMultiplicityGlb_min " <<expMultiplicityGlb_min <<" ExpMultiplicityGlb_max " <<expMultiplicityGlb_max<<endl;
       double multiplicity_TK = double(multiplicityHisto->getBinContent(3)+multiplicityHisto->getBinContent(4))/double(multiplicityHisto->getEntries());
-      LogTrace(metname)<<"multiplicity_TK: "<<multiplicity_TK<<endl;
+      LogTrace(metname)<<"multiplicity_TK: "<<multiplicity_TK<< " ExpMultiplicityTk_min " <<expMultiplicityTk_min <<" ExpMultiplicityTk_max " <<expMultiplicityTk_max<<endl;
       double multiplicity_STA = double(multiplicityHisto->getBinContent(3)+multiplicityHisto->getBinContent(5))/double(multiplicityHisto->getEntries());
-      LogTrace(metname)<<"multiplicity_STA: "<<multiplicity_STA<<endl;
+      LogTrace(metname)<<"multiplicity_STA: "<<multiplicity_STA<< " ExpMultiplicitySta_min " <<expMultiplicitySta_min <<" ExpMultiplicitySta_max " <<expMultiplicitySta_max<<endl;
 
       if(multiplicity_GLB>expMultiplicityGlb_min && multiplicity_GLB<expMultiplicityGlb_max)
 	multiplicitySummaryMap->setBinContent(1,1);
