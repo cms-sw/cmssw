@@ -2,8 +2,8 @@
 
 /** \class FastTSGFromPropagation
  *
- *  $Date: 2009/10/30 13:16:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/30 13:17:37 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -183,10 +183,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       }
 	   }
        }
-       int _index = -1;
        if( !isMatch ) {
 	 // if there is no hits w.r.t. TM, find outermost hit
-	 int count = 0;
          for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++) {
 	   const TrajectoryStateOnSurface seedState = itm->predictedState();
 	   double preY = seedState.globalPosition().y();
