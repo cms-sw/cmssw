@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.21 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FW3DView.cc,v 1.22 2009/11/03 16:56:39 amraktad Exp $
 //
 
 // system include files
@@ -236,7 +236,7 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>*m_cameraFOV;
    }
-   m_viewer->GetGLViewer()->RequestDraw();
+   gEve->Redraw3D();
 }
 
 
@@ -274,7 +274,7 @@ FW3DView::showMuonBarrel( )
    if (m_muonBarrelElements)
    {
       m_muonBarrelElements->SetRnrState(m_showMuonBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -326,7 +326,7 @@ FW3DView::showMuonEndcap( )
    if (m_muonEndcapElements)
    {
       m_muonEndcapElements->SetRnrState(m_showMuonEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -352,7 +352,7 @@ FW3DView::showPixelBarrel( )
    if (m_pixelBarrelElements)
    {
       m_pixelBarrelElements->SetRnrState(m_showPixelBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -377,7 +377,7 @@ FW3DView::showPixelEndcap( )
    if (m_pixelEndcapElements)
    {
       m_pixelEndcapElements->SetRnrState(m_showPixelEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -411,7 +411,7 @@ FW3DView::showTrackerBarrel( )
    if (m_trackerBarrelElements )
    {
       m_trackerBarrelElements->SetRnrState(m_showTrackerBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -444,7 +444,7 @@ FW3DView::showTrackerEndcap( )
    if (m_trackerEndcapElements )
    {
       m_trackerEndcapElements->SetRnrState(m_showTrackerEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 //==============================================================================
