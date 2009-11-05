@@ -1,6 +1,7 @@
 #ifndef x_SaxToDom_h
 #define x_SaxToDom_h
 
+#include <xercesc/util/XercesDefs.hpp>
 #include "xercesc/sax2/DefaultHandler.hpp"
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
@@ -11,11 +12,11 @@
 #include <map>
 #include <vector>
 
-class SaxToDom : public xercesc_2_7::DefaultHandler
+class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
 public:
-  typedef xercesc_2_7::Attributes Attributes;
-  typedef xercesc_2_7::SAXParseException SAXParseException;
+  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
+  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
   SaxToDom();
   ~SaxToDom();
   void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);

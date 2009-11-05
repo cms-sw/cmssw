@@ -47,6 +47,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Parser/src/StrX.h"
 
+
 class DDLTestDoc : public DDLDocumentProvider {
 
  public:
@@ -70,7 +71,7 @@ class DDLTestDoc : public DDLDocumentProvider {
   std::string getSchemaLocation() const;
 
   /// ReadConfig
-  virtual int readConfig(const std:: string& filename);
+  virtual int readConfig(const std::string& filename);
 
   void push_back(std::string fileName, std::string url = std::string("./"));
 
@@ -104,10 +105,6 @@ class DDLTestDoc : public DDLDocumentProvider {
   bool validate_;
 };
 
-
-namespace std{} using namespace std;
-namespace xercesc_2_7{} using namespace xercesc_2_7;
-
 //--------------------------------------------------------------------------
 //  DDLTestDoc:  Default constructor and destructor.
 //--------------------------------------------------------------------------
@@ -120,17 +117,17 @@ DDLTestDoc::DDLTestDoc() : validate_(true)
   schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
 }
 
-const vector<string>&  DDLTestDoc::getFileList(void) const
+const std::vector<std::string>&  DDLTestDoc::getFileList(void) const
 {
   return fnames_;
 }
 
-const vector<string>&  DDLTestDoc::getURLList(void) const
+const std::vector<std::string>&  DDLTestDoc::getURLList(void) const
 {
   return urls_;
 }
 
-void DDLTestDoc::push_back( string fileName, string url) 
+void DDLTestDoc::push_back( std::string fileName, std::string url) 
 {
   fnames_.push_back(fileName);
   urls_.push_back(url);
@@ -140,16 +137,16 @@ void DDLTestDoc::setValidation (bool val) { validate_= val; }
 
 bool DDLTestDoc::doValidation() const { return validate_; }
 
-void DDLTestDoc::setSchemaLocation(string path) { schemaLoc_ = path; }
+void DDLTestDoc::setSchemaLocation(std::string path) { schemaLoc_ = path; }
 
-string DDLTestDoc::getSchemaLocation() const { cout << schemaLoc_ << endl; return schemaLoc_; }
+std::string DDLTestDoc::getSchemaLocation() const { std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
 
 void DDLTestDoc::dumpFileList(void) const {
-  cout << "File List:" << endl;
-  vector<string> vst = getFileList();
-  cout << "  number of files=" << vst.size() << endl;
-  for (vector<string>::const_iterator it = vst.begin(); it != vst.end(); ++it)
-    cout << *it << endl;
+  std::cout << "File List:" << std::endl;
+  std::vector<std::string> vst = getFileList();
+  std::cout << "  number of files=" << vst.size() << std::endl;
+  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); ++it)
+    std::cout << *it << std::endl;
 }
 
 void DDLTestDoc::clear()
@@ -169,7 +166,7 @@ void DDLTestDoc::clear()
 //-----------------------------------------------------------------------
 int DDLTestDoc::readConfig(const std::string& filename)
 {
-  DCOUT('P', "DDLConfiguration::ReadConfig(): started");
+
   std::cout << "readConfig" << std::endl;
   //  configFileName_ = filename;
 
@@ -188,7 +185,7 @@ int DDLTestDoc::readConfig(const std::string& filename)
   try {
     parser->getXMLParser()->parse(filename.c_str());
   }
-  catch (const XMLException& toCatch) {
+  catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	 << "Exception message is: \n"
 	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
@@ -212,205 +209,205 @@ int DDLTestDoc::readConfig(const std::string& filename)
 
 void testRotations() {     
 
-  cout << "--------------- Parser testing Rotations --------------" << endl;
-  cout << "z30 should be a rotation of 30 degrees around the z axis:" << endl;
-  cout << DDRotation(DDName( "z30", "testRotations")) << endl;
-  cout << endl;
-  cout << "z30x20 should be a rotation 30 degrees around z, then 20 degrees around x:" << endl;
-  cout << DDRotation(DDName( "z30x20", "testRotations")) << endl;
-  cout << endl;
-  cout << "x90y45 should be a rotation 90 degrees around x, then 45 degrees around y:" << endl;
-  cout << DDRotation(DDName( "x90y45", "testRotations")) << endl;
-  cout << endl;
-  cout << "x90y90 should be a rotation 90 degrees around x, then 90 degrees around y:" << endl;
-  cout << DDRotation(DDName( "x90y90", "testRotations")) << endl;
-  cout << endl;
-  cout << "x90y135 should be a rotation 90 degrees around x, then 135 degrees around y:" << endl;
-  cout << DDRotation(DDName( "x90y135", "testRotations")) << endl;
-  cout << endl;
-  cout << "x90y180 should be a rotation 90 degrees around x, then 180 degrees around y:" << endl;
-  cout << DDRotation(DDName( "x90y180", "testRotations")) << endl;
-  cout << endl;
-  cout << "x90 should be a rotation of 90 degrees around the x axis:" << endl;
-  cout << DDRotation(DDName( "x90", "testRotations")) << endl;
-  cout << endl;
-  cout << "cmsimIdentity makes the identity rotation matrix using the cmsim method (phi and theta of each axis):" << endl;
-  cout << DDRotation(DDName("cmsimIdentity", "testRotations")) << endl;
-  cout << endl;
-  cout << "newrotIdentity makes the identity rotation matrix by rotating 0 degrees around the z axis:" << endl;
-  cout << DDRotation(DDName("newrotIdentity", "testRotations")) << endl;
-  cout << endl;
-  cout << "180R should be a REFLECTION rotation.  It is defined using the cmsim way:" << endl;
-  cout << DDRotation(DDName("180R", "testRotations")) << endl;
-  cout << endl;
+  std::cout << "--------------- Parser testing Rotations --------------" << std::endl;
+  std::cout << "z30 should be a rotation of 30 degrees around the z axis:" << std::endl;
+  std::cout << DDRotation(DDName( "z30", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "z30x20 should be a rotation 30 degrees around z, then 20 degrees around x:" << std::endl;
+  std::cout << DDRotation(DDName( "z30x20", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "x90y45 should be a rotation 90 degrees around x, then 45 degrees around y:" << std::endl;
+  std::cout << DDRotation(DDName( "x90y45", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "x90y90 should be a rotation 90 degrees around x, then 90 degrees around y:" << std::endl;
+  std::cout << DDRotation(DDName( "x90y90", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "x90y135 should be a rotation 90 degrees around x, then 135 degrees around y:" << std::endl;
+  std::cout << DDRotation(DDName( "x90y135", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "x90y180 should be a rotation 90 degrees around x, then 180 degrees around y:" << std::endl;
+  std::cout << DDRotation(DDName( "x90y180", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "x90 should be a rotation of 90 degrees around the x axis:" << std::endl;
+  std::cout << DDRotation(DDName( "x90", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "cmsimIdentity makes the identity rotation matrix using the cmsim method (phi and theta of each axis):" << std::endl;
+  std::cout << DDRotation(DDName("cmsimIdentity", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "newrotIdentity makes the identity rotation matrix by rotating 0 degrees around the z axis:" << std::endl;
+  std::cout << DDRotation(DDName("newrotIdentity", "testRotations")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "180R should be a REFLECTION rotation.  It is defined using the cmsim way:" << std::endl;
+  std::cout << DDRotation(DDName("180R", "testRotations")) << std::endl;
+  std::cout << std::endl;
 }
 
 void testMaterials() { 
-  cout << "--------------- Parser testing Materials --------------" << endl;
-  cout << "There should be 4 Elementary Materials: Nitrogen," << endl;
-  cout << "Oxygen,Argon and Hydrogen.  There should be one composite" << endl;
-  cout << " material:Air, made up of those 4 components." << endl;
-  cout << DDMaterial(DDName("Nitrogen", "testMaterials")) << endl;
-  cout << endl;
-  cout << DDMaterial(DDName("Oxygen", "testMaterials")) << endl;
-  cout << endl;
-  cout << DDMaterial(DDName("Argon", "testMaterials")) << endl;
-  cout << endl;
-  cout << DDMaterial(DDName("Hydrogen", "testMaterials")) << endl;
-  cout << endl;
-  cout << DDMaterial(DDName("Air", "testMaterials")) << endl;
-  cout << endl;
+  std::cout << "--------------- Parser testing Materials --------------" << std::endl;
+  std::cout << "There should be 4 Elementary Materials: Nitrogen," << std::endl;
+  std::cout << "Oxygen,Argon and Hydrogen.  There should be one composite" << std::endl;
+  std::cout << " material:Air, made up of those 4 components." << std::endl;
+  std::cout << DDMaterial(DDName("Nitrogen", "testMaterials")) << std::endl;
+  std::cout << std::endl;
+  std::cout << DDMaterial(DDName("Oxygen", "testMaterials")) << std::endl;
+  std::cout << std::endl;
+  std::cout << DDMaterial(DDName("Argon", "testMaterials")) << std::endl;
+  std::cout << std::endl;
+  std::cout << DDMaterial(DDName("Hydrogen", "testMaterials")) << std::endl;
+  std::cout << std::endl;
+  std::cout << DDMaterial(DDName("Air", "testMaterials")) << std::endl;
+  std::cout << std::endl;
 }
 
 void testSolids() { 
-  cout << "--------------- Parser testing Solids --------------" << endl;
-  cout << "trap1 is a trapezoid:" << endl;
-  cout << DDSolid(DDName("trap1", "testSolids")) << endl;
-  cout << endl;
-  cout << "trap2 is a trapezoid with more symmetry:" << endl;
-  cout << DDSolid(DDName("trap2", "testSolids")) << endl;
-  cout << endl;
-  cout << "ptrap1 is a pseudo Trapezoid with atMinusZ=false:" << endl;
-  cout << DDSolid(DDName("ptrap1", "testSolids")) << endl;
-  cout << endl;
-  cout << "ptrap2 is a psuedo Trapezoid with atMinusZ=true:" << endl;
-  cout << DDSolid(DDName("ptrap2", "testSolids")) << endl;
-  cout << endl;
-  cout << "box1 is a Box:" << endl;
-  cout << DDSolid(DDName("box1", "testSolids")) << endl;
-  cout << endl;
-  cout << "cone1 is a conical section (full 360 degree):" << endl;
-  cout << DDSolid(DDName("cone1", "testSolids")) << endl;
-  cout << endl;
-  cout << "cone2 is a conical section (full 360 degree) which is actually a tube:" << endl;
-  cout << DDSolid(DDName("cone2", "testSolids")) << endl;
-  cout << endl;
-  cout << "cone2hole is a conical section (20 degree):" << endl;
-  cout << DDSolid(DDName("cone2hole", "testSolids")) << endl;
-  cout << endl;
-  cout << "pczsect is a polycone defined using z-sections:" << endl;
-  cout << DDSolid(DDName("pczsect", "testSolids")) << endl;
-  cout << endl;
-  cout << "pcrz is a polycone defined using r & z points:" << endl;
-  cout << DDSolid(DDName("pcrz", "testSolids")) << endl;
-  cout << endl;
-  cout << "phzsect is a polyhedra defined using z-sections:" << endl;
-  cout << DDSolid(DDName("phzsect", "testSolids")) << endl;
-  cout << endl;
-  cout << "phrz is a polyhedra defined using r & z points:" << endl;
-  cout << DDSolid(DDName("phrz", "testSolids")) << endl;
-  cout << endl;
-  cout << "trd1 is a \"special\" trapezoid declaration with fewer" ;
-  cout << " parameters (Trd1):" << endl;
-  cout << DDSolid(DDName("trd1", "testSolids")) << endl;
-  cout << endl;
-  cout << "trd2 is a \"special\" trapezoid declaration with fewer" ;
-  cout << " parameters (Trd1):" << endl;
-  cout << DDSolid(DDName("trd2", "testSolids")) << endl;
-  cout << endl;
-  cout << "tube1 is a tube:" << endl;
-  cout << DDSolid(DDName("tube1", "testSolids")) << endl;
-  cout << endl;
-  cout << "tube2 is a tubs(Tube Section):" << endl;
-  cout << DDSolid(DDName("tube2", "testSolids")) << endl;
-  cout << endl;
-  cout << "trunctubs1 is a trunctubs(Cut or truncated Tube Section):" << endl;
-  cout << DDSolid(DDName("trunctubs1", "testSolids")) << endl;
-  cout << endl;
-  cout << "momma is a shapeless solid, a way of \"grouping\" things:" << endl;
-  cout << DDSolid(DDName("momma", "testSolids")) << endl;
-  cout << endl;
-  cout << "MotherOfAllBoxes is a box and is the root's solid:" << endl;
-  cout << DDSolid(DDName("MotherOfAllBoxes", "testSolids")) << endl;
-  cout << endl;
-  cout << "trd2mirror is a ReflectionSolid of trd2:" << endl;
-  cout << DDSolid(DDName("trd2mirror", "testSolids")) << endl;
-  cout << endl;
-  cout << "subsolid is a subtraction solid, cone2-cone2hole:" << endl;
-  cout << DDSolid(DDName("subsolid", "testSolids")) << endl;
-  cout << endl;
-  cout << "unionsolid is a union of pcrz and cone1:" << endl;
-  cout << DDSolid(DDName("unionsolid", "testSolids")) << endl;
-  cout << endl;
-  cout << "intsolid is an Intersection(Solid) of cone1 and cone2:" << endl;
-  cout << DDSolid(DDName("intsolid", "testSolids")) << endl;
-  cout << endl;
+  std::cout << "--------------- Parser testing Solids --------------" << std::endl;
+  std::cout << "trap1 is a trapezoid:" << std::endl;
+  std::cout << DDSolid(DDName("trap1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "trap2 is a trapezoid with more symmetry:" << std::endl;
+  std::cout << DDSolid(DDName("trap2", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "ptrap1 is a pseudo Trapezoid with atMinusZ=false:" << std::endl;
+  std::cout << DDSolid(DDName("ptrap1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "ptrap2 is a psuedo Trapezoid with atMinusZ=true:" << std::endl;
+  std::cout << DDSolid(DDName("ptrap2", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "box1 is a Box:" << std::endl;
+  std::cout << DDSolid(DDName("box1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "cone1 is a conical section (full 360 degree):" << std::endl;
+  std::cout << DDSolid(DDName("cone1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "cone2 is a conical section (full 360 degree) which is actually a tube:" << std::endl;
+  std::cout << DDSolid(DDName("cone2", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "cone2hole is a conical section (20 degree):" << std::endl;
+  std::cout << DDSolid(DDName("cone2hole", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "pczsect is a polycone defined using z-sections:" << std::endl;
+  std::cout << DDSolid(DDName("pczsect", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "pcrz is a polycone defined using r & z points:" << std::endl;
+  std::cout << DDSolid(DDName("pcrz", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "phzsect is a polyhedra defined using z-sections:" << std::endl;
+  std::cout << DDSolid(DDName("phzsect", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "phrz is a polyhedra defined using r & z points:" << std::endl;
+  std::cout << DDSolid(DDName("phrz", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "trd1 is a \"special\" trapezoid declaration with fewer" ;
+  std::cout << " parameters (Trd1):" << std::endl;
+  std::cout << DDSolid(DDName("trd1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "trd2 is a \"special\" trapezoid declaration with fewer" ;
+  std::cout << " parameters (Trd1):" << std::endl;
+  std::cout << DDSolid(DDName("trd2", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "tube1 is a tube:" << std::endl;
+  std::cout << DDSolid(DDName("tube1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "tube2 is a tubs(Tube Section):" << std::endl;
+  std::cout << DDSolid(DDName("tube2", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "trunctubs1 is a trunctubs(Cut or truncated Tube Section):" << std::endl;
+  std::cout << DDSolid(DDName("trunctubs1", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "momma is a shapeless solid, a way of \"grouping\" things:" << std::endl;
+  std::cout << DDSolid(DDName("momma", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "MotherOfAllBoxes is a box and is the root's solid:" << std::endl;
+  std::cout << DDSolid(DDName("MotherOfAllBoxes", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "trd2mirror is a ReflectionSolid of trd2:" << std::endl;
+  std::cout << DDSolid(DDName("trd2mirror", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "subsolid is a subtraction solid, cone2-cone2hole:" << std::endl;
+  std::cout << DDSolid(DDName("subsolid", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "unionsolid is a union of pcrz and cone1:" << std::endl;
+  std::cout << DDSolid(DDName("unionsolid", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "intsolid is an Intersection(Solid) of cone1 and cone2:" << std::endl;
+  std::cout << DDSolid(DDName("intsolid", "testSolids")) << std::endl;
+  std::cout << std::endl;
 }
 
 void testLogicalParts() { 
-  cout << "--------------- Parser testing LogicalParts --------------" << endl;
-  cout << "LogicalPart trap1:" << endl;
-  cout << DDLogicalPart(DDName("trap1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart trap2:" << endl;
-  cout << DDLogicalPart(DDName("trap2", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart ptrap1:" << endl;
-  cout << DDLogicalPart(DDName("ptrap1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart ptrap2:" << endl;
-  cout << DDLogicalPart(DDName("ptrap2", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart box1:" << endl;
-  cout << DDLogicalPart(DDName("box1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart cone1:" << endl;
-  cout << DDLogicalPart(DDName("cone1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart cone2:" << endl;
-  cout << DDLogicalPart(DDName("cone2", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart cone2hole:" << endl;
-  cout << DDLogicalPart(DDName("cone2hole", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart pczsect:" << endl;
-  cout << DDLogicalPart(DDName("pczsect", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart pcrz:" << endl;
-  cout << DDLogicalPart(DDName("pcrz", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart phzsect:" << endl;
-  cout << DDLogicalPart(DDName("phzsect", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart phrz:" << endl;
-  cout << DDLogicalPart(DDName("phrz", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart trd1:" ;
-  cout << DDLogicalPart(DDName("trd1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart trd2:" << endl;
-  cout << DDLogicalPart(DDName("trd2", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart tube1:" << endl;
-  cout << DDLogicalPart(DDName("tube1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart tube2:" << endl;
-  cout << DDLogicalPart(DDName("tube2", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart trunctubs1:" << endl;
-  cout << DDLogicalPart(DDName("trunctubs1", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart momma:" << endl;
-  cout << DDLogicalPart(DDName("momma", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart MotherOfAllBoxes:" << endl;
-  cout << DDLogicalPart(DDName("MotherOfAllBoxes", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart torus:" << endl;
-  cout << DDLogicalPart(DDName("torus", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart trd2mirror:" << endl;
-  cout << DDLogicalPart(DDName("trd2mirror", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart subsolid:" << endl;
-  cout << DDLogicalPart(DDName("subsolid", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart unionsolid:" << endl;
-  cout << DDLogicalPart(DDName("unionsolid", "testLogicalParts")) << endl;
-  cout << endl;
-  cout << "LogicalPart intsolid:" << endl;
-  cout << DDLogicalPart(DDName("intsolid", "testLogicalParts")) << endl;
-  cout << endl;
+  std::cout << "--------------- Parser testing LogicalParts --------------" << std::endl;
+  std::cout << "LogicalPart trap1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("trap1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart trap2:" << std::endl;
+  std::cout << DDLogicalPart(DDName("trap2", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart ptrap1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("ptrap1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart ptrap2:" << std::endl;
+  std::cout << DDLogicalPart(DDName("ptrap2", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart box1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("box1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart cone1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("cone1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart cone2:" << std::endl;
+  std::cout << DDLogicalPart(DDName("cone2", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart cone2hole:" << std::endl;
+  std::cout << DDLogicalPart(DDName("cone2hole", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart pczsect:" << std::endl;
+  std::cout << DDLogicalPart(DDName("pczsect", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart pcrz:" << std::endl;
+  std::cout << DDLogicalPart(DDName("pcrz", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart phzsect:" << std::endl;
+  std::cout << DDLogicalPart(DDName("phzsect", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart phrz:" << std::endl;
+  std::cout << DDLogicalPart(DDName("phrz", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart trd1:" ;
+  std::cout << DDLogicalPart(DDName("trd1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart trd2:" << std::endl;
+  std::cout << DDLogicalPart(DDName("trd2", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart tube1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("tube1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart tube2:" << std::endl;
+  std::cout << DDLogicalPart(DDName("tube2", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart trunctubs1:" << std::endl;
+  std::cout << DDLogicalPart(DDName("trunctubs1", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart momma:" << std::endl;
+  std::cout << DDLogicalPart(DDName("momma", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart MotherOfAllBoxes:" << std::endl;
+  std::cout << DDLogicalPart(DDName("MotherOfAllBoxes", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart torus:" << std::endl;
+  std::cout << DDLogicalPart(DDName("torus", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart trd2mirror:" << std::endl;
+  std::cout << DDLogicalPart(DDName("trd2mirror", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart subsolid:" << std::endl;
+  std::cout << DDLogicalPart(DDName("subsolid", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart unionsolid:" << std::endl;
+  std::cout << DDLogicalPart(DDName("unionsolid", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "LogicalPart intsolid:" << std::endl;
+  std::cout << DDLogicalPart(DDName("intsolid", "testLogicalParts")) << std::endl;
+  std::cout << std::endl;
 }
 
 void testPosParts() { 
@@ -428,7 +425,7 @@ void testAlgorithm() {
 
 int main(int argc, char *argv[])
 {
-  // MEC: 2008-08-04 : I believe the main problem w/ this is not being framework friendly.
+  // MEC: 2008-08-04 : I believe the main problem w/ this is not being framework fristd::endly.
   // so I'm (over) using the "main" of CMSSW
 
   std::string const kProgramName = argv[0];
@@ -463,7 +460,7 @@ int main(int argc, char *argv[])
       "    ivalue = cms.int32(11)\n"
       ")\n"
       "process.out = cms.OutputModule('PoolOutputModule',\n"
-      "    fileName = cms.untracked.string('testStandalone.root')\n"
+      "    fileName = cms.untracked.std::string('testStandalone.root')\n"
       ")\n"
       "process.p = cms.Path(process.m1)\n"
       "process.e = cms.EndPath(process.out)\n";
@@ -480,65 +477,65 @@ int main(int argc, char *argv[])
 
     // END Copy from example stand-alone program in Message Logger July 18, 2007
 
-    cout  << "Initialize DDD (call AlgoInit)" << endl;
+    std::cout  << "Initialize DDD (call AlgoInit)" << std::endl;
 
     AlgoInit();
 
-    cout << "Initialize DDL parser (get the first instance)" << endl;
+    std::cout << "Initialize DDL parser (get the first instance)" << std::endl;
     DDLParser* myP = DDLParser::instance();
 
     if (argc < 2) {
-      cout << "DEFAULT test using testConfiguration.xml" << endl;
+      std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
 
       DDLTestDoc dp; //DDLConfiguration dp;
 
       dp.readConfig("testConfiguration.xml");
       dp.dumpFileList();
 
-      cout << "About to start parsing..." << endl;
+      std::cout << "About to start parsing..." << std::endl;
 
       myP->parse(dp);
 
-      cout << "Completed Parser" << endl;
+      std::cout << "Completed Parser" << std::endl;
   
-      cout << endl << endl << "Start checking!" << endl << endl;
-      cout << "Call DDCheckMaterials and other DDChecks." << endl;
-      DDCheckMaterials(cout);
+      std::cout << std::endl << std::endl << "Start checking!" << std::endl << std::endl;
+      std::cout << "Call DDCheckMaterials and other DDChecks." << std::endl;
+      DDCheckMaterials(std::cout);
 
-      cout << "======== Navigate a little bit  ======" << endl;
+      std::cout << "======== Navigate a little bit  ======" << std::endl;
       try {
 	DDCompactView cpv;
 	DDExpandedView ev(cpv);
 	ev.firstChild();
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.firstChild();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.firstChild();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.firstChild();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.firstChild();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
 	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
+	std::cout << ev.geoHistory() << std::endl;
       }
       catch (DDException& e) {
-	cout << e.what() << endl;
+	std::cout << e.what() << std::endl;
       }
 
-      cout << "--------------- Parser testing started --------------" << endl;
-      cout << endl << "Run the XML tests." << endl;
+      std::cout << "--------------- Parser testing started --------------" << std::endl;
+      std::cout << std::endl << "Run the XML tests." << std::endl;
       testMaterials();
       testRotations();
       testSolids();
@@ -549,14 +546,14 @@ int main(int argc, char *argv[])
       //just to have something!
       DDRootDef::instance().set(DDName("LP1", "testNoSections"));
 
-      string fname = string(argv[1]);
+      std::string fname = std::string(argv[1]);
       DDLTestDoc dp;
       while (fname != "q") {
-	cout << "about to try to process the file " << fname << endl;
+	std::cout << "about to try to process the file " << fname << std::endl;
 	dp.push_back(fname);
 	myP->parse(dp);
-	cout << "next file name:" ;
-	cin >> fname;
+	std::cout << "next file name:" ;
+	std::cin >> fname;
 	dp.clear();
       }
     }

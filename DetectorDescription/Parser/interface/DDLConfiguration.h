@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 
 class DDLParser;
@@ -32,7 +32,7 @@ class DDLConfiguration : public DDLDocumentProvider {
   //  friend DDLParser;
 
  public:
-  typedef xercesc_2_7::SAX2XMLReader SAX2XMLReader;
+  typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
   explicit DDLConfiguration(DDLParser *);
   DDLConfiguration();

@@ -33,7 +33,7 @@
 
 // Xerces dependencies
 #include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLUni.hpp>
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
@@ -50,7 +50,8 @@
 // #include "SealUtil/SealTimer.h"
 
 using namespace std;
-using namespace xercesc_2_7;
+
+using namespace XERCES_CPP_NAMESPACE;
 
 //--------------------------------------------------------------------------
 //  DDLParser:  Default constructor and destructor.

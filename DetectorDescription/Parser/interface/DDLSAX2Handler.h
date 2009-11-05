@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 
 // Xerces C++ Dependencies
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 
@@ -32,12 +33,12 @@
  *  startElement and endElement events.
  *
  */
-class DDLSAX2Handler : public xercesc_2_7::DefaultHandler
+class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
 
  public:
-  typedef xercesc_2_7::Attributes Attributes;
-  typedef xercesc_2_7::SAXParseException SAXParseException;
+  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
+  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
 
   // -----------------------------------------------------------------------
   //  Constructor and Destructor

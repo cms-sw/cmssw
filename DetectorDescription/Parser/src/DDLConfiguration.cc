@@ -26,10 +26,6 @@
 
 #include <iostream>
 
-using namespace xercesc_2_7;
-
-
-
 //--------------------------------------------------------------------------
 //  DDLConfiguration:  Default constructor and destructor.
 //--------------------------------------------------------------------------

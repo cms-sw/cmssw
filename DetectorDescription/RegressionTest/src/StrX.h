@@ -11,7 +11,7 @@
 class StrX
 {
 public :
-    typedef xercesc_2_7::XMLString XMLString;
+    typedef XERCES_CPP_NAMESPACE::XMLString XMLString;
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------

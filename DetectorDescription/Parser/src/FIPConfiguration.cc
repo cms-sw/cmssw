@@ -22,6 +22,7 @@
 
 
 // Xerces dependencies
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
@@ -33,8 +34,7 @@
 // STL
 #include <iostream>
 
-
-using namespace xercesc_2_7;
+using namespace XERCES_CPP_NAMESPACE;
 
 //--------------------------------------------------------------------------
 //  FIPConfiguration:  Default constructor and destructor.

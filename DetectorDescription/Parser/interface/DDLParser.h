@@ -9,6 +9,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 
 // Xerces C++ dependencies
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
@@ -59,7 +60,7 @@ class DDLParser
 
 {
  public:
-  typedef xercesc_2_7::SAX2XMLReader SAX2XMLReader;
+  typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
   static DDLParser* instance();
