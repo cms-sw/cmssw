@@ -16,11 +16,14 @@ HcalPacker::Collections::Collections() {
 }
 
 template <class Coll, class DetIdClass> 
-int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
+int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples,bool& isUS, bool& isMP) {
   if (pt==0) return 0;
   int size=0;
+  isUS=false; isMP=false;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {
+    isUS=i->zsUnsuppressed();
+    isMP=i->zsMarkAndPass();
     presamples=i->presamples();
     size=i->size();
     for (int j=0; j<size; j++) 
@@ -46,7 +49,7 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
 }
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
-			    unsigned short* buffer, int &presamples) {
+			    unsigned short* buffer, int &presamples, bool& isUS, bool& isMP) {
   if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) return 0;
   int size=0;
   HcalGenericDetId genId(did);
@@ -54,19 +57,19 @@ int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
   switch (genId.genericSubdet()) {
   case(HcalGenericDetId::HcalGenBarrel):
   case(HcalGenericDetId::HcalGenEndcap):
-    size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples);
+    size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenOuter):
-    size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples);
+    size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenForward):
-    size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples);
+    size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenZDC):
-    size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples);
+    size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenCalibration):
-    size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples);
+    size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples,isUS,isMP);
     break;
   default: size=0;
   }
@@ -82,7 +85,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(HcalHTRData::CHANNELS_PER_SPIGOT);
-  static const int HTRFormatVersion=3;
+  static const int HTRFormatVersion=5;
+  bool channelIsMP[HcalHTRData::CHANNELS_PER_SPIGOT];
 
   HcalHTRData spigots[15];
   // loop over all valid channels in the given dcc, spigot by spigot.
@@ -91,12 +95,14 @@ void HcalPacker::pack(int fedid, int dccnumber,
     HcalElectronicsId exampleEId;
     int npresent=0;
     int presamples=-1, samples=-1;
+    bool haveUnsuppressed=false;
     for (int fiber=1; fiber<=8; fiber++) 
       for (int fiberchan=0; fiberchan<3; fiberchan++) {
 	int linear=(fiber-1)*3+fiberchan;
 	HcalQIESample chanSample(0,0,fiber,fiberchan,false,false);
 	unsigned short chanid=chanSample.raw()&0xF800;
 	preclen[linear]=0;
+	channelIsMP[linear]=false;
 
 	HcalElectronicsId partialEid(fiberchan,fiber,spigot,dccnumber);
 	// does this partial id exist?
@@ -108,7 +114,10 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	int mypresamples;
-	int mysamples=findSamples(genId,inputs,database,mypresamples);
+	bool isUS, isMP;
+	int mysamples=findSamples(genId,inputs,database,mypresamples,isUS,isMP);
+	haveUnsuppressed=haveUnsuppressed || isUS;
+	channelIsMP[linear]=isMP;
 
 	if (mysamples>0) {
 	  if (samples<0) samples=mysamples;
@@ -172,6 +181,9 @@ void HcalPacker::pack(int fedid, int dccnumber,
 					samples,
 					presamples,
 					firmwareRev);
+      if (haveUnsuppressed) {
+	spigots[spigot].packUnsuppressed(channelIsMP);
+      }
       
     }
   }
