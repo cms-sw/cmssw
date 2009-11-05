@@ -303,7 +303,9 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	  if((settingName.find("DELAY25_") != std::string::npos) || 
 	     (settingName.find("_BIAS") != std::string::npos) || 
 	     (settingName.find("PLL_CTR2") != std::string::npos) ||
-	     (settingName.find("PLL_CTR5") != std::string::npos) )
+	     (settingName.find("PLL_CTR5") != std::string::npos)  ||
+	     ((settingName.find("DOH_SEU_GAIN") != std::string::npos) && type_=="bpix")) 
+	    //Note that DOH_SEU_GAIN will be *ignored* for fpix
 	    {
 	      map<string,string>::iterator iter = nameDBtoFileConversion_.find(settingName);
 	      if(iter == nameDBtoFileConversion_.end()) continue ;
@@ -330,7 +332,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		 ) continue ;
 	      
 	      pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-/*
+	      /*
 	      cout << __LINE__ 
 	           << mthn << "Setting\t" 
 		   << "|"
@@ -343,7 +345,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		   << i2c_values
 		   << ")"
 		   << endl ;
-*/
+	      */
 	      device_.push_back(p);
 	      if (settingName.find("AOH")!=string::npos)      key_.push_back(aohcount_++);
 	      else if (settingName.find("Delay25")!=string::npos) key_.push_back(delay25count++);
