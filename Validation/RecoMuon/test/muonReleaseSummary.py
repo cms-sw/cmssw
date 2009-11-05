@@ -5,17 +5,17 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_3_0'
-RefVersion='3_3_0_pre6'
+NewVersion='3_4_0_pre4'
+RefVersion='3_4_0_pre2'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-NewCondition='MC'
-RefCondition='MC'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='MC'
+#RefCondition='MC'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
 
 NewFastSim=False
 RefFastSim=False
@@ -25,7 +25,7 @@ if (NewCondition=='MC'):
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
 elif (NewCondition=='STARTUP'):
-    samples= ['RelValTTbar','RelValZMM']
+    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['']
 # These are some of the (pre)production samples, to be included by hand:
@@ -35,7 +35,7 @@ elif (NewCondition=='STARTUP'):
 Submit=True
 Publish=False
 
-GetFilesFromCastor=True
+GetFilesFromCastor=False
 GetRefsFromCastor=True
 CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
 #CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
