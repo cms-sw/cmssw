@@ -1,3 +1,24 @@
+2009-11-04 Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V05-03-05
+	* Add missing <cstring>, required for new boost(/python/xerces) version
+
+2009-10-30 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-03-04
+	* Add missing includes for
+	  FWCore/Utilities/interface/EDMException.h
+
+2009-10-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-03
+	* Merge changes from V05-02-04 into branch_3_3_X
+
+2009-10-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-02
+	* Merge changes from V05-02-03 into branch_3_3_X
+
 2009-10-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-03-01
@@ -8,6 +29,11 @@
 	* tag V05-03-00
 	* Merge changes from V05-02-00 into branch_3_3_X
 	* Fix a couple of issues for gcc4/amd64
+
+2009-11-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-05
+	* Remove stray EndLumiSectMsgData.cc from branch_3_2_X.
 
 2009-10-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
