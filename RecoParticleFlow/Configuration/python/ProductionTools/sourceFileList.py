@@ -11,6 +11,9 @@ import FWCore.ParameterSet.Config as cms
 source = cms.Source(
 "PoolSource",
 '''
+    print 'noEventSort = cms.untracked.bool(True),'
+    print 'duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),'
+
     print "fileNames = cms.untracked.vstring("
     for file in files:
         fileLine = "'file:%s'," % os.path.abspath(file)
@@ -45,8 +48,10 @@ print '''
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source(
-    "PoolSource",
+\t"PoolSource",
 '''
+print '\tnoEventSort = cms.untracked.bool(True),'
+print '\tduplicateCheckMode = cms.untracked.string("noDuplicateCheck"),'
 print "\tfileNames = cms.untracked.vstring("
 for file in files:
     fileLine = "\t\t'%s'," % file

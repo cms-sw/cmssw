@@ -143,10 +143,12 @@ class MyBatchManager( BatchManager ):
           randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
           randSvc.populate()
        else:
-          grouping = len(process.source.fileNames)/nJobs
+
+          print "grouping : ", grouping
+          print "value : ", value
           
-          iFileMin = (value)*grouping
-          iFileMax = (value+1)*grouping + 1
+          iFileMin = (value)*grouping 
+          iFileMax = (value+1)*grouping 
           
           process.source.fileNames = fullSource.fileNames[iFileMin:iFileMax]
           print process.source
@@ -162,7 +164,7 @@ class MyBatchManager( BatchManager ):
 batchManager = MyBatchManager()
 
 
-batchManager.parser_.usage = "%prog [options] <number of jobs> <your_cfg.py>. Submits a number of jobs taking your_cfg.py as a template. your_cfg.py can either read events from input files, or produce them with a generator. In the later case, the seeds are of course updated for each job.\n\nExample:\tcmsBatch.py 10 fastSimWithParticleFlow_cfg.py -o Out2 -r /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions/display.root"
+batchManager.parser_.usage = "%prog [options] <number of input files per job> <your_cfg.py>. Submits a number of jobs taking your_cfg.py as a template. your_cfg.py can either read events from input files, or produce them with a generator. In the later case, the seeds are of course updated for each job.\n\nExample:\tcmsBatch.py 10 fastSimWithParticleFlow_cfg.py -o Out2 -r /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions/display.root"
 
 
 (options,args) = batchManager.parser_.parse_args()
@@ -173,7 +175,7 @@ if len(args)!=2:
    batchManager.parser_.print_help()
    sys.exit(1)
 
-nJobs = int(args[0])
+grouping = int(args[0])
 cfgFileName = args[1]
 queue = options.queue
 
@@ -185,6 +187,18 @@ handle.close()
 
 # keep track of the original source
 fullSource = process.source.clone()
+
+print len(process.source.fileNames)
+print grouping
+
+print len(process.source.fileNames) / grouping
+
+nFiles = len(process.source.fileNames)
+nJobs = nFiles / grouping
+if nFiles % nJobs:
+   nJobs = nJobs + 1
+
+print "n jobs:", nJobs
 
 
 generator = False
@@ -198,9 +212,6 @@ else:
    print "Number of files in the source:",len(process.source.fileNames), ":"
    pprint.pprint(process.source.fileNames)
    listOfValues = range( 0, nJobs)
-   if len(process.source.fileNames) % nJobs:
-      # imperfect grouping, need an extra job for the leftovers
-      listOfValues = range( 0, nJobs+1)
 
 batchManager.PrepareJobs( listOfValues )
 
