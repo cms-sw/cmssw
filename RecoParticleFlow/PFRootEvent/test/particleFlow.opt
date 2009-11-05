@@ -1,10 +1,10 @@
 
 root outfile benchmark.root
-root outtree 0
+root outtree 1
 
 //colin	mode 1
 
-root file ==INPUT==
+root file ../../Configuration/test/display.root
 
 // filter ------------------------------------------------------------
 
@@ -444,7 +444,7 @@ particle_flow   comparison  0
 
 //tau benchmark options ---------------------------------------------------
 
-tau_benchmark	on/off	0
+tau_benchmark	on/off	1
 
 //debug yes/no
 tau_benchmark debug 0
@@ -466,7 +466,7 @@ pfjet_benchmark	on/off	1
 pfjet_benchmark debug 0
 	
 //pfjet benchmark outputfile
-pfjet_benchmark outjetfile ==OUTJET==
+pfjet_benchmark outjetfile pfjetBenchmark.root
 
 //PlotagainstReco  yes/no
 pfjet_benchmark PlotAgainstReco 0
@@ -488,7 +488,7 @@ pfmet_benchmark JECinCaloMET 0
 pfmet_benchmark debug 0
 	
 //pfmet benchmark outputfile
-pfmet_benchmark outmetfile ==OUTMET==
+pfmet_benchmark outmetfile pfmetBenchmark.root
 
 //MET cut
 pfmet_benchmark truemetcut 10.0

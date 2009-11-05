@@ -14,7 +14,7 @@ PFRootEventManager em("particleFlow.opt");
 // em.printRecHits_ = true;
 if(em.tree() ) {
   int n =  em.tree()->GetEntries();
-  for(unsigned i= ==FIRST==; i< ==LAST== ; i++) {
+  for(unsigned i=0; i<n; i++) {
     em.processEntry(i);
     // em.print();
   }
