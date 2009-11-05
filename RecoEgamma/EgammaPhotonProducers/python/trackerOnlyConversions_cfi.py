@@ -49,7 +49,7 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     AllowDeltaCot = cms.bool(False), #Allow pairing using delta cot theta cut
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair
-    AllowVertex = cms.bool(False),
+    AllowVertex = cms.bool(True),
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(True) #Require second leg matching basic cluster
 )
