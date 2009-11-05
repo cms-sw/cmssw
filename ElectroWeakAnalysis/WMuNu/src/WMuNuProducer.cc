@@ -118,7 +118,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             LogError("") << ">>> Muon collection does not exist !!!";
             return;
       }
-      unsigned int muonCollectionSize = muonCollection->size();
+      int muonCollectionSize = muonCollection->size();
 
       // MET
       Handle<View<MET> > metCollection;
@@ -131,40 +131,13 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
 
       if (muonCollectionSize<1) return;
-/*      if (muonCollectionSize>10) {LogError("")<<"I am not prepared for events with 10 muons!! Fix me! (and check this event! :-) )"; return;}
-
-      double MaxPt[10]={0,0,0,0,0,0,0,0,0,0};
-      int Maxi[10]={0,0,0,0,0,0,0,0,0,0};
-      int nmuons=0;
-      // Now order remaining Muons by Pt  - there should be only one if preselection has been applied
-       
-      for (unsigned int i=0; i<muonCollectionSize; i++) {
-            const Muon& mu = muonCollection->at(i);
-            if (!mu.isGlobalMuon()) continue;
-            if (mu.globalTrack().isNull()) continue;
-            if (mu.innerTrack().isNull()) continue;
-
-            reco::TrackRef gm = mu.globalTrack();
-
-            double pt = mu.pt();
-          
-            nmuons++; 
-           
-            bool foundPosition=false; int j=0;
-            do{   if (pt > MaxPt[j]) { MaxPt[j]=pt; Maxi[j]=i; foundPosition=true;}
-                  j++;
-            }while(!foundPosition);
-               
-     }
-     if (nmuons<0) return;
-*/
-     auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
+     
+      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
 
      // Fill Collection with n muons --> n W Candidates ordered by pt
  
      for (int indx=0; indx<muonCollectionSize; indx++){ 
- //    int MuonIndx=Maxi[indx]; 
             edm::Ptr<reco::Muon> muon(muonCollection,indx);
             if (!muon->isGlobalMuon()) continue;
             if (muon->globalTrack().isNull()) continue;
@@ -174,10 +147,10 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
       LogTrace("")<<"Building WMuNu Candidate!"; 
       WMuNuCandidate* WCand = new WMuNuCandidate(muon,met); 
       LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
-//      LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
-//      LogTrace("") << "\t... acop:  " << WCand->acop();
+      LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
+      LogTrace("") << "\t... acop:  " << WCand->acop();
       LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
-//      LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
+      LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
   	WMuNuCandidates->push_back(*WCand);
        } 
 

@@ -13,7 +13,6 @@
 <use name=CommonTools/RecoAlgos>
 
 <use name=LHAPDF>
-<use name=rootrflx>
 <use name=CLHEP>
 
 <export>
