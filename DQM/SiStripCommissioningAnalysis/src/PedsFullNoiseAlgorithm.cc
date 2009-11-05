@@ -130,7 +130,7 @@ void PedsFullNoiseAlgorithm::analyse() {
     return;
   }
 
-  if ( noise_histo->GetNbinsX() != 50 || noise_histo->GetNbinsY() != 256 ) {
+  if ( (noise_histo->GetNbinsX() != 50 && noise_histo->GetNbinsX() != 60) || noise_histo->GetNbinsY() != 256 ) {
     anal->addErrorCode(sistrip::numberOfBins_);
     return;
   }
@@ -176,9 +176,10 @@ void PedsFullNoiseAlgorithm::analyse() {
        		char GausFit[128];
 	    	memset(GausFit,0,128);
   	    	sprintf(GausFit,"%.f/(2.5*%.3f)*exp(-0.5*((x-%.3f)/%.3f)**2)",
-        	noisehist->GetEntries(),noisehist->GetRMS(),noisehist->GetMean(),noisehist->GetRMS());
-  	    	TF1 * fit = new TF1("fit",GausFit,-25,25);
-  	    	TH1F * FitHisto = new TH1F("FitHisto","FitHisto",50,-25,25);
+        		noisehist->Integral(),noisehist->GetRMS(),noisehist->GetMean(),noisehist->GetRMS());
+  	    	TF1 * fit = new TF1("fit",GausFit,-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
+  	    	TH1F * FitHisto = new TH1F("FitHisto","FitHisto",noisehist->GetNbinsX(),
+            							-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
   	   		FitHisto->Add(fit);
             FitHisto->Sumw2();
             noisehist->Sumw2();
@@ -186,26 +187,22 @@ void PedsFullNoiseAlgorithm::analyse() {
                 anal->ksProb_[iapv][istr] = noisehist->KolmogorovTest(FitHisto)*1000;
                 anal->chi2Prob_[iapv][istr] = FitHisto->Chi2Test(noisehist, "OFUF")*1000;
             }
-            
-            //if(anal->ksProb_[iapv][istr] < 10){
-            //	std::cout<<anal->fecKey()<<" "<<anal->fedKey()<<" "<<iapv*128+istr<<" ";
-           //     for(int i = 0; i < noisehist->GetNbinsX();i++){
-           //     	std::cout << noisehist->GetBinContent(i+1) << " ";
-          //      }
-           // 	std::cout << std::endl;
-              //  for(int i = 0; i < FitHisto->GetNbinsX();i++){
-              //  	std::cout << FitHisto->GetBinContent(i+1) << " ";
-             //   }
-            //	std::cout << std::endl;
-            //}
-			
+           /* 
+            if(anal->ksProb_[iapv][istr] < 10){
+            	std::cout<<anal->fedKey()<<" "<<anal->fecKey()<<" "<<iapv*128+istr<<" ";
+                for(int i = 0; i < noisehist->GetNbinsX();i++){
+                	std::cout << noisehist->GetBinContent(i+1) << " ";
+                }
+            	std::cout << std::endl;
+            }
+			*/
             
             // Integral to 84% method to set noise of each strip.
             int current = 0;
             while(current < noisehist->GetNbinsX() && noisehist->Integral(0,current)/noisehist->Integral() < 0.842){
 				current++;
 			}
-            anal->bin84Percent_[iapv][istr] = (current - 25);
+            anal->bin84Percent_[iapv][istr] = (current - noisehist->GetNbinsX()/2);
             
             // Gaussian Fit to set noise on each strip
             noisehist->Fit("gaus","Q");
@@ -214,7 +211,7 @@ void PedsFullNoiseAlgorithm::analyse() {
             
             // Setting the noise of each strip
             anal->noise_[iapv][istr] = noisehist->GetRMS();
-            //anal->noise_[iapv][istr] = (current - 25);
+            //anal->noise_[iapv][istr] = (current - 30);
             //anal->noise_[iapv][istr] = gausFit->GetParameter(2); 
             n_sum += anal->noise_[iapv][istr];
             n_sum2 += (anal->noise_[iapv][istr] * anal->noise_[iapv][istr]);
@@ -269,9 +266,9 @@ void PedsFullNoiseAlgorithm::analyse() {
     	if ( anal->noiseMin_[iapv] > sistrip::maximum_ || anal->noiseMax_[iapv] > sistrip::maximum_ ) { 
         	continue; 
         }
-        if ( anal->noise_[iapv][istr] < ( anal->noiseMean_[iapv] - deadStripMax_ * anal->noiseSpread_[iapv] ) ) {
-			anal->dead_[iapv].push_back(istr);
-        } 
+        //if ( anal->noise_[iapv][istr] < ( anal->noiseMean_[iapv] - deadStripMax_ * anal->noiseSpread_[iapv] ) ) {
+		//	anal->dead_[iapv].push_back(istr);
+        //} 
        	//else if ( anal->ksProb_[iapv][istr] <= 10 ) { //Masking using KSProb*1000
         //	anal->noisy_[iapv].push_back(istr);
         //    std::cout << "KSMasked"<< anal->detId() << std::endl;
