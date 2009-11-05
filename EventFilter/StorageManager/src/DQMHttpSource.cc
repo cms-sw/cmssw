@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.14 2008/07/15 20:13:21 biery Exp $
+ *  $Id: DQMHttpSource.cc,v 1.15 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -271,8 +271,7 @@ namespace edm
           FDEBUG(8) << "    TObject class = " << cls << ", name = " << nm << std::endl;
           if (bei_->extract(toPtr, bei_->pwd(), true))
           {
-            std::string path;
-            if (MonitorElement *me = bei_->findObject(subFolderName, nm, path))
+            if (MonitorElement *me = bei_->findObject(subFolderName, nm))
               me->update();
             ++count;
           }
