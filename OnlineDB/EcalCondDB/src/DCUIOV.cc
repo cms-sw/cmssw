@@ -102,11 +102,10 @@ int DCUIOV::fetchID()
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT iov_id FROM dcu_iov "
 		 "WHERE tag_id = :tag_id AND "
-		 "since = :since AND "
-		 "till = :till");
+		 "since = :since ");
     stmt->setInt(1, tagID);
     stmt->setDate(2, dh.tmToDate(m_since));
-    stmt->setDate(3, dh.tmToDate(m_till));
+    //    stmt->setDate(3, dh.tmToDate(m_till));
   
     ResultSet* rset = stmt->executeQuery();
 
