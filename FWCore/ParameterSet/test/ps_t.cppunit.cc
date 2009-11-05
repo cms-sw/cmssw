@@ -1,5 +1,4 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.25 2009/08/26 21:14:01 wdd Exp $
  */
 
 #include <cppunit/extensions/HelperMacros.h>

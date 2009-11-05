@@ -1,5 +1,4 @@
 /*
- * $Id: IncludeFileFinder_t.cppunit.cc,v 1.6 2007/05/24 20:24:21 rpw Exp $
  */
 
 #include <algorithm>
