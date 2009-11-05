@@ -7,14 +7,13 @@ globalMuons = cms.EDProducer("GlobalMuonProducer",
     MuonServiceProxy,
     MuonTrackLoaderForGLB,
     GLBTrajBuilderParameters = cms.PSet(
-        GlobalTrajectoryBuilderCommon,
-        TransformerOutPropagator = cms.string('SmartPropagatorAnyRK'),
-        MatcherOutPropagator = cms.string('SmartPropagatorRK'),
-        KFFitter = cms.string('GlbMuKFFitter')
+        GlobalTrajectoryBuilderCommon
     ),
     TrackerCollectionLabel = cms.InputTag("generalTracks"),
     MuonCollectionLabel = cms.InputTag("standAloneMuons","UpdatedAtVtx")
 )
 
+globalMuons.GLBTrajBuilderParameters.GlobalMuonTrackMatcher.Propagator = cms.string('SmartPropagatorRK')
+globalMuons.GLBTrajBuilderParameters.TrackTransformer.Propagator = cms.string('SmartPropagatorAnyRK') 
 
 
