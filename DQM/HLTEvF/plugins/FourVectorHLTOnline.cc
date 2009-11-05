@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.6 2009/04/15 23:01:16 berryhil Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.7 2009/10/15 11:31:29 fwyzard Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -22,7 +22,10 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <vector>
+
 using namespace edm;
+using namespace std;
 
 FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   resetMe_(true),  currentRun_(-99)
@@ -776,6 +779,30 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v->getNL1Histo()->Fill(NL1);
 
     } //denompassed
+
+   // fill histogram of filter ocupancy for each HLT path
+   unsigned int lastModule = 0;
+
+   unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
+   lastModule = triggerResults->index(pathByIndex);
+
+    //go through the list of filters
+    for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+      
+      int binNumber = v->getFiltersHisto()->getTH1()->GetXaxis()->FindBin(v->filtersAndIndices[filt].first.c_str());      
+      
+      //check if filter passed
+      if(triggerResults->accept(pathByIndex)){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+      //otherwise the module that issued the decision is the first fail
+      //so that all the ones before it passed
+      else if(v->filtersAndIndices[filt].second < lastModule){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+
+    } // end for filt
+
   } //pathinfo loop
 
 }
@@ -1116,6 +1143,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 	MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
     	MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
     	MonitorElement *NL1OnUM, *l1EtL1OnUM, *l1Etavsl1PhiL1OnUM=0;
+      MonitorElement *filters=0;
 	std::string labelname("dummy");
         labelname = v->getPath() + "_wrt_" + v->getDenomPath();
 	std::string histoname(labelname+"_NOn");
@@ -1244,7 +1272,68 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 				nBins2D,-histEtaMax,histEtaMax,
 				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM
+       // -------------------------
+       //
+       //  Filters for each path
+       //
+       // -------------------------
+       
+       // get all modules in this HLT path
+       vector<string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
+       
+       int numModule = 0;
+       string moduleName, moduleType;
+       unsigned int moduleIndex;
+       
+       //print module name
+       vector<string>::const_iterator iDumpModName;
+       for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
+
+         moduleName = *iDumpModName;
+         moduleType = hltConfig_.moduleType(moduleName);
+         moduleIndex = hltConfig_.moduleIndex(v->getPath(), moduleName);
+
+         LogTrace ("FourVectorHLTOffline") << "Module "      << numModule
+             << " is called " << moduleName
+             << " , type = "  << moduleType
+             << " , index = " << moduleIndex
+             << endl;
+
+         numModule++;
+
+         if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos && moduleType.find("HLTL1NumberFilterXXX") == string::npos ) || 
+            (moduleType.find("Associator") != string::npos) || 
+            (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
+            (moduleType.find("HLTPrescaler") != string::npos) ) {
+
+           std::pair<std::string, int> filterIndexPair;
+           filterIndexPair.first   = moduleName;
+           filterIndexPair.second  = moduleIndex;
+           v->filtersAndIndices.push_back(filterIndexPair);
+
+         }
+
+
+       }//end for modulesName
+
+       TString pathsummary = TString("HLT/FourVector/PathsSummary");
+       dbe_->setCurrentFolder(pathsummary.Data()); 
+
+       //int nbin_sub = 5;
+       int nbin_sub = 10;
+    
+       // count plots for subfilter
+       filters = dbe_->book1D("Filters_" + v->getPath(), 
+                              "Filters_" + v->getPath(),
+                              nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
+       
+       for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+
+         filters->setBinLabel(filt+1, (v->filtersAndIndices[filt]).first);
+
+       }
+
+	v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, filters
 );
 
 
