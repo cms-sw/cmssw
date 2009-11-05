@@ -256,7 +256,8 @@ double Exhume::CrossSection::AlphaS(const double &scale_){
 /////////////////////////////////////////////////////////////////////////////
 double Exhume::CrossSection::Rg1Rg2(const double &scale_){
 
-  double Rg1, Rg2;
+  double Rg1 = 0.;
+  double Rg2 = 0.;
 
   if(RgBegin){
 
