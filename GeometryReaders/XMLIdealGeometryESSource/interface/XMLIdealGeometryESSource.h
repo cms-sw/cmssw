@@ -41,11 +41,11 @@ private:
 
     // 2009-07-09 memory patch
     // for copying and protecting DD Store's after parsing is complete.
-    DDI::Store<DDName, DDI::Material*>::registry_type matStore_;
-    DDI::Store<DDName, DDI::Solid*>::registry_type solidStore_;
-    DDI::Store<DDName, DDI::LogicalPart*>::registry_type lpStore_;
-    DDI::Store<DDName, DDI::Specific*>::registry_type specStore_;
-    DDI::Store<DDName, DDRotationMatrix*>::registry_type rotStore_;    
+    DDI::Store<DDName, DDI::Material*> matStore_;
+    DDI::Store<DDName, DDI::Solid*> solidStore_;
+    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+    DDI::Store<DDName, DDI::Specific*> specStore_;
+    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
 };
 
 
