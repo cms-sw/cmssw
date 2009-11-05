@@ -222,8 +222,32 @@ void VertexClassifier::processesAtSimulation()
                 // Collect the G4 process of the first psimhit (it should be the same for all of them)
                 unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
-                // Look for conversion process
-                flags_[Conversion] = (process == G4::Conversions);
+                // Flagging all the different processes
+
+                update(
+                    flags_[KnownProcess],
+                    process != G4::Undefined &&
+                    process != G4::Unknown &&
+                    process != G4::Primary
+                );
+
+                update(flags_[UndefinedProcess], process == G4::Undefined);
+                update(flags_[UnknownProcess], process == G4::Unknown);
+                update(flags_[PrimaryProcess], process == G4::Primary);
+                update(flags_[HadronicProcess], process == G4::Hadronic);
+                update(flags_[DecayProcess], process == G4::Decay);
+                update(flags_[ComptonProcess], process == G4::Compton);
+                update(flags_[AnnihilationProcess], process == G4::Annihilation);
+                update(flags_[EIoniProcess], process == G4::EIoni);
+                update(flags_[HIoniProcess], process == G4::HIoni);
+                update(flags_[MuIoniProcess], process == G4::MuIoni);
+                update(flags_[PhotonProcess], process == G4::Photon);
+                update(flags_[MuPairProdProcess], process == G4::MuPairProd);
+                update(flags_[ConversionsProcess], process == G4::Conversions);
+                update(flags_[EBremProcess], process == G4::EBrem);
+                update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
+                update(flags_[MuBremProcess], process == G4::MuBrem);
+                update(flags_[MuNuclProcess], process == G4::MuNucl);
 
                 // Special treatment for decays
                 if (process == G4::Decay)
@@ -245,7 +269,7 @@ void VertexClassifier::processesAtSimulation()
                                 update(flags_[BWeakDecay], particleID.hasBottom());
                                 update(flags_[CWeakDecay], particleID.hasCharm());
                                 update(flags_[LongLivedDecay], true);
-                           }
+                            }
                             // Check Tau, Ks and Lambda decay
                             update(flags_[TauDecay], pdgid == 15);
                             update(flags_[KsDecay], pdgid == 310);
@@ -257,31 +281,6 @@ void VertexClassifier::processesAtSimulation()
                             update(flags_[SigmaMinusDecay], pdgid == 3112);
                         }
                     }
-                    update(
-                        flags_[Interaction],
-                        !flags_[BWeakDecay] &&
-                        !flags_[CWeakDecay] &&
-                        !flags_[LongLivedDecay] &&
-                        !flags_[TauDecay] &&
-                        !flags_[KsDecay] &&
-                        !flags_[LambdaDecay] &&
-                        !flags_[JpsiDecay] &&
-                        !flags_[XiDecay] &&
-                        !flags_[OmegaDecay] &&
-                        !flags_[SigmaPlusDecay] &&
-                        !flags_[SigmaMinusDecay]
-                    );
-                }
-                else
-                {
-                    update(
-                        flags_[Interaction],
-                        process != G4::Undefined &&
-                        process != G4::Unknown &&
-                        process != G4::Primary &&
-                        process != G4::Hadronic &&
-                        process != G4::Conversions
-                    );
                 }
             }
         }
