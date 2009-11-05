@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.3.2.2 2009/10/08 20:18:41 srappocc Exp $
+  \version  $Id: Selector.h,v 1.5 2009/10/12 00:50:49 srappocc Exp $
 */
 
 
@@ -134,8 +134,13 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   /// Get an empty bitset with the proper names
   std::strbitset getBitTemplate() const { 
     std::strbitset ret = bits_; 
-     ret.set(false);
-     return ret;
+    ret.set(false);
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
+	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
+	  icut != cutsEnd; ++icut ) {
+      if ( ignoreCut(icut->first) ) ret[icut->first] = true;
+    }     
+    return ret;
   }
 
   /// Print the cut flow
@@ -144,10 +149,17 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
       char buff[1000];
-      sprintf(buff, "%6d : %20s %10d", 
-	      icut - cutsBegin,
-	      icut->first.c_str(),
-	      icut->second );
+      if ( considerCut( icut->first ) ) {
+	sprintf(buff, "%6d : %20s %10d", 
+		icut - cutsBegin,
+		icut->first.c_str(),
+		icut->second );
+      } else {
+	sprintf(buff, "%6d : %20s %10s", 
+		icut - cutsBegin,
+		icut->first.c_str(),
+		"off" );
+      }
       out << buff << std::endl;
     } 
   }
