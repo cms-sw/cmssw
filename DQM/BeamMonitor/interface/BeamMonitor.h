@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/08/26 04:02:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/04 04:16:54 $
+ *  $Revision: 1.3 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -70,11 +70,14 @@ class BeamMonitor : public edm::EDAnalyzer {
   int countEvt_;       //counter
   int countLumi_;      //counter
   int nthBSTrk_;       //
+  int nFitElements_;
+  double deltaSigCut_;
 
   bool resetHistos_;
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;
+  reco::BeamSpot theBS;
   
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
@@ -85,7 +88,14 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_sigmaZ0_lumi;
   MonitorElement * h_trk_z0;
   MonitorElement * h_vx_vy;
-  
+
+  // Summary:
+  Float_t reportSummary_;
+  Float_t summarySum_;
+  Float_t summaryContent_[3];
+  MonitorElement * reportSummary;
+  MonitorElement * reportSummaryContents[3];
+  MonitorElement * reportSummaryMap;
   // variables for beam fit
 
 };
