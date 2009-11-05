@@ -57,6 +57,13 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
     iConfig.getParameter<double>("weight_HFem");
   weight_HFhad_ =
     iConfig.getParameter<double>("weight_HFhad");
+
+  HCAL_Calib_ =
+    iConfig.getParameter<bool>("HCAL_Calib");
+  HF_Calib_ =
+    iConfig.getParameter<bool>("HF_Calib");
+
+
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
   produces<reco::PFRecHitCollection>("HFEM").setBranchAlias("HFEMRecHits");
@@ -194,20 +201,23 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
 	if(foundHCALConstituent)
 	  {
+	    // std::cout << ", new Energy = " << energy << std::endl;
 	    switch( detid.subdet() ) {
 	    case HcalBarrel: 
 	      {
 		if(energy < thresh_Barrel_ ) continue;
-       	          pfrh = createHcalRecHit( detid, 
-					   energy, 
-					   PFLayer::HCAL_BARREL1, 
-					   hcalBarrelGeometry,
-					   ct.id().rawId() );
+		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
+		pfrh = createHcalRecHit( detid, 
+					 energy, 
+					 PFLayer::HCAL_BARREL1, 
+					 hcalBarrelGeometry,
+					 ct.id().rawId() );
 	      }
 	      break;
 	    case HcalEndcap:
 	      {
 		if(energy < thresh_Endcap_ ) continue;
+		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
 		pfrh = createHcalRecHit( detid, 
 					 energy, 
 					 PFLayer::HCAL_ENDCAP, 
@@ -222,8 +232,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	    case HcalForward:
 	      {
 		//---ab: 2 rechits for HF:
-		double energyemHF = weight_HFem_*ct.emEnergy();
-		double energyhadHF = weight_HFhad_*ct.hadEnergy();
+		//double energyemHF = weight_HFem_*ct.emEnergy();
+		//double energyhadHF = weight_HFhad_*ct.hadEnergy();
+		double energyemHF = weight_HFem_ * energyEM;
+		double energyhadHF = weight_HFhad_ * energy;
 		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
 		// The EM energy might be negative, as it amounts to Long - Short
@@ -233,7 +245,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  energyhadHF += energyemHF;
 		  energyemHF = 0.;
 		// Otherwise, create an EM rechit.
-		} else { 
+		} else {
+		  if ( HF_Calib_ ) { 
+		    energy   *= myPFCorr->getValues(detid)->getValue();
+		    energyEM *= myPFCorr->getValues(detid)->getValue();
+		  }
 		  pfrhHFEM = createHcalRecHit( detid, 
 					   energyemHF, 
 					   PFLayer::HF_EM, 
@@ -718,8 +734,9 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
 
 
 
-DetId PFRecHitProducerHCAL::getSouth(const DetId& id, 
-				  const CaloSubdetectorTopology& topology) {
+DetId 
+PFRecHitProducerHCAL::getSouth(const DetId& id, 
+			       const CaloSubdetectorTopology& topology) {
 
   DetId south;
   vector<DetId> sids = topology.south(id);
@@ -731,8 +748,9 @@ DetId PFRecHitProducerHCAL::getSouth(const DetId& id,
 
 
 
-DetId PFRecHitProducerHCAL::getNorth(const DetId& id, 
-				  const CaloSubdetectorTopology& topology) {
+DetId 
+PFRecHitProducerHCAL::getNorth(const DetId& id, 
+			       const CaloSubdetectorTopology& topology) {
 
   DetId north;
   vector<DetId> nids = topology.north(id);

@@ -16,6 +16,10 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
+// For RecHits calibration wrt 50 GeV pions.
+// #include "CondFormats//HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats//HcalObjects/interface/HcalPFCorrs.h"
+
 /**\class PFRecHitProducer 
 \brief Base producer for particle flow rechits (PFRecHit) 
 
@@ -23,13 +27,13 @@
 \date   february 2008
 */
 
-
-
 class PFRecHitProducer : public edm::EDProducer {
  public:
   explicit PFRecHitProducer(const edm::ParameterSet&);
   ~PFRecHitProducer();
 
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
+  virtual void endRun();
   
   void produce(edm::Event& iEvent, 
 	       const edm::EventSetup& iSetup);
@@ -55,6 +59,12 @@ class PFRecHitProducer : public edm::EDProducer {
   /// rechits with E < threshold will not give rise to a PFRecHit
   double  thresh_Barrel_;
   double  thresh_Endcap_;
+
+  // the access to the response corection factors
+  // const HcalRespCorrs* myRespCorr;
+  const HcalPFCorrs* myPFCorr;
+
+
 };
 
 #endif

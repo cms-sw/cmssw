@@ -2510,9 +2510,11 @@ PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) cons
     resol =   fabs(eta) < 1.48 ? 
       //min(0.25,sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)):
       //min(0.30,sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018));
-      sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+      // sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+      sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
       :
-      sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
+      // sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
+      sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
 
   return resol;
 }

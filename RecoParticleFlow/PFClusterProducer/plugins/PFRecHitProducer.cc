@@ -8,7 +8,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
+// For RecHits calibration wrt 50 GeV pions.
+// #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -48,6 +50,26 @@ void PFRecHitProducer::produce(edm::Event& iEvent,
 
 
 PFRecHitProducer::~PFRecHitProducer() {}
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+PFRecHitProducer::beginRun(edm::Run& run,
+			   const EventSetup& es) {
+
+  // get the HCAL RecHits correction factors
+  // edm::ESHandle<HcalRespCorrs> rchandle;
+  // es.get<HcalRespCorrsRcd>().get(rchandle);
+  // myRespCorr= rchandle.product();
+  // And the PF-specific ones
+  edm::ESHandle<HcalPFCorrs> pfrchandle;
+  es.get<HcalPFCorrsRcd>().get(pfrchandle);
+  myPFCorr= pfrchandle.product();
+
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+PFRecHitProducer::endRun() {}
 
 
 

@@ -34,7 +34,6 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
  public:
   explicit PFRecHitProducerHCAL(const edm::ParameterSet&);
   ~PFRecHitProducerHCAL();
-
  
  private:
 
@@ -86,10 +85,16 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   
   /// threshold for HF
   double           thresh_HF_;
-  //Navigation in HF:  False = no real clustering in HF; True  = do clustering 
+  // Navigation in HF:  False = no real clustering in HF; True  = do clustering 
   bool   navigation_HF_;
   double weight_HFem_;
   double weight_HFhad_;
+
+  // Apply HCAL DPG rechit calibration
+  bool HCAL_Calib_;
+  bool HF_Calib_;
+
+
 };
 
 #endif

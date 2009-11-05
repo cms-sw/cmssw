@@ -102,7 +102,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
     result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
     /*
     // if ( result && !quality ) 
-    //if ( result ) 
+    if ( result ) 
       std::cout << " pt (STA/TRA) : " << standAloneMu->pt() 
 		<< " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
 		<< " and " << trackerMu->pt() 
@@ -171,7 +171,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
       }
     }      
     /*
-    //if ( result ) 
+    if ( result ) 
       std::cout << " Not a tracker muon !" << std::endl
 		<< " pt (STA/TRA) : " << standAloneMu->pt() 
 		<< " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
@@ -241,6 +241,8 @@ PFMuonAlgo::isLooseMuon( const reco::MuonRef& muonRef ) {
     standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
     muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) ||
     muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+
+  quality = quality && combinedMu->normalizedChi2() < 100.;
 
   if ( !quality ) return false;
   

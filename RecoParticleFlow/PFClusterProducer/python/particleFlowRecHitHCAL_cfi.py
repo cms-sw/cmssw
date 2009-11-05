@@ -17,9 +17,13 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
     navigation_HF = cms.bool(False),
 #AUGUSTE: TO BE CHECKED:
     weight_HFem = cms.double(1.000),
-    weight_HFhad = cms.double(1.000)
+    weight_HFhad = cms.double(1.000),
 #   weight_HFem = cms.double(1.0),
 #   weight_HFhad = cms.double(1.0)
+
+# HCAL DPG RecHit calibration
+    HCAL_Calib = cms.bool(True),
+    HF_Calib = cms.bool(False)
                                   
 )
 
