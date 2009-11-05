@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.5 2009/08/25 19:45:06 case Exp $
+// $Id: XMLIdealGeometryESProducer.cc,v 1.6 2009/11/05 01:19:53 case Exp $
 //
 //
 
@@ -41,13 +41,10 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
-
-namespace DDI {
-  class Material;
-  class Solid;
-  class LogicalPart;
-  class Specific;
-}
+#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/src/Specific.h"
 
 //
 // class decleration
