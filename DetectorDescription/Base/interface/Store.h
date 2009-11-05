@@ -78,9 +78,9 @@ namespace DDI {
    // clear all objects
    void clear();
 
- // swap moves the registry from this guy to another of the same 
- // type
- void swap ( registry_type& ) ; 
+   // swap moves the registry from this guy to another of the same 
+   // type
+   void swap ( Store& ) ; 
    
    bool isDefined(const name_type & n ) const;
    void setReadOnly(bool b) { readOnly_ = b; }
@@ -190,8 +190,9 @@ bool Store<N,I,K>::isDefined(const name_type & n ) const
 }
 
 template<class N, class I, class K>
-void Store<N, I, K>::swap ( registry_type& regtoreceive ) {
-  reg_.swap(regtoreceive);
+void Store<N, I, K>::swap ( Store<N, I, K>& storeToSwap ) {
+  reg_.swap(storeToSwap.reg_);
+  storeToSwap.readOnly_ = readOnly_;
 }
 }
 
