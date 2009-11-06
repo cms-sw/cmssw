@@ -42,7 +42,7 @@ TauGenJetProducer::~TauGenJetProducer() { }
 
 
 
-void TauGenJetProducer::beginJob(const edm::EventSetup & es) { }
+void TauGenJetProducer::beginJob() { }
 
 
 void TauGenJetProducer::produce(Event& iEvent, 

@@ -36,7 +36,7 @@ class jetMatch : public edm::EDAnalyzer {
     explicit jetMatch(const edm::ParameterSet&);
     ~jetMatch() {}
      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-     virtual void beginJob(const edm::EventSetup& iSetup) ;
+     virtual void beginJob() ;
      virtual void endJob() ;
 
   private:
@@ -65,7 +65,7 @@ jetMatch::jetMatch(const edm::ParameterSet& iConfig)
   fOutputFileName_ = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("testMatch.root"));
 }
 
-void jetMatch::beginJob( const edm::EventSetup& iSetup)
+void jetMatch::beginJob()
 {
  
    hOutputFile   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;

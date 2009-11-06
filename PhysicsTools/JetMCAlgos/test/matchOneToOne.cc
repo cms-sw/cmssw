@@ -35,7 +35,7 @@ class matchOneToOne : public edm::EDAnalyzer {
     explicit matchOneToOne(const edm::ParameterSet&);
     ~matchOneToOne() {}
      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-     virtual void beginJob(const edm::EventSetup& iSetup) ;
+     virtual void beginJob() ;
      virtual void endJob() ;
 
   private:
@@ -65,7 +65,7 @@ matchOneToOne::matchOneToOne(const edm::ParameterSet& iConfig)
   fOutputFileName_ = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("testMatch.root"));
 }
 
-void matchOneToOne::beginJob( const edm::EventSetup& iSetup)
+void matchOneToOne::beginJob()
 {
  
    hOutputFile   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
