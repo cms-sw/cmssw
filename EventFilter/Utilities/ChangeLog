@@ -1,6 +1,6 @@
 2009-11-06  Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V00-17-01
+	* tag V00-17-04 (01-02-03 used by some wiseguy to change includes [probably Peter Elment])
 	* Changed microstate name from IN to INPUT and from IND to INPUTDONE
 
 2009-10-19  Emilio Meschi <emilio.meschi@cern.ch>
