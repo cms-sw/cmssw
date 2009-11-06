@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.16 2009/10/08 18:23:14 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.17 2009/10/27 19:25:03 amraktad Exp $
 //
 
 // user include files
@@ -48,7 +48,8 @@ private:
 
    void drawCrossHair(const reco::GsfElectron*, TEveCaloLego*, TEveElementList*);
    void addInfo(const reco::GsfElectron*, TEveElementList*);
-   void makeLegend (const reco::GsfElectron*, const FWModelId&, TCanvas*);
+   double makeLegend (double x0, double y0,
+                      const reco::GsfElectron*, const FWModelId&);
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
    TGLViewer*    m_viewer;

@@ -8,6 +8,8 @@
 #include "TGLViewer.h"
 #include "THLimitsFinder.h"
 #include "TEveCaloLegoOverlay.h"
+#include "TLatex.h"
+#include "TBox.h"
 
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -47,7 +49,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no barrel ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         "showing crystal location but not energy" << std::endl;
       }
    } else {
       try {
@@ -57,14 +59,14 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          std::cout <<"no endcap ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         "showing crystal location but not energy" << std::endl;
       }
    }
 
    // data
    TEveCaloDataVec* data = new TEveCaloDataVec(1 + m_colors.size());
    data->IncDenyDestroy();
-   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, kMagenta+2);
+   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor);
    for (size_t i = 0; i < m_colors.size(); ++i)
    {
       data->RefSliceInfo(i + 1).Setup("hits (not clustered)", 0.0, m_colors[i]);
@@ -78,7 +80,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    data->GetEtaLimits(etaMin, etaMax);
    data->GetPhiLimits(phiMin, phiMax);
    Double_t bl, bh, bw;
-   Int_t    bn, n = 20;
+   Int_t bn, n = 20;
    THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
    data->SetEtaBins( new TAxis(bn, bl, bh));
    THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
@@ -256,3 +258,50 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
    data->DataChanged();
 }
 
+double
+FWECALDetailViewBuilder::makeLegend( double x0, double y0,
+                                     Color_t clustered1, Color_t clustered2,
+                                     Color_t supercluster
+                                     )
+{
+   Double_t fontsize = 0.07;
+   TLatex* latex = new TLatex();
+   Double_t x = x0;
+   Double_t y = y0;
+   Double_t boxH = 0.25*fontsize;
+   Double_t yStep = 0.04;
+
+   y -= yStep;
+
+   latex->DrawLatex(x, y, "Energy types:");
+   y -= yStep;
+
+   TBox *b1 = new TBox(x+0.05, y, x+0.20, y+boxH);
+   b1->SetFillColor(m_defaultColor);
+   b1->Draw();
+   latex->DrawLatex(x+0.25, y, "unclustered");
+   y -= yStep;
+   if (clustered1<0) return y;
+
+   TBox *b2 = new TBox(x+0.05, y, x+0.20, y+boxH);
+   b2->SetFillColor(clustered1);
+   b2->Draw();
+   latex->DrawLatex(x+0.25, y, "clustered");
+   y -= yStep;
+   if (clustered2<0) return y;
+
+   TBox *b3 = new TBox(x+0.05, y, x+0.20, y+boxH);
+   b3->SetFillColor(clustered2);
+   b3->Draw();
+   latex->DrawLatex(x+0.25, y, "clustered");
+   y -= yStep;
+   if (supercluster<0) return y;
+
+   TBox *b4 = new TBox(x+0.05, y, x+0.20, y+boxH);
+   b4->SetFillColor(supercluster);
+   b4->Draw();
+   latex->DrawLatex(x+0.25, y, "super-cluster");
+   y -= yStep;
+
+   return y;
+}
