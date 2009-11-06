@@ -33,8 +33,8 @@ namespace edm {
   }
 
   void 
-  EDProducer::doBeginJob() {
-    this->beginJob();
+  EDProducer::doBeginJob(EventSetup const& es) {
+    this->beginJob(es);
   }
   
   void 

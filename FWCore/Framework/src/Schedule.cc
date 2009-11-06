@@ -845,8 +845,8 @@ namespace edm {
     for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
-  void Schedule::beginJob() {
-    for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
+  void Schedule::beginJob(EventSetup const& es) {
+    for_all(all_workers_, boost::bind(&Worker::beginJob, _1, boost::cref(es)));
   }
 
   void Schedule::preForkReleaseResources() {

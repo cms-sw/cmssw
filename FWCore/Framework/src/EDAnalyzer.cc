@@ -26,8 +26,8 @@ namespace edm {
   }
 
   void
-  EDAnalyzer::doBeginJob() {
-    this->beginJob();
+  EDAnalyzer::doBeginJob(EventSetup const& es) {
+    this->beginJob(es);
   }
   
   void 

@@ -49,7 +49,7 @@ namespace edm {
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
 		CurrentProcessingContext const* cpc);
-    void beginJob() ;
+    void beginJob(EventSetup const&) ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
@@ -98,7 +98,7 @@ namespace edm {
 			    CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual void implBeginJob() = 0;
+    virtual void implBeginJob(EventSetup const&) = 0;
     virtual void implEndJob() = 0;
 
   private:

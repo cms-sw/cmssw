@@ -57,11 +57,11 @@ private:
     actReg_ = areg;
   }
 
-  void Worker::beginJob() {
+  void Worker::beginJob(EventSetup const& es) {
     
     try {
         ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
-	implBeginJob();
+	implBeginJob(es);
     }
     catch(cms::Exception& e) {
 	LogError("BeginJob")

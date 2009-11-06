@@ -28,8 +28,8 @@ namespace edm {
   }
 
   void 
-  EDFilter::doBeginJob() { 
-    this->beginJob();
+  EDFilter::doBeginJob(EventSetup const& es) { 
+    this->beginJob(es);
   }
    
   void EDFilter::doEndJob() { 

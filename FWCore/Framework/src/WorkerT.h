@@ -53,7 +53,7 @@ namespace edm {
                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                             CurrentProcessingContext const* cpc);
-    virtual void implBeginJob() ;
+    virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
     virtual void implRespondToOpenInputFile(FileBlock const& fb);
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
@@ -135,8 +135,8 @@ namespace edm {
 
   template <typename T>
   void
-  WorkerT<T>::implBeginJob() {
-    module_->doBeginJob();
+  WorkerT<T>::implBeginJob(EventSetup const& es) {
+    module_->doBeginJob(es);
   }
 
   template <typename T>

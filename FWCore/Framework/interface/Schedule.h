@@ -133,7 +133,7 @@ namespace edm {
     void processOneOccurrence(typename T::MyPrincipal& principal, 
 		     EventSetup const& eventSetup);
 
-    void beginJob();
+    void beginJob(EventSetup const&);
     void endJob();
 
     // Write the luminosity block

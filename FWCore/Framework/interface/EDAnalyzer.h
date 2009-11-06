@@ -33,7 +33,7 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    void doBeginJob();
+    void doBeginJob(EventSetup const&);
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
