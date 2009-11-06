@@ -31,9 +31,9 @@
             </L1_HTM100>
         </prealgos>
         <conditions>
-            <CASTORrapgap condition="CondCastor" particle="Castor" type="TypeCastor">
+            <CASTORrapgap condition="CondExternal" particle="GtExternal" type="TypeExternal">
             </CASTORrapgap>
-            <BPTXcoincidence condition="CondBptx" particle="Bptx" type="TypeBptx">
+            <BPTXcoincidence condition="CondExternal" particle="GtExternal" type="TypeExternal">
             </BPTXcoincidence>
             <HTM_0x064 condition="esums" particle="htm" type="htm">
                 <et_threshold max="fff" min="000">
@@ -199,7 +199,7 @@
                     <value>200</value>
                 </delta_phi>
             </CorrMuTauJet>
-            <CASTORrapgap condition="CondCastor" particle="Castor" type="TypeCastor">
+            <CASTORrapgap condition="CondExternal" particle="GtExternal" type="TypeExternal">
             </CASTORrapgap>
             <SingleHfBitCounts_I0_1 condition="CondHfBitCounts" particle="HfBitCounts"
                 type="0">
