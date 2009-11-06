@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <map.
+#include <map>
 #include <iosfwd>
 
 class MultiFileBlob{

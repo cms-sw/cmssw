@@ -21,7 +21,7 @@ void MultiFileBlob::finalized(bool compress) {
 			9);
     if (zerr!=0) edm::LogError("MultiFileBlob")<< "Compression error " << zerr;
     out.resize(destLen);
-    blob.swp(out);
+    blob.swap(out);
 }
 
  
@@ -39,7 +39,7 @@ void MultiFileBlob::read(const std::string& name, std::istream & is) {
 }
 
 void MultiFileBlob::write(const std::string& name, std::ostream & os) const {
-  Range r = raw(name);
+  Range r = rawBlob(name);
   os.write((const char *)(r.first),r.second-r.first);
 
 }
@@ -61,7 +61,7 @@ MultiFileBlob::Range MultiFileBlob::rawBlob(const std::string& name) const {
 
 
 unsigned long long MultiFileBlob::size(const std::string& name) const {
-  Range r = raw(name);
+  Range r = rawBlob(name);
   return r.second-r.first;
 }
 
