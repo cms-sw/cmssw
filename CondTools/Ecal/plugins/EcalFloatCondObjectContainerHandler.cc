@@ -3,11 +3,11 @@
    Implementation of class EcalFloatCondObjectContainerHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2008/11/14 15:46:04 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $
    \date 09 Sep 2008
 */
 
-static const char CVSId[] = "$Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2008/11/14 15:46:04 argiro Exp $";
+static const char CVSId[] = "$Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBCommon/interface/Time.h"
@@ -22,7 +22,7 @@ EcalFloatCondObjectContainerHandler::
 EcalFloatCondObjectContainerHandler::
 EcalFloatCondObjectContainerHandler(const edm::ParameterSet & ps):
   xmlFileSource_(ps.getUntrackedParameter<std::string>("xmlFile")),
-  since_(ps.getUntrackedParameter<boost::int64_t>("since"))
+  since_(ps.getUntrackedParameter<long long>("since"))
 {
 }
 

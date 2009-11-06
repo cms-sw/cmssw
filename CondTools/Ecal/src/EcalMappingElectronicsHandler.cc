@@ -14,7 +14,7 @@
 EcalMappingElectronicsHandler::EcalMappingElectronicsHandler(const edm::ParameterSet & ps):           
   txtFileSource_(ps.getUntrackedParameter<std::string>("txtFile")),
   m_name(ps.getUntrackedParameter<std::string>("name","EcalMappingElectronicsHandler")),
-  since_(ps.getUntrackedParameter<boost::int64_t>("since",1)) 
+  since_(ps.getUntrackedParameter<long long>("since",1)) 
 {
   std::cout << "EcalMappingElectronics Source handler constructor\n" << std::endl;
 }
