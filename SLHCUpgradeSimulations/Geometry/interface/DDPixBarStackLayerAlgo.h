@@ -41,6 +41,7 @@ private:
   double                   ladderThick; 	//Up/Down Ladder Thickness
   double                   module_offset; 	//Offset of module from radial/tangential vector
   double                   layout; 		//Layout type (0=TIB-like,1=TOB-like)
+  double		   activeWidth;		//Up/Down Ladder active Width
 
 };
 
