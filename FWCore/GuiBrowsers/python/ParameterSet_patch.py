@@ -89,7 +89,7 @@ cms.Process.setLooper_=new_setLooper_
 def new_history(self):
     modifications = self.dumpModifications(False)
     if modifications!="":
-        modifiedObjects = self.dumpModifiedObjects()
+        modifiedObjects = self.modifiedObjects()
         return self.__dict__['_Process__history']+[(modifications,modifiedObjects)]
     else:
         return self.__dict__['_Process__history']
@@ -120,7 +120,7 @@ cms.Process.dumpHistory=new_dumpHistory
 
 def new_addAction(self,tool):
     if self.__dict__['_Process__enableRecording'] == 0:
-        modifiedObjects=self.dumpModifiedObjects()
+        modifiedObjects=self.modifiedObjects()
         self.__dict__['_Process__history'].append((tool,modifiedObjects))
 cms.Process.addAction=new_addAction
 
@@ -133,7 +133,7 @@ def new_disableRecording(self):
         # remeber modifications in history
         modification = self.dumpModifications(False)
         if modification!="":
-            modifiedObjects=self.dumpModifiedObjects()
+            modifiedObjects=self.modifiedObjects()
             self.__dict__['_Process__history'].append((modification,modifiedObjects))
         # start recording modified objects
         self.resetModified()
@@ -534,6 +534,25 @@ if __name__=='__main__':
 
             process.deleteAction(0)
             self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            
+        def testModifiedObjectsHistory(self):
+            from FWCore.ParameterSet.Modules  import Source
+            from PhysicsTools.PatAlgos.tools.testTools import changeSource
+            
+            process = cms.Process('unittest')
+            process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
+            
+            changeSource(process,"file:filename.root")
+            self.assertEqual(len(process.history()[0][1]),1)
+            
+            process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
+            self.assertEqual(len(process.history()[1][1]),1)
+
+            changeSource(process,"file:filename2.root")
+            self.assertEqual(len(process.history()[2][1]),1)
+            
+            process.source.fileNames=cms.untracked.vstring("file:replacedfile2.root") 
+            self.assertEqual(len(process.history()[3][1]),1)
             
     unittest.main()
             
