@@ -316,7 +316,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   vertices = std::vector<const reco::VertexCollection*>
     (seedingAlgo.size(),static_cast<const reco::VertexCollection*>(0));
   for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) { 
-    originHalfLength[ialgo] = 3.*sigmaz0; // Overrides the configuration
+    //PAT Attempt!!!! 
+
+   //originHalfLength[ialgo] = 3.*sigmaz0; // Overrides the configuration
     edm::Handle<reco::VertexCollection> aHandle;
     bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
     if (!isVertexCollection ) continue;
