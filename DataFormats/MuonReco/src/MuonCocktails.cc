@@ -1,5 +1,6 @@
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "TMath.h"
+//#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include <TROOT.h>
@@ -151,7 +152,7 @@ double muon::trackProbability(const reco::TrackRef track) {
 
   int nDOF = (int)track->ndof();
   if ( nDOF > 0 && track->chi2()> 0) { 
-    return -LnChiSquaredProbability(track->chi2(), nDOF);
+    return -log(TMath::Prob(track->chi2(), nDOF));
   } else { 
     return 0.0;
   }
