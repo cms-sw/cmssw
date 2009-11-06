@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.5 2009/10/15 19:07:25 wdd Exp $
 //
 //
 

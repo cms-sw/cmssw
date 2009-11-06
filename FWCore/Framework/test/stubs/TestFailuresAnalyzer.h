@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestFailuresAnalyzer.h,v 1.2 2009/10/15 19:07:25 wdd Exp $
 //
 
 // system include files

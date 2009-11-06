@@ -2,8 +2,6 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.37 2008/12/19 00:45:08 wmtan Exp $
-
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>

@@ -5,7 +5,6 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Mon Dec 22 13:43:10 CST 2008
-// $Id: TestPSetAnalyzer.cc,v 1.1 2009/01/12 22:26:48 ewv Exp $
 //
 //
 

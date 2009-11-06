@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.h,v 1.3 2008/04/04 16:11:04 wdd Exp $
 //
 
 // system include files

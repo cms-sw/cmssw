@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.7 2008/04/04 16:11:04 wdd Exp $
 //
 //
 
