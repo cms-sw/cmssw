@@ -269,7 +269,7 @@ void PFRootEventManager::readOptions(const char* file,
     
     pfCandidateManager_.setParameters( dRMax, matchCharge, 
 				       static_cast<Benchmark::Mode>(mode));
-    pfCandidateManager_.setRange( 2, 10e5, -4.5, 4.5, -10, 10);
+    pfCandidateManager_.setRange( ptMin, 10e5, -4.5, 4.5, -10, 10);
     pfCandidateManager_.setup();
     //COLIN need to set the subdirectory.  
     cout<<"+++ Done "<<endl;

@@ -512,7 +512,7 @@ pfCandidate_benchmark dRMax		0.2
 pfCandidate_benchmark ptMin		2
 pfCandidate_benchmark matchCharge	1
 // mode = 0 (default), 1(light), 2(heavy)
-pfCandidate_benchmark mode		0
+pfCandidate_benchmark mode		2
 
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
