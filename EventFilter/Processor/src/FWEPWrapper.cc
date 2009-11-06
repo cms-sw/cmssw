@@ -52,7 +52,7 @@ namespace evf{
     , serviceToken_()
     , slaveServiceToken_()
     , servicesDone_(false)
-    , epInitialized_(0)
+    , epInitialized_(false)
     , prescaleSvc_(0)
     , log_(log)
     , isPython_(true)
@@ -70,7 +70,7 @@ namespace evf{
     , asMonitoring_(0)
     , wlMonitoringActive_(false)
     , watching_(false)
-    , firstLsTimeOut_(10000000)
+    , firstLsTimeOut_(200)
     , residualTimeOut_(0)
     , lastLsTimedOut_(false)
     , lastLsWithEvents_(0)
@@ -80,7 +80,7 @@ namespace evf{
     , lsid_(0)
     , psid_(0)
     , localLsIncludingTimeOuts_(0)
-    , lsTimeOut_(10000000)
+    , lsTimeOut_(105)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
     , lumiSectionsCtr_(lsRollSize_+1)
@@ -98,6 +98,7 @@ namespace evf{
     epMAltState_ = -1;
     epmAltState_ = -1;
     residualTimeOut_ = lsTimeOut_.value_;
+
   }
 
   FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
@@ -122,6 +123,27 @@ namespace evf{
     scalersComplete_.addColumn("lsid", "unsigned int 32");
     scalersComplete_.addColumn("psid", "unsigned int 32");
     scalersComplete_.addColumn("triggerReport", "table");  
+
+    //fill initial macrostate legenda information
+    unsigned int i = 0;
+    std::stringstream oss;
+    for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
+      {
+	oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
+	statmod_.push_back(evtProcessor_->stateName((edm::event_processor::State) i));
+      }
+
+    std::stringstream oss2;
+    oss2 << 0 << "=Invalid ";
+    modmap_["Invalid"]=0;
+    mapmod_.resize(1); 
+    mapmod_[0]="Invalid";
+
+    monitorInfoSpace_->lock();
+    macro_state_legend_ = oss.str();
+    micro_state_legend_ = oss2.str();
+    monitorInfoSpace_->unlock();
+
     if(nsub==0) publishConfigAndMonitorItemsSP();
 
   }
@@ -143,8 +165,6 @@ namespace evf{
     hasServiceWebRegistry_ = serviceMap & 0x4;
     bool instanceZero = serviceMap & 0x8;
     bool hasSubProcesses = serviceMap & 0x10;
-    std::cout << "this is the init call with service mask " << std::hex << (int)serviceMap << std::dec << std::endl;
-    std::cout << "InstanceZero is " << instanceZero << std::endl;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
     if (epInitialized_) {
@@ -304,29 +324,20 @@ namespace evf{
     const edm::ParameterSet *prescaleSvcConfig = internal::findService(*pServiceSets,"PrescaleService");
     if(prescaleSvc_ != 0 && prescaleSvcConfig !=0) prescaleSvc_->reconfigure(*prescaleSvcConfig);
   
-    //fill macrostate legenda information
-    unsigned int i = 0;
-    std::stringstream oss;
-    for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
-      {
-	oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
-	statmod_.push_back(evtProcessor_->stateName((edm::event_processor::State) i));
-      }
     monitorInfoSpace_->lock();
-    if(instanceZero) {
-      std::cout << "filling macrostate legenda" << std::endl;
-      macro_state_legend_ = oss.str();
-    }
-
     //fill microstate legenda information
     descs_ = evtProcessor_->getAllModuleDescriptions();
 
     std::stringstream oss2;
     unsigned int outcount = 0;
-    oss2 << 0 << "=In ";
-    modmap_["IN"]=0;
-    mapmod_.resize(descs_.size()+2); // all modules including output plus one input plus DQM 
-    mapmod_[0]="IN";
+    oss2 << 0 << "=Invalid ";
+    oss2 << 1 << "=Input ";
+    modmap_["Invalid"]=0;
+    modmap_["INPUT"]=1;
+    mapmod_.resize(descs_.size()+3); // all modules including output plus one input plus DQM plus the invalid state 0
+    mapmod_[0]="Invalid";
+    mapmod_[1]="INPUT";
+    outcount++;
     for(unsigned int j = 0; j < descs_.size(); j++)
       {
 	if(descs_[j]->moduleName() == "ShmStreamConsumer") // find something better than hardcoding name
@@ -335,14 +346,13 @@ namespace evf{
 	    oss2 << outcount << "=" << descs_[j]->moduleLabel() << " ";
 	    modmap_[descs_[j]->moduleLabel()]=outcount;
 	    mapmod_[outcount] = descs_[j]->moduleLabel();
-	    i++;
 	  }
       }
     modmap_["DQM"]=outcount+1;
     mapmod_[outcount+1]="DQM";
     oss2 << outcount+1 << "=DQMHistograms ";
     unsigned int modcount = 1;
-    for(i = 0; i < descs_.size(); i++)
+    for(unsigned int i = 0; i < descs_.size(); i++)
       {
 	if(descs_[i]->moduleName() != "ShmStreamConsumer")
 	  {
@@ -353,7 +363,6 @@ namespace evf{
 	  }
       }
     if(instanceZero){
-      std::cout << "filling macrostate legenda" << std::endl;
       micro_state_legend_ = oss2.str();
     }
     monitorInfoSpace_->unlock();
@@ -718,9 +727,7 @@ namespace evf{
 	trh_.triggerReportToTable(tr,ls,ps);
 	trh_.packTriggerReport(tr);
       }
-
     it->setField("triggerReport",trh_.getTableWithNames());
-
     return true;
   }
 
@@ -1035,11 +1042,9 @@ namespace evf{
     Cgicc cgi(in);
     std::vector<FormEntry> el1;
     cgi.getElement("module",el1);
-    std::cout << "moduleWeb looking for module: size " << el1.size() << std::endl;
     if(evtProcessor_)  {
       if(el1.size()!=0) {
 	std::string mod = el1[0].getValue();
-	std::cout << "moduleWeb looking for module: " << mod << std::endl;
 	edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
 	ModuleWebRegistry *mwr = 0;
 	try{

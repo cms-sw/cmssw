@@ -7,14 +7,17 @@
 #include <iostream>
 #include <boost/shared_ptr.hpp>
 
-namespace evf{
+// subprocess states: -1000 never started -1: crashed 0: exited successfully 1: running
+// @@EM ToDo: replace magic numbers with enum
 
+namespace evf{
+  
   class SubProcess{
   public:
     SubProcess()
       : ind_(100000)
       , pid_(-1)
-      , alive_(-1)
+      , alive_(-1000)
       , restart_countdown_(0)
       , save_nbp_(0)
       , save_nba_(0)
@@ -30,8 +33,6 @@ namespace evf{
       , save_nbp_(0)
       , save_nba_(0)
       {
-	std::cout << "subprocess " << ind << " create command queue" << std::endl;
-	std::cout << "subprocess " << ind << " done" << std::endl;
       }
     SubProcess(const SubProcess &b)
       : ind_(b.ind_)
@@ -41,7 +42,7 @@ namespace evf{
       , mqs_(b.mqs_)
       , restart_countdown_(b.restart_countdown_)
       {
-	std::cout << "subprocess " << ind_ << " in copyconstructor" << std::endl;
+
       }
     SubProcess &operator=(const SubProcess &b)
       {
@@ -54,12 +55,10 @@ namespace evf{
 	save_nba_ = b.save_nba_;
 	restart_countdown_=b.restart_countdown_;
 
-	std::cout << "subprocess " << ind_ << " in assignmentoperator" << std::endl;
 	return *this;
       }
     virtual ~SubProcess()
       {
-	std::cout << "subprocess " << ind_ << " in destructor" << std::endl;
       }
     void disconnect()
       {

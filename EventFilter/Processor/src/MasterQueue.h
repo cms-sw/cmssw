@@ -15,7 +15,7 @@ namespace evf{
 
   public:
 
-    MasterQueue(unsigned int ind)
+    MasterQueue(unsigned int ind) : status_(0)
       {
 	
 	/* create or attach a public message queue, with read/write access to every user. */
@@ -82,9 +82,10 @@ namespace evf{
 	char cbuf[sizeof(struct msqid_ds)];
 	struct msqid_ds *buf= (struct msqid_ds*)cbuf;
 	int ret = msgctl(queue_id_,IPC_STAT,buf);	
-	if(ret!=0) status_ = -1;
+	if(ret!=0) status_ = -1; 
 	else
 	  {
+	    status_ = 1;
 	    occup_ = buf->msg_qnum;
 	    pidOfLastSend_ = buf->msg_lspid;
 	    pidOfLastReceive_ = buf->msg_lrpid;

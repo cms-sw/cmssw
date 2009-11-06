@@ -1,3 +1,11 @@
+2009-11-06 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-03
+	* flashlist available at initialization time
+	* improve stability of stop transition
+	* cleanup printouts
+	* fix deadlock of scalers update when some process crashes
+	
 2009-11-02 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-00-02

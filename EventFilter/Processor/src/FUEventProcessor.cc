@@ -100,11 +100,13 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   names_.push_back("nbAccepted"     );
   names_.push_back("epMacroStateInt");
   names_.push_back("epMicroStateInt");
-  
+  // create pipe for web communication
   int retpipe = pipe(anonymousPipe_);
   if(retpipe != 0)
         LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to create pipe");
+  // check squid presence
   squidPresent_ = squidnet_.check();
+  //pass application parameters to FWEPWrapper
   evtProcessor_.setAppDesc(getApplicationDescriptor());
   evtProcessor_.setAppCtxt(getApplicationContext());
   // bind relevant callbacks to finite state machine
@@ -239,7 +241,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\"> 2.0.1 </div>"
+  ost  << "<div id=\"ve\"> 2.0.3 </div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -264,7 +266,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ost << "<div id=\"sysinfo\">" << buf->sysname << " " << buf->nodename 
       << " " << buf->release << " " << buf->version << " " << buf->machine << "</div>";
   updaterStatic_ = ost.str();
-  
+  startSupervisorLoop();  
 }
 
 
@@ -300,18 +302,23 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 
   if(nbSubProcesses_.value_==0) 
     {
-      spMStates_.setSize(1);
-      spmStates_.setSize(1);
+      spMStates_.setSize(1); 
+      spmStates_.setSize(1); 
     }
   else
     {
       spMStates_.setSize(nbSubProcesses_.value_);
       spmStates_.setSize(nbSubProcesses_.value_);
+      for(unsigned int i = 0; i < spMStates_.size(); i++)
+	{
+	  spMStates_[i] = edm::event_processor::sInit; 
+	  spmStates_[i] = 0; 
+	}
     }
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
     std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
-
+    epInitialized_=true;
     if(evtProcessor_)
       {
 	// moved to wrapper class
@@ -361,6 +368,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     + (hasPrescaleService_.value_ ? 0x1 : 0);
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+  if(!epInitialized_) evtProcessor_.forceInitEventProcessorMaybe();
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
 
   //classic appl will return here 
@@ -391,7 +399,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  // the loop is broken in the child 
 	}
     }
-  startSupervisorLoop();
+
   startScalersWorkLoop();
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
   fsm_.fireEvent("EnableDone",this);
@@ -444,6 +452,7 @@ xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
 //______________________________________________________________________________
 void FUEventProcessor::actionPerformed(xdata::Event& e)
 {
+
   if (e.type()=="ItemChangedEvent" && !(fsm_.stateName()->toString()=="Halted")) {
     string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
@@ -451,6 +460,7 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
       epInitialized_ = false;
     }
     
+
     if ( item == "outputEnabled") {
       if(outprev_ != outPut_) {
 	LOG4CPLUS_WARN(getApplicationLogger(),
@@ -489,23 +499,16 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
       mit != mycgi->getEnvironment().end(); mit++)
     ost << mit->first << "%" << mit->second << ";";
   std::vector<FormEntry> els = cgi.getElements() ;
-  std::cout << "subWeb called with query " << std::endl;
-  for(std::vector<FormEntry>::iterator it = els.begin(); it!=els.end(); it++)
-    {
-      std::cout << it->getName() << " " << it->getValue() << std::endl;
-    }
   std::vector<FormEntry> el1;
   cgi.getElement("method",el1);
   std::vector<FormEntry> el2;
   cgi.getElement("process",el2);
-  std::cout << "subWeb el1 " << el1.size() << " el2 " << el2.size() << std::endl;
   if(el1.size()!=0) {
     std::string meth = el1[0].getValue();
     if(el2.size()!=0) {
       unsigned int i = 0;
       std::string mod = el2[0].getValue();
       pid = atoi(mod.c_str()); // get the process id to be polled
-      std::cout << "subWeb called with process " << pid << " method " << meth << std::endl;
       for(; i < subs_.size(); i++)
 	if(subs_[i].pid()==pid) break;
       if(i>=subs_.size()){ //process was not found, let the browser know
@@ -515,17 +518,14 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
       MsgBuf msg1(meth.length()+ost.str().length(),MSQM_MESSAGE_TYPE_WEB);
       strcpy(msg1->mtext,meth.c_str());
       strcpy(msg1->mtext+meth.length(),ost.str().c_str());
-      std::cout << "posting subweb request to process " << i << std::endl;
       subs_[i].post(msg1,true);
       MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_WEB);
-      std::cout << "wait to receive subweb response from " << i << std::endl;
       bool done = false;
       std::vector<char *>pieces;
       while(!done){
 	subs_[i].rcv(msg,true);
 	unsigned int nbytes = atoi(msg->mtext);
 	if(nbytes < MAX_PIPE_BUFFER_SIZE) done = true; // this will break the while loop
-	std::cout << "requested to read " << nbytes << " from " << i << std::endl;
 	char *buf= new char[nbytes];
 	read(anonymousPipe_[PIPE_READ],buf,nbytes);
 	pieces.push_back(buf);
@@ -808,17 +808,28 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 {
   pthread_mutex_lock(&stop_lock_);
+  if(subs_.size()!=nbSubProcesses_.value_)
+    {
+      subs_.resize(nbSubProcesses_.value_);
+      spMStates_.resize(nbSubProcesses_.value_);
+      spmStates_.resize(nbSubProcesses_.value_);
+      for(unsigned int i = 0; i < spMStates_.size(); i++)
+	{
+	  spMStates_[i] = edm::event_processor::sInit; 
+	  spmStates_[i] = 0; 
+	}
+    }
   bool running = fsm_.stateName()->toString()=="Enabled";
   bool stopping = fsm_.stateName()->toString()=="stopping";
   for(unsigned int i = 0; i < subs_.size(); i++)
     {
+      if(subs_[i].alive()==-1000) continue;
       int sl;
 
       pid_t killedOrNot = waitpid(subs_[i].pid(),&sl,WNOHANG);
 
       if(killedOrNot==subs_[i].pid()) subs_[i].setStatus((WIFEXITED(sl) != 0 ? 0 : -1));
       else continue;
-
       pthread_mutex_lock(&pickup_lock_);
       ostringstream ost;
       if(subs_[i].alive()==0) ost << " process exited with status " << WEXITSTATUS(sl);
@@ -826,17 +837,23 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
       else ost << " process stopped ";
       subs_[i].countdown()=slaveRestartDelaySecs_.value_;
       subs_[i].setReasonForFailed(ost.str());
+      spMStates_[i] = edm::event_processor::sInvalid;
+      spmStates_[i] = 0;
       ostringstream ost1;
       ost1 << "-E- Slave " << subs_[i].pid() << ost.str();
       localLog(ost1.str());
+      if(!autoRestartSlaves_.value_) subs_[i].disconnect();
       pthread_mutex_unlock(&pickup_lock_);
     }
   pthread_mutex_unlock(&stop_lock_);	
-  if(stopping) return true;
+  if(stopping) return true; // if in stopping we are done
+
   if(running)
     {
+      // if enabled, this loop will periodically check if dead slaves countdown has expired and restart them
+      // this is only active while running, hence, the stop lock is acquired and only released at end of loop
       if(autoRestartSlaves_.value_){
-	pthread_mutex_lock(&stop_lock_);
+	pthread_mutex_lock(&stop_lock_); //lockout slave killing at stop while you check for restarts
 	for(unsigned int i = 0; i < subs_.size(); i++)
 	  {
 	    if(subs_[i].alive() != 1){
@@ -863,46 +880,48 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	    }
 	  }
 	pthread_mutex_unlock(&stop_lock_);
-      }
-      xdata::Serializable *lsid = 0; 
-      xdata::Serializable *psid = 0;
-      xdata::Serializable *epMAltState = 0; 
-      xdata::Serializable *epmAltState = 0;
+      } // finished handling replacement of dead slaves once they've been reaped
+    }
+  xdata::Serializable *lsid = 0; 
+  xdata::Serializable *psid = 0;
+  xdata::Serializable *epMAltState = 0; 
+  xdata::Serializable *epmAltState = 0;
+  
+  MsgBuf msg1(0,MSQM_MESSAGE_TYPE_PRG);
+  MsgBuf msg2(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_PRR);
+  if(running){  
+    try{
+      lsid = applicationInfoSpace_->find("lumiSectionIndex");
+      psid = applicationInfoSpace_->find("prescaleSetIndex");
+      nbProcessed = monitorInfoSpace_->find("nbProcessed");
+      nbAccepted  = monitorInfoSpace_->find("nbAccepted");
+      epMAltState = monitorInfoSpace_->find("epSPMacroStateInt");
+      epmAltState = monitorInfoSpace_->find("epSPMicroStateInt");
+    
+    }
+    catch(xdata::exception::Exception e){
+      LOG4CPLUS_INFO(getApplicationLogger(),"could not retrieve some data - " << e.what());    
+    }
 
-      MsgBuf msg1(0,MSQM_MESSAGE_TYPE_PRG);
-      MsgBuf msg2(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_PRR);
-      
-      try{
-	lsid = applicationInfoSpace_->find("lumiSectionIndex");
-	psid = applicationInfoSpace_->find("prescaleSetIndex");
-	nbProcessed = monitorInfoSpace_->find("nbProcessed");
-	nbAccepted  = monitorInfoSpace_->find("nbAccepted");
-	epMAltState = monitorInfoSpace_->find("epSPMacroStateInt");
-	epmAltState = monitorInfoSpace_->find("epSPMicroStateInt");
-
-      }
-      catch(xdata::exception::Exception e){
-	LOG4CPLUS_INFO(getApplicationLogger(),"could not retrieve some data - " << e.what());    
-      }
-      try{
-	if(nbProcessed !=0 && nbAccepted !=0)
-	  {
-	    xdata::UnsignedInteger32*nbp = ((xdata::UnsignedInteger32*)nbProcessed);
-	    xdata::UnsignedInteger32*nba = ((xdata::UnsignedInteger32*)nbAccepted);
-	    xdata::UnsignedInteger32*ls  = ((xdata::UnsignedInteger32*)lsid);
-	    xdata::UnsignedInteger32*ps  = ((xdata::UnsignedInteger32*)psid);
-	    nbp->value_ = 0;
-	    nba->value_ = 0;
-	    nblive_ = 0;
-	    nbdead_ = 0;
-	    
-	    for(unsigned int i = 0; i < subs_.size(); i++)
-	      {
-		if(subs_[i].alive()>0)
-		  {
-		    nblive_++;
-		    subs_[i].post(msg1,true);
-		    
+    try{
+      if(nbProcessed !=0 && nbAccepted !=0)
+	{
+	  xdata::UnsignedInteger32*nbp = ((xdata::UnsignedInteger32*)nbProcessed);
+	  xdata::UnsignedInteger32*nba = ((xdata::UnsignedInteger32*)nbAccepted);
+	  xdata::UnsignedInteger32*ls  = ((xdata::UnsignedInteger32*)lsid);
+	  xdata::UnsignedInteger32*ps  = ((xdata::UnsignedInteger32*)psid);
+	  nbp->value_ = 0;
+	  nba->value_ = 0;
+	  nblive_ = 0;
+	  nbdead_ = 0;
+	  
+	  for(unsigned int i = 0; i < subs_.size(); i++)
+	    {
+	      if(subs_[i].alive()>0)
+		{
+		  nblive_++;
+		  subs_[i].post(msg1,true);
+		  
 		    subs_[i].rcvNonBlocking(msg2,true);
 
 		    prg* p = (struct prg*)(msg2->mtext);
@@ -929,7 +948,17 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
       catch(...){
 	LOG4CPLUS_INFO(getApplicationLogger(),"unknown exception ");    
       }
-    }
+  }
+  else{
+    for(unsigned int i = 0; i < subs_.size(); i++)
+      {
+	if(subs_[i].alive()==-1000)
+	  {
+	    spMStates_[i] = edm::event_processor::sInit;
+	    spmStates_[i] = 0;
+	  }
+      }
+  }
   try{
     monitorInfoSpace_->lock();
     monitorInfoSpace_->fireItemGroupChanged(names_,0);
@@ -1014,6 +1043,7 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
     }
   if(isChildProcess_) 
     {
+      std::cout << "going to post on control queue from scalers" << std::endl;
       int ret = sq_->post(evtProcessor_.getPackedTriggerReport());
       if(ret!=0)      std::cout << "scalers workloop, error posting to sq_ " << errno << std::endl;
     }
@@ -1026,10 +1056,10 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 {
   MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR);
-
+  evtProcessor_.resetPackedTriggerReport();
   for (unsigned int i = 0; i < subs_.size(); i++)
     {
-      if(subs_[i].alive())
+      if(subs_[i].alive()>0)
 	{
 
 	  int ret = 0;
@@ -1038,11 +1068,13 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	  }
 	  catch(evf::Exception &e)
 	    {
-	      return false;
+	      std::cout << "exception in msgrcv on " << i 
+			<< " " << subs_[i].alive() << " " << errno << std::endl;
+	      continue;
 	      //do nothing special
 	    }
 	  
-	  if(i==0)evtProcessor_.resetPackedTriggerReport();
+
 	  if(ret==MSQS_MESSAGE_TYPE_TRR) evtProcessor_.sumAndPackTriggerReport(msg);
 	  else std::cout << "msgrcv returned error " << errno << std::endl;
 	}
@@ -1092,7 +1124,6 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	{
 	  xgi::Input  *in = 0;
 	  xgi::Output out;
-	  std::cout << "message web received with text " << msg->mtext << std::endl;
 	  unsigned int bytesToSend = 0;
 	  MsgBuf msg1(NUMERIC_MESSAGE_SIZE,MSQS_MESSAGE_TYPE_WEB);
 	  std::string query = msg->mtext;
@@ -1109,18 +1140,15 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 
 	  if(method=="Spotlight")
 	    {
-	      std::cout << "invoking spotlight "<< std::endl;
 	      spotlightWebPage(in,&out);
 	    }
 	  else if(method=="procStat")
 	    {
-	      std::cout << "invoking procStat " << std::endl;
 	      procStat(in,&out);
 	    }
 	  else if(method=="moduleWeb")
 	    {
 	      internal::MyCgi mycgi;
-	      std::cout << "invoking moduleWeb with args " << args << std::endl;
 	      boost::char_separator<char> sep(";");
 	      boost::tokenizer<boost::char_separator<char> > tokens(args, sep);
 	      for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
@@ -1129,7 +1157,6 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 		if(pos != std::string::npos){
 		  std::string first  = (*tok_iter).substr(0    ,                        pos);
 		  std::string second = (*tok_iter).substr(pos+1, (*tok_iter).length()-pos-1);
-		  std::cout << "inserting env variable " << first << " value " << second << std::endl;
 		  mycgi.getEnvironment()[first]=second;
 		}
 	      }
@@ -1137,19 +1164,14 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	    }
 	  else if(method=="Default")
 	    {
-	      std::cout << "invoking default " << std::endl;
 	      defaultWebPage(in,&out);
 	    }
 	  else 
 	    {
-	      std::cout << "404 response " << std::endl;
 	      out << "Error 404!!!!!!!!" << std::endl;
 	    }
 
 
-	  std::cout << "web response size " << out.str().size() << std::endl; 
-	  std::cout << "web response content " << std::endl;
-	  std::cout << out.str() << std::endl;
 	  bytesToSend = out.str().size();
 	  unsigned int cycle = 0;
 	  if(bytesToSend==0)
@@ -1160,11 +1182,9 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  while(bytesToSend !=0){
 	    unsigned int msgSize = bytesToSend>MAX_PIPE_BUFFER_SIZE ? MAX_PIPE_BUFFER_SIZE : bytesToSend;
 	    snprintf(msg1->mtext, NUMERIC_MESSAGE_SIZE, "%d", msgSize);
-	    std::cout << "receivingM writing response to pipe: cycle " << cycle << std::endl; 
 	    write(anonymousPipe_[PIPE_WRITE],
 		  out.str().c_str()+MAX_PIPE_BUFFER_SIZE*cycle,
 		  msgSize);
-	    std::cout << "receivingM posting acknowledge to WEB msg over queue" << std::endl; 
 	    sqm_->post(msg1);
 	    bytesToSend -= msgSize;
 	    cycle++;
@@ -1327,7 +1347,7 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
       pthread_mutex_lock(&stop_lock_);
       if(subs_[i].alive()>0)subs_[i].post(msg,false);
 
-      if(subs_[i].alive()<=0)
+      if(subs_[i].alive()<=0) 
 	{
 	  pthread_mutex_unlock(&stop_lock_);
 	  continue;
@@ -1349,7 +1369,7 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 	while(subs_[i].alive()>0) ::usleep(10000);
       subs_[i].disconnect();
     }
-  subs_.clear();
+  //  subs_.clear();
 
 }
 
@@ -1393,16 +1413,23 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 	    else 
 	      {
 		pthread_mutex_lock(&pickup_lock_);
-		*out << "<tr><td id=\"a"<< i << "\" "  
-		     << (subs_[i].alive()==0 ? ">Done" : " bgcolor=\"#FF0000\">Dead") 
-		     << "</td><td>S</td><td>"<< subs_[i].queueId() << "<td>" 
+		*out << "<tr><td id=\"a"<< i << "\" ";
+		if(subs_[i].alive()==-1000)
+		  *out << " bgcolor=\"#bbaabb\">NotInitialized";
+		else
+		  *out << (subs_[i].alive()==0 ? ">Done" : " bgcolor=\"#FF0000\">Dead");
+		*out << "</td><td>S</td><td>"<< subs_[i].queueId() << "<td>" 
 		     << subs_[i].queueStatus() << "/"
 		     << subs_[i].queueOccupancy() << "/"
 		     << subs_[i].queuePidOfLastSend() << "/"
 		     << subs_[i].queuePidOfLastReceive() 
 		     << "</td><td id=\"p"<< i << "\">"
 		     <<subs_[i].pid()<<"</td><td colspan=\"5\">" << subs_[i].reasonForFailed();
-		if(subs_[i].alive()!=0) *out << " will restart in " << subs_[i].countdown() << " s";
+		if(subs_[i].alive()!=0 && subs_[i].alive()!=-1000) 
+		  {
+		    if(autoRestartSlaves_) *out << " will restart in " << subs_[i].countdown() << " s";
+		    else *out << " autoRestart is disabled ";
+		  }
 		*out << "</td>";
 		pthread_mutex_unlock(&pickup_lock_);
 	      }

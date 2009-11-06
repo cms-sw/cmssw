@@ -159,6 +159,7 @@ void TriggerReportHelpers::printReportTable()
 {
   std::cout << "report table for LS #" << lumiSectionIndex_ << std::endl;
   triggerReportAsTableWithNames_.writeTo(std::cout);
+  std::cout << std::endl;
 }
 void TriggerReportHelpers::printTriggerReport(edm::TriggerReport &tr)
 {
