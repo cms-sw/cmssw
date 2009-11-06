@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.7 2009/10/15 11:31:29 fwyzard Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.8 2009/11/05 13:31:52 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1032,7 +1032,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (objectType == trigger::TriggerTET) ptMax = 300.0;
     if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
-    if (objectType != 0){
+    // monitor regardless of the objectType of the path
+    if (objectType != -1){
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       //create folder for pathname
      }
