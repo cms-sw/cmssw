@@ -3,8 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=RecoTracker/Record>
-<use name=RecoTracker/TkDetLayers>
-<use name=TrackingTools/DetLayers>
 <use name=boost>
 
 <export>

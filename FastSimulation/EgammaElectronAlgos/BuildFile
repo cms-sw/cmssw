@@ -1,8 +1,6 @@
 <use name=FastSimulation/ParticlePropagator>
 <use name=FastSimulation/TrackerSetup>
 <use name=FastSimulation/Tracking>
-<use name=RecoEgamma/EgammaElectronAlgos>
-<use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=RecoTracker/Record>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=TrackingTools/KalmanUpdators>
@@ -24,8 +22,6 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrajectorySeed>
 <export>
-  <use name=RecoEgamma/EgammaElectronAlgos>
-  <use name=RecoEgamma/EgammaIsolationAlgos>
   <use name=TrackingTools/TrajectoryState>
   <use name=TrackingTools/TransientTrackingRecHit>
   <use name=SimDataFormats/Track>
