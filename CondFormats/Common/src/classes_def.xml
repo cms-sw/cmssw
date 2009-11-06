@@ -18,6 +18,12 @@
    <field name="blob" mapping="blob"/>
  </class>
 
+ <class name="MultiFileBlob" class_version="0">
+   <field name="blob" mapping="blob"/>
+   <field name="positions" mapping="blob"/>
+   <field name="expanded" transient="true" />
+  </class>
+
 
 <class name="cond::SmallWORMDict"/>
 <class name="cond::IOVKeysDescription"/>

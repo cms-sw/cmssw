@@ -9,6 +9,9 @@
 class MultiFileBlob{
 
  public:
+  typedef std::pair<unsigned char const *, unsigned char const *> Range;
+ 
+  ///
   MultiFileBlob();
 
   /// 
@@ -28,7 +31,6 @@ class MultiFileBlob{
   void write(const std::string& name, std::ostream & os) const;
 
   // return blob
-  typedef std::pair<unsigned char const *, unsigned char const *> Range;
   Range rawBlob(const std::string& name) const;
 
   bool isCompressed() const {return compressed;}
