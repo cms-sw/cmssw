@@ -71,35 +71,35 @@ namespace edmtest {
     assert(vuint[1] == 0);
     assert(vuint[2] == 11);
 
-    assert(ps.getParameter<boost::int64_t>("int64v1") == 9000000000000000000LL);
-    assert(ps.getParameter<boost::int64_t>("int64v2") == -9000000000000000000LL);
-    assert(ps.getParameter<boost::int64_t>("int64v3") == 0);
+    assert(ps.getParameter<long long>("int64v1") == 9000000000000000000LL);
+    assert(ps.getParameter<long long>("int64v2") == -9000000000000000000LL);
+    assert(ps.getParameter<long long>("int64v3") == 0);
 
-    std::vector<boost::int64_t> vint64;
-    vint64 = ps.getParameter<std::vector<boost::int64_t> >("vint64v1");
+    std::vector<long long> vint64;
+    vint64 = ps.getParameter<std::vector<long long> >("vint64v1");
     assert(vint64.empty());
-    vint64 = ps.getParameter<std::vector<boost::int64_t> >("vint64v2");
+    vint64 = ps.getParameter<std::vector<long long> >("vint64v2");
     assert(vint64[0] == 9000000000000000000LL);
-    vint64 = ps.getParameter<std::vector<boost::int64_t> >("vint64v3");
+    vint64 = ps.getParameter<std::vector<long long> >("vint64v3");
     assert(vint64[0] == 9000000000000000000LL);
     assert(vint64[1] == -9000000000000000000LL);
-    vint64 = ps.getParameter<std::vector<boost::int64_t> >("vint64v4");
+    vint64 = ps.getParameter<std::vector<long long> >("vint64v4");
     assert(vint64[0] == 9000000000000000000LL);
     assert(vint64[1] == -9000000000000000000LL);
     assert(vint64[2] == 0);
 
-    assert(ps.getParameter<boost::uint64_t>("uint64v1") == 18000000000000000000ULL);
-    assert(ps.getUntrackedParameter<boost::uint64_t>("uint64v2") == 0);
+    assert(ps.getParameter<unsigned long long>("uint64v1") == 18000000000000000000ULL);
+    assert(ps.getUntrackedParameter<unsigned long long>("uint64v2") == 0);
 
-    std::vector<boost::uint64_t> vuint64;
-    vuint64 = ps.getParameter<std::vector<boost::uint64_t> >("vuint64v1");
+    std::vector<unsigned long long> vuint64;
+    vuint64 = ps.getParameter<std::vector<unsigned long long> >("vuint64v1");
     assert(vuint64.empty());
-    vuint64 = ps.getParameter<std::vector<boost::uint64_t> >("vuint64v2");
+    vuint64 = ps.getParameter<std::vector<unsigned long long> >("vuint64v2");
     assert(vuint64[0] == 18000000000000000000ULL);
-    vuint64 = ps.getParameter<std::vector<boost::uint64_t> >("vuint64v3");
+    vuint64 = ps.getParameter<std::vector<unsigned long long> >("vuint64v3");
     assert(vuint64[0] == 18000000000000000000ULL);
     assert(vuint64[1] == 0);
-    vuint64 = ps.getParameter<std::vector<boost::uint64_t> >("vuint64v4");
+    vuint64 = ps.getParameter<std::vector<unsigned long long> >("vuint64v4");
     assert(vuint64[0] == 18000000000000000000ULL);
     assert(vuint64[1] == 0);
     assert(vuint64[2] == 11);
@@ -498,30 +498,30 @@ namespace edmtest {
     vuint.push_back(41);
     iDesc.add<std::vector<unsigned> >("vuint5", vuint);
 
-    iDesc.add<boost::int64_t>("int64v1", 9000000000000000000LL);
-    iDesc.add<boost::int64_t>("int64v2", -9000000000000000000LL);
-    iDesc.add<boost::int64_t>("int64v3", 0);
+    iDesc.add<long long>("int64v1", 9000000000000000000LL);
+    iDesc.add<long long>("int64v2", -9000000000000000000LL);
+    iDesc.add<long long>("int64v3", 0);
 
-    std::vector<boost::int64_t> vint64;
-    iDesc.add<std::vector<boost::int64_t> >("vint64v1", vint64);
+    std::vector<long long> vint64;
+    iDesc.add<std::vector<long long> >("vint64v1", vint64);
     vint64.push_back(9000000000000000000LL);
-    iDesc.add<std::vector<boost::int64_t> >("vint64v2", vint64);
+    iDesc.add<std::vector<long long> >("vint64v2", vint64);
     vint64.push_back(-9000000000000000000LL);
-    iDesc.add<std::vector<boost::int64_t> >("vint64v3", vint64);
+    iDesc.add<std::vector<long long> >("vint64v3", vint64);
     vint64.push_back(0);
-    iDesc.add<std::vector<boost::int64_t> >("vint64v4", vint64);
+    iDesc.add<std::vector<long long> >("vint64v4", vint64);
 
-    iDesc.add<boost::uint64_t>("uint64v1", 18000000000000000000ULL);
-    iDesc.addUntracked<boost::uint64_t>("uint64v2", 0);
+    iDesc.add<unsigned long long>("uint64v1", 18000000000000000000ULL);
+    iDesc.addUntracked<unsigned long long>("uint64v2", 0);
 
-    std::vector<boost::uint64_t> vuint64;
-    iDesc.add<std::vector<boost::uint64_t> >("vuint64v1", vuint64);
+    std::vector<unsigned long long> vuint64;
+    iDesc.add<std::vector<unsigned long long> >("vuint64v1", vuint64);
     vuint64.push_back(18000000000000000000ULL);
-    iDesc.add<std::vector<boost::uint64_t> >("vuint64v2", vuint64);
+    iDesc.add<std::vector<unsigned long long> >("vuint64v2", vuint64);
     vuint64.push_back(0);
-    iDesc.add<std::vector<boost::uint64_t> >("vuint64v3", vuint64);
+    iDesc.add<std::vector<unsigned long long> >("vuint64v3", vuint64);
     vuint64.push_back(11);
-    iDesc.add<std::vector<boost::uint64_t> >("vuint64v4", vuint64);
+    iDesc.add<std::vector<unsigned long long> >("vuint64v4", vuint64);
 
     iDesc.add<double>("doublev1", std::numeric_limits<double>::min());
     iDesc.addUntracked<double>("doublev2", 0.0);
@@ -920,10 +920,10 @@ namespace edmtest {
     noDefaultPset3.addOptional<std::vector<int> >("noDefault2");
     noDefaultPset3.addOptional<unsigned>("noDefault3");
     noDefaultPset3.addOptional<std::vector<unsigned> >("noDefault4");
-    noDefaultPset3.addOptional<boost::int64_t>("noDefault5");
-    noDefaultPset3.addOptional<std::vector<boost::int64_t> >("noDefault6");
-    noDefaultPset3.addOptional<boost::uint64_t>("noDefault7");
-    noDefaultPset3.addOptional<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset3.addOptional<long long>("noDefault5");
+    noDefaultPset3.addOptional<std::vector<long long> >("noDefault6");
+    noDefaultPset3.addOptional<unsigned long long>("noDefault7");
+    noDefaultPset3.addOptional<std::vector<unsigned long long> >("noDefault8");
     noDefaultPset3.addOptional<double>("noDefault9");
     noDefaultPset3.addOptional<std::vector<double> >("noDefault10");
     noDefaultPset3.addOptional<bool>("noDefault11");
@@ -949,10 +949,10 @@ namespace edmtest {
     noDefaultPset4.addOptionalUntracked<std::vector<int> >("noDefault2");
     noDefaultPset4.addOptionalUntracked<unsigned>("noDefault3");
     noDefaultPset4.addOptionalUntracked<std::vector<unsigned> >("noDefault4");
-    noDefaultPset4.addOptionalUntracked<boost::int64_t>("noDefault5");
-    noDefaultPset4.addOptionalUntracked<std::vector<boost::int64_t> >("noDefault6");
-    noDefaultPset4.addOptionalUntracked<boost::uint64_t>("noDefault7");
-    noDefaultPset4.addOptionalUntracked<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset4.addOptionalUntracked<long long>("noDefault5");
+    noDefaultPset4.addOptionalUntracked<std::vector<long long> >("noDefault6");
+    noDefaultPset4.addOptionalUntracked<unsigned long long>("noDefault7");
+    noDefaultPset4.addOptionalUntracked<std::vector<unsigned long long> >("noDefault8");
     noDefaultPset4.addOptionalUntracked<double>("noDefault9");
     noDefaultPset4.addOptionalUntracked<std::vector<double> >("noDefault10");
     noDefaultPset4.addOptionalUntracked<bool>("noDefault11");
@@ -989,10 +989,10 @@ namespace edmtest {
     noDefaultPset1.add<std::vector<int> >("noDefault2");
     noDefaultPset1.add<unsigned>("noDefault3");
     noDefaultPset1.add<std::vector<unsigned> >("noDefault4");
-    noDefaultPset1.add<boost::int64_t>("noDefault5");
-    noDefaultPset1.add<std::vector<boost::int64_t> >("noDefault6");
-    noDefaultPset1.add<boost::uint64_t>("noDefault7");
-    noDefaultPset1.add<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset1.add<long long>("noDefault5");
+    noDefaultPset1.add<std::vector<long long> >("noDefault6");
+    noDefaultPset1.add<unsigned long long>("noDefault7");
+    noDefaultPset1.add<std::vector<unsigned long long> >("noDefault8");
     noDefaultPset1.add<double>("noDefault9");
     noDefaultPset1.add<std::vector<double> >("noDefault10");
     noDefaultPset1.add<bool>("noDefault11");
@@ -1018,10 +1018,10 @@ namespace edmtest {
     noDefaultPset2.addUntracked<std::vector<int> >("noDefault2");
     noDefaultPset2.addUntracked<unsigned>("noDefault3");
     noDefaultPset2.addUntracked<std::vector<unsigned> >("noDefault4");
-    noDefaultPset2.addUntracked<boost::int64_t>("noDefault5");
-    noDefaultPset2.addUntracked<std::vector<boost::int64_t> >("noDefault6");
-    noDefaultPset2.addUntracked<boost::uint64_t>("noDefault7");
-    noDefaultPset2.addUntracked<std::vector<boost::uint64_t> >("noDefault8");
+    noDefaultPset2.addUntracked<long long>("noDefault5");
+    noDefaultPset2.addUntracked<std::vector<long long> >("noDefault6");
+    noDefaultPset2.addUntracked<unsigned long long>("noDefault7");
+    noDefaultPset2.addUntracked<std::vector<unsigned long long> >("noDefault8");
     noDefaultPset2.addUntracked<double>("noDefault9");
     noDefaultPset2.addUntracked<std::vector<double> >("noDefault10");
     noDefaultPset2.addUntracked<bool>("noDefault11");

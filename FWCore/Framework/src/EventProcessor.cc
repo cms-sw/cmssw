@@ -800,13 +800,11 @@ namespace edm {
     // added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob'
     // to be called.
-    EventSetup const& es =
-      esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
     if(looper_) {
-       looper_->beginOfJob(es);
+       looper_->beginOfJob();
     }
     try {
-      input_->doBeginJob(es);
+      input_->doBeginJob();
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
@@ -818,7 +816,7 @@ namespace edm {
       LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
       throw;
     }
-    schedule_->beginJob(es);
+    schedule_->beginJob();
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
   }

@@ -1,5 +1,5 @@
 
-// $Id: RandomEngineStateProducer.cc,v 1.1 2006/10/17 20:49:40 wdd Exp $
+// $Id: RandomEngineStateProducer.cc,v 1.2 2006/10/23 15:27:41 wdd Exp $
 
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 
@@ -60,7 +60,7 @@ RandomEngineStateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
 void 
-RandomEngineStateProducer::beginJob(const edm::EventSetup&)
+RandomEngineStateProducer::beginJob()
 {
 }
 

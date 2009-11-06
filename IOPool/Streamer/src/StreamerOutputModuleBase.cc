@@ -108,7 +108,7 @@ namespace edm {
   }
 
   void
-  StreamerOutputModuleBase::beginJob(EventSetup const&) {}
+  StreamerOutputModuleBase::beginJob() {}
 
   void
   StreamerOutputModuleBase::endJob() {

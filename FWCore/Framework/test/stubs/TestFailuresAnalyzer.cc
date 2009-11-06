@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.4 2008/06/25 19:05:33 ewv Exp $
+// $Id: TestFailuresAnalyzer.cc,v 1.5 2009/10/15 19:07:25 wdd Exp $
 //
 //
 
@@ -80,7 +80,7 @@ TestFailuresAnalyzer::~TestFailuresAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-TestFailuresAnalyzer::beginJob(const edm::EventSetup&)
+TestFailuresAnalyzer::beginJob()
 {
    if(whichFailure_ == kBeginOfJob){
       throw cms::Exception("Test") <<" beginJob";

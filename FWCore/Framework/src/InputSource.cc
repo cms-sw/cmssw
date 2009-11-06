@@ -189,8 +189,8 @@ namespace edm {
   }
 
   void
-  InputSource::doBeginJob(EventSetup const& c) {
-    beginJob(c);
+  InputSource::doBeginJob() {
+    beginJob();
   }
 
   void
@@ -506,7 +506,10 @@ namespace edm {
   InputSource::endRun(Run&) {}
 
   void
-  InputSource::beginJob(EventSetup const&) {}
+  InputSource::beginJob(EventSetup const&) {beginJob();}
+
+  void
+  InputSource::beginJob() {}
 
   void
   InputSource::endJob() {}

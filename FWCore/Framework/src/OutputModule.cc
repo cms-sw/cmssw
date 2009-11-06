@@ -201,9 +201,9 @@ namespace edm {
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::doBeginJob(EventSetup const& c) {
+  void OutputModule::doBeginJob() {
     selectProducts();
-    beginJob(c);
+    beginJob();
   }
 
   void OutputModule::doEndJob() {

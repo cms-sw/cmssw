@@ -190,7 +190,7 @@ namespace edm {
     std::string const& processGUID() const {return processGUID_;}
 
     /// Called by framework at beginning of job
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
 
     /// Called by framework at end of job
     void doEndJob();
@@ -334,6 +334,7 @@ namespace edm {
     virtual void beginRun(Run&);
     virtual void endRun(Run&);
     virtual void beginJob(EventSetup const&);
+    virtual void beginJob();
     virtual void endJob();
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);

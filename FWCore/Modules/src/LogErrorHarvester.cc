@@ -41,7 +41,7 @@ namespace edm {
       ~LogErrorHarvester();
   
     private:
-      virtual void beginJob(EventSetup const&) ;
+      virtual void beginJob();
       virtual void produce(Event&, EventSetup const&);
       virtual void endJob() ;
   };
@@ -65,7 +65,7 @@ namespace edm {
   
   // ------------ method called once each job just before starting event loop  ------------
   void 
-  LogErrorHarvester::beginJob(EventSetup const&) {
+  LogErrorHarvester::beginJob() {
       EnableLoggedErrorsSummary();
   }
   

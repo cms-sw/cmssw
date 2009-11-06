@@ -136,7 +136,7 @@ namespace edm {
     // private member functions
     //------------------------------------------------------------------
     void configure(OutputModuleDescription const& desc);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
 		    CurrentProcessingContext const* cpc);

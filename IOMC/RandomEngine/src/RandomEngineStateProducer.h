@@ -17,7 +17,7 @@ This module gets called later.
 //
 // Original Author:  W. David Dagenhart
 //         Created:  Wed Oct  4 09:38:47 CDT 2006
-// $Id$
+// $Id: RandomEngineStateProducer.h,v 1.1 2006/10/23 15:27:41 wdd Exp $
 //
 //
 
@@ -33,7 +33,7 @@ class RandomEngineStateProducer : public edm::EDProducer {
     ~RandomEngineStateProducer();
 
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 };

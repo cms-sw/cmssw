@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.h,v 1.2 2006/05/03 21:12:14 wmtan Exp $
+// $Id: TestBeginEndJobAnalyzer.h,v 1.3 2008/04/04 16:11:04 wdd Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ public:
    
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    
-   virtual void beginJob(edm::EventSetup const&);
+   virtual void beginJob();
    virtual void endJob();
    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
    virtual void endRun(edm::Run const&, edm::EventSetup const&);

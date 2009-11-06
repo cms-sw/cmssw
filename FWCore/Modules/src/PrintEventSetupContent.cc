@@ -48,7 +48,7 @@ namespace edm {
 
 
     private:
-      virtual void beginJob(EventSetup const&) ;
+      virtual void beginJob() ;
       virtual void analyze(Event const&, EventSetup const&);
       virtual void endJob() ;
        
@@ -134,7 +134,7 @@ namespace edm {
   
   // ------------ method called once each job just before starting event loop  ------------
   void 
-  PrintEventSetupContent::beginJob(EventSetup const&) {
+  PrintEventSetupContent::beginJob() {
   }
   
   // ------------ method called once each job just after ending the event loop  ------------

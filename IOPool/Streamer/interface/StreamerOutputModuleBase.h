@@ -19,7 +19,7 @@ namespace edm {
   private:
     virtual void beginRun(RunPrincipal const&);
     virtual void endRun(RunPrincipal const&);
-    virtual void beginJob(EventSetup const&);
+    virtual void beginJob();
     virtual void endJob();
     virtual void writeRun(RunPrincipal const&);
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&);

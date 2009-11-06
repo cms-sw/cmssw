@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.6 2007/08/07 22:34:20 wmtan Exp $
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.7 2008/04/04 16:11:04 wdd Exp $
 //
 //
 
@@ -38,7 +38,7 @@ bool TestBeginEndJobAnalyzer::endLumiCalled = false;
 bool TestBeginEndJobAnalyzer::destructorCalled = false;
 
 void 
-TestBeginEndJobAnalyzer::beginJob(const edm::EventSetup&) {
+TestBeginEndJobAnalyzer::beginJob() {
   beginJobCalled = true;
 }
 

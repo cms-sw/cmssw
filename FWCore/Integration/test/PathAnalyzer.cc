@@ -21,7 +21,7 @@ namespace edmtest
     virtual ~PathAnalyzer();
     
     virtual void analyze(edm::Event const&, edm::EventSetup const&);
-    virtual void beginJob(edm::EventSetup const&);
+    virtual void beginJob();
     virtual void endJob();
 
   private:
@@ -43,7 +43,7 @@ namespace edmtest
   }
 
   void
-  PathAnalyzer::beginJob(edm::EventSetup const&)
+  PathAnalyzer::beginJob()
   {
     dumpTriggerNamesServiceInfo("beginJob");
 
