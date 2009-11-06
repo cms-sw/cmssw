@@ -614,7 +614,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     pid_t pid   =prcids[i];
     int   status=kill(pid,0);
     if (status!=0) {
-      LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send raw data to err stream.");
+      LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send to error stream if processing.");
       resourceTable_->handleCrashedEP(runNumber_,pid);
     }
   }

@@ -543,7 +543,8 @@ void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
   
   if (iRawCell<pids.size())
     shmBuffer_->writeErrorEventData(runNumber,pid,iRawCell);
-  
+  else
+    LOG4CPLUS_WARN(log_,"No raw data to send to error stream for process " << pid);
   shmBuffer_->removeClientPrcId(pid);
 }
 
