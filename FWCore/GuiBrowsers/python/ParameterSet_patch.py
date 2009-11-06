@@ -101,14 +101,20 @@ def new_resetHistory(self):
 cms.Process.resetHistory=new_resetHistory
 
 def new_dumpHistory(self):
-    dumpPython=""
+    dumpHistory=[]
     for item in self.history():
         if isinstance(item,str):
-            dumpPython += item +"\n"
+            dumpHistory.append(item +"\n")
         else: # isTool
-            for code in item.dumpPython():
-                dumpPython += code +"\n"
-    return dumpPython
+            dump=item.dumpPython()
+            if isinstance(dump,tuple):
+                if dump[0] not in dumpHistory:
+                    dumpHistory.append(dump[0])
+                dumpHistory.append(dump[1])
+            else:
+                dumpHistory.append(dump)
+           
+    return ''.join(dumpHistory)
 cms.Process.dumpHistory=new_dumpHistory
 
 def new_addAction(self,tool):
@@ -489,7 +495,43 @@ if __name__=='__main__':
             self.assert_('process.seq2' in mods)
             self.assert_('process.path' in mods)
             
+        def testdumpHistory(self):
+            from FWCore.ParameterSet.Modules  import Source
+            from PhysicsTools.PatAlgos.tools.testTools import changeSource
+            
+            process = cms.Process('unittest')
+            process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
+            
+            changeSource(process,"file:filename.root")
+            self.assertEqual(changeSource._parameters['source'].value,"file:filename.root")
+            
+            changeSource(process,"file:filename2.root")
+            self.assertEqual(changeSource._parameters['source'].value,"file:filename2.root")
+            
+            changeSource(process,"file:filename3.root")
+            self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
+    
+            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n')
+            
+            process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
+            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n\n')
+            
+            process.disableRecording()
+            changeSource.setParameter('source',"file:filename4.root")
+            action=changeSource.__copy__()
+            process.addAction(action)
+            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n\n')
+            
+            process.enableRecording()
+            changeSource.setParameter('source',"file:filename5.root")
+            action=changeSource.__copy__()
+            process.addAction(action)
+            process.deleteAction(3)
+            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+
+            process.deleteAction(0)
+            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
             
     unittest.main()
             
-            
+        
