@@ -1,6 +1,4 @@
 
-// $Id: RandomEngineStateProducer.cc,v 1.2 2006/10/23 15:27:41 wdd Exp $
-
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 
 #include <vector>
