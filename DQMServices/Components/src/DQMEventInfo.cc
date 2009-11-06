@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/09/06 11:10:15 $
- * $Revision: 1.24 $
+ * $Date: 2009/11/05 11:44:47 $
+ * $Revision: 1.25 $
  * $Author: ameyer $
  *
  */
@@ -115,7 +115,7 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
  
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
-  eventId_->Fill(static_cast<unsigned int>(e.id().event()));
+  eventId_->Fill(int64_t(e.id().event()));
 //  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
   eventTimeStamp_->Fill(stampToReal(e.time()));
 

@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2008/07/06 17:32:30 $
- * $Revision: 1.11 $
+ * $Date: 2009/11/05 11:44:47 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -59,8 +59,8 @@ private:
   double currentTime_, lastUpdateTime_, lastAvgTime_;
   double runStartTime_;
   double evtRateWindow_;
-  int evtRateCount_;
-  int pEvent_;
+  int64_t evtRateCount_;
+  int64_t pEvent_;
 
   //////////////////////////////////////////////////////////////////
   ///These MEs are filled with the info from the most recent event 
