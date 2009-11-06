@@ -11,6 +11,7 @@ from PyQt4.QtGui import QApplication,QMainWindow
 import Path
 from Vispa.Main.Directories import *
 
+from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Gui.ZoomableScrollArea import ZoomableScrollArea
 from Vispa.Views.LineDecayView import LineDecayView
 from TestDataAccessor import TestDataAccessor
