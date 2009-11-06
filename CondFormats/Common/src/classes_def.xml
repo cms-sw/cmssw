@@ -18,7 +18,7 @@
    <field name="blob" mapping="blob"/>
  </class>
 
- <class name="std::pair <std::string, unsigned long long>" />
+ <class name="std::pair <const std::string, unsigned long long>" />
  <class name="std::map <std::string, unsigned long long>" />
 
  <class name="MultiFileBlob" class_version="0">
