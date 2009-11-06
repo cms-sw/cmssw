@@ -62,8 +62,9 @@ public:
         unsigned int etThreshold;
         bool energyOverflow;
 
-        // used only for ETM
-        unsigned long long phiRange0Word; // ETM phi has 72 bins - two 64-bits words
+        // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
+        // one word used for HTM
+        unsigned long long phiRange0Word;
         unsigned long long phiRange1Word;
     };
 
