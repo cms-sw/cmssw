@@ -16,7 +16,7 @@
 //
 // Original Author:  Valerie Halyo, Nadia Adam
 //         Created:  Wed Oct  8 11:08:22 CDT 2008
-// $Id: MuTrkMatchedRecoChargedCandRefProducer.h,v 1.2 2009/01/21 21:01:59 neadam Exp $
+// $Id: MuTrkMatchedRecoChargedCandRefProducer.h,v 1.1 2009/09/11 19:34:21 valerieh Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ class MuTrkMatchedRecoChargedCandRefProducer : public edm::EDProducer
       ~MuTrkMatchedRecoChargedCandRefProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

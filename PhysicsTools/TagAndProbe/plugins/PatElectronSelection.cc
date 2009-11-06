@@ -336,7 +336,7 @@ bool PatElectronSelection::CheckAcceptance( double eta, double et) {
 
 // --------- method called once each job just before starting event loop  ---
 
-void PatElectronSelection::beginJob(const edm::EventSetup &eventSetup) { 
+void PatElectronSelection::beginJob() { 
 
   m_file_ = new TFile(histogramFile_.c_str(),"RECREATE");
   TString hname;

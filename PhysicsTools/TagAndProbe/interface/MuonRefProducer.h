@@ -52,7 +52,7 @@ class MuonRefProducer : public edm::EDProducer
       bool selectMuonIdAlgo(const reco::Muon& muonCand);
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

@@ -421,7 +421,7 @@ const edm::ValueMap<double>& GenericElectronSelection::getValueMap(const edm::Ev
 
 // --------- method called once each job just before starting event loop  ---
 
-void GenericElectronSelection::beginJob(const edm::EventSetup &eventSetup) { 
+void GenericElectronSelection::beginJob() { 
 
   m_file_ = new TFile(histogramFile_.c_str(),"RECREATE");
   TString hname;

@@ -32,7 +32,7 @@ class GenericElectronSelection : public edm::EDProducer
   ~GenericElectronSelection();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   bool CheckAcceptance( double eta, double et);      

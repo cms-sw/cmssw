@@ -13,7 +13,7 @@
 //
 // Original Authors:  Nadia Adam, Valerie Halyo
 //         Created:  Wed Oct  8 11:06:35 CDT 2008
-// $Id: MuonRefProducer.cc,v 1.2 2009/09/14 23:55:47 valerieh Exp $
+// $Id: MuonRefProducer.cc,v 1.3 2009/09/15 18:30:13 valerieh Exp $
 //
 
 
@@ -159,7 +159,7 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonRefProducer::beginJob(const edm::EventSetup&)
+MuonRefProducer::beginJob()
 {
 }
 
