@@ -27,7 +27,7 @@ PatTriggerAnalyzer::~PatTriggerAnalyzer()
 {
 }
 
-void PatTriggerAnalyzer::beginJob( const edm::EventSetup & iSetup )
+void PatTriggerAnalyzer::beginJob()
 {
   edm::Service< TFileService > fileService;
   // histogram definitions

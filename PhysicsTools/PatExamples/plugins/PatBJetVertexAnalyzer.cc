@@ -37,7 +37,7 @@ class PatBJetVertexAnalyzer : public edm::EDAnalyzer  {
 	~PatBJetVertexAnalyzer();
 
 	// virtual methods called from base class EDAnalyzer
-	virtual void beginJob(const edm::EventSetup&);
+	virtual void beginJob();
 	virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
 
     private:
@@ -80,7 +80,7 @@ PatBJetVertexAnalyzer::~PatBJetVertexAnalyzer()
 {
 }
 
-void PatBJetVertexAnalyzer::beginJob(const edm::EventSetup &es)
+void PatBJetVertexAnalyzer::beginJob()
 {
 	// retrieve handle to auxiliary service
 	//  used for storing histograms into ROOT file

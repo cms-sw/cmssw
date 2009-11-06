@@ -18,7 +18,7 @@ class PatTauAnalyzer : public edm::EDAnalyzer
   ~PatTauAnalyzer();
   
 //--- methods inherited from EDAnalyzer base-class
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 

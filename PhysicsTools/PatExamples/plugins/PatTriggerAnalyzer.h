@@ -28,7 +28,7 @@ namespace pat {
     
     private:
   
-      virtual void beginJob( const edm::EventSetup & iSetup ) ;
+      virtual void beginJob() ;
       virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
       virtual void endJob();
       

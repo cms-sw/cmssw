@@ -18,7 +18,7 @@ public:
   
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -108,7 +108,7 @@ PatBasicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void 
-PatBasicAnalyzer::beginJob(const edm::EventSetup&)
+PatBasicAnalyzer::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;

@@ -84,7 +84,7 @@ PatTauAnalyzer::~PatTauAnalyzer()
  */
 }
 
-void PatTauAnalyzer::beginJob(const edm::EventSetup& es)
+void PatTauAnalyzer::beginJob()
 {
 //--- retrieve handle to auxiliary service
 //    used for storing histograms into ROOT file

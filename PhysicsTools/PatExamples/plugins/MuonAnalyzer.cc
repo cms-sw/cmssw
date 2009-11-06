@@ -1,8 +1,8 @@
 /** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/09/29 19:46:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/29 20:05:28 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
@@ -37,7 +37,7 @@ ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet& pset){
 ExampleMuonAnalyzer::~ExampleMuonAnalyzer(){
 }
 
-void ExampleMuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void ExampleMuonAnalyzer::beginJob(){
 
   // Book histograms
   edm::Service<TFileService> fileService;

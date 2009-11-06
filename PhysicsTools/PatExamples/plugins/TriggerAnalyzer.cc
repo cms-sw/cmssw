@@ -33,7 +33,7 @@ namespace pat {
     private:
   
       // methods
-      virtual void beginJob( const edm::EventSetup & iSetup ) ;
+      virtual void beginJob() ;
       virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
       
       // configuration parameters: input sources
@@ -71,7 +71,7 @@ TriggerAnalyzer::~TriggerAnalyzer()
 }
 
 
-void TriggerAnalyzer::beginJob( const edm::EventSetup & iSetup )
+void TriggerAnalyzer::beginJob()
 {
   // histogram definitions
   edm::Service< TFileService > fileService;

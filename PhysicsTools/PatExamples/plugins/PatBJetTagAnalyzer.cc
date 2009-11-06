@@ -24,7 +24,7 @@ class PatBJetTagAnalyzer : public edm::EDAnalyzer  {
 	~PatBJetTagAnalyzer();
 
 	// virtual methods called from base class EDAnalyzer
-	virtual void beginJob(const edm::EventSetup&);
+	virtual void beginJob();
 	virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
 
     private:
@@ -64,7 +64,7 @@ PatBJetTagAnalyzer::~PatBJetTagAnalyzer()
 {
 }
 
-void PatBJetTagAnalyzer::beginJob(const edm::EventSetup &es)
+void PatBJetTagAnalyzer::beginJob()
 {
 	// retrieve handle to auxiliary service
 	//  used for storing histograms into ROOT file

@@ -28,7 +28,7 @@ public:
     
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -133,7 +133,7 @@ PatBTagAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PatBTagAnalyzer::beginJob(const edm::EventSetup&)
+PatBTagAnalyzer::beginJob()
 {
   //
   // define some histograms using the framework tfileservice. Define the output file name in your .cfg.

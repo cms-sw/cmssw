@@ -18,7 +18,7 @@ public:
   
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -65,7 +65,7 @@ PatZjetsJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 void 
-PatZjetsJetAnalyzer::beginJob(const edm::EventSetup&)
+PatZjetsJetAnalyzer::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;

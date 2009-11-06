@@ -29,7 +29,7 @@ class PatTrackAnalyzer : public edm::EDAnalyzer  {
 	~PatTrackAnalyzer();
 
 	// virtual methods called from base class EDAnalyzer
-	virtual void beginJob(const edm::EventSetup&);
+	virtual void beginJob();
 	virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
 
     private:
@@ -68,7 +68,7 @@ PatTrackAnalyzer::~PatTrackAnalyzer()
 {
 }
 
-void PatTrackAnalyzer::beginJob(const edm::EventSetup &es)
+void PatTrackAnalyzer::beginJob()
 {
 	// retrieve handle to auxiliary service
 	//  used for storing histograms into ROOT file
