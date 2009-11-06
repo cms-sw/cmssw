@@ -54,7 +54,7 @@ MultiFileBlob::Range MultiFileBlob::rawBlob(const std::string& name) const {
   unsigned long long b = (*pos).second;
   unsigned long long e = isize;
   pos++;
-  if (pos!===positions.end()) e= (*pos).second;
+  if (pos!=positions.end()) e= (*pos).second;
   
   return Range(&blob[b],&blob[e]);
 }
