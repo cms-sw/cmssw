@@ -89,7 +89,7 @@ cms.Process.setLooper_=new_setLooper_
 def new_history(self):
     modifications = self.dumpModifications(False)
     if modifications!="":
-        modifiedObjects = self.modifiedObjects()
+        modifiedObjects = self.dumpModifiedObjects()
         return self.__dict__['_Process__history']+[(modifications,modifiedObjects)]
     else:
         return self.__dict__['_Process__history']
@@ -120,8 +120,10 @@ cms.Process.dumpHistory=new_dumpHistory
 
 def new_addAction(self,tool):
     if self.__dict__['_Process__enableRecording'] == 0:
-        modifiedObjects=self.modifiedObjects()
+        modifiedObjects=self.dumpModifiedObjects()
         self.__dict__['_Process__history'].append((tool,modifiedObjects))
+        self.resetModified()
+        self.resetModifiedObjects()
 cms.Process.addAction=new_addAction
 
 def new_deleteAction(self,i):
@@ -133,9 +135,8 @@ def new_disableRecording(self):
         # remeber modifications in history
         modification = self.dumpModifications(False)
         if modification!="":
-            modifiedObjects=self.modifiedObjects()
+            modifiedObjects=self.dumpModifiedObjects()
             self.__dict__['_Process__history'].append((modification,modifiedObjects))
-        # start recording modified objects
         self.resetModified()
         self.resetModifiedObjects()
     self.__dict__['_Process__enableRecording'] += 1
@@ -143,12 +144,6 @@ cms.Process.disableRecording=new_disableRecording
 
 def new_enableRecording(self):
     self.__dict__['_Process__enableRecording'] -= 1
-    if self.__dict__['_Process__enableRecording'] == 0:
-        # remeber modified objects
-        modifiedobjects = self.dumpModifiedObjects()
-        self.__dict__['_Process__modifiedobjects'].extend(modifiedobjects)
-        # start recording modifications
-        self.resetModified()
 cms.Process.enableRecording=new_enableRecording
 
 def new_recurseResetModified_(self, o):
@@ -241,7 +236,7 @@ def new_dumpModifiedObjects(self):
         if self.recurseDumpModifications_(name, o, False) != "" and\
             not o in modifiedObjects:
             modifiedObjects += [o]
-    return modifiedObjects
+    return modifiedObjects+self.modifiedObjects()
 cms.Process.dumpModifiedObjects=new_dumpModifiedObjects
 
 def new_moduleItems_(self):
@@ -546,14 +541,23 @@ if __name__=='__main__':
             self.assertEqual(len(process.history()[0][1]),1)
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
+            self.assertEqual(len(process.history()[0][1]),1)
+            self.assertEqual(len(process.history()[1][1]),1)
+
+            process.source.fileNames=["test2"]
+            self.assertEqual(len(process.history()[0][1]),1)
             self.assertEqual(len(process.history()[1][1]),1)
 
             changeSource(process,"file:filename2.root")
+            self.assertEqual(len(process.history()[0][1]),1)
+            self.assertEqual(len(process.history()[1][1]),1)
             self.assertEqual(len(process.history()[2][1]),1)
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile2.root") 
+            self.assertEqual(len(process.history()[0][1]),1)
+            self.assertEqual(len(process.history()[1][1]),1)
+            self.assertEqual(len(process.history()[2][1]),1)
             self.assertEqual(len(process.history()[3][1]),1)
             
     unittest.main()
-            
         
