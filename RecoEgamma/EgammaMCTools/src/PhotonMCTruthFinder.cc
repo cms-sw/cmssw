@@ -22,8 +22,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 
   std::vector<PhotonMCTruth> result;
 
-  const float pi = 3.141592653592;
-  const float twopi=2*pi;
+  //const float pi = 3.141592653592;
+  //const float twopi=2*pi;
 
 // Local variables  
   const int SINGLE=1;
@@ -92,8 +92,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   //std::cout << " Loop over all particles " << std::endl;
   
   int npv=0;
-  int iPho=0;
-  int iPizero=0;
+  //int iPho=0;
+  //int iPizero=0;
   //   theSimTracks.reset();
   for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
@@ -205,7 +205,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	     motherId = association->second;
 	   
 	   
-	   int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+	   //int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
 	   
 	   //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl;
 
@@ -229,7 +229,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
                                              (*iEleTk).momentum().z(),
                                              (*iEleTk).momentum().e());  
 	     math::XYZTLorentzVectorD motherMomentum(primEleMom);  
-	     int eleId = (*iEleTk).trackId();     
+	     unsigned int eleId = (*iEleTk).trackId();     
              int eleVtxIndex= (*iEleTk).vertIndex();
            
     
@@ -272,9 +272,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 		   if(association != geantToIndex_.end() )
 		     motherId = association->second;
 		   
-		   int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+		   //int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
 		   //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
-		   if ( theSimTracks[motherId].trackId() == eleId ) {
+		   if (theSimTracks[motherId].trackId() == eleId ) {
 		     
 		     //std::cout << "  ***** Found the Initial Mother Electron ****   theSimTracks[motherId].trackId() " <<  theSimTracks[motherId].trackId() << " eleId " <<  eleId << std::endl;
 		     eleId= (*iSimTk).trackId();

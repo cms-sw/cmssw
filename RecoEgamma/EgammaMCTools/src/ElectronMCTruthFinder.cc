@@ -132,7 +132,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     
     
     SimTrack trLast =(*iEleTk); 
-    int eleId = (*iEleTk).trackId();
+    unsigned int eleId = (*iEleTk).trackId();
     float remainingEnergy =trLast.momentum().e();
 //    CLHEP::HepLorentzVector motherMomentum = (*iEleTk).momentum();
 //    CLHEP::HepLorentzVector primEleMom = (*iEleTk).momentum();
@@ -183,7 +183,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 	  if(association != geantToIndex_.end() )
 	    motherId = association->second;
 	  
-	  int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+	  //int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
 	  //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
 	  if ( theSimTracks[motherId].trackId() == eleId ) {
 	    

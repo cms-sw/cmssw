@@ -145,10 +145,10 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     for ( std::vector<PhotonMCTruth>::iterator iPho=mcPhotons.begin(); iPho !=mcPhotons.end(); ++iPho ){
       int phoVtxIndex = (*iPho).vertexInd();
       SimVertex phoVtx = theSimVertices[phoVtxIndex];
-      int phoParentInd= phoVtx.parentIndex();
+      unsigned int phoParentInd= phoVtx.parentIndex();
       std::cout << " photon parent vertex index " << phoParentInd << std::endl;
       
-      if ( phoParentInd  ==  (*iPizTk).trackId() )  {
+      if (phoParentInd == (*iPizTk).trackId())  {
 	std::cout << "Matched Photon ID " << (*iPho).trackId() << "  vtx " << phoParentInd << " with pizero " << (*iPizTk).trackId() << std::endl;
 	photonsFromPizero.push_back( *iPho);
 	
