@@ -58,6 +58,8 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int ievt = iEvent.id().event();
   int irun = iEvent.id().run();
+  int ils = iEvent.luminosityBlock();
+
   double totene=0;
   double ecalene=0;
   double hcalene=0;
@@ -146,7 +148,7 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   if (accepted)
-    edm::LogVerbatim("BeamSplash") << "BeamSplash: " << ievt << " " << irun << " " << totene << " " << ecalene << " " << hcalene ; 
+    edm::LogVerbatim("BeamSplash") << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils <<" totene=" << totene << " ecalene=" << ecalene << " hcalene=" << hcalene ; 
   
   return accepted;
 
