@@ -74,7 +74,7 @@ class MomentumScaleCorrector : public BaseFunction
 
     // Loop on all the functions and apply them iteratively on the pt corrected by the previous function.
     double pt = track.pt();
-    for( int i=0; i<iterationNum_; ++i ) {
+    for( int i=0; i<=iterationNum_; ++i ) {
       // return ( scaleFunction_->scale( track.pt(), track.eta(), track.phi(), track.charge(), parScale_) );
       pt = ( scaleFunction_[i]->scale( pt, track.eta(), track.phi(), track.charge(), parArray_[i]) );
     }
