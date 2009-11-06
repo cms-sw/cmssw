@@ -59,8 +59,10 @@ void DDPixBarStackLayerAlgo::initialize(const DDNumericArguments & nArgs,
   ladderThick = nArgs["LadderThick"];
   module_offset  = nArgs["ModuleOffset"];
   layout = int(nArgs["LayoutType"]);
+  activeWidth = nArgs["ActiveWidth"];
 
 // Debug messages
+  //std::cout <<"\nStack sensor with sensorEdge = "<<sensorEdge<<"\tand width = "<<activeWidth<<"\t at R = "<<moduleRadius;
   LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo debug: Parent " << parentName 
 			<< " NameSpace " << idNameSpace << "\n"
 			<< "\tLadders " << number << "\tGeneral Material " 
@@ -84,39 +86,60 @@ void DDPixBarStackLayerAlgo::execute() {
         number+=1;
         std::cout << "\nAsking for an invalid layout ... Adjusting the number of ladders to compensate.\n";
   }
-//  if ((number%2==1)&&(layout==1)) { throw cms::Exception("DDPixBarStackLayerAlgo") 
-//	<< "\nAsking for a TOB like Geometry with an odd number of stacks.\n\n";}
-// Define some obscure badly defined variables
-  double dphi = twopi/number;
+  // Keep a running tally to check that there are no phi gaps.
+  double phi_coverage = 0.0;		// Running total of Phi coverage
+  bool covered=0;			// Set to 1 when there is at least 2Pi of coverage in phi
+  double dphi = twopi/number;		// Phi difference between successive ladders
+  double phi_offset = module_offset;	// Phi rotation of the ladders
+  double radius_offset = 0.0;		// Distance from <R> that the stacks are shifted in or out
+  double deltaX, deltaY; 		// Offset to correct for ladder thickness
+  double r_vol_inner = 0.0;		// Define the cylinder that the stacks are in
+  double r_vol_outer = 0.0;		// 
+  double phi_coverage_pinn =0.0;	// phi coverage, phi_coverage_pinn = phi_left + phi_right
+  double phi_left    = 0.0;		// 
+  double phi_right   = 0.0;		//
 
-  double phi_offset = module_offset;
-  double radius_offset = 0.0;
+
+  // Set parameters for the Phi Rotated Stacks as default
+  double d1 = (ladderThick/2.0)*tan(phi_offset);
+  double d2 = (ladderThick/2.0)/cos(phi_offset);
+  double d3 = (moduleRadius+d2);
+  double d4 = ((activeWidth/2.0)-d1);
+  double r_right = sqrt( d3*d3 + d4*d4 + 2*d3*d4*sin(phi_offset)) ;	// Radius of the outer edge of the active area
+  phi_right=acos(	(r_right*r_right + d3*d3 - d4*d4)/
+			(2*d3*r_right)
+		);
+  double d5 = sqrt(d1*d1+d2*d2);
+  double d6 = (moduleRadius-d5);
+  double r_left = sqrt ( d4*d4 + d6*d6 - 2*d4*d6*sin(phi_offset) ) ;	 // Radius of the inner edge of the active area
+  phi_left=acos(	(r_left*r_left + d6*d6 - d4*d4)/
+			(2*d6*r_left)
+	       );
+  if (r_right> r_left ) {r_vol_outer=r_right;r_vol_inner=r_left;}
+  if (r_left > r_right) {r_vol_outer=r_left;r_vol_inner=r_right;}
+
+  phi_coverage_pinn=phi_left+phi_right;
+  //std::cout << "\nDetermining the radii, r_in="<<r_vol_inner   <<" mod_R="<<moduleRadius<<" r_out="<<r_vol_outer;
+  // Set parameters if High-Low Stacks are requested
   if(layout) {
     phi_offset = 0.0;
-    radius_offset = ladderThick;
+    phi_coverage_pinn = 0.0; // Determin for each ladder when placed
+    double R_Curvature = ((4*moduleRadius*moduleRadius)+(ladderWidth*ladderWidth/4))/(4*moduleRadius);	// The radius of the ends of the inner stack
+    double r2 = (R_Curvature+ladderThick/2);
+    double r1 = sqrt((R_Curvature*R_Curvature)-(ladderWidth*ladderWidth/4.0))-(ladderThick/2);
+
+    radius_offset = (r1-r2)/2.0;
+    r_vol_inner = r1-(ladderThick/2.0);
+    r_vol_outer = sqrt((ladderWidth*ladderWidth/4.0)+((r2+ladderThick/2.0)*(r2+ladderThick/2.0)));
+    // phi_left and phi_right depend on R so they will be determined later
+    // std::cout << "\nDetermining the radii, r_in="<<r_vol_inner   <<" r1="<<r1<< " R_c="<<R_Curvature<<" r2="<<r2<<" r_out="<<r_vol_outer;
   }
-
-  double delta1=0.5*ladderWidth*sin(phi_offset);
-  double delta2=ladderThick*cos(phi_offset);
-  double delta3=radius_offset;
-
-  double deltaX, deltaY; //Offset to correct for ladder thickness
-
-  double r_vol_inner = moduleRadius-(delta1+delta2+delta3);
-  // for a test
-  double r_vol_outer = moduleRadius+(delta1+delta2+delta3);
-  //double r_vol_outer = moduleRadius+(delta1+delta2+delta3)+3.0;
 
   double r_vol_innerT;
   if(r_vol_inner>r_vol_outer) {
     r_vol_innerT=r_vol_inner;
     r_vol_inner=r_vol_outer-30;
     r_vol_outer=r_vol_innerT+30;
-  }
-  if(layout) {
-    double temp = (double)(ladderWidth/2.0);
-    double extra_thick = sqrt(temp*temp + r_vol_outer*r_vol_outer) - r_vol_outer;
-    r_vol_outer = r_vol_outer + extra_thick;
   }
 
   std::string name;
@@ -130,7 +153,7 @@ void DDPixBarStackLayerAlgo::execute() {
   DDRotation rot;
 
 
-  LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: r_mid_L_inner/r_mid_L_outer " << r_vol_inner << ", " << r_vol_outer ;
+  //std::cout << "\nDDPixBarStackLayerAlgo test: r_mid_L_inner/r_mid_L_outer " << r_vol_inner << ", " << r_vol_outer ;
   //<< " d1/d2 " << d1 << ", " << d2 
   //<< " x1/x2 " << x1 << ", " << x2;
 
@@ -207,6 +230,7 @@ void DDPixBarStackLayerAlgo::execute() {
 
   for (int i=0; i<number; i++) {
 	
+    double phi_coverage_i=0.0;
     // First the modules
     phi = phi0 + i*dphi;
     phix = phi + (90*deg) - phi_offset ;
@@ -247,10 +271,24 @@ void DDPixBarStackLayerAlgo::execute() {
 			    << " at " << tran
 			    << " with " << rot;
     component_copy_no++;
+    // Running total of phi coverage
+    phi_coverage_i=phi_coverage_pinn;
+    if(layout) {
+	phi_coverage_i=2*atan2((activeWidth/2.0),(radius+ladderThick/2));
+    }
+
+    phi_coverage += phi_coverage_i;
+    //std::cout<<"\nLooking at phi = "<< phi<<"\tNumber "<<component_copy_no-1<<"\t with "<<phi_coverage_i<<"\trad of coverage for a total coverage of "<<phi_coverage;
+    if (phi_coverage>twopi&&covered==0) {
+       //std::cout<<"\nPhi coverage is achieved after "<<(component_copy_no-1)/2.0<<" ladders for R="<<radius/10.0<<" cm.\t and "<<number<<" ladders were asked for";
+       covered=1;
+    }
 
  
   }
-
+  //std::cout<<"\nLayer covered "<<phi_coverage<<" radians in phi.   (2Pi="<<twopi<<")";
+  if (phi_coverage<twopi) { throw cms::Exception("DDPixBarStackLayerAlgo")
+      <<"\nAsking for a Geometry with gaps in phi.\n";}
 
 // Iterate over the number of cooltubes
 
