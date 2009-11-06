@@ -89,7 +89,8 @@ cms.Process.setLooper_=new_setLooper_
 def new_history(self):
     modifications = self.dumpModifications(False)
     if modifications!="":
-        return self.__dict__['_Process__history']+[modifications]
+        modifiedObjects = self.dumpModifiedObjects()
+        return self.__dict__['_Process__history']+[(modifications,modifiedObjects)]
     else:
         return self.__dict__['_Process__history']
 cms.Process.history=new_history
@@ -102,7 +103,7 @@ cms.Process.resetHistory=new_resetHistory
 
 def new_dumpHistory(self):
     dumpHistory=[]
-    for item in self.history():
+    for item,objects in self.history():
         if isinstance(item,str):
             dumpHistory.append(item +"\n")
         else: # isTool
@@ -119,7 +120,8 @@ cms.Process.dumpHistory=new_dumpHistory
 
 def new_addAction(self,tool):
     if self.__dict__['_Process__enableRecording'] == 0:
-        self.__dict__['_Process__history'].append(tool)
+        modifiedObjects=self.dumpModifiedObjects()
+        self.__dict__['_Process__history'].append((tool,modifiedObjects))
 cms.Process.addAction=new_addAction
 
 def new_deleteAction(self,i):
@@ -131,7 +133,8 @@ def new_disableRecording(self):
         # remeber modifications in history
         modification = self.dumpModifications(False)
         if modification!="":
-            self.__dict__['_Process__history'].append(modification)
+            modifiedObjects=self.dumpModifiedObjects()
+            self.__dict__['_Process__history'].append((modification,modifiedObjects))
         # start recording modified objects
         self.resetModified()
         self.resetModifiedObjects()
