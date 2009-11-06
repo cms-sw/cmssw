@@ -41,7 +41,7 @@ BeamSplash::BeamSplash(const edm::ParameterSet& iConfig)
   EnergyCutTot = iConfig.getUntrackedParameter<double>("energycuttot");
   EnergyCutEcal = iConfig.getUntrackedParameter<double>("energycutecal");
   EnergyCutHcal = iConfig.getUntrackedParameter<double>("energycuthcal");
-
+  applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
 }
 
 BeamSplash::~BeamSplash()
@@ -148,9 +148,15 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   if (accepted)
+	{
     edm::LogVerbatim("BeamSplash") << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils <<" totene=" << totene << " ecalene=" << ecalene << " hcalene=" << hcalene ; 
-  
-  return accepted;
+    cout << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils <<" totene=" << totene << " ecalene=" << ecalene << " hcalene=" << hcalene << endl; 
+ } 
+
+  if (applyfilter)
+    return accepted;
+  else
+    return true;
 
 }
 

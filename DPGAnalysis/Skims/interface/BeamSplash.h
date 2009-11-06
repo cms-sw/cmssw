@@ -44,6 +44,7 @@ private:
   double EnergyCutTot;
   double EnergyCutEcal;
   double EnergyCutHcal;
+  bool applyfilter;
 
   
 };
