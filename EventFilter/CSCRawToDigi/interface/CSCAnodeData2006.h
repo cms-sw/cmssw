@@ -10,7 +10,12 @@ public:
   CSCAnodeDataFrame2006(unsigned short frame):
     theFrame(frame) {}
   CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data)
-  : theFrame(data + (tbin << 8) + (chip<<13) ) {}
+  : theFrame(0)
+  {
+     // lowest bit, plus the OR of the next two.
+     unsigned packedChip = ( chip&1 + 2*(chip&2 | chip&4) );
+     theFrame = data + ((tbin&0x1F) << 8) + (packedChip<<13);
+  }
 
 
   /// given a wiregroup between 0 and 7, it tells whether this bit was on
