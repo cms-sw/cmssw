@@ -31,6 +31,8 @@ namespace {
     edm::RefProd<reco::TrackExtraCollection> rp3;
     edm::RefVector<reco::TrackExtraCollection> rv3;
 
+    std::vector<edm::RefVector<std::vector<reco::Track> > > vrv3;
+
     reco::TrackCollection v1;
     edm::Wrapper<reco::TrackCollection> c1;
     reco::TrackRef r1;
