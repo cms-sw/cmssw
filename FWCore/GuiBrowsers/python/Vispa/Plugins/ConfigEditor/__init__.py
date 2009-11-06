@@ -1,0 +1,1 @@
+from ConfigEditorPlugin import ConfigEditorPlugin as plugin

@@ -10,25 +10,28 @@ import optparse
 import webbrowser
 import subprocess
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant
+from PyQt4.QtGui import QApplication,QMenu,QPixmap,QAction,QFileDialog,QIcon,QMessageBox
 
-from Directories import *
-from MainWindow import *
-from AbstractTab import *
-from Filetype import *
-from Exceptions import *
-from AboutDialog import AboutDialog
+from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName
+from Vispa.Main.MainWindow import MainWindow
+from Vispa.Main.AbstractTab import AbstractTab
+from Vispa.Main.Filetype import Filetype
+from Vispa.Main.Exceptions import *
+from Vispa.Main.AboutDialog import AboutDialog
+from Vispa.Main.RotatingIcon import RotatingIcon 
 #from PreferencesEditor import PreferencesEditor
-import Vispa
+import Vispa.__init__
 
 import Resources
 
 class Application(QApplication):
 
-    MAX_RECENT_FILES = 10
+    MAX_RECENT_FILES = 30
+    MAX_VISIBLE_RECENT_FILES = 10
     FAILED_LOADING_PLUGINS_ERROR = "Errors while loading plugins. For details see error output or log file.\n\nThe following plugins won't work correctly:\n\n"
     TAB_PREMATURELY_CLOSED_WARNING = "Tab was closed before user request could be handled."
+    NO_PROCESS_EVENTS = False
 
     def __init__(self, argv):
         QApplication.__init__(self, argv)
@@ -43,17 +46,21 @@ class Application(QApplication):
         self._ini = None
         self._iniFileName = iniFileName
         self._zoomToolBar = None
-        self._commandLineParser = optparse.OptionParser()
-        self._commandLineOptions = None
-
+        self._messageId=0
+        
         self._initLogging()
+
+        logging.debug('Running with Qt-Version ' + str(qVersion()))
+
+        self._initCommandLineAttributes()
+
         self._loadIni()
 
-        self.setVersion(Vispa.__version__)
+        self.setVersion(Vispa.__init__.__version__)
 
         self._window = MainWindow(self, applicationName)
-        self._connectSignals()
-        
+        self._window.show()
+                
         self._loadPlugins()
         
         self._fillFileMenu()
@@ -67,9 +74,8 @@ class Application(QApplication):
         self.createStatusBar()
     
         self._readCommandLineAttributes()
+        self._connectSignals()
 
-        logging.debug('Running with Qt-Version ' + str(qVersion()))
-        
     def commandLineParser(self):
         return self._commandLineParser
         
@@ -107,19 +113,40 @@ class Application(QApplication):
                     return True
         return False
 
-    def _readCommandLineAttributes(self):
-        """ Analyzes the command line attributes and print usage summary if required.
+    def _setCommandLineOptions(self):
+        """ Set the available command line options.
         """
         self._commandLineParser.add_option("-f", "--file", dest="filename", help="open a FILE", metavar="FILE")
         self._commandLineParser.add_option("-l", "--loglevel", dest="loglevel", help="set LOGLEVEL to 10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL", metavar="LOGLEVEL", type="int")
-        (self._commandLineOptions, args) = self._commandLineParser.parse_args()
-        if self._commandLineOptions.filename:
-            self.openFile(self._commandLineOptions.filename)
+
+    def _initCommandLineAttributes(self):
+        """ Initialize command line parser.
+        
+        After calling this function, plugins may add options.
+        """
+        class QuiteOptionParser(optparse.OptionParser):
+            def __init__(self):
+                optparse.OptionParser.__init__(self,add_help_option=False)
+            def error(self,message=""):
+                pass
+        self._commandLineParser = QuiteOptionParser()
+        self._setCommandLineOptions()
+        (self._commandLineOptions, self._args) = self._commandLineParser.parse_args()
         if self._commandLineOptions.loglevel:
             logging.root.setLevel(self._commandLineOptions.loglevel)
+        self._commandLineParser = optparse.OptionParser()
+        self._setCommandLineOptions()
         
-        if len(args) > 0:
-            self.openFile(args[0])
+    def _readCommandLineAttributes(self):
+        """ Analyzes the command line attributes and print usage summary if required.
+        """
+        (self._commandLineOptions, self._args) = self._commandLineParser.parse_args()
+        if self._commandLineOptions.filename:
+            self.mainWindow().setStartupScreenVisible(False)
+            self.openFile(self._commandLineOptions.filename)
+        if len(self._args) > 0:
+            self.mainWindow().setStartupScreenVisible(False)
+            self.openFile(self._args[0])
         
     def _checkFile(self, filename):
         """ Check if logfile is closed correctly
@@ -181,10 +208,8 @@ class Application(QApplication):
     def run(self):
         """ Show the MainWindow and run the application.
         """
-        logging.debug('Application: run()')
+        #logging.debug('Application: run()')
 
-        self._window.show()
-        self.setActiveWindow(self._window)
         self.exec_()
         self._infologger.info("Stop logging")
 
@@ -193,8 +218,8 @@ class Application(QApplication):
         """
         logging.debug('Application: _connectSignals()')
         self.connect(self._window.tabWidget(), SIGNAL("currentChanged(int)"), self.tabChanged)
-        self.connect(self._window.tabWidget(), SIGNAL("tabCloseRequested(int)"), self.tabClosed)
-        self.connect(self._window, SIGNAL("activated()"), self.tabChanged)
+        self.connect(self._window, SIGNAL("windowActivated()"), self.tabChanged)
+        self.connect(self._window.tabWidget(), SIGNAL("tabCloseRequested(int)"), self.tabCloseRequest)
         
     def _loadPlugins(self):
         """ Search all subfolders of the plugin directory for vispa plugins and registers them.
@@ -209,10 +234,10 @@ class Application(QApplication):
                 pluginObject = module.plugin(self)
                 self._plugins.append(pluginObject)
                 logging.debug('Application: added plugin ' + di)
-            except AttributeError:
-                logging.info('Application: plugin ' + di + ' is deactivated (define plugin in __init__.py to activate): ' + exception_traceback())
-            except PluginIgnoredException:
-                logging.info('Application: plugin ' + di + ' cannot be loaded and is ignored: ' + exception_traceback())
+            except AttributeError,e:
+                logging.info('Application: plugin ' + di + ' is deactivated (define plugin in __init__.py to activate): ' + str(e))
+            except PluginIgnoredException,e:
+                logging.info('Application: plugin ' + di + ' cannot be loaded and is ignored: ' + str(e))
             except ValueError:
                 logging.warning('Application: ' + di + ' is not a plugin: ' + exception_traceback())
                 failedToLoad.append(di)
@@ -228,14 +253,39 @@ class Application(QApplication):
     def plugins(self):
         return self._plugins
     
+    def plugin(self, name):
+        """ Returns plugin with given name or None if there is no such one.
+        """
+        if not name.endswith("Plugin"):
+            name += "Plugin"
+            
+        for plugin in self._plugins:
+            if name == plugin.__class__.__name__:
+                return plugin
+        return None
+
+    def tabControllers(self):
+        controllers=[self._window.tabWidget().widget(i).controller() for i in range(0, self._window.tabWidget().count())]
+        controllers+=[tab.controller() for tab in self.mainWindow().tabWidgets()]
+        return controllers
+    
+    def setCurrentTabController(self, controller):
+        if controller.tab().tabWidget():
+            self._window.activateWindow()
+            self._window.tabWidget().setCurrentIndex(self.tabControllers().index(controller))
+        else:
+            controller.tab().activateWindow()
+    
     def currentTabController(self):
         """ Return the TabController that belongs to the tab selected in the MainWindow.
         """
-        
-        logging.debug('Application: currentTabController()')
-        currentWidget = self._window.tabWidget().currentWidget()
-        if isinstance(currentWidget, AbstractTab):
-            return currentWidget.controller()
+        #logging.debug('Application: currentTabController()')
+        if isinstance(self.activeWindow(),AbstractTab):
+            return self.activeWindow().controller()
+        else:
+            currentWidget = self._window.tabWidget().currentWidget()
+            if isinstance(currentWidget, AbstractTab):
+                return currentWidget.controller()
         raise NoCurrentTabControllerException
     
     def mainWindow(self):
@@ -283,8 +333,8 @@ class Application(QApplication):
         if not hasattr(self, 'recentFilesMenu'):
             self._recentFilesMenu = QMenu('&Recent Files', self._window)
             self._recentFilesMenuActions = []
-            for i in range(0, self.MAX_RECENT_FILES):
-                action = self.createAction("recent file " + str(i), self.openRecentFile)
+            for i in range(0, self.MAX_VISIBLE_RECENT_FILES):
+                action = self.createAction("recent file " + str(i), self.openRecentFileSlot)
                 action.setVisible(False)
                 self._recentFilesMenu.addAction(action)                
                 self._recentFilesMenuActions.append(action)
@@ -369,7 +419,7 @@ class Application(QApplication):
         self._helpMenuItems = {}
                     
         # About
-        self._helpMenuItems['aboutAction'] = self.createAction('&About', self.aboutBox, 'F1')      
+        self._helpMenuItems['aboutAction'] = self.createAction('&About', self.aboutBoxSlot, 'F1')      
         self._window.helpMenu().addAction(self._helpMenuItems['aboutAction'])
         
         # Vispa Website
@@ -388,21 +438,36 @@ class Application(QApplication):
         self._pluginMenus.append(menu)
         return menu
     
-    def showPluginMenu(self, menuObject):
+    def showPluginMenu(self, menuObject, show=True):
         """ Shows given menu if it is in _pluginMenus list.
         """
+        #logging.debug(self.__class__.__name__ +": showPluginMenu()")
         if menuObject in self._pluginMenus:
             # show all actions and activate their shortcuts
-            for action in menuObject.actions() + [menuObject.menuAction()]:
-                action.setVisible(True)
+            if show:
+                for action in menuObject.actions():
+                    if hasattr(action,"_wasVisible") and action._wasVisible!=None:
+                        action.setVisible(action._wasVisible)
+                        action._wasVisible=None
+                    else:
+                        action.setVisible(True)     # has to be after actions() loop to prevent permanant invisibility on Mac OS X
+            menuObject.menuAction().setVisible(show)
+        
+    def hidePluginMenu(self, menuObject):
+        """ Hides given menu object if it it in _pluginMenus list.
+        """
+        self.showPluginMenu(menuObject, False)
             
     def hidePluginMenus(self):
         """ Hides all menus in _pluginMenus list.
         """
         for menuObject in self._pluginMenus:
             # hide all actions and deactivate their shortcuts
-            for action in menuObject.actions() + [menuObject.menuAction()]:
-                action.setVisible(False)
+            menuObject.menuAction().setVisible(False)
+            for action in menuObject.actions():
+                if not hasattr(action,"_wasVisible") or action._wasVisible==None:
+                    action._wasVisible=action.isVisible()
+                action.setVisible(False)    # setVisible() here hides plugin menu forever on Mac OS X (10.5.7), Qt 4.5.
     
     def createPluginToolBar(self, name):
         """ Creates tool bar in main window and adds it to _pluginToolBars list.
@@ -411,11 +476,18 @@ class Application(QApplication):
         self._pluginToolBars.append(toolBar)
         return toolBar
 
-    def showPluginToolBar(self, toolBarObject):
+    def showPluginToolBar(self, toolBarObject, show=True):
         """ Shows given toolbar if it is in _pluginToolBars list.
         """
         if toolBarObject in self._pluginToolBars:
-            toolBarObject.show()
+            toolBarObject.setVisible(show)
+            
+    def hidePluginMenu(self, toolBarObject):
+        """ Hides given toolbar object if it it in _pluginToolBars list.
+        """
+        self.showPluginToolBar(toolBarObject, False)
+        #if toolBarObject in self._pluginToolBars:
+        #    toolBarObject.menuAction().setVisible(False)
             
     def hidePluginToolBars(self):
         """ Hides all toolbars in _toolBarMenus list.
@@ -484,7 +556,7 @@ class Application(QApplication):
         """ Returns directory name of first entry of recent files list.
         """
         # if current working dir is vispa directory use recentfile or home
-        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory),os.path.abspath(os.path.join(baseDirectory,"bin"))]:
+        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory),os.path.abspath(os.path.join(baseDirectory,"bin"))] or platform.system() == "Darwin":
             if len(self._recentFiles) > 0:
                 return os.path.dirname(self._recentFiles[0])
             elif platform.system() == "Darwin":
@@ -496,12 +568,45 @@ class Application(QApplication):
         else:
             return os.getcwd()
     
+    def recentFilesFromPlugin(self,plugin):
+        files=[]
+        filetypes = plugin.filetypes()
+        extension=None
+        if len(filetypes) > 0:
+            extension=filetypes[0].extension().lower()
+        for file in self._recentFiles:
+            if os.path.splitext(os.path.basename(file))[1][1:].lower()==extension:
+                files+=[file]
+        return files
+    
+    def updateStartupScreen(self):
+        screen=self.mainWindow().startupScreen()
+        screen.analysisDesignerRecentFilesList().clear()
+        screen.analysisDesignerRecentFilesList().addItem("...")
+        screen.analysisDesignerRecentFilesList().setCurrentRow(0)
+        plugin=self.plugin("AnalysisDesignerPlugin")
+        if plugin:
+            files = self.recentFilesFromPlugin(plugin)
+            for file in files:
+                screen.analysisDesignerRecentFilesList().addItem(os.path.basename(file))
+        
+        screen.pxlEditorRecentFilesList().clear()
+        screen.pxlEditorRecentFilesList().addItem("...")
+        screen.pxlEditorRecentFilesList().setCurrentRow(0)
+        plugin=self.plugin("PxlPlugin")
+        if plugin:
+            files = self.recentFilesFromPlugin(plugin)
+            for file in files:
+                screen.pxlEditorRecentFilesList().addItem(os.path.basename(file))
+        
     def updateMenu(self):
         """ Update recent files and enable disable menu entries in file and edit menu.
         """
         logging.debug('Application: updateMenu()')
+        if self.mainWindow().startupScreen():
+            self.updateStartupScreen()
         # Recent files
-        numRecentFiles = min(len(self._recentFiles), self.MAX_RECENT_FILES)
+        numRecentFiles = min(len(self._recentFiles), self.MAX_VISIBLE_RECENT_FILES)
         for i in range(0, numRecentFiles):
             filename = self._recentFiles[i]
             self._recentFilesMenuActions[i].setText(os.path.basename(filename))
@@ -510,7 +615,7 @@ class Application(QApplication):
             self._recentFilesMenuActions[i].setData(QVariant(filename))
             self._recentFilesMenuActions[i].setVisible(True)
             
-        for i in range(numRecentFiles, self.MAX_RECENT_FILES):
+        for i in range(numRecentFiles, self.MAX_VISIBLE_RECENT_FILES):
             self._recentFilesMenuActions[i].setVisible(False)
             
         if numRecentFiles == 0:
@@ -523,10 +628,10 @@ class Application(QApplication):
         # Enabled / disable menu entries depending on number of open files
         atLeastOneFlag = False
         atLeastTwoFlag = False
-        if self._window.tabWidget().count() > 1:
+        if len(self.tabControllers()) > 1:
             atLeastOneFlag = True
             atLeastTwoFlag = True
-        elif self._window.tabWidget().count() > 0:
+        elif len(self.tabControllers()) > 0:
             atLeastOneFlag = True        
         
         self._fileMenuItems['saveFileAction'].setEnabled(atLeastOneFlag)
@@ -537,22 +642,22 @@ class Application(QApplication):
         self._fileMenuItems['saveAllFilesAction'].setEnabled(atLeastTwoFlag)
         self._fileMenuItems['closeAllAction'].setEnabled(atLeastTwoFlag)
         
-        if atLeastOneFlag:
-            try:
+        try:
+            if atLeastOneFlag:
                 if not self.currentTabController().isEditable():
                     self._fileMenuItems['saveFileAction'].setEnabled(False)
                     self._fileMenuItems['saveFileAsAction'].setEnabled(False)
                 if not self.currentTabController().isModified():
                     self._fileMenuItems['saveFileAction'].setEnabled(False)
                 
-                copyPasteEnabled = self.currentTabController().isCopyPasteEnabled()
-                self._editMenuItems['cutAction'].setEnabled(copyPasteEnabled)
-                self._editMenuItems['copyAction'].setEnabled(copyPasteEnabled)
-                self._editMenuItems['pasteAction'].setEnabled(copyPasteEnabled)
+            copyPasteEnabled = atLeastOneFlag and self.currentTabController().isCopyPasteEnabled()
+            self._editMenuItems['cutAction'].setEnabled(copyPasteEnabled)
+            self._editMenuItems['copyAction'].setEnabled(copyPasteEnabled)
+            self._editMenuItems['pasteAction'].setEnabled(copyPasteEnabled)
             
-                self._editMenuItems['findAction'].setEnabled(self.currentTabController().isFindEnabled())
-            except NoCurrentTabControllerException:
-                pass
+            self._editMenuItems['findAction'].setEnabled(atLeastOneFlag and self.currentTabController().isFindEnabled())
+        except NoCurrentTabControllerException:
+            pass
             
     def createAction(self, name, slot=None, shortcut=None, image=None, enabled=True):
         """ create an action with name and icon and connect it to a slot.
@@ -561,7 +666,6 @@ class Application(QApplication):
         if image:
             image0 = QPixmap()
             image0.load(":/resources/" + image + ".svg")
-            #image0.load(os.path.join(resourceDirectory, image) + ".png")
             action = QAction(QIcon(image0), name, self._window)
         else:
             action = QAction(name, self._window)
@@ -586,8 +690,8 @@ class Application(QApplication):
         self._knownFiltersList.append('All files (*.*)')
         for plugin in self.plugins():
             for ft in plugin.filetypes():
-                self._knownExtensionsDictionary[ft.getExtension()] = plugin
-                self._knownFiltersList.append(ft.getFileDialogFilter())
+                self._knownExtensionsDictionary[ft.extension()] = plugin
+                self._knownFiltersList.append(ft.fileDialogFilter())
         if len(self._knownFiltersList) > 0:
             allKnownFilter = 'All known files (*.' + " *.".join(self._knownExtensionsDictionary.keys()) + ')'
             self._knownFiltersList.insert(1, allKnownFilter)
@@ -596,17 +700,18 @@ class Application(QApplication):
             logging.debug('Application: _collectFileExtensions()')
         
         
-    def openFileDialog(self):
+    def openFileDialog(self, defaultFileFilter=None):
         """Displays a common open dialog for all known file types.
         """
         logging.debug('Application: openFileDialog()')
         
-        if len(self._knownFiltersList) > 1:
-            # Set defaultFileFilter to all known files
-            defaultFileFilter = self._knownFiltersList[1]
-        else:
-            # Set dfaultFileFilter to any file type
-            defaultFileFilter = self._knownFiltersList[0]
+        if not defaultFileFilter:
+            if len(self._knownFiltersList) > 1:
+                # Set defaultFileFilter to all known files
+                defaultFileFilter = self._knownFiltersList[1]
+            else:
+                # Set dfaultFileFilter to any file type
+                defaultFileFilter = self._knownFiltersList[0]
         
         # Dialog
         filename = QFileDialog.getOpenFileName(
@@ -627,9 +732,9 @@ class Application(QApplication):
             filename = str(filename)  # convert QString to Python String
         
         # Check whether file is already opened
-        for i in range(0, self._window.tabWidget().count()):
-            if filename == self._window.tabWidget().widget(i).controller().filename():
-                self._window.tabWidget().setCurrentIndex(i)
+        for controller in self.tabControllers():
+            if filename == controller.filename():
+                self.setCurrentTabController(controller)
                 self.stopWorking(statusMessage, "already open")
                 return
         
@@ -648,6 +753,7 @@ class Application(QApplication):
                     if self._knownExtensionsDictionary[ext].openFile(filename):
                         self.addRecentFile(filename)
                     else:
+                        logging.error(self.__class__.__name__ + ": openFile() - Error while opening '" + str(filename) + "'.")
                         self.errorMessage("Failed to open file.")
                 except Exception:
                     logging.error(self.__class__.__name__ + ": openFile() - Error while opening '" + str(filename) + "' : " + exception_traceback())
@@ -698,13 +804,10 @@ class Application(QApplication):
         logging.debug('Application: closeAllFiles()')
         # to prevent unneeded updates set flag
         self._closeAllFlag = True
-        initCount = self._window.tabWidget().count()
-        try:
-            while self._window.tabWidget().count() > 0:
-                if self.currentTabController().close() == False:
-                    break
-        except NoCurrentTabControllerException:
-            pass
+        while len(self.tabControllers())>0:
+            controller=self.tabControllers()[0]
+            if controller.close() == False:
+                break
         self._closeAllFlag = False
 
         # call tabChanged instead of updateMenu to be qt 4.3 compatible
@@ -717,7 +820,7 @@ class Application(QApplication):
         try:
             self.currentTabController().save()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
         
     def saveFileAsDialog(self):
         """This functions asks the user for a file name. 
@@ -726,7 +829,7 @@ class Application(QApplication):
         try:
             currentTabController = self.currentTabController()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
             return
 
         if currentTabController.filename():
@@ -736,7 +839,7 @@ class Application(QApplication):
                 
         filetypesList = []
         for filetype in currentTabController.supportedFileTypes():
-            filetypesList.append(Filetype(filetype[0], filetype[1]).getFileDialogFilter())
+            filetypesList.append(Filetype(filetype[0], filetype[1]).fileDialogFilter())
         filetypesList.append('Any (*.*)')
 
         selectedFilter = QString("")
@@ -756,19 +859,19 @@ class Application(QApplication):
     def saveAllFiles(self):
         """ Tells tab controllers of all tabs to save.
         """
-        logging.debug('Application: savellFiles()')
+        logging.debug('Application: saveAllFiles()')
         
-        for i in range(0, self._window.tabWidget().count()):
-            self._window.tabWidget().widget(i).tabController().save()
+        for controller in self.tabControllers():
+            if controller.filename() or controller == self.currentTabController():
+                controller.save()
 
     def cutEvent(self):
         """ Called when cut action is triggered (e.g. from menu entry) and forwards it to current tab controller.
         """
-        #if self._window.tabWidget().count() > 0:
         try:
             self.currentTabController().cut()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
         
     def copyEvent(self):
         """ Called when copy action is triggered (e.g. from menu entry) and forwards it to current tab controller.
@@ -776,7 +879,7 @@ class Application(QApplication):
         try:
             self.currentTabController().copy()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
         
     def pasteEvent(self):
         """ Called when paste action is triggered (e.g. from menu entry) and forwards it to current tab controller.
@@ -784,7 +887,7 @@ class Application(QApplication):
         try:
             self.currentTabController().paste()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
             
     def findEvent(self):
         """ Called when find action is triggered (e.g. from menu entry) and forwards it to current tab controller.
@@ -792,7 +895,7 @@ class Application(QApplication):
         try:
             self.currentTabController().find()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
        
     def zoomUserEvent(self):
         """ Handles button pressed event from zoom tool bar and forwards it to current tab controller.
@@ -800,7 +903,7 @@ class Application(QApplication):
         try:
             self.currentTabController().zoomUser()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
         
     def zoomHundredEvent(self):
         """ Handles button pressed event  from zoom tool bar and forwards it to current tab controller.
@@ -808,7 +911,7 @@ class Application(QApplication):
         try:
             self.currentTabController().zoomHundred()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
     
     def zoomAllEvent(self):
         """ Handles button pressed event  from zoom tool bar and forwards it to current tab controller.
@@ -816,22 +919,22 @@ class Application(QApplication):
         try:
             self.currentTabController().zoomAll()
         except NoCurrentTabControllerException:
-            loggin.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
          
-    def aboutBox(self):
+    def aboutBoxSlot(self):
         """ Displays about box. 
         """
-        logging.debug('Application: aboutBox()')
+        logging.debug('Application: aboutBoxSlot()')
         about = AboutDialog(self)
         about.onScreen()
 
-    def openRecentFile(self):
+    def openRecentFileSlot(self):
         """ Slot for opening recent file.
         
         Called from recent file menu action. Filename is set as data object (QVariant) of action.
         """
         filename = self.sender().data().toString()
-        logging.debug('Application: openRecentFile() - ' + filename)
+        logging.debug('Application: openRecentFileSlot() - ' + filename)
         self.openFile(filename)
 
     def tabChanged(self, tab=None):
@@ -848,9 +951,11 @@ class Application(QApplication):
                 self.currentTabController().selected()
                 self.currentTabController().checkModificationTimestamp()
             except NoCurrentTabControllerException:
-                pass        
+                pass
+            
+        self.mainWindow().setStartupScreenVisible(self.mainWindow().tabWidget().count() == 0)
     
-    def currentFileModified(self):
+    def updateMenuAndWindowTitle(self):
         """ Update menu and window title.
         """
         self.updateMenu()
@@ -926,6 +1031,11 @@ class Application(QApplication):
         """
         QMessageBox.warning(self.mainWindow(), 'Warning', message)
         
+    def infoMessage(self, message):
+        """ Displays info message.
+        """
+        QMessageBox.about(self.mainWindow(), 'Info', message)
+        
     def doubleClickOnFile(self, filename):
         """ Opens file given as argument if possible in Vispa.
         
@@ -946,17 +1056,17 @@ class Application(QApplication):
         
         # open file in default application
         try:
-          if platform.system() == "Windows":
+          if 'Windows' in platform.system():
               os.startfile(filename)
-          elif platform.system() == "Darwin":
+          elif 'Darwin' in platform.system():
             if os.access(filename, os.X_OK):
-              logging.warning("Won't run programs by double-click.")
+              logging.warning("It seems that executing the python program is the default action on this system, which is processed when double clicking a file. Please change that to open the file witrh your favourite editor, to use this feature.")
             else:
               subprocess.call(("open", filename))
-          elif platform.system() == "Linux":
+          elif 'Linux' in platform.system():
           # Linux comes with many Desktop Enviroments
             if os.access(filename, os.X_OK):
-              logging.warning("Won't run programs by double-click.")
+              logging.warning("It seems that executing the python program is the default action on this system, which is processed when double clicking a file. Please change that to open the file witrh your favourite editor, to use this feature.")
             else:
               try:
                   #Freedesktop Standard
@@ -972,45 +1082,43 @@ class Application(QApplication):
     def createStatusBar(self):
         self._workingMessages = {}
         
-        self._progressWidget = QLabel()
+        self._progressWidget = RotatingIcon(":/resources/vispabutton.png")
         self._window.statusBar().addPermanentWidget(self._progressWidget)
 
-        self._progressTimeLine = QTimeLine(1000, self)
-        self._progressTimeLine.setFrameRange(0, 20)
-        self._progressTimeLine.setLoopCount(0)
-        self.connect(self._progressTimeLine, SIGNAL("frameChanged(int)"), self.setProgress)
-        
-    def setProgress(self, progress):
-        angle = int(progress * 360.0 / 20.0)
-        pixmap = QPixmap(":/resources/vispabutton.png")
-        # if problem with loading png
-        if pixmap.size().width()==0:
-            return
-        rotate_matrix = QMatrix()
-        rotate_matrix.rotate(angle)
-        pixmap_rotated = pixmap.transformed(rotate_matrix)
-        pixmap_moved = QPixmap(pixmap.size())
-        pixmap_moved.fill(Qt.transparent)
-        painter = QPainter()
-        painter.begin(pixmap_moved)
-        painter.drawPixmap((pixmap_moved.width() - pixmap_rotated.width()) / 2.0, (pixmap_moved.height() - pixmap_rotated.height()) / 2.0, pixmap_rotated)
-        painter.end()
-        self._progressWidget.setPixmap(pixmap_moved.scaled(15, 15))
-        
     def startWorking(self, message=""):
+        if len(self._workingMessages.keys()) == 0:
+            self._progressWidget.start()
         self._window.statusBar().showMessage(message + "...")
-        id = len(self._workingMessages.keys())
-        self._workingMessages[id] = message
-        if id == 0:
-            self._progressTimeLine.start()
-        return id
+        self._messageId+=1
+        self._workingMessages[self._messageId] = message
+        self._progressWidget.setToolTip(message)
+        return self._messageId
 
     def stopWorking(self, id, end="done"):
-        self._window.statusBar().showMessage(self._workingMessages[id] + "..." + end + ".")
+        if not id in self._workingMessages.keys():
+            logging.error(self.__class__.__name__ +": stopWorking() - Unknown id %s. Aborting..." % str(id))
+            return
+        if len(self._workingMessages.keys()) > 1:
+            self._window.statusBar().showMessage(self._workingMessages[self._workingMessages.keys()[0]] + "...")
+            self._progressWidget.setToolTip(self._workingMessages[self._workingMessages.keys()[0]])
+        else:
+            self._progressWidget.stop()
+            self._progressWidget.setToolTip("")
+            self._window.statusBar().showMessage(self._workingMessages[id] + "... " + end + ".")
         del self._workingMessages[id]
-        if len(self._workingMessages.keys()) == 0:
-            self._progressTimeLine.stop()
-
-    def tabClosed(self, i):
+            
+    def tabCloseRequest(self, i):
         self.mainWindow().tabWidget().setCurrentIndex(i)
         self.closeFile()
+
+    def showStatusMessage(self, message, timeout=0):
+        self._window.statusBar().showMessage(message, timeout)
+
+    def cancel(self):
+        """ Cancel operations in current tab.
+        """
+        logging.debug(__name__ + ": cancel")
+        try:
+            self.currentTabController().cancel()
+        except NoCurrentTabControllerException:
+            pass

@@ -26,6 +26,7 @@ class TabController(QObject):
         self._userZoomLevel = 100
         self._zoomButtonPressedBeforeFlag = False
         self._fileModifcationTimestamp = None
+        self._showingModifiedMessageFlag=False
            
     #@staticmethod
     def staticSupportedFileTypes():
@@ -43,7 +44,7 @@ class TabController(QObject):
         return self.__class__.staticSupportedFileTypes()
         
     def plugin(self):
-        """ Retruns the plugin reference, set by setPlugin().
+        """ Returns the plugin reference, set by setPlugin().
         """
         return self._plugin
        
@@ -61,6 +62,8 @@ class TabController(QObject):
         """ Sets a filename.
         """
         self._filename = filename
+        if self._filename and os.path.exists(self._filename):
+            self._fileModifcationTimestamp = os.path.getmtime(self._filename)
     
     def filename(self):
         """ Returns filename of this tab.
@@ -89,7 +92,7 @@ class TabController(QObject):
         return self._copyPasteEnabledFlag
     
     def setFindEnabled(self, enable=True):
-        """S ets a flag indicating whether this tab can handle find requests.
+        """Sets a flag indicating whether this tab can handle find requests.
         
         See isFindEnabled(), find().
         """
@@ -102,7 +105,7 @@ class TabController(QObject):
         """
         return self._findEnabledFlag
     
-    def updateLabel(self):
+    def updateLabel(self,prefix=""):
         """ Sets the text of the tab to filename if it is set. 
         
         Otherwise it is set to 'UNTITLED'. It also evaluates the fileModifiedFlag and indicates changes with an *.
@@ -118,19 +121,30 @@ class TabController(QObject):
         if self.isModified():
             title = '*' + title
         
-        self.tab().tabWidget().setTabText(self.tab().tabWidget().indexOf(self.tab()), title)
+        title = prefix+title
+        if self.tab().tabWidget():
+            self.tab().tabWidget().setTabText(self.tab().tabWidget().indexOf(self.tab()), title)
+        else:
+            self.tab().setWindowTitle(title)
         
     def setModified(self, modified=True):
         """ Sets the file Modified flag to True or False.
         
         This affects the closing of this tab.
-        """        
+        It is only possible to set the modification flag to True if the controller is editable (see isEditable()).
+        """
+        if modified and not self.isEditable():
+            return
+        
         previous = self._fileModifiedFlag
         self._fileModifiedFlag = modified
         
         if previous != self._fileModifiedFlag:
-            self.updateLabel()    
-            self.tab().mainWindow().application().currentFileModified()
+            self.updateLabel()
+            if self.tab().mainWindow():
+                self.tab().mainWindow().application().updateMenuAndWindowTitle()
+            else:
+                logging.info(self.__class__.__name__ +": setModified() - Cannot tell application the modification state: There is no application associated with the tab.")
         
     def isModified(self):
         """ Evaluates the file Modified flag. Always returns True if no filename is set.
@@ -140,6 +154,7 @@ class TabController(QObject):
     def setEditable(self, editable):
         """ Sets the file Editable flag.
         """
+        #logging.debug(self.__class__.__name__ +": setEditable(" + str(editable) +")")
         self._isEditableFlag = editable
         self.plugin().application().updateMenu()
         
@@ -148,24 +163,29 @@ class TabController(QObject):
         """
         return self._isEditableFlag
         
-    def open(self, filename=None):
+    def open(self, filename=None, update=True):
         """ Open given file.
         """
-        logging.debug(self.__class__.__name__ + ": readFile()")
+        logging.debug(self.__class__.__name__ + ": open()")
         
+        statusMessage = self.plugin().application().startWorking("Opening file " + filename)
+            
         if filename == None:
             if self._filename:
                 filename = self._filename
             else:
+                self.plugin().application().stopWorking(statusMessage, "failed")
                 return False
         
         if self.readFile(filename):
             self.setFilename(filename)
-            self._fileModifcationTimestamp = os.path.getmtime(filename)
             self.updateLabel()
-            self.updateContent()
+            if update:
+	            self.updateContent()
+            self.plugin().application().stopWorking(statusMessage)
             return True
         
+        self.plugin().application().stopWorking(statusMessage, "failed")
         return False
     
     def readFile(self, filename):
@@ -191,21 +211,27 @@ class TabController(QObject):
                 return self.tab().mainWindow().application().saveFileAsDialog()
         
         statusMessage = self.plugin().application().startWorking("Saving file " + filename)
-            
-        if self.writeFile(filename):
-            if filename != self._filename:
-                self.setFilename(filename)
-            self._fileModifcationTimestamp = os.path.getmtime(filename)
+
+        good=True
+        message=""
+        try:  
+            good=self.writeFile(filename)
+        except Exception,e:
+            good=False
+            message="\n"+str(e)
+        if good:
+            self.setFilename(filename)
             self.setModified(False)
             self.updateLabel()
             self.tab().mainWindow().application().addRecentFile(filename)
-            self.tab().mainWindow().application().currentFileModified()
+            self.tab().mainWindow().application().updateMenuAndWindowTitle()
             self.plugin().application().stopWorking(statusMessage)
             return True
-        
-        QMessageBox.critical(self.tab().mainWindow(), 'Error while saving data', 'Could not write to file ' + filename)
-        self.plugin().application().stopWorking(statusMessage, "failed")
-        return False
+        else:
+            QMessageBox.critical(self.tab().mainWindow(), 'Error while saving data', 'Could not write to file ' + filename +'.'+message)
+            logging.error(self.__class__.__name__ + ": save() : Could not write to file " + filename +'.'+message)
+            self.plugin().application().stopWorking(statusMessage, "failed")
+            return False
 
     def allowClose(self):
         if self.isEditable() and self.isModified():
@@ -230,7 +256,14 @@ class TabController(QObject):
         """ 
         allowClose = self.allowClose()
         if allowClose:
-            self.tab().tabWidget().removeTab(self.tab().tabWidget().indexOf(self.tab()))
+            if self.tab().tabWidget():
+                self.tab().tabWidget().removeTab(self.tab().tabWidget().indexOf(self.tab()))
+            #if self.tab() in self.tab().mainWindow()._tabWindows:
+            #    self.tab().mainWindow()._tabWindows.remove(self.tab())
+            self.tab().close()
+            # no effect?
+            #self._tab.deleteLater()
+            #self._tab = None
         return allowClose
         
     def writeFile(self, filename):
@@ -278,9 +311,11 @@ class TabController(QObject):
             reloadButton = msgBox.addButton("Reload", QMessageBox.DestructiveRole)
             ignoreButton = msgBox.addButton("Ignore", QMessageBox.RejectRole)
         
-        if msgBox:
+        if msgBox and not self._showingModifiedMessageFlag:
             self.setModified()
+            self._showingModifiedMessageFlag=True
             msgBox.exec_()
+            self._showingModifiedMessageFlag=False
             
             if self.isEditable() and msgBox.clickedButton() == saveButton:
                 self.save()
@@ -291,7 +326,8 @@ class TabController(QObject):
                 self._fileModifcationTimestamp = os.path.getmtime(self._filename)
                 
         else:
-            logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was not modified.")
+            #logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was not modified.")
+            pass
     
     def selected(self):
         """ Called by application when tab is selected in tabWidget.
@@ -431,3 +467,11 @@ class TabController(QObject):
             (zoom, ok) = QInputDialog.getInt(self.tab(), "Zoom...", "Input zoom factor in percent:", self.zoom(), 0)
         if ok:
             self.setZoom(zoom)
+            self._userZoomLevel = zoom
+
+    def cancel(self):
+        """ Cancel all operations in tab.
+        
+        This function is called when all current operations in tab shall be canceled.
+        """
+        pass
