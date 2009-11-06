@@ -5,7 +5,10 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=HLTrigger/HLTcore>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
 <export>
   <lib name=1>
 </export>
