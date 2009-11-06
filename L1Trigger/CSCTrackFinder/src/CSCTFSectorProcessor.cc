@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <stdlib.h>
 #include <sstream>
+#include <strings.h>
 
 const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1","F2","F3","F4","F5"};
 

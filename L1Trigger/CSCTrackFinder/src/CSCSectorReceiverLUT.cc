@@ -17,6 +17,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <fstream>
+#include <cstring>
 
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
