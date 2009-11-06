@@ -33,7 +33,7 @@ std::string
 DQMFileSaver::getShowTags(void)
 {
    TString out;
-   FILE *pipe = gSystem->OpenPipe("showtags u -t", "r");
+   FILE *pipe = gSystem->OpenPipe("showtags -u -t", "r");
 
    TString line;
    while (line.Gets(pipe,true)) {
