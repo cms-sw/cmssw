@@ -9,7 +9,6 @@
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::Exercises3"/>
-  <class name="pftools::CandidateWrapper" />
   <class name="pftools::IO" />
   <class name="pftools::PFClusterCalibration" />
   <class name="pftools::Erl_mlp" />

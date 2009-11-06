@@ -81,7 +81,8 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::TrackTauImpactParameterAssociationMapType"/>
-  <class name="reco::TrackTauImpactParameterAssociationRefType"/>
+  <!--commented out because the typedef resolves to a class with dictionary in DataFormats/TrackReco-->
+  <!--class name="reco::TrackTauImpactParameterAssociationRefType"/-->
   <class name="reco::TauImpactParameterTrackData"/>
   <class name="reco::TauImpactParameterInfo"/>
   <class name="reco::TauImpactParameterInfoCollection"/>
@@ -128,7 +129,8 @@
   <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <class name="reco::JetEisolAssociation"/>
-  <class name="reco::JetEisolAssociationCollection"/>
+  <!--commented out because the typedef resolves to a class with dictionary in DataFormats/JetReco-->
+  <!--class name="reco::JetEisolAssociationCollection"/-->
   <class name="reco::JetEisolAssociationRef"/>
   <class name="reco::JetEisolAssociationRefProd"/>
   <class name="reco::JetEisolAssociationRefVector"/>

@@ -67,7 +67,8 @@
   <function name="reco::JetFloatAssociation::hasJet"/>
 
   <class name="edm::Wrapper<reco::JetTracksAssociation::Container>" />
-  <class name="reco::JetTracksAssociation::Values"/>
+  <!--commented out because the dictionary is in DataFormats/TrackReco-->
+  <!--<class name="reco::JetTracksAssociation::Values"/-->
   <class name="reco::JetTracksAssociation::value_type"/>
   <class name="reco::JetTracksAssociation::transient_vector_type"/>
   <class name="reco::JetTracksAssociation::Ref"/>

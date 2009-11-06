@@ -6,7 +6,9 @@
        ========================================================================================================================== -->
 
   <!-- To go into DataFormats/Candidate -->
+  <!--
   <class name="std::vector<reco::CandidatePtr>" />
+  -->
   <class name="edm::ValueMap<reco::CandidatePtr>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::CandidatePtr> >" />
   <class name="std::pair<std::string,edm::Ptr<reco::Candidate> >" />
@@ -30,7 +32,9 @@
   <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
 
   <!-- To go into DataFormats/TrackReco -->
+  <!--
   <class name="std::vector<reco::TrackRefVector>" />
+  -->
   <class name="edm::ValueMap<reco::TrackRefVector>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
 
@@ -145,8 +149,10 @@
                                    Needed by PAT for Electrons and Photons after reshuffling.
        ========================================================================================================================== -->
 
+  <!--
   <class name="edm::Ptr<reco::GsfElectron>" />
   <class name="edm::PtrVector<reco::GsfElectron>" />
+  -->
 
   <class name="edm::Ptr<reco::BaseTau>" />
   <class name="edm::PtrVector<reco::BaseTau>" />
@@ -154,8 +160,10 @@
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
 
+  <!--
   <class name="edm::Ptr<reco::Jet>" />
   <class name="edm::PtrVector<reco::Jet>" />
+  -->
 
   <class name="edm::Ptr<reco::MET>" />
   <class name="edm::PtrVector<reco::MET>" />

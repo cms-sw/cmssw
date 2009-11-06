@@ -60,11 +60,6 @@
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
 
-  <class pattern="edm::RefBase<*>"/>
-  <class pattern="edm::RefItem<*>">
-    <field name="ptr_" transient="true"/>
-  </class>
-
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
 

@@ -9,8 +9,6 @@
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -45,7 +43,6 @@ namespace {
     //HLTPerformanceInfo::Path::const_iterator pw13;
 
     edm::Ref<reco::CompositeCandidateCollection> rccc;
-    edm::Ref<reco::IsolatedPixelTrackCandidateCollection> riptc;
 
     trigger::TriggerObjectCollection toc;
     trigger::TriggerRefsCollections trc;

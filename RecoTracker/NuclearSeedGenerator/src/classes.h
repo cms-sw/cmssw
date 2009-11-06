@@ -40,14 +40,6 @@ namespace {
           TrajectoryToTrajectoryMapRefProd ttsmrefprod4;
           TrajectoryToTrajectoryMapRefVector ttsmrefvec4;
 
-
-         TrackToTrackMap  amp5;
-          edm::Wrapper<TrackToTrackMap> ampw5;
-          TrackToTrackMap  tts5;
-          TrackToTrackMapRef  ttsmref5;
-          TrackToTrackMapRefProd ttsmrefprod5;
-          TrackToTrackMapRefVector ttsmrefvec5;
-
          TrackToTrajectoryMap  amp6;
           edm::Wrapper<TrackToTrajectoryMap> ampw6;
           TrackToTrajectoryMap  tts6;

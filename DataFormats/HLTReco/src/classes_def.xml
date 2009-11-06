@@ -28,13 +28,11 @@
   <class name="std::vector<edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >"/>
 
-  <class name="edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> >"/>
+  <!--commented out because dictionary is in DataFormats/Candidate-->
+  <!--class name="edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> >"/-->
   <class name="std::vector<edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
-
-  <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
 
   <class name="trigger::TriggerObject"/>
   <class name="trigger::TriggerObjectCollection"/>
