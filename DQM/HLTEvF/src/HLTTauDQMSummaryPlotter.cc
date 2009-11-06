@@ -277,27 +277,36 @@ HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos(std::string folder,std::
 	//Calculate Efficiencies with ref to Matched Objects
 	for(int i =2;i<=eff->getNbinsX();++i)
 	  {
-	    effRefTruth->getTProfile()->SetBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0]);
+	    double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0];
+	    double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1];
+
+	    effRefTruth->getTProfile()->SetBinContent(i-1,efficiency);
 	    effRefTruth->getTProfile()->SetBinEntries(i-1,1);
-	    effRefTruth->getTProfile()->SetBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1]);
+	    effRefTruth->getTProfile()->SetBinError(i-1,sqrt(efficiency*efficiency+err*err));
 	    effRefTruth->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 
 	  }
 	//Calculate Efficiencies with ref to L1
 	for(int i =3;i<=eff->getNbinsX();++i)
 	  {
-	    effRefL1->getTProfile()->SetBinContent(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[0]);
+	    double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[0];
+	    double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[1];
+
+	    effRefL1->getTProfile()->SetBinContent(i-2,efficiency);
 	    effRefL1->getTProfile()->SetBinEntries(i-2,1);
-	    effRefL1->getTProfile()->SetBinError(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[1]);
+	    effRefL1->getTProfile()->SetBinError(i-2,sqrt(efficiency*efficiency+err*err));
 	    effRefL1->setBinLabel(i-2,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 	  }
 
 	//Calculate Efficiencies with ref to previous
 	for(int i = 2;i<=eff->getNbinsX();++i)
 	  {
-	    effRefPrevious->getTProfile()->SetBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[0]);
+	    double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[0];
+	    double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[1];
+
+	    effRefPrevious->getTProfile()->SetBinContent(i-1,efficiency);
 	    effRefPrevious->getTProfile()->SetBinEntries(i-1,1);
-	    effRefPrevious->getTProfile()->SetBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[1]);
+	    effRefPrevious->getTProfile()->SetBinError(i-1,sqrt(efficiency*efficiency+err*err));
 	    effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 	  }
       }
