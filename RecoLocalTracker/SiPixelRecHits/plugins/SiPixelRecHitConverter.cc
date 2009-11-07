@@ -159,20 +159,20 @@ namespace cms
 				// Make a RecHit and add it to the DetSet
 				// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
 				SiPixelRecHit hit( lp, le, detIdObject, cluster);
-				#ifdef SIPIXELRECHIT_HAS_EXTRA_INFO
 				// Copy the extra stuff; unfortunately, only the derivatives of PixelCPEBase
 				// are capable of doing that.  So until we get rid of CPEFromDetPosition
 				// we'll have to dynamic_cast :(
 				// &&& This cast can be moved to the setupCPE, so that it's done once per job.
-				PixelCPEBase * cpeBase = dynamic_cast< PixelCPEBase* >( cpe_ );
+				const PixelCPEBase * cpeBase 
+				  = dynamic_cast< const PixelCPEBase* >( cpe_ );
 				if (cpeBase) {
-					hit.setProbabilityX( cpeBase->probabilityX() );
-					hit.setProbabilityY( cpeBase->probabilityY() );
-					hit.setQBin( cpeBase->qBin() );
-					hit.setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
-					hit.setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
+				  hit.setRawQualityWord( cpeBase->rawQualityWord() );
+				  // hit.setProbabilityX( cpeBase->probabilityX() );
+				  // hit.setProbabilityY( cpeBase->probabilityY() );
+				  // hit.setQBin( cpeBase->qBin() );
+				  // hit.setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
+				  // hit.setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
 				}
-				#endif
 				// 
 				// Now save it =================
 				recHitsOnDetUnit.push_back(hit);
