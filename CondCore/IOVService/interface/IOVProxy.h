@@ -19,7 +19,7 @@ namespace cond {
   class IOVElementProxy {
   public:
     IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime), m_dbSession(){}
-    explici IOVElementProxy(cond::DbSession& dbSession) : 
+    explicit IOVElementProxy(cond::DbSession& dbSession) : 
       m_since(cond::invalidTime), m_till(cond::invalidTime), m_dbSession( dbSession ){}
     IOVElementProxy(cond::Time_t is,
                     cond::Time_t it,
