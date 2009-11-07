@@ -329,8 +329,9 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   
   // Set up base file name and determine the start time.
-  char version[7];
+  char version[8];
   sprintf(version, "_V%04d_", int(version_));
+  version[7]='\0';
   fileBaseName_ = dirName_ + "/" + producer_ + version;
   gettimeofday(&start_, 0);
   saved_ = start_;
