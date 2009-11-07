@@ -6,9 +6,6 @@
 #include <vector>
 #include<sstream>
 
-// to be moved in src
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
 namespace cond {
@@ -16,15 +13,15 @@ namespace cond {
   class PoolTransactionSentry {
   public:
     PoolTransactionSentry(){}
-    PoolTransactionSentry(cond::PoolTransaction & db) : 
+    explicit PoolTransactionSentry(cond::DbSession & db) : 
       elem(new Elem(db)){}      
   private:
     struct Elem {
-      Elem(cond::PoolTransaction & db) : pooldb(db){
-	pooldb.start(true);
+      Elem(cond::DbSession & db) : pooldb(db){
+	pooldb.transaction().start(true);
       }
-      ~Elem() { pooldb.commit();}
-      cond::PoolTransaction & pooldb;
+      ~Elem() { pooldb.transaction().commit();}
+      cond::DbSession pooldb;
     };
     boost::shared_ptr<Elem> elem;
       
@@ -87,10 +84,10 @@ namespace cond {
     PayLoadInspector() {}
 
     PayLoadInspector(const cond::IOVElementProxy & elem) {
-      cond::PoolTransaction & db = *elem.db();
-      db.start(true);
-      load(&db.poolDataSvc(),elem.token());
-      db.commit();
+      cond::DbSession db = elem.db();
+      db.transaction().start(true);
+      load(db,elem.token());
+      db.transaction().commit();
     }
 
     std::string dump() const { return ""; }
@@ -115,18 +112,18 @@ namespace cond {
     }
 
   private:
-    bool load(pool::IDataSvc * svc, std::string const & token) {
+    bool load( cond::DbSession & db, std::string const & token) {
       old = false;
-     bool ok = false;
+      bool ok = false;
       // try wrapper, if not try plain
-      pool::Ref<DataWrapper> ref(svc,token);
+      pool::Ref<DataWrapper> ref = db.getTypedObject<DataWrapper>(token);
       if (ref) {
 	m_data.copyShallow(ref);
 	m_data->data();
 	m_data->summary();
 	ok= true;
       } else {
-	pool::Ref<DataT> refo(svc,token);
+	pool::Ref<DataT> ref =  db.getTypedObject<DataT>(token);
 	if (refo) {
 	  old = true;
 	  m_OldData.copyShallow(refo);
@@ -136,8 +133,6 @@ namespace cond {
       return ok;
     }
     
-    
-
   private:
     bool old;
     pool::Ref<DataWrapper> m_data;
