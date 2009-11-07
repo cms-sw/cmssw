@@ -122,7 +122,7 @@ namespace CastorRecHitPerChan{
 
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits ){
 
- cout << "==>CastorRecHitMonitor::processEvent !!!" << endl;
+ //cout << "==>CastorRecHitMonitor::processEvent !!!" << endl;
 
   if(!m_dbe) { 
     if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
@@ -138,7 +138,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   {
      if(castorHits.size()>0)
     {    
-       cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << endl; 
+       if(fVerbosity>0) cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << endl; 
 
       ////---- loop over all hits
       for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 

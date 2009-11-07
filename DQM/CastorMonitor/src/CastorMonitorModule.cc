@@ -370,7 +370,6 @@ void CastorMonitorModule::reset(){
 //========================== analyze  ===============================//
 //=================================================================//
 void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
-cout << "==>CastorMonitorModule::analyze START !!!" << endl;
 
   // environment datamembers
   irun_     = e.id().run();
@@ -412,9 +411,7 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
   bool digiOK_   = true;
   bool rechitOK_ = true;
 
-
- cout << "==>CastorMonitorModule::analyze 1 !!!" << endl;
- /*
+ 
   ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
  
@@ -428,10 +425,11 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
   if (rawOK_&&!RawData.isValid()) {
     rawOK_=false;
   }
- */
+  
+ 
   //--- MY_DEBUG put it for now
-  HcalUnpackerReport * report = new HcalUnpackerReport();
-  /*
+  //HcalUnpackerReport * report = new HcalUnpackerReport();
+  
   edm::Handle<HcalUnpackerReport> report;  
   try{
     e.getByType(report);
@@ -454,11 +452,12 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
 	fedsListed_ = true;
       }
     }
-  */
+  
 
   //---------------------------------------------------------------//
   //-------------------  try to get digis ------------------------//
   //---------------------------------------------------------------//
+
 
   edm::Handle<CastorDigiCollection> CastorDigi;
 
@@ -472,6 +471,9 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
   if (digiOK_ && !CastorDigi.isValid()) {
     digiOK_=false;
   }
+  
+
+  
   /* MY_DEBUG
   ////---- check that Castor is on by seeing which are reading out FED data
   if ( checkCASTOR_ )
@@ -479,6 +481,7 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
   */ 
  CastorElectronicsMap* readoutMap_ = new CastorElectronicsMap();
  //  CheckCastorStatus(*RawData,*report,*readoutMap_,*CastorDigi);
+
 
   //---------------------------------------------------------------//
   //------------------- try to get RecHits ------------------------//
@@ -496,6 +499,7 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
     rechitOK_ = false;
   }
 
+
   //------------------------------------------------------------//
   //---------------- Run the configured tasks ------------------//
   //-------------- protect against missing products -----------//
@@ -511,7 +515,10 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
   //----------------- Pedestal monitor task ------------------//
   // MY_DEBUG
   // if((PedMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
-    PedMon_->processEvent(*CastorDigi,*conditions_);
+  
+  if(digiOK_)
+  PedMon_->processEvent(*CastorDigi,*conditions_);
+    
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -520,8 +527,11 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
     }
 
 
+
  //----------------- Rec Hit monitor task -------------------------//
   //  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
+
+ if(rechitOK_)
     RecHitMon_->processEvent(*CastorHits);
   if (showTiming_)
     {
@@ -530,11 +540,13 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
+    if(rechitOK_)
     RecHitMonValid_->processEvent(*CastorHits);
-
+    
 
   //---------------- LED monitor task ------------------------//
   //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
+  if(digiOK_)
      LedMon_->processEvent(*CastorDigi,*conditions_);
    if (showTiming_)
      {
@@ -544,17 +556,16 @@ cout << "==>CastorMonitorModule::analyze START !!!" << endl;
      }
   
 
-
-  if(fVerbosity>0 && ievt_%1000 == 0)
+  if(fVerbosity>0 && ievt_%100 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
 
-  if(fVerbosity>0)
-    {
-      cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
+ // if(fVerbosity>0)
+ //   {
+ //     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
       // cout << "    RAW Data   ==> " << rawOK_<< endl;
       // cout << "    Digis      ==> " << digiOK_<< endl;
       // cout << "    RecHits    ==> " << rechitOK_<< endl;
-    }
+//    }
   
   return;
 }
