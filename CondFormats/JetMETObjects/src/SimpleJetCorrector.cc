@@ -3,7 +3,13 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+
+#ifdef STANDALONE
+#include <sstream>
+#include <stdexcept>
+#else
 #include "FWCore/Utilities/interface/Exception.h"
+#endif
 
 //------------------------------------------------------------------------ 
 //--- Default SimpleJetCorrector constructor -----------------------------
@@ -41,8 +47,15 @@ double SimpleJetCorrector::correction(const std::vector<float>& fX,const std::ve
   double tmp    = 0.0;
   double cor    = 0.0;
   int bin = mParameters->binIndex(fX);
-  if (bin<0) 
+  if (bin<0) {
+#ifdef STANDALONE
+    std::stringstream sserr; sserr<<"SimpleJetCorrector ERROR: "
+				  <<"bin variables out of range!";
+    throw std::runtime_error(sserr.str());
+#else
     throw cms::Exception("SimpleJetCorrector")<<" bin variables out of range";
+#endif
+  }
   if (!mDoInterpolation)
     result = correctionBin(bin,fY);
   else
@@ -81,8 +94,16 @@ double SimpleJetCorrector::correction(const std::vector<float>& fX,const std::ve
 //------------------------------------------------------------------------
 double SimpleJetCorrector::correctionBin(unsigned fBin,const std::vector<float>& fY) const 
 {
-  if (fBin >= mParameters->size()) 
+  if (fBin >= mParameters->size()) {
+#ifdef STANDALONE
+    std::stringstream sserr; sserr<<"SimpleJetCorrector ERROR: "
+				  <<"wrong bin: "<<fBin<<": only "
+				  <<mParameters->size()<<" available!";
+    throw std::runtime_error(sserr.str());
+#else
     throw cms::Exception("SimpleJetCorrector")<<" wrong bin: "<<fBin<<": only "<<mParameters->size()<<" are available";
+#endif
+  }
   double result = -1;
   const std::vector<float>& par = mParameters->record(fBin).parameters();
   unsigned N = fY.size();

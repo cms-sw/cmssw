@@ -1,0 +1,10 @@
+2009-11-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+        * add STANDALONE directives, and statements within, which replace
+	the use of cms::Exception by std::runtime_error
+	* add Makefile for standalone compilation of
+	JetCorrectorParameters, SimpleJetCorrector, and
+	FactorizedJetCorrector (based on above STANDALONE directives)
+	* Makefile contains build instructions
+	* replace 'CombinedJetCorrector' with 'FactorizedJetCorrector' in
+	several strings across FactorizedJetCorrector.cc
