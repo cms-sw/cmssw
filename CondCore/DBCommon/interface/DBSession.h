@@ -10,6 +10,7 @@
 //
 // Author:      Zhen Xie
 //
+#warning DBSession is deprecated, please use DbSession
 #include <string>
 //#include "CoralKernel/Context.h"
 //#include "CoralKernel/IHandle.h"
