@@ -1,12 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOnline_cfi.py,v 1.3 2009/02/26 22:50:55 berryhil Exp $
+# $Id: FourVectorHLTOnline_cfi.py,v 1.4 2009/11/07 13:33:05 hdyoo Exp $
 hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     plotAll = cms.untracked.bool(False),
+
+    ptMin = cms.untracked.double(0.0),
     ptMax = cms.untracked.double(100.0),
     Nbins = cms.untracked.uint32(10000),
-    ptMin = cms.untracked.double(0.0),
+
+    oneOverPtMin = cms.untracked.double(0.0),
+    oneOverPtMax = cms.untracked.double(1.0),
+    NbinsOneOver = cms.untracked.uint32(10000),
     paths = cms.VPSet(
 # single jet triggers
              cms.PSet(
