@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.9 2009/11/06 15:13:03 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.8 2009/11/05 13:31:52 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -53,7 +53,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
-  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
+  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
      // this is the list of paths to look at.
@@ -1029,11 +1029,10 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (objectType == trigger::TriggerJet) ptMax = 300.0;
     if (objectType == trigger::TriggerBJet) ptMax = 300.0;
     if (objectType == trigger::TriggerMET) ptMax = 300.0;
-    if (objectType == trigger::TriggerTET) ptMax = 300.0;
+    if (objectType == trigger::TriggerTET) ptMax = 600.0;
     if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
-    // monitor regardless of the objectType of the path
-    if (objectType != -1){
+    if (objectType != 0){
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       //create folder for pathname
      }
@@ -1305,8 +1304,9 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
          if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos && moduleType.find("HLTL1NumberFilterXXX") == string::npos ) || 
             (moduleType.find("Associator") != string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
-            (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) || 
-            (moduleType.find("HLTPrescaler") != string::npos) ) {
+            (moduleType.find("HLTPrescaler") != string::npos) ||
+            (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) 
+	    ) {
 
            std::pair<std::string, int> filterIndexPair;
            filterIndexPair.first   = moduleName;
