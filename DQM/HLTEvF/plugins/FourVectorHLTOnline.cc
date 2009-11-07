@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.8 2009/11/05 13:31:52 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.9 2009/11/06 15:13:03 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1305,6 +1305,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
          if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos && moduleType.find("HLTL1NumberFilterXXX") == string::npos ) || 
             (moduleType.find("Associator") != string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
+            (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) || 
             (moduleType.find("HLTPrescaler") != string::npos) ) {
 
            std::pair<std::string, int> filterIndexPair;
