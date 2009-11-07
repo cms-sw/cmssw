@@ -90,36 +90,50 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const CastorDbService& cond)
 {
   
+ 
   ievt_++;
   meEVT_->Fill(ievt_);
+ 
   
-  if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
+  //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
+
 
   if(!m_dbe) { 
     if(fVerbosity>0) cout<<"CastorPedestalMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
+
   CaloSamples tool;  
+  
  
    try{
     for (CastorDigiCollection::const_iterator j=cast.begin(); j!=cast.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
 
+ 
        ////---- get access to Castor Pedestal in the CONDITION DATABASE
        /////// calibs_= cond.getCastorCalibrations(digi.id());  //-- in HCAL code 
-       const CastorPedestal* ped = cond.getPedestal(digi.id()); 
-       const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
+       // const CastorPedestal* ped = cond.getPedestal(digi.id()); 
+       // const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
+
+
 
        detID_.clear(); capID_.clear(); pedVals_.clear();
+ 
+
       
+      /*
        ////---- if to convert ADC to fC 
       if(doFCpeds_){
 	channelCoder_ = cond.getCastorCoder(digi.id());
 	CastorCoderDb coderDB(*channelCoder_, *shape_);
 	coderDB.adc2fC(digi,tool);
       }
+      */
+      
 
+/*
       ////---- fill Pedestal Mean and RMS values from the CONDITION DATABASE
       for(int capID=0; capID<4; capID++){
            ////---- pedestal Mean from the Condition Database
@@ -135,6 +149,7 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
            castHists.WIDTH_REFS->Fill(width);
            WIDTH_REFS->Fill(width);
      }
+  */
       
       ////---- fill ALL Pedestal Values 
       for (int i=0; i<digi.size(); i++) {
