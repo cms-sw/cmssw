@@ -125,7 +125,7 @@ namespace cond {
 	m_data->summary();
 	ok= true;
       } else {
-	pool::Ref<DataT> ref =  db.getTypedObject<DataT>(token);
+	pool::Ref<DataT> refo =  db.getTypedObject<DataT>(token);
 	if (refo) {
 	  old = true;
 	  m_OldData.copyShallow(refo);
