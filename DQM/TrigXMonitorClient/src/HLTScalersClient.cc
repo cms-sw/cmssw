@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.9 2009/11/04 03:44:54 lorenzo Exp $
+// $Id: HLTScalersClient.cc,v 1.10 2009/11/04 06:00:05 lorenzo Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.10  2009/11/04 06:00:05  lorenzo
+// changed folders
+//
 // Revision 1.9  2009/11/04 03:44:54  lorenzo
 // added folder param
 //
@@ -158,6 +161,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       hltCurrentRate_[whichHisto]->setBinLabel(whichBin, sname.c_str());
       snprintf(pname, 256, "Rate - path %s (Path # %03d)", sname.c_str(), i);
       rateHistories_[i]->setTitle(pname);
+      currentRate_->setBinLabel(i+1, sname.c_str());
+      scalers->setBinLabel(i+1, sname.c_str());
     }
     first_ = false;
   }
@@ -194,7 +199,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
     }
     currentRate_->setBinContent(i, rate);
-    hltCurrentRate_[i/kPerHisto]->setBinContent(i%kPerHisto+1, rate);
+    hltCurrentRate_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
     //currentRate_->setBinError(i, error);
     scalerCounters_[i-1] = ulong(current_count);
     rateHistories_[i-1]->setBinContent(nL, rate);
