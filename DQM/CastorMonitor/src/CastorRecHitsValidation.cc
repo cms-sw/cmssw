@@ -39,14 +39,13 @@ void CastorRecHitsValidation::reset(){
 void CastorRecHitsValidation::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
  CastorBaseMonitor::setup(ps,dbe);
- baseFolder_ = rootFolder_+"CastorRecHitsV";
+ baseFolder_ = rootFolder_+"CastorRecHitsValid";
 
  cout << "CastorRecHitsValidation::setup (start)" << endl;
 
  
  if ( m_dbe !=NULL ) {  
- 
-m_dbe->setCurrentFolder("CastorRecHitsV/CastorRecHitsTask");
+   m_dbe->setCurrentFolder(baseFolder_);
 
     //*************** rec hits ***************************   
 histo = "CastorRecHits in modules";
