@@ -36,14 +36,6 @@ BINDIR       = $(STANDALONE_DIR)/bin
 
 CXX          = g++
 
-# maxosx
-#CXX_SHRD     = -dynamiclib
-#LIB_SUFX     = dylib
-
-# linux
-CXX_SHRD     = -shared
-LIB_SUFX     = so
-
 
 ROOTCXXFLAGS = $(shell $(ROOTSYS)/bin/root-config --cflags)
 CXXFLAGS     = -O3 -Wall -fPIC -DSTANDALONE -I. $(ROOTCXXFLAGS)
@@ -54,7 +46,7 @@ OBJS         = $(TMPDIR)/JetCorrectorParameters.o \
 	       $(TMPDIR)/SimpleJetCorrector.o \
                $(TMPDIR)/FactorizedJetCorrector.o
 
-LIB          = libJetMETObjects.$(LIB_SUFX)
+LIB          = libJetMETObjects.so
 
 
 all: setup lib
@@ -66,7 +58,7 @@ setup:
 	mkdir -p $(BINDIR)
 
 lib: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(CXX_SHRD) $(OBJS) $(ROOTLIBS) -o $(LIBDIR)/$(LIB)
+	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(ROOTLIBS) -o $(LIBDIR)/$(LIB)
 
 clean:
 	rm -rf $(OBJS) $(LIBDIR)/$(LIB) CondFormats
