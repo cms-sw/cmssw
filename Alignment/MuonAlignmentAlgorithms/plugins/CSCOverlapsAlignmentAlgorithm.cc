@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.4 2009/03/27 09:20:48 flucke Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.5 2009/04/03 08:59:34 flucke Exp $
 //
 //
 
@@ -66,6 +66,7 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       double redChi2(const std::vector<const TrackingRecHit*> &hits, bool convention2pi, double zcenter, double intercept, double slope);
       bool summarize(Alignable *ali, double &rotyDiff, double &rotyDiff_err2, double &twistDiff, double &twistDiff_err2, double &phiPosDiff, double &phiPosDiff_err2, double &rotzDiff, double &rotzDiff_err2, double &rotyDiffRMS, double &phiPosDiffRMS, double &rotzDiffRMS);
       bool summarize2(Alignable *ai, Alignable *aiprev, double &resid_i, double &resid_err2_i, double &resid_iprev, double &resid_err2_iprev, double &residRMS_i, double &residRMS_iprev);
+      bool summarize3(Alignable *ai, double &resid_i, double &resid_err2_i, double &residRMS_i);
       bool matrixSolution(int endcap, int station, int ring);
 
       AlignmentParameterStore* m_alignmentParameterStore;
@@ -172,7 +173,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
        for (int station = 1;  station <= 4;  station++) {
 	 int rings = 2;
 	 if (station == 1) rings = 4;
-	 if (station == 4) rings = 1;
+	 if (station == 4) rings = 2;   // ME4/2 exists now
 	 for (int ring = 1;  ring <= rings;  ring++) {
 	   std::stringstream name;
 	   name << "ME" << (endcap == 1 ? "p" : "m") << station << "_" << ring;
@@ -845,6 +846,30 @@ bool CSCOverlapsAlignmentAlgorithm::summarize2(Alignable *ai, Alignable *aiprev,
   return true;
 }
 
+bool CSCOverlapsAlignmentAlgorithm::summarize3(Alignable *ai, double &resid_i, double &resid_err2_i, double &residRMS_i) {
+  double rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i;
+
+  if (!summarize(ai, rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i)) return false;
+
+  if (m_mode == std::string("roty")) {
+    resid_i = rotyDiff_i;
+    resid_err2_i = rotyDiff_err2_i;
+    residRMS_i = rotyDiffRMS_i;
+  }
+  else if (m_mode == std::string("phipos")) {
+    resid_i = phiPosDiff_i;
+    resid_err2_i = phiPosDiff_err2_i;
+    residRMS_i = phiPosDiffRMS_i;
+  }
+  else if (m_mode == std::string("rotz")) {
+    resid_i = rotzDiff_i;
+    resid_err2_i = rotzDiff_err2_i;
+    residRMS_i = rotzDiffRMS_i;
+  }
+  
+  return true;
+}
+
 bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int ring) {
   int nchambers = 36;
   if (station > 1  &&  ring == 1) nchambers = 18;
@@ -867,14 +892,63 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     if (a[i] == NULL) throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " is not alignable; please correct the configuration)" << std::endl;
   }
 
+  // try to recover rings with one contiguous break
+  double sum_of_residuals = 0.;
+  std::vector<bool> okaymap;
+  for (int i = 0;  i < nchambers;  i++) {
+    double rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i;
+    if (summarize(a[i], rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i)) {
+       if (m_mode == std::string("roty")) {
+	  sum_of_residuals += rotyDiff_i;
+       }
+       else if (m_mode == std::string("phipos")) {
+	  sum_of_residuals += phiPosDiff_i;
+       }
+       else if (m_mode == std::string("rotz")) {
+	  sum_of_residuals += rotzDiff_i;
+       }
+
+       okaymap.push_back(true);
+    }
+    else {
+       okaymap.push_back(false);
+    }
+  }
+
+  int numdiffs = 0;
+  int nummissing = 0;
+  for (int i = 0;  i < nchambers;  i++) {
+    int iprev = (i + nchambers - 1) % nchambers;
+    if (okaymap[i] != okaymap[iprev]) numdiffs++;
+    if (!okaymap[i]) nummissing++;
+  }
+
   for (int i = 0;  i < nchambers;  i++) {
     int iprev = (i + nchambers - 1) % nchambers;
     int inext = (i + 1) % nchambers;
 
     double resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev;
     if (!summarize2(a[i], a[iprev], resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev)) {
-      edm::LogError("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " has " << m_rotyDiff_N[a[i]] << " and chamber " << iprev+1 << " has " << m_rotyDiff_N[a[iprev]] << " tracks, while the minimum is " << m_minTracksPerAlignable << "); skipping this ring." << std::endl;
-      return false;
+       if (numdiffs > 2  ||  nummissing > nchambers - 2) {
+	  edm::LogError("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " has " << m_rotyDiff_N[a[i]] << " and chamber " << iprev+1 << " has " << m_rotyDiff_N[a[iprev]] << " tracks, while the minimum is " << m_minTracksPerAlignable << "); numdiffs " << numdiffs << " nummissing " << nummissing << " skipping this ring." << std::endl;
+	  return false;
+       }
+
+       // patch by assuming perfect closure if missing
+       if (!summarize3(a[i], resid_i, resid_err2_i, residRMS_i)) {
+	  if (nummissing == 1) resid_i = -sum_of_residuals;
+	  else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_i = -sum_of_residuals / 2.;
+	  else resid_i = 0.;
+	  resid_err2_i = 0.;
+	  residRMS_i = 0.;
+       }
+       if (!summarize3(a[iprev], resid_iprev, resid_err2_iprev, residRMS_iprev)) {
+	  if (nummissing == 1) resid_iprev = -sum_of_residuals;
+	  else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_iprev = -sum_of_residuals / 2.;
+	  else resid_iprev = 0.;
+	  resid_err2_iprev = 0.;
+	  residRMS_iprev = 0.;
+       }
     }
 
     v[i] = resid_iprev - resid_i;
@@ -980,8 +1054,16 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     int iprev = (i + nchambers - 1) % nchambers;
     int inext = (i + 1) % nchambers;
 
-    double resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev;
-    summarize2(a[i], a[iprev], resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev);  // already verified to return true (above)
+    bool itsmissing = false;
+    double resid_i, resid_err2_i, residRMS_i;
+    if (!summarize3(a[i], resid_i, resid_err2_i, residRMS_i)) {
+       if (nummissing == 1) resid_i = -sum_of_residuals;
+       else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_i = -sum_of_residuals / 2.;
+       else resid_i = 0.;
+       resid_err2_i = 0.;
+       residRMS_i = 0.;
+       itsmissing = true;
+    }
 
     double chi2i = pow(resid_i - p[inext] + p[i], 2.);
 
@@ -989,14 +1071,20 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     if (m_mode == std::string("roty")) Ntracks = m_rotyDiff_N[a[i]];
     else if (m_mode == std::string("phipos")) Ntracks = m_phiPosDiff_N[a[i]];
     else if (m_mode == std::string("rotz")) Ntracks = m_rphiPosDiff_N[a[i]];
-    double RMSoverSqrtN = residRMS_i / sqrt(Ntracks);
-    total_closure_errFromRMS += RMSoverSqrtN * RMSoverSqrtN;
-
+    
     std::stringstream plusorminus;
     if (m_useFitWeightsInMean) plusorminus << " +- " << sqrt(resid_err2_i);
-    output << (inext+1) << "-" << (i+1) << " residuals: " << resid_i << plusorminus.str() << " RMS/sqrt(" << Ntracks << "): " << RMSoverSqrtN << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
-    output << "delta parameter " << (j+1) << ": " << p[j] << std::endl;
 
+    if (itsmissing) {
+       output << (inext+1) << "-" << (i+1) << " is missing (ntracks: " << Ntracks << ") faked with " << resid_i << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
+    }
+    else {
+       double RMSoverSqrtN = residRMS_i / sqrt(Ntracks);
+       total_closure_errFromRMS += RMSoverSqrtN * RMSoverSqrtN;
+       output << (inext+1) << "-" << (i+1) << " residuals: " << resid_i << plusorminus.str() << " RMS/sqrt(" << Ntracks << "): " << RMSoverSqrtN << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
+    }
+    output << "delta parameter " << (j+1) << ": " << p[j] << std::endl;
+    
     total_closure += resid_i;
     total_closure_err2 += resid_err2_i;
     old_chi2 += pow(resid_i, 2.);
@@ -1008,7 +1096,7 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
   mean_term = mean_term / nchambers / nchambers;
   new_chi2 += pow(mean_term, 2.);
 
-  output << "Mean of corrections: " << mean_term << std::endl;
+  output << "Mean of corrections: " << -mean_term * nchambers << std::endl;
   std::stringstream plusorminus;
   if (m_useFitWeightsInMean) plusorminus << " +- " << sqrt(total_closure_err2);
   output << "Total closure: " << total_closure << plusorminus.str() << " ErrFromRMS: " << sqrt(total_closure_errFromRMS) << " closure per chamber: " << total_closure / nchambers << std::endl;
