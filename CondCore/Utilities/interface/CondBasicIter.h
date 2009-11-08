@@ -13,7 +13,7 @@ namespace cond {
 
 class CondBasicIter{
 
-    private:
+private:
         
   cond::IOVIterator* ioviterator;
   std::string payloadContainer;
