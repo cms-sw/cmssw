@@ -18,7 +18,7 @@ MyBeamSpot= RecoVertex.BeamSpotProducer.BeamSpot_cfi.offlineBeamSpot.clone()
 #0: filter on L1 trigger bit - if you really want to, remember to add to the path the entry "l1Filter"
 
 import L1Trigger.Configuration.L1Config_cff
-import L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1x1032.L1Menu_CRUZET200805_gr7_muon_cff ###WHAT IS THE RIGTH ONE ????
+#import L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1x1032.L1Menu_CRUZET200805_gr7_muon_cff ###WHAT IS THE RIGTH ONE ????
 import L1Trigger.Skimmer.l1Filter_cfi
 ALCAl1Filter =  L1Trigger.Skimmer.l1Filter_cfi.l1Filter.clone(
     #algorithms=('L1_DoubleMuTopBottom')
@@ -31,9 +31,10 @@ ALCAl1Filter =  L1Trigger.Skimmer.l1Filter_cfi.l1Filter.clone(
 #1: first refit to the tracks, needed for getting the Traj
 
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-import TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi
+#import TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi
+import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 #FittingSmootherCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff.FittingSmootherRK.clone(
-FittingSmootherCustomised =TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+FittingSmootherCustomised =TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'FittingSmootherCustomised',
     EstimateCut=18.0,
     MinNumberOfHits=6
