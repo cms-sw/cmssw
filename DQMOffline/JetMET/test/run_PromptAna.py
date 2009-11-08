@@ -27,6 +27,10 @@ print 'allhist (default=True) = '+str(allhist)
 read_from_file = (os.environ.get('READ_LIST_FROM_FILE',False))
 print 'read list of input files from a text file (default=False) = '+str(read_from_file)
 #
+#--- [trigger set (default=HLT)]
+trigger_set = (os.environ.get('TRIGGER_SET','HLT'))
+print 'trigger set name (default=HLT) = '+str(trigger_set)
+#
 #--- [define list of input files]
 inputfiles = []
 if read_from_file :
@@ -78,8 +82,10 @@ else:
 
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
-process.jetMETAnalyzer.processname = cms.string("HLT8E29")
+process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.jetMETAnalyzer.processname = cms.string(trigger_set)
+#process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
+#process.jetMETAnalyzer.processname = cms.string("HLT8E29")
 if allhist:
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
 
