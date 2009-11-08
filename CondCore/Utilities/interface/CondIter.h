@@ -75,6 +75,9 @@ It needs:
   
   
   T const * next(int test = 1);
+
+
+  pool::Ref<T> const & CondIter<T>::whatRef() const;
   
   /**
      Set the range of interest of the Iterator of the IOVs: thus when you call the method next() you get from min to max
@@ -159,6 +162,10 @@ template <class T> void CondIter<T>::create(const std::string & NameDB,const std
   Reference = 0;
   
 }
+
+
+template <class T>
+pool::Ref<T> const & CondIter<T>::whatRef() const { return ref;}
 
 
 template <class T> T const * CondIter<T>::next(int test) {
