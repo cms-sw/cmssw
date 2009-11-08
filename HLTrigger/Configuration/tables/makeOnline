@@ -5,8 +5,8 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_2_4/HLT"       # no version, take the latest one
-TARGET="/online/cosmic/CRAFT09/HLT" # where to store the online-compliant menu
+MASTER="/dev/CMSSW_3_3_1/HLT"                       # no version, take the latest one
+TARGET="/online/cosmic/week44/CMSSW_3_3_1/HLT"      # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
@@ -40,7 +40,7 @@ function runCreateConfig() {
 }
 
 echo "ConfDB master: $MASTER"
-echo "Online menu:   $TARGET/"
+echo "Online menu:   $TARGET"
 read -p "Enter password for DB: " -s PASSWORD
 echo
 
