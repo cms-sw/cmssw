@@ -102,7 +102,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     ProblemCells=m_dbe->book2D(" HardwareWatchCells",
 			       " Hardware Watch Cells for HCAL",
-			       85,-42.5,45.5,
+			       85,-42.5,42.5,
 			       72,0.5,72.5);
     ProblemCells->setAxisTitle("i#eta",1);
     ProblemCells->setAxisTitle("i#phi",2);
@@ -830,12 +830,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     //Fake a problem with each HTR a unique number of times.
     //if ( (spigot+1) >= ievt_ ) 
-    //  mapHTRproblem(dcc_,spigot); 
+    //mapHTRproblem(dcc_,spigot); 
 
     //Fake a problem with each real calorimeter cell a unique number of times.
-    //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
-    //  if (htrchan>ievt_)
-    //	mapChannproblem(dcc_,spigot,htrchan); 
+    //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) {
+    //  //  if (htrchan>ievt_)
+    //  mapChannproblem(dcc_,spigot,htrchan); }
 
     MonitorElement* tmpErr = 0;
     HcalDetId HDI = hashedHcalDetId_[hashup(dcc_,spigot)];
@@ -892,7 +892,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	    mapHTRproblem(dcc_,spigot); break;
 	  case ( 5): //LW
 	    HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
-	    mapHTRproblem(dcc_,spigot); break;
+	    //Sometimes set spuriously at startup, per-fiber, .: Leniency: 8
+	    if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) {
+	      mapHTRproblem(dcc_,spigot); break; }
 	  case ( 3): //L1 (previous L1A violated trigger rules)
 	    DataFlowInd_[fed2offset+1][spg3offset+0]++; break;
 	  case ( 1): //BZ
@@ -1198,7 +1200,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
       if (DataFlowInd_[x][y])
 	meDataFlowInd_->setBinContent(x+1,y+1,DataFlowInd_[x][y]);
 
-  uint64_t probfrac=0;
+  uint64_t probcnt=0;
 
   int etabins=0;
   int phibins=0;
@@ -1216,14 +1218,14 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	{
 	  for (int phi=0;phi<phibins;++phi)
 	    {
-	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
-	      if (probfrac==0) continue;
+	      probcnt=((uint64_t) problemcount[eta][phi][depth] );
+	      if (probcnt==0) continue;
 	      filleta=CalcIeta(eta,depth+1); // calculate ieta from eta counter
 	      // Offset true ieta for HF plotting
-	      if (isHF(eta,depth+1))
+	      if (isHF(eta,depth+1)) 
 		filleta<0 ? filleta-- : filleta++;
-	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probfrac);
-	      ProblemCells->Fill(filleta,phi+1,probfrac);
+	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probcnt);
+		ProblemCells->Fill(filleta,phi+1,probcnt); 
 	    }
 	}
     }
@@ -1233,12 +1235,12 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int eta=0;eta<etabins;++eta)
     {
       for (int phi=0;phi<phibins;++phi)
-	{
+  	{
 	  if (ProblemCells->getBinContent(eta+1,phi+1)>ievt_)
-	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
-	}
+  	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
+  	}
     }
-
+  
   FillUnphysicalHEHFBins(ProblemCells);
   FillUnphysicalHEHFBins(ProblemCellsByDepth);
 } //UpdateMEs
