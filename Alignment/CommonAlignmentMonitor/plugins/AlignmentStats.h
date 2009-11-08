@@ -61,7 +61,8 @@ class AlignmentStats: public edm::EDAnalyzer{
   DetHitMap hitmap_;
   DetHitMap overlapmap_;
 
-  edm::ESHandle<TrackerGeometry> trackerGeometry_;
+  //  edm::ESHandle<TrackerGeometry> trackerGeometry_;
+  const TrackerGeometry* trackerGeometry_;
 };
 
 

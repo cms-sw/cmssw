@@ -62,7 +62,7 @@ do
   echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
   echo
   ###DAT_FILE="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v1.4/data/${ALCATAG}.dat"
-  DAT_FILE="${curdir}/data/${ALCATAG}.dat"
+  DAT_FILE="${curdir}/../data/${ALCATAG}.dat"
   TPL_FILE="TkAlCaRecoPrescaling.${ALCATAG}.tpl"
   TAG=$ALCATAG #"CRAFT" 
   JOBTAG="ALCAPresc_"${TAG}
@@ -94,7 +94,7 @@ time cmsRun mergemytree_${TAG}_cfg.py
 
 #pick the total nr events in this file from the previously produced nevents.out
     let TOTFILES=TOTFILES+1
-    TOTEVTS=$(sed -n $TOTFILES'p' ./data/nevents${TAG}.out)
+    TOTEVTS=$(sed -n $TOTFILES'p' ../data/nevents${TAG}.out)
 #echo "The file #$TOTFILES has $TOTEVTS events"
 
     TOTSPLITS=$(( ( $TOTEVTS / $MAXEVENTS ) +1 ))

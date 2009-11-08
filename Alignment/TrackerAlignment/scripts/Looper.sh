@@ -13,7 +13,7 @@ echo "Program launched from $(hostname) at $(date) "
 echo
 echo
 
-CASTOR_OUT="/castor/cern.ch/cms/store/user/bonato/CRAFTReproSkims/Summer09/MinBias/"
+CASTOR_OUT="/castor/cern.ch/cms/store/user/bonato/CRAFTReproSkims/Summer09/test/"
 MYCMSSW_RELEASE="$CMSSW_BASE"
 
 #prepare the scripts
@@ -29,7 +29,7 @@ for ALCATAG in  $( cat "taglist.txt" )
 do
 echo ""
 echo "Counting events for ${ALCATAG} ; Log in ./log_nevents_${ALCATAG}.out"
-time ./cntevts_in_file.sh  "./data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
+#time ./cntevts_in_file.sh  "../data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
 done
 
 
@@ -37,8 +37,13 @@ done
 echo ""
 echo "~~~ Starting SkimLooper at $(date)"
 echo
+chmod 711 SkimLooper.sh
+chmod 711 skim_exec.sh
 ./SkimLooper.sh "taglist.txt" 3
-
+if [ $? != 0 ]
+    then
+    exit 2
+fi
 sleep 1200 #wait for half an hour
 
 #check that all the files from SkimLooper are done
@@ -66,8 +71,13 @@ done
 echo ""
 echo "~~~ Starting PrescaleLooper at $(date)"
 echo
+chmod 711 PrescaleLooper.sh
+chmod 711 presc_exec.sh
 ./PrescaleLooper.sh "taglist.txt" 3
-
+if [ $? != 0 ]
+    then
+    exit 3
+fi
 echo
 echo
 echo "Finished operations at $(date)"

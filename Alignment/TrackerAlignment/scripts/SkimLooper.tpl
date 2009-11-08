@@ -10,7 +10,7 @@ curdir=$(pwd)
 #CASTOR_OUT="/castor/cern.ch/cms/store/user/bonato/CRAFTReproSkims/Craft09/4T/"
 ALCAFILELIST=$1
 CASTOR_OUT="<CASTOROUT>"
-DQM_OUT="${curdir}/MONITORING/DQM/"
+DQM_OUT="/${curdir}/MONITORING/DQM/"
 MAXEVENTS=18000
 
 curdir=$( pwd )
@@ -27,7 +27,7 @@ fi
 
 
 #check if DQM output directory exists
-nsls $DQM_OUT
+ls $DQM_OUT
 if [ $? -ne 0 ]
 then
 echo "DQM directory: "
@@ -75,7 +75,7 @@ do
   echo "*****************************************"
   echo
 #  DAT_FILE="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v1.4/data/${ALCATAG}.dat"
-  DAT_FILE="${curdir}/data/${ALCATAG}.dat"
+  DAT_FILE="${curdir}/../data/${ALCATAG}.dat"
   TPL_FILE="TkAlCaRecoSkimming.${ALCATAG}.tpl"
   TAG=$ALCATAG #"CRAFT"
   JOBTAG="ALCASkim_"$TAG
@@ -96,7 +96,7 @@ do
 
 #pick the total nr events in this file from the previously produced nevents.out
     let TOTFILES=TOTFILES+1
-    TOTEVTS=$(sed -n $TOTFILES'p' ./data/nevents${ALCATAG}.out)
+    TOTEVTS=$(sed -n $TOTFILES'p' ../data/nevents${ALCATAG}.out)
 #echo "The file #$TOTFILES has $TOTEVTS events"
 
     TOTSPLITS=$(( ( $TOTEVTS / $MAXEVENTS ) +1 ))
@@ -119,6 +119,11 @@ do
 	  replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev "<ALCATAG>" $TAG < $TPL_FILE > $CFG_FILE
 	  let INDEX=INDEX+1
 	  let nsplits=nsplits+1
+#     if [ $INDEX -ge 3 ]
+# 	then
+# 	echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	break
+#     fi
 	done
 
     else #file is small and does not contain too many events
@@ -128,7 +133,20 @@ do
 	CFG_FILE=$BASE_TPL"."$TAG"_cfg."$INDEX".py"
 	replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev  "<ALCATAG>" $ALCATAG < $TPL_FILE > $CFG_FILE
 	let INDEX=INDEX+1
+
+# if [ $INDEX -ge 3 ]
+# 	then
+# 	    echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	break
+# 	fi
+
     fi
+
+#    if [ $INDEX -ge 3 ]
+#	then
+#	echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+#	break
+#    fi
 
 #echo "--- moving to next file. At the moment INDEX=$INDEX"
 
@@ -150,16 +168,17 @@ do
 ##if [ $INDEX -gt 126 -a $INDEX -lt 133 ] # dummy
 ##then 
     echo "Submitting $JOBNAME with config file $CFG_FILE"
+
     if [ $INDEX -lt 100 ]
 	then
-#	echo "dummy A" 
+	#echo "dummy A" 
 	bsub -q cmscaf1nd -J $JOBNAME -oo $LOGFILE skim_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT" "$DQM_OUT"
     elif [ $INDEX -lt 200 ] 
 	then 
-#echo "dummy B" 
+	#echo "dummy B" 
 	bsub -q cmsexpress -J $JOBNAME -oo $LOGFILE skim_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT" "$DQM_OUT"
     else
-#echo "dummy C" 
+	#echo "dummy C" 
 	bsub -q cmscaf1nh    -J $JOBNAME -oo $LOGFILE skim_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT" "$DQM_OUT"
     fi
 

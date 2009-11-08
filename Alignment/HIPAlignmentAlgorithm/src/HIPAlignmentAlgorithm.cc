@@ -436,8 +436,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	//check if the pointer to the AliHitValueMap is not empty
 	/*
 	  AliClusterValueMap PrescMap;
-	  if (eventInfo.hitVM_){
-	  PrescMap=*(eventInfo.hitVM_);
+	  if (eventInfo.clusterValueMap_){
+	  PrescMap=*(eventInfo.clusterValueMap_);
 	  } 
 	*/
 	TrajectoryStateCombiner tsoscomb;
@@ -502,7 +502,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 			  
 			  //////////Hit prescaling part
 			  bool skiphit=false;
-			  if (eventInfo.hitVM_){
+			  if (eventInfo.clusterValueMap_){
 			    //check from the PrescalingMap if the hit was taken. 
 			    //If not skip to the next TM
 			    //bool hitTaken=false;
@@ -519,7 +519,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 				if (stripHit1D) {
 				  SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
 				  // myflag=PrescMap[stripclust];
-				  myflag=(*eventInfo.hitVM_)[stripclust];
+				  myflag=(*eventInfo.clusterValueMap_)[stripclust];
 				}
 				else{
 				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
@@ -530,7 +530,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 				if(stripHit2D){
 				  SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
 				  //myflag=PrescMap[stripclust];
-				  myflag=(*eventInfo.hitVM_)[stripclust];
+				  myflag=(*eventInfo.clusterValueMap_)[stripclust];
 				}
 				else{
 				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
@@ -542,7 +542,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 			      if(pixelhit){
 				SiPixelClusterRefNew  pixelclust(pixelhit->cluster());
 				//myflag=PrescMap[pixelclust];
-				myflag=(*eventInfo.hitVM_)[pixelclust];
+				myflag=(*eventInfo.clusterValueMap_)[pixelclust];
 			      }
 			      else{
 				 edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;

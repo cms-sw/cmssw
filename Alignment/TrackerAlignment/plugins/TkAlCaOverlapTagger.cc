@@ -22,9 +22,10 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+//#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "Utilities/General/interface/ClassName.h"
 
@@ -122,7 +123,6 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       DetId detid = hit->geographicalId();
       int layer(layerFromId(detid));//layer 1-4=TIB, layer 5-10=TOB
       int subDet = detid.subdetId();
-     
 
       if ( ( previousTM!=0 )&& (layer!=-1 )) {
 	for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare =itTrajMeas-1;itmCompare >= tmColl.begin() &&  itmCompare > itTrajMeas - 4;--itmCompare){
@@ -137,31 +137,52 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    AlignmentClusterFlag hitflag(hit->geographicalId());
 	    hitflag.SetOverlapFlag();
 	    // cout<<"Overlap found in SubDet "<<subDet<<"!!!"<<flush;
-	    
-	    if (subDet>2){
-	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;	  
-	      const TSiStripRecHit2DLocalPos* transstriphit = dynamic_cast<const  TSiStripRecHit2DLocalPos*>(hit);
-	     
-	      if(transstriphit!=0){
-		const SiStripRecHit2D* striphit=transstriphit->specificHit();   
-		//  cout<<"Pointer to SiStripRecHit2D= "<<striphit<<endl;
-		SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-		
-		if(stripclust.id()==stripclusters.id()){//ensure that the pixclust is really present in the original cluster collection!!!
-		  stripvalues[stripclust.key()]=hitflag;
 
-		  //cout<<">>> Storing in the ValueMap a StripClusterRef with Cluster.Key: "<<stripclust.key()<<" ("<<striphit->cluster().key() <<"), Cluster.Id: "<<stripclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+	    bool hitInStrip=(subDet==SiStripDetId::TIB) || (subDet==SiStripDetId::TID) ||(subDet==SiStripDetId::TOB) ||(subDet==SiStripDetId::TEC);
+	    if (hitInStrip){
+	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
+	      const std::type_info &type = typeid(*hit);
+	      if (type == typeid(SiStripRecHit1D)) {
+		const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
+		if(striphit!=0){
+		  SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
+		  
+		  if(stripclust.id()==stripclusters.id()){//ensure that the stripclust is really present in the original cluster collection!!!
+		    stripvalues[stripclust.key()]=hitflag;
+		  }
+		  else{
+		    edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Strip clusters mismatched: "<<stripclust.id()<<" vs "<<stripclusters.id();
+		  }
 		}
 		else{
-		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Strip clusters mismatched: "<<stripclust.id()<<" vs "<<stripclusters.id();
+		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 		}
-
-		// cout<<"Cluster baricentre: "<<stripclust->barycenter()<<endl;
-	      }
+	      }//end if sistriprechit1D
+	      else if (type == typeid(SiStripRecHit2D)) {
+		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
+		if(striphit!=0){
+		  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
+		  
+		  if(stripclust.id()==stripclusters.id()){//ensure that the stripclust is really present in the original cluster collection!!!
+		    stripvalues[stripclust.key()]=hitflag;
+	      
+		    //cout<<">>> Storing in the ValueMap a StripClusterRef with Cluster.Key: "<<stripclust.key()<<" ("<<striphit->cluster().key() <<"), Cluster.Id: "<<stripclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+		  }
+		  else{
+		    edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Strip clusters mismatched: "<<stripclust.id()<<" vs "<<stripclusters.id();
+		  }
+		  
+		  // cout<<"Cluster baricentre: "<<stripclust->barycenter()<<endl;
+		}
+		else{
+		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
+		}
+	      }//end if Sistriprechit2D
 	      else{
-		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
-	      }
-	    }
+		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Impossible to determine the type of SiStripRecHit.";
+	      }	  
+	 
+	    }//end if hit in Strips
 	    else {//pixel hit
 	      const TSiPixelRecHit* transpixelhit = dynamic_cast<const TSiPixelRecHit*>(hit);
 	      if(transpixelhit!=0){

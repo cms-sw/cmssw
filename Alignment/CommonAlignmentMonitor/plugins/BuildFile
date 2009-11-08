@@ -98,6 +98,7 @@
 </library>
 
 <library name="AlignmentStats" file="AlignmentStats.cc">
+ <use name=DataFormats/Alignment>	
  <use name=Alignment/CommonAlignmentMonitor>
  <flags EDM_PLUGIN=1>
 </library>

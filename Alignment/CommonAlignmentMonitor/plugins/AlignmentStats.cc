@@ -91,7 +91,9 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   //load list of detunits needed then in endJob
  
   if(firstEvent_){
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+    edm::ESHandle<TrackerGeometry> tmpTkGeometry;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+    trackerGeometry_=&(*tmpTkGeometry);
     firstEvent_=false;
   }
 

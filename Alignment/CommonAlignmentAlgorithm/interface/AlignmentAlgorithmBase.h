@@ -40,13 +40,13 @@ public:
     EventInfo(const edm::EventID &eventId, 
 	      const ConstTrajTrackPairCollection &trajTrackPairs,
 	      const reco::BeamSpot &beamSpot,
-	      const AliClusterValueMap *hitVM) 
-      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot), hitVM_(hitVM) {}
+	      const AliClusterValueMap *clusterValueMap) 
+      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot), clusterValueMap_(clusterValueMap) {}
 
     const edm::EventID                 &eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
-    const AliClusterValueMap           *hitVM_;///might be null!
+    const AliClusterValueMap           *clusterValueMap_;///might be null!
   };
   
   /// define run information passed to algorithms (in endRun)

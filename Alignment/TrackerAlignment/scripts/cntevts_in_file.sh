@@ -18,13 +18,16 @@ for file in $( cat $1 )
   do
   echo
   echo "Querying DBS for $file"
-  echo "---> $(./DBSquery/query.py --input="find file.numevents where file=$file"  --verbose=0 --limit=-1)" >> $TAG".tmp"
+  echo "---> $(./query.py --input="find file.numevents where file=$file"  --verbose=0 --limit=-1)" >> $TAG".tmp"
 ####--limit=-1 
   echo "#events: $( tail -n 2 $TAG.tmp )"
 done
 
+
+
 IND=0
 takenext=0
+
 for line in $(cat $TAG".tmp")
 do
 let IND=IND+1
@@ -60,5 +63,5 @@ fi
 
 done
 
-mv ${TAG}".out" ./data/
-rm -f ${TAG}".tmp"
+mv ${TAG}".out" ../data/
+#rm -f ${TAG}".tmp"
