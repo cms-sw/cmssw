@@ -190,90 +190,80 @@ template <class T> T const * CondCachedIter<T>::next(){
 
 template <class T> void CondCachedIter<T>::clear(){
 
-    
-    while( ! m_TempCache.empty() )
-    {
-        if (m_TempCache.back()) delete m_TempCache.back();
-        m_TempCache.pop_back();
-    }
-    
-    while( ! m_CondCachedIter.empty() )
-    {
-        m_CondCachedIter.pop_back();
-    }
+  m_TempCache.clear();
+  m_CondCachedIter.clear();
 
-    m_Run.clear();
-    m_RunStart.clear();
-    m_RunStop.clear();
-    
-    now = 0;
-    howMany = 0;
-
-    rewind();
-       
+  m_Run.clear();
+  m_RunStart.clear();
+  m_RunStop.clear();
+  
+  now = 0;
+  howMany = 0;
+  
+  rewind();
+  
 }
 
 
 template <class T> void CondCachedIter<T>::drop(){
-        
-    if (now) {
-        if (m_TempCache.at(now-1)) delete (m_TempCache.at(now-1));
-        m_CondCachedIter.pop_back(); //it destroys the last datum inserted
-        m_TempCache.pop_back();
-        
-        m_Run.pop_back();
-        m_RunStop.pop_back();
-        m_RunStart.pop_back();
-        now--;
-        howMany--;
-        
-    }  
-
+  
+  if (now) {
+    m_CondCachedIter.pop_back(); //it destroys the last datum inserted
+    m_TempCache.pop_back();
+    
+    m_Run.pop_back();
+    m_RunStop.pop_back();
+    m_RunStart.pop_back();
+    now--;
+    howMany--;
+    
+  }  
+  
 }
 
 
 template <class T> void CondCachedIter<T>::setRange(int min,int max){
-    
-    Iterator->setRange(min,max);
-    Iterator->getRange(&m_startTime,&m_stopTime);
-    std::cout << "\nMIN = " << m_startTime << "\tMAX = " << m_stopTime << std::endl;
-    m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
-    m_TempCache.reserve(m_stopTime-m_startTime+2);
-    
+  
+  Iterator->setRange(min,max);
+  Iterator->getRange(&m_startTime,&m_stopTime);
+  std::cout << "\nMIN = " << m_startTime << "\tMAX = " << m_stopTime << std::endl;
+  m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
+  m_TempCache.reserve(m_stopTime-m_startTime+2);
+  
 }
  
 template <class T> void CondCachedIter<T>::setMin(int min){
-    Iterator->setMin(min);
-    m_startTime = Iterator->getMin();
-    m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
-    m_TempCache.reserve(m_stopTime-m_startTime+2);
-
+  Iterator->setMin(min);
+  m_startTime = Iterator->getMin();
+  m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
+  m_TempCache.reserve(m_stopTime-m_startTime+2);
+  
 }
- 
+
 template <class T> void CondCachedIter<T>::setMax(int max){
-    Iterator->setMax(max);
-    m_stopTime = Iterator->getMax();
-    m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
-    m_TempCache.reserve(m_stopTime-m_startTime+2);
-
+  Iterator->setMax(max);
+  m_stopTime = Iterator->getMax();
+  m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
+  m_TempCache.reserve(m_stopTime-m_startTime+2);
+  
 }
- 
+
 
 template <class T> unsigned int CondCachedIter<T>::getTime(){
-    if (now) return m_Run.at(now-1);
-    else return 0;
+  if (now) return m_Run.at(now-1);
+  else return 0;
 }
 
 
 template <class T> unsigned int CondCachedIter<T>::getStartTime(){
-    if (now) return m_RunStart.at(now-1);
-    else return 0;
+  if (now) return m_RunStart.at(now-1);
+  else return 0;
 }
 
 
 template <class T> unsigned int CondCachedIter<T>::getStopTime(){
-    if (now) return m_RunStop.at(now-1);
-    else return 0;
+  if (now) return m_RunStop.at(now-1);
+  else return 0;
 }
 
 

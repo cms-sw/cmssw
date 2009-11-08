@@ -77,7 +77,7 @@ It needs:
   T const * next(int test = 1);
 
 
-  pool::Ref<T> const & CondIter<T>::whatRef() const;
+  pool::Ref<T> const & whatRef() const;
   
   /**
      Set the range of interest of the Iterator of the IOVs: thus when you call the method next() you get from min to max
