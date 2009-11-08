@@ -144,7 +144,7 @@ void HcalDataFormatClient::analyze(void){
 	  if (val) 
 	    LRBDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							spg3offset+ybin,
-							( (float)val/(float)ievt_ ));
+							(float)val);
 	  if (!HalfHTRDataCorruptionIndicators_) continue;
 	  val = HalfHTRDataCorruptionIndicators_->GetBinContent(fed3offset+xbin,
 								spg3offset+ybin);
@@ -153,7 +153,7 @@ void HcalDataFormatClient::analyze(void){
 	      if (val>8) { //Special leniency for this bit
 		HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 								spg3offset+ybin,
-								( (float)val-8.0)/(float)ievt_ );
+								(float)val-8.0 );
 	      } else {
 		HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 								spg3offset+ybin,
@@ -163,7 +163,7 @@ void HcalDataFormatClient::analyze(void){
 	    else 
 	      HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							      spg3offset+ybin,
-							      ( (float)val /(float)ievt_ ));
+							      (float)val );
 	  }
 	  if (!DataFlowInd_ || xbin>2) continue;  //DataFlowInd_;  2x by 3y
 	  val = DataFlowInd_->GetBinContent(fed2offset+xbin,
@@ -171,7 +171,7 @@ void HcalDataFormatClient::analyze(void){
 	  if (val) 
 	    DataFlowInd_->SetBinContent(fed2offset+xbin,
 					spg3offset+ybin,	
-				( (float)val/(float)ievt_ ));
+					( (float)val ));
 	}
       }
     }
@@ -232,6 +232,7 @@ void HcalDataFormatClient::analyze(void){
 	    }
   	  }
   	}
+	//Remove the channel's event count from sight.
 	Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset,
 							 spg2offset,0.0);
       }
