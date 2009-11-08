@@ -40,7 +40,7 @@ function getContentForCVS() {
   local CONFIG="$1"
 
   $GETCONTENT $CONFIG
-  rm -f hltOutputA_cff.pyc hltOutputMON_cff.pyc hltOutputALCA_cff.pyc
+  rm -f hltOutput*_cff.py*
 }
 
 function getConfigForOnline() {
