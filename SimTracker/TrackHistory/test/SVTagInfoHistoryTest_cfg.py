@@ -18,16 +18,18 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.load("SimTracker.TrackHistory.Playback_cff")
+process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
 process.load("SimTracker.TrackHistory.VertexClassifier_cff")
 
 process.vertexHistoryAnalyzer = cms.EDAnalyzer("VertexHistoryAnalyzer",
     process.vertexClassifier
 )
 
+process.vertexHistoryAnalyzer.vertexProducer = 'svTagInfoProxy'
 
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
-process.p = cms.Path(process.playback * process.vertexHistoryAnalyzer)
+process.p = cms.Path(process.playback * process.svTagInfoProxy * process.vertexHistoryAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 readFiles = cms.untracked.vstring()

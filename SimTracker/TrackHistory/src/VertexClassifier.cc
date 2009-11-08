@@ -332,8 +332,10 @@ void VertexClassifier::vertexInformation()
             if ( icluster == clusters.upper_bound(distance + vertexClusteringDistance_) )
             {
                 clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
-                break;
+                continue;
             }
+
+            bool cluster = false;
 
             // Looping over the vertex clusters of a given distance from primary vertex
             for (;
@@ -347,13 +349,14 @@ void VertexClassifier::vertexInformation()
                                         pow(p.z() * mm - icluster->second.z(), 2)
                                     );
 
-
-                if ( difference > vertexClusteringDistance_ )
+                if ( difference < vertexClusteringDistance_ )
                 {
-                    clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
+                    cluster = true;
                     break;
                 }
             }
+
+            if (!cluster) clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
         }
     }
 
@@ -384,8 +387,10 @@ void VertexClassifier::vertexInformation()
         if ( icluster == clusters.upper_bound(distance + vertexClusteringDistance_) )
         {
             clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
-            break;
+            continue;
         }
+
+        bool cluster = false;
 
         // Looping over the vertex clusters of a given distance from primary vertex
         for (;
@@ -399,12 +404,14 @@ void VertexClassifier::vertexInformation()
                                     pow(p.z() - icluster->second.z(), 2)
                                 );
 
-            if ( difference > vertexClusteringDistance_ )
+            if ( difference < vertexClusteringDistance_ )
             {
-                clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
+                cluster = true;
                 break;
             }
         }
+
+        if (!cluster) clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
     }
 
     if ( clusters.size() == 1 )
