@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.9 2009/03/27 18:07:38 ferriff Exp $
-  *  $Date: 2009/03/27 18:07:38 $
-  *  $Revision: 1.9 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.10 2009/10/19 19:00:57 theofil Exp $
+  *  $Date: 2009/10/19 19:00:57 $
+  *  $Revision: 1.10 $
   *  \author R. Bruneliere - A. Zabi
   *  
   *  
@@ -22,7 +22,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAbsAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 
@@ -89,11 +88,6 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
     {
         int gainId = dataFrame.sample(iSample).gainId();
         if(gainId==0)continue; // skip saturated samples
-        if(gainId>2 || (gainId-1)<0)  // safety check (array size)
-        {
-            edm::LogError("EcalUncalibRecHitRecAbsAlgo") << "gainId has not allowded value = "<<gainId;
-            continue;
-        }
 
         pulseShape[iSample] = (testbeamPulseShape)(tzero + shiftTime + iSample*ADC_clock);
 
@@ -118,11 +112,6 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++)
     {
  	int gainId = dataFrame.sample(iSample).gainId();
-        if(gainId>2 || (gainId-1)<0)  // safety check (array size)
-        {
-            edm::LogError("EcalUncalibRecHitRecAbsAlgo") << "gainId has not allowded value = "<<gainId;
-            continue;
-        }
 
       if(gainId!=0)
       {
