@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/07/27 07:10:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/27 07:40:17 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -70,7 +70,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::ParameterSet parameters;
   std::string metname;
 
-  edm::InputTag theCaloJetCollectionLabel;
+  edm::InputTag theCaloJetCollectionLabel; 
+  edm::InputTag theAKJetCollectionLabel;
   edm::InputTag theSCJetCollectionLabel;
   edm::InputTag theICJetCollectionLabel;
   edm::InputTag thePFJetCollectionLabel;
@@ -94,7 +95,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   std::string LoJetTrigger;
   std::string HiJetTrigger;
   
-  bool theJetAnalyzerFlag;
+  bool theJetAnalyzerFlag;  
+  bool theIConeJetAnalyzerFlag;
   bool theJetPtAnalyzerFlag;
   bool theJetCleaningFlag;
   bool thePFJetAnalyzerFlag;
@@ -106,12 +108,15 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   // the jet analyzer
   JetAnalyzer       * theJetAnalyzer;
+  JetAnalyzer       * theAKJetAnalyzer;
   JetAnalyzer       * theSCJetAnalyzer;
-  JetAnalyzer       * theICJetAnalyzer; 
+  JetAnalyzer       * theICJetAnalyzer;  
+  JetAnalyzer       * theCleanedAKJetAnalyzer;
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
   JetAnalyzer       * theJPTJetAnalyzer;
-  PFJetAnalyzer     * thePFJetAnalyzer;
+  PFJetAnalyzer     * thePFJetAnalyzer; 
+  JetPtAnalyzer     * thePtAKJetAnalyzer;
   JetPtAnalyzer     * thePtSCJetAnalyzer;
   JetPtAnalyzer     * thePtICJetAnalyzer;
   CaloMETAnalyzer   * theCaloMETAnalyzer;

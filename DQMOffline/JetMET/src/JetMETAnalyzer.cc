@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/21 12:50:03 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/11/03 16:46:53 $
+ *  $Revision: 1.28 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -37,7 +37,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
   
-  // Jet Collection Label
+  // Jet Collection Label 
+  theAKJetCollectionLabel       = parameters.getParameter<edm::InputTag>("AKJetsCollectionLabel");
   theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
   theJPTJetCollectionLabel      = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
@@ -47,6 +48,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
+  theIConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoIterativeCone",  false);
   theJetPtAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoJetPtAnalysis",  false);
   theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", true);
   thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
@@ -59,17 +61,28 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theJetAnalyzerFlag) {
     theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theSCJetAnalyzer->setSource("SISConeJets");
+    theAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
+    theAKJetAnalyzer->setSource("AntiKtJets");    
+    if(theIConeJetAnalyzerFlag){
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theICJetAnalyzer->setSource("IterativeConeJets");  
+    }
   }
+
   if(theJetCleaningFlag) {
     theCleanedSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
     theCleanedSCJetAnalyzer->setSource("CleanedSISConeJets");
+    theCleanedAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
+    theCleanedAKJetAnalyzer->setSource("CleanedAntiKtJets");
+    if(theIConeJetAnalyzerFlag){
     theCleanedICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
     theCleanedICJetAnalyzer->setSource("CleanedIterativeConeJets");
+    }
   }
   // Do Pt analysis
   if(theJetPtAnalyzerFlag ) {
+    thePtAKJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
+    thePtAKJetAnalyzer->setSource("PtAnalysisAntiKtJets");
     thePtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
     thePtSCJetAnalyzer->setSource("PtAnalysisSISConeJets");
     thePtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
@@ -114,16 +127,19 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 JetMETAnalyzer::~JetMETAnalyzer() {   
 
   if(theJetAnalyzerFlag) {
-    delete theSCJetAnalyzer;
-    delete theICJetAnalyzer;
+    delete theSCJetAnalyzer;    
+    delete theAKJetAnalyzer;
+    if(theIConeJetAnalyzerFlag) delete theICJetAnalyzer;
   }
   if(theJetCleaningFlag) {
     delete theCleanedSCJetAnalyzer;
-    delete theCleanedICJetAnalyzer;
+    delete theCleanedAKJetAnalyzer;
+    if(theIConeJetAnalyzerFlag) delete theCleanedICJetAnalyzer;
   }
   if(theJetPtAnalyzerFlag) {
     delete thePtSCJetAnalyzer;
     delete thePtICJetAnalyzer;
+    delete thePtAKJetAnalyzer;
   }
 
   if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
@@ -152,14 +168,17 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   //
   //--- Jet
   if(theJetAnalyzerFlag) { 
-    theSCJetAnalyzer->beginJob(iSetup, dbe);
-    theICJetAnalyzer->beginJob(iSetup, dbe);
+    theSCJetAnalyzer->beginJob(iSetup, dbe); 
+    theAKJetAnalyzer->beginJob(iSetup, dbe);
+    if(theIConeJetAnalyzerFlag) theICJetAnalyzer->beginJob(iSetup, dbe);
   }
   if(theJetCleaningFlag) {
-    theCleanedSCJetAnalyzer->beginJob(iSetup, dbe);
-    theCleanedICJetAnalyzer->beginJob(iSetup, dbe);
+    theCleanedSCJetAnalyzer->beginJob(iSetup, dbe); 
+    theCleanedAKJetAnalyzer->beginJob(iSetup, dbe);
+     if(theIConeJetAnalyzerFlag)theCleanedICJetAnalyzer->beginJob(iSetup, dbe);
   }
   if(theJetPtAnalyzerFlag ) {
+    thePtAKJetAnalyzer->beginJob(iSetup, dbe);
     thePtSCJetAnalyzer->beginJob(iSetup, dbe);
     thePtICJetAnalyzer->beginJob(iSetup, dbe);
   }
@@ -309,6 +328,28 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
+  
+  // **** Get the AntiKt Jet container
+  iEvent.getByLabel(theAKJetCollectionLabel, caloJets);    
+  if(caloJets.isValid()){
+    theAKJetAnalyzer->setJetHiPass(JetHiPass);
+    theAKJetAnalyzer->setJetLoPass(JetLoPass);
+    theAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+  }
+
+   if(caloJets.isValid()){
+     theCleanedAKJetAnalyzer->setJetHiPass(JetHiPass);
+     theCleanedAKJetAnalyzer->setJetLoPass(JetLoPass);
+     theCleanedAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+   }  
+ 
+   if(caloJets.isValid()){
+      if(theJetPtAnalyzerFlag){
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt SisCone analyzer";
+        thePtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+      }
+   }
+
 
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);    
@@ -331,9 +372,9 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
   }
 
-  // **** Get the Iterative Cone Jet container
+  // **** Get the Iterative Cone Jet container  
    iEvent.getByLabel(theICJetCollectionLabel, caloJets);
-
+   if(theIConeJetAnalyzerFlag) {
    if(caloJets.isValid()){
     theICJetAnalyzer->setJetHiPass(JetHiPass);
     theICJetAnalyzer->setJetLoPass(JetLoPass);
@@ -345,6 +386,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
      theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
    }
+  }
    if(caloJets.isValid()){
       if(theJetPtAnalyzerFlag){
         LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt ICone analyzer";

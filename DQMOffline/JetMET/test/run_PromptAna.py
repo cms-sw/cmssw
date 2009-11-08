@@ -1,11 +1,18 @@
-#
+##-----
+# Set job-specific inputs based on shell
+# the following enviromental variables
+# export COSMIC_MODE=True # or False
+# export JOB_NAME="CosmicStream112220"
+# export NEVENTS=1000
+# export ALL_HISTS=True
+# export TRIGGER_SET=HLT
+# export READ_LIST_FROM_FILE=False # or True
+# export INPUTFILES='' # root file(s)
+# export INPUTFILES_LIST='inputfile_BeamHaloExpress_120015.txt'
+# for details see https://twiki.cern.ch/twiki/bin/view/CMS/JetMETDQMPromptAnalysis
+##-----
 import os
 import FWCore.ParameterSet.Config as cms
-
-#
-# Set job-specific inputs based on shell
-# enviromental variables
-#-----
 #
 # --- [cosmic sequence (default=True)?]
 iscosmics = (os.environ.get('COSMIC_MODE',True))
@@ -33,7 +40,7 @@ print 'trigger set name (default=HLT) = '+str(trigger_set)
 #
 #--- [define list of input files]
 inputfiles = []
-if read_from_file :
+if read_from_file=="True":
   #--- [name of the text file (default=inputfile_list_default.txt)]
   filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
   file=open(filename)
@@ -75,7 +82,7 @@ process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
 process.hcalnoise.requirePedestals = cms.bool(False)
 
 # the task - JetMET objects
-if iscosmics:
+if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
@@ -86,11 +93,12 @@ process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",tr
 process.jetMETAnalyzer.processname = cms.string(trigger_set)
 #process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
 #process.jetMETAnalyzer.processname = cms.string("HLT8E29")
-if allhist:
-  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
 
-process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
-if allhist:
+if allhist=="True":
+  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
+  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
+  process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
+if allhist=="True":
   process.jetMETAnalyzer.caloMETAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection = cms.bool(True)
@@ -123,6 +131,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.Timing = cms.Service("Timing")
 
+## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('jetMETAnalyzer'),
     cout = cms.untracked.PSet(
@@ -141,6 +150,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('jetMETAnalyzer'),
     destinations = cms.untracked.vstring('cout')
 )
+
+
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
@@ -156,7 +167,7 @@ process.options = cms.untracked.PSet(
 
 )
 
-if iscosmics:
+if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource

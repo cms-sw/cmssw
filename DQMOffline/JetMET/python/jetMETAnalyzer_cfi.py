@@ -23,10 +23,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJPTJetAnalysis           = cms.untracked.bool(True),
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
+    DoIterativeCone            = cms.untracked.bool(False),
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
     PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
+    AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
 
     #
