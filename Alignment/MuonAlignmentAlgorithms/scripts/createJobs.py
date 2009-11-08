@@ -184,6 +184,10 @@ for iteration in range(1, ITERATIONS+1):
         if mapplots or segdiffplots: copyplots = "plotting*.root"
         else: copyplots = ""
 
+        copytrackerdb = ""
+        if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
+        if trackerAPEconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerAPEconnect[12:]
+
         if len(inputfiles) > 0:
             file(gather_fileName, "w").write("""#/bin/sh
 # %(commandline)s
@@ -218,7 +222,7 @@ export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 
-cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s $ALIGNMENT_CAFDIR/
+cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
 ls -l
 cmsRun gather_cfg.py
@@ -256,6 +260,10 @@ process.PoolDBESSource.toGet = cms.VPSet(
       )
 """ % vars())
 
+    copytrackerdb = ""
+    if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
+    if trackerAPEconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerAPEconnect[12:]
+
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
 
@@ -285,7 +293,7 @@ export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 
-cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp $ALIGNMENT_CAFDIR/
+cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
 export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp`
 
