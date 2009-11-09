@@ -29,6 +29,7 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 // Numbering scheme
@@ -306,7 +307,7 @@ TrajectoryManager::reconstruct()
 	//The particle may have lost its energy in the material
 	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) && 
 	     !mySimEvent->filter().accept(PP)  ) 
-	  mySimEvent->addSimVertex(PP.vertex(),fsimi);
+	  mySimEvent->addSimVertex(PP.vertex(),fsimi, FSimVertexType::END_VERTEX);
 	  
       }
 
@@ -488,7 +489,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
       int theClosestChargedDaughterId = -1;
       DaughterParticleIterator daughter = daughters.begin();
       
-      int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
+      int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi, 
+					     FSimVertexType::DECAY_VERTEX);
       
       if ( ivertex != -1 ) {
 	for ( ; daughter != daughters.end(); ++daughter) {
