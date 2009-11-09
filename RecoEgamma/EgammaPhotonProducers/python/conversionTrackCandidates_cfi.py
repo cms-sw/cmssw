@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.21 2009/05/12 17:06:04 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.22 2009/07/09 12:50:54 mangano Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -39,7 +39,7 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     hcalTowers = cms.InputTag("towerMaker"),                                       
     minSCEt = cms.double(10.0),
     hOverEConeSize = cms.double(0.15),
-    maxHOverE = cms.double(0.2),
+    maxHOverE = cms.double(0.5),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('alongMomElePropagator'),
