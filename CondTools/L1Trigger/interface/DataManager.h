@@ -43,7 +43,7 @@ class DataManager
 	cond::Connection * connection ;
 /*         cond::CoralTransaction * coral; */
 /*         cond::PoolTransaction * pool; */
-        cond::MetaData * metadata;
+  //       cond::MetaData * metadata;
 };
 
 }

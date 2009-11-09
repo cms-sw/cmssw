@@ -58,7 +58,7 @@ DataManager::DataManager (const std::string & connect,
 //     pool = &( connection->poolTransaction() ) ;
 
     // and data object
-    metadata = new cond::MetaData (coral);
+    //metadata = new cond::MetaData (coral);
 
     // wsun: need to disconnect?
     // connection->disconnect() ;
@@ -75,7 +75,7 @@ DataManager::~DataManager ()
     // closing and comminting may be a good idea here
     // in case we have exception in some other part between connect/close pairs
 
-    delete metadata;
+  //    delete metadata;
 //     delete pool;
 //     delete coral;
     delete connection ;
