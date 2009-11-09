@@ -74,9 +74,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
       else std::cout << "-->enableMonitorDaemon switch is OFF" << endl;
     }
 
-  //mui_ = new DQMOldReceiver();
-  //dbe_ = mui_->getBEInterface();
-  // change to get rid of "DQMOldReceiver" call
+  // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();
   
   // DQM ROOT input

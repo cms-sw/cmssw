@@ -156,7 +156,6 @@ public:
   
   ///Connection to the DQM backend
   DQMStore* dbe_;  
-  //DQMOldReceiver* mui_;
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;
