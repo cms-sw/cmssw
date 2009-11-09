@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.11 2009/10/06 19:36:42 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.12 2009/10/07 08:51:05 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,6 +33,7 @@ from the configuration file, the DB is not implemented yet)
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 #include "CondFormats/Luminosity/interface/LumiSectionData.h"
 #include "CondFormats/DataRecord/interface/LumiSectionDataRcd.h"
 #include <sstream>
@@ -50,18 +51,21 @@ namespace edm {
 
 class LumiProducer : public edm::EDProducer {
 
-  public:
+public:
+  
+  explicit LumiProducer(const edm::ParameterSet&);
+  ~LumiProducer();
+  
+private:
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+  virtual void beginLuminosityBlock(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup);
+  void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
 
-    explicit LumiProducer(const edm::ParameterSet&);
-    ~LumiProducer();
-
-  private:
-
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-
-    virtual void beginLuminosityBlock(edm::LuminosityBlock & iLBlock,
-                                      edm::EventSetup const& iSetup);
-    edm::ParameterSet pset_;
+  edm::ParameterSet pset_;
+  
 };
 
 //
@@ -75,32 +79,48 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
   pset_ = iConfig;
 }
 
-LumiProducer::~LumiProducer()
-{ }
+LumiProducer::~LumiProducer(){ 
+}
 //
 // member functions
 //
 
-void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
-{ 
+void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup){ 
 }
-
+void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
+  LumiSummary* pIn1=new LumiSummary;
+  std::auto_ptr<LumiSummary> pOut1(pIn1);
+  iLBlock.put(pOut1);
+  LumiDetails* pIn2=new LumiDetails;
+  std::auto_ptr<LumiDetails> pOut2(pIn2);
+  iLBlock.put(pOut2);
+}
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
   //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
   //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
     //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
   //}
-  
+  const lumi::LumiSectionData* myLumi=0;
   edm::ESHandle<lumi::LumiSectionData> pLumi;
-  iSetup.get<LumiSectionDataRcd>().get(pLumi);
-  const lumi::LumiSectionData* myLumi=pLumi.product();
+  try{
+    iSetup.get<LumiSectionDataRcd>().get(pLumi);
+    myLumi=pLumi.product();
+  }catch(const edm::eventsetup::NoRecordException<lumi::LumiSectionData>& er){
+    this->fillDefaultLumi(iLBlock);
+    return;
+  }
   if(!myLumi){
     //std::cout<<"no lumi data found"<<std::endl;
     std::string errmsg("NULL lumi object ");
-    throw cms::Exception(" LumiProducer",errmsg);
+    this->fillDefaultLumi(iLBlock);
+    return;
+    //throw cms::Exception(" LumiProducer",errmsg);
   }
-  
+  if(myLumi->lumiVersion()=="-99"){
+    this->fillDefaultLumi(iLBlock);
+    return;
+  }
   /**summary information
      if avginsdellumi is -99, it signals that there is no lumi data written for this lumisection,consequently, all the l1 and hlt values are empty. So users should check and decide what to do.
      
