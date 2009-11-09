@@ -32,7 +32,7 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 
-DDLDivision::DDLDivision()
+DDLDivision::DDLDivision(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
 {
 }
 
@@ -41,12 +41,12 @@ DDLDivision::~DDLDivision()
 }
 
 
-void DDLDivision::preProcessElement (const std::string& type, const std::string& nmspace)
+void DDLDivision::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
 
 }
 
-void DDLDivision::processElement (const std::string& type, const std::string& nmspace)
+void DDLDivision::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLDivision::processElement started");
 
@@ -107,7 +107,7 @@ void DDLDivision::processElement (const std::string& type, const std::string& nm
       em += "\n    parent= " + parent.ns() + ":" + parent.name();
       throwError (em);
     }
-  DDDividedGeometryObject* dg = makeDivider(div);
+  DDDividedGeometryObject* dg = makeDivider(div, cpv);
   dg->execute();
   delete dg;
 
@@ -116,7 +116,7 @@ void DDLDivision::processElement (const std::string& type, const std::string& nm
   DCOUT_V('P', "DDLDivision::processElement completed");
 }
 
-DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
+DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompactView& cpv)
 {
   DDDividedGeometryObject* dg = NULL;
 
@@ -124,11 +124,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
     {
     case ddbox:
       if (div.axis() == x)
-	dg = new DDDividedBoxX(div);
+	dg = new DDDividedBoxX(div,cpv);
       else if (div.axis() == y)
-	dg = new DDDividedBoxY(div);
+	dg = new DDDividedBoxY(div,cpv);
       else if (div.axis() == z)
-	dg = new DDDividedBoxZ(div);
+	dg = new DDDividedBoxZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());
@@ -142,11 +142,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddtubs:
       if (div.axis() == rho)
-	dg = new DDDividedTubsRho(div);
+	dg = new DDDividedTubsRho(div,cpv);
       else if (div.axis() == phi)
-	dg = new DDDividedTubsPhi(div);
+	dg = new DDDividedTubsPhi(div,cpv);
       else if (div.axis() == z)
-	dg = new DDDividedTubsZ(div);
+	dg = new DDDividedTubsZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());
@@ -160,11 +160,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddtrap:
       if (div.axis() == x)
-	dg = new DDDividedTrdX(div);
+	dg = new DDDividedTrdX(div,cpv);
       else if (div.axis() == y )
-	dg = new DDDividedTrdY(div);
+	dg = new DDDividedTrdY(div,cpv);
       else if (div.axis() == z )
-	dg = new DDDividedTrdZ(div);
+	dg = new DDDividedTrdZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());
@@ -179,11 +179,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddcons:
       if (div.axis() == rho)
-	dg = new DDDividedConsRho(div);
+	dg = new DDDividedConsRho(div,cpv);
       else if (div.axis() == phi)
-	dg = new DDDividedConsPhi(div);
+	dg = new DDDividedConsPhi(div,cpv);
       else if (div.axis() == z)
-	dg = new DDDividedConsZ(div);
+	dg = new DDDividedConsZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());
@@ -197,11 +197,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddpolycone_rrz:
       if (div.axis() == rho)
-	dg = new DDDividedPolyconeRho(div);
+	dg = new DDDividedPolyconeRho(div,cpv);
       else if (div.axis() == phi)
-	dg = new DDDividedPolyconePhi(div);
+	dg = new DDDividedPolyconePhi(div,cpv);
       else if (div.axis() == z)
-	dg = new DDDividedPolyconeZ(div);
+	dg = new DDDividedPolyconeZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());
@@ -216,11 +216,11 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddpolyhedra_rrz:
       if (div.axis() == rho)
-	dg = new DDDividedPolyhedraRho(div);
+	dg = new DDDividedPolyhedraRho(div,cpv);
       else if (div.axis() == phi)
-	dg = new DDDividedPolyhedraPhi(div);
+	dg = new DDDividedPolyhedraPhi(div,cpv);
       else if (div.axis() == z)
-	dg = new DDDividedPolyhedraZ(div);
+	dg = new DDDividedPolyhedraZ(div,cpv);
       else {
 	std::string s = "DDLDivision can not divide a ";
 	s += DDSolidShapesName::name(div.parent().solid().shape());

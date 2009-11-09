@@ -28,13 +28,13 @@ class DDLNumeric : public DDXMLElement
 
  public:
 
-  DDLNumeric();
+  DDLNumeric( DDLElementRegistry* myreg );
 
   ~DDLNumeric();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace);
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
-  void processElement (const std::string& name, const std::string& nmspace);
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
  private:
 

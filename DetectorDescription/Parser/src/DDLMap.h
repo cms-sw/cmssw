@@ -15,7 +15,7 @@
 #include "boost/spirit/include/classic.hpp"
 namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
-class Mapper : public grammar<Mapper> {
+class Mapper : public boost::spirit::classic::grammar<Mapper> {
  public:
   Mapper() { };
   ~Mapper() { };
@@ -65,13 +65,13 @@ class DDLMap : public DDXMLElement
 
  public:
 
-  DDLMap();
+  DDLMap( DDLElementRegistry* myreg );
 
   ~DDLMap();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace);
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
-  void processElement (const std::string& name, const std::string& nmspace);
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
   ReadMapType<std::map<std::string,double> > & getMapOfMaps();
 
@@ -90,4 +90,5 @@ class DDLMap : public DDXMLElement
 
   void do_makeDouble(char const* str, char const* end);
 };
+
 #endif

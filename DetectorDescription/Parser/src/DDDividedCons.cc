@@ -19,8 +19,8 @@
 
 //--------------------------------------------------------------------------
 DDDividedConsRho::
-DDDividedConsRho( const DDDivision & div )
-  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
+DDDividedConsRho( const DDDivision& div, DDCompactView& cpv )
+  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
   setType( "DivisionConsRho" );
@@ -120,8 +120,8 @@ DDLogicalPart DDDividedConsRho::makeDDLogicalPart( const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedConsPhi::DDDividedConsPhi( const DDDivision & div )
-  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
+DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView& cpv )
+  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
   setType( "DivisionConsPhi" );
@@ -221,8 +221,8 @@ DDLogicalPart DDDividedConsPhi::makeDDLogicalPart( const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedConsZ::DDDividedConsZ( const DDDivision & div )
-  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
+DDDividedConsZ::DDDividedConsZ( const DDDivision& div, DDCompactView& cpv )
+  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
 

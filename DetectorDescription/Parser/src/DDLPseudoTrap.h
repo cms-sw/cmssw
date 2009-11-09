@@ -27,12 +27,12 @@ class DDLPseudoTrap : public DDLSolid
  public:
 
   /// Constructor
-  DDLPseudoTrap();
+  DDLPseudoTrap( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLPseudoTrap();
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
 };
 #endif

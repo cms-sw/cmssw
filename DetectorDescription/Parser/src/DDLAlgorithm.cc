@@ -31,7 +31,7 @@
 
 #include <sstream>
 
-DDLAlgorithm::DDLAlgorithm()
+DDLAlgorithm::DDLAlgorithm( DDLElementRegistry* myreg ) : DDXMLElement(myreg)
 {
 }
 
@@ -39,20 +39,20 @@ DDLAlgorithm::~DDLAlgorithm()
 {
 }
 
-void DDLAlgorithm::preProcessElement (const std::string& name, const std::string& nmspace)
+void DDLAlgorithm::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
-  DDLElementRegistry::getElement("Vector")->clear();
+  myRegistry_->getElement("Vector")->clear();
 }
 
-void DDLAlgorithm::processElement (const std::string& name, const std::string& nmspace)
+void DDLAlgorithm::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P',"DDLAlgorithm::processElement started");
 
-  DDXMLElement* myNumeric        = DDLElementRegistry::getElement("Numeric");
-  DDXMLElement* myString         = DDLElementRegistry::getElement("String");
-  DDXMLElement* myVector         = DDLElementRegistry::getElement("Vector");
-  DDXMLElement* myMap            = DDLElementRegistry::getElement("Map");
-  DDXMLElement* myrParent        = DDLElementRegistry::getElement("rParent");
+  DDXMLElement* myNumeric        = myRegistry_->getElement("Numeric");
+  DDXMLElement* myString         = myRegistry_->getElement("String");
+  DDXMLElement* myVector         = myRegistry_->getElement("Vector");
+  DDXMLElement* myMap            = myRegistry_->getElement("Map");
+  DDXMLElement* myrParent        = myRegistry_->getElement("rParent");
 
   DDName algoName(getDDName(nmspace));  
   DDLogicalPart lp(DDName(myrParent->getDDName(nmspace)));
@@ -78,7 +78,8 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
   atts = getAttributeSet();
   DDLVector* tv= dynamic_cast<DDLVector*> (myVector);
   DDLMap* tm= dynamic_cast<DDLMap*> (myMap);
-  handler.initialize( algoName.fullname(), lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors() );
+  handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors());
+  //  handler.execute( cpv );
   handler.execute();
 
   // clear used/referred to elements.

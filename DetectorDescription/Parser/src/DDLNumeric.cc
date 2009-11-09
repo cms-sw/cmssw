@@ -16,7 +16,7 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 
-DDLNumeric::DDLNumeric()
+DDLNumeric::DDLNumeric(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
 {
 }
 
@@ -24,11 +24,11 @@ DDLNumeric::~DDLNumeric()
 {
 }
  
-void DDLNumeric::preProcessElement (const std::string& name, const std::string& nmspace)
+void DDLNumeric::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
 }
 
-void DDLNumeric::processElement (const std::string& name, const std::string& nmspace)
+void DDLNumeric::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLNumeric::processElement started");
 

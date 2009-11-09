@@ -27,12 +27,12 @@ class DDLTorus : public DDLSolid
  public:
 
   /// Constructor
-  DDLTorus();
+  DDLTorus( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLTorus();
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
 };
 #endif

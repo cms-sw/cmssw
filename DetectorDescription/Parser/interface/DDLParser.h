@@ -63,15 +63,18 @@ class DDLParser
   typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
-  static DDLParser* instance();
+  
+  DDLParser ( DDCompactView& cpv );
 
-  // MEC: EDMProto temporary? Check later.
-  static void setInstance( DDLParser* p );
+/*   static DDLParser* instance(); */
 
+/*   // MEC: EDMProto temporary? Check later. */
+/*   static void setInstance( DDLParser* p ); */
+  
   /// unique (and default) constructor
  protected:
-  DDLParser();//seal::Context* ic=0);
-
+  DDLParser( );//seal::Context* ic=0);
+  
  public:
   ~DDLParser();
 
@@ -147,6 +150,9 @@ class DDLParser
    **/
   void clearFiles () ;
 
+  std::string extractFileName(std::string fullname);
+  std::string getNameSpace(const std::string& fname);
+
  protected:
   
   /// Parse File.  Just to hold some common looking code.
@@ -154,7 +160,10 @@ class DDLParser
 
  private:
   /// For Singleton behavior.
-  static DDLParser* instance_;
+/*   static DDLParser* instance_; */
+
+  /// reference to storage
+  DDCompactView& cpv_;
 
   /// List of files to be processed, obtained from the DDLDocumentProvider.
   FileNameHolder fileNames_;

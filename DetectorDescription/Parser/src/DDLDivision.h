@@ -25,18 +25,18 @@ class DDLDivision : public DDXMLElement
  public:
 
   /// Constructor
-  DDLDivision();
+  DDLDivision( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLDivision();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace); 
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
  private:
 
-  DDDividedGeometryObject* makeDivider(const DDDivision & div);
+  DDDividedGeometryObject* makeDivider(const DDDivision& div, DDCompactView& cpv);
 };
 
 #endif

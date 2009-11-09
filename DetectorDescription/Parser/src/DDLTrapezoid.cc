@@ -28,7 +28,7 @@
 
 
 // Default constructor
-DDLTrapezoid::DDLTrapezoid()
+DDLTrapezoid::DDLTrapezoid(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -38,7 +38,7 @@ DDLTrapezoid::~DDLTrapezoid()
 }
 
 // Upon encountering an end of the tag, call DDCore's Trap.
-void DDLTrapezoid::processElement (const std::string& name, const std::string& nmspace)
+void DDLTrapezoid::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLTrapezoid::processElement started");
 
@@ -104,7 +104,7 @@ void DDLTrapezoid::processElement (const std::string& name, const std::string& n
       throwError(msg);
     }
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLTrapezoid::processElement completed");
 }

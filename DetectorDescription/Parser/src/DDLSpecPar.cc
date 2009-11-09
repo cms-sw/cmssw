@@ -30,7 +30,7 @@
 #include <sstream>
 
 // Default constructor
-DDLSpecPar::DDLSpecPar()
+DDLSpecPar::DDLSpecPar(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
 {
 }
 
@@ -41,7 +41,7 @@ DDLSpecPar::~DDLSpecPar()
 
 // Process a SpecPar element.  We have to assume that 
 // certain things have happened.
-void DDLSpecPar::processElement (const std::string& type, const std::string& nmspace)
+void DDLSpecPar::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P',"DDLSpecPar::processElement started");
 
@@ -53,11 +53,11 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
   // for each of the above, use the name of the SpecPar, since DDL does not
   // provide a name for a PartSelector.
 
-  DDXMLElement* myParameter      = DDLElementRegistry::getElement("Parameter");
-  DDXMLElement* myNumeric        = DDLElementRegistry::getElement("Numeric");
-  DDXMLElement* myString         = DDLElementRegistry::getElement("String");
-  DDXMLElement* myPartSelector   = DDLElementRegistry::getElement("PartSelector");
-  DDXMLElement* mySpecParSection = DDLElementRegistry::getElement("SpecParSection");
+  DDXMLElement* myParameter      = myRegistry_->getElement("Parameter");
+  DDXMLElement* myNumeric        = myRegistry_->getElement("Numeric");
+  DDXMLElement* myString         = myRegistry_->getElement("String");
+  DDXMLElement* myPartSelector   = myRegistry_->getElement("PartSelector");
+  DDXMLElement* mySpecParSection = myRegistry_->getElement("SpecParSection");
 
   // Because of namespace magic "!" means namespaces should be provided
   // in the names of the XML elements for the DDD.  So if this is

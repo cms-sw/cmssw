@@ -47,6 +47,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Parser/src/StrX.h"
 
+#include "DetectorDescription/Core/src/Material.h"
 
 class DDLTestDoc : public DDLDocumentProvider {
 
@@ -172,18 +173,19 @@ int DDLTestDoc::readConfig(const std::string& filename)
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  DDLParser * parser = DDLParser::instance();
+  DDCompactView cpv;
+  DDLParser parser(cpv);// = DDLParser::instance();
   DDLSAX2Handler* errHandler;
   DDLSAX2ConfigHandler * sch;
 
   sch = new DDLSAX2ConfigHandler;
   errHandler = new DDLSAX2Handler;
 
-  parser->getXMLParser()->setContentHandler(sch);
-  parser->getXMLParser()->setErrorHandler(errHandler);
+  parser.getXMLParser()->setContentHandler(sch);
+  parser.getXMLParser()->setErrorHandler(errHandler);
 
   try {
-    parser->getXMLParser()->parse(filename.c_str());
+    parser.getXMLParser()->parse(filename.c_str());
   }
   catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
@@ -481,8 +483,9 @@ int main(int argc, char *argv[])
 
     AlgoInit();
 
-    std::cout << "Initialize DDL parser (get the first instance)" << std::endl;
-    DDLParser* myP = DDLParser::instance();
+    std::cout << "Initialize a DDL parser " << std::endl;
+    DDCompactView cpv;
+    DDLParser myP(cpv);// = DDLParser::instance();
 
     if (argc < 2) {
       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
@@ -494,7 +497,7 @@ int main(int argc, char *argv[])
 
       std::cout << "About to start parsing..." << std::endl;
 
-      myP->parse(dp);
+      myP.parse(dp);
 
       std::cout << "Completed Parser" << std::endl;
   
@@ -551,7 +554,7 @@ int main(int argc, char *argv[])
       while (fname != "q") {
 	std::cout << "about to try to process the file " << fname << std::endl;
 	dp.push_back(fname);
-	myP->parse(dp);
+	myP.parse(dp);
 	std::cout << "next file name:" ;
 	std::cin >> fname;
 	dp.clear();

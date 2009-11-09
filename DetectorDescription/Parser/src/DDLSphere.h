@@ -26,12 +26,12 @@ class DDLSphere : public DDLSolid
  public:
 
   /// Constructor
-  DDLSphere();
+  DDLSphere( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLSphere();
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
 };
 #endif

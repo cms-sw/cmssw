@@ -16,7 +16,7 @@ class DDDividedBoxX : public DDDividedGeometryObject
 { 
  public:
   
-  DDDividedBoxX( const DDDivision & div);
+  DDDividedBoxX( const DDDivision& div, DDCompactView& cpv);
   
   virtual ~DDDividedBoxX();
 
@@ -33,7 +33,7 @@ class DDDividedBoxY : public DDDividedGeometryObject
 { 
  public:
   
-  DDDividedBoxY( const DDDivision & div);
+  DDDividedBoxY( const DDDivision& div, DDCompactView& cpv);
   
   virtual ~DDDividedBoxY();
 
@@ -50,7 +50,7 @@ class DDDividedBoxZ : public DDDividedGeometryObject
 { 
  public:
   
-  DDDividedBoxZ( const DDDivision & div);
+  DDDividedBoxZ( const DDDivision& div, DDCompactView& cpv);
   
   virtual ~DDDividedBoxZ();
 

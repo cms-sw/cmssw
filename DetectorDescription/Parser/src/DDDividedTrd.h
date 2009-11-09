@@ -14,7 +14,7 @@ class DDDividedTrdX : public DDDividedGeometryObject
 { 
   public:  // with description
 
-    DDDividedTrdX( const DDDivision & div );
+    DDDividedTrdX( const DDDivision& div, DDCompactView& cpv );
 
     virtual ~DDDividedTrdX();
 
@@ -34,7 +34,7 @@ class DDDividedTrdY : public DDDividedGeometryObject
 { 
   public:  // with description
 
-    DDDividedTrdY( const DDDivision & div );
+    DDDividedTrdY( const DDDivision& div, DDCompactView& cpv );
 
     virtual ~DDDividedTrdY();
 
@@ -54,7 +54,7 @@ class DDDividedTrdZ : public DDDividedGeometryObject
 { 
   public:  // with description
 
-    DDDividedTrdZ( const DDDivision & div );
+    DDDividedTrdZ( const DDDivision& div, DDCompactView& cpv );
 
     virtual ~DDDividedTrdZ();
 

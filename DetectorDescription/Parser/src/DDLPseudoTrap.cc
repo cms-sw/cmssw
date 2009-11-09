@@ -28,7 +28,7 @@
 
 
 // Default constructor
-DDLPseudoTrap::DDLPseudoTrap()
+DDLPseudoTrap::DDLPseudoTrap(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -38,7 +38,7 @@ DDLPseudoTrap::~DDLPseudoTrap()
 }
 
 // Upon encountering an end of the tag, call DDCore's Trap.
-void DDLPseudoTrap::processElement (const std::string& type, const std::string& nmspace)
+void DDLPseudoTrap::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLPseudoTrap::processElement started");
 
@@ -55,7 +55,7 @@ void DDLPseudoTrap::processElement (const std::string& type, const std::string& 
 					      , (atts.find("atMinusZ")->second == "true") ? true : false
 					      );
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLPseudoTrap::processElement completed");
 }

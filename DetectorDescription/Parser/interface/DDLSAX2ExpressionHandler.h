@@ -32,7 +32,7 @@ class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler
     //  Constructor and Destructor
     // -----------------------------------------------------------------------
 
-    DDLSAX2ExpressionHandler();
+    DDLSAX2ExpressionHandler(DDCompactView& cpv);
     ~DDLSAX2ExpressionHandler();
 
     // -----------------------------------------------------------------------

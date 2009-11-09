@@ -28,7 +28,7 @@
 
 
 // Default constructor
-DDLReflectionSolid::DDLReflectionSolid()
+DDLReflectionSolid::DDLReflectionSolid(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -38,18 +38,18 @@ DDLReflectionSolid::~DDLReflectionSolid()
 }
 
 // Upon starting a ReflectionSolid element, we need to clear all rSolids.
-void DDLReflectionSolid::preProcessElement(const std::string& name, const std::string& nmspace)
+void DDLReflectionSolid::preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
-  DDLElementRegistry::getElement("rSolid")->clear();
+  myRegistry_->getElement("rSolid")->clear();
 }
 
 // Upon ending a ReflectionSolid element, call DDCore giving the solid name, and dimensions.
-void DDLReflectionSolid::processElement (const std::string& name, const std::string& nmspace)
+void DDLReflectionSolid::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLReflectionSolid::processElement started");
 
   // get solid reference:
-  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid");
+  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
 
   if (myrSolid->size() != 1)
     {
@@ -61,7 +61,7 @@ void DDLReflectionSolid::processElement (const std::string& name, const std::str
   DDSolid solid = DDSolid(myrSolid->getDDName(nmspace));
   DDSolid ddreflsol = DDSolidFactory::reflection(getDDName(nmspace), solid);
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLReflectionSolid::processElement completed");
 }

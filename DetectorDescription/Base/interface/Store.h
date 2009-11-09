@@ -78,9 +78,8 @@ namespace DDI {
    // clear all objects
    void clear();
 
-   // swap moves the registry from this guy to another of the same 
-   // type
-   void swap ( Store& ) ; 
+   // swap moves the registry from this guy to another of the same type
+   void swap ( Store& );
    
    bool isDefined(const name_type & n ) const;
    void setReadOnly(bool b) { readOnly_ = b; }
@@ -154,16 +153,6 @@ Store<N,I,K>::clear()
    return result.first->second;
  }
 
- 
- template<class N, class I, class K>
- typename Store<N,I,K>::prep_type 
- Store<N,I,K>::create(typename Store<N,I,K>::pimpl_type p)
- {					  
-   if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << name_type() << " to a global store."; 
-    return new Rep_type(name_type(),p);
- }
-
-
  template<class N, class I, class K>
  Store<N,I,K>::~Store()
  {
@@ -174,6 +163,14 @@ Store<N,I,K>::clear()
      delete it->second; it->second = 0;
    }
  } 
+ 
+ template<class N, class I, class K>
+ typename Store<N,I,K>::prep_type 
+ Store<N,I,K>::create(typename Store<N,I,K>::pimpl_type p)
+ {					  
+   if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << name_type() << " to a global store."; 
+    return new Rep_type(name_type(),p);
+ }
 
 template<class N, class I, class K>
 bool Store<N,I,K>::isDefined(const name_type & n ) const
@@ -194,6 +191,13 @@ void Store<N, I, K>::swap ( Store<N, I, K>& storeToSwap ) {
   reg_.swap(storeToSwap.reg_);
   storeToSwap.readOnly_ = readOnly_;
 }
+
+/* template<class N, class I, class K> */
+/* void Store<N, I, K>::swap ( registry_type& regtoreceive ) { */
+/*   reg_.swap(regtoreceive); */
+/* } */
+
 }
+/* } */
 
 #endif

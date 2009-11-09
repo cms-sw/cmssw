@@ -26,12 +26,12 @@ class DDLTubs : public DDLSolid
  public:
 
   /// Constructor
-  DDLTubs();
+  DDLTubs( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLTubs();
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
 
 };

@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
     // END Copy from example stand-alone program in Message Logger July 18, 2007
 
     std::cout << "Create DDLElementaryMaterial m" << std::endl;
-    DDLElementaryMaterial m;
+    DDCompactView cpv;
+    DDLElementRegistry locreg;
+    DDLElementaryMaterial m(&locreg);
     //  <ElementaryMaterial name="Carbon" density="2.265*g/cm3" symbol=" " atomicWeight="12.011*g/mole" atomicNumber="6"/>
 
     std::cout << "Initialize names" << std::endl;
@@ -99,10 +101,10 @@ int main(int argc, char *argv[])
     std::string nmspc = "test";
 
     std::cout << "Load Attributes " << std::endl;
-    m.loadAttributes(element, names, values, nmspc);
+    m.loadAttributes(element, names, values, nmspc, cpv);
 
     std::cout << "Process Element " << std::endl;
-    m.processElement(element, nmspc);
+    m.processElement(element, nmspc, cpv);
   }
   catch (DDException& e)
     {

@@ -21,8 +21,8 @@
 #include <cstdlib>
 
 //------------------------------------------------------------------------
-DDDividedTrdX::DDDividedTrdX ( const DDDivision & div )
-  :  DDDividedGeometryObject ( div )
+DDDividedTrdX::DDDividedTrdX ( const DDDivision& div, DDCompactView& cpv )
+  :  DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
   setType( "DivisionTrdX" );
@@ -179,8 +179,8 @@ void DDDividedTrdX::checkParametersValidity()
 }
 
 //--------------------------------------------------------------------------
-DDDividedTrdY::DDDividedTrdY ( const DDDivision & div )
-  : DDDividedGeometryObject( div )
+DDDividedTrdY::DDDividedTrdY ( const DDDivision& div, DDCompactView& cpv )
+  : DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
   setType( "DivisionTrdY" );
@@ -321,8 +321,8 @@ void DDDividedTrdY::checkParametersValidity()
 }
 
 //--------------------------------------------------------------------------
-DDDividedTrdZ::DDDividedTrdZ( const DDDivision & div )
-  : DDDividedGeometryObject ( div )
+DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView& cpv )
+  : DDDividedGeometryObject(div,cpv)
 { 
   checkParametersValidity();
   setType( "DivTrdZ" );

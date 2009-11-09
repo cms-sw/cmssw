@@ -26,12 +26,12 @@ class DDLBox : public DDLSolid
  public:
 
   /// Constructor
-  DDLBox();
+  DDLBox( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLBox();
 
-  void processElement (const std::string& name, const std::string& nmspace);
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
 };
 #endif

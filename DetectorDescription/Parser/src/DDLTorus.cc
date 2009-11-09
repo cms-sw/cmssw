@@ -29,7 +29,7 @@
 
 
 // Default constructor
-DDLTorus::DDLTorus()
+DDLTorus::DDLTorus(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -39,7 +39,7 @@ DDLTorus::~DDLTorus()
 }
 
 // Upon encountering an end of the tag, call DDCore's Torus.
-void DDLTorus::processElement (const std::string& name, const std::string& nmspace)
+void DDLTorus::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLTorus::processElement started");
 
@@ -54,7 +54,7 @@ void DDLTorus::processElement (const std::string& name, const std::string& nmspa
 			  , ev.eval(nmspace, atts.find("startPhi")->second)
 			  , ev.eval(nmspace, atts.find("deltaPhi")->second)
 			  );
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLTorus::processElement completed");
 }

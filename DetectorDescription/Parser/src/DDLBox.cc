@@ -28,7 +28,7 @@
 //#include <strstream>
 
 // Default constructor
-DDLBox::DDLBox()
+DDLBox::DDLBox(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -38,7 +38,7 @@ DDLBox::~DDLBox()
 }
 
 // Upon ending a Box element, call DDCore giving the box name, and dimensions.
-void DDLBox::processElement (const std::string& type, const std::string& nmspace)
+void DDLBox::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLBox::processElement started");
   
@@ -51,7 +51,7 @@ void DDLBox::processElement (const std::string& type, const std::string& nmspace
 				      , ev.eval(nmspace, atts.find("dy")->second)
 				      , ev.eval(nmspace, atts.find("dz")->second));
   // Attempt to make sure Solid elements can be in LogicalPart elements.
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLBox::processElement completed");
 }

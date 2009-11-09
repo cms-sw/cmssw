@@ -16,9 +16,10 @@
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
-//#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // -------------------------------------------------------------------------
 // Class declaration
@@ -63,10 +64,10 @@ class DDXMLElement
  public:
 
   /// Constructor.
-  DDXMLElement();
+  DDXMLElement( DDLElementRegistry* myreg );
 
   /// Constructor for autoClear element.
-  DDXMLElement( const bool& clearme);
+  DDXMLElement( DDLElementRegistry* myreg, const bool& clearme );
 
   /// Destructor
   virtual ~DDXMLElement();
@@ -84,7 +85,7 @@ class DDXMLElement
   void loadAttributes (const std::string& elemName
 		       , const std::vector<std::string> & names
 		       , const std::vector<std::string> & values
-		       , const std::string& nmspace);
+		       , const std::string& nmspace, DDCompactView& cpv);
 
   /// Used to load both text and XML comments into this object
   /**
@@ -117,11 +118,11 @@ class DDXMLElement
 
   const virtual DDName getDDName(const std::string& defaultNS, const std::string& attname = std::string("name"), size_t aIndex = 0);
 
-  /// Gets the value of the name part of an attribute of the form ns:name.
-  const virtual std::string getName(const std::string& attname, size_t aIndex = 0);
+/*   /// Gets the value of the name part of an attribute of the form ns:name. */
+/*   const virtual std::string getName(const std::string& attname, size_t aIndex = 0); */
 
-  /// Gets the namespace of an attribute of the form ns:name.
-  virtual std::string getNameSpace(const std::string& defaultNS, const std::string& attname, size_t aIndex = 0);
+/*   /// Gets the namespace of an attribute of the form ns:name. */
+/*   virtual std::string getNameSpace(const std::string& defaultNS, const std::string& attname, size_t aIndex = 0); */
 
   /// Returns a specific value from the aIndex set of attributes.
   virtual const std::string & get(const std::string& name, size_t aIndex = 0) const;
@@ -136,7 +137,13 @@ class DDXMLElement
 
   virtual std::vector<DDXMLAttribute>::const_iterator end();
  
-  /// Who's yer pa?
+  /// Set parent element name to central list of names.
+  void setParent( const std::string& pename);
+
+  /// Set self element name to central list of names.
+  void setSelf( const std::string& sename);
+
+  /// access to parent element name
   const std::string& parent() const;
 
   /// Processing the element. 
@@ -148,7 +155,7 @@ class DDXMLElement
    * memory.  There is a default for this so that if not declared in the 
    * inheriting class, no processing is done.
    */
-  virtual void processElement (const std::string& name, const std::string& nmspace);
+  virtual void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
   /// Called by loadAttributes AFTER attributes are loaded.
   /** 
@@ -159,7 +166,7 @@ class DDXMLElement
    * for the continued processing of the child elements.
    *
    */
-  virtual void preProcessElement (const std::string& name, const std::string& nmspace);
+  virtual void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
   /// Allow for the elements to have their own streaming method, but also provide a default.
   virtual void stream(std::ostream & os) const;
@@ -177,6 +184,9 @@ class DDXMLElement
   /// WARNING: abused by other classes in this system: yet another conversion from int to std::string...
   static std::string itostr(int i);
 
+ protected:
+  DDLElementRegistry* myRegistry_;
+
  private:
   /// behind the scenes appending to pAttributes...
   void appendAttributes(std::vector<std::string> & tv, const std::string& name);
@@ -186,7 +196,8 @@ class DDXMLElement
   AttrAccumType attributeAccumulator_;  // temporary holder for most recent accessed attributes_... remove later!
   bool autoClear_;
   std::vector<DDXMLAttribute>::const_iterator myIter_;
-
+  std::string myElement_;
+  std::string parentElement_;
 };
 
 #endif

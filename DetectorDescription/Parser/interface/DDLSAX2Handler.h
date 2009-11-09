@@ -44,6 +44,7 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //  Constructor and Destructor
   // -----------------------------------------------------------------------
 
+  //  DDLSAX2Handler();
   DDLSAX2Handler();
   ~DDLSAX2Handler();
 
@@ -119,8 +120,9 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   unsigned int    spaceCount_;
   bool            sawErrors_;
   bool            userNS_;
-  std::string getnmspace(const std::string& fname);
-
+  std::string     nmspace_;
+/*   std::string getnmspace(const std::string& fname); */
+ 
  public:
   /** This allows the DDLSAX2Handler and objects that inherit from it to set
    ** the userNS_ flag to indicate 
@@ -128,7 +130,7 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
    **     true           assume ALL the "name" attributes have DD namespace specified.
    **/
   virtual void setUserNS(bool userns);
-
+  virtual void setNameSpace(const std::string& nms);
 };
 
 #endif

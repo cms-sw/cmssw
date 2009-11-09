@@ -28,7 +28,7 @@
 //#include <strstream>
 
 // Default constructor.
-DDLCone::DDLCone()
+DDLCone::DDLCone(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 {
 }
 
@@ -38,7 +38,7 @@ DDLCone::~DDLCone()
 }
 
 // Upon encountering the end of the Cone element, call DDCore.
-void DDLCone::processElement (const std::string& type, const std::string& nmspace)
+void DDLCone::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {  
   DCOUT_V('P', "DDLCone::processElement started");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
@@ -53,7 +53,7 @@ void DDLCone::processElement (const std::string& type, const std::string& nmspac
 					, ev.eval(nmspace, atts.find("startPhi")->second)
 					, ev.eval(nmspace, atts.find("deltaPhi")->second));
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLCone::processElement completed");
 

@@ -30,26 +30,24 @@
 #include <iostream>
 
 // Default constructor
-DDLAlgoPosPart::DDLAlgoPosPart()
-{
-}
+DDLAlgoPosPart::DDLAlgoPosPart( DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+{ }
 
 // Default desctructor
 DDLAlgoPosPart::~DDLAlgoPosPart()
-{
-}
+{ }
 
 // Upon encountering the end tag of the AlgoPosPart we should have in the meantime
 // hit rParent, rChild, ParS and ParE.
-void DDLAlgoPosPart::processElement (const std::string& type, const std::string& nmspace)
+void DDLAlgoPosPart::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
 {
   DCOUT_V('P', "DDLAlgoPosPart::processElement started");
   
   // get all internal elements.
-  DDXMLElement* myParent  = DDLElementRegistry::getElement("rParent");
-  DDXMLElement* myChild   = DDLElementRegistry::getElement("rChild");
-  DDXMLElement* myParS    = DDLElementRegistry::getElement("ParS");
-  DDXMLElement* myParE    = DDLElementRegistry::getElement("ParE");
+  DDXMLElement* myParent  = myRegistry_->getElement("rParent");
+  DDXMLElement* myChild   = myRegistry_->getElement("rChild");
+  DDXMLElement* myParS    = myRegistry_->getElement("ParS");
+  DDXMLElement* myParE    = myRegistry_->getElement("ParE");
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   
@@ -69,9 +67,9 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   if (!(algo.isDefined().second)) 
     {
       std::string  msg = std::string("\n\tDDLParser, algo requested is not defined.  Either AlgoInit() or check algo spelling.\n ")
-	+ "\n\t\talgo=" + getDDName(nmspace, "algo" ).fullname();
-	+ "\n\t\tparent=" + myParent->getDDName(nmspace).fullname()
-	+ "\n\t\tself=" + myChild->getDDName(nmspace).fullname();
+	+ "\n\t\talgo=" + std::string(getDDName(nmspace, "algo" ))
+	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
+	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
       throwError(msg);
     }
 
@@ -122,8 +120,8 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
     }
   
   algo.setParameters(st,ed,ic,parS,parE);
+  //cpv.algoPosPart(self, parent, algo);
   DDalgoPosPart(self, parent, algo);
-  
   // clear all "children" and attributes
   myChild->clear();
   myParent->clear();
