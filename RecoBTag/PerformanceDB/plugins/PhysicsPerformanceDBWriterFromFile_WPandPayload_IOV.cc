@@ -26,7 +26,7 @@ public:
 private:
   std::string inputTxtFile;
   std::string rec1,rec2;
-  boost::uint64_t iovBegin,iovEnd;  
+  unsigned long long iovBegin,iovEnd;  
 };
 
 PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV
@@ -35,8 +35,8 @@ PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::PhysicsPerformanceDBWriterF
   inputTxtFile = p.getUntrackedParameter<std::string>("inputTxtFile");
   rec1 = p.getUntrackedParameter<std::string>("RecordPayload");
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
-  iovBegin = p.getParameter<boost::uint64_t>("IOVBegin"); 
-  iovEnd = p.getParameter<boost::uint64_t>("IOVEnd"); 
+  iovBegin = p.getParameter<unsigned long long>("IOVBegin"); 
+  iovEnd = p.getParameter<unsigned long long>("IOVEnd"); 
 }
 
 void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob(const edm::EventSetup&)
