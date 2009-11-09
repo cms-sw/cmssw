@@ -49,7 +49,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << "! something wrong with EcalChannelStatus in your DB? ";
         }
         if ( v_chstatus_.size() > 0) {
-                std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
+                uint16_t code = chStatusCode.getStatusCode() & 0x001F;
+                std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), code );
                 if ( res != v_chstatus_.end() ) {
                         return false;
                 }
