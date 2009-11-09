@@ -3,7 +3,7 @@
    Declaration of class FloatCondObjectContainerHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerHandler.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerHandler.h,v 1.1 2009/06/30 14:40:11 argiro Exp $
    \date 09 Sep 2008
 */
 
@@ -18,7 +18,7 @@
 #include <string>
 
 static const char CVSId_CondToolsEcal_EcalFloatCondObjectContainerHandler[] = 
-"$Id: EcalFloatCondObjectContainerHandler.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
+"$Id: EcalFloatCondObjectContainerHandler.h,v 1.1 2009/06/30 14:40:11 argiro Exp $";
 
   /**
      \class EcalFloatCondObjectContainerHandler EcalFloatCondObjectContainerHandler.h "/EcalFloatCondObjectContainerHandler.h"
@@ -41,7 +41,7 @@ static const char CVSId_CondToolsEcal_EcalFloatCondObjectContainerHandler[] =
   private:
 
     std::string xmlFileSource_;
-    boost::int64_t since_;
+    long long since_;
 
     EcalCondHeader header_;
     

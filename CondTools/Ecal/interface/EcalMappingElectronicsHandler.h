@@ -54,7 +54,7 @@ class EcalMappingElectronicsHandler : public popcon::PopConSourceHandler<EcalMap
   std::string txtFileSource_;
   std::string m_name;
 
-  boost::int64_t since_;
+  long long since_;
 };
 
 #endif

@@ -30,7 +30,7 @@ class EcalCondHandler:
  private:
   
   std::string xmlFileSource_;
-  boost::int64_t since_; 
+  long long since_; 
  
 
 };
