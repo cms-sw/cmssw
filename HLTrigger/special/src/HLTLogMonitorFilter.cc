@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HLTLogErrorFilter
-// Class:      HLTLogErrorFilter
+// Package:    HLTLogMonitorFilter
+// Class:      HLTLogMonitorFilter
 // 
-/**\class HLTLogErrorFilter HLTLogErrorFilter.cc Work/HLTLogErrorFilter/src/HLTLogErrorFilter.cc
+/**\class HLTLogMonitorFilter HLTLogMonitorFilter.cc Work/HLTLogMonitorFilter/src/HLTLogMonitorFilter.cc
 
  Description: Accept events if any LogError or LogWarning was raised
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogErrorFilter.cc,v 1.8 2009/05/16 13:58:31 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.1 2009/11/09 00:01:23 fwyzard Exp $
 //
 
 
@@ -32,10 +32,10 @@
 // class declaration
 //
 
-class HLTLogErrorFilter : public HLTFilter {
+class HLTLogMonitorFilter : public HLTFilter {
 public:
-    explicit HLTLogErrorFilter(const edm::ParameterSet &);
-    ~HLTLogErrorFilter();
+    explicit HLTLogMonitorFilter(const edm::ParameterSet &);
+    ~HLTLogMonitorFilter();
 
 private:
     // ---------- private data types --------------------
@@ -83,7 +83,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLogErrorFilter::HLTLogErrorFilter(const edm::ParameterSet & config) :
+HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
   m_prescale(),
   m_data()
 {
@@ -98,7 +98,7 @@ HLTLogErrorFilter::HLTLogErrorFilter(const edm::ParameterSet & config) :
   }
 }
 
-HLTLogErrorFilter::~HLTLogErrorFilter()
+HLTLogMonitorFilter::~HLTLogMonitorFilter()
 {
 }
 
@@ -109,7 +109,7 @@ HLTLogErrorFilter::~HLTLogErrorFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTLogErrorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
+HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   // no LogErrors or LogWarnings, skip processing and reject the event
   if (not edm::FreshErrorsExist())
     return false;
@@ -150,23 +150,23 @@ HLTLogErrorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
 }
 
 /// check if the requested category has a valid entry
-bool HLTLogErrorFilter::knownCategory(const std::string & category) {
+bool HLTLogMonitorFilter::knownCategory(const std::string & category) {
   return (m_data.find( category ) != m_data.end());
 }
 
 /// create a new entry for the given category, with the given threshold value
-HLTLogErrorFilter::CategoryEntry & HLTLogErrorFilter::addCategory(const std::string & category, uint32_t threshold) {
+HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::addCategory(const std::string & category, uint32_t threshold) {
   // check after inserting, as either the new CategoryEntry is needed, or an error condition is raised
-  std::pair<std::map<std::string, HLTLogErrorFilter::CategoryEntry>::iterator, bool> result = m_data.insert( std::make_pair(category, CategoryEntry(threshold)) );
+  std::pair<std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::iterator, bool> result = m_data.insert( std::make_pair(category, CategoryEntry(threshold)) );
   if (result.second)
     throw cms::Exception("Configuration") << "Duplicate entry for category " << category;
   return result.first->second;
 }
 
 /// return the entry for requested category, if it exists, or create a new one with the default threshold value
-HLTLogErrorFilter::CategoryEntry & HLTLogErrorFilter::getCategory(const std::string & category) {
+HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::getCategory(const std::string & category) {
   // check before inserting, to avoid the construction of a CategoryEntry object
-  std::map<std::string, HLTLogErrorFilter::CategoryEntry>::iterator i = m_data.find(category);
+  std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::iterator i = m_data.find(category);
   if (i != m_data.end())
     return i->second;
   else
@@ -176,4 +176,4 @@ HLTLogErrorFilter::CategoryEntry & HLTLogErrorFilter::getCategory(const std::str
 
 // define as a framework plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTLogErrorFilter);
+DEFINE_FWK_MODULE(HLTLogMonitorFilter);

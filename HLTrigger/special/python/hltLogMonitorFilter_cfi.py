@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltLogErrorFilter = cms.EDFilter("HLTLogErrorFilter",
+hltLogMonitorFilter = cms.EDFilter("HLTLogMonitorFilter",
     default_threshold = cms.uint32(10),
     categories = cms.VPSet(
         cms.PSet(
