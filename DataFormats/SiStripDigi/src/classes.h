@@ -33,6 +33,18 @@ namespace {
   };
 }
 
+#include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
+namespace {
+  struct dictionary3 {
+    edm::Wrapper<SiStripProcessedRawDigi > praw0;
+    edm::Wrapper<std::vector<SiStripProcessedRawDigi> > praw1;
+    edm::Wrapper<edm::DetSet<SiStripProcessedRawDigi> > praw2;
+    edm::Wrapper<std::vector<edm::DetSet<SiStripProcessedRawDigi> > > praw3;
+    edm::Wrapper<edm::DetSetVector<SiStripProcessedRawDigi> > praw4;
+    edm::Wrapper<edmNew::DetSetVector<SiStripProcessedRawDigi> > praw4_bis;
+  };
+}
+
 #endif // DataFormats_SiStripDigi_Classes_H
 
 
