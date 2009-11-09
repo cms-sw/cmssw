@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.30 2009/10/08 10:15:04 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.31 2009/11/05 07:55:13 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -385,8 +385,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
     if (iAlgo == 0) {
-        refHistoName = "JetMET/Jet/IterativeConeJets/";
-        newHistoName = "JetMET/Jet/IterativeConeJets/";
+        refHistoName = "JetMET/Jet/AntiKtJets/";
+        newHistoName = "JetMET/Jet/AntiKtJets/";
     }
     if (iAlgo == 1) {
         refHistoName = "JetMET/Jet/SISConeJets/";
@@ -415,8 +415,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	//std::cout << refHisto->GetEntries() << std::endl;
-	//std::cout << newHisto->GetEntries() << std::endl;
 	switch (testType_) {
 	case 1 :
 	  test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
