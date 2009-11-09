@@ -36,7 +36,6 @@
 using namespace std;
 
 
-//#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //
 // class decleration

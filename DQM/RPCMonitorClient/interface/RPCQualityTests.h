@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
@@ -42,7 +41,6 @@ class RPCQualityTests : public edm::EDAnalyzer {
       int nevents_;
 
       DQMStore * dbe_ ;
-      DQMOldReceiver * mui_;
 
       std::string hostName_;
       int hostPort_;
