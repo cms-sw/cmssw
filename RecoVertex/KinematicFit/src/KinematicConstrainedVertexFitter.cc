@@ -135,7 +135,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
    {eq += abs(cVal(i));}
   }
   if (nit == 0) {
-    if (eq>theMaxInitial) break;
+    if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
   refCCov = lRes.first.second;
   nit++;
