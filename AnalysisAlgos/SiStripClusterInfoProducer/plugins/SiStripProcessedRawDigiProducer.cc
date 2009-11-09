@@ -10,7 +10,7 @@
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripProcessedRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 
 #include <functional>
 
