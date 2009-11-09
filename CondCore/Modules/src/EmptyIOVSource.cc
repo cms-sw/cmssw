@@ -11,9 +11,9 @@ namespace cond{
 				 edm::InputSourceDescription const& desc):
     edm::ConfigurableInputSource(pset,desc),
     m_timeType(pset.getParameter<std::string>("timetype")),
-    m_firstValid(pset.getParameter<boost::uint64_t>("firstValue")),
-    m_lastValid((cond::Time_t)pset.getParameter<boost::uint64_t>("lastValue")),
-    m_interval((cond::Time_t)pset.getParameter<boost::uint64_t>("interval")){
+    m_firstValid(pset.getParameter<unsigned long long>("firstValue")),
+    m_lastValid((cond::Time_t)pset.getParameter<unsigned long long>("lastValue")),
+    m_interval((cond::Time_t)pset.getParameter<unsigned long long>("interval")){
     for(cond::Time_t i=(cond::Time_t)m_firstValid; i<=m_lastValid; i+=(cond::Time_t)m_interval){
       m_iovs.insert(i);
     }
