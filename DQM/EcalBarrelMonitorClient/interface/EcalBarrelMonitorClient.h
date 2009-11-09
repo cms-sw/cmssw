@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2009/09/28 19:16:57 $
- * $Revision: 1.118 $
+ * $Date: 2009/10/26 17:33:10 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -102,11 +102,7 @@ bool debug_;
 
 int prescaleFactor_;
 
-bool enableMonitorDaemon_;
-
 bool enableCleanup_;
-
-std::string clientName_;
 
 std::string inputFile_;
  
