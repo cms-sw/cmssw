@@ -10,18 +10,22 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="False"
+FastSimUse="True"
 
 #Release to be validated:
-NewRelease='CMSSW_3_4_0_pre4'
+NewRelease='CMSSW_3_4_0_pre5'
 
 # startup and ideal sample list
-#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
-#startupsamples= ['RelValCosmics']
+if (FastSimUse=="True"):
+    startupsamples= ['']
+    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100']
+else:
+    startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
+    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
 
+#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
+#startupsamples= ['RelValCosmics']
 #idealsamples= ['']
 
 
