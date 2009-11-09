@@ -13,15 +13,14 @@ maxevents=5000          # maximum number of events to process
 checkNevents=1000       # histograms are filled 'every checkNevents' events
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
-#source="NewEventStreamFileReader"
-memcheck=False
+memcheck=False          # Dump out memeroy usage information
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# Tone down the logging messages, MessageLogger!
+# Reduce frequency of MessageLogger event output messages
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 
 #----------------------------
-# Event Source
+# Specify Event Source
 #-----------------------------
 
 #####################  SET THE NUMBER OF EVENTS OVER WHICH TO RUN HERE #################################
@@ -32,18 +31,17 @@ process.maxEvents = cms.untracked.PSet(
 
 ##################### SET YOUR FILE TO CHECK HERE #####################################################
 
-### Case 1:  PoolSource (from DBS, etc.)
+### Case 1:  PoolSource (from DBS, castor, etc.)
 
 if source=="PoolSource":
     process.source = cms.Source("PoolSource",
                                 
                                 fileNames = cms.untracked.vstring
                                 (
-        # Recent
+        # A (relatively) recent run
         #'/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
         # Calibration triggers only
         '/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/84ED101B-03C0-DE11-B33C-000423D94E70.root',
-        #'/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/76EC00B4-01C0-DE11-80F8-000423D944FC.root'
         # cosmics run with known hot cell in HF
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
@@ -53,22 +51,23 @@ if source=="PoolSource":
         )
                                 )
 
+### Case 2:  Run on raw .dat files
+
 elif source=="NewEventStreamFileReader":
-    #Case 2:  Run on raw .dat files
     process.source = cms.Source("NewEventStreamFileReader",
                                 fileNames = cms.untracked.vstring(
         #'/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat'
+        # example file from online (cmsusr0) directory (lookarea_SM)
         'file:/lookarea_SM/MWGR_40_2009.00116136.0036.A.storageManager.07.0000.dat',
         )
                                 )
 
-
+### Case 3:  Run on HCAL local runs (pedestal, LED, etc.).  These files are stored on /bigspool/usc/ in cmshcal01, etc.
 elif source=="HcalTBSource":
-    #  Case 3:  Run on HCAL local runs (pedestal, LED, etc.).  You need to have access to /bigspool or have a local copy of the file available.
-
     process.source = cms.Source("HcalTBSource",
                                 fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/stjohn/scratch0/USC_077834.root'),
-                                streams   = cms.untracked.vstring(#HBHEa,b,c:
+                                streams   = cms.untracked.vstring(
+        #HBHEa,b,c:
         'HCAL_DCC700','HCAL_DCC701','HCAL_DCC702','HCAL_DCC703','HCAL_DCC704','HCAL_DCC705',
         'HCAL_DCC706','HCAL_DCC707','HCAL_DCC708','HCAL_DCC709','HCAL_DCC710','HCAL_DCC711',
         'HCAL_DCC712','HCAL_DCC713','HCAL_DCC714','HCAL_DCC715','HCAL_DCC716','HCAL_DCC717',
@@ -80,6 +79,7 @@ elif source=="HcalTBSource":
         'HCAL_Trigger','HCAL_SlowData'
         )
                                 )
+
 
 #----------------------------
 # DQM Environment
@@ -112,15 +112,15 @@ process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFronti
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
-# online testing
+# Use these tags when testing in the private network
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
 #process.GlobalTag.globaltag = 'GR09_31X_V6H::All' # or any other appropriate
 #process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
-#----------------------
-# ValGrind/Igprof Memory Check
-#----------------------
+#-----------------------------
+# ValGrind/Igprof Memory Check Information
+#------------------------------
 
 # Valgrind -- run with:
 '''
@@ -140,6 +140,7 @@ hcal_dqm_sourceclient-file_cfg.py > & out.myprof.txt < /dev/null &
 igprof-analyse -g -d -v -p -r MEM_MAX igprof.myprof.gz | less
 '''
 
+# ENABLE memory check if memcheck bool has been set
 if (memcheck):
     process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
                                             ignoreTotal=cms.untracked.int32(1),
@@ -147,13 +148,16 @@ if (memcheck):
 ,                                            )
 
 
-#-----------------------------
+#---------------------------------------------
 # Hcal DQM Source, including HitReconstrctor
-#-----------------------------
+#---------------------------------------------
+
+# AT LAST!  Load the DQM HcalMonitorModule!
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 
-# Make separate process to look at all digis?
+# This is a separate process to create a special collection of digis in which
+# problem digis aren't rejected from the collection.  Casual users do not need to worry about this.
 process.hcalAllDigis = cms.EDFilter("HcalRawToDigi",
                                     # Flag to enable unpacking of ZDC channels (default = false)
                                     UnpackZDC = cms.untracked.bool(True),
@@ -203,6 +207,10 @@ process.zdcreco.correctForPhaseContainment = True
 process.zdcreco.correctionPhaseNS = 10.
 
 
+# -----------------------------------
+# Specify Severity Level Computer
+# -----------------------------------
+
 process.essourceSev =  cms.ESSource("EmptyESSource",
                                                recordName = cms.string("HcalSeverityLevelComputerRcd"),
                                                firstValid = cms.vuint32(1),
@@ -243,18 +251,18 @@ process.hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
 
 
 #----------------------------
-# Emulator
+# Trigger Emulator
 #----------------------------
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 process.valHcalTriggerPrimitiveDigis = process.simHcalTriggerPrimitiveDigis.clone()
 process.valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag('hcalDigis', 'hcalDigis')
+process.valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.untracked.bool(True)
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-
 
 
 # -------------------------------
 # hcalMonitor configurable values
-# ------- -----------------------
+# -------------------------------
 process.hcalMonitor.debug = 0
 process.hcalMonitor.Online = True # set true for online/local running
 
@@ -268,34 +276,29 @@ process.hcalMonitor.AnalyzeOrbitGap = False
 #--------------------------------------------
 process.hcalMonitor.subSystemFolder = subsystem
 
-process.hcalMonitor.DataFormatMonitor   = True
-process.hcalMonitor.DataIntegrityTask   = True
-process.hcalMonitor.DigiMonitor         = True
-process.hcalMonitor.RecHitMonitor       = True
-process.hcalMonitor.TrigPrimMonitor     = True
-process.hcalMonitor.DeadCellMonitor     = True
-process.hcalMonitor.HotCellMonitor      = True
-process.hcalMonitor.BeamMonitor         = True
-process.hcalMonitor.PedestalMonitor     = True
-process.hcalMonitor.DetDiagNoiseMonitor = True
-process.hcalMonitor.DetDiagTimingMonitor = True
-process.hcalMonitor.LEDMonitor          = False
-process.hcalMonitor.CaloTowerMonitor    = False
-process.hcalMonitor.MTCCMonitor         = False
-process.hcalMonitor.HcalAnalysis        = False
+process.hcalMonitor.DataFormatMonitor             = True
+process.hcalMonitor.DataIntegrityTask             = True
+process.hcalMonitor.DigiMonitor                   = True
+process.hcalMonitor.RecHitMonitor                 = True
+process.hcalMonitor.TrigPrimMonitor               = True
+process.hcalMonitor.DeadCellMonitor               = True
+process.hcalMonitor.HotCellMonitor                = True
+process.hcalMonitor.BeamMonitor                   = True
+process.hcalMonitor.ReferencePedestalMonitor      = True
+
+process.hcalMonitor.DetDiagNoiseMonitor           = True
+process.hcalMonitor.DetDiagTimingMonitor          = True
+process.hcalMonitor.DetDiagLEDMonitor             = False
+process.hcalMonitor.DetDiagLaserMonitor           = False
+process.hcalMoniotr.DetDiagPedestalMonitor        = False
 
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
 setHcalTaskValues(process.hcalMonitor)
 
-# values are normally 1000, 10
-# ProblemCells evaluated every (DeadCellMonitor_checkNevents)
-# occupancy/energy tests performed every (DeadCellMonitor_checkNevents*prescale)
-process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
-process.hcalMonitor.DeadCellMonitor_prescale = 10
-
 process.hcalMonitor.subSystemFolder = subsystem
 
-# Set individual Task values here (otherwise they will remain set to the values specified for the hcalMonitor.)
+# Set individual Task values here
+#(otherwise they will remain set to the values specified for the hcalMonitor.)
 
 # Loosen HF hot cell thresholds when using cosmic reconstruction
 hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
@@ -310,18 +313,21 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 # suppresses html output from HCalClient  
 process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
 process.hcalClient.subSystemFolder  = subsystem
+
 #Unnecessary?
 #process.hcalClient.prefixME = cms.untracked.string(subsystem)
 
-# Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
+# Set client settings to the same as monitor.  At the moment, this doesn't affect the client minErrorFlag
 # Summary Client is also unaffected
+
 setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=False)  # turn debug to True to dump out client settings
 
+# Keep Summary Client turned on
 process.hcalClient.SummaryClient        = True
 
-#-----------------------------
+#----------------------------------------
 # Scheduling & Path to follow each event
-#-----------------------------
+#-----------------------------------------
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound', 
         'TooManyProducts', 
@@ -331,10 +337,10 @@ process.options = cms.untracked.PSet(
 # Allow even bad-quality digis
 #process.hcalDigis.FilterDataQuality=False
 
-# Set expected orbit time to 3563 (value should be 6 for run < 116401)
-process.hcalDigis.ExpectedOrbitMessageTime= cms.untracked.int32(3563)
+# Set expected orbit time to 3560 (value should be 6 for run < 116401)
+process.hcalDigis.ExpectedOrbitMessageTime= cms.untracked.int32(3560)
 # Set monitor value to -1 to skip check of IDLE BCN 
-process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3563
+process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3560
 
 # ----------------------
 # Trigger Unpacker Stuff
