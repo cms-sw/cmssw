@@ -1,7 +1,6 @@
 #ifndef _SiPixelTrackerMapCreator_h_
 #define _SiPixelTrackerMapCreator_h_
 
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
