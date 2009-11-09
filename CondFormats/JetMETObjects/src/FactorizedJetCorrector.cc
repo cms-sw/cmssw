@@ -46,7 +46,7 @@ FactorizedJetCorrector::FactorizedJetCorrector()
 //------------------------------------------------------------------------ 
 //--- FactorizedJetCorrector constructor ---------------------------------
 //------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags)
+FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions)
 {
   mJetEta = -9999;
   mJetPt  = -9999;
@@ -65,31 +65,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mIsLepPyset  = false;
   mIsLepPzset  = false;
   mAddLepToJet = false;
-  initCorrectors(fLevels, fTags,""); 
-}
-//------------------------------------------------------------------------ 
-//--- FactorizedJetCorrector constructor ---------------------------------
-//------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions)
-{
-  mJetEta = -9999;
-  mJetPt  = -9999;
-  mJetPhi = -9999;
-  mJetE   = -9999;
-  mJetEMF = -9999;
-  mLepPx  = -9999;
-  mLepPy  = -9999;
-  mLepPz  = -9999;
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
-  initCorrectors(fLevels, fTags, fOptions);       
+  initCorrectors(fLevels, fFiles, fOptions);       
 }
 //------------------------------------------------------------------------ 
 //--- FactorizedJetCorrector destructor ----------------------------------
@@ -102,73 +78,126 @@ FactorizedJetCorrector::~FactorizedJetCorrector()
 //------------------------------------------------------------------------ 
 //--- initialises the correctors -----------------------------------------
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const std::string& fTags, const std::string& fOptions)
+void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions)
 {
   //---- Read the CorrectionLevels string and parse the requested sub-correction levels.
-  mLevels = parseLevels(removeSpaces(fLevels));
-  //---- Read the CorrectionTags string and parse the requested sub-correction tags.
-  std::vector<std::string> Tags = parseLevels(removeSpaces(fTags));
-  std::vector<std::string> DataFiles;
+  std::vector<std::string> tmp = parseLevels(removeSpaces(fLevels));
+  for(unsigned i=0;i<tmp.size();i++)
+    {
+      if (tmp[i] == "L1")
+        mLevels.push_back(kL1);
+      else if (tmp[i] == "L2")
+        mLevels.push_back(kL2);
+      else if (tmp[i] == "L3")
+        mLevels.push_back(kL3);
+      else if (tmp[i] == "L4")
+        mLevels.push_back(kL4);
+      else if (tmp[i] == "L5")
+        mLevels.push_back(kL5);
+      else if (tmp[i] == "L6")
+        mLevels.push_back(kL6);
+      else if (tmp[i] == "L7")
+        mLevels.push_back(kL7);
+      else
+        {
+	  #ifdef STANDALONE
+	    std::stringstream sserr; 
+            sserr<<"FactorizedJetCorrector ERROR: unknown correction level "<<tmp[i];
+	    throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception("FactorizedJetCorrector")<<" unknown correction level "<<tmp[i];
+          #endif
+	}							
+    }   	 
+  //---- Read the parameter filenames string and parse the requested sub-correction tags.
+  std::vector<std::string> Files = parseLevels(removeSpaces(fFiles));
   //---- Read the Options string and define the FlavorOption and PartonOption.
   std::string FlavorOption = parseOption(removeSpaces(fOptions),"Flavor");
   std::string PartonOption = parseOption(removeSpaces(fOptions),"Parton");
-
   //---- Check the consistency between tags and requested sub-corrections. 
-  checkConsistency(mLevels,Tags);  
-  
-  //---- Construct the full path correction parameters filenames.
-  for(unsigned int i=0;i<Tags.size();i++)
-    {
-      DataFiles.push_back(Tags[i]+".txt");
-    }
+  checkConsistency(tmp,Files);  
   //---- Create instances of the requested sub-correctors.
-  for(unsigned int i=0;i<mLevels.size();i++)
-    { 
-      if (mLevels[i]=="L1" || mLevels[i]=="L2" || mLevels[i]=="L3" || mLevels[i]=="L4" || mLevels[i]=="L6")
-        mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i])); 
-      else if (mLevels[i]=="L5" && FlavorOption.length()==0) 
+  for(unsigned i=0;i<mLevels.size();i++)
+    {     	    
+      if (mLevels[i]==kL1 || mLevels[i]==kL2 || mLevels[i]==kL3 || mLevels[i]==kL4 || mLevels[i]==kL6)
+        mCorrectors.push_back(new SimpleJetCorrector(Files[i])); 
+      else if (mLevels[i]==kL5 && FlavorOption.length()==0) 
         {
           #ifdef STANDALONE
 	    std::stringstream sserr; 
-            sserr<<"FactorizedJetCorrector ERROR: "
-		 <<"must specify flavor option when "
-		 <<"requesting L5Flavor correction!";
+            sserr<<"FactorizedJetCorrector ERROR: must specify flavor option when requesting L5Flavor correction!";
 	    throw std::runtime_error(sserr.str());
           #else
             throw cms::Exception("FactorizedJetCorrector")
 	    <<" asking L5Flavor correction without specifying flavor option";
           #endif
         }
-      else if (mLevels[i]=="L5" && FlavorOption.length()>0)
-        mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i],FlavorOption));
-      else if (mLevels[i]=="L7" && PartonOption.length()==0) 
+      else if (mLevels[i]==kL5 && FlavorOption.length()>0)
+        mCorrectors.push_back(new SimpleJetCorrector(Files[i],FlavorOption));
+      else if (mLevels[i]==kL7 && PartonOption.length()==0) 
         {
           #ifdef STANDALONE
 	    std::stringstream sserr; 
-            sserr<<"FactorizedJetCorrector ERROR: "
-		 <<"must specify parton option when "
-		 <<"requesting L7Parton correction!";
+            sserr<<"FactorizedJetCorrector ERROR: must specify parton option when requesting L7Parton correction!";
 	    throw std::runtime_error(sserr.str());
           #else
             throw cms::Exception("FactorizedJetCorrector")
 	    <<" asking L7Parton correction without specifying parton option";
           #endif
         }
-      else if (mLevels[i]=="L7" && PartonOption.length()>0)
-        mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i],PartonOption));
+      else if (mLevels[i]==kL7 && PartonOption.length()>0)
+        mCorrectors.push_back(new SimpleJetCorrector(Files[i],PartonOption));
       else 
         {
           #ifdef STANDALONE
 	     std::stringstream sserr; 
-             sserr<<"FactorizedJetCorrector ERROR: "
-		  <<"unknown correction level: "<<mLevels[i];
+             sserr<<"FactorizedJetCorrector ERROR: "<<"unknown correction level: "<<tmp[i];
 	     throw std::runtime_error(sserr.str());
           #else
-             throw cms::Exception("FactorizedJetCorrector")
-	     <<" unknown correction level: "<<mLevels[i];
+             throw cms::Exception("FactorizedJetCorrector")<<" unknown correction level: "<<tmp[i];
           #endif
         }
+      mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar())); 
+      mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));	
     } 
+}
+//------------------------------------------------------------------------ 
+//--- Mapping between variable names and variable types ------------------
+//------------------------------------------------------------------------
+std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(const std::vector<std::string>& fNames)
+{
+  std::vector<VarTypes> result;
+  for(unsigned i=0;i<fNames.size();i++)
+    {
+      std::string ss = fNames[i]; 
+      if (ss=="JetPt")
+	 result.push_back(kJetPt);
+      else if (ss=="JetEta")
+         result.push_back(kJetEta); 
+      else if (ss=="JetPhi")
+	 result.push_back(kJetPhi);
+      else if (ss=="JetE")
+	 result.push_back(kJetE);
+      else if (ss=="JetEMF")
+	 result.push_back(kJetEMF);
+      else if (ss=="LepPx")
+	 result.push_back(kLepPx);
+      else if (ss=="LepPy")
+	 result.push_back(kLepPy);           
+      else if (ss=="LepPz")
+	 result.push_back(kLepPz);
+      else
+         {
+          #ifdef STANDALONE
+	     std::stringstream sserr; 
+             sserr<<"FactorizedJetCorrector ERROR: "<<"unknown parameter name: "<<ss;
+	     throw std::runtime_error(sserr.str());
+          #else
+             throw cms::Exception("FactorizedJetCorrector")<<" unknown parameter name: "<<ss;
+          #endif
+        }
+    }
+  return result;  
 }
 //------------------------------------------------------------------------ 
 //--- Consistency checker ------------------------------------------------
@@ -286,30 +315,8 @@ std::string FactorizedJetCorrector::removeSpaces(const std::string& ss)
 //------------------------------------------------------------------------
 float FactorizedJetCorrector::getCorrection()
 {
-  float scale,factor;
-  std::vector<float> vx,vy;
-  factor = 1.;
-  for(unsigned int i=0;i<mLevels.size();i++)
-    { 
-      vx = fillVector(mCorrectors[i]->parameters().definitions().binVar());
-      vy = fillVector(mCorrectors[i]->parameters().definitions().parVar());
-      if (mLevels[i]=="L2")
-        mCorrectors[i]->setInterpolation(true);
-      scale = mCorrectors[i]->correction(vx,vy);
-      factor*=scale; 	
-      mJetE *=scale;
-      mJetPt*=scale;
-    } 
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
-  return factor; 
+  std::vector<float> vv = getSubCorrections();
+  return vv[vv.size()-1];
 }
 //------------------------------------------------------------------------ 
 //--- Returns the vector of subcorrections, up to a given level ----------
@@ -322,10 +329,10 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
   factor = 1;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      vx = fillVector(mCorrectors[i]->parameters().definitions().binVar());
-      vy = fillVector(mCorrectors[i]->parameters().definitions().parVar());
-      if (mLevels[i]=="L2")
-        mCorrectors[i]->setInterpolation(true);
+      vx = fillVector(mBinTypes[i]);
+      vy = fillVector(mParTypes[i]);
+      if (mLevels[i]==kL2)
+        mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
       factor*=scale; 
       factors.push_back(factor);	
@@ -346,12 +353,12 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
 //------------------------------------------------------------------------ 
 //--- Reads the parameter names and fills a vector of floats -------------
 //------------------------------------------------------------------------
-std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::string>& fNames)
+std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVarTypes)
 {
   std::vector<float> result;
-  for(unsigned i=0;i<fNames.size();i++) 
+  for(unsigned i=0;i<fVarTypes.size();i++) 
     {
-      if (fNames[i] == "JetEta")
+      if (fVarTypes[i] == kJetEta)
         {
           if (!mIsJetEtaset) 
             {
@@ -365,7 +372,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mJetEta);
         }
-      else if (fNames[i] == "JetPt") 
+      else if (fVarTypes[i] == kJetPt) 
         {
           if (!mIsJetPtset)
             {
@@ -379,7 +386,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mJetPt);
         }
-      else if (fNames[i] == "JetPhi") 
+      else if (fVarTypes[i] == kJetPhi) 
         {
           if (!mIsJetPhiset) 
             {
@@ -393,7 +400,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mJetPt);
         }
-      else if (fNames[i] == "JetE") 
+      else if (fVarTypes[i] == kJetE) 
         {
           if (!mIsJetEset) 
             {
@@ -407,7 +414,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mJetE);
         }
-      else if (fNames[i] == "JetEMF") 
+      else if (fVarTypes[i] == kJetEMF) 
         {
           if (!mIsJetEMFset) 
             {
@@ -421,7 +428,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mJetEMF);
         } 
-      else if (fNames[i] == "LepPx") 
+      else if (fVarTypes[i] == kLepPx) 
         {
           if (!mIsLepPxset) 
             { 
@@ -435,7 +442,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mLepPx);
         }
-      else if (fNames[i] == "LepPy") 
+      else if (fVarTypes[i] == kLepPy) 
         {
           if (!mIsLepPyset) 
             {
@@ -449,7 +456,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
             }
           result.push_back(mLepPy);
         }
-      else if (fNames[i] == "LepPz") 
+      else if (fVarTypes[i] == kLepPz) 
         {
           if (!mIsLepPzset) 
             {
@@ -467,10 +474,10 @@ std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::str
         {
           #ifdef STANDALONE
             std::stringstream sserr; 
-            sserr<<"FactorizedJetCorrector ERROR: unknown parameter "<<fNames[i];
+            sserr<<"FactorizedJetCorrector ERROR: unknown parameter "<<fVarTypes[i];
             throw std::runtime_error(sserr.str());
           #else
-            throw cms::Exception("FactorizedJetCorrector")<<" unknown parameter "<<fNames[i];
+            throw cms::Exception("FactorizedJetCorrector")<<" unknown parameter "<<fVarTypes[i];
           #endif
         }
     }

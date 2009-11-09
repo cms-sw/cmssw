@@ -14,9 +14,11 @@ class SimpleJetCorrector;
 class FactorizedJetCorrector
 {
   public:
+    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kLepPx,kLepPy,kLepPz};
+    enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7};
     FactorizedJetCorrector();
-    FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags);
-    FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions);
+    //FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags);
+    FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
     ~FactorizedJetCorrector();
     void setJetEta      (float fEta);
     void setJetPt       (float fPt); 
@@ -29,6 +31,7 @@ class FactorizedJetCorrector
     void setAddLepToJet (bool fAddLepToJet) {mAddLepToJet = fAddLepToJet;}
     float getCorrection();
     std::vector<float> getSubCorrections();
+    
        
   private:
     //---- Member Functions ----  
@@ -38,9 +41,10 @@ class FactorizedJetCorrector
     std::string parseOption(const std::string& ss, const std::string& type);
     std::string removeSpaces(const std::string& ss);
     std::vector<std::string> parseLevels(const std::string& ss);
-    void initCorrectors(const std::string& fLevels, const std::string& fTags, const std::string& fOptions);
+    void initCorrectors(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions);
     void checkConsistency(const std::vector<std::string>& fLevels, const std::vector<std::string>& fTags);
-    std::vector<float> fillVector(const std::vector<std::string>& fNames);
+    std::vector<float> fillVector(std::vector<VarTypes> fVarTypes);
+    std::vector<VarTypes> mapping(const std::vector<std::string>& fNames);
     //---- Member Data ---------
     float mJetE;
     float mJetEta;
@@ -59,7 +63,8 @@ class FactorizedJetCorrector
     bool  mIsLepPxset;
     bool  mIsLepPyset;
     bool  mIsLepPzset;
-    std::vector<std::string> mLevels; 
+    std::vector<LevelTypes> mLevels;
+    std::vector<std::vector<VarTypes> > mParTypes,mBinTypes; 
     std::vector<SimpleJetCorrector*> mCorrectors;
 };
 #endif
