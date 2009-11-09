@@ -32,16 +32,16 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           BadCells = cms.untracked.vstring(),
 
-                          # Pedestal Client,
-                          PedestalClient                       = cms.untracked.bool(True),
-                          PedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
-                          PedestalClient_nominalPedWidthInADC  = cms.untracked.double(1.),
-                          PedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
-                          PedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
-                          PedestalClient_pedestalsInFC         = cms.untracked.bool(True),
-                          PedestalClient_startingTimeSlice     = cms.untracked.int32(0),
-                          PedestalClient_endingTimeSlice       = cms.untracked.int32(1),
-                          PedestalClient_minErrorFlag          = cms.untracked.double(0.05),
+                          # Reference Pedestal Client,
+                          ReferencePedestalClient                       = cms.untracked.bool(True),
+                          ReferencePedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
+                          ReferencePedestalClient_nominalPedWidthInADC  = cms.untracked.double(1.),
+                          ReferencePedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
+                          ReferencePedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
+                          ReferencePedestalClient_pedestalsInFC         = cms.untracked.bool(True),
+                          ReferencePedestalClient_startingTimeSlice     = cms.untracked.int32(0),
+                          ReferencePedestalClient_endingTimeSlice       = cms.untracked.int32(1),
+                          ReferencePedestalClient_minErrorFlag          = cms.untracked.double(0.05),
                           
                           # DigiClient
                           DigiClient                = cms.untracked.bool(True),
@@ -77,7 +77,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           
                           # DataFormatClient
                           DataFormatClient          = cms.untracked.bool(True),
-
+                          DataFormatClient_minErrorFlag = cms.untracked.double(0.01),
+                          
                           # Summary Client
                           SummaryClient             = cms.untracked.bool(True),
 
@@ -154,15 +155,16 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
 
     # Pedestal Client
-    client.PedestalClient                         = monitor.PedestalMonitor
-    client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
-    client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
-    client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
-    client.PedestalClient_maxPedWidthDiffADC      = monitor.PedestalMonitor_maxPedWidthDiffADC
-    client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
-    client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
-    client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
-    #client.PedestalClient_minErrorFlag           = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
+    client.ReferencePedestalClient                         = monitor.ReferencePedestalMonitor
+    client.ReferencePedestalClient_nominalPedMeanInADC     = monitor.ReferencePedestalMonitor_nominalPedMeanInADC
+    client.ReferencePedestalClient_nominalPedWidthInADC    = monitor.ReferencePedestalMonitor_nominalPedWidthInADC
+    client.ReferencePedestalClient_maxPedMeanDiffADC       = monitor.ReferencePedestalMonitor_maxPedMeanDiffADC
+    client.ReferencePedestalClient_maxPedWidthDiffADC      = monitor.ReferencePedestalMonitor_maxPedWidthDiffADC
+    client.ReferencePedestalClient_pedestalsInFC           = monitor.ReferencePedestalMonitor_pedestalsInFC
+    client.ReferencePedestalClient_startingTimeSlice       = monitor.ReferencePedestalMonitor_startingTimeSlice
+    client.ReferencePedestalClient_endingTimeSlice         = monitor.ReferencePedestalMonitor_endingTimeSlice
+    client.ReferencePedestalClient_makeDiagnosticPlots     = monitor.ReferencePedestalMonitor_makeDiagnosticPlots
+    #client.ReferencePedestalClient_minErrorFlag           = monitor.ReferencePedestalMonitor_minErrorFlag # want to keep these separate?
 
     # Rec Hit Client
     client.RecHitClient                           = monitor.RecHitMonitor
@@ -185,7 +187,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "Nlumiblocks        = ", client.Nlumiblocks
         print "showTiming         = ", client.showTiming
         print "PrescaleEvt        = ", client.diagnosticPrescaleEvt
-        print "Pedestal Client    = ", client.PedestalClient
+        print "ReferencePedestal Client    = ", client.ReferencePedestalClient
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
         print "\t\t Test DeadCell occupancy? ", client.DeadCellClient_test_occupancy

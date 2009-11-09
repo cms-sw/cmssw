@@ -14,25 +14,7 @@ HcalMonitorClient::HcalMonitorClient(){}
 //--------------------------------------------------------
 HcalMonitorClient::~HcalMonitorClient(){
 
-  if (debug_>0) cout << "HcalMonitorClient: Exit ..." << endl;
-  /*
-    // leave deletions to code framework?
-  if( summary_client_ )    delete summary_client_;
-  if( dataformat_client_ ) delete dataformat_client_;
-  if( digi_client_ )       delete digi_client_;
-  if( rechit_client_ )     delete rechit_client_;
-  if( pedestal_client_ )   delete pedestal_client_;
-  if( led_client_ )        delete led_client_;
-  if( laser_client_ )      delete laser_client_;
-  if( hot_client_ )        delete hot_client_;
-  if( dead_client_ )       delete dead_client_;
-  if( tp_client_ )         delete tp_client_;
-  if( ct_client_ )         delete ct_client_;
-  if( beam_client_)        delete beam_client_;
-  if (dqm_db_)             delete dqm_db_;
-  //if( dbe_ )               delete dbe_;
-  */
-  if (debug_>0) std::cout <<"HcalMonitorClient: Finished destructor..."<<endl;
+  if (debug_>0) std::cout << "HcalMonitorClient: Exit ..." << endl;
 }
 
 //--------------------------------------------------------
@@ -123,15 +105,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
       if( runningStandalone_ ) std::cout << "-->standAlone switch is ON" << endl;
       else std::cout << "-->standAlone switch is OFF" << endl;
     }
-  // global ROOT style
-  gStyle->Reset("Default");
-  gStyle->SetCanvasColor(0);
-  gStyle->SetPadColor(0);
-  gStyle->SetFillColor(0);
-  gStyle->SetTitleFillColor(10);
-  //  gStyle->SetOptStat(0);
-  gStyle->SetOptStat("ouemr");
-  gStyle->SetPalette(1);
 
   // clients' constructors
   if( ps.getUntrackedParameter<bool>("SummaryClient", true) )
@@ -157,10 +130,10 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     rechit_client_       = new HcalRecHitClient();
     rechit_client_->init(ps, dbe_,"RecHitClient");
 }
-  if( ps.getUntrackedParameter<bool>("PedestalClient", false) ){
+  if( ps.getUntrackedParameter<bool>("ReferencePedestalClient", false) ){
     if(debug_>0)   std::cout << "===>DQM Pedestal Client is ON" << endl;
     pedestal_client_     = new HcalPedestalClient();
-    pedestal_client_->init(ps, dbe_,"PedestalClient"); 
+    pedestal_client_->init(ps, dbe_,"ReferencePedestalClient"); 
   }
   if( ps.getUntrackedParameter<bool>("LEDClient", false) ){
     if(debug_>0)   std::cout << "===>DQM LED Client is ON" << endl;
@@ -798,7 +771,8 @@ void HcalMonitorClient::report(bool doUpdate) {
   errorSummary();
 
   //create html output if specified...
-  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
+  if( baseHtmlDir_.size() != 0 && ievt_>0) 
+    htmlOutput();
   return;
 }
 
@@ -841,6 +815,16 @@ void HcalMonitorClient::errorSummary(){
 void HcalMonitorClient::htmlOutput(void){
 
   if (debug_>0) std::cout << "Preparing HcalMonitorClient html output ..." << endl;
+  
+  // global ROOT style
+  gStyle->Reset("Default");
+  gStyle->SetCanvasColor(0);
+  gStyle->SetPadColor(0);
+  gStyle->SetFillColor(0);
+  gStyle->SetTitleFillColor(10);
+  //  gStyle->SetOptStat(0);
+  gStyle->SetOptStat("ouemr");
+  gStyle->SetPalette(1);
 
   char tmp[20];
   if(irun_!=-1) sprintf(tmp, "DQM_Hcal_R%09d", irun_);
