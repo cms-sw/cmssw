@@ -23,20 +23,11 @@ class DistortedMuonProducer : public edm::EDProducer {
       edm::InputTag genMatchMapTag_;
       std::vector<double> etaBinEdges_;
 
-      bool useDBForMomentumCorrections_;
-      std::string dbScaleLabel_;
-      std::string dbDataResolutionLabel_;
-      std::string dbMCResolutionLabel_;
-
       std::vector<double> momentumScaleShift_;
       std::vector<double> uncertaintyOnOneOverPt_; // in [1/GeV]
       std::vector<double> relativeUncertaintyOnPt_;
 
       std::vector<double> efficiencyRatioOverMC_;
-
-      std::auto_ptr<MomentumScaleCorrector> momCorrector_;
-      std::auto_ptr<ResolutionFunction> momResolutionData_;
-      std::auto_ptr<ResolutionFunction> momResolutionMC_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,13 +41,6 @@ class DistortedMuonProducer : public edm::EDProducer {
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Random/RandGauss.h>
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
-#include "CondFormats/DataRecord/interface/MuScleFitDBobjectRcd.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/BaseFunction.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
-
 /////////////////////////////////////////////////////////////////////////////////////
 DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
 
@@ -66,10 +50,6 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
   // Input products
       muonTag_ = pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"));
       genMatchMapTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenMatchMapTag", edm::InputTag("genMatchMap"));
-      useDBForMomentumCorrections_ = pset.getUntrackedParameter<bool> ("UseDBForMomentumCorrections", false);
-      dbScaleLabel_ = pset.getUntrackedParameter<std::string> ("DBScaleLabel", "scale");
-      dbDataResolutionLabel_ = pset.getUntrackedParameter<std::string> ("DBDataResolutionLabel", "datareso");
-      dbMCResolutionLabel_ = pset.getUntrackedParameter<std::string> ("DBMCResolutionLabel", "mcreso");
 
   // Eta edges
       std::vector<double> defEtaEdges;
@@ -110,7 +90,6 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
       bool momWrong =    momentumScaleShift_.size()!=ninputs_expected 
                       || uncertaintyOnOneOverPt_.size()!=ninputs_expected 
                       || relativeUncertaintyOnPt_.size()!=ninputs_expected;
-      momWrong = momWrong && (!useDBForMomentumCorrections_);
       if ( effWrong and momWrong) {
            edm::LogError("") << "WARNING: DistortedMuonProducer : Size of some parameters do not match the EtaBinEdges vector!!";
       }
@@ -123,25 +102,6 @@ DistortedMuonProducer::~DistortedMuonProducer(){
 
 /////////////////////////////////////////////////////////////////////////////////////
 void DistortedMuonProducer::beginJob(const edm::EventSetup& iSetup) {
-      if (useDBForMomentumCorrections_) {
-            edm::ESHandle<MuScleFitDBobject> dbObject1;
-            iSetup.get<MuScleFitDBobjectRcd>().get(dbScaleLabel_,dbObject1);
-            momCorrector_.reset(new MomentumScaleCorrector(dbObject1.product()));
-
-            LogTrace("") << ">>> Using database for momentum scale corrections !!";
-
-            edm::ESHandle<MuScleFitDBobject> dbObject2;
-            iSetup.get<MuScleFitDBobjectRcd>().get(dbDataResolutionLabel_, dbObject2);
-            momResolutionData_.reset(new ResolutionFunction(dbObject2.product()));
-
-            edm::ESHandle<MuScleFitDBobject> dbObject3;
-            iSetup.get<MuScleFitDBobjectRcd>().get(dbMCResolutionLabel_, dbObject3);
-            momResolutionMC_.reset(new ResolutionFunction(dbObject3.product()));
-
-            LogTrace("") << ">>> Using database for momentum resolution corrections !!";
-
-      }
-      
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -213,24 +173,12 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
             }
 
             // Set shift
-            if (useDBForMomentumCorrections_) {
-                  shift = ( (*momCorrector_)(*mu) - mu->pt() ) / ptgen;
-            } else {
-                  shift = momentumScaleShift_[etaBin];
-            }
+            shift = momentumScaleShift_[etaBin];
             LogTrace("") << "\tmomentumScaleShift= " << shift*100 << " [%]"; 
 
             // Set resolutions
-            if (useDBForMomentumCorrections_) {
-                  sigma1 = 0.;
-                  sigma2 = pow(momResolutionData_->sigmaPt(*mu),2) -
-                              pow(momResolutionMC_->sigmaPt(*mu),2);
-                  if (sigma2>0.) sigma2 = sqrt(sigma2)/ptgen; else sigma2 = 0.;
-            } else {
-                  sigma1 = uncertaintyOnOneOverPt_[etaBin];
-                  sigma2 = relativeUncertaintyOnPt_[etaBin];
-            }
-
+            sigma1 = uncertaintyOnOneOverPt_[etaBin];
+            sigma2 = relativeUncertaintyOnPt_[etaBin];
             LogTrace("") << "\tuncertaintyOnOneOverPt= " << sigma1 << " [1/GeV]"; 
             LogTrace("") << "\trelativeUncertaintyOnPt= " << sigma2*100 << " [%]"; 
 

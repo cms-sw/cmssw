@@ -115,7 +115,9 @@ src/DistortedMuonProducer.cc
   vectors in the configuration file. To include momentum distortions properly, 
   we perform a previous matching between reconstructed and generated muons 
   using standard CMSSW matching utilities.  
-  Example of usage:
+
+- An example showing how to use this code is given in "test/distortedMuons.py". The 
+  relevant lines in the configuration file are:
 
       process.genMatchMap = cms.EDFilter("MCTruthDeltaRMatcherNew",
         src = cms.InputTag("muons"),
@@ -134,7 +136,27 @@ src/DistortedMuonProducer.cc
         EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)
       )
 
-- A simple example showing how to use this code is given in "test/distortedMuons.py".
+src/DistortedMuonProducerFromDB.cc (under development)
+==================================
+
+- Writes into the data structure a new reco::Muon collection distorted by
+  scale and smearing effects. This new collection can be easily used as a 
+  realistic Monte Carlo prediction for the latest steps of the analysis. 
+  We perform a previous matching between reconstructed and generated muons 
+  using standard CMSSW matching utilities. The input distortions are taken 
+  from the database. Efficiency effects may be added in the future.
+
+- An example showing how to use this code is given in "test/distortedMuonsFromDB.py". 
+  The relevant lines in the configuration file, in addition to the specific 
+  PoolDBESSources, are:
+
+      process.distortedMuons = cms.EDFilter("DistortedMuonProducerFromDB",
+        MuonTag = cms.untracked.InputTag("muons"),
+        GenMatchTag = cms.untracked.InputTag("genMatchMap"),
+        DBScaleLabel = cms.untracked.string(''),
+        DBDataResolutionLabel = cms.untracked.string('MuScleFit_Resol_OctoberExercise_EWK_InnerTrack_WithLabel'),
+        DBMCResolutionLabel = cms.untracked.string('MuScleFit_Resol_OctoberExercise_SherpaIdealMC_WithLabel'),
+      )
 
 src/DistortedMETProducer.cc
 ===========================
