@@ -300,6 +300,29 @@ process.looper = cms.Looper(
                            -0.000000315315, 0., 0.,
                            0.0000147547, -0.00000836992, 0., 0., 0., 0.),
 
+
+    # ---------------------------------
+    # Scale fit type=19: R.C. Nov.2009 -> Z misaligned with Startup scenario
+    # --------------------------------
+##     ScaleFitType = cms.int32(19),
+##     parScaleOrder = cms.vint32(0, # pt offset
+##                                0,0,0, # phi amplitude |  phi frequency | phi phase (Pos)
+##                                0,0, # Eta slope | Eta quadratic
+##                                0,0,0), # phi amplitude | phi frequency | phi phase (Neg)
+    
+##     parScaleFix =   cms.vint32(0,
+##                                0,0,0,
+##                                0,0,
+##                                0,0,0),
+
+    
+##     parScale = cms.vdouble(1.0,
+##                            0.,1.,0.,
+##                            0.0000147547, -0.00000836992,
+##                            0.,1.,0.),
+  
+
+
     # ------------------------- #
     # Background fit parameters #
     # ------------------------- #
