@@ -6,18 +6,14 @@ import subprocess
 import re
 import struct
 
-from Vispa.Main.Exceptions import *
-try:
-    import FWCore.ParameterSet.SequenceTypes as sqt
-    import FWCore.ParameterSet.Config as cms
-    import FWCore.ParameterSet.Modules as mod
-    import FWCore.ParameterSet.Types as typ
-    import FWCore.ParameterSet.Mixins as mix
-except Exception:
-    raise ImportError("cannot import CMSSW: " + exception_traceback())
+import FWCore.ParameterSet.SequenceTypes as sqt
+import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Modules as mod
+import FWCore.ParameterSet.Types as typ
+import FWCore.ParameterSet.Mixins as mix
 
-from Vispa.Plugins.ConfigBrowser.ConfigDataAccessor import *
-from Vispa.Plugins.ConfigBrowser.FileExportPlugin import *
+from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
+from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 
 class DotProducer(object):
   def __init__(self,data,options,shapes):

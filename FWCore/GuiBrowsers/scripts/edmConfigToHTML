@@ -17,8 +17,8 @@ except Exception:
 
 sys.path.append(distBaseDirectory)
 
-from Vispa.Plugins.ConfigBrowser.ConfigDataAccessor import ConfigDataAccessor
-from Vispa.Plugins.ConfigBrowser.HTMLExport import HTMLExport
+from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
+from FWCore.GuiBrowsers.HTMLExport import HTMLExport
 import os.path
 import sys
 """

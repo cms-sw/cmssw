@@ -3,18 +3,14 @@ import os.path
 import logging
 import random
 
-from Vispa.Main.Exceptions import *
-try:
-    import FWCore.ParameterSet.SequenceTypes as sqt
-    import FWCore.ParameterSet.Config as cms
-    import FWCore.ParameterSet.Modules as mod
-    import FWCore.ParameterSet.Types as typ
-    import FWCore.ParameterSet.Mixins as mix
-except Exception:
-    logging.error(__name__ + ": " + exception_traceback())
+import FWCore.ParameterSet.SequenceTypes as sqt
+import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Modules as mod
+import FWCore.ParameterSet.Types as typ
+import FWCore.ParameterSet.Mixins as mix
 
-from Vispa.Plugins.ConfigBrowser.ConfigDataAccessor import *
-from Vispa.Plugins.ConfigBrowser.FileExportPlugin import *
+from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
+from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 
 class JsonExport(FileExportPlugin):
   option_types={}

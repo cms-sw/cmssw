@@ -1,8 +1,24 @@
 #!/usr/bin/env python
 
+import os
+import sys
 from optparse import OptionParser
-import Vispa.Plugins.ConfigBrowser.ConfigDataAccessor as cda
-import Vispa.Plugins.ConfigBrowser.DOTExport as de
+
+try:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
+except Exception:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+
+sys.path.append(distBaseDirectory)
+
+import Vispa.Plugins.ConfigEditor.ConfigDataAccessor as cda
+import FWCore.GuiBrowsers.DOTExport as de
 import os.path
 
 """
