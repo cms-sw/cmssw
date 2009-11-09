@@ -201,7 +201,7 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << "Total number of events after Muon ID cuts: " << nid << " [events]";
       LogVerbatim("") << "Total number of events after Acop cut: " << nacop << " [events]";
       LogVerbatim("") << "Total number of events after iso cut: " << niso << " [events]";
-      LogVerbatim("") << "Total number of events selected: " << esel << " [events]";
+      LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Efficiencies:";
       LogVerbatim("") << "Trigger Efficiency:                   " << "(" << setprecision(4) << etrig*100. <<" +/- "<< setprecision(2) << sqrt(etrig*(1-etrig)/all)*100. << ")%";
       LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
