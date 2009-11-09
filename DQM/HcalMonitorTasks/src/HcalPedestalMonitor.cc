@@ -182,34 +182,39 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   CaloSamples tool;  // digi values in ADC will be converted to fC values stored in tool
   float ADC_myval=0;
 
-  // dummy fills for histograms
-  for (unsigned int i=0;i<MeanMapByDepth.depth.size();++i)
-    {
-      MeanMapByDepth.depth[i]->setBinContent(0,ievt_);
-      RMSMapByDepth.depth[i]->setBinContent(0,ievt_);
-      ADC_PedestalFromDBByDepth.depth[i]->setBinContent(0,ievt_);
-      ADC_WidthFromDBByDepth.depth[i]->setBinContent(0,ievt_);
-      fC_PedestalFromDBByDepth.depth[i]->setBinContent(0,ievt_);
-      fC_WidthFromDBByDepth.depth[i]->setBinContent(0,ievt_);
-      ADCPedestalMean.depth[i]->setBinContent(0,ievt_);
-      ADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
-      fCPedestalMean.depth[i]->setBinContent(0,ievt_);
-      fCPedestalRMS.depth[i]->setBinContent(0,ievt_);
-      ProblemCellsByDepth.depth[i]->setBinContent(0,ievt_);
-    }
-
   for (unsigned int i=0;i<ADC_1D_PedestalFromDBByDepth.size();++i)
     {
-      ADC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
-      ADC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
-      fC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
-      fC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
-      ADCPedestalMean_1D[i]->setBinContent(0,ievt_);
-      ADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
-      fCPedestalMean_1D[i]->setBinContent(0,ievt_);
-      fCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      ADC_1D_PedestalFromDBByDepth[i]->update();
+      ADC_1D_WidthFromDBByDepth[i]->update();
+      fC_1D_PedestalFromDBByDepth[i]->update();
+      fC_1D_WidthFromDBByDepth[i]->update();
+      ADCPedestalMean_1D[i]->update();
+      ADCPedestalRMS_1D[i]->update();
+      fCPedestalMean_1D[i]->update();
+      fCPedestalRMS_1D[i]->update();
     }
-  ProblemCells->setBinContent(0,ievt_);
+  ProblemCells->update();
+  for (unsigned int i=0;i<ProblemCellsByDepth.depth.size();++i)
+    ProblemCellsByDepth.depth[i]->update();
+  
+  if (makeDiagnostics)
+    {
+      // dummy fills for histograms
+      for (unsigned int i=0;i<MeanMapByDepth.depth.size();++i)
+	{
+	  MeanMapByDepth.depth[i]->update();
+	  RMSMapByDepth.depth[i]->update();
+	  ADC_PedestalFromDBByDepth.depth[i]->update();
+	  ADC_WidthFromDBByDepth.depth[i]->update();
+	  fC_PedestalFromDBByDepth.depth[i]->update();
+	  fC_WidthFromDBByDepth.depth[i]->update();
+	  ADCPedestalMean.depth[i]->update();
+	  ADCPedestalRMS.depth[i]->update();
+	  fCPedestalMean.depth[i]->update();
+	  fCPedestalRMS.depth[i]->update();
+	  ProblemCellsByDepth.depth[i]->update();
+	}
+    }
 
   // HB/HE Loop
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); 
@@ -372,31 +377,33 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   int subdet=0;
   int ieta=-9999;
 
+
   for (int i=0;i<4;++i)
     {
-      ADCPedestalMean_1D[subdet]->Reset();
-      ADCPedestalRMS_1D[subdet]->Reset();
-      fCPedestalMean_1D[subdet]->Reset();
-      fCPedestalRMS_1D[subdet]->Reset();
+      ADCPedestalMean_1D[i]->Reset();
+      ADCPedestalRMS_1D[i]->Reset();
+      fCPedestalMean_1D[i]->Reset();
+      fCPedestalRMS_1D[i]->Reset();
   
       //subtracted pedestals -- disable for now
       /*
-      subADCPedestalMean_1D[subdet]->Reset();
-      subADCPedestalRMS_1D[subdet]->Reset();
-      subfCPedestalMean_1D[subdet]->Reset();
-      subfCPedestalRMS_1D[subdet]->Reset();
+      subADCPedestalMean_1D[i]->Reset();
+      subADCPedestalRMS_1D[i]->Reset();
+      subfCPedestalMean_1D[i]->Reset();
+      subfCPedestalRMS_1D[i]->Reset();
       */
     }
 
   ProblemCells->Reset();
-  ProblemCells->setBinContent(0,0,ievt_);
+  //ProblemCells->setBinContent(0,0,ievt_);
   int etabins=0;
   int phibins=0;
   int zside=0;
+
   for (int depth=0;depth<4;++depth)
     {
       ProblemCellsByDepth.depth[depth]->Reset();
-      ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+      //ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
       subdet=depth+1;
       etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
       phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
@@ -416,18 +423,21 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 		    {
 		      if (abs(ieta)<17) subdet=1; // HB
 		      else if (eta<13 || eta > 71) subdet=4; // HF
-		      else subdet=2; // HE
+		      else {subdet=2;} // HE
 		    }
 		  else if (depth==1)
 		    {
-		      if (abs(ieta)<13) subdet=1; // HB
+		      if (abs(ieta)<17) subdet=1; // HB
 		      else if (eta<13 || eta>43) subdet=4; // HF
-		      else subdet=2; // HE
+		      else {subdet=2;}// HE
 		    }
 		}
 	      else if (depth==3) // "true" depth=4; HO
 		subdet=3;
-	      else subdet=2; //"true" depth=3; HE 
+	      else if (depth==2)
+		{
+		  subdet=2; //"true" depth=3; HE 
+		}
 	      // fillvalue = fraction of events used for pedestal determination
 	      // a small fillvalue causes the problem plots to get filled with a smaller value than a large fillvalue
 	      if ((endingTimeSlice_-startingTimeSlice_+1)*ievt_==0) continue;
@@ -503,7 +513,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	    } // for (int phi)
 	} // for (int eta)
     } // for (int depth...)
-  
   etabins=ProblemCells->getNbinsX();
   phibins=ProblemCells->getNbinsY();
 
