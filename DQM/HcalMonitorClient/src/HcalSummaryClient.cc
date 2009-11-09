@@ -45,7 +45,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 			 " Hardware Watch Cells", // base name of depth histograms
 			 "DataFormatMonitor/ HardwareWatchCells", // name of problem summary plot
 			 "DataFormat", // shorthand name for the object
-			 0.0); // minimum threshold required to mark a cell as bad
+			 ps.getUntrackedParameter<double>("DataFormatClient_minErrorFlag",0.01)); // minimum threshold required to mark a cell as bad
   
   // Some fraction of events show up with all digis reporting bad
   // (All digis invalid/error?)
@@ -239,8 +239,8 @@ void HcalSummaryClient::setup(void)
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(2,"HE");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(3,"HO");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(4,"HF");
-  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(5,"H00");
-  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(6,"H012");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(5,"HO0");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(6,"HO12");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(7,"HFlumi");
   (StatusVsLS->getTH2F())->GetXaxis()->SetTitle("Lumi Section");
   (StatusVsLS->getTH2F())->SetMinimum(-1);
@@ -259,8 +259,8 @@ void HcalSummaryClient::setup(void)
   myhist->GetXaxis()->SetBinLabel(2,"HE");
   myhist->GetXaxis()->SetBinLabel(3,"HO");
   myhist->GetXaxis()->SetBinLabel(4,"HF");
-  myhist->GetXaxis()->SetBinLabel(5,"H00");
-  myhist->GetXaxis()->SetBinLabel(6,"H012");
+  myhist->GetXaxis()->SetBinLabel(5,"HO0");
+  myhist->GetXaxis()->SetBinLabel(6,"HO12");
   myhist->GetXaxis()->SetBinLabel(7,"HFlumi");
   myhist->GetYaxis()->SetBinLabel(1,"Status");
   myhist->SetMarkerSize(3);
