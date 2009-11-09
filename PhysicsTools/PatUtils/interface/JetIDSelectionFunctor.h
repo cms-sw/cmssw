@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: JetIDSelectionFunctor.h,v 1.6 2009/10/12 01:07:00 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.7 2009/11/05 20:11:30 srappocc Exp $
 */
 
 
@@ -112,7 +112,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     double corrPt = jet.correctedP4( pat::JetCorrFactors::L3 ).Pt();
     double emf = jet.emEnergyFraction();
 
-    if ( ignoreCut("MINIMAL_EMF") || abs_eta > 2.55 || emf > 0.01 ) passCut( ret, "MINIMAL_EMF");
+    if ( ignoreCut("MINIMAL_EMF") || abs_eta > 2.6 || emf > 0.01 ) passCut( ret, "MINIMAL_EMF");
             
     if ( quality_ == LOOSE_AOD ) {
 
@@ -123,7 +123,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       
       // loose EMF Cut from aod
       bool emf_loose = true;
-      if( abs_eta <= 2.55 ) { // HBHE
+      if( abs_eta <= 2.6 ) { // HBHE
 	if( jet.emEnergyFraction() <= 0.01 ) emf_loose = false;
       } else {                // HF
 	if( jet.emEnergyFraction() <= -0.9 ) emf_loose = false;
@@ -141,7 +141,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 
       // loose EMF Cut
       bool emf_loose = true;
-      if( abs_eta <= 2.55 ) { // HBHE
+      if( abs_eta <= 2.6 ) { // HBHE
 	if( jet.emEnergyFraction() <= 0.01 ) emf_loose = false;
       } else {                // HF
 	if( jet.emEnergyFraction() <= -0.9 ) emf_loose = false;
@@ -158,7 +158,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	// tight emf cut
 	bool tight_emf = true;
 	if( abs_eta >= 1 && corrPt >= 80 && jet.emEnergyFraction() >= 1 ) tight_emf = false; // outside HB	  
-	if( abs_eta >= 2.55 ) { // outside HBHE
+	if( abs_eta >= 2.6 ) { // outside HBHE
 	  if( jet.emEnergyFraction() <= -0.3 ) tight_emf = false;
 	  if( abs_eta < 3.25 ) { // HE-HF transition region
 	    if( corrPt >= 50 && jet.emEnergyFraction() <= -0.2 ) tight_emf = false;
