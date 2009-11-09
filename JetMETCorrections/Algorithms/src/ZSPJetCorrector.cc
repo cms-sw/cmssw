@@ -5,7 +5,7 @@
 //
 #include "JetMETCorrections/Algorithms/interface/ZSPJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleZSPJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,7 @@ ZSPJetCorrector::ZSPJetCorrector (const edm::ParameterSet& fConfig) {
    std::string file="CondFormats/JetMETObjects/data/"+(*it)+".txt";
 //   cout<<" File name "<<file<<endl;
    edm::FileInPath f2(file);
-   mSimpleCorrectorOffset.push_back(new SimpleL1OffsetCorrector (f2.fullPath()));
+   mSimpleCorrectorOffset.push_back(new SimpleJetCorrector (f2.fullPath()));
  }
  }
 
@@ -52,7 +52,10 @@ double ZSPJetCorrector::correction (const LorentzVector& fJet) const {
   double b = a;
   if(iPU >= 0) {
   if(mSimpleCorrectorOffset.size()>0) {
-  b = mSimpleCorrectorOffset[fixedPU]->correctionEnEta (a*fJet.E(), fJet.Eta());
+  std::vector<float> binVar,parVar;
+  binVar.push_back(fJet.eta());
+  parVar.push_back(a*fJet.E());
+  b = mSimpleCorrectorOffset[fixedPU]->correction(binVar,parVar);
   // std::cout<<"Simple  Second correction "<<b<<std::endl;
   } else {
  // std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;
@@ -82,7 +85,10 @@ double ZSPJetCorrector::correction( const reco::Jet& fJet, const edm::Event& iEv
   b = a;
   if(iPU >= 0) {
   if(mSimpleCorrectorOffset.size()>0) {
-  b = mSimpleCorrectorOffset[nPU]->correctionEnEta (a*fJet.p4().E(), fJet.p4().Eta());
+  std::vector<float> binVar,parVar;
+  binVar.push_back(fJet.eta());
+  parVar.push_back(a*fJet.p4().E());
+  b = mSimpleCorrectorOffset[nPU]->correction(binVar,parVar);
  // std::cout<<" Lumi section Second correction "<<b<<" "<<nPU<<std::endl;
   } else {
  // std::cout<<" No offset files but iPU "<<iPU<<" check configuration JetMETCorrections/Configuration/python/ZSPOffsetJetCorrections219_cff.py "<<std::endl;

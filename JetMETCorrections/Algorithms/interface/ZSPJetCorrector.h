@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: ZSPJetCorrector.h,v 1.3 2007/12/08 01:55:42 fedor Exp $
+// $Id: ZSPJetCorrector.h,v 1.4 2009/10/19 15:14:59 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -9,7 +9,7 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleZSPJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -39,7 +39,7 @@ class ZSPJetCorrector : public JetCorrector {
 
  private:
   std::vector<SimpleZSPJetCorrector*>   mSimpleCorrector;
-  std::vector<SimpleL1OffsetCorrector*> mSimpleCorrectorOffset;
+  std::vector<SimpleJetCorrector*>      mSimpleCorrectorOffset;
   std::vector<std::string>              theFilesL1Offset;
   std::vector<std::string>              theFilesZSP;
   int                                   iPU;
