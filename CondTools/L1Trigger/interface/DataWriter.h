@@ -91,7 +91,7 @@ void DataWriter::readObject( const std::string& payloadToken,
  
   // Get object from POOL
   pool::Ref<T> ref = session.getTypedObject<T>(payloadToken) ;
-  outputObject = *obj ;
+  outputObject = *ref ;
   tr.commit ();
 }
 
