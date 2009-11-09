@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/26 15:14:29 $
- * $Revision: 1.142 $
+ * $Date: 2009/11/03 16:28:16 $
+ * $Revision: 1.143 $
  * \author W Fisher
  * \author J Temple
  *
@@ -107,7 +107,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     rhMon_->setup(ps, dbe_);
   }
   
-  if ( ps.getUntrackedParameter<bool>("PedestalMonitor", false) ) {
+  if ( ps.getUntrackedParameter<bool>("ReferencePedestalMonitor", false) ) {
     if(debug_>0) std::cout << "HcalMonitorModule: Pedestal monitor flag is on...." << std::endl;
     pedMon_ = new HcalPedestalMonitor();
     pedMon_->setup(ps, dbe_);
@@ -372,7 +372,6 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   HEpresent_ = 0;
   HOpresent_ = 0;
   HFpresent_ = 0;
-  ZDCpresent_= 0;
   reset();
 
   if ( dbe_ != NULL ){
@@ -399,7 +398,6 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
     meHE_ = dbe_->bookInt("HEpresent");
     meHO_ = dbe_->bookInt("HOpresent");
     meHF_ = dbe_->bookInt("HFpresent");
-    meZDC_ = dbe_->bookInt("ZDCpresent");
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
     meEvtMask_->Fill(-1);
@@ -409,7 +407,6 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
     meHE_->Fill(HEpresent_);
     meHO_->Fill(HOpresent_);
     meHF_->Fill(HFpresent_);
-    meZDC_->Fill(ZDCpresent_);
   }
 
   edm::ESHandle<HcalDbService> pSetup;
@@ -455,9 +452,8 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   c.get<HcalDbRecord>().get(conditions_);
 
   // fill reference pedestals with database values
-  // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
-  //if (pedMon_!=NULL)
-  //pedMon_->fillDBValues(*conditions_);
+  if (pedMon_!=NULL)
+    pedMon_->fillDBValues(*conditions_);
   //if (deadMon_!=NULL)
   //  deadMon_->createMaps(*conditions_);
   if (hotMon_!=NULL)
@@ -867,10 +863,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if ((checkHB_ && HBpresent_==0) ||
 	  (checkHE_ && HEpresent_==0) ||
 	  (checkHO_ && HOpresent_==0) ||
-	  (checkHF_ && HFpresent_==0) ||
-	  (checkZDC_ && ZDCpresent_==0))
+	  (checkHF_ && HFpresent_==0) )
+	  
 	
-	CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi, *zdc_digi);
+	CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi);
     }
   else
     {
@@ -1041,7 +1037,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
       digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
-			     //*zdc_digi,
 			     *conditions_,*report);
     }
   if (showTiming_)
@@ -1053,7 +1048,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
     {
-      pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*zdc_digi,*conditions_);
+      pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
     }
   if (showTiming_)
     {
@@ -1244,7 +1239,7 @@ bool HcalMonitorModule::prescale()
 {
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_>0) std::cout <<"HcalMonitorModule::prescale"<<endl;
+  if (debug_>1) std::cout <<"HcalMonitorModule::prescale"<<endl;
   
   gettimeofday(&psTime_.updateTV,NULL);
   double time = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
@@ -1295,9 +1290,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 					       const HcalElectronicsMap& emap,
 					       const HBHEDigiCollection& hbhedigi,
 					       const HODigiCollection& hodigi,
-					       const HFDigiCollection& hfdigi,
-					       const ZDCDigiCollection& zdcdigi
-
+					       const HFDigiCollection& hfdigi
 					       )
 {
   vector<int> fedUnpackList;
@@ -1307,12 +1300,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
     {
       fedUnpackList.push_back(i);
     }
-  
-  if (ZDCpresent_==0 && zdcdigi.size()>0)
-    {
-      ZDCpresent_=1;
-      meZDC_->Fill(ZDCpresent_);
-    }
+
   for (vector<int>::const_iterator i=fedUnpackList.begin();
        i!=fedUnpackList.end(); 
        ++i) 

@@ -61,24 +61,23 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            hfRecHitLabel = cms.InputTag("hfreco"),
                            zdcRecHitLabel = cms.InputTag("zdcreco"),                           
                            hcalLaserLabel = cms.InputTag("hcalLaserReco"),                       
-                           #Emulator
+                           #TRIGGER EMULATOR
                            emulTPLabel = cms.InputTag("valHcalTriggerPrimitiveDigis"),
-                           
+
                            # PEDESTAL MONITOR
-                           PedestalMonitor                              = cms.untracked.bool(True),
-                           # Add in a make diagnostic plot variable here somewhere?  Peds don't currently have diagnostic plots
-                           PedestalMonitor_pedestalsPerChannel          = cms.untracked.bool(True), # not used
-                           PedestalMonitor_pedestalsInFC                = cms.untracked.bool(True),
-                           PedestalMonitor_nominalPedMeanInADC          = cms.untracked.double(3.),
-                           PedestalMonitor_nominalPedWidthInADC         = cms.untracked.double(1.),
-                           PedestalMonitor_maxPedMeanDiffADC            = cms.untracked.double(1.),
-                           PedestalMonitor_maxPedWidthDiffADC           = cms.untracked.double(1.),
-                           PedestalMonitor_startingTimeSlice            = cms.untracked.int32(0),
-                           PedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
-                           PedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
-                           PedestalMonitor_checkNevents                 = cms.untracked.int32(1000),
-                           PedestalMonitor_minEntriesPerPed             = cms.untracked.uint32(100),
-                           PedestalMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
+                           ReferencePedestalMonitor                              = cms.untracked.bool(True),
+                           ReferencePedestalMonitor_pedestalsPerChannel          = cms.untracked.bool(True), # not used
+                           ReferencePedestalMonitor_pedestalsInFC                = cms.untracked.bool(True),
+                           ReferencePedestalMonitor_nominalPedMeanInADC          = cms.untracked.double(3.),
+                           ReferencePedestalMonitor_nominalPedWidthInADC         = cms.untracked.double(1.),
+                           ReferencePedestalMonitor_maxPedMeanDiffADC            = cms.untracked.double(1.),
+                           ReferencePedestalMonitor_maxPedWidthDiffADC           = cms.untracked.double(1.),
+                           ReferencePedestalMonitor_startingTimeSlice            = cms.untracked.int32(0),
+                           ReferencePedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
+                           ReferencePedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
+                           ReferencePedestalMonitor_checkNevents                 = cms.untracked.int32(1000),
+                           ReferencePedestalMonitor_minEntriesPerPed             = cms.untracked.uint32(100),
+                           ReferencePedestalMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
 
                            # DEAD CELL MONITOR
                            DeadCellMonitor                              = cms.untracked.bool(True),
@@ -231,7 +230,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            gtLabel = cms.InputTag("l1GtUnpack"),
                            
                            # LED MONITOR
-                           LEDMonitor = cms.untracked.bool(True),
+                           LEDMonitor = cms.untracked.bool(False),
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
                            LEDPerChannel = cms.untracked.bool(True),
 
@@ -308,7 +307,7 @@ def setHcalTaskValues(process):
     process.BeamMonitor_minErrorFlag     = minErrorFlag
     process.DeadCellMonitor_minErrorFlag = minErrorFlag
     process.HotCellMonitor_minErrorFlag  = minErrorFlag
-    process.PedestalMonitor_minErrorFlag = minErrorFlag
+    process.ReferencePedestalMonitor_minErrorFlag = minErrorFlag
     process.RecHitMonitor_minErrorFlag   = minErrorFlag
         
     # create a minErrorFlag for DigiMonitor?  I think we want the DigiMonitor errors to appear whenever an error exists, even if it's at a low rate.
@@ -323,7 +322,7 @@ def setHcalTaskValues(process):
 
     process.DigiMonitor_checkNevents                      = checkNevents
     process.HotCellMonitor_checkNevents                   = checkNevents
-    process.PedestalMonitor_checkNevents                  = checkNevents
+    process.ReferencePedestalMonitor_checkNevents                  = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
     process.TrigPrimMonitor_checkNevents                  = checkNevents
     process.ZDCMonitor_checkNevents                       = checkNevents
@@ -331,7 +330,7 @@ def setHcalTaskValues(process):
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
     process.HotCellMonitor_pedestalsInFC  = pedestalsInFC
-    process.PedestalMonitor_pedestalsInFC = pedestalsInFC
+    process.ReferencePedestalMonitor_pedestalsInFC = pedestalsInFC
 
     # set makeDiagnoticPlots
     makeDiagnosticPlots                         = deepcopy(process.makeDiagnosticPlots)
@@ -341,7 +340,7 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
     process.TrigPrimMonitor_makeDiagnosticPlots = makeDiagnosticPlots
-    process.PedestalMonitor_makeDiagnosticPlots = makeDiagnosticPlots
+    process.ReferencePedestalMonitor_makeDiagnosticPlots = makeDiagnosticPlots
 
     return
 

@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/10/18 15:08:35 $
- * $Revision: 1.52 $
+ * $Date: 2009/10/26 15:14:29 $
+ * $Revision: 1.53 $
  * \author W. Fisher
  *
 */
@@ -129,8 +129,7 @@ public:
 			      const HcalElectronicsMap& emap,
 			      const HBHEDigiCollection& hbhedigi,
 			      const HODigiCollection& hodigi,
-			      const HFDigiCollection& hfdigi,
-			      const ZDCDigiCollection& zdcdigi
+			      const HFDigiCollection& hfdigi
 			      );
     
  private:
@@ -259,19 +258,16 @@ public:
   bool checkHE_;
   bool checkHO_;
   bool checkHF_;
-  bool checkZDC_; // not yet implemented 
 
   // Determine which subdetectors are in the run (using FED info)
   int HBpresent_;
   int HEpresent_;
   int HOpresent_;
   int HFpresent_;
-  int ZDCpresent_; // need to implement
   MonitorElement* meHB_;
   MonitorElement* meHE_;
   MonitorElement* meHO_;
   MonitorElement* meHF_;
-  MonitorElement* meZDC_;
 
   // myquality_ will store status values for each det ID I find
   bool dump2database_;
