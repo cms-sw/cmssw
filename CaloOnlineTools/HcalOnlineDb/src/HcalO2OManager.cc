@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.5 2009/10/26 09:18:00 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.6 2009/10/26 09:41:38 kukartse Exp $
 //
 
 
@@ -16,6 +16,11 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
@@ -55,39 +60,22 @@ HcalO2OManager::~HcalO2OManager()
 // inspired by cmscond_list_iov
 //
 std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
-  //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
-  //
-  std::string user("");
-  std::string pass("");
-  std::string tag;
-  cond::DBSession* session=new cond::DBSession;
-  //
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-   session->configuration().setAuthenticationMethod( cond::Env );    
-   session->configuration().setMessageLevel( cond::Error );
-  //
-  session->open();
-  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
-  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
-  
+  cond::DbConnection conn;
+  conn.configure( cond::CmsDefaults );
+  cond::DbSession session = conn.createSession();
+  session.open("connect");
   std::vector<std::string> alltags;
   try{
-    myconnection.connect(session);
-    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
-    coraldb.start(true);
+    cond::MetaData metadata_svc(connection);
+    cond::DbScopedTransaction tr(session);
+    tr.start(true);
     metadata_svc.listAllTags(alltags);
-    coraldb.commit();
-    myconnection.disconnect();
+    tr.commit();
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }
-  delete session;
   return alltags;
 }
 
