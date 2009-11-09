@@ -83,8 +83,15 @@ void TFitConstraintMGaus::setMassConstraint(Double_t Mass, Double_t Width) {
   
   _TheMassConstraint = Mass;
   _width = Width;
-  setCovMatrix( 0 );
-  _covMatrix(0,0) = (Width*Width) / (Mass * Mass);
+  if( _width != 0 ) {
+    setCovMatrix( 0 );
+    _covMatrix(0,0) = (Width*Width) / (Mass * Mass);
+  }
+  else {
+    // use normal mass constraint without Gaussian width
+    // if width was set to 0
+    _nPar = 0;
+  }
 
 }
 
