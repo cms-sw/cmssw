@@ -1,6 +1,7 @@
 
 {
-#include <map>
+  #include <map>
+  //#include <TMap.h>
 
 //  gStyle -> SetOptStat(1);
 //  gStyle->SetPalette(1);
@@ -18,8 +19,12 @@
 
 TProfile* diff = new TProfile("diff", "PF corrs difference", 85,-42,42);
 
-  ifstream old_pfcorrs("../data/HcalPFCorrs_v1.03_mc.txt");
+//ifstream old_pfcorrs("../data/HcalPFCorrs_v1.03_mc.txt");
+  ifstream old_pfcorrs("../data/DumpCondPFCorrs_Run1.txt");
   ofstream new_pfcorrs("new_pfcorrs.txt");
+
+  //FILE *new_pfcorrs = fopen("new_pfcorrs.txt", "w+"); 
+
 
   Int_t   iEta;
   UInt_t  iPhi;
@@ -29,21 +34,21 @@ TProfile* diff = new TProfile("diff", "PF corrs difference", 85,-42,42);
   UInt_t  detId;
   Float_t value;
 //  HcalSubdetector sd;
-
- map<Int_t, Float_t> CorrValues; 
-
+  map<Int_t, Float_t> CorrValues;
+  
 for (Int_t i=0; i<=84; i++)
 {
 //  cout<<"bin: "<< p1->GetBinCenter(i)<<"   bin content: " <<p1->GetBinContent(i)<<"   response: "<< p1->GetBinContent(i)/50.<<endl;
-  if (p1->GetBinContent(i)!=0) CorrValues[p1->GetBinCenter(i)] = 50./p1->GetBinContent(i);
-}    
+  if (p1->GetBinContent(i)!=0) CorrValues[p1->GetBinCenter(i)]= 50./p1->GetBinContent(i);
+  }    
 
  std::string line;
   while (getline(old_pfcorrs, line)) 
 {
 if(!line.size() || line[0]=='#') 
   {
-    //fprintf(constFile, "%1s%16s%16s%16s%16s%9s%11s\n", "#", "eta", "phi", "depth", "det", "value", "DetId");
+    //fprintf(new_pfcorrs, "%1s%16s%16s%16s%16s%9s%11s\n", "#", "eta", "phi", "depth", "det", "value", "DetId");   
+    new_pfcorrs<<"#       eta       phi       depth        det       value           DetId"<<endl;
     continue;
    }
   std::istringstream linestream(line);
@@ -52,7 +57,7 @@ if(!line.size() || line[0]=='#')
 //format:
 //               -1               1               1              HB    0.97635     42004081
 
-//fprintf(new_pfcorrs, "%17i%16i%16i%16s%9.5f%11X\n", iEta, iPhi, depth, sdName, value, detId);
+//  fprintf(new_pfcorrs, "%17i%16i%16i%16s%9.5f%11X\n", iEta, iPhi, depth, sdName, value, detId);
 
 new_pfcorrs.width(17);
 new_pfcorrs<<dec<<iEta;
@@ -70,7 +75,8 @@ new_pfcorrs.width(13);
 new_pfcorrs.setf(ios::uppercase);
 new_pfcorrs<<hex<<detId<<endl;
 
-diff-> Fill(iEta, value - CorrValues[iEta]);
+
+ if(depth>0) diff-> Fill(iEta, (value - CorrValues[iEta])/value);
 
 /*
 cout.width(16);
