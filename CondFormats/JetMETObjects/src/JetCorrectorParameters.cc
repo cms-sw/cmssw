@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.1 2009/11/04 21:22:50 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.2 2009/11/07 13:46:01 schiefer Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -26,16 +26,16 @@ namespace
   {
     char* endptr;
     float result = strtod (token.c_str(), &endptr);
-    if (endptr == token.c_str()) {
-#ifdef STANDALONE
-      std::stringstream sserr; sserr<<"JetCorrectorParameters ERROR: "
-				    <<"can't convert token "<<token
-				    <<" to float value";
-      throw std::runtime_error(sserr.str());
-#else
-      throw cms::Exception ("JetCorrectorParameters")<<" can not convert token "<<token<<" to float value";
-#endif
-    }
+    if (endptr == token.c_str()) 
+      {
+        #ifdef STANDALONE
+          std::stringstream sserr; 
+          sserr<<"JetCorrectorParameters ERROR: "<<"can't convert token "<<token<<" to float value";
+          throw std::runtime_error(sserr.str());
+        #else
+          throw cms::Exception ("JetCorrectorParameters")<<" can not convert token "<<token<<" to float value";
+        #endif
+      }
     return result;
   } 
   //----------------------------------------------------------------------
@@ -43,16 +43,16 @@ namespace
   {
     char* endptr;
     unsigned result = strtoul (token.c_str(), &endptr, 0);
-    if (endptr == token.c_str()) {
-#ifdef STANDALONE
-      std::stringstream sserr; sserr<<"JetCorrectorParameters ERROR: "
-				    <<"can't convert token "<<token
-				    <<" to unsigned value";
-      throw std::runtime_error(sserr.str());
-#else
-      throw cms::Exception ("JetCorrectorParameters")<<" can not convert token "<<token<<" to unsigned value";
-#endif
-    }
+    if (endptr == token.c_str()) 
+      {
+        #ifdef STANDALONE
+           std::stringstream sserr; 
+           sserr<<"JetCorrectorParameters ERROR: "<<"can't convert token "<<token<<" to unsigned value";
+           throw std::runtime_error(sserr.str());
+        #else
+           throw cms::Exception ("JetCorrectorParameters")<<" can not convert token "<<token<<" to unsigned value";
+        #endif
+      }
     return result;
   }
   //----------------------------------------------------------------------
@@ -101,13 +101,14 @@ namespace
 //--- JetCorrectorParameters::Definitions constructor --------------------
 //--- takes specific arguments for the member variables ------------------
 //------------------------------------------------------------------------
-JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula)
+JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula, bool fIsResponse)
 {
   for(unsigned i=0;i<fBinVar.size();i++)
     mBinVar.push_back(fBinVar[i]);
   for(unsigned i=0;i<fParVar.size();i++)
     mParVar.push_back(fParVar[i]);
-  mFormula = fFormula;
+  mFormula    = fFormula;
+  mIsResponse = fIsResponse;
 }
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters::Definitions constructor --------------------
@@ -118,19 +119,20 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
   std::vector<std::string> tokens = getTokens(fLine); 
   if (!tokens.empty()) 
     { 
-      if (tokens.size() < 4) {
-#ifdef STANDALONE
-	std::stringstream sserr;
-	sserr<<"JetCorrectorParameters::Definitions ERROR (line "<<fLine
-	     <<"): less than four expected tokens:"<<tokens.size();
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception("JetCorrectorParameters::Definitions")
-	  <<" at least 4 tokens are expected: number of bin variables, "
-	  <<"variable name, parameter name, formula. "<<tokens.size()<<" are provided.\n"
-	  <<"Line ->>"<<fLine<<"<<-";
-#endif
-      }
+      if (tokens.size() < 6) 
+        {
+          #ifdef STANDALONE
+	     std::stringstream sserr;
+	     sserr<<"JetCorrectorParameters::Definitions ERROR (line "<<fLine
+                  <<"): less than 6 expected tokens:"<<tokens.size();
+	     throw std::runtime_error(sserr.str());
+          #else
+             throw cms::Exception("JetCorrectorParameters::Definitions")
+	       <<" 6 tokens are expected: number of bin variables, "
+	       <<"variable name, number of parameter variables, parameters names, formula, Response or Correction identifier. "<<tokens.size()<<" are provided.\n"
+	       <<"Line ->>"<<fLine<<"<<-";
+          #endif
+        }
       unsigned nvar = getUnsigned(tokens[0]);
       unsigned npar = getUnsigned(tokens[nvar+1]);
       for(unsigned i=0;i<nvar;i++)
@@ -138,6 +140,21 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
       for(unsigned i=0;i<npar;i++)
         mParVar.push_back(tokens[nvar+2+i]);
       mFormula = tokens[npar+nvar+2];
+      std::string ss = tokens[npar+nvar+3]; 
+      if (ss == "Response")
+        mIsResponse = true;
+      else if (ss == "Correction")
+        mIsResponse = false;
+      else
+        {
+          #ifdef STANDALONE
+	     std::stringstream sserr;
+	     sserr<<"JetCorrectorParameters::Definitions ERROR: unknown option ("<<ss<<")"; 
+	     throw std::runtime_error(sserr.str());
+          #else
+             throw cms::Exception("JetCorrectorParameters::Definitions")<<" unknown option ("<<ss<<")";
+          #endif
+        }  
     }
 }
 //------------------------------------------------------------------------
@@ -151,36 +168,38 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   std::vector<std::string> tokens = getTokens(fLine);
   if (!tokens.empty()) 
     { 
-      if (tokens.size() < 3) {
-#ifdef STANDALONE
-	std::stringstream sserr;
-	sserr<<"JetCorrectorParameters::Record ERROR (line "<<fLine<<"): "
-	     <<"three tokens expected, "<<tokens.size()<<" provided.";
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception("JetCorrectorParameters::Record")
-	  <<" at least 3 tokens are expected: minX, maxX, # of parameters. " <<tokens.size()
-	  <<" are provided.\n" <<"Line ->>"<<fLine<<"<<-";  
-#endif
-      }
-	for(unsigned i=0;i<mNvar;i++)
+      if (tokens.size() < 3) 
+        {
+          #ifdef STANDALONE
+	    std::stringstream sserr;
+	    sserr<<"JetCorrectorParameters::Record ERROR (line "<<fLine<<"): "
+	         <<"three tokens expected, "<<tokens.size()<<" provided.";
+	    throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception("JetCorrectorParameters::Record")
+	    <<" at least 3 tokens are expected: minX, maxX, # of parameters. " <<tokens.size()
+	    <<" are provided.\n" <<"Line ->>"<<fLine<<"<<-";  
+          #endif
+        }
+      for(unsigned i=0;i<mNvar;i++)
         {
           mMin.push_back(getFloat(tokens[i*mNvar]));
           mMax.push_back(getFloat(tokens[i*mNvar+1])); 
         }
       unsigned nParam = getUnsigned(tokens[2*mNvar]);
-      if (nParam != tokens.size()-(2*mNvar+1)) {
-#ifdef STANDALONE
-	std::stringstream sserr;
-	sserr<<"JetCorrectorParameters::Record ERROR (line "<<fLine<<"): "
-	     <<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception ("JetCorrectorParameters::Record")
-	  <<" actual # of parameters "<<tokens.size()-(2*mNvar+1)
-	  <<" doesn't correspond to requested #: "<<nParam<<"\n"<<"Line ->>"<<fLine<<"<<-";
-#endif
-      }
+      if (nParam != tokens.size()-(2*mNvar+1)) 
+        {
+          #ifdef STANDALONE
+	    std::stringstream sserr;
+	    sserr<<"JetCorrectorParameters::Record ERROR (line "<<fLine<<"): "
+	         <<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
+	    throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception ("JetCorrectorParameters::Record")
+	    <<" actual # of parameters "<<tokens.size()-(2*mNvar+1)
+	    <<" doesn't correspond to requested #: "<<nParam<<"\n"<<"Line ->>"<<fLine<<"<<-";
+          #endif
+        }
       for (unsigned i = (2*mNvar+1); i < tokens.size(); ++i)
         mParameters.push_back(getFloat(tokens[i]));
     } 
@@ -226,16 +245,16 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
         } 
     }
   if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
-  if (mRecords.empty() && currentSection != "") {
-#ifdef STANDALONE
-    std::stringstream sserr; sserr<<"JetCorrectorParameters ERROR: "
-				  <<"the requested section "<<fSection
-				  <<" doesn't exist!";
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception ("JetCorrectorParameters")<<" the requested section "<<fSection<<" doesn't exist !!!"<< "\n";
-#endif
-  }
+  if (mRecords.empty() && currentSection != "") 
+    {
+      #ifdef STANDALONE
+         std::stringstream sserr; 
+         sserr<<"JetCorrectorParameters ERROR: "<<"the requested section "<<fSection<<" doesn't exist!";
+         throw std::runtime_error(sserr.str());
+      #else
+         throw cms::Exception ("JetCorrectorParameters")<<" the requested section "<<fSection<<" doesn't exist !!!"<< "\n";
+      #endif
+    }
   std::sort(mRecords.begin(), mRecords.end());
 }
 //------------------------------------------------------------------------
@@ -245,17 +264,17 @@ int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const
 {
   int result = -1;
   unsigned N = mDefinitions.nBinVar();
-  if (N != fX.size()) {
-#ifdef STANDALONE
-    std::stringstream sserr;
-    sserr<<"JetCorrectorParameters ERROR: # bin variables "<<N
-	 <<" doesn't correspont to requested #: "<<fX.size();
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception("JetCorrectorParameters")
-      <<" # of bin variables "<<N<<" doesn't correspond to requested #: "<< fX.size();
-#endif
-  }
+  if (N != fX.size()) 
+    {
+      #ifdef STANDALONE
+         std::stringstream sserr;
+         sserr<<"JetCorrectorParameters ERROR: # bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
+         throw std::runtime_error(sserr.str());
+      #else
+         throw cms::Exception("JetCorrectorParameters")
+         <<" # of bin variables "<<N<<" doesn't correspond to requested #: "<< fX.size();
+      #endif
+    }
   unsigned tmp;
   for (unsigned i = 0; i < size(); ++i) 
     {
@@ -278,17 +297,18 @@ int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fN
 {
   int result = -1;
   unsigned N = mDefinitions.nBinVar();
-  if (fVar >= N) {
-#ifdef STANDALONE
-    std::stringstream sserr;
-    sserr<<"JetCorrectorParameters ERROR: # of bin variables "<<N
-	 <<" doesn't correspond to requested #: "<<fVar;
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception("JetCorrectorParameters")
-      <<" # of bin variables "<<N<<" doesn't correspond to requested #: "<<fVar;
-#endif
-  }
+  if (fVar >= N) 
+    {
+      #ifdef STANDALONE
+         std::stringstream sserr;
+         sserr<<"JetCorrectorParameters ERROR: # of bin variables "<<N
+	      <<" doesn't correspond to requested #: "<<fVar;
+         throw std::runtime_error(sserr.str());
+      #else
+         throw cms::Exception("JetCorrectorParameters")
+         <<" # of bin variables "<<N<<" doesn't correspond to requested #: "<<fVar;
+      #endif
+    }
   unsigned tmp;
   for (unsigned i = 0; i < size(); ++i) 
     {
@@ -323,17 +343,18 @@ int JetCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fN
 //------------------------------------------------------------------------
 unsigned JetCorrectorParameters::size(unsigned fVar) const
 {
-  if (fVar >= mDefinitions.nBinVar()) {
-#ifdef STANDALONE
-    std::stringstream sserr;
-    sserr<<"JetCorrectorParameters ERROR: requested bin variable index "<<fVar
-	 <<" is greater than number of variables "<<mDefinitions.nBinVar();
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception ("JetCorrectorParameters")
-      <<" requested bin variable index " <<fVar<<" is greater than number of variables "<<mDefinitions.nBinVar();
-#endif
-  }
+  if (fVar >= mDefinitions.nBinVar()) 
+    {   
+      #ifdef STANDALONE
+         std::stringstream sserr;
+         sserr<<"JetCorrectorParameters ERROR: requested bin variable index "<<fVar
+	      <<" is greater than number of variables "<<mDefinitions.nBinVar();
+         throw std::runtime_error(sserr.str());
+      #else
+         throw cms::Exception ("JetCorrectorParameters")
+         <<" requested bin variable index " <<fVar<<" is greater than number of variables "<<mDefinitions.nBinVar();
+      #endif
+    }
   unsigned result = 0;
   float tmpMin(-9999),tmpMax(-9999);
   for (unsigned i = 0; i < size(); ++i)
@@ -376,6 +397,10 @@ void JetCorrectorParameters::printScreen() const
   std::cout<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"Parametrization Formula:       "<<definitions().formula()<<std::endl;
+  if (definitions().isResponse())
+    std::cout<<"Type (Response or Correction): "<<"Response"<<std::endl;
+  else
+    std::cout<<"Type (Response or Correction): "<<"Correction"<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"------- Bin contents -----------------------"<<std::endl;
   for(unsigned i=0;i<size();i++)
@@ -402,7 +427,11 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
   txtFile<<definitions().nParVar()<<std::setw(11);
   for(unsigned i=0;i<definitions().nParVar();i++)
     txtFile<<definitions().parVar(i)<<std::setw(11);
-  txtFile<<std::setw(definitions().formula().size()+11)<<definitions().formula()<<"}"<<"\n";
+  txtFile<<std::setw(definitions().formula().size()+11)<<definitions().formula()<<std::setw(11);
+  if (definitions().isResponse())
+    txtFile<<"Response"<<"}"<<"\n";
+  else
+    txtFile<<"Correction"<<"}"<<"\n";
   for(unsigned i=0;i<size();i++)
     {
       for(unsigned j=0;j<definitions().nBinVar();j++)

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.h,v 1.3 2008/02/29 20:28:25 fedor Exp $
+// $Id: JetCorrectorParameters.h,v 1.1 2009/11/04 21:22:50 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -22,7 +22,7 @@ class JetCorrectorParameters
       public:
         //-------- Constructors -------------- 
         Definitions() {}
-        Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula); 
+        Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula, bool fIsResponse); 
         Definitions(const std::string& fLine); 
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
@@ -32,8 +32,10 @@ class JetCorrectorParameters
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
         std::string binVar(unsigned fIndex) const {return mBinVar[fIndex];} 
         std::string formula()               const {return mFormula;       }
+        bool isResponse()                   const {return mIsResponse;    }
       private:
-        //-------- Member variables ---------- 
+        //-------- Member variables ----------
+        bool                     mIsResponse;
         std::string              mFormula;
         std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;
