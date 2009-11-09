@@ -8,7 +8,9 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -37,8 +39,8 @@ namespace l1t
 class DataWriter
 {
  public:
-  explicit DataWriter() {} ;
-  virtual ~DataWriter () {};
+  DataWriter();
+  ~DataWriter();
 
   // Payload and IOV writing functions.  
 
@@ -73,8 +75,8 @@ class DataWriter
 };
 
 template< class T >
-  void DataWriter::readObject( const std::string& payloadToken,
-			       T& outputObject )
+void DataWriter::readObject( const std::string& payloadToken,
+			     T& outputObject )
 {
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if( !poolDb.isAvailable() )
@@ -82,13 +84,15 @@ template< class T >
       throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 			     ) ;
     }
-  cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
-  pool.start( false ) ;
-
+  
+  cond::DbSession session = poolDb->session();
+  cond::DbScopedTransaction tr(session);
+  tr.start(true);
+ 
   // Get object from POOL
-  cond::TypedRef< T > obj( pool, payloadToken ) ;
+  pool::Ref<T> ref = session.getTypedObject<T>(payloadToken) ;
   outputObject = *obj ;
-  pool.commit ();
+  tr.commit ();
 }
 
 

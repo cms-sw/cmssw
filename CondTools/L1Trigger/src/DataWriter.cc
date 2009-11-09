@@ -4,11 +4,17 @@
 #include "CondTools/L1Trigger/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 
 #include <utility>
 
 namespace l1t
 {
+  DataWriter::DataWriter(){}
+  DataWriter::~DataWriter(){}
+
+
 
 std::string
 DataWriter::writePayload( const edm::EventSetup& setup,
@@ -28,26 +34,20 @@ DataWriter::writePayload( const edm::EventSetup& setup,
       throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 			     ) ;
     }
-  cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
-  pool.start( false ) ;
+  cond::DbSession session = poolDb->session();
+  cond::DbScopedTransaction tr(session);
+  tr.start(false);
 
   // update key to have new payload registered for record-type pair.
   std::string payloadToken ;
-  try
-    {
-      payloadToken = writer->save( setup, pool ) ;
-    }
-  catch( l1t::DataInvalidException& ex )
-    {
-      pool.commit() ;
-      throw ex ;
-    }
+  // if thow transaction will unroll
+  payloadToken = writer->save( setup, pool ) ;
 
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
   delete writer;
-  pool.commit ();
+  tr.commit ();
 
   return payloadToken ;
 }
@@ -64,26 +64,28 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			     ) ;
     }
 
-   cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
-   pool.start( false ) ;
+  cond::DbSession session = poolDb->session();
+  cond::DbScopedTransaction tr(session);
+  tr.start(false);
 
-   // Write L1TriggerKeyList payload
-   cond::TypedRef< L1TriggerKeyList > ref( pool, keyList ) ;
-   //   ref.markWrite( "L1TriggerKeyListRcd" ) ;
-   ref.markWrite( ref.className() ) ;
-
-   // Save payload token before committing.
-   std::string payloadToken = ref.token() ;
-
-   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
-   // confused.
-   pool.commit ();
-
-   // Set L1TriggerKeyList IOV
-   updateIOV( "L1TriggerKeyListRcd",
-	      payloadToken,
-	      sinceRun,
-	      logTransactions ) ;
+  // Write L1TriggerKeyList payload
+  pool::Ref<L1TriggerKeyList> ref = 
+    session.storeObject(keyList,
+			cond::classNameForTypeId(typeid(L1TriggerKeyList))
+			);
+			
+  // Save payload token before committing.
+  std::string payloadToken = ref.toString();
+  
+  // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
+  // confused.
+  tr.commit ();
+  
+  // Set L1TriggerKeyList IOV
+  updateIOV( "L1TriggerKeyListRcd",
+	     payloadToken,
+	     sinceRun,
+	     logTransactions ) ;
 }
 
 bool
@@ -162,26 +164,26 @@ DataWriter::payloadToken( const std::string& recordName,
   std::string iovTag = poolDb->tag( recordName ) ;
 
   // Get IOV token for tag.
-  cond::CoralTransaction& coral = poolDb->connection().coralTransaction() ;
-  coral.start( false ) ;
-  cond::MetaData metadata( coral ) ;
+  cond::DbSession session = poolDb->session();
+  cond::DbScopedTransaction tr(session);
+  tr.start(false);
+  cond::MetaData metadata(session ) ;
   std::string iovToken ;
   if( metadata.hasTag( iovTag ) )
     {
       iovToken = metadata.getToken( iovTag ) ;
     }
-  coral.commit() ;
   if( iovToken.empty() )
     {
       return std::string() ;
     }
 
   // Get payload token for run number.
-  cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
-  pool.start( false ) ;
-  cond::IOVService iovService( pool ) ;
+
+  cond::IOVService iovService( session ) ;
   std::string payloadToken = iovService.payloadToken( iovToken, runNumber ) ;
-  pool.commit() ;
+
+  tr.commit() ;
   return payloadToken ;
 }
 
