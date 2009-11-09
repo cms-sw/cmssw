@@ -217,7 +217,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
       }
 
       //Pegged
-      if (samples[idx] > 0x3FF) output[ibin] = 0x3FF;
+      if (samples[idx] >= 0x3FF) output[ibin] = 0x3FF;
 
       outcoder_->compress(output, finegrain, result);
    }
