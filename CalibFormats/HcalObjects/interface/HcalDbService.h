@@ -28,10 +28,8 @@ class HcalDbService {
  public:
   HcalDbService (const edm::ParameterSet&);
 
-  const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const 
-  { return mCalibSet.getCalibrations(fId); }
-  const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const 
-  { return mCalibWidthSet.getCalibrationWidths(fId); }
+  const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const;
+    const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
 
   const HcalPedestal* getPedestal (const HcalGenericDetId& fId) const;
   const HcalPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;
@@ -49,33 +47,33 @@ class HcalDbService {
   const HcalPFCorr* getHcalPFCorr (const HcalGenericDetId& fId) const;
   const HcalLutMetadata* getHcalLutMetadata () const;
 
-  void setData (const HcalPedestals* fItem) {mPedestals = fItem; buildCalibrations(); }
-  void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; buildCalibWidths(); }
-  void setData (const HcalGains* fItem) {mGains = fItem; }
-  void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; }
-  void setData (const HcalQIEData* fItem) {mQIEData = fItem; }
+  void setData (const HcalPedestals* fItem) {mPedestals = fItem; mUpdateCalibrations = true; }
+  void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mUpdateCalibWidths = true; }
+  void setData (const HcalGains* fItem) {mGains = fItem; mUpdateCalibrations = true; }
+  void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; mUpdateCalibWidths = true; }
+  void setData (const HcalQIEData* fItem) {mQIEData = fItem; mUpdateCalibrations = true; mUpdateCalibWidths = true; }
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
-  void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; }
-  void setData (const HcalTimeCorrs* fItem) {mTimeCorrs = fItem; }
+  void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; mUpdateCalibrations = true; }
+  void setData (const HcalTimeCorrs* fItem) {mTimeCorrs = fItem; mUpdateCalibrations = true; }
   void setData (const HcalZSThresholds* fItem) {mZSThresholds = fItem;}
   void setData (const HcalL1TriggerObjects* fItem) {mL1TriggerObjects = fItem;}
-  void setData (const HcalLUTCorrs* fItem) {mLUTCorrs = fItem; }
+  void setData (const HcalLUTCorrs* fItem) {mLUTCorrs = fItem; mUpdateCalibrations = true; }
   void setData (const HcalPFCorrs* fItem) {mPFCorrs = fItem; }
   void setData (const HcalLutMetadata* fItem) {mLutMetadata = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
 			    bool pedestalInADC) const;
-  void buildCalibrations();
+  void buildCalibrations() const;
   bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject, 
 				 bool pedestalInADC) const;
-  void buildCalibWidths();
-  mutable QieShape* mQieShapeCache;
+  void buildCalibWidths() const;
   const HcalPedestals* mPedestals;
   const HcalPedestalWidths* mPedestalWidths;
   const HcalGains* mGains;
   const HcalGainWidths* mGainWidths;
+  mutable QieShape* mQieShapeCache;
   const HcalQIEData* mQIEData;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
@@ -87,8 +85,9 @@ class HcalDbService {
   const HcalPFCorrs* mPFCorrs;
   const HcalLutMetadata* mLutMetadata;
   //  bool mPedestalInADC;
-  HcalCalibrationsSet mCalibSet;
-  HcalCalibrationWidthsSet mCalibWidthSet;
+  mutable HcalCalibrationsSet mCalibSet;
+  mutable HcalCalibrationWidthsSet mCalibWidthSet;
+  mutable bool mUpdateCalibrations, mUpdateCalibWidths;
 };
 
 #endif

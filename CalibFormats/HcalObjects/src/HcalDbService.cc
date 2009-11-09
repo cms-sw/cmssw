@@ -1,7 +1,6 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.30 2009/05/20 15:54:26 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -16,22 +15,84 @@
 
 #include <cmath>
 
-HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
-  : 
-  mQieShapeCache (0),
-  mPedestals (0),
-  mPedestalWidths (0),
-  mGains (0),
-  mGainWidths (0),
-  mQIEData(0),
+HcalDbService::HcalDbService (const edm::ParameterSet& cfg): 
+  mPedestals (0), mPedestalWidths (0),
+  mGains (0), mGainWidths (0),  
+  mQieShapeCache (0), mQIEData(0), 
   mElectronicsMap(0),
   mRespCorrs(0),
   mL1TriggerObjects(0),
   mTimeCorrs(0),
   mLUTCorrs(0),
   mPFCorrs(0),
-  mLutMetadata(0)
+  mLutMetadata(0),
+  mUpdateCalibrations (true), mUpdateCalibWidths(true)
  {}
+
+
+const HcalCalibrations& HcalDbService::getHcalCalibrations(const HcalGenericDetId& fId) const 
+{ 
+  if (mUpdateCalibrations) 
+    {
+      buildCalibrations();
+      mUpdateCalibrations = false;
+    }
+  return mCalibSet.getCalibrations(fId); 
+}
+
+const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalGenericDetId& fId) const 
+{ 
+  if (mUpdateCalibWidths) 
+    {
+      buildCalibWidths();
+      mUpdateCalibWidths = false;
+    }
+  return mCalibWidthSet.getCalibrationWidths(fId); 
+}
+
+void HcalDbService::buildCalibrations() const {
+  // we use the set of ids for pedestals as the master list
+  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
+
+  std::vector<DetId> ids=mPedestals->getAllChannels();
+  bool pedsInADC = mPedestals->isADC();
+  // clear the calibrations set
+  mCalibSet.clear();
+  // loop!
+  HcalCalibrations tool;
+
+  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
+  for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
+    // make
+    bool ok=makeHcalCalibration(*id,&tool,pedsInADC);
+    // store
+    if (ok) mCalibSet.setCalibrations(*id,tool);
+    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
+  }
+  mCalibSet.sort();
+}
+
+void HcalDbService::buildCalibWidths() const {
+  // we use the set of ids for pedestal widths as the master list
+  if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) ) return;
+
+  std::vector<DetId> ids=mPedestalWidths->getAllChannels();
+  bool pedsInADC = mPedestalWidths->isADC();
+  // clear the calibrations set
+  mCalibWidthSet.clear();
+  // loop!
+  HcalCalibrationWidths tool;
+
+  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
+  for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
+    // make
+    bool ok=makeHcalCalibrationWidth(*id,&tool,pedsInADC);
+    // store
+    if (ok) mCalibWidthSet.setCalibrationWidths(*id,tool);
+    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
+  }
+  mCalibWidthSet.sort();
+}
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, bool pedestalInADC) const {
   if (fObject) {
@@ -66,49 +127,6 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
     }
   }
   return false;
-}
-
-void HcalDbService::buildCalibrations() {
-  // we use the set of ids for pedestals as the master list
-  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
-  std::vector<DetId> ids=mPedestals->getAllChannels();
-  bool pedsInADC = mPedestals->isADC();
-  // clear the calibrations set
-  mCalibSet.clear();
-  // loop!
-  HcalCalibrations tool;
-
-  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
-    // make
-    bool ok=makeHcalCalibration(*id,&tool,pedsInADC);
-    // store
-    if (ok) mCalibSet.setCalibrations(*id,tool);
-    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
-  }
-  mCalibSet.sort();
-}
-
-void HcalDbService::buildCalibWidths() {
-  // we use the set of ids for pedestal widths as the master list
-  if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) ) return;
-
-  std::vector<DetId> ids=mPedestalWidths->getAllChannels();
-  bool pedsInADC = mPedestalWidths->isADC();
-  // clear the calibrations set
-  mCalibWidthSet.clear();
-  // loop!
-  HcalCalibrationWidths tool;
-
-  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
-    // make
-    bool ok=makeHcalCalibrationWidth(*id,&tool,pedsInADC);
-    // store
-    if (ok) mCalibWidthSet.setCalibrationWidths(*id,tool);
-    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
-  }
-  mCalibWidthSet.sort();
 }
 
 bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, 
