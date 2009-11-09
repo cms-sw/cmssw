@@ -1,3 +1,7 @@
+2009-11-09  Konstantinos KOUSOURIS  <konstantinos.kousouris@cern.ch>
+        * added the ability to calculate the correction from response inversion.
+        This affected JetCorrectorParameters and SimpleJetCorrector.
+ 
 2009-11-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
         * add STANDALONE directives, and statements within, which replace
