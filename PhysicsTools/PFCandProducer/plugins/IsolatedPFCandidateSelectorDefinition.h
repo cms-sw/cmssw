@@ -13,8 +13,10 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 
   IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
     isolationValueMapLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMaps") ),
+    isRelative_(cfg.getParameter<bool>("isRelative")),
+    isCombined_(cfg.getParameter<bool>("isCombined")),
     isolationCuts_(cfg.getParameter< std::vector<double> >("isolationCuts")),
-    isolationCombRelIsoCut_(cfg.getParameter<double>("isolationCombRelIsoCut")) { 
+    combinedIsolationCut_(cfg.getParameter<double>("combinedIsolationCut")) { 
     
 
     if( isolationCuts_.size() != isolationValueMapLabels_.size() )
@@ -35,7 +37,6 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
       e.getByLabel(isolationValueMapLabels_[iMap], isoMaps[iMap]);
     }
 
-    //std::cout << "isolationCombRelIsoCut_ = " << isolationCombRelIsoCut_ << std::endl;
     unsigned key=0;
     //    for( unsigned i=0; i<collection->size(); i++ ) {
     for( collection::const_iterator pfc = hc->begin(); 
@@ -51,17 +52,16 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 	double val = isoMap[candidate];
 	double cut = isolationCuts_[iMap];
 	isoSum+=val;
+	if(isRelative_) val/=candidate->pt();
         //std::cout << "val " << iMap << " = " << val << std::endl;
 
-	if (val>cut) {
+	if ( !isCombined_ && val>cut ) {
 	  passed = false;
 	  break; 	  
 	}
       }
 
-      //std::cout << "isoSum = " << isoSum << std::endl;
-      //std::cout << "candidate->pt() = " << candidate->pt() << std::endl;
-      if (isolationCombRelIsoCut_>=0.0 && (isoSum/candidate->pt())>isolationCombRelIsoCut_)
+      if ( isCombined_ && isoSum>combinedIsolationCut_ )
       {
 	passed = false;
       }
@@ -77,8 +77,9 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 
 private:
   std::vector<edm::InputTag> isolationValueMapLabels_;
+  bool isRelative_, isCombined_;
   std::vector<double> isolationCuts_;
-  double isolationCombRelIsoCut_;
+  double combinedIsolationCut_;
 };
 
 #endif

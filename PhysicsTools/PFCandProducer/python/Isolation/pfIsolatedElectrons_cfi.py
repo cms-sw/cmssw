@@ -8,9 +8,18 @@ pfIsolatedElectrons  = cms.EDProducer(
         cms.InputTag("isoValElectronWithNeutral"),
         cms.InputTag("isoValElectronWithPhotons")
        ),
-    # no cut on the photon deposits yet
+    ## if True isolation is relative to pT
+    isRelative = cms.bool(False),
+    ## if True all isoValues are combined (summed)
+    isCombined = cms.bool(False),
+    ## not used when isCombined=True
+    # non-optimised default for loose absulute isolation
     isolationCuts = cms.vdouble( 10,
                                  10,
                                  10 ),
-    isolationCombRelIsoCut = cms.double(-1.0)
+    ## not used when isCombined=False
+    # default value for combined relative with DR={0.4,0.4,0.4}
+    # and weight={1.,1./3.,1.}; no optimal value found, yet.
+    isolationCombRelIsoCut = cms.double(0.15)
     )
+                            
