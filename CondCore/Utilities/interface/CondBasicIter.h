@@ -6,6 +6,9 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 
+#include <string>
+
+
 namespace cond {
   class DbConnection;
 }

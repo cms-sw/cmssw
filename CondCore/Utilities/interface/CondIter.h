@@ -6,24 +6,10 @@
 
 
 
-#include "CondCore/DBCommon/interface/TypedRef.h"
-
 #include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 
-#include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
-#include<vector>
 #include <string>
 
 
