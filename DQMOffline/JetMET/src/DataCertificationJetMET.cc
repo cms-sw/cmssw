@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.31 2009/11/05 07:55:13 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.32 2009/11/09 17:37:05 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -723,6 +723,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   float qr_JetMET_MExy[6];
   float qr_JetMET_METPhi[3];
   float dc_JetMET[3];
+  qr_JetMET_MExy[0]=qr_JetMET_MExy[1]=qr_JetMET_MExy[2]=qr_JetMET_MExy[3]=qr_JetMET_MExy[4]=qr_JetMET_MExy[5]=-1.;
+  qr_JetMET_METPhi[0]=qr_JetMET_METPhi[1]=qr_JetMET_METPhi[2]=-1.;
+  dc_JetMET[0]=dc_JetMET[1]=dc_JetMET[2]=-1.;
 
   QReport_METPhi[0] = meMETPhi[0]->getQReport("phiQTest"); //get QReport associated to this ME  
   QReport_METPhi[1] = meMETPhi[1]->getQReport("phiQTest"); //get QReport associated to this ME

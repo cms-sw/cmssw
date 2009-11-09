@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/03 16:46:53 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/11/08 14:33:02 $
+ *  $Revision: 1.29 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -278,7 +278,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
 
   // *** Fill trigger results ME
-  if (&triggerResults){
+  //if (&triggerResults){
+  if (triggerResults.isValid()){
     edm::TriggerNames triggerNames;
     triggerNames.init(*(triggerResults.product()));
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
