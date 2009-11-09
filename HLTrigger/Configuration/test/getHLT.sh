@@ -62,8 +62,8 @@ getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
-ls -l HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py
-mv -f HLT_*_cff.py hltOutput*_cff.py HLTrigger_EventContent_cff.py ../python
+ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py
+mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py ../python
 echo
 
 # for things now also in CMSSW CVS:
