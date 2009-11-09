@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-KFFittingSmootherWithOutlierRejection = cms.ESProducer(
+KFFittingSmootherFirst = cms.ESProducer(
     "KFFittingSmootherESProducer",
-    EstimateCut = cms.double(10.0),
+    EstimateCut = cms.double(-1),
     Fitter = cms.string('KFFitter'),
-    MinNumberOfHits = cms.int32(3),
+    MinNumberOfHits = cms.int32(7),
     Smoother = cms.string('KFSmoother'),
     BreakTrajWith2ConsecutiveMissing = cms.bool(True),
-    ComponentName = cms.string('KFFittingSmootherWithOutlierRejection'),
+    ComponentName = cms.string('KFFittingSmootherFirst'),
     NoInvalidHitsBeginEnd = cms.bool(True),
     RejectTracks = cms.bool(True)
 )
