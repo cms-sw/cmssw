@@ -15,7 +15,7 @@ import os
 import FWCore.ParameterSet.Config as cms
 #
 # --- [cosmic sequence (default=True)?]
-iscosmics = (os.environ.get('COSMIC_MODE',True))
+iscosmics = (os.environ.get('COSMIC_MODE','True'))
 print 'iscosmics (default=True) = '+str(iscosmics)
 #
 # --- [name of job & output file (default=test)?]
@@ -27,11 +27,11 @@ nevents = int(os.environ.get('NEVENTS','1000'))
 print 'nevents (default=1000)  = '+str(nevents)
 #
 # --- [turn on all histograms (default=True)?]
-allhist = (os.environ.get('ALL_HISTS',True))
+allhist = (os.environ.get('ALL_HISTS','True'))
 print 'allhist (default=True) = '+str(allhist)
 #
 #--- [read list of input files from a text file? or not (default=False)]
-read_from_file = (os.environ.get('READ_LIST_FROM_FILE',False))
+read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
 print 'read list of input files from a text file (default=False) = '+str(read_from_file)
 #
 #--- [trigger set (default=HLT)]
@@ -97,7 +97,9 @@ process.jetMETAnalyzer.processname = cms.string(trigger_set)
 if allhist=="True":
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
   process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
-  process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
+
+process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
+
 if allhist=="True":
   process.jetMETAnalyzer.caloMETAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
