@@ -14,7 +14,7 @@
 
 popcon::ExEffSource::ExEffSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExEffSource")),
-  m_since(pset.getUntrackedParameter<boost::int64_t>("since",5)),
+  m_since(pset.getUntrackedParameter<long long>("since",5)),
   m_type(pset.getUntrackedParameter<std::string>("type","NULL")),
   m_params(pset.getUntrackedParameter<std::vector<double> >("params", std::vector<double>() )){
 }
