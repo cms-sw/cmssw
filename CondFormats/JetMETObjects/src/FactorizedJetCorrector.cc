@@ -126,42 +126,48 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
     { 
       if (mLevels[i]=="L1" || mLevels[i]=="L2" || mLevels[i]=="L3" || mLevels[i]=="L4" || mLevels[i]=="L6")
         mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i])); 
-      else if (mLevels[i]=="L5" && FlavorOption.length()==0) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"must specify flavor option when "
-				      <<"requesting L5Flavor correction!";
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception("FactorizedJetCorrector")
-	  <<" asking L5Flavor correction without specifying flavor option";
-#endif
-      }
+      else if (mLevels[i]=="L5" && FlavorOption.length()==0) 
+        {
+          #ifdef STANDALONE
+	    std::stringstream sserr; 
+            sserr<<"FactorizedJetCorrector ERROR: "
+		 <<"must specify flavor option when "
+		 <<"requesting L5Flavor correction!";
+	    throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception("FactorizedJetCorrector")
+	    <<" asking L5Flavor correction without specifying flavor option";
+          #endif
+        }
       else if (mLevels[i]=="L5" && FlavorOption.length()>0)
         mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i],FlavorOption));
-      else if (mLevels[i]=="L7" && PartonOption.length()==0) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"must specify parton option when "
-				      <<"requesting L7Parton correction!";
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception("FactorizedJetCorrector")
-	  <<" asking L7Parton correction without specifying parton option";
-#endif
-      }
+      else if (mLevels[i]=="L7" && PartonOption.length()==0) 
+        {
+          #ifdef STANDALONE
+	    std::stringstream sserr; 
+            sserr<<"FactorizedJetCorrector ERROR: "
+		 <<"must specify parton option when "
+		 <<"requesting L7Parton correction!";
+	    throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception("FactorizedJetCorrector")
+	    <<" asking L7Parton correction without specifying parton option";
+          #endif
+        }
       else if (mLevels[i]=="L7" && PartonOption.length()>0)
         mCorrectors.push_back(new SimpleJetCorrector(DataFiles[i],PartonOption));
-      else {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"unknown correction level: "<<mLevels[i];
-	throw std::runtime_error(sserr.str());
-#else
-        throw cms::Exception("FactorizedJetCorrector")
-	  <<" unknown correction level: "<<mLevels[i];
-#endif
-      }
+      else 
+        {
+          #ifdef STANDALONE
+	     std::stringstream sserr; 
+             sserr<<"FactorizedJetCorrector ERROR: "
+		  <<"unknown correction level: "<<mLevels[i];
+	     throw std::runtime_error(sserr.str());
+          #else
+             throw cms::Exception("FactorizedJetCorrector")
+	     <<" unknown correction level: "<<mLevels[i];
+          #endif
+        }
     } 
 }
 //------------------------------------------------------------------------ 
@@ -170,31 +176,37 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
 void FactorizedJetCorrector::checkConsistency(const std::vector<std::string>& fLevels, const std::vector<std::string>& fTags)
 {
   //---- First check: the number of tags must be equal to the number of sub-corrections.
-  if (fLevels.size() != fTags.size()) {
-#ifdef STANDALONE
-    std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				  <<"number of correction levels: "<<fLevels.size()
-				  <<" doesn't match # of tags: "<<fTags.size();
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception("FactorizedJetCorrector")
-      <<" number of correction levels: "<<fLevels.size()
-      <<" doesn't match the number of data file tags: "<<fTags.size();
-#endif
-  }
-  //---- Second check: each tag must contain the corresponding sub-correction level.
-  for(unsigned int i=0;i<fTags.size();i++) {
-    if ((int)fTags[i].find(fLevels[i])<0) {
-#ifdef STANDALONE
-      std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				    <<"inconsistent tag: "<<fTags[i]<<" for "
-				    <<"the requested correction: "<<fLevels[i];
-      throw std::runtime_error(sserr.str());
-#else
-      throw cms::Exception("FactorizedJetCorrector")<<" inconsistent tag: "<<fTags[i]<<" for the requested correction: "<<fLevels[i];
-#endif
+  if (fLevels.size() != fTags.size()) 
+    {
+      #ifdef STANDALONE
+         std::stringstream sserr; 
+         sserr<<"FactorizedJetCorrector ERROR: "
+	      <<"number of correction levels: "<<fLevels.size()
+	      <<" doesn't match # of tags: "<<fTags.size();
+         throw std::runtime_error(sserr.str());
+      #else
+         throw cms::Exception("FactorizedJetCorrector")
+         <<" number of correction levels: "<<fLevels.size()
+         <<" doesn't match the number of data file tags: "<<fTags.size();
+      #endif
     }
-  }
+  //---- Second check: each tag must contain the corresponding sub-correction level.
+  for(unsigned int i=0;i<fTags.size();i++) 
+    {
+      if ((int)fTags[i].find(fLevels[i])<0) 
+        {
+          #ifdef STANDALONE
+             std::stringstream sserr; 
+             sserr<<"FactorizedJetCorrector ERROR: "
+		  <<"inconsistent tag: "<<fTags[i]<<" for "
+		  <<"the requested correction: "<<fLevels[i];
+             throw std::runtime_error(sserr.str());
+          #else
+             throw cms::Exception("FactorizedJetCorrector")
+             <<" inconsistent tag: "<<fTags[i]<<" for the requested correction: "<<fLevels[i];
+          #endif
+        }
+    }
 }
 //------------------------------------------------------------------------ 
 //--- String parser ------------------------------------------------------
@@ -290,8 +302,13 @@ float FactorizedJetCorrector::getCorrection()
     } 
   mIsJetEset   = false;
   mIsJetPtset  = false;
+  mIsJetPhiset = false;
   mIsJetEtaset = false;
   mIsJetEMFset = false;
+  mIsLepPxset  = false;
+  mIsLepPyset  = false;
+  mIsLepPzset  = false;
+  mAddLepToJet = false;
   return factor; 
 }
 //------------------------------------------------------------------------ 
@@ -317,8 +334,13 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
     }
   mIsJetEset   = false;
   mIsJetPtset  = false;
+  mIsJetPhiset = false;
   mIsJetEtaset = false;
   mIsJetEMFset = false;
+  mIsLepPxset  = false;
+  mIsLepPyset  = false;
+  mIsLepPzset  = false;
+  mAddLepToJet = false;
   return factors; 
 }
 //------------------------------------------------------------------------ 
@@ -327,106 +349,131 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
 std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<std::string>& fNames)
 {
   std::vector<float> result;
-  for(unsigned i=0;i<fNames.size();i++) {
-    if (fNames[i] == "JetEta"){
-      if (!mIsJetEtaset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"jet eta is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" jet eta is not set";
-#endif
-      }
-      result.push_back(mJetEta);
+  for(unsigned i=0;i<fNames.size();i++) 
+    {
+      if (fNames[i] == "JetEta")
+        {
+          if (!mIsJetEtaset) 
+            {
+              #ifdef STANDALONE
+	         std::stringstream sserr; 
+                 sserr<<"FactorizedJetCorrector ERROR: jet eta is not set";
+                 throw std::runtime_error(sserr.str());
+              #else
+	         throw cms::Exception("FactorizedJetCorrector")<<" jet eta is not set";
+              #endif
+            }
+          result.push_back(mJetEta);
+        }
+      else if (fNames[i] == "JetPt") 
+        {
+          if (!mIsJetPtset)
+            {
+              #ifdef STANDALONE
+	        std::stringstream sserr; 
+                sserr<<"FactorizedJetCorrector ERROR: jet pt is not set";
+                throw std::runtime_error(sserr.str());
+              #else
+	        throw cms::Exception("FactorizedJetCorrector")<<" jet pt is not set";
+              #endif
+            }
+          result.push_back(mJetPt);
+        }
+      else if (fNames[i] == "JetPhi") 
+        {
+          if (!mIsJetPhiset) 
+            {
+              #ifdef STANDALONE
+	         std::stringstream sserr; 
+                 sserr<<"FactorizedJetCorrector ERROR: jet phi is not set";  
+                 throw std::runtime_error(sserr.str());
+              #else
+	         throw cms::Exception("FactorizedJetCorrector")<<" jet phi is not set";
+              #endif
+            }
+          result.push_back(mJetPt);
+        }
+      else if (fNames[i] == "JetE") 
+        {
+          if (!mIsJetEset) 
+            {
+              #ifdef STANDALONE
+	         std::stringstream sserr; 
+                 sserr<<"FactorizedJetCorrector ERROR: jet energy is not set";
+                 throw std::runtime_error(sserr.str());
+              #else
+	         throw cms::Exception("FactorizedJetCorrector")<<" jet energy is not set";
+              #endif
+            }
+          result.push_back(mJetE);
+        }
+      else if (fNames[i] == "JetEMF") 
+        {
+          if (!mIsJetEMFset) 
+            {
+              #ifdef STANDALONE
+	        std::stringstream sserr; 
+                sserr<<"FactorizedJetCorrector ERROR: jet emf is not set";
+                throw std::runtime_error(sserr.str());
+              #else
+	        throw cms::Exception("FactorizedJetCorrector")<<" jet emf is not set";
+              #endif
+            }
+          result.push_back(mJetEMF);
+        } 
+      else if (fNames[i] == "LepPx") 
+        {
+          if (!mIsLepPxset) 
+            { 
+              #ifdef STANDALONE
+	        std::stringstream sserr; 
+                sserr<<"FactorizedJetCorrector ERROR: lepton px is not set"; 
+                throw std::runtime_error(sserr.str());
+              #else
+	        throw cms::Exception("FactorizedJetCorrector")<<" lepton px is not set";
+              #endif
+            }
+          result.push_back(mLepPx);
+        }
+      else if (fNames[i] == "LepPy") 
+        {
+          if (!mIsLepPyset) 
+            {
+              #ifdef STANDALONE
+	        std::stringstream sserr; 
+                sserr<<"FactorizedJetCorrector ERROR: lepton py is not set";
+                throw std::runtime_error(sserr.str());
+              #else
+	        throw cms::Exception("FactorizedJetCorrector")<<" lepton py is not set";
+              #endif
+            }
+          result.push_back(mLepPy);
+        }
+      else if (fNames[i] == "LepPz") 
+        {
+          if (!mIsLepPzset) 
+            {
+              #ifdef STANDALONE
+	        std::stringstream sserr; 
+                sserr<<"FactorizedJetCorrector ERROR: lepton pz is not set";
+                throw std::runtime_error(sserr.str()); 
+              #else
+	        throw cms::Exception("FactorizedJetCorrector")<<" lepton pz is not set";
+              #endif
+            }
+          result.push_back(mLepPz);
+        }
+      else 
+        {
+          #ifdef STANDALONE
+            std::stringstream sserr; 
+            sserr<<"FactorizedJetCorrector ERROR: unknown parameter "<<fNames[i];
+            throw std::runtime_error(sserr.str());
+          #else
+            throw cms::Exception("FactorizedJetCorrector")<<" unknown parameter "<<fNames[i];
+          #endif
+        }
     }
-    else if (fNames[i] == "JetPt") {
-      if (!mIsJetPtset){
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"jet pt is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" jet pt is not set";
-#endif
-      }
-      result.push_back(mJetPt);
-    }
-    else if (fNames[i] == "JetPhi") {
-      if (!mIsJetPhiset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"jet phi is not set";  
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" jet phi is not set";
-#endif
-      }
-      result.push_back(mJetPt);
-    }
-    else if (fNames[i] == "JetE") {
-      if (!mIsJetEset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"jet energy is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" jet energy is not set";
-#endif
-      }
-      result.push_back(mJetE);
-    }
-    else if (fNames[i] == "JetEMF") {
-      if (!mIsJetEMFset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"jet emf is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" jet emf is not set";
-#endif
-      }
-      result.push_back(mJetEMF);
-    } 
-    else if (fNames[i] == "LepPx") {
-      if (!mIsLepPxset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"lepton px is not set"; 
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" lepton px is not set";
-#endif
-      }
-      result.push_back(mLepPx);
-    }
-    else if (fNames[i] == "LepPy") {
-      if (!mIsLepPyset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"lepton py is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" lepton py is not set";
-#endif
-      }
-      result.push_back(mLepPy);
-    }
-    else if (fNames[i] == "LepPz") {
-      if (!mIsLepPzset) {
-#ifdef STANDALONE
-	std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				      <<"lepton pz is not set";
-#else
-	throw cms::Exception("FactorizedJetCorrector")<<" lepton pz is not set";
-#endif
-      }
-      result.push_back(mLepPz);
-    }
-    else {
-#ifdef STANDALONE
-      std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				    <<"unknown parameter "<<fNames[i];
-      throw std::runtime_error(sserr.str());
-#else
-      throw cms::Exception("FactorizedJetCorrector")
-	<<" unknown parameter "<<fNames[i];
-#endif
-    }
-  }
   return result;      
 }
 //------------------------------------------------------------------------ 
@@ -448,18 +495,16 @@ float FactorizedJetCorrector::getPtRel()
   float lj_z = (mAddLepToJet) ? lep.Z()+jet.Pz() : jet.Pz();
   // absolute values squared
   float lj2  = lj_x*lj_x+lj_y*lj_y+lj_z*lj_z;
-
-  if (lj2<=0) {
-#ifdef STANDALONE
-    std::stringstream sserr; sserr<<"FactorizedJetCorrector ERROR: "
-				  <<"lepton+jet momentum sq is not positive: "<<lj2;
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception("FactorizedJetCorrector")
-      <<" not positive lepton-jet momentum: "<<lj2;
-#endif
-  }
-  
+  if (lj2<=0) 
+    {
+      #ifdef STANDALONE
+        std::stringstream sserr; 
+        sserr<<"FactorizedJetCorrector ERROR: "<<"lepton+jet momentum sq is not positive: "<<lj2;
+        throw std::runtime_error(sserr.str());
+      #else
+        throw cms::Exception("FactorizedJetCorrector")<<" not positive lepton-jet momentum: "<<lj2;
+      #endif
+    }
   float lep2 = lep.X()*lep.X()+lep.Y()*lep.Y()+lep.Z()*lep.Z();
   // projection vec(mu) to lepjet axis
   float lepXlj = lep.X()*lj_x+lep.Y()*lj_y+lep.Z()*lj_z;
