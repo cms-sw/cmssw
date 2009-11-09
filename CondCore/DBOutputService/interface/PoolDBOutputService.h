@@ -13,6 +13,11 @@
 #include <map>
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
+// many many clients do not include explicitely!
+#include "CondCore/DBCommon/interface/Exception.h"
+#warning please include  "CondCore/DBCommon/interface/Exception.h" explicitely
+
+
 //#include <iostream>
 //
 // Package:     DBOutputService
