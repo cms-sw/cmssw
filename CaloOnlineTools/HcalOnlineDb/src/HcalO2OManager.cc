@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.7 2009/11/09 13:53:04 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.8 2009/11/09 13:54:24 innocent Exp $
 //
 
 
@@ -84,61 +84,37 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
 // inspired by cmscond_list_iov
 //
 int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out, std::string tag, std::string connect){
-  //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
-  std::string user("");
-  std::string pass("");
-  bool details=false;
-  cond::DBSession* session=new cond::DBSession;
-  //
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-  session->configuration().setAuthenticationMethod( cond::Env );    
-  session->configuration().setMessageLevel( cond::Error );
-  //
-  session->open();
-  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
-  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
-  
+  cond::DbConnection conn;
+  conn.configure( cond::CmsDefaults );
+  cond::DbSession session = conn.createSession();
+  session.open("connect");
   out.clear();
   try{
-    myconnection.connect(session);
-    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
-    std::string token;
-    coraldb.start(true);
-    if(!metadata_svc.hasTag(tag)){
-      //std::cout << "no such tag in the Pool database!" << std::endl;
-      return -1;
-    }
-    token=metadata_svc.getToken(tag);
-    coraldb.commit();
-    cond::PoolTransaction& pooldb = myconnection.poolTransaction();
-    {
-      // FIXME: pre-CMSSW_33X
-      //cond::IOVProxy iov( pooldb, token, !details);
-      //cond::IOVService iovservice(pooldb);
-      //unsigned int counter=0;
-      //std::string payloadContainer=iovservice.payloadContainerName(token);
-      //
-      // FIXME: CMSSW_33X and later
-      cond::IOVProxy iov( myconnection, token, !details, details);
-      unsigned int counter=0;
-      std::string payloadContainer=iov.payloadContainerName();
-
-      for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-	out.push_back(ioviterator->since());
-	++counter;
-      }
-    }
-    myconnection.disconnect();
-  }catch(cond::Exception& er){
+     cond::MetaData metadata_svc(session);
+     cond::DbScopedTransaction tr(session);
+     tr.start(true);
+     cond::MetaData metadata_svc(coraldb);
+     std::string token;
+     if(!metadata_svc.hasTag(tag)){
+       //std::cout << "no such tag in the Pool database!" << std::endl;
+       return -1;
+     }
+     token=metadata_svc.getToken(tag);
+     cond::IOVProxy iov(session, token, !details, details);
+     unsigned int counter=0;
+     std::string payloadContainer=iov.payloadContainerName();
+     
+     for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+       out.push_back(ioviterator->since());
+       ++counter;
+     }
+     tr.commit();
+  }
+  catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }
-  delete session;
   return out.size();
 }
 
