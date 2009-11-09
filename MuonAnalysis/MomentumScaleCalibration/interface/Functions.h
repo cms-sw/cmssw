@@ -673,6 +673,51 @@ public:
   }
 };
 
+
+// ---- R.C.Nov.09 ---
+// Scale function for Z mass (misalignment STARTUP scenario) corrections 
+// Linear in pt, sinusoidal in phi (muon-charge dependent) and parabolic in Eta
+
+template <class T>
+class scaleFunctionType19 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType19() { this->parNum_ = 9; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
+  if (chg>0) {
+      return( (parScale[0] + parScale[1]*sin(parScale[2]*phi + parScale[3])+ parScale[4]*fabs(eta) + parScale[5]*eta*eta )*pt);
+  }
+  return( (parScale[0] + parScale[6]*sin(parScale[7]*phi + parScale[8])+ parScale[4]*fabs(eta) + parScale[5]*eta*eta )*pt ); 
+  }
+
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const
+ vector<int> & parScaleOrder, const int muonType) {
+   
+    double thisStep[] = {0.001, 0.01, 0.01, 0.1, 0.01, 0.01,};
+      
+    TString thisParName[] = {"Phi offset", "Phi ampl Pos","Phi freq Pos", "Phi phase Pos","Eta slope", "Eta quadr","Phi ampl Neg","Phi freq Neg", "Phi phase Neg"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9, -0.1, -0.1, -0.1, -0.02, -0.02, -0.1, -0.1, -0.1};
+      double thisMaxi[] = {1.1, 0.1, 0.1, 0.1, 0.02, 0.02, 0.1, 0.1, 0.1};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9, -0.1, -2.0, 0., -0.1, -0.01, -0.1, -2.0, 0. };
+      double thisMaxi[] = {1.1, 0.1, 2.0, 6.28, 0.1, 0.01, 0.1, 2.0, 3.14 };
+      
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+
+
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
