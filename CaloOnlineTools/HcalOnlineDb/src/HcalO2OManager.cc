@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.6 2009/10/26 09:41:38 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.7 2009/11/09 13:53:04 innocent Exp $
 //
 
 
@@ -66,7 +66,7 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
   session.open("connect");
   std::vector<std::string> alltags;
   try{
-    cond::MetaData metadata_svc(connection);
+    cond::MetaData metadata_svc(session);
     cond::DbScopedTransaction tr(session);
     tr.start(true);
     metadata_svc.listAllTags(alltags);
