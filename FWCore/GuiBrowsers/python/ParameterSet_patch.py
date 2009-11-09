@@ -396,6 +396,9 @@ def new__ModuleSequenceType__iadd__(self,other):
 cms._ModuleSequenceType.old__iadd__ = cms._ModuleSequenceType.__iadd__
 cms._ModuleSequenceType.__iadd__ = new__ModuleSequenceType__iadd__
 
+from FWCore.ParameterSet.Modules  import Source
+from FWCore.GuiBrowsers.editorTools import changeSource
+            
 if __name__=='__main__':
     import unittest
     class TestModificationTracking(unittest.TestCase):
@@ -494,9 +497,6 @@ if __name__=='__main__':
             self.assert_('process.path' in mods)
             
         def testdumpHistory(self):
-            from FWCore.ParameterSet.Modules  import Source
-            from PhysicsTools.PatAlgos.tools.testTools import changeSource
-            
             process = cms.Process('unittest')
             process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
             
@@ -531,9 +531,6 @@ if __name__=='__main__':
             self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
             
         def testModifiedObjectsHistory(self):
-            from FWCore.ParameterSet.Modules  import Source
-            from PhysicsTools.PatAlgos.tools.testTools import changeSource
-            
             process = cms.Process('unittest')
             process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
             
