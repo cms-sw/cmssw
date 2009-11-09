@@ -1081,6 +1081,10 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     }
   evtProcessor_.updateRollingReport();
   evtProcessor_.fireScalersUpdate();
+  if(fsm_.stateName()->toString()!="Enabled"){
+    wlScalersActive_ = false;
+    return false;
+  }
   return true;
 }
 
@@ -1107,7 +1111,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
       case MSQM_MESSAGE_TYPE_PRG:
 	{
 	  MsgBuf msg1(sizeof(prg),MSQS_MESSAGE_TYPE_PRR);
- 	  monitorInfoSpace_->lock();  
+	  // 	  monitorInfoSpace_->lock();  
 	  prg * data = (prg*)msg1->mtext;
 	  data->ls=evtProcessor_.lsid_;
 	  data->ps=evtProcessor_.psid_;
@@ -1116,7 +1120,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  data->Ms=evtProcessor_.epMAltState_.value_;
 	  data->ms=evtProcessor_.epmAltState_.value_;
 
-	  monitorInfoSpace_->unlock();  
+	  //	  monitorInfoSpace_->unlock();  
 	  sqm_->post(msg1);
 	  break;
 	}
