@@ -8,7 +8,6 @@
 
 #include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class EcalPreshowerMonitorClient : public edm::EDAnalyzer {
@@ -35,13 +34,6 @@ class EcalPreshowerMonitorClient : public edm::EDAnalyzer {
   std::string inputFile_;
   std::string prefixME_;
   
-  bool enableMonitorDaemon_;
-  
-  std::string clientName_;
-  std::string hostName_;
-  int hostPort_;
-  
-  DQMOldReceiver* mui_;
   DQMStore* dqmStore_;
   
   bool begin_run_;
