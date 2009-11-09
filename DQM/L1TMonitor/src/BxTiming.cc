@@ -164,7 +164,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       lbl.clear(); lbl+="BxOccyOneFed";
       char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
       hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
-      delete ii;
+      delete [] ii;
     }
 
     dbe->setCurrentFolder(histFolder_);
@@ -172,6 +172,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       lbl.clear();lbl+="BxOccyGtTrigType";
       char *ii = new char[10]; std::sprintf(ii,"%d",i+1);lbl+=ii;
       hBxOccyGtTrigType[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+      delete [] ii;
     }
 
     dbe->setCurrentFolder(histFolder_+"SingleBit/");
@@ -181,6 +182,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       	lbl.clear();lbl+=SysLabel[i];lbl+="BxOccyGtBit"; 
       	char *ii = new char[1000]; std::sprintf(ii,"%d",listGtBits_.at(j)); lbl+=ii;
       	hBxOccyTrigBit[i][j] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+	delete [] ii;
       }
     }
 
@@ -218,12 +220,13 @@ BxTiming::beginJob(const edm::EventSetup&) {
     hBxOccyOneFed[i] ->setAxisTitle("bx",1);
     lbl.clear(); lbl+=" FED "; char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii; lbl+=" occupancy";
     hBxOccyOneFed[i] ->setAxisTitle(lbl,2);
-    delete ii;
+    delete [] ii;
   }
   for(int i=0; i<nttype_; i++) {
     hBxOccyGtTrigType[i]->setAxisTitle("bx",1);
     lbl.clear(); lbl+="GT occupancy for trigger type "; char *ii = new char[10]; std::sprintf(ii,"%d",i+1);lbl+=ii;
     hBxOccyGtTrigType[i]->setAxisTitle(lbl,2);
+    delete [] ii;
   }
   
   for(int i=0; i<NSYS; i++) {
@@ -232,6 +235,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       lbl.clear();lbl+=SysLabel[i];lbl+=" Bx occupancy for Trigger bit "; 
       char *ii = new char[10]; std::sprintf(ii,"%d",listGtBits_.at(j)); lbl+=ii;
       hBxOccyTrigBit[i][j]->setAxisTitle(lbl,2);
+      delete [] ii;
     }
   }
     
