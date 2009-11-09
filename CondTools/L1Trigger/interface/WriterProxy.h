@@ -7,10 +7,9 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-/* #include "CondCore/DBCommon/interface/PoolStorageManager.h" */
-/* #include "CondCore/DBCommon/interface/Ref.h" */
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
@@ -36,7 +35,7 @@ class WriterProxy
          * In case some need other methods, like delete and update, one should add more abstract
          * methods here.
          */
-        virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const = 0;
+        virtual std::string save (const edm::EventSetup & setup,  cond::DbSession & session) const = 0;
 
     protected:
 };
@@ -51,7 +50,7 @@ class WriterProxyT : public WriterProxy
         virtual ~WriterProxyT() {}
 
         /* This method requires that Record and Type supports copy constructor */
-        virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const
+        virtual std::string save (const edm::EventSetup & setup, cond::DbSession & session) const
         {
 /*             // get className for the record first */
 /*             std::string recordName = */
@@ -70,12 +69,12 @@ class WriterProxyT : public WriterProxy
 	      }
 
 	    // If handle is invalid, then data is already in DB
-	    cond::TypedRef<Type> ref (pool,
-				      new Type (*(handle.product ())));
-	    // ref.markWrite (recordName);
-	    ref.markWrite ( ref.className() );
+	    pool::Ref<Type> ref = 
+	      session.storeObject( new Type (*(handle.product ())),
+				   cond::classNameForTypeId(typeid(Type))
+				   );
 
-	    return ref.token ();
+	    return ref.toString ();
         }
 };
 

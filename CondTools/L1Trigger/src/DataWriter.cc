@@ -36,12 +36,11 @@ DataWriter::writePayload( const edm::EventSetup& setup,
     }
   cond::DbSession session = poolDb->session();
   cond::DbScopedTransaction tr(session);
+  // if throw transaction will unroll
   tr.start(false);
 
   // update key to have new payload registered for record-type pair.
-  std::string payloadToken ;
-  // if thow transaction will unroll
-  payloadToken = writer->save( setup, pool ) ;
+  std::string payloadToken = writer->save( setup, session ) ;
 
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
