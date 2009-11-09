@@ -516,9 +516,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   //Before all else, how much data are we dealing with here?
   uint64_t* lastDataWord = (uint64_t*) ( raw.data()+(raw.size())-(1*sizeof(uint64_t)) );
   int EvFragLength = (int) (*lastDataWord>>(4*8)) & 0x0000000000FFFFFF ; //Shift right 4 bytes, get low 3 bytes.
-  meFEDRawDataSizes_->Fill(EvFragLength);
-  meEvFragSize_ ->Fill(dccid, EvFragLength);
-  meEvFragSize2_ ->Fill(dccid, EvFragLength);
+  meFEDRawDataSizes_->Fill(EvFragLength*8);      //# 64-bit DAQ words *8 = # bytes. 
+  meEvFragSize_ ->Fill(dccid, EvFragLength*8);   //# 64-bit DAQ words *8 = # bytes. 
+  meEvFragSize2_ ->Fill(dccid, EvFragLength*8);  //# 64-bit DAQ words *8 = # bytes. 
   
   //Orbit, BunchCount, and Event Numbers
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
