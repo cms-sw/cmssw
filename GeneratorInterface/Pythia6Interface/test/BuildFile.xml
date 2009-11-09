@@ -8,3 +8,11 @@
    <use name="PhysicsTools/UtilAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="BasicGenTester.cc" name="BasicGenTester">
+  <use name="root"/>
+  <use name="hepmc"/>
+  <use name="SimDataFormats/GeneratorProducts"/> 
+   <use name="PhysicsTools/UtilAlgos"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
