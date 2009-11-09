@@ -16,10 +16,11 @@ process.source = cms.Source("PoolSource",
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
+      debugModules = cms.untracked.vstring('distortedMuons'),
       cout = cms.untracked.PSet(
-            default = cms.untracked.PSet( limit = cms.untracked.int32(100) ),
-            threshold = cms.untracked.string('INFO')
-            #threshold = cms.untracked.string('DEBUG')
+            default = cms.untracked.PSet( limit = cms.untracked.int32(1000) ),
+            #threshold = cms.untracked.string('INFO')
+            threshold = cms.untracked.string('DEBUG')
       ),
       destinations = cms.untracked.vstring('cout')
 )
@@ -31,14 +32,73 @@ process.genMatchMap = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matchPDGId = cms.vint32(13)
 )
 
+# Database for scale shift if process.distortedMuons.UseDBForMomentumScale = True
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
+      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+      DBParameters = cms.PSet(
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+      ),
+      timetype = cms.untracked.string('runnumber'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      toGet = cms.VPSet(
+            cms.PSet(
+                  record = cms.string('MuScleFitDBobjectRcd'),
+                  tag = cms.string('MuScleFit_Scale_OctoberExercise_EWK_InnerTrack'),
+                  label = cms.untracked.string('')
+            )
+      )
+)
+process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
+      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+      DBParameters = cms.PSet(
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+      ),
+      timetype = cms.untracked.string('runnumber'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      toGet = cms.VPSet(
+            cms.PSet(
+                  record = cms.string('MuScleFitDBobjectRcd'),
+                  tag = cms.string('MuScleFit_Resol_OctoberExercise_EWK_InnerTrack_WithLabel'),
+                  label = cms.untracked.string('MuScleFit_Resol_OctoberExercise_EWK_InnerTrack_WithLabel')
+            )
+      )
+)
+process.poolDBESSource3 = cms.ESSource("PoolDBESSource",
+      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+      DBParameters = cms.PSet(
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+      ),
+      timetype = cms.untracked.string('runnumber'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      toGet = cms.VPSet(
+            cms.PSet(
+                  record = cms.string('MuScleFitDBobjectRcd'),
+                  tag = cms.string('MuScleFit_Resol_OctoberExercise_SherpaIdealMC_WithLabel'),
+                  label = cms.untracked.string('MuScleFit_Resol_OctoberExercise_SherpaIdealMC_WithLabel')
+            )
+      )
+)
+
 # Create a new "distorted" Muon collection
 process.distortedMuons = cms.EDFilter("DistortedMuonProducer",
       MuonTag = cms.untracked.InputTag("muons"),
       GenMatchTag = cms.untracked.InputTag("genMatchMap"),
+
+      UseDBForMomentumCorrections = cms.untracked.bool(True), # True if scale taken from DB
+      DBScaleLabel = cms.untracked.string(''),
+      DBDataResolutionLabel = cms.untracked.string('MuScleFit_Resol_OctoberExercise_EWK_InnerTrack_WithLabel'),
+      DBMCResolutionLabel = cms.untracked.string('MuScleFit_Resol_OctoberExercise_SherpaIdealMC_WithLabel'),
+
       EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
-      MomentumScaleShift = cms.untracked.vdouble(1.e-3),
-      UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-3), #in [1/GeV]
-      RelativeUncertaintyOnPt = cms.untracked.vdouble(5.e-3),
+
+      MomentumScaleShift = cms.untracked.vdouble(1.e-3), # relative
+      UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-3), #in [1/GeV] units
+      RelativeUncertaintyOnPt = cms.untracked.vdouble(5.e-3), # relative
+
       EfficiencyRatioOverMC = cms.untracked.vdouble(0.90)
 )
 

@@ -32,10 +32,13 @@ class PdfWeightProducer : public edm::EDProducer {
       std::vector<std::string> pdfShortNames_;
 };
 
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "TSystem.h"
-#include "LHAPDF/LHAPDF.h"
+namespace LHAPDF {
+      void initPDFSet(int nset, const std::string& filename, int member=0);
+      int numberPDF(int nset);
+      void usePDFMember(int nset, int member);
+      double xfx(int nset, double x, double Q, int fl);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
