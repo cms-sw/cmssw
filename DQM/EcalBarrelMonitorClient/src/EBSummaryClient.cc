@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/09/23 07:25:51 $
- * $Revision: 1.197 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.198 $
  * \author G. Della Ricca
  *
 */
@@ -127,6 +127,10 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
 
   meCosmic_         = 0;
   meTiming_         = 0;
+  meTimingMean1D_   = 0;
+  meTimingRMS1D_    = 0;
+  meTimingMean_     = 0;
+  meTimingRMS_      = 0;
   meTriggerTowerEt_        = 0;
   meTriggerTowerEmulError_ = 0;
   meTriggerTowerTiming_ = 0;
@@ -153,6 +157,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
 
     hpot01_[ism-1] = 0;
     httt01_[ism-1] = 0;
+    htmt01_[ism-1] = 0;
 
   }
 
@@ -682,6 +687,32 @@ void EBSummaryClient::setup(void) {
   meTiming_->setAxisTitle("jphi", 1);
   meTiming_->setAxisTitle("jeta", 2);
 
+  if( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
+  sprintf(histo, "EBTMT timing mean 1D summary");
+  meTimingMean1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
+  meTimingMean1D_->setAxisTitle("mean (clock units)", 1);
+
+  if( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
+  sprintf(histo, "EBTMT timing rms 1D summary");
+  meTimingRMS1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
+  meTimingRMS1D_->setAxisTitle("rms (clock units)", 1);
+
+  if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
+  sprintf(histo, "EBTMT timing mean");
+  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10.);
+  for (int i = 0; i < 36; i++) {
+    meTimingMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+  meTimingMean_->setAxisTitle("mean (clock units)", 2);
+
+  if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
+  sprintf(histo, "EBTMT timing rms");
+  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 6.);
+  for (int i = 0; i < 36; i++) {
+    meTimingRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+  meTimingRMS_->setAxisTitle("rms (clock units)", 2);
+
   if( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower summary");
   meTriggerTowerEt_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
@@ -895,6 +926,18 @@ void EBSummaryClient::cleanup(void) {
   if ( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
 
+  if ( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
+  meTimingMean1D_ = 0;
+
+  if ( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
+  meTimingRMS1D_ = 0;
+
+  if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
+  meTimingMean_ = 0;
+
+  if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
+  meTimingRMS_ = 0;
+
   if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   meTriggerTowerEt_ = 0;
 
@@ -1043,6 +1086,10 @@ void EBSummaryClient::analyze(void) {
 
   if ( meCosmic_ ) meCosmic_->setEntries( 0 );
   if ( meTiming_ ) meTiming_->setEntries( 0 );
+  if ( meTimingMean1D_ ) meTimingMean1D_->Reset();
+  if ( meTimingRMS1D_ ) meTimingRMS1D_->Reset();
+  if ( meTimingMean_ ) meTimingMean_->Reset();
+  if ( meTimingRMS_ ) meTimingRMS_->Reset();
   if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setEntries( 0 );
   if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setEntries( 0 );
   if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setEntries( 0 );
@@ -1084,6 +1131,10 @@ void EBSummaryClient::analyze(void) {
       sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT Et map Real Digis %s").c_str(), Numbers::sEB(ism).c_str());
       me = dqmStore_->get(histo);
       httt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, httt01_[ism-1] );
+
+      sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
+      me = dqmStore_->get(histo);
+      htmt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, htmt01_[ism-1] );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1160,29 +1211,29 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-          }
+            float num01, mean01, rms01;
+            bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ie, ip, num01, mean01, rms01);
 
-          float num01, mean01, rms01;
-          bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ie, ip, num01, mean01, rms01);
+            if ( update01 ) {
 
-          if ( update01 ) {
+              int iex;
+              int ipx;
 
-            int iex;
-            int ipx;
+              if ( ism <= 18 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
+              } else {
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
+              }
 
-            if ( ism <= 18 ) {
-              iex = 1+(85-ie);
-              ipx = ip+20*(ism-1);
-            } else {
-              iex = 85+ie;
-              ipx = 1+(20-ip)+20*(ism-19);
+              mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
+
+              mePedestalOnlineRMS_->Fill( ism, rms01 );
+
+              mePedestalOnlineMean_->Fill( ism, mean01 );
+
             }
-
-            mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
-
-            mePedestalOnlineRMS_->Fill( ism, rms01 );
-
-            mePedestalOnlineMean_->Fill( ism, mean01 );
 
           }
 
@@ -1391,6 +1442,22 @@ void EBSummaryClient::analyze(void) {
 
             }
 
+            
+            float num02, mean02, rms02;
+            bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02);
+            
+            if ( update02 ) {
+              
+              meTimingMean1D_->Fill(mean02);
+              
+              meTimingRMS1D_->Fill(rms02);
+              
+              meTimingMean_->Fill( ism, mean02 );
+              
+              meTimingRMS_->Fill( ism, rms02 );
+              
+            }
+            
           }
 
         }
