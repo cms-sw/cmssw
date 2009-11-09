@@ -9,15 +9,17 @@ process = cms.Process("HCALDQM")
 #  variables used in multiple places
 #-----------------------------------                      
 
-maxevents=5000          # maximum number of events to process
-checkNevents=1000       # histograms are filled 'every checkNevents' events
+maxevents    = 5000     # maximum number of events to process
+checkNevents = 1000     # histograms are filled 'every checkNevents' events
+debuglevel   = 0        # specify amount of debug info to display
+
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
 memcheck=False          # Dump out memeroy usage information
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Reduce frequency of MessageLogger event output messages
-process.MessageLogger.cerr.FwkReport.reportEvery = 500
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 #----------------------------
 # Specify Event Source
@@ -263,7 +265,7 @@ process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 # -------------------------------
 # hcalMonitor configurable values
 # -------------------------------
-process.hcalMonitor.debug = 0
+process.hcalMonitor.debug = debuglevel
 process.hcalMonitor.Online = True # set true for online/local running
 
 process.hcalMonitor.showTiming      = False
@@ -290,7 +292,7 @@ process.hcalMonitor.DetDiagNoiseMonitor           = True
 process.hcalMonitor.DetDiagTimingMonitor          = True
 process.hcalMonitor.DetDiagLEDMonitor             = False
 process.hcalMonitor.DetDiagLaserMonitor           = False
-process.hcalMoniotr.DetDiagPedestalMonitor        = False
+process.hcalMonitor.DetDiagPedestalMonitor        = False
 
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
 setHcalTaskValues(process.hcalMonitor)
@@ -320,7 +322,7 @@ process.hcalClient.subSystemFolder  = subsystem
 # Set client settings to the same as monitor.  At the moment, this doesn't affect the client minErrorFlag
 # Summary Client is also unaffected
 
-setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=False)  # turn debug to True to dump out client settings
+setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=debuglevel)
 
 # Keep Summary Client turned on
 process.hcalClient.SummaryClient        = True
