@@ -50,7 +50,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
-  theFSimVerticesType = new FSimVertexTypeCollection(); //gouzevitch 09/09
+  theFSimVerticesType = new FSimVertexTypeCollection();
 
   // Reserve some size to avoid mutiple copies
   /* */
@@ -58,7 +58,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
   theChargedTracks->resize(initialSize);
-  theFSimVerticesType->resize(initialSize);   // gouzevitch 09/09
+  theFSimVerticesType->resize(initialSize);
   theTrackSize = initialSize;
   theVertexSize = initialSize;
   theGenSize = initialSize;
@@ -106,7 +106,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
-  theFSimVerticesType = new FSimVertexTypeCollection(); //gouzevitch 09/09
+  theFSimVerticesType = new FSimVertexTypeCollection();
 
   // Reserve some size to avoid mutiple copies
   /* */
@@ -114,7 +114,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
   theChargedTracks->resize(initialSize);
-  theFSimVerticesType->resize(initialSize);  // gouzevitch 09/09
+  theFSimVerticesType->resize(initialSize);
   theTrackSize = initialSize;
   theVertexSize = initialSize;
   theGenSize = initialSize;
@@ -142,14 +142,14 @@ FBaseSimEvent::~FBaseSimEvent(){
   theSimTracks->clear();
   theSimVertices->clear();
   theChargedTracks->clear();
-  theFSimVerticesType->clear();   // gouzevitch 09/09
+  theFSimVerticesType->clear();
 
   // Delete 
   delete theGenParticles;
   delete theSimTracks;
   delete theSimVertices;
   delete theChargedTracks;
-  delete theFSimVerticesType; ; // gouzevitch 09/09
+  delete theFSimVerticesType;
   delete myFilter;
 
   //Write the histograms
