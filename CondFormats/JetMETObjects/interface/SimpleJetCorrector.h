@@ -16,7 +16,6 @@ class SimpleJetCorrector
   ~SimpleJetCorrector();
   //-------- Member functions -----------
   void   setInterpolation(bool fInterpolation) {mDoInterpolation = fInterpolation;}
-  void   doInversion(unsigned fVar);
   float  correction(const std::vector<float>& fX,const std::vector<float>& fY) const;  
   const  JetCorrectorParameters& parameters() const {return *mParameters;} 
 
@@ -24,9 +23,10 @@ class SimpleJetCorrector
   //-------- Member functions -----------
   SimpleJetCorrector(const SimpleJetCorrector&);
   SimpleJetCorrector& operator= (const SimpleJetCorrector&);
-  float invert(std::vector<float> fX) const;
-  float correctionBin(unsigned fBin,const std::vector<float>& fY) const;
-  float quadraticInterpolation(float fZ, const float fX[3], const float fY[3]) const; 
+  float    invert(std::vector<float> fX) const;
+  float    correctionBin(unsigned fBin,const std::vector<float>& fY) const;
+  float    quadraticInterpolation(float fZ, const float fX[3], const float fY[3]) const; 
+  unsigned findInvertVar();
   //-------- Member variables -----------
   bool                    mDoInterpolation;
   unsigned                mInvertVar; 

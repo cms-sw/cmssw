@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.1 2009/11/04 21:22:50 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.2 2009/11/09 11:50:18 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -35,7 +35,7 @@ class JetCorrectorParameters
         bool isResponse()                   const {return mIsResponse;    }
       private:
         //-------- Member variables ----------
-        bool                     mIsResponse;
+        bool                     mIsResponse; 
         std::string              mFormula;
         std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;

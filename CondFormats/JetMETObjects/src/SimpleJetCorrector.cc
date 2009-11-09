@@ -30,7 +30,8 @@ SimpleJetCorrector::SimpleJetCorrector(const std::string& fDataFile, const std::
   mParameters      = new JetCorrectorParameters(fDataFile,fOption);
   mFunc            = new TFormula("function",((mParameters->definitions()).formula()).c_str());
   mDoInterpolation = false;
-  mInvertVar       = 9999; 
+  if (mParameters->definitions().isResponse())
+    mInvertVar = findInvertVar(); 
 }
 //------------------------------------------------------------------------ 
 //--- SimpleJetCorrector destructor --------------------------------------
@@ -134,22 +135,30 @@ float SimpleJetCorrector::correctionBin(unsigned fBin,const std::vector<float>& 
   return result;
 }
 //------------------------------------------------------------------------ 
-//--- set inversion ------------------------------------------------------
+//--- find invertion variable (JetPt) ------------------------------------
 //------------------------------------------------------------------------
-void SimpleJetCorrector::doInversion(unsigned fVar)
+unsigned SimpleJetCorrector::findInvertVar()
 {
-  if (mParameters->definitions().isResponse())
-    mInvertVar = fVar;
-  else
+  unsigned result = 9999;
+  std::vector<std::string> vv = mParameters->definitions().parVar();
+  for(unsigned i=0;i<vv.size();i++)
+    if (vv[i]=="JetPt")
+      {
+        result = i;
+        break;
+      }
+  if (result >= vv.size()) 
     {
       #ifdef STANDALONE 
         std::stringstream sserr;
-        sserr<<"SimpleJetCorrector ERROR: inversion is applicable only when response is given";
+        sserr<<"SimpleJetCorrector ERROR: Response inversion is required but JetPt is not specified as parameter";
         throw std::runtime_error(sserr.str());
       #else
-        throw cms::Exception("SimpleJetCorrector")<<" inversion is applicable only when response is given";
+        throw cms::Exception("SimpleJetCorrector")
+        <<" Response inversion is required but JetPt is not specified as parameter";
       #endif
     } 
+  return result;
 }
 //------------------------------------------------------------------------ 
 //--- inversion ----------------------------------------------------------
@@ -158,16 +167,6 @@ float SimpleJetCorrector::invert(std::vector<float> fX) const
 {
   unsigned nMax = 50;
   unsigned N = fX.size();
-  if (mInvertVar > N-1) 
-    { 
-      #ifdef STANDALONE 
-         std::stringstream sserr;
-         sserr<<"SimpleJetCorrector ERROR: inversion variable: "<<mInvertVar<<" greater than maximum "<<N-1;
-         throw std::runtime_error(sserr.str());
-      #else
-         throw cms::Exception("SimpleJetCorrector")<<" inversion variable: "<<mInvertVar<<" greater than maximum "<<N-1;
-      #endif
-    }
   float precision = 0.0001;
   float rsp = 1.0;
   float e = 1.0;
