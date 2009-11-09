@@ -21,7 +21,9 @@ PF2PATEventContent = cms.PSet(
     'keep recoPFTauDiscriminator_*_*_*',
     'keep *_offlinePrimaryVerticesWithBS_*_*',
     # MET
-    'keep *_pfMET_*_*'
+    'keep *_pfMET_*_*',
+    # Trigger
+    'keep *_TriggerResults_*_*'
     )
 )
 
@@ -31,12 +33,13 @@ PATEventContent = cms.PSet(
 #    'keep *_genParticles_*_*',
     'keep *_genMetTrue_*_*',
     'keep recoGenJets_iterativeCone5GenJets_*_*',
-    'keep patElectrons_*_*_*',
-    'keep patMuons_*_*_*',
-    'keep patJets_*_*_*',
+    'keep patElectrons_selectedLayer1Electrons_*_*',
+    'keep patMuons_selectedLayer1Muons_*_*',
+    'keep patJets_selectedLayer1Jets_*_*',
     'keep patMETs_*_*_*',
-    'keep patTaus_*_*_*',
-    'keep recoIsoDepositedmValueMap_iso*_*_*'
+    'keep patTaus_selectedLayer1Taus_*_*',
+    'keep recoIsoDepositedmValueMap_iso*_*_*',
+    'keep *_TriggerResults_*_*'
     )
 )
 
