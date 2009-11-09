@@ -22,6 +22,10 @@
 <use name=MagneticField/Records>
 <use name=RecoTracker/Record>
 <use name=SimDataFormats/GeneratorProducts>
+<<<<<<< BuildFile
+<use name=FastSimDataFormats/NuclearInteractions>
+=======
+>>>>>>> 1.23
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
