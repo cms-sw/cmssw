@@ -38,7 +38,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "IgProf_Perf",
           "IgProf_Mem",
           "Callgrind",
-         "Memcheck",
+          "Memcheck",
           #Adding the extra PU directories:
           "PU_TimeSize",
           "PU_IgProf",
@@ -1399,9 +1399,9 @@ def stageIgProfReports(remotedir,arch,version):
     try:
         print mkdir_cmd
         os.system(mkdir_cmd)
-        print "Successfully created remote directory"
+        print "Successfully created publication directory"
     except:
-        print "Issues with remote directory existence/creation!"
+        print "Issues with publication directory existence/creation!"
         
     #Copy files over to remote dir
     #replacing rsync with tar pipes since it can hang on AFS (Andreas' experience):

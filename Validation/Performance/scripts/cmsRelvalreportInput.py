@@ -387,6 +387,7 @@ def getProfileArray(ProfileCode):
         'IgProfperf',
         'IgProfMemTotal',
         'IgProfMemLive',
+        #'IgProfMemMax', #Should add this here... but instead of changing the profile code numbers (really should, using options instead of numbers...) I am hacking the IgProfMemLive one: when this one is selected I will also include the IgProfMemMax profile (and analysis is analyse is there)
         'IgProfMemAnalyse',
         'valgrind',
         'memcheck_valgrind',
@@ -408,9 +409,14 @@ def getProfileArray(ProfileCode):
                 
                 if firstCase or secCase:
                     Profile.append(AllowedProfile[i] + ' @@@ reuse')
+                    #Here's the hack:
+                    if i==6: #i.e. IgProfMemLive
+                        Profile.append("IgProfMemMax @@@ reuse")
                 else:
                     Profile.append(AllowedProfile[i])
-                
+                    if i==6: #i.e. IgProfMemLive
+                        Profile.append("IgProfMemMax")
+
     return Profile
 
 def writeStepHead(simcandles,acandle,step):
@@ -927,6 +933,7 @@ def main(argv=sys.argv):
     #
 
     Profile = getProfileArray(ProfileCode)
+
 
     ##################
     # Write the commands for the report to the file
