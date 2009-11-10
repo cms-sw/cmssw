@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.63 2009/11/03 16:56:39 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.64 2009/11/04 18:09:45 amraktad Exp $
 //
 
 // system include files
@@ -272,7 +272,7 @@ void
 FWEveLegoView::setPixelsPerBin()
 {
    if(m_lego) {
-      m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
+      m_lego->SetPixelsPerBin((Int_t) (m_pixelsPerBin.value()));
       m_lego->ElementChanged(kTRUE,kTRUE);
    }
 }
