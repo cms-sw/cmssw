@@ -1,5 +1,4 @@
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondCore/Utilities/interface/Utilities.h"
 
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -10,7 +9,6 @@
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/Utilities/interface/Utilities.h"
 
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
@@ -43,13 +41,6 @@ cond::ListIOVUtilities::~ListIOVUtilities(){
 
 int cond::ListIOVUtilities::execute(){
   initializePluginManager();
-
-  std::vector<edm::ParameterSet> psets;
-  edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
-  psets.push_back(pSet);
-  edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  edm::ServiceRegistry::Operate operate(services);
   
   bool listAll = hasOptionValue("all");
   cond::DbSession session = openDbSession( "connect" );

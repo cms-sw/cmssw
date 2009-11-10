@@ -1,5 +1,8 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 //local includes
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/SQLReport.h"
@@ -205,6 +208,14 @@ void cond::Utilities::initializePluginManager(){
   if(!m_pluginMgrInitialized){
     edmplugin::PluginManager::Config config;
     edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+    std::vector<edm::ParameterSet> psets;
+    edm::ParameterSet pSet;
+    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+    psets.push_back(pSet);
+    edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    edm::ServiceRegistry::Operate operate(services);
+
     m_pluginMgrInitialized = true;
   }
 }
