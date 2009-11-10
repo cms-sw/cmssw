@@ -25,7 +25,7 @@ namespace cond{
     //std::cout<<"userconnect "<<userconnect<<std::endl;
     //std::cout<<"protocol "<<protocol<<std::endl;  
     std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol));
-    (ptr).initialize(userconnect,connection);
+    (*ptr).initialize(userconnect,connection);
     return ptr;
   }
 }

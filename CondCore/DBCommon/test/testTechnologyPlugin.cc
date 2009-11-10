@@ -2,7 +2,10 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include <iostream>
+
+
 int main(){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
