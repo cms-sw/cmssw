@@ -103,7 +103,7 @@ void cond::DbSession::SessionImpl::open( const std::string& connectionString, bo
     policy.setReadMode( pool::DatabaseConnectionPolicy::READ );
     m_dataSvc->session().setDefaultConnectionPolicy( policy );
     // open the db connection
-    technologyProxy = buildTechnologyProxy(connectionString);
+    technologyProxy = buildTechnologyProxy(connectionString, *m_connection);
     m_connectionString = (*technologyProxy).getRealConnectString();
     m_session = &m_dataSvc->configuration().sharedSession(m_connectionString, (readOnly)? coral::ReadOnly: coral::Update );
     std::string catalogConnectionString("pfncatalog_memory://POOL_RDBMS?");

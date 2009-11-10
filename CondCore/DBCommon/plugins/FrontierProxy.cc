@@ -13,25 +13,24 @@
 namespace cond{
   class FrontierProxy: public TechnologyProxy{
   public:
-    explicit FrontierProxy(const DbSession& isession);
+    FrontierProxy();
     ~FrontierProxy();
-    void initialize(const DbConnection& connection);
+    void initialize(const std::string&userconnect,const DbConnection& connection);
     std::string getRealConnectString() const;
   private:
     static unsigned int countslash(const std::string& input);
   private:
+    std::string m_userconnect;
     std::vector<std::string> m_refreshtablelist;
   };
 }//ns cond
 
 
-cond::FrontierProxy::FrontierProxy(const  DbSession& isession):
-  cond::TechnologyProxy(isession){
+cond::FrontierProxy::FrontierProxy(){
   m_refreshtablelist.reserve(10);
   m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
   m_refreshtablelist.push_back(cond::IOVNames::iovDataTableName());
   m_refreshtablelist.push_back(cond::MetaDataNames::metadataTable());
-  setupSession();
 }
 
 cond::FrontierProxy::~FrontierProxy(){
@@ -40,7 +39,7 @@ cond::FrontierProxy::~FrontierProxy(){
 
 std::string 
 cond::FrontierProxy::getRealConnectString() const{
-  std::string result = m_session.connectionString();
+  std::string result = m_userconnect;
   std::string proto("frontier://");
   std::string::size_type fpos=m_userconnect.find(proto);
   unsigned int nslash=this->countslash(m_userconnect.substr(proto.size(),m_userconnect.size()-fpos));
@@ -55,7 +54,8 @@ cond::FrontierProxy::getRealConnectString() const{
 }
 
 void 
-cond::FrontierProxy::initialize(const DbConnection& connection){
+cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnection& connection) {
+  m_userconnect = userconnect;
   std::string refreshConnect;
   std::string realconnect=this->getRealConnectString();
   std::string::size_type startRefresh = realconnect.find("://");

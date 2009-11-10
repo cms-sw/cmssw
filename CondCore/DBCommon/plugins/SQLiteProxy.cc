@@ -4,18 +4,21 @@
 namespace cond{
   class SQLiteProxy:public TechnologyProxy{
   public:
-    explicit SQLiteProxy(){}
+    SQLiteProxy(){}
     ~SQLiteProxy(){}
-    void initialize(const DbConnection&){}
+    void initialize(const std::string &userconnect, const DbConnection&){
+        m_userconnect = userconnect;
+    }
+ze(const DbConnection&){}
     std::string 
     getRealConnectString( ) const{
-      std::string const & userconnect = m_session.connectionString();
       if( m_userconnect.find("sqlite_fip:") != std::string::npos ){
 	cond::FipProtocolParser p;
-	return p.getRealConnect(userconnect);
+	return p.getRealConnect(m_userconnect);
       }
-      return userconnect;
+      return m_userconnect;
     }
+    std::string m_userconnect;
   };  
 }//ns cond
 

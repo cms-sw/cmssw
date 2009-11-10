@@ -2,10 +2,13 @@
 namespace cond {
   class OracleProxy: public TechnologyProxy {
   public:
-    explicit OracleProxy(){}
+    OracleProxy(){}
     ~OracleProxy(){}
-    void initialize(const DbConnection&){}
-    std::string getRealConnectString() const{ return m_session.connectionString();}
+    void initialize(const std::string &userconnect, const DbConnection&){
+      m_userconnect = userconnect;
+    }
+    std::string getRealConnectString() const{ return  m_userconnect;}
+    std::string m_userconnect;
   };
 }//ns cond
 
