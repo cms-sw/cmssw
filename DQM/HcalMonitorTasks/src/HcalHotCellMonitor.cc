@@ -354,14 +354,9 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 
 /* ------------------------- */
 
-void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
+void HcalHotCellMonitor::done()
 {
-  // moving to client; we want to be able to sum over results in offline
-  return;
-
-  if (dump2database==0) // don't do anything special unless specifically asked to dump db file
-    return;
-
+  // moved database dumps to client; we want to be able to sum over results in offline
   return;
 
 } // void HcalHotCellMonitor::done()

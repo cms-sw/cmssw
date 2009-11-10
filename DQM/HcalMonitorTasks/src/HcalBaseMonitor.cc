@@ -41,7 +41,6 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   fVerbosity      = ps.getUntrackedParameter<int>("debug",0); 
   makeDiagnostics = ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
-  fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi", true);
   showTiming      = ps.getUntrackedParameter<bool>("showTiming",false);
   dump2database   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file 
 

@@ -38,8 +38,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/10/13 11:13:55 $
-  * $Revision: 1.33 $
+  * $Date: 2009/10/13 13:25:01 $
+  * $Revision: 1.34 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -108,7 +108,6 @@ protected:
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
-  bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
   
   DQMStore* m_dbe;
   bool Online_; // tracks whether code is run online or offline 

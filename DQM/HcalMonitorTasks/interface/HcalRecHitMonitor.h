@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/10/12 16:09:44 $
-  * $Revision: 1.31 $
+  * $Date: 2009/10/25 15:39:35 $
+  * $Revision: 1.32 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -42,11 +42,9 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits);
 
-  void fillRecHitHistosAtEndRun();
+  void fill_Nevents();
+
  private:
-
-
-  void fillNevents();
 
   bool rechit_makeDiagnostics_;
 

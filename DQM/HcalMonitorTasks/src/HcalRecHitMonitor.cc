@@ -89,7 +89,6 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       SetupEtaPhiHists(SumEnergyThreshByDepth,"Above Threshold RecHit Summed Energy","GeV");
       SetupEtaPhiHists(SumTimeThreshByDepth,"Above Threshold RecHit Summed Time","nS");
 
-      TH1F* tempflag;
       m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags");// HB Flag Histograms
       h_HBflagcounter=m_dbe->book1D("HBflags","HB flags",32,-0.5,31.5);
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
@@ -98,6 +97,15 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+      // 2-bit timing counter
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
+      h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
+      //3-bit timing shape cut
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
+      h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
+      h_HBflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
+
+      // common flags
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
       h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
@@ -111,6 +119,14 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+      // 2-bit timing counter
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
+      h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
+      //3-bit timing shape cut
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
+      h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
+      h_HEflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
+
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
       h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
@@ -127,19 +143,16 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       h_HFflagcounter=m_dbe->book1D("HFflags","HF flags",32,-0.5,31.5);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFLongShort, "LongShort",1);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFDigiTime, "DigiTime",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
       h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
 
-      tempflag=h_HBflagcounter->getTH1F();
-      tempflag->LabelsOption("v");
-      tempflag=h_HEflagcounter->getTH1F();
-      tempflag->LabelsOption("v");
-      tempflag=h_HOflagcounter->getTH1F();
-      tempflag->LabelsOption("v");
-      tempflag=h_HFflagcounter->getTH1F();
-      tempflag->LabelsOption("v");
+      h_HBflagcounter->getTH1F()->LabelsOption("v");
+      h_HEflagcounter->getTH1F()->LabelsOption("v");
+      h_HOflagcounter->getTH1F()->LabelsOption("v");
+      h_HFflagcounter->getTH1F()->LabelsOption("v");
       
       if (rechit_makeDiagnostics_)
 	{
@@ -248,25 +261,15 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   processEvent_rechit(hbHits, hoHits, hfHits);
   
-  // Fill problem cells
-  if (ievt_%rechit_checkNevents_ ==0)
+  // Fill problem cells -- will now fill once per luminosity block
+  if (rechit_checkNevents_>1 && ievt_%rechit_checkNevents_ ==0)
     {
-      fillNevents();
+      fill_Nevents();
     }
 
   return;
 } // void HcalRecHitMonitor::processEvent(...)
 
-
-/* --------------------------------------- */
-
-
-void HcalRecHitMonitor::fillRecHitHistosAtEndRun()
-{
-  // Fill histograms one last time at endRun call
-
-  fillNevents();
-}
 
 /* --------------------------------------- */
 
@@ -326,11 +329,10 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  HBpresent_=true;
 	  if (!checkHB_) continue;
 	  
-	  
 	  //Looping over HB searching for flags --- cris
 	  for (int f=0;f<32;f++)
 	    {
-	      // Let's display HSCP just to see if tese bits are set
+	      // Let's display HSCP just to see if these bits are set
 	      /*
 	       if(f == HcalCaloFlagLabels::HSCP_R1R2)
 		continue;
@@ -343,9 +345,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	      */
 	      if (HBHEiter->flagField(f))
 		HBflagcounter_[f]++;
-	      
 	    }
-	  
 
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
@@ -479,7 +479,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	     if (HOiter->flagField(f))
 	       HOflagcounter_[f]++;
 	   }
-
 
 	 ++occupancy_[calcEta][iphi-1][depth-1];
 	 energy_[calcEta][iphi-1][depth-1]+=en;
@@ -615,9 +614,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
 
 
-void HcalRecHitMonitor::fillNevents(void)
-  //void HcalRecHitMonitor::fillNevents(const HBHERecHitCollection& hbheHits)
-
+void HcalRecHitMonitor::fill_Nevents(void)
 {
   if (showTiming)
     {
@@ -628,7 +625,7 @@ void HcalRecHitMonitor::fillNevents(void)
   if (fVerbosity>0)
     {
       for (int k = 0; k <= 32; k++){
-	std::cout << "<HcalRecHitMonitor::fillNevents>  HF Flag counter:  Bin #" << k+1 << " = "<< HFflagcounter_[k] << endl;
+	std::cout << "<HcalRecHitMonitor::fill_Nevents>  HF Flag counter:  Bin #" << k+1 << " = "<< HFflagcounter_[k] << endl;
       }
     }
 
@@ -796,14 +793,14 @@ void HcalRecHitMonitor::fillNevents(void)
   //zeroCounters();
 
   if (fVerbosity>0)
-    std::cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
+    std::cout <<"<HcalRecHitMonitor::fill_Nevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
     
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitMonitor FILLNEVENTS -> "<<cpu_timer.cpuTime()<<endl;
     }
 
-} // void HcalRecHitMonitor::fillNevents(void)
+} // void HcalRecHitMonitor::fill_Nevents(void)
 
 
 void HcalRecHitMonitor::zeroCounters(void)
