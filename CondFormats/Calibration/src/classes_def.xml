@@ -59,7 +59,12 @@
 
 
  
- <class name="BitArray<9>"/>
+ <class name="BitArray<9>" class_version="0"/>
+ <class name="pool::PolyPtr<BitArray<9> >"/>
+ <class name="cond::DataWrapper<BitArray<9> >"/>
+
+
+
  <class name="boostTypeObj"/>
  <class name="fixedArray<unsigned short,2097>"/>
  <class name="mypt"/>

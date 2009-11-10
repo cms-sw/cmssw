@@ -22,7 +22,7 @@
 
 
 #ifdef ALLCLASSES
-#include "CondFormats/THEPACKAGE/src/classes.h
+#include "CondFormats/THEPACKAGE/src/classes.h"
 #else
 #include "CondFormats/THEPACKAGE/interface/THEHEADER.h"
 #endif
