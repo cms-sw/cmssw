@@ -12,9 +12,13 @@ DEFINE_SEAL_MODULE();
 #include "JetMETCorrections/Modules/interface/PlotJetCorrections.h"
 #include "JetMETCorrections/Algorithms/interface/ZSPJetCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L1FastjetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L6SLBCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+
 REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 
 using namespace cms;
@@ -26,12 +30,21 @@ DEFINE_ANOTHER_FWK_MODULE(CaloJetCorrectionProducer);
 typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
 DEFINE_ANOTHER_FWK_MODULE(PFJetCorrectionProducer);
 
+typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
+DEFINE_ANOTHER_FWK_MODULE(GenJetCorrectionProducer);
+
 DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(JetCorrectionServiceChain);
 
 //--------------- Generic LX correction service --------------------
 DEFINE_JET_CORRECTION_SERVICE (LXXXCorrector, LXXXCorrectionService);
+
+//--------------- L1 fastjet UE&PU subtraction correction service --
+DEFINE_JET_CORRECTION_SERVICE (L1FastjetCorrector, L1FastjetCorrectionService);
+
+//---------------  L6 SLB correction service -----------------------
+DEFINE_JET_CORRECTION_SERVICE (L6SLBCorrector, L6SLBCorrectionService);
 
 //--------------- Zero suppression correction service --------------
 DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
