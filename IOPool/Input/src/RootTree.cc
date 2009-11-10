@@ -138,13 +138,6 @@ namespace edm {
       assert(treeCache_->GetOwner() == tree_);
       if (theEntryNumber >= 0 && treeCache_->IsLearning()) {
 	treeCache_->SetLearnEntries(1);
-	treeCache_->SetEntryRange(0, tree_->GetEntries());
-        for (BranchMap::const_iterator i = branches_->begin(), e = branches_->end(); i != e; ++i) {
-	  if (i->second.productBranch_) {
-	    treeCache_->AddBranch(i->second.productBranch_, kTRUE);
-	  }
-	}
-        treeCache_->StopLearningPhase();
       }
     }
     entryNumber_ = theEntryNumber;
