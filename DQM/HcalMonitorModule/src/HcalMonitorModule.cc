@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/03 16:28:16 $
- * $Revision: 1.143 $
+ * $Date: 2009/11/09 18:46:40 $
+ * $Revision: 1.144 $
  * \author W Fisher
  * \author J Temple
  *
@@ -18,7 +18,7 @@ using namespace edm;
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
-  actonLS_=false;
+
   meStatus_=0;  meRunType_=0;
   meEvtMask_=0; meFEDS_=0;
   meLatency_=0; meQuality_=0;
@@ -64,7 +64,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   checkHF_=ps.getUntrackedParameter<bool>("checkHF", 1);   
 
   AnalyzeOrbGapCT_=ps.getUntrackedParameter<bool>("AnalyzeOrbitGap", 0);   
-
+  skipCalib_ = ps.getUntrackedParameter<bool>("SkipCalibrationEvents",true);
   evtSel_ = new HcalMonitorSelector(ps);
   
   dbe_ = Service<DQMStore>().operator->();
@@ -223,13 +223,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
   if(debug_>1) std::cout << "===>HcalMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< std::endl;
-  if (prescaleLS_>0) actonLS_=true;
-
-  prescaleUpdate_ = ps.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
-  if(debug_>1) std::cout << "===>HcalMonitor update prescale = " << prescaleUpdate_ << " update(s)"<< std::endl;
-
-  prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
-  if(debug_>1) std::cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< std::endl;
   
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
@@ -494,7 +487,6 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   if(detDiagTiming_!=0){  detDiagTiming_->LumiBlockUpdate(ilumisec_);}
   /////////////////////////////////////////////
 
-  //if(actonLS_ && !prescale())
     {
       // do scheduled tasks...
       // Clear BeamMonitor problem histograms
@@ -506,10 +498,14 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 //--------------------------------------------------------
 void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					   const edm::EventSetup& context) {
-  //if(actonLS_ && !prescale())
+  // fill plots every N lumi blocks
+  if (prescaleLS_>0 && !prescale())
   {
     // do scheduled tasks...
     if (beamMon_) beamMon_->endLuminosityBlock();
+    if (digiMon_) digiMon_->fill_Nevents();
+    if (rhMon_)   rhMon_  ->fill_Nevents();
+    
   }
 }
 
@@ -540,7 +536,7 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
 
   // Ditto for rechit monitor
   if (rhMon_!=NULL)
-    rhMon_->fillRecHitHistosAtEndRun();
+    rhMon_->fill_Nevents();
 
   if (dfMon_!=NULL) dfMon_->UpdateMEs();
   /////////////////////////////////////////////////////
@@ -563,79 +559,31 @@ void HcalMonitorModule::endJob(void) {
 
   return; // All of the rest of the endjob stuff (filling db, etc.) should be done in the client, right?
 
-  if(rhMon_!=NULL) rhMon_->done();
-  if(digiMon_!=NULL) digiMon_->done();
-  if(dfMon_!=NULL) dfMon_->done();
-  if(diTask_!=NULL) diTask_->done();
-  if(pedMon_!=NULL) pedMon_->done();
-  if(ledMon_!=NULL) ledMon_->done();
-  if(laserMon_!=NULL) laserMon_->done();
-  if(hotMon_!=NULL) hotMon_->done(myquality_);
-  if(deadMon_!=NULL) deadMon_->done();
-  if(mtccMon_!=NULL) mtccMon_->done();
-  if (tpMon_!=NULL) tpMon_->done();
-  if (ctMon_!=NULL) ctMon_->done();
-  if (beamMon_!=NULL) beamMon_->done();
-  if (zdcMon_!=NULL) zdcMon_->done();
-  if (expertMon_!=NULL) expertMon_->done();
-  if (eeusMon_!=NULL) eeusMon_->done();
-  if(tempAnalysis_!=NULL) tempAnalysis_->done();
+  if(rhMon_!=NULL)         rhMon_->done();
+  if(digiMon_!=NULL)       digiMon_->done();
+  if(dfMon_!=NULL)         dfMon_->done();
+  if(diTask_!=NULL)        diTask_->done();
+  if(pedMon_!=NULL)        pedMon_->done();
+  if(ledMon_!=NULL)        ledMon_->done();
+  if(laserMon_!=NULL)      laserMon_->done();
+  if(hotMon_!=NULL)        hotMon_->done();
+  if(deadMon_!=NULL)       deadMon_->done();
+  if(mtccMon_!=NULL)       mtccMon_->done();
+  if (tpMon_!=NULL)        tpMon_->done();
+  if (ctMon_!=NULL)        ctMon_->done();
+  if (beamMon_!=NULL)      beamMon_->done();
+  if (zdcMon_!=NULL)       zdcMon_->done();
+  if (expertMon_!=NULL)    expertMon_->done();
+  if (eeusMon_!=NULL)      eeusMon_->done();
+  if(tempAnalysis_!=NULL)  tempAnalysis_->done();
   ////////////////////////////////////////////////////
-  if(detDiagPed_!=NULL) detDiagPed_->done();
-  if(detDiagLed_!=NULL) detDiagLed_->done();
-  if(detDiagLas_!=NULL) detDiagLas_->done();
-  if(detDiagNoise_!=NULL) detDiagNoise_->done();
-  if(detDiagNoise_!=NULL) detDiagTiming_->done();
+  if(detDiagPed_!=NULL)    detDiagPed_->done();
+  if(detDiagLed_!=NULL)    detDiagLed_->done();
+  if(detDiagLas_!=NULL)    detDiagLas_->done();
+  if(detDiagNoise_!=NULL)  detDiagNoise_->done();
+  if(detDiagNoise_!=NULL)  detDiagTiming_->done();
   /////////////////////////////////////////////////////
 
-  if (dump2database_)
-    {
-      if (debug_>0) std::cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
-      std::vector<DetId> mydetids = chanquality_->getAllChannels();
-      HcalChannelQuality* newChanQual = new HcalChannelQuality();
-      for (unsigned int i=0;i<mydetids.size();++i)
-	{
-	  if (mydetids[i].det()!=4) continue; // not hcal
-	  //HcalDetId id(mydetids[i]);
-	  HcalDetId id=mydetids[i];
-	  // get original channel status item
-	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
-	  // make copy of status
-	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  if (myquality_.find(id)!=myquality_.end())
-	    {
-	      // Set bit 1 for cells which aren't present 	 
-	      if ((id.subdet()==HcalBarrel &&!HBpresent_) || 	 
-		  (id.subdet()==HcalEndcap &&!HEpresent_) || 	 
-		  (id.subdet()==HcalOuter  &&!HOpresent_) || 	 
-		  (id.subdet()==HcalForward&&!HFpresent_)) 	 
-		{ 	 
-		  mystatus->setBit(1); 	 
-		} 	 
-	      // Only perform these checks if bit 0 not set?
-	      // check dead cells
-	      if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
-		  mystatus->setBit(HcalChannelStatus::HcalCellDead);
-	      else
-		mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
-	      // check hot cells
-	      if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
-		mystatus->setBit(HcalChannelStatus::HcalCellHot);
-	      else
-		mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
-	    } // if (myquality_.find_...)
-	  newChanQual->addValues(*mystatus);
-	  // Clean up pointers to avoid memory leaks
-	  delete origstatus;
-	  delete mystatus;
- 	} // for (unsigned int i=0;...)
-      // Now dump out to text file
-      std::ostringstream file;
-      file <<"HcalDQMstatus_"<<irun_<<".txt";
-      std::ofstream outStream(file.str().c_str());
-      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
-
-    } // if (dump2databse_)
   return;
 }
 
@@ -680,14 +628,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if (debug_>1) std::cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << e.luminosityBlock() << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
-  // skip this event if we're prescaling...
-  ievt_pre_++; // need to increment counter before calling prescale
 
-  if(prescale()) return;
   meLatency_->Fill(psTime_.elapsedTime);
 
-  // Do default setup...
-  ievt_++;
   ////////////////////////////////////////////////////
   if(detDiagPed_!=0) detDiagPed_->processEvent(e,eventSetup,*conditions_);
   if(detDiagLed_!=0) detDiagLed_->processEvent(e,eventSetup,*conditions_);
@@ -757,55 +700,68 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   if (rawOK_==true) ++ievt_rawdata_;
 
-  //Orbit Gap Data Quality Monitoring
-  /*Requires 
-    cvs co -r 1.1 DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h
-    cvs co -r 1.8 EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h
-  */
+  //  Check whether event is a calibration event.  If so, skip it.
   bool InconsistentCalibTypes=false;
   HcalCalibrationEventType CalibType = hc_Null;
 
-  if (AnalyzeOrbGapCT_) {
-
-    //Get the calibration type from the unpackable fedss in the collection
-    for (vector<int>::const_iterator i=fedss.begin();i!=fedss.end(); i++) {
-      const FEDRawData& fed = (*rawraw).FEDData(*i);
-      if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
-      // get the DCC header 
-      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-      if(!dccHeader) continue;
-      // All FEDS should report the same CalibType within the event.
-      if ( (i!=fedss.begin()) && 
-	   (CalibType != dccHeader-> getCalibType())  ) {
-	if (debug_) std::cout << "Inconsistent CalibTypes" << (int) CalibType << " and " << dccHeader->getCalibType() <<endl;
-	InconsistentCalibTypes = true;
-      }
-      CalibType = dccHeader-> getCalibType();
-      //Expedient only while testing: Skip non-calibration events.
+  //Get the calibration type from the unpackable fedss in the collection
+  for (vector<int>::const_iterator i=fedss.begin();i!=fedss.end(); i++) {
+    const FEDRawData& fed = (*rawraw).FEDData(*i);
+    if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
+    // get the DCC header 
+    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+    if(!dccHeader) continue;
+    // All FEDS should report the same CalibType within the event.
+    if ( (i!=fedss.begin()) && 
+	 (CalibType != dccHeader-> getCalibType())  ) {
+      if (debug_) std::cout << "Inconsistent CalibTypes" << (int) CalibType << " and " << dccHeader->getCalibType() <<endl;
+      InconsistentCalibTypes = true;
+    }
+    CalibType = dccHeader-> getCalibType();
+    //Expedient only while testing: Skip non-calibration events.
+  } // for (vector<int>::const_iterator i=fedss.begin()...)
+  
+  if (AnalyzeOrbGapCT_)
+    {
       if (CalibType == hc_Null) return;
     }
-  }
 
-  if (!InconsistentCalibTypes && AnalyzeOrbGapCT_) {
-    // If we're doing the Orbit Gap DQM, set the right evtMask for
-    // the Calibration Event Type.
-    evtMask = DO_HCAL_DFMON; 
-    switch (CalibType) {
-    case hc_Null:
-      break;
-    case hc_Pedestal:
-      evtMask |= DO_HCAL_PED_CALIBMON;
-      break;
-    case hc_RADDAM:
-    case hc_HBHEHPD:
-    case hc_HOHPD:
-    case hc_HFPMT:
-      evtMask |= DO_HCAL_LASER_CALIBMON;
-      break;
-    default:
-      break;
+  else 
+    {
+      if (debug_>0) std::cout <<"<HCALMONITOR MODULE> CALIB TYPE = "<<CalibType<<endl;
+      if (debug_>1) std::cout <<"\t CALIBRATION EVENT FOUND; SKIPPING!"<<endl;
+      //if (CalibType != hc_Null && skipCalib_==true) return;
     }
-  } 
+  // add a return to skip events if not hc_Null?
+
+  
+
+  // skip this event if we're prescaling...
+  ievt_++;
+  if(prescaleEvt_>0 && prescale()) return;
+  if (rawOK_==true) ++ievt_rawdata_;
+
+  if (!InconsistentCalibTypes && AnalyzeOrbGapCT_) 
+    {
+      // If we're doing the Orbit Gap DQM, set the right evtMask for
+      // the Calibration Event Type.
+      evtMask = DO_HCAL_DFMON; 
+      switch (CalibType) {
+      case hc_Null:
+	break;
+      case hc_Pedestal:
+	evtMask |= DO_HCAL_PED_CALIBMON;
+	break;
+      case hc_RADDAM:
+      case hc_HBHEHPD:
+      case hc_HOHPD:
+      case hc_HFPMT:
+	evtMask |= DO_HCAL_LASER_CALIBMON;
+	break;
+      default:
+	break;
+      }
+    } 
 
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
@@ -1240,51 +1196,27 @@ bool HcalMonitorModule::prescale()
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
   if (debug_>1) std::cout <<"HcalMonitorModule::prescale"<<endl;
-  
-  gettimeofday(&psTime_.updateTV,NULL);
-  double time = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
-  time/= (1000.0); ///in seconds
-  psTime_.elapsedTime = time - psTime_.updateTime;
-  psTime_.updateTime = time;
-  //First determine if we care...
-  bool evtPS =    prescaleEvt_>0;
-  bool lsPS =     prescaleLS_>0;
-  bool timePS =   prescaleTime_>0;
-  bool updatePS = prescaleUpdate_>0;
+  // If no prescales are set, return 'false'.  (This means that we should process the event.)
+  if(prescaleEvt_<=0 && prescaleLS_<=0) return false;
 
-  // If no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS)
-    {
-      return false;
-    }
-  //check each instance
-  if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
-  //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
-  // we can't just call (ievent_%prescaleEvt_) because ievent values not consecutive
-  if (evtPS && (ievt_pre_%prescaleEvt_)!=0) evtPS = false;
-  if(timePS)
-    {
-      double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
-      if(elapsed<prescaleTime_){
-	timePS = false;  //timestamp veto
-	psTime_.vetoTime = psTime_.updateTime;
-      }
-    } //if (timePS)
+  // Now check whether event should be kept.  Assume that it should not by default
 
-  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
+  cout <<"prescale:  ievt = "<<ievt_<<endl;
+  bool keepEvent=false;
   
-  if (debug_>1) 
-    {
-      std::cout<<"HcalMonitorModule::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ";
-      std::cout <<"ls: "<<ilumisec_<<"/"<<lsPS<<",";
-      std::cout <<"time: "<<psTime_.updateTime - psTime_.vetoTime<<"/"<<timePS<<endl;
-    }  
+  // Keep event if prescaleLS test is met or if prescaleEvt test is met
+  if(prescaleLS_>0 && (ilumisec_%prescaleLS_)==0) keepEvent = true; // check on ls prescale; 
+  if (prescaleEvt_>0 && (ievt_%prescaleEvt_)==0) keepEvent = true; // 
+  
   // if any criteria wants to keep the event, do so
-  if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
-  return true;
+  if (keepEvent) return false;  // event should be kept; don't apply prescale
+  return true; // apply prescale by default
+
 } // HcalMonitorModule::prescale(...)
 
 
+
+// -------------------------------------------------
 void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
 					       const HcalUnpackerReport& report, 
 					       const HcalElectronicsMap& emap,

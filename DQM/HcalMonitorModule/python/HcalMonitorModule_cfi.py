@@ -5,7 +5,13 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
+                           # If AnalyzeOrbitGap is on, only events identified as calibration will be used in DQM
                            AnalyzeOrbitGap = cms.untracked.bool(False),
+                           # If skipCalibrationEvents is on (default), calibration events will not be used in DQM
+                           # This is superceded by AnalyzeOrbitGap
+                           # (If AnalyzeOrbitGap == True, only calib events used.
+                           #  If AnalyzeOrbitGap == False && skipCalibrationEvents == False, all events used.)
+                           skipCalibrationEvents = cms.untracked.bool(True),
                            Online = cms.untracked.bool(False), # control online/offline differences in code
                            periodicReset = cms.untracked.int32(-1),
                            
@@ -47,9 +53,6 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            dump2database       = cms.untracked.bool(False), # dumps channel status to text file
                            # Make expert-level diagnostic plots (enabling this may drastically slow code!)
                            makeDiagnosticPlots = cms.untracked.bool(False),
-
-                           # Specify whether or not to fill the unphysical iphi bins
-                           fillUnphysicalIphi = cms.untracked.bool(True),
                            
                            # Specify Pedestal Units
                            pedestalsInFC                               = cms.untracked.bool(True),

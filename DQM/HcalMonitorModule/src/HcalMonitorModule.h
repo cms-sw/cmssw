@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/10/26 15:14:29 $
- * $Revision: 1.53 $
+ * $Date: 2009/11/09 18:46:43 $
+ * $Revision: 1.54 $
  * \author W. Fisher
  *
 */
@@ -252,8 +252,9 @@ public:
 
   // Running on the Orbit Gap Calibration events?
   bool AnalyzeOrbGapCT_;
+  bool skipCalib_;
 
-  // Decide whether individual subdetectors should be checked
+ // Decide whether individual subdetectors should be checked
   bool checkHB_;
   bool checkHE_;
   bool checkHO_;
