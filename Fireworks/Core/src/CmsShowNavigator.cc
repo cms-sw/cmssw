@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.42 2009/10/27 01:55:29 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.43 2009/11/05 01:34:09 dmytro Exp $
 //
 
 // hacks
@@ -15,6 +15,7 @@
 // system include files
 #include <string>
 #include <boost/regex.hpp>
+#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TEventList.h"
@@ -39,7 +40,7 @@
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-   : m_maxNumberOfFilesToChain(1),
+   : m_maxNumberOfFilesToChain(3),
      m_currentFile(m_files.begin()),
      m_filterEvents(false),
      m_globalOR(true),
@@ -63,150 +64,135 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    FWFileEntry newFile(fileName);
    if ( newFile.file() == 0 ) return false; //bad file
 
-   //??  CmsShowMain::resetFieldEstimate();
-
    // remove extra files
-   if ( m_files.size() > 0 && m_files.size() == m_maxNumberOfFilesToChain ) {
+   while ( m_files.size() > 0 && m_files.size() >= m_maxNumberOfFilesToChain &&
+           m_files.begin() != m_currentFile)
+   {
       m_files.front().closeFile();
       m_files.pop_front();
    }
+   if (m_files.size() >= m_maxNumberOfFilesToChain)
+   {
+      printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]", m_files.size(), m_maxNumberOfFilesToChain);
+   }
 
    m_files.push_back(newFile);
-   fileChanged_.emit(newFile.file());
-
    m_lastFile = m_files.end();
    --m_lastFile;
-   m_currentFile = m_lastFile;
+
    filterEvents();
-   // firstEventInTheCurrentFile();
+
    return true;
 }
 
+//______________________________________________________________________________
+
 Int_t
-CmsShowNavigator::realEntry(Int_t selectedEntry) {
+CmsShowNavigator::realEntry(Int_t entry)
+{
    if (m_filterEvents && m_currentFile != m_files.end())
-      return m_currentFile->mainSelection().GetEntry(selectedEntry);
+      return m_currentFile->mainSelection().GetEntry(entry);
    else
-      return selectedEntry;
+      return entry;
 }
 
-std::pair<std::deque<FWFileEntry>::iterator,Int_t>
-CmsShowNavigator::realEntry(Int_t run, Int_t event) {
-   for (std::deque<FWFileEntry>::iterator file = m_files.begin();
-        file != m_files.end(); ++file)
+std::pair<CmsShowNavigator::FileQueue_i,Int_t>
+CmsShowNavigator::realEntry(Int_t run, Int_t event)
+{
+   for (FileQueue_i file = m_files.begin();file != m_files.end(); ++file)
    {
       file->event()->fillFileIndex();
       edm::FileIndex::const_iterator i =
          file->event()->fileIndex_.findEventPosition(run, 0, event, true);
       if (file->event()->fileIndex_.end() != i)
-         return std::pair<std::deque<FWFileEntry>::iterator,Int_t>(file,i->entry_);
+         return std::pair<FileQueue_i,Int_t>(file,i->entry_);
    }
-   m_currentFile->file()->cd();
-   return std::pair<std::deque<FWFileEntry>::iterator,Int_t>(m_files.end(),-1);
+
+   return std::pair<FileQueue_i,Int_t>(m_files.end(),-1);
 }
 
+//______________________________________________________________________________
 void
-CmsShowNavigator::checkPosition()
+CmsShowNavigator::setCurrentFile(FileQueue_i fi)
 {
-   if ( m_filterEvents )
+   m_currentFile = fi;
+   if (m_filterEvents)
    {
-      if (m_currentFile == m_lastSelectedFile &&
-          m_currentEntry == m_currentFile->mainSelection().GetN()-1)
-         atEnd_.emit(true);
-      else
-         atEnd_.emit(false);
+      m_currentFile = m_lastSelectedFile;
+      m_lastEntry   = m_currentFile->mainSelection().GetN()-1;
    }
    else
-   {
-      if (m_currentFile == m_lastFile &&
-          m_currentEntry == m_currentFile->tree()->GetEntries()-1)
-         atEnd_.emit(true);
-      else
-         atEnd_.emit(false);
-   }
-   if (m_currentEntry == 0) {
-      if ( m_currentFile == m_files.begin() ||
-           (m_filterEvents && m_currentFile == m_firstSelectedFile) )
-         atBeginning_.emit(true);
-      else
-         atBeginning_.emit(false);
-   }
-   else
-      atBeginning_.emit(false);
-}
-
-void
-CmsShowNavigator::newRemoteFile(const std::string& fileName)
-{
-   m_nextFile = fileName;
-}
-
-void
-CmsShowNavigator::checkForNewFiles()
-{
-   if( m_nextFile.empty()) return;
-   bool loadedNewFile = loadFile(m_nextFile);
-   m_nextFile.clear();
-   if (loadedNewFile &&
-       (!m_filterEvents ||
-        m_files.rbegin()->anySelectedEvents() ||
-        m_maxNumberOfFilesToChain == 1) )
    {
       m_currentFile = m_lastFile;
-      firstEventInTheCurrentFile();
-      return;
+      m_lastEntry   = m_currentFile->event()->size()-1;
    }
+   fileChanged_.emit(m_currentFile->file());
 }
 
+void
+CmsShowNavigator::firstEvent()
+{
+   setCurrentFile(m_lastFile);
+   firstEventInCurrentFile();
+}
+
+void
+CmsShowNavigator::firstEventInCurrentFile()
+{
+   m_currentEntry = 0;
+   m_currentFile->event()->to(realEntry(m_currentEntry));
+   newEvent_.emit(*(m_currentFile->event()));
+}
+
+void
+CmsShowNavigator::lastEvent()
+{
+   setCurrentFile(m_lastFile);
+   lastEventInCurrentFile();
+}
+
+void
+CmsShowNavigator::lastEventInCurrentFile()
+{
+   m_currentEntry = m_lastEntry;
+   m_currentFile->event()->to(realEntry(m_currentEntry));
+   newEvent_.emit(*(m_currentFile->event()));
+}
+
+//______________________________________________________________________________
 void
 CmsShowNavigator::nextEvent()
 {
-   checkForNewFiles();
    if (m_currentFile == m_files.end()) return;
 
-   if ( m_currentEntry == m_lastEntry ) {
-      ++m_currentFile;
-      // first look forward for files with events that pass the selection
+   if ( m_currentEntry == m_lastEntry )
+   {
+      FileQueue_i fi = m_currentFile;
+      ++fi;
       if (m_filterEvents) {
-         while( m_currentFile != m_files.end() &&
-                !m_currentFile->anySelectedEvents() )
+         while( fi != m_files.end() && !fi->anySelectedEvents() )
             ++m_currentFile;
       }
-      // if we reached the end (one way or the other) try from the begging
-      if (m_currentFile == m_files.end()) {
-         m_currentFile = m_files.begin();
-         if (m_filterEvents) {
-            while( m_currentFile != m_files.end() &&
-                   !m_currentFile->anySelectedEvents() )
-               ++m_currentFile;
-         }
-         assert(m_currentFile != m_files.end() && "fatal file navigation problem");
-         // this should never happen, because at least one event should have passed
-         // the selection, i.e. the current one.
-      }
-      fileChanged_.emit(m_currentFile->file());
-      firstEventInTheCurrentFile();
-      return;
+      if (fi == m_files.end()) return;
+     
+      setCurrentFile(fi);
+      firstEventInCurrentFile();
    }
-
-   if (m_currentEntry < m_lastEntry &&
-       m_currentFile->event()->to(realEntry(m_currentEntry+1)) )
+   else if (m_currentEntry < m_lastEntry &&
+            m_currentFile->event()->to(realEntry(m_currentEntry+1)) )
    {
       ++m_currentEntry;
       newEvent_.emit(*(m_currentFile->event()));
-      checkPosition();
    }
-   else
-      oldEvent_.emit(*(m_currentFile->event()));
 }
 
 void
 CmsShowNavigator::previousEvent()
 {
-   checkForNewFiles();
    if (m_currentFile == m_files.end()) return;
 
-   if ( m_currentEntry == 0 ) {
+   if ( m_currentEntry == 0 )
+   {
       // no support for reverse loops
       if (m_filterEvents && m_currentFile == m_firstSelectedFile) return;
       if (!m_filterEvents && m_currentFile == m_files.begin()) return;
@@ -217,7 +203,7 @@ CmsShowNavigator::previousEvent()
             --m_currentFile;
       }
       fileChanged_.emit(m_currentFile->file());
-      lastEventInTheCurrentFile();
+      lastEventInCurrentFile();
       return;
    }
 
@@ -226,63 +212,11 @@ CmsShowNavigator::previousEvent()
    {
       --m_currentEntry;
       newEvent_.emit(*(m_currentFile->event()));
-      checkPosition();
    }
    else
+   {
       oldEvent_.emit(*(m_currentFile->event()));
-}
-
-void
-CmsShowNavigator::firstEvent()
-{
-   if (m_filterEvents)
-      m_currentFile = m_firstSelectedFile;
-   else
-      m_currentFile = m_files.begin();
-   fileChanged_.emit(m_currentFile->file());
-   firstEventInTheCurrentFile();
-}
-
-void
-CmsShowNavigator::firstEventInTheCurrentFile()
-{
-   if (m_filterEvents && m_currentFile->mainSelection().GetN() == 0) {
-      m_currentFile = m_firstSelectedFile;
-      fileChanged_.emit(m_currentFile->file());
    }
-   m_currentEntry = 0;
-   if ( m_filterEvents )
-      m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-   else
-      m_lastEntry = m_currentFile->event()->size()-1;
-   m_currentFile->event()->to(realEntry(m_currentEntry));
-   newEvent_.emit(*(m_currentFile->event()));
-   checkPosition();
-}
-
-
-void
-CmsShowNavigator::lastEvent()
-{
-   if (m_filterEvents)
-      m_currentFile = m_lastSelectedFile;
-   else
-      m_currentFile = m_lastFile;
-   fileChanged_.emit(m_currentFile->file());
-   lastEventInTheCurrentFile();
-}
-
-void
-CmsShowNavigator::lastEventInTheCurrentFile()
-{
-   if ( m_filterEvents )
-      m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-   else
-      m_lastEntry = m_currentFile->event()->size()-1;
-   m_currentEntry = m_lastEntry;
-   m_currentFile->event()->to(realEntry(m_currentEntry));
-   newEvent_.emit(*(m_currentFile->event()));
-   checkPosition();
 }
 
 void
@@ -295,11 +229,10 @@ CmsShowNavigator::goToEvent(Int_t run, Int_t event)
    }
    if (!m_filterEvents) {
       if ( entry.first->event()->to(entry.second) ) {
-         m_currentFile = entry.first;
+         m_currentFile  = entry.first;
          m_currentEntry = entry.second;
          m_lastEntry = m_currentFile->event()->size()-1;
          newEvent_.emit(*m_currentFile->event());
-         checkPosition();
          return;
       } else {
          oldEvent_.emit(*m_currentFile->event());
@@ -319,7 +252,6 @@ CmsShowNavigator::goToEvent(Int_t run, Int_t event)
       m_currentEntry = index;
       m_lastEntry = m_currentFile->mainSelection().GetN()-1;
       newEvent_.emit(*m_currentFile->event());
-      checkPosition();
       return;
    } else {
       oldEvent_.emit(*m_currentFile->event());
@@ -420,7 +352,7 @@ CmsShowNavigator::filterEvents()
    //   - if a list needs to be reused and its flagged as not used, ignore it
    // - make a combined list based on active lists
    m_firstSelectedFile = m_files.end();
-   m_lastSelectedFile = m_files.end();
+   m_lastSelectedFile  = m_files.end();
    for (std::deque<FWFileEntry>::iterator file = m_files.begin();
         file != m_files.end(); ++file)
    {
@@ -466,23 +398,22 @@ CmsShowNavigator::filterEvents()
    // events are not filtered
    if ( !m_filterEvents ) {
       m_firstSelectedFile = m_files.begin();
-      m_lastSelectedFile = m_files.end();
+      m_lastSelectedFile  = m_files.end();
       --m_lastSelectedFile;
-      m_currentFile->file()->cd();
       postFiltering_();
       eventSelectionChanged_.emit(std::string());
       return;
    }
 
    unsigned int nPassed(0);
-   unsigned int nTotal(0);
+   unsigned int nTotal (0);
    m_firstSelectedFile = m_files.end();
-   m_lastSelectedFile = m_files.end();
+   m_lastSelectedFile  = m_files.end();
    for (std::deque<FWFileEntry>::iterator file = m_files.begin();
         file != m_files.end(); ++file)
    {
       nPassed += file->mainSelection().GetN();
-      nTotal += file->tree()->GetEntries();
+      nTotal  += file->tree()->GetEntries();
       if (m_firstSelectedFile == m_files.end() && file->mainSelection().GetN()>0 )
          m_firstSelectedFile = file;
       if (file->mainSelection().GetN()>0 )
@@ -490,37 +421,29 @@ CmsShowNavigator::filterEvents()
    }
 
    // handle exception when no events are selected
-   if (nPassed==0) {
+   if (nPassed == 0) {
       m_filterEvents = false;
       m_firstSelectedFile = m_files.begin();
-      m_lastSelectedFile = m_files.end();
+      m_lastSelectedFile  = m_files.end();
       --m_lastSelectedFile;
       postFiltering_();
-      firstEvent();
       eventSelectionChanged_.emit(std::string());
       return;
    }
 
-   m_currentFile->file()->cd();
    postFiltering_();
    eventSelectionChanged_.emit(std::string(Form("Events are filtered. %d out of %d events are shown",nPassed,nTotal)));
+
+   gROOT->cd();
 }
-/*
-   void
-   CmsShowNavigator::filterEventsAndReset(){
-   filterEvents();
-   if (!m_filterEvents)
-    return;
-   Int_t index = m_currentFile->mainSelection.GetIndex(m_currentEntry);
-   if (index >= 0){
-    m_currentEntry = 0;
-    m_lastEntry = m_currentFile->mainSelection.GetN()-1;
-   }
-   }
- */
 
 void
-CmsShowNavigator::enableEventFiltering( Bool_t flag ){
+CmsShowNavigator::enableEventFiltering(Bool_t flag)
+{
+   // !!!  This is not OK
+   // Enabling of filtetring should NOT change current event.
+   // Call next, or whatever from where this is called.
+
    if (flag == m_filterEvents) return;
    m_filterEvents = flag;
    filterEvents();
@@ -530,21 +453,136 @@ CmsShowNavigator::enableEventFiltering( Bool_t flag ){
       Int_t index = m_currentFile->mainSelection().GetIndex(m_currentEntry);
       if (index >= 0) {
          m_currentEntry = index;
-         m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-         checkPosition();
+         m_lastEntry    = m_currentFile->mainSelection().GetN()-1;
       } else {
-         firstEventInTheCurrentFile();
+         firstEventInCurrentFile();
       }
    } else {
       // events were filted before, so now we need just set boundaries and position right
       m_currentEntry = m_currentFile->mainSelection().GetEntry(m_currentEntry);
-      m_lastEntry = m_currentFile->event()->size()-1;
-      checkPosition();
+      m_lastEntry    = m_currentFile->event()->size()-1;
    }
 }
 
+bool
+CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
+{
+   // get rid of white spaces
+   boost::regex re_spaces("\\s+");
+   selection = boost::regex_replace(selection,re_spaces,"");
+   edm::EventID currentEvent = file.event()->id();
+   fwlite::Handle<edm::TriggerResults> hTriggerResults;
+   fwlite::TriggerNames const* triggerNames(0);
+   try
+   {
+      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
+      triggerNames = &file.event()->triggerNames(*hTriggerResults);
+   }
+   catch(...)
+   {
+      std::cout << "Warning: failed to get trigger results with process name HLT" << std::endl;
+      return false;
+   }
+
+   // std::cout << "Number of trigger names: " << triggerNames->size() << std::endl;
+   // for (unsigned int i=0; i<triggerNames->size(); ++i)
+   //  std::cout << " " << triggerNames->triggerName(i);
+   //std::cout << std::endl;
+
+   // cannot interpret selection with OR and AND
+   if (selection.find("&&")!=std::string::npos &&
+       selection.find("||")!=std::string::npos )
+   {
+      return false;
+   }
+
+   bool junction_mode = true; // AND
+   if (selection.find("||")!=std::string::npos)
+      junction_mode = false; // OR
+
+   boost::regex re("\\&\\&|\\|\\|");
+   boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
+   boost::sregex_token_iterator j;
+
+   // filters and how they enter in the logical expression
+   std::vector<std::pair<unsigned int,bool> > filters;
+
+   while(i != j)
+   {
+      std::string filter = *i++;
+      bool flag = true;
+      if (filter[0]=='!') {
+         flag = false;
+         filter.erase(filter.begin());
+      }
+      unsigned int index = triggerNames->triggerIndex(filter);
+      if (index == triggerNames->size()) return false; //parsing failed
+      filters.push_back(std::pair<unsigned int,bool>(index,flag));
+   }
+   if (filters.empty()) return false;
+
+   TEventList* list = file.lists()[iSelector];
+   list->Clear();
+
+   // loop over events
+   unsigned int iEvent = 0;
+   for (file.event()->toBegin(); !file.event()->atEnd(); ++(*file.event()))
+   {
+      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
+      std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
+      bool passed = hTriggerResults->accept(filter->first) == filter->second;
+      ++filter;
+      for (; filter != filters.end(); ++filter)
+      {
+         if (junction_mode)
+            passed &= hTriggerResults->accept(filter->first) == filter->second;
+         else
+            passed |= hTriggerResults->accept(filter->first) == filter->second;
+      }
+      if (passed)
+         list->Enter(iEvent);
+      ++iEvent;
+   }
+   file.event()->to(currentEvent);
+   return true;
+}
+
+//______________________________________________________________________________
+// methods for gui state
+
+bool
+CmsShowNavigator::isFirstEvent()
+{
+   return m_currentEntry == 0;
+}
+
+bool
+CmsShowNavigator::isLastEvent()
+{
+   bool last = kFALSE;
+   if ( m_filterEvents )
+   {
+      if (m_currentFile == m_lastSelectedFile &&
+          m_currentEntry == m_currentFile->mainSelection().GetN()-1)
+         last = kTRUE;
+   }
+   else
+   {
+      if (m_currentFile == m_lastFile &&
+          m_currentEntry == m_currentFile->tree()->GetEntries()-1)
+         last = kTRUE;
+   }
+   //  printf("Navigator is last %d \n", last);
+   return last;
+}
+
+//==============================================================================
+//==============================================================================
+// !!! this code should not be in this class
+//
 void
-CmsShowNavigator::showEventFilter(const TGWindow* parent){
+CmsShowNavigator::showEventFilter(const TGWindow* parent)
+{
    FWGUIEventFilter* filter = new FWGUIEventFilter(parent, m_selectors,*m_currentFile->event(),m_globalOR);
    filter->show();
    gClient->WaitForUnmap(filter);
@@ -558,16 +596,14 @@ CmsShowNavigator::showEventFilter(const TGWindow* parent){
    if (index >= 0) {
       m_currentEntry = index;
       m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-      checkPosition();
    } else {
-      firstEventInTheCurrentFile();
+      firstEventInCurrentFile();
    }
 }
 
-
-
 void
-CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
+CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
+{
    int numberOfFilters(0);
    {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
@@ -583,7 +619,7 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       s>>m_filterEvents;
    }
 
-   for(int i=0; i<numberOfFilters; ++i) {
+   for (int i=0; i<numberOfFilters; ++i) {
       FWEventSelector* selector = new FWEventSelector();
       {
          const FWConfiguration* value =
@@ -627,77 +663,4 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    }
    iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d",m_filterEvents)));
-}
-
-bool
-CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
-{
-   // get rid of white spaces
-   boost::regex re_spaces("\\s+");
-   selection = boost::regex_replace(selection,re_spaces,"");
-   edm::EventID currentEvent = file.event()->id();
-   fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   fwlite::TriggerNames const* triggerNames(0);
-   try{
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
-      triggerNames = &file.event()->triggerNames(*hTriggerResults);
-   } catch(...) {
-      std::cout << "Warning: failed to get trigger results with process name HLT" << std::endl;
-      return false;
-   }
-
-   // std::cout << "Number of trigger names: " << triggerNames->size() << std::endl;
-   // for (unsigned int i=0; i<triggerNames->size(); ++i)
-   //  std::cout << " " << triggerNames->triggerName(i);
-   //std::cout << std::endl;
-
-   // cannot interpret selection with OR and AND
-   if ( selection.find("&&")!=std::string::npos &&
-        selection.find("||")!=std::string::npos ) return false;
-
-   bool junction_mode = true; // AND
-   if ( selection.find("||")!=std::string::npos ) junction_mode = false; // OR
-
-   boost::regex re("\\&\\&|\\|\\|");
-   boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
-   boost::sregex_token_iterator j;
-
-   // filters and how they enter in the logical expression
-   std::vector<std::pair<unsigned int,bool> > filters;
-
-   while(i != j)
-   {
-      std::string filter = *i++;
-      bool flag = true;
-      if (filter[0]=='!') {
-         flag = false;
-         filter.erase(filter.begin());
-      }
-      unsigned int index = triggerNames->triggerIndex(filter);
-      if (index == triggerNames->size()) return false; //parsing failed
-      filters.push_back(std::pair<unsigned int,bool>(index,flag));
-   }
-   if (filters.empty()) return false;
-
-   TEventList* list = file.lists()[iSelector];
-   list->Clear();
-
-   // loop over events
-   unsigned int iEvent = 0;
-   for (file.event()->toBegin(); !file.event()->atEnd(); ++(*file.event())) {
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
-      std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
-      bool passed = hTriggerResults->accept(filter->first) == filter->second;
-      ++filter;
-      for(; filter != filters.end(); ++filter) {
-         if (junction_mode)
-            passed &= hTriggerResults->accept(filter->first) == filter->second;
-         else
-            passed |= hTriggerResults->accept(filter->first) == filter->second;
-      }
-      if (passed) list->Enter(iEvent);
-      ++iEvent;
-   }
-   file.event()->to(currentEvent);
-   return true;
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.28 2009/10/27 01:55:29 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.29 2009/10/27 10:33:48 dmytro Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ public:
    CmsShowMain(int argc, char *argv[]);
    virtual ~CmsShowMain();
    void resetInitialization();
-   void draw(const fwlite::Event& event);
+   void draw();
    void openData();
    void quit();
    void doExit();
@@ -119,11 +119,19 @@ private:
    void setupDebugSupport();
    void setupSocket(unsigned int);
 
+   void autoLoadNewEvent();
+
+   void doFirstEvent();
+   void doPreviousEvent();
+   void doNextEvent();
+   void doLastEvent();
+   void checkPosition();
+
    void playForward();
    void playBackward();
    void stopPlaying();
-   void reachedEnd(bool);
-   void reachedBeginning(bool);
+   void reachedEnd();
+   void reachedBeginning();
    void setPlayAutoRewind();
    void unsetPlayAutoRewind();
 
@@ -135,6 +143,9 @@ private:
 
    void setPlayDelay(Float_t);
    void checkLiveMode();
+
+   void startAutoLoadTimer();
+   void stopAutoLoadTimer();
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
@@ -160,8 +171,9 @@ private:
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
 
-   TTimer* m_playTimer;
-   TTimer* m_playBackTimer;
+   TTimer* m_autoLoadTimer;
+   Bool_t  m_autoLoadTimerRunning;
+
    TTimer* m_liveTimer;
    bool m_liveMode;
    bool m_isPlaying;

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.98 2009/11/05 13:54:04 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.99 2009/11/05 22:06:02 dmytro Exp $
 //
 
 // system include files
@@ -161,8 +161,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                     m_eiManager.get(),
                                     m_colorManager.get())),
    m_navigator(new CmsShowNavigator(*this)),
-   m_playTimer(0),
-   m_playBackTimer(0),
+   m_autoLoadTimer(0),
+   m_autoLoadTimerRunning(kFALSE),
    m_liveTimer(0),
    m_liveMode(false),
    m_isPlaying(false),
@@ -351,8 +351,7 @@ CmsShowMain::~CmsShowMain()
    m_selectionManager->clearSelection();
 
    delete m_navigator;
-   delete m_playTimer;
-   delete m_playBackTimer;
+   delete m_autoLoadTimer;
 }
 
 
@@ -412,28 +411,14 @@ void CmsShowMain::resetInitialization() {
    //printf("Need to reset\n");
 }
 
-void CmsShowMain::draw(const fwlite::Event& event)
+void CmsShowMain::draw()
 {
-   // TStopwatch stopwatch;
-   if (m_liveMode) m_liveTimer->Reset();
    m_guiManager->updateStatus("loading event ...");
-   m_guiManager->enableActions(false);
    m_viewManager->eventBegin();
    m_eiManager->setGeom(&m_detIdToGeo);
-   m_eiManager->newEvent(&event);
-   // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
+   m_eiManager->newEvent(m_navigator->getCurrentEvent());
    m_viewManager->eventEnd();
    m_guiManager->clearStatus();
-   if(m_isPlaying) {
-      if(m_forward) {
-         m_playTimer->Start((Long_t)(m_playDelay*1000), kFALSE);
-      } else {
-         m_playBackTimer->Start((Long_t)(m_playDelay*1000), kFALSE);
-      }
-   } else {
-      m_guiManager->enableActions();
-   }
-   if (m_liveMode) m_liveTimer->Start(600000, kFALSE);
 }
 
 void CmsShowMain::openData()
@@ -451,10 +436,12 @@ void CmsShowMain::openData()
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->loadFile(fi.fFilename);
-      m_navigator->firstEventInTheCurrentFile();
+      m_navigator->firstEvent();
+      draw();
    }
    m_guiManager->clearStatus();
 }
+
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
    m_eiManager->add(iItem);
@@ -705,33 +692,126 @@ CmsShowMain::setupConfiguration()
    }
 }
 
+//______________________________________________________________________________
+
 namespace {
-   class SignalTimer : public TTimer {
+class SignalTimer : public TTimer {
 public:
-      Bool_t Notify() {
-         TurnOff();
-         timeout_();
-         return true;
-      }
-      sigc::signal<void> timeout_;
-   };
+   virtual Bool_t Notify() {
+      timeout_();
+      return true;
+   }
+   sigc::signal<void> timeout_;
+};
 }
+
+//______________________________________________________________________________
+void CmsShowMain::startAutoLoadTimer()
+{
+   m_autoLoadTimer->SetTime((Long_t)(m_playDelay*1000));
+   m_autoLoadTimer->Reset();
+   m_autoLoadTimer->TurnOn();
+   m_autoLoadTimerRunning = kTRUE;  
+}
+
+void CmsShowMain::stopAutoLoadTimer()
+{
+   m_autoLoadTimer->TurnOff();
+   m_autoLoadTimerRunning = kFALSE;
+}
+
+void CmsShowMain::autoLoadNewEvent()
+{
+   stopAutoLoadTimer();
+   if (m_forward)
+   {
+      if ((m_navigator->isLastEvent() && m_monitor.get()) == kFALSE)
+      {
+         m_navigator->nextEvent();
+      }
+   }
+   else
+   {
+      m_guiManager->getAction(cmsshow::sPreviousEvent)->activated();
+   }
+
+   draw();
+
+   if ( (m_rewindMode || m_monitor.get()) == kFALSE)
+   { 
+      if (m_forward && m_navigator->isLastEvent())
+      {
+         m_guiManager->enableActions();
+         m_guiManager->disableNext();
+         return;
+      }
+
+
+      if ((!m_forward) && m_navigator->isFirstEvent())
+      {
+         m_guiManager->enableActions();
+         m_guiManager->disableNext();
+         return;
+      }
+   }
+
+   startAutoLoadTimer();   
+}
+
+//______________________________________________________________________________
+
+void CmsShowMain::checkPosition()
+{
+   if (m_navigator->isFirstEvent())
+      m_guiManager->disablePrevious();
+   if (m_navigator->isLastEvent())
+      m_guiManager->disableNext();
+}
+
+void CmsShowMain::doFirstEvent()
+{
+   m_navigator->nextEvent();
+   checkPosition();
+   draw();
+}
+
+void CmsShowMain::doNextEvent()
+{
+   m_navigator->nextEvent();
+   checkPosition();
+   draw();
+}
+
+void CmsShowMain::doPreviousEvent()
+{
+   m_navigator->nextEvent();
+   checkPosition();
+   draw();
+}
+void CmsShowMain::doLastEvent()
+{
+   m_navigator->nextEvent();
+   checkPosition();
+   draw();
+}
+
+//==============================================================================
 
 void
 CmsShowMain::setupDataHandling()
 {
    m_guiManager->updateStatus("Setting up data handling...");
+
    m_navigator->oldEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-   m_navigator->newEvent_.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
+
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
-   m_navigator->atBeginning_.connect(boost::bind(&CmsShowMain::reachedBeginning,this,_1));
-   m_navigator->atEnd_.connect(boost::bind(&CmsShowMain::reachedEnd,this,_1));
    m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
    m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessage,m_guiManager.get(),_1));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
+   if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
+      m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
    if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
    if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0) m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::lastEvent));
@@ -748,19 +828,14 @@ CmsShowMain::setupDataHandling()
 
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1,_2));
    m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator,_1));
-   // m_guiManager->changedEventFilter_.connect(boost::bind(&CmsShowNavigator::filterEventsAndReset,m_navigator));
    m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
 
    {
-      SignalTimer* timer = new SignalTimer();
-      timer->timeout_.connect(m_guiManager->getAction(cmsshow::sNextEvent)->activated);
-      m_playTimer=timer;
-      timer = new SignalTimer();
-      timer->timeout_.connect(m_guiManager->getAction(cmsshow::sPreviousEvent)->activated);
-      m_playBackTimer=timer;
-      timer = new SignalTimer();
-      timer->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
-      m_liveTimer = timer;
+      m_autoLoadTimer = new SignalTimer();
+      ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
+
+      m_liveTimer = new SignalTimer();
+      ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
    }
 
    if(m_inputFileName.size()) {
@@ -769,7 +844,8 @@ CmsShowMain::setupDataHandling()
          m_guiManager->updateStatus("failed to load data file");
          openData();
       } else {
-         m_navigator->firstEventInTheCurrentFile();
+         m_navigator->firstEvent();
+         draw();
       }
    }
    else if (m_monitor.get() != 0) {
@@ -781,8 +857,6 @@ void
 CmsShowMain::setPlayDelay(Float_t val)
 {
    m_playDelay = val;
-   m_playTimer->Reset();
-   m_playTimer->SetTime((Long_t)(m_playDelay*1000));
 }
 
 void
@@ -835,114 +909,44 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      bool accept = false;
-      // bootstrap case: --port without and no input file
-      if (!m_inputFileName.size())
+      m_navigator->loadFile(fileName);
+      // bootstrap case: --port  and no input file
+      if (m_inputFileName.empty())
       {
-         m_navigator->loadFile(fileName);
-         m_navigator->firstEventInTheCurrentFile();
-         accept = true;
+         m_navigator->firstEventInCurrentFile();
       }
-      else
-      {
-         if ( m_guiManager->playEventsAction()->isRunning())
-         {
-            m_navigator->newRemoteFile(fileName);
-            accept = true;
-            if (!m_isPlaying)
-            {
-               m_isPlaying=true;
-               m_forward=true;
-               m_guiManager->getAction(cmsshow::sNextEvent)->activated();
-            }
-         }
-
-      }
-      if (accept)
-      {
-         m_inputFileName = fileName;
-         std::stringstream sr;
-         sr <<"Ready to change to new file '"<<fileName<<"'";
-         m_guiManager->updateStatus(sr.str().c_str());
-      }
+      m_inputFileName = fileName;
+      std::stringstream sr;
+      sr <<"New file registered '"<<fileName<<"'";
+      m_guiManager->updateStatus(sr.str().c_str());
    }
 }
 
 void
 CmsShowMain::playForward()
 {
-   m_isPlaying=true;
-   m_forward=true;
-   m_guiManager->setPlayMode(m_isPlaying);
-   m_guiManager->getAction(cmsshow::sNextEvent)->activated();
+   m_forward   = true;
+   m_isPlaying = true;
+   m_guiManager->enableActions(kFALSE);
+   startAutoLoadTimer();
 }
 
 void
 CmsShowMain::playBackward()
 {
-   m_isPlaying=true;
    m_forward=false;
-   m_guiManager->setPlayMode(m_isPlaying);
-   m_guiManager->getAction(cmsshow::sPreviousEvent)->activated();
+   m_isPlaying = true;
+   m_guiManager->enableActions(kFALSE);
+   startAutoLoadTimer();
 }
 
 void
 CmsShowMain::stopPlaying()
 {
-   m_guiManager->setPlayMode(false);
-   m_isPlaying=false;
-   if(m_forward) {
-      m_playTimer->TurnOff();
-   } else {
-      m_playBackTimer->TurnOff();
-   }
+   stopAutoLoadTimer();
+   m_isPlaying = false;
    m_guiManager->enableActions();
-   m_navigator->checkPosition();
-}
-
-void
-CmsShowMain::reachedEnd(bool flag)
-{
-   if (m_rewindMode && m_guiManager->playEventsAction()->isRunning())
-      return;
-
-   if (m_isPlaying && flag)
-   {
-      if ( m_forward ) {
-         if (m_monitor.get())
-         {
-            m_isPlaying=false;
-            m_playTimer->TurnOff();
-         } else {
-            stopPlaying();
-            m_guiManager->disableNext(flag);
-         }
-      }
-   }
-   else m_guiManager->disableNext(flag);
-}
-
-void
-CmsShowMain::reachedBeginning(bool flag)
-{
-   if (m_rewindMode && m_guiManager->playEventsBackwardsAction()->isRunning())
-      return;
-
-   if (m_isPlaying && flag)
-   {
-      if (!m_forward) {
-
-         if (m_monitor.get())
-         {
-            m_isPlaying=false;
-            m_playBackTimer->TurnOff();
-         } else {
-            stopPlaying();
-            m_guiManager->disablePrevious(flag);
-         }
-      }
-   }
-   else m_guiManager->disablePrevious(flag);
+   checkPosition();
 }
 
 void
@@ -978,13 +982,13 @@ CmsShowMain::unsetPlayAutoRewindImp()
 void
 CmsShowMain::preFiltering()
 {
-   m_guiManager->enableActions(false);
+   if (!m_isPlaying) m_guiManager->enableActions(false);
    m_guiManager->updateStatus("Filtering events");
 }
 void
 CmsShowMain::postFiltering()
 {
-   m_guiManager->enableActions(true);
+   if (!m_isPlaying) m_guiManager->enableActions(true);
    m_guiManager->clearStatus();
 }
 

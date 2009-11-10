@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.81 2009/11/03 00:05:07 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.82 2009/11/03 08:39:18 amraktad Exp $
 //
 
 // system include files
@@ -157,8 +157,8 @@ public:
 
    void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
-   void disablePrevious(bool);
-   void disableNext(bool);
+   void disablePrevious();
+   void disableNext();
    void setPlayMode(bool);
    void updateStatus(const char* status);
    void clearStatus();

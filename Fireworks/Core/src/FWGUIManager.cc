@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.162 2009/11/05 17:48:57 yanjuntu Exp $
+// $Id: FWGUIManager.cc,v 1.163 2009/11/05 22:15:56 yanjuntu Exp $
 
 //
 
@@ -361,23 +361,22 @@ FWGUIManager::autoRewindAction()
 }
 
 void
-FWGUIManager::disablePrevious(bool flag)
+FWGUIManager::disablePrevious()
 {
-   m_cmsShowMainFrame->enablePrevious(!flag);
+   m_cmsShowMainFrame->enablePrevious(false);
 }
 
 void
-FWGUIManager::disableNext(bool flag)
+FWGUIManager::disableNext()
 {
-   m_cmsShowMainFrame->enableNext(!flag);
+   m_cmsShowMainFrame->enableNext(false);
 }
 
 void
 FWGUIManager::setPlayMode(bool play)
 {
-   m_cmsShowMainFrame->m_runEntry->SetState(!play);
-   m_cmsShowMainFrame->m_eventEntry->SetState(!play);
-   // m_cmsShowMainFrame->m_filterEntry->SetState(!play);
+   m_cmsShowMainFrame->m_runEntry->SetEnabled(!play);
+   m_cmsShowMainFrame->m_eventEntry->SetEnabled(!play);
 }
 
 void
@@ -749,7 +748,7 @@ void FWGUIManager::openWebRootFiles (char *fileName)
   //std::cout <<"file name  "<<full_filename<<std::endl;
   if (fileName){
     m_cmsShowMain->navigator()->loadFile(full_filename.c_str());
-    m_cmsShowMain->navigator()->firstEventInTheCurrentFile();
+    m_cmsShowMain->navigator()->firstEventInCurrentFile();
   }
 }
 void FWGUIManager::resetSearchFiles ()
