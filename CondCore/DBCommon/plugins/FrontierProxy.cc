@@ -1,23 +1,47 @@
-#include "FrontierProxy.h"
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
-cond::FrontierProxy::FrontierProxy( const std::string& userconnect ):cond::TechnologyProxy(userconnect){
+
+#include "CondCore/DBCommon/interface/TechnologyProxy.h"
+#include <string>
+#include <vector>
+
+namespace cond{
+  class FrontierProxy: public TechnologyProxy{
+  public:
+    explicit FrontierProxy(const DbSession& isession);
+    ~FrontierProxy();
+    std::string getRealConnectString() const;
+  private:
+    void setupSession();
+    static unsigned int countslash(const std::string& input);
+  private:
+    std::vector<std::string> m_refreshtablelist;
+  };
+}//ns cond
+
+
+cond::FrontierProxy::FrontierProxy(const  DbSession& isession):
+  cond::TechnologyProxy(isession){
   m_refreshtablelist.reserve(10);
   m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
   m_refreshtablelist.push_back(cond::IOVNames::iovDataTableName());
   m_refreshtablelist.push_back(cond::MetaDataNames::metadataTable());
+  setupSession();
 }
+
 cond::FrontierProxy::~FrontierProxy(){
   m_refreshtablelist.clear();
 }
+
 std::string 
 cond::FrontierProxy::getRealConnectString() const{
-  std::string result(m_userconnect);
+  std::string result = m_session.connectionString();
   std::string proto("frontier://");
   std::string::size_type fpos=m_userconnect.find(proto);
   unsigned int nslash=this->countslash(m_userconnect.substr(proto.size(),m_userconnect.size()-fpos));
@@ -30,8 +54,9 @@ cond::FrontierProxy::getRealConnectString() const{
   }
   return result;
 }
+
 void 
-cond::FrontierProxy::setupSession(cond::DBSession& session){
+cond::FrontierProxy::setupSession(){
   std::string refreshConnect;
   std::string realconnect=this->getRealConnectString();
   std::string::size_type startRefresh = realconnect.find("://");
@@ -52,11 +77,11 @@ cond::FrontierProxy::setupSession(cond::DBSession& session){
   std::vector<std::string>::iterator ibeg=m_refreshtablelist.begin();
   std::vector<std::string>::iterator iend=m_refreshtablelist.end();
   for(std::vector<std::string>::iterator it=ibeg; it!=iend; ++it){
-    session.webCacheControl().refreshTable(refreshConnect,*it );
+    m_session.connection().webCacheControl().refreshTable(refreshConnect,*it );
   }
 }
 unsigned int
-cond::FrontierProxy::countslash(const std::string& input)const{
+cond::FrontierProxy::countslash(const std::string& input) {
   unsigned int count=0;
   std::string::size_type slashpos( 0 );
   while( slashpos!=std::string::npos){
@@ -69,4 +94,5 @@ cond::FrontierProxy::countslash(const std::string& input)const{
   }
   return count;
 }
+
 DEFINE_EDM_PLUGIN(cond::TechnologyProxyFactory,cond::FrontierProxy,"frontier");

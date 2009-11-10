@@ -16,6 +16,7 @@ cond::ConnectionHandler::registerConnection(const std::string& userconnect,
 					    cond::DBSession& session,
 					    int connectionTimeOutInSec){
   std::string realconnect(userconnect);
+  /*
   std::string protocol;
   std::size_t pos=userconnect.find_first_of(':');
   if( pos!=std::string::npos ){
@@ -32,6 +33,7 @@ cond::ConnectionHandler::registerConnection(const std::string& userconnect,
   std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol,userconnect));
   realconnect=ptr->getRealConnectString();
   //std::cout<<"realconnect "<<realconnect<<std::endl;
+  */
   m_registry.insert(std::make_pair(userconnect, new cond::Connection(realconnect,connectionTimeOutInSec)));
   ptr->setupSession(session);
 }

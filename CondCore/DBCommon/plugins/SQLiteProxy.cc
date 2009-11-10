@@ -1,20 +1,26 @@
 #include "SQLiteProxy.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
+#include "CondCore/DBCommon/interface/TechnologyProxy.h"
+#include <string>
+namespace cond{
+  class SQLiteProxy:public TechnologyProxy{
+  public:
+    explicit SQLiteProxy(const  DbSession& isession):
+      cond::TechnologyProxy(isession){}
+    ~SQLiteProxy(){}
+    
+    std::string 
+    getRealConnectString( ) const{
+      std::string const & userconnect = m_session.connectionString();
+      if( m_userconnect.find("sqlite_fip:") != std::string::npos ){
+	cond::FipProtocolParser p;
+	return p.getRealConnect(userconnect);
+      }
+      return userconnect;
+    }
+  };  
+}//ns cond
+
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
-cond::SQLiteProxy::SQLiteProxy(const std::string& userconnect):cond::TechnologyProxy(userconnect){
-}
-cond::SQLiteProxy::~SQLiteProxy(){
-}
-std::string 
-cond::SQLiteProxy::getRealConnectString( ) const{
-  if( m_userconnect.find("sqlite_fip:") != std::string::npos ){
-    cond::FipProtocolParser p;
-    return p.getRealConnect(m_userconnect);
-  }
-  return m_userconnect;
-}
-void 
-cond::SQLiteProxy::setupSession(cond::DBSession& session){
-}
 DEFINE_EDM_PLUGIN(cond::TechnologyProxyFactory,cond::SQLiteProxy,"sqlite");
+  
