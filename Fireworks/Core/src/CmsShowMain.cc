@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.101 2009/11/10 15:02:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.102 2009/11/10 15:34:33 amraktad Exp $
 //
 
 // system include files
@@ -327,6 +327,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator, vm[kChainCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
+      if (vm.count(kPlayOpt)) {
+         m_playDelay = vm[kPlayOpt].as<float>();
+         f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+         m_startupTasks->addTask(f);
+      }
+
       if(vm.count(kLiveCommandOpt))
       {
          f=boost::bind(&CmsShowMain::setLiveMode, this);
