@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Bocci,Bld. 40 Room 4-A01,+41227671545,
 //         Created:  Tue Nov 10 12:00:46 CET 2009
-// $Id$
+// $Id: ArbitraryLogError.cc,v 1.1 2009/11/10 14:19:19 fwyzard Exp $
 //
 //
 
@@ -51,7 +51,7 @@ private:
 // CTOR
 ArbitraryLogError::ArbitraryLogError(const edm::ParameterSet& config) :
   m_category( config.getParameter<std::string>("category") ),
-  m_severity( config.getParameter<std::string>("severity") == "error" ),
+  m_severity( config.getParameter<std::string>("severity") == "Error" ),
   m_rate(     config.getParameter<uint32_t>("rate") ),
   m_counter(0)
 {
