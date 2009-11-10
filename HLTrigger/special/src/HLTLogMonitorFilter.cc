@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.2 2009/11/10 10:44:40 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.3 2009/11/10 14:20:47 fwyzard Exp $
 //
 
 
@@ -108,7 +108,7 @@ private:
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
+#include "FWCore/MessageLogger/interface/MessageSender.h"
 
 //
 // constructors and destructor
@@ -140,17 +140,19 @@ HLTLogMonitorFilter::~HLTLogMonitorFilter()
 // ------------ method called on each new Event  ------------
 bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   // no LogErrors or LogWarnings, skip processing and reject the event
-  if (not edm::FreshErrorsExist())
+  if (not edm::MessageSender::freshError)
     return false;
 
   // look at the LogErrors and LogWarnings, and accept the event if at least one is under threshold or matches the prescale
   bool accept = false;
   std::string category;
-  std::vector<edm::ErrorSummaryEntry> errors = edm::LoggedErrorsSummary();  // returns by value and clears the internal log
-  BOOST_FOREACH(const edm::ErrorSummaryEntry & error, errors) {
+  // FIXME: is __typeof__ allowed ?
+  // typedef __typeof__(edm::MessageSender::errorSummaryMap) ErrorSummaryMap;
+  typedef std::map<edm::ErrorSummaryMapKey, unsigned int> ErrorSummaryMap;
+  BOOST_FOREACH(const ErrorSummaryMap::value_type & entry, edm::MessageSender::errorSummaryMap) {
     // split the message category
     typedef boost::split_iterator<std::string::const_iterator> splitter;
-    for (splitter i = boost::make_split_iterator(error.category, boost::first_finder("|", boost::is_equal()));
+    for (splitter i = boost::make_split_iterator(entry.first.category, boost::first_finder("|", boost::is_equal()));
          i != splitter();
          ++i)
     {
@@ -163,16 +165,21 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
         accept = true;
     }
   }
+
+  // clear the errorSummaryMap
+  edm::MessageSender::errorSummaryMap.clear();
+  edm::MessageSender::freshError = false;
+
   return accept;
 }
 
 // ------------ method called at the end of the Job ---------
 void HLTLogMonitorFilter::beginJob(void) {
-  edm::EnableLoggedErrorsSummary();
+  edm::MessageSender::errorSummaryIsBeingKept = true;
 }
 // ------------ method called at the end of the Job ---------
 void HLTLogMonitorFilter::endJob(void) {
-  edm::DisableLoggedErrorsSummary();
+  edm::MessageSender::errorSummaryIsBeingKept = false;
   summary();
 }
 
