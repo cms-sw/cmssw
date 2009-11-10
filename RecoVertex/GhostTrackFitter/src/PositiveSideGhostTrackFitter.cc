@@ -26,9 +26,7 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 	GhostTrackPrediction pred =
 			actualFitter_->fit(updater, prior, states, ndof, chi2);
 
-	double origin = (origin_ - pred.origin()) * pred.direction()
-								/ pred.rho2();
-
+	double origin = pred.lambda(origin_);
 	bool done = true;
 	for(unsigned int i = 0; i < states.size(); i++) {
 		GhostTrackState &state = states[i];

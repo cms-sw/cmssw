@@ -36,11 +36,8 @@ GhostTrack::GhostTrack(const GhostTrackPrediction &prior,
 	prediction_(prediction), prior_(prior),
 	ndof_(ndof), chi2_(chi2)
 {
-	double offset = withOrigin ?
-			(origin - prediction_.origin()) *
-			prediction_.direction() / prediction_.rho2() : 0;
-
-	initStates(tracks, weights, offset);
+	initStates(tracks, weights,
+	           withOrigin ? prediction_.lambda(origin) : 0.);
 }
 
 GhostTrack::GhostTrack(const Track &ghostTrack,
@@ -52,9 +49,6 @@ GhostTrack::GhostTrack(const Track &ghostTrack,
 	prediction_(ghostTrack),
 	ndof_(ghostTrack.ndof()), chi2_(ghostTrack.chi2())
 {
-	double offset = withOrigin ?
-			(origin - prediction_.origin()) *
-			prediction_.direction() / prediction_.rho2() : 0;
-
-	initStates(tracks, weights, offset);
+	initStates(tracks, weights,
+	           withOrigin ? prediction_.lambda(origin) : 0.);
 }

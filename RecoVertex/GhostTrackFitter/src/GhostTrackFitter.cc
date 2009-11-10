@@ -59,8 +59,7 @@ GhostTrack GhostTrackFitter::fit(
 			const GlobalPoint &origin,
 			const std::vector<TransientTrack> &tracks) const
 {
-	double offset = (origin - prior.origin()) *
-	                prior.direction() / prior.rho2();
+	double offset = prior.lambda(origin);
 
 	std::vector<GhostTrackState> states;
 	for(std::vector<TransientTrack>::const_iterator iter = tracks.begin();
