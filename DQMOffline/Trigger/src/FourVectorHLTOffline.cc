@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.48 2009/10/12 12:35:46 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.49 2009/11/04 15:20:48 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -408,6 +408,58 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     else btagMon = btagMuMon;
 
 
+    unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
+  
+    // Fill HLTPassed_Correlation Matrix and HLTPassFail Matrix
+    // --------------------------------------------------------
+    if(triggerResults->accept(pathByIndex)){
+  
+      for(PathInfoCollection::iterator y = hltPaths_.begin();
+  	    y!= hltPaths_.end(); ++y ) {
+  
+        unsigned int crosspathByIndex = triggerNames.triggerIndex(y->getPath());
+  
+        if(triggerResults->accept(crosspathByIndex)){
+  
+          int xBinNumber = h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
+          int yBinNumber = h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->FindBin(y->getPath().c_str());      
+          h_HLTPassPass_Correlation_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
+  
+        } // end if y path passed
+  
+        if(! triggerResults->accept(crosspathByIndex)){
+  
+          int xBinNumber = h_HLTPassFail_Correlation_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
+          int yBinNumber = h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->FindBin(y->getPath().c_str());      
+          h_HLTPassFail_Correlation_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
+  
+        } // end if y path passed
+  
+      } // end for y 
+  
+    } // end if v passed
+  
+    // fill histogram of filter ocupancy for each HLT path
+    // ---------------------------------
+    unsigned int lastModule = triggerResults->index(pathByIndex);
+  
+    //go through the list of filters
+    for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+      
+      int binNumber = v->getFiltersHisto()->getTH1()->GetXaxis()->FindBin(v->filtersAndIndices[filt].first.c_str());      
+      
+      //check if filter passed
+      if(triggerResults->accept(pathByIndex)){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+      //otherwise the module that issued the decision is the first fail
+      //so that all the ones before it passed
+      else if(v->filtersAndIndices[filt].second < lastModule){
+        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
+      }
+  
+    } // end for filt
+
     // did we pass the denomPath?
     bool denompassed = false;  
 
@@ -563,28 +615,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    } //denompassed
 
 
-   // fill histogram of filter ocupancy for each HLT path
-   unsigned int lastModule = 0;
-
-   unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
-   lastModule = triggerResults->index(pathByIndex);
-
-    //go through the list of filters
-    for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
-      
-      int binNumber = v->getFiltersHisto()->getTH1()->GetXaxis()->FindBin(v->filtersAndIndices[filt].first.c_str());      
-      
-      //check if filter passed
-      if(triggerResults->accept(pathByIndex)){
-        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
-      }
-      //otherwise the module that issued the decision is the first fail
-      //so that all the ones before it passed
-      else if(v->filtersAndIndices[filt].second < lastModule){
-        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
-      }
-
-    } // end for filt
 
 
  } //pathinfo loop
@@ -922,13 +952,43 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
           if (objectType == trigger::TriggerTET) ptMax = 300.0;
           if (objectType == trigger::TriggerTrack) ptMax = 100.0;
   
-          if (objectType != 0) hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+          // monitor regardless of the objectType of the path
+          if (objectType != -1) hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       
         }
   
       } // end for pair
 
     } // end else
+
+
+    // Trigger Correlation Matrix (2D histo)
+    const unsigned int npaths = hltPaths_.size();
+
+
+    TString pathsummary = TString("HLT/FourVector/PathsSummary");
+    dbe_->setCurrentFolder(pathsummary.Data());
+
+    // count plots for subfilter
+    h_HLTPassPass_Correlation_ = dbe_->book2D("HLTPassPass_Correlation",
+                           "HLTPassPass_Correlation (x=Pass, y=Pass)",
+                           npaths, -0.5, npaths-0.5, npaths, -0.5, npaths-0.5);
+    h_HLTPassFail_Correlation_ = dbe_->book2D("HLTPassFail_Correlation",
+                           "HLTPassFail_Correlation (x=Pass, y=Fail)",
+                           npaths, -0.5, npaths-0.5, npaths, -0.5, npaths-0.5);
+
+    for(unsigned int i = 0; i < npaths; i++){
+
+      h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+      h_HLTPassFail_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+    }
+
+
+
 
     // now set up all of the histos for each path
     for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) {
@@ -1145,7 +1205,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
          numModule++;
 
-         if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos && moduleType.find("HLTL1NumberFilterXXX") == string::npos ) || 
+         if((moduleType.find("HLT_") != string::npos && moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos ) || 
             (moduleType.find("Associator") != string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
             (moduleType.find("HLTPrescaler") != string::npos) ) {
@@ -1159,6 +1219,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
 
        }//end for modulesName
+
+       dbe_->setCurrentFolder(pathsummary.Data()); 
 
        //int nbin_sub = 5;
        int nbin_sub = 10;

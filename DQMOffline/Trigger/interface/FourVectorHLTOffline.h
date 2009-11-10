@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.32 2009/10/12 12:34:46 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.33 2009/11/04 15:20:35 rekovic Exp $
 //
 //
 
@@ -124,6 +124,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       DQMStore * dbe_;
 
       MonitorElement* total_;
+      MonitorElement* h_HLTPassPass_Correlation_;
+      MonitorElement* h_HLTPassFail_Correlation_;
 
       bool plotAll_;
       bool resetMe_;
