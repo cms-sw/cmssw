@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 
+class reco::PFCandidate;
 
 class PFSuperClusterReader : public edm::EDAnalyzer
 {
@@ -24,5 +25,8 @@ class PFSuperClusterReader : public edm::EDAnalyzer
   edm::InputTag inputTagGSFTracks_;
   edm::InputTag inputTagValueMapSC_;
   edm::InputTag inputTagValueMapMVA_;
+  edm::InputTag inputTagPFCandidates_;
+
+  const reco::PFCandidate * findPFCandidate(const reco::PFCandidateCollection * coll,const reco::GsfTrackRef& ref);
 };
 #endif

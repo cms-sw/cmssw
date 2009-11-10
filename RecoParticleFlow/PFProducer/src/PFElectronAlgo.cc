@@ -1615,7 +1615,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      //	      std::cout << " PFElectronAlgo, adding Brem " << EE << std::endl;
 	      // yes, EE, we want the raw ecal energy of the daugther to have the same definition
 	      // as the GSF cluster
-	      photon_Candidate.setRawEcalEnergy(EE);
+	      photon_Candidate.setRawEcalEnergy(EE-ps1-ps2);
 	      photon_Candidate.setPositionAtECALEntrance(math::XYZPointF(clusterRef->position()));
 	      photon_Candidate.addElementInBlock(blockRef,assobrem_index[ibrem]);
 
