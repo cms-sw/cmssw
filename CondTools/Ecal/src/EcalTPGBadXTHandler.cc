@@ -173,7 +173,9 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
 	      fe_main_info.setVersion(the_config_version);
+	      std::cout << " version=" <<fe_main_info.getVersion()<< std::endl;
 
+	      
 	      try{ 
 		std::cout << " before fetch config set" << std::endl;	    
 		econn-> fetchConfigSet(&fe_main_info);
@@ -212,7 +214,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	      	      // logic id is 1011ssxxxx
 	      	      // get SM id
 	      	      int sm_num=0;
-	      	      if(fed_id<=627 ) sm_num=fed_id-591-18; 
+	      	      if(fed_id<=627 ) sm_num=fed_id-609+18; 
 	      	      if(fed_id>627  ) sm_num=fed_id-627; 
 	      
 	      	      // get crystal id
@@ -222,13 +224,15 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 		
 		 	if(my_EcalLogicId[ixt].getID1()==fed_id && my_EcalLogicId[ixt].getID2()==tt_id 
 		   	&& my_EcalLogicId[ixt].getID3()==xt_id ) {
-		  
+			  //1011060504
 		  	  int ecid= my_EcalLogicId[ixt].getLogicID();
-		  	  xt_num=(ecid)-(101100+sm_num)*1000;
+		  	  xt_num=(ecid)-(101100+sm_num)*10000;
 		  
 		        }
 	      	      }
 
+		      std::cout<< " masking crystal "<<sm_num<<"/"<<xt_num<<" from fed/tt/xt"<<
+			fed_id<<"/"<<tt_id<<"/"<<xt_id<< endl;
 	      	      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
             	    
 	      	      badXt->setValue(ebdetid.rawId(),rd_badXt.getStatus());	
