@@ -152,10 +152,9 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 if ( "${VAL_REF_FILE}" != "" && "${REF_ALREADY_STORED}" == "" ) then
 
-  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data ) then
-    mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
+  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data ) then
+    mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
   endif
-
   cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
   setenv VAL_REF_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data/${VAL_REF_FILE:t}"
   echo "VAL_REF_FILE = ${VAL_REF_FILE}"

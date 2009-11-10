@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.43 2009/10/10 09:09:18 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.44 2009/10/29 23:11:12 chamont Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 using namespace reco;
 
 GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
-{
+ {
   outputFile_ = conf.getParameter<std::string>("outputFile");
   histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
@@ -111,8 +111,7 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbinhoe= pset.getParameter<int>("Nbinhoe");
   hoemin=pset.getParameter<double>("Hoemin");
   hoemax=pset.getParameter<double>("Hoemax");
-
-}
+ }
 
 void GsfElectronMCAnalyzer::beginJob(){
 

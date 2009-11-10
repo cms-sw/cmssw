@@ -19,7 +19,7 @@ which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
 <var name="VAL_NEW_RELEASE" value="340pre5">
-<var name="VAL_REF_RELEASE" value="340pre2">
+<var name="VAL_REF_RELEASE" value="340pre5">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
@@ -151,36 +151,36 @@ with the local modified code.
 
     <environment name="RedoFromCorePt10">
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCorePt35">
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-MC-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-MC-RECO.root">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-STARTUP-RECO.root">
-      <var name="TEST_GLOBAL_TAG" value="STARTUP3XY_V11">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-STARTUP-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="STARTUP3X_V11">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
@@ -188,7 +188,7 @@ with the local modified code.
   
     <environment name="RedoFromCoreQcdPt80-120">
       <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
     </environment>
@@ -230,7 +230,7 @@ with the local modified code.
     <environment name="RedoFromRawZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-STARTUP-RECO.root">
-      <var name="TEST_GLOBAL_TAG" value="STARTUP3XY_V11">
+      <var name="TEST_GLOBAL_TAG" value="STARTUP3X_V11">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
       <executable name="dbs_discovery.py">
       <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
