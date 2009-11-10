@@ -55,7 +55,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     std::cout << "<HcalDigiMonitor> Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << std::endl;
 
   digi_checkNevents_ = ps.getUntrackedParameter<int>("DigiMonitor_checkNevents",checkNevents_); 
-  if (fVerbosity>1)
+  if (fVerbosity>1 && digi_checkNevents_>0)
     std::cout <<"<HcalDigiMonitor>  Perform checks and histogram fills every "<<digi_checkNevents_<<" events"<<std::endl;
 
   // Specify which tests to run when looking for problem digis
@@ -75,7 +75,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   if (fVerbosity>1)
     {
       std::cout <<"<HcalDigiMonitor> Checking for the following problems:"<<std::endl; 
-      if (digi_checkoccupancy_) std::cout <<"\tChecking that digi present at least once every "<<digi_checkNevents_<<" events;"<<std::endl;
       if (digi_checkcapid_) std::cout <<"\tChecking that cap ID rotation is correct;"<<std::endl;
       if (digi_checkdigisize_) std::cout <<"\tChecking that digi size is between ["<<mindigisize_<<" - "<<maxdigisize_<<"];"<<std::endl;
       if (digi_checkadcsum_) std::cout <<"\tChecking that ADC sum of digi is greater than 0;"<<std::endl; 
@@ -107,8 +106,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       MonitorElement* ExpectedOrbit = m_dbe->bookInt("ExpectedOrbitMessageTime");
       ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime_);
 
-      MonitorElement* checkN = m_dbe->bookInt("DigiCheckNevents");
-      checkN->Fill(digi_checkNevents_);
       MonitorElement* occT = m_dbe->bookInt("DigiOccThresh");
       occT->Fill(occThresh_);
       MonitorElement* shapeT = m_dbe->bookInt("DigiShapeThresh");
@@ -524,7 +521,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ProblemsVsLB_HF->Fill(lumiblock,hfHists.count_bad);
 
   // Call fill method every checkNevents
-  if (ievt_%digi_checkNevents_==0)
+  if (digi_checkNevents_>0 && ievt_%digi_checkNevents_==0)
     fill_Nevents();
   
   return;
@@ -671,6 +668,14 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 
   return err;
 } // template <class DIGI> int HcalDigiMonitor::process_Digi
+
+void HcalDigiMonitor::endLuminosityBlock()
+{
+  if (LBprocessed_==true) return;
+  fill_Nevents();
+  LBprocessed_ = true;
+  return;
+}
 
 void HcalDigiMonitor::fill_Nevents()
 {

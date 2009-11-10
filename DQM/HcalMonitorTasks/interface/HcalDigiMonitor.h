@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/10/11 16:16:13 $
-  * $Revision: 1.50 $
+  * $Date: 2009/10/18 15:10:08 $
+  * $Revision: 1.51 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -70,11 +70,12 @@ public:
 		    const HcalUnpackerReport& report);		
   void reset();
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
-  void fill_Nevents();
+  void endLuminosityBlock();
   void periodicReset();
 
 private:  ///Methods, variables accessible only within class code
 
+  void fill_Nevents();
   void zeroCounters();
   void setupSubdetHists(DigiHists& hist,  std::string subdet); // enable this feature at some point
 

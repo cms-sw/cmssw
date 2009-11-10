@@ -53,9 +53,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           # Dead Cell Client
                           DeadCellClient                                = cms.untracked.bool(True),
-                          DeadCellClient_test_neverpresent              = cms.untracked.bool(True),
-                          DeadCellClient_test_occupancy                 = cms.untracked.bool(True),
-                          DeadCellClient_test_energy                    = cms.untracked.bool(True),
+                          DeadCellClient_test_digis                     = cms.untracked.bool(True),
+                          DeadCellClient_test_rechits                   = cms.untracked.bool(True),
                           DeadCellClient_checkNevents                   = cms.untracked.int32(100),
                           DeadCellClient_minErrorFlag                   = cms.untracked.double(0.05),
                           DeadCellClient_makeDiagnosticPlots            = cms.untracked.bool(False),
@@ -131,8 +130,8 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     # Dead Cell
     client.DeadCellClient                         = monitor.DeadCellMonitor
     client.DeadCellClient_test_neverpresent       = monitor.DeadCellMonitor_test_neverpresent
-    client.DeadCellClient_test_occupancy          = monitor.DeadCellMonitor_test_occupancy
-    client.DeadCellClient_test_energy             = monitor.DeadCellMonitor_test_energy
+    client.DeadCellClient_test_digis              = monitor.DeadCellMonitor_test_digis
+    client.DeadCellClient_test_rechits            = monitor.DeadCellMonitor_test_rechits
     #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
 
@@ -180,10 +179,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "ReferencePedestal Client    = ", client.ReferencePedestalClient
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
-        print "\t\t Test DeadCell occupancy? ", client.DeadCellClient_test_occupancy
-        #print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
-        print "\t\t Test DeadCell energy? ", client.DeadCellClient_test_energy
-        #print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
         print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
         print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
 

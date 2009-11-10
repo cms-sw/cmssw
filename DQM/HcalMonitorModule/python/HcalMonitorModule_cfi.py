@@ -86,18 +86,16 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor                              = cms.untracked.bool(True),
                            DeadCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
                            DeadCellMonitor_test_neverpresent            = cms.untracked.bool(True),
-                           DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
-                           # This doesn't seem to do much yet
-                           DeadCellMonitor_test_energy                  = cms.untracked.bool(False),
+                           DeadCellMonitor_test_digis                   = cms.untracked.bool(True), # tests for digis missing for an entire lumi block
+                           DeadCellMonitor_test_rechits                 = cms.untracked.bool(False), # test for rechits less than some energy for an entire lumi block
                            DeadCellMonitor_checkNevents                 = cms.untracked.int32(1000),
-                           DeadCellMonitor_prescale                     = cms.untracked.int32(10),
+                           DeadCellMonitor_minEvents                     = cms.untracked.int32(500), # minimum number of events that must be present in a LB for recent dead cell checks to be made
                            # Checking for cells consistently below energy threshold
                            DeadCellMonitor_energyThreshold              = cms.untracked.double(-1.),
                            DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(-1.),
                            DeadCellMonitor_HE_energyThreshold           = cms.untracked.double(-1.), 
                            DeadCellMonitor_HO_energyThreshold           = cms.untracked.double(-1.),
                            DeadCellMonitor_HF_energyThreshold           = cms.untracked.double(-1.),
-                           DeadCellMonitor_ZDC_energyThreshold          = cms.untracked.double(-999.), # not yet implemented
 
                            DeadCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
                            

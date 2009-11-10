@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/09 18:46:40 $
- * $Revision: 1.144 $
+ * $Date: 2009/11/10 14:10:15 $
+ * $Revision: 1.145 $
  * \author W Fisher
  * \author J Temple
  *
@@ -465,33 +465,27 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
      const edm::EventSetup& context) {
 
   ilumisec_ = lumiSeg.luminosityBlock();
-  if(digiMon_!=0)   {  digiMon_->LumiBlockUpdate(ilumisec_);}
-  if(dfMon_!=0)     {  dfMon_->LumiBlockUpdate(ilumisec_);}
-  if(diTask_!=0)    {  diTask_->LumiBlockUpdate(ilumisec_);}
-  if(pedMon_!=0)    {  pedMon_->LumiBlockUpdate(ilumisec_);}
-  if(ledMon_!=0)    {  ledMon_->LumiBlockUpdate(ilumisec_);}
-  if(laserMon_!=0)  {  laserMon_->LumiBlockUpdate(ilumisec_);}
-  if(hotMon_!=0)    {  hotMon_->LumiBlockUpdate(ilumisec_);}
-  if(deadMon_!=0)   {  deadMon_->LumiBlockUpdate(ilumisec_);}
-  if(mtccMon_!=0)   {  mtccMon_->LumiBlockUpdate(ilumisec_);}
-  if(rhMon_!=0)     {  rhMon_->LumiBlockUpdate(ilumisec_);}
-  if (zdcMon_!=0)   {  zdcMon_->LumiBlockUpdate(ilumisec_);}
-  if (beamMon_!=0)  {  beamMon_->LumiBlockUpdate(ilumisec_);}
-  if (tpMon_!=0)    {  tpMon_->LumiBlockUpdate(ilumisec_);}
+  if(digiMon_!=0)   {  digiMon_->beginLuminosityBlock(ilumisec_);}
+  if(dfMon_!=0)     {  dfMon_->beginLuminosityBlock(ilumisec_);}
+  if(diTask_!=0)    {  diTask_->beginLuminosityBlock(ilumisec_);}
+  if(pedMon_!=0)    {  pedMon_->beginLuminosityBlock(ilumisec_);}
+  if(ledMon_!=0)    {  ledMon_->beginLuminosityBlock(ilumisec_);}
+  if(laserMon_!=0)  {  laserMon_->beginLuminosityBlock(ilumisec_);}
+  if(hotMon_!=0)    {  hotMon_->beginLuminosityBlock(ilumisec_);}
+  if(deadMon_!=0)   {  deadMon_->beginLuminosityBlock(ilumisec_);}
+  if(mtccMon_!=0)   {  mtccMon_->beginLuminosityBlock(ilumisec_);}
+  if(rhMon_!=0)     {  rhMon_->beginLuminosityBlock(ilumisec_);}
+  if (zdcMon_!=0)   {  zdcMon_->beginLuminosityBlock(ilumisec_);}
+  if (beamMon_!=0)  {  beamMon_->beginLuminosityBlock(ilumisec_);}
+  if (tpMon_!=0)    {  tpMon_->beginLuminosityBlock(ilumisec_);}
 
   //////////////////////////////////////////////
-  if(detDiagPed_!=0){  detDiagPed_->LumiBlockUpdate(ilumisec_);}
-  if(detDiagLed_!=0){  detDiagLed_->LumiBlockUpdate(ilumisec_);}
-  if(detDiagLas_!=0){  detDiagLas_->LumiBlockUpdate(ilumisec_);}
-  if(detDiagNoise_!=0){  detDiagNoise_->LumiBlockUpdate(ilumisec_);}
-  if(detDiagTiming_!=0){  detDiagTiming_->LumiBlockUpdate(ilumisec_);}
+  if(detDiagPed_!=0){  detDiagPed_->beginLuminosityBlock(ilumisec_);}
+  if(detDiagLed_!=0){  detDiagLed_->beginLuminosityBlock(ilumisec_);}
+  if(detDiagLas_!=0){  detDiagLas_->beginLuminosityBlock(ilumisec_);}
+  if(detDiagNoise_!=0){  detDiagNoise_->beginLuminosityBlock(ilumisec_);}
+  if(detDiagTiming_!=0){  detDiagTiming_->beginLuminosityBlock(ilumisec_);}
   /////////////////////////////////////////////
-
-    {
-      // do scheduled tasks...
-      // Clear BeamMonitor problem histograms
-      if (beamMon_) beamMon_->beginLuminosityBlock();
-    }
 }
 
 
@@ -503,9 +497,9 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   {
     // do scheduled tasks...
     if (beamMon_) beamMon_->endLuminosityBlock();
-    if (digiMon_) digiMon_->fill_Nevents();
-    if (rhMon_)   rhMon_  ->fill_Nevents();
-    
+    if (digiMon_) digiMon_->endLuminosityBlock();
+    if (rhMon_)   rhMon_  ->endLuminosityBlock();
+    //if (deadMon_) deadMon_->endLuminosityBlock();
   }
 }
 
@@ -524,19 +518,20 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
     pedMon_->fillPedestalHistos();
 
   if (deadMon_!=NULL)
-    deadMon_->fillDeadHistosAtEndRun();
+    deadMon_->endLuminosityBlock();
 
   if (hotMon_!=NULL)
     hotMon_->fillHotHistosAtEndRun();
 
   // Digi monitor doesn't require any persistent issues (dead for N events, etc)
   // to mark bad channels; we can simply call the 'fill_Nevents' method at the end of the run.
-  if (digiMon_!=NULL) // try to fill at end of run
-    digiMon_->fill_Nevents();
+
+  if (digiMon_!=NULL) // try to fill at end of run; should be redundant, since end of run is also the end of an LB? 
+    digiMon_->endLuminosityBlock(); 
 
   // Ditto for rechit monitor
   if (rhMon_!=NULL)
-    rhMon_->fill_Nevents();
+    rhMon_->endLuminosityBlock();
 
   if (dfMon_!=NULL) dfMon_->UpdateMEs();
   /////////////////////////////////////////////////////
@@ -700,9 +695,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   if (rawOK_==true) ++ievt_rawdata_;
 
+
   //  Check whether event is a calibration event.  If so, skip it.
+  
   bool InconsistentCalibTypes=false;
-  HcalCalibrationEventType CalibType = hc_Null;
+  HcalCalibrationEventType CalibType = hc_Null; // need to pass CalibType into tasks, so that they can skip events that aren't wanted.
 
   //Get the calibration type from the unpackable fedss in the collection
   for (vector<int>::const_iterator i=fedss.begin();i!=fedss.end(); i++) {
@@ -729,15 +726,13 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   else 
     {
       if (debug_>0) std::cout <<"<HCALMONITOR MODULE> CALIB TYPE = "<<CalibType<<endl;
-      if (debug_>1) std::cout <<"\t CALIBRATION EVENT FOUND; SKIPPING!"<<endl;
-      //if (CalibType != hc_Null && skipCalib_==true) return;
+      if (debug_>1 && CalibType!=hc_Null && skipCalib_==true) std::cout <<"\t CALIBRATION EVENT FOUND; SKIPPING!"<<endl;
+      if (CalibType != hc_Null && skipCalib_==true) return;
     }
-  // add a return to skip events if not hc_Null?
-
-  
+ 
 
   // skip this event if we're prescaling...
-  ievt_++;
+  ++ievt_;
   if(prescaleEvt_>0 && prescale()) return;
   if (rawOK_==true) ++ievt_rawdata_;
 
@@ -1195,13 +1190,12 @@ bool HcalMonitorModule::prescale()
 {
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_>1) std::cout <<"HcalMonitorModule::prescale"<<endl;
+  if (debug_>1) std::cout <<"HcalMonitorModule::prescale:  ievt = "<<ievt_<<endl;
   // If no prescales are set, return 'false'.  (This means that we should process the event.)
   if(prescaleEvt_<=0 && prescaleLS_<=0) return false;
 
   // Now check whether event should be kept.  Assume that it should not by default
 
-  cout <<"prescale:  ievt = "<<ievt_<<endl;
   bool keepEvent=false;
   
   // Keep event if prescaleLS test is met or if prescaleEvt test is met

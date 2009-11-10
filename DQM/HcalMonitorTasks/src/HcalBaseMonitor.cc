@@ -94,6 +94,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   meEVT_=0;
   meTOTALEVT_=0;
   ievt_=0;
+  levt_=0;
   tevt_=0;
   lumiblock=0;
   oldlumiblock=0;
@@ -109,6 +110,7 @@ void HcalBaseMonitor::processEvent()
 {
   // increment event counters
   ++ievt_;
+  ++levt_;
   ++tevt_;
   // Fill MonitorElements
   if (m_dbe)
@@ -159,6 +161,19 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
   lumiblock=lb;
   return;
 }
+
+void HcalBaseMonitor::beginLuminosityBlock(int lumisec)
+{
+  LumiBlockUpdate(lumisec);
+  levt_=0;
+  LBprocessed_=false;
+} // beginLuminosityBlock
+
+void HcalBaseMonitor::endLuminosityBlock()
+{
+  LBprocessed_=true;
+  return;
+} // endLuminosityBlock;
 
 void HcalBaseMonitor::done(){}
 

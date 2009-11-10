@@ -262,7 +262,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   processEvent_rechit(hbHits, hoHits, hfHits);
   
   // Fill problem cells -- will now fill once per luminosity block
-  if (rechit_checkNevents_>1 && ievt_%rechit_checkNevents_ ==0)
+  if (rechit_checkNevents_>0 && ievt_%rechit_checkNevents_ ==0)
     {
       fill_Nevents();
     }
@@ -612,7 +612,13 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 /* --------------------------------------- */
 
 
-
+void HcalRecHitMonitor::endLuminosityBlock()
+{
+  if (LBprocessed_==true) return; // filling already took place this LB
+  fill_Nevents();
+  LBprocessed_=true;
+  return;
+} //endLuminosityBlock
 
 void HcalRecHitMonitor::fill_Nevents(void)
 {

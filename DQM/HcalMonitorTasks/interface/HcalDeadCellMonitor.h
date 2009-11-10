@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/08/21 20:45:29 $
-  * $Revision: 1.36 $
+  * $Date: 2009/10/18 15:10:08 $
+  * $Revision: 1.37 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -40,9 +40,9 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 		    //const ZDCDigiCollection& zdcdigi, 
 		    );
 
-
-  void fillDeadHistosAtEndRun();
   void periodicReset();
+  void beginLuminosityBlock(int lb);
+  void endLuminosityBlock();
 
  private:
   void zeroCounters(bool resetpresent=false);
@@ -51,18 +51,17 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 
-  void fillNevents_occupancy(int checkN);
-  void fillNevents_energy(int checkN);
-
-  void fillNevents_problemCells(int checkN);
-
   int deadmon_checkNevents_;  // specify how often to check is cell is dead
-  int deadmon_prescale_;
+  int deadmon_minEvents_; // minimum number of events needed to perform checks on recent digis/rechits
   bool deadmon_makeDiagnostics_;
 
-  // Booleans to control which of the three dead cell checking routines are used
-  bool deadmon_test_occupancy_;
-  bool deadmon_test_energy_;
+  // Booleans to control which of the dead cell checking routines are used
+  bool deadmon_test_digis_;
+  bool deadmon_test_rechits_;
+
+  void fillNevents_problemCells(); // problemcells always checks for never-present digis, rechits
+  void fillNevents_recentdigis();
+  void fillNevents_recentrechits();
 
   // specify minimum energy threshold for energy test
   double energyThreshold_;
@@ -73,22 +72,22 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
   double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
 
-  EtaPhiHists  UnoccupiedDeadCellsByDepth;
+  EtaPhiHists  RecentMissingDigisByDepth;
   EtaPhiHists  DigiPresentByDepth;
-  EtaPhiHists  BelowEnergyThresholdCellsByDepth;
-  EtaPhiHists  EnergyPresentByDepth;
+  EtaPhiHists  RecentMissingRecHitsByDepth;
+  EtaPhiHists  RecHitPresentByDepth;
 
   // Problems vs. lumi block
   MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
-  MonitorElement *NumberOfNeverPresentCells, *NumberOfNeverPresentCellsHB, *NumberOfNeverPresentCellsHE, *NumberOfNeverPresentCellsHO, *NumberOfNeverPresentCellsHF;
-  MonitorElement *NumberOfUnoccupiedCells, *NumberOfUnoccupiedCellsHB, *NumberOfUnoccupiedCellsHE, *NumberOfUnoccupiedCellsHO, *NumberOfUnoccupiedCellsHF;
-  MonitorElement *NumberOfBelowEnergyCells, *NumberOfBelowEnergyCellsHB, *NumberOfBelowEnergyCellsHE, *NumberOfBelowEnergyCellsHO, *NumberOfBelowEnergyCellsHF;
-  MonitorElement *NumberOfEnergyNeverPresentCells, *NumberOfEnergyNeverPresentCellsHB, *NumberOfEnergyNeverPresentCellsHE, *NumberOfEnergyNeverPresentCellsHO, *NumberOfEnergyNeverPresentCellsHF;
+  MonitorElement *NumberOfNeverPresentDigis, *NumberOfNeverPresentDigisHB, *NumberOfNeverPresentDigisHE, *NumberOfNeverPresentDigisHO, *NumberOfNeverPresentDigisHF;
+  MonitorElement *NumberOfRecentMissingDigis, *NumberOfRecentMissingDigisHB, *NumberOfRecentMissingDigisHE, *NumberOfRecentMissingDigisHO, *NumberOfRecentMissingDigisHF;
+  MonitorElement *NumberOfRecentMissingRecHits, *NumberOfRecentMissingRecHitsHB, *NumberOfRecentMissingRecHitsHE, *NumberOfRecentMissingRecHitsHO, *NumberOfRecentMissingRecHitsHF;
+  MonitorElement *NumberOfNeverPresentRecHits, *NumberOfNeverPresentRecHitsHB, *NumberOfNeverPresentRecHitsHE, *NumberOfNeverPresentRecHitsHO, *NumberOfNeverPresentRecHitsHF;
 
-  bool present[85][72][4]; // tests that a good digi was present at least once
-  bool present_energy[85][72][4]; // tests that energy > threshold at least once
-  unsigned int occupancy[85][72][4]; // tests that cells haven't gone missing for long periods
-  unsigned int aboveenergy[85][72][4]; // tests that cells haven't dropped below threshold for long periods
+  bool present_digi[85][72][4]; // tests that a good digi was present at least once
+  bool present_rechit[85][72][4]; // tests that rechit with energy > threshold at least once
+  unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
+  unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
   
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;

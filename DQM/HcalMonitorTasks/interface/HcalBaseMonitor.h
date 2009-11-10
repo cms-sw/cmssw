@@ -6,6 +6,7 @@
 #define PHIBINS 72
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -38,8 +39,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/10/13 13:25:01 $
-  * $Revision: 1.34 $
+  * $Date: 2009/11/10 14:10:55 $
+  * $Revision: 1.35 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -87,10 +88,11 @@ public:
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
 
   void processEvent();
-  void LumiBlockUpdate(int lb);
+  void beginLuminosityBlock(int lb);
+  void endLuminosityBlock();
 
 protected:
-  
+  void LumiBlockUpdate(int lb);
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
   bool dump2database; // controls whether output written to file for database (will eventually write db directly)
@@ -121,8 +123,10 @@ protected:
   MonitorElement* ProblemCells;
   EtaPhiHists ProblemCellsByDepth;
 
-  int ievt_;
+  int ievt_; // number of events processed (can be reset periodically)
+  int levt_; // number of events in current luminosity block
   int tevt_; // total # of events
+  bool LBprocessed_; // indicates that histograms have been filled for current LB
   MonitorElement* meEVT_;
   MonitorElement* meTOTALEVT_;
   int lumiblock;

@@ -891,8 +891,9 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
  // void HcalBeamMonitor::processEvent(const HBHERecHit Collection&hbheHits; ...)
 
 
-void HcalBeamMonitor::beginLuminosityBlock()
+void HcalBeamMonitor::beginLuminosityBlock(int lumisec)
 {
+  HcalBaseMonitor::beginLuminosityBlock(lumisec);
   // reset histograms that get updated each luminosity section
   HFlumi_occ_LS->Reset();
   stringstream title;
@@ -903,6 +904,8 @@ void HcalBeamMonitor::beginLuminosityBlock()
 
 void HcalBeamMonitor::endLuminosityBlock()
 {
+  if (LBprocessed_==true)
+    return;
   float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
   if (Nentries==0) return;
   if (Online_ && Nentries<500) return; // need at least 500 events to make valid statement about hot/dead in online running?
@@ -919,17 +922,16 @@ void HcalBeamMonitor::endLuminosityBlock()
 	      // One new luminosity section found with no entries for the cell in question
 	      // Add protection requiring a minimum number of entries before counting as dead?
 	      HFlumi_total_deadcells->Fill(x-1,2*y-1,1);
-	      //cout <<"DEAD CELL AT "<<x-1<<", "<<2*y-1<<"  OCC ENTRIES = "<<HFlumi_occ_LS->getTH2F()->Integral()<<endl;
 	    } // dead cell check
 
 	  // hot if present in more than 25% of events in the LS
 	  if (HFlumi_occ_LS->getBinContent(x,y)>0.25*Nentries)
 	    {
 	      HFlumi_total_hotcells->Fill(x-1,2*y-1,1);
-	      //HFlumi_total_hotcells->setBinContent(x,y,HFlumi_total_hotcells->getBinContent(x,y)+1);
 	    } // hot cell check
 	} // loop over y
     } // loop over x
+  LBprocessed_=true;
   return;
 }
 

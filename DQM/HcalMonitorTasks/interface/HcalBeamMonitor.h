@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/10/13 17:51:45 $
-  * $Revision: 1.10 $
+  * $Date: 2009/10/21 11:25:46 $
+  * $Revision: 1.11 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -31,7 +31,7 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 		    );
   void reset();
   void clearME();
-  void beginLuminosityBlock();
+  void beginLuminosityBlock(int lb);
   void endLuminosityBlock();
 
  private:

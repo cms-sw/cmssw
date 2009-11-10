@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/10/25 15:39:35 $
-  * $Revision: 1.32 $
+  * $Date: 2009/11/10 14:10:57 $
+  * $Revision: 1.33 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -42,10 +42,10 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits);
 
-  void fill_Nevents();
-
+  void endLuminosityBlock();
  private:
-
+  
+  void fill_Nevents();
   bool rechit_makeDiagnostics_;
 
   int rechit_checkNevents_;  // specify how often to fill histograms

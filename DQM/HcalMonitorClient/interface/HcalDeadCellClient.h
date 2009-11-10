@@ -69,49 +69,49 @@ private:
   double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
   bool deadclient_makeDiagnostics_;
 
-  bool deadclient_test_occupancy_;
-  bool deadclient_test_energy_;
+  bool deadclient_test_digis_;
+  bool deadclient_test_rechits_;
   bool dump2database_;
 
   int deadclient_checkNevents_;
 
   // Histograms
 
-  TH2F* UnoccupiedDeadCellsByDepth[4];
+  TH2F* RecentMissingDigisByDepth[4];
   TH2F* DigiPresentByDepth[4];
   TH2F* RecHitsPresentByDepth[4];
-  TH2F* BelowEnergyThresholdCellsByDepth[4];
+  TH2F* RecentMissingRecHitsByDepth[4];
 
-  TProfile* NumberOfDeadCells;
-  TProfile* NumberOfDeadCellsHB;
-  TProfile* NumberOfDeadCellsHE;
-  TProfile* NumberOfDeadCellsHO;
-  TProfile* NumberOfDeadCellsHF;
+  TProfile* ProblemsVsLB;
+  TProfile* ProblemsVsLB_HB;
+  TProfile* ProblemsVsLB_HE;
+  TProfile* ProblemsVsLB_HO;
+  TProfile* ProblemsVsLB_HF;
 
-  TProfile* NumberOfNeverPresentCells;
-  TProfile* NumberOfNeverPresentCellsHB;
-  TProfile* NumberOfNeverPresentCellsHE;
-  TProfile* NumberOfNeverPresentCellsHO;
-  TProfile* NumberOfNeverPresentCellsHF;
+  TProfile* NumberOfNeverPresentDigis;
+  TProfile* NumberOfNeverPresentDigisHB;
+  TProfile* NumberOfNeverPresentDigisHE;
+  TProfile* NumberOfNeverPresentDigisHO;
+  TProfile* NumberOfNeverPresentDigisHF;
 
-  TProfile* NumberOfUnoccupiedCells;
-  TProfile* NumberOfUnoccupiedCellsHB;
-  TProfile* NumberOfUnoccupiedCellsHE;
-  TProfile* NumberOfUnoccupiedCellsHO;
-  TProfile* NumberOfUnoccupiedCellsHF;
+  TProfile* NumberOfRecentMissingDigis;
+  TProfile* NumberOfRecentMissingDigisHB;
+  TProfile* NumberOfRecentMissingDigisHE;
+  TProfile* NumberOfRecentMissingDigisHO;
+  TProfile* NumberOfRecentMissingDigisHF;
 
 
-  TProfile* NumberOfEnergyNeverPresentCells;
-  TProfile* NumberOfEnergyNeverPresentCellsHB;
-  TProfile* NumberOfEnergyNeverPresentCellsHE;
-  TProfile* NumberOfEnergyNeverPresentCellsHO;
-  TProfile* NumberOfEnergyNeverPresentCellsHF;
+  TProfile* NumberOfNeverPresentRecHits;
+  TProfile* NumberOfNeverPresentRecHitsHB;
+  TProfile* NumberOfNeverPresentRecHitsHE;
+  TProfile* NumberOfNeverPresentRecHitsHO;
+  TProfile* NumberOfNeverPresentRecHitsHF;
 
-  TProfile* NumberOfBelowEnergyCells;
-  TProfile* NumberOfBelowEnergyCellsHB;
-  TProfile* NumberOfBelowEnergyCellsHE;
-  TProfile* NumberOfBelowEnergyCellsHO;
-  TProfile* NumberOfBelowEnergyCellsHF;
+  TProfile* NumberOfRecentMissingRecHits;
+  TProfile* NumberOfRecentMissingRecHitsHB;
+  TProfile* NumberOfRecentMissingRecHitsHE;
+  TProfile* NumberOfRecentMissingRecHitsHO;
+  TProfile* NumberOfRecentMissingRecHitsHF;
 
 };
 
