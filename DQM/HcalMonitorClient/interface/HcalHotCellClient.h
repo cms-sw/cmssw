@@ -30,14 +30,17 @@ class HcalHotCellClient : public HcalBaseClient {
   void beginJob();
   
   /// EndJob
-  void endJob(std::map<HcalDetId, unsigned int>& myqual);
+  void endJob();
   
   /// BeginRun
   void beginRun(const EventSetup& c);
   
   /// EndRun
-  void endRun(void);
+  void endRun(std::map<HcalDetId, unsigned int>& myqual);
   
+  // Update Channel Status (called by EndRun)
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+
   /// Setup
   void setup(void);
   

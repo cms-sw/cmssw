@@ -6,31 +6,31 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
                           Online                    = cms.untracked.bool(False), 
-                          # number of luminosity blocks to check
+
+                          dump2database       = cms.untracked.bool(False), # dumps channel status to text file
+
+                          # maximum number of lumi blocks to appear in some histograms
                           Nlumiblocks = cms.untracked.int32(1000),
                           subSystemFolder           = cms.untracked.string('Hcal'),
                           processName               = cms.untracked.string(''),
                           inputfile                 = cms.untracked.string(''),
                           baseHtmlDir               = cms.untracked.string('.'),
                           MonitorDaemon             = cms.untracked.bool(True),
-                          diagnosticPrescaleTime    = cms.untracked.int32(-1),
+
+                          # run actual client either every N events or M lumi blocks (or both)
                           diagnosticPrescaleEvt     = cms.untracked.int32(200),
                           diagnosticPrescaleLS      = cms.untracked.int32(-1),
-                          diagnosticPrescaleUpdate  = cms.untracked.int32(-1),
-                          resetFreqTime             = cms.untracked.int32(-1),
                           resetFreqEvents           = cms.untracked.int32(-1),
                           resetFreqLS               = cms.untracked.int32(-1),
-                          resetFreqUpdates          = cms.untracked.int32(-1),
-                          enableExit                = cms.untracked.bool(False),
-                          #DoPerChanTests            = cms.untracked.bool(False), # is this used anywhere?
+                          
                           # Variables from which subtasks may inherit
-                          subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
+                          subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'), # we should get rid of this at some point
                           debug                     = cms.untracked.int32(0),
                           showTiming                = cms.untracked.bool(False),
-                          fillUnphysicalIphi        = cms.untracked.bool(True),
-
 
                           BadCells = cms.untracked.vstring(),
+
+
 
                           # Reference Pedestal Client,
                           ReferencePedestalClient                       = cms.untracked.bool(True),
@@ -38,17 +38,12 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           ReferencePedestalClient_nominalPedWidthInADC  = cms.untracked.double(1.),
                           ReferencePedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
                           ReferencePedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
-                          ReferencePedestalClient_pedestalsInFC         = cms.untracked.bool(True),
-                          ReferencePedestalClient_startingTimeSlice     = cms.untracked.int32(0),
-                          ReferencePedestalClient_endingTimeSlice       = cms.untracked.int32(1),
                           ReferencePedestalClient_minErrorFlag          = cms.untracked.double(0.05),
                           
                           # DigiClient
-                          DigiClient                = cms.untracked.bool(True),
-                          #digiErrorFrac             = cms.untracked.double(0.05),
-                          #CapIdMEAN_ErrThresh       = cms.untracked.double(1.5),
-                          #CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
-
+                          DigiClient                 = cms.untracked.bool(True),
+                          DigiClient_minErrorFlag    = cms.untracked.double(0.05),
+ 
                           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
                           # Detector diagnostic Monitors  
                           DetDiagPedestalClient     = cms.untracked.bool(False),
@@ -126,9 +121,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     
     client.Online                                 = monitor.Online
     client.Nlumiblocks                            = monitor.Nlumiblocks
-    client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
-
-    
+    client.dump2database                          = monitor.dump2database
 
     # Beam Client
     client.BeamClient                             = monitor.BeamMonitor
@@ -160,9 +153,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.ReferencePedestalClient_nominalPedWidthInADC    = monitor.ReferencePedestalMonitor_nominalPedWidthInADC
     client.ReferencePedestalClient_maxPedMeanDiffADC       = monitor.ReferencePedestalMonitor_maxPedMeanDiffADC
     client.ReferencePedestalClient_maxPedWidthDiffADC      = monitor.ReferencePedestalMonitor_maxPedWidthDiffADC
-    client.ReferencePedestalClient_pedestalsInFC           = monitor.ReferencePedestalMonitor_pedestalsInFC
-    client.ReferencePedestalClient_startingTimeSlice       = monitor.ReferencePedestalMonitor_startingTimeSlice
-    client.ReferencePedestalClient_endingTimeSlice         = monitor.ReferencePedestalMonitor_endingTimeSlice
     client.ReferencePedestalClient_makeDiagnosticPlots     = monitor.ReferencePedestalMonitor_makeDiagnosticPlots
     #client.ReferencePedestalClient_minErrorFlag           = monitor.ReferencePedestalMonitor_minErrorFlag # want to keep these separate?
 

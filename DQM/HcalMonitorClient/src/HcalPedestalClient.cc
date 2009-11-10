@@ -16,9 +16,6 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   nominalPedWidthInADC_     = ps.getUntrackedParameter<double>("ReferencePedestalClient_nominalPedWidthInADC",1);
   maxPedMeanDiffADC_        = ps.getUntrackedParameter<double>("ReferencePedestalClient_maxPedMeanDiffADC",1);
   maxPedWidthDiffADC_       = ps.getUntrackedParameter<double>("ReferencePedestalClient_maxPedWidthDiffADC",1);
-  doFCpeds_                 = ps.getUntrackedParameter<bool>("ReferencePedestalClient_pedestalsInFC",1);
-  startingTimeSlice_        = ps.getUntrackedParameter<int>("ReferencePedestalClient_startingTimeSlice",0);
-  endingTimeSlice_          = ps.getUntrackedParameter<int>("ReferencePedestalClient_endingTimgSlice",1);
   minErrorFlag_             = ps.getUntrackedParameter<double>("ReferencePedestalClient_minErrorFlag",0.05);
   makeDiagnostics_          = ps.getUntrackedParameter<bool>("ReferencePedestalClient_makeDiagnosticPlots",false);
 

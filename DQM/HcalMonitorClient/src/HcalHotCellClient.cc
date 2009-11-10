@@ -2,11 +2,10 @@
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 
 #include <math.h>
 #include <iostream>
-
-#define BITSHIFT 6
 
 HcalHotCellClient::HcalHotCellClient(){} // constructor 
 
@@ -132,7 +131,7 @@ void HcalHotCellClient::beginRun(const EventSetup& eventSetup)
 } // void HcalHotCellClient::beginRun(void)
 
 
-void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual) 
+void HcalHotCellClient::endJob()
 {
   if (showTiming_)
     {
@@ -141,99 +140,7 @@ void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 
   if ( debug_>1 ) std::cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << std::endl;
 
-  // Write to database at end of run, or end of job?
-  if (dump2database_==true) // don't do anything special unless specifically asked to dump db file
-    {
-      float binval;
-      int ieta=0;
-      int iphi=0;
-      int etabins=0;
-      int phibins=0;
-
-      int subdet=0;
-      ostringstream subdetname;
-      if (debug_>1)
-	{
-	  std::cout <<"<HcalHotCellClient>  Summary of Hot Cells in Run: "<<std::endl;
-	  std::cout <<"(Error rate must be >= "<<minErrorFlag_*100.<<"% )"<<std::endl;  
-	}
-      for (int d=0;d<4;++d)
-	{
-	  etabins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsX();
-	  phibins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsY();
-	  for (int hist_eta=0;hist_eta<etabins;++hist_eta)
-	    {
-	      ieta=CalcIeta(hist_eta,d+1);
-	      if (ieta==-9999) continue;
-	      for (int hist_phi=0;hist_phi<phibins;++hist_phi)
-		{
-		  iphi=hist_phi+1;
-		 
-		  // ProblemCells have already been normalized
-		  binval=ProblemCellsByDepth.depth[d]->getBinContent(hist_eta+1,hist_phi+1);
-		  
-		  // Set subdetector labels for output
-		   if (d<2)
-		    {
-		      if (isHB(hist_eta,d+1)) 
-			{
-			  subdetname <<"HB";
-			  subdet=1;
-			}
-		      else if (isHE(hist_eta,d+1)) 
-			{
-			  subdetname<<"HE";
-			  subdet=2;
-			}
-		      else if (isHF(hist_eta,d+1)) 
-			{
-			  subdetname<<"HF";
-			  subdet=4;
-			}
-		    }
-		  else if (d==2) 
-		    {
-		      subdetname <<"HE";
-		      subdet=2;
-		    }
-		  else if (d==3) 
-		    {
-		      subdetname<<"HO";
-		      subdet=3;
-		    }
-		  // Set correct depth label
-
-		  HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
-		  // Need this to keep from flagging non-existent HE/HF cells
-		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
-		    continue;
-		  if (binval<=minErrorFlag_)
-		    continue;
-		  if (debug_>0)
-		    std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
-
-		  // if we've reached here, hot cell condition was met
-		  int value=1;
-
-		  if (myqual.find(myid)==myqual.end())
-		    {
-		      myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
-		    }
-		  else
-		    {
-		      int mask=(1<<BITSHIFT);
-		      if (value==1)
-			myqual[myid] |=mask;
-		  
-		      else
-			myqual[myid] &=~mask;
-		    }
-		
-		} // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
-	    } // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
-	} // for (int d=0;d<4;++d)
-    } // if (dump2database_==true)
-  //this->cleanup();
+  this->cleanup();
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient ENDJOB -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -243,22 +150,118 @@ void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 } // void HcalHotCellClient::endJob(void)
 
 
-void HcalHotCellClient::endRun(void) 
+void HcalHotCellClient::endRun(std::map<HcalDetId, unsigned int>& myqual) 
 {
   if (showTiming_)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
   calculateProblems();
-  // write to DB here as well?
-  //this->cleanup();
+  updateChannelStatus(myqual);
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient ENDRUN -> "<<cpu_timer.cpuTime()<<std::endl;
     }
-  //calculateProblems();
   return;
 } // void HcalHotCellClient::endRun(void)
+
+void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
+{
+  if (!dump2database_) return;
+  float binval;
+  int ieta=0;
+  int iphi=0;
+  int etabins=0;
+  int phibins=0;
+  
+  int subdet=0;
+  stringstream subdetname;
+  if (debug_>1)
+    {
+      std::cout <<"<HcalHotCellClient>  Summary of Hot Cells in Run: "<<std::endl;
+      std::cout <<"(Error rate must be >= "<<minErrorFlag_*100.<<"% )"<<std::endl;  
+    }
+  for (int d=0;d<4;++d)
+    {
+      etabins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsX();
+      phibins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+	{
+	  ieta=CalcIeta(hist_eta,d+1);
+	  if (ieta==-9999) continue;
+	  for (int hist_phi=0;hist_phi<phibins;++hist_phi)
+	    {
+	      iphi=hist_phi+1;
+	      
+	      // ProblemCells have already been normalized
+	      binval=ProblemCellsByDepth.depth[d]->getBinContent(hist_eta+1,hist_phi+1);
+	      
+	      // Set subdetector labels for output
+	      if (d<2)
+		{
+		  if (isHB(hist_eta,d+1)) 
+		    {
+		      subdetname <<"HB";
+		      subdet=1;
+		    }
+		  else if (isHE(hist_eta,d+1)) 
+		    {
+		      subdetname<<"HE";
+		      subdet=2;
+		    }
+		  else if (isHF(hist_eta,d+1)) 
+		    {
+		      subdetname<<"HF";
+		      subdet=4;
+		    }
+		}
+	      else if (d==2) 
+		{
+		  subdetname <<"HE";
+		  subdet=2;
+		}
+	      else if (d==3) 
+		{
+		  subdetname<<"HO";
+		  subdet=3;
+		}
+	      // Set correct depth label
+	      
+	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+	      // Need this to keep from flagging non-existent HE/HF cells
+	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
+		continue;
+
+	      int hotcell=0;
+	      if (binval>minErrorFlag_)
+		hotcell=1;
+	      if (hotcell==1 && debug_>0)
+		std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+	      
+	      // DetID not found in quality list; add it.  (This shouldn't happen!)
+	      if (myqual.find(myid)==myqual.end())
+		{
+		  myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellHot);  // hotcell shifted to bit 6
+		}
+	      else
+		{
+		  int mask=(1<<HcalChannelStatus::HcalCellHot);
+		  // hot cell found; 'or' the hot cell mask with existing ID
+		  if (hotcell==1)
+		    myqual[myid] |=mask;
+		  // cell is not found, 'and' the inverse of the mask with the existing ID.
+		  // Does this work correctly?  I think so, but need to verify.
+		  // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		  else
+		    myqual[myid] &=~mask;
+		}
+	      
+	    } // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
+	} // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
+    } // for (int d=0;d<4;++d)
+
+
+} //void HcalHotCellClient::updateChannelStatus
 
 
 void HcalHotCellClient::setup(void) 

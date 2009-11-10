@@ -3,6 +3,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 //--------------------------------------------------------
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
@@ -24,8 +26,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   maxlumisec_=0; minlumisec_=0;
 
-  actonLS_=false;
-
   summary_client_ = 0;
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
@@ -33,12 +33,13 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   tp_client_=0;
   ct_client_=0;
   beam_client_=0;
-  lastResetTime_=0;
+  
   //////////////////////////////////////////////////////////////////
   detdiagped_client_=0; 
   detdiagled_client_=0;
   detdiaglas_client_=0; 
   //////////////////////////////////////////////////////////////////
+
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if (debug_>0)
     std::cout << endl<<" *** Hcal Monitor Client ***" << endl<<endl;
@@ -58,7 +59,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();
-  
+  if (debug_>1) dbe_->showDirStructure();   
+
   // DQM ROOT input
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
   if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << endl;
@@ -71,12 +73,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   }
 
   //histogram reset freqency, update frequency, timeout
-  resetUpdate_ = ps.getUntrackedParameter<int>("resetFreqUpdates",-1);  //number of collector updates
-  if(resetUpdate_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetUpdate_ <<" collector updates." << endl;
   resetEvents_ = ps.getUntrackedParameter<int>("resetFreqEvents",-1);   //number of real events
   if(resetEvents_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetEvents_ <<" events." << endl;
-  resetTime_ = ps.getUntrackedParameter<int>("resetFreqTime",-1);       //number of minutes
-  if(resetTime_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetTime_ <<" minutes." << endl;
   resetLS_ = ps.getUntrackedParameter<int>("resetFreqLS",-1);       //number of lumisections
   if(resetLS_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetLS_ <<" lumi sections." << endl;
 
@@ -88,23 +86,15 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 	std::cout << "-->HTML output will go to baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
       else std::cout << "-->HTML output is disabled" << endl;
     }
-
-  // exit on end job switch
-  enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
-  if (debug_>1)
-    {
-      if( enableExit_ ) std::cout << "-->enableExit switch is ON" << endl;
-      else std::cout << "-->enableExit switch is OFF" << endl;
-    }
   
-  runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false);
-  dump2database_ = false; // controls whether we write bad cells to database
-
+  runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false); // unnecessary? Or use for offline client processing?
   if (debug_>1)
     {
       if( runningStandalone_ ) std::cout << "-->standAlone switch is ON" << endl;
       else std::cout << "-->standAlone switch is OFF" << endl;
     }
+
+  dump2database_ = ps.getUntrackedParameter<bool>("dump2database",false);
 
   // clients' constructors
   if( ps.getUntrackedParameter<bool>("SummaryClient", true) )
@@ -187,9 +177,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     detdiaglas_client_->init(ps, dbe_,"DetDiagLaserClient");
   }
   ///////////////////////////////////////////////////////////////
-
-  dqm_db_ = new HcalHotCellDbInterface();  // Is this even necessary?
-
   
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
@@ -198,27 +185,11 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
   if (debug_>0) std::cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
-  if (prescaleLS_>0) actonLS_=true;
-
-  prescaleUpdate_ = ps.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
-  if (debug_>0) std::cout << "===>DQM update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
-
-  prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
-  if (debug_>0) std::cout << "===>DQM time prescale = " << prescaleTime_ << " minute(s)"<< endl;
-  
 
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   if (debug_>0) std::cout << "===>HcalMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
-
-  
-  gettimeofday(&psTime_.startTV,NULL);
-  /// get time in milliseconds, convert to minutes
-  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0);
-  psTime_.startTime /= (60.0*1000.0);
-  psTime_.elapsedTime=0;
-  psTime_.updateTime=0;
 
   return;
 }
@@ -317,6 +288,13 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( detdiagled_client_ ) detdiagled_client_->beginRun();
   if( detdiaglas_client_ ) detdiaglas_client_->beginRun();
   /////////////////////////////////////////////////////////
+
+  if (!dump2database_) return;
+  
+  edm::ESHandle<HcalChannelQuality> p;
+  c.get<HcalChannelQualityRcd>().get(p);
+  chanquality_= new HcalChannelQuality(*p.product());
+  cout <<"GOT DB INFO!"<<endl;
   return;
 }
 
@@ -330,8 +308,8 @@ void HcalMonitorClient::endJob(void) {
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
-  if( dead_client_ )           dead_client_->endJob(myquality_);
-  if( hot_client_ )            hot_client_->endJob(myquality_);
+  if( dead_client_ )           dead_client_->endJob();
+  if( hot_client_ )            hot_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
   if( led_client_ )            led_client_->endJob();
   if( laser_client_ )          laser_client_->endJob();
@@ -343,121 +321,6 @@ void HcalMonitorClient::endJob(void) {
   if( detdiagled_client_ ) detdiagled_client_->endJob();
   if( detdiaglas_client_ ) detdiaglas_client_->endJob();
   /////////////////////////////////////////////////////////
-
-  /*
-  ///Don't leave this here!!!  FIX ME!
-  ///Just a temporary example!!
-  time_t rawtime;
-  time(&rawtime);
-  tm* ptm = gmtime(&rawtime);
-  char ntime[256];
-  sprintf(ntime,"%4d-%02d-%02d %02d:%02d:%02d.0",  
-	  ptm->tm_year+1900, 
-	  ptm->tm_mon,  ptm->tm_mday,
-	  ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
-  
-  const char* version = "V2test";
-  const char* tag = "test3";
-  const char* comment = "Test DQM Input";
-  const char* detector = "HCAL";
-  int iovStart = irun_;
-  int iovEnd = irun_;
-
-  try{
-    XMLPlatformUtils::Initialize();
-    DOMDocument* doc = dqm_db_->createDocument();
-    //dqm_db_->createHeader(doc, irun_, getRunStartTime());
-    dqm_db_->createHeader(doc,irun_,ntime);
-    for(int i=0; i<4; i++){
-      HcalSubdetector subdet = HcalBarrel;
-      if(i==1) subdet =  HcalEndcap;
-      else if(i==2) subdet = HcalForward;
-      else if(i==3) subdet = HcalOuter;
-
-      for(int ieta=-42; ieta<=42; ieta++){
-	if(ieta==0) continue;
-	for(int iphi=1; iphi<=73; iphi++){
-	  for(int depth=1; depth<=4; depth++){	    
-	    if(!isValidGeom(i, ieta, iphi,depth)) continue;
-
-	    HcalDetId id(subdet,ieta,iphi,depth);
-	    HcalDQMChannelQuality::Item item;
-	    item.mId = id.rawId();
-	    item.mAlgo = 0;
-	    item.mMasked = 0;
-	    item.mQuality = 2;
-	    item.mComment = "First DQM Channel Quality test";
-	    dqm_db_->createDataset(doc,item,ntime,version);
-	  }
-	}
-      }
-    }
-    dqm_db_->createFooter(doc,iovStart, iovEnd,tag,detector,comment);
-    dqm_db_->writeDocument(doc,"myTestXML.xml");
-    doc->release();
-  }
-  catch (...){
-    std::cerr << "Exception" << std::endl;
-  }
-  XMLPlatformUtils::Terminate();
-  */
-
-  // dumping to database
-
-  if (dump2database_)
-    {
-      if (debug_>0) std::cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
-      std::vector<DetId> mydetids = chanquality_->getAllChannels();
-      HcalChannelQuality* newChanQual = new HcalChannelQuality();
-      for (unsigned int i=0;i<mydetids.size();++i)
-	{
-	  if (mydetids[i].det()!=4) continue; // not hcal
-	  //HcalDetId id(mydetids[i]);
-	  HcalDetId id=mydetids[i];
-	  // get original channel status item
-	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
-	  // make copy of status
-	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  if (myquality_.find(id)!=myquality_.end())
-	    {
-	      // Set bit 1 for cells which aren't present 	 
-	      /*if ((id.subdet()==HcalBarrel &&!HBpresent_) || 	 
-		  (id.subdet()==HcalEndcap &&!HEpresent_) || 	 
-		  (id.subdet()==HcalOuter  &&!HOpresent_) || 	 
-		  (id.subdet()==HcalForward&&!HFpresent_))*/
-	      
-	      // Update -- why do the check that subdetector is present?
-	      // In normal running, if subdetector out of run, we'll still
-	      // want to mark that as bad.
-	      if (id.subdet()==HcalBarrel || id.subdet()==HcalEndcap ||
-		  id.subdet()==HcalOuter || id.subdet()==HcalForward )
-		{ 	 
-		  mystatus->setBit(1); 	 
-		} 	 
-	      // Only perform these checks if bit 0 not set?
-	      // check dead cells
-	      if ((myquality_[id]>>5)&0x1)
-		  mystatus->setBit(5);
-	      else
-		mystatus->unsetBit(5);
-	      // check hot cells
-	      if ((myquality_[id]>>6)&0x1)
-		mystatus->setBit(6);
-	      else
-		mystatus->unsetBit(6);
-	    } // if (myquality_.find_...)
-	  newChanQual->addValues(*mystatus);
-	  // Clean up pointers to avoid memory leaks
-	  delete origstatus;
-	  delete mystatus;
- 	} // for (unsigned int i=0;...)
-      // Now dump out to text file
-      std::ostringstream file;
-      file <<"HcalDQMstatus_"<<irun_<<".txt";
-      std::ofstream outStream(file.str().c_str());
-      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
-
-    } // if (dump2databse_)
 
   return;
 }
@@ -477,9 +340,8 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
     else report(false);
   }
 
-  if( summary_client_)      summary_client_->endRun();
-  if( hot_client_ )         hot_client_->endRun();
-  if( dead_client_ )        dead_client_->endRun(); 
+  if( dead_client_ )        dead_client_->endRun(myquality_);
+  if( hot_client_ )         hot_client_->endRun(myquality_);
   if( dataformat_client_ )  dataformat_client_->endRun();
   if( digi_client_ )        digi_client_->endRun();
   if( rechit_client_ )      rechit_client_->endRun();
@@ -494,15 +356,48 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( detdiagled_client_ ) detdiagled_client_->endRun();
   if( detdiaglas_client_ ) detdiaglas_client_->endRun();
   /////////////////////////////////////////////////////////
+  if( summary_client_)      summary_client_->endRun();
+  // dumping to database
+  
+  if (dump2database_)
+    {
+      if (debug_>0) std::cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
+      std::vector<DetId> mydetids = chanquality_->getAllChannels();
+      HcalChannelQuality* newChanQual = new HcalChannelQuality();
+      for (unsigned int i=0;i<mydetids.size();++i)
+	{
+	  if (mydetids[i].det()!=DetId::Hcal) continue; // not hcal
 
-  // this is an effective way to avoid ROOT memory leaks ...
-  if( enableExit_ ) {
-    if (debug_>0) std::cout << endl << ">>> exit after End-Of-Run <<<" << endl <<endl;
-        
-    endJob();
-    throw cms::Exception("End of Job")
-      << "HcalMonitorClient: Done processing...\n";
-  }
+	  HcalDetId id=mydetids[i];
+	  // get original channel status item
+	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
+	  // make copy of status
+	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+	  // loop over myquality flags
+	  if (myquality_.find(id)!=myquality_.end())
+	    {
+
+	      // check dead cells
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
+		  mystatus->setBit(HcalChannelStatus::HcalCellDead);
+	      else
+		mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
+	      // check hot cells
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
+		mystatus->setBit(HcalChannelStatus::HcalCellHot);
+	      else
+		mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
+	    } // if (myquality_.find_...)
+	  newChanQual->addValues(*mystatus);
+ 	} // for (unsigned int i=0;...)
+      // Now dump out to text file
+      std::ostringstream file;
+      file <<"HcalDQMstatus_"<<irun_<<".txt";
+      std::ofstream outStream(file.str().c_str());
+      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
+
+    } // if (dump2databse_)
+
 }
 
 //--------------------------------------------------------
@@ -526,18 +421,13 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
   if( detdiagled_client_ ) detdiagled_client_->SetLS(l.luminosityBlock());
   if( detdiaglas_client_ ) detdiaglas_client_->SetLS(l.luminosityBlock());
   /////////////////////////////////////////////////////////
-
-  if(actonLS_ && !prescale()){
-    // do scheduled tasks...
-  }
-
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
   // then do your thing
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
-  if(actonLS_ && !prescale()){
+  if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...
     analyze();
   }
@@ -551,14 +441,8 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   if (debug_>1)
     std::cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
   
-  if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
+  if(resetEvents_>0 && (ievt_%resetEvents_)==0) resetAllME(); // use ievt_ here, not ievent_, since ievent is the event #, not the # of events processed
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
-  int deltaT = itime_-lastResetTime_;
-  if(resetTime_>0 && (deltaT>resetTime_)){
-    resetAllME();
-    lastResetTime_ = itime_;
-  }
-
 
   // environment datamembers
   irun_     = e.id().run();
@@ -574,21 +458,14 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
   if (debug_>1) 
     std::cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
-
-  ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
-
+  
+  ievt_++; 
 
   // Need to increment summary client on every event, not just when prescale is called, since summary_client_ plots error rates/event.
+  // Is this still true?  10 Nov 2009
   if( summary_client_ ) 
-    {
-      summary_client_->incrementCounters(); // All this does is increment a counter.
-      /*
-      // No reason this has to be done on first event, right?
-      // counters are initialized to -1 in setup
-      if (ievt_ ==1) {
-      summary_client_->analyze();}}        // Check if HBHE, HO, or HF is in the run at all.
-      */
-    }
+    summary_client_->incrementCounters(); // All this does is increment a counter.
+
   if ( runningStandalone_ || prescale()) return;
   
   else analyze();
@@ -1062,90 +939,48 @@ void HcalMonitorClient::offlineSetup(){
   //  std::cout << endl;
   //  std::cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
   //  std::cout << endl;
-  /*
-  dataformat_client_ = 0; digi_client_ = 0;
-  rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0;  hot_client_ = 0; laser_client_ = 0;
-  dead_client_=0;
-  beam_client_=0;
-
-  // base Html output directory
-  baseHtmlDir_ = ".";
-  
-  // clients' constructors
-  hot_client_          = new HcalHotCellClient();
-  dead_client_         = new HcalDeadCellClient();
-  dataformat_client_   = new HcalDataFormatClient();
-  rechit_client_       = new HcalRecHitClient();
-  digi_client_         = new HcalDigiClient();
-  pedestal_client_     = new HcalPedestalClient();
-  led_client_          = new HcalLEDClient();
-  laser_client_        = new HcalLaserClient();
-  beam_client_         = new HcalBeamClient();
-  */
   return;
 }
 
-void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
-  
+void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname)
+{
   if(!infile){
     throw cms::Exception("Incomplete configuration") << 
       "HcalMonitorClient: this histogram file is bad! " <<endl;
     return;
   }
   return;
-
 }
 
 
-void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector<TH2F*> &hist2d){
-  
+void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector<TH2F*> &hist2d)
+{
   hist1d.clear(); 
   hist2d.clear(); 
- return;
+  return;
 }
 
 //--------------------------------------------------------
 bool HcalMonitorClient::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
+
   ///    Accommodate a logical "OR" of the possible tests
   if (debug_>1) std::cout <<"HcalMonitorClient::prescale"<<endl;
   
-  //First determine if we care...
-  bool evtPS =    prescaleEvt_>0;
-  bool lsPS =     prescaleLS_>0;
-  bool timePS =   prescaleTime_>0;
-  bool updatePS = prescaleUpdate_>0;
+  // If no prescales are set, return 'false'.  (This means that we should process the event.)
+  if(prescaleEvt_<=0 && prescaleLS_<=0) return false;
 
-  // If no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
+  // Now check whether event should be kept.  Assume that it should not by default
 
-  //check each instance
-  if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
-  // BAH!  This doesn't work -- ievent is the raw event number, and doesn't have to be in strict numerical order.  Use ievt instead.
-  //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
-  if (evtPS && (ievt_%prescaleEvt_)!=0) evtPS = false;
-  if(timePS){
-    float time = psTime_.elapsedTime - psTime_.updateTime;
-    if(time<prescaleTime_){
-      timePS = false;  //timestamp veto
-      psTime_.updateTime = psTime_.elapsedTime;
-    }
-  }
-  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
+  bool keepEvent=false;
   
-  if (debug_>1) 
-    std::cout<<"HcalMonitor::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ls: "<<ilumisec_<<"/"<<lsPS<<", time: "<<(psTime_.elapsedTime - psTime_.updateTime)<<"/"<<timePS<<endl;
-  /*
-  printf("HcalMonitorClient::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
-	 ievent_,evtPS,
-	 ilumisec_,lsPS,
-	 psTime_.elapsedTime - psTime_.updateTime,timePS);
-  */
-
+  // Keep event if prescaleLS test is met or if prescaleEvt test is met
+  if(prescaleLS_>0 && (ilumisec_%prescaleLS_)==0) keepEvent = true; // check on ls prescale; 
+  if (prescaleEvt_>0 && (ievt_%prescaleEvt_)==0) keepEvent = true; // 
+  
   // if any criteria wants to keep the event, do so
-  if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
-  return true;
+  if (keepEvent) return false;  // event should be kept; don't apply prescale
+  return true; // apply prescale by default
 }
 
 
