@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.9 2009/08/19 13:39:21 bbetchar Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.10 2009/09/14 14:01:03 nc302 Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -46,6 +46,12 @@ namespace sistrip {
 	edm::LogWarning("DigiToRawModule") 
 	  << "[sistrip::DigiToRawModule::DigiToRawModule]"
 	  << " UNKNOWN readout mode: " << pset.getParameter<std::string>("FedReadoutMode");
+      }} break;
+    case READOUT_MODE_SPY: {
+      if( edm::isDebugEnabled()) {
+	edm::LogWarning("DigiToRawModule") 
+	  << "[sistrip::DigiToRawModule::DigiToRawModule]"
+	  << " Digi to raw is not supported for spy channel data";
       }} break;
     }
     if(pset.getParameter<bool>("UseWrongDigiType")) {
