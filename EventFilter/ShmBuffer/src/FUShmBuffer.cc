@@ -517,7 +517,12 @@ void FUShmBuffer::writeDqmEmptyEvent()
 void FUShmBuffer::scheduleRawEmptyCellForDiscard()
 {
   FUShmRawCell* cell=rawCellToWrite();
-  scheduleRawEmptyCellForDiscard(cell);
+  rawDiscardIndex_=cell->index();
+  setEvtState(cell->index(),evt::EMPTY);
+  setEvtNumber(cell->index(),0xffffffff);
+  setEvtPrcId(cell->index(),0);
+  setEvtTimeStamp(cell->index(),0);
+  postRawDiscarded();
 }
 
 
