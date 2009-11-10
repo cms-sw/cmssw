@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.21 2009/06/18 20:52:36 lowette Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.22 2009/11/03 17:48:16 wto Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -15,10 +15,9 @@
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace sistrip;
@@ -73,17 +72,9 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     return;
   } 
 
-  // Check pointer to MUI
-  if ( !mui_ ) {
-    edm::LogError(mlDqmClient_)
-      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " NULL pointer to DQMOldReceiver!";
-    return;
-  }
-
   // Check pointer to BEI
-  DQMStore* bei = mui_->getBEInterface();
-  if ( !bei ) {
+  // is this needed here? bei_ = edm::Service<DQMStore>().operator->();
+  if ( !bei_ ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " NULL pointer to DQMStore!";
@@ -108,21 +99,21 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::PEDS_FULL_NOISE ) { histos_ = new PedsFullNoiseHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( pset, mui_, db ); }
+  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDS_FULL_NOISE ) { histos_ = new PedsFullNoiseHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::CALIBRATION ||
             runType_ == sistrip::CALIBRATION_DECO ||
             runType_ == sistrip::CALIBRATION_SCAN ||
             runType_ == sistrip::CALIBRATION_SCAN_DECO)
-                                                { histos_ = new CalibrationHistosUsingDb( pset, mui_, db, runType_ ); }
+                                                { histos_ = new CalibrationHistosUsingDb( pset, bei_, db, runType_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
     histos_ = 0; 
     edm::LogError(mlDqmClient_)

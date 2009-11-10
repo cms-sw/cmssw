@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.21 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.22 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -12,28 +12,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( const edm::ParameterSet & pset,
-                                                          DQMOldReceiver* mui,
-							  SiStripConfigDb* const db ) 
+                                                          DQMStore* bei,
+                                                          SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
-                             mui,
+                             bei,
                              sistrip::FAST_CABLING ),
     CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::FAST_CABLING ),
-    FastFedCablingHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
-                              mui )
-{
-  LogTrace(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( const edm::ParameterSet & pset,
-                                                          DQMStore* bei,
-							  SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
                                 sistrip::FAST_CABLING ),
     FastFedCablingHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
                               bei )

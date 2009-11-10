@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.5 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.6 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
@@ -13,28 +13,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMOldReceiver* mui,
-					      SiStripConfigDb* const db )
+                                              DQMStore* bei,
+                                              SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
-                             mui,
+                             bei,
                              sistrip::PEDS_ONLY ),
     CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::PEDS_ONLY ),
-    PedsOnlyHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
-                        mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMStore* bei,
-					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
                                 sistrip::PEDS_ONLY ),
     PedsOnlyHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
                         bei )

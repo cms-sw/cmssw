@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.16 2009/09/04 09:36:08 lowette Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.17 2009/11/02 18:52:51 lowette Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -22,34 +22,16 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMOldReceiver* mui,
-						SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
-                             mui,
-                             FINE_DELAY ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                FINE_DELAY ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
-                        mui,
-                        FINE_DELAY ),
-    tracker_(0)
-{
-  LogTrace(mlDqmClient_) 
-    << "[FineDelayHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-  delays_.clear();
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
                                                 DQMStore* bei,
-						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db ),
+                                                SiStripConfigDb* const db ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
+                             bei,
+                             sistrip::FINE_DELAY ),
+    CommissioningHistosUsingDb( db,
+                             sistrip::FINE_DELAY ),
     SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
                         bei,
-                        FINE_DELAY ),
+                        sistrip::FINE_DELAY ),
     tracker_(0)
 {
   LogTrace(mlDqmClient_) 

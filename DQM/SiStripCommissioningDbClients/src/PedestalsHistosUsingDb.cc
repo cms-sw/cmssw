@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.23 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.24 2009/10/09 09:27:07 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -13,16 +13,15 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMOldReceiver* mui,
-						SiStripConfigDb* const db )
+                                                DQMStore* bei,
+                                                SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
-                             mui,
+                             bei,
                              sistrip::PEDESTALS ),
     CommissioningHistosUsingDb( db,
-                                mui,
                                 sistrip::PEDESTALS ),
     PedestalsHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
-                         mui )
+                         bei )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -33,21 +32,6 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Set FED zero suppression high/low threshold to "
     << highThreshold_ << "/" << lowThreshold_;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMStore* bei,
-						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
-                                sistrip::PEDESTALS ),
-    PedestalsHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
-                         bei )
-{
-  LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------

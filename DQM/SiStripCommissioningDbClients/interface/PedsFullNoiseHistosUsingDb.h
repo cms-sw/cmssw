@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.h,v 1.10 2009/06/18 20:52:35 lowette Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.h,v 1.1 2009/11/03 17:48:16 wto Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H
@@ -11,11 +11,9 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
   public:
 
     PedsFullNoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                DQMOldReceiver*,
-                                SiStripConfigDb* const );
-    PedsFullNoiseHistosUsingDb( const edm::ParameterSet & pset,
                                 DQMStore*,
                                 SiStripConfigDb* const );
+
     virtual ~PedsFullNoiseHistosUsingDb();
 
     virtual void uploadConfigurations();

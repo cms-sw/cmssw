@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.18 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.19 2009/07/13 23:14:46 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -7,7 +7,6 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +17,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
-							sistrip::RunType type )
+                                                        sistrip::RunType type )
   : CommissioningHistograms(),
     runType_(type),
     db_(db),
@@ -61,53 +60,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
-							DQMOldReceiver* const mui,
-							sistrip::RunType type )
-  : CommissioningHistograms( edm::ParameterSet(), mui, type ),
-    runType_(type),
-    db_(db),
-    cabling_(0),
-    detInfo_(),
-    disabled_(),
-    uploadAnal_(true),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
-{
-  LogTrace(mlDqmClient_) 
-    << "[" << __PRETTY_FUNCTION__ << "]"
-    << " Constructing object...";
-  
-  // Build FEC cabling object from connections found in DB
-  SiStripFecCabling fec_cabling;
-  if ( runType_ == sistrip::FAST_CABLING ) {
-    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_, fec_cabling );
-  } else {
-    SiStripFedCablingBuilderFromDb::buildFecCabling( db_, fec_cabling );
-  }
-  
-  // Build FED cabling from FEC cabling
-  cabling_ = new SiStripFedCabling();
-  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *cabling_ );
-  std::stringstream ss;
-  ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-     << " Terse print out of FED cabling:" << std::endl;
-  cabling_->terse(ss);
-  LogTrace(mlDqmClient_) << ss.str();
-  
-  std::stringstream sss;
-  sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Summary of FED cabling:" << std::endl;
-  cabling_->summary(sss);
-  edm::LogVerbatim(mlDqmClient_) << sss.str();
-  
-}
-
-// -----------------------------------------------------------------------------
-/** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
-  : CommissioningHistograms( edm::ParameterSet(), reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
+  : CommissioningHistograms(),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     db_(0),
     cabling_(0),

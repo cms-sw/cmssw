@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.23 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.1 2009/11/03 17:48:16 wto Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"
@@ -13,38 +13,25 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedsFullNoiseHistosUsingDb::PedsFullNoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                                        DQMOldReceiver* mui,
-                                                        SiStripConfigDb* const db )
-  : CommissioningHistograms( 	pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
-                             	mui,
-                             	sistrip::PEDS_FULL_NOISE ),
+                                                        DQMStore* bei,
+                                                        SiStripConfigDb* const db ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
+                             bei,
+                             sistrip::PEDS_FULL_NOISE ),
     CommissioningHistosUsingDb( db,
-                                mui,
                                 sistrip::PEDS_FULL_NOISE ),
-    PedsFullNoiseHistograms( 	pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
-                             	mui ){
-  LogTrace(mlDqmClient_) 
+    PedsFullNoiseHistograms( pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
+                             bei )
+{
+    LogTrace(mlDqmClient_) 
     << "[PedsFullNoiseHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
   highThreshold_ = this->pset().getParameter<double>("HighThreshold");
   lowThreshold_ = this->pset().getParameter<double>("LowThreshold");
-  edm::LogInfo(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[PedsFullNoiseHistosUsingDb::" << __func__ << "]"
     << " Set FED zero suppression high/low threshold to "
     << highThreshold_ << "/" << lowThreshold_;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedsFullNoiseHistosUsingDb::PedsFullNoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                                        DQMStore* bei,
-                                                        SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,sistrip::PEDS_FULL_NOISE ),
-    PedsFullNoiseHistograms(pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),bei ){
-  	
-    LogTrace(mlDqmClient_) 
-    << "[PedsFullNoiseHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------

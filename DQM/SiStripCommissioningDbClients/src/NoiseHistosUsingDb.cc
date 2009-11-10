@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.3 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.4 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
@@ -13,28 +13,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                        DQMOldReceiver* mui,
-					SiStripConfigDb* const db )
+                                        DQMStore* bei,
+                                        SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                             mui,
+                             bei,
                              sistrip::NOISE ),
     CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::NOISE ),
-    NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                     mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[NoiseHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                        DQMStore* bei,
-					SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
                                 sistrip::NOISE ),
     NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
                      bei )

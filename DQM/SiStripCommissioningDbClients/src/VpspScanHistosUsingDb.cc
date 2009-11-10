@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.18 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -12,27 +12,13 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMOldReceiver* mui,
-					      SiStripConfigDb* const db ) 
+                                              DQMStore* bei,
+                                              SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                             mui,
+                             bei,
                              sistrip::VPSP_SCAN ),
     CommissioningHistosUsingDb( db,
                                 sistrip::VPSP_SCAN ),
-    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                        mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMStore* bei,
-					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
     VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
                         bei )
 {

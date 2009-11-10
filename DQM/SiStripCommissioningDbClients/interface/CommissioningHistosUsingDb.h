@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.12 2009/05/29 12:58:18 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.13 2009/05/29 13:28:21 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -13,26 +13,18 @@
 
 class SiStripConfigDb;
 class SiStripFedCabling;
-class DQMOldReceiver;
 
 class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
+ // ---------- public interface ----------
+
  public:
 
-  // ---------- con(de)structors ----------
-
-  // DEPRECATE
   CommissioningHistosUsingDb( SiStripConfigDb* const,
-			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
+                              sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
 
-  CommissioningHistosUsingDb( SiStripConfigDb* const,
-			      DQMOldReceiver* const,			      
-			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
-  
   virtual ~CommissioningHistosUsingDb();
 
-  // ---------- public interface ----------
-  
   void uploadToConfigDb();
   
   bool doUploadAnal() const;
@@ -51,7 +43,7 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   void disableBadStrips( bool );
   
-  // ---------- protected methods ----------
+ // ---------- protected methods ----------
 
  protected:
   
@@ -90,7 +82,7 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   void disableProblemDevices();
   
-  // ---------- private member data ----------
+ // ---------- private member data ----------
   
  private: 
   

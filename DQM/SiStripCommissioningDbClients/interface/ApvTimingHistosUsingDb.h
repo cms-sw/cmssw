@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.10 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.11 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
@@ -11,12 +11,8 @@ class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimi
  public:
 
   ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
-                          DQMOldReceiver*,
-			  SiStripConfigDb* const );
-
-  ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
                           DQMStore*,
-			  SiStripConfigDb* const );
+                          SiStripConfigDb* const );
 
   virtual ~ApvTimingHistosUsingDb();
   

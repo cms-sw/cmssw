@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.20 2009/09/04 09:57:41 lowette Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.21 2009/11/02 18:52:51 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -14,32 +14,16 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( const edm::ParameterSet & pset,
-                                            DQMOldReceiver* mui,
-					    SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
-                             mui,
-                             APV_LATENCY ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                APV_LATENCY ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
-                        mui,
-                        APV_LATENCY )
-{
-  LogTrace(mlDqmClient_) 
-    << "[LatencyHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( const edm::ParameterSet & pset,
                                             DQMStore* bei,
-					    SiStripConfigDb* const db )
-  : CommissioningHistosUsingDb( db ),
+                                            SiStripConfigDb* const db )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
+                             bei,
+                             sistrip::APV_LATENCY ),
+    CommissioningHistosUsingDb( db,
+                                sistrip::APV_LATENCY ),
     SamplingHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
                         bei,
-                        APV_LATENCY )
+                        sistrip::APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"

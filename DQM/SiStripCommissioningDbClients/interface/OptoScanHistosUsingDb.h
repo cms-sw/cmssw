@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.11 2009/06/18 20:52:35 lowette Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.12 2009/10/09 09:27:06 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
@@ -11,12 +11,8 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
  public:
   
   OptoScanHistosUsingDb( const edm::ParameterSet & pset,
-                         DQMOldReceiver*,
-			 SiStripConfigDb* const );
-  
-  OptoScanHistosUsingDb( const edm::ParameterSet & pset,
                          DQMStore*,
-			 SiStripConfigDb* const );
+                         SiStripConfigDb* const );
 
   virtual ~OptoScanHistosUsingDb();
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.26 2009/06/18 20:52:36 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.27 2009/07/13 22:38:55 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -13,30 +13,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMOldReceiver* mui,
-						SiStripConfigDb* const db ) 
+                                                DQMStore* bei,
+                                                SiStripConfigDb* const db ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                             mui,
+                             bei,
                              sistrip::APV_TIMING ),
     CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::APV_TIMING ),
-    ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                         mui ),
-    uploadFecSettings_(true),
-    uploadFedSettings_(true)
-{
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMStore* bei,
-						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
                                 sistrip::APV_TIMING ),
     ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
                          bei ),

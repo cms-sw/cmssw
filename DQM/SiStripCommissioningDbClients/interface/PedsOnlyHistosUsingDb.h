@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.h,v 1.2 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.h,v 1.3 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedsOnlyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedsOnlyHistosUsingDb_H
@@ -11,12 +11,8 @@ class PedsOnlyHistosUsingDb : public CommissioningHistosUsingDb, public PedsOnly
  public:
 
   PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
-                         DQMOldReceiver*,
-			 SiStripConfigDb* const );
-  
-  PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
                          DQMStore*,
-			 SiStripConfigDb* const );
+                         SiStripConfigDb* const );
   
   virtual ~PedsOnlyHistosUsingDb();
  

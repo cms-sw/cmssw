@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.10 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.11 2009/06/18 20:52:36 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -17,61 +17,16 @@ std::string getBasePath (const std::string &path)
   return path.substr(0,path.find(std::string(sistrip::root_) + "/")+sizeof(sistrip::root_) );
 }
 
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & pset,
-                                                    DQMOldReceiver* mui,
-						    SiStripConfigDb* const db,
-						    const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                             mui,
-                             task ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                task ),
-    CalibrationHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                           mui,
-                           task )
-{
-  LogTrace(mlDqmClient_) 
-    << "[CalibrationHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-  // Load and dump the current ISHA/VFS values. This is used by the standalone analysis script
-  const SiStripConfigDb::DeviceDescriptionsRange & apvDescriptions = db->getDeviceDescriptions(APV25);
-  for(SiStripConfigDb::DeviceDescriptionsV::const_iterator apv = apvDescriptions.begin();apv!=apvDescriptions.end();++apv) {
-    apvDescription* desc = dynamic_cast<apvDescription*>( *apv );
-    if ( !desc ) { continue; }
-    // Retrieve device addresses from device description
-    const SiStripConfigDb::DeviceAddress& addr = db->deviceAddress(*desc);
-    std::stringstream bin;
-    bin        << std::setw(1) << std::setfill('0') << addr.fecCrate_;
-    bin << "." << std::setw(2) << std::setfill('0') << addr.fecSlot_;
-    bin << "." << std::setw(1) << std::setfill('0') << addr.fecRing_;
-    bin << "." << std::setw(3) << std::setfill('0') << addr.ccuAddr_;
-    bin << "." << std::setw(2) << std::setfill('0') << addr.ccuChan_;
-    bin << "." << desc->getAddress();
-    LogTrace(mlDqmClient_) << "Present values for ISHA/VFS of APV " 
-			   << bin.str() << " : " 
-			   << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
-  }
-  // Load the histograms with the results
-  std::string pwd = bei()->pwd();
-  std::string ishaPath = getBasePath(pwd);
-  ishaPath += "/ControlView/isha";
-  LogTrace(mlDqmClient_) << "Looking for " << ishaPath;
-  ishaHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(ishaPath) );
-  std::string vfsPath = getBasePath(pwd);
-  vfsPath += "/ControlView/vfs";
-  LogTrace(mlDqmClient_) << "Looking for " << vfsPath;
-  vfsHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(vfsPath) );
-
-}
-
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & pset,
                                                     DQMStore* bei,
-						    SiStripConfigDb* const db,
-						    const sistrip::RunType& task ) 
-  : CommissioningHistosUsingDb( db,
+                                                    SiStripConfigDb* const db,
+                                                    const sistrip::RunType& task ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
+                             bei,
+                             task ),
+    CommissioningHistosUsingDb( db,
                                 task ),
     CalibrationHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
                            bei,
