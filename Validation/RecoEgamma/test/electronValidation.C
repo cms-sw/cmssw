@@ -6,6 +6,7 @@ TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
 TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
 TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
 TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
+TString val_comment = gSystem->Getenv("VAL_COMMENT") ;
 
 TString val_web = gSystem->Getenv("VAL_WEB") ;
 TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
@@ -133,11 +134,11 @@ web_page
   <<"</head>\n"
   <<"<h1><a href=\"../\">"<<val_new_release<<" vs "<<val_ref_release<<"</a> / "<<DBS_SAMPLE<<"</h1>\n" ;
 
-web_page<<"<p>" ;
+web_page<<"<p>"<<val_comment ;
 if (file_ref==0)
  {
   web_page
-	 <<"In all plots below"
+	 <<" In all plots below"
 	 <<", there was no "<<val_ref_release<<" histograms to compare with"
      <<", and the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
 	 <<"." ;
@@ -145,7 +146,7 @@ if (file_ref==0)
 else
  {
   web_page
-	 <<"In all plots below"
+	 <<" In all plots below"
      <<", the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
 	 <<", and the <a href=\""<<val_ref_file_url<<"\">"<<val_ref_release<<" histograms</a> are in blue"
 	 <<"." ;

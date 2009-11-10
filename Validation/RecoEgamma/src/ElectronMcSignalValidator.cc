@@ -633,8 +633,8 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
             h1_ele_ChargeMnChargeTrue->Fill( fabs(gsfIter->charge()-mc_charge));
             // require here a charge mismatch
             if
-             ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ||
-               (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) )
+             ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ) ||
+               ( (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) ) )
              {
               double tmpGsfRatio = gsfIter->p()/mcIter->p();
               if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
@@ -725,7 +725,8 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
           if ( deltaR < deltaR_ )
            {
-            if ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) || (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) )
+            if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
+                 ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
              {
               double tmpGsfRatio = gsfIter->p()/mcIter->p() ;
               if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )

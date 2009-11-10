@@ -19,6 +19,8 @@
 # $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
 #   it is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
 #
+# VAL_COMMENT : a comment to inserted at the beginning of the web page, which generally
+#   explains the specificity of the new release if this is not straightforward.
 # VAL_NEW_RELEASE : chosen name for the new release to validate ; used in web pages
 #   and used to build the path where the web pages will be stored.
 # VAL_REF_RELEASE : chosen name of the old release to compare with ; used in web pages,
