@@ -168,28 +168,28 @@ with the local modified code.
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCorePt35">
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-MC-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreZEEStartup">
@@ -198,14 +198,14 @@ with the local modified code.
       <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V8">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
     <environment name="RedoFromCoreQcdPt80-120">
       <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
     </environment>
   
   </environment>
@@ -218,28 +218,28 @@ with the local modified code.
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawPt35">
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-MC-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawZEEStartup">
@@ -248,14 +248,14 @@ with the local modified code.
       <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V8">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawQcdPt80-120">
       <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
       <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-RECO.root">
       <executable name="dbs_discovery.py">
-      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
   </environment>
