@@ -274,9 +274,18 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
   for(unsigned int j = 0; j < vnoise.size(); ++j){
     
     if(j >= nstrips) break; 
-    if(veff[j] == 0) continue;
+    
+    // The efficiency of 0% does not imply on the noise rate. 
+    // If the strip is masked the noise rate should be 0 Hz/cm^2 
+    //    if(veff[j] == 0) continue;
 
-    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
+
+    //    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
+    // The vnoise is the noise rate per strip, so we shout multiply not 
+    // by the chamber area, 
+    // but the strip area which is area/((float)roll->nstrips()));
+    double ave = 
+      vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips());
 
     N_hits = poissonDistribution_->fire(ave);
 
