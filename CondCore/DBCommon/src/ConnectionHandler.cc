@@ -35,7 +35,7 @@ cond::ConnectionHandler::registerConnection(const std::string& userconnect,
   //std::cout<<"realconnect "<<realconnect<<std::endl;
   */
   m_registry.insert(std::make_pair(userconnect, new cond::Connection(realconnect,connectionTimeOutInSec)));
-  ptr->setupSession(session);
+  // ptr->setupSession(session);
 }
 void
 cond::ConnectionHandler::removeConnection(const std::string& name ){

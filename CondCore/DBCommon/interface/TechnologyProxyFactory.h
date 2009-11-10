@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 namespace cond{
-  typedef edmplugin::PluginFactory< cond::TechnologyProxy*(const std::string&) > TechnologyProxyFactory;
+  typedef edmplugin::PluginFactory< cond::TechnologyProxy*() > TechnologyProxyFactory;
 
   inline std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy (const std::string&userconnect){
     std::string protocol;

@@ -178,8 +178,8 @@ const std::string& cond::DbSession::connectionString() const {
   return m_implementation->m_connectionString;
 }
 
-const DbConnection& connection() const {
-  return *m_implementation->m_connection;
+cond::DbConnection const & connection() const {
+  return *(m_implementation->m_connection);
 }
 
 

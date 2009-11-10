@@ -1,11 +1,10 @@
-#include "SQLiteProxy.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/TechnologyProxy.h"
 #include <string>
 namespace cond{
   class SQLiteProxy:public TechnologyProxy{
   public:
-    explicit SQLiteProxy({}
+    explicit SQLiteProxy(){}
     ~SQLiteProxy(){}
     void initialize(const DbConnection&){}
     std::string 
