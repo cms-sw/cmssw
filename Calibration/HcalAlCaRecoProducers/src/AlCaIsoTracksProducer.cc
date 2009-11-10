@@ -63,7 +63,7 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
-bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, edm::InputTag hltFilterTag_, double eta, double phi)
+bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, std::vector<std::string> hltFilterTag_, double eta, double phi, double hltMatchingCone_)
 {
   bool match =false;
   double minDDD=1000;
@@ -76,7 +76,14 @@ bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, edm::InputTag
   const trigger::size_type nFilt(trEv->sizeFilters());
   for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
     {
-      if (trEv->filterTag(iFilt)==hltFilterTag_) KEYS=trEv->filterKeys(iFilt);
+      for (unsigned l=0; l<hltFilterTag_.size(); l++)
+	{
+	  if (trEv->filterTag(iFilt).label()==hltFilterTag_[l]) 
+	    {
+	      std::cout<<hltFilterTag_[l]<<std::endl;
+	      KEYS=trEv->filterKeys(iFilt);
+	    }
+	}
     }
   trigger::size_type nReg=KEYS.size();
   for (trigger::size_type iReg=0; iReg<nReg; iReg++)
@@ -85,14 +92,40 @@ bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, edm::InputTag
       double dHit=getDist(TObj.eta(),TObj.phi(),eta,phi); 
       if (dHit<minDDD) minDDD=dHit;
     }
-  if (minDDD>0.4) match=false;
+  if (minDDD>hltMatchingCone_) match=false;
   else match=true;
      
   return match;
-
-
 }
 
+std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::InputTag hltEventTag_, std::string l1FilterTag_)
+{
+  edm::Handle<trigger::TriggerEvent> trEv;
+  iEvent.getByLabel(hltEventTag_,trEv);
+  const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
+  
+  trigger::Keys KEYS;
+  const trigger::size_type nFilt(trEv->sizeFilters());
+  for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++)
+    {
+      if (trEv->filterTag(iFilt).label()==l1FilterTag_) KEYS=trEv->filterKeys(iFilt); 
+    }
+  trigger::size_type nReg=KEYS.size();
+  double etaTrig=-10000;
+  double phiTrig=-10000;
+  double ptMax=0;
+  for (trigger::size_type iReg=0; iReg<nReg; iReg++)
+    {
+      const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
+      if (TObj.pt()>ptMax)
+	{
+	  etaTrig=TObj.eta();
+	  phiTrig=TObj.phi();
+	  ptMax=TObj.pt();
+	}
+    }
+  return std::pair<double,double>(etaTrig,phiTrig);
+}
 
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
@@ -124,9 +157,15 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   ringOutRad_ = iConfig.getParameter<double>("ECALRingOuterRadius");
   ringInnRad_=iConfig.getParameter<double>("ECALRingInnerRadius");  
 
+  useECALCluMatrix_=iConfig.getParameter<bool>("ClusterECALasMatrix");
+  matrixSize_=iConfig.getParameter<int>("ECALMatrixFullSize");
+
   checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");  
-  hltFiltTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+  hltFiltTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
+  hltMatchingCone_=iConfig.getParameter<double>("hltMatchingCone");
+  l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
+  l1jetVetoCone_=iConfig.getParameter<double>("l1JetVetoCone");
   
   //////////
 //
@@ -226,6 +265,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double ptrack = sqrt(px*px+py*py+pz*pz);
     
     if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
+
+    // check that track is not in the region of L1 jet
+    double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).first,getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).second);
+    if (l1jDR<l1jetVetoCone_) continue;
+    ///
 	    
     TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
     
@@ -234,9 +278,9 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     
 //    double thetaecal = 2*atan(exp(-etaecal));
 
-    //check matching to HLT object to make sure that ecal FEDs are present (optional)
+    //check matching to HLT object (optional)
 
-    if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltEventTag_, hltFiltTag_, etaecal, phiecal)) continue;
+    if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltEventTag_, hltFiltTag_, etaecal, phiecal,hltMatchingCone_)) continue;
     
     if (fabs(etaecal)>etaMax_) continue;
     
@@ -296,12 +340,42 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       {
 	//find ecal cluster energy and write ecal recHits
 	double ecClustR=0;
+	double ecClustN=0;
 	double ecOutRingR=0;
 	usedHits.clear();
+
+	//get index of ECAL crystal hit by track
+	std::vector<const EcalRecHit*> crossedECids=info.crossedEcalRecHits;
+	int etaIDcenter=-10000;
+	int phiIDcenter=-10000;
+	double enMax=0;
+	for (unsigned int i=0; i<crossedECids.size(); i++)
+	  {
+	    if ((*crossedECids[i]).id().subdetId()==EcalEndcap)
+	      {
+		EEDetId did(crossedECids[i]->id());
+		if (crossedECids[i]->energy()>enMax)
+		  {
+		    enMax=crossedECids[i]->energy();
+		    etaIDcenter=did.iy();
+		    phiIDcenter=did.ix();
+		  }
+	      }
+	    if ((*crossedECids[i]).id().subdetId()==EcalBarrel)
+	      {
+		EBDetId did(crossedECids[i]->id());
+		if (crossedECids[i]->energy()>enMax)
+		  {
+		    enMax=crossedECids[i]->energy();
+		    etaIDcenter=did.ieta();
+		    phiIDcenter=did.iphi();
+		  }
+	      }
+	  }
 	for (std::vector<EcalRecHit>::const_iterator ehit=tmpEcalRecHitCollection->begin(); ehit!=tmpEcalRecHitCollection->end(); ehit++) 
 	  {
-	    ////////////////////// FIND ECAL CLUSTER ENERGY
-	    // R-scheme of ECAL CLUSTERIZATION
+	  	    ////////////////////// FIND ECAL CLUSTER ENERGY
+	    // R scheme of ECAL CLUSTERIZATION
 	    GlobalPoint posH = geo->getPosition((*ehit).detid());
 	    double phihit = posH.phi();
 	    double etahit = posH.eta();
@@ -309,35 +383,37 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    double dHit=getDist(etaecal,phiecal,etahit,phihit);
 	    
 	    double dHitCM=getDistInCM(etaecal,phiecal,etahit,phihit);
-	    
 	    if (dHitCM<cluRad_)
 	      {
 		ecClustR+=ehit->energy();
 	      }
+	    
 	    if (dHitCM>ringInnRad_&&dHitCM<ringOutRad_)
 	      {
 		ecOutRingR+=ehit->energy();
 	      }
 	    //////////////////////////////////
-			    
-	    // check whether hit was used or not, if not used push into usedHits
+	    //NxN scheme & check whether hit was used or not, if not used push into usedHits
 	    bool hitIsUsed=false;
 	    int hitHashedIndex=-10000;
 	    if (ehit->id().subdetId()==EcalBarrel)
 	      {
 		EBDetId did(ehit->id());
 		hitHashedIndex=did.hashedIndex();
+		if (fabs(did.ieta()-etaIDcenter)<=matrixSize_/2&&fabs(did.iphi()-phiIDcenter)<=matrixSize_/2) ecClustN+=ehit->energy();
 	      }
 	    
 	    if (ehit->id().subdetId()==EcalEndcap)
 	      {
 		EEDetId did(ehit->id());
 		hitHashedIndex=did.hashedIndex();
+		if (fabs(did.iy()-etaIDcenter)<=matrixSize_/2&&fabs(did.ix()-phiIDcenter)<=matrixSize_/2) ecClustN+=ehit->energy();
 	      }
 	    for (uint32_t i=0; i<usedHits.size(); i++)
 	      {
 		if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
 	      }
+
 	    if (hitIsUsed) continue; //skip if used
 	    usedHits.push_back(hitHashedIndex);
 	    /////////////////////////////////
@@ -375,7 +451,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	newHITCandidate.SetMaxPtPxl(maxPNearby);
 
 	//set cluster energy deposition and ring energy deposition and push_back
-	newHITCandidate.SetEnergyIn(ecClustR);
+	if (!useECALCluMatrix_) newHITCandidate.SetEnergyIn(ecClustR);
+	else newHITCandidate.SetEnergyIn(ecClustN);
 	newHITCandidate.SetEnergyOut(ecOutRingR);
 	outputHcalIsoTrackColl->push_back(newHITCandidate);
 
@@ -400,6 +477,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    double dHit=getDist(etaecal,phiecal,etahit,phihit);
 	    
 	    if(dHit<1.)  
+
 	      {
 		outputHColl->push_back(*hhit);
 	      }

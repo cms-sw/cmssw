@@ -82,13 +82,22 @@ private:
   bool skipNeutrals_;
   bool checkHLTMatch_;
   edm::InputTag hltEventTag_;
-  edm::InputTag hltFiltTag_;
+  std::vector<std::string> hltFiltTag_;
+  double hltMatchingCone_;
 
   double isolE_;
   double etaMax_;
   double cluRad_;
   double ringOutRad_;
   double ringInnRad_;
+
+  bool useECALCluMatrix_;
+  int matrixSize_;
+  int matrixInnerSize_;
+  int matrixOuterSize_;
+  
+  std::string l1FilterTag_;
+  double l1jetVetoCone_;
 
 };
 

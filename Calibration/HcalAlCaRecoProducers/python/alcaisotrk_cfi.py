@@ -22,7 +22,12 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     MinTrackP = cms.double(10.0),
     CheckHLTMatch=cms.bool(False),
     hltTriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD"),
-    hltL3FilterLabel = cms.InputTag("hltIsolPixelTrackFilter::HLT")
+    hltL3FilterLabels = cms.vstring("hltIsolPixelTrackL3FilterHB8E29","hltIsolPixelTrackL3FilterHE8E29"),
+    hltMatchingCone=cms.double(0.2),
+    ClusterECALasMatrix	= cms.bool (False),
+    ECALMatrixFullSize	= cms.int32(7),
+    l1FilterLabel = cms.string("hltL1sIsoTrack8E29"),
+    l1JetVetoCone = cms.double (1.2)
 )
 
 
