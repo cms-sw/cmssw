@@ -1,12 +1,10 @@
-#ifndef BasicGenTest_h
-#define BasicGenTest_h
 /*class BasicGenTest
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
  *  BasicGenTest:
- *  $Date: 2009/07/23 22:02:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/18 16:55:05 $
+ *  $Revision: 1.4 $
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
 
 // framework & common header files
@@ -14,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -25,7 +22,6 @@
 class BasicGenTest : public edm::EDAnalyzer
 {
  public:
-
   explicit BasicGenTest(const edm::ParameterSet&);
   virtual ~BasicGenTest();
   virtual void beginJob(const edm::EventSetup&);
@@ -53,5 +49,3 @@ class BasicGenTest : public edm::EDAnalyzer
   MonitorElement *Part_ID;
   MonitorElement *Bjorken_x;
 };
-
-#endif
