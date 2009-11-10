@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.cc,v 1.4 2007/11/01 21:56:37 fedor Exp $
+// $Id: JetCorrector.cc,v 1.5 2009/09/24 13:08:28 bainbrid Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -13,7 +13,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 double JetCorrector::correction (const reco::Jet& fJet, 
-				 const edm::Event& fEvent, 
+				 const edm::RefToBase<reco::Jet>& fJetRef,
+				 const edm::Event& fEvent,
 				 const edm::EventSetup& fSetup) const {
   if (eventRequired ()) {
     edm::LogError ("Missing Jet Correction Method") 
