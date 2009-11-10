@@ -101,7 +101,7 @@ def new_resetHistory(self):
     self.resetModifiedObjects()
 cms.Process.resetHistory=new_resetHistory
 
-def new_dumpHistory(self):
+def new_dumpHistory(self,withImports=True):
     dumpHistory=[]
     for item,objects in self.history():
         if isinstance(item,str):
@@ -109,7 +109,7 @@ def new_dumpHistory(self):
         else: # isTool
             dump=item.dumpPython()
             if isinstance(dump,tuple):
-                if dump[0] not in dumpHistory:
+                if withImports and dump[0] not in dumpHistory:
                     dumpHistory.append(dump[0])
                 dumpHistory.append(dump[1])
             else:
