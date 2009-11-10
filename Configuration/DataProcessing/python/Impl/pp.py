@@ -77,7 +77,7 @@ class pp(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
         options.isMC = False
         options.isData = True
         options.eventcontent = None

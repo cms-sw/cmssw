@@ -38,9 +38,9 @@ class relvalmc(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'
-        options.isMC = False
-        options.isData = True
+        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM,ENDJOB'
+        options.isMC = True
+        options.isData = False
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
@@ -75,9 +75,9 @@ class relvalmc(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
-        options.isMC = False
-        options.isData = True
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
+        options.isMC = True
+        options.isData = False
         options.eventcontent = None
         options.relval = None
         options.beamspot = None

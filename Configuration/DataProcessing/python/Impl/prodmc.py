@@ -38,9 +38,9 @@ class prodmc(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_prod,DQM:DQMOfflinePOG'
-        options.isMC = False
-        options.isData = True
+        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_prod,DQM:DQMOfflinePOG,ENDJOB'
+        options.isMC = True
+        options.isData = False
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
@@ -75,7 +75,7 @@ class prodmc(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
         options.isMC = False
         options.isData = True
         options.eventcontent = None
