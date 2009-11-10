@@ -369,8 +369,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
   if(!epInitialized_) evtProcessor_.forceInitEventProcessorMaybe();
-  std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
 
+  std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+  configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
   //classic appl will return here 
   if(nbSubProcesses_.value_==0) return enableClassic();
 
@@ -399,7 +400,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  // the loop is broken in the child 
 	}
     }
-
+  
   startScalersWorkLoop();
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
   fsm_.fireEvent("EnableDone",this);
@@ -453,14 +454,14 @@ xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
 void FUEventProcessor::actionPerformed(xdata::Event& e)
 {
 
-  if (e.type()=="ItemChangedEvent" && !(fsm_.stateName()->toString()=="Halted")) {
+  if (e.type()=="ItemChangedEvent" && fsm_.stateName()->toString()!="Halted") {
     string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
     if ( item == "parameterSet") {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "HLT Menu changed, force reinitialization of EventProcessor");
       epInitialized_ = false;
     }
-    
-
     if ( item == "outputEnabled") {
       if(outprev_ != outPut_) {
 	LOG4CPLUS_WARN(getApplicationLogger(),
@@ -469,7 +470,6 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 	outprev_ = outPut_;
       }
     }
-    
     if (item == "globalInputPrescale") {
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Setting global input prescale has no effect "

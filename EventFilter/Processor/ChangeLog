@@ -1,5 +1,10 @@
 2009-11-09 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V02-00-05
+	* update HLT menu upon reconfiguration on start
+
+2009-11-09 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V02-00-04
 	* fix one deadlock in slave and stuck summarize loop in stopping
 	
