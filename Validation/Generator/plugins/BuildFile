@@ -2,6 +2,7 @@
 <use name=DQMOffline/RecoB>
 <use name=DQMServices/Core>
 <use name=Validation/RecoB>
-<library file="BasicGenTest.cc" name=BasicGenTest>
-     <flags EDM_PLUGIN=1>
+<use name=Validation/Generator>
+<library name=ValidationGenerator_plugins file=*.cc>
+ <flags EDM_PLUGIN=1>
 </library>
