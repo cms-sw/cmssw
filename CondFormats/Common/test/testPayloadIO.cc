@@ -21,8 +21,12 @@
 #include <vector>
 
 
-
+#ifdef ALLCLASSES
+#include "CondFormats/THEPACKAGE/src/classes.h
+#else
 #include "CondFormats/THEPACKAGE/interface/THEHEADER.h"
+#endif
+
 typedef THECLASS Payload;
 
 typedef cond::DataWrapper<Payload> SimplePtr;

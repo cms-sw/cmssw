@@ -37,5 +37,7 @@ namespace {
     cond::DataWrapper<BlobPedestals> d4; 
     pool::PolyPtr<CalibHistograms> p5;
     cond::DataWrapper<CalibHistograms> d5; 
+    pool::PolyPtr<BitArray<9> > p6;
+    cond::DataWrapper<BitArray<9> > d6;
   };
 }

@@ -2,6 +2,8 @@
 # i..e CMSSW_RELEASE_BASE  is not empty
 # at the moment it is the opposite: assumes /CondFormats/Common be in CMSSW_BASE
 #usage class package header
+#grep "class_version" src/classes_def.xml | sed 's/[^"]*"//' | sed 's/".*//'
+
 
 cmsenv
 cd $CMSSW_BASE/src
