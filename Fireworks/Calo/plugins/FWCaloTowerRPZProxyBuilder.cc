@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.15 2009/10/28 15:37:04 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.16 2009/10/31 21:53:31 chrjones Exp $
 //
 
 // system include files
@@ -161,7 +161,7 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
          }
       }
       m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
-      m_data->DataChanged();
+      m_data->CellSelectionChanged();
    }
 }
 

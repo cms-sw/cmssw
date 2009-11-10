@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.6 2009/10/24 14:42:24 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.7 2009/10/25 15:23:04 chrjones Exp $
 //
 
 // system include files
@@ -138,7 +138,7 @@ FW3DLegoEveHistProxyBuilder::modelChangesImp(const FWModelIds&)
    }
    
    m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
-   m_data->DataChanged();
+   m_data->CellSelectionChanged();
 }
 
 void
