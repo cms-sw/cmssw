@@ -38,7 +38,7 @@ class prodmc(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_prod,DQM:DQMOfflinePOG,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_prod,DQM:DQMOfflinePhysics,ENDJOB'
         options.isMC = True
         options.isData = False
         options.beamspot = None
@@ -173,7 +173,7 @@ class prodmc(Scenario):
         """
         options = defaultOptions
         options.scenario = "pp"
-        options.step = "HARVESTING:validationprodHarvesting+dqmHarvestingPOG"
+        options.step = "HARVESTING:validationprodHarvesting"
         options.isMC = False
         options.isData = True
         options.beamspot = None
