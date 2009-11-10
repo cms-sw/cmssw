@@ -278,9 +278,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByLabel(theBeamSpot,recoBeamSpotHandle); 
   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
-  double sigmaZ=recoBeamSpotHandle->sigmaZ();
-  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
-  double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+
+  //not used anymore. take the value from the py
+
+  //double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  //double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  //double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
   x0 = BSPosition_.X();
   y0 = BSPosition_.Y();
   z0 = BSPosition_.Z();

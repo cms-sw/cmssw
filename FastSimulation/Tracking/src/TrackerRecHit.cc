@@ -121,14 +121,10 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const
 	//for the tob-tec now we use TEC layers 1-7 and rings= 5 
 	//	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber < 5;
 	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber == 5;
-      } else if (seedingAlgo == "ThirdMixedPairs"){
-	//up to the third step we use only 2 and ring1&2 
-	isOnDet = theSubDetId==6 && theLayerNumber == 2 && theRingNumber < 3;
-    } else {
-	//on second step we use layer  up to 3 but only ring 1
-	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber == 1 ;
-    }
-
+      } else {
+	//up to the third step we use up to layer 3 and ring2 
+	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber < 3;
+      }
       break;
       
     default:
@@ -177,11 +173,10 @@ TrackerRecHit::makesAPairWith(const TrackerRecHit& anotherHit) const {
     // First Hit on TEC2
     ( ( theSubDetId == 6 && theLayerNumber == 2 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 3 ) ) ||
-
   //Pixelless Pairs  
    // First Hit on TIB1
-    ( ( theSubDetId == 4 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 4 && anotherLayerNumber == 2 ) ||
+    ( (( theSubDetId == 4 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 4 && anotherLayerNumber == 2 )) ||
       ( anotherSubDetId == 3 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TID1
     ( ( theSubDetId == 3 && theLayerNumber == 1 ) && 
@@ -193,17 +188,16 @@ TrackerRecHit::makesAPairWith(const TrackerRecHit& anotherHit) const {
     ( ( theSubDetId == 3 && theLayerNumber == 3 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TEC3
-    ( ( theSubDetId == 6 && theLayerNumber == 3 ) && 
-      ( anotherSubDetId == 6 && anotherLayerNumber == 4 ) || 
+    ( (( theSubDetId == 6 && theLayerNumber == 3 ) && 
+      ( anotherSubDetId == 6 && anotherLayerNumber == 4 )) || 
       ( anotherSubDetId == 6 && anotherLayerNumber == 5 ) ) ||
     // First Hit on TEC4
     ( ( theSubDetId == 6 && theLayerNumber == 4 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 5 ) ) ||
-
   //Tob-Tec pairs
   //first hit on TOB1 
-    ( ( theSubDetId == 5 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 5 && anotherLayerNumber == 2 ) ||
+    ( (( theSubDetId == 5 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 5 && anotherLayerNumber == 2 )) ||
       ( anotherSubDetId == 6 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TEC1
     ( ( theSubDetId == 6 && theLayerNumber == 1 ) && 
@@ -238,8 +232,8 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
   unsigned int anotherLayerNumber = anotherHit.layerNumber();
   isAProperPair = 
     // First hit on PXB1
-    ( ( theSubDetId == 1 && theLayerNumber == 1 ) && (
-      ( anotherSubDetId == 1 && anotherLayerNumber == 2) || 
+    ( (( theSubDetId == 1 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 2)) || 
       ( anotherSubDetId == 2 && anotherLayerNumber == 1) ) || 
       // First hit on PXB2
     ( ( theSubDetId == 1 && theLayerNumber == 2 ) && 
@@ -249,7 +243,7 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
       ( anotherSubDetId == 2 && anotherLayerNumber == 2) ) ||
     // First Hit on PXD2
     ( ( theSubDetId == 2 && theLayerNumber == 2 ) &&  
-      ( anotherSubDetId == 6 && anotherLayerNumber == 2 ) ) );
+      ( anotherSubDetId == 6 && anotherLayerNumber == 2 ) );
 
  return isAProperPair;
 
