@@ -1107,7 +1107,7 @@ void ElectronMcSignalValidator::endJob()
  {
   if (outputFile_!="")
    {
-    setStoreFolder("EgammaV/ElectronMcSignalValidator/ByJob") ;
+    setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
 
     std::cout << "[ElectronMcSignalValidator] efficiency calculation " << std::endl ;
     bookH1andDivide("h_ele_etaEff",h1_ele_simEta_matched,h1_simEta,"#eta","Efficiency","",true);

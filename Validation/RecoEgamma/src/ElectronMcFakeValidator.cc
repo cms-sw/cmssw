@@ -439,12 +439,12 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator()
 
 void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
-  std::cout << "analyzing new event " << std::endl;
-
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel(electronCollection_,gsfElectrons);
-  edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<gsfElectrons.product()->size();
+  edm::LogInfo("ElectronMcFakeValidator::analyze")
+    <<"Treating event "<<iEvent.id()
+    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
 
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
@@ -867,7 +867,7 @@ void ElectronMcFakeValidator::endJob()
  {
   if (outputFile_!="")
    {
-    setStoreFolder("EgammaV/ElectronMcFakeValidator/ByJob") ;
+    setStoreFolder("EgammaV/ElectronMcFakeValidator") ;
 
     // matching object type
     std::string matchingObjectType = "Unknown" ;
