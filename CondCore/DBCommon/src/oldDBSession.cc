@@ -11,7 +11,7 @@
 //pool includes
 #include "POOLCore/IBlobStreamingService.h"
 //local includes
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/oldDBSession.h"
 
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 
