@@ -30,14 +30,14 @@ cond::UtilitiesError::~UtilitiesError() throw(){}
 
 cond::Utilities::Utilities( const std::string& commandName,
                             std::string positionalParameter):m_name(commandName),
-                                                                    m_options(std::string("Usage: ")+m_name+
-                                                                              std::string(" [options] ")+positionalParameter
-                                                                              +std::string(" \n")),
-                                                                    m_positionalOptions(),
-                                                                    m_values(),
-                                                                    m_dbConnection(0),
-                                                                    m_pluginMgrInitialized(false),
-                                                                    m_dbSessions(){
+							     m_options(std::string("Usage: ")+m_name+
+								       std::string(" [options] ")+positionalParameter
+								       +std::string(" \n")),
+							     m_positionalOptions(),
+							     m_values(),
+							     m_dbConnection(0),
+							     m_pluginMgrInitialized(false),
+							     m_dbSessions(){
   m_options.add_options()
     ("debug","switch on debug mode")
     ("help,h", "help message")
@@ -258,11 +258,6 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
     }
   }
   session.setBlobStreamingService( blobStreamingService );
-  if( connectionString.find("sqlite_fip:") != std::string::npos ){
-    cond::FipProtocolParser p;
-    connectionString=p.getRealConnect(connectionString);
-  }
-
   session.open( connectionString );
   return session;
 }
