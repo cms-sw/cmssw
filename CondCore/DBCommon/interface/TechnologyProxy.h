@@ -17,11 +17,10 @@ namespace cond{
   class DbSession;
   class TechnologyProxy{
   public:
-    explicit TechnologyProxy( const  DbSession& isession ): m_session(isession) {}
+    explicit TechnologyProxy( ){}
     virtual ~TechnologyProxy(){}
+    virtual void initialize(const DbConnection& connection)=0;
     virtual std::string getRealConnectString() const=0;
-  protected:
-    DbSession m_session;
   private:
     TechnologyProxy( const TechnologyProxy& );
     const TechnologyProxy& operator=(const TechnologyProxy&); 

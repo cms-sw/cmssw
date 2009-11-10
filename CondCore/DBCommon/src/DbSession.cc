@@ -22,25 +22,31 @@
 #include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
 //#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
 
+#include "CondCore/DBCommon/interface/TechnologyProxy.h"
+
+
 namespace cond {
   class DbSession::SessionImpl {
-    public:
-      SessionImpl();
-      explicit SessionImpl( const DbConnection& connection );
+  public:
+    SessionImpl();
+    explicit SessionImpl( const DbConnection& connection );
+    
+    virtual ~SessionImpl();
+    
+    void open( const std::string& connectionString, bool readOnly );
+    void close();
+    
+    DbConnection* m_connection;
 
-      virtual ~SessionImpl();
+    std::auto_ptr<cond::TechnologyProxy> technologyProxy;
 
-      void open( const std::string& connectionString, bool readOnly );
-      void close();
-
-      DbConnection* m_connection;
-      std::string m_connectionString;
-      std::string m_blobStreamingService;
-      pool::IFileCatalog* m_catalogue;
-      pool::IDataSvc* m_dataSvc;
-      coral::ISessionProxy* m_session;
-      DbTransaction* m_transaction;
-      bool m_isOpen;
+    std::string m_connectionString;
+    std::string m_blobStreamingService;
+    pool::IFileCatalog* m_catalogue;
+    pool::IDataSvc* m_dataSvc;
+    coral::ISessionProxy* m_session;
+    DbTransaction* m_transaction;
+    bool m_isOpen;
   };
   
 }
@@ -97,10 +103,11 @@ void cond::DbSession::SessionImpl::open( const std::string& connectionString, bo
     policy.setReadMode( pool::DatabaseConnectionPolicy::READ );
     m_dataSvc->session().setDefaultConnectionPolicy( policy );
     // open the db connection
-    m_connectionString = connectionString;
-    m_session = &m_dataSvc->configuration().sharedSession( connectionString, (readOnly)? coral::ReadOnly: coral::Update );
+    technologyProxy = buildTechnologyProxy(connectionString);
+    m_connectionString = (*technologyProxy).getRealConnectString();
+    m_session = &m_dataSvc->configuration().sharedSession(m_connectionString, (readOnly)? coral::ReadOnly: coral::Update );
     std::string catalogConnectionString("pfncatalog_memory://POOL_RDBMS?");
-    catalogConnectionString.append(connectionString);
+    catalogConnectionString.append(m_connectionString);
     m_catalogue->setWriteCatalog( catalogConnectionString );
     m_catalogue->connect();
     m_catalogue->start();
@@ -170,6 +177,11 @@ bool cond::DbSession::isOpen() const {
 const std::string& cond::DbSession::connectionString() const {
   return m_implementation->m_connectionString;
 }
+
+const DbConnection& connection() const {
+  return *m_implementation->m_connection;
+}
+
 
 void cond::DbSession::setBlobStreamingService( const std::string& serviceName )
 {

@@ -16,9 +16,9 @@ namespace cond{
   public:
     explicit FrontierProxy(const DbSession& isession);
     ~FrontierProxy();
+    void initialize(const DbConnection& connection);
     std::string getRealConnectString() const;
   private:
-    void setupSession();
     static unsigned int countslash(const std::string& input);
   private:
     std::vector<std::string> m_refreshtablelist;
@@ -56,7 +56,7 @@ cond::FrontierProxy::getRealConnectString() const{
 }
 
 void 
-cond::FrontierProxy::setupSession(){
+cond::FrontierProxy::initialize(const DbConnection& connection){
   std::string refreshConnect;
   std::string realconnect=this->getRealConnectString();
   std::string::size_type startRefresh = realconnect.find("://");
@@ -77,7 +77,7 @@ cond::FrontierProxy::setupSession(){
   std::vector<std::string>::iterator ibeg=m_refreshtablelist.begin();
   std::vector<std::string>::iterator iend=m_refreshtablelist.end();
   for(std::vector<std::string>::iterator it=ibeg; it!=iend; ++it){
-    m_session.connection().webCacheControl().refreshTable(refreshConnect,*it );
+    connection.webCacheControl().refreshTable(refreshConnect,*it );
   }
 }
 unsigned int

@@ -5,10 +5,9 @@
 namespace cond{
   class SQLiteProxy:public TechnologyProxy{
   public:
-    explicit SQLiteProxy(const  DbSession& isession):
-      cond::TechnologyProxy(isession){}
+    explicit SQLiteProxy({}
     ~SQLiteProxy(){}
-    
+    void initialize(const DbConnection&){}
     std::string 
     getRealConnectString( ) const{
       std::string const & userconnect = m_session.connectionString();

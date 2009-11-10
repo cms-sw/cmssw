@@ -2,13 +2,14 @@
 #define CondCore_DBCommon_TechnologyProxyFactory_h
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "CondCore/DBCommon/interface/TechnologyProxy.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+
 #include <memory>
 #include <string>
 namespace cond{
   typedef edmplugin::PluginFactory< cond::TechnologyProxy*(const std::string&) > TechnologyProxyFactory;
 
-  std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy (cond::DBSession& session){
-    const std::string & userconnect = session.connectionString(); 
+  std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy (const std::string&userconnect){
     std::string protocol;
     std::size_t pos=userconnect.find_first_of(':');
     if( pos!=std::string::npos ){
@@ -22,7 +23,7 @@ namespace cond{
     }
     //std::cout<<"userconnect "<<userconnect<<std::endl;
     //std::cout<<"protocol "<<protocol<<std::endl;  
-    std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol,session));
+    std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol));
     return ptr;
   }
 
