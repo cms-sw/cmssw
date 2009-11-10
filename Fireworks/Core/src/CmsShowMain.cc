@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.100 2009/11/10 14:38:11 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.101 2009/11/10 15:02:06 amraktad Exp $
 //
 
 // system include files
@@ -851,7 +851,7 @@ CmsShowMain::setLiveMode()
    m_liveTimer = new SignalTimer();
    ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
 
-   m_live->SetTime(600000);
+   m_liveTimer->SetTime(600000);
    m_liveTimer->Reset();
    m_liveTimer->TurnOn();
 }
@@ -916,7 +916,7 @@ CmsShowMain::notified(TSocket* iSocket)
       // bootstrap case: --port  and no input file
       if (m_inputFileName.empty())
       {
-         m_navigator->firstEventInCurrentFile();
+         m_navigator->firstEvent();
       }
       m_inputFileName = fileName;
       std::stringstream sr;
