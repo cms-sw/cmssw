@@ -294,7 +294,6 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
-  cout <<"GOT DB INFO!"<<endl;
   return;
 }
 
