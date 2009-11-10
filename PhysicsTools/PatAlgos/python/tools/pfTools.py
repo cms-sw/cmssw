@@ -93,9 +93,6 @@ def adaptPFElectrons(process,module):
 def adaptPFPhotons(process,module):
     raise RuntimeError, "Photons are not supported yet"
 
-def adaptPFJets(process,module):
-    module.embedCaloTowers   = False
-
 from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper 
 
 def reconfigureLayer0Taus(process, 
@@ -196,17 +193,35 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     process.patDefaultSequence.remove(getattr(process, 'makeLayer1METs'))
 
 
-def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
-    print 'Jets: using ', input
+def switchToPFJets(process,input=cms.InputTag('pfNoTau'), algo='IC5'):
+
+    print "Switching to PFJets,  ", algo
+    print "************************ "
+
+    if( algo == 'IC5' ):
+        genJetCollectionName = 'iterativeCone5GenJetsNoNu'
+    elif algo == 'AK5':
+        genJetCollectionName = 'ak5GenJetsNoNu'
+    else:
+        print 'bad jet algorithm:', algo, '! for now, only IC5 and AK5 are allowed. If you need other algorithms, please contact Colin'
+        sys.exit(1)
+
+    # changing the jet collection in PF2PAT:
+    from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
+    process.allPfJets = jetAlgo( algo );    
+        
     switchJetCollection(process,
                         input,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=('IC5','PF'), 
+                        jetCorrLabel=( algo, 'PF' ), 
+                        genJetCollection = genJetCollectionName,
                         doType1MET=False)  
-    adaptPFJets(process, process.allLayer1Jets)
 
-def usePF2PAT(process,runPF2PAT=True):
+    process.allLayer1Jets.embedCaloTowers   = False
+
+
+def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
 
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
@@ -240,7 +255,7 @@ def usePF2PAT(process,runPF2PAT=True):
     process.patDefaultSequence.remove(process.patPhotonIsolation)
     
     # Jets
-    switchToPFJets( process, cms.InputTag('pfNoTau') )
+    switchToPFJets( process, cms.InputTag('pfNoTau'), jetAlgo )
     
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
