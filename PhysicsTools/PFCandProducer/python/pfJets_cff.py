@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoJets.JetProducers.ic5PFJets_cfi
 from PhysicsTools.PFCandProducer.ParticleSelectors.ptMinPFJetSelector_cfi import ptMinPFJets as pfJets
+from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
 
 
-allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
-allPfJets.src = 'pfNoElectron'
+#allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
+allPfJets = jetAlgo('IC5')
 
 pfJets.src = 'allPfJets'
 pfJets.ptMin = 10

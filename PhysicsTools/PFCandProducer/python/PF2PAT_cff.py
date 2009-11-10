@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.GeneratorTools.genMetTrue_cff  import *
-
 from PhysicsTools.PFCandProducer.pfMET_cfi  import *
 from PhysicsTools.PFCandProducer.pfNoPileUp_cff  import *
 from PhysicsTools.PFCandProducer.pfElectrons_cff import *
@@ -17,7 +15,7 @@ from PhysicsTools.PFCandProducer.TopProjectors.pfNoJet_cfi import *
 from PhysicsTools.PFCandProducer.TopProjectors.pfNoTau_cfi import *
 
 # generator tools
-from PhysicsTools.PFCandProducer.GeneratorTools.sortGenParticles_cff import *
+from PhysicsTools.PFCandProducer.genForPF2PAT_cff import *
 
 # To reconstruct genjets without the neutrinos
 from RecoJets.Configuration.GenJetParticles_cff import *
@@ -44,12 +42,7 @@ PF2PAT = cms.Sequence(
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +
-    pfNoTau
+    pfNoTau + 
+# putting the following in the sequence, as we don't want to leave the responsibility to forget it to the user.
+    genForPF2PATSequence
     )
-
-
-genForPF2PAT = cms.Sequence(
-    genMetTrueSequence + 
-    genJetParticles +
-    iterativeCone5GenJets
-)
