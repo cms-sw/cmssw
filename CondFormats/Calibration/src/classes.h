@@ -20,25 +20,9 @@
 
 namespace {
   struct dictionary {
-    std::vector< Pedestals::Item >::iterator tmp0;
-    std::vector< Pedestals::Item >::const_iterator tmp1;
-    std::vector< std::vector<BlobNoises::DetRegistry> >::iterator tmp2;
-    std::vector< std::vector<BlobNoises::DetRegistry> >::const_iterator tmp3; 
-    std::vector< mySiStripNoises::DetRegistry >::iterator tmp6;
-    std::vector< mySiStripNoises::DetRegistry >::const_iterator tmp7;   
-    std::vector<CalibHistogram>::iterator tmp14;
-    std::vector<CalibHistogram>::const_iterator tmp15;
-    std::vector<BlobComplexData>::iterator tmp16;
-    std::vector<BlobComplexData>::const_iterator tmp17;
-    std::vector<BlobComplexContent>::iterator tmp18;
-    std::vector<BlobComplexContent>::const_iterator tmp19;
-    std::vector<BlobComplexObjects>::iterator tmp20;
-    std::vector<BlobComplexObjects>::const_iterator tmp21;
     BitArray<9> c;
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
-    std::map<std::string, Algo>::iterator tmp22;
-    std::map<std::string, Algo>::const_iterator tmp23;
   };
   struct wrappers {
     pool::PolyPtr<mySiStripNoises> p0;
