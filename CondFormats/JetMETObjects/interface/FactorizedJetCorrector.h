@@ -14,7 +14,7 @@ class SimpleJetCorrector;
 class FactorizedJetCorrector
 {
   public:
-    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kLepPx,kLepPy,kLepPz};
+    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel};
     enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7};
     FactorizedJetCorrector();
     //FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags);
@@ -28,16 +28,18 @@ class FactorizedJetCorrector
     void setLepPx       (float fLepPx);
     void setLepPy       (float fLepPy);
     void setLepPz       (float fLepPz);
-    void setAddLepToJet (bool fAddLepToJet) {mAddLepToJet = fAddLepToJet;}
+    void setAddLepToJet (bool fAddLepToJet);
     float getCorrection();
     std::vector<float> getSubCorrections();
     
        
   private:
-    //---- Member Functions ----  
+  //---- Member Functions ----  
     FactorizedJetCorrector(const FactorizedJetCorrector&);
     FactorizedJetCorrector& operator= (const FactorizedJetCorrector&);
-    float getPtRel();
+    float getLepPt()    const;
+    float getRelLepPt() const;
+    float getPtRel()    const;
     std::string parseOption(const std::string& ss, const std::string& type);
     std::string removeSpaces(const std::string& ss);
     std::vector<std::string> parseLevels(const std::string& ss);
@@ -63,6 +65,7 @@ class FactorizedJetCorrector
     bool  mIsLepPxset;
     bool  mIsLepPyset;
     bool  mIsLepPzset;
+    bool  mIsAddLepToJetset;
     std::vector<LevelTypes> mLevels;
     std::vector<std::vector<VarTypes> > mParTypes,mBinTypes; 
     std::vector<SimpleJetCorrector*> mCorrectors;

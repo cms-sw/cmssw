@@ -1,3 +1,12 @@
+2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add getLepPt() and getRelLepPt()
+	* remove kLepPx, kLepPy, kLepPy from the list of correction
+	variables, add kRelLepPt and kPtRel
+	* update fillVector() accordingly
+	* add isAddLepToJetset flag, according to the other variables
+	* scale jet pt to pt(jet + lep) if so requested
+
 2009-11-09  Konstantinos KOUSOURIS  <konstantinos.kousouris@cern.ch>
         * added the ability to calculate the correction from response inversion.
         This affected JetCorrectorParameters and SimpleJetCorrector.

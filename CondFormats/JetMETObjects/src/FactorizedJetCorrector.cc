@@ -27,15 +27,16 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
+  mAddLepToJet      = false;
+  mIsJetEset        = false;
+  mIsJetPtset       = false;
+  mIsJetPhiset      = false;
+  mIsJetEtaset      = false;
+  mIsJetEMFset      = false;
+  mIsLepPxset       = false;
+  mIsLepPyset       = false;
+  mIsLepPzset       = false;
+  mIsAddLepToJetset = false;
 }
 //------------------------------------------------------------------------ 
 //--- FactorizedJetCorrector constructor ---------------------------------
@@ -50,15 +51,16 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
+  mAddLepToJet      = false;
+  mIsJetEset        = false;
+  mIsJetPtset       = false;
+  mIsJetPhiset      = false;
+  mIsJetEtaset      = false;
+  mIsJetEMFset      = false;
+  mIsLepPxset       = false;
+  mIsLepPyset       = false;
+  mIsLepPzset       = false;
+  mIsAddLepToJetset = false;
   initCorrectors(fLevels, fFiles, fOptions);       
 }
 //------------------------------------------------------------------------ 
@@ -148,12 +150,10 @@ std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(co
 	 result.push_back(kJetE);
       else if (ss=="JetEMF")
 	 result.push_back(kJetEMF);
-      else if (ss=="LepPx")
-	 result.push_back(kLepPx);
-      else if (ss=="LepPy")
-	 result.push_back(kLepPy);           
-      else if (ss=="LepPz")
-	 result.push_back(kLepPz);
+      else if (ss=="RelLepPt")
+	result.push_back(kRelLepPt);
+      else if (ss=="PtRel")
+	result.push_back(kPtRel);
       else
          {
            std::stringstream sserr; 
@@ -281,6 +281,7 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
       if (mLevels[i]==kL2)
         mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
+      if (mLevels[i]==kL6) scale *= 1.0 + getLepPt() / mJetPt;
       factor*=scale; 
       factors.push_back(factor);	
       mJetE *=scale;
@@ -335,23 +336,18 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
             handleError("FactorizedJetCorrector","jet EMF is not set");
           result.push_back(mJetEMF);
         } 
-      else if (fVarTypes[i] == kLepPx) 
+      else if (fVarTypes[i] == kRelLepPt) 
         {
-          if (!mIsLepPxset) 
-            handleError("FactorizedJetCorrector","lepton px is not set");
-          result.push_back(mLepPx);
+          if (!mIsJetPtset||!mIsAddLepToJetset||!mIsLepPxset||!mIsLepPyset) 
+            handleError("FactorizedJetCorrector","can't calculate rel lepton pt");
+          result.push_back(getRelLepPt());
         }
-      else if (fVarTypes[i] == kLepPy) 
+      else if (fVarTypes[i] == kPtRel) 
         {
-          if (!mIsLepPyset) 
-            handleError("FactorizedJetCorrector","lepton py is not set");
-          result.push_back(mLepPy);
-        }
-      else if (fVarTypes[i] == kLepPz) 
-        {
-          if (!mIsLepPzset) 
-            handleError("FactorizedJetCorrector","lepton pz is not set");
-          result.push_back(mLepPz);
+          if (!mIsJetPtset||!mIsJetEtaset||!mIsJetPhiset||!mIsJetEset||
+	      !mIsAddLepToJetset||!mIsLepPxset||!mIsLepPyset||!mIsLepPzset) 
+            handleError("FactorizedJetCorrector","can't calculate ptrel");
+          result.push_back(getPtRel());
         }
       else 
         {
@@ -363,12 +359,29 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
   return result;      
 }
 //------------------------------------------------------------------------ 
+//--- Calculate the lepPt (needed for the SLB) ---------------------------
+//------------------------------------------------------------------------
+float FactorizedJetCorrector::getLepPt() const
+{
+  return std::sqrt(mLepPx*mLepPx + mLepPy*mLepPy);
+}
+//------------------------------------------------------------------------ 
+//--- Calculate the relLepPt (needed for the SLB) ---------------------------
+//------------------------------------------------------------------------
+float FactorizedJetCorrector::getRelLepPt() const
+{
+  float lepPt = getLepPt();
+  return (mAddLepToJet) ? lepPt/(mJetPt + lepPt) : lepPt/mJetPt;
+}
+//------------------------------------------------------------------------ 
 //--- Calculate the PtRel (needed for the SLB) ---------------------------
 //------------------------------------------------------------------------
-float FactorizedJetCorrector::getPtRel()
+float FactorizedJetCorrector::getPtRel() const
 {
-  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float> > PtEtaPhiELorentzVector;
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVector;
+  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float> >
+    PtEtaPhiELorentzVector;
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> >
+    XYZVector;
   PtEtaPhiELorentzVector jet;
   XYZVector lep;
   jet.SetPt(mJetPt);
@@ -381,12 +394,11 @@ float FactorizedJetCorrector::getPtRel()
   float lj_z = (mAddLepToJet) ? lep.Z()+jet.Pz() : jet.Pz();
   // absolute values squared
   float lj2  = lj_x*lj_x+lj_y*lj_y+lj_z*lj_z;
-  if (lj2<=0) 
-    {
-      std::stringstream sserr; 
-      sserr<<"lepton+jet momentum sq is not positive: "<<lj2;
-      handleError("FactorizedJetCorrector",sserr.str());
-    }
+  if (lj2<=0) {
+    std::stringstream sserr; 
+    sserr<<"lepton+jet momentum sq is not positive: "<<lj2;
+    handleError("FactorizedJetCorrector",sserr.str());
+  }
   float lep2 = lep.X()*lep.X()+lep.Y()*lep.Y()+lep.Z()*lep.Z();
   // projection vec(mu) to lepjet axis
   float lepXlj = lep.X()*lj_x+lep.Y()*lj_y+lep.Z()*lj_z;
@@ -447,3 +459,8 @@ void FactorizedJetCorrector::setLepPz(float fPz)
   mIsLepPzset  = true;
 }
 //------------------------------------------------------------------------
+void FactorizedJetCorrector::setAddLepToJet(bool fAddLepToJet)
+{
+  mAddLepToJet = fAddLepToJet;
+  mIsAddLepToJetset = true;
+}
