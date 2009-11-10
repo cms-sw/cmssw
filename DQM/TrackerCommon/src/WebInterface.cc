@@ -2,9 +2,22 @@
 #include "DQM/TrackerCommon/interface/CgiReader.h"
 #include "DQM/TrackerCommon/interface/CgiWriter.h"
 #include "DQM/TrackerCommon/interface/ContentReader.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
+
+WebInterface::WebInterface(string _exeURL, string _appURL) 
+{
+  exeURL = _exeURL;
+  appURL = _appURL;
+  
+  std::cout << "created a WebInterface for the DQMClient, the url = " << appURL << std::endl;
+  std::cout << "within context = " << exeURL << std::endl;
+ 
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+}
+
 
 std::string WebInterface::get_from_multimap(std::multimap<std::string, std::string> &mymap, std::string key)
 {
@@ -66,23 +79,6 @@ void WebInterface::Configure(xgi::Input * in, xgi::Output * out) throw (xgi::exc
   std::string port = get_from_multimap(conf_map, "Port");
   std::string clientname = get_from_multimap(conf_map, "Clientname");
 
-//  std::cout << "will try to connect to host : " << host << std::endl;
-//  std::cout << "listening to port : " << port << std::endl;
-//  std::cout << "using name : " << clientname << std::endl;
-  /*
-    if (*mui_p == 0)
-    {
-    *mui_p = new DQMOldReceiver(host, atoi(port.c_str()), clientname);
-    }
-    else
-    {
-    if (*mui_p->isConnected())
-    {
-    *mui_p->disconnect();
-    }
-    *mui_p->connect(host, atoi(port.c_str()));
-    }
-  */
 }
 
 void WebInterface::Open(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception)
@@ -110,89 +106,34 @@ void WebInterface::Open(xgi::Input * in, xgi::Output * out) throw (xgi::exceptio
 	}
     }
 
-  DQMStore * myBei = (*mui_p)->getBEInterface();
   
   std::cout << "will try to open " << to_open << std::endl;
-  if (*mui_p)
+  if (dqmStore_)
     {
       if (to_open == "top") 
 	{
-	  myBei->setCurrentFolder("/");
+	  dqmStore_->setCurrentFolder("/");
 	}
       else if (to_open == "..")
 	{
-	  myBei->goUp();
+	  dqmStore_->goUp();
 	}
       else 
 	{
-	  myBei->setCurrentFolder(to_open); 
+	  dqmStore_->setCurrentFolder(to_open); 
 	}
+      printNavigatorXML(dqmStore_->pwd(), out); 
     }
   else 
     {
-      std::cout << "no MUI object, subscription to " << to_open << " failed!" << std::endl;
+      std::cout << "no DQMStore object, subscription to " << to_open << " failed!" << std::endl;
     }
-  printNavigatorXML(myBei->pwd(), out); 
+
 }
-/*void WebInterface::Subscribe(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception)
-{
-  std::multimap<std::string, std::string> nav_map;
-
-  CgiReader reader(in);
-  reader.read_form(nav_map);
-
-  std::string to_subscribe = get_from_multimap(nav_map, "SubscribeTo");
-
-  if ((*mui_p))
-    {
-      std::cout << "will try to subscribe to " << to_subscribe << std::endl;
-      (*mui_p)->subscribe(to_subscribe); 
-      log4cplus::helpers::sleep(2); // delay for the subscription to be made
-    }
-  else 
-    {
-      std::cout << "no MUI object, subscription to " << to_subscribe << " failed!" << std::endl;
-    }
-
-  std::string current = get_from_multimap(nav_map, "Current");
-  if (current == "")
-    {
-      current = "top";
-    }
-  printNavigatorXML(current, out);
-}
-
-void WebInterface::Unsubscribe(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception)
-{
-  std::multimap<std::string, std::string> nav_map;
-
-  CgiReader reader(in);
-  reader.read_form(nav_map);
-
-  std::string to_unsubscribe = get_from_multimap(nav_map, "UnsubscribeFrom");
-  
-  if ((*mui_p))
-    {
-      std::cout << "will try to unsubscribe from " << to_unsubscribe << std::endl;
-      (*mui_p)->unsubscribe(to_unsubscribe); 
-      log4cplus::helpers::sleep(2); // delay for the unsubscription to be made
-    }
-  else 
-    {
-      std::cout << "no MUI object, unsubscription from" << to_unsubscribe << " failed!" << std::endl;
-    }
-
-  std::string current = get_from_multimap(nav_map, "Current");
-  if (current == "")
-    {
-      current = "top";
-    }
-  printNavigatorXML(current, out);
-}*/
 
 void WebInterface::printNavigatorXML(std::string current, xgi::Output * out)
 {
-  if (!(*mui_p)) 
+  if (!dqmStore_) 
     {
       cout << "NO GUI!!!" << endl;
       return;
@@ -206,8 +147,7 @@ void WebInterface::printNavigatorXML(std::string current, xgi::Output * out)
   
   *out << "<current>" << current << "</current>" << endl;
   
-  DQMStore * myBei = (*mui_p)->getBEInterface();
-  ContentReader reader(myBei);
+  ContentReader reader(dqmStore_);
   
   std::list<std::string>::iterator it;
   
@@ -273,34 +213,33 @@ void WebInterface::ContentsOpen(xgi::Input * in, xgi::Output * out) throw (xgi::
 	}
     }
 
-  DQMStore * myBei = (*mui_p)->getBEInterface();
   
   std::cout << "will try to open " << to_open << std::endl;
-  if (*mui_p)
+  if (dqmStore_)
     {
       if (to_open == "top") 
 	{
-	  myBei->cd();
+	  dqmStore_->cd();
 	}
       else if (to_open == "..")
 	{
-	  myBei->goUp();
+	  dqmStore_->goUp();
 	}
       else 
 	{
-	  myBei->setCurrentFolder(to_open); 
+	  dqmStore_->setCurrentFolder(to_open); 
 	}
+      printContentViewerXML(dqmStore_->pwd(), out); 
     }
   else 
     {
-      std::cout << "no MUI object, subscription to " << to_open << " failed!" << std::endl;
+      std::cout << "no DQMStore object, subscription to " << to_open << " failed!" << std::endl;
     }
-  printContentViewerXML(myBei->pwd(), out); 
 }
 
 void WebInterface::printContentViewerXML(std::string current, xgi::Output * out)
 {
-  if (!(*mui_p)) 
+  if (!(dqmStore_)) 
     {
       cout << "NO GUI!!!" << endl;
       return;
@@ -314,8 +253,7 @@ void WebInterface::printContentViewerXML(std::string current, xgi::Output * out)
   
   *out << "<current>" << current << "</current>" << endl;
   
-  DQMStore * myBei = (*mui_p)->getBEInterface();
-  ContentReader reader(myBei);
+  ContentReader reader(dqmStore_);
   
   std::list<std::string>::iterator it;
   
@@ -344,15 +282,13 @@ void WebInterface::DrawGif(xgi::Input * in, xgi::Output * out) throw (xgi::excep
   std::string current = get_from_multimap(view_multimap, "Current");
   
 
-  if (!(*mui_p)) 
+  if (dqmStore_) 
     {
-      std::cout << "The mui pointer is empty!" << std::endl;
+      std::cout << "The DQMStore pointer is empty!" << std::endl;
       return;
     }
 
-  DQMStore * myBei = (*mui_p)->getBEInterface();
-
-  ContentReader con_reader(myBei);  
+  ContentReader con_reader(dqmStore_);  
   multimap<string,string>::iterator lower = view_multimap.lower_bound("View");
   multimap<string,string>::iterator upper = view_multimap.upper_bound("View");
   multimap<string,string>::iterator it;

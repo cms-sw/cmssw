@@ -16,7 +16,6 @@
 #include <string>
 #include <map>
 
-class DQMOldReceiver;
 class WebInterface
 {
 
@@ -30,24 +29,12 @@ class WebInterface
 
  protected:
 
-  DQMOldReceiver ** mui_p;
+  DQMStore* dqmStore_;
   WebPage * page_p;
 
  public:
-
-  WebInterface(std::string _exeURL, 
-	       std::string _appURL, 
-	       DQMOldReceiver ** _mui_p)
-    {
-      exeURL = _exeURL;
-      appURL = _appURL;
-      mui_p = _mui_p;
-      
-
-      std::cout << "created a WebInterface for the DQMClient, the url = " << appURL << std::endl;
-      std::cout << "within context = " << exeURL << std::endl;
-    }
-
+  
+  WebInterface(std::string _exeURL, std::string _appURL);
   virtual ~WebInterface() 
     {
     }
