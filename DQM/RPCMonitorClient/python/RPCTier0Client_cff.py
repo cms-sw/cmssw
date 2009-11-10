@@ -15,4 +15,5 @@ qTesterRPC = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(10)
 )
 
+
 rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcEventSummary)
