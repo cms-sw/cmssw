@@ -25,7 +25,13 @@ generator = cms.EDProducer("CosMuoGenProducer",
     TIFOnly_constant = cms.bool(False),
     TIFOnly_linear = cms.bool(False),
     MTCCHalf = cms.bool(False),
-    Verbosity = cms.bool(False)
+    Verbosity = cms.bool(False),
+
+    MultiMuon = cms.bool(False),
+    # MultiMuon = cms.bool(True),
+    MultiMuonFileName = cms.string("CORSIKAmultiMuon.root"),
+    MultiMuonFileFirstEvent = cms.int32(1),
+    MultiMuonNmin = cms.int32(2),              
 )
 
 
