@@ -34,6 +34,7 @@ class BasicGenTester : public edm::EDAnalyzer
    
      TH1D*       fNPartFinalState ;
      TH1D*       fPtPartFinalState ;
+     int         fNPart;
      double      fPtMin;
      double      fPtMax;
      
@@ -46,6 +47,7 @@ BasicGenTester::BasicGenTester( const ParameterSet& pset )
   : fNPartFinalState(0), fPtPartFinalState(0)
 {
 
+   fNPart = pset.getUntrackedParameter<int>( "NPartForHisto", 500 );
    fPtMin = pset.getUntrackedParameter<double>( "PtMinForHisto",  0. );
    fPtMax = pset.getUntrackedParameter<double>( "PtMaxForHisto", 25. );   
 
@@ -55,7 +57,7 @@ void BasicGenTester::beginJob( const EventSetup& )
 {
   
   Service<TFileService> fs;
-  fNPartFinalState = fs->make<TH1D>(  "NPartFinalState",  "Number of final state particles", 500,  0., 500. );
+  fNPartFinalState = fs->make<TH1D>(  "NPartFinalState",  "Number of final state particles", fNPart,  0., (double)fNPart );
   fPtPartFinalState = fs->make<TH1D>( "PtPartFinalState", "Pt of final state, particles", 500, fPtMin, fPtMax );
     
   return ;
