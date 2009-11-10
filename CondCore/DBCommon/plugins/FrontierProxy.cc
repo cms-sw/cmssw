@@ -1,4 +1,3 @@
-#include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "RelationalAccess/IWebCacheControl.h"
@@ -95,4 +94,5 @@ cond::FrontierProxy::countslash(const std::string& input) {
   return count;
 }
 
+#include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
 DEFINE_EDM_PLUGIN(cond::TechnologyProxyFactory,cond::FrontierProxy,"frontier");

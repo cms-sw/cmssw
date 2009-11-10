@@ -9,7 +9,7 @@
 namespace cond{
   typedef edmplugin::PluginFactory< cond::TechnologyProxy*(const std::string&) > TechnologyProxyFactory;
 
-  std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy (const std::string&userconnect){
+  inline std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy (const std::string&userconnect){
     std::string protocol;
     std::size_t pos=userconnect.find_first_of(':');
     if( pos!=std::string::npos ){
@@ -26,7 +26,5 @@ namespace cond{
     std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol));
     return ptr;
   }
-
-
-
+}
 #endif

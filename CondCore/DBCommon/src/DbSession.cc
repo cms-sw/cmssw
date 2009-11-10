@@ -22,7 +22,7 @@
 #include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
 //#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
 
-#include "CondCore/DBCommon/interface/TechnologyProxy.h"
+#include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
 
 
 namespace cond {
