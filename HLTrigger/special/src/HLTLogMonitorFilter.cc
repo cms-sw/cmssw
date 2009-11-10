@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.1 2009/11/09 14:04:30 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.2 2009/11/10 10:44:40 fwyzard Exp $
 //
 
 
@@ -74,6 +74,9 @@ private:
     /// EDFilter accept method
     virtual bool filter(edm::Event&, const edm::EventSetup &);
 
+    /// EDFilter beginJob method
+    virtual void beginJob(void);
+
     /// EDFilter endJob method
     virtual void endJob(void);
 
@@ -97,7 +100,7 @@ private:
 
 
 // system include files
-#include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
@@ -164,7 +167,12 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
 }
 
 // ------------ method called at the end of the Job ---------
+void HLTLogMonitorFilter::beginJob(void) {
+  edm::EnableLoggedErrorsSummary();
+}
+// ------------ method called at the end of the Job ---------
 void HLTLogMonitorFilter::endJob(void) {
+  edm::DisableLoggedErrorsSummary();
   summary();
 }
 
@@ -177,7 +185,7 @@ bool HLTLogMonitorFilter::knownCategory(const std::string & category) {
 HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::addCategory(const std::string & category, uint32_t threshold) {
   // check after inserting, as either the new CategoryEntry is needed, or an error condition is raised
   std::pair<std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::iterator, bool> result = m_data.insert( std::make_pair(category, CategoryEntry(threshold)) );
-  if (result.second)
+  if (not result.second)
     throw cms::Exception("Configuration") << "Duplicate entry for category " << category;
   return result.first->second;
 }
@@ -194,22 +202,21 @@ HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::getCategory(const std:
 
 /// summarize to LogInfo
 void HLTLogMonitorFilter::summary(void) {
-  edm::LogVerbatim("Report") << "HLTLogMonitorFilter Summary:\n"
-                             << std::setw(-48) << "Category"
-                             << std::setw(8)   << "Events"
-                             << std::setw(8)   << "Accept"
-                             << std::setw(8)   << "Thresh."
-                             << std::setw(8)   << "Final prescale"
-                             << std::endl;
+  std::stringstream out;
+  out << "Log-Report ---------- HLTLogMonitorFilter Summary ------------\n"
+      << "Log-Report  Threshold   Prescale     Issued   Accepted   Rejected Category\n";
   typedef std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::value_type Entry;
   BOOST_FOREACH(const Entry & entry, m_data) {
-    edm::LogVerbatim("Report") << std::setw(-48) << entry.first 
-                               << std::setw(8)   << entry.second.counter 
-                               << std::setw(8)   << entry.second.accepted
-                               << std::setw(8)   << entry.second.threshold
-                               << std::setw(8)   << entry.second.prescale
-                               << std::endl;
+    out << "Log-Report "
+        << std::right
+        << std::setw(10) << entry.second.threshold << ' '
+        << std::setw(10) << entry.second.prescale  << ' '
+        << std::setw(10) << entry.second.counter   << ' '
+        << std::setw(10) << entry.second.accepted  << ' '
+        << std::setw(10) << (entry.second.counter - entry.second.accepted) << ' '
+        << std::left     << entry.first            << '\n';
   }
+  edm::LogVerbatim("Report") << out.str();
 }
 
 // define as a framework plug-in
