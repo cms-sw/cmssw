@@ -9,7 +9,6 @@ namespace cond{
     void initialize(const std::string &userconnect, const DbConnection&){
         m_userconnect = userconnect;
     }
-ze(const DbConnection&){}
     std::string 
     getRealConnectString( ) const{
       if( m_userconnect.find("sqlite_fip:") != std::string::npos ){

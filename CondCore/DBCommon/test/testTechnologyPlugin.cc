@@ -20,7 +20,7 @@ int main(){
     "frontier:FrontierDev/CMS_COND_PRESH",
     "frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_PRESH"
   };
-  for (int i=0; int<4; ++i) {
+  for (int i=0; i<4; ++i) {
     try {
       session.open(connects[i]);
       std::cout << connects[i] << " " <<  session.connectionString() << std::endl;
