@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/10/19 10:54:10 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/10/21 14:07:24 $
+ *  $Revision: 1.22 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -153,7 +153,9 @@ vector<vector<double> > MuScleFitUtils::parvalue;
 int MuScleFitUtils::FitStrategy = 1; // Strategy in likelihood fit (1 or 2)
 bool MuScleFitUtils::speedup = false; // Whether to cut corners (no sim study, fewer histos)
 
-vector<pair<lorentzVector,lorentzVector> > MuScleFitUtils::SavedPair; // Pairs of muons making resonances
+vector<pair<lorentzVector,lorentzVector> > MuScleFitUtils::SavedPair; // Pairs of reconstructed muons making resonances
+vector<pair<lorentzVector,lorentzVector> > MuScleFitUtils::genPair; // Pairs of generated muons making resonances
+vector<pair<lorentzVector,lorentzVector> > MuScleFitUtils::simPair; // Pairs of simulated muons making resonances
 
 // Smearing parameters
 // -------------------

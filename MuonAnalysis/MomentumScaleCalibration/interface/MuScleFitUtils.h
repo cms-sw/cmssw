@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/10/21 14:07:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/10/28 16:55:51 $
+ *  $Revision: 1.14 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -59,7 +59,7 @@ public:
   static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
   static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
   static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<reco::GenParticleCollection> & genParticles);
- static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
+  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
   static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
 								   const edm::Handle<edm::SimTrackContainer> & simTracks);
 
@@ -197,6 +197,8 @@ public:
   static std::vector<int> parorder;
   
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
+  static std::vector<std::pair<lorentzVector,lorentzVector> > genPair;
+  static std::vector<std::pair<lorentzVector,lorentzVector> > simPair;
 
   static bool scaleFitNotDone_;
 

@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/10/06 08:44:00 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/10/28 16:54:27 $
+ *  $Revision: 1.23 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -62,8 +62,16 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   virtual void endOfJob();
 
   virtual void startingNewLoop( unsigned int iLoop );
+
   virtual edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop );
+  virtual void endOfFastLoop( const unsigned int iLoop );
+
   virtual edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup );
+  /**
+   * This method performs all needed operations on the muon pair. It reads the muons from SavedPair and uses the iev
+   * counter to keep track of the event number. The iev is incremented internally and reset to 0 in startingNewLoop.
+   */
+  virtual edm::EDLooper::Status duringFastLoop();
 
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks ); 
@@ -93,8 +101,6 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   MuonServiceProxy *theService;
 
-  // bool readPdfFromDB;
-  
   // Counters
   // --------
   int numberOfSimTracks;
@@ -114,6 +120,8 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   // ---------------------
   unsigned int maxLoopNumber;
   unsigned int loopCounter;
+
+  bool fastLoop;
 
   // Tree with muon info for Likelihood evaluation
   // TTree* muonTree;
