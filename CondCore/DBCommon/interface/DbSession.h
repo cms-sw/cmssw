@@ -45,6 +45,8 @@ namespace cond{
 
     const std::string& connectionString() const;
 
+    const DbConnection& connection() const;
+
     void setBlobStreamingService( const std::string& streamingService );
     
     const std::string& blobStreamingService() const;
