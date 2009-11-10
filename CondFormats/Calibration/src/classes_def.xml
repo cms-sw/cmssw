@@ -76,7 +76,7 @@
  <class name="mybase"/>
  <class name="child"/>
 
- <class name="condex::Efficiency" class_version="0"/>
+ <class name="condex::Efficiency"/>
  <class name="condex::ParametricEfficiencyInPt" class_version="0"/>
  <class name="condex::ParametricEfficiencyInEta" class_version="0"/>
 

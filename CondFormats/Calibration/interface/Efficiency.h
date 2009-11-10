@@ -28,7 +28,7 @@ namespace condex {
 
   class ParametricEfficiencyInPt : public Efficiency {
   public:
-    ParametricEfficiencyInPt(){}
+    ParametricEfficiencyInPt() : cutLow(0), cutHigh(0), low(0), high(0){}
     ParametricEfficiencyInPt(float cm, float ch,
 			    float el, float eh) :
       cutLow(cm), cutHigh(ch),
@@ -46,7 +46,7 @@ namespace condex {
 
 class ParametricEfficiencyInEta : public Efficiency {
   public:
-    ParametricEfficiencyInEta(){}
+  ParametricEfficiencyInEta() : cutLow(0), cutHigh(0), low(0), high(0) {}
     ParametricEfficiencyInEta(float cmin, float cmax,
 			    float el, float eh) :
       cutLow(cmin), cutHigh(cmax),
