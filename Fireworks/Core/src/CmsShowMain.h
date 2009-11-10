@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.29 2009/10/27 10:33:48 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.30 2009/11/10 14:38:11 amraktad Exp $
 //
 
 // system include files
@@ -144,6 +144,8 @@ private:
    void setPlayDelay(Float_t);
    void checkLiveMode();
 
+   void setLiveMode();
+
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
 
@@ -175,7 +177,6 @@ private:
    Bool_t  m_autoLoadTimerRunning;
 
    TTimer* m_liveTimer;
-   bool m_liveMode;
    bool m_isPlaying;
    bool m_forward;
    bool m_rewindMode;

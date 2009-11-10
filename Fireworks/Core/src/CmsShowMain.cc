@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.99 2009/11/05 22:06:02 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.100 2009/11/10 14:38:11 amraktad Exp $
 //
 
 // system include files
@@ -164,7 +164,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_autoLoadTimer(0),
    m_autoLoadTimerRunning(kFALSE),
    m_liveTimer(0),
-   m_liveMode(false),
    m_isPlaying(false),
    m_forward(true),
    m_rewindMode(false),
@@ -328,13 +327,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator, vm[kChainCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
-      if(vm.count(kLiveCommandOpt)) m_liveMode = true;
-      if (vm.count(kPlayOpt)) {
-         m_playDelay = vm[kPlayOpt].as<float>();
-         f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+      if(vm.count(kLiveCommandOpt))
+      {
+         f=boost::bind(&CmsShowMain::setLiveMode, this);
          m_startupTasks->addTask(f);
       }
-
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -829,14 +826,9 @@ CmsShowMain::setupDataHandling()
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1,_2));
    m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator,_1));
    m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
-
-   {
-      m_autoLoadTimer = new SignalTimer();
-      ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
-
-      m_liveTimer = new SignalTimer();
-      ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
-   }
+ 
+   m_autoLoadTimer = new SignalTimer();
+   ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
@@ -851,6 +843,17 @@ CmsShowMain::setupDataHandling()
    else if (m_monitor.get() != 0) {
       openData();
    }
+}
+
+void
+CmsShowMain::setLiveMode()
+{
+   m_liveTimer = new SignalTimer();
+   ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
+
+   m_live->SetTime(600000);
+   m_liveTimer->Reset();
+   m_liveTimer->TurnOn();
 }
 
 void
@@ -995,9 +998,7 @@ CmsShowMain::postFiltering()
 void
 CmsShowMain::checkLiveMode()
 {
-   m_liveTimer->Reset();
-   m_liveTimer->Start(600000, kFALSE);
-   if ( m_guiManager->playEventsAction()->isRunning()) return;
+   if (m_isPlaying) return;
 
    Window_t rootw, childw;
    Int_t root_x, root_y, win_x, win_y;
@@ -1009,13 +1010,10 @@ CmsShowMain::checkLiveMode()
                            mask);
    if ( m_lastPointerPositionX == root_x &&
         m_lastPointerPositionY == root_y )
+   {
       m_guiManager->playEventsAction()->switchMode();
+   }
    m_lastPointerPositionX = root_x;
    m_lastPointerPositionY = root_y;
 }
-
-
-//
-// static member functions
-//
 
