@@ -17,15 +17,20 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_3_0
-setenv CMSSWver2 3_3_0
-setenv OLDRELEASE 330
-setenv NEWRELEASE 330
-setenv OLDPRERELEASE pre6 
-setenv NEWPRERELEASE 
+setenv CMSSWver1 3_4_0
+setenv CMSSWver2 3_4_0
+setenv OLDRELEASE 340
+setenv NEWRELEASE 340
+setenv OLDPRERELEASE pre2 
+setenv NEWPRERELEASE pre5
+
+
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
+
+setenv WorkDir1   /data/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -57,27 +62,26 @@ setenv SAMPLE H130GGgluonfusionSTARTUP
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
-#setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
-
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-#setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
-#setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
+
 
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
+
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
