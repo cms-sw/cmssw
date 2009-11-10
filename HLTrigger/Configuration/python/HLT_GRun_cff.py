@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre6/GRun/V3 (CMSSW_3_4_0_pre5_HLT1)
+# /dev/CMSSW_3_4_0/pre6/GRun/V4 (CMSSW_3_4_0_pre5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/GRun/V4')
 )
 
 
@@ -2131,10 +2131,7 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     L3TrajBuilderParameters = cms.PSet( 
       ScaleTECxFactor = cms.double( -1.0 ),
-      StateOnTrackerBoundOutPropagator = cms.string( "SmartPropagatorAny" ),
-      TransformerOutPropagator = cms.string( "SmartPropagatorAny" ),
       ScaleTECyFactor = cms.double( -1.0 ),
-      Direction = cms.int32( 0 ),
       TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
       MuonTrackingRegionBuilder = cms.PSet( 
         EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
@@ -2157,9 +2154,7 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         UseVertex = cms.bool( False ),
         EscapePt = cms.double( 1.5 )
       ),
-      TkTrackBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      MatcherOutPropagator = cms.string( "SmartPropagator" ),
       GlobalMuonTrackMatcher = cms.PSet( 
         MinP = cms.double( 2.5 ),
         MinPt = cms.double( 1.0 ),
@@ -2178,7 +2173,8 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         DeltaRCut_3 = cms.double( 1.0 ),
         Quality_1 = cms.double( 20.0 ),
         Quality_2 = cms.double( 15.0 ),
-        Quality_3 = cms.double( 7.0 )
+        Quality_3 = cms.double( 7.0 ),
+        Propagator = cms.string( "SmartPropagator" )
       ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2" ),
       MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
@@ -2190,21 +2186,19 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
         MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
-        RefitRPCHits = cms.bool( True )
+        RefitRPCHits = cms.bool( True ),
+        Propagator = cms.string( "SmartPropagatorAny" )
       ),
       PtCut = cms.double( 1.0 ),
-      KFFitter = cms.string( "L3MuKFFitter" ),
       GlbRefitterParameters = cms.PSet( 
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
-        RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
         MuonHitsOption = cms.int32( 1 ),
         Chi2CutCSC = cms.double( 150.0 ),
         Chi2CutDT = cms.double( 10.0 ),
         Chi2CutRPC = cms.double( 1.0 ),
         HitThreshold = cms.int32( 1 ),
         Fitter = cms.string( "L3MuKFFitter" ),
-        Smoother = cms.string( "KFSmootherForRefitInsideOut" ),
         Propagator = cms.string( "SmartPropagatorAny" ),
         TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
         MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
@@ -2232,7 +2226,6 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
-        BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
         Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
