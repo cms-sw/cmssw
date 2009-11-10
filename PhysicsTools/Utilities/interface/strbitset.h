@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.4 2009/09/22 16:00:19 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.1 2009/09/24 12:54:36 srappocc Exp $
 */
 
 
@@ -280,6 +280,24 @@ class strbitset {
   bool test(std::string s) const {
     return (*this)[s] == true;
   }
+
+  //! give access to the ordered bits
+  const bit_vector& bits() const {
+    return bits_;
+  }
+
+
+  //! give access to the ordered strings
+  const std::vector<std::string> strings() const {
+    std::vector<std::string> strings;
+    strings.resize(bits_.size());
+    for (str_index_map::const_iterator it = map_.begin(), 
+         end = map_.end(); it != end; ++it){
+      strings[it->second] = it->first;
+    }
+    return strings;
+  }
+
 
 
   friend strbitset operator&(const strbitset& l, const strbitset& r);
