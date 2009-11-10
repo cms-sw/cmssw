@@ -213,8 +213,8 @@ void cond::Utilities::initializePluginManager(){
     edm::ParameterSet pSet;
     pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
     psets.push_back(pSet);
-    edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-    edm::ServiceRegistry::Operate operate(services);
+    static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    static edm::ServiceRegistry::Operate operate(services);
 
     m_pluginMgrInitialized = true;
   }
