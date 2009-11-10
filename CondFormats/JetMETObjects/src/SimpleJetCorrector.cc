@@ -1,15 +1,10 @@
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/src/Utilities.cc"
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <cmath>
-
-#ifdef STANDALONE
-#include <sstream>
-#include <stdexcept>
-#else
-#include "FWCore/Utilities/interface/Exception.h"
-#endif
 
 //------------------------------------------------------------------------ 
 //--- Default SimpleJetCorrector constructor -----------------------------
@@ -51,15 +46,7 @@ float SimpleJetCorrector::correction(const std::vector<float>& fX,const std::vec
   float cor    = 0.0;
   int bin = mParameters->binIndex(fX);
   if (bin<0) 
-    {
-      #ifdef STANDALONE
-         std::stringstream sserr; 
-         sserr<<"SimpleJetCorrector ERROR: bin variables out of range!";
-         throw std::runtime_error(sserr.str());
-      #else
-         throw cms::Exception("SimpleJetCorrector")<<" bin variables out of range";
-      #endif
-    }
+    handleError("SimpleJetCorrector","bin variables out of range!");
   if (!mDoInterpolation)
     result = correctionBin(bin,fY);
   else
@@ -98,24 +85,16 @@ float SimpleJetCorrector::correctionBin(unsigned fBin,const std::vector<float>& 
 {
   if (fBin >= mParameters->size()) 
     {
-      #ifdef STANDALONE
-         std::stringstream sserr; 
-         sserr<<"SimpleJetCorrector ERROR: wrong bin: "<<fBin<<": only "<<mParameters->size()<<" available!";
-         throw std::runtime_error(sserr.str());
-      #else
-         throw cms::Exception("SimpleJetCorrector")<<" wrong bin: "<<fBin<<": only "<<mParameters->size()<<" are available";
-      #endif
+      std::stringstream sserr;
+      sserr<<"wrong bin: "<<fBin<<": only "<<mParameters->size()<<" available!";
+      handleError("SimpleJetCorrector",sserr.str());
     }
   unsigned N = fY.size();
   if (N > 4)
     {
-      #ifdef STANDALONE 
-         std::stringstream sserr;
-         sserr<<"SimpleJetCorrector ERROR: two many variables: "<<N<<" maximum is 4";
-         throw std::runtime_error(sserr.str());
-      #else
-         throw cms::Exception("SimpleJetCorrector")<<" two many variables: "<<N<<" maximum is 4";
-      #endif
+      std::stringstream sserr;
+      sserr<<"two many variables: "<<N<<" maximum is 4";
+      handleError("SimpleJetCorrector",sserr.str());
     } 
   float result = -1;
   const std::vector<float>& par = mParameters->record(fBin).parameters();
@@ -148,16 +127,7 @@ unsigned SimpleJetCorrector::findInvertVar()
         break;
       }
   if (result >= vv.size()) 
-    {
-      #ifdef STANDALONE 
-        std::stringstream sserr;
-        sserr<<"SimpleJetCorrector ERROR: Response inversion is required but JetPt is not specified as parameter";
-        throw std::runtime_error(sserr.str());
-      #else
-        throw cms::Exception("SimpleJetCorrector")
-        <<" Response inversion is required but JetPt is not specified as parameter";
-      #endif
-    } 
+    handleError("SimpleJetCorrector","Response inversion is required but JetPt is not specified as parameter"); 
   return result;
 }
 //------------------------------------------------------------------------ 
@@ -184,30 +154,11 @@ float SimpleJetCorrector::invert(std::vector<float> fX) const
     }
   return 1./rsp;
 }
-//------------------------------------------------------------------------ 
-//--- quadratic interpolation --------------------------------------------
-//------------------------------------------------------------------------
-float SimpleJetCorrector::quadraticInterpolation(float fZ, const float fX[3], const float fY[3]) const
-{
-  // Quadratic interpolation through the points (x[i],y[i]). First find the parabola that
-  // is defined by the points and then calculate the y(z).
-  float D[4],a[3];
-  D[0] = fX[0]*fX[1]*(fX[0]-fX[1])+fX[1]*fX[2]*(fX[1]-fX[2])+fX[2]*fX[0]*(fX[2]-fX[0]);
-  D[3] = fY[0]*(fX[1]-fX[2])+fY[1]*(fX[2]-fX[0])+fY[2]*(fX[0]-fX[1]);
-  D[2] = fY[0]*(pow(fX[2],2)-pow(fX[1],2))+fY[1]*(pow(fX[0],2)-pow(fX[2],2))+fY[2]*(pow(fX[1],2)-pow(fX[0],2));
-  D[1] = fY[0]*fX[1]*fX[2]*(fX[1]-fX[2])+fY[1]*fX[0]*fX[2]*(fX[2]-fX[0])+fY[2]*fX[0]*fX[1]*(fX[0]-fX[1]);
-  if (D[0] != 0)
-    {
-      a[0] = D[1]/D[0];
-      a[1] = D[2]/D[0];
-      a[2] = D[3]/D[0];
-    }
-  else
-    {
-      a[0] = 0;
-      a[1] = 0;
-      a[2] = 0;
-    }
-  float r = a[0]+fZ*(a[1]+fZ*a[2]);
-  return r;
-}
+
+
+
+
+
+
+
+
