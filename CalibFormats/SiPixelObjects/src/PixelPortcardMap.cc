@@ -374,7 +374,7 @@ void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  </PART>"                                                                                  << std::endl ;
   *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << std::endl ;
   *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << std::endl ;
+  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << std::endl ;
 }
 
 //=============================================================================================

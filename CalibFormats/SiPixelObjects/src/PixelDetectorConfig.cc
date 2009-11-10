@@ -408,7 +408,7 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <VERSION>" << version << "</VERSION>"                                                    << std::endl ;
   *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << std::endl ; 
+  *outstream << "   <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"                           << std::endl ; 
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <PART>"                                                                                  << std::endl ;
   *outstream << "    <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                << std::endl ;
@@ -494,7 +494,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   out << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
   out << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"                   << std::endl ;
   out << "   <LOCATION>CERN TAC</LOCATION>"                                                           << std::endl ;
-  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                    << std::endl ;
+  out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"                                        << std::endl ;
   out << "  </RUN>"                                                                                   << std::endl ;
   out << " </HEADER>"                                                                                 << std::endl ;
   out << ""                                                                                           << std::endl ;

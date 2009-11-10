@@ -827,7 +827,7 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  </PART>"                                                                                  << endl ;
   *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << endl ;
   *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << endl ;
+  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << endl ;
   *outstream << "  "								         	             << endl ;
 
 }  
@@ -901,7 +901,7 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
   out << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
   out << "   <COMMENT_DESCRIPTION>Test of Name Translation xml</COMMENT_DESCRIPTION>"		      << endl ;
   out << "   <LOCATION>CERN TAC</LOCATION>"							      << endl ;
-  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				      << endl ;
+  out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"  				      << endl ;
   out << "  </RUN>"										      << endl ;
   out << " </HEADER>"										      << endl ;
   out << ""											      << endl ;

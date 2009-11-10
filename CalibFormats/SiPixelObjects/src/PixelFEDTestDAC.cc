@@ -356,7 +356,7 @@ void PixelFEDTestDAC::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << ""                                                                                      			   << std::endl ;
   *outstream << "  <VERSION>" << version << "</VERSION>"                                                			   << std::endl ;
   *outstream << "  <COMMENT_DESCRIPTION>No comment defined: this class does NOT inherit from PixelCalibBase</COMMENT_DESCRIPTION>" << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>Unknown user</INITIATED_BY_USER>" 			         			   << std::endl ;
+  *outstream << "  <CREATED_BY_USER>Unknown user</CREATED_BY_USER>"   			         			           << std::endl ;
   *outstream << ""                                                                                      			   << std::endl ;
   *outstream << "  <PART>"                                                                              			   << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                  			   << std::endl ;

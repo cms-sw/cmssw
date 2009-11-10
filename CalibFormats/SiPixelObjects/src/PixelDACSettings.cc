@@ -440,7 +440,7 @@ void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << " <DATA_SET>" 									        << std::endl ;
   *outstream << "  <VERSION>" 		  << version      << "</VERSION>"				<< std::endl ;
   *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"		        << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"		        << std::endl ;
+  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  		        << std::endl ;
   *outstream << " "											<< std::endl ;
   *outstream << "  <PART>"										<< std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  					  	<< std::endl ;
@@ -502,7 +502,7 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
   out << "   <COMMENT_DESCRIPTION>Test of DAC Settings xml</COMMENT_DESCRIPTION>"	 	 << std::endl ;
   out << "   <LOCATION>CERN TAC</LOCATION>"					         	 << std::endl ;
-  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"		         	 << std::endl ;
+  out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"  		         	 << std::endl ;
   out << "  </RUN>"								         	 << std::endl ;
   out << " </HEADER>"								         	 << std::endl ;
   out << ""									         	 << std::endl ;

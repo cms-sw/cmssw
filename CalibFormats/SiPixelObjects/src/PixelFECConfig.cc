@@ -267,7 +267,7 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  </PART>"                                                                                  << endl ;
   *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << endl ;
   *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << endl ;
+  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << endl ;
 }
 
 //=============================================================================================

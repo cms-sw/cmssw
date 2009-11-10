@@ -1289,7 +1289,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
   *fedstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *fedstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			  << std::endl ;
+  *fedstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			  << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <PART>"                                                                                << std::endl ;
   *fedstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
@@ -1316,7 +1316,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "   <RUN_TYPE>ROC Analog Levels</RUN_TYPE>"                                               << std::endl ;
   *rocstream << "   <RUN_NUMBER>1</RUN_NUMBER>                      "                                     << std::endl ;
   *rocstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
-  *rocstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
+  *rocstream << "   <CREATED_BY_USER>Umesh Joshi</CREATED_BY_USER> "                                  << std::endl ;
   *rocstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
   *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"                << std::endl ;
   *rocstream << "  </RUN>"                                                                                << std::endl ;
@@ -1351,7 +1351,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *tbmstream << "   <RUN_TYPE>TBM Analog Levels</RUN_TYPE>"                                               << std::endl ;
   *tbmstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ;
   *tbmstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
-  *tbmstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
+  *tbmstream << "   <CREATED_BY_USER>Umesh Joshi</CREATED_BY_USER> "                                  << std::endl ;
   *tbmstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
   *tbmstream << "   <COMMENT_DESCRIPTION>TBM Analog Levels</COMMENT_DESCRIPTION>"                         << std::endl ;
   *tbmstream << "  </RUN>"                                                                                << std::endl ;
@@ -1391,7 +1391,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key, int version, std::str
   *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"  	  << std::endl ;
   *out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  	  << std::endl ;
   *out << "   <LOCATION>CERN TAC</LOCATION>"                                                       	  << std::endl ;
-  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                	  << std::endl ;
+  *out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"                                  	  << std::endl ;
   *out << "  </RUN>"                                                                               	  << std::endl ;
   *out << " </HEADER>"                                                                             	  << std::endl ;
   *out << ""                                                                                       	  << std::endl ;
@@ -1673,7 +1673,7 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
   out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                 << std::endl ; 
   out << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
-  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                               << std::endl ; 
+  out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"                                   << std::endl ; 
   out << "  </RUN>"                                                                              << std::endl ; 
   out << " </HEADER>"                                                                            << std::endl ; 
   out << ""                                                                                      << std::endl ; 
