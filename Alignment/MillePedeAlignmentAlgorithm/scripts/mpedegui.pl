@@ -18,6 +18,7 @@ use warnings;
 use Tk 804;
 use Tk::DialogBox;
 require Tk::ROText;
+use Switch;
 
 # Needed in order to read mps.db
 BEGIN {
@@ -42,11 +43,6 @@ my (
 #
 # User-defined variables (if any)
 #
-    my $types = [ ['All Files',  '*'],
-                  ['zsh scripts', '.sh'],
-                  ['cfg files',   '.cfg'],
-                  ['py files',    '.py'],
-                ];
 
 # Working directory
     my $workdir;
@@ -246,7 +242,7 @@ $ZWIDGETS{'pathmillescript_button'} = $MW->Button(
    -anchor  => 'center',
    -justify => 'center',
    -text    => 'Browse',
-   -command => sub{$pathmillescript_variable = &new_open_file($pathmillescript_variable,"Choose Mille script")},
+   -command => sub{$pathmillescript_variable = &open_file_v3($pathmillescript_variable,"Choose Mille script","sh")},
   )->grid(
    -row    => $row_offset+1,
    -column => 1,
@@ -256,7 +252,7 @@ $ZWIDGETS{'pathmillescript_button'} = $MW->Button(
 # Widget pathcfg_button isa Button
 $ZWIDGETS{'pathcfg_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathcfg_variable = &new_open_file($pathcfg_variable,"Choose cfg/py file")},
+   -command => sub{$pathcfg_variable = &open_file_v3($pathcfg_variable,"Choose cfg/py file","py")},
   )->grid(
    -row    => $row_offset+3,
    -column => 1,
@@ -266,7 +262,7 @@ $ZWIDGETS{'pathcfg_button'} = $MW->Button(
 # Widget pathdata_button isa Button
 $ZWIDGETS{'pathdata_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathdata_variable = &new_open_file($pathdata_variable,"Choose data file")},
+   -command => sub{$pathdata_variable = &open_file_v3($pathdata_variable,"Choose data file","*")},
   )->grid(
    -row    => $row_offset+5,
    -column => 1,
@@ -276,7 +272,7 @@ $ZWIDGETS{'pathdata_button'} = $MW->Button(
 # Widget pathpedescript_button isa Button
 $ZWIDGETS{'pathpedescript_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathpedescript_variable = &new_open_file($pathpedescript_variable,"Choose Pede script")},   
+   -command => sub{$pathpedescript_variable = &open_file_v3($pathpedescript_variable,"Choose Pede script","sh")},
   )->grid(
    -row    => $row_offset+7,
    -column => 1,
@@ -716,20 +712,23 @@ sub ZloadImages {
 sub ZloadFonts {
 }
 
-sub open_file {
-  my $open = $MW->getOpenFile(-filetypes => $types,
-                              -defaultextension => '*');
-  return $open;
-}
-
-sub new_open_file ($$) {
+sub open_file_v3 ($$$) {
   my $infile = shift; # Original input file name
   my $title  = shift; # Title of the browse window
+  my $fext   = shift; # File extension
+  my $ftyp;
 
-  my $open = $MW->getOpenFile(-filetypes => $types,
-#                              -initialfile => $infile,
+  switch ($fext) {
+    case "sh" {$ftyp = [ ['zsh scripts', '.sh'], ['All Files',  '*'] ];}
+    case "py" {$ftyp = [ ['py files',    '.py'], ['All Files',  '*'] ];}
+    case "cfg" {$ftyp = [ ['cfg files',   '.cfg'], ['All Files',  '*'] ];}
+    else {$ftyp = [ ['All Files',  '*'] ];}
+  }
+
+  my $open = $MW->getOpenFile(-filetypes => $ftyp,
                               -title => $title,
-                              -defaultextension => '*');
+			     );
+
   if (!defined($open)) {
     $open = $infile;
   }
