@@ -50,35 +50,38 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 
 	const GlobalPoint &point = state.tsos().globalPosition();
 
-	// lambda
-	GlobalVector dir = pred.direction();
-	double rho2 = pred.rho2();
-	double l = (point - pred.origin()) * dir / rho2;
+	// precomputed values
+	double x = std::cos(pred.phi());
+	double y = std::sin(pred.phi());
+	double dz = pred.cotTheta();
+	double lip = x * point.x() + y * point.y();
+	double tip = x * point.y() - y * point.x();
 
 	// jacobian of global -> local
 	Matrix23 measToLocal;
-	measToLocal(0, 2) = rho2;
-	measToLocal(1, 0) = dir.y();
-	measToLocal(1, 1) = -dir.x();
+	measToLocal(0, 0) = - dz * x;
+	measToLocal(0, 1) = - dz * y;
+	measToLocal(0, 2) = 1.;
+	measToLocal(1, 0) = y;
+	measToLocal(1, 1) = -x;
 
-	// measurement in local 2d plane projection
-	Vector2 meas(rho2 * point.z(),
-	             dir.y() * point.x() - dir.x() * point.y());
+	// measurement error on the 2d plane projection
 	measErr = Similarity(measToLocal,
 		state.tsos().cartesianError().matrix().Sub<Matrix3S>(0, 0));
 
 	// jacobian of representation to measurement transformation
 	h(0, 0) = 1.;
-	h(0, 2) = l;
+	h(0, 2) = lip;
+	h(0, 3) = dz * tip;
 	h(1, 1) = -1.;
-	h(1, 3) = -l;
+	h(1, 3) = -lip;
 
-	// predicted measurement
-	Vector2 measPred(rho2 * (pred.z() + l * pred.cotTheta()), -pred.ip());
+	// error on prediction
 	measPredErr = Similarity(h, pred.covariance());
 
 	// residual
-	residual = meas - measPred;
+	residual[0] = point.z() - pred.z() - dz * lip;
+	residual[1] = pred.ip() - tip;
 }
 
 GhostTrackPrediction KalmanGhostTrackUpdater::update(
