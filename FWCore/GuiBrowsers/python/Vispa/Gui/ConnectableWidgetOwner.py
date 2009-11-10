@@ -83,15 +83,15 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
                 
         return deletedConnection
     
-    def portIsConnected(self, port):
-        """ Returns True if there is a connection in this ConnectableWidgetOwner that is attached to the given port.
+    def portConnection(self, port):
+        """ Returns the PortConnection if there is a connection in this ConnectableWidgetOwner that is attached to the given port.
         
-        Otherwise False will be returned.
+        Otherwise None will be returned.
         """
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
             if connection.attachedToPort(port):
-                return True
-        return False
+                return connection
+        return None
 
     def propagateEventUnderConnectionWidget(self, connection, event):
         """ This function propagates an event to one of it's children.

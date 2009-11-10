@@ -11,11 +11,10 @@ from PyQt4.QtCore import QCoreApplication
 from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
-import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.tools.ConfigToolBase import ConfigToolBase
+import FWCore.GuiBrowsers.ParameterSet_patch
+from FWCore.GuiBrowsers.ConfigToolBase import ConfigToolBase
+from FWCore.GuiBrowsers.editorTools import UserCodeTool
 import PhysicsTools.PatAlgos.tools as tools
-import FWCore.GuiBrowsers.ParameterSet_patch 
-from PyQt4.QtGui import QErrorMessage
 
 # import all tools and register them in toolsDict
 toolsDir=os.path.abspath(os.path.join(os.path.dirname(tools.__file__)))
@@ -57,36 +56,16 @@ class ImportTool(ConfigToolBase):
         for command in self._importCommands:
             dump += command + "\n"
         return ("",dump)
-    def __call__(self,filename):
-        self.setParameter('filename',filename)
-        return self
     def apply(self,process):
         pass
     def setImportCommands(self,commands):
         self._importCommands=commands
    
-class UserCodeTool(ConfigToolBase):
-    """ User code tool """
-    _label="User code"
-    _defaultParameters={}
-    def dumpPython(self):
-        return ("",self._parameters['code'].value)
-    def __call__(self,code):
-        self.addParameter(self._parameters,'code',code, 'User code modifying the process: e.g. process.maxevents=1')
-        return self
-    def apply(self,process):
-        code=self._parameters['code'].value
-        exec code
-    def typeError(self,name,bool):
-        pass
-
 class ApplyTool(ConfigToolBase):
     """Apply a PAT tool"""
     _label="Apply tool"
     def dumpPython(self):
         return ("","")
-    def __call__(self):
-        return self
     def apply(self,process):
         pass
 
@@ -95,8 +74,8 @@ class ToolDataAccessor(BasicDataAccessor):
         logging.debug(__name__ + ": __init__")
         self._configDataAccessor=None
         self._toolList=[]
-        self._importTool=ImportTool()("")
-        self._applyTool=ApplyTool()()
+        self._importTool=ImportTool()
+        self._applyTool=ApplyTool()
         self._toolModules={}
         self._processCopy=None
         
@@ -180,7 +159,7 @@ class ToolDataAccessor(BasicDataAccessor):
     def setConfigDataAccessor(self,accessor):
         self._configDataAccessor=accessor
         self._processCopy=copy.deepcopy(accessor.process())
-        self._importTool=ImportTool()(accessor.configFile())
+        self._importTool.setParameter("filename",accessor.configFile())
         if accessor.process():
             return self.updateProcess(False)
 
@@ -231,7 +210,9 @@ class ToolDataAccessor(BasicDataAccessor):
         importCommands=[]
         for tool,objects in history:
             if isinstance(tool,str):
-                self._toolList+=[UserCodeTool()(tool)]
+                userTool=UserCodeTool()
+                userTool.setParameter("code",tool)
+                self._toolList+=[userTool]
             elif isinstance(tool,ConfigToolBase):
                 self._toolList+=[tool]
                 command=tool.dumpPython()[0]

@@ -10,7 +10,7 @@ import optparse
 import webbrowser
 import subprocess
 
-from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant
+from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant, Qt
 from PyQt4.QtGui import QApplication,QMenu,QPixmap,QAction,QFileDialog,QIcon,QMessageBox
 
 from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName
@@ -1035,6 +1035,20 @@ class Application(QApplication):
         """ Displays info message.
         """
         QMessageBox.about(self.mainWindow(), 'Info', message)
+        
+    def showMessageBox(self, text, informativeText="", standardButtons=QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Ignore, defaultButton=QMessageBox.Ok):
+        """ Shows a standardized message box and returns the pressed button.
+        
+        See documentation on Qt's QMessageBox for a list of possible standard buttons.
+        """
+        
+        msgBox = QMessageBox(self.mainWindow())
+        msgBox.setParent(self.mainWindow(), Qt.Sheet)     # Qt.Sheet: Indicates that the widget is a Macintosh sheet.
+        msgBox.setText(text)
+        msgBox.setInformativeText(informativeText)
+        msgBox.setStandardButtons(standardButtons)
+        msgBox.setDefaultButton(defaultButton)
+        return msgBox.exec_()
         
     def doubleClickOnFile(self, filename):
         """ Opens file given as argument if possible in Vispa.

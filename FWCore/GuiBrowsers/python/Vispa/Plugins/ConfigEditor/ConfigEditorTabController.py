@@ -14,7 +14,7 @@ from Vispa.Views.WidgetView import WidgetView
 from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConfigEditorBoxView,ConnectionStructureView,SequenceStructureView
 
 try:
-    from Vispa.Plugins.ConfigEditor.DOTExport import DotExport
+    from FWCore.GuiBrowsers.DOTExport import DotExport
     import_dotexport_error=None
 except Exception,e:
     import_dotexport_error=(str(e),exception_traceback())

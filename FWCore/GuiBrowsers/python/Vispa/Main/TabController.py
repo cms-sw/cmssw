@@ -135,7 +135,7 @@ class TabController(QObject):
         """
         if modified and not self.isEditable():
             return
-        
+
         previous = self._fileModifiedFlag
         self._fileModifiedFlag = modified
         
@@ -235,17 +235,22 @@ class TabController(QObject):
 
     def allowClose(self):
         if self.isEditable() and self.isModified():
-            msgBox = QMessageBox(self.tab().mainWindow())
-            msgBox.setParent(self.tab().mainWindow(), Qt.Sheet)     # Qt.Sheet: Indicates that the widget is a Macintosh sheet.
-            msgBox.setText("The document has been modified.")
-            msgBox.setInformativeText("Do you want to save your changes?")
-            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-            msgBox.setDefaultButton(QMessageBox.Save)
-            ret = msgBox.exec_()
-            if ret == QMessageBox.Save:
+#            msgBox = QMessageBox(self.tab().mainWindow())
+#            msgBox.setParent(self.tab().mainWindow(), Qt.Sheet)     # Qt.Sheet: Indicates that the widget is a Macintosh sheet.
+#            msgBox.setText("The document has been modified.")
+#            msgBox.setInformativeText("Do you want to save your changes?")
+#            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+#            msgBox.setDefaultButton(QMessageBox.Save)
+#            ret = msgBox.exec_()
+            messageResult = self.plugin().application().showMessageBox("The document has been modified.",
+                                                                       "Do you want to save your changes?",
+                                                                       QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                                                                       QMessageBox.Save)
+            
+            if messageResult == QMessageBox.Save:
                 if not self.save():
                     return False
-            elif ret == QMessageBox.Cancel:
+            elif messageResult == QMessageBox.Cancel:
                 return False
         return True
     

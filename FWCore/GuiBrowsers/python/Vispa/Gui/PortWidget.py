@@ -175,32 +175,13 @@ class PortWidget(VispaWidget):
                     break
         
             if hasattr(widget, "dropAreaPort"):
-                self.moduleParent().tabController().createPortConnection(self,
-                                                                     widget.dropAreaPort(widget.mapFrom(self.moduleParent(),
-                                                                                                        moduleParentPosition)
-                                                                                        )
-                                                                     )
+                localPosition = widget.mapFrom(self.moduleParent(), moduleParentPosition)
+                self.moduleParent().addPortConnection(self, widget.dropAreaPort(localPosition))
             elif isinstance(widget, PortWidget):
-                self.moduleParent().tabController().createPortConnection(self, widget)
+                self.moduleParent().addPortConnection(self, widget)
             
         VispaWidget.mouseReleaseEvent(self, event)
         
-#TODO: When it's certain that drag and drop functionality is not needed any more, remove drag n drop code.         
-#    def dragEnterEvent(self, event):
-#        """ Accepts drag enter event if event's mimeData has set self.DRAG_PORT_TEXT as text.
-#        """
-#        if self._dragablePort and event.mimeData().text() == self.DRAG_PORT_TEXT:
-#            event.acceptProposedAction()
-#        
-#    def dropEvent(self, event):
-#        """ Handle drop of another port.
-#        
-#        Tells tab controller to create a port connection between other port and this one.
-#        """
-#        if self._dragablePort and event.mimeData().text() == self.DRAG_PORT_TEXT:
-#            if self.moduleParent().tabController().createPortConnection(event.source(), self):
-#                event.acceptProposedAction()
-
 class SinkPort(PortWidget):
     """ Class for sink port of ConnectableWidgets.
     

@@ -13,7 +13,7 @@ from Vispa.Main.Exceptions import NoCurrentTabControllerException
 from Vispa.Main.Exceptions import PluginIgnoredException
 
 try:
-    from ConfigDataAccessor import ConfigDataAccessor
+    from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
 except Exception,e:
     raise PluginIgnoredException("cannot import CMSSW: " + str(e))
 

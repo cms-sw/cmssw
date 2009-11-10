@@ -66,7 +66,10 @@ class BrowserTabController(TabController):
         for viewClass in self.plugin().availableCenterViews():
             if requestedViewClassId == self.plugin().viewClassId(viewClass):
                 requestedViewClass = viewClass
-        if not requestedViewClass:
+        if not requestedViewClass and len(self.plugin().availableCenterViews())>0:
+            logging.warning(self.__class__.__name__ +": switchCenterView() - Unknown view class id "+ requestedViewClassId +".")
+            requestedViewClass = self.plugin().availableCenterViews()[0]
+        elif not requestedViewClass:
             logging.error(self.__class__.__name__ +": switchCenterView() - Unknown view class id "+ requestedViewClassId +". Aborting...")
             return False
         self.tab().setCenterView(requestedViewClass())
