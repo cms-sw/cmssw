@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.2 2009/11/09 11:50:18 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.3 2009/11/09 20:08:42 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -68,7 +68,8 @@ class JetCorrectorParameters
     //-------- Constructors --------------
     JetCorrectorParameters() {}
     JetCorrectorParameters(const std::string& fFile, const std::string& fSection = "");
-    JetCorrectorParameters(const Definitions& fDefinitions, const std::vector<Record>& fRecords) 
+  JetCorrectorParameters(const JetCorrectorParameters::Definitions& fDefinitions,
+			 const std::vector<JetCorrectorParameters::Record>& fRecords) 
     : mDefinitions(fDefinitions),mRecords(fRecords) {}
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
@@ -83,8 +84,8 @@ class JetCorrectorParameters
     
   private:
     //-------- Member variables ----------
-    Definitions         mDefinitions;
-    std::vector<Record> mRecords;
+    JetCorrectorParameters::Definitions         mDefinitions;
+    std::vector<JetCorrectorParameters::Record> mRecords;
 };
 
 #endif

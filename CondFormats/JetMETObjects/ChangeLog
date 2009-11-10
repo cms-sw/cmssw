@@ -1,3 +1,10 @@
+2009-11-10  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* added interface/*_linkdef.h files in order to enable Makefile to
+	build dictionaries in standalone mode. This allows one to
+	instantiate the classes e.g. in a ROOT macro after '.L
+	libJetMETObjects.so'
+
 2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* add getLepPt() and getRelLepPt()
