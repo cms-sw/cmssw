@@ -5,7 +5,7 @@
 #include <ostream>
 using namespace std;
 
-void TFileDirectory::cd() const {
+TDirectory * TFileDirectory::cd() const {
   string fpath = fullPath();
   TDirectory * dir = file_->GetDirectory( fpath.c_str() );
   if ( dir == 0 ) {
@@ -29,6 +29,7 @@ void TFileDirectory::cd() const {
     throw 
       cms::Exception( "InvalidDirectory" ) 
 	<< "Can't change directory to path: " << fpath;
+  return dir;
 }
 
 std::string TFileDirectory::fullPath() const {
