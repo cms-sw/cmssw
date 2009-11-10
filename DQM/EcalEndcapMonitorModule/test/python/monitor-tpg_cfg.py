@@ -251,8 +251,6 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalEndcapMonitorModule.runType = 13 # PHYSICS_GLOBAL
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
-
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'

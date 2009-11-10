@@ -131,8 +131,6 @@ process.ecalEndcapMonitorModule.mergeRuns = True
 process.ecalEndcapMonitorModule.EEDigiCollection = 'simEcalDigis:eeDigis'
 process.ecalEndcapMonitorModule.runType = 13 # PHYSICS_GLOBAL
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
-
 process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
