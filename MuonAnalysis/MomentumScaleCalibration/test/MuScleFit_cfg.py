@@ -376,6 +376,14 @@ process.looper = cms.Looper(
 
     # This line allows to switch to PAT muons. Default is false.
     # PATmuons = cms.untracked.bool(True),
+
+    # This line allows to use the EDLooper or to loop by hand.
+    # All the necessary information is saved during the first loop so there is not need
+    # at this time to read again the events in successive iterations. Therefore by default
+    # for iterations > 1 the loops are done by hand, which means that the framework does
+    # not need to read all the events again. This is much faster.
+    # If you need to read the events in every iteration put this to false.
+    # FastLoop = cms.untracked.bool(False),
 )
 
 # Timing information
