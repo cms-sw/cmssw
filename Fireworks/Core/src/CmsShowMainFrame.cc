@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.65 2009/10/09 19:58:29 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.66 2009/10/26 18:08:43 yanjuntu Exp $
 //
 // hacks
 #define private public
@@ -485,8 +485,8 @@ CmsShowMainFrame::enableActions(bool enable)
 {
    CSGActionSupervisor::enableActions(enable);
 
-   m_runEntry->SetEditDisabled(!enable);
-   m_eventEntry->SetEditDisabled(!enable);
+   m_runEntry->SetEnabled(enable);
+   m_eventEntry->SetEnabled(enable);
 }
 
 void
