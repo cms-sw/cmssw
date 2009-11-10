@@ -1,3 +1,3 @@
 #include "TBufferBlobStreamingService.h"
-#include "CondCore/DBCommon/interface/CoralServiceMacros.h"
-DEFINE_CORALSERVICE(cond::TBufferBlobStreamingService::TBufferBlobStreamingService,"COND/Services/TBufferBlobStreamingService");
+#include "CondCore/DBCommon/interface/BlobStreamerPluginFactory.h"
+DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::TBufferBlobStreamingService::TBufferBlobStreamingService,"COND/Services/TBufferBlobStreamingService");
