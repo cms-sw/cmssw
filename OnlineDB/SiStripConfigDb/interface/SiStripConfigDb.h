@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.77 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.78 2009/11/03 22:17:53 wto Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-#define USING_DATABASE_MASKING
+//#define USING_DATABASE_MASKING
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
