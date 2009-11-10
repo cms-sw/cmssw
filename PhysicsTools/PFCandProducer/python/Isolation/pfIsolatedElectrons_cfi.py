@@ -20,6 +20,6 @@ pfIsolatedElectrons  = cms.EDProducer(
     ## not used when isCombined=False
     # default value for combined relative with DR={0.4,0.4,0.4}
     # and weight={1.,1./3.,1.}; no optimal value found, yet.
-    isolationCombRelIsoCut = cms.double(0.15)
+    combinedIsolationCut = cms.double(0.15)
     )
                             
