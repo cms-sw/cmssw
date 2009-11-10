@@ -16,25 +16,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pset,
-                                                    DQMOldReceiver* mui )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
-                             mui,
-                             sistrip::FAST_CABLING )
-{
-  factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[FastFedCablingHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pset,
                                                     DQMStore* bei )
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
                              bei,
                              sistrip::FAST_CABLING )
 {
+  factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
     << " Constructing object...";

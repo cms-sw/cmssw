@@ -3,14 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class OptoScanHistograms : public virtual CommissioningHistograms {
 
  public:
 
-  OptoScanHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   OptoScanHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~OptoScanHistograms();
   

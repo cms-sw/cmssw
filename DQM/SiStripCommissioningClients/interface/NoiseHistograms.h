@@ -3,14 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class NoiseHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  NoiseHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   NoiseHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~NoiseHistograms();
   

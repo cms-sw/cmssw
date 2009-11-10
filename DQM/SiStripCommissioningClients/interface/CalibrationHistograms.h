@@ -3,16 +3,13 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
+
 class DQMStore;
 
 class CalibrationHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  CalibrationHistograms( const edm::ParameterSet& pset,
-                         DQMOldReceiver*,
-                         const sistrip::RunType& task = sistrip::CALIBRATION );
   CalibrationHistograms( const edm::ParameterSet& pset,
                          DQMStore*,
                          const sistrip::RunType& task = sistrip::CALIBRATION );

@@ -12,9 +12,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 FedTimingHistograms::FedTimingHistograms( const edm::ParameterSet& pset,
-                                          DQMOldReceiver* mui )
+                                          DQMStore* bei )
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedTimingParameters"),
-                             mui,
+                             bei,
                              sistrip::FED_TIMING ),
     factory_( new Factory ),
     optimumSamplingPoint_(15.),
@@ -61,6 +61,7 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
 //     std::vector<TH1*> profs;
 //     Collations::const_iterator ihis = iter->second.begin(); 
 //     for ( ; ihis != iter->second.end(); ihis++ ) {
+// OBSOLETE!!!
 //       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( ihis->first ) );
 //       if ( prof ) { profs.push_back(prof); }
 //     } 

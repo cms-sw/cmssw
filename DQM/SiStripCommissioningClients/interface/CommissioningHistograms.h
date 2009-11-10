@@ -1,8 +1,6 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
-#define USING_NEW_COLLATE_METHODS
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -11,10 +9,6 @@
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#ifndef USING_NEW_COLLATE_METHODS
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-#endif
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
@@ -35,11 +29,6 @@ class CommissioningHistograms {
   // ---------- con(de)structors ----------
   
   CommissioningHistograms( const edm::ParameterSet& pset,
-                           DQMOldReceiver* const,
-			   const sistrip::RunType& );
-  
-  // DEPRECACTE
-  CommissioningHistograms( const edm::ParameterSet& pset,
                            DQMStore* const,
 			   const sistrip::RunType& );
 
@@ -54,26 +43,15 @@ class CommissioningHistograms {
   
   class Histo {
   public:
-#ifdef USING_NEW_COLLATE_METHODS
     Histo( const std::string& title, 
-	   MonitorElement* const me,
-	   MonitorElement* const cme ) 
+           MonitorElement* const me,
+           MonitorElement* const cme ) 
       : title_(title), me_(me), cme_(cme) {;}
-#else
-    Histo( const std::string& title, 
-	   MonitorElement* const me,
-	   CollateMonitorElement* const cme ) 
-      : title_(title), me_(me), cme_(cme) {;}
-#endif
     Histo() : title_(""), me_(0), cme_(0) {;}
     void print( std::stringstream& ) const;
     std::string title_;
     MonitorElement* me_;
-#ifdef USING_NEW_COLLATE_METHODS
     MonitorElement* cme_;
-#else
-    CollateMonitorElement* cme_;
-#endif
   };
   
   // ---------- typedefs ----------
@@ -133,8 +111,6 @@ class CommissioningHistograms {
 
   inline const sistrip::RunType& task() const;
   
-  inline DQMOldReceiver* const mui() const;
-  
   inline DQMStore* const bei() const;
   
   inline Analyses& data();
@@ -169,8 +145,6 @@ class CommissioningHistograms {
   
   sistrip::RunType task_;
   
-  DQMOldReceiver* mui_;
-  
   DQMStore* bei_;
   
   Analyses data_;
@@ -186,7 +160,6 @@ class CommissioningHistograms {
 // ---------- inline methods ----------
 
 const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
-DQMOldReceiver* const CommissioningHistograms::mui() const { return mui_; }
 DQMStore* const CommissioningHistograms::bei() const { return bei_; }
 CommissioningHistograms::Analyses& CommissioningHistograms::data() { return data_; }
 CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }

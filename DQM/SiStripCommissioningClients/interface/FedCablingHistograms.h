@@ -5,14 +5,13 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedCablingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
 
-class DQMOldReceiver;
+
 class DQMStore;
 
 class FedCablingHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  FedCablingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   FedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FedCablingHistograms();
   

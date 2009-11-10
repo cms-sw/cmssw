@@ -16,25 +16,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedsOnlyHistograms::PedsOnlyHistograms( const edm::ParameterSet& pset,
-                                        DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
-                             mui,
-                             sistrip::PEDS_ONLY )
-{
-  factory_ = auto_ptr<PedsOnlySummaryFactory>( new PedsOnlySummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[PedsOnlyHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedsOnlyHistograms::PedsOnlyHistograms( const edm::ParameterSet& pset,
                                         DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"),
                              bei,
                              sistrip::PEDS_ONLY )
 {
+  factory_ = auto_ptr<PedsOnlySummaryFactory>( new PedsOnlySummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[PedsOnlyHistograms::" << __func__ << "]"
     << " Constructing object...";

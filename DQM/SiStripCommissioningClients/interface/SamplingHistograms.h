@@ -5,14 +5,13 @@
 #include "DQM/SiStripCommissioningSummary/interface/SamplingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/SamplingAnalysis.h"
 
-class DQMOldReceiver;
+class DQMStore;
 
 class SamplingHistograms : virtual public CommissioningHistograms {
 
  public:
   
   SamplingHistograms( const edm::ParameterSet& pset, DQMStore*, const sistrip::RunType& task = sistrip::APV_LATENCY );
-  SamplingHistograms( const edm::ParameterSet& pset, DQMOldReceiver*, const sistrip::RunType& task = sistrip::APV_LATENCY );
   virtual ~SamplingHistograms();
   
   void histoAnalysis( bool debug );

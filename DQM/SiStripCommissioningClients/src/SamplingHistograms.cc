@@ -37,27 +37,6 @@ SamplingHistograms::SamplingHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-SamplingHistograms::SamplingHistograms( const edm::ParameterSet& pset,
-                                        DQMOldReceiver* mui,
-                                        const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("SamplingParameters"),
-                             mui,
-                             task ),
-    sOnCut_(3)
-{
-  LogTrace(mlDqmClient_) 
-       << "[SamplingHistograms::" << __func__ << "]"
-       << " Constructing object...";
-  factory_ = auto_ptr<SamplingSummaryFactory>( new SamplingSummaryFactory );
-  // retreive the latency code from the root file
-  std::string dataPath = std::string(sistrip::collate_) + "/" + sistrip::root_ + "/latencyCode";
-  MonitorElement* codeElement = bei()->get(dataPath);
-  if(codeElement) latencyCode_ = codeElement->getIntValue() ;
-  else latencyCode_ = 0;
-}
-
-// -----------------------------------------------------------------------------
-/** */
 SamplingHistograms::~SamplingHistograms() {
   LogTrace(mlDqmClient_) 
        << "[SamplingHistograms::" << __func__ << "]"

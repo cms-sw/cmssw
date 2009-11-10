@@ -17,20 +17,6 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
-                                            DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedCablingParameters"),
-                             mui,
-                             sistrip::FED_CABLING ),
-    factory_( new Factory )
-{
-  LogTrace(mlDqmClient_) 
-       << "[FedCablingHistograms::" << __func__ << "]"
-       << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
                                             DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedCablingParameters"),
                              bei,

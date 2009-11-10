@@ -16,20 +16,6 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
-                                        DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                             mui,
-                             sistrip::VPSP_SCAN )
-{
-  factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
                                         DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
                              bei,

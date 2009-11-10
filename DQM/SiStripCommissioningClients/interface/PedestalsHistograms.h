@@ -3,14 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class PedestalsHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  PedestalsHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   PedestalsHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~PedestalsHistograms();
   

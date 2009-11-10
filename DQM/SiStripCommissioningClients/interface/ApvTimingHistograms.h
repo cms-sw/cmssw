@@ -3,14 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class ApvTimingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  ApvTimingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   ApvTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~ApvTimingHistograms();
   

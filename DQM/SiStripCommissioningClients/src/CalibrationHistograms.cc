@@ -47,38 +47,6 @@ CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 
-CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
-                                              DQMOldReceiver* mui,
-                                              const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                             mui,
-                             task ),
-    calchan_(0),
-    isha_(-1),
-    vfs_(-1)
-{
-  LogTrace(mlDqmClient_) 
-       << "[CalibrationHistograms::" << __func__ << "]"
-       << " Constructing object...";
-  std::string temp = std::string(sistrip::collate_) + "/" + sistrip::root_;
-  factory_ = auto_ptr<CalibrationSummaryFactory>( new CalibrationSummaryFactory );
-  MonitorElement* calchanElement = bei()->get(temp + "/calchan");
-  if(calchanElement) {
-    calchan_ = calchanElement->getIntValue() ;
-    edm::LogVerbatim(mlDqmClient_)
-      << "[CalibrationHistograms::" << __func__ << "]"
-      << "CalChan value is " << calchan_;
-  } else {
-    edm::LogWarning(mlDqmClient_)
-      << "[CalibrationHistograms::" << __func__ << "]"
-      << "CalChan value not found. Using " << calchan_;
-  }
-  MonitorElement*  ishaElement = bei()->get(temp + "/isha");
-  if(ishaElement) isha_ = ishaElement->getIntValue() ;
-  MonitorElement*  vfsElement = bei()->get(temp + "/vfs");
-  if(vfsElement) vfs_ = vfsElement->getIntValue() ;
-}
-
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistograms::~CalibrationHistograms() {

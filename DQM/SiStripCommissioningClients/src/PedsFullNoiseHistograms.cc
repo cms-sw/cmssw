@@ -16,21 +16,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedsFullNoiseHistograms::PedsFullNoiseHistograms( const edm::ParameterSet& pset,
-                                          DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
-                             mui,
-                             sistrip::PEDS_FULL_NOISE )
-{
-  factory_ = auto_ptr<PedsFullNoiseSummaryFactory>( new PedsFullNoiseSummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[PedsFullNoiseHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedsFullNoiseHistograms::PedsFullNoiseHistograms( const edm::ParameterSet& pset,
-                                          DQMStore* bei ) 
+                                                  DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"),
                              bei,
                              sistrip::PEDS_FULL_NOISE )

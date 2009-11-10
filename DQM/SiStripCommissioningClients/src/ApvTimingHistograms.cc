@@ -16,25 +16,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
-                                          DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                             mui,
-                             sistrip::APV_TIMING )
-{
-  factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
                                           DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
                              bei,
                              sistrip::APV_TIMING )
 {
+  factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
     << " Constructing object...";

@@ -15,9 +15,9 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 DaqScopeModeHistograms::DaqScopeModeHistograms( const edm::ParameterSet& pset,
-                                                DQMOldReceiver* mui ) 
+                                                DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"),
-                             mui,
+                             bei,
                              sistrip::DAQ_SCOPE_MODE ),
     factory_( new Factory )
 {

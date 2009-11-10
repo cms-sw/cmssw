@@ -5,13 +5,12 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 
-class DQMOldReceiver;
 
 class FedTimingHistograms : public CommissioningHistograms {
 
  public:
   
-  FedTimingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
+  FedTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FedTimingHistograms();
 
   typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;

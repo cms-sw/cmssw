@@ -16,25 +16,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
-                                  DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                             mui,
-                             sistrip::NOISE )
-{
-  factory_ = auto_ptr<NoiseSummaryFactory>( new NoiseSummaryFactory );
-  LogTrace(mlDqmClient_) 
-    << "[NoiseHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
                                   DQMStore* bei ) 
   : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
                              bei,
                              sistrip::NOISE )
 {
+  factory_ = auto_ptr<NoiseSummaryFactory>( new NoiseSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[NoiseHistograms::" << __func__ << "]"
     << " Constructing object...";

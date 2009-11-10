@@ -3,14 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class DQMOldReceiver;
 class DQMStore;
 
 class FastFedCablingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  FastFedCablingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
   FastFedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FastFedCablingHistograms();
   
