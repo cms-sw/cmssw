@@ -31,9 +31,11 @@ namespace {
     cond::DataWrapper<Pedestals> d1;
     pool::PolyPtr<BlobComplex> p2;
     cond::DataWrapper<BlobComplex> d2;
-
     pool::PolyPtr<condex::Efficiency> p3;
     cond::DataWrapper<condex::Efficiency> d3;
- 
+    pool::PolyPtr<BlobPedestals> p4;
+    cond::DataWrapper<BlobPedestals> d4; 
+    pool::PolyPtr<CalibHistograms> p5;
+    cond::DataWrapper<CalibHistograms> d5; 
   };
 }
