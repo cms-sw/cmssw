@@ -58,7 +58,7 @@ eleStyle->cd();
 
 gROOT->ForceStyle();
 
-TString internal_path("DQMData/EgammaV/ElectronMcSignalValidator/") ;
+TString internal_path("DQMData/EgammaV/") ;
 
 TString val_ref_file_url ;
 TString file_ref_dir = internal_path ;
@@ -192,6 +192,9 @@ web_page<<"<b>"<<cat<<"</b><br><br>" ;
 while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
   short_histo_name = histo_name ;
+  Ssiz_t pos ;
+  pos = short_histo_name.Last('/') ;
+  if (pos!=kNPOS) short_histo_name.Remove(0,pos+1) ;
   short_histo_name.Remove(0,2) ;
   web_page<<"<a href=\"#"<<short_histo_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
   if (eoc)
@@ -229,6 +232,9 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
   short_histo_name = histo_name ;
+  Ssiz_t pos ;
+  pos = short_histo_name.Last('/') ;
+  if (pos!=kNPOS) short_histo_name.Remove(0,pos+1) ;
   short_histo_name.Remove(0,2) ;
 
   web_page<<"<a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
