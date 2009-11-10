@@ -80,7 +80,6 @@ bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, std::vector<s
 	{
 	  if (trEv->filterTag(iFilt).label()==hltFilterTag_[l]) 
 	    {
-	      std::cout<<hltFilterTag_[l]<<std::endl;
 	      KEYS=trEv->filterKeys(iFilt);
 	    }
 	}
