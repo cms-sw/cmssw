@@ -262,7 +262,7 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
   initializeForDbConnection();
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   cond::DbSession session = m_dbConnection->createSession();
-  std::string blobStreamingService("COND/Services/TBufferBlobStreamingService2");
+  std::string blobStreamingService("COND/Services/TBufferBlobStreamingService");
   if(m_options.find_nothrow("blobStreamer",false)){
     if(m_values.count("blobStreamer")){
       blobStreamingService = m_values["blobStreamer"].as<std::string>();

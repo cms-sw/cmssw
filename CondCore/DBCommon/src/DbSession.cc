@@ -111,7 +111,7 @@ void cond::DbSession::SessionImpl::open( const std::string& connectionString, bo
     // pool configuration
     m_dataSvc->configuration().setConnectionService( &m_connection->connectionService(), false );
     m_dataSvc->configuration().enableSessionSharing();
-    std::string pluginName("COND/Services/TBufferBlobStreamingService2");
+    std::string pluginName("COND/Services/TBufferBlobStreamingService");
     if(!m_blobStreamingService.empty()){
       pluginName = m_blobStreamingService;
     }
