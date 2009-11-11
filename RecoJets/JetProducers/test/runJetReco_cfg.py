@@ -10,12 +10,15 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/222A169F-2E9F-DE11-83BA-0030487C6090.root',
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/6E4FCE3C-449F-DE11-9B71-001D09F26509.root',
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/B419F819-509F-DE11-82DD-003048D3756A.root',
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/B8856387-7A9F-DE11-B764-001D09F24353.root',
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/E6D38CA0-349F-DE11-8E54-001D09F25217.root',
-        '/store/relval/CMSSW_3_3_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V8-v1/0015/EC3610D1-4E9F-DE11-86B4-0019B9F72CE5.root'
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/1AE808B6-5CC0-DE11-AD4A-0030487C6062.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/2C34904B-5FC0-DE11-8172-0030487C6090.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/389EF6C2-65C0-DE11-8479-003048D3756A.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/5296FA7F-5BC0-DE11-9BFE-000423D6BA18.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/60496440-61C0-DE11-BF41-000423D9517C.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/8432D4DA-5DC0-DE11-81B5-000423D6B48C.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/A239A099-62C0-DE11-A063-000423D99A8E.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0002/C46E6E17-60C0-DE11-A79E-000423D991D4.root',
+        '/store/relval/CMSSW_3_3_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v3/0003/008104D2-9CC1-DE11-B19F-000423D99A8E.root'
         )
     )
 
@@ -32,6 +35,7 @@ process.output.outputCommands.append('keep recoCaloJets_*_*_*')
 process.output.outputCommands.append('keep recoPFJets_*_*_*')
 process.output.outputCommands.append('keep recoGenJets_*_*_*')
 process.output.outputCommands.append('keep recoBasicJets_*_*_*')
+process.output.outputCommands.append('keep *_genParticles_*_*')
 process.output.outputCommands.append('keep *_*_*_JETRECO')
 
 
@@ -55,6 +59,8 @@ process.recoJets = cms.Path(process.genParticlesForJets+process.recoGenJets+
                             )
 
 process.recoAllJets = cms.Path(process.genParticlesForJets+process.recoAllGenJets+
+                               process.genParticlesForJetsNoNu+process.recoAllGenJetsNoNu+
+                               process.genParticlesForJetsNoMuNoNu+process.recoAllGenJetsNoMuNoNu+
                                process.recoAllJets+
                                process.recoAllPFJets+
                                process.tracksForJets+process.recoAllTrackJets+
