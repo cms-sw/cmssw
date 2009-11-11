@@ -387,7 +387,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     }
 
 
-    std::cout<<nameRoll<<" "<<numberOfHits[detId]<<" "<<bxs[detId].size()<<std::endl;
+  
     
     if (dqmexpert){
 
