@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.149 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,7 +34,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/CRAFT09/Cosmics/RAW/v1/000/113/222/C87DDBC8-8799-DE11-8345-000423D6AF24.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Calo/RAW/v1/000/120/347/FE9E4A7E-90CE-DE11-893E-001D09F2447F.root')
 )
 
 # Output definition
@@ -48,17 +48,10 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     )
 )
 
-# Additional output definition
+# Combined AlCaReco output
 process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
-        'keep *_calZeroBiasClusters_*_*', 
-        'keep *_MEtoEDMConverter_*_*', 
-        'keep L1AcceptBunchCrossings_*_*_*'),
-    fileName = cms.untracked.string('SiStripCalZeroBias.root'),
+    outputCommands = process.ALCARECOEventContent.outputCommands,
+    fileName = cms.untracked.string('ALCACombined.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCACombined'),
         dataTier = cms.untracked.string('ALCARECO')
@@ -67,7 +60,7 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
 process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
-process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
+process.GlobalTag.globaltag = 'GR09_P_V4::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
