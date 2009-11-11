@@ -44,7 +44,7 @@ bool GhostTrackState::linearize(const GhostTrackPrediction &pred,
 {
 	AnalyticalImpactPointExtrapolator extrap(track_.field());
 
-	GlobalPoint point = pred.origin() + lambda * pred.direction();
+	GlobalPoint point = pred.position(lambda);
 
 	tsos_ = extrap.extrapolate(track_.impactPointState(), point);
 	if (!tsos_.isValid())

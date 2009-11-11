@@ -31,19 +31,19 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 	for(unsigned int i = 0; i < states.size(); i++) {
 		GhostTrackState &state = states[i];
 		double lambda = state.lambda();
-		if (lambda < origin && (origin - lambda) < 0.5) {
+		if (lambda < origin && (origin - lambda) < 3.5) {
 			GhostTrackState testState = state;
 			testState.linearize(pred, 2. * origin - lambda);
 			double ndof, chi2;
-			updater.contribution(prior, testState, ndof, chi2);
-			if (ndof > 0. && chi2 < 100.) {
+
+			updater.contribution(prior, testState, ndof, chi2, true);
+			if (ndof > 0. && chi2 < 5.) {
 				state = testState;
 				state.setWeight(1.);
 				done = false;
 			}
 		}
 	}
-
 
 	if (!done) {
 		for(unsigned int i = 0; i < states.size(); i++) {

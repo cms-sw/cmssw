@@ -54,7 +54,8 @@ class GhostTrackFitter {
 		virtual void contribution(
 				const GhostTrackPrediction &pred,
 				const GhostTrackState &state,
-				double &ndof, double &chi2) const = 0;
+				double &ndof, double &chi2,
+		                bool withPredError = false) const = 0;
 	};
 
 	class FitterImpl {

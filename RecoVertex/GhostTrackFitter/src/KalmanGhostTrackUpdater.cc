@@ -129,7 +129,8 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 void KalmanGhostTrackUpdater::contribution(
 				const GhostTrackPrediction &pred,
 				const GhostTrackState &state,
-				double &ndof, double &chi2) const
+				double &ndof, double &chi2,
+				bool withPredError) const
 {
 	using namespace ROOT::Math;
 
@@ -140,6 +141,8 @@ void KalmanGhostTrackUpdater::contribution(
 
 	// inverted error
 	Matrix2S invErr = kalmanState.measErr;
+	if (withPredError)
+		invErr += kalmanState.measPredErr;
 	if (!invErr.Invert()) {
 		ndof = 0.;
 		chi2 = 0.;

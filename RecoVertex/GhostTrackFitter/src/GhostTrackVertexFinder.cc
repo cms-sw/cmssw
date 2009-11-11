@@ -514,7 +514,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 #ifdef DEBUG
 	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
 	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
+		debugVertex(*iter, ghostTrack_.prediction());
 #endif
 
 	return result;
@@ -543,7 +543,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 #ifdef DEBUG
 	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
 	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
+		debugVertex(*iter, ghostTrack_.prediction());
 #endif
 
 	return result;
@@ -595,7 +595,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 #ifdef DEBUG
 	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
 	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
+		debugVertex(*iter, ghostTrack_.prediction());
 #endif
 
 	return result;

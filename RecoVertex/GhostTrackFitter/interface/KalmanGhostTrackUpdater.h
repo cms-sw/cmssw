@@ -21,7 +21,8 @@ class KalmanGhostTrackUpdater : public GhostTrackFitter::PredictionUpdater {
 
 	void contribution(const GhostTrackPrediction &pred,
 	                  const GhostTrackState &state,
-	                  double &ndof, double &chi2) const;
+	                  double &ndof, double &chi2,
+	                  bool withPredError = false) const;
 };
 
 }
