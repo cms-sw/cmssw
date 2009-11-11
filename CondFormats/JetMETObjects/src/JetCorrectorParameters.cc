@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.3 2009/11/09 11:52:03 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.4 2009/11/10 09:17:45 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -34,7 +34,9 @@ JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
 JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
 {
   std::vector<std::string> tokens = getTokens(fLine); 
-  if (!tokens.empty()) 
+  if (tokens.empty())
+    handleError("JetCorrectorParameters::Definitions","empty definitions line");
+  else 
     { 
       if (tokens.size() < 6) 
         {
@@ -71,7 +73,9 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   mNvar = fNvar;
   // quckly parse the line
   std::vector<std::string> tokens = getTokens(fLine);
-  if (!tokens.empty()) 
+  if (tokens.empty())
+    handleError("JetCorrectorParameters::Record","empty record line");
+  else 
     { 
       if (tokens.size() < 3) 
         {
