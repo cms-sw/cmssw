@@ -1,3 +1,9 @@
+2009-11-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-13
+	* minor modification to fix of 00-12-11 to address possible 
+	memleak
+
 2009-11-06  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-12-12
