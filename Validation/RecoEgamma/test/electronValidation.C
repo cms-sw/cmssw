@@ -167,8 +167,8 @@ web_page
   <<"." ;
 web_page<<"</p>\n" ;
 
-std::string histo_name, gif_name, gif_path, canvas_name ;
-TString short_histo_name ;
+std::string histo_path, canvas_name ;
+TString histo_name, gif_name, gif_path, short_histo_name, num_ref, denom_ref ;
 int scaled, log, err ;
 int divide;
 std::string num, denom, cat ;
@@ -189,12 +189,12 @@ do
 
 web_page<<"<b>"<<cat<<"</b><br><br>" ;
 
-while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
+while (histo_file1>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
+  histo_name = histo_path ;
+  Ssiz_t pos = histo_name.Last('/') ;
+  if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
   short_histo_name = histo_name ;
-  Ssiz_t pos ;
-  pos = short_histo_name.Last('/') ;
-  if (pos!=kNPOS) short_histo_name.Remove(0,pos+1) ;
   short_histo_name.Remove(0,2) ;
   web_page<<"<a href=\"#"<<short_histo_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
   if (eoc)
@@ -224,24 +224,31 @@ do
   std::getline(histo_file2,cat) ;
  } while (cat.empty()) ;
 
-while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
+while (histo_file2>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
-  gif_name = "gifs/"+histo_name+".gif" ;
-  gif_path = val_web_path+"/"+gif_name ;
-  canvas_name = std::string("c")+histo_name ;
+  histo_name = histo_path ;
+  Ssiz_t pos = histo_name.Last('/') ;
+  if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
+  short_histo_name = histo_name ;
+  short_histo_name.Remove(0,2) ;
+  
+  gif_name = "gifs/" ;
+  gif_name += histo_name ;
+  gif_name += ".gif" ;
+  gif_path = val_web_path ;
+  gif_path += "/" ;
+  gif_path += gif_name ;
+  canvas_name = std::string("c")+histo_name.Data() ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
-  short_histo_name = histo_name ;
-  Ssiz_t pos ;
-  pos = short_histo_name.Last('/') ;
-  if (pos!=kNPOS) short_histo_name.Remove(0,pos+1) ;
-  short_histo_name.Remove(0,2) ;
-
+  
   web_page<<"<a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
   if ( file_ref != 0 )
    {
-    histo_ref = (TH1 *)file_ref->Get(file_ref_dir+histo_name.c_str()) ;
+    if (file_ref_dir.IsNull()) histo_ref = (TH1 *)file_ref->Get(histo_name) ;
+    else histo_ref = (TH1 *)file_ref->Get(file_ref_dir+histo_path.c_str()) ;
+	
     if (histo_ref!=0)
      {
       histo_ref->SetLineColor(4) ;
@@ -250,12 +257,22 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
        { histo_ref->Draw("hist") ; }
       else
        {
+	    num_ref = num ;
+		denom_ref = denom ;
+	    if (file_ref_dir.IsNull())
+	     {
+		  pos = num_ref.Last('/') ;
+		  if (pos!=kNPOS) num_ref.Remove(0,pos+1) ;
+		  pos = denom_ref.Last('/') ;
+		  if (pos!=kNPOS) denom_ref.Remove(0,pos+1) ;
+		 }
+		 
         // special for efficiencies
-        TH1F *h_num = (TH1F *)file_ref->Get(file_ref_dir+num.c_str()) ;
+        TH1F *h_num = (TH1F *)file_ref->Get(file_ref_dir+num_ref) ;
         TH1F *h_res = (TH1F*)h_num->Clone("res");
-        h_res->Reset();
-        TH1F *h_denom = (TH1F *)file_ref->Get(file_ref_dir+denom.c_str()) ;
-        std::cout << "DIVIDING "<< num.c_str() << " by " << denom.c_str() << std::endl;
+        //h_res->Reset();
+        TH1F *h_denom = (TH1F *)file_ref->Get(file_ref_dir+denom_ref) ;
+        std::cout << "DIVIDING OLD "<< num_ref << " by " << denom_ref << std::endl;
         h_res->Divide(h_num,h_denom,1,1,"b");
         h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
         h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
@@ -266,13 +283,13 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
      }
     else
      {
-      web_page<<"No <b>"<<histo_name<<"</b> for "<<val_ref_release<<".<br>" ;
+      web_page<<"No <b>"<<histo_path<<"</b> for "<<val_ref_release<<".<br>" ;
      }
    }
 
   gErrorIgnoreLevel = kWarning ;
 
-  histo_new = (TH1 *)file_new->Get(file_new_dir+histo_name.c_str()) ;
+  histo_new = (TH1 *)file_new->Get(file_new_dir+histo_path.c_str()) ;
   if (histo_new!=0)
    {
     if (log==1) canvas->SetLogy(1);
@@ -294,12 +311,13 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
         else histo_new->Draw("hist") ;
        }
      }
-	  else
+	else
      {
       // special for efficiencies
       TH1F *h_num = (TH1 *)file_new->Get(file_new_dir+num.c_str()) ;
       TH1F *h_res = (TH1F*)h_num->Clone("res");
       TH1F *h_denom = (TH1 *)file_new->Get(file_new_dir+denom.c_str()) ;
+      std::cout << "DIVIDING NEW "<< num.c_str() << " by " << denom.c_str() << std::endl;
       h_res->Divide(h_num,h_denom,1,1,"b");
       h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
       h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
@@ -313,19 +331,19 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()
       <<std::endl ;
-    canvas->SaveAs(gif_path.c_str()) ;
-	  web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
+    canvas->SaveAs(gif_path.Data()) ;
+	web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>" ;
    }
   else if ((file_ref!=0)&&(histo_ref!=0))
    {
-    std::cout<<histo_name<<" NOT FOUND"<<std::endl ;
+    std::cout<<histo_path<<" NOT FOUND"<<std::endl ;
     web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
-    canvas->SaveAs(gif_path.c_str()) ;
-	  web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
+    canvas->SaveAs(gif_path.Data()) ;
+	web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>" ;
    }
   else
    {
-    web_page<<"No <b>"<<histo_name<<"</b> for "<<val_new_release<<".<br>" ;
+    web_page<<"No <b>"<<histo_path<<"</b> for "<<val_new_release<<".<br>" ;
    }
   if (eol)
    { web_page<<"</td></tr>\n<tr valign=\"top\"><td>" ; }

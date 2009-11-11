@@ -43,7 +43,7 @@ ElectronMcSignalValidator/h_ele_PhiMnPhiTrue_barrel 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_PhiMnPhiTrue_endcaps 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_PoPtrueVsEta_pfx 0 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_PoPtrueVsPhi_pfx 0 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_scl_EoEtruePfVseg_pfy 0 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_scl_EoEtruePfVsEg_pfy 0 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrueVsEta_pfx 0 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_PhiMnPhiTrueVsEta_pfx 0 0 1 0 0 0 1 1
 
@@ -134,8 +134,8 @@ Brem fraction and related distributions
 ElectronMcSignalValidator/h_ele_PinMnPout_mode 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_fbrem 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_classes 1	0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_eta_bbremFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_golden ElectronMcSignalValidator/h_ele_eta 1 0
-ElectronMcSignalValidator/h_ele_eta_goldenFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_bbrem ElectronMcSignalValidator/h_ele_eta 1 0
+ElectronMcSignalValidator/h_ele_eta_goldenFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_golden ElectronMcSignalValidator/h_ele_eta 1 0
+ElectronMcSignalValidator/h_ele_eta_bbremFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_bbrem ElectronMcSignalValidator/h_ele_eta 1 0
 ElectronMcSignalValidator/h_ele_eta_narrowFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_narrow ElectronMcSignalValidator/h_ele_eta 1 0
 ElectronMcSignalValidator/h_ele_eta_showerFrac 0 0 0 1 ElectronMcSignalValidator/h_ele_eta_show ElectronMcSignalValidator/h_ele_eta 1 0
 ElectronMcSignalValidator/h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0

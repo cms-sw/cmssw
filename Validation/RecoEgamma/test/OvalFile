@@ -23,7 +23,7 @@ on the ROOT script electronValidation.C.
 
 <var name="VAL_COMMENT" value="The new histograms were made with Validation/RecoEgamma instead of RecoEgamma/Examples.">
 <var name="VAL_NEW_RELEASE" value="340pre5new">
-<var name="VAL_REF_RELEASE" value="340pre5">
+<var name="VAL_REF_RELEASE" value="340pre5bis">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
