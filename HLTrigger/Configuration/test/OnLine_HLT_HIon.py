@@ -2575,7 +2575,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
-process.GlobalTag.globaltag = 'MC_3XY_V12::All'
+process.GlobalTag.globaltag = 'MC_3XY_V13::All'
 
 
 # Automatic addition of the customisation function
