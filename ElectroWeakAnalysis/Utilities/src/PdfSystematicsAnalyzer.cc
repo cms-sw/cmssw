@@ -10,7 +10,6 @@ public:
       virtual void beginJob(const edm::EventSetup& eventSetup) ;
       virtual void endJob() ;
 private:
-      std::string option_;
       std::string selectorPath_;
       std::vector<edm::InputTag> pdfWeightTags_;
       unsigned int originalEvents_;
@@ -35,7 +34,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfSystematicsAnalyzer::PdfSystematicsAnalyzer(const edm::ParameterSet& pset) :
-  option_(pset.getUntrackedParameter<std::string> ("Option","Rate")),
   selectorPath_(pset.getUntrackedParameter<std::string> ("SelectorPath","")),
   pdfWeightTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> > ("PdfWeightTags")) { 
 }
@@ -56,16 +54,27 @@ void PdfSystematicsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
 
 /////////////////////////////////////////////////////////////////////////////////////
 void PdfSystematicsAnalyzer::endJob(){
+
+      if (originalEvents_==0) {
+            edm::LogVerbatim("PDFAnalysis") << "NO EVENTS => NO RESULTS";
+            return;
+      }
+      if (selectedEvents_==0) {
+            edm::LogVerbatim("PDFAnalysis") << "NO SELECTED EVENTS => NO RESULTS";
+            return;
+      }
+
       edm::LogVerbatim("PDFAnalysis") << "\n>>>> Begin of PDF weight systematics summary >>>>";
       edm::LogVerbatim("PDFAnalysis") << "Total number of analyzed data: " << originalEvents_ << " [events]";
-      
-      if (option_ == "Rate") {
-        if (selectedEvents_==0) return;
-        for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
+      double originalAcceptance = double(selectedEvents_)/originalEvents_;
+      edm::LogVerbatim("PDFAnalysis") << "Total number of selected data: " << selectedEvents_ << " [events], corresponding to acceptance: " << originalAcceptance*100 << " [%]";
+
+      edm::LogVerbatim("PDFAnalysis") << "\n>>>>> PDF UNCERTAINTIES ON RATE >>>>>>";
+      for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
             unsigned int nmembers = weightedSelectedEvents_.size()-pdfStart_[i];
             if (i<pdfWeightTags_.size()-1) nmembers = pdfStart_[i+1] - pdfStart_[i];
             unsigned int npairs = (nmembers-1)/2;
-            edm::LogVerbatim("PDFAnalysis") << "Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
+            edm::LogVerbatim("PDFAnalysis") << "RATE Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
 
             double events_central = weightedSelectedEvents_[pdfStart_[i]]; 
             edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member: " << int(events_central) << " [events]";
@@ -97,16 +106,14 @@ void PdfSystematicsAnalyzer::endJob(){
             } else {
                   edm::LogVerbatim("PDFAnalysis") << "\tNO eigenvectors for uncertainty estimation";
             }
-        }
-      } else if (option_ == "Acceptance") {
-        if (originalEvents_==0) return;
-        double originalAcceptance = double(selectedEvents_)/originalEvents_;
-        edm::LogVerbatim("PDFAnalysis") << "Total number of selected data: " << selectedEvents_ << " [events], corresponding to acceptance: " << originalAcceptance*100 << " [%]";
-        for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
+      }
+
+      edm::LogVerbatim("PDFAnalysis") << "\n>>>>> PDF UNCERTAINTIES ON ACCEPTANCE >>>>>>";
+      for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
             unsigned int nmembers = weightedEvents_.size()-pdfStart_[i];
             if (i<pdfWeightTags_.size()-1) nmembers = pdfStart_[i+1] - pdfStart_[i];
             unsigned int npairs = (nmembers-1)/2;
-            edm::LogVerbatim("PDFAnalysis") << "Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
+            edm::LogVerbatim("PDFAnalysis") << "ACCEPTANCE Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
 
             double acc_central = 0.;
             if (weightedEvents_[pdfStart_[i]]>0) acc_central = weightedSelectedEvents_[pdfStart_[i]]/weightedEvents_[pdfStart_[i]]; 
@@ -141,7 +148,6 @@ void PdfSystematicsAnalyzer::endJob(){
             } else {
                   edm::LogVerbatim("PDFAnalysis") << "\tNO eigenvectors for uncertainty estimation";
             }
-        }
       }
       edm::LogVerbatim("PDFAnalysis") << ">>>> End of PDF weight systematics summary >>>>";
 

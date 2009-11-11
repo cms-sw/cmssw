@@ -29,11 +29,12 @@ src/PdfWeightProducer.cc
 - A typical application is the determination of the PDF systematics. This is 
   implemented in "src/PdfSystematicsAnalyzer.cc". This analyzer counts the 
   processed events using PDF re-weighting, and assigns systematic 
-  uncertainties on the rate according to the recipe described in
-  hep-ph/0605240. Usage:
+  uncertainties on the rate and on the acceptance according to the recipe 
+  described in hep-ph/0605240. Usage:
 
-      # Count PDF-weighted events and collect uncertainties
-      process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+      # Collect uncertainties for rate and acceptance
+      process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+            SelectorPath = cms.untracked.string('pdfana'), # put here the selection path
             PdfWeightTags = cms.untracked.VInputTag(
                     "pdfWeights:cteq65"
                   , "pdfWeights:MRST2006nnlo"
@@ -43,7 +44,7 @@ src/PdfWeightProducer.cc
 
 - A test example for these utilities is "test/PdfSystematicsAnalyzer.py". There, 
   one counts re-weighted events before and after selection, which gives immediate
-  access to the determination of PDF uncertainties on the acceptance for the 
+  access to the determination of PDF uncertainties on rate and acceptance for the 
   given process under study.
 
 

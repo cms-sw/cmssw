@@ -45,10 +45,8 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 # WMN fast selector (use W candidates in this example)
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
-# Collect uncertainties for either rate or acceptance
+# Collect uncertainties for rate and acceptance
 process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
-      #Option = cms.untracked.string('Rate'),
-      Option = cms.untracked.string('Acceptance'),
       SelectorPath = cms.untracked.string('pdfana'),
       PdfWeightTags = cms.untracked.VInputTag(
               "pdfWeights:cteq65"
