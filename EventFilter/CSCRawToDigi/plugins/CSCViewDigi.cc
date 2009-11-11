@@ -15,7 +15,7 @@
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id$
+// $Id: CSCViewDigi.cc,v 1.1 2009/05/13 15:19:06 asakharo Exp $
 //
 //
 
@@ -213,12 +213,6 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 #endif
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CSCViewDigi::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

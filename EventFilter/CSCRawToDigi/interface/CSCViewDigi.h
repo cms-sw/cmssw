@@ -15,7 +15,7 @@ Description: <one line class summary>
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id$
+// $Id: CSCViewDigi.h,v 1.1 2009/05/13 15:20:23 asakharo Exp $
 //
 //
 
@@ -71,7 +71,6 @@ class CSCViewDigi : public edm::EDAnalyzer {
       edm::InputTag statusDigiTag_;
       bool WiresDigiDump, AlctDigiDump, ClctDigiDump, CorrClctDigiDump;
       bool StripDigiDump, ComparatorDigiDump, RpcDigiDump, StatusDigiDump;
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
