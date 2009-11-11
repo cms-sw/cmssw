@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.2 2009/10/09 13:06:23 chamont Exp $
+// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.3 2009/10/10 09:09:19 chamont Exp $
 //
 //
 
@@ -143,17 +143,17 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   histNum_= new TH1F("h_recEleNum","# rec electrons",20, 0.,20.);
 
   // matching object distributions
-  hlabel="h_"+type_+"_eta"; htitle=type_+" #eta";
+  hlabel="h_matchingObject_eta"; htitle=type_+" #eta";
   h_matchingObjectEta             = new TH1F( hlabel.c_str(), htitle.c_str(), nbineta,etamin,etamax);
-  hlabel="h_"+type_+"_abseta"; htitle=type_+" |#eta|";
+  hlabel="h_matchingObject_abseta"; htitle=type_+" |#eta|";
   h_matchingObjectAbsEta             = new TH1F( hlabel.c_str(), htitle.c_str(), nbineta/2,0.,etamax);
-  hlabel="h_"+type_+"_P"; htitle=type_+" p";
+  hlabel="h_matchingObject_P"; htitle=type_+" p";
   h_matchingObjectP               = new TH1F( hlabel.c_str(), htitle.c_str(),              nbinp,0.,pmax);
-  hlabel="h_"+type_+"_Pt"; htitle=type_+" pt";
+  hlabel="h_matchingObject_Pt"; htitle=type_+" pt";
   h_matchingObjectPt               = new TH1F( hlabel.c_str(),htitle.c_str(),            nbinpteff,5.,ptmax);
-  hlabel="h_"+type_+"_phi"; htitle=type_+" phi";
+  hlabel="h_matchingObject_phi"; htitle=type_+" phi";
   h_matchingObjectPhi               = new TH1F( hlabel.c_str(), htitle.c_str(),        nbinphi,phimin,phimax);
-  hlabel="h_"+type_+"_z"; htitle=type_+" z";
+  hlabel="h_matchingObject_z"; htitle=type_+" z";
   h_matchingObjectZ      = new TH1F( hlabel.c_str(), htitle.c_str(),    nbinxyz, -25, 25 );
 
   // all electrons

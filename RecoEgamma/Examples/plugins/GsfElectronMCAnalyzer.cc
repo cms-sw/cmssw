@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.44 2009/10/29 23:11:12 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.45 2009/11/10 16:36:44 chamont Exp $
 //
 //
 
@@ -440,7 +440,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclE5x5_eg_endcaps_ =  new TH1F("h_scl_E5x5_eg_endcaps","ele supercluster energy in 5x5, ecal driven endcaps",nbinp,0.,pmax);
   histSclE5x5_eg_endcaps_->Sumw2();
 
-  histSclEoEtruePfVsEg = new TH2F("h_scl_EoEtruePfVseg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4);
+  histSclEoEtruePfVsEg = new TH2F("h_scl_EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4);
 
   // matched electron, gsf tracks
   h_ele_ambiguousTracks      = new TH1F( "h_ele_ambiguousTracks", "ele # ambiguous tracks",  5,0.,5.);
