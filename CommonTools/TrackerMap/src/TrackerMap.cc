@@ -199,6 +199,16 @@ void TrackerMap::init() {
 }
 
 TrackerMap::~TrackerMap() {
+std::map<int , TmModule *>::iterator i_mod;
+    for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
+      TmModule *  mod= i_mod->second;
+      delete mod;
+      }
+std::map<int , TmApvPair *>::iterator i_apv;
+  for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
+      TmApvPair *  apvPair= i_apv->second;
+      delete apvPair;
+      }
 }
 void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, ofstream * svgfile){
   //int x,y;
