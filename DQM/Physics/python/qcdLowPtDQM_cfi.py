@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: qcdLowPtDQM_cfi.py,v 1.1 2009/11/06 17:52:02 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -50,6 +50,7 @@ myRecoSequence = cms.Sequence(siPixelDigis*
 #                            pixelVertexFromClusters)
 
 siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+#siPixelDigis.InputLabel = cms.InputTag("source")
 
 QcdLowPtDQM = cms.EDAnalyzer("QcdLowPtDQM",
     hltTrgNames  = cms.untracked.vstring('HLT_MinBiasHcal',
