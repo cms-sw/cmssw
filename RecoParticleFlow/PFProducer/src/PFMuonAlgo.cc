@@ -61,34 +61,6 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
   */
 
   if ( muonRef->isTrackerMuon() ) { 
-    double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt());
-    double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt());
-    double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt());
-    
-    bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;
-    bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;
-    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20; 
-    
-    double delta1 =  combined && tracker ?
-      fabs(1./combinedMu->pt() -1./trackerMu->pt())
-      /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.; 
-    double delta2 = combined && standAlone ?
-      fabs(1./combinedMu->pt() -1./standAloneMu->pt())
-      /sqrt(sigmaCombined*sigmaCombined + sigmaStandAlone*sigmaStandAlone) : 100.;
-    double delta3 = standAlone && tracker ?
-      fabs(1./standAloneMu->pt() -1./trackerMu->pt())
-      /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;
-    
-    double delta =  
-      standAloneMu->hitPattern().numberOfValidMuonDTHits()+
-      standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 0 ? 
-      std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2));
-    // std::cout << "delta = " << delta << std::endl;
-    
-    double ratio = 
-      combinedMu->ptError()/combinedMu->pt()
-      / (trackerMu->ptError()/trackerMu->pt());
-    //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     
     // Quality check on the hits in the muon chambers 
     // (at least two stations hit, or last station hit)
@@ -98,8 +70,7 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
       muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) ||
       muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
 
-    bool result =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta < 3.;
-    result = result && muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
+    bool result = muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
     /*
     // if ( result && !quality ) 
     if ( result ) 
@@ -225,28 +196,17 @@ PFMuonAlgo::isLooseMuon( const reco::MuonRef& muonRef ) {
   reco::TrackRef combinedMu = muonRef->combinedMuon();
   reco::TrackRef trackerMu = muonRef->track();
 
-  // Some accuracy required on the momentum
-  bool combined = combinedMu->ptError()/combinedMu->pt() < 0.25;
-  bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.25;
-  // bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.25;
-
-  bool combined40 = combinedMu->ptError()/combinedMu->pt() < 0.40;
-  bool tracker40 = trackerMu->ptError()/trackerMu->pt() < 0.40;
-
-  if ( !combined40 || !tracker40 ) return false;
-  if ( !combined && !tracker ) return false;
-
   bool quality =
     standAloneMu->hitPattern().numberOfValidMuonDTHits() > 12 ||
     standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
-    muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) ||
-    muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+    muon::isGoodMuon(*muonRef,muon::TMLastStationTight) ||
+    muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight);
 
   quality = quality && combinedMu->normalizedChi2() < 100.;
 
   if ( !quality ) return false;
   
-  /*
+  /* 
   std::cout << "This is a loose muon ! Tracker muon ? " << muonRef->isTrackerMuon() << std::endl
 	    << " pt (STA/TRA) : " << standAloneMu->pt() 
 	    << " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
