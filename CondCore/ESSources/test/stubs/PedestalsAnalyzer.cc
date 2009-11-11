@@ -72,7 +72,7 @@ namespace edmtest
     std::cout<<"got context"<<std::endl;
     const Pedestals* myped=pPeds.product();
     std::cout<<"Pedestals* "<<myped<<std::endl;
-    for(std::vector<Pedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); ++i)
+    for(std::vector<Pedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); ++it)
       std::cout << " mean: " <<it->m_mean
                 << " variance: " <<it->m_variance;
     std::cout  << std::endl;
