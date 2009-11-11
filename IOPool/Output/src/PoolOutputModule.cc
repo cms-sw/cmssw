@@ -41,6 +41,8 @@ namespace edm {
     initializedFromInput_(false),
     outputFileCount_(0),
     inputFileCount_(0),
+    childIndex_(0U),
+    numberOfDigitsInIndex_(0U),
     overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels", false)),
     rootOutputFile_() {
       std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData", std::string()));
@@ -186,6 +188,17 @@ namespace edm {
     if(rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
   }
 
+  void PoolOutputModule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    childIndex_ = iChildIndex;
+    while (iNumberOfChildren != 0) {
+      ++numberOfDigitsInIndex_;
+      iNumberOfChildren /= 10;
+    }
+    if (numberOfDigitsInIndex_ == 0) {
+      numberOfDigitsInIndex_ = 3; // Protect against zero iNumberOfChildren
+    }
+  }
+
   PoolOutputModule::~PoolOutputModule() {
   }
 
@@ -242,6 +255,12 @@ namespace edm {
       std::ostringstream lfilename;
       ofilename << fileBase;
       lfilename << logicalFileName();
+      if(childIndex_) {
+        ofilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
+	if(!logicalFileName().empty()) {
+          lfilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
+	}
+      }
       if(outputFileCount_) {
         ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
 	if(!logicalFileName().empty()) {

@@ -92,7 +92,7 @@ namespace edm {
     virtual void write(EventPrincipal const& e);
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     virtual void writeRun(RunPrincipal const& r);
-
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     virtual bool isFileOpen() const;
     virtual bool shouldWeCloseFile() const;
     virtual void doOpenFile();
@@ -133,6 +133,8 @@ namespace edm {
     bool initializedFromInput_;
     int outputFileCount_;
     int inputFileCount_;
+    unsigned int childIndex_;
+    unsigned int numberOfDigitsInIndex_;
     bool overrideInputFileSplitLevels_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
   };
