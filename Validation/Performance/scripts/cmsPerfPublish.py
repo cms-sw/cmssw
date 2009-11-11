@@ -1831,6 +1831,7 @@ def syncToRemoteLoc(stage,drive,path,port):
         print              cmd + " --dry-run " + args 
         retval = os.system(cmd + " --dry-run " + args )
     else:
+        print cmd+" "+args
         retval = os.system(cmd + " " + args)
     return retval
 
