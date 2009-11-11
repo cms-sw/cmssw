@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/10/16 12:20:11 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/11/11 08:36:13 $
+ *  $Revision: 1.13 $
  */
 
 
@@ -708,7 +708,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   vector<L1MuonParticleRef> l1Cands;
   
   InputTag collectionTag;
-  size_t   filterIndex;
+  //size_t   filterIndex;
 
 
   // Try to get the triggerSummaryRAW branch for
