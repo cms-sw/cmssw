@@ -233,6 +233,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
   std::string iovToken;
   if(withlogging){
+    if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
     m_logdb->getWriteLock();
   }
  
@@ -251,10 +252,8 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     editor->stamp(cond::userInfo(),false);
     delete editor;
     
-    transaction.commit();
-    
     cond::MetaData metadata(m_session);
-    transaction.start(false);
+
     /*
     MetaDataEntry imetadata;
     imetadata.tagname=myrecord.m_tag;
@@ -265,11 +264,11 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
    */
     metadata.addMapping(myrecord.m_tag,iovToken,myrecord.m_timetype);
     transaction.commit();
+
     m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
     myrecord.m_iovtoken=iovToken;
     myrecord.m_isNewTag=false;
     if(withlogging){
-      if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
@@ -298,6 +297,7 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(withlogging){
+    if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
     m_logdb->getWriteLock();
   }
 
@@ -313,14 +313,12 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
       this->insertIOV(m_session,myrecord,objToken,time);
     transaction.commit();
     if(withlogging){
-      if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
     }
   }catch(const std::exception& er){
     if(withlogging){
-      if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,std::string(er.what()));

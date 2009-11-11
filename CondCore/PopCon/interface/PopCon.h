@@ -82,10 +82,6 @@ namespace popcon {
     cond::TagInfo m_tagInfo;
     
     cond::LogDBEntry m_logDBEntry;
-  
-    
-    
-    
     
   };
 
