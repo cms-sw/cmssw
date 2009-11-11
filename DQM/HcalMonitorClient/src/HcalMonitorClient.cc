@@ -95,6 +95,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     }
 
   dump2database_ = ps.getUntrackedParameter<bool>("dump2database",false);
+  databasedir_   = ps.getUntrackedParameter<std::string>("databasedir","");
 
   // clients' constructors
   if( ps.getUntrackedParameter<bool>("SummaryClient", true) )
@@ -270,7 +271,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
   if (debug_>0)
     std::cout << endl<<"HcalMonitorClient: Standard beginRun() for run " << r.id().run() << endl<<endl;
-
+  myquality_.clear(); // remove old quality flag contents at the start of each run
   if( summary_client_ )    summary_client_->beginRun();
   if( dataformat_client_ ) dataformat_client_->beginRun();
   if( digi_client_ )       digi_client_->beginRun();
@@ -290,7 +291,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   /////////////////////////////////////////////////////////
 
   if (!dump2database_) return;
-  
+  // Get current channel quality 
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
@@ -356,48 +357,58 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( detdiaglas_client_ ) detdiaglas_client_->endRun();
   /////////////////////////////////////////////////////////
   if( summary_client_)      summary_client_->endRun();
+
+
   // dumping to database
+
+  // need to add separate function to do this!!!
   
-  if (dump2database_)
-    {
-      if (debug_>0) std::cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
-      std::vector<DetId> mydetids = chanquality_->getAllChannels();
-      HcalChannelQuality* newChanQual = new HcalChannelQuality();
-      for (unsigned int i=0;i<mydetids.size();++i)
-	{
-	  if (mydetids[i].det()!=DetId::Hcal) continue; // not hcal
-
-	  HcalDetId id=mydetids[i];
-	  // get original channel status item
-	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
-	  // make copy of status
-	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  // loop over myquality flags
-	  if (myquality_.find(id)!=myquality_.end())
-	    {
-
-	      // check dead cells
-	      if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
-		  mystatus->setBit(HcalChannelStatus::HcalCellDead);
-	      else
-		mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
-	      // check hot cells
-	      if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
-		mystatus->setBit(HcalChannelStatus::HcalCellHot);
-	      else
-		mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
-	    } // if (myquality_.find_...)
-	  newChanQual->addValues(*mystatus);
- 	} // for (unsigned int i=0;...)
-      // Now dump out to text file
-      std::ostringstream file;
-      file <<"HcalDQMstatus_"<<irun_<<".txt";
-      std::ofstream outStream(file.str().c_str());
-      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
-
-    } // if (dump2databse_)
-
+  writeDBfile();
+  return;
 }
+
+void HcalMonitorClient::writeDBfile()
+
+{
+  if (!dump2database_) return;
+  if (debug_>0) std::cout <<"<HcalMonitorClient::writeDBfile>  Writing file for database"<<endl;
+  std::vector<DetId> mydetids = chanquality_->getAllChannels();
+  HcalChannelQuality* newChanQual = new HcalChannelQuality();
+  for (unsigned int i=0;i<mydetids.size();++i)
+    {
+      if (mydetids[i].det()!=DetId::Hcal) continue; // not hcal
+      
+      HcalDetId id=mydetids[i];
+      // get original channel status item
+      const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
+      // make copy of status
+      HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+      // loop over myquality flags
+      if (myquality_.find(id)!=myquality_.end())
+	{
+	  
+	  // check dead cells
+	  if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
+	    mystatus->setBit(HcalChannelStatus::HcalCellDead);
+	  else
+	    mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
+	  // check hot cells
+	  if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
+	    mystatus->setBit(HcalChannelStatus::HcalCellHot);
+	  else
+	    mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
+	} // if (myquality_.find_...)
+      newChanQual->addValues(*mystatus);
+    } // for (unsigned int i=0;...)
+      // Now dump out to text file
+  std::ostringstream file;
+  if (databasedir_!="")
+    databasedir_=databasedir_+"/";
+  file <<databasedir_<<"HcalDQMstatus_"<<irun_<<".txt";
+  std::ofstream outStream(file.str().c_str());
+  HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
+  return;
+} // HcalMonitorClient::writeDBfile()
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
@@ -465,9 +476,12 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   if( summary_client_ ) 
     summary_client_->incrementCounters(); // All this does is increment a counter.
 
-  if ( runningStandalone_ || prescale()) return;
-  
-  else analyze();
+  if (ievt_%50000==10000) writeDBfile(); // write to db every 50k events, starting with event 10000 -- add cfg values some day?
+  if ( runningStandalone_) return;
+
+  // run if we want to check individual events, and if this event isn't prescaled
+  if (prescaleEvt_>0 && !prescale()) 
+    analyze();
 }
 
 
@@ -475,8 +489,6 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 void HcalMonitorClient::analyze(){
   if (debug_>0) 
     std::cout <<"<HcalMonitorClient> Entered HcalMonitorClient::analyze()"<<endl;
-
-  //nevt_++; // counter not currently displayed anywhere 
   if(debug_>1) std::cout<<"\nHcal Monitor Client heartbeat...."<<endl;
   
   createTests();  

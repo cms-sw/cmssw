@@ -59,239 +59,306 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   beammon_checkNevents_    = ps.getUntrackedParameter<int>("BeamMonitor_checkNevents",checkNevents_);
   beammon_minErrorFlag_    = ps.getUntrackedParameter<double>("BeamMonitor_minErrorFlag",0.);
   beammon_lumiprescale_   = ps.getUntrackedParameter<int>("BeamMonitor_lumiprescale",1);
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("BeamMonitor_AllowedCalibTypes",AllowedCalibTypes_);
 
-  if (m_dbe)
+  return;
+}
+
+void HcalBeamMonitor::beginRun(const edm::EventSetup& c)
+{
+  HcalBaseMonitor::beginRun();  // increment counters
+
+  // Default number of expected good channels in the run
+
+  ring1totalchannels_=144;
+  ring2totalchannels_=144;
+  BadCells_.clear(); // remove any old maps
+  // Get Channel quality info for the run
+  // Exclude bad channels from overall calculation
+  edm::ESHandle<HcalChannelQuality> p;
+  c.get<HcalChannelQualityRcd>().get(p);
+  HcalChannelQuality* chanquality = new HcalChannelQuality(*p.product());
+  std::vector<DetId> mydetids = chanquality->getAllChannels();
+
+  for (unsigned int i=0;i<mydetids.size();++i)
     {
+      if (mydetids[i].det()!=DetId::Hcal) continue;
+      HcalDetId id=mydetids[i];
 
-      m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("BeamMonitor Event Number");
-
-      //jason's
-      m_dbe->setCurrentFolder(baseFolder_);
-      CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
-					   "Center Of Energy radius",
-					   200,0,1);
-      
-      CenterOfEnergyRadius->setAxisTitle("(normalized) radius",1);
-      
-      CenterOfEnergy = m_dbe->book2D("CenterOfEnergy",
-				     "Center of Energy",
-				     40,-1,1,
-				     40,-1,1);
-      CenterOfEnergy->setAxisTitle("normalized x coordinate",1);
-      CenterOfEnergy->setAxisTitle("normalized y coordinate",2);
-
-      COEradiusVSeta = m_dbe->bookProfile("COEradiusVSeta",
-					  "Center of Energy radius vs i#eta",
-					  172,-43,43,
-					  20,0,1);
-      COEradiusVSeta->setAxisTitle("i#eta",1);
-      COEradiusVSeta->setAxisTitle("(normalized) radius",2);
-      
-      std::stringstream histname;
-      std::stringstream histtitle;
-      m_dbe->setCurrentFolder(baseFolder_+"/HB");
-      HBCenterOfEnergyRadius = m_dbe->book1D("HBCenterOfEnergyRadius",
-					     "HB Center Of Energy radius",
-					     200,0,1);
-      HBCenterOfEnergy = m_dbe->book2D("HBCenterOfEnergy",
-				       "HB Center of Energy",
-				       40,-1,1,
-				       40,-1,1);
-      if (beammon_makeDiagnostics_)
+      if (id.subdet()!=HcalForward) continue;
+      if ((id.depth()==1 && (abs(id.ieta())==33 || abs(id.ieta())==34)) ||
+      	  (id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36)))
 	{
-	  for (int i=-16;i<=16;++i)
+	  const HcalChannelStatus* origstatus=chanquality->getValues(id);
+	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot)) 
+	    BadCells_[id]=HcalChannelStatus::HcalCellHot;
+	  else if (mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
+	    BadCells_[id]=HcalChannelStatus::HcalCellDead;
+	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot) || 
+	      mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
 	    {
-	      if (i==0) continue;
-	      histname.str("");
-	      histtitle.str("");
-	      histname<<"HB_CenterOfEnergyRadius_ieta"<<i;
-	      histtitle<<"HB Center Of Energy ieta = "<<i;
-	      HB_CenterOfEnergyRadius[i+ETA_OFFSET_HB]=m_dbe->book1D(histname.str().c_str(),
-							  histtitle.str().c_str(),
-							  200,0,1);
-	    } // end of HB loop
+	      if (id.depth()==1) --ring1totalchannels_;
+	      else if (id.depth()==2) --ring2totalchannels_;
+	    }
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HE");
-      HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
-					     "HE Center Of Energy radius",
-					     200,0,1);
-      HECenterOfEnergy = m_dbe->book2D("HECenterOfEnergy",
-				       "HE Center of Energy",
-				       40,-1,1,
-				       40,-1,1);
+    }
 
-      if (beammon_makeDiagnostics_)
+  if (!m_dbe) return;
+
+  m_dbe->setCurrentFolder(baseFolder_);
+  meEVT_ = m_dbe->bookInt("BeamMonitor Event Number");
+
+  //jason's
+  m_dbe->setCurrentFolder(baseFolder_);
+  CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
+				       "Center Of Energy radius",
+				       200,0,1);
+      
+  CenterOfEnergyRadius->setAxisTitle("(normalized) radius",1);
+      
+  CenterOfEnergy = m_dbe->book2D("CenterOfEnergy",
+				 "Center of Energy",
+				 40,-1,1,
+				 40,-1,1);
+  CenterOfEnergy->setAxisTitle("normalized x coordinate",1);
+  CenterOfEnergy->setAxisTitle("normalized y coordinate",2);
+
+  COEradiusVSeta = m_dbe->bookProfile("COEradiusVSeta",
+				      "Center of Energy radius vs i#eta",
+				      172,-43,43,
+				      20,0,1);
+  COEradiusVSeta->setAxisTitle("i#eta",1);
+  COEradiusVSeta->setAxisTitle("(normalized) radius",2);
+      
+  std::stringstream histname;
+  std::stringstream histtitle;
+  m_dbe->setCurrentFolder(baseFolder_+"/HB");
+  HBCenterOfEnergyRadius = m_dbe->book1D("HBCenterOfEnergyRadius",
+					 "HB Center Of Energy radius",
+					 200,0,1);
+  HBCenterOfEnergy = m_dbe->book2D("HBCenterOfEnergy",
+				   "HB Center of Energy",
+				   40,-1,1,
+				   40,-1,1);
+  if (beammon_makeDiagnostics_)
+    {
+      for (int i=-16;i<=16;++i)
 	{
-	  for (int i=-29;i<=29;++i)
-	    {
-	      if (abs(i)<ETA_BOUND_HE) continue;
-	      histname.str("");
-	      histtitle.str("");
-	      histname<<"HE_CenterOfEnergyRadius_ieta"<<i;
-	      histtitle<<"HE Center Of Energy ieta = "<<i;
-	      HE_CenterOfEnergyRadius[i+ETA_OFFSET_HE]=m_dbe->book1D(histname.str().c_str(),
-							  histtitle.str().c_str(),
-							  200,0,1);
-	    } // end of HE loop
-	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HO");
-      HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
-					     "HO Center Of Energy radius",
-					     200,0,1);
-      HOCenterOfEnergy = m_dbe->book2D("HOCenterOfEnergy",
-				       "HO Center of Energy",
-				       40,-1,1,
-				       40,-1,1);
-      if (beammon_makeDiagnostics_)
+	  if (i==0) continue;
+	  histname.str("");
+	  histtitle.str("");
+	  histname<<"HB_CenterOfEnergyRadius_ieta"<<i;
+	  histtitle<<"HB Center Of Energy ieta = "<<i;
+	  HB_CenterOfEnergyRadius[i+ETA_OFFSET_HB]=m_dbe->book1D(histname.str().c_str(),
+								 histtitle.str().c_str(),
+								 200,0,1);
+	} // end of HB loop
+    }
+  m_dbe->setCurrentFolder(baseFolder_+"/HE");
+  HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
+					 "HE Center Of Energy radius",
+					 200,0,1);
+  HECenterOfEnergy = m_dbe->book2D("HECenterOfEnergy",
+				   "HE Center of Energy",
+				   40,-1,1,
+				   40,-1,1);
+
+  if (beammon_makeDiagnostics_)
+    {
+      for (int i=-29;i<=29;++i)
 	{
-	  for (int i=-15;i<=15;++i)
-	    {
-	      if (i==0) continue;
-	      histname.str("");
-	      histtitle.str("");
-	      histname<<"HO_CenterOfEnergyRadius_ieta"<<i;
-	      histtitle<<"HO Center Of Energy radius ieta = "<<i;
-	      HO_CenterOfEnergyRadius[i+ETA_OFFSET_HO]=m_dbe->book1D(histname.str().c_str(),
-								     histtitle.str().c_str(),
-								     200,0,1);
-	    } // end of HO loop
-	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HF");
-      HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
-					     "HF Center Of Energy radius",
-					     200,0,1);
-      HFCenterOfEnergy = m_dbe->book2D("HFCenterOfEnergy",
-				       "HF Center of Energy",
-				       40,-1,1,
-				       40,-1,1);
-      if (beammon_makeDiagnostics_)
+	  if (abs(i)<ETA_BOUND_HE) continue;
+	  histname.str("");
+	  histtitle.str("");
+	  histname<<"HE_CenterOfEnergyRadius_ieta"<<i;
+	  histtitle<<"HE Center Of Energy ieta = "<<i;
+	  HE_CenterOfEnergyRadius[i+ETA_OFFSET_HE]=m_dbe->book1D(histname.str().c_str(),
+								 histtitle.str().c_str(),
+								 200,0,1);
+	} // end of HE loop
+    }
+  m_dbe->setCurrentFolder(baseFolder_+"/HO");
+  HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
+					 "HO Center Of Energy radius",
+					 200,0,1);
+  HOCenterOfEnergy = m_dbe->book2D("HOCenterOfEnergy",
+				   "HO Center of Energy",
+				   40,-1,1,
+				   40,-1,1);
+  if (beammon_makeDiagnostics_)
+    {
+      for (int i=-15;i<=15;++i)
 	{
-	  for (int i=-41;i<=41;++i)
-	    {
-	      if (abs(i)<ETA_BOUND_HF) continue;
-	      histname.str("");
-	      histtitle.str("");
-	      histname<<"HF_CenterOfEnergyRadius_ieta"<<i;
-	      histtitle<<"HF Center Of Energy radius ieta = "<<i;
-	      HF_CenterOfEnergyRadius[i+ETA_OFFSET_HF]=m_dbe->book1D(histname.str().c_str(),
-								     histtitle.str().c_str(),
-								     200,0,1);
-	    } // end of HF loop
-	}
-      
-      m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
-      // Wenhan's 
-      // reducing bins from ",200,0,2000" to ",40,0,800"
-      
-      float radiusbins[13]={169,201,240,286,340,406,483,576,686,818,975,1162,1300};
-      float phibins[71]={-3.5,-3.4,-3.3,-3.2,-3.1,
-			 -3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,
-			 -2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,
-			 -1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,
-			 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-			 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-			 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
-			 3.0, 3.1, 3.2, 3.3, 3.4, 3.5};
-      Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",27,0,27,100,0,100);
-      Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",27,0,27,100,0,100);
-      Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",36,0.5,72.5,100,0,100);
-      Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",36,0.5,72.5,100,0,100);
-
-      Etsum_ratio_p=m_dbe->book1D("Occ vs PMT events HF+","Energy difference of Long and Short Fiber HF+ in PMT events",105,0.,1.05);
-      Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,0,2000);
-      Etsum_ratio_m=m_dbe->book1D("Occ vs PMT events HF-","Energy difference of Long and Short Fiber HF- in PMT events",105,0.,1.05);
-      Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",27,0,27,36,0.5,72.5);
-      Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",27,0,27,36,0.5,72.5);
-
-      Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
-      Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
-
-      Etsum_ratio_map=m_dbe->book2D("Abnormal PMT events","Abnormal PMT events",
-				    8,0,8,36, 0.5,72.5);
-      SetEtaLabels(Etsum_ratio_map);
-
-      HFlumi_occ_LS = m_dbe->book2D("HFlumi_occ_LS","HFlumi occupancy for current LS",
-				      8,0,8,36, 0.5,72.5);
-      SetEtaLabels(HFlumi_occ_LS);
-      
-      HFlumi_total_deadcells = m_dbe->book2D("HFlumi_total_deadcells","# of times each HFlumi cell was dead for 1 full LS",
-					     8,0,8,36,0.5,72.5);
-      SetEtaLabels(HFlumi_total_deadcells);
-      HFlumi_total_hotcells = m_dbe->book2D("HFlumi_total_hotcells","# of times each HFlumi cell was hot for 1 full LS",
-					     8,0,8,36,0.5,72.5);
-      SetEtaLabels(HFlumi_total_hotcells);
-
-
-      Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
-      Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
-      Occ_eta_S=m_dbe->bookProfile("Occ vs iEta Short Fiber","Occ per Bunch crossing vs iEta Short Fiber",27,0,27,40,0,800);
-      Occ_eta_L=m_dbe->bookProfile("Occ vs iEta Long Fiber","Occ per Bunch crossing vs iEta Long Fiber",27,0,27,40,0,800);
-      
-      Occ_phi_L=m_dbe->bookProfile("Occ vs iPhi Long Fiber","Occ per Bunch crossing vs iPhi Long Fiber",36,0.5,72.5,40,0,800);
-      
-      Occ_phi_S=m_dbe->bookProfile("Occ vs iPhi Short Fiber","Occ per Bunch crossing vs iPhi Short Fiber",36,0.5,72.5,40,0,800);
-      
-      Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber (above threshold)",27,0,27,36,0.5,72.5);
-      Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber (above threshold)",27,0,27,36,0.5,72.5);
-
-      stringstream binlabel;
-      for (int zz=0;zz<27;++zz)
+	  if (i==0) continue;
+	  histname.str("");
+	  histtitle.str("");
+	  histname<<"HO_CenterOfEnergyRadius_ieta"<<i;
+	  histtitle<<"HO Center Of Energy radius ieta = "<<i;
+	  HO_CenterOfEnergyRadius[i+ETA_OFFSET_HO]=m_dbe->book1D(histname.str().c_str(),
+								 histtitle.str().c_str(),
+								 200,0,1);
+	} // end of HO loop
+    }
+  m_dbe->setCurrentFolder(baseFolder_+"/HF");
+  HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
+					 "HF Center Of Energy radius",
+					 200,0,1);
+  HFCenterOfEnergy = m_dbe->book2D("HFCenterOfEnergy",
+				   "HF Center of Energy",
+				   40,-1,1,
+				   40,-1,1);
+  if (beammon_makeDiagnostics_)
+    {
+      for (int i=-41;i<=41;++i)
 	{
-	  if (zz<13)
-	    binlabel<<zz-41;
-	  else if (zz==13)
-	    binlabel<<"NULL";
-	  else
-	    binlabel<<zz+15;
-	  Occ_eta_S->setBinLabel(zz+1,binlabel.str().c_str());
-	  Occ_eta_L->setBinLabel(zz+1,binlabel.str().c_str());
-	  Occ_map_S->setBinLabel(zz+1,binlabel.str().c_str());
-	  Occ_map_L->setBinLabel(zz+1,binlabel.str().c_str());
-	  Etsum_eta_S->setBinLabel(zz+1,binlabel.str().c_str());
-	  Etsum_eta_L->setBinLabel(zz+1,binlabel.str().c_str());
-	  Etsum_map_S->setBinLabel(zz+1,binlabel.str().c_str());
-	  Etsum_map_L->setBinLabel(zz+1,binlabel.str().c_str());
-	  binlabel.str("");
-	}
-
-      //HFlumi plots
-      HFlumi_ETsum_perwedge =  m_dbe->book1D("HF lumi ET-sum per wedge","HF lumi ET-sum per wedge;wedge",36,1,37);
+	  if (abs(i)<ETA_BOUND_HF) continue;
+	  histname.str("");
+	  histtitle.str("");
+	  histname<<"HF_CenterOfEnergyRadius_ieta"<<i;
+	  histtitle<<"HF Center Of Energy radius ieta = "<<i;
+	  HF_CenterOfEnergyRadius[i+ETA_OFFSET_HF]=m_dbe->book1D(histname.str().c_str(),
+								 histtitle.str().c_str(),
+								 200,0,1);
+	} // end of HF loop
+    }
       
-      HFlumi_Occupancy_above_thr_r1 =  m_dbe->book1D("HF lumi Occupancy above threshold ring1","HF lumi Occupancy above threshold ring1;wedge",36,1,37);
-      HFlumi_Occupancy_between_thrs_r1 = m_dbe->book1D("HF lumi Occupancy between thresholds ring1","HF lumi Occupancy between thresholds ring1;wedge",36,1,37);
-      HFlumi_Occupancy_below_thr_r1 = m_dbe->book1D("HF lumi Occupancy below threshold ring1","HF lumi Occupancy below threshold ring1;wedge",36,1,37);
-      HFlumi_Occupancy_above_thr_r2 = m_dbe->book1D("HF lumi Occupancy above threshold ring2","HF lumi Occupancy above threshold ring2;wedge",36,1,37);
-      HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2;wedge",36,1,37);
-      HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2;wedge",36,1,37);
+  m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
+  // Wenhan's 
+  // reducing bins from ",200,0,2000" to ",40,0,800"
       
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  float radiusbins[13]={169,201,240,286,340,406,483,576,686,818,975,1162,1300};
+  float phibins[71]={-3.5,-3.4,-3.3,-3.2,-3.1,
+		     -3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,
+		     -2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,
+		     -1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,
+		     0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+		     1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
+		     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
+		     3.0, 3.1, 3.2, 3.3, 3.4, 3.5};
+  Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",27,0,27,100,0,100);
+  Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",27,0,27,100,0,100);
+  Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",36,0.5,72.5,100,0,100);
+  Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",36,0.5,72.5,100,0,100);
 
-      HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block;LS;ET",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  Etsum_ratio_p=m_dbe->book1D("Occ vs PMT events HF+","Energy difference of Long and Short Fiber HF+ in PMT events",105,0.,1.05);
+  Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,0,2000);
+  Etsum_ratio_m=m_dbe->book1D("Occ vs PMT events HF-","Energy difference of Long and Short Fiber HF- in PMT events",105,0.,1.05);
+  Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",27,0,27,36,0.5,72.5);
+  Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",27,0,27,36,0.5,72.5);
 
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->getTProfile()->SetMarkerStyle(20);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->getTProfile()->SetMarkerStyle(20);
-      HFlumi_Et_per_channel_vs_lumiblock->getTProfile()->SetMarkerStyle(20);
-    } // if (m_dbe)
+  Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
+  Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
+
+  Etsum_ratio_map=m_dbe->book2D("Abnormal PMT events","Abnormal PMT events",
+				8,0,8,36, 0.5,72.5);
+  SetEtaLabels(Etsum_ratio_map);
+
+  HFlumi_occ_LS = m_dbe->book2D("HFlumi_occ_LS","HFlumi occupancy for current LS",
+				8,0,8,36, 0.5,72.5);
+  SetEtaLabels(HFlumi_occ_LS);
+      
+  HFlumi_total_deadcells = m_dbe->book2D("HFlumi_total_deadcells","# of times each HFlumi cell was dead for 1 full LS",
+					 8,0,8,36,0.5,72.5);
+  SetEtaLabels(HFlumi_total_deadcells);
+  HFlumi_total_hotcells = m_dbe->book2D("HFlumi_total_hotcells","# of times each HFlumi cell was hot for 1 full LS",
+					8,0,8,36,0.5,72.5);
+  SetEtaLabels(HFlumi_total_hotcells);
+
+
+  Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
+  Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
+  Occ_eta_S=m_dbe->bookProfile("Occ vs iEta Short Fiber","Occ per Bunch crossing vs iEta Short Fiber",27,0,27,40,0,800);
+  Occ_eta_L=m_dbe->bookProfile("Occ vs iEta Long Fiber","Occ per Bunch crossing vs iEta Long Fiber",27,0,27,40,0,800);
+      
+  Occ_phi_L=m_dbe->bookProfile("Occ vs iPhi Long Fiber","Occ per Bunch crossing vs iPhi Long Fiber",36,0.5,72.5,40,0,800);
+      
+  Occ_phi_S=m_dbe->bookProfile("Occ vs iPhi Short Fiber","Occ per Bunch crossing vs iPhi Short Fiber",36,0.5,72.5,40,0,800);
+      
+  Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber (above threshold)",27,0,27,36,0.5,72.5);
+  Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber (above threshold)",27,0,27,36,0.5,72.5);
+
+  stringstream binlabel;
+  for (int zz=0;zz<27;++zz)
+    {
+      if (zz<13)
+	binlabel<<zz-41;
+      else if (zz==13)
+	binlabel<<"NULL";
+      else
+	binlabel<<zz+15;
+      Occ_eta_S->setBinLabel(zz+1,binlabel.str().c_str());
+      Occ_eta_L->setBinLabel(zz+1,binlabel.str().c_str());
+      Occ_map_S->setBinLabel(zz+1,binlabel.str().c_str());
+      Occ_map_L->setBinLabel(zz+1,binlabel.str().c_str());
+      Etsum_eta_S->setBinLabel(zz+1,binlabel.str().c_str());
+      Etsum_eta_L->setBinLabel(zz+1,binlabel.str().c_str());
+      Etsum_map_S->setBinLabel(zz+1,binlabel.str().c_str());
+      Etsum_map_L->setBinLabel(zz+1,binlabel.str().c_str());
+      binlabel.str("");
+    }
+
+  //HFlumi plots
+  HFlumi_ETsum_perwedge =  m_dbe->book1D("HF lumi ET-sum per wedge","HF lumi ET-sum per wedge;wedge",36,1,37);
+      
+  HFlumi_Occupancy_above_thr_r1 =  m_dbe->book1D("HF lumi Occupancy above threshold ring1","HF lumi Occupancy above threshold ring1;wedge",36,1,37);
+  HFlumi_Occupancy_between_thrs_r1 = m_dbe->book1D("HF lumi Occupancy between thresholds ring1","HF lumi Occupancy between thresholds ring1;wedge",36,1,37);
+  HFlumi_Occupancy_below_thr_r1 = m_dbe->book1D("HF lumi Occupancy below threshold ring1","HF lumi Occupancy below threshold ring1;wedge",36,1,37);
+  HFlumi_Occupancy_above_thr_r2 = m_dbe->book1D("HF lumi Occupancy above threshold ring2","HF lumi Occupancy above threshold ring2;wedge",36,1,37);
+  HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2;wedge",36,1,37);
+  HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2;wedge",36,1,37);
+      
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+  HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block;LS;ET",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->getTProfile()->SetMarkerStyle(20);
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->getTProfile()->SetMarkerStyle(20);
+  HFlumi_Et_per_channel_vs_lumiblock->getTProfile()->SetMarkerStyle(20);
+
+  HFlumi_Ring1Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring1Status_vs_LS","Fraction of good Ring 1 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Ring2Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring2Status_vs_LS","Fraction of good Ring 2 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Ring1Status_vs_LS->getTProfile()->SetMarkerStyle(20);
+  HFlumi_Ring2Status_vs_LS->getTProfile()->SetMarkerStyle(20);
 
   return;
 
-} // void HcalBeamMonitor::setup()
+} // void HcalBeamMonitor::beginRun(const EventSetup& c)
 
 void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				   const HORecHitCollection& hoHits,
 				   const HFRecHitCollection& hfHits,
-                                   const HFDigiCollection& hf
-				     // const ZDCRecHitCollection & zdcHits // include this once we see ZDC rec hits read out
+                                   const HFDigiCollection& hf,
+				   int   CalibType
 				   )
   
-{ //processEvent loop
+{ 
+  //processEvent loop
   if (!m_dbe)
     {
       if (fVerbosity) std::cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
       return;
     }
+
+  // Check that event is of proper calibration type
+  bool processevent=false;
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+        {
+          if (AllowedCalibTypes_[i]==CalibType)
+            {
+              processevent=true;
+              break;
+            }
+        }
+    }
+  if (fVerbosity>0) std::cout <<"<HcalBeamMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (!processevent)
+    return;
 
   if (showTiming)
     {
@@ -515,10 +582,10 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	double offset;
 	
 	// Assume ZS until shown otherwise
-	double emptytowersRing1 = 144;
-	double emptytowersRing2 = 144;
-	double ZStowersRing1 = 144;
-	double ZStowersRing2 = 144;
+	double emptytowersRing1 = ring1totalchannels_;
+	double emptytowersRing2 = ring2totalchannels_;
+	double ZStowersRing1 = ring1totalchannels_;
+	double ZStowersRing2 = ring2totalchannels_;
 	
 	int ieta, iphi;
 	float et,eta,phi,r;
@@ -544,7 +611,14 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    // Count that hit was found in one of the rings used for luminosity calculation.
 	    // If so, decrease the number of empty channels per ring by 1
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // luminosity ring check
-	      (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
+	      {
+		// don't subtract away cells that have already been removed as bad
+		if (BadCells_.find(HFiter->id())==BadCells_.end())
+		  {
+		    if ((abs(ieta)<35) && HFiter->id().depth()==1) --ZStowersRing1;
+		    else if ((abs(ieta)>34) && HFiter->id().depth()==2) -- ZStowersRing2;
+		  }
+	      }
 
 	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
 
@@ -552,8 +626,12 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    et=HFiter->energy()/cosh(eta)/area[abs(ieta)-29];
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // Luminosity ring check
 	      {
-		if (et>=occThresh_) // minimum ET threshold
-		  (HFiter->id().depth()==1) ? --emptytowersRing1 : --emptytowersRing2;
+		// don't count cells that are below threshold, or that have been marked bad in Chan Stat DB
+		if (et>=occThresh_ && BadCells_.find(HFiter->id())==BadCells_.end() ) // minimum ET threshold
+		  {
+		    if ((abs(ieta)<35) && HFiter->id().depth()==1) --emptytowersRing1;
+		    else if ((abs(ieta)>34) && HFiter->id().depth()==2) -- emptytowersRing2;
+		  }
 	      }
 	    r=radius[abs(ieta)-29];
 	    if(HFiter->id().iphi()<37)
@@ -669,14 +747,15 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	// Check Ring 1
 	double logvalue=0;
-	int ring1totalchannels=144;
-	int ring2totalchannels=144;
-	if (emptytowersRing1>0)
-	  logvalue=-1.*log(emptytowersRing1/ring1totalchannels);
+
+	if (emptytowersRing1>0 && ring1totalchannels_>0)
+	  logvalue=-1.*log(emptytowersRing1/ring1totalchannels_);
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,logvalue);
 	
 	// Check Ring 2
-	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing2/ring2totalchannels) : logvalue = 0;
+	logvalue=0;
+	if (emptytowersRing2>0 && ring2totalchannels_>0)
+	  logvalue=-1.*log(emptytowersRing2/ring2totalchannels_);
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,logvalue);
 
 	int hfeta=ETA_OFFSET_HF;
@@ -913,11 +992,33 @@ void HcalBeamMonitor::endLuminosityBlock()
   HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
   HFlumi_total_hotcells->Fill(-1,-1,1);
 
+  // ADD IETA MAP
+  int ietamap[8]={-36,-35,-34,-33,33,34,35,36};
+  int ieta=-1, iphi = -1, depth=-1;
+  int badring1=0;
+  int badring2=0;
   for (int x=1;x<=HFlumi_occ_LS->getTH2F()->GetNbinsX();++x)
     {
       for (int y=1;y<=HFlumi_occ_LS->getTH2F()->GetNbinsY();++y)
 	{
-	  if (HFlumi_occ_LS->getBinContent(x,y)==0)
+
+	  // Skip over channels that are flagged as bad
+	  if (x<8)
+	    ieta=ietamap[x-1];
+	  else
+	    ieta=-1;
+	  iphi=2*y-1;
+	  if (abs(ieta)==33 || abs(ieta)==34)  depth=1;
+	  else if (abs(ieta)==35 || abs(ieta)==36) depth =2;
+	  else depth = -1;
+	  if (depth !=-1 && ieta!=1)
+	    {
+	      HcalDetId thisID(HcalForward, ieta, iphi, depth);
+	      if (BadCells_.find(thisID)==BadCells_.end())
+		continue;
+	    }
+	  double Ncellhits=HFlumi_occ_LS->getBinContent(x,y);
+	  if (Ncellhits==0)
 	    {
 	      // One new luminosity section found with no entries for the cell in question
 	      // Add protection requiring a minimum number of entries before counting as dead?
@@ -925,12 +1026,28 @@ void HcalBeamMonitor::endLuminosityBlock()
 	    } // dead cell check
 
 	  // hot if present in more than 25% of events in the LS
-	  if (HFlumi_occ_LS->getBinContent(x,y)>0.25*Nentries)
+	  if (Ncellhits>0.25*Nentries)
 	    {
 	      HFlumi_total_hotcells->Fill(x-1,2*y-1,1);
 	    } // hot cell check
+
+	  if (Ncellhits==0 || Ncellhits>0.25*Nentries) // cell was either hot or dead
+	    {
+	      if (depth==1)  badring1++;
+	      else if (depth==2)  badring2++;
+	    }
 	} // loop over y
     } // loop over x
+
+  // Fill fraction of bad channels found in this LS
+  if (ring1totalchannels_!=0)
+    HFlumi_Ring1Status_vs_LS->Fill(lumiblock,1-1.*badring1/ring1totalchannels_);
+  else
+    HFlumi_Ring1Status_vs_LS->Fill(lumiblock,0);
+  if (ring2totalchannels_!=0)
+    HFlumi_Ring2Status_vs_LS->Fill(lumiblock,1-1.*badring2/ring2totalchannels_);
+  else
+    HFlumi_Ring2Status_vs_LS->Fill(lumiblock,0);
   LBprocessed_=true;
   return;
 }

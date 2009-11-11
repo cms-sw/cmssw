@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/10/18 15:10:08 $
-  * $Revision: 1.37 $
+  * $Date: 2009/11/10 21:03:13 $
+  * $Revision: 1.38 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -27,6 +27,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   ~HcalDeadCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun();
   void clearME(); // overrides base class function
   void reset();
   
@@ -36,8 +37,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 		    //const ZDCRecHitCollection& zdcHits,
 		    const HBHEDigiCollection& hbhedigi,
                     const HODigiCollection& hodigi,
-                    const HFDigiCollection& hfdigi
-		    //const ZDCDigiCollection& zdcdigi, 
+                    const HFDigiCollection& hfdigi,
+		    int calibType
 		    );
 
   void periodicReset();

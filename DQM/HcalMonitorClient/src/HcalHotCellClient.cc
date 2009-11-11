@@ -391,7 +391,7 @@ void HcalHotCellClient::analyze(void)
 void HcalHotCellClient::calculateProblems()
 {
   getHistograms();
-  double totalevents=0; // total events processed thus far
+  if (ievt_<=0) return;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
 
@@ -408,21 +408,7 @@ void HcalHotCellClient::calculateProblems()
   for (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
     {
       if (ProblemCellsByDepth.depth[d]==0) continue;
-      // All tests have the same number of 'totalevents' stored in their
-      // underflow bins.  As long as one test is being performed, grab value
-      // from that test.  Otherwise, continue
-      if (hotclient_test_persistent_ && AbovePersistentThresholdCellsByDepth[d]!=0)
-	totalevents=AbovePersistentThresholdCellsByDepth[d]->GetBinContent(0);
-      else if (hotclient_test_pedestal_ && AbovePedestalHotCellsByDepth[d]!=0)
-	totalevents=AbovePedestalHotCellsByDepth[d]->GetBinContent(0);
-      else if (hotclient_test_neighbor_ && AboveNeighborsHotCellsByDepth[d]!=0)
-	totalevents=AboveNeighborsHotCellsByDepth[d]->GetBinContent(0);
-      else if (hotclient_test_energy_ && AboveEnergyThresholdCellsByDepth[d]!=0)
-	totalevents=AboveEnergyThresholdCellsByDepth[d]->GetBinContent(0);
-      else
-	continue;
-
-      if (totalevents==0) continue;
+      
       // get number of bins for problemcells
       etabins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsY();
@@ -441,7 +427,7 @@ void HcalHotCellClient::calculateProblems()
 		  problemvalue+=AboveNeighborsHotCellsByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (hotclient_test_energy_)
 		  problemvalue+=AboveEnergyThresholdCellsByDepth[d]->GetBinContent(eta+1,phi+1);
-	      problemvalue = min(totalevents, problemvalue);
+	      problemvalue = min((double)ievt_, problemvalue);
 	      if (problemvalue==0) continue; // no problem found
 	      zside=0;
 	      if (d<2)
@@ -449,8 +435,8 @@ void HcalHotCellClient::calculateProblems()
 		  if (isHF(eta,d+1))
 		    ieta<0 ? zside = -1 : zside= 1;
 		}
-	      ProblemCellsByDepth.depth[d]->Fill(ieta+zside,phi+1,problemvalue/totalevents);
-	      ProblemCells->Fill(ieta+zside,phi+1,problemvalue/totalevents);
+	      ProblemCellsByDepth.depth[d]->Fill(ieta+zside,phi+1,problemvalue/ievt_);
+	      ProblemCells->Fill(ieta+zside,phi+1,problemvalue/ievt_);
 	    } // loop over phi
 	} // loop over eta
     } //loop over d

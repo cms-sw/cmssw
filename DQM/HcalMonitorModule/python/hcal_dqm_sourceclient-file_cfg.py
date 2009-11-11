@@ -9,13 +9,14 @@ process = cms.Process("HCALDQM")
 #  variables used in multiple places
 #-----------------------------------                      
 
-maxevents    = 5000     # maximum number of events to process
-checkNevents = 1000     # histograms are filled 'every checkNevents' events
-debuglevel   = 0        # specify amount of debug info to display
+maxevents      = 2000       # maximum number of events to process
+checkNevents   = 1000    # histograms are filled 'every checkNevents' events
+debuglevel     = 0      # larger value means more debug messages (0=no debug)
+dump2database  = False  # turn on to dump out channel status in form DB can use
 
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
-memcheck=False          # Dump out memeroy usage information
+memcheck=False          # Dump out memory usage information
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Reduce frequency of MessageLogger event output messages
@@ -41,9 +42,9 @@ if source=="PoolSource":
                                 fileNames = cms.untracked.vstring
                                 (
         # A (relatively) recent run
-        #'/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
+        '/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
         # Calibration triggers only
-        '/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/84ED101B-03C0-DE11-B33C-000423D94E70.root',
+        #'/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/84ED101B-03C0-DE11-B33C-000423D94E70.root',
         # cosmics run with known hot cell in HF
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
@@ -60,7 +61,9 @@ elif source=="NewEventStreamFileReader":
                                 fileNames = cms.untracked.vstring(
         #'/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat'
         # example file from online (cmsusr0) directory (lookarea_SM)
-        'file:/lookarea_SM/MWGR_40_2009.00116136.0036.A.storageManager.07.0000.dat',
+        #'file:/lookarea_SM/MWGR_40_2009.00116136.0036.A.storageManager.07.0000.dat',
+        #'/store/streamer/RunPrep09/A/000/120/325/RunPrep09.00120325.0002.A.storageManager.06.0001.dat',
+        '/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0196.A.storageManager.04.0000.dat'
         )
                                 )
 
@@ -110,7 +113,8 @@ process.dqmSaver.saveByRun = 1
 
 # lxplus
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFrontierConditions twiki
+#process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFrontierConditions twiki
+process.GlobalTag.globaltag = "GR09_P_V4::All" 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
@@ -270,8 +274,7 @@ process.hcalMonitor.Online = True # set true for online/local running
 
 process.hcalMonitor.showTiming      = False
 process.hcalMonitor.checkNevents    = checkNevents
-process.hcalMonitor.dump2database   = False
-process.hcalMonitor.AnalyzeOrbitGap = False
+#process.hcalMonitor.DeadCellMonitor_test_rechits = True
 
 #--------------------------------------------
 # Turn on/off individual hcalMonitor modules
@@ -279,7 +282,6 @@ process.hcalMonitor.AnalyzeOrbitGap = False
 process.hcalMonitor.subSystemFolder = subsystem
 
 process.hcalMonitor.DataFormatMonitor             = True
-process.hcalMonitor.DataIntegrityTask             = True
 process.hcalMonitor.DigiMonitor                   = True
 process.hcalMonitor.RecHitMonitor                 = True
 process.hcalMonitor.TrigPrimMonitor               = True
@@ -287,12 +289,15 @@ process.hcalMonitor.DeadCellMonitor               = True
 process.hcalMonitor.HotCellMonitor                = True
 process.hcalMonitor.BeamMonitor                   = True
 process.hcalMonitor.ReferencePedestalMonitor      = True
+process.hcalMonitor.LaserMonitor  =                 False
 
-process.hcalMonitor.DetDiagNoiseMonitor           = True
-process.hcalMonitor.DetDiagTimingMonitor          = True
+process.hcalMonitor.DetDiagNoiseMonitor           = False
+process.hcalMonitor.DetDiagTimingMonitor          = False
 process.hcalMonitor.DetDiagLEDMonitor             = False
 process.hcalMonitor.DetDiagLaserMonitor           = False
 process.hcalMonitor.DetDiagPedestalMonitor        = False
+
+process.hcalMonitor.DataIntegrityTask             = False
 
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
 setHcalTaskValues(process.hcalMonitor)
@@ -303,9 +308,9 @@ process.hcalMonitor.subSystemFolder = subsystem
 #(otherwise they will remain set to the values specified for the hcalMonitor.)
 
 # Loosen HF hot cell thresholds when using cosmic reconstruction
-hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
-hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
-
+process.hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
+process.hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
+process.hcalMonitor.ReferencePedestalMonitor_makeDiagnosticPlots = True
 #-----------------------------
 # Hcal DQM Client
 #-----------------------------
@@ -322,6 +327,7 @@ process.hcalClient.subSystemFolder  = subsystem
 # Set client settings to the same as monitor.  At the moment, this doesn't affect the client minErrorFlag
 # Summary Client is also unaffected
 
+process.hcalClient.dump2database   = dump2database
 setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=debuglevel)
 
 # Keep Summary Client turned on

@@ -7,7 +7,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           runningStandalone         = cms.untracked.bool(False),
                           Online                    = cms.untracked.bool(False), 
 
-                          dump2database       = cms.untracked.bool(False), # dumps channel status to text file
+                          dump2database             = cms.untracked.bool(False), # dumps channel status to text file
+                          databasedir               = cms.untracked.string(''),
 
                           # maximum number of lumi blocks to appear in some histograms
                           Nlumiblocks = cms.untracked.int32(1000),
@@ -18,8 +19,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           MonitorDaemon             = cms.untracked.bool(True),
 
                           # run actual client either every N events or M lumi blocks (or both)
-                          diagnosticPrescaleEvt     = cms.untracked.int32(200),
-                          diagnosticPrescaleLS      = cms.untracked.int32(-1),
+                          diagnosticPrescaleEvt     = cms.untracked.int32(-1),
+                          diagnosticPrescaleLS      = cms.untracked.int32(1),
                           resetFreqEvents           = cms.untracked.int32(-1),
                           resetFreqLS               = cms.untracked.int32(-1),
                           
@@ -120,7 +121,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     
     client.Online                                 = monitor.Online
     client.Nlumiblocks                            = monitor.Nlumiblocks
-    client.dump2database                          = monitor.dump2database
 
     # Beam Client
     client.BeamClient                             = monitor.BeamMonitor
@@ -173,6 +173,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "HcalMonitorClient values from HcalMonitorModule: "
         print "Debug              = ", client.debug
         print "Online             = ", client.Online
+        print "Dump to database   ? ", client.dump2database
         print "Nlumiblocks        = ", client.Nlumiblocks
         print "showTiming         = ", client.showTiming
         print "PrescaleEvt        = ", client.diagnosticPrescaleEvt

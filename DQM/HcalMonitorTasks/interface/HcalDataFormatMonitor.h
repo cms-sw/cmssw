@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/10/25 22:34:11 $
- * $Revision: 1.53 $
+ * $Date: 2009/11/03 16:28:16 $
+ * $Revision: 1.54 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -45,10 +45,12 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const FEDRawDataCollection& rawraw, const
-		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
+		    HcalUnpackerReport& report, const HcalElectronicsMap& emap,
+		    int CalibType);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();
   void reset();
+  //void beginRun();
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);

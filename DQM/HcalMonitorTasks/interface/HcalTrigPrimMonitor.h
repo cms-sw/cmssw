@@ -12,8 +12,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2009/10/12 15:10:05 $
-  * $Revision: 1.19 $
+  * $Date: 2009/10/30 17:11:07 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 
@@ -31,11 +31,13 @@ class HcalTrigPrimMonitor: public HcalBaseMonitor {
 		    const HFDigiCollection& hfdigi,		    
 		    const HcalTrigPrimDigiCollection& tpDigis,
 		    const HcalTrigPrimDigiCollection& emultpDigis,
-                const FEDRawDataCollection& rawraw,
-		    const HcalElectronicsMap& emap);
+		    const FEDRawDataCollection& rawraw,
+		    const HcalElectronicsMap& emap,
+		    int   CalibType
+		    );
   void clearME();
   void reset();
-
+  void beginRun();
 
 private:
 

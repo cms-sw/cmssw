@@ -9,8 +9,8 @@
 
 /** \class HcalLaserMonitor
  *  
- * $Date: 2008/10/08 12:31:44 $
- * $Revision: 1.2 $
+ * $Date: 2009/01/08 19:34:07 $
+ * $Revision: 1.3 $
  * \author L. Lebolo - FIU
  */
 static const float adc2fc_[128] = { -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -46,9 +46,11 @@ class HcalLaserMonitor: public HcalBaseMonitor {
   ~HcalLaserMonitor(); 
 
   void setup( const edm::ParameterSet&, DQMStore* );
+  void beginRun();
   void processEvent( const HBHEDigiCollection&, const HODigiCollection&,
 		     const HFDigiCollection&, const HcalLaserDigi&,
-		     const HcalDbService& );
+		     const HcalDbService&,
+		     int   CalibType);
   void reset();
   void done();
 

@@ -118,6 +118,7 @@ public:
   
  private:
   void removeAllME(void);
+  void writeDBfile();
   /********************************************************/
   //  The following member variables can be specified in  //
   //  the configuration input file for the process.       //
@@ -196,6 +197,7 @@ public:
 
   // myquality_ will store status values for each det ID I find
   bool dump2database_;
+  std::string databasedir_;
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
 

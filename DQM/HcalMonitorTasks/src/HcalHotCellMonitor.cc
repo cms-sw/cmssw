@@ -1,7 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 
 #define OUT if(fverbosity_)std::cout
-#define BITSHIFT 6
 
 using namespace std;
 
@@ -41,12 +40,12 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   if (fVerbosity>1)
     std::cout <<"<HcalHotCellMonitor::setup>  Getting variable values from cfg files"<<std::endl;
 
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("HotCellMonitor_AllowedCalibTypes",AllowedCalibTypes_);
+
   // hotmon_makeDiagnostics_ will take on base task value unless otherwise specified
   hotmon_makeDiagnostics_ = ps.getUntrackedParameter<bool>("HotCellMonitor_makeDiagnosticPlots",makeDiagnostics);
-  
-  // Set checkNevents values
-  hotmon_checkNevents_ = ps.getUntrackedParameter<int>("HotCellMonitor_checkNevents",checkNevents_);
-   
+  hotmon_minEvents_     = ps.getUntrackedParameter<int>("HotCellMonitor_minEvents",500);
+
   // Set which hot cell checks will be performed
   hotmon_test_persistent_         = ps.getUntrackedParameter<bool>("HotCellMonitor_test_persistent",true);
   hotmon_test_neighbor_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_neighbor",false); // deprecated right now
@@ -89,131 +88,144 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   setupNeighborParams(ps,ZDCNeighborParams_,"ZDC");
   HFNeighborParams_.DeltaIphi*=2; // HF cell segmentation is 10 degrees, not 5 (mostly).  Need to multiply by 2 to convert from cell range to degree format
 
+ if (showTiming)
+   {
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor SETUP -> "<<cpu_timer.cpuTime()<<std::endl;
+   }
+} // void HcalHotCellMonitor::setup(...)
+
+void HcalHotCellMonitor::beginRun()
+{
+  HcalBaseMonitor::beginRun(); // reset counters
   zeroCounters();
-
-
-  // Set up histograms
-  if (m_dbe)
+  if (!m_dbe) return;
+  if (showTiming)
     {
-      if (fVerbosity>1)
-	std::cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
-      m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("Hot Cell Task Event Number");
-      meEVT_->Fill(ievt_);
-      meTOTALEVT_ = m_dbe->bookInt("Hot Cell Task Total Events Processed");
-      meTOTALEVT_->Fill(tevt_);
+  if (fVerbosity>1)
+    std::cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<std::endl;
 
-      // Create plots of problems vs LB
+  m_dbe->setCurrentFolder(baseFolder_);
+  meEVT_ = m_dbe->bookInt("Hot Cell Task Event Number");
+  meEVT_->Fill(ievt_);
+  meTOTALEVT_ = m_dbe->bookInt("Hot Cell Task Total Events Processed");
+  meTOTALEVT_->Fill(tevt_);
+
+  // Create plots of problems vs LB
 
 
-      // 1D plots count number of bad cells vs. luminoisty block
-      ProblemsVsLB=m_dbe->bookProfile("TotalHotCells_HCAL_vs_LS",
-				      "Total Number of Hot Hcal Cells vs lumi section", 
-				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HB=m_dbe->bookProfile("TotalHotCells_HB_vs_LS",
-					 "Total Number of Hot HB Cells vs lumi section",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HE=m_dbe->bookProfile("TotalHotCells_HE_vs_LS",
-					 "Total Number of Hot HE Cells vs lumi section",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HO=m_dbe->bookProfile("TotalHotCells_HO_vs_LS",
-					 "Total Number of Hot HO Cells vs lumi section",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HF=m_dbe->bookProfile("TotalHotCells_HF_vs_LS",
-					 "Total Number of Hot HF Cells vs lumi section",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  // 1D plots count number of bad cells vs. luminoisty block
+  ProblemsVsLB=m_dbe->bookProfile("TotalHotCells_HCAL_vs_LS",
+				  "Total Number of Hot Hcal Cells vs lumi section", 
+				  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HB=m_dbe->bookProfile("TotalHotCells_HB_vs_LS",
+				     "Total Number of Hot HB Cells vs lumi section",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HE=m_dbe->bookProfile("TotalHotCells_HE_vs_LS",
+				     "Total Number of Hot HE Cells vs lumi section",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HO=m_dbe->bookProfile("TotalHotCells_HO_vs_LS",
+				     "Total Number of Hot HO Cells vs lumi section",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HF=m_dbe->bookProfile("TotalHotCells_HF_vs_LS",
+				     "Total Number of Hot HF Cells vs lumi section",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-      ProblemsVsLB->getTProfile()->SetMarkerStyle(20);
-      ProblemsVsLB_HB->getTProfile()->SetMarkerStyle(20);
-      ProblemsVsLB_HE->getTProfile()->SetMarkerStyle(20);
-      ProblemsVsLB_HO->getTProfile()->SetMarkerStyle(20);
-      ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HB->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HE->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HO->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
 
-      // Set up plots for each failure mode of hot cells
-      stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
+  // Set up plots for each failure mode of hot cells
+  stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
 
-      if (hotmon_test_energy_)
-	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
-	  SetupEtaPhiHists(AboveEnergyThresholdCellsByDepth,
-			    "Hot Cells Above Energy Threshold","");
-	  //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
+  if (hotmon_test_energy_)
+    {
+      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
+      SetupEtaPhiHists(AboveEnergyThresholdCellsByDepth,
+		       "Hot Cells Above Energy Threshold","");
+      //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
 	  
-	  // set more descriptive titles for plots
-	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 3 -- HE > "<<HEenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV";
-	  AboveEnergyThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
-	  units.str("");
-	}
+      // set more descriptive titles for plots
+      units.str("");
+      units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
+      AboveEnergyThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HE > "<<HEenergyThreshold_<<", HF > "<<HFenergyThreshold_<<" GeV";
+      AboveEnergyThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells: Depth 3 -- HE > "<<HEenergyThreshold_<<" GeV";
+      AboveEnergyThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV";
+      AboveEnergyThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
+      units.str("");
+    }
 
-      if (hotmon_test_persistent_)
-	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
-	  SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
-			    "Hot Cells Persistently Above Energy Threshold","");
-	  //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
+  if (hotmon_test_persistent_)
+    {
+      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
+      SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
+		       "Hot Cells Persistently Above Energy Threshold","");
+      //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
 	  
-	  // set more descriptive titles for plots
-	  units.str("");
-	  units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-	  AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
-	  units.str("");
-	}
+      // set more descriptive titles for plots
+      units.str("");
+      units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
+      AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
+      AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for 1 full Lumi Block";
+      AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV for 1 full Lumi Block";
+      AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
+      units.str("");
+    }
 
+  if (hotmon_test_neighbor_)
+    {
+      m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
+      SetupEtaPhiHists(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
+      //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
+    }
+
+  // The 1D energy plots are already made in the rechit monitor.  
+  // Energy vs Neighbor plots might be useful for trying to set up the neighbor-identification hot cell algorithm
+  if (hotmon_makeDiagnostics_)
+    {
+      if (hotmon_test_energy_ || hotmon_test_persistent_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/rechitenergy");
+	  d_HBrechitenergy=m_dbe->book1D("HB_rechitenergy","HB rechit energy",1500,-10,140);
+	  d_HErechitenergy=m_dbe->book1D("HE_rechitenergy","HE rechit energy",1500,-10,140);
+	  d_HOrechitenergy=m_dbe->book1D("HO_rechitenergy","HO rechit energy",1500,-10,140);
+	  d_HFrechitenergy=m_dbe->book1D("HF_rechitenergy","HF rechit energy",1500,-10,140);
+	  SetupEtaPhiHists(d_avgrechitenergymap,
+			   "Rec hit energy per cell","");
+	  SetupEtaPhiHists(d_avgrechitoccupancymap,"Rec hit occupancy per cell","");
+	}
       if (hotmon_test_neighbor_)
 	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
-	  SetupEtaPhiHists(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
-	  //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/neighborcells");
+	  d_HBenergyVsNeighbor=m_dbe->book2D("HB_energyVsNeighbor","HB  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
+	  d_HEenergyVsNeighbor=m_dbe->book2D("HE_energyVsNeighbor","HE  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
+	  d_HOenergyVsNeighbor=m_dbe->book2D("HO_energyVsNeighbor","HO  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
+	  d_HFenergyVsNeighbor=m_dbe->book2D("HF_energyVsNeighbor","HF  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
 	}
+    } // if (hotmon_makeDiagnostics_)
 
-      // The 1D energy plots are already made in the rechit monitor.  
-      // Energy vs Neighbor plots might be useful for trying to set up the neighbor-identification hot cell algorithm
-      if (hotmon_makeDiagnostics_)
-	{
-	  if (hotmon_test_energy_ || hotmon_test_persistent_)
-	    {
-	      m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/rechitenergy");
-	      d_HBrechitenergy=m_dbe->book1D("HB_rechitenergy","HB rechit energy",1500,-10,140);
-	      d_HErechitenergy=m_dbe->book1D("HE_rechitenergy","HE rechit energy",1500,-10,140);
-	      d_HOrechitenergy=m_dbe->book1D("HO_rechitenergy","HO rechit energy",1500,-10,140);
-	      d_HFrechitenergy=m_dbe->book1D("HF_rechitenergy","HF rechit energy",1500,-10,140);
-	      SetupEtaPhiHists(d_avgrechitenergymap,
-				"Rec hit energy per cell","");
-	      SetupEtaPhiHists(d_avgrechitoccupancymap,"Rec hit occupancy per cell","");
-	    }
-	  if (hotmon_test_neighbor_)
-	    {
-	      m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/neighborcells");
-	      d_HBenergyVsNeighbor=m_dbe->book2D("HB_energyVsNeighbor","HB  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
-	      d_HEenergyVsNeighbor=m_dbe->book2D("HE_energyVsNeighbor","HE  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
-	      d_HOenergyVsNeighbor=m_dbe->book2D("HO_energyVsNeighbor","HO  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
-	      d_HFenergyVsNeighbor=m_dbe->book2D("HF_energyVsNeighbor","HF  #Sigma Neighbors vs. rec hit energy",100,-5,15,100,0,25);
-	    }
-	} // if (hotmon_makeDiagnostics_)
-    } // if (m_dbe)
-
+  if (showTiming)
+   {
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor BEGINRUN -> "<<cpu_timer.cpuTime()<<std::endl;
+   }
   return;
-} //void HcalHotCellMonitor::setup(...)
+} //void HcalHotCellMonitor::beginRun(...)
 
 /* --------------------------- */
 void HcalHotCellMonitor::setupNeighborParams(const edm::ParameterSet& ps,
@@ -252,9 +264,11 @@ void HcalHotCellMonitor::setupNeighborParams(const edm::ParameterSet& ps,
   return;
 } // void HcalHotCellMonitor::setupNeighborParams
 
+
 /* --------------------------- */
 
 void HcalHotCellMonitor::reset(){}  // reset function is empty for now
+
 
 /* --------------------------- */
 
@@ -345,11 +359,39 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 	} // for (int phi ...)
     } // for (int ieta...)
   
-  return;
+    if (showTiming)
+    {
+    cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor CREATEMAPS -> "<<cpu_timer.cpuTime()<<std::endl;
+    }
+    return;
   */
 } // void HcalHotCellMonitor::createMaps
 
 
+void HcalHotCellMonitor::beginLuminosityBlock(int lb)
+{
+  HcalBaseMonitor::beginLuminosityBlock(lb);
+  zeroCounters();
+  return;
+} // beginLuminosityBlock(int lb)
+
+void HcalHotCellMonitor::endLuminosityBlock()
+{
+  if (LBprocessed_==true)
+    return; // histograms already filled for this LB
+  if (hotmon_test_neighbor_)
+    fillNevents_neighbor();
+  
+  if (hotmon_test_energy_)
+    fillNevents_energy();
+  
+  if (hotmon_test_persistent_)
+    fillNevents_persistentenergy();
+
+  fillNevents_problemCells();
+  LBprocessed_=true;
+  return;
+} //endLuminosityBlock()
 
 
 /* ------------------------- */
@@ -381,17 +423,32 @@ void HcalHotCellMonitor::clearME()
 
 
 void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
-				       const HORecHitCollection& hoHits,
-				       const HFRecHitCollection& hfHits,
-				       //const ZDCRecHitCollection& zdcHits,
-				      //const HBHEDigiCollection& hbhedigi,
-				      // const HODigiCollection& hodigi,
-				      // const HFDigiCollection& hfdigi,
-				       //const ZDCDigiCollection& zdcdigi,
-				       const HcalDbService& cond
+				      const HORecHitCollection& hoHits,
+				      const HFRecHitCollection& hfHits,
+				      const HcalDbService& cond,
+				      int   CalibType
 				       )
 {
   
+  // Check that event is of proper calibration type
+  bool processevent=false;
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+        {
+          if (AllowedCalibTypes_[i]==CalibType)
+            {
+              processevent=true;
+              break;
+            }
+        }
+    }
+  if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (!processevent)
+    return;
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -413,40 +470,14 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       processEvent_rechitneighbors(hbHits, hoHits, hfHits);
     }
 
-  // Fill problem cells
-  if ((ievt_%hotmon_checkNevents_ ==0) && 
-      (hotmon_test_persistent_ ||
-       hotmon_test_neighbor_  || hotmon_test_energy_    ))
-    {
-      fillNevents_problemCells();
-    }
+ if (showTiming)
+   {
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT -> "<<cpu_timer.cpuTime()<<std::endl;
+   }
 
   return;
 } // void HcalHotCellMonitor::processEvent(...)
 
-/* --------------------------------------- */
-
-void HcalHotCellMonitor::fillHotHistosAtEndRun()
-{
-  // Fill histograms one last time at endRun call
-  
-  /*
-    I'm not sure I like this feature.  Suppose checkNevents=500, and the end run occurs at 501?
-    Then the occupancy plot would create errors for whichever digis were not found in a single event.
-    That's not desired behavior.
-    We could just exclude the occupancy test from running here, but I'm not sure that's the best solution either.
-    For now (Aug. 21, 2009), fill the occupancy plots (used for determining fraction of events > threshold), but do not fill persistent plots
-  */
-  
-   if (hotmon_test_neighbor_)
-      fillNevents_neighbor();
-   
-   if (hotmon_test_energy_)
-     fillNevents_energy();
-
-   fillNevents_problemCells();
-   return;
-}
 
 /* --------------------------------------- */
 
@@ -584,19 +615,6 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
    AboveEnergyThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
  for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.depth.size();++i)
    AbovePersistentThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
-
- 
- // Fill histograms 
-  if (ievt_%hotmon_checkNevents_==0 && hotmon_test_energy_)
-    {
-	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Energy plots"<<std::endl;
-	fillNevents_energy();
-    }
-  if (ievt_%hotmon_checkNevents_==0 && hotmon_test_persistent_)
-    {
-	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Persistent Energy plots"<<std::endl;
-	fillNevents_persistentenergy();
-    }
   
  if (showTiming)
    {
@@ -917,13 +935,6 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
  for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.depth.size();++i)
    AboveNeighborsHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
- // Fill histograms 
-  if (ievt_%hotmon_checkNevents_==0)
-    {
-	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Neighbor plots"<<std::endl;
-	if (hotmon_test_neighbor_) fillNevents_neighbor();
-    }
-
  if (showTiming)
    {
      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_RECHITNEIGHBOR -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -939,6 +950,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 {
   // Fill Histograms showing rechits with energies > some threshold for N consecutive events
 
+  if (levt_<hotmon_minEvents_) return;
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -986,7 +998,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 		     }
 		   
 		   // MUST BE ABOVE ENERGY THRESHOLD FOR ALL N EVENTS
-		   if (abovepersistent[eta][phi][depth]<hotmon_checkNevents_)
+		   if (abovepersistent[eta][phi][depth]<levt_)
 		     {
 		       abovepersistent[eta][phi][depth]=0;
 		       continue;  		
@@ -1311,7 +1323,7 @@ void HcalHotCellMonitor::periodicReset()
   HcalBaseMonitor::periodicReset();
 
   // then reset the temporary histograms
-  HcalHotCellMonitor::zeroCounters();
+  zeroCounters();
 
   // now reset all the MonitorElements
 

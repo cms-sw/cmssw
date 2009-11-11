@@ -763,7 +763,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	  me=dqmStore_->get(name.str().c_str());
 
 	  if (!me && debug_>0)  
-	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
+	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  '"<<name.str().c_str()<<"'"<<std::endl;
 	  else if (me)
 	    {
 	      hist=me->getTH2F();

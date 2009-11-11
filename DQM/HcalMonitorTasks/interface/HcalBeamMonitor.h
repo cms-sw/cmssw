@@ -4,6 +4,10 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // Use for stringstream
 #include <iostream>
@@ -12,8 +16,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/10/21 11:25:46 $
-  * $Revision: 1.11 $
+  * $Date: 2009/11/10 21:03:13 $
+  * $Revision: 1.12 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -23,11 +27,12 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   ~HcalBeamMonitor();
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::EventSetup& c);
   void processEvent(const  HBHERecHitCollection& hbHits,
-		    const HORecHitCollection& hoHits, 
-		    const HFRecHitCollection& hfHits,
-                     const HFDigiCollection& hf
-		    //const ZDCRecHitCollection& zdcHits
+		    const  HORecHitCollection& hoHits, 
+		    const  HFRecHitCollection& hfHits,
+		    const  HFDigiCollection& hf,
+		    int    CalibType
 		    );
   void reset();
   void clearME();
@@ -101,6 +106,12 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HFlumi_total_hotcells;
   MonitorElement* HFlumi_total_deadcells;
 
+  MonitorElement* HFlumi_Ring1Status_vs_LS;
+  MonitorElement* HFlumi_Ring2Status_vs_LS;
+  std::map <HcalDetId, int> BadCells_;
+
+  int ring1totalchannels_;
+  int ring2totalchannels_;
   const int ETA_OFFSET_HB;
 
   const int ETA_OFFSET_HE;

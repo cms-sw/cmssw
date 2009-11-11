@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/11/09 18:46:43 $
- * $Revision: 1.54 $
+ * $Date: 2009/11/10 14:10:15 $
+ * $Revision: 1.55 $
  * \author W. Fisher
  *
 */
@@ -212,13 +212,10 @@ public:
 
   MonitorElement* meFEDS_;
   MonitorElement* meStatus_;
-  MonitorElement* meRunType_;
-  MonitorElement* meEvtMask_;
   MonitorElement* meTrigger_;
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   
-  HcalMonitorSelector*    evtSel_;
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;
   HcalDataIntegrityTask*  diTask_;
@@ -249,10 +246,6 @@ public:
   const HcalElectronicsMap*    readoutMap_;
 
   ofstream m_logFile;
-
-  // Running on the Orbit Gap Calibration events?
-  bool AnalyzeOrbGapCT_;
-  bool skipCalib_;
 
  // Decide whether individual subdetectors should be checked
   bool checkHB_;

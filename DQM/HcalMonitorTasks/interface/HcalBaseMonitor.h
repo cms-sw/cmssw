@@ -39,8 +39,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/11/10 14:10:55 $
-  * $Revision: 1.35 $
+  * $Date: 2009/11/10 21:03:13 $
+  * $Revision: 1.36 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -49,6 +49,7 @@ public:
   virtual ~HcalBaseMonitor(); 
 
   virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  virtual void beginRun();
   virtual void done();
   virtual void clearME();
   virtual void periodicReset();
@@ -117,9 +118,8 @@ protected:
   string rootFolder_;
   string baseFolder_;
 
-  //static const int binmapd2[];
-  //static const int binmapd3[];
-
+  vector<int> AllowedCalibTypes_;
+  // Eventually, remove these -- problem cells get processed in client
   MonitorElement* ProblemCells;
   EtaPhiHists ProblemCellsByDepth;
 

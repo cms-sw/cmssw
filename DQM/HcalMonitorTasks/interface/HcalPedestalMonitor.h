@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2009/07/21 11:02:48 $
-  * $Revision: 1.28 $
+  * $Date: 2009/11/09 18:47:58 $
+  * $Revision: 1.29 $
   * \author W. Fisher - FNAL
   */
 
@@ -22,10 +22,11 @@ public:
   ~HcalPedestalMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-
+  void beginRun();
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
+		    int calibType,
 		    const HcalDbService& cond);
   void done();
   void reset();

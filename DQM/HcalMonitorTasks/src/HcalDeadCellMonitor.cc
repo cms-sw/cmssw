@@ -1,7 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 
 #define OUT if(fverbosity_)cout
-#define BITSHIFT 5
 
 using namespace std;
 
@@ -79,250 +78,269 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   HOenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HO_energyThreshold",energyThreshold_);
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HF_energyThreshold",energyThreshold_);
  
-  zeroCounters(true); // zero all counters, including never-present ccounters
-  
-  // Set up histograms
-  if (m_dbe)
+  // Set allowed types of events for running through rechitmon
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("DeadCellMonitor_AllowedCalibTypes",AllowedCalibTypes_);
+
+  if (showTiming)
     {
-      if (fVerbosity>1)
-	std::cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<std::endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor SETUP -> "<<cpu_timer.cpuTime()<<std::endl;
+    }
+  
+  return;
+} // void HcalDeadCellMonitor::setup(...)
 
-      m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("Dead Cell Task Event Number");
-      meEVT_->Fill(ievt_);
-      meTOTALEVT_ = m_dbe->bookInt("Dead Cell Total Events Processed");
-      meTOTALEVT_->Fill(tevt_);
+void HcalDeadCellMonitor::beginRun()
+{
+  HcalBaseMonitor::beginRun();
+  zeroCounters(true); // zero all counters, including never-present counters
+  // Set up histograms
+  if (!m_dbe) return;
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  if (fVerbosity>1)
+    std::cout <<"<HcalDeadCellMonitor::beginRun>  Setting up histograms"<<std::endl;
 
-      // 1D plots count number of bad cells vs. luminoisty block
-      ProblemsVsLB=m_dbe->bookProfile("TotalDeadCells_HCAL_vs_LS",
-				      "Total Number of Dead Hcal Cells vs lumi section;Lumi Section;Dead Cells", 
-				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-				      100,0,10000);
-      ProblemsVsLB_HB=m_dbe->bookProfile("TotalDeadCells_HB_vs_LS",
-					 "Total Number of Dead HB Cells vs lumi section;Lumi Section;Dead Cells",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);
-      ProblemsVsLB_HE=m_dbe->bookProfile("TotalDeadCells_HE_vs_LS",
-					 "Total Number of Dead HE Cells vs lumi section;Lumi Section;Dead Cells",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HO=m_dbe->bookProfile("TotalDeadCells_HO_vs_LS",
-					 "Total Number of Dead HO Cells vs lumi section;Lumi Section;Dead Cells",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB_HF=m_dbe->bookProfile("TotalDeadCells_HF_vs_LS",
-					 "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
-      (ProblemsVsLB_HB->getTProfile())->SetMarkerStyle(20);
-      (ProblemsVsLB_HE->getTProfile())->SetMarkerStyle(20);
-      (ProblemsVsLB_HO->getTProfile())->SetMarkerStyle(20);
-      (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
+  m_dbe->setCurrentFolder(baseFolder_);
+  //clearME();
+  meEVT_ = m_dbe->bookInt("Dead Cell Task Event Number");
+  meEVT_->Fill(ievt_);
+  meTOTALEVT_ = m_dbe->bookInt("Dead Cell Total Events Processed");
+  meTOTALEVT_->Fill(tevt_);
+  // 1D plots count number of bad cells vs. luminosity block
+  ProblemsVsLB=m_dbe->bookProfile("TotalDeadCells_HCAL_vs_LS",
+				  "Total Number of Dead Hcal Cells vs lumi section;Lumi Section;Dead Cells", 
+				  Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+				  100,0,10000);
+  ProblemsVsLB_HB=m_dbe->bookProfile("TotalDeadCells_HB_vs_LS",
+				     "Total Number of Dead HB Cells vs lumi section;Lumi Section;Dead Cells",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+				     100,0,10000);
+  ProblemsVsLB_HE=m_dbe->bookProfile("TotalDeadCells_HE_vs_LS",
+				     "Total Number of Dead HE Cells vs lumi section;Lumi Section;Dead Cells",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HO=m_dbe->bookProfile("TotalDeadCells_HO_vs_LS",
+				     "Total Number of Dead HO Cells vs lumi section;Lumi Section;Dead Cells",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  ProblemsVsLB_HF=m_dbe->bookProfile("TotalDeadCells_HF_vs_LS",
+				     "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
+  (ProblemsVsLB_HB->getTProfile())->SetMarkerStyle(20);
+  (ProblemsVsLB_HE->getTProfile())->SetMarkerStyle(20);
+  (ProblemsVsLB_HO->getTProfile())->SetMarkerStyle(20);
+  (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
 
-      // ProblemCells plots are in HcalDeadCellClient!
+  // ProblemCells plots are in HcalDeadCellClient!
       
-      // Set up plots for each failure mode of dead cells
-      stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
-      stringstream name;
+  // Set up plots for each failure mode of dead cells
+  stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
+  stringstream name;
 
-      // Never-present test will always be called, by definition of dead cell
+  // Never-present test will always be called, by definition of dead cell
 
-      m_dbe->setCurrentFolder(baseFolder_+"/dead_digi_never_present");
-      SetupEtaPhiHists(DigiPresentByDepth,
-		       "Digi Present At Least Once","");
+  m_dbe->setCurrentFolder(baseFolder_+"/dead_digi_never_present");
+  SetupEtaPhiHists(DigiPresentByDepth,
+		   "Digi Present At Least Once","");
+  // 1D plots count number of bad cells
+  NumberOfNeverPresentDigis=m_dbe->bookProfile("Problem_NeverPresentDigis_HCAL_vs_LS",
+					       "Total Number of Never-Present Hcal Cells vs LS;Lumi Section;Dead Cells",
+					       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      
+  NumberOfNeverPresentDigisHB=m_dbe->bookProfile("Problem_NeverPresentDigis_HB_vs_LS",
+						 "Total Number of Never-Present HB Cells vs LS;Lumi Section;Dead Cells",
+						 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      
+  NumberOfNeverPresentDigisHE=m_dbe->bookProfile("Problem_NeverPresentDigis_HE_vs_LS",
+						 "Total Number of Never-Present HE Cells vs LS;Lumi Section;Dead Cells",
+						 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      
+  NumberOfNeverPresentDigisHO=m_dbe->bookProfile("Problem_NeverPresentDigis_HO_vs_LS",
+						 "Total Number of Never-Present HO Cells vs LS;Lumi Section;Dead Cells",
+						 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      
+  NumberOfNeverPresentDigisHF=m_dbe->bookProfile("Problem_NeverPresentDigis_HF_vs_LS",
+						 "Total Number of Never-Present HF Cells vs LS;Lumi Section;Dead Cells",
+						 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  (NumberOfNeverPresentDigis->getTProfile())->SetMarkerStyle(20);
+  (NumberOfNeverPresentDigisHB->getTProfile())->SetMarkerStyle(20);
+  (NumberOfNeverPresentDigisHE->getTProfile())->SetMarkerStyle(20);
+  (NumberOfNeverPresentDigisHO->getTProfile())->SetMarkerStyle(20);
+  (NumberOfNeverPresentDigisHF->getTProfile())->SetMarkerStyle(20);
+
+
+  for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
+    DigiPresentByDepth.depth[depth]->Reset();
+      
+  FillUnphysicalHEHFBins(DigiPresentByDepth);
+
+  if (deadmon_test_digis_)
+    {
+      m_dbe->setCurrentFolder(baseFolder_+"/dead_digi_often_missing");
+      //units<<"("<<deadmon_checkNevents_<<" consec. events)";
+      name<<"Dead Cells with No Digis";
+      SetupEtaPhiHists(RecentMissingDigisByDepth,
+		       name.str(),
+		       "");
+      name.str("");
+      name<<"HB HE HF Depth 1 Dead Cells with No Digis for 1 Full Luminosity Block"; 
+      RecentMissingDigisByDepth.depth[0]->setTitle(name.str().c_str());
+
+      name.str("");
+      name<<"HB HE HF Depth 2 Dead Cells with No Digis for 1 Full Luminosity Block";
+      RecentMissingDigisByDepth.depth[1]->setTitle(name.str().c_str());
+
+      name.str("");
+      name<<"HE Depth 3 Dead Cells with No Digis for 1 Full Luminosity Block";
+      RecentMissingDigisByDepth.depth[2]->setTitle(name.str().c_str());
+
+      name.str("");
+      name<<"HO Depth 4 Dead Cells with No Digis for 1 Full Luminosity Block";
+      RecentMissingDigisByDepth.depth[3]->setTitle(name.str().c_str());
+      name.str("");
+
       // 1D plots count number of bad cells
-      NumberOfNeverPresentDigis=m_dbe->bookProfile("Problem_NeverPresentDigis_HCAL_vs_LS",
-						   "Total Number of Never-Present Hcal Cells vs LS;Lumi Section;Dead Cells",
-						   Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
-      NumberOfNeverPresentDigisHB=m_dbe->bookProfile("Problem_NeverPresentDigis_HB_vs_LS",
-						     "Total Number of Never-Present HB Cells vs LS;Lumi Section;Dead Cells",
-						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
-      NumberOfNeverPresentDigisHE=m_dbe->bookProfile("Problem_NeverPresentDigis_HE_vs_LS",
-						    "Total Number of Never-Present HE Cells vs LS;Lumi Section;Dead Cells",
-						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
-      NumberOfNeverPresentDigisHO=m_dbe->bookProfile("Problem_NeverPresentDigis_HO_vs_LS",
-						     "Total Number of Never-Present HO Cells vs LS;Lumi Section;Dead Cells",
-						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
-      NumberOfNeverPresentDigisHF=m_dbe->bookProfile("Problem_NeverPresentDigis_HF_vs_LS",
-						     "Total Number of Never-Present HF Cells vs LS;Lumi Section;Dead Cells",
-						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      (NumberOfNeverPresentDigis->getTProfile())->SetMarkerStyle(20);
-      (NumberOfNeverPresentDigisHB->getTProfile())->SetMarkerStyle(20);
-      (NumberOfNeverPresentDigisHE->getTProfile())->SetMarkerStyle(20);
-      (NumberOfNeverPresentDigisHO->getTProfile())->SetMarkerStyle(20);
-      (NumberOfNeverPresentDigisHF->getTProfile())->SetMarkerStyle(20);
-
-
-      for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
-	DigiPresentByDepth.depth[depth]->Reset();
-      
-      FillUnphysicalHEHFBins(DigiPresentByDepth);
-
-      if (deadmon_test_digis_)
-	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/dead_digi_often_missing");
-	  //units<<"("<<deadmon_checkNevents_<<" consec. events)";
-	  name<<"Dead Cells with No Digis";
-	  SetupEtaPhiHists(RecentMissingDigisByDepth,
-			   name.str(),
-			    "");
-	  name.str("");
-	  name<<"HB HE HF Depth 1 Dead Cells with No Digis for 1 Full Luminosity Block"; 
-	  RecentMissingDigisByDepth.depth[0]->setTitle(name.str().c_str());
-
-	  name.str("");
-	  name<<"HB HE HF Depth 2 Dead Cells with No Digis for 1 Full Luminosity Block";
-	  RecentMissingDigisByDepth.depth[1]->setTitle(name.str().c_str());
-
-	  name.str("");
-	  name<<"HE Depth 3 Dead Cells with No Digis for 1 Full Luminosity Block";
-	  RecentMissingDigisByDepth.depth[2]->setTitle(name.str().c_str());
-
-	  name.str("");
-	  name<<"HO Depth 4 Dead Cells with No Digis for 1 Full Luminosity Block";
-	  RecentMissingDigisByDepth.depth[3]->setTitle(name.str().c_str());
-	  name.str("");
-
-	  // 1D plots count number of bad cells
-	  name<<"Total Number of Hcal Digis Unoccupied for 1 Full Luminosity Block"; 
-	  NumberOfRecentMissingDigis=m_dbe->bookProfile("Problem_RecentMissingDigis_HCAL_vs_LS",
-						name.str(),
-						Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HB Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
-	  NumberOfRecentMissingDigisHB=m_dbe->bookProfile("Problem_RecentMissingDigis_HB_vs_LS",
-						  name.str(),
-						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HE Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
-	  NumberOfRecentMissingDigisHE=m_dbe->bookProfile("Problem_RecentMissingDigis_HE_vs_LS",
-						  name.str(),
-						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HO Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
-	  NumberOfRecentMissingDigisHO=m_dbe->bookProfile("Problem_RecentMissingDigis_HO_vs_LS",
-						  name.str(),
-						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HF Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
-	  NumberOfRecentMissingDigisHF=m_dbe->bookProfile("Problem_RecentMissingDigis_HF_vs_LS",
-						       name.str(),
-						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  (NumberOfRecentMissingDigis->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfRecentMissingDigisHB->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfRecentMissingDigisHE->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfRecentMissingDigisHO->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfRecentMissingDigisHF->getTProfile())->SetMarkerStyle(20);
-
-	}
-      
-      if (deadmon_test_rechits_)
-	{
-	  // test 1:  energy never above threshold
-	  m_dbe->setCurrentFolder(baseFolder_+"/dead_rechit_neverpresent");
-	  SetupEtaPhiHists(RecHitPresentByDepth,"RecHit Above Threshold At Least Once","");
-	  // set more descriptive titles for threshold plots
-	  units.str("");
-	  units<<"Cells Above Energy Threshold At Least Once: Depth 1 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
-	  RecHitPresentByDepth.depth[0]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Cells Above Energy Threshold At Least Once: Depth 2 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
-	  RecHitPresentByDepth.depth[1]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Cells Above Energy Threshold At Least Once: Depth 3 -- HE >="<<HEenergyThreshold_<<" GeV";
-	  RecHitPresentByDepth.depth[2]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Cells Above Energy Threshold At Least Once: Depth 4 -- HO >="<<HOenergyThreshold_<<" GeV";
-	  RecHitPresentByDepth.depth[3]->setTitle(units.str().c_str());
-	  units.str("");
-
-	  // 1D plots count number of bad cells
-	  NumberOfNeverPresentRecHits=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HCAL_vs_LS",
-							 "Total Number of Hcal Rechits with Low Energy;Lumi Section;Dead Cells",
-							 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HB RecHits with Energy Never >= "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfNeverPresentRecHitsHB=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HB_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HE RecHits with Energy Never >= "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfNeverPresentRecHitsHE=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HE_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HO RecHits with Energy Never >= "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfNeverPresentRecHitsHO=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HO_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HF RecHits with Energy Never >= "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfNeverPresentRecHitsHF=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HF_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  (NumberOfNeverPresentRecHits->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfNeverPresentRecHitsHB->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfNeverPresentRecHitsHE->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfNeverPresentRecHitsHO->getTProfile())->SetMarkerStyle(20);
-	  (NumberOfNeverPresentRecHitsHF->getTProfile())->SetMarkerStyle(20);
- 
-	  m_dbe->setCurrentFolder(baseFolder_+"/dead_rechit_often_missing");
-	  SetupEtaPhiHists(RecentMissingRecHitsByDepth,"RecHits Failing Energy Threshold Test","");
-	  // set more descriptive titles for threshold plots
-	  units.str("");
-	  units<<"RecHits with Consistent Low Energy Depth 1 -- HB <"<<HBenergyThreshold_<<" GeV, HE < "<<HEenergyThreshold_<<", HF <"<<HFenergyThreshold_<<" GeV";
-	  RecentMissingRecHitsByDepth.depth[0]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"RecHits with Consistent Low Energy Depth 2 -- HB <"<<HBenergyThreshold_<<" GeV, HE < "<<HEenergyThreshold_<<", HF <"<<HFenergyThreshold_<<" GeV";
-	  RecentMissingRecHitsByDepth.depth[1]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"RecHits with Consistent Low Energy Depth 3 -- HE <"<<HEenergyThreshold_<<" GeV";
-	  RecentMissingRecHitsByDepth.depth[2]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"RecHits with Consistent Low Energy Depth 4 -- HO <"<<HOenergyThreshold_<<" GeV";
-	  RecentMissingRecHitsByDepth.depth[3]->setTitle(units.str().c_str());
-	  units.str("");
-
-
-	  // 1D plots count number of bad cells
-	  name<<"Total Number of Hcal RecHits with Consistent Low Energy;Lumi Section;Dead Cells";
-	  NumberOfRecentMissingRecHits=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HCAL_vs_LS",
+      name<<"Total Number of Hcal Digis Unoccupied for 1 Full Luminosity Block"; 
+      NumberOfRecentMissingDigis=m_dbe->bookProfile("Problem_RecentMissingDigis_HCAL_vs_LS",
+						    name.str(),
+						    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HB Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
+      NumberOfRecentMissingDigisHB=m_dbe->bookProfile("Problem_RecentMissingDigis_HB_vs_LS",
 						      name.str(),
 						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfRecentMissingRecHitsHB=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HB_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HE RecHits with Consistent Low Energy < "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfRecentMissingRecHitsHE=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HE_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HO RecHits with Consistent Low Energy < "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfRecentMissingRecHitsHO=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HO_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  name.str("");
-	  name<<"Total Number of HF RecHits with Consistent Low Energy < "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-	  NumberOfRecentMissingRecHitsHF=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HF_vs_LS",
-							name.str(),
-							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-	  (NumberOfRecentMissingRecHits->getTProfile())->SetMarkerStyle(20);
-          (NumberOfRecentMissingRecHitsHB->getTProfile())->SetMarkerStyle(20);
-          (NumberOfRecentMissingRecHitsHE->getTProfile())->SetMarkerStyle(20);
-          (NumberOfRecentMissingRecHitsHO->getTProfile())->SetMarkerStyle(20);
-          (NumberOfRecentMissingRecHitsHF->getTProfile())->SetMarkerStyle(20);
+      name.str("");
+      name<<"Total Number of HE Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
+      NumberOfRecentMissingDigisHE=m_dbe->bookProfile("Problem_RecentMissingDigis_HE_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HO Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
+      NumberOfRecentMissingDigisHO=m_dbe->bookProfile("Problem_RecentMissingDigis_HO_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HF Digis Unoccupied for 1 Full LS vs LS;Lumi Section; Dead Cells";
+      NumberOfRecentMissingDigisHF=m_dbe->bookProfile("Problem_RecentMissingDigis_HF_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      (NumberOfRecentMissingDigis->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingDigisHB->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingDigisHE->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingDigisHO->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingDigisHF->getTProfile())->SetMarkerStyle(20);
 
-	}
+    }
+      
+  if (deadmon_test_rechits_)
+    {
+      // test 1:  energy never above threshold
+      m_dbe->setCurrentFolder(baseFolder_+"/dead_rechit_neverpresent");
+      SetupEtaPhiHists(RecHitPresentByDepth,"RecHit Above Threshold At Least Once","");
+      // set more descriptive titles for threshold plots
+      units.str("");
+      units<<"Cells Above Energy Threshold At Least Once: Depth 1 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
+      RecHitPresentByDepth.depth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Cells Above Energy Threshold At Least Once: Depth 2 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
+      RecHitPresentByDepth.depth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Cells Above Energy Threshold At Least Once: Depth 3 -- HE >="<<HEenergyThreshold_<<" GeV";
+      RecHitPresentByDepth.depth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Cells Above Energy Threshold At Least Once: Depth 4 -- HO >="<<HOenergyThreshold_<<" GeV";
+      RecHitPresentByDepth.depth[3]->setTitle(units.str().c_str());
+      units.str("");
 
-    } // if (m_dbe)
+      // 1D plots count number of bad cells
+      NumberOfNeverPresentRecHits=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HCAL_vs_LS",
+						     "Total Number of Hcal Rechits with Low Energy;Lumi Section;Dead Cells",
+						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HB RecHits with Energy Never >= "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfNeverPresentRecHitsHB=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HB_vs_LS",
+						       name.str(),
+						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HE RecHits with Energy Never >= "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfNeverPresentRecHitsHE=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HE_vs_LS",
+						       name.str(),
+						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HO RecHits with Energy Never >= "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfNeverPresentRecHitsHO=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HO_vs_LS",
+						       name.str(),
+						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HF RecHits with Energy Never >= "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfNeverPresentRecHitsHF=m_dbe->bookProfile("Problem_RecHitsNeverPresent_HF_vs_LS",
+						       name.str(),
+						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      (NumberOfNeverPresentRecHits->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentRecHitsHB->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentRecHitsHE->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentRecHitsHO->getTProfile())->SetMarkerStyle(20);
+      (NumberOfNeverPresentRecHitsHF->getTProfile())->SetMarkerStyle(20);
+ 
+      m_dbe->setCurrentFolder(baseFolder_+"/dead_rechit_often_missing");
+      SetupEtaPhiHists(RecentMissingRecHitsByDepth,"RecHits Failing Energy Threshold Test","");
+      // set more descriptive titles for threshold plots
+      units.str("");
+      units<<"RecHits with Consistent Low Energy Depth 1 -- HB <"<<HBenergyThreshold_<<" GeV, HE < "<<HEenergyThreshold_<<", HF <"<<HFenergyThreshold_<<" GeV";
+      RecentMissingRecHitsByDepth.depth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"RecHits with Consistent Low Energy Depth 2 -- HB <"<<HBenergyThreshold_<<" GeV, HE < "<<HEenergyThreshold_<<", HF <"<<HFenergyThreshold_<<" GeV";
+      RecentMissingRecHitsByDepth.depth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"RecHits with Consistent Low Energy Depth 3 -- HE <"<<HEenergyThreshold_<<" GeV";
+      RecentMissingRecHitsByDepth.depth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"RecHits with Consistent Low Energy Depth 4 -- HO <"<<HOenergyThreshold_<<" GeV";
+      RecentMissingRecHitsByDepth.depth[3]->setTitle(units.str().c_str());
+      units.str("");
 
+
+      // 1D plots count number of bad cells
+      name<<"Total Number of Hcal RecHits with Consistent Low Energy;Lumi Section;Dead Cells";
+      NumberOfRecentMissingRecHits=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HCAL_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfRecentMissingRecHitsHB=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HB_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HE RecHits with Consistent Low Energy < "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfRecentMissingRecHitsHE=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HE_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HO RecHits with Consistent Low Energy < "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfRecentMissingRecHitsHO=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HO_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      name.str("");
+      name<<"Total Number of HF RecHits with Consistent Low Energy < "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+      NumberOfRecentMissingRecHitsHF=m_dbe->bookProfile("Problem_BelowEnergyRecHits_HF_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      (NumberOfRecentMissingRecHits->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingRecHitsHB->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingRecHitsHE->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingRecHitsHO->getTProfile())->SetMarkerStyle(20);
+      (NumberOfRecentMissingRecHitsHF->getTProfile())->SetMarkerStyle(20);
+
+    } // if (deadmon_test_rechits)
+
+  if (showTiming)
+    {
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor BEGINRUN -> "<<cpu_timer.cpuTime()<<std::endl;
+    }
+  
   return;
-} //void HcalDeadCellMonitor::setup(...)
+} //void HcalDeadCellMonitor::beginRun()
 
 
 void HcalDeadCellMonitor::reset(){}  // reset function is empty for now
@@ -332,11 +350,12 @@ void HcalDeadCellMonitor::reset(){}  // reset function is empty for now
 
 void HcalDeadCellMonitor::clearME()
 {
-  // Is this function necessary?  We could use this to reset histograms, but we don't actually want to remove the histos (and we don't want to reset all of them)
   if (m_dbe)
     {
       m_dbe->setCurrentFolder(baseFolder_);
       m_dbe->removeContents();
+      if(m_dbe->dirExists("Collector"))
+	m_dbe->rmdir("");
     }
   return;
 } // void HcalDeadCellMonitor::clearME()
@@ -350,11 +369,30 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       //const ZDCRecHitCollection& zdcHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
-				       const HFDigiCollection& hfdigi
-				       //const ZDCDigiCollection& zdcdigi
+				       const HFDigiCollection& hfdigi,
+				       int CalibType
 				       )
 {
 
+  // Check that event is of proper calibration type
+  bool processevent=false;
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+	{
+	  if (AllowedCalibTypes_[i]==CalibType)
+	    {
+	      processevent=true;
+	      break;
+	    }
+	}
+    }
+  if (fVerbosity>1) std::cout <<"<HcalDeadCellMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (!processevent)
+    return;
+  
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -558,9 +596,10 @@ void HcalDeadCellMonitor::process_Digi(DIGI& digi)
   // If previously-missing digi found, change boolean status and fill histogram
   if (present_digi[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]==false)
     {
-      //cout <<"Found new digi at "<<ieta<<"  "<<iphi<<"  "<<depth<<"  subdet = "<<digi.id().subdet()<<endl;
       if (DigiPresentByDepth.depth[depth-1])
-	DigiPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(digi.id().subdet(),ieta,depth)+1,iphi,1);
+	{
+	  DigiPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(digi.id().subdet(),ieta,depth)+1,iphi,1);
+	}
       present_digi[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
     }
   return;
@@ -663,9 +702,6 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		  
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
-		  // Skip cells that are already marked as dead by the "neverpresent" test?
-		  // Nope!  Gotta keep track of the overall fraction of unoccupied events, in case digi suddenly appears
-		  //if (present_digi[eta][phi][depth]==false) continue;
 		  
 		  // Ignore subdetectors that weren't in run?
 		  if ((subdet==HcalBarrel && !HBpresent_) || 
@@ -685,9 +721,9 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		    {
 		      if (fVerbosity>0)
 			{
-			  std::cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", ieta = "<<ieta<<", iphi = "<<iphi<<" depth = "<<depth+1<<std::endl;
+			  std::cout <<"DEAD CELL; NO RECENT OCCUPANCY: subdet = "<<subdet<<", ieta = "<<ieta<<", iphi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 			  std::cout <<"\t RAW COORDINATES:  eta = "<<eta<< " phi = "<<phi<<" depth = "<<depth<<std::endl;
- 			  std::cout <<"\t Present? "<<present_digi[CalcEtaBin(subdet,ieta,depth+1)][iphi][depth]<<std::endl;
+ 			  std::cout <<"\t Present? "<<present_digi[eta][phi][depth]<<std::endl;
 			}
 			     // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
 		      if (RecentMissingDigisByDepth.depth[depth]) RecentMissingDigisByDepth.depth[depth]->Fill(ieta+zside,iphi,levt_);
@@ -897,11 +933,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			  else if (subdet==HcalEndcap) ++energyneverpresentHE;
 			  else if (subdet==HcalOuter) ++energyneverpresentHO;
 			  else if (subdet==HcalForward) ++energyneverpresentHF;
-			  if (subdet==HcalForward)  
-			    {
-			      cout <<"SHITHEAD!  eta = "<<eta<<" phi = "<<phi<< "  depth = "<<depth<<endl;
-			      cout <<"IETA = "<<ieta<<"  iphi = "<<iphi<<"  depth = "<<depth+1<<endl;
-			    }
 			}
 		      if (recentoccupancy_rechit[eta][phi][depth]==0 && (levt_>=deadmon_minEvents_))
 			{
@@ -909,11 +940,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			  else if (subdet==HcalEndcap) ++belowenergyHE;
 			  else if (subdet==HcalOuter) ++belowenergyHO;
 			  else if (subdet==HcalForward) ++belowenergyHF;
-			  if (subdet==HcalForward)  
-			    {
-			      cout <<"JERK!  eta = "<<eta<<" phi = "<<phi<< "  depth = "<<depth<<endl;
-			      cout <<"IETA = "<<ieta<<"  iphi = "<<iphi<<"  depth = "<<depth+1<<endl;
-			    }
 			}
 		    }
 		} // subdet loop
@@ -955,8 +981,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
       NumberOfNeverPresentRecHitsHE->Fill(lumiblock,energyneverpresentHE);
       NumberOfNeverPresentRecHitsHO->Fill(lumiblock,energyneverpresentHO);
       NumberOfNeverPresentRecHitsHF->Fill(lumiblock,energyneverpresentHF);
-      cout <<"HB HE HO HF = "<<energyneverpresentHB<<"  "<<energyneverpresentHE<<"  "<<energyneverpresentHO<<"  "<<energyneverpresentHF<<endl;
-      cout <<"TOTAL = "<<energyneverpresentHB+energyneverpresentHE+energyneverpresentHO+energyneverpresentHF<<endl;
       NumberOfNeverPresentRecHits->Fill(lumiblock,energyneverpresentHB+energyneverpresentHE+energyneverpresentHO+energyneverpresentHF);
       
       NumberOfRecentMissingRecHitsHB->Fill(lumiblock,belowenergyHB);

@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/10/18 15:10:08 $
-  * $Revision: 1.51 $
+  * $Date: 2009/11/10 21:03:13 $
+  * $Revision: 1.52 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -62,10 +62,12 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun();
+  void clearME();
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    //const ZDCDigiCollection& zdc,
+		    int calibType,
 		    const HcalDbService& cond,
 		    const HcalUnpackerReport& report);		
   void reset();

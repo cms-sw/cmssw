@@ -6,17 +6,7 @@
 #define PHIMAX 73.5
 #define PHIMIN -0.5
 
-// This stores the eta binning for depth 2 histograms (with gaps between -15 -> +15)
-/*
-const int HcalBaseMonitor::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,
-				       -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
-				       -16,-15,-9999, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
-				       30,31,32,33,34,35,36,37,38,39,40,41,42};
 
-// This stores eta binning in depth 3 (where HE is only present at a few ieta values)
-
-const int HcalBaseMonitor::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
-*/
 HcalBaseMonitor::HcalBaseMonitor() {
   fVerbosity = 0;
   badCells_.clear();
@@ -26,13 +16,17 @@ HcalBaseMonitor::HcalBaseMonitor() {
 
 HcalBaseMonitor::~HcalBaseMonitor() {}
 
+void HcalBaseMonitor::beginRun(){ievt_=0;levt_=0;LBprocessed_=false;}
+
 void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 
   Online_   =  ps.getUntrackedParameter<bool>("Online",false);
   badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
   
+
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   rootFolder_ = subsystemname + "/";
@@ -182,7 +176,7 @@ void HcalBaseMonitor::clearME(){
   if(m_dbe){
     m_dbe->setCurrentFolder(baseFolder_);
     m_dbe->removeContents();    
-    
+    /*
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
     m_dbe->removeContents();
     
@@ -194,6 +188,7 @@ void HcalBaseMonitor::clearME(){
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
     m_dbe->removeContents();
+    */
   }
   return;
 } // void HcalBaseMonitor::clearME();

@@ -78,79 +78,94 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   startingTimeSlice_ = ps.getUntrackedParameter<int>("ReferencePedestalMonitor_startingTimeSlice",0);
   endingTimeSlice_   = ps.getUntrackedParameter<int>("ReferencePedestalMonitor_endingTimeSlice"  ,1); 
 
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("PedestalMonitor_AllowedCalibTypes",AllowedCalibTypes_);
+
   ievt_=0;
 
-  if ( m_dbe ) 
-    {
-      m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
-      meEVT_->Fill(ievt_);
-      ProblemCells=m_dbe->book2D(" ProblemReferencePedestals",
-				 " Problem Reference Pedestal Rate for all HCAL;i#eta;i#phi",
-				 85,-42.5,42.5,
-				 72,0.5,72.5);
-      SetEtaPhiLabels(ProblemCells);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
-      SetupEtaPhiHists(ADC_PedestalFromDBByDepth, 
-			"Pedestal Values from DataBase","ADC");
-      SetupEtaPhiHists(ADC_WidthFromDBByDepth, 
-			"Pedestal Widths from DataBase","ADC");
-      setupDepthHists1D(ADC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
-			"ADC",0,15,120);
-      setupDepthHists1D(ADC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
-			"ADC",0,5,40);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
-      SetupEtaPhiHists(fC_PedestalFromDBByDepth, 
-			"Pedestal Values from DataBase","fC");
-		      
-      SetupEtaPhiHists(fC_WidthFromDBByDepth, 
-			"Pedestal Widths from DataBase","fC");
-      setupDepthHists1D(fC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
-			"fC",-5,20,250);
-      setupDepthHists1D(fC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
-			"fC",0,5,100);
-
-      // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
-      m_dbe->setCurrentFolder(baseFolder_+"/problem_referencepedestals");
-      SetupEtaPhiHists(ProblemCellsByDepth, " Problem Reference Pedestal Rate","");
-      zeroCounters();
-
-      if (!makeDiagnostics)
-	return;
-      m_dbe->setCurrentFolder(baseFolder_);
-      SetupEtaPhiHists(MeanMapByDepth,"Pedestal Mean Map", "ADC");
-      SetupEtaPhiHists(RMSMapByDepth, "Pedestal RMS Map", "ADC");
-
-      m_dbe->setCurrentFolder(baseFolder_+"/adc/unsubtracted");
-      SetupEtaPhiHists(ADCPedestalMean, "Pedestal Values Map","ADC");
-      SetupEtaPhiHists( ADCPedestalRMS, "Pedestal Widths Map","ADC");
-      setupDepthHists1D(ADCPedestalMean_1D, "1D Pedestal Values",
-			"ADC",0,15,200);
-      setupDepthHists1D(ADCPedestalRMS_1D, "1D Pedestal Widths",
-			"ADC",0,5,40);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/fc/unsubtracted");
-      SetupEtaPhiHists(fCPedestalMean, "Pedestal Values Map",
-			"fC");
-      SetupEtaPhiHists(fCPedestalRMS, "Pedestal Widths Map",
-			"fC");
-      setupDepthHists1D(fCPedestalMean_1D, "1D Pedestal Values",
-			"fC",-5,20,200);
-      setupDepthHists1D(fCPedestalRMS_1D, "1D Pedestal Widths",
-			"fC",0,5,100);
-    } // if (m_dbe)
-
-  
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalMonitor SETUP -> "<<cpu_timer.cpuTime()<<endl;
     }
+
+  return;
+} // void HcalPedestalMonitor::setup()
+
+void HcalPedestalMonitor::beginRun()
+{
+  HcalBaseMonitor::beginRun();
+  zeroCounters();
+  if (!m_dbe) return; //Set up histograms at beginning of run
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+ 
+  m_dbe->setCurrentFolder(baseFolder_);
+  meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
+  meEVT_->Fill(ievt_);
+  ProblemCells=m_dbe->book2D(" ProblemReferencePedestals",
+			     " Problem Reference Pedestal Rate for all HCAL;i#eta;i#phi",
+			     85,-42.5,42.5,
+			     72,0.5,72.5);
+  SetEtaPhiLabels(ProblemCells);
+  
+  m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
+  SetupEtaPhiHists(ADC_PedestalFromDBByDepth, 
+		   "Pedestal Values from DataBase","ADC");
+  SetupEtaPhiHists(ADC_WidthFromDBByDepth, 
+		   "Pedestal Widths from DataBase","ADC");
+  setupDepthHists1D(ADC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
+		    "ADC",0,15,120);
+  setupDepthHists1D(ADC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
+		    "ADC",0,5,40);
+  
+  m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
+  SetupEtaPhiHists(fC_PedestalFromDBByDepth, 
+		   "Pedestal Values from DataBase","fC");
+  
+  SetupEtaPhiHists(fC_WidthFromDBByDepth, 
+		   "Pedestal Widths from DataBase","fC");
+  setupDepthHists1D(fC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
+		    "fC",-5,20,250);
+  setupDepthHists1D(fC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
+		    "fC",0,5,100);
+  
+  // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
+  m_dbe->setCurrentFolder(baseFolder_+"/problem_referencepedestals");
+  SetupEtaPhiHists(ProblemCellsByDepth, " Problem Reference Pedestal Rate","");
+  
+  if (!makeDiagnostics)
+    return;
+  m_dbe->setCurrentFolder(baseFolder_);
+  SetupEtaPhiHists(MeanMapByDepth,"Pedestal Mean Map", "ADC");
+  SetupEtaPhiHists(RMSMapByDepth, "Pedestal RMS Map", "ADC");
+  
+  m_dbe->setCurrentFolder(baseFolder_+"/adc/unsubtracted");
+  SetupEtaPhiHists(ADCPedestalMean, "Pedestal Values Map","ADC");
+  SetupEtaPhiHists( ADCPedestalRMS, "Pedestal Widths Map","ADC");
+  setupDepthHists1D(ADCPedestalMean_1D, "1D Pedestal Values",
+		    "ADC",0,15,200);
+  setupDepthHists1D(ADCPedestalRMS_1D, "1D Pedestal Widths",
+		    "ADC",0,5,40);
+  
+  m_dbe->setCurrentFolder(baseFolder_+"/fc/unsubtracted");
+  SetupEtaPhiHists(fCPedestalMean, "Pedestal Values Map",
+		   "fC");
+  SetupEtaPhiHists(fCPedestalRMS, "Pedestal Widths Map",
+		   "fC");
+  setupDepthHists1D(fCPedestalMean_1D, "1D Pedestal Values",
+		    "fC",-5,20,200);
+  setupDepthHists1D(fCPedestalRMS_1D, "1D Pedestal Widths",
+			"fC",0,5,100);
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalMonitor BEGINRUN -> "<<cpu_timer.cpuTime()<<endl;
+    }
   
   return;
 
-} // void HcalPedestalMonitor::setup(...)
+} // void HcalPedestalMonitor::beginRun(...)
 
 
 // *************************************************** //
@@ -159,9 +174,29 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				       const HODigiCollection& ho,
 				       const HFDigiCollection& hf,
+				       int CalibType,
 				       const HcalDbService& cond)
 {
   if (!makeDiagnostics) // in normal running, this pedetal monitor shouldn't run
+    return;
+
+  // Check that event is of proper calibration type
+  bool processevent=false;
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+	{
+	  if (AllowedCalibTypes_[i]==CalibType)
+	    {
+	      processevent=true;
+	      break;
+	    }
+	}
+    }
+  if (fVerbosity>1) std::cout <<"<HcalPedestalMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (!processevent)
     return;
 
   if (showTiming)

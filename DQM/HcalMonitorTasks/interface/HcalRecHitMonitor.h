@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/11/10 14:10:57 $
-  * $Revision: 1.33 $
+  * $Date: 2009/11/10 21:03:13 $
+  * $Revision: 1.34 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -27,6 +27,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   ~HcalRecHitMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun();
   void done();
   void clearME(); // overrides base class function
   void reset();
@@ -34,8 +35,8 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
  
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
-                    const HFRecHitCollection& hfHits
-		    //const ZDCRecHitCollection& zdcHits,
+                    const HFRecHitCollection& hfHits,
+		    int CalibType
 		    );
 
   void processEvent_rechit( const HBHERecHitCollection& hbheHits,

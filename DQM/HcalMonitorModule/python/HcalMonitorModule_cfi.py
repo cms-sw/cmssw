@@ -5,14 +5,10 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
-                           # If AnalyzeOrbitGap is on, only events identified as calibration will be used in DQM
-                           AnalyzeOrbitGap = cms.untracked.bool(False),
-                           # If skipCalibrationEvents is on (default), calibration events will not be used in DQM
-                           # This is superceded by AnalyzeOrbitGap
-                           # (If AnalyzeOrbitGap == True, only calib events used.
-                           #  If AnalyzeOrbitGap == False && skipCalibrationEvents == False, all events used.)
-                           skipCalibrationEvents = cms.untracked.bool(True),
+
                            Online = cms.untracked.bool(False), # control online/offline differences in code
+                           AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
+                           # Calib Types defined in DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h
                            periodicReset = cms.untracked.int32(-1),
                            
                            # eta runs from -43->+43  (-41 -> +41 for HCAL, plus ZDC, which we put at |eta|=43.
@@ -44,13 +40,10 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            minErrorFlag = cms.untracked.double(0.05), 
 
                            # Turn on/off timing diagnostic info
-                            diagnosticPrescaleLS = cms.untracked.int32(-1),
+                           diagnosticPrescaleLS = cms.untracked.int32(-1),
                            diagnosticPrescaleEvt = cms.untracked.int32(-1),
-                           diagnosticPrescaleTime = cms.untracked.int32(-1),
-                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
-
+                           
                            showTiming          = cms.untracked.bool(False), # shows time taken by each process
-                           dump2database       = cms.untracked.bool(False), # dumps channel status to text file
                            # Make expert-level diagnostic plots (enabling this may drastically slow code!)
                            makeDiagnosticPlots = cms.untracked.bool(False),
                            
@@ -81,7 +74,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            ReferencePedestalMonitor_checkNevents                 = cms.untracked.int32(1000),
                            ReferencePedestalMonitor_minEntriesPerPed             = cms.untracked.uint32(100),
                            ReferencePedestalMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
-
+                           ReferencePedestalMonitor_AllowedCalibTypes = cms.untracked.vint32(1), # Allowed calibration types (empty vector means all types allowed)
+                           
                            # DEAD CELL MONITOR
                            DeadCellMonitor                              = cms.untracked.bool(True),
                            DeadCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
@@ -98,7 +92,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_HF_energyThreshold           = cms.untracked.double(-1.),
 
                            DeadCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
-                           
+                           DeadCellMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            # HOT CELL MONITOR
                            HotCellMonitor                              = cms.untracked.bool(True),
                            HotCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
@@ -168,6 +162,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_HF_neighbor_HotEnergyFrac       = cms.untracked.double(.02),
                            
                            HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
+                           HotCellMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
 
                            # DIGI MONITOR
                            DigiMonitor                                    = cms.untracked.bool(True),
@@ -182,10 +177,10 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            # ADC counts must be above the threshold values below for appropriate histograms to be filled
                            DigiMonitor_shapeThresh                        = cms.untracked.int32(-1),
                            DigiMonitor_ADCsumThresh                       = cms.untracked.int32(-1),
-                           DigMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), # doesn't do anything yet
+                           DigiMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), 
                            DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
                            DigiMonitor_ExpectedOrbitMessageTime           =cms.untracked.int32(-1),
-
+                           DigiMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),
                            RecHitMonitor_checkNevents                     = cms.untracked.int32(1000),
@@ -197,24 +192,24 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            RecHitMonitor_HE_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_HF_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_ZDC_energyThreshold              = cms.untracked.double(2.),
-                           
+                           RecHitMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            # BEAM MONITOR
                            BeamMonitor                                    = cms.untracked.bool(True),
                            BeamMonitor_checkNevents                       = cms.untracked.int32(1000),
                            BeamMonitor_minErrorFlag                       = cms.untracked.double(0.),
                            BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
                            BeamMonitor_lumiprescale                       = cms.untracked.int32(1), # set number of bins in Lumi-section plots -- divide Nlumiblocks by this prescale
+                           BeamMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            # DATA FORMAT MONITOR
                            DataFormatMonitor                              = cms.untracked.bool(True),
                            DataFormatMonitor_checkNevents                 = cms.untracked.int32(1000),
                            dfPrtLvl                                       = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
-
+                           DataFormatMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            # ZDC MONITOR
                            ZDCMonitor                                     = cms.untracked.bool(False),
                            ZDCMonitor_checkNevents                        = cms.untracked.int32(1000),
                            ZDCMonitor_deadthresholdrate                   = cms.untracked.double(0.),
-                           
-                           
+                                                      
 
                            # DATA INTEGRITY TASK
                            DataIntegrityTask = cms.untracked.bool(False),
@@ -228,19 +223,20 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            TrigPrimMonitor_checkNevents                   = cms.untracked.int32(1000),
                            TrigPrimMonitor_makeDiagnostics                = cms.untracked.bool(False),
                            TrigPrimMonitor_ZSAlarmThreshold               = cms.untracked.int32(12),
+                           TrigPrimMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            gtLabel = cms.InputTag("l1GtUnpack"),
                            
                            # LED MONITOR
                            LEDMonitor = cms.untracked.bool(False),
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
                            LEDPerChannel = cms.untracked.bool(True),
-
+                           LEDMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)  # Not yet in use
 
                            #LASER MONITOR
                            LaserMonitor = cms.untracked.bool(False),
                            Laser_ADC_Thresh = cms.untracked.double(-1000.0),
                            LaserPerChannel = cms.untracked.bool(True),
-
+                           LaserMonitor_AllowedCalibTypes = cms.untracked.vint32(2,3,4,5), # Allowed calibration types (empty vector means all types allowed)
                            # SPECIALIZED (EXPERT-USE) MONITORS
 
                             # EXPERT MONITOR (should generally be turned off)
@@ -303,15 +299,13 @@ def setHcalTaskValues(process):
     # Insidious python-ness:  You need to make a copy of the process.minErrorFlag, etc. variables,
     # or future changes to PedestalMonitor_minErrorFlag will also change minErrorFlag!
 
-    # set minimum error value
-    minErrorFlag = deepcopy(process.minErrorFlag)
-    process.BeamMonitor_minErrorFlag     = minErrorFlag
-    process.DeadCellMonitor_minErrorFlag = minErrorFlag
-    process.HotCellMonitor_minErrorFlag  = minErrorFlag
-    process.ReferencePedestalMonitor_minErrorFlag = minErrorFlag
-    process.RecHitMonitor_minErrorFlag   = minErrorFlag
-        
-    # create a minErrorFlag for DigiMonitor?  I think we want the DigiMonitor errors to appear whenever an error exists, even if it's at a low rate.
+    # set minimum error value -- we may want to keep them assigned explicitly as above
+    #minErrorFlag = deepcopy(process.minErrorFlag)
+    #process.BeamMonitor_minErrorFlag     = minErrorFlag
+    #process.DeadCellMonitor_minErrorFlag = minErrorFlag
+    #process.HotCellMonitor_minErrorFlag  = minErrorFlag
+    #process.ReferencePedestalMonitor_minErrorFlag = minErrorFlag
+    #process.RecHitMonitor_minErrorFlag   = minErrorFlag
 
     # set checkNevents
     checkNevents = deepcopy(process.checkNevents)

@@ -23,160 +23,165 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   baseFolder_ = rootFolder_+"TrigPrimMonitor";
 
   ZSAlarmThreshold_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_ZSAlarmThreshold", 0);
-
-  if ( m_dbe !=NULL ) {    
-
-    std::string type;
-    m_dbe->setCurrentFolder(baseFolder_);
-
-    //------------- Summary -------------------------
-    type = "TrigPrim Event Number";
-    meEVT_ = m_dbe->bookInt(type);
-    meEVT_->Fill(ievt_);
-    meTOTALEVT_ = m_dbe->bookInt("TrigPrim Total Events Processed");
-    meTOTALEVT_->Fill(tevt_);
-    
-    type = "Summary";
-    Summary_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
-    Summary_->setBinLabel(1, "Good");
-    Summary_->setBinLabel(2, "Bad");
-    Summary_->setBinLabel(1, "HBHE", 2);
-    Summary_->setBinLabel(2, "HF", 2);
-
-    type = "Summary for ZS run";
-    SummaryZS_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
-    SummaryZS_->setBinLabel(1, "Good");
-    SummaryZS_->setBinLabel(2, "Bad");
-    SummaryZS_->setBinLabel(1, "HBHE", 2);
-    SummaryZS_->setBinLabel(2, "HF", 2);
-
-    type = "Error Flag";
-    ErrorFlagSummary_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
-    ErrorFlagSummary_->setBinLabel(1, "Matched");
-    ErrorFlagSummary_->setBinLabel(2, "Mismatched E");
-    ErrorFlagSummary_->setBinLabel(3, "Mismatched FG");
-    ErrorFlagSummary_->setBinLabel(4, "Data Only");
-    ErrorFlagSummary_->setBinLabel(5, "Emul Only");
-    ErrorFlagSummary_->setBinLabel(6, "Missing Data");
-    ErrorFlagSummary_->setBinLabel(7, "Missing Emul");
-    ErrorFlagSummary_->setBinLabel(1, "HBHE", 2);
-    ErrorFlagSummary_->setBinLabel(2, "HF", 2);
-
-    type = "Error Flag for ZS run";
-    ErrorFlagSummaryZS_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
-    ErrorFlagSummaryZS_->setBinLabel(1, "Matched");
-    ErrorFlagSummaryZS_->setBinLabel(2, "Mismatched E");
-    ErrorFlagSummaryZS_->setBinLabel(3, "Mismatched FG");
-    ErrorFlagSummaryZS_->setBinLabel(4, "Data Only");
-    ErrorFlagSummaryZS_->setBinLabel(5, "Emul Only");
-    ErrorFlagSummaryZS_->setBinLabel(6, "Missing Data");
-    ErrorFlagSummaryZS_->setBinLabel(7, "Missing Emul");
-    ErrorFlagSummaryZS_->setBinLabel(1, "HBHE", 2);
-    ErrorFlagSummaryZS_->setBinLabel(2, "HF", 2);
-
-    type = "EtCorr HBHE";
-    EtCorr_[0] = m_dbe->book2D(type,type,50,0,256,50,0,256);
-
-    type = "EtCorr HF";
-    EtCorr_[1] = m_dbe->book2D(type,type,50,0,256,50,0,256);
-
-    type = "FGCorr HBHE";
-    FGCorr_[0] = m_dbe->book2D(type,type,2,0,2,2,0,2);
-
-    type = "FGCorr HF";
-    FGCorr_[1] = m_dbe->book2D(type,type,2,0,2,2,0,2);
-
-    //---------------------------------------------
-
-    //-------------- TP Occupancy ----------------
-    m_dbe->setCurrentFolder(baseFolder_ + "/TP Map");
-
-    type = "TP Occupancy";
-    TPOccupancy_= m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Non Zero TP";
-    TPOccupancyEta_ = m_dbe->book1D("TPOccupancyVsEta","TP Occupancy Vs. Eta", etaBins_,etaMin_,etaMax_);
-    TPOccupancyPhi_ = m_dbe->book1D("TPOccupancyVsPhi","TP Occupancy Vs. Phi", phiBins_,phiMin_,phiMax_);
-    NonZeroTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Matched TP";
-    MatchedTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Mismatched Et";
-    MismatchedEt_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Mismatched FG";
-    MismatchedFG_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Data Only";
-    DataOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Emul Only";
-    EmulOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Missing Data";
-    MissingData_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Missing Emul";
-    MissingEmul_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    //---------------------------------------------
-
-    //-------------- TP Occupancy for ZS----------------
-    m_dbe->setCurrentFolder(baseFolder_ + "/TP Map for ZS");
-
-    type = "Mismatched Et ZS";
-    MismatchedEtZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Missing Data ZS";
-    MissingDataZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    type = "Missing Emul ZS";
-    MissingEmulZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    //---------------------------------------------
-
-    //------------ Energy Plots ------------------
-    // HBHE
-    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HBHE");
-
-    type = "Energy HBHE - All Data";
-    EnergyPlotsAllData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - All Emul";
-    EnergyPlotsAllEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Mismatched FG";
-    EnergyPlotsMismatchedFG_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Data Only";
-    EnergyPlotsDataOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Emul Only";
-    EnergyPlotsEmulOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Missing Data";
-    EnergyPlotsMissingData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Missing Emul";
-    EnergyPlotsMissingEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-
-    // HF
-    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HF");
-
-    type = "Energy HF - All Data";
-    EnergyPlotsAllData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - All Emul";
-    EnergyPlotsAllEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Mismatched FG";
-    EnergyPlotsMismatchedFG_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Data Only";
-    EnergyPlotsDataOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Emul Only";
-    EnergyPlotsEmulOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Missing Data";
-    EnergyPlotsMissingData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Missing Emul";
-    EnergyPlotsMissingEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-
-    // ZS 
-    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots for ZS");
-
-    type = "Energy HBHE - Missing Data - ZS";
-    EnergyPlotsMissingDataZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HBHE - Missing Emul - ZS";
-    EnergyPlotsMissingEmulZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Missing Data - ZS";
-    EnergyPlotsMissingDataZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-    type = "Energy HF - Missing Emul - ZS";
-    EnergyPlotsMissingEmulZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
-
-  }
+  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("TrigPrimMonitor_AllowedCalibTypes",AllowedCalibTypes_);
 
   return;
-} // void HcalTrigPrimMonitor::setup(...)
+}
+
+void HcalTrigPrimMonitor::beginRun()
+{
+  HcalBaseMonitor::beginRun();
+  if (m_dbe==NULL) return;
+
+  std::string type;
+  m_dbe->setCurrentFolder(baseFolder_);
+
+  //------------- Summary -------------------------
+  type = "TrigPrim Event Number";
+  meEVT_ = m_dbe->bookInt(type);
+  meEVT_->Fill(ievt_);
+  meTOTALEVT_ = m_dbe->bookInt("TrigPrim Total Events Processed");
+  meTOTALEVT_->Fill(tevt_);
+    
+  type = "Summary";
+  Summary_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
+  Summary_->setBinLabel(1, "Good");
+  Summary_->setBinLabel(2, "Bad");
+  Summary_->setBinLabel(1, "HBHE", 2);
+  Summary_->setBinLabel(2, "HF", 2);
+
+  type = "Summary for ZS run";
+  SummaryZS_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
+  SummaryZS_->setBinLabel(1, "Good");
+  SummaryZS_->setBinLabel(2, "Bad");
+  SummaryZS_->setBinLabel(1, "HBHE", 2);
+  SummaryZS_->setBinLabel(2, "HF", 2);
+
+  type = "Error Flag";
+  ErrorFlagSummary_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
+  ErrorFlagSummary_->setBinLabel(1, "Matched");
+  ErrorFlagSummary_->setBinLabel(2, "Mismatched E");
+  ErrorFlagSummary_->setBinLabel(3, "Mismatched FG");
+  ErrorFlagSummary_->setBinLabel(4, "Data Only");
+  ErrorFlagSummary_->setBinLabel(5, "Emul Only");
+  ErrorFlagSummary_->setBinLabel(6, "Missing Data");
+  ErrorFlagSummary_->setBinLabel(7, "Missing Emul");
+  ErrorFlagSummary_->setBinLabel(1, "HBHE", 2);
+  ErrorFlagSummary_->setBinLabel(2, "HF", 2);
+
+  type = "Error Flag for ZS run";
+  ErrorFlagSummaryZS_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
+  ErrorFlagSummaryZS_->setBinLabel(1, "Matched");
+  ErrorFlagSummaryZS_->setBinLabel(2, "Mismatched E");
+  ErrorFlagSummaryZS_->setBinLabel(3, "Mismatched FG");
+  ErrorFlagSummaryZS_->setBinLabel(4, "Data Only");
+  ErrorFlagSummaryZS_->setBinLabel(5, "Emul Only");
+  ErrorFlagSummaryZS_->setBinLabel(6, "Missing Data");
+  ErrorFlagSummaryZS_->setBinLabel(7, "Missing Emul");
+  ErrorFlagSummaryZS_->setBinLabel(1, "HBHE", 2);
+  ErrorFlagSummaryZS_->setBinLabel(2, "HF", 2);
+
+  type = "EtCorr HBHE";
+  EtCorr_[0] = m_dbe->book2D(type,type,50,0,256,50,0,256);
+
+  type = "EtCorr HF";
+  EtCorr_[1] = m_dbe->book2D(type,type,50,0,256,50,0,256);
+
+  type = "FGCorr HBHE";
+  FGCorr_[0] = m_dbe->book2D(type,type,2,0,2,2,0,2);
+
+  type = "FGCorr HF";
+  FGCorr_[1] = m_dbe->book2D(type,type,2,0,2,2,0,2);
+
+  //---------------------------------------------
+
+  //-------------- TP Occupancy ----------------
+  m_dbe->setCurrentFolder(baseFolder_ + "/TP Map");
+
+  type = "TP Occupancy";
+  TPOccupancy_= m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Non Zero TP";
+  TPOccupancyEta_ = m_dbe->book1D("TPOccupancyVsEta","TP Occupancy Vs. Eta", etaBins_,etaMin_,etaMax_);
+  TPOccupancyPhi_ = m_dbe->book1D("TPOccupancyVsPhi","TP Occupancy Vs. Phi", phiBins_,phiMin_,phiMax_);
+  NonZeroTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Matched TP";
+  MatchedTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Mismatched Et";
+  MismatchedEt_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Mismatched FG";
+  MismatchedFG_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Data Only";
+  DataOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Emul Only";
+  EmulOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Missing Data";
+  MissingData_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Missing Emul";
+  MissingEmul_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  //---------------------------------------------
+
+  //-------------- TP Occupancy for ZS----------------
+  m_dbe->setCurrentFolder(baseFolder_ + "/TP Map for ZS");
+
+  type = "Mismatched Et ZS";
+  MismatchedEtZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Missing Data ZS";
+  MissingDataZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  type = "Missing Emul ZS";
+  MissingEmulZS_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  //---------------------------------------------
+
+  //------------ Energy Plots ------------------
+  // HBHE
+  m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HBHE");
+
+  type = "Energy HBHE - All Data";
+  EnergyPlotsAllData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - All Emul";
+  EnergyPlotsAllEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Mismatched FG";
+  EnergyPlotsMismatchedFG_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Data Only";
+  EnergyPlotsDataOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Emul Only";
+  EnergyPlotsEmulOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Missing Data";
+  EnergyPlotsMissingData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Missing Emul";
+  EnergyPlotsMissingEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+
+  // HF
+  m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HF");
+
+  type = "Energy HF - All Data";
+  EnergyPlotsAllData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - All Emul";
+  EnergyPlotsAllEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Mismatched FG";
+  EnergyPlotsMismatchedFG_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Data Only";
+  EnergyPlotsDataOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Emul Only";
+  EnergyPlotsEmulOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Missing Data";
+  EnergyPlotsMissingData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Missing Emul";
+  EnergyPlotsMissingEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+
+  // ZS 
+  m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots for ZS");
+
+  type = "Energy HBHE - Missing Data - ZS";
+  EnergyPlotsMissingDataZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HBHE - Missing Emul - ZS";
+  EnergyPlotsMissingEmulZS_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Missing Data - ZS";
+  EnergyPlotsMissingDataZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  type = "Energy HF - Missing Emul - ZS";
+  EnergyPlotsMissingEmulZS_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+
+  return;
+} // void HcalTrigPrimMonitor::beginRun()
 
 void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits, 
 				       const HORecHitCollection& hoHits, 
@@ -184,10 +189,11 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
 				       const HFDigiCollection& hfdigi,
-                               const HcalTrigPrimDigiCollection& tpDigis,
-                               const HcalTrigPrimDigiCollection& emultpDigis,
-                               const FEDRawDataCollection& rawraw,
-				       const HcalElectronicsMap& emap
+				       const HcalTrigPrimDigiCollection& tpDigis,
+				       const HcalTrigPrimDigiCollection& emultpDigis,
+				       const FEDRawDataCollection& rawraw,
+				       const HcalElectronicsMap& emap,
+				       int   CalibType
 				       )
 {
 
@@ -195,6 +201,26 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
     if (fVerbosity>0) cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; 
   }
+
+  // Check that event is of proper calibration type
+  bool processevent=false;
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+        {
+          if (AllowedCalibTypes_[i]==CalibType)
+            {
+              processevent=true;
+              break;
+            }
+        }
+    }
+  if (fVerbosity>1) std::cout <<"<HcalTrigPrimMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (!processevent)
+    return;
+
 
   HcalBaseMonitor::processEvent();
 
