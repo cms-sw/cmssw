@@ -203,6 +203,11 @@ openhltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationS
     ClusterDRRMS = cms.vdouble( 1000.0, 0.0, 0.0 )
 )
 openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
+                                          ClusterCheckPSet = cms.PSet(
+    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
+    doClusterCheck = cms.bool( False )
+    ),
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
       RegionPSet = cms.PSet( 
@@ -253,7 +258,8 @@ openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "openhltL25TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 openhltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),

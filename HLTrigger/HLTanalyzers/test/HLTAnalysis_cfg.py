@@ -20,7 +20,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/mc/Summer09/MinBias900GeV/GEN-SIM-RAW/MC_31X_V3-v1/0029/EA9124F5-A28C-DE11-B015-0016367B47AF.root'
+    '/store/mc/Summer09/MinBias900GeV/GEN-SIM-RAW/MC_31X_V3-v1/0029/EA9124F5-A28C-DE11-B015-0016367B47AF.root'
     )
 )
 
@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'STARTUP31X_V8::All'
 
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
@@ -52,7 +52,9 @@ process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 # Define the HLT reco paths
 process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 # Remove the PrescaleService which, in 31X, it is expected once HLT_XXX_cff is imported
-del process.PrescaleService
+
+process.DQM = cms.Service( "DQM",)
+process.DQMStore = cms.Service( "DQMStore",)
 
 # AlCa OpenHLT specific settings
 
