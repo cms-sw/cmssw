@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.HLTEvF.HLTEventInfoClient_cfi import *
+#from DQM.HLTEvF.HLTEventInfoClient_cfi import *
 
 from DQMOffline.Trigger.FourVectorHLTOfflineClient_cff import *
 from DQMOffline.Trigger.EgHLTOfflineClient_cfi import *
@@ -14,6 +14,7 @@ from DQMOffline.Trigger.HLTTauPostProcessor_cfi import *
 from DQMServices.Components.DQMEnvironment_cfi import *
 dqmEnv.subSystemFolder = 'HLT'
 
-#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*bPAGPostProcessor*jetMETHLTOfflineClient*dqmEnv)
 
-hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmEnv)
+#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmEnv)
+
+hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmEnv)
