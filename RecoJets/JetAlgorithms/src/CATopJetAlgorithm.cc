@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.3 2009/02/23 21:45:50 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.4 2009/08/27 20:26:29 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -65,7 +65,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
   const fastjet::PseudoJet blankJet = blankJetA;
 
 
-  int nCellMin = nCellBins_[iPt];
+  double nCellMin = nCellBins_[iPt];
 
   if ( verbose ) cout << "Using nCellMin = " << nCellMin << endl;
 
@@ -228,18 +228,29 @@ bool CATopJetAlgorithm::adjacentCells(const fastjet::PseudoJet & jet1, const fas
 				      const vector<fastjet::PseudoJet> & cell_particles,
 				      const CaloSubdetectorGeometry  * fTowerGeometry,
 				      const fastjet::ClusterSequence & theClusterSequence,
-				      int nCellMin ) const {
+				      double nCellMin ) const {
 
-  // Get each tower (depending on user input, can be either max pt tower, or centroid).
-  CaloTowerDetId tower1 = getCaloTower( jet1, cell_particles, fTowerGeometry, theClusterSequence );
-  CaloTowerDetId tower2 = getCaloTower( jet2, cell_particles, fTowerGeometry, theClusterSequence );
 
-  // Get the number of calo towers away that the two towers are.
-  // Can be non-integral fraction if "centroid" case is chosen.
-  int distance = getDistance( tower1, tower2, fTowerGeometry );
+  double eta1 = jet1.rapidity();
+  double phi1 = jet1.phi();
+  double eta2 = jet2.rapidity();
+  double phi2 = jet2.phi();
 
-  if ( distance <= nCellMin ) return true;
-  else return false;
+  double deta = abs(eta2 - eta1) / 0.087;
+  double dphi = fabs( reco::deltaPhi(phi2,phi1) ) / 0.087;
+
+  return ( ( deta + dphi ) <= nCellMin );
+
+//   // Get each tower (depending on user input, can be either max pt tower, or centroid).
+//   CaloTowerDetId tower1 = getCaloTower( jet1, cell_particles, fTowerGeometry, theClusterSequence );
+//   CaloTowerDetId tower2 = getCaloTower( jet2, cell_particles, fTowerGeometry, theClusterSequence );
+
+//   // Get the number of calo towers away that the two towers are.
+//   // Can be non-integral fraction if "centroid" case is chosen.
+//   double distance = getDistance( tower1, tower2, fTowerGeometry );
+
+//   if ( distance <= nCellMin ) return true;
+//   else return false;
 }
 
 //-------------------------------------------------------------------------
@@ -307,7 +318,6 @@ CaloTowerDetId CATopJetAlgorithm::getCaloTower( const fastjet::PseudoJet & jet,
 int CATopJetAlgorithm::getDistance ( CaloTowerDetId const & t1, CaloTowerDetId const & t2, 
 				     const CaloSubdetectorGeometry  * fTowerGeometry ) const
 {
-
   int ieta1 = t1.ieta();
   int iphi1 = t1.iphi();
   int ieta2 = t2.ieta();
@@ -315,10 +325,10 @@ int CATopJetAlgorithm::getDistance ( CaloTowerDetId const & t1, CaloTowerDetId c
 
   int deta = abs(ieta2 - ieta1);
   int dphi = abs(iphi2 - iphi1);
-  
+
   while ( dphi >= CaloTowerDetId::kMaxIEta ) dphi -= CaloTowerDetId::kMaxIEta;
   while ( dphi <= 0 ) dphi += CaloTowerDetId::kMaxIEta;
-
+  
   return deta + dphi;
 }
 
@@ -329,7 +339,7 @@ bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet,
 				     const fastjet::ClusterSequence & theClusterSequence, 
 				     const vector<fastjet::PseudoJet> & cell_particles,
 				     const CaloSubdetectorGeometry  * fTowerGeometry,
-				     double ptHard, int nCellMin,
+				     double ptHard, double nCellMin,
 				     fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 				     vector<fastjet::PseudoJet> & leftovers) const {
 

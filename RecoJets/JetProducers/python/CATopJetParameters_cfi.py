@@ -13,7 +13,7 @@ CATopJetParameters = cms.PSet(
     ptBins = cms.vdouble(0, 10e9),          # pt bins over which cuts vary                                        
     rBins = cms.vdouble(0.8,0.8),           # cone size bins                                                      
     ptFracBins = cms.vdouble(0.05,0.05),    # minimum fraction of central jet pt for subjets
-    nCellBins = cms.vint32(1,1) ,           # number of cells apart for two subjets to be considered "adjacent"
+    nCellBins = cms.vdouble(1.9,1.9) ,           # number of cells apart for two subjets to be considered "adjacent"
     debugLevel = cms.untracked.int32(0)     # debug level
 )
 

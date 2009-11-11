@@ -19,7 +19,7 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
        conf.getParameter<std::vector<double> > ("ptBins"),     // pt bins over which cuts may vary
        conf.getParameter<std::vector<double> >("rBins"),       // cone size bins,
        conf.getParameter<std::vector<double> >("ptFracBins"),  // fraction of hard jet that subjet must have
-       conf.getParameter<std::vector<int> >("nCellBins")       // number of cells to consider two subjets adjacent
+       conf.getParameter<std::vector<double> >("nCellBins")       // number of cells to consider two subjets adjacent
        )
 {}
 

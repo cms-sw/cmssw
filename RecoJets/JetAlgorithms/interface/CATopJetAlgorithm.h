@@ -57,7 +57,7 @@ class CATopJetAlgorithm{
 		    const std::vector<double> & ptBins,      
 		    const std::vector<double> & rBins,       
 		    const std::vector<double> & ptFracBins,  
-		    const std::vector<int> & nCellBins) :
+		    const std::vector<double> & nCellBins) :
     mSrc_          (mSrc          ),
     algorithm_     (algorithm     ),
     seedThreshold_ (seedThreshold ), 
@@ -94,7 +94,7 @@ class CATopJetAlgorithm{
   std::vector<double> ptBins_;	      //<! pt bins over which cuts vary                                        
   std::vector<double> rBins_;	      //<! cone size bins                                                      
   std::vector<double> ptFracBins_;    //<! fraction of full jet pt for a subjet to be consider "hard"          
-  std::vector<int>    nCellBins_;     //<! number of cells apart for two subjets to be considered "independent"
+  std::vector<double> nCellBins_;     //<! number of cells apart for two subjets to be considered "independent"
   std::string         jetType_;       //<! CaloJets or GenJets
 
   // Decide if the two jets are in adjacent cells    
@@ -103,7 +103,7 @@ class CATopJetAlgorithm{
 		     const std::vector<fastjet::PseudoJet> & cell_particles,
 		     const CaloSubdetectorGeometry  * fTowerGeometry,
 		     const fastjet::ClusterSequence & theClusterSequence,
-		     int nCellMin ) const;
+		     double nCellMin ) const;
 
   
   // Get maximum pt tower
@@ -130,7 +130,7 @@ class CATopJetAlgorithm{
 		    const fastjet::ClusterSequence & theClusterSequence, 
 		    const std::vector<fastjet::PseudoJet> & cell_particles,
 		    const CaloSubdetectorGeometry  * fTowerGeometry,
-		    double ptHard, int nCellMin,
+		    double ptHard, double nCellMin,
 		    fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 		    std::vector<fastjet::PseudoJet> & leftovers) const;
 
