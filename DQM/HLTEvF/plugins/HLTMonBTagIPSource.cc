@@ -2,14 +2,15 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/10/02 08:43:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/13 13:32:40 $
+ *  $Revision: 1.9 $
  *  \author Andrea Bocci, Pisa
  *
  */
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -264,7 +265,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
     m_plotRates->Fill( 5. );    // HLT accepted
 
   if ((latest > m_L1FilterIndex) and h_L2Jets.isValid()) {
-    unsigned int size = std::min(h_L2Jets->size(), m_size);
+    unsigned int size = std::min((unsigned int) h_L2Jets->size(), m_size);
     for (unsigned int i = 0; i < size; ++i) {
       const reco::Jet & jet = (*h_L2Jets)[i];
       m_plotL2JetsEnergy->Fill( jet.energy() );
@@ -276,7 +277,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
     }
   }
   if ((latest > m_L2FilterIndex) and h_L25TagInfo.isValid() and h_L25JetTags.isValid()) {
-    unsigned int size = std::min(h_L25TagInfo->size(), m_size);
+    unsigned int size = std::min((unsigned int) h_L25TagInfo->size(), m_size);
     for (unsigned int i = 0; i < size; ++i) {
       const reco::TrackIPTagInfo & info   = (*h_L25TagInfo)[i];
       const reco::Jet & jet = * info.jet();
@@ -318,7 +319,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
     }
   }
   if ((latest > m_L25FilterIndex) and h_L3TagInfo.isValid() and h_L3JetTags.isValid()) {
-    unsigned int size = std::min(h_L3TagInfo->size(), m_size);
+    unsigned int size = std::min((unsigned int) h_L3TagInfo->size(), m_size);
     for (unsigned int i = 0; i < size; ++i) {
       const reco::TrackIPTagInfo & info   = (*h_L3TagInfo)[i];
       const reco::Jet & jet = * info.jet();
