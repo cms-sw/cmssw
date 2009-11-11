@@ -35,15 +35,6 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
       )
 )
 
-# Count PDF-weighted events and collect uncertainties
-process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
-      PdfWeightTags = cms.untracked.VInputTag(
-              "pdfWeights:cteq65"
-            #, "pdfWeights:MRST2006nnlo"
-            #, "pdfWeights:MRST2007lomod"
-      )
-)
-
 ### NOTE: the following WMN selectors require the presence of
 ### the libraries and plugins fron the ElectroWeakAnalysis/WMuNu package
 ### So you need to process the ElectroWeakAnalysis/WMuNu package with
@@ -54,8 +45,11 @@ process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
 # WMN fast selector (use W candidates in this example)
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
-# Count PDF-weighted 'selected' events and collect uncertainties
-process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+# Collect uncertainties for either rate or acceptance
+process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+      #Option = cms.untracked.string('Rate'),
+      Option = cms.untracked.string('Acceptance'),
+      SelectorPath = cms.untracked.string('pdfana'),
       PdfWeightTags = cms.untracked.VInputTag(
               "pdfWeights:cteq65"
             #, "pdfWeights:MRST2006nnlo"
@@ -66,27 +60,7 @@ process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
 # Main path
 process.pdfana = cms.Path(
        process.pdfWeights
-      *process.pdfDenominatorSystematics
       *process.selectCaloMetWMuNus
-      *process.pdfNumeratorSystematics
 )
 
-# Optional code follows
-#
-# Save PDF weights in the output file 
-#process.load("Configuration.EventContent.EventContent_cff")
-#process.MyEventContent = cms.PSet( 
-#      outputCommands = process.AODSIMEventContent.outputCommands
-#)
-#process.MyEventContent.outputCommands.extend(
-#      cms.untracked.vstring('keep *_pdfWeights_*_*')
-#)
-## Output (filtered by selector)
-#process.pdfOutput = cms.OutputModule("PoolOutputModule",
-#    process.MyEventContent,
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('pdfana')
-#    ),
-#    fileName = cms.untracked.string('selectedEvents.root')
-#)
-#process.end = cms.EndPath(process.pdfOutput)
+process.end = cms.EndPath(process.pdfSystematics)
