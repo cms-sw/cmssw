@@ -40,7 +40,6 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
       //Generate Noise for det detid
       std::vector<short> theSiStripVector;
       for(unsigned int strip=0; strip<128*nAPV; ++strip){
-	std::cout<<strip<<std::endl;
 	float noise = uni();;      
 	me->setData(noise,theSiStripVector);
       }
