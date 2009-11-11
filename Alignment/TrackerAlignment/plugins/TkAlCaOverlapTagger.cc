@@ -142,7 +142,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    bool hitInStrip=(subDet==SiStripDetId::TIB) || (subDet==SiStripDetId::TID) ||(subDet==SiStripDetId::TOB) ||(subDet==SiStripDetId::TEC);
 	    if (hitInStrip){
 	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
-	      const std::type_info &type = typeid(*hit);
+	      // const std::type_info &type = typeid(*hit);
 	      const TSiStripRecHit2DLocalPos* transstriphit2D = dynamic_cast<const  TSiStripRecHit2DLocalPos*>(hit);
 	      const TSiStripRecHit1D* transstriphit1D = dynamic_cast<const  TSiStripRecHit1D*>(hit);
 	   
