@@ -7,4 +7,6 @@
 #pragma link C++ class JetCorrectorParameters+;
 #pragma link C++ class JetCorrectorParameters::Definitions+;
 #pragma link C++ class JetCorrectorParameters::Record+;
+#pragma link C++ class SimpleJetCorrector+;
+#pragma link C++ class FactorizedJetCorrector+;
 #endif // __CINT__
