@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre6/GRun/V4 (CMSSW_3_4_0_pre5_HLT1)
+# /dev/CMSSW_3_4_0/pre6/GRun/V6 (CMSSW_3_4_0_pre5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/GRun/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -5861,7 +5861,7 @@ process.hltL1sMinBiasPixel = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltPreMinBiasPixel = cms.EDFilter( "HLTPrescaler" )
+process.hltPreMinBiasPixel1 = cms.EDFilter( "HLTPrescaler" )
 process.hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     useFilterWithES = cms.bool( False ),
     RegionFactoryPSet = cms.PSet( 
@@ -5907,7 +5907,14 @@ process.hltPixelCands = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltPixelTracksForMinBias" ),
     particleType = cms.string( "pi+" )
 )
-process.hltMinBiasPixelFilter = cms.EDFilter( "HLTPixlMBFilt",
+process.hltMinBiasPixelFilter1 = cms.EDFilter( "HLTPixlMBFilt",
+    pixlTag = cms.InputTag( "hltPixelCands" ),
+    MinPt = cms.double( 0.0 ),
+    MinTrks = cms.uint32( 1 ),
+    MinSep = cms.double( 1.0 )
+)
+process.hltPreMinBiasPixel2 = cms.EDFilter( "HLTPrescaler" )
+process.hltMinBiasPixelFilter2 = cms.EDFilter( "HLTPixlMBFilt",
     pixlTag = cms.InputTag( "hltPixelCands" ),
     MinPt = cms.double( 0.0 ),
     MinTrks = cms.uint32( 2 ),
@@ -7240,7 +7247,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_MinBias',
   'HLT_MinBiasEcal',
   'HLT_MinBiasHcal',
-  'HLT_MinBiasPixel',
+  'HLT_MinBiasPixel1',
+  'HLT_MinBiasPixel2',
   'HLT_MinBiasPixel_Trk5',
   'HLT_Mu3',
   'HLT_Mu5',
@@ -7333,7 +7341,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_MinBias',
   'HLT_MinBiasEcal',
   'HLT_MinBiasHcal',
-  'HLT_MinBiasPixel',
+  'HLT_MinBiasPixel1',
+  'HLT_MinBiasPixel2',
   'HLT_MinBiasPixel_Trk5',
   'HLT_Mu3',
   'HLT_Mu5',
@@ -7427,7 +7436,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_MinBias',
   'HLT_MinBiasEcal',
   'HLT_MinBiasHcal',
-  'HLT_MinBiasPixel',
+  'HLT_MinBiasPixel1',
+  'HLT_MinBiasPixel2',
   'HLT_MinBiasPixel_Trk5',
   'HLT_Mu3',
   'HLT_Mu5',
@@ -7681,7 +7691,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_MinBias',
   'HLT_MinBiasEcal',
   'HLT_MinBiasHcal',
-  'HLT_MinBiasPixel',
+  'HLT_MinBiasPixel1',
+  'HLT_MinBiasPixel2',
   'HLT_MinBiasPixel_Trk5',
   'HLT_Mu3',
   'HLT_Mu5',
@@ -7837,7 +7848,8 @@ process.HLT_ZeroBiasPrescaled = cms.Path( process.HLTBeginSequence + process.hlt
 process.HLT_MinBias = cms.Path( process.HLTBeginSequence + process.hltL1sMinBias + process.hltPreMinBias + process.HLTEndSequence )
 process.HLT_MinBiasHcal = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasHcal + process.hltPreMinBiasHcal + process.HLTEndSequence )
 process.HLT_MinBiasEcal = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasEcal + process.hltPreMinBiasEcal + process.HLTEndSequence )
-process.HLT_MinBiasPixel = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasPixel + process.hltPreMinBiasPixel + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForMinBiasSequence + process.hltPixelCands + process.hltMinBiasPixelFilter + process.HLTEndSequence )
+process.HLT_MinBiasPixel1 = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasPixel + process.hltPreMinBiasPixel1 + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForMinBiasSequence + process.hltPixelCands + process.hltMinBiasPixelFilter1 + process.HLTEndSequence )
+process.HLT_MinBiasPixel2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasPixel + process.hltPreMinBiasPixel2 + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForMinBiasSequence + process.hltPixelCands + process.hltMinBiasPixelFilter2 + process.HLTEndSequence )
 process.HLT_MinBiasPixel_Trk5 = cms.Path( process.HLTBeginSequence + process.hltL1sMinBiasPixel + process.hltPreMinBiasPixelTrk5 + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForMinBiasSequence + process.hltPixelCands + process.hltPixelMBForAlignment + process.HLTEndSequence )
 process.HLT_CSCBeamHalo = cms.Path( process.HLTBeginSequence + process.hltL1sCSCBeamHalo + process.hltPreCSCBeamHalo + process.HLTEndSequence )
 process.HLT_CSCBeamHaloOverlapRing1 = cms.Path( process.HLTBeginSequence + process.hltL1sCSCBeamHaloOverlapRing1 + process.hltPreCSCBeamHaloOverlapRing1 + process.hltMuonCSCDigis + process.hltCsc2DRecHits + process.hltOverlapsHLTCSCBeamHaloOverlapRing1 + process.HLTEndSequence )

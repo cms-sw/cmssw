@@ -78,7 +78,8 @@ HLT_Ele10_LW_L1R_HT200
 HLT_ZeroBias
 HLT_MinBiasHcal
 HLT_MinBiasEcal
-HLT_MinBiasPixel
+HLT_MinBiasPixel1
+HLT_MinBiasPixel2
 HLT_MinBiasPixel_Trk5
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
