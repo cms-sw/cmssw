@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: GenJetParticles_cff.py,v 1.3 2009/10/02 19:24:22 srappocc Exp $
+# $Id: GenJetParticles_cff.py,v 1.4 2009/10/22 18:06:42 srappocc Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets from RecoGenJets.cff
 # 
@@ -26,3 +26,9 @@ genJetParticles = cms.Sequence(genParticlesForJets)
 
 hiGenParticlesForJets = genParticlesForJets.clone()
 hiGenParticlesForJets.src = cms.InputTag("hiGenParticles")
+
+genParticlesForJetsNoNu = genParticlesForJets.clone()
+genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
+
+genParticlesForJetsNoMuNoNu = genParticlesForJets.clone()
+genParticlesForJetsNoMuNoNu.ignoreParticleIDs += cms.vuint32( 12,13,14,16)
