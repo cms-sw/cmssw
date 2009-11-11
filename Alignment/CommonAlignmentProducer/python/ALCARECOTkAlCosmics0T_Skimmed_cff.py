@@ -44,7 +44,8 @@ TrackRefitterCTF1 =RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5
     src='ALCARECOTkAlCosmicsCTF0T',
     TTRHBuilder = 'WithAngleAndTemplate',
     TrajectoryInEvent = True,
-    beamSpot='MyBeamSpot'
+    beamSpot='MyBeamSpot',
+    NavigationSchool=''
     )
 
 # 2b: apply NEW hit filter. Does not work with CosmicTF tracks !
@@ -104,6 +105,7 @@ TrackRefitterCTF2 =RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5
     TTRHBuilder = 'WithAngleAndTemplate',
     TrajectoryInEvent = True,
     beamSpot='MyBeamSpot',
+    NavigationSchool=''
 #    EstimateCut=15.0,
 #    MinNumberOfHits=6
 #    Fitter='FittingSmootherCustomised'
