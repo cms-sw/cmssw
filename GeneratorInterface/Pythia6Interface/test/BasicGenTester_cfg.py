@@ -11,7 +11,7 @@ process.load( "SimGeneral.HepPDTESSource.pythiapdt_cfi" )
 
 process.source = cms.Source( "PoolSource",
                              fileNames = cms.untracked.vstring(
-			     'file:PythiaMinBias_cfi_py_GEN.root'
+			     'file:/tmp/yarba/SL4/gcc345/TTbar_cfi_py_GEN.root'
 			     )
                            )
 	      
@@ -19,12 +19,13 @@ process.source = cms.Source( "PoolSource",
 # will want it, to create output histogram file
 # 
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("BasicGenTester_MinBias.root")
+        fileName = cms.string("BasicGenTester_TTbar.root")
 )
 
 # the analyzer itself - empty parameter set 
 #
 process.BasicGenTest = cms.EDAnalyzer( "BasicGenTester",
+        NPartForHisto = cms.untracked.int32(1000),
         PtMaxForHisto = cms.untracked.double(5.0)
 )
 
