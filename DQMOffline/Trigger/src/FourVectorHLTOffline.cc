@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.49 2009/11/04 15:20:48 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.50 2009/11/10 10:12:18 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -953,7 +953,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
           if (objectType == trigger::TriggerTrack) ptMax = 100.0;
   
           // monitor regardless of the objectType of the path
-          if (objectType != -1) hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+          if (objectType != -1  && pathname.find("HLT_") != std::string::npos) 
+            hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       
         }
   
@@ -1205,9 +1206,10 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
          numModule++;
 
-         if((moduleType.find("HLT_") != string::npos && moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos ) || 
+         if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos ) || 
             (moduleType.find("Associator") != string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
+            (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) ||
             (moduleType.find("HLTPrescaler") != string::npos) ) {
 
            std::pair<std::string, int> filterIndexPair;
