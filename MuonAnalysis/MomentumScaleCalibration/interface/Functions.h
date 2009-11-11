@@ -700,7 +700,7 @@ public:
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const
  vector<int> & parScaleOrder, const int muonType) {
    
-    double thisStep[] = {0.001, 0.01, 0.01, 0.1, 0.01, 0.01,};
+    double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};      
       
     TString thisParName[] = {"Phi offset", "Phi ampl Pos","Phi freq Pos", "Phi phase Pos","Eta slope", "Eta quadr","Phi ampl Neg","Phi freq Neg", "Phi phase Neg"};
     if( muonType == 1 ) {
