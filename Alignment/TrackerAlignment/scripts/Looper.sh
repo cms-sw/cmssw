@@ -1,5 +1,6 @@
 #! /bin/bash
 
+echo ""
 echo "#############################################################################"
 echo "#####                                                                   #####"
 echo "#####      Starting the TK Alignment Skim&Prescale workflow!!!          #####"
@@ -29,7 +30,7 @@ for ALCATAG in  $( cat "taglist.txt" )
 do
 echo ""
 echo "Counting events for ${ALCATAG} ; Log in ./log_nevents_${ALCATAG}.out"
-#time ./cntevts_in_file.sh  "../data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
+time ./cntevts_in_file.sh  "../data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
 done
 
 

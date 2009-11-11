@@ -41,8 +41,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # setting global tag
-
-process.GlobalTag.globaltag = "STARTUP31X_V5::All"
+process.GlobalTag.globaltag = "STARTUP3XY_V9::All"
 
 ##__________________________________Filter____________________________________________
 process.maxEvents = cms.untracked.PSet(

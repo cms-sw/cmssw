@@ -17,26 +17,26 @@ void PlotTrackStats(){
 
   //define paths
   char basepath[128];
-  sprintf(basepath,"/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v2.1/MONITORING/DQM");
+  sprintf(basepath,"./MONITORING/DQM");
   char filename[256];
 
   const int StartFile=1;//211;
   const int FinFile=999;
-
+  int addedfiles=0;
 
   //create a chain with all the DQM histograms
   TChain *ch=new TChain("AlignmentTrackStats");
 
   for(int i=StartFile;i<=FinFile;++i){
-    sprintf(filename,"%s/CTF/TkAlCaRecoSkimming.MinBias09MC.ALCARECOTkAlMinBias_cfg.%d_TrackStats.root",basepath,i);
-    if(!CheckFileExistence(filename)){
-      cout<<"Added to the chain "<<i-1<<" files"<<endl;
-      break;
-    }
-    ch->Add(filename);
-    if( (i%50==0) || (i==FinFile))cout<<"Added to the chain "<<i<<" files"<<endl;
+    sprintf(filename,"%s/CTF/TkAlCaRecoSkimming.ALCARECOTkAlMinBias.ALCARECOTkAlMinBias_cfg.%d_TrackStats.root",basepath,i);
+    // if(!CheckFileExistence(filename)){
+    //  cout<<"Added to the chain "<<i-1<<" files"<<endl;
+    //  break;
+    // }
+    if(CheckFileExistence(filename)){ch->Add(filename);addedfiles++;}
+    if( (i%50==0) || (i==FinFile))cout<<"File: "<<i<<" "<<flush;
   }
-
+  cout<<"\nAdded to the chain "<<addedfiles<<" files"<<endl;
 
   //create histograms with the TTree:Draw function
   ch->Draw("Chi2n>>hchi2n(600,0.0,12.0)","Ntracks>0","goff");
@@ -113,8 +113,8 @@ void PlotTrackStats(){
   hnhitstotPXB->Draw();
 
   //save png files
-  c1->SaveAs("./MinBiasMC09_CTFSkimmed_TrackStats_ALLTRKS.png");
-  c2->SaveAs("./MinBiasMC09_CTFSkimmed_TrackStats_PIXTRKS.png");
+  c1->SaveAs("./ALCARECOTkAlMinBias_CTFSkimmed_TrackStats_ALLTRKS.png");
+  c2->SaveAs("./ALCARECOTkAlMinBias_CTFSkimmed_TrackStats_PIXTRKS.png");
   delete c1;
   delete c2;
   
@@ -133,7 +133,7 @@ void PlotTrackStats(){
   //  cout<<"start draw"<<endl;
   hnhvsp->Draw("colz");
   //cout<<"start save"<<endl;
-  can_nhvsp->SaveAs("./MinBiasMC09_CTFSkimmed_NhitsVsMom.ps");
+  can_nhvsp->SaveAs("./ALCARECOTkAlMinBias_CTFSkimmed_NhitsVsMom.ps");
 }
 
 bool CheckFileExistence(char *filename){

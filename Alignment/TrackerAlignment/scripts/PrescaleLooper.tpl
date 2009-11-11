@@ -14,7 +14,7 @@ DQM_OUT="${curdir}/MONITORING/DQM/CTF/"
 #DQM_OUT=$1 
 ALCAFILELIST=$1
 MAXEVENTS=18000
-BASE_TPL=$(basename "$TPL_FILE" .tpl)
+
 
 #check if output directory exists
 nsls $CASTOR_OUT
@@ -64,6 +64,7 @@ do
   ###DAT_FILE="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v1.4/data/${ALCATAG}.dat"
   DAT_FILE="${curdir}/../data/${ALCATAG}.dat"
   TPL_FILE="TkAlCaRecoPrescaling.${ALCATAG}.tpl"
+  BASE_TPL=$(basename "$TPL_FILE" .tpl)
   TAG=$ALCATAG #"CRAFT" 
   JOBTAG="ALCAPresc_"${TAG}
 
@@ -117,6 +118,12 @@ time cmsRun mergemytree_${TAG}_cfg.py
 	  replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev "<ALCATAG>" $ALCATAG "<MERGEDHITMAP>" $dqmtotfile < $TPL_FILE > $CFG_FILE
 	  let INDEX=INDEX+1
 	  let nsplits=nsplits+1
+# 	  if [ $INDEX -ge 3 ]
+# 	      then
+# 	      echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	      break
+# 	  fi
+
 	done
 
     else #file is small and does not contain too many events
@@ -126,7 +133,20 @@ time cmsRun mergemytree_${TAG}_cfg.py
 	CFG_FILE=$BASE_TPL"."$TAG"_cfg."$INDEX".py"
 	replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev  "<ALCATAG>" $ALCATAG "<MERGEDHITMAP>" $dqmtotfile< $TPL_FILE > $CFG_FILE
 	let INDEX=INDEX+1
+# 	if [ $INDEX -ge 3 ]
+# 	    then
+# 	    echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	    break
+# 	fi
+
     fi
+
+
+# if [ $INDEX -ge 3 ]
+# 	then
+# 	    echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	break
+# 	fi
 
 #echo "--- moving to next file. At the moment INDEX=$INDEX"
   done

@@ -25,7 +25,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-//#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "Utilities/General/interface/ClassName.h"
 
@@ -142,8 +143,13 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    if (hitInStrip){
 	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
 	      const std::type_info &type = typeid(*hit);
-	      if (type == typeid(SiStripRecHit1D)) {
-		const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
+	      const TSiStripRecHit2DLocalPos* transstriphit2D = dynamic_cast<const  TSiStripRecHit2DLocalPos*>(hit);
+	      const TSiStripRecHit1D* transstriphit1D = dynamic_cast<const  TSiStripRecHit1D*>(hit);
+	   
+	      //   if (type == typeid(SiStripRecHit1D)) {
+	      if(transstriphit1D!=0){
+		//	const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
+		const SiStripRecHit1D* striphit=transstriphit1D->specificHit();
 		if(striphit!=0){
 		  SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -158,8 +164,10 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 		}
 	      }//end if sistriprechit1D
-	      else if (type == typeid(SiStripRecHit2D)) {
-		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
+	      else if(transstriphit2D!=0){
+	      //else if (type == typeid(SiStripRecHit2D)) {
+		//		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
+		const SiStripRecHit2D* striphit=transstriphit2D->specificHit();   
 		if(striphit!=0){
 		  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -179,7 +187,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 		}
 	      }//end if Sistriprechit2D
 	      else{
-		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Impossible to determine the type of SiStripRecHit.";
+		edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Impossible to determine the type of SiStripRecHit.  TypeId of the RecHit: "<<className(*hit);
 	      }	  
 	 
 	    }//end if hit in Strips

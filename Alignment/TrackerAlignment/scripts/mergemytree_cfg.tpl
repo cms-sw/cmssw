@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(0)
 )
 
-process.load("Alignment.TrackerAlignment.TreeMerger_cff")
+process.load("Alignment.TrackerAlignment.TkAlCaSkimTreeMerger_cff")
 process.AlignmentTreeMerger.FileList="<DQMLIST>"
 process.AlignmentTreeMerger.TreeName='AlignmentHitMap'
 process.AlignmentTreeMerger.OutputFile="<DQMTOTFILE>"

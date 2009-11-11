@@ -143,9 +143,9 @@ do
     fi
 
 #    if [ $INDEX -ge 3 ]
-#	then
-#	echo "Reached a maximum number of files: $INDEX. Stopping the submission"
-#	break
+# 	then
+# 	echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	break
 #    fi
 
 #echo "--- moving to next file. At the moment INDEX=$INDEX"
