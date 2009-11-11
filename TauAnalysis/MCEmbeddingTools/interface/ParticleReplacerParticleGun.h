@@ -20,8 +20,8 @@
 
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
 #include<string>
 #include<vector>

@@ -36,6 +36,7 @@
 #include "HepMC/PythiaWrapper.h"
 */
 
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
