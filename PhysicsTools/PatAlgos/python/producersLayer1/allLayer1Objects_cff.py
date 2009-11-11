@@ -19,7 +19,7 @@ allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("allLayer1Photons"),
         cms.InputTag("allLayer1Jets"),
         cms.InputTag("layer1METs"),
-        cms.InputTag("layer1MHTs")
+#       cms.InputTag("layer1MHTs")
     )
 )
 
@@ -30,6 +30,6 @@ allLayer1Objects = cms.Sequence(
     makeAllLayer1Photons +
     makeAllLayer1Jets +
     makeLayer1METs +
-    makeLayer1MHTs +    
+#   makeLayer1MHTs +    
     allLayer1Summary
 )
