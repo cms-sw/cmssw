@@ -51,12 +51,12 @@ namespace edmtest
   PedestalsAnalyzer::beginJob(const edm::EventSetup& context){
     std::cout<<"###PedestalsAnalyzer::beginJob"<<std::endl;
     /*edm::ESHandle<Pedestals> pPeds;
-    std::cout<<"got eshandle"<<std::endl;
-    context.get<PedestalsRcd>().get(pPeds);
+      std::cout<<"got eshandle"<<std::endl;
+      context.get<PedestalsRcd>().get(pPeds);
     */
   }
   void
-   PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
+  PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
     using namespace edm::eventsetup;
     // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
@@ -75,8 +75,7 @@ namespace edmtest
     for(std::vector<Pedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); ++i)
       std::cout << " mean: " <<it->m_mean
                 << " variance: " <<it->m_variance;
-	std::cout  << std::endl;
-    }
+    std::cout  << std::endl;
   }
   DEFINE_FWK_MODULE(PedestalsAnalyzer);
 }

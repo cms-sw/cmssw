@@ -71,7 +71,6 @@ int cond::ExportIOVUtilities::execute(){
   std::string sqlOutputFileName("sqlmonitoring.out");
   bool doLog = hasOptionValue("logDB");
   bool debug=hasDebug();
-  std::string blobStreamerName("COND/Services/TBufferBlobStreamingService2");
   bool outOfOrder = hasOptionValue("outOfOrder");
 
   std::string sourceiovtoken("");
