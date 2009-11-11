@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.22 2009/11/03 16:56:39 amraktad Exp $
+// $Id: FW3DView.cc,v 1.23 2009/11/05 15:11:40 dmytro Exp $
 //
 
 // system include files
@@ -108,7 +108,9 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
-   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
+   FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(nv);
+   ctxHand->setPickCameraCenter(true);
+   m_viewContextMenu.reset(ctxHand);
    
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
