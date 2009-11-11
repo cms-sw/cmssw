@@ -5,9 +5,9 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2009/04/14 18:52:09 $
- *  $Revision: 1.12 $
- *  \author Chang Liu - Purdue University 
+ *  Emulate TSGFromPropagation in RecoMuon
+ *
+ *  \author Hwidong Yoo - Purdue University 
  */
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"

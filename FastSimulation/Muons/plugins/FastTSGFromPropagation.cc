@@ -2,9 +2,9 @@
 
 /** \class FastTSGFromPropagation
  *
- *  $Date: 2009/10/30 13:17:37 $
- *  $Revision: 1.3 $
- *  \author Chang Liu - Purdue University 
+ *  Emulate TSGFromPropagation in RecoMuon
+ *
+ *  \author Hwidong Yoo - Purdue University 
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -43,13 +43,13 @@
 using namespace std;
 
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theGeometry(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
 
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theGeometry(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
 }
@@ -147,10 +147,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       GlobalTrajectoryParameters glb_parameters(position, momentum, charge, &*theService->magneticField().product());
 	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
 
-	       int outerId = 0;
+	       unsigned int outerId = 0;
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
 		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
-		   int id = theSeedHits.hit()->geographicalId().rawId();
+		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
 		   }
@@ -209,10 +209,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       GlobalTrajectoryParameters glb_parameters(position, momentum, charge, &*theService->magneticField().product());
 	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
 
-	       int outerId = 0;
+	       unsigned int outerId = 0;
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
 		   theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry);
-		   int id = theSeedHits.hit()->geographicalId().rawId();
+		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
 		   }
