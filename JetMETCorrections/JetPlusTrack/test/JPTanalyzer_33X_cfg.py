@@ -5,23 +5,35 @@ process = cms.Process("TEST")
 # Some generic services and conditions data
 process.Timing = cms.Service("Timing")
 process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
+process.load("DQM.SiStripCommon.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
+process.GlobalTag.globaltag = cms.string('STARTUP3X_V11::All')
 
-# Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_2_5 (replace with 33X when available!)
-process.source = cms.Source(
-    "PoolSource", 
-    fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0011/2AA47C1E-828E-DE11-B3C5-001D09F34488.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/DA6FF61D-3D8E-DE11-938A-003048D37538.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/82CF8666-398E-DE11-8F3B-000423D94A20.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/6255E85C-3F8E-DE11-B46A-000423D6B48C.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/3453CD32-418E-DE11-87D2-003048D2C020.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/2EC02533-3B8E-DE11-BE85-003048D37514.root',
-    ),
+# Input files
+castor = cms.untracked.vstring()
+local  = cms.untracked.vstring()
+process.source = cms.Source (
+    "PoolSource",
+    fileNames = castor,
     )
+castor.extend( [
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/FA7139E8-97BD-DE11-A3E2-002618943935.root',
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/BC3224A5-9ABD-DE11-A625-002354EF3BDB.root',
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/8C578DA3-C0BD-DE11-9DEA-0017312A250B.root',
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/7A29EA77-9DBD-DE11-A3BC-0026189438ED.root',
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
+    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/04383FF7-9EBD-DE11-8511-0018F3D09616.root',
+    ] )
+local.extend( [
+    'file:/data/bainbrid/jpt/FA7139E8-97BD-DE11-A3E2-002618943935.root',
+    'file:/data/bainbrid/jpt/BC3224A5-9ABD-DE11-A625-002354EF3BDB.root',
+    'file:/data/bainbrid/jpt/8C578DA3-C0BD-DE11-9DEA-0017312A250B.root',
+    'file:/data/bainbrid/jpt/7A29EA77-9DBD-DE11-A3BC-0026189438ED.root',
+    'file:/data/bainbrid/jpt/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
+    'file:/data/bainbrid/jpt/04383FF7-9EBD-DE11-8511-0018F3D09616.root',
+    ] )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 # Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
@@ -59,7 +71,7 @@ process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 # Analyzer module
-process.myanalysis = cms.EDFilter(
+process.myanalysis = cms.EDAnalyzer(
     "JPTAnalyzer",
     HistOutFile      = cms.untracked.string('analysis.root'),
     calojets         = cms.string('iterativeCone5CaloJets'),
