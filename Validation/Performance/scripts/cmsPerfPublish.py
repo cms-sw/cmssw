@@ -398,7 +398,7 @@ def optionparse():
         '--igprof',
         type='string',
         dest='ig_remotedir',
-        default='/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data', #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
+        default='IgProfData', #Reverting to local default publication for now#'/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data', #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
         #default='cmsperfvm:/data/projects/conf/PerfSuiteDB/IgProfData', #This should not change often! In this virtual machine a cron job will run to move stuff to AFS.
         help='Specify an AFS or host:mydir remote directory instead of default one',
         metavar='<IGPROF REMOTE DIRECTORY>'
@@ -1391,9 +1391,9 @@ def stageIgProfReports(remotedir,arch,version):
     #Compose command to create remote dir:
     if ":" in remotedir: #Remote host local directory case
         (host,dir)=remotedir.split(":")
-        mkdir_cmd="ssh %s mkdir %s/%s"%(host,dir,arch)
-    else: #AFS or local case:
-        mkdir_cmd="mkdir %s/%s"%(remotedir,arch)
+        mkdir_cmd="ssh %s (mkdir %s;mkdir %s/%s)"%(host,dir,dir,arch)
+    else: #AFS or local case
+        mkdir_cmd="mkdir %s;mkdir %s/%s"%(remotedir,remotedir,arch)
 
     #Create remote dir:
     try:
