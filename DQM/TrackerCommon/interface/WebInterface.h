@@ -16,6 +16,8 @@
 #include <string>
 #include <map>
 
+class DQMStore;
+
 class WebInterface
 {
 

@@ -19,6 +19,8 @@
 
 using namespace std;
 
+class DQMStore;
+
 class L1TEMUEventInfoClient: public edm::EDAnalyzer {
 
 public:
