@@ -6,6 +6,8 @@ TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
 TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
 TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
 TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
+TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
+TString val_configuration = gSystem->Getenv("VAL_CONFIGURATION") ;
 TString val_comment = gSystem->Getenv("VAL_COMMENT") ;
 
 TString val_web = gSystem->Getenv("VAL_WEB") ;
@@ -153,11 +155,11 @@ else
  }
 web_page
   <<" They were made using analyzer "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/interface/ElectronMcSignalValidator.h\">"
-  <<"Validation/RecoEgamma/interface/ElectronMcSignalValidator.h"
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/interface/"<<val_analyzer<<".h\">"
+  <<"Validation/RecoEgamma/interface/"<<val_analyzer<<".h"
   <<"</a> and configuration "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/ElectronMcSignalValidator_cfg.py\">"
-  <<"Validation/RecoEgamma/test/ElectronMcSignalValidator_cfg.py"
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/"<<val_configuration<<"\">"
+  <<"Validation/RecoEgamma/test/"<<val_configuration
   <<"</a>, with dataset "<<DBS_SAMPLE<<" as input." ;
 web_page
   <<" Some more details"

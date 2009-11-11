@@ -35,6 +35,8 @@
 #   2nd command line argument and VAL_REF_RELEASE.
 # 
 # VAL_HISTOS : name of the file describing the histograms to extract and generate.
+# VAL_ANALYZER : name of the analyzer used.
+# VAL_CONFIGURATION : name of the cmsRun python configuration used.
 #
 # DBS_SAMPLE : short chosen name for the current dataset ; used in web pages
 #   and used to build the subdirectory where the web pages will be
