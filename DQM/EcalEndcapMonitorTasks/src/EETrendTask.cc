@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2009/08/12 14:44:00 $
- * $Revision: 1.0 $
+ * $Date: 2009/11/10 18:31:58 $
+ * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -83,7 +83,7 @@ EETrendTask::~EETrendTask(){
 }
 
 
-void EETrendTask::beginJob(const EventSetup& c){
+void EETrendTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -92,12 +92,12 @@ void EETrendTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EETrendTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 
 void EETrendTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

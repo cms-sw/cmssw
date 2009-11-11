@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2009/08/12 14:44:00 $
- * $Revision: 1.0 $
+ * $Date: 2009/11/10 18:31:58 $
+ * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -112,7 +112,7 @@ EBTrendTask::~EBTrendTask(){
 }
 
 
-void EBTrendTask::beginJob(const EventSetup& c){
+void EBTrendTask::beginJob(void){
 
   ievt_ = 0;
 
@@ -121,12 +121,12 @@ void EBTrendTask::beginJob(const EventSetup& c){
     dqmStore_->rmdir(prefixME_ + "/EBTrendTask");
   }
 
-  Numbers::initGeometry(c, false);
-
 }
 
 
 void EBTrendTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 

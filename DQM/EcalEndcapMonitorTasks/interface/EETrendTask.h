@@ -4,8 +4,8 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2009/08/12 14:40:00 $
- * $Revision: 1.0 $
+ * $Date: 2009/11/10 18:31:58 $
+ * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -35,7 +35,7 @@ class EETrendTask: public edm::EDAnalyzer{
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   // EndJob
   void endJob(void);
