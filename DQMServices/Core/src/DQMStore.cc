@@ -51,7 +51,7 @@ static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 static DQMStore *s_instance = 0;
 
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|t|qr)=(.*)</\\1>$");
-static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]+):(.*)$");
+static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 
 //////////////////////////////////////////////////////////////////////
@@ -1889,8 +1889,12 @@ DQMStore::readDirectory(TFile *file,
   }
 
   // Loop over the contents of this directory in the file.
+  // Post-pone string object handling to happen after other
+  // objects have been read in so we are guaranteed to have
+  // histograms by the time we read in quality tests and tags.
   TKey *key;
   TIter next (gDirectory->GetListOfKeys());
+  std::list<TObject *> delayed;
   while ((key = (TKey *) next()))
   {
     std::auto_ptr<TObject> obj(key->ReadObj());
@@ -1907,6 +1911,10 @@ DQMStore::readDirectory(TFile *file,
     }
     else if (skip)
       ;
+    else if (dynamic_cast<TObjString *>(obj.get()))
+    {
+      delayed.push_back(obj.release());
+    }
     else
     {
       if (verbose_ > 2)
@@ -1919,6 +1927,22 @@ DQMStore::readDirectory(TFile *file,
       if (extract(obj.get(), dirpart, overwrite))
 	++count;
     }
+  }
+
+  while (! delayed.empty())
+  {
+    if (verbose_ > 2)
+      std::cout << "DQMStore: reading object '" << delayed.front()->GetName()
+		<< "' of type '" << delayed.front()->IsA()->GetName()
+		<< "' from '" << file->GetName()
+		<< "' into '" << dirpart << "'\n";
+
+    makeDirectory(dirpart);
+    if (extract(delayed.front(), dirpart, overwrite))
+      ++count;
+
+    delete delayed.front();
+    delayed.pop_front();
   }
 
   if (verbose_ > 1)
