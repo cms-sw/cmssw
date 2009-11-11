@@ -2566,7 +2566,6 @@ process.HLTOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQMHLTScal
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAPHISYM + process.hltOutputALCAP0 + process.hltOutputRPCMON + process.hltOutputFEDErrors )
 
 process.setName_('HLTHIon')
-process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','','HLTHIon' )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -2581,8 +2580,11 @@ process.GlobalTag.globaltag = 'MC_3XY_V12::All'
 
 # Automatic addition of the customisation function
 def customise(process):
+    if 'hltTrigReport' in process.__dict__:
+        process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
-    process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
+    if 'hltDQMHLTScalers' in process.__dict__:
+        process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
     process.options.wantSummary = cms.untracked.bool(True)
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

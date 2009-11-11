@@ -7882,7 +7882,6 @@ process.ESOutput = cms.EndPath( process.hltPreExpress + process.hltOutputExpress
 process.MONOutput = cms.EndPath( process.hltPreHLTMON + process.hltOutputHLTMON )
 
 process.setName_('HLTGRun')
-process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','','HLTGRun' )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -7897,8 +7896,11 @@ process.GlobalTag.globaltag = 'STARTUP3X_V11::All'
 
 # Automatic addition of the customisation function
 def customise(process):
+    if 'hltTrigReport' in process.__dict__:
+        process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
-    process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
+    if 'hltDQMHLTScalers' in process.__dict__:
+        process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
     process.options.wantSummary = cms.untracked.bool(True)
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
