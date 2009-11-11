@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
-process.GlobalTag.globaltag = 'STARTUP31X_V8::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
