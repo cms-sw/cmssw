@@ -5,7 +5,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=CLHEP>
-  <use name=root>
+  <use name=rootcore>
 </export>
 
 <use name=SimDataFormats/EncodedEventId>
@@ -13,4 +13,4 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=CLHEP>
-<use name=root>
+<use name=rootcore>
