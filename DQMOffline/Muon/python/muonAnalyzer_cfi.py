@@ -23,7 +23,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
         phiMax = cms.double(3.2)
     ),
     GlobalMuTrackCollection = cms.InputTag("globalMuons"),
-    SeedCollection = cms.InputTag("MuonSeed"),
+    SeedCollection = cms.InputTag("ancientMuonSeed"),
     muonRecoAnalysis = cms.PSet(
         thetaMin = cms.double(0.0),
         phiMin = cms.double(-3.2),
