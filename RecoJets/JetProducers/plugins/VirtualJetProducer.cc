@@ -520,19 +520,21 @@ void VirtualJetProducer::calculatePedestal( vector<fastjet::PseudoJet> const & c
   for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
 	 fjInputsEnd = coll.end();  
        input_object != fjInputsEnd; ++input_object) {
-    ieta0 = ieta( inputs_.ptrAt( input_object->user_index() ) );
+    const reco::CandidatePtr & originalTower=inputs_.ptrAt( input_object->user_index());
+    ieta0 = ieta( originalTower );
+    double Original_Et = originalTower->et();
 
     if( ieta0-ietaold != 0 )
       {
-        emean_[ieta0] = emean_[ieta0]+input_object->Et();
-        emean2[ieta0] = emean2[ieta0]+(input_object->Et())*(input_object->Et());
+        emean_[ieta0] = emean_[ieta0]+Original_Et;
+        emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
         ntowers[ieta0] = 1;
         ietaold = ieta0;
       }
     else
       {
-	emean_[ieta0] = emean_[ieta0]+input_object->Et();
-	emean2[ieta0] = emean2[ieta0]+(input_object->Et())*(input_object->Et());
+	emean_[ieta0] = emean_[ieta0]+Original_Et;
+	emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
 	ntowers[ieta0]++;
       }
   }
@@ -578,12 +580,12 @@ void VirtualJetProducer::subtractPedestal(vector<fastjet::PseudoJet> & coll)
     
     it = ieta( itow );
     ip = iphi( itow );
-    
-    double etnew = input_object->Et() - (*emean_.find(it)).second - (*esigma_.find(it)).second;
+
+    double etnew = itow->et() - (*emean_.find(it)).second - (*esigma_.find(it)).second;
     float mScale = etnew/input_object->Et(); 
     
     if(etnew < 0.) mScale = 0.;
-    
+
     math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
 				   input_object->pz()*mScale, input_object->e()*mScale);
     
@@ -685,15 +687,14 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
 	++ito)
       {
 	  
-	int it = ieta( inputs_.ptrAt( ito->user_index() ) );
-	  
-	//       offset = offset + (*emean_.find(it)).second + (*esigma_.find(it)).second;
-	// Temporarily for test       
-	  
-	double etnew = (*ito).Et() - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
+	 const reco::CandidatePtr& originalTower = inputs_.ptrAt(ito->user_index());
+
+	int it = ieta( originalTower );
+        double Original_Et = originalTower->et();
+
+	double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
 	  
 	if( etnew <0.) etnew = 0.;
-	  
 	offset = offset + etnew;
 
       }
@@ -714,11 +715,8 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
   }    
 }
 
-
-
 int VirtualJetProducer::ieta(const reco::CandidatePtr & in)
 {
-  //   std::cout<<" Start BasePilupSubtractionJetProducer::ieta "<<std::endl;
   int it = 0;
   const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
      
