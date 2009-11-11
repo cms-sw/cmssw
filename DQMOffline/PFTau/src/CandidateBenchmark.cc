@@ -21,8 +21,6 @@ CandidateBenchmark::~CandidateBenchmark() {}
 
 void CandidateBenchmark::setup() {
 
-  cout<<"mode "<<mode_<<endl;
-
   PhaseSpace ptPS(100,0,100);
   PhaseSpace phiPS(360, -3.1416, 3.1416);
   PhaseSpace etaPS(100, -5,5);
