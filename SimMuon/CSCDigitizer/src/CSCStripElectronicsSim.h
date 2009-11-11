@@ -16,7 +16,6 @@
 class CSCDetectorHit;
 class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
-class CSCScaNoiseGenerator;
 class CSCStripConditions;
 #include <vector>
 #include <string>
