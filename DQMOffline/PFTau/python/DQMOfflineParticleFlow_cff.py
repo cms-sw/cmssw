@@ -7,5 +7,6 @@ from DQMOffline.PFTau.metBenchmark_cfi import *
 DQMOfflineParticleFlowSequence = cms.Sequence (
     candidateBenchmark + 
     pfCandidateBenchmark + 
-    metBenchmark
+    metBenchmark +
+    matchMetBenchmark
 )
