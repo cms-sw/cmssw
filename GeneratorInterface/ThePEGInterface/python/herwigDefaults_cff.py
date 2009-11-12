@@ -11,7 +11,6 @@ herwigDefaultsBlock = cms.PSet(
 
 	cmsDefaults = cms.vstring(
 		'+pdfMRST2001',
-		'+ueLO',
 		'+basicSetup',
 		'+cm14TeV',
 		'+setParticlesStableForDetector',
@@ -31,8 +30,20 @@ herwigDefaultsBlock = cms.PSet(
 		'cd /',
 	),
 
+	# Default pdf for Herwig++ 2.3
 	pdfMRST2001 = cms.vstring(
-		'cp /Herwig/Partons/MRST /cmsPDFSet'
+		'cd /Herwig/Partons',
+		'create Herwig::MRST MRST2001 HwMRST.so',
+		'setup MRST2001 ${HERWIGPATH}/PDF/mrst/2001/lo2002.dat',
+		'set MRST2001:RemnantHandler HadronRemnants',
+		'cd /',
+		'cp /Herwig/Partons/MRST2001 /cmsPDFSet',
+		'+ueLO',
+	),
+	# Default pdf for Herwig++ 2.4
+	pdfMRST2008LOs = cms.vstring(
+		'cp /Herwig/Partons/MRST /cmsPDFSet',
+		'+ueLOs',
 	),	
 	pdfCTEQ5L = cms.vstring(
 		'mkdir /LHAPDF',
@@ -66,6 +77,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 	),
 
+	# UE Tune from Herwig++ 2.3
 	ueLO = cms.vstring(
 		'cd /Herwig/UnderlyingEvent',
 		'set KtCut:MinKT 4.0',
@@ -73,6 +85,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set MPIHandler:InvRadius 1.5',
 		'cd /'
 	),
+	# UE Tune from Herwig++ 2.4 - with LO** pdf
 	ueLOs = cms.vstring(
 		'cd /Herwig/UnderlyingEvent',
 		'set KtCut:MinKT 4.3',
