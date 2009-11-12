@@ -3,6 +3,7 @@
 #include "DQMOffline/PFTau/plugins/CandidateBenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/plugins/PFCandidateBenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/plugins/PFCandidateManagerAnalyzer.h"
+#include "DQMOffline/PFTau/plugins/MatchMETBenchmarkAnalyzer.h"
 
 #include "DQMOffline/PFTau/plugins/METBenchmarkAnalyzer.h"
 
@@ -12,3 +13,4 @@ DEFINE_ANOTHER_FWK_MODULE (PFCandidateBenchmarkAnalyzer) ;
 DEFINE_ANOTHER_FWK_MODULE (CandidateBenchmarkAnalyzer) ;
 DEFINE_ANOTHER_FWK_MODULE (PFCandidateManagerAnalyzer) ;
 DEFINE_ANOTHER_FWK_MODULE (METBenchmarkAnalyzer) ;
+DEFINE_ANOTHER_FWK_MODULE (MatchMETBenchmarkAnalyzer) ;
