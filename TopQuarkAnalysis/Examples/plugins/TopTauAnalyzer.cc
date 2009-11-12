@@ -1,6 +1,3 @@
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/Flags.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopTauAnalyzer.h"
 
