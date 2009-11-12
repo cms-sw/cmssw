@@ -2,9 +2,9 @@
 //
 /**  \class Lut
  *
- *   Class for computing Traco LUTS from given parameters
+ *   Class for computing single Traco LUT from given parameters
  * 
- *   $Date: 2009/10/30 $
+ *   $Date: 2009/11/02 14:18:30 $
  * 
  *   \author S. Vanini
  */
@@ -33,13 +33,12 @@
 class Lut {
 
  public:
-
-  Lut();
+  Lut() {}; 
+  Lut(DTConfigLUTs* conf, int ntc);
   ~Lut();
 
   // set lut parameters methods
   void setForTestBeam( int station, int board, int traco );
-  void setFromConfig(DTConfigLUTs * config, int wheel);
 
   // get luts
   int get_x( int addr );
@@ -57,5 +56,8 @@ public:
 
 private:
   float m_pitch_d_ST;	//=pitch/ST private:
+
+  DTConfigLUTs* _conf_luts;
+
 };
 #endif

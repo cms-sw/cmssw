@@ -6,7 +6,21 @@
 //----------------
 // Constructors --
 //----------------
-Lut::Lut(){}
+
+Lut::Lut(DTConfigLUTs* conf, int ntc): _conf_luts(conf) {
+
+  // set parameters from configuration
+  m_d		= _conf_luts->D(); 
+  m_ST		= _conf_luts->BTIC();
+  m_wheel 	= _conf_luts->Wheel();
+  m_Xcn 	= _conf_luts->Xcn() - (CELL_PITCH * 4.0 * (float)(ntc-1) * (float) m_wheel);
+
+  m_pitch_d_ST	= CELL_PITCH / m_ST;
+
+  std::cout<< "Lut::Lut  ->  m_d " << m_d << " m_ST " << m_ST << " m_wheel " << m_wheel << " m_Xcn " << m_Xcn << " ntc " << ntc << std::endl;
+
+  return;
+}
  
 Lut::~Lut() {}
 
@@ -77,29 +91,17 @@ void Lut::setForTestBeam( int station, int board, int traco ) {
   return;
 }
 
-void Lut::setFromConfig(DTConfigLUTs * config, int wheel) {
-  
-  m_d = config->D(); 
-  m_ST = config->BTIC();
-  m_Xcn = config->Xcn();
-  m_wheel = wheel;
-
-  m_pitch_d_ST=CELL_PITCH/m_ST;
-
-  return;
-}
-
 
 int Lut::get_k( int addr ) {
-//FIX attenzione controlla perche' era addr - 511???
+//FIX attenzione controlla addr - 511 o -512???
   int i;
   float x;
   i = addr - 512;
-  x = (float)i*CELL_PITCH/(SL_D*m_ST);
+  x = (float)i * CELL_PITCH / ( SL_D * m_ST );
   x = atanf(x);
   x = x * ANGRESOL;
   if(m_wheel<0)
-		x=-x;
+    x = -x;
 
   return (int)x;
 }
@@ -123,10 +125,11 @@ int Lut::get_x( int addr ) {
  	i=addr-1024;
  	b=m_d;
   }
-  a=m_Xcn - (m_pitch_d_ST * (float)i * (float)m_wheel);
-  x=a/b;
-  x=atanf(x);
-  x=x*POSRESOL;
+  a = m_Xcn - (m_pitch_d_ST * (float)i * (float)m_wheel);
+  x = a/b;
+
+  x = atanf(x);
+  x = x * POSRESOL;
 
   return (int)x;
 }
@@ -154,6 +157,7 @@ std::string lutFmt( int i ) {
   std::string s( buf );
   return s;
 }
+
 
 
 /*  this for dumping luts in minicrate input format - for MB1  -- Testbeam 2004

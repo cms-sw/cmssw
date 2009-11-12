@@ -42,7 +42,7 @@ process.dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     tTrigMode = cms.string('DTTTrigSyncTOFCorr'),
     DTTFSectorNumbering = cms.bool(True),
     lut_btic = cms.untracked.int32(31),
-    lut_dump_flag = cms.untracked.bool(True)
+    lut_dump_flag = cms.untracked.bool(False)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

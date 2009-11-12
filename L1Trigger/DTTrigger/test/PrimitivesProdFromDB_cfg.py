@@ -11,14 +11,21 @@ process.load("L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff")
 process.DTTPGConfigSource = cms.ESSource("PoolDBESSource",
 
     toGet = cms.VPSet(cms.PSet(record = cms.string('DTCCBConfigRcd'),
-                               tag = cms.string('conf_ccb_V01')
+##### CHANGED for 3XY #####
+###                              tag = cms.string('conf_ccb_V01')
+                               tag = cms.string('DT_config_V02')
                                )
                       ),
     loadAll = cms.bool(True),
                                     
-    connect = cms.string('sqlite_file:conf67838.db'),
+##### CHANGED for 3XY #####
+    connect = cms.string('sqlite_file:conf999999.db'),
+#    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_DT'),
+#    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_DT'),
     timetype = cms.string('runnumber'),
-    token = cms.string('[DB=00000000-0000-0000-0000-000000000000][CNT=DTConfigList][CLID=9CB14BE8-30A2-DB11-9935-000E0C5CE283][TECH=00000B01][OID=00000004-00000000]'),
+##### CHANGED for 3XY #####
+###    token = cms.string('[DB=00000000-0000-0000-0000-000000000000][CNT=DTConfigList][CLID=9CB14BE8-30A2-DB11-9935-000E0C5CE283][TECH=00000B01][OID=00000004-00000000]'),
+    token = cms.string('[DB=00000000-0000-0000-0000-000000000000][CNT=DTConfigList][CLID=9CB14BE8-30A2-DB11-9935-000E0C5CE283][TECH=00000B01][OID=0000000B-00000000]'),
     DBParameters = cms.PSet(authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
                             messageLevel = cms.untracked.int32(0)
     )
@@ -30,7 +37,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -45,7 +52,9 @@ process.dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     ),
     digiTag = cms.InputTag("muonDTDigis"),
     tTrigMode = cms.string('DTTTrigSyncTOFCorr'),
-    DTTFSectorNumbering = cms.bool(True)
+    DTTFSectorNumbering = cms.bool(True),
+    lut_btic = cms.untracked.int32(31),
+    lut_dump_flag = cms.untracked.bool(False)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",

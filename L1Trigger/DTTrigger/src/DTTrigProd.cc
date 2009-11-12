@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2008/12/15 13:05:54 $
- *   $Revision: 1.13 $
+ *   $Date: 2009/11/02 14:18:31 $
+ *   $Revision: 1.14 $
  *
  *   \author C. Battilana
  *
@@ -112,7 +112,7 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
     //SV 090903 check luts
     if(my_lut_dump_flag) {
     	cout << "Dumping luts...." << endl;
-    	my_trig->dumpLuts(my_lut_btic);
+    	my_trig->dumpLuts(my_lut_btic, dtConfig.product());
     }	
   }
 

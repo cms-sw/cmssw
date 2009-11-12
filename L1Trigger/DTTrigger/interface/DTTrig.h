@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2009/07/24 09:42:24 $
- *   $Revision: 1.11 $
+ *   $Date: 2009/11/02 14:18:30 $
+ *   $Revision: 1.12 $
  *
  *   \author C.Grandi
  */
@@ -178,7 +178,7 @@ class DTTrig {
     void dumpGeom();
 
     //! Dump the LUT files
-    void dumpLuts(short int lut_btic);
+    void dumpLuts(short int lut_btic, const DTConfigManager *conf);
 
     //! Get BX Offset
     int getBXOffset() { return _conf_manager->getBXOffset(); }

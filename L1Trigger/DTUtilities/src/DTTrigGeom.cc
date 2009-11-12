@@ -333,7 +333,7 @@ DTTrigGeom::dumpLUT(short int btic) {
   int se = sector();
 
   // open txt file 
-  string name = "Lut";
+  string name = "Lut_from_CMSSW_geom";
  /* name += "_wh_";
   if(wh<0)
 	name += "-";
@@ -409,6 +409,7 @@ DTTrigGeom::dumpLUT(short int btic) {
   }
   // std::cout << " d " << d << " xcn " << xcn << " sign " << xcn_sign << std::endl; 
   //fout << "\td\t" << d << "\txcn\t" << xcn << "\t"; 
+  //fout << "btic\t" << btic << "\t";
 
 // *** dump TRACO LUT command
   fout << "\tA8";
@@ -443,7 +444,6 @@ DTTrigGeom::dumpLUT(short int btic) {
   fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;	
 
   // sign bits 
-  short int xcn_sgn = (short)xcn_sign;
   Low_byte = (xcn_sign & 0x00FF);   // output in hex bytes format with zero padding
   High_byte =( xcn_sign>>8 & 0x00FF);
   fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte << dec << "\n"; 
