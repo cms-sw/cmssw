@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.102 2009/11/10 15:34:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.103 2009/11/10 15:40:06 amraktad Exp $
 //
 
 // system include files
@@ -725,21 +725,18 @@ void CmsShowMain::stopAutoLoadTimer()
 
 void CmsShowMain::autoLoadNewEvent()
 {
+   // do nothing if reached end/beginning in port mode
+   if ((m_forward && m_navigator->isLastEvent() && m_monitor.get()) ||
+       (!m_forward && m_navigator->isFirstEvent() && m_monitor.get())) 
+      return;
+   
    stopAutoLoadTimer();
-   if (m_forward)
-   {
-      if ((m_navigator->isLastEvent() && m_monitor.get()) == kFALSE)
-      {
-         m_navigator->nextEvent();
-      }
-   }
-   else
-   {
-      m_guiManager->getAction(cmsshow::sPreviousEvent)->activated();
-   }
-
+    
+   m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
+   
    draw();
 
+   // stop loop if necessary
    if ( (m_rewindMode || m_monitor.get()) == kFALSE)
    { 
       if (m_forward && m_navigator->isLastEvent())
