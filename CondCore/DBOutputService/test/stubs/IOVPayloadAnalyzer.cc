@@ -35,7 +35,7 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
     item.m_mean=1.11*ichannel+irun;
     item.m_variance=1.12*ichannel+irun;
     myped->m_pedestals.push_back(item);
-    }
+  }
   std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   
   std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;

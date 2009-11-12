@@ -97,7 +97,7 @@ public:
     cond::DataProxyWrapperBase(ilabel),
     m_proxy(new PayProxy(session,iovtoken,false, source)),
     m_edmProxy(new DataProxy(m_proxy)){
-   //NOTE: We do this so that the type 'DataT' will get registered
+    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
