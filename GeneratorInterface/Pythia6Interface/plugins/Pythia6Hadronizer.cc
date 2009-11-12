@@ -82,11 +82,10 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
     }
 };
 
-struct PYJETS_LOCAL {
+struct {
 	int n, npad, k[5][pyjets_maxn];
 	double p[5][pyjets_maxn], v[5][pyjets_maxn];
-}; 
-PYJETS_LOCAL pyjets_local;
+} pyjets_local;
 
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
@@ -587,6 +586,7 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    // note: CSA mode is NOT supposed to woirk with external partons !!!
    
    fPy6Service->setGeneralParams();
+   fPy6Service->setPYUPDAParams(false);
 
    FortranCallback::getInstance()->setLHERunInfo( lheRunInfo() );
 
@@ -610,6 +610,8 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    }
    
    call_pyinit("USER", "", "", 0.0);
+
+   fPy6Service->setPYUPDAParams(true);
 
    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
    if (!slha.empty()) {
@@ -637,6 +639,7 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    fPy6Service->setGeneralParams();   
    fPy6Service->setCSAParams();
    fPy6Service->setSLHAParams();
+   fPy6Service->setPYUPDAParams(false);
    
    if ( fStopHadronsEnabled )
    {
@@ -653,6 +656,8 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    }
    
    call_pyinit("CMS", "p", "p", fCOMEnergy);
+
+   fPy6Service->setPYUPDAParams(true);
    
    fPy6Service->closeSLHA();
    

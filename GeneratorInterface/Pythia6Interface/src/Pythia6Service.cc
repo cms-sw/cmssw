@@ -24,6 +24,7 @@
 extern "C"
 {
    void fioopn_( int* unit, const char* line, int length );
+   void fioopnw_( int* unit, const char* line, int length );
    void fiocls_( int* unit );
    void pyslha_( int*, int*, int* );
    static int call_pyslha(int mupda, int kforig = 0)
@@ -31,6 +32,11 @@ extern "C"
       int iretrn = 0;
       pyslha_(&mupda, &kforig, &iretrn);
       return iretrn;
+   }
+
+   void pyupda_(int*, int*);
+   static void call_pyupda( int opt, int iunit ){ 
+     pyupda_( &opt, &iunit ); 
    }
 
    double gen::pyr_(int *idummy)
@@ -48,12 +54,12 @@ using namespace edm;
 Pythia6Service* Pythia6Service::fPythia6Owner = 0;
 
 Pythia6Service::Pythia6Service()
-   : fRandomEngine(&getEngineReference()), fUnitSLHA(24)
+  : fRandomEngine(&getEngineReference()), fUnitSLHA(24), fUnitPYUPDA(25)
 {
 }
 
 Pythia6Service::Pythia6Service( const ParameterSet& ps )
-   : fRandomEngine(&getEngineReference()), fUnitSLHA(24)
+  : fRandomEngine(&getEngineReference()), fUnitSLHA(24), fUnitPYUPDA(25)
 {
    if (fPythia6Owner)
       throw cms::Exception("PythiaError") <<
@@ -89,6 +95,7 @@ Pythia6Service::Pythia6Service( const ParameterSet& ps )
    fParamGeneral.clear();
    fParamCSA.clear();
    fParamSLHA.clear();
+   fParamPYUPDA.clear();
    
 
    for(std::vector<std::string>::const_iterator iter = setNames.begin();
@@ -116,6 +123,10 @@ Pythia6Service::Pythia6Service( const ParameterSet& ps )
 	 {
 	    fParamSLHA.push_back(*line);
 	 }
+	 else if ( *iter == "PYUPDAParameters" )
+	 {
+	    fParamPYUPDA.push_back(*line);
+	 }
 	 else
 	 {
 	    fParamGeneral.push_back(*line);
@@ -132,6 +143,7 @@ Pythia6Service::~Pythia6Service()
    fParamGeneral.clear();
    fParamCSA.clear();
    fParamSLHA.clear();
+   fParamPYUPDA.clear();
 }
 
 void Pythia6Service::enter()
@@ -197,10 +209,37 @@ void Pythia6Service::openSLHA( const char* file )
 
 }
 
+void Pythia6Service::openPYUPDA( const char* file, bool write_file )
+{
+
+        if (write_file) {
+	  std::cout<<"=== WRITING PYUPDA FILE "<<file<<" ==="<<std::endl;
+	  fioopnw_( &fUnitPYUPDA, file, strlen(file) );
+  	  // Write Pythia particle table to this card file.
+          call_pyupda(1, fUnitPYUPDA);
+        } else {
+	  std::cout<<"=== READING PYUPDA FILE "<<file<<" ==="<<std::endl;
+  	  fioopn_( &fUnitPYUPDA, file, strlen(file) );
+  	  // Update Pythia particle table with this card file.
+          call_pyupda(3, fUnitPYUPDA);
+        }
+	
+	return;
+
+}
+
 void Pythia6Service::closeSLHA() 
 {
 
    fiocls_(&fUnitSLHA);
+   
+   return;
+}
+
+void Pythia6Service::closePYUPDA() 
+{
+
+   fiocls_(&fUnitPYUPDA);
    
    return;
 
@@ -244,6 +283,57 @@ void Pythia6Service::setSLHAParams()
 
    }
    
+   return;
+}
+
+void Pythia6Service::setPYUPDAParams(bool afterPyinit)
+{
+   std::string shortfile;
+   bool write_file = false;
+   bool usePostPyinit = false;
+
+   //   std::cout<<"=== CALLING setPYUPDAParams === "<<afterPyinit<<" "<<fParamPYUPDA.size()<<std::endl;
+
+   // This assumes that PYUPDAFILE only appears once ...
+
+   for (std::vector<std::string>::const_iterator iter = fParamPYUPDA.begin();
+                                                 iter != fParamPYUPDA.end(); iter++ )
+   {
+     //     std::cout<<"PYUPDA check "<<*iter<<std::endl;
+      	if( iter->find( "PYUPDAFILE", 0 ) != std::string::npos ) {
+	  std::string::size_type start = iter->find_first_of( "=" ) + 1;
+	  std::string::size_type end = iter->length() - 1;
+	  std::string::size_type temp = iter->find_first_of( "'", start );
+	  if( temp != std::string::npos ) {
+	    start = temp + 1;
+	    end = iter->find_last_of( "'" ) - 1;
+	  } 
+	  start = iter->find_first_not_of( " ", start );
+	  end = iter->find_last_not_of( " ", end );
+	  //std::cout << " start, end = " << start << " " << end << std::endl;		
+	  shortfile = iter->substr( start, end - start + 1 );
+        } else if ( iter->find( "PYUPDAWRITE", 0 ) != std::string::npos ) {
+          write_file = true;
+        } else if ( iter->find( "PYUPDApostPYINIT", 0 ) != std::string::npos ) {
+          usePostPyinit = true;
+        }
+   }
+   
+   if (!shortfile.empty()) {
+     std::string file;
+     if (write_file) {
+       file = shortfile;
+     } else {
+       // If reading, get full path to file and require it to exist.
+       FileInPath f1( shortfile );
+       file = f1.fullPath();
+     }
+
+     if (afterPyinit == usePostPyinit || (write_file && afterPyinit)) {
+       openPYUPDA( file.c_str(), write_file );
+     }
+   }
+
    return;
 }
 

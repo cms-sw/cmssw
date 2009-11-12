@@ -34,10 +34,13 @@ namespace gen
          void setGeneralParams();
          void setCSAParams();
          void setSLHAParams();
+         void setPYUPDAParams(bool afterPyinit);
 	 void setSLHAFromHeader( const std::vector<std::string> &lines );
 	 
 	 void openSLHA( const char* );
 	 void closeSLHA();
+	 void openPYUPDA( const char*, bool write_file );
+	 void closePYUPDA();
 
          // initialise Pythia on first call from "dummy" instance
          virtual void enter();
@@ -52,7 +55,9 @@ namespace gen
         std::vector<std::string> fParamGeneral;
         std::vector<std::string> fParamCSA;
         std::vector<std::string> fParamSLHA; 
+        std::vector<std::string> fParamPYUPDA; 
 	int  fUnitSLHA;
+	int  fUnitPYUPDA;
 
         static Pythia6Service *fPythia6Owner;
    };
