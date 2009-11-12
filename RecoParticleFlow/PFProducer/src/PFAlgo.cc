@@ -2139,7 +2139,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       associatePSClusters(iEcal, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
       vector<double> ps2Ene(1,static_cast<double>(0.));
       associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
-      double ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene);
+      bool crackCorrection = false;
+      double ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene.crackCorrection);
       
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
@@ -2278,7 +2279,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     associatePSClusters(iEcal, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
     vector<double> ps2Ene(1,static_cast<double>(0.));
     associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
-    float ecalEnergy = calibration_->energyEm(*clusterref,ps1Ene,ps2Ene);
+    bool crackCorrection = false;
+    float ecalEnergy = calibration_->energyEm(*clusterref,ps1Ene,ps2Ene,crackCorrection);
     // float ecalEnergy = calibration_->energyEm( clusterref->energy() );
     double particleEnergy = ecalEnergy;
     
