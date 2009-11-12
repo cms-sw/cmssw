@@ -4,42 +4,17 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackingGeometryAligner>
 <use name=CondCore/DBOutputService>
-<use name=DataFormats/Alignment>
 <use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=RecoTracker/TransientTrackingRecHit>
+
+# ESProducers for misaligned tracker geometry
 <library name=AlignmentTrackerAlignmentPlugin file="*Misalign*.cc">
-<flags EDM_PLUGIN=1>
+  <flags EDM_PLUGIN=1>
 </library>
 
-
-
-#<use name=FWCore/MessageLogger>
-#<use name=FWCore/Framework>
-#<use name=FWCore/ParameterSet>
-
-
+# modules for tracker AlCaSkims
 <library name=AlignmentTrackerAlignmentSkimPlugin file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
  <use name=DataFormats/TrackerRecHit2D>
  <use name=DataFormats/Alignment>
  <flags EDM_PLUGIN=1>
 </library>
-
-
-
-# <library name=AlignmentPrescalerPlugin file=AlignmentPrescaler.cc>
-#  <use name=DataFormats/TrackerRecHit2D>
-#  <use name=DataFormats/Alignment>
-#  <flags EDM_PLUGIN=1>
-# </library>
-
-# <library name="TreeMergerPlugin" file="TreeMerger.cc">
-# # <use name=Alignment/TrackerAlignment>
-#  <flags EDM_PLUGIN=1>
-# </library>
-
-# <library name=OverlapTaggerPlugin file=OverlapTagger.cc>
-#  <use name=DataFormats/TrackReco>
-#  <use name=DataFormats/TrackerRecHit2D>
-#  <use name=DataFormats/Alignment>
-#  <flags EDM_PLUGIN=1>
-# </library>
