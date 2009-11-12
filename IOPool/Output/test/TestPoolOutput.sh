@@ -18,6 +18,10 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientTest_cfg.py || die 'Failur
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientRead_cfg.py || die 'Failure using PoolTransientRead_cfg.py' $?
 
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py' $?
+
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputRead_cfg.py || die 'Failure using PoolOutputRead_cfg.py' $?
+
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputEmptyEventsTest_cfg.py || die 'Failure using PoolOutputEmptyEventsTest_cfg.py' $?
 #reads file from above and from PoolOutputTest_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputMergeWithEmptyFile_cfg.py || die 'Failure using PoolOutputMergeWithEmptyFile_cfg.py' $? 
