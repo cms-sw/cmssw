@@ -1,3 +1,9 @@
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* instead of requiring (allowing) for an explicit string parameter
+	'label', use the label of the es module itself for both
+	JetCorrectionService and JetCorrectionServiceChain
+
 2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* adjust JetCorrectionProducer to interface change in
