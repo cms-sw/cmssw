@@ -60,4 +60,6 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 #
 # genParticles.abortOnUnknownPDGCode = cms.untracked.bool(False)
 
-ProductionFilterSequence = cms.Sequence(generator)
+# This is no longer necessary, as starting 34X cmsDriver takes care automatically
+#
+#ProductionFilterSequence = cms.Sequence(generator)
