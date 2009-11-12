@@ -54,28 +54,49 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
 
     std::string moduleName_;
     edm::InputTag triggerResults_;
-    std::vector<std::string> hltPaths_L3_;
-    std::vector<std::string> hltPaths_L3_mu_;
-    std::vector<std::string> hltPaths_L3_el_;
+    std::vector<std::string> hltPaths_;
+    std::vector<std::string> hltPaths_mu_;
+    std::vector<std::string> hltPaths_el_;
+    std::vector<std::string> hltPaths_sig_;
+    std::vector<std::string> hltPaths_trig_;
+
+    int N_sig[100];
+    int N_trig[100];
+    float Eff[100];
+
+    int N_mumu;
+    int N_muel;
+    int N_elel;
 
     edm::InputTag muons_;
     double muon_pT_cut_;
     double muon_eta_cut_;
+    double muon_iso_cut_;
 
     edm::InputTag elecs_;
     double elec_pT_cut_;
     double elec_eta_cut_;
+    double elec_iso_cut_;
 
+    double MassWindow_up_;
+    double MassWindow_down_;
+
+    MonitorElement * Events_;
     MonitorElement * Trigs_;
+    MonitorElement * TriggerEff_;
 
     MonitorElement * Muon_Trigs_;
     MonitorElement * Nmuons_;
+    MonitorElement * Nmuons_iso_;
+    MonitorElement * Nmuons_charge_;
     MonitorElement * pT_muons_;
     MonitorElement * eta_muons_;
     MonitorElement * phi_muons_;
 
     MonitorElement * Elec_Trigs_;
     MonitorElement * Nelecs_;
+    MonitorElement * Nelecs_iso_;
+    MonitorElement * Nelecs_charge_;
     MonitorElement * pT_elecs_;
     MonitorElement * eta_elecs_;
     MonitorElement * phi_elecs_;
@@ -86,23 +107,24 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * MuIso_nJets03_;
     MonitorElement * MuIso_nTracks03_;
     MonitorElement * MuIso_sumPt03_;
+    MonitorElement * MuIso_CombRelIso03_;
 
     MonitorElement * ElecIso_cal_;
     MonitorElement * ElecIso_trk_;
+    MonitorElement * ElecIso_CombRelIso_;
 
     MonitorElement * dimassRC_LOG_;
     MonitorElement * dimassWC_LOG_;
     MonitorElement * dimassRC_;
     MonitorElement * dimassWC_;
+
     MonitorElement * D_eta_muons_;
     MonitorElement * D_phi_muons_;
+    MonitorElement * D_eta_elecs_;
+    MonitorElement * D_phi_elecs_;
+    MonitorElement * D_eta_lepts_;
+    MonitorElement * D_phi_lepts_;
 
-    MonitorElement * isoDimassCorrelation_;
-
-    MonitorElement * absCount_;
-    MonitorElement * relCount_;
-    MonitorElement * combCount_;
-    MonitorElement * diCombCount_;
 };
 
 #endif
