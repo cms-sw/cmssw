@@ -1,0 +1,11 @@
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add new files to define commonly used jet correction services
+	and producers. New mechanism based on JetCorrectionEra_cff.py
+	allows for these files (JetCorrectionServices_cff.py and
+	JetCorrectionProducers_cff.py) to remain valid when new correction
+	parameters become available.
+	* Some files in python/ are obsolete or need updating (JPT!?), to
+	be followed up soon!
+	
+
