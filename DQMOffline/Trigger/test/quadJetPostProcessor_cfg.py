@@ -7,9 +7,9 @@ process = cms.Process("EDMtoMEConvert")
 #process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-#process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
+process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
 #process.load("DQMOffline.Trigger.BPAGPostProcessor_cff")
-process.load("DQMOffline.Trigger.QuadJetPostProcessor_cfi")
+#process.load("DQMOffline.Trigger.QuadJetPostProcessor_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 ## parse some command line arguments
@@ -59,8 +59,9 @@ process.source = cms.Source("PoolSource",
 							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_useAodAndRAW_vMorePlots_DRStudy.root')
 							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/EDM_cosmic_vMoreTrigs_newAna.root'),
 							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/EDM_jpsi_pre10.root'),
-							#fileNames = cms.untracked.vstring(options.files),
-							fileNames = cms.untracked.vstring('file:quadjet_source_091009_numEvent100.root'),
+							fileNames = cms.untracked.vstring(options.files),
+							#fileNames = cms.untracked.vstring('file:quadjet_source_301009_numEvent100.root'),
+							#fileNames = cms.untracked.vstring('file:quadjet_source_031109a_numEvent100.root'),
 							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_p1_vMorePlots.root')
 )
 
@@ -72,7 +73,7 @@ process.dqmSaver.dirName = options.outputDir
 
 
 
-process.path = cms.Path(process.EDMtoME*process.quadJetPostVal*process.dqmStoreStats)
+process.path = cms.Path(process.EDMtoME * process.hLTMuonPostVal)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)

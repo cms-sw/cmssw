@@ -17,8 +17,8 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 options = VarParsing.VarParsing ('standard')
 
-options.files = '/store/relval/CMSSW_3_2_5/RelValTTbar/GEN-SIM-RECO/MC_31X_V5-v1/0011/B46D442F-478E-DE11-BD8D-001D09F2462D.root'
-options.output = 'quadjet_source_091009.root'
+#options.files = '/store/relval/CMSSW_3_2_5/RelValTTbar/GEN-SIM-RECO/MC_31X_V5-v1/0011/B46D442F-478E-DE11-BD8D-001D09F2462D.root'
+options.output = 'quadjet_source_031109a.root'
 options.maxEvents = 100
 
 options.parseArguments()
@@ -26,7 +26,7 @@ options.parseArguments()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
-	#input = cms.untracked.int32(-1)
+    #   input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
@@ -53,14 +53,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
+							   fastCloning = cms.untracked.bool(False), 
 	 outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
 	 fileName = cms.untracked.string(options.output)							   
 )
 
 process.analyzerpath = cms.Path(
     process.quadJetAna*
-    process.MEtoEDMConverter*
-	process.dqmStoreStats
+    process.MEtoEDMConverter
+	#process.dqmStoreStats
 )
 
 process.outpath = cms.EndPath(process.out)
