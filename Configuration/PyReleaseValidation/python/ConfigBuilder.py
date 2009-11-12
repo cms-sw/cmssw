@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.152 $"
+__version__ = "$Revision: 1.153 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -310,8 +310,9 @@ class ConfigBuilder(object):
         """Include the customise code """
 
         # let python search for that package and do syntax checking at the same time
-        packageName = self._options.customisation_file.replace(".py","").replace(".","/")
-        package = __import__(packageName)
+        packageName = self._options.customisation_file.replace(".py","").replace("/",".")
+        __import__(packageName)
+        package = sys.modules[packageName]
 
         # now ask the package for its definition and pick .py instead of .pyc
         customiseFile = package.__file__.rstrip("c")
@@ -813,7 +814,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.152 $"),
+              (version=cms.untracked.string("$Revision: 1.153 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
