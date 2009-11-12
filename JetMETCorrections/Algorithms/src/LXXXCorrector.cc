@@ -10,62 +10,61 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+
+using namespace std;
+
+
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector constructor ------------------------------------------
 //------------------------------------------------------------------------
 LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig) 
 {
-  std::string level  = fConfig.getParameter<std::string>("level");
-  std::string jecEra = fConfig.getUntrackedParameter<std::string>("jecEra",""); 
-  std::string algo   = fConfig.getUntrackedParameter<std::string>("algorithm","");
-  std::string file   = "CondFormats/JetMETObjects/data/";
-  if (jecEra=="")
-    {
-      if (algo=="")
-        file+= level+".txt";
-      else
-        file+= level+"_"+algo+".txt";
-    } 
-  else
-    {
-      if (algo=="")
-        file+= jecEra+"_"+level+".txt";
-      else
-        file+= jecEra+"_"+level+"_"+algo+".txt";
-    }
-  std::string section = fConfig.getUntrackedParameter<std::string>("section","");  
-  edm::FileInPath f1(file); 
+  string level(fConfig.getParameter<string>("level"));
+  string era(fConfig.getParameter<string>("era"));
+  string algorithm(fConfig.getParameter<string>("algorithm"));
+  string section(fConfig.getUntrackedParameter<string>("section",""));  
+  
+  string fileName("CondFormats/JetMETObjects/data/");
+
+  if (!era.empty()) fileName += era + "_";
+  fileName += level;
+  if (!algorithm.empty()) fileName += "_" + algorithm;
+  fileName += ".txt";
+  edm::LogInfo("FileName")<<"initialize from "<<fileName;
+  
+  edm::FileInPath fip(fileName); 
+
   if (level == "L1Offset")
     {
       mLevel = 1;
-      mCorrector = new FactorizedJetCorrector("L1",f1.fullPath());
+      mCorrector = new FactorizedJetCorrector("L1",fip.fullPath());
     }
   else if (level == "L2Relative")
     {
       mLevel = 2;
-      mCorrector = new FactorizedJetCorrector("L2",f1.fullPath());
+      mCorrector = new FactorizedJetCorrector("L2",fip.fullPath());
     }
   else if (level == "L3Absolute")
     {
       mLevel = 3;  
-      mCorrector = new FactorizedJetCorrector("L3",f1.fullPath());
+      mCorrector = new FactorizedJetCorrector("L3",fip.fullPath());
     }
   else if (level == "L4EMF")
     {
       mLevel = 4;
-      mCorrector = new FactorizedJetCorrector("L4",f1.fullPath());
+      mCorrector = new FactorizedJetCorrector("L4",fip.fullPath());
     }
   else if (level == "L5Flavor")
     {
       mLevel = 5;
-      std::string option = "Flavor:"+section;
-      mCorrector = new FactorizedJetCorrector("L5",f1.fullPath(),option);
+      string option = "Flavor:"+section;
+      mCorrector = new FactorizedJetCorrector("L5",fip.fullPath(),option);
     }
   else if (level == "L7Parton")
     {
       mLevel = 7;
-      std::string option = "Parton:"+section;
-      mCorrector = new FactorizedJetCorrector("L7",f1.fullPath(),option);
+      string option = "Parton:"+section;
+      mCorrector = new FactorizedJetCorrector("L7",fip.fullPath(),option);
     }
   else
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
