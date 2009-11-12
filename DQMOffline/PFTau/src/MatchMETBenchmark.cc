@@ -31,7 +31,7 @@ void MatchMETBenchmark::setup() {
     dphiPS = PhaseSpace( 100, -3.2, 3.2);
     dptPS = PhaseSpace( 100, -500, 500);
     setPS = PhaseSpace( 300, 0.0, 3000);
-    dsetPS = PhaseSpace( 300, 0.-1000, 1000);
+    dsetPS = PhaseSpace( 200, 0.-1000, 1000);
     setOvsetPS = PhaseSpace( 500,0., 2.);
     break;
   case DQMOFFLINE:
@@ -45,6 +45,8 @@ void MatchMETBenchmark::setup() {
     setOvsetPS = PhaseSpace( 100,0., 2.);
     break;
   }
+
+  // variable bins to be done here, as they will save a lot of memory. 
 
   //float ptBins[11] = {0, 1, 2, 5, 10, 20, 50, 100, 200, 400, 1000};
 
@@ -98,6 +100,7 @@ void MatchMETBenchmark::fillOne(const reco::MET& cand,
   
   if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) return;
   
+  // in case it happens, print an error message LogWarning
   if ( matchedCand.pt()>0.001 ) delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() - matchedCand.pt())/matchedCand.pt() );
   delta_et_VS_et_->Fill( matchedCand.pt(), cand.pt() - matchedCand.pt() );
   delta_phi_VS_et_->Fill( matchedCand.pt(), cand.phi() - matchedCand.phi() );

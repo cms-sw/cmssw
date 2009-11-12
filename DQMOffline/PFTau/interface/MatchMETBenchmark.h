@@ -8,6 +8,15 @@
 
 #include "DataFormats/METReco/interface/METFwd.h"
 
+// is this include necessary? 
+// check all includes 
+
+// integrate and check your benchmarks in PFRootEvent (take PFCandidateManager as an example)
+
+// integrate and check your benchmarks Validation/RecoParticleFlow (take PFCandidateManager as an example)
+
+// remove the old benchmarks from these 2 packages (python files, C++ code, ...)
+
 #include <vector>
 
 class MatchMETBenchmark : public Benchmark {
@@ -26,15 +35,23 @@ class MatchMETBenchmark : public Benchmark {
 
 
  protected:
-  
-  TH2F*   delta_et_Over_et_VS_et_; 
+  // next 3: add to MatchCandidateBenchmark? 
+
+  // (rec - true) / true = rec/true - 1 
   TH2F*   delta_et_VS_et_; 
+  TH2F*   delta_et_Over_et_VS_et_; 
+
   TH2F*   delta_phi_VS_et_; 
+
   TH1F*   delta_ex_;
+
+  // True and Rec: remove. remove the following histo? 
   TH2F*   RecEt_VS_TrueEt_;
   TH2F*   delta_set_VS_set_;
   TH2F*   delta_set_Over_set_VS_set_;
   TH2F*   delta_ex_VS_set_;
+
+  // remove the following histo?
   TH2F*   RecSet_Over_TrueSet_VS_TrueSet_;
 
 };

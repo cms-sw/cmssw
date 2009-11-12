@@ -9,6 +9,14 @@ class TH2;
 class TH1D;
 class TH2D;
 
+// EN FAIT NON ? 
+// check why white window in colin's case
+// are you making copies of histograms without changing the name? 
+// names could be handled in the following way:
+// - give a name to each instance of TH2Analyzer in constructor
+// - all histograms of the corresponding TH2Analyzer are created with a name (key)
+// which starts with name_RMS
+
 class TH2Analyzer : public TObject {
 
  public:
@@ -48,9 +56,15 @@ class TH2Analyzer : public TObject {
   TH1D* SigmaGauss() { return sigmaGauss_; }
   TH1D* MeanX() { return meanXslice_; }
 
+  // add an histo for chi2 /  ndof 
+  // add a function FitSlice(int i)
+  // not now: work along Y
+
  private:
 
   void ProcessSlices(  const TH2D* histo );
+
+  // no need for const, because i is copied
   void ProcessSlice(const int i, TH1D* histo ) const;
 
   const TH2* hist2D_;

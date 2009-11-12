@@ -26,7 +26,6 @@ class METBenchmark : public Benchmark {
 
  protected:
   
-
   TH1F*   pt_; 
   TH1F*   phi_; 
   TH1F*   sumEt_;  
