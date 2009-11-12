@@ -11,6 +11,7 @@ herwigDefaultsBlock = cms.PSet(
 
 	cmsDefaults = cms.vstring(
 		'+pdfMRST2001',
+		'+ueLO',
 		'+basicSetup',
 		'+cm14TeV',
 		'+setParticlesStableForDetector',
@@ -63,6 +64,21 @@ herwigDefaultsBlock = cms.PSet(
 	cm14TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
+	),
+
+	ueLO = cms.vstring(
+		'cd /Herwig/UnderlyingEvent',
+		'set KtCut:MinKT 4.0',
+		'set UECuts:MHatMin 8.0',
+		'set MPIHandler:InvRadius 1.5',
+		'cd /'
+	),
+	ueLOs = cms.vstring(
+		'cd /Herwig/UnderlyingEvent',
+		'set KtCut:MinKT 4.3',
+		'set UECuts:MHatMin 8.6',
+		'set MPIHandler:InvRadius 1.2',
+		'cd /'
 	),
 
 	reweightConstant = cms.vstring(
