@@ -1,3 +1,9 @@
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add data/L6SLB.txt
+	* not the final version, but to have something in CVS to run
+	examples
+
 2009-11-11  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* remove interface/*_linkdef.h files, replace by single file
