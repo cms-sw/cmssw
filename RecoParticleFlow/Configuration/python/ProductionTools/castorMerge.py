@@ -102,7 +102,7 @@ for file in matchingFiles:
         
 # remaining files:
 if len(chunk)>0:
-    processFiles( chunk )
+    processFiles( regexp, chunk )
         
 
 
