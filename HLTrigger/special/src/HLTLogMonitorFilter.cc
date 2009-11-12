@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.3 2009/11/10 14:20:47 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.4 2009/11/10 15:00:42 fwyzard Exp $
 //
 
 
@@ -102,6 +102,7 @@ private:
 // system include files
 #include <sstream>
 #include <iomanip>
+#include <memory>
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 #include <boost/algorithm/string.hpp>
@@ -126,6 +127,8 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
     uint32_t threshold       = category.getParameter<uint32_t>("threshold");
     addCategory(name, threshold);
   }
+
+  produces<std::vector<edm::ErrorSummaryEntry> >();
 }
 
 HLTLogMonitorFilter::~HLTLogMonitorFilter()
@@ -165,6 +168,17 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
         accept = true;
     }
   }
+
+  // harvest the errors, but only if the filter will accept the event
+  std::auto_ptr<std::vector<edm::ErrorSummaryEntry> > errors(new std::vector<edm::ErrorSummaryEntry>());
+  if (accept) {
+    errors->reserve( edm::MessageSender::errorSummaryMap.size() );
+    BOOST_FOREACH(const ErrorSummaryMap::value_type & entry, edm::MessageSender::errorSummaryMap) {
+      errors->push_back(entry.first);        // sets category, module and severity
+      errors->back().count = entry.second;   // count is 0 in key; set it to correct value (see FWCore/MessageLogger/src/LoggedErrorsSummary.cc)
+    }
+  }
+  event.put(errors);
 
   // clear the errorSummaryMap
   edm::MessageSender::errorSummaryMap.clear();
