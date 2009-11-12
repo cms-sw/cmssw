@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_4_0/pre6/8E29/V6 (CMSSW_3_4_0_pre5_HLT1)
+# /dev/CMSSW_3_4_0/pre6/8E29/V8 (CMSSW_3_4_0_pre5_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/8E29/V6')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre6/8E29/V8')
 )
 
 
@@ -67,49 +67,6 @@ essourceSev = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
-pixellayertripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerTripletsHITHE" ),
-  layerList = cms.vstring( 'BPix1+BPix2+FPix1_pos',
-    'BPix1+BPix2+FPix1_neg',
-    'BPix1+FPix1_pos+FPix2_pos',
-    'BPix1+FPix1_neg+FPix2_neg' ),
-  BPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.0060 ),
-    hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    useErrorsFromParam = cms.bool( True )
-  ),
-  FPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.0036 ),
-    hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    useErrorsFromParam = cms.bool( True )
-  ),
-  TEC = cms.PSet(  )
-)
-pixellayertripletsHITHB = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerTripletsHITHB" ),
-  layerList = cms.vstring( 'BPix1+BPix2+BPix3' ),
-  BPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.0060 ),
-    hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    useErrorsFromParam = cms.bool( True )
-  ),
-  FPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.0036 ),
-    hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    useErrorsFromParam = cms.bool( True )
-  ),
-  TEC = cms.PSet(  )
-)
 AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -493,6 +450,49 @@ pixellayertriplets = cms.ESProducer( "SeedingLayersESProducer",
   ComponentName = cms.string( "PixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
+    'BPix1+BPix2+FPix1_neg',
+    'BPix1+FPix1_pos+FPix2_pos',
+    'BPix1+FPix1_neg+FPix2_neg' ),
+  BPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0060 ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.bool( True )
+  ),
+  FPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0036 ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.bool( True )
+  ),
+  TEC = cms.PSet(  )
+)
+pixellayertripletsHITHB = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "PixelLayerTripletsHITHB" ),
+  layerList = cms.vstring( 'BPix1+BPix2+BPix3' ),
+  BPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0060 ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.bool( True )
+  ),
+  FPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0036 ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.bool( True )
+  ),
+  TEC = cms.PSet(  )
+)
+pixellayertripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "PixelLayerTripletsHITHE" ),
+  layerList = cms.vstring( 'BPix1+BPix2+FPix1_pos',
     'BPix1+BPix2+FPix1_neg',
     'BPix1+FPix1_pos+FPix2_pos',
     'BPix1+FPix1_neg+FPix2_neg' ),
@@ -4218,7 +4218,7 @@ hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
