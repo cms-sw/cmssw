@@ -15,6 +15,7 @@
 #include "CondCore/DBCommon/interface/TagInfo.h"
 
 #include "CondCore/IOVService/interface/IOVNames.h"
+#include "CondCore/DBCommon/interface/IOVInfo.h"
 
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iterator>
