@@ -67,6 +67,7 @@ namespace edmtest {
                 << hvData.flagA  << " "
                 << hvData.flagC  << " "
                 << hvData.flagS  << std::endl;
+      iter++;
     }
     std::cout << "============" << std::endl;
     int whe;
