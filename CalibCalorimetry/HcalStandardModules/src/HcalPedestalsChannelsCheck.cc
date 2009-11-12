@@ -4,10 +4,10 @@ HcalPedestalsChannelsCheck::HcalPedestalsChannelsCheck(edm::ParameterSet const& 
 {
    epsilon = .1;
    runnum = ps.getUntrackedParameter<int>("runNumber",0);
-   difhist[0] = new TH1F("Difference in pedestals HB","Each CapId (HB)",100,-1.5,1.5);
-   difhist[1] = new TH1F("Difference in pedestals HE","Each CapId (HE)",100,-1.5,1.5);
-   difhist[2] = new TH1F("Difference in pedestals HO","Each CapId (HO)",100,-1.5,1.5);
-   difhist[3] = new TH1F("Difference in pedestals HF","Each CapId (HF)",100,-1.5,1.5);
+   difhist[0] = new TH1F("Difference in pedestals HB","Each CapId (HB)",100,0,1.5);
+   difhist[1] = new TH1F("Difference in pedestals HE","Each CapId (HE)",100,0,1.5);
+   difhist[2] = new TH1F("Difference in pedestals HO","Each CapId (HO)",100,0,1.5);
+   difhist[3] = new TH1F("Difference in pedestals HF","Each CapId (HF)",100,0,1.5);
    etaphi[0] = new TH2F("Average difference per channel d1","Depth 1",89, -44, 44, 72, .5, 72.5);
    etaphi[1] = new TH2F("Average difference per channel d2","Depth 2",89, -44, 44, 72, .5, 72.5);
    etaphi[2] = new TH2F("Average difference per channel d3","Depth 3",89, -44, 44, 72, .5, 72.5);
@@ -25,7 +25,7 @@ HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
     for(int n = 0; n != 4; n++) {etaphi[n]->Write(); difhist[n]->Write();}
 
     TStyle *theStyle = new TStyle("style","null");
-//    theStyle->SetPalette(1,0); Replaced with new palette to set cells with no entry = white
+//  theStyle->SetPalette(1,0); Replaced with new palette to set cells with no entry = white
 //  big thanks to Jeff Temple!
     const Int_t NRGBs= 6;
     const Int_t NCont = 255; //??  Maybe smaller number?
@@ -35,13 +35,11 @@ HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
     Double_t red[NRGBs]={0.0,0.0,1.0,1.0,0.0,1.0};
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-
    // You need to do the TColor command twice, or else the existing color scheme doesn't get replaced with your new table
-
     theStyle->SetNumberContours(NCont);
+
     theStyle->SetCanvasDefH(1200); //Height of canvas
     theStyle->SetCanvasDefW(1600); //Width of canvas
-
     gStyle = theStyle;
 
     TCanvas * c1 = new TCanvas("c1","graph",1);
@@ -109,7 +107,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
    std::vector<DetId>::iterator cell;
    bool failflag = false;
 
-   if(myNewPeds->isADC() != myRefPeds->isADC()) throw cms::Exception("Peds not in same units!");
+   if(myRefPeds->isADC() != myNewPeds->isADC()) throw cms::Exception("Peds not in same units!");
 
    // store channels which have changed by more that epsilon
    HcalPedestals *changedchannels = new HcalPedestals(myRefPeds->isADC());
@@ -128,17 +126,14 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
             { 
                const float* values = (myNewPeds->getValues( mydetid ))->getValues();
                const float* oldvalue = (myRefPeds->getValues( mydetid ))->getValues();
-               difhist[hocheck.subdet()-1]->Fill((*oldvalue-*values));
-               difhist[hocheck.subdet()-1]->Fill((*oldvalue+1)-(*values+1));
-               difhist[hocheck.subdet()-1]->Fill((*oldvalue+2)-(*values+2));
-               difhist[hocheck.subdet()-1]->Fill((*oldvalue+3)-(*values+3));
                double avgchange = ( (*oldvalue-*values)
-                                   +((*oldvalue+1)-(*values+1)) 
-                                   +((*oldvalue+2)-(*values+2))
-                                   +((*oldvalue+3)-(*values+3)) ) / 4;
+                                   +(*(oldvalue+1)-*(values+1)) 
+                                   +(*(oldvalue+2)-*(values+2))
+                                   +(*(oldvalue+3)-*(values+3)) ) / 4;
+               if(fabs(avgchange) > epsilon){
                etaphi[hocheck.depth()-1]->Fill(hocheck.ieta(),hocheck.iphi(),avgchange);
-               if(hocheck.subdet()==3) continue;
-               if( (fabs(*oldvalue-*values)>epsilon) || (fabs(*(oldvalue+1)-*(values+1))>epsilon) || (fabs(*(oldvalue+2)-*(values+2))>epsilon) || (fabs(*(oldvalue+3)-*(values+3))>epsilon) ){
+               difhist[hocheck.subdet()-1]->Fill(fabs(avgchange));
+//               if(hocheck.subdet()==3) continue;
 // 	       throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaP";
                std::cout << HcalGenericDetId(mydetid.rawId()) << " has changed by "<< avgchange << std::endl;
                failflag = true;
@@ -152,7 +147,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
      // first get the list of all channels from the update
      std::vector<DetId> listChangedChan = changedchannels->getAllChannels();
  
-     HcalPedestals *resultPeds = new HcalPedestals(myRefPeds->isADC() );
+     HcalPedestals *resultPeds = new HcalPedestals( myRefPeds->isADC() );
      for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
        {
          DetId mydetid = *it;
