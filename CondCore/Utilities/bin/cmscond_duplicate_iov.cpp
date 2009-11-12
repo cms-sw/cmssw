@@ -157,6 +157,7 @@ int cond::DuplicateIOVUtilities::execute(){
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
     editor->append(since,payload);
+    editor->stamp(cond::userInfo(),false);
     transaction.commit();
   }
 
