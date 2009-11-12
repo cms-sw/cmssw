@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 findTtSemiLepJetCombMVA = cms.EDProducer("TtSemiLepJetCombMVAComputer",
     #-------------------------------------------------
-    # sources
+    # sources (leptons, jets, MET)
     #-------------------------------------------------
-    leptons  = cms.InputTag("selectedLayer1Muons"),
-    jets     = cms.InputTag("selectedLayer1Jets"),
-    mets     = cms.InputTag("layer1METs"),
+    leps = cms.InputTag("selectedLayer1Muons"),
+    jets = cms.InputTag("selectedLayer1Jets"),
+    mets = cms.InputTag("layer1METs"),
 
     #-------------------------------------------------
     # number of jets to be considered in combinatorics
