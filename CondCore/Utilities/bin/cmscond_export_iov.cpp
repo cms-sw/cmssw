@@ -159,12 +159,8 @@ int cond::ExportIOVUtilities::execute(){
   cond::UserLogInfo a;
   a.provenance=sourceConnect+"/"+inputTag;
   a.usertext="exportIOV V2.0;";
-  {
-    std::ostringstream ss;
-    ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
-    a.usertext +=ss.str();
-  }
-
+  if (newIOV) a.usertext+= "new tag;";
+  
   sourcedb.transaction().start(true);
   {
     cond::DbScopedTransaction transaction(destdb);
@@ -175,9 +171,15 @@ int cond::ExportIOVUtilities::execute(){
 	bool stored = destdb.importMapping( sourcedb, payloadContainer );
 	if(debug)
 	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
+	if (stored) a.usertext+="mapping stored;";
       }
     }
-
+    
+    {
+      std::ostringstream ss;
+      ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
+      a.usertext +=ss.str();
+    }
 
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
                                                        sourceiovtoken,
