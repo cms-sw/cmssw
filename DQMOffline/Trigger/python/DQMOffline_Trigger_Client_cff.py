@@ -8,10 +8,12 @@ from DQM.L1TMonitorClient.L1TCSCTFClient_cff import *
 from DQM.L1TMonitorClient.L1TDEMONClient_cff import *
 from DQM.L1TMonitorClient.L1TRPCTFClient_cff import *
 
+from DQMOffline.Trigger.EgHLTOfflineClient_cfi import *
+
     # use include file for dqmEnv dqmSaver
 from DQMServices.Components.DQMEnvironment_cfi import *
 dqmEnv.subSystemFolder = 'L1T'
 
 l1tmonitorClient = cms.Sequence(l1tcsctfseqClient*l1tdttpgseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tEventInfoseqClient*dqmEnv)
 
-triggerOfflineDQMClient = cms.Sequence(l1tmonitorClient)
+triggerOfflineDQMClient = cms.Sequence(l1tmonitorClient*egHLTOffDQMClient)

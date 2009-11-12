@@ -19,6 +19,8 @@ namespace egHLT {
     void filterInactiveTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
     //filters a list of filterName1:filterName2 removing any entry for which either filter is not in activeFilters, assumes active filters is sorted
     void filterInactiveTightLooseTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
+
+    void translateFiltersToPathNames(const std::vector<std::string>& filters,std::vector<std::string>& paths,const std::string& hltTag);
   }
   
   //I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again

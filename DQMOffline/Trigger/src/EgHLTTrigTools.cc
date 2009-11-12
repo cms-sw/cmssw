@@ -121,3 +121,50 @@ void trigTools::filterInactiveTightLooseTriggers(std::vector<std::string>& names
   namesToFilter.swap(filteredNames);
 }
 
+//a comparison functiod for std::pair<std::string,std::string> 
+//this probably (infact must) exist elsewhere
+class StringPairCompare {
+public: 
+  bool operator()(const std::pair<std::string,std::string>&lhs,
+		  const std::pair<std::string,std::string>& rhs)const{return keyLess(lhs.first,rhs.first);}
+  bool operator()(const std::pair<std::string,std::string>&lhs,
+		  const std::pair<std::string,std::string>::first_type& rhs)const{return keyLess(lhs.first,rhs);}
+  bool operator()(const std::pair<std::string,std::string>::first_type &lhs,
+		  const std::pair<std::string,std::string>& rhs)const{return keyLess(lhs,rhs.first);}
+private:
+  bool keyLess(const std::pair<std::string,std::string>::first_type& k1,const std::pair<std::string,std::string>::first_type& k2)const{return k1<k2;}
+};
+
+void trigTools::translateFiltersToPathNames(const std::vector<std::string>& filters,std::vector<std::string>& paths,const std::string& hltTag)
+{
+  HLTConfigProvider hltConfig;
+  hltConfig.init(hltTag);
+  paths.clear();
+  std::vector<std::pair<std::string,std::string> > filtersAndPaths;
+
+  for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
+    const std::string& pathName = hltConfig.triggerName(pathNr);
+    if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
+  
+      std::string lastFilter;
+      const std::vector<std::string>& pathFilters = hltConfig.moduleLabels(pathNr);
+      if(!pathFilters.empty()){
+	if(pathFilters.back()=="hltBoolEnd" && pathFilters.size()>=2){
+	  //2nd to last element is the last filter, useally the case as last is hltBool except for ES bits
+	  filtersAndPaths.push_back(std::make_pair(pathFilters[pathFilters.size()-2],pathName));
+	}else filtersAndPaths.push_back(std::make_pair(pathFilters.back(),pathName));
+      }
+    }//end hlt path check
+  }//end path loop over
+
+  std::sort(filtersAndPaths.begin(),filtersAndPaths.end(),StringPairCompare());
+  
+  for(size_t filterNr=0;filterNr<filters.size();filterNr++){
+    typedef std::vector<std::pair<std::string,std::string> >::const_iterator VecIt;
+    std::pair<VecIt,VecIt> searchResult = std::equal_range(filtersAndPaths.begin(),filtersAndPaths.end(),filters[filterNr],StringPairCompare());
+    if(searchResult.first!=searchResult.second) paths.push_back(searchResult.first->second);
+    else paths.push_back(filters[filterNr]);//if cant find the path, just  write the filter
+ 
+  }
+
+}
