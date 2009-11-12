@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/11/04 13:55:14 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/11/04 17:22:09 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -28,7 +28,7 @@ using namespace edm;
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
   public:
-    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local){
+    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
       std::string pre ="1D_";
       pre += name_;
       _doall = doall;
@@ -320,7 +320,7 @@ class HEff1DHit{
 // Histos of residuals for 2D rechits
 class HRes2DHit{
   public:
-    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local){
+    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
       _doall = doall;
       std::string pre ="2D_";
       pre += name_;
@@ -657,7 +657,7 @@ class HEff2DHit{
 // Histos of residuals for 4D rechits
 class HRes4DHit{
   public:
-    HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true,bool local){
+    HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true,bool local=true){
       std::string pre ="4D_";
       pre += name_;
       _doall = doall;
