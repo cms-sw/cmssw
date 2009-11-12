@@ -32,9 +32,6 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('MC_3XY_V12::All')
 
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 from TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi import analyzeTopGenEvent
@@ -46,7 +43,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path   
-process.p1 = cms.Path(process.patDefaultSequence *
-                      process.makeGenEvt *
+process.p1 = cms.Path(process.makeGenEvt *
                       process.analyzeTopGenEvent)
 
