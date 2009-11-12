@@ -255,7 +255,7 @@ namespace edm {
       std::ostringstream lfilename;
       ofilename << fileBase;
       lfilename << logicalFileName();
-      if(childIndex_) {
+      if(numberOfDigitsInIndex_) {
         ofilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
 	if(!logicalFileName().empty()) {
           lfilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
