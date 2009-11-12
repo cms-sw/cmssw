@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/17 15:19:57 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/18 08:43:46 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -55,7 +56,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
   metname = "trackResidualsTest";
   theDbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
 
-  LogTrace(metname) << "[MuonTrackResidualsTest] Parameters initialization"<<endl;
+  LogTrace(metname) << "[MuonTrackResidualsTest] beginJob: Parameters initialization"<<endl;
  
 
   string histName, MeanHistoName, SigmaHistoName,  MeanHistoTitle, SigmaHistoTitle;
@@ -99,12 +100,18 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 }
 
 
+void MuonTrackResidualsTest::beginRun(Run const& run, EventSetup const& eSetup) {
+
+  LogTrace(metname)<<"[MuonTrackResidualsTest]: beginRun";
+
+}
+
 void MuonTrackResidualsTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  LogTrace(metname)<<"[MuonTrackResidualsTest]: Begin of LS transition";
+  //  LogTrace(metname)<<"[MuonTrackResidualsTest]: beginLuminosityBlock";
 
   // Get the run number
-  run = lumiSeg.run();
+  //  run = lumiSeg.run();
 
 }
 
@@ -120,7 +127,7 @@ void MuonTrackResidualsTest::analyze(const edm::Event& e, const edm::EventSetup&
 
 void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  LogTrace(metname)<<"[MuonTrackResidualsTest]: End of LS transition, performing the DQM client operation"<<endl;
+  //  LogTrace(metname)<<"[MuonTrackResidualsTest]: endLuminosityBlock, performing the DQM LS client operation"<<endl;
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -129,6 +136,13 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
   if ( nLumiSegs%prescaleFactor != 0 ) return;
   
   
+}
+
+
+void MuonTrackResidualsTest::endRun(Run const& run, EventSetup const& eSetup) {
+
+  LogTrace(metname)<<"[MuonTrackResidualsTest]: endRun, performing the DQM end of run client operation";
+
   for(map<string, vector<string> > ::const_iterator histo = histoNames.begin();
       histo != histoNames.end();
       histo++) {
@@ -190,12 +204,9 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
   }
 }
 
-
-
-
 void MuonTrackResidualsTest::endJob(){
   
-  LogTrace(metname)<< "[MuonTrackResidualsTest] endjob called!";
+  LogTrace(metname)<< "[MuonTrackResidualsTest] endJob called!";
   theDbe->rmdir("Muons/Tests/trackResidualsTest");
   
 }
