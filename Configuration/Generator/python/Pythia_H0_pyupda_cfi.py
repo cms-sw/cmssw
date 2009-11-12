@@ -2,6 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 
+#
+# Example illustrating how to change particle properties/branching ratios
+# with PYUPDA cards.
+#
+# This produces an H0, which decays to a pair of long-lived exotic particles
+# which then each decay to a pair of light quarks.
+#
+
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
     maxEventsToPrint = cms.untracked.int32(10),
@@ -26,12 +34,16 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
           'MWID(35)=2 ! Let me set H0 properties'
         ),
 #
+# This block controls how Pythia interacts with the PYUPDA cards.
+#        
         PYUPDAParameters = cms.vstring(
-# Read my parameters
+# Either:
+#     1) Specify the location of the PYUPDA table to be read in. 
          "PYUPDAFILE = 'Configuration/Generator/data/Pythia_H0_pyupda.in'"
-# Optionally call PYUPDA after PYINIT. This doesn't seem to be necessary.
-#         "PYUPDApostPYINIT"
-# Write current parameters
+#        Optionally ask to call PYUPDA after PYINIT. Don't do this unless you have to.
+#        "PYUPDApostPYINIT"
+# Or:
+#     2) Write current PYUPDA parameters to file (so you can edit them and read back in).
 #         "PYUPDAFILE = \'pyupda.out\'"
 #         "PYUPDAWRITE"
         ),
@@ -43,8 +55,9 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     )
 )
 
-# this needs to get in somehow...
+# N.B. If your PYUPDA tables introduces new exotic particles, you will need
+# to include:
 #
 # genParticles.abortOnUnknownPDGCode = cms.untracked.bool(False)
 
-
+ProductionFilterSequence = cms.Sequence(generator)
