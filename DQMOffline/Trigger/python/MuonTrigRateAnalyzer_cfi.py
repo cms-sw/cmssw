@@ -33,15 +33,30 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	),
 
 
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("endcapMuons"),
+	## cms.untracked.PSet(
+## 	  collectionName = cms.untracked.string ("endcapMuons"),
+## 	  trackCollection = cms.untracked.string ("globalTrack"),
+## 	  requiredTriggers = cms.untracked.vstring(""),
+## 	  d0cut = cms.untracked.double(2.0),
+## 	  z0cut = cms.untracked.double(25.0), # 3 meters
+## 	  recoCuts = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0"),
+## 	  hltCuts  = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0")
+## 	),
+
+
+ 	cms.untracked.PSet(
+ 	  collectionName = cms.untracked.string ("barrelMuons"),
+ 	  # The track collection is just a switch, not a true collection name
 	  trackCollection = cms.untracked.string ("globalTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0), # 3 meters
-	  recoCuts = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0"),
-	  hltCuts  = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0")
+	  z0cut = cms.untracked.double(25.0),
+	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 0.9")	  
 	),
+
+
+	
 
 	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("allMuons"),

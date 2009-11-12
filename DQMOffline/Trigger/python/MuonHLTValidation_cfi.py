@@ -8,9 +8,14 @@ qTesterMuonHLT = cms.EDFilter("QualityTester",
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),
      verboseQT =  cms.untracked.bool(True),
-     qtOnEndLumi = cms.untracked.bool(False),
-	 qtOnEndRun = cms.untracked.bool(True),
-	 qtestOnEndJob =   cms.untracked.bool(False),					  							  
+     qtestOnEndLumi = cms.untracked.bool(False),
+	 qtestOnEndRun = cms.untracked.bool(True),
+	 qtestOnEndJob =   cms.untracked.bool(True),
+	 #reportThreshold = cms.untracked.string("black")					  
  )
 
-muonHLTCertSeq = cms.Sequence(qTesterMuonHLT)
+muonHLTCertSummary = cms.EDAnalyzer("HLTMuonCertSummary",
+									verbose = cms.untracked.bool(False)
+									)
+
+muonHLTCertSeq = cms.Sequence(qTesterMuonHLT*muonHLTCertSummary)

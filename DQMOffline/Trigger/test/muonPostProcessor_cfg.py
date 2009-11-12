@@ -5,9 +5,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process("EDMtoMEConvert")
 
 #process.load("DQMServices.Components.EDMtoMEConverter_cff")
-process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
+#process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
+process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
+process.load("DQMOffline.Trigger.MuonHLTValidation_cfi")
 #process.load("DQMOffline.Trigger.BPAGPostProcessor_cff")
 process.load("DQMOffline.Trigger.TnPEfficiencyPostProcessor_cff")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -45,10 +47,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger",
 									destinations = cms.untracked.vstring('cout'),
-									categories = cms.untracked.vstring('DQMGenericClient'),
+									#categories = cms.untracked.vstring('DQMGenericClient'),
+									categories = cms.untracked.vstring('HLTMuonVal'),
 									debugModules = cms.untracked.vstring('*'),
-									threshold = cms.untracked.string('DEBUG'),
-									DQMGenericClient = cms.untracked.PSet(
+									threshold = cms.untracked.string('INFO'),
+									HLTMuonVal = cms.untracked.PSet(
 	                                     #threshold = cms.untracked.string('DEBUG'),
 	                                     limit = cms.untracked.int32(100000)
 										 )
@@ -66,11 +69,11 @@ process.source = cms.Source("PoolSource",
 
 process.dqmSaver.workflow = options.workflow
 process.dqmSaver.dirName = options.outputDir
+#process.DQMStore.verbose = 10
 
 
 
-
-process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.tagAndProbeEfficiencyPostProcessor*process.dqmStoreStats)
+process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.tagAndProbeEfficiencyPostProcessor*process.muonHLTCertSeq*process.dqmStoreStats)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)
