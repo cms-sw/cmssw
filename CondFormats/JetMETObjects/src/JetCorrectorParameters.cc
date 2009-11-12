@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.4 2009/11/10 09:17:45 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.5 2009/11/11 13:36:25 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -34,9 +34,7 @@ JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
 JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
 {
   std::vector<std::string> tokens = getTokens(fLine); 
-  if (tokens.empty())
-    handleError("JetCorrectorParameters::Definitions","empty definitions line");
-  else 
+  if (!tokens.empty())
     { 
       if (tokens.size() < 6) 
         {
@@ -73,9 +71,7 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   mNvar = fNvar;
   // quckly parse the line
   std::vector<std::string> tokens = getTokens(fLine);
-  if (tokens.empty())
-    handleError("JetCorrectorParameters::Record","empty record line");
-  else 
+  if (!tokens.empty())
     { 
       if (tokens.size() < 3) 
         {
@@ -139,6 +135,8 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
             mRecords.push_back(record);
         } 
     }
+  if (currentDefinitions=="")
+    handleError("JetCorrectorParameters","No definitions found!!!");
   if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
   if (mRecords.empty() && currentSection != "") 
     {
