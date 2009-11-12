@@ -20,7 +20,7 @@ muons = cms.EDProducer("MuonIdProducer",
     maxAbsEta = cms.double(3.0),
 
     # Selection parameters
-    minPt = cms.double(1.0),
+    minPt = cms.double(0.5),
     inputCollectionTypes = cms.vstring('inner tracks', 
         'links', 
         'outer tracks'),
@@ -35,7 +35,7 @@ muons = cms.EDProducer("MuonIdProducer",
     maxAbsPullY = cms.double(9999.0),
     # AND
     maxAbsDy = cms.double(9999.0),
-    minP = cms.double(1.0),
+    minP = cms.double(2.5),
 
     # Match parameters
     maxAbsDx = cms.double(3.0),
