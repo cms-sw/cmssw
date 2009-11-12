@@ -15,18 +15,8 @@ CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
   : initialised(false), theConfig(cfg)
 { }
 
-CombinedHitPairGenerator::CombinedHitPairGenerator(const SeedingLayerSets & layerSets)
-  : initialised(false)
-{
-  init (layerSets);
-}
-
 void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
-
-//  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
-//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
-
   std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
   edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
   es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
@@ -46,13 +36,16 @@ void CombinedHitPairGenerator::init(const SeedingLayerSets & layerSets)
   }
 }
 
-CombinedHitPairGenerator::~CombinedHitPairGenerator()
+void CombinedHitPairGenerator::cleanup()
 {
   Container::const_iterator it;
   for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
     delete (*it);
   }
+  theGenerators.clear();
 }
+
+CombinedHitPairGenerator::~CombinedHitPairGenerator() { cleanup(); }
 
 void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLayer& outer)
 { 
@@ -63,8 +56,10 @@ void CombinedHitPairGenerator::hitPairs(
    const TrackingRegion& region, OrderedHitPairs  & result,
    const edm::Event& ev, const edm::EventSetup& es)
 {
-  static edm::ESWatcher<TrackerDigiGeometryRecord> watcherTrackerDigiGeometryRecord;
-  if (!initialised || watcherTrackerDigiGeometryRecord.check(es)) init(theConfig,es);
+  if (theESWatcher.check(es) || !initialised ) {
+    cleanup();
+    init(theConfig,es);
+  }
 
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {

@@ -6,12 +6,15 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+
 class TrackingRegion;
 class OrderedHitPairs;
 class HitPairGeneratorFromLayerPair;
 namespace ctfseeding { class SeedingLayer;}
 namespace edm { class Event; class EventSetup; }
 
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 
 /** \class CombinedHitPairGenerator
@@ -24,10 +27,6 @@ public:
 
 public:
   CombinedHitPairGenerator(const edm::ParameterSet & cfg);
-
-  CombinedHitPairGenerator(const ctfseeding::SeedingLayerSets & layerSets);
-
-
   virtual ~CombinedHitPairGenerator();
 
   void  add(const ctfseeding::SeedingLayer & inner, 
@@ -39,16 +38,21 @@ public:
 
   /// from base class
   virtual CombinedHitPairGenerator * clone() const 
-    { return new CombinedHitPairGenerator(*this); }
+    { return new CombinedHitPairGenerator(theConfig); } 
 
 private:
+  CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 
   void init(const ctfseeding::SeedingLayerSets & layerSets);
   void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  void cleanup();
+
 
   mutable bool initialised;
   edm::ParameterSet theConfig;
 
   LayerCacheType   theLayerCache;
+
+  edm::ESWatcher<TrackerDigiGeometryRecord> theESWatcher;
 
   typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
   Container        theGenerators;
