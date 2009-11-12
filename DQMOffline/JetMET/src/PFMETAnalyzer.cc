@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 10:14:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/28 13:23:06 $
+ *  $Revision: 1.4 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -78,6 +78,9 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _highPFMETThreshold = parameters.getParameter<double>("HighPFMETThreshold");     // High MET threshold
   _lowPFMETThreshold = parameters.getParameter<double>("LowPFMETThreshold");       // Low MET threshold
 
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
   // DQStore stuff
   LogTrace(metname)<<"[PFMETAnalyzer] Parameters initialization";
   std::string DirName = "JetMET/MET/"+_source;
@@ -106,6 +109,13 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     }
   }
+}
+
+// ***********************************************************
+void PFMETAnalyzer::endJob() {
+
+  delete jetID;
+
 }
 
 // ***********************************************************
@@ -433,16 +443,16 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool bJetID=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){ 
-    jetID.calculate(iEvent, *cal);
-    if (_verbose) std::cout << jetID.n90Hits() << " " 
-			    << jetID.restrictedEMF() << " "
+    jetID->calculate(iEvent, *cal);
+    if (_verbose) std::cout << jetID->n90Hits() << " " 
+			    << jetID->restrictedEMF() << " "
 			    << cal->pt() << std::endl;
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID.n90Hits()<2)  bJetID=false; 
-      if (jetID.fHPD()>=0.98) bJetID=false; 
-      //if (jetID.restrictedEMF()<0.01) bJetID=false; 
+      if (jetID->n90Hits()<2)  bJetID=false; 
+      if (jetID->fHPD()>=0.98) bJetID=false; 
+      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
@@ -465,11 +475,11 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bJetIDTight=bJetID;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
-    jetID.calculate(iEvent, *cal);
+    jetID->calculate(iEvent, *cal);
     if (cal->pt()>25.){
       //
       // for all regions
-      if (jetID.fHPD()>=0.95) bJetIDTight=false; 
+      if (jetID->fHPD()>=0.95) bJetIDTight=false; 
       //
       // for 1.0<|eta|<1.75
       if (fabs(cal->eta())>=1.00 && fabs(cal->eta())<1.75){

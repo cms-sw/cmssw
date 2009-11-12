@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/08 14:33:02 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/11/09 18:29:02 $
+ *  $Revision: 1.30 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -110,7 +110,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
      theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
   }
   if(theTcMETAnalyzerFlag){
-     theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
+     theTcMETAnalyzer = new TcMETAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
   }
   if(thePfMETAnalyzerFlag){
      thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"));
@@ -472,8 +472,8 @@ void JetMETAnalyzer::endJob(void) {
   }
 
   if(theCaloMETAnalyzerFlag) theCaloMETAnalyzer->endJob();
-  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
-  //if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endJob();
+  if(theTcMETAnalyzerFlag)   theTcMETAnalyzer->endJob();
+  if(thePfMETAnalyzerFlag)   thePfMETAnalyzer->endJob();
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
 
 }

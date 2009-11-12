@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 10:14:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/08 13:47:03 $
+ *  $Revision: 1.1 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -105,6 +105,13 @@ void MuCorrMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     }
   }
+}
+
+// ***********************************************************
+void MuCorrMETAnalyzer::endJob() {
+
+  delete jetID;
+
 }
 
 // ***********************************************************

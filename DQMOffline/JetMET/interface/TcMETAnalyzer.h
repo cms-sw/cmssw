@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/10/08 10:08:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/08 13:45:20 $
+ *  $Revision: 1.1 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -48,6 +48,9 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+
+  /// Finish up a job
+  void endJob();
 
   // Book MonitorElements
   void bookMESet(std::string);

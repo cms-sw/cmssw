@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/10/08 10:08:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/28 13:23:07 $
+ *  $Revision: 1.3 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -52,6 +52,9 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+
+  /// Finish up a job
+  void endJob();
 
   // Book MonitorElements
   void bookMESet(std::string);
@@ -133,7 +136,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   double hfCalibFactor_;  //
 
   // JetID helper
-  reco::helper::JetIDHelper jetID;
+  reco::helper::JetIDHelper *jetID;
 
   //
   bool _allhist;
