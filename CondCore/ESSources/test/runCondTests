@@ -31,6 +31,24 @@ pool_retrieve_object_relational_mapping -c sqlite_file:blob.db -n mySiStripNoise
 cat mapping.xml
 echo "read back blob"
 cmsRun $runbasedir/src/CondCore/ESSources/test/python/load_ped_strip_cfg.py
+echo "test export iov"
+cmscond_export_iov    -s sqlite_file:blob.db -d sqlite_file:blob2.db -t noise_tag -l sqlite_file:log.db -D CondFormatsCalibration
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob2.db -t noise_tag -i noise_tag2 -l sqlite_file:log.db -D CondFormatsCalibration
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob3.db -t noise_tag -l sqlite_file:log.db -D CondFormatsCalibration
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob3.db -t noise_tag -i noise_tag2 -l sqlite_file:log.db -D CondFormatsCalibration
+cp blob.db blob4.db
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob4.db -t noise_tag -i noise_tag2 -l sqlite_file:log.db -D CondFormatsCalibration
+pool_retrieve_object_relational_mapping -c sqlite_file:blob2.db -n mySiStripNoises -d CondFormatsCalibration -o mapping2.xml
+cat mapping2.xml
+pool_retrieve_object_relational_mapping -c sqlite_file:blob3.db -n mySiStripNoises -d CondFormatsCalibration -o mapping3.xml
+cat mapping3.xml
+pool_retrieve_object_relational_mapping -c sqlite_file:blob4.db -n mySiStripNoises -d CondFormatsCalibration -o mapping4.xml
+cat mapping4.xml
+pool_list_object_relational_mapping -c sqlite_file:blob.db -cv -tm
+pool_list_object_relational_mapping -c sqlite_file:blob2.db -cv -tm
+pool_list_object_relational_mapping -c sqlite_file:blob3.db -cv -tm
+pool_list_object_relational_mapping -c sqlite_file:blob4.db -cv -tm
+
 
 echo "test Keyed sequence"
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
