@@ -44,6 +44,7 @@ cond::ExportIOVUtilities::ExportIOVUtilities():Utilities("cmscond_export_iov"){
   addOption<cond::Time_t>("beginTime","b","begin time (first since) (optional)");
   addOption<cond::Time_t>("endTime","e","end time (last till) (optional)");
   addOption<bool>("outOfOrder","o","allow out of order merge (optional, default=false)");
+  addOption<bool>("exportMapping","m","export the mapping as in the source db (optional, default=false)");
   addOption<std::string>("usertext","x","user text, to be included in usertext column (optional, must be enclosed in double quotes)");
   addSQLOutputOption();
 }
@@ -72,6 +73,7 @@ int cond::ExportIOVUtilities::execute(){
   bool doLog = hasOptionValue("logDB");
   bool debug=hasDebug();
   bool outOfOrder = hasOptionValue("outOfOrder");
+  bool exportMapping = hasOptionValue("exportMapping");
 
   std::string sourceiovtoken("");
   std::string destiovtoken("");
@@ -129,20 +131,6 @@ int cond::ExportIOVUtilities::execute(){
   iovmanager.loadDicts(sourceiovtoken);
   sourcedb.transaction().commit();
 
-  if (newIOV) {
-    // store payload mapping
-
-    sourcedb.transaction().start(true);
-    {
-      cond::DbScopedTransaction transaction(destdb);
-      transaction.start(false);
-      bool stored = destdb.importMapping( sourcedb, payloadContainer );
-      if(debug)
-        std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
-      transaction.commit();
-    }
-    sourcedb.transaction().commit();
-  }
 
   since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
@@ -181,25 +169,32 @@ int cond::ExportIOVUtilities::execute(){
   {
     cond::DbScopedTransaction transaction(destdb);
     transaction.start(false);
+    if (newIOV) {
+      // store payload mapping
+      if (exportMapping) {
+	bool stored = destdb.importMapping( sourcedb, payloadContainer );
+	if(debug)
+	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
+      }
+    }
+
+
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
                                                        sourceiovtoken,
                                                        destiovtoken,
                                                        since, till,
                                                        outOfOrder );
-    transaction.commit();
-  }
-  sourcedb.transaction().commit();
-  if (newIOV) {
-    cond::MetaData destMetadata(destdb);
-    cond::DbScopedTransaction transaction(destdb);
-    transaction.start(false);
-    destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
-    if(debug){
-      std::cout<<"dest iov token "<<destiovtoken<<std::endl;
-      std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
+    if (newIOV) {
+      cond::MetaData destMetadata(destdb);
+      destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
+      if(debug){
+	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
+	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
+      }
     }
     transaction.commit();
   }
+  sourcedb.transaction().commit();
 
   ::sleep(1);
 
