@@ -145,8 +145,6 @@ namespace edm {
 
     virtual void resolveProduct_(Group const& g, bool fillOnDemand) const;
 
-    virtual void resolveProvenance_(Group const& g) const;
-
   private:
 
     boost::scoped_ptr<EventAuxiliary> aux_;

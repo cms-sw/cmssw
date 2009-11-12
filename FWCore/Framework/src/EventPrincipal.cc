@@ -69,7 +69,7 @@ namespace edm {
     }
     // Fill in the product ID's in the groups.
     for (const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-      (*it)->setProductID(branchIDToProductID((*it)->branchDescription().branchID()));
+      (*it)->setProvenance(mapper, branchIDToProductID((*it)->branchDescription().branchID()));
     }
   }
 
@@ -141,11 +141,6 @@ namespace edm {
     g.putProduct(edp);
   }
 
-  void
-  EventPrincipal::resolveProvenance_(Group const& g) const {
-    g.resolveProvenance(branchMapperPtr());
-  }
-
   BranchID
   EventPrincipal::pidToBid(ProductID const& pid) const {
     if (!pid.isValid()) {
@@ -183,7 +178,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
+    SharedConstGroupPtr const& g = getGroup(bid, true, true);
     if (g.get() == 0) {
       boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
       *whyFailed

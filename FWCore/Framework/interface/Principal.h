@@ -156,11 +156,9 @@ namespace edm {
     //deprecated
     SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
-                                       bool resolveProv,
 				       bool fillOnDemand) const;
     SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
                                         bool resolveProd,
-                                        bool resolveProv,
                                         bool fillOnDemand) const;
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
@@ -171,8 +169,6 @@ namespace edm {
     // We do not change the *number* of groups through this call, and so
     // *this is const.
     void resolveProduct(Group const& g, bool fillOnDemand) const {resolveProduct_(g, fillOnDemand);}
-
-    void resolveProvenance(Group const& g) const {resolveProvenance_(g);}
 
     void swapBase(Principal&);
 
@@ -216,9 +212,6 @@ namespace edm {
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(Group const& g, bool fillOnDemand) const {}
-
-    // defaults to no-op unless overridden in derived class.
-    virtual void resolveProvenance_(Group const& g) const {}
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 

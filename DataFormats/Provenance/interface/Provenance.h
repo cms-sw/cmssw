@@ -38,10 +38,6 @@ namespace edm {
   public:
     Provenance(ConstBranchDescription const& p, ProductID const& pid);
     Provenance(BranchDescription const& p, ProductID const& pid);
-    Provenance(ConstBranchDescription const& p, ProductID const& pid,
-	boost::shared_ptr<ProductProvenance> productProvenance);
-    Provenance(BranchDescription const& p, ProductID const& pid,
-	boost::shared_ptr<ProductProvenance> productProvenance);
 
     ~Provenance() {}
 
@@ -50,24 +46,21 @@ namespace edm {
 
     BranchDescription const& branchDescription() const {return branchDescription_.me();}
     ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
-    ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
-    boost::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
+    bool productProvenanceResolved() const {
+      return productProvenancePtr_;
+    }
     boost::shared_ptr<ProductProvenance> resolve() const;
-    ProductProvenance const& productProvenance() const {
-      if (productProvenancePtr_.get()) return *productProvenancePtr_;
-      return *resolve();
+    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {
+      if (productProvenancePtr_) return productProvenancePtr_;
+      return resolve();
     }
-    ProductProvenance& productProvenance() {
-      if (productProvenancePtr_.get()) return *productProvenancePtr_;
-      return *resolve();
-    }
-    Parentage const& parentage() const {return productProvenance().parentage();}
+    Parentage const& parentage() const {return productProvenancePtr()->parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
     std::string const& moduleLabel() const {return product().moduleLabel();}
     std::string const& processName() const {return product().processName();}
-    ProductStatus const& productStatus() const {return productProvenance().productStatus();}
+    ProductStatus const& productStatus() const {return productProvenancePtr()->productStatus();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
     ProcessHistoryID processHistoryID() const {return store_->processHistoryID();}

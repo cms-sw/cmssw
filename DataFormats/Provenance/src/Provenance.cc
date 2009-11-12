@@ -22,22 +22,8 @@ namespace edm {
     productProvenancePtr_() {
   }
 
-  Provenance::Provenance(BranchDescription const& p, ProductID const& pid,
-      boost::shared_ptr<ProductProvenance> ppr) :
-    branchDescription_(p),
-    productID_(pid),
-    productProvenancePtr_(ppr)
-  { }
-
-  Provenance::Provenance(ConstBranchDescription const& p, ProductID const& pid,
-      boost::shared_ptr<ProductProvenance> ppr) :
-    branchDescription_(p),
-    productID_(pid),
-    productProvenancePtr_(ppr)
-  { }
-
   boost::shared_ptr<ProductProvenance>
-  Provenance::resolve () const {
+  Provenance::resolve() const {
     if (productProvenancePtr_.get() == 0) {
       productProvenancePtr_ = store_->branchIDToProvenance(branchDescription_.branchID());
     }
@@ -110,7 +96,7 @@ namespace edm {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
     product().write(os);
-    productProvenance().write(os);
+    productProvenancePtr()->write(os);
   }
 
 
