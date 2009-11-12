@@ -4,6 +4,7 @@
 #include "IORawData/RPCFileReader/interface/LinkDataXMLWriter.h"
 #include "IORawData/RPCFileReader/interface/LinkDataXMLReader.h"
 #include "IORawData/RPCFileReader/interface/RPCDigiFilter.h"
+#include "IORawData/RPCFileReader/plugins/RawToXML.h"
 
 // The RPCFileReader input source
 DEFINE_SEAL_MODULE();
@@ -11,3 +12,4 @@ DEFINE_ANOTHER_FWK_INPUT_SOURCE(RPCFileReader);
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(LinkDataXMLReader);
 DEFINE_ANOTHER_FWK_MODULE(LinkDataXMLWriter);
 DEFINE_ANOTHER_FWK_MODULE(RPCDigiFilter);
+DEFINE_ANOTHER_FWK_MODULE(RawToXML);
