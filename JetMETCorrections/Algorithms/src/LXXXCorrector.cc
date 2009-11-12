@@ -15,8 +15,24 @@
 //------------------------------------------------------------------------
 LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig) 
 {
-  std::string file    = "CondFormats/JetMETObjects/data/"+fConfig.getParameter<std::string>("tagName")+".txt";
-  std::string level   = fConfig.getParameter<std::string>("level"); 
+  std::string level  = fConfig.getParameter<std::string>("level");
+  std::string jecEra = fConfig.getUntrackedParameter<std::string>("jecEra",""); 
+  std::string algo   = fConfig.getUntrackedParameter<std::string>("algorithm","");
+  std::string file   = "CondFormats/JetMETObjects/data/";
+  if (jecEra=="")
+    {
+      if (algo=="")
+        file+= level+".txt";
+      else
+        file+= level+"_"+algo+".txt";
+    } 
+  else
+    {
+      if (algo=="")
+        file+= jecEra+"_"+level+".txt";
+      else
+        file+= jecEra+"_"+level+"_"+algo+".txt";
+    }
   std::string section = fConfig.getUntrackedParameter<std::string>("section","");  
   edm::FileInPath f1(file); 
   if (level == "L1Offset")
