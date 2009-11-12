@@ -29,11 +29,32 @@
      htemp->SetTitle("Tracker Hits");
      TAxis *axis = htemp->GetYaxis();
      axis->SetLimits(0., 115.);
+     TAxis *xaxis = htemp->GetXaxis();
+     xaxis->SetLimits(-320., 320.);
      MyCanvas_2->RedrawAxis();
      TLine l5=TLine(-30.0,r_min, 30.0,r_min);l5.SetLineColor(2);
      TLine l6=TLine(-30.0,r_max, 30.0,r_max);l6.SetLineColor(2);
      TLine l7=TLine(-30.0,r_min,-30.0,r_max);l7.SetLineColor(2);
      TLine l8=TLine( 30.0,r_min, 30.0,r_max);l8.SetLineColor(2);
      l5->Draw("Same"); l6->Draw("Same"); l7->Draw("Same"); l8->Draw("Same");
+
+     TLine l0= TLine(0.0, 0.0,   0.00, 115.0); l0.SetLineColor(2);
+     TLine n1= TLine(0.0, 0.0, 135.12, 115.0); n1.SetLineColor(2);
+     TLine l15=TLine(0.0, 0.0, 244.83, 115.0);l15.SetLineColor(2);
+     TLine n2= TLine(0.0, 0.0, 320.00, 88.20); n2.SetLineColor(2);
+     TLine l25=TLine(0.0, 0.0, 320.00, 52.92);l25.SetLineColor(2);
+     TLine m1= TLine(0.0, 0.0, -135.12, 115.0); m1.SetLineColor(2);
+     TLine m15=TLine(0.0, 0.0, -244.83, 115.0);m15.SetLineColor(2);
+     TLine m2= TLine(0.0, 0.0, -320.00, 88.20); m2.SetLineColor(2);
+     TLine m25=TLine(0.0, 0.0, -320.00, 52.92);m25.SetLineColor(2);
+     l0->Draw("Same");
+     n1->Draw("Same"); l15->Draw("Same"); n2->Draw("Same"); l25->Draw("Same");
+     m1->Draw("Same"); m15->Draw("Same"); m2->Draw("Same"); m25->Draw("Same");
+     TLatex l; l.SetTextAlign(12); l.SetTextSize(0.04); l.SetTextColor(1);
+     l.DrawLatex(5,110,"#eta = 0");
+     l.DrawLatex(137,110,"#eta = 1");
+     l.DrawLatex(247,110,"#eta = 1.5");
+     l.DrawLatex(285,90,"#eta = 2");
+     l.DrawLatex(285,43,"#eta = 2.5");
 }
 
