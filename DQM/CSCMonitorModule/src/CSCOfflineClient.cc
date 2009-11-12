@@ -85,9 +85,18 @@ void CSCOfflineClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
     }
   }
 
+}
+
+
+/**
+ * @brief  End of lumi section method
+ * @param  lumiSeg Luminosity block
+ * @param  iSetup Event setup
+ * @return 
+ */
+void CSCOfflineClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   config.incNEvents();
   dispatcher->updateFractionAndEfficiencyHistos();
-
 }
 
 /**
