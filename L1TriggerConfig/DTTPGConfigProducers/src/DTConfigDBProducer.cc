@@ -76,11 +76,24 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   m_debugSC = p.getParameter< bool        >("debugSC");
   m_debugLUTs = p.getParameter< bool        >("debugLUTs");
 
+  // DB specific requests
+  bool tracoLutsFromDB = p.getParameter< bool        >("TracoLutsFromDB");
+  bool useBtiAcceptParam = p.getParameter< bool        >("UseBtiAcceptParam");
+
   // initialize flags to check if data are present in OMDS 
   flagDBBti 	= false;
   flagDBTraco 	= false;
   flagDBTSS 	= false;
   flagDBTSM 	= false;
+
+  // set debug
+  edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
+  bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
+  m_manager->setDTTPGDebug(dttpgdebug);
+
+  // set specific DB requests
+  m_manager->setLutFromDB(tracoLutsFromDB);
+  m_manager->setUseAcceptParam(useBtiAcceptParam);
 }
 
 
@@ -130,10 +143,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 {
   using namespace edm::eventsetup;
   
-  // set debug
-  edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
-  bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
-  m_manager->setDTTPGDebug(dttpgdebug);
 
   // get DTCCBConfigRcd from DTConfigManagerRcd (they are dependent records)
   edm::ESHandle<DTCCBConfig> ccb_conf;
@@ -328,9 +337,9 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 				// BTI config constructor from strings	
 			        DTConfigBti bticonf(buffer);
 				bticonf.setDebug(m_debugBti);					
-
+                                 
 				m_manager->setDTConfigBti(DTBtiId(chambid,isl,ibti+1),bticonf);
-				
+			    	
 	      			if(m_debugDB)
 					cout << 	"Filling BTI config for chamber : wh " << chambid.wheel() << 
 		  					", st " << chambid.station() << 
@@ -350,7 +359,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 				int itraco = traco_brd * 4 + traco_chip + 1;
 				DTConfigTraco tracoconf(buffer);
 				tracoconf.setDebug(m_debugTraco);
-				       				
           			m_manager->setDTConfigTraco(DTTracoId(chambid,itraco),tracoconf);
 				
 				if(m_debugDB)
@@ -399,6 +407,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 	m_manager->setDTConfigTSPhi(chambid,tsphiconf);
 
  	// get configuration for TSTheta, SC and TU from .cfg
+        edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
 	edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
 
 	// TSTheta configuration from .cfg
@@ -457,8 +466,6 @@ void DTConfigDBProducer::configFromCfg(){
   DTConfigTSPhi tsphiconf(tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
   DTConfigTrigUnit trigunitconf(tups);
   
-  m_manager->setDTTPGDebug(dttpgdebug);
-
   for (int iwh=-2;iwh<=2;++iwh){
     for (int ist=1;ist<=4;++ist){
       for (int ise=1;ise<=12;++ise){
