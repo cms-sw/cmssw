@@ -8,7 +8,7 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: HLTOverallSummary.cc,v 1.1 2009/11/12 18:03:19 slaunwhj Exp $
+// $Id: HLTOverallSummary.cc,v 1.1 2009/11/13 12:41:24 slaunwhj Exp $
 //
 
 // system include files
@@ -270,13 +270,13 @@ HLTOverallSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   hltQualitySummaryWord->Fill(hltSummaryValue);
 
-  reportSummaryMapTH2->SetBinContents(reportSummaryMapTH2->GetBin(1,1), muonValue);
-  reportSummaryMapTH2->SetBinContents(reportSummaryMapTH2->GetBin(2,1), electronValue);
-  reportSummaryMapTH2->SetBinContents(reportSummaryMapTH2->GetBin(3,1), photonValue);
+  reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(1,1), muonValue);
+  reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(2,1), electronValue);
+  reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(3,1), photonValue);
 
-  CertificationSummaryMapTH2->SetBinContents(CertificationSummaryMapTH2->GetBin(1,1), muonValue);
-  CertificationSummaryMapTH2->SetBinContents(CertificationSummaryMapTH2->GetBin(2,1), electronValue);
-  CertificationSummaryMapTH2->SetBinContents(CertificationSummaryMapTH2->GetBin(3,1), photonValue);
+  CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(1,1), muonValue);
+  CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(2,1), electronValue);
+  CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(3,1), photonValue);
 
   
 
