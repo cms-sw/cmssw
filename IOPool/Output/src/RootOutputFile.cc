@@ -242,9 +242,9 @@ namespace edm {
         whyNotFastClonable &= ~(FileBlock::MaxLumisTooSmall);
         isWarning = false;
       }
-      if((whyNotFastClonable & FileBlock::RunNumberModified) != 0) {
-	message << "setRunNumber was specified.\n";
-        whyNotFastClonable &= ~(FileBlock::RunNumberModified);
+      if((whyNotFastClonable & FileBlock::ParallelProcesses) != 0) {
+	message << "parallel processing was specified.\n";
+        whyNotFastClonable &= ~(FileBlock::ParallelProcesses);
         isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::EventSelectionUsed) != 0) {
