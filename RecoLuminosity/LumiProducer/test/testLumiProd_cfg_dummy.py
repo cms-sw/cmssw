@@ -36,7 +36,7 @@ process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('testlumiroot')
+      tag = cms.string('nolumi')
     )
 )
 

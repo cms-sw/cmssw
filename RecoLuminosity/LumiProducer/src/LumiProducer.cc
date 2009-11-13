@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.12 2009/10/07 08:51:05 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.13 2009/11/09 19:48:06 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,6 +73,7 @@ private:
 //
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 {
+  std::cout<<"LumiProducer::LumiProducer"<<std::endl;
   // register your products
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
@@ -98,30 +99,26 @@ void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
   //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
   //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-    //record not found
-    //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
+  //record not found
+  //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
   //}
-  const lumi::LumiSectionData* myLumi=0;
-  edm::ESHandle<lumi::LumiSectionData> pLumi;
   try{
+    const lumi::LumiSectionData* myLumi=0;
+    edm::ESHandle<lumi::LumiSectionData> pLumi;
     iSetup.get<LumiSectionDataRcd>().get(pLumi);
     myLumi=pLumi.product();
-  }catch(const edm::eventsetup::NoRecordException<lumi::LumiSectionData>& er){
-    this->fillDefaultLumi(iLBlock);
-    return;
-  }
-  if(!myLumi){
-    //std::cout<<"no lumi data found"<<std::endl;
-    std::string errmsg("NULL lumi object ");
-    this->fillDefaultLumi(iLBlock);
-    return;
-    //throw cms::Exception(" LumiProducer",errmsg);
-  }
-  if(myLumi->lumiVersion()=="-99"){
-    this->fillDefaultLumi(iLBlock);
-    return;
-  }
-  /**summary information
+    if(!myLumi){
+      //std::cout<<"no lumi data found"<<std::endl;
+      std::string errmsg("NULL lumi object ");
+      this->fillDefaultLumi(iLBlock);
+      return;
+      //throw cms::Exception(" LumiProducer",errmsg);
+    }
+    if(myLumi->lumiVersion()=="-99"){
+      this->fillDefaultLumi(iLBlock);
+      return;
+    }
+    /**summary information
      if avginsdellumi is -99, it signals that there is no lumi data written for this lumisection,consequently, all the l1 and hlt values are empty. So users should check and decide what to do.
      
      avginsdellumi: average instante lumi value 
@@ -132,70 +129,73 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
      l1data
      hldata
   */
-  float avginsdellumi=myLumi->lumiAverage();
-  float avginsdellumierr=myLumi->lumiError();
-  short lumisecqual=myLumi->lumiquality();
-  float deadfrac=myLumi->deadFraction();
-  int lsnumber=myLumi->lumisectionID();
-  unsigned long long startOrbit=myLumi->startorbit();
-  std::vector<LumiSummary::L1> l1data;
-  for(lumi::TriggerIterator it=myLumi->trgBegin(); it!=myLumi->trgEnd(); ++it){
-    LumiSummary::L1 l;
-    l.triggersource=it->name;
-    l.ratecount=it->triggercount;
-    l.deadtimecount=it->deadtimecount;
-    l.scalingfactor=it->prescale;
-    l1data.push_back( l );
+    float avginsdellumi=myLumi->lumiAverage();
+    float avginsdellumierr=myLumi->lumiError();
+    short lumisecqual=myLumi->lumiquality();
+    float deadfrac=myLumi->deadFraction();
+    int lsnumber=myLumi->lumisectionID();
+    unsigned long long startOrbit=myLumi->startorbit();
+    std::vector<LumiSummary::L1> l1data;
+    for(lumi::TriggerIterator it=myLumi->trgBegin(); it!=myLumi->trgEnd(); ++it){
+      LumiSummary::L1 l;
+      l.triggersource=it->name;
+      l.ratecount=it->triggercount;
+      l.deadtimecount=it->deadtimecount;
+      l.scalingfactor=it->prescale;
+      l1data.push_back( l );
+    }
+    
+    std::vector<LumiSummary::HLT> hltdata;
+    for(lumi::HLTIterator it=myLumi->hltBegin(); it!=myLumi->hltEnd();++it){
+      LumiSummary::HLT h;
+      h.pathname=it->pathname;
+      h.ratecount=it->acceptcount;
+      h.inputcount=it->inputcount;
+      h.scalingfactor=it->prescale;
+      hltdata.push_back(h);
+    }
+    
+    LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata,startOrbit);
+    std::auto_ptr<LumiSummary> pOut1(pIn1);
+    iLBlock.put(pOut1);
+    
+    /**detailed information for all bunchcrossings
+       lumietsum: lumi et values 
+       lumietsumerr: lumi et errors
+       lumietsumqual: lumi et qualities
+       lumiocc, lumi occ values
+       lumioccerr, lumi occ errors
+       lumioccerr, lumi occ qualities
+    */
+    std::vector<lumi::BunchCrossingInfo> resultET;
+    myLumi->bunchCrossingInfo(lumi::ET,resultET);
+    std::vector<float> lumietsum;
+    std::vector<float> lumietsumerr;
+    std::vector<int> lumietsumqual;
+    for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultET.begin();
+	it!=resultET.end();++it){
+      lumietsum.push_back(it->lumivalue);
+      lumietsumerr.push_back(it->lumierr);
+      lumietsumqual.push_back(it->lumiquality);
+    }
+    std::vector<lumi::BunchCrossingInfo> resultOCCD1;
+    myLumi->bunchCrossingInfo(lumi::OCCD1,resultOCCD1);
+    std::vector<float> lumiocc;
+    std::vector<float> lumioccerr;
+    std::vector<int> lumioccqual;
+    for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultOCCD1.begin();
+	it!=resultOCCD1.end();++it){
+      lumiocc.push_back(it->lumivalue);
+      lumioccerr.push_back(it->lumierr);
+      lumioccqual.push_back(it->lumiquality);
+    }
+    LumiDetails* pIn2=new LumiDetails(lumietsum,lumietsumerr,lumietsumqual,lumiocc, lumioccerr,lumioccqual);
+    std::auto_ptr<LumiDetails> pOut2(pIn2);
+    iLBlock.put(pOut2);
+  }catch(const edm::eventsetup::NoRecordException<LumiSectionDataRcd>& er){
+    this->fillDefaultLumi(iLBlock);
+    return;
   }
-  
-  std::vector<LumiSummary::HLT> hltdata;
-  for(lumi::HLTIterator it=myLumi->hltBegin(); it!=myLumi->hltEnd();++it){
-    LumiSummary::HLT h;
-    h.pathname=it->pathname;
-    h.ratecount=it->acceptcount;
-    h.inputcount=it->inputcount;
-    h.scalingfactor=it->prescale;
-    hltdata.push_back(h);
-  }
-
-  LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata,startOrbit);
-  std::auto_ptr<LumiSummary> pOut1(pIn1);
-  iLBlock.put(pOut1);
-  
-  /**detailed information for all bunchcrossings
-     lumietsum: lumi et values 
-     lumietsumerr: lumi et errors
-     lumietsumqual: lumi et qualities
-
-     lumiocc, lumi occ values
-     lumioccerr, lumi occ errors
-     lumioccerr, lumi occ qualities
-  */
-  std::vector<lumi::BunchCrossingInfo> resultET;
-  myLumi->bunchCrossingInfo(lumi::ET,resultET);
-  std::vector<float> lumietsum;
-  std::vector<float> lumietsumerr;
-  std::vector<int> lumietsumqual;
-  for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultET.begin();
-      it!=resultET.end();++it){
-    lumietsum.push_back(it->lumivalue);
-    lumietsumerr.push_back(it->lumierr);
-    lumietsumqual.push_back(it->lumiquality);
-  }
-  std::vector<lumi::BunchCrossingInfo> resultOCCD1;
-  myLumi->bunchCrossingInfo(lumi::OCCD1,resultOCCD1);
-  std::vector<float> lumiocc;
-  std::vector<float> lumioccerr;
-  std::vector<int> lumioccqual;
-  for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultOCCD1.begin();
-      it!=resultOCCD1.end();++it){
-    lumiocc.push_back(it->lumivalue);
-    lumioccerr.push_back(it->lumierr);
-    lumioccqual.push_back(it->lumiquality);
-  }
-  LumiDetails* pIn2=new LumiDetails(lumietsum,lumietsumerr,lumietsumqual,lumiocc, lumioccerr,lumioccqual);
-  std::auto_ptr<LumiDetails> pOut2(pIn2);
-  iLBlock.put(pOut2);
 }
 
 DEFINE_FWK_MODULE(LumiProducer);
