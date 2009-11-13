@@ -78,17 +78,23 @@ string Tm::str() const
     return "";
   }
 
-  // Create a temporary dummy object that is to the GMT time of this.
-  // This is to avoid the "one hour shift" related to the Summer
-  // time and the m_tm.tm_isdst value -
-  // see https://hypernews.cern.ch/HyperNews/CMS/get/ecalDB/66.html
-  // - and to guarantie that the output is always in UTC
+  /** 
+   *   \brief "One hour shif" fix
+   *   Create a temporary dummy object that is in GMT and use it 
+   *   to generate the output. This is to avoid the "one hour 
+   *   shift" related to the Summer time and the value of 
+   *   m_tm.tm_isdst, see [1].  It guaranties that the output
+   *   is always in GMT / UTC.
+   *   [1] https://hypernews.cern.ch/HyperNews/CMS/get/ecalDB/66.html
+   */
   Tm dummy_Tm;
   dummy_Tm.setToGMTime(this->microsTime()/1000000);
   struct tm dummy_tm = dummy_Tm.c_tm();
    
   char timebuf[20] = "";
-//   strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &m_tm);
+  /*
+  strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &m_tm);
+  */
   strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &dummy_tm);
   return string(timebuf);
 }
