@@ -25,6 +25,13 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/METReco/interface/CSCHaloData.h"
+#include "DataFormats/METReco/interface/EcalHaloData.h"
+#include "DataFormats/METReco/interface/HcalHaloData.h"
+#include "DataFormats/METReco/interface/GlobalHaloData.h"
+#include "DataFormats/METReco/interface/PhiWedge.h"
+#include "DataFormats/METReco/interface/BeamHaloSummary.h"
+
 #include <vector>
 
 namespace {
@@ -89,5 +96,31 @@ namespace {
     edm::reftobase::RefHolder<reco::PFMETRef> dummy35;
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
+
+
+    reco::PhiWedge x1;  
+    edm::Wrapper<reco::PhiWedge> w1;
+    std::vector<reco::PhiWedge> v1;
+    std::vector<reco::PhiWedge>::iterator it1;
+
+    reco::EcalHaloData x2;
+    edm::Wrapper<reco::EcalHaloData> w2;
+
+    reco::HcalHaloData x3;
+    edm::Wrapper<reco::HcalHaloData> w3;
+    
+    reco::CSCHaloData x4;
+    edm::Wrapper<reco::CSCHaloData> w4;
+
+    reco::GlobalHaloData x5;
+    edm::Wrapper<reco::GlobalHaloData> w5;
+
+    reco::BeamHaloSummary x6;
+    edm::Wrapper<reco::BeamHaloSummary> w6;
+
+    std::vector<Point3DBase<float,GlobalTag> > x7;
+    edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > > w8;
+
+
   };
 }
