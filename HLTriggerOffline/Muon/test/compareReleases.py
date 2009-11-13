@@ -99,7 +99,7 @@ def main():
                     plot_name = "%s%s_%s" % ("gen", "TurnOn1", filter)
                     make_efficiency_plot(files, plot_name, path,
                                          efficiencies, me_values)
-    if file_type == "pdf": mergeOutput(files)
+    if file_type == "pdf": merge_pdf_output(files)
 
 
 
@@ -312,7 +312,7 @@ def plot(hists, hist_name, hist_title,
 
 
 
-def mergeOutput(files):
+def merge_pdf_output(files):
     os.system("gs -q -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -dAutoRotatePages=/All  -sOutputFile=merged.pdf [0-9][0-9][0-9].pdf")
     if len(files) == 1:
         pdfname = "%s.pdf" % filename(files[0])
