@@ -357,7 +357,7 @@ def new__ModuleSequenceType_isModified(self):
 cms._ModuleSequenceType.isModified = new__ModuleSequenceType_isModified
 
 def new__ModuleSequenceType_copy(self):
-    returnValue =_ModuleSequenceType.__new__(type(self))
+    returnValue = cms._ModuleSequenceType.__new__(type(self))
     returnValue.__init__(self._seq)
     returnValue._isModified = self._isModified
     returnValue._modifications = deepcopy(self._modifications)
