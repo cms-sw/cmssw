@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/07/27 07:40:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/08 14:33:01 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -80,9 +80,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 /*   edm::InputTag theCaloMETNoHFCollectionLabel; */
 /*   edm::InputTag theCaloMETHOCollectionLabel; */
 /*   edm::InputTag theCaloMETNoHFHOCollectionLabel; */
-  edm::InputTag theTcMETCollectionLabel;
-  edm::InputTag thePfMETCollectionLabel;
-  edm::InputTag theJetCollectionForHTMHTLabel;
+/*   edm::InputTag theTcMETCollectionLabel; */
+/*   edm::InputTag thePfMETCollectionLabel; */
+/*   edm::InputTag theJetCollectionForHTMHTLabel; */
   edm::InputTag theTriggerResultsLabel;
   //
 

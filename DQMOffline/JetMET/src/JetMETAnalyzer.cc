@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/09 18:29:02 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/11/12 17:30:00 $
+ *  $Revision: 1.31 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -110,7 +110,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
      theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
   }
   if(theTcMETAnalyzerFlag){
-     theTcMETAnalyzer = new TcMETAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
+     theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
   }
   if(thePfMETAnalyzerFlag){
      thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"));
@@ -240,7 +240,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
   }
   //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginRun(iRun, iSetup);
-  //if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginRun(iRun, iSetup);
+  if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginRun(iRun, iSetup);
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginRun(iRun, iSetup);
 
 }
@@ -260,6 +260,9 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
+  if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endRun(iRun, iSetup, dbe);
+  //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endRun(iRun, iSetup, dbe);
 
 }
 
@@ -471,8 +474,14 @@ void JetMETAnalyzer::endJob(void) {
     dbe->save(outputFileName);
   }
 
-  if(theCaloMETAnalyzerFlag) theCaloMETAnalyzer->endJob();
-  if(theTcMETAnalyzerFlag)   theTcMETAnalyzer->endJob();
+  if(theCaloMETAnalyzerFlag){
+    theCaloMETAnalyzer->endJob();
+    theCaloMETNoHFAnalyzer->endJob();
+    theCaloMETHOAnalyzer->endJob();
+    theCaloMETNoHFHOAnalyzer->endJob();
+  }
+  if(theCaloMETAnalyzerFlag) 
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
   if(thePfMETAnalyzerFlag)   thePfMETAnalyzer->endJob();
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
 
