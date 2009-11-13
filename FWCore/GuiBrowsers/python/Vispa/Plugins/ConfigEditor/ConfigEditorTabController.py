@@ -118,7 +118,6 @@ class ConfigEditorTabController(BrowserTabController):
         self.plugin().application().showPluginToolBar(self._configToolBar)
         self._editorAction.setVisible(not self.tab().editorSplitter())
         if self.tab().editorSplitter():
-            self._importAction.setVisible(self.dataAccessor().process()==None)
             self._applyPatToolAction.setVisible(self.dataAccessor().process()!=None)
         self.tab().mainWindow().application().showZoomToolBar()
 
@@ -279,7 +278,7 @@ class ConfigEditorTabController(BrowserTabController):
         
         text_file = open(filename, "w")
         text_file.write(self.toolDataAccessor().topLevelObjects()[0].dumpPython()[1])
-        text_file.write(self.dataAccessor().process().dumpHistory())
+        text_file.write(self.dataAccessor().process().dumpHistory(False))
         text_file.close()
         return True
 
@@ -307,7 +306,7 @@ class ConfigEditorTabController(BrowserTabController):
         self.tab().createEditor()
         self.tab().verticalSplitter().setSizes(self._originalSizes)
 
-        self._importAction = self.plugin().application().createAction('&Import PAT configuration...', self.importButtonClicked, "F2")
+        self._importAction = self.plugin().application().createAction('&Import configuration...', self.importButtonClicked, "F2")
         self._configMenu.addAction(self._importAction)
         self._configToolBar.addAction(self._importAction)
         self._applyPatToolAction = self.plugin().application().createAction('&Apply PAT tool...', self.applyButtonClicked, "F3")

@@ -640,7 +640,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             generalPaintMode = DecayObject.PAINT_MODE_NO_DECORATIONS
         
         if self.dataObjectsCount() > 50:
-            painter.setRenderHint(0)
+            painter.setRenderHint(QPainter.RenderHint())
             
         for object in reversed(self.dataObjects()):
             if isinstance(object, DecayLine):

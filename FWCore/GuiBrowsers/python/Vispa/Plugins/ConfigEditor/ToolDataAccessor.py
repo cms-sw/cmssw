@@ -11,6 +11,7 @@ from PyQt4.QtCore import QCoreApplication
 from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
+import FWCore.ParameterSet.Config as cms
 import FWCore.GuiBrowsers.ParameterSet_patch
 from FWCore.GuiBrowsers.ConfigToolBase import ConfigToolBase
 from FWCore.GuiBrowsers.editorTools import UserCodeTool
@@ -52,7 +53,7 @@ class ImportTool(ConfigToolBase):
             dump += "sys.path.append(os.path.abspath(os.path.expandvars('"+patTestDir+"')))\n"
         if self._parameters['filename'].value!="":
             dump += "from "+os.path.splitext(os.path.basename(self._parameters['filename'].value))[0]+" import *\n"
-            dump += "process.resetHistory()\n"
+            dump += "if hasattr(process,'resetHistory'): process.resetHistory()\n"
         for command in self._importCommands:
             dump += command + "\n"
         return ("",dump)
@@ -127,7 +128,11 @@ class ToolDataAccessor(BasicDataAccessor):
             if isinstance(code,tuple):
                 code=code[1]
             properties+=[("MultilineString","code",code.strip("\n"),None,True)]
-        properties+=[self._property(value.name,value.value,value.description,value.type) for key,value in object.getParameters().items()]
+        if not isinstance(object,(ImportTool,UserCodeTool,ApplyTool)):
+            properties+=[("String","comment",object._comment,None,False)]
+        if len(object.getParameters().items())>0:
+            properties += [("Category", "Parameters", "")]
+            properties+=[self._property(value.name,value.value,value.description,value.type) for key,value in object.getParameters().items()]
         return properties
     
     def setProperty(self, object, name, value):
@@ -148,13 +153,23 @@ class ToolDataAccessor(BasicDataAccessor):
                 exec "value="+value
             except:
                 pass
-        try:
-            object.setParameter(name,value)
-            return True
-        except Exception, e:
-            QCoreApplication.instance().errorMessage("Cannot set parameter "+name+" (see logfile for details):\n"+str(e))
-            logging.debug(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
-            return False
+        if name!="comment":
+            try:
+                object.setParameter(name,value)
+                return True
+            except Exception, e:
+                QCoreApplication.instance().errorMessage("Cannot set parameter "+name+" (see logfile for details):\n"+str(e))
+                logging.debug(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
+                return False
+        elif name=="comment":
+            try:
+                print "comment"
+                object.setComment(value)
+                return True
+            except Exception, e:
+                QCoreApplication.instance().errorMessage("Cannot set comment (see logfile for details):\n"+str(e))
+                logging.debug(__name__ + ": setComment: Cannot set comment "+exception_traceback())
+                return False  
 
     def setConfigDataAccessor(self,accessor):
         self._configDataAccessor=accessor

@@ -23,6 +23,8 @@ class BoxDecayView(WidgetView):
     """
     
     LABEL = "&Box Decay View"
+    UPDATE_EVERY = 20
+    NO_SORTING_ABOVE = 10000
     
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
@@ -36,6 +38,7 @@ class BoxDecayView(WidgetView):
         self._subViews = []
         self._leftMargin = ConnectableWidget.LEFT_MARGIN
         self._topMargin = ConnectableWidget.TOP_MARGIN
+        self._updateCounter=0
 
         self.setPalette(QPalette(Qt.black, Qt.white))
 
@@ -184,8 +187,11 @@ class BoxDecayView(WidgetView):
         """
         for w1 in widgetParent.children():
             # Process application event loop in order to accept user input during time consuming drawing operation
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 return None
@@ -196,7 +202,6 @@ class BoxDecayView(WidgetView):
                     if w2:
                         connectionWidget = self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
                         connectionWidget.stackUnder(w2)
-                        #connectionWidget.show()
         return True
 
     def createBoxesRecursive(self, operationId, objects, widgetParent, positionName="0"):
@@ -205,9 +210,6 @@ class BoxDecayView(WidgetView):
         All children of this object are created recursively.
         """
         #logging.debug(__name__ + ": createBoxesRecursive")
-        # Process application event loop in order to accept user input during time consuming drawing operation
-        if not Application.NO_PROCESS_EVENTS:
-            QCoreApplication.instance().processEvents()
         # Abort drawing if operationId out of date
         if operationId != self._operationId:
             return None
@@ -237,7 +239,7 @@ class BoxDecayView(WidgetView):
                 return None
             otherChildren=thread.returnValue()
 
-        i = 0
+        i = 1
         for object in otherChildren:
             # create box
             text = ""
@@ -261,8 +263,11 @@ class BoxDecayView(WidgetView):
 
         for widget in widgetParent.children():
             # Process application event loop in order to accept user input during time consuming drawing operation
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 return None
@@ -277,9 +282,6 @@ class BoxDecayView(WidgetView):
                 return None
         
         for widget in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 return None
@@ -301,6 +303,8 @@ class BoxDecayView(WidgetView):
         #logging.debug(__name__ + ": _sortByRelations")
         if len(objects) == 0:
             return ()
+        if len(objects) > self.NO_SORTING_ABOVE:
+            return objects
         unsortedObjects = list(objects)
         sortedObjects = []
         for object in reversed(list(objects)):

@@ -1,9 +1,8 @@
 import logging
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QObject
 
-from Vispa.Main.Filetype import *
+from Vispa.Main.Filetype import Filetype
     
 class VispaPlugin(QObject):
     """Interface for all VispaPlugins"""

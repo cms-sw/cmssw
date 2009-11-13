@@ -1,8 +1,8 @@
 import logging
 import sys
 
-from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout
+from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
+from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
@@ -770,9 +770,13 @@ class StringProperty(TextEditWithButtonProperty):
 
     def setMultiline(self,multiline):
         TextEditWithButtonProperty.setMultiline(self,multiline)
+        icon = QIcon("resources/editor.svg")
+        dummyicon = QIcon()
         if multiline:
-            self._button.setText("e")
+            self._button.setIcon(icon)
+            self._button.setIconSize(QSize(15,15))
         else:
+            self._button.setIcon(dummyicon)
             self._button.setText("v")
 
     def buttonClicked(self):

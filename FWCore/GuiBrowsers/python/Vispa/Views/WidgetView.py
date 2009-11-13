@@ -104,7 +104,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
     def addWidget(self, widget, object=None, positionName=0):
         """ Add widget to the view and map it to an id.
         """
-        if positionName in self._widgetDict.keys():
+        if str(positionName)+"("+self.dataAccessor().label(object)+")" in self._widgetDict.keys():
             positionName = 0
             while positionName in self._widgetDict.keys():
                 positionName += 1

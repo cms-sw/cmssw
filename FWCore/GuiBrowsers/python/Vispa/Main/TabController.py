@@ -2,8 +2,8 @@ import os.path
 import logging
 import math
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QObject
+from PyQt4.QtGui import QMessageBox,QInputDialog
 
 class TabController(QObject):
     """ Base class for all tab controllers.
@@ -142,7 +142,7 @@ class TabController(QObject):
         if previous != self._fileModifiedFlag:
             self.updateLabel()
             if self.tab().mainWindow():
-                self.tab().mainWindow().application().updateMenuAndWindowTitle()
+                self.plugin().application().updateMenuAndWindowTitle()
             else:
                 logging.info(self.__class__.__name__ +": setModified() - Cannot tell application the modification state: There is no application associated with the tab.")
         
@@ -208,7 +208,7 @@ class TabController(QObject):
             if self._filename:
                 filename = self._filename
             else:
-                return self.tab().mainWindow().application().saveFileAsDialog()
+                return self.plugin().application().saveFileAsDialog()
         
         statusMessage = self.plugin().application().startWorking("Saving file " + filename)
 
@@ -223,8 +223,8 @@ class TabController(QObject):
             self.setFilename(filename)
             self.setModified(False)
             self.updateLabel()
-            self.tab().mainWindow().application().addRecentFile(filename)
-            self.tab().mainWindow().application().updateMenuAndWindowTitle()
+            self.plugin().application().addRecentFile(filename)
+            self.plugin().application().updateMenuAndWindowTitle()
             self.plugin().application().stopWorking(statusMessage)
             return True
         else:
@@ -235,13 +235,6 @@ class TabController(QObject):
 
     def allowClose(self):
         if self.isEditable() and self.isModified():
-#            msgBox = QMessageBox(self.tab().mainWindow())
-#            msgBox.setParent(self.tab().mainWindow(), Qt.Sheet)     # Qt.Sheet: Indicates that the widget is a Macintosh sheet.
-#            msgBox.setText("The document has been modified.")
-#            msgBox.setInformativeText("Do you want to save your changes?")
-#            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-#            msgBox.setDefaultButton(QMessageBox.Save)
-#            ret = msgBox.exec_()
             messageResult = self.plugin().application().showMessageBox("The document has been modified.",
                                                                        "Do you want to save your changes?",
                                                                        QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,

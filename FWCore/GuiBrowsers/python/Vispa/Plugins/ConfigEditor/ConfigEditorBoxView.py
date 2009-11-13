@@ -1,7 +1,8 @@
 import logging
 
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt,QCoreApplication
 
+from Vispa.Main.Application import Application
 from Vispa.Views.BoxDecayView import BoxDecayView
 from Vispa.Gui.PortConnection import PortConnection,PointToPointConnection
 
@@ -18,6 +19,7 @@ class ConfigEditorBoxView(BoxDecayView):
         self._colors = [Qt.red, Qt.green, Qt.blue, Qt.cyan, Qt.magenta]
         self._colorIndex = 0
         PointToPointConnection.CONNECTION_THICKNESS=3
+        self.setSortBeforeArranging(False)
 
     def connections(self):
         return self._connections
@@ -32,6 +34,13 @@ class ConfigEditorBoxView(BoxDecayView):
         
     def createConnections(self, operationId, widgetParent):
         for connection in self._connections:
+            # Process application event loop in order to accept user input during time consuming drawing operation
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
+            # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 return None
             w1 = self.widgetByObject(connection[0])
@@ -39,16 +48,12 @@ class ConfigEditorBoxView(BoxDecayView):
             if w1 and w2:
                 col = - 1
                 if widgetParent:
-                    children = [w for w in widgetParent.children()
-                                if isinstance(w, PortConnection)]
-                else:
-                    children = []
-                for w in children:
-                    if w.sourcePort() == self.createSourcePort(w1, connection[1]):
-                        col = w.colorIndex
-                for w in children:
-                    if w.sinkPort().parent() == w1:
-                        col = w.colorIndex
+                    for w in widgetParent.children():
+                        if isinstance(w, PortConnection):
+                            if w.sourcePort() == self.createSourcePort(w1, connection[1]):
+                                col = w.colorIndex
+                            if w.sinkPort().parent() == w1:
+                                col = w.colorIndex
                 if col < 0:
                     self._colorIndex += 1
                     if self._colorIndex >= len(self._colors):
