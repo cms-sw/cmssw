@@ -1,4 +1,4 @@
-# $Id: qcdLowPtDQM_cfi.py,v 1.1 2009/11/06 17:52:02 loizides Exp $
+# $Id: qcdLowPtDQM_cfi.py,v 1.2 2009/11/11 16:01:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -42,20 +42,20 @@ siPixelRecHits = cms.EDFilter("SiPixelRecHitConverter",
     VerboseLevel = cms.untracked.int32(0),
 )
 
-myRecoSequence = cms.Sequence(siPixelDigis*
-                              siPixelClusters*
+myRecoSequence = cms.Sequence(
+#                              siPixelDigis*
+#                              siPixelClusters*
                               siPixelRecHits)
 #                            pixel3ProtoTracks *
 #                            pixel3Vertices *
 #                            pixelVertexFromClusters)
 
 siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
-#siPixelDigis.InputLabel = cms.InputTag("source")
 
 QcdLowPtDQM = cms.EDAnalyzer("QcdLowPtDQM",
-    hltTrgNames  = cms.untracked.vstring('HLT_MinBiasHcal',
-                                         'HLT_MinBiasEcal',
-                                         'HLT_MinBiasPixel'),
+#    hltTrgNames  = cms.untracked.vstring('HLT_MinBiasHcal',
+#                                         'HLT_MinBiasEcal',
+#                                         'HLT_MinBiasPixel'),
     verbose      = cms.untracked.int32(0),                                     
 )
 

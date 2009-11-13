@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.1 2009/11/06 16:28:16 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.2 2009/11/11 16:01:24 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -15,6 +15,8 @@
 class DQMStore;
 class MonitorElement;
 class TrackerGeometry;
+class TH1F;
+class TH2F;
 class TH3F;
 
 class QcdLowPtDQM : public edm::EDAnalyzer 
@@ -65,9 +67,9 @@ class QcdLowPtDQM : public edm::EDAnalyzer
         double xs()  const { return xs_; }
         double ys()  const { return ys_; }
         double zs()  const { return zs_; }
-        void   set(int n, double z, double zs) { n_=n; z_ =z; zs_ = zs; }
+        void   set(int n, double z, double zs) { n_= n; z_ = z; zs_ = zs; }
         void   set(int n, double x,double y,double z, double xs,double ys,double zs) 
-                 { n_=n; x_ =x; xs_ = xs; y_ =y; ys_ = ys; z_ =z; zs_ = zs; }
+                 { n_= n; x_ = x; xs_ = xs; y_ = y; ys_ = ys; z_ = z; zs_ = zs; }
       protected:    
         double x_,y_,z_,xs_,ys_,zs_;
         int n_;
@@ -90,12 +92,22 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     void                          book1D(std::vector<MonitorElement*> &mes, 
                                          const std::string &name, const std::string &title, 
                                          int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
+    void                          book1D(std::vector<TH1F*> &mes, 
+                                         const std::string &name, const std::string &title, 
+                                         int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
+    void                          book2D(std::vector<TH2F*> &mes, 
+                                         const std::string &name, const std::string &title, 
+                                         int nx, double x1, double x2, int ny, double y1, double y2,
+                                         bool sumw2=1, bool sbox=1);
     void                          book2D(std::vector<MonitorElement*> &mes, 
                                          const std::string &name, const std::string &title, 
                                          int nx, double x1, double x2, int ny, double y1, double y2,
                                          bool sumw2=1, bool sbox=1);
     void                          bookHistos();
+    void                          fill1D(std::vector<TH1F*> &hs, double val, double w=1.);
     void                          fill1D(std::vector<MonitorElement*> &mes, double val, double w=1.);
+    void                          fill2D(std::vector<TH2F*> &hs, 
+                                         double valx, double valy, double w=1.);
     void                          fill2D(std::vector<MonitorElement*> &mes, 
                                          double valx, double valy, double w=1.);
     void                          fill3D(std::vector<TH3F*> &hs, int gbin, double w=1.);
@@ -103,7 +115,9 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                              const std::vector<TH3F*> &NrawTracklets,
                                              const std::vector<TH3F*> &NsigTracklets,
                                              const std::vector<TH3F*> &NbkgTracklets,
+                                             const std::vector<TH1F*> &NEvsPerEta,
                                              std::vector<MonitorElement*> &hdNdEtaRawTrkl,
+                                             std::vector<MonitorElement*> &hdNdEtaSubTrkl,
                                              std::vector<MonitorElement*> &hdNdEtaTrklets);
     void                          fillHltBits(const edm::Event &iEvent);
     void                          fillPixels(const edm::Event &iEvent);
@@ -119,9 +133,11 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                                 std::vector<TH3F*> &NrawTracklets,
                                                 std::vector<TH3F*> &NsigTracklets,
                                                 std::vector<TH3F*> &NbkgTracklets,
+                                                std::vector<TH1F*> &eventpereta,
                                                 std::vector<MonitorElement*> &detaphi,
                                                 std::vector<MonitorElement*> &deta,
-                                                std::vector<MonitorElement*> &dphi);
+                                                std::vector<MonitorElement*> &dphi,
+                                                std::vector<MonitorElement*> &etavsvtx);
     template <typename TYPE>
     void                          getProduct(const std::string name, edm::Handle<TYPE> &prod,
                                              const edm::Event &event) const;    
@@ -143,6 +159,8 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<std::string>      hltTrgNames_;        //HLT trigger name(s)
     std::string                   pixelName_;          //pixel reconstructed hits name
     double                        ZVCut_;              //Z vertex cut for selected events
+    double                        ZVEtaRegion_;        //Z vertex eta region
+    double                        ZVVtxRegion_;        //Z vertex vtx region
     double                        dPhiVc_;             //dPhi vertex cut for tracklet based vertex
     double                        dZVc_;               //dZ vertex cut for tracklet based vertex
     int                           verbose_;            //verbosity (0=debug,1=warn,2=error,3=throw)
@@ -162,14 +180,17 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<TH3F*>            NrawTracklets12_;    //number raw tracklets 12
     std::vector<TH3F*>            NsigTracklets12_;    //number of signal tracklets 12
     std::vector<TH3F*>            NbkgTracklets12_;    //number of background tracklets 12
+    std::vector<TH1F*>            hEvtCountsPerEta12_; //event count per tracklet12 eta-vtx region
     TH3F                         *AlphaTracklets12_;   //alpha correction for tracklets 12
     std::vector<TH3F*>            NrawTracklets13_;    //number raw tracklets 13
     std::vector<TH3F*>            NsigTracklets13_;    //number of signal tracklets 13
     std::vector<TH3F*>            NbkgTracklets13_;    //number of background tracklets 13
+    std::vector<TH1F*>            hEvtCountsPerEta13_; //event count per tracklet13 eta-vtx region 
     TH3F                         *AlphaTracklets13_;   //alpha correction for tracklets 13
     std::vector<TH3F*>            NrawTracklets23_;    //number raw tracklets 23
     std::vector<TH3F*>            NsigTracklets23_;    //number of signal tracklets 23
     std::vector<TH3F*>            NbkgTracklets23_;    //number of background tracklets 23
+    std::vector<TH1F*>            hEvtCountsPerEta23_; //event count per tracklet23 eta-vtx region
     TH3F                         *AlphaTracklets23_;   //alpha correction for tracklets 23
     const TrackerGeometry        *tgeo_;               //tracker geometry
     DQMStore                     *theDbe_;             //dqm store
@@ -186,6 +207,9 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hTrkVtxZ12_;         //tracklet z vertex 12 histograms
     std::vector<MonitorElement*>  hTrkVtxZ13_;         //tracklet z vertex 13 histograms
     std::vector<MonitorElement*>  hTrkVtxZ23_;         //tracklet z vertex 23 histograms
+    std::vector<MonitorElement*>  hRawTrkEtaVtxZ12_;   //tracklet eta vs z vertex 12 histograms
+    std::vector<MonitorElement*>  hRawTrkEtaVtxZ13_;   //tracklet eta vs z vertex 13 histograms
+    std::vector<MonitorElement*>  hRawTrkEtaVtxZ23_;   //tracklet eta vs z vertex 23 histograms
     std::vector<MonitorElement*>  hTrkRawDetaDphi12_;  //tracklet12 Deta/Dphi distribution
     std::vector<MonitorElement*>  hTrkRawDeta12_;      //tracklet12 Deta distribution
     std::vector<MonitorElement*>  hTrkRawDphi12_;      //tracklet12 Dphi distribution
@@ -195,11 +219,17 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hTrkRawDetaDphi23_;  //tracklet23 Deta/Dphi distribution
     std::vector<MonitorElement*>  hTrkRawDeta23_;      //tracklet23 Deta distribution
     std::vector<MonitorElement*>  hTrkRawDphi23_;      //tracklet23 Dphi distribution
+    std::vector<MonitorElement*>  hdNdEtaRawTrklTestA_;   //dN/dEta from raw tracklets 12 
+    std::vector<MonitorElement*>  hdNdEtaRawTrklTestB_;   //dN/dEta from raw tracklets 12 
+    std::vector<MonitorElement*>  hdNdEtaRawTrklTestC_;   //dN/dEta from raw tracklets 12 
     std::vector<MonitorElement*>  hdNdEtaRawTrkl12_;   //dN/dEta from raw tracklets 12 
+    std::vector<MonitorElement*>  hdNdEtaSubTrkl12_;   //dN/dEta from beta tracklets 12 
     std::vector<MonitorElement*>  hdNdEtaTrklets12_;   //dN/dEta corrected by alpha 12
     std::vector<MonitorElement*>  hdNdEtaRawTrkl13_;   //dN/dEta from raw tracklets 13
+    std::vector<MonitorElement*>  hdNdEtaSubTrkl13_;   //dN/dEta from beta tracklets 13
     std::vector<MonitorElement*>  hdNdEtaTrklets13_;   //dN/dEta corrected by alpha 13
     std::vector<MonitorElement*>  hdNdEtaRawTrkl23_;   //dN/dEta from raw tracklets 23
+    std::vector<MonitorElement*>  hdNdEtaSubTrkl23_;   //dN/dEta from beta tracklets 23
     std::vector<MonitorElement*>  hdNdEtaTrklets23_;   //dN/dEta corrected by alpha 23
 };
 
