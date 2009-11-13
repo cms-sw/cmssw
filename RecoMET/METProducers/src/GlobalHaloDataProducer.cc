@@ -46,7 +46,7 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Get CaloGeometry
   edm::ESHandle<CaloGeometry> TheCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
-  
+
   //Get CaloTowers
   edm::Handle<edm::View<Candidate> > TheCaloTowers;
   iEvent.getByLabel(IT_CaloTower,TheCaloTowers);
@@ -58,11 +58,11 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Get CSCSegments
   edm::Handle<CSCSegmentCollection> TheCSCSegments;
   iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
-  
+
   //Get CSCRecHits
   edm::Handle<CSCRecHit2DCollection> TheCSCRecHits;
   iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits );
-  
+
   //Get CSCHaloData
   edm::Handle<reco::CSCHaloData> TheCSCHaloData;
   iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData );
@@ -80,7 +80,7 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   GlobalAlgo.SetEcalMatchingRadius(EcalMinMatchingRadius,EcalMaxMatchingRadius);
   GlobalAlgo.SetHcalMatchingRadius(HcalMinMatchingRadius,HcalMaxMatchingRadius);
   GlobalAlgo.SetCaloTowerEtThreshold(CaloTowerEtThreshold);
-  GlobalHaloData GlobalData;
+  //  GlobalHaloData GlobalData;
 
   if(TheCaloGeometry.isValid() && TheCaloMET.isValid() && TheCaloTowers.isValid() && TheCSCHaloData.isValid() && TheEcalHaloData.isValid() && TheHcalHaloData.isValid() )
     {
