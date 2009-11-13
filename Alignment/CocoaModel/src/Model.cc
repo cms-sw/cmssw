@@ -1474,7 +1474,7 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
   for( mite = theMeasurementVector.begin(); mite != theMeasurementVector.end(); mite++) {
     Measurement* meas = (*mite);
     //improve this
-    if( meas->name().find( querystr ) != -1 ) {
+    if( meas->name().find( querystr ) != std::string::npos ) {
       measToCopy.push_back( meas );
     }
   }

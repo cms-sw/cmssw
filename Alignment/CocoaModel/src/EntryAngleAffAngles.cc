@@ -145,6 +145,8 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
 
   return diff;
   */
+
+  return 0.; // to avoid warning
 }
 
 

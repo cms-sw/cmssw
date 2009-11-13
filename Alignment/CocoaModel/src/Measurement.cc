@@ -12,7 +12,7 @@
 #include <iomanip> 
 #include <iostream>
 #include <iterator>
-#include <algo.h>
+//#include <algo.h>
 #include <cstdlib>
 
 #include "Alignment/CocoaModel/interface/Entry.h"
@@ -280,7 +280,7 @@ void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam)
     std::cout << "@@ Filling coordinate " << coor << std::endl ;
   }
   
-  ParameterMgr* parmgr = ParameterMgr::getInstance();
+  //  ParameterMgr* parmgr = ParameterMgr::getInstance();
 
   //---------- check coor value
   if (coor >= theDim ) {

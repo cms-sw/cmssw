@@ -26,6 +26,7 @@ ALIbool ALIRmDataFromFile::setAngle( const ALIstring& coord, const ALIdouble val
     std::cerr << "!!! FATAL ERROR ALIRmDataFromFile::setAngle. Coordinate must be X, Y or Z, it ii " << coord << std::endl;
     std::exception();
   }
+  return false;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -55,7 +56,7 @@ ALIbool ALIRmDataFromFile::setAngleZ( const ALIdouble val )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void ALIRmDataFromFile::constructRm()
 {
-  if( theDataFilled.find("X") == -1 ||  theDataFilled.find("Y") == -1 ||  theDataFilled.find("Z") == -1 ){
+  if( theDataFilled.find("X") == std::string::npos ||  theDataFilled.find("Y") == std::string::npos ||  theDataFilled.find("Z") == std::string::npos ){
     std::cerr << "!!!  ALIRmDataFromFile::constructRm. FATAL ERROR: building rm while one angle is missing: " << theDataFilled << std::endl;
   } else {
     theRm = CLHEP::HepRotation();

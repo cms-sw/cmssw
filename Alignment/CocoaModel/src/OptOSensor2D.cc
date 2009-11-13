@@ -45,7 +45,7 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     OptOList().end() - vocite != 1) {
     std::cerr << " last and not only one Optical Object should be 'sensor2D' (unless you specify (:T)raverse) " <<
     OptOList().end() - vocite << " size " <<OptOList().size() << std::endl;
-    DumpBadOrderOptOs();          
+    DumpBadOrderOptOs(); 
     }*/
 
   //---------- Get simulated value 
@@ -395,7 +395,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIdouble* OptOSensor2D::convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point)
 {
-  ALIdouble interslc[2];
+  ALIdouble* interslc = new ALIdouble(2);
   
   //----- X value
   CLHEP::HepRotation rmt = rmGlob();

@@ -144,7 +144,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
 	}
       }
       tt++;
-    }while(*tt != '\0' & stemp.length()!=0);
+    }while(*tt != '\0' && stemp.length()!=0);
     ALIstring stempt (ltemp);
     if(stempt.length() == 0) NoWords = 0;
     

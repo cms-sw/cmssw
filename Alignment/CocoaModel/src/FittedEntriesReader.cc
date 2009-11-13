@@ -72,8 +72,7 @@ ALIbool FittedEntriesReader::readFittedEntriesFromFile()
     opto->setGlobalRMOriginalOriginal( dff.rm() );
   }
     
-
-
+  return true; // to avoid warning
   
 }
 

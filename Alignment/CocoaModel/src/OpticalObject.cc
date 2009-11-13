@@ -2193,7 +2193,7 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
   }
   //  for( ite = Model::getOpticalAlignments().begin(); ite != Model::getOpticalAlignments().end(); ite++ ){
   int siz=  Model::getOpticalAlignments().size();
-  for(uint ii = 0; ii < siz; ii++ ){
+  for(int ii = 0; ii < siz; ii++ ){
     //    std::cout << " OpticalObject::getComponentOptOsFromOptAlignInfo name " <<  (*ite).name_ << std::endl;
  //   std::cout << " OpticalObject::getComponentOptOsFromOptAlignInfo " <<  (*ite).parentName_ << " =? " << theName << std::endl;
     //    std::cout <<  " OpticalObject::getComponentOptOsFromOptAlignInfo name " <<  ii << std::endl;
