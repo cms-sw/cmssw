@@ -1,4 +1,4 @@
-// $Id: Notifier.h,v 1.6 2009/07/13 14:51:13 mommsen Exp $
+// $Id: Notifier.h,v 1.8 2009/09/29 07:54:01 mommsen Exp $
 /// @file: Notifier.h 
 
 #ifndef StorageManager_Notifier_h
@@ -16,8 +16,8 @@ namespace stor
     Interface class for handling RCMS notifier
     
     $Author: mommsen $
-    $Revision: 1.6 $
-    $Date: 2009/07/13 14:51:13 $
+    $Revision: 1.8 $
+    $Date: 2009/09/29 07:54:01 $
   */
 
   class Notifier
@@ -39,29 +39,6 @@ namespace stor
        Report new state to RCMS
     */
     virtual void reportNewState( const std::string& stateName ) = 0;
-
-    /**
-       Access logger
-    */
-    virtual Logger& getLogger() = 0;
-
-    /**
-       Send message to sentinel
-    */
-    virtual void tellSentinel( const std::string& level, xcept::Exception& e ) = 0;
-
-    /**
-       Write message to a file in /tmp (last resort when everything
-       else fails)
-    */
-    void localDebug( const std::string& message ) const;
-
-  protected:
-
-    /**
-       Storage manager instance number
-    */
-    virtual unsigned long instanceNumber() const = 0;
 
   };
 

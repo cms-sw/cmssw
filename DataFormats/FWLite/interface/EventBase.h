@@ -51,6 +51,7 @@ namespace fwlite
                                   const char*, 
                                   const char*, 
                                   void*) const = 0;
+         using edm::EventBase::getByLabel;
 
          virtual const std::string getBranchNameFor (const std::type_info&, 
                                                      const char*, 

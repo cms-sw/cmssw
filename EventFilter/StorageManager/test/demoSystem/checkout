@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: $
+# $Id: checkout,v 1.1 2009/09/15 09:59:36 dshpakov Exp $
 
 ###########################################################################
 #### Checkout StorageManager and associated packages and apply patches ####

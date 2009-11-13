@@ -28,7 +28,7 @@ namespace cscdqm {
 #ifdef DQMMT
   typedef boost::recursive_mutex::scoped_lock LockType;
 #else
-  typedef struct LockType {
+  struct LockType {
     bool locked;
     LockType(bool locked_) : locked(locked_) { }
     void unlock() { locked = false;  }

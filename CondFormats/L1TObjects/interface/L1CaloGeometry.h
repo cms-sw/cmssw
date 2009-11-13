@@ -16,11 +16,12 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:29 EDT 2006
-// $Id: L1CaloGeometry.h,v 1.2 2009/07/02 01:45:47 wsun Exp $
+// $Id: L1CaloGeometry.h,v 1.3 2009/07/17 17:37:10 wsun Exp $
 //
 
 // system include files
 #include <vector>
+#include <ostream>
 
 // user include files
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -149,5 +150,6 @@ class L1CaloGeometry
       double m_gctHtSumPhiOffset ;
 };
 
+std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj ) ;
 
 #endif

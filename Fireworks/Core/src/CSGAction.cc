@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.24 2009/08/27 18:54:09 amraktad Exp $
+// $Id: CSGAction.cc,v 1.21 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -18,14 +18,12 @@
 #include <KeySymbols.h>
 #include <TGMenu.h>
 #include "TGLabel.h"
-#include "TGSlider.h"
 
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/CSGConnector.h"
-#include "Fireworks/Core/interface/CSGActionSupervisor.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
-#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 //
 // constants, enums and typedefs
@@ -38,23 +36,20 @@
 //
 // constructors and destructor
 //
-CSGAction::CSGAction(CSGActionSupervisor *supervisor, const char *name) :
-   m_connector(0)
- {
+CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_enabled = kTRUE;
    m_globalEnabled = kTRUE;
-   m_supervisor = supervisor;
+   m_frame = frame;
    m_name = name;
    m_toolTip = "";
    m_menu = 0;
    m_toolBar = 0;
    m_tools = 0;
-   m_connector = new CSGConnector(this, m_supervisor);
-   m_supervisor->addToActionMap(this);
-   m_entry = m_supervisor->getListOfActions().size();
+   m_connector = new CSGConnector(this, m_frame);
+   m_frame->addToActionMap(this);
+   m_entry = m_frame->getListOfActions().size();
    m_keycode = 0;
    m_modcode = 0;
-   m_windowID = -1;
 }
 // CSGAction::CSGAction(const CSGAction& rhs)
 // {
@@ -111,32 +106,22 @@ void CSGAction::setToolTip(const std::string& tip) {
    for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
        it != itEnd;
        ++it) {
-      (*it)->SetToolTipText(tip.c_str(), m_supervisor->getToolTipDelay());
+      (*it)->SetToolTipText(tip.c_str(), m_frame->getToolTipDelay());
    }
    if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
    TGTextButton* textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
-   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(textButton, l);
    TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(textButton);
 }
 
-void CSGAction::createCheckButton(TGCompositeFrame* p, TGLayoutHints* l, Bool_t state, Int_t id, GContext_t norm, FontStruct_t font) {
-   TGCheckButton* checkButton = new TGCheckButton(p, m_name.c_str(), id, norm, font);
-   if (m_toolTip != "") checkButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
-   p->AddFrame(checkButton, l);
-
-   if (state)   checkButton->SetState(kButtonDown, false);
-   TQObject::Connect(checkButton, "Clicked()", "CSGAction", this, "activate()");
-   m_buttons.push_back(checkButton);
-}
-
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {
    TGPictureButton* picButton = new TGPictureButton(p, pic, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
@@ -153,17 +138,18 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    UInt_t option)
 {
    FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
    return picButton;
 }
 
-void CSGAction::createShortcut(UInt_t key, const char *mod, int windowID) {
+
+void CSGAction::createShortcut(UInt_t key, const char *mod) {
    Int_t keycode = gVirtualX->KeysymToKeycode((int)key);
-   m_windowID = windowID;
    Int_t modcode;
+
    TString scText;
    if (strcmp(mod, "CTRL") == 0) {
       modcode = kKeyControlMask;
@@ -181,10 +167,11 @@ void CSGAction::createShortcut(UInt_t key, const char *mod, int windowID) {
    scText += keycodeToString(keycode);
    m_scCombo = scText;
 
-   gVirtualX->GrabKey(m_windowID, keycode, modcode, kTRUE);
-   gVirtualX->GrabKey(m_windowID, keycode, modcode | kKeyMod2Mask, kTRUE);
-   gVirtualX->GrabKey(m_windowID, keycode, modcode | kKeyLockMask, kTRUE);
-   gVirtualX->GrabKey(m_windowID, keycode, modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
+   int id = m_frame->GetId();
+   gVirtualX->GrabKey(id, keycode, modcode, kTRUE);
+   gVirtualX->GrabKey(id, keycode, modcode | kKeyMod2Mask, kTRUE);
+   gVirtualX->GrabKey(id, keycode, modcode | kKeyLockMask, kTRUE);
+   gVirtualX->GrabKey(id, keycode, modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
 
    m_keycode = keycode;
    m_modcode = modcode;
@@ -198,9 +185,27 @@ void CSGAction::createMenuEntry(TGPopupMenu *menu) {
    if (m_keycode != 0) addSCToMenu();
 }
 
+void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
+   m_toolBar = toolbar;
+   m_tools = new ToolBarData_t();
+   m_tools->fPixmap = filename;
+   m_tools->fStayDown = kFALSE;
+   m_tools->fId = m_entry;
+   if(m_toolTip.size()) {m_tools->fTipText = m_toolTip.c_str();}
+   TGButton* newButton = toolbar->AddButton(m_frame,m_tools,5);
+   newButton->SetBackgroundColor(toolbar->GetBackground());
+   newButton->ChangeOptions(0);
+
+   int size = toolbar->GetList()->GetSize();
+   if (size == 1) {
+      // First button in tool bar, so connect the bar
+      TQObject::Connect(toolbar, "Clicked(Int_t)", "CSGConnector", m_connector, "handleToolBar(Int_t)");
+   }
+}
+
 void CSGAction::addSCToMenu() {
    Bool_t widthChanged = resizeMenuEntry();
-   if (widthChanged) m_supervisor->resizeMenu(m_menu);
+   if (widthChanged) m_frame->resizeMenu(m_menu);
 }
 
 Bool_t CSGAction::resizeMenuEntry() {
@@ -220,7 +225,7 @@ Bool_t CSGAction::resizeMenuEntry() {
       widthChanged = kFALSE;
       realName += " ";
    }
-   realName += "\t";
+   realName += "     ";
    realName += scText;
    TIter next(m_menu->GetListOfEntries());
    TGMenuEntry *current;
@@ -283,6 +288,7 @@ CSGAction::globalDisable()
    disableImp();
 }
 
+
 Bool_t CSGAction::isEnabled() const {
    return m_enabled && m_globalEnabled;
 }
@@ -298,10 +304,11 @@ void CSGAction::enableImp() {
 
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
       if (m_keycode != 0) {
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode, kTRUE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask, kTRUE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyLockMask, kTRUE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
+         int id = m_frame->GetId();
+         gVirtualX->GrabKey(id, m_keycode, m_modcode, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
       }
    }
 }
@@ -316,10 +323,11 @@ void CSGAction::disableImp() {
       }
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
       if (m_keycode != 0) {
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode, kFALSE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask, kFALSE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyLockMask, kFALSE);
-         gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kFALSE);
+         int id = m_frame->GetId();
+         gVirtualX->GrabKey(id, m_keycode, m_modcode, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kFALSE);
       }
    }
 }

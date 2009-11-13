@@ -127,16 +127,18 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   unsigned int nPartons = 4;
 
-  edm::Handle<std::vector<int> > match;
-  bool unvalidMatch = false;
+  std::vector<int> match;
+  bool invalidMatch = false;
   if(useOnlyMatch_) {
-    evt.getByLabel(match_, match);
+    edm::Handle<std::vector<std::vector<int> > > matchHandle;
+    evt.getByLabel(match_, matchHandle);
+    match = *(matchHandle->begin());
     // check if match is valid
-    if(match->size()!=nPartons) unvalidMatch=true;
+    if(match.size()!=nPartons) invalidMatch=true;
     else {
-      for(unsigned int idx=0; idx<jets->size(); ++idx) {
-	if(idx<0 || idx>=jets->size()) {
-	  unvalidMatch=true;
+      for(unsigned int idx=0; idx<match.size(); ++idx) {
+	if(match[idx]<0 || match[idx]>=(int)jets->size()) {
+	  invalidMatch=true;
 	  break;
 	}
       }
@@ -145,10 +147,10 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   // -----------------------------------------------------
   // skip events with no appropriate lepton candidate in
-  // or empty MET or less jets than partons or unvalid match
+  // or empty MET or less jets than partons or invalid match
   // -----------------------------------------------------
 
-  if( leps->empty() || mets->empty() || jets->size()<nPartons || unvalidMatch ) {
+  if( leps->empty() || mets->empty() || jets->size()<nPartons || invalidMatch ) {
     // the kinFit getters return empty objects here
     pPartonsHadP->push_back( fitter->fittedHadP()     );
     pPartonsHadQ->push_back( fitter->fittedHadQ()     );
@@ -196,7 +198,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   
   std::vector<int> combi;
   for(unsigned int i=0; i<nPartons; ++i) {
-    if(useOnlyMatch_) combi.push_back( (*match)[i] );
+    if(useOnlyMatch_) combi.push_back( match[i] );
     else combi.push_back(i);
   }
 

@@ -59,6 +59,8 @@
 <class name="std::pair<const uint32_t, EcalTPGFineGrainStripEE::Item>"/>
 <class name="EcalTPGFineGrainTowerEE"/>
 <class name="EcalTPGTowerStatus"/>
+<class name="std::map<uint32_t, uint16_t>"/>
+<class name="std::pair<const uint32_t, uint16_t>"/>
 <class name="EcalTPGGroups"/>
 <class name="EcalTPGLinearizationConst"/>
 <class name="EcalTPGLut"/>

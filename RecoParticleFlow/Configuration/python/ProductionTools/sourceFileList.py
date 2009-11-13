@@ -20,7 +20,7 @@ source = cms.Source(
 
 
 parser = OptionParser()
-parser.usage = "%prog <dir> <regexp> : format a set of root files matching a regexp in a directory, as an input to the PoolSource."
+parser.usage = "%prog <dir> <regexp> : format a set of root files matching a regexp in a directory, as an input to the PoolSource. \n\nExample (just try!):\nsourceFileList.py /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root'"
 
 
 (options,args) = parser.parse_args()

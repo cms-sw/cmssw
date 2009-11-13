@@ -1,9 +1,5 @@
 #include "SimG4CMS/Calo/interface/HFGflash.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -56,21 +52,11 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
 
   jCalorimeter = Gflash::kNULL;
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
 }
 
 HFGflash::~HFGflash() {
   if (theHistohf) delete theHistohf;
   if (theHelix) delete theHelix;
-  if (theRandGauss) delete theRandGauss;
   if (theGflashStep) delete theGflashStep;
 }
 
@@ -123,8 +109,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
   G4double sqrtPL = std::sqrt((1.0+rho)/2.0);
   G4double sqrtLE = std::sqrt((1.0-rho)/2.0);
 
-  G4double norm1 = theRandGauss->fire();
-  G4double norm2 = theRandGauss->fire();
+  G4double norm1 = G4RandGauss::shoot();
+  G4double norm2 = G4RandGauss::shoot();
   G4double tempTmax = fluctuatedTmax + sigmaTmax*(sqrtPL*norm1 + sqrtLE*norm2);
   G4double tempAlpha = fluctuatedAlpha + sigmaAlpha*(sqrtPL*norm1 - sqrtLE*norm2);
 

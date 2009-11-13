@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.16 2009/08/20 00:26:21 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.14 2009/08/12 22:03:23 chrjones Exp $
 //
 
 // system include files
@@ -42,20 +42,6 @@
 //
 // constants, enums and typedefs
 //
-struct FWCollectionSummaryWidgetConnectionHolder  {
-   std::vector<sigc::connection> m_connections;
-   
-   ~FWCollectionSummaryWidgetConnectionHolder() {
-      for_each(m_connections.begin(),m_connections.end(), boost::bind(&sigc::connection::disconnect,_1));
-   }
-   void push_back(const sigc::connection& iC) {
-      m_connections.push_back(iC);
-   }
-   void reserve(size_t iSize) {
-      m_connections.reserve(iSize);
-   }
-};
-
 
 //
 // static data member definitions
@@ -128,29 +114,21 @@ const TGPicture* filtered_over(bool iBackgroundIsBlack)
    return s;
 }
 
+/*
 static 
-const TGPicture* alert_over(bool iBackgroundIsBlack)
+const TGPicture* alert_over()
 {
-   if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-blackbg-over.png");
-      return s;
-   }
-   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-whitebg-over.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg-over.png");
    return s;
 }
 
 static 
-const TGPicture* alert(bool iBackgroundIsBlack)
+const TGPicture* alert()
 {
- 
-   if(iBackgroundIsBlack) {
-      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-blackbg.png");
-      return s;
-   }
-   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-whitebg.png");
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg.png");
    return s;
 }
-
+*/
 static 
 const TGPicture* unfiltered(bool iBackgroundIsBlack)
 {
@@ -266,8 +244,7 @@ m_indexForColor(-1),
 m_colorPopup(0),
 m_tableManager(0),
 m_tableWidget(0),
-m_backgroundIsWhite(false),
-m_connectionHolder( new FWCollectionSummaryWidgetConnectionHolder)
+m_backgroundIsWhite(false)
 {
    SetBackgroundColor(kWidgetColor);
    const unsigned int backgroundColor=kBlack;
@@ -332,10 +309,9 @@ m_connectionHolder( new FWCollectionSummaryWidgetConnectionHolder)
    m_infoButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"infoClicked()");
    m_infoButton->SetToolTipText("select collection and show data info");
 
-   m_connectionHolder->reserve(3);
-   m_connectionHolder->push_back(m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this)));
-   m_connectionHolder->push_back(m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this)));
-   m_connectionHolder->push_back(m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this)));
+   m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this));
+   m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
+   m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
    
    MapSubwindows();
    Layout();
@@ -359,7 +335,6 @@ FWCollectionSummaryWidget::~FWCollectionSummaryWidget()
    delete m_infoButton;
     */
    gClient->GetResourcePool()->GetGCPool()->FreeGC(m_graphicsContext->GetGC());
-   delete m_connectionHolder;
 }
 
 //
@@ -414,22 +389,14 @@ FWCollectionSummaryWidget::itemChanged()
    const TGPicture* picture = 0;
    const TGPicture* down = 0;
    const TGPicture* disabled=0;
-   if(m_collection->hasError()) {
-      picture = alert(!m_backgroundIsWhite);
-      down = alert_over(!m_backgroundIsWhite);
-      disabled = alert_over(!m_backgroundIsWhite);
-      m_stateButton->SetToolTipText(m_collection->errorMessage().c_str());
+   if(m_collection->filterExpression().size()) {
+      picture = filtered(!m_backgroundIsWhite);
+      down = filtered_over(!m_backgroundIsWhite);
+      disabled = filtered_over(!m_backgroundIsWhite);
    } else {
-      if(m_collection->filterExpression().size()) {
-         picture = filtered(!m_backgroundIsWhite);
-         down = filtered_over(!m_backgroundIsWhite);
-         disabled = filtered_over(!m_backgroundIsWhite);
-      } else {
-         picture = unfiltered(!m_backgroundIsWhite);
-         down = unfiltered_over(!m_backgroundIsWhite);
-         disabled = unfiltered_over(!m_backgroundIsWhite);
-      }
-      m_stateButton->SetToolTipText("select collection and show filter");
+      picture = unfiltered(!m_backgroundIsWhite);
+      down = unfiltered_over(!m_backgroundIsWhite);
+      disabled = unfiltered_over(!m_backgroundIsWhite);
    }
    m_stateButton->swapIcons(picture,down,disabled);
 }

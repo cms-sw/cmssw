@@ -331,7 +331,10 @@ Int_t TKinFitter::fit() {
   do {
 
     // Reset status to "RUNNING"
-    _status = 10;
+    // (if it was not aborted already due to singular covariance matrix)
+    if ( _status != -10 ) {
+      _status = 10;
+    }
 
     // Calculate measured matrices
     calcB();
@@ -504,7 +507,8 @@ Bool_t TKinFitter::calcV() {
   try {
     _Vinv.Invert();
   } catch (cms::Exception& e) {
-    edm::LogInfo ("KinFitter") << "Failed to invert covariance matrix V.";
+    edm::LogInfo ("KinFitter") << "Failed to invert covariance matrix V. Fit will be aborted.";
+    _status = -10;
   }
 
   return true;

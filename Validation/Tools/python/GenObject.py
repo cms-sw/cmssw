@@ -7,47 +7,12 @@ from FWCore.Python.Enumerate import Enumerate
 import re
 import os
 import copy
+import ROOT
 import ConfigParser
 import PhysicsTools.PythonAnalysis as cmstools
 import pprint
 import random
 import sys
-import inspect
-import ROOT
-ROOT.gROOT.SetBatch()
-
-# regex for reducing 'warn()' filenames
-filenameRE = re.compile (r'.+/Validation/Tools/')
-# Whether warn() should print anythingg
-quietWarn = False
-
-def setQuietWarn (quiet = True):
-    global quietWarn
-    quietWarn = quiet
-
-def warn (*args, **kwargs):
-    """print out warning with line number and rest of arguments"""
-    if quietWarn: return
-    frame = inspect.stack()[1]
-    filename = frame[1]
-    lineNum  = frame[2]
-    #print filename, filenameRE
-    filename = filenameRE.sub ('', filename)
-    #print "after '%s'" % filename
-    blankLines = kwargs.get('blankLines', 0)
-    if blankLines:
-        print '\n' * blankLines
-    spaces = kwargs.get('spaces', 0)
-    if spaces:
-        print ' ' * spaces,
-    if len (args):
-        print "%s (%s): " % (filename, lineNum),
-        for arg in args:
-            print arg,
-        print
-    else:
-        print "%s (%s):" % (filename, lineNum)
-
 
 class GenObject (object):
     """Infrastruture to define general objects and their attributes."""
@@ -56,17 +21,13 @@ class GenObject (object):
     ## Static Member Data ##
     ########################
 
-    types              = Enumerate ("float int long string", "type")
+    types              = Enumerate ("float int string", "type")
     _objFunc           = Enumerate ("obj func", "of")
     _cppType           = dict ( {types.float  : 'double',
                                  types.int    : 'int',
-                                 types.long   : 'long',
                                  types.string : 'std::string' } )
-    _basicSet          = set( [types.float, types.int, types.float,
-                               types.string] )
     _defaultValue      = dict ( {types.float  : 0.,
                                  types.int    : 0,
-                                 types.long   : 0L,
                                  types.string : '""' } )
     _objsDict          = {} # info about GenObjects
     _equivDict         = {} # hold info about 'equivalent' muons
@@ -77,31 +38,24 @@ class GenObject (object):
     _rootClassDict     = {} # holds classes (not instances) associated with
                             # a given GenObject
     _kitchenSinkDict   = {} # dictionary that holds everything else...
-    _runEventList      = []
-    _runEventListDone  = False
     
     ####################
     ## Compile Regexs ##
     ####################
-    _nonSpacesRE      = re.compile (r'\S')
-    _colonRE          = re.compile (r'\s*:\s*')
-    _singleColonRE    = re.compile (r'(.+?):(.+)')
-    _doubleColonRE    = re.compile (r'(.+?):(.+?):(.+)')
-    _doublePercentRE  = re.compile (r'%%')    
-    _parenRE          = re.compile (r'(.+)\((.*)\)')
-    _spacesRE         = re.compile (r'\s+')
-    _dotRE            = re.compile (r'\s*\.\s*')
-    _commaRE          = re.compile (r'\s*,\s*')
-    _singleQuoteRE    = re.compile (r'^\'(.+)\'$')
-    _doubleQuoteRE    = re.compile (r'^\"(.+)\"$')
-    _bracketRE        = re.compile (r'\[\s*(.+?)\s*\]')
-    _commentRE        = re.compile (r'#.+$')
-    _aliasRE          = re.compile (r'alias=(\S+)',   re.IGNORECASE)
-    _singletonRE      = re.compile (r'singleton',     re.IGNORECASE)
-    _typeRE           = re.compile (r'type=(\S+)',    re.IGNORECASE)
-    _defaultRE        = re.compile (r'default=(\S+)', re.IGNORECASE)
-    _precRE           = re.compile (r'prec=(\S+)',    re.IGNORECASE)
-    _formRE           = re.compile (r'form=(\S+)',    re.IGNORECASE)
+    _singleColonRE = re.compile (r'(.+?):(.+)')
+    _doubleColonRE = re.compile (r'(.+?):(.+?):(.+)')
+    _parenRE       = re.compile (r'(.+)\((.*)\)')
+    _spacesRE      = re.compile (r'\s+')
+    _dotRE         = re.compile (r'\s*\.\s*')
+    _commaRE       = re.compile (r'\s*,\s*')
+    _singleQuoteRE = re.compile (r'^\'(.+)\'$')
+    _doubleQuoteRE = re.compile (r'^\"(.+)\"$')
+    _aliasRE       = re.compile (r'alias=(\S+)',   re.IGNORECASE)
+    _singletonRE   = re.compile (r'singleton',     re.IGNORECASE)
+    _typeRE        = re.compile (r'type=(\S+)',    re.IGNORECASE)
+    _defaultRE     = re.compile (r'default=(\S+)', re.IGNORECASE)
+    _precRE        = re.compile (r'prec=(\S+)',    re.IGNORECASE)
+    _formRE        = re.compile (r'form=(\S+)',    re.IGNORECASE)
     
     #############################
     ## Static Member Functions ##
@@ -175,42 +129,6 @@ class GenObject (object):
 
 
     @staticmethod
-    def rootDiffClassName (objName):
-        """Returns the name of the equivalent Root diff object"""
-        return "goDiff_" + objName
-
-
-    @staticmethod
-    def rootDiffContClassName (objName):
-        """Returns the name of the equivalent Root diff container
-        object"""
-        return "goDiffCont_" + objName
-
-
-    @staticmethod
-    def _setupClassHeader (className, noColon = False):
-        """Returns a string with the class header for a class
-        'classname'"""
-        retval  = "\nclass %s\n{\n  public:\n" % className
-        retval += "      typedef std::vector< %s > Collection;\n\n" % className
-        # constructor
-        if noColon:
-            retval += "      %s()" % className
-        else:
-            retval += "      %s() :\n" % className
-        return retval
-
-
-    @staticmethod
-    def _finishClassHeader (className, datadec):
-        """Returns a stringg with the end of a class definition"""
-        retval  = "\n      {}\n" + datadec + "};\n"
-        retval += "#ifdef __MAKECINT__\n#pragma link C++ class " + \
-                 "vector< %s >+;\n#endif\n\n" % className
-        return retval
-
-
-    @staticmethod
     def _createCppClass (objName):
         """Returns a string containing the '.C' file necessary to
         generate a shared object library with dictionary."""
@@ -218,13 +136,15 @@ class GenObject (object):
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
             raise RuntimeError, "Failed to create C++ class."
-        className   = GenObject.rootClassName (objName)
-        diffName    = GenObject.rootDiffClassName (objName)
-        contName    = GenObject.rootDiffContClassName (objName)
-        goClass     = GenObject._setupClassHeader (className)
-        diffClass   = GenObject._setupClassHeader (diffName)
-        contClass   = GenObject._setupClassHeader (contName, noColon = True)
-        goDataDec   = diffDataDec = contDataDec = "\n      // data members\n"
+        classname = GenObject.rootClassName (objName)
+        retval = "#include <string>\n#include <vector>\n" \
+                 + "using namespace std;\n\nclass %s\n" % classname
+        retval = retval + "{\n  public:\n"
+        retval = retval + "      typedef std::vector< %s > Collection;\n\n" \
+                 % classname
+        # constructor
+        retval = retval + "      %s() :\n" % classname
+        datadec = "\n      // data members\n"
         first = True
         for key in sorted( GenObject._objsDict[objName].keys() ):
             if key.startswith ("_"): continue
@@ -234,51 +154,15 @@ class GenObject (object):
             if first:
                 first = False
             else:
-                goClass   += ",\n"
-                diffClass += ',\n'
-            goClass   += "         %s (%s)" % (key, default)
-            goDataDec += "      %s %s;\n" % (cppType, key)
-            # is this a basic class?
-            goType = varTypeList['varType']
-            if goType in GenObject._basicSet:
-                # basic type
-                diffClass   += "         %s (%s),\n" % (key, default)
-                diffDataDec += "      %s %s;\n" % (cppType, key)
-                if goType == GenObject.types.string:
-                    # string
-                    otherKey = 'other_' + key
-                    diffClass   += "         %s (%s)" % (otherKey, default)
-                    diffDataDec += "      %s %s;\n" % (cppType, otherKey)
-                else:
-                    # float, long, or int
-                    deltaKey = 'delta_' + key
-                    diffClass   += "         %s (%s)" % (deltaKey, default)
-                    diffDataDec += "      %s %s;\n" % (cppType, deltaKey)
-            else:
-                raise RuntimeError, "Shouldn't be here yet."
+                retval = retval + ",\n"
+            retval = retval + "         %s (%s)" % (key, default)
             # definition
-        # do contClass
-        if GenObject.isSingleton (objName):
-            # singleton
-            contDataDec += "         %s diff\n" % diffName
-            contDataDec += "      void setDiff (const %s &rhs)" % diffName + \
-                           " { diff = rhs; }\n"
-        else:
-            # vector of objects
-            contDataDec += "      void clear() {firstOnly.clear(); secondOnly.clear(); diff.clear(); }\n"
-            contDataDec += "      %s::Collection firstOnly;\n"  % className
-            contDataDec += "      %s::Collection secondOnly;\n" % className
-            contDataDec += "      %s::Collection diff;\n"       % diffName
-            # give me a way to clear them all at once
-        # Finish off the classes
-        goClass   += GenObject._finishClassHeader (className, goDataDec)
-        diffClass += GenObject._finishClassHeader (diffName,  diffDataDec)
-        contClass += GenObject._finishClassHeader (contName,  contDataDec)
-        if objName == 'runevent':
-            # we don't want a diff class for this
-            diffClass = ''
-            contClass = ''
-        return goClass + diffClass + contClass
+            datadec  = datadec + "      %s %s;\n" % (cppType, key)
+        retval = retval + "\n      {}\n" + datadec
+        retval = retval + "};\n";
+        retval = retval + "#ifdef __MAKECINT__\n#pragma link C++ class " + \
+                 "vector< %s >+;\n#endif\n\n" % classname
+        return retval
 
 
     @staticmethod
@@ -293,8 +177,7 @@ class GenObject (object):
         # Mark it as done
         GenObject._kitchenSinkDict[key] = True
         # Generate source code
-        sourceCode = "#include <string>\n#include <vector>\n" \
-                     + "using namespace std;\n"
+        sourceCode = ""
         for objClassName in sorted( GenObject._objsDict.keys() ):
             sourceCode = sourceCode + GenObject._createCppClass (objClassName)
         GenObjectRootLibDir = "genobjectrootlibs"
@@ -357,222 +240,6 @@ class GenObject (object):
     @staticmethod
     def loadConfigFile (configFile):
         """Loads configuration file"""
-        objName    = ""
-        tupleName  = ""
-        tofillName = ""
-        modeEnum   = Enumerate ("none define tofill ntuple", "mode")
-        mode       = modeEnum.none
-        try:
-            config = open (configFile, 'r')
-        except:
-            raise RuntimeError, "Can't open configuration '%s'" % configFile
-        for lineNum, fullLine in enumerate (config):
-            fullLine = fullLine.strip()
-            # get rid of comments
-            line = GenObject._commentRE.sub ('', fullLine)
-            # Is there anything on this line?
-            if not GenObject._nonSpacesRE.search (line):
-                # Nothing to see here folks.  Keep moving....
-                continue
-            bracketMatch = GenObject._bracketRE.search (line)
-            if bracketMatch:
-                # a header
-                section = bracketMatch.group(1)
-                words = GenObject._spacesRE.split( section )
-                if len (words) < 1:
-                    raise RuntimeError, "Don't understand line '%s'(%d)" \
-                          % (fullLine, lineNum)
-                # The first word is the object name
-                # reset the rest of the list
-                objName = words[0]
-                words = words[1:]
-                colonWords = GenObject._colonRE.split (objName)
-                if len (colonWords) > 3:
-                    raise RuntimeError, "Don't understand line '%s'(%d)" \
-                          % (fullLine, lineNum)
-                if len (colonWords) == 1:
-                    ##########################
-                    ## GenObject Definition ##
-                    ##########################
-                    mode = modeEnum.define
-                    for word in words:
-                        if GenObject._singletonRE.match (word):
-                            #GenObject._singletonSet.add (objName)
-                            objsDict = GenObject._objsDict.\
-                                       setdefault (objName, {})
-                            objsDict['_singleton'] = True
-                            continue
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s' : %s" \
-                              % (word, section, mode)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
-                elif len (colonWords) == 2:
-                    #######################
-                    ## Ntuple Definition ##
-                    #######################
-                    mode = modeEnum.ntuple
-                    ntupleDict = GenObject._ntupleDict.\
-                                setdefault (colonWords[0], {})
-                    ntupleDict['_tree'] = colonWords[1]
-                else:
-                    ##########################
-                    ## Object 'tofill' Info ##
-                    ##########################
-                    mode = modeEnum.tofill
-                    objName    = colonWords [0]
-                    tupleName  = colonWords [1]
-                    tofillName = colonWords [2]
-                    ntupleDict = GenObject._ntupleDict.\
-                                 setdefault (tupleName, {})
-                    ntupleDict[objName] = tofillName
-                    for word in words:
-                        aliasMatch = GenObject._aliasRE.search (word)
-                        if aliasMatch:
-                            myTuple = (tofillName, aliasMatch.group (1))
-                            ntupleDict.setdefault ('_alias', {}).\
-                                                  setdefault (tofillName,
-                                                              aliasMatch.\
-                                                              group(1))
-                            continue
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s' : %s" \
-                              % (word, section, mode)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
-            else:
-                # a variable
-                if modeEnum.none == mode:
-                    # Poorly formatted 'section' tag
-                    print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, \
-                          "Config file parser error '%s'(%d)" \
-                          % (fullLine, lineNum)
-                colonWords = GenObject._colonRE.split (line, 1)
-                if len (colonWords) < 2:
-                    # Poorly formatted 'section' tag
-                    print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, \
-                          "Config file parser error '%s'(%d)" \
-                          % (fullLine, lineNum)
-                varName = colonWords[0]
-                option  = colonWords[1]
-                if option:
-                    pieces = GenObject._spacesRE.split (option)
-                else:
-                    pieces = []
-                if modeEnum.define == mode:
-                    #########################
-                    ## Variable Definition ##
-                    #########################
-                    # is this a variable or an option?
-                    if varName.startswith("-"):
-                        # this is an option
-                        if "-equiv" == varName.lower():
-                            for part in pieces:
-                                halves = part.split (",")
-                                if 2 != len (halves):
-                                    print "Problem with -equiv '%s' in '%s'" % \
-                                          (part, section)
-                                    raise RuntimeError, \
-                                          "Config file parser error '%s'(%d)" \
-                                          % (fullLine, lineNum)
-                                if halves[1]:
-                                    halves[1] = float (halves[1])
-                                    if not halves[1] > 0:
-                                        print "Problem with -equiv ",\
-                                              "'%s' in '%s'" % \
-                                              (part, section)
-                                        raise RuntimeError, \
-                                              "Config file parser error '%s'(%d)" \
-                                              % (fullLine, lineNum)
-                                GenObject.setEquivExpression (section,
-                                                              halves[0],
-                                                              halves[1])
-                        continue
-                    # If we're here, then this is a variable
-                    optionsDict = {}
-                    for word in pieces:
-                        typeMatch = GenObject._typeRE.search (word)
-                        if typeMatch and \
-                               GenObject.types.isValidKey (typeMatch.group(1)):
-                            varType = typeMatch.group(1).lower()
-                            optionsDict['varType'] = GenObject.types (varType)
-                            continue
-                        defaultMatch = GenObject._defaultRE.search (word)
-                        if defaultMatch:
-                            optionsDict['default'] = defaultMatch.group(1)
-                            continue
-                        precMatch = GenObject._precRE.search (word)
-                        if precMatch:
-                            optionsDict['prec'] = float (precMatch.group (1))
-                            continue
-                        formMatch = GenObject._formRE.search (word)
-                        if formMatch:
-                            form = GenObject._doublePercentRE.\
-                                   sub ('%', formMatch.group (1))
-                            optionsDict['form'] = form
-                            continue
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s'." \
-                              % (word, option)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
-                    GenObject.addObjectVariable (objName, varName, \
-                                                 **optionsDict)
-                else: # if modeEnum.define != mode
-                    ############################
-                    ## Variable 'tofill' Info ##
-                    ############################
-                    if len (pieces) < 1:
-                        continue
-                    fillname, pieces = pieces[0], pieces[1:]
-                    parts = GenObject._dotRE.split (fillname)
-                    partsList = []
-                    for part in parts:
-                        parenMatch = GenObject._parenRE.search (part)
-                        mode   = GenObject._objFunc.obj
-                        parens = []
-                        if parenMatch:
-                            part   = parenMatch.group (1)
-                            mode   = GenObject._objFunc.func
-                            parens = \
-                                   GenObject._convertStringToParameters \
-                                   (parenMatch.group (2))
-                        partsList.append(  (part, mode, parens) )
-                    # I don't yet have any options available here, but
-                    # I'm keeping the code here for when I add them.
-                    optionsDict = {}
-                    for word in pieces:
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s'." \
-                              % (word, option)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
-                    tofillDict = GenObject._tofillDict.\
-                                 setdefault (tupleName, {}).\
-                                 setdefault (objName, {})
-                    tofillDict[varName] = [partsList, optionsDict]
-        # for line
-        for objName in GenObject._objsDict:
-            # if this isn't a singleton, add 'index' as a variable
-            if not GenObject.isSingleton (objName):
-                GenObject.addObjectVariable (objName, 'index',
-                                             varType = GenObject.types.int,
-                                             form = '%3d')
-        
-
-    @staticmethod
-    def oldLoadConfigFile (configFile):
-        """Loads configuration file using ConfigParser."""
         objName    = ""
         tupleName  = ""
         tofillName = ""
@@ -743,8 +410,8 @@ class GenObject (object):
             # if this isn't a singleton, add 'index' as a variable
             if not GenObject.isSingleton (objName):
                 GenObject.addObjectVariable (objName, 'index',
-                                             varType = GenObject.types.int,
-                                             form = '%3d')
+                                             type='int',
+                                             form='%3d')
 
 
     @staticmethod
@@ -771,31 +438,22 @@ class GenObject (object):
     @staticmethod
     def _genObjectClone (objName, tupleName, obj, index = -1):
         """Creates a GenObject copy of Root object"""
-        debug         = GenObject._kitchenSinkDict.get ('debug', False)
-        if objName == 'runevent':
-            debug = False
         tofillObjDict = GenObject._tofillDict.get(tupleName, {})\
                         .get(objName, {})
         genObj = GenObject (objName)
         origObj = obj
-        if debug: warn (objName, spaces = 9)
         for genVar, ntDict in tofillObjDict.iteritems():
-            if debug: warn (genVar, spaces = 12)
             # start off with the original object
             obj = origObj
             # lets work our way down the list
             partsList = ntDict[0]
             for part in partsList:
-                if debug: warn (part, spaces=15)
                 obj = getattr (obj, part[0])
-                if debug: warn (obj, spaces=15)
                 # if this is a function instead of a data member, make
                 # sure you call it with its arguments:
                 if GenObject._objFunc.func == part[1]:
                     # Arguments are stored as a list in part[2]
                     obj = obj (*part[2])
-                    if debug: warn (obj, spaces=18)
-            if debug: warn (obj, spaces=12)
             setattr (genObj, genVar, obj)
         # Do I need to store the index of this object?
         if index >= 0:
@@ -827,47 +485,14 @@ class GenObject (object):
 
 
     @staticmethod
-    def _rootDiffObject (obj1, obj2, rootObj = 0):
-        """Given to GOs, it will create and fill the corresponding
-        root diff object"""
-        objName = obj1._objName
-        # if we don't already have a root object, create one
-        if not rootObj:
-            diffName = GenObject.rootDiffClassName( objName )
-            rootObj = GenObject._rootClassDict[diffName]()
-        for varName in GenObject._objsDict [objName].keys():
-            if varName.startswith ("_"): continue
-            goType = GenObject._objsDict[objName][varName]['varType']
-            if not goType in GenObject._basicSet:
-                # not yet
-                continue
-            setattr( rootObj, varName, obj1 (varName) )            
-            if  goType == GenObject.types.string:
-                # string
-                otherName = 'other_' + varName
-                if obj1 (varName) != obj2 (varName):
-                    # don't agree
-                    setattr( rootObj, otherName, obj2 (varName) )
-                else:
-                    # agree
-                    setattr( rootObj, otherName, '' )
-            else:
-                # float, long, or int
-                deltaName = 'delta_' + varName
-                setattr( rootObj, deltaName,
-                         obj2 (varName) - obj1 (varName) )
-        return rootObj
-
-
-    @staticmethod
-    def setupOutputTree (outputFile, treeName, treeDescription = "",
+    def setupOutputTree (outputfile, treename, treeDescription = "",
                          otherNtupleName = ""):
         """Opens the output file, loads all of the necessary shared
         object libraries, and returns the output file and tree.  If
         'otherNtupleName' is given, it will check and make sure that
         only objects that are defined in it are written out."""
-        rootfile = ROOT.TFile.Open (outputFile, "recreate")
-        tree = ROOT.TTree (treeName, treeDescription)
+        rootfile = ROOT.TFile.Open (outputfile, "recreate")
+        tree = ROOT.TTree (treename, treeDescription)
         GenObject._loadGoRootLibrary()
         for objName in sorted (GenObject._objsDict.keys()):
             classname = GenObject.rootClassName (objName)
@@ -894,37 +519,6 @@ class GenObject (object):
 
 
     @staticmethod
-    def setupDiffOutputTree (outputFile, diffName, missingName,
-                             diffDescription = '', missingDescription = ''):
-        """Opens the diff output file, loads all of the necessary
-        shared object libraries, and returns the output file and tree.b"""
-        rootfile = ROOT.TFile.Open (outputFile, "recreate")
-        GenObject._loadGoRootLibrary()
-        # diff tree
-        diffTree = ROOT.TTree (diffName, diffDescription)
-        for objName in sorted (GenObject._objsDict.keys()):
-            if objName == 'runevent': continue
-            contName = GenObject.rootDiffContClassName (objName)
-            diffName = GenObject.rootDiffClassName (objName)
-            rootObj = \
-                    GenObject._rootClassDict[contName] = \
-                    getattr (ROOT, contName)
-            GenObject._rootClassDict[diffName] = getattr (ROOT, diffName)
-            obj = GenObject._rootObjectDict[objName] = rootObj()
-            diffTree.Branch (objName, contName, obj)
-        # missing tree
-        missingTree = ROOT.TTree (missingName, missingDescription)
-        rootRunEventClass = getattr (ROOT, 'go_runevent')
-        firstOnly  = GenObject._rootClassDict['firstOnly'] = \
-                     ROOT.std.vector( rootRunEventClass ) ()
-        secondOnly = GenObject._rootClassDict['secondOnly'] = \
-                     ROOT.std.vector( rootRunEventClass ) ()
-        missingTree.Branch ('firstOnly',  'vector<go_runevent>', firstOnly) 
-        missingTree.Branch ('secondOnly', 'vector<go_runevent>', secondOnly) 
-        return rootfile, diffTree, missingTree
-
-
-    @staticmethod
     def _fillRootObjects (event):
         """Fills root objects from GenObject 'event'"""
         for objName, obj in sorted (event.iteritems()):
@@ -941,12 +535,6 @@ class GenObject (object):
 
 
     @staticmethod
-    def _fillRootDiffs (event1, event2):
-        """Fills root diff containers from two GenObject 'event's"""
-        
-
-
-    @staticmethod
     def isSingleton (objName):
         """Returns true if object is a singleton"""
         return GenObject._objsDict[objName].get('_singleton')
@@ -960,7 +548,6 @@ class GenObject (object):
         'event' containing lists of objects or singleton object.  If
         'onlyRunEvent' is et to True, then only run and event number
         is read in from the tree."""
-        debug     = GenObject._kitchenSinkDict.get ('debug', False)
         tupleName = GenObject._kitchenSinkDict[eventTree]['tupleName']
         event = {}
         # is this a cint tree
@@ -998,7 +585,6 @@ class GenObject (object):
                                                   objects)
                 continue
             # if we're here then we have a vector of items
-            if debug: warn (objName, spaces = 3)
             event[objName] = []
             for index, obj in enumerate (objects):
                 event[objName].append( GenObject.\
@@ -1006,10 +592,7 @@ class GenObject (object):
                                                         tupleName,
                                                         obj,
                                                         index) )
-            del objects
-            # end for obj        
-        if not isChain:
-            del rootEvent
+            # end for obj
         # end for objName
         return event
 
@@ -1067,16 +650,15 @@ class GenObject (object):
             files = [files]
         ntupleDict = GenObject._ntupleDict[tupleName]
         treeName = ntupleDict["_tree"]
-        if ntupleDict.get('_useChain'):
-            chain = ROOT.TChain (treeName)
-            for filename in files:
-                chain.AddFile (filename)
-                numEntries = chain.GetEntries()
+        chain = ROOT.TChain (treeName)
+        for filename in files:
+            chain.AddFile (filename)
+        numEntries = chain.GetEntries()
         # Are we using a chain or EventTree here?
-        else:
-            chain = cmstools.EventTree (files[0])
+        if not ntupleDict.get('_useChain'):
+            # cmstools.EventTree
+            chain = cmstools.EventTree (chain)
             GenObject.setAliases (chain, tupleName)
-            numEntries = chain.tree().GetEntries()
         chainDict = GenObject._kitchenSinkDict.setdefault (chain, {})
         if numEventsWanted and numEventsWanted < numEntries:
             numEntries = numEventsWanted
@@ -1094,46 +676,9 @@ class GenObject (object):
                                                  entryIndex,
                                                  onlyRunEvent = True)
             runevent = event['runevent']
-            reeDict[ GenObject._re2key (runevent) ] = entryIndex
-            #reeDict[ "one two three" ] = entryIndex
-            del event
+            reeDict[ (runevent.run, runevent.event) ] = entryIndex
         return reeDict
 
-
-    @staticmethod
-    def _re2key (runevent):
-        """Given a GO 'runevent' object, returns a sortable key"""
-        # if we don't know how to make this object yet, let's figure
-        # it out
-        if not GenObject._runEventListDone:
-            GenObject._runEventListDone = True
-            ignoreSet = set( ['run', 'event'] )
-            for varName in sorted (runevent.__dict__.keys()):
-                if varName.startswith ('_') or varName in ignoreSet:
-                    continue
-                form = runevent.getVariableProperty (varName, "form")
-                if not form:
-                    form = '%s'                
-                GenObject._runEventList.append ((varName, form))
-        key = 'run:%d event:%d' % (runevent.run, runevent.event)
-        for items in GenObject._runEventList:
-            varName = items[0]
-            form    = ' %s:%s' % (varName, items[1])
-            key += form % runevent.getVariableProperty (varName)
-        return key
-
-
-    @staticmethod
-    def _key2re (key):
-        """Given a key, returns a GO 'runevent' object"""
-        runevent = GenObject ('runevent')
-        words = GenObject._spacesRE.split (key)
-        for word in words:
-            match = GenObject._singleColonRE (word)
-            if match:
-                runevent.__setattr__ (match.group(1), match.group(2))
-        return runevent
-                                     
 
     @staticmethod
     def compareRunEventDicts (firstDict, secondDict):
@@ -1305,54 +850,34 @@ class GenObject (object):
                         print "  %s: changing '%s' of '%s:%d'" \
                               % (where, varName, obj._objName, count)
                         obj.__dict__[varName] += value
-
+        
 
     @staticmethod
     def compareTwoTrees (chain1, chain2, **kwargs):
         """Given all of the necessary information, this routine will
         go through and compare two trees making sure they are
-        'identical' within requested precision.  If 'diffOutputName'
-        is passed in, a root file with a diffTree and missingTree will
-        be produced."""
+        'identical' within requested precision."""
         print "Comparing Two Trees"
-        diffOutputName = kwargs.get ('diffOutputName')
         tupleName1  = GenObject._kitchenSinkDict[chain1]['tupleName']
         numEntries1 = GenObject._kitchenSinkDict[chain1]['numEntries']
         tupleName2  = GenObject._kitchenSinkDict[chain2]['tupleName']
         numEntries2 = GenObject._kitchenSinkDict[chain2]['numEntries']
-        debug       = GenObject._kitchenSinkDict.get ('debug', False)
         ree1 = GenObject.getRunEventEntryDict (chain1, tupleName1, numEntries1)
         ree2 = GenObject.getRunEventEntryDict (chain2, tupleName2, numEntries2)
         overlap, firstOnly, secondOnly = \
                  GenObject.compareRunEventDicts (ree1, ree2)
-        if diffOutputName:
-            rootfile, diffTree, missingTree = \
-                      GenObject.setupDiffOutputTree (diffOutputName,
-                                                     'diffTree',
-                                                     'missingTree')
-            if firstOnly:
-                vec = GenObject._rootClassDict['firstOnly']
-                for key in firstOnly:
-                    runevent = GenObject._key2re (key)
-                    vec.push_back( GenObject._rootObjectClone( runevent ) )
-            if secondOnly:
-                vec = GenObject._rootClassDict['secondOnly']
-                for key in secondOnly:
-                    runevent = GenObject._key2re (key)
-                    vec.push_back( GenObject._rootObjectClone( runevent ) )
-            missingTree.Fill()
-        resultsDict = {}
+        #print "overlap   ", overlap
+        problemDict = {}
         if firstOnly:
-            resultsDict.setdefault ('_runevent', {})['firstOnly'] = \
+            #print "firstOnly ", firstOnly
+            problemDict.setdefault ('_runevent', {})['firstOnly'] = \
                                    len (firstOnly)
         if secondOnly:
-            resultsDict.setdefault ('_runevent', {})['secondOnly'] = \
+            #print "secondOnly", secondOnly
+            problemDict.setdefault ('_runevent', {})['secondOnly'] = \
                                    len (secondOnly)
-        resultsDict['eventsCompared'] = len (overlap)
-        for reTuple in sorted(overlap):
-            if debug: warn ('event1', blankLines = 3)
+        for reTuple in overlap:
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
-            if debug: warn ('event2', blankLines = 3)
             event2 = GenObject.loadEventFromTree (chain2, ree2 [reTuple])
             if GenObject._kitchenSinkDict.get('printEvent'):
                 print "event1:"
@@ -1375,11 +900,6 @@ class GenObject (object):
                 if GenObject.isSingleton (objName):
                     # I'll add this in later.  For now, just skip it
                     continue
-                # Get ready to calculate root diff object if necessary
-                rootObj = 0
-                if diffOutputName:
-                    rootObj = GenObject._rootObjectDict[objName]
-                    rootObj.clear()
                 vec1 = event1[objName]
                 vec2 = event2[objName]
                 matchedSet, noMatch1Set, noMatch2Set = \
@@ -1390,65 +910,30 @@ class GenObject (object):
                     count1 = len (noMatch1Set)
                     count2 = len (noMatch2Set)
                     key = (count1, count2)
-                    countDict = resultsDict.\
+                    countDict = problemDict.\
                                 setdefault (objName, {}).\
                                 setdefault ('_missing', {})
                     if countDict.has_key (key):
                         countDict[key] += 1
                     else:
-                        countDict[key] = 1
-                    # should be calculating root diff objects
-                    if diffOutputName:
-                        # first set
-                        for index in noMatch1Set:
-                            goObj = vec1 [index]
-                            rootObj.firstOnly.push_back ( GenObject.\
-                                                          _rootObjectClone \
-                                                          (goObj) )
-                        # second set
-                        for index in noMatch2Set:
-                            goObj = vec2 [index]
-                            rootObj.secondOnly.push_back ( GenObject.\
-                                                          _rootObjectClone \
-                                                           (goObj) )
+                        countDict[key] = 1                                
                 # o.k.  Now that we have them matched, let's compare
                 # the proper items:
                 for pair in matchedSet:
-                    if diffOutputName:
-                        rootObj.diff.push_back ( GenObject._rootDiffObject \
-                                                 ( vec1[ pair[1 - 1] ],
-                                                   vec2[ pair[2 - 1] ] ) )
                     problems = GenObject.\
                                compareTwoItems (vec1[ pair[1 - 1] ],
                                                 vec2[ pair[2 - 1] ])
                     if problems.keys():
                         # pprint.pprint (problems)
                         for varName in problems.keys():
-                            countDict = resultsDict.\
+                            countDict = problemDict.\
                                         setdefault (objName, {}).\
                                         setdefault ('_var', {})
                             if countDict.has_key (varName):
                                 countDict[varName] += 1
                             else:
                                 countDict[varName] = 1
-                key = 'count_%s' % objName
-                if not resultsDict.has_key (key):
-                    resultsDict[key] = 0
-                resultsDict[key] += len (matchedSet)
-                # try cleaning up
-                del vec1
-                del vec2
-            # end for objName        
-            if diffOutputName:
-                diffTree.Fill()
-            del event1
-            del event2
-        # end for overlap
-        if diffOutputName:
-            diffTree.Write()
-            missingTree.Write()
-            rootfile.Close()
-        return resultsDict
+        return problemDict
 
 
     @staticmethod
@@ -1496,7 +981,7 @@ class GenObject (object):
     @staticmethod
     def _convertStringToParameters (string):
         """Convert comma-separated string into a python list of
-        parameters.  Currently only understands strings, floats,  and
+        parameters.  Currently only understands strings, floats, and
         integers."""
         retval = []        
         words = GenObject._commaRE.split (string)
@@ -1587,14 +1072,6 @@ class GenObject (object):
                 except:
                     # This works with string representations of floats
                     value = int( float( value ) )
-            elif GenObject.types.long == varType:
-                try:
-                    # This will work with integers, floats, and string
-                    # representations of integers.
-                    value = long (value)
-                except:
-                    # This works with string representations of floats
-                    value = long( float( value ) )
             elif GenObject.types.float == varType:
                 # Make sure it's a float
                 value = float (value)

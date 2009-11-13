@@ -41,6 +41,7 @@
 #include <map>
 
 class FEDRawData;
+
 class SiPixelFedCabling;
 class SiPixelFrameConverter;
 
@@ -50,16 +51,14 @@ public:
 
   typedef std::vector<PixelDigi> DetDigis;
   typedef std::map<uint32_t, DetDigis> Digis;
-  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range; 
+  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
+  
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<uint32_t, DetErrors> Errors;
 
-  typedef uint32_t Word32;
-  typedef uint64_t Word64;
-
   PixelDataFormatter(const SiPixelFedCabling* map);
 
-  void setErrorStatus(bool ErrorStatus);
+  void setErrorStatus(bool ErrorStatus, bool OrderStatus);
 
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
@@ -74,10 +73,13 @@ private:
 
   const SiPixelFedCabling* theCablingTree;
   bool includeErrors;
-  bool debug;
-  int allDetDigis;
-  int hasDetDigis;
+  bool checkOrder;
   ErrorChecker errorcheck;
+
+//  typedef unsigned int Word32;
+//  typedef long long Word64;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
   int checkError(const Word32& data) const;
 
@@ -96,6 +98,8 @@ private:
   uint32_t errorDetId(const SiPixelFrameConverter* converter, 
 		      int fedId, int errorType, const Word32 & word) const;
 
+  static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
+  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
 };
 
 #endif

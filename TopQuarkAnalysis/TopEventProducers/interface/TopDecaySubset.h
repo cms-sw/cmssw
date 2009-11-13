@@ -15,7 +15,6 @@
 class TopDecaySubset : public edm::EDProducer {
 
  public:
-
   /// supported modes to fill the new vectors 
   /// of gen particles
   enum  FillMode {kStable, kME};
@@ -29,10 +28,9 @@ class TopDecaySubset : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-
   /// fill output collection depending on whether the W
   /// boson is contained in the generator listing or not
-   void fillOutput(edm::Event& evt, const reco::GenParticleCollection& src, FillMode mode);
+  void fillOutput(edm::Event& evt, const reco::GenParticleCollection& src, FillMode mode);
   /// check whether the W boson is contained in the 
   /// original gen particle listing or not
   bool wInDecayChain(const reco::GenParticleCollection& src, const int& partId);
@@ -65,6 +63,12 @@ class TopDecaySubset : public edm::EDProducer {
   void printSource(const reco::GenParticleCollection& src);
 
  private:
+  /// mode of decaySubset creation 
+  FillMode fillMode_;
+  /// add radiated gluons or not?
+  bool addRadiatedGluons_;
+  /// input tag for the genParticle source
+  edm::InputTag src_;                    
 
   /// index in new evt listing of parts with daughters; 
   /// has to be set to -1 in produce to deliver consistent 
@@ -72,9 +76,4 @@ class TopDecaySubset : public edm::EDProducer {
   int motherPartIdx_;                    
   /// management of daughter indices for fillRefs
   std::map<int,std::vector<int> > refs_; 
-  /// add radiated gluons or not?
-  bool addRadiatedGluons_;
-  /// input tag for the genParticle source
-  edm::InputTag src_;                    
-
 };

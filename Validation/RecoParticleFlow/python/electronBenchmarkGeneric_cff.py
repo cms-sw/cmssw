@@ -20,7 +20,7 @@ gensource = cms.EDProducer(
 
 pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag("pfAllElectrons")
 pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag("gensource")
-
+pfAllElectrons.src = cms.InputTag("pfNoPileUp")
 
 electronBenchmarkGeneric = cms.Sequence(
     pfNoPileUpSequence+

@@ -25,7 +25,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
 
     TrajGsfTrackAssociationCollection ttam;
     edm::Wrapper<TrajGsfTrackAssociationCollection> wttam;
@@ -49,5 +49,5 @@ namespace {
     GsfTrackVtxConstraintAssociationRefProd ii5;
     GsfTrackVtxConstraintAssociationRefVector ii6;
   
-  }
+  };
 }

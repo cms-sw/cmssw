@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.1 2009/02/27 16:12:58 hvanhaev Exp $
+// $Id: Castor.cc,v 1.3 2008/12/09 08:44:01 hvanhaev Exp $
 //
 //
 
@@ -37,12 +37,6 @@
 #include "DataFormats/CastorReco/interface/CastorCell.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-#include "DataFormats/RecoCandidate/interface/RecoCastorTowerCandidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/Jet.h"
 
 // Castor Reco include 
 #include "RecoLocalCalo/Castor/interface/KtAlgorithm.h"
@@ -59,7 +53,6 @@ class CastorClusterProducer : public edm::EDProducer {
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      double phiangle (double testphi);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
@@ -69,7 +62,7 @@ class CastorClusterProducer : public edm::EDProducer {
       typedef std::vector<reco::CastorCell> CastorCellCollection;
       typedef std::vector<reco::CastorTower> CastorTowerCollection;
       typedef std::vector<reco::CastorCluster> CastorClusterCollection;
-      std::string input_, basicjets_;
+      std::string input_;
       bool ktalgo_;
       bool clusteralgo_;
       unsigned int recom_;
@@ -91,18 +84,15 @@ const double MYR2D = 180/M_PI;
 //
 
 CastorClusterProducer::CastorClusterProducer(const edm::ParameterSet& iConfig) :
-  input_(iConfig.getUntrackedParameter<std::string>("inputtowers","")),
-  basicjets_(iConfig.getUntrackedParameter<std::string>("basicjets","")),
-  ktalgo_(iConfig.getUntrackedParameter<bool>("KtAlgo",false)),
+  input_(iConfig.getUntrackedParameter<std::string>("inputprocess","CastorTowerReco")),
+  ktalgo_(iConfig.getUntrackedParameter<bool>("KtAlgo",true)),
   clusteralgo_(iConfig.getUntrackedParameter<bool>("ClusterAlgo",false)),
   recom_(iConfig.getUntrackedParameter<unsigned int>("KtRecombination",2)),
   rParameter_(iConfig.getUntrackedParameter<double>("KtrParameter",1.))
 {
   // register your products
-  /*if (ktalgo_ == true)*/ produces<CastorClusterCollection>();
-  //if (clusteralgo_ == true) produces<CastorClusterCollection>();
-  //if (basicjets_ == "CastorFastjetRecoKt") produces<CastorClusterCollection>();
-  //if (basicjets_ == "CastorFastjetRecoSISCone") produces<CastorClusterCollection>();
+  if (ktalgo_ == true) produces<CastorClusterCollection>("fromKtAlgo");
+  if (clusteralgo_ == true) produces<CastorClusterCollection>("fromClusterAlgo");
   // now do what ever other initialization is needed
 }
 
@@ -126,14 +116,6 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   using namespace std;
   using namespace TMath;
   
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"---------------------------------"<<endl;
-  if(debug) cout<<"3. entering CastorClusterProducer"<<endl;
-  if(debug) cout<<"---------------------------------"<<endl;
-  if(debug) cout<<""<<endl;
-  
-  if ( input_ != "") {
-  
   // Produce CastorClusters from CastorTowers
   
   edm::Handle<CastorTowerCollection> InputTowers;
@@ -144,6 +126,12 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   // get and check input size
   int nTowers = InputTowers->size();
+  
+  if(debug) cout<<""<<endl;
+  if(debug) cout<<"---------------------------------"<<endl;
+  if(debug) cout<<"3. entering CastorClusterProducer"<<endl;
+  if(debug) cout<<"---------------------------------"<<endl;
+  if(debug) cout<<""<<endl;
 
   if (nTowers==0) cout<<"Warning: You are trying to run the Cluster algorithm with 0 input towers. \n";
 
@@ -170,96 +158,15 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       for (size_t i=0; i<negClusters.size(); i++) OutputClustersfromKtAlgo->push_back(negClusters[i]);
     }
 
-    iEvent.put(OutputClustersfromKtAlgo);
+    iEvent.put(OutputClustersfromKtAlgo,"fromKtAlgo");
   } // end build cluster from KtAlgo
     
   // build cluster from ClusterAlgo
   if (clusteralgo_ == true) {
     // code
-    iEvent.put(OutputClustersfromClusterAlgo);
-  }
-  
-  }
-  
-  if ( basicjets_ != "") {
-  
-  	//cout << " entering the basicjet --> cluster code " << endl;
-  
-  	Handle<BasicJetCollection> bjCollection;
-   	iEvent.getByLabel(basicjets_,bjCollection);
-	
-	auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
-	
-	if (bjCollection->size()==0) cout << "Warning: You are trying to run the Cluster algorithm with 0 input basicjets. \n";
-   
-   	for (unsigned i=0; i< bjCollection->size();i++) {
-   		const BasicJet* bj = &(*bjCollection)[i];
-		
-		double energy = bj->energy();
-		TowerPoint temp(88.5,bj->eta(),bj->phi());
-  		Point position(temp);
-		double emEnergy = 0.;
-		double hadEnergy = 0.;
-		double width = 0.;
-		double depth = 0.;
-		double fhot = 0.;
-		double sigmaz = 0.;
-		CastorTowerRefVector usedTowers;
-		double zmean = 0.;
-		double z2mean = 0.;
-	
-		vector<CandidatePtr> ccp = bj->getJetConstituents();
-		vector<CandidatePtr>::const_iterator itParticle;
-   		for (itParticle=ccp.begin();itParticle!=ccp.end();++itParticle){	    
-        		const RecoCastorTowerCandidate* castorcand = dynamic_cast<const RecoCastorTowerCandidate*>(itParticle->get());
-			//cout << " castortowercandidate reference energy = " << castorcand->castorTower()->energy() << endl;
-			//cout << " castortowercandidate reference eta = " << castorcand->castorTower()->eta() << endl;
-			//cout << " castortowercandidate reference phi = " << castorcand->castorTower()->phi() << endl;
-			//cout << " castortowercandidate reference depth = " << castorcand->castorTower()->depth() << endl;
-			
-			usedTowers.push_back(castorcand->castorTower());
-			emEnergy += castorcand->castorTower()->emEnergy();
-			hadEnergy += castorcand->castorTower()->hadEnergy();
-			depth += castorcand->castorTower()->depth()*castorcand->castorTower()->energy();
-			width += pow(phiangle(castorcand->castorTower()->phi() - bj->phi()),2)*castorcand->castorTower()->energy();
-      			fhot += castorcand->castorTower()->fhot()*castorcand->castorTower()->energy();
-			
-			// loop over cells
-      			for (CastorCell_iterator it = castorcand->castorTower()->cellsBegin(); it != castorcand->castorTower()->cellsEnd(); it++) {
-				CastorCellRef cell_p = *it;
-				Point rcell = cell_p->position();
-				double Ecell = cell_p->energy();
-				zmean += Ecell*cell_p->z();
-				z2mean += Ecell*cell_p->z()*cell_p->z();
-      			} // end loop over cells
-		}
-		//cout << "" << endl;
-		
-		depth = depth/energy;
-		width = sqrt(width/energy);
-		fhot = fhot/energy;
-		
-		zmean = zmean/energy;
-    		z2mean = z2mean/energy;
-    		double sigmaz2 = z2mean - zmean*zmean;
-    		if(sigmaz2 > 0) sigmaz = sqrt(sigmaz2);
-		
-		CastorCluster cc(energy,position,emEnergy,hadEnergy,emEnergy/energy,width,depth,fhot,sigmaz,usedTowers);
-		OutputClustersfromBasicJets->push_back(cc);
-   	}
-	
-	iEvent.put(OutputClustersfromBasicJets);
-  
+    iEvent.put(OutputClustersfromClusterAlgo,"fromClusterAlgo");
   }
  
-}
-
-// help function to calculate phi within [-pi,+pi]
-double CastorClusterProducer::phiangle (double testphi) {
-  double phi = testphi;
-  while (phi>M_PI) phi -= (2*M_PI);
-  while (phi<-M_PI) phi += (2*M_PI);
-  return phi;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

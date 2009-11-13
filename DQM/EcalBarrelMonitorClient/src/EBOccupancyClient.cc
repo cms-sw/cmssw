@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.35 $
+ * $Date: 2009/08/25 13:03:48 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -270,7 +270,7 @@ void EBOccupancyClient::analyze(void) {
 
     sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit energy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);

@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
 
@@ -15,11 +15,18 @@ TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
   addRadiatedGluons_( cfg.getParameter<bool>( "addRadiatedGluons" ) ),
   src_( cfg.getParameter<edm::InputTag>( "src" ) )
 {
+  // mapping of the corresponding fillMode; see FillMode 
+  // enumerator of TopdecaySubset for available modes
+  if( cfg.getParameter<std::string>( "fillMode" ) == "kME" ){
+    fillMode_=kME;
+  }
+  if( cfg.getParameter<std::string>( "fillMode" ) == "kStable" ){
+    fillMode_=kStable;
+  }
   // produces a set of gen particle collections following
   // the decay branch of top quarks to the first level of 
   // stable decay products
   produces<reco::GenParticleCollection>(); 
-  produces<reco::GenParticleCollection>("ME");
 }
 
 TopDecaySubset::~TopDecaySubset()
@@ -32,14 +39,11 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   // get source collection
   edm::Handle<reco::GenParticleCollection> src;
   evt.getByLabel(src_, src);
-
   // print full listing of input collection for debuging
   // with 'TopDecaySubset_printSource'
   printSource(*src);
-
   // fill output vectors with references
-  fillOutput (evt, *src, kME      );
-  fillOutput (evt, *src, kStable  );
+  fillOutput (evt, *src, fillMode_);
 }
 
 
@@ -50,13 +54,12 @@ TopDecaySubset::fillOutput(edm::Event& evt, const reco::GenParticleCollection& s
   const reco::GenParticleRefProd ref = evt.getRefBeforePut<reco::GenParticleCollection>(); 
   // create target vector
   std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
-
   // clear existing refs
   clearReferences();  
   // fill output for top branch
-  wInDecayChain(src, TopDecayID::tID) ? fromFullListing (src, *target, TopDecayID::tID, mode): fromTruncListing(src, *target, TopDecayID::tID, mode);
+  wInDecayChain(src, TopDecayID::tID) ? fromFullListing(src, *target, TopDecayID::tID, mode): fromTruncListing(src, *target, TopDecayID::tID, mode);
   // fill output for anti-top branch
-  wInDecayChain(src,-TopDecayID::tID) ? fromFullListing (src, *target,-TopDecayID::tID, mode): fromTruncListing(src, *target,-TopDecayID::tID, mode);
+  wInDecayChain(src,-TopDecayID::tID) ? fromFullListing(src, *target,-TopDecayID::tID, mode): fromTruncListing(src, *target,-TopDecayID::tID, mode);
   // fill references
   fillReferences(ref, *target);
   // print full isting of input collection for debuging
@@ -64,14 +67,7 @@ TopDecaySubset::fillOutput(edm::Event& evt, const reco::GenParticleCollection& s
   printTarget(*target);
 
   // write vectors to the event
-  switch(mode){
-  case kStable:
-    evt.put(target);
-    break;
-  case kME:
-    evt.put(target, "ME");
-    break;
-  }
+  evt.put(target);
 }
 
 void
@@ -348,7 +344,7 @@ TopDecaySubset::p4(const std::vector<reco::GenParticle>::const_iterator top, int
   reco::Particle::LorentzVector vec;
   for(reco::GenParticle::const_iterator p=top->begin(); p!=top->end(); ++p){
     if( p->status() == TopDecayID::unfrag ){
-      // decend by one level for each
+      // descend by one level for each
       // status 3 particle on the way
       vec+=p4( p, statusFlag );
     }
@@ -362,12 +358,11 @@ TopDecaySubset::p4(const std::vector<reco::GenParticle>::const_iterator top, int
       else{
 	// add all four vectors for each stable
 	// particle (status 1 or 2) on the way 
-	// else
 	vec+=p->p4();
 	if( vec.mass()-top->mass()>0 ){
  	  // continue adding up gluons and qqbar pairs on the top 
- 	  // line until the nominal top mass is reached; then break 
- 	  // in order to prevent picking up virtualities
+ 	  // line untill the nominal top mass is reached; then 
+ 	  // break in order to prevent picking up virtualities
 	  break;
 	}
       }
@@ -387,8 +382,7 @@ TopDecaySubset::p4(const reco::GenParticle::const_iterator part, int statusFlag)
   }
   reco::Particle::LorentzVector vec;
   for(reco::GenParticle::const_iterator p=part->begin(); p!=part->end(); ++p){
-    if( p->status()<=TopDecayID::stable && 
-	abs(p->pdgId ())==TopDecayID::WID){
+    if( p->status()<=TopDecayID::stable && abs(p->pdgId ())==TopDecayID::WID){
       vec=p->p4();
     }
     else{
@@ -397,11 +391,13 @@ TopDecaySubset::p4(const reco::GenParticle::const_iterator part, int statusFlag)
 	// (of status 1 or 2)
 	vec+=p->p4();
       }
-      else 
-	if( p->status()==TopDecayID::unfrag)
+      else{
+	if( p->status()==TopDecayID::unfrag){
 	  // if the particle is unfragmented (i.e.
-	  // status 3) decend by one level
+	  // status 3) descend by one level
 	  vec+=p4(p, statusFlag);   
+	}
+      }
     }
   }
   return vec;

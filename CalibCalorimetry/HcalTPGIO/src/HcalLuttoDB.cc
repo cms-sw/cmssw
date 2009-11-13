@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Weinberger
 //         Created:  Mon Mar 19 11:53:56 CDT 2007
-// $Id: HcalLuttoDB.cc,v 1.4 2007/09/21 12:50:08 mansj Exp $
+// $Id: HcalLuttoDB.cc,v 1.3 2007/09/20 11:45:45 mansj Exp $
 //
 //
 
@@ -22,7 +22,9 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,13 +39,18 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 using namespace edm;
 using namespace std;
 #include <iostream>

@@ -63,7 +63,7 @@ public:
     theHitCorrection = hitCorrection;
   }
 
-  virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   /// frees up memory
   void clear() {theAnalogSignalMap.clear();}

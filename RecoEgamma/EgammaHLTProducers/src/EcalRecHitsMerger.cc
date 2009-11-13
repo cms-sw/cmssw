@@ -49,7 +49,7 @@ EcalRecHitsMerger::~EcalRecHitsMerger() {
 }
 
 
-void EcalRecHitsMerger::beginJob(const edm::EventSetup& c){
+void EcalRecHitsMerger::beginJob(){
 }
 
 void EcalRecHitsMerger::endJob(){

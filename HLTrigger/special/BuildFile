@@ -11,6 +11,7 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/VertexReco>
 <use name=EventFilter/HcalRawToDigi>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>

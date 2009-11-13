@@ -73,6 +73,7 @@ const int L1GtCondition::nrObjects() const
     switch (m_condType) {
 
         case TypeNull:
+        case TypeExternal:
         case TypeCastor:
         case TypeBptx: {
                 return 0;
@@ -200,7 +201,12 @@ void L1GtCondition::print(std::ostream& myCout) const
 
             break;
         case CondBptx: {
-                myCout << "  Condition category: " << "Bptx"  << std::endl;
+                myCout << "  Condition category: " << "CondBptx"  << std::endl;
+            }
+
+            break;
+        case CondExternal: {
+                myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }
 
             break;
@@ -297,6 +303,11 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case TypeExternal: {
+                myCout << "  Condition type:     " << "TypeExternal"  << std::endl;
+            }
+
+            break;
         default: {
                 myCout << "  Condition type:     " << m_condType
                 << " - no such type defined. Check L1GtConditionType enum."
@@ -378,6 +389,11 @@ void L1GtCondition::print(std::ostream& myCout) const
                 break;
             case BPTX: {
                     myCout << " BPTX ";
+                }
+
+                break;
+            case GtExternal: {
+                    myCout << " GtExternal ";
                 }
 
                 break;

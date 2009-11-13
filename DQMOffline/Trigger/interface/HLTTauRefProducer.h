@@ -98,11 +98,6 @@ public:
   bool doJets_;
   double ptMinJet_;
 
-  edm::InputTag Towers_;
-  bool doTowers_;
-  double ptMinTower_;
-
-
   double etaMax;
 
   void doPFTaus(edm::Event&,const edm::EventSetup&);
@@ -113,7 +108,6 @@ public:
   double ElectronTrkIsolation(const reco::TrackCollection*, const reco::GsfElectron&);
   void doJets(edm::Event&,const edm::EventSetup&);
   void doPhotons(edm::Event&,const edm::EventSetup&);
-  void doTowers(edm::Event&,const edm::EventSetup&);
 
 };
 

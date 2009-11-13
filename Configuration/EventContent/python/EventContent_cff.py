@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.20 2009/07/20 13:00:02 ghete Exp $
+#  $Id: EventContent_cff.py,v 1.21 2009/07/31 12:29:06 fambrogl Exp $
 #
 #
 #
@@ -243,7 +243,6 @@ ALCARECOEventContent = cms.PSet(
 #
 ## HLTDEBUG tier definition
 #
-from HLTrigger.Configuration.HLTDebugOutput_cff  import block_hltDebugOutput
 HLTDEBUGEventContent = cms.PSet(
     #outputCommands = cms.untracked.vstring('drop *',
     #        'keep *_hlt*_*_*')
@@ -284,7 +283,7 @@ MIXINGMODULEEventContent = cms.PSet(
     )
 
 
-HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
+HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)

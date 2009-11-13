@@ -49,6 +49,7 @@ L1GtTriggerMenu::L1GtTriggerMenu(
         const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTemplateVal,
         const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >& vecHfRingEtSumsTemplateVal,
         const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTemplateVal,
+        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTemplateVal,
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplateVal,
         const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTemplateVal,
         const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTemplateVal,
@@ -67,6 +68,7 @@ L1GtTriggerMenu::L1GtTriggerMenu(
             m_vecHfBitCountsTemplate(vecHfBitCountsTemplateVal),
             m_vecHfRingEtSumsTemplate(vecHfRingEtSumsTemplateVal),
             m_vecBptxTemplate(vecBptxTemplateVal),
+            m_vecExternalTemplate(vecExternalTemplateVal),
             m_vecCorrelationTemplate(vecCorrelationTemplateVal),
             m_corMuonTemplate(corMuonTemplateVal),
             m_corCaloTemplate(corCaloTemplateVal),
@@ -96,6 +98,7 @@ L1GtTriggerMenu::L1GtTriggerMenu(const L1GtTriggerMenu& rhs)
     m_vecHfBitCountsTemplate = rhs.m_vecHfBitCountsTemplate;
     m_vecHfRingEtSumsTemplate = rhs.m_vecHfRingEtSumsTemplate;
     m_vecBptxTemplate = rhs.m_vecBptxTemplate;
+    m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
     m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
     m_corMuonTemplate = rhs.m_corMuonTemplate;
@@ -150,6 +153,7 @@ L1GtTriggerMenu& L1GtTriggerMenu::operator=(const L1GtTriggerMenu& rhs) {
         m_vecHfBitCountsTemplate = rhs.m_vecHfBitCountsTemplate;
         m_vecHfRingEtSumsTemplate = rhs.m_vecHfRingEtSumsTemplate;
         m_vecBptxTemplate = rhs.m_vecBptxTemplate;
+        m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
         m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
         m_corMuonTemplate = rhs.m_corMuonTemplate;
@@ -380,6 +384,29 @@ void L1GtTriggerMenu::buildGtConditionMap() {
     }
 
     //
+    size_t vecExternalSize = m_vecExternalTemplate.size();
+    if (condMapSize < vecExternalSize) {
+        m_conditionMap.resize(vecExternalSize);
+        condMapSize = m_conditionMap.size();
+    }
+
+    chipNr = -1;
+    for (std::vector<std::vector<L1GtExternalTemplate> >::iterator
+            itCondOnChip = m_vecExternalTemplate.begin();
+            itCondOnChip != m_vecExternalTemplate.end();
+            itCondOnChip++) {
+
+        chipNr++;
+
+        for (std::vector<L1GtExternalTemplate>::iterator
+                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+                itCond++) {
+
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
+        }
+    }
+
+    //
     size_t vecCorrelationSize = m_vecCorrelationTemplate.size();
     if (condMapSize < vecCorrelationSize) {
         m_conditionMap.resize(vecCorrelationSize);
@@ -472,6 +499,12 @@ void L1GtTriggerMenu::setVecBptxTemplate(
         const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTempl) {
 
     m_vecBptxTemplate = vecBptxTempl;
+}
+
+void L1GtTriggerMenu::setVecExternalTemplate(
+        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTempl) {
+
+    m_vecExternalTemplate = vecExternalTempl;
 }
 
 void L1GtTriggerMenu::setVecCorrelationTemplate(

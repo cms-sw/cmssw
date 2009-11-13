@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2009/07/08 13:54:55 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/09/01 23:36:29 $
+ *  $Revision: 1.34 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -233,11 +233,13 @@ namespace edm {
       TimeValue_t time = evf::evtn::getgpshigh(gtpFedAddr);
       time = (time << 32) + evf::evtn::getgpslow(gtpFedAddr);
       Timestamp tstamp(time);
+      setTimestamp(tstamp);
     }
     else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
       bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
       orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
     }
+    
     eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.

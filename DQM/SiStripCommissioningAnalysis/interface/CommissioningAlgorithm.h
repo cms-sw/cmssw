@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <stdint.h>
 
 class CommissioningAlgorithm;
 class CommissioningAnalysis;

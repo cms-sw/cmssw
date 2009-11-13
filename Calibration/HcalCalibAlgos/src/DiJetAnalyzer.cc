@@ -139,8 +139,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
-   //   probeJetEmFrac = 0.;
-   double emEnergy = 0.; 
+   probeJetEmFrac = 0.; 
    try {
       Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(ec_,ec);
@@ -149,16 +148,13 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         DetId id = ecItr->detid();
         if(mapId[id]==1){
-	  emEnergy += ecItr->energy(); 
+	  probeJetEmFrac += ecItr->energy(); 
 	}
       }
    } catch (cms::Exception& e) { // can't find it!
       if (!allowMissingInputs_) throw e;
    }
-
-   targetE += -emEnergy;
-   probeJetEmFrac = emEnergy/jet2.energy(); 
-
+ 
    int nHits = 0; 
    try {
       Handle<HBHERecHitCollection> hbhe;
@@ -212,8 +208,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (!allowMissingInputs_) throw e;
    }
  
-   probeJetEmFrac = emEnergy/jet2.energy();
-   
+
    tree->Fill(); 
  
 }

@@ -29,6 +29,8 @@ TripletFilter::TripletFilter(const edm::EventSetup& es)
 /*****************************************************************************/
 TripletFilter::~TripletFilter()
 {
+  // Destroy filter
+//  ClusterShapeHitFilter::Release();
 }
 
 /*****************************************************************************/
@@ -45,7 +47,7 @@ bool TripletFilter::checkTrack
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(*recHit);
 
-    if(! pixelRecHit->isValid())
+    if(pixelRecHit->isValid())
     {  ok = false; break; }
 
     if(! theFilter->isCompatible(*pixelRecHit, *localDir))
@@ -77,7 +79,7 @@ bool TripletFilter::checkTrack
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(*recHit);
 
-    if(! pixelRecHit->isValid())
+    if(pixelRecHit->isValid())
     {  ok = false; break; }
 
     if(! theFilter->isCompatible(*pixelRecHit, *globalDir))

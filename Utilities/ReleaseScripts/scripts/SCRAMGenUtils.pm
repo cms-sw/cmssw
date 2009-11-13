@@ -795,7 +795,7 @@ sub printBuildFile ()
     $tab=" ";
   }
   my $edmplugin=0;
-  if($ccfiles>0)
+  if(($ccfiles>0) || ($isPackage))
   {
     if(exists $data->{deps}{src})
     {
@@ -866,19 +866,9 @@ sub printBuildFile ()
         if($a ne "FORALLARCH"){$tab="";print $outfile "  </architecture>\n";}
       }
     }
-    if (!$xml)
-    {
-      if(exists $data->{deps}{src})
-      {
-        my @packs=sort keys %{$data->{deps}{src}};
-        foreach my $dep (@packs)
-        {print $outfile "  <use name=\"$dep\">\n";$hasexport=1;}
-      }
-    }
     if(($ccfiles>0) && ($edmplugin==0))
     {
-      if($xml){print $outfile "  <lib name=\"1\"/>\n";}
-      else{print $outfile "  <lib name=\"$prodname\">\n";}
+      print $outfile "  <lib name=\"1\"",&_xmlendtag($xml),">\n";
       $hasexport=1;
     }
     if(!$hasexport){print $outfile "  <flags DummyFlagToAvoidWarning=\"0\"",&_xmlendtag($xml),">\n";}

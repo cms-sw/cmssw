@@ -71,6 +71,7 @@ void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
     m_vecHfBitCountsTemplate.resize(numberConditionChips);
     m_vecHfRingEtSumsTemplate.resize(numberConditionChips);
     m_vecBptxTemplate.resize(numberConditionChips);
+    m_vecExternalTemplate.resize(numberConditionChips);
 
     m_vecCorrelationTemplate.resize(numberConditionChips);
     m_corMuonTemplate.resize(numberConditionChips);
@@ -83,9 +84,12 @@ void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
 boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
+    // FIXME seems to not work anymore in constructor...
+    m_isDebugEnabled = edm::isDebugEnabled();
+
     // shared pointer for L1GtTriggerMenu - empty menu
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenuEmpty = boost::shared_ptr<L1GtTriggerMenu>(
-            new L1GtTriggerMenu());
+    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenuEmpty =
+            boost::shared_ptr<L1GtTriggerMenu>(new L1GtTriggerMenu());
 
     // FIXME get it from L1GtStableParameters?
     //       initialize once, from outside
@@ -135,10 +139,17 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
 
     }
 
+    // retrieve table with technical triggers from DB, view L1T_MENU_TECHTRIG_VIEW
+    if (!tableMenuTechTrigFromDB(gtSchema, objectKey)) {
+        return pL1GtTriggerMenuEmpty;
+
+    }
 
     // build the algorithm map in the menu
     buildAlgorithmMap();
 
+    // build the technical trigger map in the menu
+    buildTechnicalTriggerMap();
 
     // add the conditions from a menu to the corresponding list
     addConditions();
@@ -154,6 +165,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
                         m_vecHfBitCountsTemplate,
                         m_vecHfRingEtSumsTemplate,
                         m_vecBptxTemplate,
+                        m_vecExternalTemplate,
                         m_vecCorrelationTemplate,
                         m_corMuonTemplate,
                         m_corCaloTemplate,
@@ -285,14 +297,16 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
             columnsMenuAlgo, gtSchema, "L1T_MENU_ALGO_VIEW", "L1T_MENU_ALGO_VIEW.MENU_IMPLEMENTATION",
             m_omdsReader.singleAttribute(objectKey));
 
-    // check if query was successful
-    if (resultsMenuAlgo.queryFailed()) {
-        edm::LogError("L1-O2O")
-            << "Problem to get content of L1T_MENU_ALGO_VIEW for L1GtTriggerMenu implementation key: "
-            << objectKey;
-        return false;
-    }
 
+    // check if query was successful is based on size of returned list
+    // BUT one can have menus w/o physics algorithms - no error for empty list, but a warning!
+    if (resultsMenuAlgo.queryFailed()) {
+        edm::LogWarning("L1-O2O")
+                << "Warning: Content of L1T_MENU_ALGO_VIEW for L1GtTriggerMenu implementation key: "
+                << "\n  " << objectKey << "\nis empty!"
+                << "\nNo physics algorithms are found for this menu.";
+
+    }
 
     TableMenuAlgo menuAlgo;
     int resultsMenuAlgoRows = resultsMenuAlgo.numberRows();
@@ -369,12 +383,14 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
             columnsMenuAlgoCond, gtSchema, "L1T_MENU_ALGO_COND_VIEW",
             "L1T_MENU_ALGO_COND_VIEW.MENU_IMPLEMENTATION", m_omdsReader.singleAttribute(objectKey));
 
-    // check if query was successful
+    // check if query was successful is based on size of returned list
+    // BUT one can have menus w/o algorithms and conditions - no error for empty list, but a warning!
     if (resultsMenuAlgoCond.queryFailed()) {
-        edm::LogError("L1-O2O")
-                << "Problem to get content of L1T_MENU_ALGO_COND_VIEW for L1GtTriggerMenu"
-                << " implementation key: " << objectKey;
-        return false;
+        edm::LogWarning("L1-O2O")
+                << "Warning: Content of L1T_MENU_ALGO_COND_VIEW for L1GtTriggerMenu implementation key: "
+                << "\n  " << objectKey << "\nis empty!"
+                << "\nNo list of condition associated to each algorithm are found for this menu.";
+
     }
 
     //
@@ -448,12 +464,13 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
             columnsMenuCond, gtSchema, "L1T_MENU_COND_VIEW",
             "L1T_MENU_COND_VIEW.MENU_IMPLEMENTATION", m_omdsReader.singleAttribute(objectKey));
 
-    // check if query was successful
+    // check if query was successful is based on size of returned list
+    // BUT one can have menus w/o conditions - no error for empty list, but a warning!
     if (resultsMenuCond.queryFailed()) {
-        edm::LogError("L1-O2O")
-                << "Problem to get content of L1T_MENU_COND_VIEW for L1GtTriggerMenu"
-                << " implementation key: " << objectKey;
-        return false;
+        edm::LogWarning("L1-O2O")
+                << "Warning: Content of L1T_MENU_COND_VIEW for L1GtTriggerMenu implementation key: "
+                << "\n  " << objectKey << "\nis empty!"
+                << "\nNo conditions associated to menu are found for this menu.";
 
     }
 
@@ -585,11 +602,14 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
             columnsMenuOp, gtSchema, "L1T_MENU_OP_VIEW", "L1T_MENU_OP_VIEW.MENU_IMPLEMENTATION",
             m_omdsReader.singleAttribute(objectKey));
 
-    // check if query was successful
+    // check if query was successful is based on size of returned list
+    // BUT one can have menus w/o object parameters - no error for empty list, but a warning!
     if (resultsMenuOp.queryFailed()) {
-        edm::LogError("L1-O2O") << "Problem to get content of L1T_MENU_OP_VIEW for L1GtTriggerMenu"
-                << " implementation key: " << objectKey;
-        return false;
+        edm::LogWarning("L1-O2O")
+                << "Warning: Content of L1T_MENU_OP_VIEW for L1GtTriggerMenu implementation key: "
+                << "\n  " << objectKey << "\nis empty!"
+                << "\nNo object parameters associated to menu are found for this menu.";
+
     }
 
     TableMenuObjectParameters menuObjectParameters;
@@ -676,6 +696,87 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n Number of rows read from L1T_MENU_OP_VIEW: " << resultsMenuOpRows
                 << std::endl;
+
+    }
+
+    return true;
+
+}
+
+// retrieve table with technical triggers from DB
+bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(
+        const std::string& gtSchema, const std::string& objectKey) {
+
+    // select * from CMS_GT.L1T_MENU_TECHTRIG_VIEW
+    //     where L1T_MENU_TECHTRIG_VIEW.MENU_IMPLEMENTATION = objectKey
+
+    const std::vector<std::string>& columnsMenuTechTrig =
+            m_omdsReader.columnNamesView(gtSchema, "L1T_MENU_TECHTRIG_VIEW");
+
+    if (m_isDebugEnabled) {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                << "\n List of columns in L1T_MENU_TECHTRIG_VIEW:\n"
+                << std::endl;
+        for (std::vector<std::string>::const_iterator iter =
+                columnsMenuTechTrig.begin(); iter != columnsMenuTechTrig.end(); iter++) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
+
+        }
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
+    }
+
+    l1t::OMDSReader::QueryResults resultsMenuTechTrig =
+            m_omdsReader.basicQueryView(columnsMenuTechTrig, gtSchema,
+                    "L1T_MENU_TECHTRIG_VIEW",
+                    "L1T_MENU_TECHTRIG_VIEW.MENU_IMPLEMENTATION",
+                    m_omdsReader.singleAttribute(objectKey));
+
+    // check if query was successful is based on size of returned list
+    // BUT one can have menus w/o technical triggers - no error for empty list, but a warning!
+    if (resultsMenuTechTrig.queryFailed()) {
+        edm::LogWarning("L1-O2O")
+                << "Warning: Content of L1T_MENU_TECHTRIG_VIEW for L1GtTriggerMenu implementation key: "
+                << "\n  " << objectKey << "\nis empty!"
+                << "\nNo technical triggers are found for this menu.";
+
+    }
+
+    TableMenuTechTrig menuTechTrig;
+    int resultsMenuTechTrigRows = resultsMenuTechTrig.numberRows();
+
+    for (int iRow = 0; iRow < resultsMenuTechTrigRows; ++iRow) {
+
+        for (std::vector<std::string>::const_iterator constIt =
+                columnsMenuTechTrig.begin(); constIt
+                != columnsMenuTechTrig.end(); ++constIt) {
+
+            if ((*constIt) == "TECHTRIG_INDEX") {
+                resultsMenuTechTrig.fillVariableFromRow(*constIt, iRow,
+                        menuTechTrig.bitNumberSh);
+
+            } else if ((*constIt) == "NAME") {
+                resultsMenuTechTrig.fillVariableFromRow(*constIt, iRow,
+                        menuTechTrig.techName);
+
+            } else {
+                // do nothing
+
+            }
+
+        }
+
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "Row  " << iRow
+                << ": index = " << menuTechTrig.bitNumberSh << " techName = "
+                << menuTechTrig.techName << std::endl;
+
+        m_tableMenuTechTrig.push_back(menuTechTrig);
+
+    }
+
+    if (m_isDebugEnabled) {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Number of rows read from L1T_MENU_TECHTRIG_VIEW: "
+                << resultsMenuTechTrigRows << std::endl;
 
     }
 
@@ -787,6 +888,34 @@ void L1GtTriggerMenuConfigOnlineProd::buildAlgorithmMap() {
 
 }
 
+// build the technical trigger map in the menu
+void L1GtTriggerMenuConfigOnlineProd::buildTechnicalTriggerMap() {
+
+    // temporary value
+    int bitNumber = -1;
+    std::string logicalExpression;
+
+    // loop over m_tableMenuTechTrig
+    for (std::vector<TableMenuTechTrig>::const_iterator constIt =
+            m_tableMenuTechTrig.begin(); constIt != m_tableMenuTechTrig.end(); constIt++) {
+
+        bitNumber = static_cast<int> ((*constIt).bitNumberSh);
+
+        // create a new technical trigger and insert it into technical trigger map
+        // technical triggers have L1GtAlgorithm class
+        L1GtAlgorithm techTrig((*constIt).techName, logicalExpression, bitNumber);
+
+        // chip number set in constructor to -1 - no meaning for technical triggers
+
+        // insert technical trigger
+        m_technicalTriggerMap[(*constIt).techName] = techTrig;
+
+        // no alias is defined for technical triggers
+    }
+
+}
+
+
 L1GtConditionCategory L1GtTriggerMenuConfigOnlineProd::strToEnumCondCategory(
         const std::string& strCategory) {
 
@@ -808,10 +937,13 @@ L1GtConditionCategory L1GtTriggerMenuConfigOnlineProd::strToEnumCondCategory(
         return CondHfRingEtSums;
     } else if (strCategory == "CondBptx") {
         return CondBptx;
+    } else if (strCategory == "CondExternal") {
+        return CondExternal;
     } else if (strCategory == "CondNull") {
         return CondNull;
     } else {
-        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strCategory
+        edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Warning: string " << strCategory
                 << " not defined. Returning CondNull.\n" << std::endl;
         return CondNull;
     }
@@ -851,9 +983,13 @@ L1GtConditionType L1GtTriggerMenuConfigOnlineProd::strToEnumCondType(const std::
         return TypeHfRingEtSums;
     } else if (strType == "Bptx") {
         return TypeBptx;
+    } else if (strType == "TypeExternal") {
+        return TypeExternal;
     } else {
-        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strType
-                << " not associated to any L1GtConditionType. Returning TypeNull.\n" << std::endl;
+        edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Warning: string " << strType
+                << " not associated to any L1GtConditionType. Returning TypeNull.\n"
+                << std::endl;
         return TypeNull;
     }
 
@@ -896,9 +1032,13 @@ L1GtObject L1GtTriggerMenuConfigOnlineProd::strToEnumL1GtObject(const std::strin
         return Castor;
     } else if (strObject == "BPTX") {
         return BPTX;
+    } else if (strObject == "GtExternal") {
+        return GtExternal;
     } else {
-        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strObject
-                << " not associated to any L1GtObject. Returning Mu (no Null type).\n" << std::endl;
+        edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Warning: string " << strObject
+                << " not associated to any L1GtObject. Returning Mu (no Null type).\n"
+                << std::endl;
         return Mu;
     }
 
@@ -1455,6 +1595,50 @@ void L1GtTriggerMenuConfigOnlineProd::addBptxCondition(const TableMenuCond& cond
 
 }
 
+void L1GtTriggerMenuConfigOnlineProd::addExternalCondition(const TableMenuCond& condDB) {
+
+    L1GtExternalTemplate externalCond(condDB.cond);
+    externalCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - logical conditions have no objects associated in GT
+    // one put however a "External" object type
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    externalCond.setObjectType(objType);
+
+    // irrelevant, set to false for completeness
+    externalCond.setCondGEq(false);
+
+    // logical conditions have no ObjectParameter, no CorrelationParameter
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        externalCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecExternalTemplate[*itChip] ).push_back(externalCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << externalCond << "\n" << std::endl;
+        }
+    }
+
+}
 
 void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCond& condDB) {
 
@@ -1616,8 +1800,9 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
                     }
                         break;
                     default: {
-                        LogTrace("L1GtTriggerMenuConfigOnlineProd")
-                                << "\n Warning: wrong L1GtConditionType " << gtObj << std::endl;
+                        edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                                << "\n Warning: wrong L1GtConditionType "
+                                << gtObj << std::endl;
 
                     }
                         break;
@@ -1657,16 +1842,21 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
             case HfRingEtSums:
             case Castor:
             case BPTX:
+            case GtExternal:
             case TechTrig: {
                 wrongSubcondition = true;
-                LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: correlation condition "
-                        << ( condDB.cond ) << " with invalid sub-condition object type " << gtObj
+                edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                        << "\n Warning: correlation condition "
+                        << (condDB.cond)
+                        << " with invalid sub-condition object type " << gtObj
                         << "\n Condition ignored!" << std::endl;
             }
             default: {
                 wrongSubcondition = true;
-                LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: correlation condition "
-                        << ( condDB.cond ) << " with invalid sub-condition object type " << gtObj
+                edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                        << "\n Warning: correlation condition "
+                        << (condDB.cond)
+                        << " with invalid sub-condition object type " << gtObj
                         << "\n Condition ignored!" << std::endl;
 
                 //
@@ -1678,8 +1868,9 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
     }
 
     if (wrongSubcondition) {
-        LogTrace("L1GtTriggerMenuConfigOnlineProd")
-                << "\n Warning: wrong sub-condition for correlation condition " << ( condDB.cond )
+        edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Warning: wrong sub-condition for correlation condition "
+                << (condDB.cond)
                 << "\n Condition not inserted in menu. \n A sub-condition may be left in the menu"
                 << std::endl;
         return;
@@ -1776,6 +1967,12 @@ void L1GtTriggerMenuConfigOnlineProd::addConditions() {
             case CondBptx: {
 
                 addBptxCondition(*constIt);
+
+            }
+                break;
+            case CondExternal: {
+
+                addExternalCondition(*constIt);
 
             }
                 break;

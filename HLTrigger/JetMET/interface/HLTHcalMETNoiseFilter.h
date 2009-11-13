@@ -20,20 +20,9 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
       edm::InputTag HcalNoiseRBXCollectionTag;
       edm::InputTag HcalNoiseSummaryTag;
       int severity;
-
-      bool useLooseFilter;
-      bool useTightFilter;
-      bool useHighLevelFilter;
-      bool useCustomFilter;
-
-      double minE2Over10TS;
-      double min25GeVHitTime;
-      double max25GeVHitTime;
-      int maxZeros;
-      int maxHPDHits;
-      int maxRBXHits;
-      double minHPDEMF;
-      double minRBXEMF;
+      double EMFractionMin;
+      int nRBXhitsMax;
+      double RBXhitThresh; // energy threshold for hits  
 };
 
 #endif //HLTHcalMETNoiseFilter_h

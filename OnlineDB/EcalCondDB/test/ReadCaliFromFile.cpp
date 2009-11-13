@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include <cstdlib>
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/all_cali_types.h"

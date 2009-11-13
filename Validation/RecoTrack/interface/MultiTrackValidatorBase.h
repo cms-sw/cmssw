@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/06/19 13:29:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/09/04 22:22:52 $
+ *  $Revision: 1.24 $
  *  \author cerati
  */
 
@@ -94,6 +94,10 @@ class MultiTrackValidatorBase {
     //
     {
       dbe_ = edm::Service<DQMStore>().operator->();
+      if(useLogPt){
+	maxpT=log10(maxpT);
+	minpT=log10(minpT);
+      }
     }
   
   /// Destructor
@@ -358,7 +362,7 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
   std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy;
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
-  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos;
+  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  

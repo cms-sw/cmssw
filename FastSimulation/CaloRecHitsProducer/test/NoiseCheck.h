@@ -28,13 +28,51 @@ public:
 private:
   DQMStore * dbe;
   std::vector<MonitorElement*> individual_histos;
+  std::vector<MonitorElement*> legoPlots;
   MonitorElement * EEPlus;
   MonitorElement * EEMinus;
   MonitorElement * EEPP, *EEPN, * EENN, *EENP;
+  MonitorElement * HitMultiplicityP ;
+  MonitorElement * HitMultiplicityN ;
+  MonitorElement * RecHitEP ;
+  MonitorElement * RecHitEN ;
+  MonitorElement * RecHitEPZ ;
+  MonitorElement * RecHitENZ ;
+  MonitorElement * RecHitEPCZ ;
+  MonitorElement * RecHitENCZ ;
+  MonitorElement * RecHitEPICMCZ ;
+  MonitorElement * RecHitENICMCZ ;
+  MonitorElement * ICEP ;
+  MonitorElement * ICEN ;
+  MonitorElement * ADCP ;
+  MonitorElement * ADCN ;
+  MonitorElement * NoiseADCCoeff;
+  MonitorElement * ICPH ;
+  MonitorElement * ICNH ;
+  MonitorElement * ICMCPH ;
+  MonitorElement * ICMCNH ;
+  MonitorElement * ADCPH ;
+  MonitorElement * ADCNH ;
+  MonitorElement * ADCMCPH ;
+  MonitorElement * ADCMCNH ;
+  MonitorElement * ICRatio ;
+  MonitorElement * OCCP ;
+  MonitorElement * OCCN ;
+  MonitorElement * OCCPT ;
+  MonitorElement * OCCNT ;
+  MonitorElement * OCCPPR ;
+  MonitorElement * OCCPNR ;
+  MonitorElement * OCCNPR ;
+  MonitorElement * OCCNNR ;
 
   //  CaloGeometryHelper myGeometry;
-
+  unsigned counter;
   bool m_firstTimeAnalyze ;
+  std::string rootFileName;
+  std::vector<float> IC;
+  std::vector<float> ICMC;
+  double threshold_;
+  float adcToGeV_;
 };
 
 #endif

@@ -74,19 +74,14 @@ private:
 
   const EcalTrigPrimDigiCollection*
   getTrigPrims(edm::Event& event) const;
-
-  ///@{
+  
   /// call these once an event, to make sure everything
   /// is up-to-date
   void
   checkGeometry(const edm::EventSetup & eventSetup);
   void
   checkTriggerMap(const edm::EventSetup & eventSetup);
-  void
-  checkElecMap(const edm::EventSetup & eventSetup);
 
-  ///@}
-  
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
   
@@ -105,7 +100,6 @@ private:
   // store the pointer, so we don't have to update it every event
   const CaloGeometry * theGeometry;
   const EcalTrigTowerConstituentsMap * theTriggerTowerMap;
-  const EcalElectronicsMapping * theElecMap;
   edm::ParameterSet params_;
 
   bool trigPrimBypass_;
@@ -114,14 +108,9 @@ private:
    */
   int dumpFlags_;
 
-  /** switch to write out the SrFlags collections in the event
-   */
+  // switch to write out the SrFlags collections in the event
   bool writeSrFlags_;
 
-  /** Switch for suppressed digi production If false SR flags are produced
-   * but selective readout is not applied on the crystal channel digis.
-   */
-  bool produceDigis_;
 };
 
 #endif 

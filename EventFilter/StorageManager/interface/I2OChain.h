@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
+// $Id: I2OChain.h,v 1.6 2009/08/28 16:41:50 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
 

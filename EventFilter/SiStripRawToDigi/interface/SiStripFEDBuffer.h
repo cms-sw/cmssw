@@ -408,7 +408,7 @@ namespace sistrip {
       return ( checkBufferFormat() &&
 	       checkHeaderType() &&
 	       checkReadoutMode() &&
-	       checkAPVEAddressValid() &&
+	       //checkAPVEAddressValid() &&
 	       checkNoFEOverflows() ); 
     }
   
@@ -443,7 +443,8 @@ namespace sistrip {
   
   inline bool FEDBufferBase::checkAPVEAddressValid() const
     {
-      return (apveAddress() <= APV_MAX_ADDRESS);
+      //return (apveAddress() <= APV_MAX_ADDRESS);
+      return true;
     }
   
   inline bool FEDBufferBase::checkNoFEOverflows() const

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/09/01 09:50:13 $
- * $Revision: 1.460 $
+ * $Date: 2009/08/27 18:08:35 $
+ * $Revision: 1.453 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -202,7 +202,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     cout << " prefixME path is '" << prefixME_ << "'" << endl;
-  }
+  } 
 
   // enableCleanup switch
 
@@ -368,7 +368,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
     clients_.push_back( new EBOccupancyClient(ps) );
     clientsNames_.push_back( "Occupancy" );
-
+    
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
@@ -528,9 +528,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -548,9 +545,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -566,9 +560,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -655,12 +646,12 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     dqmStore_ = mui_->getBEInterface();
 
   } else {
-
+    
     // get hold of back-end interface
 
     mui_ = 0;
     dqmStore_ = Service<DQMStore>().operator->();
-
+  
   }
 
   if ( ! enableMonitorDaemon_ ) {
@@ -935,7 +926,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType( this->getRunType() );
+  rundef.setRunType( this->getRunType()  );
 
   RunTag runtag;
 
@@ -1054,7 +1045,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  cout << endl;
 
   if ( econn ) {
     try {
@@ -1111,63 +1102,18 @@ void EcalBarrelMonitorClient::writeDb() {
 
   startSubRun.setToCurrentGMTime();
 
-  // fetch the MonIOV from the DB
+  // setup the MonIOV
 
-  bool foundMonIOV = false;
+  moniov_.setRunIOV(runiov_);
+  moniov_.setSubRunNumber(subrun_);
 
-  if ( econn ) {
-    try {
-      if ( verbose_ ) cout << "Fetching MonIOV ..." << endl;
-      RunTag runtag = runiov_.getRunTag();
-      moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-      if ( verbose_ ) cout << "done." << endl;
-      foundMonIOV = true;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-      foundMonIOV = false;
-    }
+  if ( enableMonitorDaemon_ || subrun_ > 1 ) {
+    moniov_.setSubRunStart(startSubRun);
+  } else {
+    moniov_.setSubRunStart(runiov_.getRunStart());
   }
 
-  // begin - setup the MonIOV
-
-  if ( !foundMonIOV ) {
-
-    moniov_.setRunIOV(runiov_);
-    moniov_.setSubRunNumber(subrun_);
-
-    if ( enableMonitorDaemon_ || subrun_ > 1 ) {
-      moniov_.setSubRunStart(startSubRun);
-    } else {
-      moniov_.setSubRunStart(runiov_.getRunStart());
-    }
-
-    moniov_.setMonRunTag(montag);
-
-    if ( econn ) {
-      try {
-        if ( verbose_ ) cout << "Inserting MonIOV ..." << endl;
-//        econn->insertMonRunIOV(&moniov_);
-        RunTag runtag = runiov_.getRunTag();
-        moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-        if ( verbose_ ) cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-        try {
-          if ( verbose_ ) cout << "Fetching MonIOV (again) ..." << endl;
-          RunTag runtag = runiov_.getRunTag();
-          moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-          if ( verbose_ ) cout << "done." << endl;
-          foundMonIOV = true;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
-          foundMonIOV = false;
-        }
-      }
-    }
-
-  }
-
-  // end - setup the MonIOV
+  moniov_.setMonRunTag(montag);
 
   if ( verbose_ ) {
     cout << endl;
@@ -1276,7 +1222,7 @@ void EcalBarrelMonitorClient::writeDb() {
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  cout << endl;
 
 }
 
@@ -1679,9 +1625,9 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 }
 
-void EcalBarrelMonitorClient::softReset(bool flag) {
+void EcalBarrelMonitorClient::softReset(bool flag) { 	 
 
-  vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
+  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalBarrel");
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EB", 2) ) {
@@ -1690,15 +1636,6 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
       } else {
         dqmStore_->disableSoftReset(*meitr);
       }
-    }
-  }
-
-  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
-  if ( me ) {
-    if ( flag ) {
-      dqmStore_->softReset(me);
-    } else {
-      dqmStore_->disableSoftReset(me);
     }
   }
 

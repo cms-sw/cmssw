@@ -206,10 +206,10 @@ std::pair<bool,DDExpandedView> Specific::node() const
 
 Specific::~Specific()
 {
-  DDsvalues_type::iterator it = specifics_.begin();
-  for (; it != specifics_.end(); ++it) {
-    it->second.clear();
-  }
+//   DDsvalues_type::iterator it = specifics_.begin();
+//   for (; it != specifics_.end(); ++it) {
+//     it->second.clear();
+//   }
 }
 
 }

@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-VpspScanAlgorithm::VpspScanAlgorithm( const edm::ParameterSet & pset, VpspScanAnalysis* const anal )
+VpspScanAlgorithm::VpspScanAlgorithm( VpspScanAnalysis* const anal )
   : CommissioningAlgorithm(anal),
     histos_( 2, Histo(0,"") )
 {;}

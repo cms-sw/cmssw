@@ -1,10 +1,10 @@
 #ifndef TutorialAtDESY_MuonAnalyzer_H
 #define TutorialAtDESY_MuonAnalyzer_H
 
-/** \class MuonAnalyzer
+/** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/06/11 $
+ *  $Date: 2009/06/18 15:55:17 $
  *  $Revision: 1.2 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
@@ -22,13 +22,13 @@ class TH1I;
 class TH1F;
 class TH2F;
 
-class MuonAnalyzer: public edm::EDAnalyzer {
+class ExampleMuonAnalyzer: public edm::EDAnalyzer {
 public:
   /// Constructor
-  MuonAnalyzer(const edm::ParameterSet& pset);
+  ExampleMuonAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~MuonAnalyzer();
+  virtual ~ExampleMuonAnalyzer();
 
   // Operations
 

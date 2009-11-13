@@ -12,7 +12,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-DaqScopeModeAlgorithm::DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const anal ) 
+DaqScopeModeAlgorithm::DaqScopeModeAlgorithm( DaqScopeModeAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     histo_(0,"")
 {;}

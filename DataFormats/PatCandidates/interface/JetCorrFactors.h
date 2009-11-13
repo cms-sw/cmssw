@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.h,v 1.5 2009/03/26 20:04:10 rwolf Exp $
+// $Id: JetCorrFactors.h,v 1.6 2009/04/09 15:20:30 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_JetCorrFactors_h
@@ -15,7 +15,7 @@
    PAT Layer-1.
 
   \author   Giovanni Petrucciani
-  \version  $Id: JetCorrFactors.h,v 1.5 2009/03/26 20:04:10 rwolf Exp $
+  \version  $Id: JetCorrFactors.h,v 1.6 2009/04/09 15:20:30 rwolf Exp $
 */
 
 #include <vector>
@@ -52,7 +52,9 @@ namespace pat {
    	  /// default Constructor
           JetCorrFactors();
 	  /// constructor by value
-          JetCorrFactors(std::string &label, float l1, float l2, float l3, float l4, FlavourCorrections l5, FlavourCorrections l6, FlavourCorrections l7);
+          JetCorrFactors(const std::string &label, float l1, float l2, float l3,float l4, 
+	                 FlavourCorrections l5, FlavourCorrections l6,FlavourCorrections l7, 
+			 const std::vector<float>& uncert );
 
           /// default scale factor: Raw & L1 & L2 & L3
           float scaleDefault() const { return correction(L3); };
@@ -70,6 +72,12 @@ namespace pat {
 	  void clearLabel() { label_.clear(); };
 	  /// print function for debugging
 	  void print() const;
+	  
+	  enum UncertVar {up=0, down=1};
+	  ///relative jet correction factor uncertainty
+	  float uncertainty( CorrStep step, const std::string &direction ) const;
+	  ///relative jet correction factor uncertainty
+	  float uncertainty( CorrStep step, const UncertVar direction ) const;
 
       private:
           /// vector to hold flavour independent corrections
@@ -87,6 +95,11 @@ namespace pat {
 	  /// if only one set is attached to each jet, than 
 	  /// this string is empty to save storage
 	  std::string label_;
+	  
+	  /// vector to hold the +-1 sigma relative uncertainties for all
+	  /// correction factors
+          std::vector<float> correctionUncertainties_;
+	  
 
           /// convert a CorrStep into a number 0-7
           static inline size_t istep(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) >> 4; }
@@ -94,6 +107,9 @@ namespace pat {
           static inline size_t iflav(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) & 0xF; }
           /// get a flavour correction out of a CorrStep
           static float getFlavorCorrection(const FlavourCorrections &, const size_t& flav) ;
+          /// translate uncertainty variation "up" or "down" to 0 or 1.
+	  static UncertVar const uncertDirection(const std::string& dir);
+
   };
 }
 
