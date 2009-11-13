@@ -770,7 +770,7 @@ class StringProperty(TextEditWithButtonProperty):
 
     def setMultiline(self,multiline):
         TextEditWithButtonProperty.setMultiline(self,multiline)
-        icon = QIcon("resources/editor.svg")
+        icon = QIcon(":/resources/editor.svg")
         dummyicon = QIcon()
         if multiline:
             self._button.setIcon(icon)
