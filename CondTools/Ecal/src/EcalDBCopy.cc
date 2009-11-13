@@ -35,6 +35,8 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
@@ -132,7 +134,9 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalClusterEnergyCorrectionParametersRcd>().cacheIdentifier();
   } else if (container == "EcalClusterLocalContCorrParameters") {
     cacheID = evtSetup.get<EcalClusterLocalContCorrParametersRcd>().cacheIdentifier();
-  } 
+  } else if (container == "EcalTPGCrystalStatus") {
+    cacheID = evtSetup.get<EcalTPGCrystalStatusRcd>().cacheIdentifier();
+  }
 
   else {
     throw cms::Exception("Unknown container");
@@ -189,6 +193,15 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     cout << "channel status pointer is: "<< obj<< endl;
 
    dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+
+  }  else if (container == "EcalTPGCrystalStatus") {
+    edm::ESHandle<EcalTPGCrystalStatus> handle;
+    evtSetup.get<EcalTPGCrystalStatusRcd>().get(handle);
+    const EcalTPGCrystalStatus* obj = handle.product();
+    cout << "TPG channel status pointer is: "<< obj<< endl;
+
+   dbOutput->createNewIOV<const EcalTPGCrystalStatus>( new EcalTPGCrystalStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   }
