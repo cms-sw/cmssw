@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.14 2008/07/27 16:22:21 cbern Exp $
+// $Id: PFJet.cc,v 1.15 2008/07/30 23:10:04 fedor Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -33,26 +33,26 @@ PFJet::PFJet (const LorentzVector& fP4,
     m_specific (fSpecific)
 {}
 
-const reco::PFCandidate* PFJet::getPFCandidate (const reco::Candidate* fConstituent) {
-  if (!fConstituent) return 0;
-  const reco::Candidate* base = fConstituent;
-  if (fConstituent->hasMasterClone ()) base = fConstituent->masterClone().get();
-  if (!base) return 0; // not in the event
-  const PFCandidate* candidate = dynamic_cast <const PFCandidate*> (base);
-  if (!candidate) {
-    throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type."
-						<< "Actual type is " << typeid (*base).name();
-  }
-  return candidate;
+reco::PFCandidatePtr PFJet::getPFConstituent (unsigned fIndex) const {
+
+  Constituent dau = daughterPtr (fIndex);
+  if ( dau.isNonnull() && dau.isAvailable() ) {
+    const PFCandidate* pfCandidate = dynamic_cast <const PFCandidate*> (dau.get());
+    if (pfCandidate) {
+      return edm::Ptr<PFCandidate> (dau.id(), pfCandidate, dau.key() );
+    }
+    else {
+      throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
+    }
+   }
+   else {
+     return PFCandidatePtr();
+   }
 }
 
-const reco::PFCandidate* PFJet::getPFConstituent (unsigned fIndex) const {
-  return getPFCandidate (daughter (fIndex));
-}
-
-std::vector <const reco::PFCandidate*> PFJet::getPFConstituents () const {
-  std::vector <const reco::PFCandidate*> result;
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent (i));
+std::vector <reco::PFCandidatePtr> PFJet::getPFConstituents () const {
+  std::vector <PFCandidatePtr> result;
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent(i));
   return result;
 }
 
@@ -62,7 +62,7 @@ reco::TrackRefVector PFJet::getTrackRefs() const {
   reco::TrackRefVector result;
   result.reserve( chargedMultiplicity() );
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) {
-    const reco::PFCandidate* pfcand = getPFConstituent (i);
+    const reco::PFCandidatePtr pfcand = getPFConstituent (i);
     reco::TrackRef trackref = pfcand->trackRef();
     if( trackref.isNonnull() ) {
       result.push_back( trackref );
@@ -90,9 +90,9 @@ std::string PFJet::print () const {
       << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
       << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl;
   out << "      PFCandidate constituents:" << std::endl;
-  std::vector <const PFCandidate*> constituents = getPFConstituents ();
+  std::vector <PFCandidatePtr> constituents = getPFConstituents ();
   for (unsigned i = 0; i < constituents.size (); ++i) {
-    if (constituents[i]) {
+    if (constituents[i].get()) {
       out << "      #" << i << " " << *(constituents[i]) << std::endl;
     }
     else {
