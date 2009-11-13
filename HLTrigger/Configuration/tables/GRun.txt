@@ -53,9 +53,9 @@ HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
 HLT_MinBiasHcal
 HLT_MinBiasEcal
-HLT_MinBiasPixel1
-HLT_MinBiasPixel2
-HLT_MinBiasPixel_Trk5
+HLT_MinBiasPixel_SingleTrack
+HLT_MinBiasPixel_DoubleTrack
+HLT_MinBiasPixel_DoubleIsoTrack5
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
@@ -73,7 +73,7 @@ AlCa_EcalPi0_8E29
 AlCa_EcalEta_8E29
 AlCa_RPCMuonNoHits
 AlCa_RPCMuonNormalisation
-AlCa_DTErrors
+HLT_DTErrors
 HLT_MinBias
 HLT_Calibration
 HLT_EcalCalibration
