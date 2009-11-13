@@ -22,13 +22,30 @@ from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 from JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff import *
 from JetMETCorrections.Type1MET.MuonTCMETValueMapProducer_cff import *
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff import *
-#sequence metreco = {met, metsig, htMetIC5, htMetMC5, hcalnoise}
-metreco = cms.Sequence(
-        met+metNoHF+metHO+metNoHFHO+
-            calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMet
+from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
-            )
+metreco = cms.Sequence(
+        met+
+        metNoHF+
+        metHO+
+        metNoHFHO+
+        calotoweroptmaker+
+        metOpt+
+        metOptNoHF+
+        calotoweroptmakerWithHO+
+        metOptHO+
+        metOptNoHFHO+
+        htMetSC5+
+        htMetSC7+
+        htMetKT4+
+        htMetKT6+
+        htMetIC5+
+        muonMETValueMapProducer+
+        corMetGlobalMuons+
+        muonTCMETValueMapProducer+
+        tcMet+
+        BeamHaloId
+        )
 
 metrecoPlusHCALNoise = cms.Sequence( metreco + hcalnoise )
 
