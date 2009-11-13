@@ -27,10 +27,10 @@
 
 
 HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig) :
-  beamspotTag_(iConfig.getParameter<edm::InputTag>("beamspot")),
-  muonTag_(iConfig.getParameter<edm::InputTag>("muonCandidates")),
-  trackTag_(iConfig.getParameter<edm::InputTag>("trackCandidates")),
-  prevCandTag_(iConfig.getParameter<edm::InputTag>("previousCandidates")),
+  beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
+  muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
+  trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
+  prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
   saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag",false)),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
