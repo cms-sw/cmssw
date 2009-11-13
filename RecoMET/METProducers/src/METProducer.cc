@@ -138,12 +138,16 @@ namespace cms
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
+      //R. Remington :  commented out MET significance block, until the developers can debug it.  It currently crashes in 340pre5.
+
+      /*
       SignCaloSpecificAlgo signcalospecalgo;
       metsig::SignAlgoResolutions resolutions(conf_);
 
       signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
       calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
       calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
+      */
 
       //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
