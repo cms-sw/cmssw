@@ -152,7 +152,7 @@ void FittedEntriesSet::FillEntriesAveragingSets( std::vector<FittedEntriesSet*> 
 
   std::vector<FittedEntry*> vFEntry;
   ALIuint nEntry = vSets[0]->FittedEntries().size();
-  ALIuint setssiz = vSets.size();
+  //  ALIuint setssiz = vSets.size();
   for( ALIuint ii = 0; ii < nEntry; ii++ ){  // loop to FittedEntry's
     if(ALIUtils::debug >= 5) std::cout << "FillEntriesAveragingSets entry " << ii << std::endl;
     vFEntry.clear();

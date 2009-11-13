@@ -167,6 +167,8 @@ bool CocoaDBMgr::DumpCocoaResults()
     
     return TRUE;
   }
+
+  return TRUE;
 }
 
 
@@ -251,7 +253,7 @@ double CocoaDBMgr::GetEntryError( const Entry* entry1, const Entry* entry2 )
 {
   if( entry1 == entry2 ) return GetEntryError( entry1 );
 
-  if( entry1->quality() > 0 & entry2->quality() > 0 ) {
+  if( entry1->quality() > 0 && entry2->quality() > 0 ) {
     return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry1->fitPos()][entry2->fitPos()]);
   } else { //entries not fitted, correlation is 0
     return 0.;

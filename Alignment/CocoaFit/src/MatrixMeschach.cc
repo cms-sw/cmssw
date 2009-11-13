@@ -52,8 +52,8 @@ void MatrixMeschach::copy( const MatrixMeschach& mat)
 {
   //  if( ALIUtils::debug >= 5) std::cout <<  "copy matrix" << mat._Mat << " " << _Mat << " L " << mat.NoLines() << " C " << mat.NoColumns() << " l " <<  mat.Mat()->m << " c " << mat.Mat()->n <<std::endl;
 
-  for( uint lin=0; lin < _NoLines; lin++ ) {
-    for( uint col=0;  col < _NoColumns; col++ ) {
+  for( ALIint lin=0; lin < _NoLines; lin++ ) {
+    for( ALIint col=0;  col < _NoColumns; col++ ) {
       _Mat->me[lin][col] = mat.MatNonConst()->me[lin][col];
     } 
   }
@@ -232,8 +232,8 @@ void MatrixMeschach::transpose()
   M_FREE( _Mat );
   _Mat = m_get(_NoColumns, _NoLines);
   //- std::cout << "transposed"  <<_NoLines<<_NoColumns;
-  for( uint lin=0; lin < _NoColumns; lin++ ) {
-    for( uint col=0;  col < _NoLines; col++ ) {
+  for( ALIint lin=0; lin < _NoColumns; lin++ ) {
+    for( ALIint col=0;  col < _NoLines; col++ ) {
       //-  std::cout << "setting mat "  << lin << " " << col << std::endl;
       _Mat->me[lin][col] = tempmat->me[lin][col];
     }
