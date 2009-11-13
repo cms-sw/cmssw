@@ -38,7 +38,8 @@ PATEventContent = cms.PSet(
     'keep patJets_selectedLayer1Jets_*_*',
     'keep patMETs_*_*_*',
     'keep patTaus_selectedLayer1Taus_*_*',
-    'keep recoIsoDepositedmValueMap_iso*_*_*',
+# iso deposits are embedded in the pat objects, and do not need to be kept
+#    'keep recoIsoDepositedmValueMap_iso*_*_*',
     'keep *_TriggerResults_*_*'
     )
 )
