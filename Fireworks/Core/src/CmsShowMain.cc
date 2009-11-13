@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.103 2009/11/10 15:40:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.104 2009/11/12 21:22:16 amraktad Exp $
 //
 
 // system include files
@@ -440,6 +440,7 @@ void CmsShowMain::openData()
    if (fi.fFilename) {
       m_navigator->loadFile(fi.fFilename);
       m_navigator->firstEvent();
+      checkPosition();
       draw();
    }
    m_guiManager->clearStatus();
@@ -840,6 +841,7 @@ CmsShowMain::setupDataHandling()
          openData();
       } else {
          m_navigator->firstEvent();
+         checkPosition();
          draw();
       }
    }
