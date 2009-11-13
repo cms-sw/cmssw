@@ -8,7 +8,7 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: PhotonDataCertification.cc,v 1.6 2009/10/08 12:02:06 lantonel Exp $
+// $Id: HLTMuonCertSummary.cc,v 1.1 2009/11/12 18:03:19 slaunwhj Exp $
 //
 
 // system include files
@@ -167,13 +167,15 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 
-  dbe_->setCurrentFolder("HLT/EventInfo/");  
+  dbe_->setCurrentFolder("HLT/EventInfo/muonQuality");  
 
   MonitorElement*  reportSummary = dbe_->bookFloat("HLT_MUON_REPORT_SUMMARY");
 
   int SummaryBitResult = 100;
   
   MonitorElement*  CertificationSummary = dbe_->bookFloat("HLT_MUON_CERTIFICATION_SUMMARY");
+
+  
 
   //for now these will hold values from eta/phi tests for spikes/holes
   MonitorElement*  reportSummaryMap = dbe_->book2D("HLT_MUON_ReportSummaryMap","HLT_MUON: ReportSummaryMap",6,-0.5,5.5,1,-0.5,0.5);
@@ -252,8 +254,8 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
       
       //book and fill float for each test done
-      dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents/");  
-      MonitorElement * qValueInt  = dbe_->bookInt(histNameNoPath+"_"+qtname);
+      dbe_->setCurrentFolder("HLT/EventInfo/muonQuality/");  
+      MonitorElement * qValueInt  = dbe_->bookFloat(histNameNoPath+"_HLT_Mu5_"+qtname);
       qValueInt->Fill(qtstatus);
 
       // We're assuming that you want all of the bits to go into the decision
@@ -262,15 +264,15 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (HistoName.find("recPhiVsRecEta_All") != std::string::npos) {
         reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(1,1), qtstatus);
         CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(1,1), qtstatus );
-        if (qtstatus == 200 ) SummaryBitResult = 200;
-        if (qtstatus == 300 ) SummaryBitResult = 300;
+        if ( (qtstatus == 200) && (SummaryBitResult < 300)) SummaryBitResult = 200;
+        if ( (qtstatus == 300) ) SummaryBitResult = 300;
 
       }
 
       if (HistoName.find("recPhiVsRecEta_L3Filtered") != std::string::npos) {
         reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(2,1), qtstatus);
         CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(2,1), qtstatus);
-        if (qtstatus == 200 ) SummaryBitResult = 200;
+        if  ( (qtstatus == 200) && (SummaryBitResult < 300)) SummaryBitResult = 200;
         if (qtstatus == 300 ) SummaryBitResult = 300;
 
       }
@@ -278,7 +280,7 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (HistoName.find("recEffPhiVsEta_L3Filtered") != std::string::npos) {
         reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(3,1), qtstatus );
         CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(3,1), qtstatus);
-        if (qtstatus == 200 ) SummaryBitResult = 200;
+        if ( (qtstatus == 200) && (SummaryBitResult < 300)) SummaryBitResult = 200;
         if (qtstatus == 300 ) SummaryBitResult = 300;
       }
 
@@ -304,6 +306,20 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   reportSummary->Fill(SummaryBitResult);
   CertificationSummary->Fill(SummaryBitResult);
+
+
+
+  // Set the final bits
+
+  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents");
+  MonitorElement* muonHLTQualityBinaryBit = dbe_->bookFloat ("HLT_Muon");
+  
+  if (SummaryBitResult == 100){
+    muonHLTQualityBinaryBit->Fill(1);
+  } else {
+    muonHLTQualityBinaryBit->Fill(0);
+  }
+  
 
 
 }
