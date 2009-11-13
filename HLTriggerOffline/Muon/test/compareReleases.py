@@ -11,24 +11,12 @@ import optparse
 import os
 import re
 
-
+## Set up ROOT in batch mode
 if '-h' not in sys.argv:
-
-    ## Import ROOT in batch mode
     sys.argv.append('-b')
     import ROOT
     ROOT.gROOT.Macro('rootlogon.C')
-    sys.argv.remove('-b') 
-
-    ## Define constants
-    file_type = ".pdf"
-    path_muon = "/DQMData/HLT/Muon"
-    path_dist = "%s/Distributions" % path_muon
-    crossChannel = re.compile("HLT_[^_]*_[^_]*$")
-    colors = [ROOT.kBlue, ROOT.kRed, ROOT.kGreen+2, ROOT.kMagenta+2,
-              ROOT.kYellow+2, ROOT.kCyan+2, ROOT.kBlue+3, ROOT.kRed+3]
-
-    ## Set up style and canvas
+    sys.argv.remove('-b')
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptFit(0)
     ROOT.gStyle.SetErrorX(0.5)
@@ -43,26 +31,37 @@ def main():
     ## Parse command line options
     usage="usage: %prog [options] file1.root file2.root file3.root ..."
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-p', '--path', default="HLT_Mu9",
-                      help="specify which HLT path to focus on")
     parser.add_option('-g', '--gen', action="store_true", default=False,
                       help="skip plots which match to reconstructed muons")
     parser.add_option('-r', '--rec', action="store_true", default=False,
                       help="skip plots which match to generated muons")
+    parser.add_option('-p', '--path', default="HLT_Mu9",
+                      help="specify which HLT path to focus on")
+    parser.add_option('--file-type', default="pdf", metavar="EXT", 
+                      help="choose an output format other than pdf")
     options, arguments = parser.parse_args()
     path = options.path
     source_types = ["gen", "rec"]
     if options.gen: source_types.remove("rec")
     if options.rec: source_types.remove("gen")
 
+    ## Define constants
+    global file_type, path_muon, path_dist, cross_channel_format, colors
+    file_type = options.file_type
+    path_muon = "/DQMData/HLT/Muon"
+    path_dist = "%s/Distributions" % path_muon
+    cross_channel_format = re.compile("HLT_[^_]*_[^_]*$")
+    colors = [ROOT.kBlue, ROOT.kRed, ROOT.kGreen+2, ROOT.kMagenta+2,
+              ROOT.kYellow+2, ROOT.kCyan+2, ROOT.kBlue+3, ROOT.kRed+3]
+
     ## Make plots
     if len(arguments) == 0:
         print "Please provide at least one file as an argument"
         return
-    print "Generating plots for %s path..." % path
+    print "Generating plots for %s path" % path
     files, path_names = get_files_and_path_names(arguments)
     efficiencies = get_global_efficiencies(files, path)
-    filter_names, me_values = get_filter_names_and_me_values(files, path)
+    filter_names, me_values = get_filters_and_MEs(files, path)
     make_efficiency_summary_plot(files, me_values)
     for source_type in ["gen", "rec"]:
         if source_type in source_types:
@@ -79,7 +78,7 @@ def main():
                     plot_name = "%s%s_%s" % ("gen", "TurnOn1", filter)
                     make_efficiency_plot(files, plot_name, path,
                                          efficiencies, me_values)
-    if file_type == ".pdf": mergeOutput(files)
+    if file_type == "pdf": mergeOutput(files)
 
 
 
@@ -139,6 +138,55 @@ def get_filters_and_MEs(files, path):
             me_values[array.At(1).GetName()] = float(array.At(3).GetName())
         obj = keys.After(obj)
     return filter_names, me_values
+
+
+
+def make_efficiency_summary_plot(files, me_values):
+    class Bin:
+        def __init__(self, label, content, error):
+            self.label = label
+            self.content = content
+            self.error = error
+    hists = ROOT.TList()
+    hist_path = "%s/Summary/Efficiency_Summary" % path_muon
+    for this_file in files:
+        hist = ROOT.TH1F(this_file.Get(hist_path))
+        n_bins = hist.GetNbinsX()
+        bins = []
+        for i in range(n_bins):
+            bins.append(Bin(hist.GetXaxis().GetBinLabel(i + 1),
+                            hist.GetBinContent(i + 1),
+                            hist.GetBinError(i + 1)))
+        n_cross = i = 0
+        while i != (len(bins) - n_cross):
+            if cross_channel_format.match(bins[i].label):
+                bins.append(bins.pop(i))
+                n_cross += 1
+            else:
+                i += 1
+        for i, bin in enumerate(bins):
+            hist.GetXaxis().SetBinLabel(i + 1, bin.label)
+            hist.SetBinContent(i + 1, bin.content)
+            hist.SetBinError(i + 1, bin.error)
+        hist_clone = hist.Clone()
+        hist_clone.SetTitle(filename(this_file))
+        hists.Add(hist_clone)
+    if hists.At(0):
+        plot(hists, "Summary", "Efficiency Summary")
+
+
+
+def make_efficiency_plot(files, plot_name, path, efficiencies, me_values):
+    hists = ROOT.TList()
+    hist_path = "%s/%s/%s" % (path_dist, path, plot_name)
+    hist_title = ROOT.TH1F(files[0].Get(hist_path)).GetTitle()
+    for this_file in files:
+        hist = ROOT.TH1F(this_file.Get(hist_path))
+        hist_clone = hist.Clone()
+        hist_clone.SetTitle(filename(this_file))
+        hists.Add(hist_clone)
+    if hists.At(0):
+        plot(hists, plot_name, hist_title, efficiencies, me_values, path)
 
 
 
@@ -217,56 +265,7 @@ def plot(hists, hist_name, hist_title,
     if path: hist_title += " step in %s" % path
     last.SetTitle(hist_title)
     ROOT.gPad.Update()
-    c1.SaveAs("%.3i%s" % (plot_num, file_type))
-
-
-
-def make_efficiency_summary_plot(files, me_values):
-    class Bin:
-        def __init__(self, label, content, error):
-            self.label = label
-            self.content = content
-            self.error = error
-    hists = ROOT.TList()
-    hist_path = "%s/Summary/Efficiency_Summary" % path_muon
-    for this_file in files:
-        hist = ROOT.TH1F(this_file.Get(hist_path))
-        n_bins = hist.GetNbinsX()
-        bins = []
-        for i in range(n_bins):
-            bins.append(Bin(hist.GetXaxis().GetBinLabel(i + 1),
-                            hist.GetBinContent(i + 1),
-                            hist.GetBinError(i + 1)))
-        n_cross = i = 0
-        while i != (len(bins) - n_cross):
-            if crossChannel.match(bins[i].label):
-                bins.append(bins.pop(i))
-                n_cross += 1
-            else:
-                i += 1
-        for i, bin in enumerate(bins):
-            hist.GetXaxis().SetBinLabel(i + 1, bin.label)
-            hist.SetBinContent(i + 1, bin.content)
-            hist.SetBinError(i + 1, bin.error)
-        hist_clone = hist.Clone()
-        hist_clone.SetTitle(filename(this_file))
-        hists.Add(hist_clone)
-    if hists.At(0):
-        plot(hists, "Summary", "Efficiency Summary")
-
-
-
-def make_efficiency_plot(files, plot_name, path, efficiencies, me_values):
-    hists = ROOT.TList()
-    hist_path = "%s/%s/%s" % (path_dist, path, plot_name)
-    hist_title = ROOT.TH1F(files[0].Get(hist_path)).GetTitle()
-    for this_file in files:
-        hist = ROOT.TH1F(this_file.Get(hist_path))
-        hist_clone = hist.Clone()
-        hist_clone.SetTitle(filename(this_file))
-        hists.Add(hist_clone)
-    if hists.At(0):
-        plot(hists, plot_name, hist_title, efficiencies, me_values, path)
+    c1.SaveAs("%.3i.%s" % (plot_num, file_type))
 
 
 
