@@ -22,8 +22,8 @@ class HectorProducer : public edm::EDProducer
  public:
   HectorProducer(edm::ParameterSet const & p);    //!< default constructor
   virtual ~HectorProducer();   //!< default destructor
-  virtual void beginJob(const edm::EventSetup & c);
-  virtual void endJob();
+  virtual void beginJob() {}
+  virtual void endJob() {}
   void produce(edm::Event & iEvent, const edm::EventSetup & es);   //!< this method will do the user analysis
  private:
   int eventsAnalysed; //!< just to count events that have been analysed

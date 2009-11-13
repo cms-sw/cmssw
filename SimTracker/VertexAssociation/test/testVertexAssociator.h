@@ -34,7 +34,7 @@ class testVertexAssociator : public edm::EDAnalyzer {
  public:
   testVertexAssociator(const edm::ParameterSet& conf);
   virtual ~testVertexAssociator();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 

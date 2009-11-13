@@ -20,7 +20,7 @@ class testTrackAssociator : public edm::EDAnalyzer {
  public:
   testTrackAssociator(const edm::ParameterSet& conf);
   virtual ~testTrackAssociator();
-  virtual void beginJob( const edm::EventSetup& );  
+  virtual void beginJob() {}  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:

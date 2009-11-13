@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.17 2008/10/30 13:46:58 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.18 2009/02/27 15:53:46 vesna Exp $
 //
 //
 // system include files
@@ -93,7 +93,7 @@ public:
 
   explicit PixelDigisTest(const edm::ParameterSet&);
   ~PixelDigisTest();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
 
@@ -166,7 +166,7 @@ PixelDigisTest::~PixelDigisTest() {
 // member functions
 //
 // ------------ method called at the begining   ------------
-void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
+void PixelDigisTest::beginJob() {
 
    using namespace edm;
    cout << "Initialize PixelDigisTest " <<endl;

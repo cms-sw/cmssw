@@ -43,9 +43,10 @@ namespace cms
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-    virtual void beginJob(const edm::EventSetup &es);
+    virtual void beginJob() {}
   private:
     edm::ParameterSet conf_;
+    bool first;
     SiPixelDigitizerAlgorithm*  _pixeldigialgo;
     typedef std::vector<std::string> vstring;
     vstring trackerContainers;

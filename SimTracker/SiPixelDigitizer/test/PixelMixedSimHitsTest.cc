@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.3 2006/10/24 09:50:40 dkotlins Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.4 2007/03/07 16:53:07 wmtan Exp $
 //
 //
 // system include files
@@ -68,7 +68,7 @@ class PixelMixedSimHitsTest : public edm::EDAnalyzer {
 public:
   explicit PixelMixedSimHitsTest(const edm::ParameterSet&);
   ~PixelMixedSimHitsTest();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
 
@@ -130,7 +130,7 @@ PixelMixedSimHitsTest::~PixelMixedSimHitsTest() {
 }
 
 // ------------ method called at the begining   ------------
-void PixelMixedSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
+void PixelMixedSimHitsTest::beginJob() {
 
    using namespace edm;
    cout << "Initialize PixelSimHitsTest " <<endl;

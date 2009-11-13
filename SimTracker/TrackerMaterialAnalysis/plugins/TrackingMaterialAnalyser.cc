@@ -131,7 +131,9 @@ void TrackingMaterialAnalyser::endJob(void)
 }
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::beginJob(const edm::EventSetup & setup)
+
+//-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   edm::ESHandle<DDCompactView> hDDD;
   setup.get<IdealGeometryRecord>().get( hDDD );
@@ -145,11 +147,7 @@ void TrackingMaterialAnalyser::beginJob(const edm::EventSetup & setup)
   for (unsigned int i = 0; i < m_groups.size(); ++i)
     std::cout << '\t' << m_groups[i]->info() << std::endl;
   std::cout << std::endl;
-}
 
-//-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{
   edm::Handle< std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByLabel(m_material, h_tracks);
 

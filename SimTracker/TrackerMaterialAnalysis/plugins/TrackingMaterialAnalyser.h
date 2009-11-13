@@ -28,7 +28,7 @@ private:
   };
   
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob(const edm::EventSetup &);
+  void beginJob() {}
   void endJob();
 
   void split( MaterialAccountingTrack & track );

@@ -72,7 +72,7 @@ public:
   
 private:
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob(const edm::EventSetup &);
+  void beginJob() {}
   void endJob();
 };
 
@@ -83,11 +83,7 @@ ListIds::~ListIds() {
 }
 
 void
-ListIds::analyze(const edm::Event &, const edm::EventSetup &) {
-}
-
-void
-ListIds::beginJob(const edm::EventSetup & setup) {
+ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
   std::cout << "______________________________ DDD ______________________________" << std::endl;
   edm::ESHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );

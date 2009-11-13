@@ -14,7 +14,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTestForward.cc,v 1.3 2006/10/24 09:50:40 dkotlins Exp $
+// $Id: PixelSimHitsTestForward.cc,v 1.4 2007/03/07 16:53:07 wmtan Exp $
 //
 //
 // system include files
@@ -69,7 +69,7 @@ class PixelSimHitsTestForward : public edm::EDAnalyzer {
 public:
   explicit PixelSimHitsTestForward(const edm::ParameterSet&);
   ~PixelSimHitsTestForward();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
 
@@ -140,7 +140,7 @@ PixelSimHitsTestForward::~PixelSimHitsTestForward() {
 // member functions
 //
 // ------------ method called at the begining   ------------
-void PixelSimHitsTestForward::beginJob(const edm::EventSetup& iSetup) {
+void PixelSimHitsTestForward::beginJob() {
 
    using namespace edm;
    cout << "Initialize PixelSimHitsTestForward " <<endl;

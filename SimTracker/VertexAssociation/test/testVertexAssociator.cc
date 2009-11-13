@@ -46,25 +46,11 @@ testVertexAssociator::~testVertexAssociator() {
 
 }
 
-void testVertexAssociator::beginJob(const EventSetup & setup) {
+void testVertexAssociator::beginJob() {
 
-  edm::ESHandle<MagneticField> theMF;
-  setup.get<IdealMagneticFieldRecord>().get(theMF);
 
-  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
-  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
-
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
-
-  edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
-  setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
-  associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
-
-   edm::Service<TFileService> fs; 
-
+  edm::Service<TFileService> fs; 
+  
    //RecoToSim Histos
 
   rs_dist = fs->make<TH1F>("rs_dist","r Miss Distance (cm)",100,0,0.1);
@@ -117,6 +103,21 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
   using namespace edm;
   using namespace reco;
+
+  edm::ESHandle<MagneticField> theMF;
+  setup.get<IdealMagneticFieldRecord>().get(theMF);
+
+  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
+  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
+
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+
+  edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
+  setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
+  associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
 
   ++n_event_;
 

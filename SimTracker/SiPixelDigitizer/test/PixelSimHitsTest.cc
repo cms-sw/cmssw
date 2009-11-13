@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTest.cc,v 1.6 2006/10/24 09:50:40 dkotlins Exp $
+// $Id: PixelSimHitsTest.cc,v 1.7 2007/03/07 16:53:07 wmtan Exp $
 //
 //
 // system include files
@@ -68,7 +68,7 @@ class PixelSimHitsTest : public edm::EDAnalyzer {
 public:
   explicit PixelSimHitsTest(const edm::ParameterSet&);
   ~PixelSimHitsTest();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
 
@@ -130,7 +130,7 @@ PixelSimHitsTest::~PixelSimHitsTest() {
 }
 
 // ------------ method called at the begining   ------------
-void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
+void PixelSimHitsTest::beginJob() {
 
    using namespace edm;
    cout << "Initialize PixelSimHitsTest " <<endl;

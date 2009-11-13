@@ -14,9 +14,6 @@ testReader::testReader(const edm::ParameterSet& parset) :
 testReader::~testReader() {
 }
 
-void testReader::beginJob(const edm::EventSetup & setup) {
-}
-
 void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {  
   edm::Handle<edm::View<reco::Track> > trackCollectionH;

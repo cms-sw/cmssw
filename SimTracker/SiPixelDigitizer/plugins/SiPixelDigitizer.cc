@@ -14,7 +14,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 //   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.4 2008/06/30 17:56:42 fambrogl Exp $
+// $Id: SiPixelDigitizer.cc,v 1.5 2009/10/16 09:27:37 fambrogl Exp $
 //
 //
 
@@ -84,7 +84,7 @@
 namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig):
-    conf_(iConfig)
+    conf_(iConfig),first(true)
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -107,10 +107,6 @@ namespace cms
     _pixeldigialgo = new SiPixelDigitizerAlgorithm(iConfig,(*rndEngine));
 
   }
-
-  void SiPixelDigitizer::beginJob(const edm::EventSetup& es){
-    _pixeldigialgo->init(es);
-  }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
     edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";
@@ -126,6 +122,12 @@ namespace cms
   void
   SiPixelDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
+
+    if(first){
+      _pixeldigialgo->init(iSetup);
+      first = false;
+    }
+
     // Step A: Get Inputs
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;

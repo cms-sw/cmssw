@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.5 2009/02/03 17:24:58 vlimant Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.6 2009/02/03 17:31:24 vlimant Exp $
 //
 //
 
@@ -36,11 +36,12 @@ public:
   ~TrackAssociatorEDProducer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() {}
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
   edm::ESHandle<TrackAssociatorBase> theAssociator;
+  bool first;
   edm::InputTag label_tr;
   edm::InputTag label_tp;
   std::string associator;
@@ -48,6 +49,7 @@ private:
 };
 
 TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& pset):
+  first(true),
   label_tr(pset.getParameter< edm::InputTag >("label_tr")),
   label_tp(pset.getParameter< edm::InputTag >("label_tp")),
   associator(pset.getParameter< std::string >("associator")),
@@ -71,7 +73,10 @@ TrackAssociatorEDProducer::~TrackAssociatorEDProducer() {
 void
 TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;
-
+   if(first){
+     iSetup.get<TrackAssociatorRecord>().get(associator,theAssociator);
+     first = false;
+   }
    Handle<TrackingParticleCollection>  TPCollection ;
    iEvent.getByLabel(label_tp, TPCollection);
      
@@ -104,13 +109,6 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TrackAssociatorEDProducer::beginJob(const edm::EventSetup& setup) {
-  // Get associator from eventsetup
-
-  setup.get<TrackAssociatorRecord>().get(associator,theAssociator);
-   
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
