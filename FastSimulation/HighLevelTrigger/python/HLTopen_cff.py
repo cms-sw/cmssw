@@ -397,21 +397,30 @@ DoHLTAlCaPi0Eta8E29 = cms.Path(
 ##    cms.SequencePlaceholder("HLTEndSequence"))
 ##    )
 
-DoHLTIsoTrack = cms.Path(
+DoHLTIsoTrackHE = cms.Path(
     HLTBeginSequence +
     hltL1sIsoTrack1E31 +
-##    #hltPreIsoTrack1E31 +
-#    HLTL2HcalIsolTrackSequence +
-#    hltIsolPixelTrackProd1E31 +
-#    hltIsolPixelTrackL2Filter1E31 +
+    hltPreIsoTrackHE1E31 +
+    HLTL2HcalIsolTrackSequenceHE +
+    hltIsolPixelTrackProdHE1E31 +
+    hltIsolPixelTrackL2FilterHE1E31 +
     HLTDoLocalStripSequence +
-#    hltHITPixelPairSeedGenerator1E31 +
-#    hltHITPixelTripletSeedGenerator1E31 +
-#    hltHITSeedCombiner1E31 +
-#    hltHITCkfTrackCandidates1E31 +
-#    hltHITCtfWithMaterialTracks1E31 +
-#    hltHITIPTCorrector1E31 +
+    hltHITPixelTripletSeedGeneratorHE1E31 +
+    hltHITCkfTrackCandidatesHE1E31 +
+    hltHITCtfWithMaterialTracksHE1E31 +
+    hltHITIPTCorrectorHE1E31 +
     cms.SequencePlaceholder("HLTEndSequence"))
 
-
-
+DoHLTIsoTrackHB = cms.Path(
+    HLTBeginSequence +
+    hltL1sIsoTrack1E31 +
+    hltPreIsoTrackHB1E31 +
+    HLTL2HcalIsolTrackSequenceHB +
+    hltIsolPixelTrackProdHB1E31 +
+    hltIsolPixelTrackL2FilterHB1E31 +
+    HLTDoLocalStripSequence +
+    hltHITPixelTripletSeedGeneratorHB1E31 +
+    hltHITCkfTrackCandidatesHB1E31 +
+    hltHITCtfWithMaterialTracksHB1E31 +
+    hltHITIPTCorrectorHB1E31 +
+    cms.SequencePlaceholder("HLTEndSequence"))
