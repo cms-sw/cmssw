@@ -2,6 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
 
+def run33xOnReRecoMC( process,
+                      genJets = "ak5GenJets"):
+    """
+    ------------------------------------------------------------------
+    running GenJets for ak5 and ak7
+
+    process : process
+    genJets : which gen jets to run
+    ------------------------------------------------------------------    
+    """
+    print "*********************************************************************"
+    print "NOTE TO USER: when running on 31X samples re-recoed in 3.3.2         "
+    print "              with this CMSSW version of PAT                         "
+    print "              it is required to re-run the GenJet production for     "
+    print "              anti-kT since that is not part of the re-reco          "
+    print "*********************************************************************"
+    process.load("RecoJets.Configuration.GenJetParticles_cff")
+    process.load("RecoJets.JetProducers." + genJets +"_cfi")
+    process.makeAllLayer1Jets.replace( process.patJetCharge, process.genParticlesForJets+getattr(process,genJets)+process.patJetCharge)
+
+
+
 
 def run33xOn31xMC(process,
                   jetSrc = cms.InputTag("antikt5CaloJets"),
