@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.4 2009/11/10 15:00:42 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.5 2009/11/12 23:55:59 fwyzard Exp $
 //
 
 
@@ -45,29 +45,36 @@ private:
       uint32_t prescale;        // current prescale for this Category
       uint64_t counter;         // number of events that fired this Category
       uint64_t accepted;        // number of events acepted for this Category
+      bool     done;            // track if this Category has already been seen in the current event
 
       CategoryEntry(uint32_t t = 0) :
         threshold(t),           // default-constructed entries have the threshold set to 0, which means the associated Category is disabled
         prescale(1),
         counter(0),
-        accepted(0)
+        accepted(0),
+        done(false)
       { }
 
       bool accept() {
-        ++counter;
+        if (not done) {
+          done = true;
+          ++counter;
 
-        // fail if the prescaler is disabled (threshold == 0), or if the counter is not a multiple of the prescale
-        if ((threshold == 0) or (counter % prescale))
-          return false;
+          // fail if the prescaler is disabled (threshold == 0), or if the counter is not a multiple of the prescale
+          if ((threshold == 0) or (counter % prescale))
+            return false;
 
-        // quasi-logarithmic increase in the prescale factor (should be safe even if threshold is 1)
-        if (counter == prescale * threshold)
-          prescale *= threshold;
+          // quasi-logarithmic increase in the prescale factor (should be safe even if threshold is 1)
+          if (counter == prescale * threshold)
+            prescale *= threshold;
 
-        ++accepted;
-        return true;
+          ++accepted;
+          return true;
+        }
       }
     };
+
+    typedef std::map<std::string, CategoryEntry> CategoryMap;
 
     // ---------- private methods -----------------------
 
@@ -94,8 +101,8 @@ private:
 
 
     // ---------- member data ---------------------------
-    uint32_t                             m_prescale;    // default threshold, after which messages in each Category start to be logarithmically prescaled
-    std::map<std::string, CategoryEntry> m_data;        // map each category name to its prescale data
+    uint32_t    m_prescale;    // default threshold, after which messages in each Category start to be logarithmically prescaled
+    CategoryMap m_data;        // map each category name to its prescale data
 };
 
 
@@ -146,11 +153,14 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
   if (not edm::MessageSender::freshError)
     return false;
 
+  // clear "done" flag in all Categories
+  BOOST_FOREACH(CategoryMap::value_type & entry, m_data)
+    entry.second.done = false;
+
   // look at the LogErrors and LogWarnings, and accept the event if at least one is under threshold or matches the prescale
   bool accept = false;
   std::string category;
-  // FIXME: is __typeof__ allowed ?
-  // typedef __typeof__(edm::MessageSender::errorSummaryMap) ErrorSummaryMap;
+
   typedef std::map<edm::ErrorSummaryMapKey, unsigned int> ErrorSummaryMap;
   BOOST_FOREACH(const ErrorSummaryMap::value_type & entry, edm::MessageSender::errorSummaryMap) {
     // split the message category
@@ -205,7 +215,7 @@ bool HLTLogMonitorFilter::knownCategory(const std::string & category) {
 /// create a new entry for the given category, with the given threshold value
 HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::addCategory(const std::string & category, uint32_t threshold) {
   // check after inserting, as either the new CategoryEntry is needed, or an error condition is raised
-  std::pair<std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::iterator, bool> result = m_data.insert( std::make_pair(category, CategoryEntry(threshold)) );
+  std::pair<CategoryMap::iterator, bool> result = m_data.insert( std::make_pair(category, CategoryEntry(threshold)) );
   if (not result.second)
     throw cms::Exception("Configuration") << "Duplicate entry for category " << category;
   return result.first->second;
@@ -214,7 +224,7 @@ HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::addCategory(const std:
 /// return the entry for requested category, if it exists, or create a new one with the default threshold value
 HLTLogMonitorFilter::CategoryEntry & HLTLogMonitorFilter::getCategory(const std::string & category) {
   // check before inserting, to avoid the construction of a CategoryEntry object
-  std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::iterator i = m_data.find(category);
+  CategoryMap::iterator i = m_data.find(category);
   if (i != m_data.end())
     return i->second;
   else
@@ -226,8 +236,7 @@ void HLTLogMonitorFilter::summary(void) {
   std::stringstream out;
   out << "Log-Report ---------- HLTLogMonitorFilter Summary ------------\n"
       << "Log-Report  Threshold   Prescale     Issued   Accepted   Rejected Category\n";
-  typedef std::map<std::string, HLTLogMonitorFilter::CategoryEntry>::value_type Entry;
-  BOOST_FOREACH(const Entry & entry, m_data) {
+  BOOST_FOREACH(const CategoryMap::value_type & entry, m_data) {
     out << "Log-Report "
         << std::right
         << std::setw(10) << entry.second.threshold << ' '
