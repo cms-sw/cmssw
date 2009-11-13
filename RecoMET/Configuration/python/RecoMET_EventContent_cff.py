@@ -12,7 +12,8 @@ RecoMETFEVT = cms.PSet(
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'keep recoHcalNoiseRBXs_*_*_*',
-                                           'keep HcalNoiseSummary_*_*_*'
+                                           'keep HcalNoiseSummary_*_*_*',
+                                           'keep *HaloData_*_*_*'
                                            )
     )
 RecoGenMETFEVT = cms.PSet(
@@ -30,8 +31,9 @@ RecoMETRECO = cms.PSet(
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'keep recoHcalNoiseRBXs_*_*_*',
-                                           'keep HcalNoiseSummary_*_*_*'
-                                                                                      )
+                                           'keep HcalNoiseSummary_*_*_*',
+                                           'keep *HaloData_*_*_*'
+                                           )
     )
 RecoGenMETRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenMETs_*_*_*')
