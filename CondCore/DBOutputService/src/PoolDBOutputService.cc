@@ -364,7 +364,6 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
     editor->freeInsert(sinceTime,payloadToken) :
     editor->append(sinceTime,payloadToken);
   editor->stamp(cond::userInfo(),false);
-
   return payloadIdx;
 }
 
@@ -382,8 +381,6 @@ cond::service::PoolDBOutputService::insertIOV( cond::DbSession& pooldb,
   std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(record.m_iovtoken));
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
   editor->stamp(cond::userInfo(),false);
-
-  delete editor;    
   return payloadIdx;
 }
 

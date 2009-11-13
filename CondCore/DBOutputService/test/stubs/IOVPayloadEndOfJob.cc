@@ -39,9 +39,7 @@ void IOVPayloadEndOfJob::endJob(){
       }
       //create 
       cond::Time_t firstSinceTime=mydbservice->beginOfTime();
-      cond::Time_t firstTillTime=mydbservice->endOfTime();
        std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
-       std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
        mydbservice->writeOne(myped,new cond::GenericSummary("first"),firstSinceTime,m_record);
     }else{
       //append 
