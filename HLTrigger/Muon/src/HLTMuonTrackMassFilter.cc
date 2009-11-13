@@ -31,7 +31,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   muonTag_(iConfig.getParameter<edm::InputTag>("muonCandidates")),
   trackTag_(iConfig.getParameter<edm::InputTag>("trackCandidates")),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("previousCandidates")),
-  saveTag_(iConfig.getParameter<bool>("saveTag")),
+  saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag",false)),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
