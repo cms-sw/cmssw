@@ -1,11 +1,13 @@
 #include "RecoMET/METAlgorithms/interface/EcalHaloAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
 /*
   [class]:  EcalHaloAlgo
   [authors]: R. Remington, The University of Florida
   [description]: See EcalHaloAlgo.h
   [date]: October 15, 2009
 */
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -136,10 +138,10 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   std::vector<float> vShowerShapes_Angle ;
   for(reco::SuperClusterCollection::const_iterator cluster = TheSuperClusters->begin() ; cluster != TheSuperClusters->end() ; cluster++ )
     {
-      if( abs(cluster->eta()) <= 1.47 )
+      /* R. Remington :  Commenting out until we debug the showerRoundness() function for 34X. 
+ 
+	 if( abs(cluster->eta()) <= 1.47 )
 	{ 
-	  cout << "cluster (phi,eta,E) : " <<  "("<< cluster->phi() << ","<< cluster->eta() <<","<<cluster->energy() << ")" << endl;
-	  cout << "NHits: " << TheEBRecHits->size() << endl;
 	  vector<float> shapes = EcalClusterTools::showerRoundness( *cluster, &(*TheEBRecHits.product()) );
 	  float roundness = shapes[0];
 	  float angle = shapes[1];
@@ -159,6 +161,11 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  vShowerShapes_Roundness.push_back(-1.);
 	  vShowerShapes_Angle.push_back(-1.);
 	}
+      */
+      
+      
+      vShowerShapes_Roundness.push_back(-1.);                                                                                                    
+      vShowerShapes_Angle.push_back(-1.);      
     }
   
   edm::ValueMap<float>::Filler TheFiller( TheEcalHaloData.GetShowerShapesRoundness() );
