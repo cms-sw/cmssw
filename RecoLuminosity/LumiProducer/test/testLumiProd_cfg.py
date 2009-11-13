@@ -25,8 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('lumiid'),
-    firstValue = cms.uint64(356641199357953),
-    lastValue = cms.uint64(356641199357973),
+    firstValue = cms.uint64(515481974865922),
+    lastValue = cms.uint64(515481974866107),
     interval = cms.uint64(1)
 )
 
@@ -35,12 +35,8 @@ process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreami
 process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
-      record = cms.string('LuminosityInfoRcd'),
-      tag = cms.string('lumi83037_v1')
-    ),
-    cms.PSet(
-      record = cms.string('HLTScalerRcd'),
-      tag = cms.string('hltscaler83037')
+      record = cms.string('LumiSectionDataRcd'),
+      tag = cms.string('testlumiroot')
     )
 )
 

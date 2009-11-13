@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.13 2009/11/09 19:48:06 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.14 2009/11/13 14:05:22 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,7 +73,6 @@ private:
 //
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 {
-  std::cout<<"LumiProducer::LumiProducer"<<std::endl;
   // register your products
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
@@ -108,27 +107,28 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     iSetup.get<LumiSectionDataRcd>().get(pLumi);
     myLumi=pLumi.product();
     if(!myLumi){
-      //std::cout<<"no lumi data found"<<std::endl;
-      std::string errmsg("NULL lumi object ");
+      //std::cout<<"filling default because no lumi data found"<<std::endl;
+      //std::string errmsg("NULL lumi object ");
       this->fillDefaultLumi(iLBlock);
       return;
       //throw cms::Exception(" LumiProducer",errmsg);
     }
     if(myLumi->lumiVersion()=="-99"){
+      //std::cout<<"filling default because no lumi version -99"<<std::endl;
       this->fillDefaultLumi(iLBlock);
       return;
     }
     /**summary information
-     if avginsdellumi is -99, it signals that there is no lumi data written for this lumisection,consequently, all the l1 and hlt values are empty. So users should check and decide what to do.
-     
-     avginsdellumi: average instante lumi value 
-     avginsdellumierr:  average instante lumi error
-     lumisecqual: lumi section quality
-     lsnumber: lumisection number
-     deadfrac: deadtime normalization
-     l1data
-     hldata
-  */
+       if avginsdellumi is -99, it signals that there is no lumi data written for this lumisection,consequently, all the l1 and hlt values are empty. So users should check and decide what to do.
+       
+       avginsdellumi: average instante lumi value 
+       avginsdellumierr:  average instante lumi error
+       lumisecqual: lumi section quality
+       lsnumber: lumisection number
+       deadfrac: deadtime normalization
+       l1data
+       hldata
+    */
     float avginsdellumi=myLumi->lumiAverage();
     float avginsdellumierr=myLumi->lumiError();
     short lumisecqual=myLumi->lumiquality();
@@ -193,6 +193,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     std::auto_ptr<LumiDetails> pOut2(pIn2);
     iLBlock.put(pOut2);
   }catch(const edm::eventsetup::NoRecordException<LumiSectionDataRcd>& er){
+    //std::cout<<"filling default because NoRecordException"<<std::endl;
     this->fillDefaultLumi(iLBlock);
     return;
   }
