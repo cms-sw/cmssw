@@ -8,7 +8,7 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: HLTOverallSummary.cc,v 1.2 2009/11/13 12:45:05 slaunwhj Exp $
+// $Id: HLTOverallSummary.cc,v 1.3 2009/11/13 12:53:02 slaunwhj Exp $
 //
 
 // system include files
@@ -191,7 +191,7 @@ HLTOverallSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
     LogInfo ("HLTMuonVal") << "Can't find eleQuality bit... making a bit, setting it to zero" << endl;
 
     eleQualityBit = dbe_->bookFloat("HLT_Electron");
-    muonQualityBit->Fill(defaultValueIfNotFound);      
+    eleQualityBit->Fill(defaultValueIfNotFound);      
   }
 
   MonitorElement*  photonQualityBit = 0;
