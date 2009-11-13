@@ -311,9 +311,6 @@ namespace edm
     
   }
 
-  void MixingModule::beginJob(edm::EventSetup const&iSetup) {
-  }
-  
   
   void MixingModule::checkSignal(const edm::Event &e){
     if (workers_.size()==0){

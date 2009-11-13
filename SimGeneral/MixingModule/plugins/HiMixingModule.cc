@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.2 2009/10/22 17:15:59 yilmaz Exp $
+// $Id: HiMixingModule.cc,v 1.4 2009/10/28 10:44:26 yilmaz Exp $
 //
 //
 
@@ -151,7 +151,7 @@ class HiMixingModule : public edm::EDProducer {
       ~HiMixingModule();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
@@ -253,7 +253,7 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HiMixingModule::beginJob(const edm::EventSetup&)
+HiMixingModule::beginJob()
 {
 }
 

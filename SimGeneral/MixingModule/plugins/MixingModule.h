@@ -50,7 +50,7 @@ namespace edm
       /**Default destructor*/
       virtual ~MixingModule();
 
-      virtual void beginJob(edm::EventSetup const&iSetup);
+      virtual void beginJob() {}
  
     private:
       virtual void branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label);
