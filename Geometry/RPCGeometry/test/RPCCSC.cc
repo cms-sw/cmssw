@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.3 2009/03/09 00:54:28 carrillo Exp $
+// $Id: RPCCSC.cc,v 1.4 2009/08/25 23:22:32 case Exp $
 //
 //
 
@@ -86,7 +86,7 @@ class RPCCSC : public edm::EDAnalyzer {
 
 
     private:
-        virtual void beginJob(const edm::EventSetup&) ;
+        virtual void beginJob() ;
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
         virtual void endJob() ;
 
@@ -129,13 +129,13 @@ RPCCSC::~RPCCSC()
 
 
 // ------------ method called to for each event  ------------
-void RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void RPCCSC::beginJob() {
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-    void 
-RPCCSC::beginJob(const edm::EventSetup& iSetup)
+void 
+RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   edm::ESHandle<RPCGeometry> pRPCGeom;

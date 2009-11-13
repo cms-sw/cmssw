@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.3 2009/06/08 09:12:13 carrillo Exp $
+// $Id: RPCGEO.cc,v 1.4 2009/08/25 23:22:32 case Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class RPCGEO : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -456,7 +456,7 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RPCGEO::beginJob(const edm::EventSetup&)
+RPCGEO::beginJob()
 {
 }
 

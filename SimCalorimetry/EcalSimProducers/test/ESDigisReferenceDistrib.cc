@@ -65,7 +65,7 @@ ESDigisReferenceDistrib::~ESDigisReferenceDistrib(){
   if (meESDigi3D_) delete meESDigi3D_;
 }
 
-void ESDigisReferenceDistrib::beginJob(const EventSetup& c){ }
+void ESDigisReferenceDistrib::beginJob(){ }
 
 void ESDigisReferenceDistrib::endJob(){ }
 
