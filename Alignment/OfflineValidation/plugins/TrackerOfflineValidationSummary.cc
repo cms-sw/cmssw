@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.2 2009/10/13 14:44:22 hauk Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.3 2009/10/28 17:24:26 hauk Exp $
 //
 //
 
@@ -82,16 +82,41 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
         TH1* NormResYprimeHisto;
       };
       
+      /// Put here the histograms created during harvesting
+      struct HarvestingHistos{
+        HarvestingHistos() : DmrXprime(), DmrYprime() {}
+	TH1* DmrXprime;
+	TH1* DmrYprime;
+      };
+      
+      struct HarvestingHierarchy{
+        HarvestingHierarchy() {}
+	HarvestingHierarchy(const std::string& name, const std::string& component, const std::vector<unsigned int>& entries) : hierarchyName(name), componentName(component), treeEntries(entries) {}
+	// Needed for naming of histogram according to residual histograms
+	std::string hierarchyName;
+	// "Pixel" or "Strip"
+	std::string componentName;
+	// Modules belonging to selected hierarchy
+	std::vector<unsigned int> treeEntries;
+	HarvestingHistos harvestingHistos;
+      };
+      
       virtual void analyze(const edm::Event& evt, const edm::EventSetup&);
       virtual void endJob() ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
-		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom );
+		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom, std::map<std::string,std::string>& substructureName);
       
       std::pair<float,float> fitResiduals(TH1* hist)const;
       float getMedian(const TH1* hist)const;
       
-      void associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists);
+      void associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName);
+      
+      void collateHarvestingHists(TTree& tree);
+      void applyHarvestingHierarchy(TTree& treeMem);
+      void bookHarvestingHists();
+      void getBinning(const std::string& binningPSetName, int& nBinsX, double& lowerBoundX, double& upperBoundX)const;
+      void fillHarvestingHists(TTree& tree);
       
       // ----------member data ---------------------------
       
@@ -112,6 +137,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTidResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTobResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTecResiduals_;
+      
+      std::vector<HarvestingHierarchy> vHarvestingHierarchy_;
 };
 
 //
@@ -193,51 +220,56 @@ TrackerOfflineValidationSummary::endJob()
   // This works because we have a dictionary for 'TkOffTreeVariables'
   // (see src/classes_def.xml and src/classes.h):
   tree->Branch("TkOffTreeVariables", &treeMemPtr); // address of pointer!
+  // second branch needed for assigning names and titles to harvesting histograms consistent to others
+  std::map<std::string,std::string> *substructureName = new std::map<std::string,std::string>;
+  tree->Branch("SubstructureName", &substructureName, 32000, 00);  // SplitLevel must be set to zero
   
-  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_);
-  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_);
-  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_);
-  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_);
-  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_);
-  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_);
+  
+  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
   
   //dbe_->showDirStructure();
   //dbe_->save("dqmOut.root");
   
-  // Put here the method for filling histograms which show summarized values (mean, rms, median ...)
+  // Method for filling histograms which show summarized values (mean, rms, median ...)
   // of the module-based histograms from TrackerOfflineValidation
+  this->collateHarvestingHists(*tree);
   
   delete tree; tree = 0;
   delete treeMemPtr; treeMemPtr = 0;
+  delete substructureName; substructureName = 0;
 }
 
 
 void 
 TrackerOfflineValidationSummary::fillTree(TTree& tree,
 				   std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist,
-				   TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom)
+				   TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom, std::map<std::string,std::string>& substructureName)
 {
   for(std::map<int, TrackerOfflineValidationSummary::ModuleHistos>::iterator it = moduleHist.begin(), 
 	itEnd= moduleHist.end(); it != itEnd;++it ) { 
     treeMem.clear(); // make empty/default
     
     //variables concerning the tracker components/hierarchy levels
-    DetId detId_ = it->first;
-    treeMem.moduleId = detId_;
-    treeMem.subDetId = detId_.subdetId();
-    treeMem.isDoubleSide =0;
+    const DetId detId = it->first;
+    treeMem.moduleId = detId;
+    treeMem.subDetId = detId.subdetId();
 
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
-      PXBDetId pxbId(detId_);
-      unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...
+      PXBDetId pxbId(detId);
+      unsigned int whichHalfBarrel(1), rawId(detId.rawId());  //DetId does not know about halfBarrels is PXB ...
       if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
       treeMem.layer = pxbId.layer();
       treeMem.half = whichHalfBarrel; 
       treeMem.rod = pxbId.ladder();     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer! Needs complicated calculation in associateModuleHistsWithTree()
       treeMem.module = pxbId.module();
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
-      PXFDetId pxfId(detId_); 
-      unsigned int whichHalfCylinder(1), rawId(detId_.rawId());  //DetId does not kmow about halfCylinders in PXF
+      PXFDetId pxfId(detId); 
+      unsigned int whichHalfCylinder(1), rawId(detId.rawId());  //DetId does not kmow about halfCylinders in PXF
       if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
       treeMem.layer = pxfId.disk(); 
       treeMem.side = pxfId.side();
@@ -246,8 +278,8 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.panel = pxfId.panel();
       treeMem.module = pxfId.module();
     } else if(treeMem.subDetId == StripSubdetector::TIB){
-      TIBDetId tibId(detId_); 
-      unsigned int whichHalfShell(1), rawId(detId_.rawId());  //DetId does not kmow about halfShells in TIB
+      TIBDetId tibId(detId); 
+      unsigned int whichHalfShell(1), rawId(detId.rawId());  //DetId does not kmow about halfShells in TIB
        if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
             (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
 	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
@@ -261,7 +293,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.isStereo = tibId.stereo();
       treeMem.isDoubleSide = tibId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TID){
-      TIDDetId tidId(detId_); 
+      TIDDetId tidId(detId); 
       treeMem.layer = tidId.wheel(); 
       treeMem.side = tidId.side();
       treeMem.ring = tidId.ring(); 
@@ -270,7 +302,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.isStereo = tidId.stereo();
       treeMem.isDoubleSide = tidId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TOB){
-      TOBDetId tobId(detId_); 
+      TOBDetId tobId(detId); 
       treeMem.layer = tobId.layer(); 
       treeMem.side = tobId.rod()[0];
       treeMem.rod = tobId.rod()[1]; 
@@ -278,7 +310,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.isStereo = tobId.stereo();
       treeMem.isDoubleSide = tobId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TEC) {
-      TECDetId tecId(detId_); 
+      TECDetId tecId(detId); 
       treeMem.layer = tecId.wheel(); 
       treeMem.side  = tecId.side();
       treeMem.ring  = tecId.ring(); 
@@ -291,7 +323,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     
     //variables concerning the tracker geometry
     
-    const Surface::PositionType &gPModule = tkgeom.idToDet(detId_)->position();
+    const Surface::PositionType &gPModule = tkgeom.idToDet(detId)->position();
     treeMem.posPhi = gPModule.phi();
     treeMem.posEta = gPModule.eta();
     treeMem.posR   = gPModule.perp();
@@ -299,7 +331,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     treeMem.posY   = gPModule.y();
     treeMem.posZ   = gPModule.z();
  
-    const Surface& surface =  tkgeom.idToDet(detId_)->surface();
+    const Surface& surface =  tkgeom.idToDet(detId)->surface();
     
     //global Orientation of local coordinate system of dets/detUnits   
     LocalPoint  lUDirection(1.,0.,0.), lVDirection(0.,1.,0.), lWDirection(0.,0.,1.);
@@ -329,10 +361,10 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     
     
     // Assign histos from first step (TrackerOfflineValidation) to the module's entry in the TTree for retrieving mean, rms, median ...
-    associateModuleHistsWithTree(treeMem, it->second);
+    associateModuleHistsWithTree(treeMem, it->second, substructureName);
     
     
-    //mean and RMS values (extracted from histograms(Xprime on module level)
+    //mean and RMS values (extracted from histograms Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX  = it->second.ResXprimeHisto->GetRMS();
@@ -350,7 +382,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     }
     
     //get median for absolute residuals
-    treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
+    treeMem.medianX = this->getMedian(it->second.ResXprimeHisto);
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
     treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
@@ -380,7 +412,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
     }
 
-    // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
+    // mean and RMS values in local y (extracted from histograms Yprime on module level)
     // might exist in pixel only
     if (it->second.ResYprimeHisto) { //(stripYResiduals_){
       TH1 *h = it->second.ResYprimeHisto;
@@ -394,7 +426,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       }
       
       //get median for absolute residuals
-      treeMem.medianY   = this->getMedian(h);
+      treeMem.medianY = this->getMedian(h);
 
       treeMem.histNameY = h->GetName();
     }
@@ -419,8 +451,9 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
 
 
 void
-TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists){
-   std::stringstream histDir;
+TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName){
+   std::stringstream histDir, sSubdetName;
+   std::string componentName;
    if(moduleDirectory_.length() != 0)histDir<<moduleDirectory_<<"/";
    std::string wheelOrLayer("_layer_");
    if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
@@ -438,14 +471,18 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
        else if(treeMem.rod>33)ladder = treeMem.rod -22;
        else ladder = treeMem.rod;
      }
-     histDir<<"Pixel/TPBBarrel_1/TPBHalfBarrel_"<<treeMem.half<<"/TPBLayer_"<<treeMem.layer<<"/TPBLadder_"<<ladder;
+     componentName = "Pixel";
+     sSubdetName<<"TPBBarrel_1";
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TPBHalfBarrel_"<<treeMem.half<<"/TPBLayer_"<<treeMem.layer<<"/TPBLadder_"<<ladder;
    }else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
      unsigned int side(treeMem.side), half(treeMem.half), blade(0);
      if(side==1)side=3;
      if(half==2)blade = treeMem.blade -6;
      else if(treeMem.blade>18)blade = treeMem.blade -12;
      else blade = treeMem.blade;
-     histDir<<"Pixel/TPEEndcap_"<<side<<"/TPEHalfCylinder_"<<treeMem.half<<"/TPEHalfDisk_"<<treeMem.layer<<"/TPEBlade_"<<blade<<"/TPEPanel_"<<treeMem.panel;
+     componentName = "Pixel";
+     sSubdetName<<"TPEEndcap_"<<side;
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TPEHalfCylinder_"<<treeMem.half<<"/TPEHalfDisk_"<<treeMem.layer<<"/TPEBlade_"<<blade<<"/TPEPanel_"<<treeMem.panel;
      wheelOrLayer = "_wheel_";
    }else if(treeMem.subDetId == StripSubdetector::TIB){
      unsigned int half(treeMem.half), layer(treeMem.layer), surface(treeMem.outerInner), string(0);
@@ -471,7 +508,9 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
      std::stringstream detString;
      if(treeMem.layer<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
      else detString<<"";
-     histDir<<"Strip/TIBBarrel_1/TIBHalfBarrel_"<<treeMem.side<<"/TIBLayer_"<<treeMem.layer<<"/TIBHalfShell_"<<treeMem.half<<"/TIBSurface_"<<treeMem.outerInner<<"/TIBString_"<<string<<detString.str();
+     componentName = "Strip";
+     sSubdetName<<"TIBBarrel_1";
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TIBHalfBarrel_"<<treeMem.side<<"/TIBLayer_"<<treeMem.layer<<"/TIBHalfShell_"<<treeMem.half<<"/TIBSurface_"<<treeMem.outerInner<<"/TIBString_"<<string<<detString.str();
    }else if(treeMem.subDetId == StripSubdetector::TID){
      unsigned int side(treeMem.side), outerInner(0);
      if(side==1)side=3;
@@ -480,13 +519,17 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
      std::stringstream detString;
      if(treeMem.ring<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
      else detString<<"";
-     histDir<<"Strip/TIDEndcap_"<<side<<"/TIDDisk_"<<treeMem.layer<<"/TIDRing_"<<treeMem.ring<<"/TIDSide_"<<outerInner<<detString.str();
+     componentName = "Strip";
+     sSubdetName<<"TIDEndcap_"<<side;
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TIDDisk_"<<treeMem.layer<<"/TIDRing_"<<treeMem.ring<<"/TIDSide_"<<outerInner<<detString.str();
      wheelOrLayer = "_wheel_";
    }else if(treeMem.subDetId == StripSubdetector::TOB){
      std::stringstream detString;
      if(treeMem.layer<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
      else detString<<"";
-     histDir<<"Strip/TOBBarrel_4/TOBHalfBarrel_"<<treeMem.side<<"/TOBLayer_"<<treeMem.layer<<"/TOBRod_"<<treeMem.rod<<detString.str();
+     componentName = "Strip";
+     sSubdetName<<"TOBBarrel_4";
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TOBHalfBarrel_"<<treeMem.side<<"/TOBLayer_"<<treeMem.layer<<"/TOBRod_"<<treeMem.rod<<detString.str();
    }else if(treeMem.subDetId == StripSubdetector::TEC) {
      unsigned int side(0), outerInner(0), ring(0);
      if(treeMem.side==1)side=6;
@@ -500,15 +543,19 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
      std::stringstream detString;
      if((treeMem.ring<3 || treeMem.ring==5) && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
      else detString<<"";
-     histDir<<"Strip/TECEndcap_"<<side<<"/TECDisk_"<<treeMem.layer<<"/TECSide_"<<outerInner<<"/TECPetal_"<<treeMem.petal<<"/TECRing_"<<ring<<detString.str();
+     componentName = "Strip";
+     sSubdetName<<"TECEndcap_"<<side;
+     histDir<<componentName<<"/"<<sSubdetName.str()<<"/TECDisk_"<<treeMem.layer<<"/TECSide_"<<outerInner<<"/TECPetal_"<<treeMem.petal<<"/TECRing_"<<ring<<detString.str();
      wheelOrLayer = "_wheel_";
    }
+   
+   substructureName["component"] = componentName;
+   substructureName["subdet"] = sSubdetName.str();
+   
    std::stringstream histName;
    histName<<"residuals_subdet_"<<treeMem.subDetId<<wheelOrLayer<<treeMem.layer<<"_module_"<<treeMem.moduleId;
    
    std::string fullPath;
-   
-   
    fullPath = histDir.str()+"/h_xprime_"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.ResXprimeHisto = dbe_->get(fullPath)->getTH1();
    else{edm::LogError("TrackerOfflineValidationSummary")<<"Problem with names in input file produced in TrackerOfflineValidation ...\n"
@@ -570,7 +617,7 @@ float
 TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
 {
   float median = 999;
-  int nbins = histo->GetNbinsX();
+  const int nbins = histo->GetNbinsX();
  
   //extract median from histogram
   double *x = new double[nbins];
@@ -585,6 +632,124 @@ TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
   delete [] y; y = 0;  
 
   return median;
+}
+
+
+void
+TrackerOfflineValidationSummary::collateHarvestingHists(TTree& tree)
+{
+  this->applyHarvestingHierarchy(tree);
+  this->fillHarvestingHists(tree);
+}
+
+
+void
+TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree)
+{
+  TkOffTreeVariables *treeMemPtr = 0;
+  std::map<std::string,std::string> *substructureName = 0;
+  tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
+  tree.SetBranchAddress("SubstructureName", &substructureName);
+  
+  // Loop over modules to select accumulation criteria for harvesting plots
+  for(unsigned int iSubdet = 1; iSubdet<7; ++iSubdet){
+    std::string hierarchyName("");
+    std::string componentName("");
+    std::vector<unsigned int> treeEntries;
+    for(unsigned int iSide = 1; iSide<3; ++iSide){
+      // Set up only one collection for Barrels, not separated for side
+      if(iSide==1 && (iSubdet==PixelSubdetector::PixelBarrel || iSubdet==StripSubdetector::TIB || iSubdet==StripSubdetector::TOB))continue;
+      for(int iTree=0; iTree<tree.GetEntries(); ++iTree){
+	tree.GetEntry(iTree);
+        // Do not use glued Dets
+	if(treeMemPtr->isDoubleSide)continue;
+	if(treeMemPtr->subDetId == iSubdet){
+          if(iSide!=treeMemPtr->side && (iSubdet==PixelSubdetector::PixelEndcap || iSubdet==StripSubdetector::TID || iSubdet==StripSubdetector::TEC))continue;
+	  treeEntries.push_back(iTree);
+	  if(hierarchyName.length() == 0){
+	    hierarchyName = (*substructureName)["subdet"];
+	    componentName = (*substructureName)["component"];
+          }
+	}
+      }
+      HarvestingHierarchy harvestingHierarchy(hierarchyName,componentName,treeEntries);
+      vHarvestingHierarchy_.push_back(harvestingHierarchy);
+      hierarchyName = ""; componentName = ""; treeEntries.clear();
+    }
+  }
+  // Here could be a further separation of the HarvestingHierarchy.
+  // E.g. separate the existing ones by layer and add them to the vector without deleting any element from the vector.
+  // The existing hists will stay and the new ones are added
+  
+  // Now, book the corresponding histos
+  this->bookHarvestingHists();
+}
+
+
+void
+TrackerOfflineValidationSummary::bookHarvestingHists()
+{
+  edm::LogInfo("TrackerOfflineValidationSummary")<<"Harvesting histograms will be booked for "<<vHarvestingHierarchy_.size()<<" different hierarchy selections";
+  for(std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier){
+    
+    std::stringstream dmrXprimeHistoName, dmrYprimeHistoName, dmrXprimeHistoTitle, dmrYprimeHistoTitle;
+    dmrXprimeHistoName << "h_DmrXprime_" << iHier->hierarchyName;
+    dmrYprimeHistoName << "h_DmrYprime_" << iHier->hierarchyName;
+    dmrXprimeHistoTitle<<  "DMR for " << iHier->hierarchyName <<";<#DeltaX> [cm];# modules";
+    dmrYprimeHistoTitle<<  "DMR for " << iHier->hierarchyName <<";<#DeltaY> [cm];# modules";
+    
+    std::string directoryString(moduleDirectory_);
+    if(directoryString.length()!=0)directoryString += "/";
+    directoryString += iHier->componentName;
+    dbe_->setCurrentFolder(directoryString);
+    
+    int nBinsX(0); double xMin(0.), xMax(0.);
+    if(iHier->componentName == "Pixel"){
+      this->getBinning("TH1DmrXprimePixelModules",nBinsX,xMin,xMax);
+      iHier->harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      this->getBinning("TH1DmrYprimePixelModules",nBinsX,xMin,xMax);
+      iHier->harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+    }
+    else if(iHier->componentName == "Strip"){
+      this->getBinning("TH1DmrXprimeStripModules",nBinsX,xMin,xMax);
+      iHier->harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      if(!parSet_.getParameter<bool>("stripYDmrs"))continue;
+      this->getBinning("TH1DmrYprimeStripModules",nBinsX,xMin,xMax);
+      iHier->harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+    }
+  }
+}
+
+
+void
+TrackerOfflineValidationSummary::getBinning(const std::string& binningPSetName, int& nBinsX, double& lowerBoundX, double& upperBoundX)const
+{
+  const edm::ParameterSet& binningPSet = parSet_.getParameter<edm::ParameterSet>(binningPSetName);
+  nBinsX      = binningPSet.getParameter<int>("Nbinx");		       
+  lowerBoundX = binningPSet.getParameter<double>("xmin");		       
+  upperBoundX = binningPSet.getParameter<double>("xmax");
+}
+
+
+void
+TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree)
+{
+  TkOffTreeVariables *treeMemPtr = 0;
+  std::map<std::string,std::string> *substructureName = 0;
+  tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
+  tree.SetBranchAddress("SubstructureName", &substructureName);
+  
+  const unsigned int minEntriesPerModule(parSet_.getParameter<unsigned int>("minEntriesPerModuleForDmr"));
+  edm::LogInfo("TrackerOfflineValidationSummary")<<"Median of a module is added to DMR plots if it contains at least "<<minEntriesPerModule<<" hits";
+  
+  for(std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier){
+    for(std::vector<unsigned int>::const_iterator iTreeEntries = iHier->treeEntries.begin(); iTreeEntries != iHier->treeEntries.end(); ++iTreeEntries){
+      tree.GetEntry(*iTreeEntries);
+      if(treeMemPtr->entries < minEntriesPerModule)continue;
+      iHier->harvestingHistos.DmrXprime->Fill(treeMemPtr->medianX);
+      if(iHier->harvestingHistos.DmrYprime)iHier->harvestingHistos.DmrYprime->Fill(treeMemPtr->medianY);
+    }
+  }
 }
 
 
