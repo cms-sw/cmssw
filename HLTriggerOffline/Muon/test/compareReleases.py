@@ -27,6 +27,18 @@ if '-h' not in sys.argv:
 
 
 
+class RootFile:
+    def __init__(self, file_name):
+        self.name = file_name[0:file_name.find(".root")]
+        self.file = ROOT.TFile(file_name, "read")
+        if self.file.IsZombie():
+            print "Error opening %s, exiting..." % file_name
+            sys.exit(1)
+    def Get(self, object_name):
+        return self.file.Get(object_name)
+
+
+
 def main():
     ## Parse command line options
     usage="usage: %prog [options] file1.root file2.root file3.root ..."
@@ -35,6 +47,10 @@ def main():
                       help="skip plots which match to reconstructed muons")
     parser.add_option('-r', '--rec', action="store_true", default=False,
                       help="skip plots which match to generated muons")
+    parser.add_option('-s', '--stats', action="store_true", default=False,
+                      help="print a table rather than plotting")
+    parser.add_option('--stats-format', default="twiki",
+                      help="choose 'twiki' (default) or 'html' table format")
     parser.add_option('-p', '--path', default="HLT_Mu9",
                       help="specify which HLT path to focus on")
     parser.add_option('--file-type', default="pdf", metavar="EXT", 
@@ -58,18 +74,23 @@ def main():
     if len(arguments) == 0:
         print "Please provide at least one file as an argument"
         return
-    print "Generating plots for %s path" % path
     files, path_names = get_files_and_path_names(arguments)
     efficiencies = get_global_efficiencies(files, path)
     filter_names, me_values = get_filters_and_MEs(files, path)
     make_efficiency_summary_plot(files, me_values)
-    for source_type in ["gen", "rec"]:
-        if source_type in source_types:
-            for plot_var in ["TurnOn1", "EffEta", "EffPhi"]:
-                for filter in filter_names:
-                    plot_name = "%s%s_%s" % (source_type, plot_var, filter)
-                    make_efficiency_plot(files, plot_name, path,
-                                         efficiencies, me_values)
+    
+    if options.stats:
+        for source_type in source_types:
+            make_efficiency_table(files, source_type, filter_names,
+                                  efficiencies, options.stats_format)
+        sys.exit(0)
+    print "Generating plots for %s path" % path
+    for source_type in source_types:
+        for plot_var in ["TurnOn1", "EffEta", "EffPhi"]:
+            for filter in filter_names:
+                plot_name = "%s%s_%s" % (source_type, plot_var, filter)
+                make_efficiency_plot(files, plot_name, path,
+                                     efficiencies, me_values)
     for source_type in ["gen"]:
         if source_type in source_types:
             for path in path_names:
@@ -94,9 +115,9 @@ next_counter = counter_generator().next
 def get_files_and_path_names(arguments):
     files = []
     for filename in arguments:
-        files.append(ROOT.TFile(filename, "read"))
+        files.append(RootFile(filename))
     path_names = []
-    keys = files[0].GetDirectory(path_dist).GetListOfKeys()
+    keys = files[0].file.GetDirectory(path_dist).GetListOfKeys()
     obj = keys.First()
     while obj:
         path_names.append(obj.GetName())
@@ -125,7 +146,8 @@ def get_filters_and_MEs(files, path):
     filter_names = []
     me_values = {}
     regexp = ROOT.TPRegexp("^<(.*)>(i|f|s|qr)=(.*)</\\1>$")
-    keys = files[0].GetDirectory("%s/%s" % (path_dist, path)).GetListOfKeys()
+    full_path = "%s/%s" % (path_dist, path)
+    keys = files[0].file.GetDirectory(full_path).GetListOfKeys()
     obj = keys.First()
     while obj:
         name = obj.GetName()
@@ -138,6 +160,27 @@ def get_filters_and_MEs(files, path):
             me_values[array.At(1).GetName()] = float(array.At(3).GetName())
         obj = keys.After(obj)
     return filter_names, me_values
+
+
+
+def make_efficiency_table(files, source_type, filter_names,
+                          efficiencies, stats_format):
+    if "twiki" in stats_format:
+        format = "| %s | %s |"
+        separator = " | "
+    if "html" in stats_format:
+        format = "<tr><th>%s<td>%s"
+        separator = "<td>"
+    print format % ("Version", separator.join(filter_names))
+    for file_index, this_file in enumerate(files):
+        entries = []
+        for filter in filter_names:
+            label = "%sEffPhi_%s" % (source_type, filter)
+            eff, err = efficiencies[file_index][label]
+            entries.append("%.1f &plusmn; %.1f" % (eff, err))
+        version = this_file.name
+        version = version[version.find("_")+1:version.find("-")]
+        print format % (version, separator.join(entries))
 
 
 
@@ -169,7 +212,7 @@ def make_efficiency_summary_plot(files, me_values):
             hist.SetBinContent(i + 1, bin.content)
             hist.SetBinError(i + 1, bin.error)
         hist_clone = hist.Clone()
-        hist_clone.SetTitle(filename(this_file))
+        hist_clone.SetTitle(this_file.name)
         hists.Add(hist_clone)
     if hists.At(0):
         plot(hists, "Summary", "Efficiency Summary")
@@ -183,7 +226,7 @@ def make_efficiency_plot(files, plot_name, path, efficiencies, me_values):
     for this_file in files:
         hist = ROOT.TH1F(this_file.Get(hist_path))
         hist_clone = hist.Clone()
-        hist_clone.SetTitle(filename(this_file))
+        hist_clone.SetTitle(this_file.name)
         hists.Add(hist_clone)
     if hists.At(0):
         plot(hists, plot_name, hist_title, efficiencies, me_values, path)
@@ -280,11 +323,6 @@ def mergeOutput(files):
     os.system("cp merged.pdf %s" % pdfname)
     os.system("rm [0-9]*.pdf")
     print "Wrote %i plots to %s" % (next_counter() - 1, pdfname)
-
-
-
-def filename(this_file):
-    return this_file.GetName()[0:this_file.GetName().find(".root")]
 
 
 
