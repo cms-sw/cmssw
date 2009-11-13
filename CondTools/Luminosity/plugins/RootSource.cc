@@ -12,7 +12,7 @@
 lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){
   m_filename=pset.getParameter<std::string>("lumiFileName");
   m_source=TFile::Open(m_filename.c_str(),"READ");
-  //m_source->GetListOfKeys()->Print();
+  m_source->GetListOfKeys()->Print();
   std::string::size_type idx,pos;
   idx=m_filename.rfind("_");
   pos=m_filename.rfind(".");
@@ -26,8 +26,11 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
   m_source->ls();
   //TTree *runsummary = (TTree*)m_source->Get("RunSummary");
   TTree *hlxtree = (TTree*)m_source->Get("HLXData");
+  if(!hlxtree) std::cout<<"no hlx data"<<std::endl;
   TTree *l1tree = (TTree*)m_source->Get("L1Trigger");
+  if(!l1tree) std::cout<<"no l1 data"<<std::endl;
   TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
+  if(!hlttree) std::cout<<"no hlt data"<<std::endl;
   unsigned int runnumber=0;
   if(hlxtree && l1tree && hlttree){
     //runsummary->Print();
@@ -63,7 +66,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l1tree->GetEntry(i);
       hlttree->GetEntry(i);
 
-      /*if(i==0){
+      if(i==0){
 	std::cout<<"Time stamp : "<<lumiheader->timestamp<<"\n";
 	std::cout<<"Time stamp micro : "<<lumiheader->timestamp_micros<<"\n";
 	std::cout<<"Run number : "<<lumiheader->runNumber<<"\n";
@@ -75,7 +78,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	std::cout<<"CMS Live : "<<lumiheader->bCMSLive<<"\n";
 	std::cout<<"OC0 : "<<lumiheader->bOC0<<std::endl;
       }
-      */
+      
       // if not cms daq LS, skip
       if(!lumiheader->bCMSLive){
 	std::cout<<"skipping non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
@@ -89,13 +92,22 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	lumisecid=lumiheader->sectionNumber;
       }
       edm::LuminosityBlockID lu(runnumber,lumisecid);
+      std::cout<<"==== run lumiid ===="<<runnumber<<"\t"<<lumisecid<<std::endl;
       cond::Time_t current=(cond::Time_t)(lu.value());
       lumi::LumiSectionData* l=new lumi::LumiSectionData;
+      std::cout<<"lumi version "<<m_lumiversion<<std::endl;
       l->setLumiVersion(m_lumiversion);
+      std::cout<<"lumi section id "<<lumisecid<<std::endl;
+      l->setLumiSectionId(lumisecid);
+      std::cout<<"start orbit "<<(unsigned long long)lumiheader->startOrbit<<std::endl;
       l->setStartOrbit((unsigned long long)lumiheader->startOrbit);
+      std::cout<<"lumi avg "<<lumisummary->InstantLumi<<std::endl;
       l->setLumiAverage(lumisummary->InstantLumi);
+      std::cout<<"lumi err "<<lumisummary->InstantLumiErr<<std::endl;
       l->setLumiError(lumisummary->InstantLumiErr);      
+      std::cout<<"lumi qlt "<<lumisummary->InstantLumiQlty<<std::endl;
       l->setLumiQuality(lumisummary->InstantLumiQlty);
+      std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
       l->setDeadFraction(lumisummary->DeadTimeNormalization);
       
       std::vector<lumi::BunchCrossingInfo> bxinfoET;
@@ -122,20 +134,37 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       hltinfo.reserve(hltsize);
 
       for( size_t ihlt=0; ihlt<hltsize; ++ihlt){
-	lumi::HLTInfo hltperpath(std::string(hltdata->HLTPaths[ihlt].PathName),hltdata->HLTPaths[ihlt].L1Pass,hltdata->HLTPaths[ihlt].PAccept,hltdata->HLTPaths[ihlt].Prescale);
-	hltinfo.push_back(hltperpath);
+	std::string hltname=std::string(hltdata->HLTPaths[ihlt].PathName);
+	if(!hltname.empty()){
+	  std::cout<<"hlt pathname "<<hltname<<std::endl;
+	  std::cout<<"hlt l1pass "<<hltdata->HLTPaths[ihlt].L1Pass<<std::endl;
+	  std::cout<<"hlt accept "<<hltdata->HLTPaths[ihlt].PAccept<<std::endl;
+	  std::cout<<"hlt prescale "<<hltdata->HLTPaths[ihlt].Prescale<<std::endl;
+	  std::cout<<"hlt key "<<hltdata->HLTPaths[ihlt].HLTConfigId<<std::endl;
+	  lumi::HLTInfo hltperpath(std::string(hltdata->HLTPaths[ihlt].PathName),hltdata->HLTPaths[ihlt].L1Pass,hltdata->HLTPaths[ihlt].PAccept,hltdata->HLTPaths[ihlt].Prescale);
+	  hltinfo.push_back(hltperpath);
+	}
       }
       
       std::vector<lumi::TriggerInfo> triginfo;
       triginfo.reserve(192);
       size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(HCAL_HLX::LEVEL1_PATH);
       for( size_t itrg=0; itrg<algotrgsize; ++itrg ){
-	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,l1data->GTAlgo[itrg].deadtimecount,l1data->GTAlgo[itrg].prescale);
+	std::cout<<"l1 algo pathname "<<l1data->GTAlgo[itrg].pathName<<std::endl;
+	std::cout<<"l1 algo counts "<<l1data->GTAlgo[itrg].counts<<std::endl;
+	std::cout<<"l1 algo deadtime "<<l1data->deadtimecount<<std::endl;
+	std::cout<<"l1 algo prescale "<<l1data->GTAlgo[itrg].prescale<<std::endl;
+
+	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,l1data->deadtimecount,l1data->GTAlgo[itrg].prescale);
 	triginfo.push_back(trgbit);
       }
       size_t techtrgsize=sizeof(l1data->GTTech)/sizeof(HCAL_HLX::LEVEL1_PATH);
       for( size_t itrg=0; itrg<techtrgsize; ++itrg){
-	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,l1data->GTTech[itrg].deadtimecount,l1data->GTTech[itrg].prescale);
+	std::cout<<"l1 tech name "<<l1data->GTTech[itrg].pathName<<std::endl;
+	std::cout<<"l1 tech counts "<<l1data->GTTech[itrg].counts<<std::endl;
+	std::cout<<"l1 tech deadtime "<<l1data->deadtimecount<<std::endl;
+	std::cout<<"l1 tech prescale "<<l1data->GTTech[itrg].prescale<<std::endl;
+	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,l1data->deadtimecount,l1data->GTTech[itrg].prescale);
 	triginfo.push_back(trgbit);
       }
       l->setHLTData(hltinfo);

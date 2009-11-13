@@ -1,6 +1,6 @@
 #ifndef CondTools_Luminosity_LUMIDATASTRUCTURES_H
 #define CondTools_Luminosity_LUMIDATASTRUCTURES_H
-//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 68 LumiDAQ-release-2.0
+//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 124
 /*
   LumiNibble structure definitions
 */
@@ -11,24 +11,34 @@
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
 
-//#define HCAL_HLX_NUM_BUNCHES 3564
-//#define HCAL_HLX_NUM_HLXS 36
-
 // Changes
 // Namespace for the HCAL HLX
 #include <stdint.h>
 
 namespace HCAL_HLX{
 
+  struct DAQ_HEART_BEAT {
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+    uint32_t bCMSLive;
+
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+  };
+
   struct RUN_SUMMARY {
+
     char runSequenceName[128];
-    char HLTKeyDescriptor[128];
+    uint32_t HLTConfigId;
     uint32_t timestamp;
     uint32_t timestamp_micros;
     uint32_t startOrbitNumber;
     uint32_t endOrbitnumber;
+
     uint32_t runNumber;
     uint32_t fillNumber;
+
     uint32_t numberCMSLumiSections;  // number of lumi sections from the trigger
     uint32_t numberLumiDAQLumiSections;
   };
@@ -52,9 +62,14 @@ namespace HCAL_HLX{
     int IP;
     bool RecordDataFlag; // True while data for one of the scan points at one of the IPs is being taken, false otherwise   
     double BeamSeparation; //separation in sigma for the scan point  
-    bool IsXaxis; //true if scanning xaxis, otherwise yaxis is being scanned 
+    bool isXaxis; //true if scanning xaxis, otherwise yaxis is being scanned 
+    int Beam; 
+    double StepProgress;
     uint32_t timestamp;
     uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
   };
 
   struct BRAN_DATA {
@@ -65,63 +80,159 @@ namespace HCAL_HLX{
     double MeanLuminosity;
     uint32_t timestamp;
     uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
   };
 
   struct BRAN_BX_DATA {
 
     int MessageQuality;
-    double bunchByBunchLuminosity[3564];
+    double bunchByBunchLuminosity[4096];
     int AcqMode;
     uint32_t timestamp;
     uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
   };
 
   struct LHC_FILL_DATA {
 
     int MessageQuality;
-    int FillNumber;
+    uint32_t FillNumber;
     uint32_t timestamp;
     uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
   };
+
+  struct CMS_LUMI_DIP_DATA {
+    
+    int MessageQuality;
+    uint32_t numHLXs;
+    uint32_t startOrbit;
+    uint32_t numOrbits;
+    uint32_t numBunches;
+    float instantLumi;
+    float instantLumiErr;
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+  };
+
+  struct TRIGGER_LUMI_SEGMENT {
+
+    int MessageQuality;
+    char state[64];
+    uint32_t deadtime;
+    uint32_t deadtimeBeamActive;
+    uint32_t lumiSegmentNumber;
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+  };
+
+  struct LHC_BEAM_MODE_DATA {
+
+    int MessageQuality;
+    char beamMode[64];
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+  };
+
+  struct LHC_BEAM_ENERGY_DATA {
+
+    int MessageQuality;
+    float singleBeamEnergy; //GeV
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+  };
+
 
   struct RCMS_CONFIG {
-    
+
     uint32_t runNumber;
-
-    bool UseConfigDB;
-    char CfgDBTag[32];
-
+    
     char CMSSW_Tag[32];
     char TriDAS_Tag[32];
-
-    uint16_t FirmwareVersion;
     
-    uint16_t OCCMaskTop;
-    uint16_t OCCMaskBottom;
-
-    uint16_t LHCMaskLowBottom;
-    uint16_t LHCMaskLowTop;
-
-    uint16_t LHCMaskHighBottom;
-    uint16_t LHCMaskHighTop;
-
-    uint16_t SumETMaskLowBottom;
-    uint16_t SumETMaskLowTop;
-    uint16_t SumETMaskHighBottom;
-    uint16_t SumETMaskHighTop;
-
-    uint16_t OccThresholdLowBottom;
-    uint16_t OccThresholdLowTop;
-    uint16_t OccThresholdHighBottom;
-    uint16_t OccThresholdHighTop;
-
-    uint16_t LHCThresholdBottom;
-    uint16_t LHCThresholdTop;
-    uint16_t ETSumCutoffBottom;
-    uint16_t ETSumCutoffTop;
+    uint32_t FirmwareVersion;
+    uint32_t ExpectedFirmwareVersion;
+    char AddressTablePath[256];
+    
+    char CfgDBTag[64];
+    char CfgDBAccessor[64];
+    bool UseConfigDB;
+    
+    uint32_t DestIPHigh;
+    uint32_t DestIPLow;
+    
+    uint32_t SrcIPBaseHigh;
+    uint32_t SrcIPBaseLow;
+    
+    uint32_t DestMacAddrHigh;
+    uint32_t DestMacAddrMed;
+    uint32_t DestMacAddrLow;
+    
+    uint32_t SrcMacAddrHigh;
+    uint32_t SrcMacAddrMed;
+    uint32_t SrcMacAddrLow;
+    
+    uint32_t SrcPort;
+    uint32_t DestPort;
+    
+    uint32_t DebugData;
+    uint32_t DebugReadout;
+    uint32_t DebugSingleCycle;
+    
+    uint32_t NumOrbits;
+    uint32_t OrbitPeriod;
+    
+    uint32_t Id;
+    
+    uint32_t TTCBC0Pattern;
+    uint32_t TTCSTARTPattern;
+    uint32_t TTCSTOPPattern;
+    
+    uint32_t BC0Delay;
+    
+    uint32_t OccThresholdLowBottom;
+    uint32_t OccThresholdLowTop;
+    uint32_t OccThresholdHighBottom;
+    uint32_t OccThresholdHighTop;
+    
+    uint32_t LHCThresholdBottom;
+    uint32_t LHCThresholdTop;
+    
+    uint32_t ETSumCutoffBottom;
+    uint32_t ETSumCutoffTop;
+    
+    uint32_t OCCMaskBottom;
+    uint32_t OCCMaskTop;
+    
+    uint32_t LHCMaskLowBottom;
+    uint32_t LHCMaskLowTop;
+    uint32_t LHCMaskHighBottom;
+    uint32_t LHCMaskHighTop;
+    
+    uint32_t SumETMaskLowBottom;
+    uint32_t SumETMaskLowTop;
+    uint32_t SumETMaskHighBottom;
+    uint32_t SumETMaskHighTop;
   };
-
-
+  
   struct LUMI_SUMMARY {
 
     float DeadTimeNormalization; 
@@ -161,26 +272,26 @@ namespace HCAL_HLX{
 
   /**************** Trigger *********************/
 
-
   struct LEVEL1_PATH {
 
     char pathName[128];
     uint64_t counts;
     uint64_t prescale;
-    uint64_t deadtimecount;
   };
 
   struct LEVEL1_TRIGGER {
     uint32_t runNumber;
     uint32_t sectionNumber; // Lumi section number recorded by the daq.
 
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+
+    uint64_t deadtimecount;
+
     char GTLumiInfoFormat[32];
    
     LEVEL1_PATH GTAlgo[128];
     LEVEL1_PATH GTTech[64];
-
-    uint32_t GTPartition0TriggerCounts[10];
-    uint32_t GTPartition0DeadTime[10];
   };
 
   struct HLT_PATH {  // only object that uses STL and is variable size.
@@ -193,11 +304,14 @@ namespace HCAL_HLX{
     char PrescalerModule[64]; //Name of the prescale module in the path
     uint32_t PSIndex;     //Index into the set of pre defined prescales
     uint32_t Prescale;
+
+    uint32_t HLTConfigId;
   };
 
   struct HLTRIGGER {
     uint32_t runNumber;
     uint32_t sectionNumber;
+    uint32_t numPaths;
 
     HLT_PATH HLTPaths[256];
   };
@@ -240,6 +354,7 @@ namespace HCAL_HLX{
     uint16_t data[HCAL_HLX_MAX_BUNCHES];
   };
 
+  //***********************************************************
 
   struct LUMI_SECTION_HEADER {
     uint32_t timestamp;
@@ -286,6 +401,7 @@ namespace HCAL_HLX{
     OCCUPANCY_SECTION occupancy[HCAL_HLX_MAX_HLXS];
     LHC_SECTION lhc[HCAL_HLX_MAX_HLXS];
   };
-}//~namespace lumi
+
+}//~namespace HCAL_HLX
 
 #endif //~LUMIDATASTRUCTURES_H
