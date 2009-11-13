@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.31 2009/09/28 15:08:13 charlot Exp $
+// $Id: DQMAnalyzer.cc,v 1.1 2009/11/10 16:50:15 sabes Exp $
 //
 //
 
@@ -728,8 +728,8 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (gsfIter->isEE() && isEB_) continue; 
 	if (gsfIter->isEBEEGap() && isNotEBEEGap_) continue; 
 
-	if (gsfIter->isEcalDriven() && isTrackerDriven_) continue; 
-	if (gsfIter->isTrackerDriven() && isEcalDriven_) continue;
+	if (gsfIter->ecalDrivenSeed() && isTrackerDriven_) continue; 
+	if (gsfIter->trackerDrivenSeed() && isEcalDriven_) continue;
     }
 
 	if (Selection_ == 1 || Selection_ == 2 || Selection_ == 3)
@@ -799,7 +799,7 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = gsfIter->superCluster();
-	if (!gsfIter->isEcalDriven()&&gsfIter->isTrackerDriven()) sclRef = gsfIter->pflowSuperCluster();
+	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->pflowSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -884,11 +884,11 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        
         h_ele_mva->Fill(gsfIter->mva());
-	if (gsfIter->isEcalDriven()) h_ele_provenance->Fill(1.);
-	if (gsfIter->isTrackerDriven()) h_ele_provenance->Fill(-1.);
-	if (gsfIter->isTrackerDriven()||gsfIter->isEcalDriven()) h_ele_provenance->Fill(0.);
-	if (gsfIter->isTrackerDriven()&&!gsfIter->isEcalDriven()) h_ele_provenance->Fill(-2.);
-	if (!gsfIter->isTrackerDriven()&&gsfIter->isEcalDriven()) h_ele_provenance->Fill(2.);
+	if (gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(1.);
+	if (gsfIter->trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
+	if (gsfIter->trackerDrivenSeed()||gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(0.);
+	if (gsfIter->trackerDrivenSeed()&&!gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(-2.);
+	if (!gsfIter->trackerDrivenSeed()&&gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(2.);
 
         h_ele_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
         h_ele_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
@@ -943,8 +943,8 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (gsfIter->isEE() && isEB_) continue; 
 	if (gsfIter->isEBEEGap() && isNotEBEEGap_) continue; 
 	
-	if (gsfIter->isEcalDriven() && isTrackerDriven_) continue; 
-	if (gsfIter->isTrackerDriven() && isEcalDriven_) continue;
+	if (gsfIter->ecalDrivenSeed() && isTrackerDriven_) continue; 
+	if (gsfIter->trackerDrivenSeed() && isEcalDriven_) continue;
 	}
 
 	if (Selection_ == 1 || Selection_ == 2 || Selection_ == 3 || Selection_ == 4)
