@@ -74,4 +74,33 @@
   <class name="edm::reftobase::RefHolder<reco::PFMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
 
+
+
+
+   <class name="reco::PhiWedge"/>
+ <class name="edm::Wrapper<reco::PhiWedge>"/>
+ <class name="std::vector<reco::PhiWedge>"/>
+ <class name="std::vector<reco::PhiWedge>::iterator"/>
+
+ <class name="reco::EcalHaloData"/>
+ <class name="edm::Wrapper<reco::EcalHaloData>"/>
+
+ <class name="reco::HcalHaloData"/>
+ <class name="edm::Wrapper<reco::HcalHaloData>"/>
+
+ <class name="reco::CSCHaloData"/>
+ <class name="edm::Wrapper<reco::CSCHaloData>"/>
+
+ <class name="reco::GlobalHaloData"/>
+ <class name="edm::Wrapper<reco::GlobalHaloData>"/>
+
+ <class name="reco::BeamHaloSummary"/>
+ <class name="edm::Wrapper<reco::BeamHaloSummary>"/>
+
+ <class name="std::vector<Point3DBase<float,GlobalTag> >"/>
+ <class name="edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > >"/>
+
+
+
+
 </lcgdict>
