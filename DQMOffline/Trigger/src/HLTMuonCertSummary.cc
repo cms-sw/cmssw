@@ -8,7 +8,7 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: HLTMuonCertSummary.cc,v 1.2 2009/11/13 12:40:15 slaunwhj Exp $
+// $Id: HLTMuonCertSummary.cc,v 1.3 2009/11/13 12:53:02 slaunwhj Exp $
 //
 
 // system include files
@@ -311,7 +311,7 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   // Set the final bits
 
-  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContent");
+  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents");
   MonitorElement* muonHLTQualityBinaryBit = dbe_->bookFloat ("HLT_Muon");
   
   if (SummaryBitResult == 100){
