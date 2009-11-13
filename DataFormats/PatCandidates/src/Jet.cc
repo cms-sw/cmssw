@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.34 2009/10/13 13:19:31 auterman Exp $
+// $Id: Jet.cc,v 1.35 2009/10/15 01:18:02 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -8,11 +8,11 @@
 
 using namespace pat;
 
-
 /// default constructor
 Jet::Jet() :
   PATObject<reco::Jet>(reco::Jet()),
   embeddedCaloTowers_(false),
+  embeddedPFCandidates_(false),
   partonFlavour_(0), 
   jetCharge_(0.)
 {      
@@ -142,29 +142,31 @@ std::vector<CaloTowerPtr> Jet::getCaloConstituents () const {
 
 /// ============= PFJet methods ============
 
-const reco::PFCandidate* Jet::getPFCandidate (const reco::Candidate* fConstituent) {
-  if (!fConstituent) return 0;
-  const reco::Candidate* base = fConstituent;
-  if (fConstituent->hasMasterClone ())
-    base = fConstituent->masterClone().get();
-  if (!base) return 0; // not in the event
-  const reco::PFCandidate* candidate = dynamic_cast <const reco::PFCandidate*> (base);
-  if (!candidate) {
-    throw cms::Exception("Invalid Constituent") << "Jet constituent is not of PFCandidate type."
-                                                << "Actual type is " << typeid (*base).name();
-  }
-  return candidate;
+reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
+    if (embeddedPFCandidates_) {
+      return (fIndex < pfCandidates_.size() ? 
+	      reco::PFCandidatePtr(&pfCandidates_, fIndex) : reco::PFCandidatePtr());
+    } else {
+      Constituent dau = daughterPtr (fIndex);
+      const reco::PFCandidate* pfCandidate = dynamic_cast <const reco::PFCandidate*> (dau.get());
+      if (pfCandidate) {
+	return reco::PFCandidatePtr(dau.id(), pfCandidate, dau.key() );
+      } 
+      else {
+	throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
+      }
+      
+    } 
+    
+    return reco::PFCandidatePtr ();
 }
 
-const reco::PFCandidate* Jet::getPFConstituent (unsigned fIndex) const {
-  return getPFCandidate (daughter (fIndex));
-}
-
-std::vector <const reco::PFCandidate*> Jet::getPFConstituents () const {
-  std::vector <const reco::PFCandidate*> result;
+std::vector<reco::PFCandidatePtr> Jet::getPFConstituents () const {
+  std::vector<reco::PFCandidatePtr> result;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent (i));
   return result;
 }
+
 
 /// return the matched generated jet
 const reco::GenJet * Jet::genJet() const {
@@ -402,6 +404,19 @@ void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
   // CompositePtrCandidate that access this daughters would be srewed up though.
   // this->clearDaughters();
   embeddedCaloTowers_ = true;
+}
+
+
+/// method to store the CaloJet constituents internally
+void Jet::setPFCandidates(const std::vector<reco::PFCandidatePtr> & pfCandidates) {
+  for(unsigned int i = 0; i < pfCandidates.size(); ++i) {
+    pfCandidates_.push_back(*pfCandidates.at(i));
+  }
+  // possibly, if we really want to squeeze out bytes, we could clear the
+  // daughters when the calotowers are embedded. The methods of the
+  // CompositePtrCandidate that access this daughters would be srewed up though.
+  // this->clearDaughters();
+  embeddedPFCandidates_ = true;
 }
 
 /// method to set the matched generated jet reference, embedding if requested

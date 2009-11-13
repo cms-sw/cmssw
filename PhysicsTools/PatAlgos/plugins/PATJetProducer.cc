@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.42 2009/09/21 09:10:45 fronga Exp $
+// $Id: PATJetProducer.cc,v 1.43 2009/09/29 15:50:59 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -47,6 +47,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   // initialize the configurables
   jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
   embedCaloTowers_         = iConfig.getParameter<bool>                       ( "embedCaloTowers" );
+  embedPFCandidates_       = iConfig.getParameter<bool>                       ( "embedPFCandidates" );
   getJetMCFlavour_         = iConfig.getParameter<bool> 		      ( "getJetMCFlavour" );
   jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>	      ( "JetPartonMapSource" );
   addGenPartonMatch_       = iConfig.getParameter<bool> 		      ( "addGenPartonMatch" );
@@ -203,6 +204,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         ajet.setCaloTowers( cj->getCaloConstituents() );
     }
 
+    if(ajet.isPFJet() && embedPFCandidates_) {
+        const reco::PFJet *pfj = dynamic_cast<const reco::PFJet *>(jetRef.get());
+        ajet.setPFCandidates( pfj->getPFConstituents() );      
+    }
+
     // Add Jet Energy Scale Corrections
     if (addJetCorrFactors_) {
       // in case only one set of jet correction factors is used, clear the string
@@ -322,6 +328,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // embedding
   iDesc.add<bool>("embedCaloTowers", true)->setComment("embed external calo towers");
+  iDesc.add<bool>("embedPFCandidates", true)->setComment("embed external PFCandidates");
 
   // MC matching configurables
   iDesc.add<bool>("addGenPartonMatch", true)->setComment("add MC matching");

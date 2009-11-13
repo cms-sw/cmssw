@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.39 2009/09/29 16:37:49 srappocc Exp $
+// $Id: Jet.h,v 1.40 2009/10/13 13:19:30 auterman Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.39 2009/09/29 16:37:49 srappocc Exp $
+  \version  $Id: Jet.h,v 1.40 2009/10/13 13:19:30 auterman Exp $
 */
 
 
@@ -35,6 +35,9 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/JetReco/interface/JetID.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -182,6 +185,8 @@ namespace pat {
 
       /// method to store the CaloJet constituents internally
       void setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers);
+      /// method to store the PFCandidate constituents internally
+      void setPFCandidates(const std::vector<reco::PFCandidatePtr> & pfCandidates);
       /// method to set the matched parton
       void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet
@@ -284,20 +289,24 @@ namespace pat {
       float muonMultiplicity () const {return pfSpecific().mMuonMultiplicity;}
 
       /// convert generic constituent to specific type
-      static const reco::PFCandidate* getPFCandidate (const reco::Candidate* fConstituent);
-      /// get specific constituent
-      const reco::PFCandidate* getPFConstituent (unsigned fIndex) const;
-      /// get all constituents
-      std::vector <const reco::PFCandidate*> getPFConstituents () const;
+      //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
+      /// get specific constituent of the CaloJet. 
+      /// if the caloTowers were embedded, this reference is transient only and must not be persisted
+      reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
+      /// get the constituents of the CaloJet. 
+      /// If the caloTowers were embedded, these reference are transient only and must not be persisted
+      std::vector<reco::PFCandidatePtr> getPFConstituents () const;
 
       /// get a pointer to a Candididate constituent of the jet 
       /// needs to be re-implemented because of CaloTower embedding
+      /// why are these functions not handling the PF constituents?
       virtual const reco::Candidate * daughter(size_t i) const {
           return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
       }
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
       /// get the number of constituents 
       /// needs to be re-implemented because of CaloTower embedding
+      /// why are these functions not handling the PF constituents?
       virtual size_t numberOfDaughters() const {
           return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
       }
@@ -313,6 +322,9 @@ namespace pat {
 
       bool embeddedCaloTowers_;
       CaloTowerCollection caloTowers_;
+      
+      bool embeddedPFCandidates_;
+      reco::PFCandidateCollection pfCandidates_;
 
       // ---- MC info ----
 

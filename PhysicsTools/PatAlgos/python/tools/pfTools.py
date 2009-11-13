@@ -209,7 +209,7 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau'), algo='IC5'):
     # changing the jet collection in PF2PAT:
     from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
     process.allPfJets = jetAlgo( algo );    
-        
+
     switchJetCollection(process,
                         input,
                         doJTA=True,
@@ -219,6 +219,7 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau'), algo='IC5'):
                         doType1MET=False)  
 
     process.allLayer1Jets.embedCaloTowers   = False
+    process.allLayer1Jets.embedPFCandidates   = True
 
 
 def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
