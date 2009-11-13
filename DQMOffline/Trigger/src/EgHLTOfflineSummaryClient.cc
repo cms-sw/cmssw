@@ -132,9 +132,9 @@ void EgHLTOfflineSummaryClient::runClient_()
     }
   }
 
-  MonitorElement* hltEleSumBit = dbe_->get("HLT/EventInfo/reportSummaryContent/HLT_Electron");
-  MonitorElement* hltPhoSumBit = dbe_->get("HLT/EventInfo/reportSummaryContent/HLT_Photon");
-  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContent/");
+  MonitorElement* hltEleSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Electron");
+  MonitorElement* hltPhoSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Photon");
+  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents/");
   if(hltEleSumBit==NULL) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
   if(hltPhoSumBit==NULL) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
 
