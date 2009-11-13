@@ -269,7 +269,7 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::
 {
 
   //  std::cout << "ConversionTrackCandidateProducer builcollections bc size " << bcHandle->size() <<  "\n";
-  const CaloGeometry* geometry = theCaloGeom_.product();
+  //const CaloGeometry* geometry = theCaloGeom_.product();
 
   //  Loop over SC in the barrel and reconstruct converted photons
   for (unsigned i = 0; i < scHandle->size(); ++i ) {

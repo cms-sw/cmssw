@@ -332,7 +332,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
  
   std::vector<reco::TransientTrack> t_generalTrk;
   if (  recoverOneTrackCase_ )  t_generalTrk = ( *theTransientTrackBuilder_ ).build(generalTrkHandle );
-  const CaloGeometry* geometry = theCaloGeom_.product(); 
+  //const CaloGeometry* geometry = theCaloGeom_.product(); 
 
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;

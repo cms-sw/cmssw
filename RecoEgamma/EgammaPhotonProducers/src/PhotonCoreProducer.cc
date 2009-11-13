@@ -148,7 +148,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
     // get SuperClusterRef
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
     iSC++;
-    const reco::SuperCluster* pClus=&(*scRef);
+    //const reco::SuperCluster* pClus=&(*scRef);
     
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
