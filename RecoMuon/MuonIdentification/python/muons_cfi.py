@@ -36,6 +36,7 @@ muons = cms.EDProducer("MuonIdProducer",
     # AND
     maxAbsDy = cms.double(9999.0),
     minP = cms.double(2.5),
+    minPCaloMuon = cms.double(1.0),
 
     # Match parameters
     maxAbsDx = cms.double(3.0),

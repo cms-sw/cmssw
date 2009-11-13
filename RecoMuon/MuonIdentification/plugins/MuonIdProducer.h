@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.18 2009/09/23 19:15:04 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.19 2009/10/20 12:51:08 slava77 Exp $
 //
 //
 
@@ -105,6 +105,7 @@ class MuonIdProducer : public edm::EDProducer {
    // selections
    double minPt_;
    double minP_;
+   double minPCaloMuon_;
    int    minNumberOfMatches_;
    double maxAbsEta_;
    bool   addExtraSoftMuons_;
