@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.7 2009/10/06 17:15:42 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.8 2009/10/07 08:06:26 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -96,6 +96,9 @@ LumiSummary::isProductEqual(LumiSummary const& next) const {
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "\nDumping LumiSummary\n\n";
+  if(!lumiSummary.isValid()){
+    s << " === Invalid Lumi values === \n";
+  }
   s << "  avgInsDelLumi = " << lumiSummary.avgInsDelLumi() << "\n";
   s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";
@@ -118,10 +121,10 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
     
     s << setw(15);
     s << lumiSummary.l1info(i).ratecount;
-
+    
     s << setw(15);
     s << lumiSummary.l1info(i).deadtimecount;
-
+    
     s << setw(15);
     s << lumiSummary.l1info(i).scalingfactor;
     s<<"\n";
