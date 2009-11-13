@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.43 2009/11/05 01:34:09 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.44 2009/11/10 14:38:11 amraktad Exp $
 //
 
 // hacks
@@ -28,10 +28,11 @@
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+#include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -39,14 +40,15 @@
 //
 // constructors and destructor
 //
-CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-   : m_maxNumberOfFilesToChain(3),
-     m_currentFile(m_files.begin()),
-     m_filterEvents(false),
-     m_globalOR(true),
-     m_currentEntry(0),
-     m_lastEntry(-1),
-     m_main(main)
+CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
+   m_maxNumberOfFilesToChain(3),
+   m_currentFile(m_files.begin()),
+   m_filterEvents(false),
+   m_globalOR(true),
+   m_currentEntry(0),
+   m_lastEntry(-1),
+   m_main(main),
+   m_guiFilter(0)
 {
 }
 
@@ -99,7 +101,7 @@ CmsShowNavigator::realEntry(Int_t entry)
 std::pair<CmsShowNavigator::FileQueue_i,Int_t>
 CmsShowNavigator::realEntry(Int_t run, Int_t event)
 {
-   for (FileQueue_i file = m_files.begin();file != m_files.end(); ++file)
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
       file->event()->fillFileIndex();
       edm::FileIndex::const_iterator i =
@@ -140,7 +142,8 @@ void
 CmsShowNavigator::firstEventInCurrentFile()
 {
    m_currentEntry = 0;
-   m_currentFile->event()->to(realEntry(m_currentEntry));
+   Int_t re = realEntry(m_currentEntry);
+   m_currentFile->event()->to(re);
    newEvent_.emit(*(m_currentFile->event()));
 }
 
@@ -174,7 +177,7 @@ CmsShowNavigator::nextEvent()
             ++m_currentFile;
       }
       if (fi == m_files.end()) return;
-     
+
       setCurrentFile(fi);
       firstEventInCurrentFile();
    }
@@ -222,42 +225,88 @@ CmsShowNavigator::previousEvent()
 void
 CmsShowNavigator::goToEvent(Int_t run, Int_t event)
 {
+   bool isNew = false;
    std::pair<std::deque<FWFileEntry>::iterator,Int_t> entry = realEntry(run, event);
-   if ( entry.first == m_files.end() ) {
-      oldEvent_.emit(*m_currentFile->event());
-      return;
-   }
-   if (!m_filterEvents) {
-      if ( entry.first->event()->to(entry.second) ) {
-         m_currentFile  = entry.first;
-         m_currentEntry = entry.second;
-         m_lastEntry = m_currentFile->event()->size()-1;
-         newEvent_.emit(*m_currentFile->event());
-         return;
-      } else {
-         oldEvent_.emit(*m_currentFile->event());
-         return;
+
+   if ( entry.first != m_files.end() )
+   {
+      if (m_filterEvents)
+      {
+         Int_t index = entry.first->mainSelection().GetIndex(entry.second);
+         if ( index > 0 )
+         {
+            if (m_currentFile  != entry.first ) setCurrentFile(entry.first);
+            entry.first->event()->to(entry.second);
+            m_currentEntry = index;
+            isNew = true;
+         }
+         else {
+            std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+         }
+      }
+      else
+      {
+         if ( entry.first->event()->to(entry.second) ) {
+         if (m_currentFile  != entry.first ) setCurrentFile(entry.first);
+            m_currentEntry = entry.second;
+            isNew = true;
+         }
       }
    }
 
-   Int_t index = entry.first->mainSelection().GetIndex(entry.second);
-   if ( index < 0 ) {
-      std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
-      oldEvent_.emit(*m_currentFile->event());
-      return;
+   isNew ? oldEvent_.emit(*m_currentFile->event()) : oldEvent_.emit(*m_currentFile->event());
+   return;
+}
+
+void
+CmsShowNavigator::applyFilters()
+{
+   filterEvents();
+   bool oldEntryMatch = false;
+   std::pair<std::deque<FWFileEntry>::iterator,Int_t> entry = realEntry(m_currentFile->event()->id().run(), m_currentEntry);
+   if ( entry.first != m_files.end() )
+   {
+      if (m_filterEvents)
+      {
+         Int_t index = entry.first->mainSelection().GetIndex(entry.second);
+         if ( index > 0  && m_currentFile  != entry.first &&  entry.first->event()->to(entry.second))
+         {
+            setCurrentFile(entry.first);
+            m_currentEntry = index;
+            oldEntryMatch = true;
+         }
+      }
+      else
+      {
+         if ( m_currentFile  != entry.first && entry.first->event()->to(entry.second) ) {
+            setCurrentFile(entry.first);
+            m_currentEntry = entry.second;
+            oldEntryMatch = true;
+         }
+      }
    }
 
-   if ( entry.first->event()->to(entry.second) ) {
-      m_currentFile = entry.first;
-      m_currentEntry = index;
-      m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-      newEvent_.emit(*m_currentFile->event());
-      return;
-   } else {
-      oldEvent_.emit(*m_currentFile->event());
-      return;
-   }
+   if (!oldEntryMatch) firstEvent();
+   return;
 }
+
+void
+CmsShowNavigator::applyFiltersFromGUI()
+{
+   m_globalOR = m_guiFilter->isLogicalOR();
+   applyFilters();
+}
+
+void
+CmsShowNavigator::enableEventFiltering(Bool_t enabled)
+{
+   if (enabled == m_filterEvents)
+      return;
+
+   m_filterEvents = !m_filterEvents;
+   applyFilters();
+}
+
 
 void
 CmsShowNavigator::filterEvents(FWFileEntry& file, int iSelector, std::string selection)
@@ -437,32 +486,6 @@ CmsShowNavigator::filterEvents()
    gROOT->cd();
 }
 
-void
-CmsShowNavigator::enableEventFiltering(Bool_t flag)
-{
-   // !!!  This is not OK
-   // Enabling of filtetring should NOT change current event.
-   // Call next, or whatever from where this is called.
-
-   if (flag == m_filterEvents) return;
-   m_filterEvents = flag;
-   filterEvents();
-   if (flag != m_filterEvents) return; // bad case and it's handled already
-   if (m_filterEvents) {
-      // events were not filtered before, check if we can keep the same event open
-      Int_t index = m_currentFile->mainSelection().GetIndex(m_currentEntry);
-      if (index >= 0) {
-         m_currentEntry = index;
-         m_lastEntry    = m_currentFile->mainSelection().GetN()-1;
-      } else {
-         firstEventInCurrentFile();
-      }
-   } else {
-      // events were filted before, so now we need just set boundaries and position right
-      m_currentEntry = m_currentFile->mainSelection().GetEntry(m_currentEntry);
-      m_lastEntry    = m_currentFile->event()->size()-1;
-   }
-}
 
 bool
 CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
@@ -572,38 +595,23 @@ CmsShowNavigator::isLastEvent()
           m_currentEntry == m_currentFile->tree()->GetEntries()-1)
          last = kTRUE;
    }
-   //  printf("Navigator is last %d \n", last);
    return last;
 }
 
-//==============================================================================
-//==============================================================================
-// !!! this code should not be in this class
-//
 void
-CmsShowNavigator::showEventFilter(const TGWindow* parent)
+CmsShowNavigator::showEventFilter(const TGWindow* p)
 {
-   FWGUIEventFilter* filter = new FWGUIEventFilter(parent, m_selectors,*m_currentFile->event(),m_globalOR);
-   filter->show();
-   gClient->WaitForUnmap(filter);
-   Int_t absolutePosition = m_currentEntry;
-   if (m_filterEvents) absolutePosition = m_currentFile->mainSelection().GetEntry(m_currentEntry);
-   filterEvents();
-   if (!m_filterEvents) return;
-   // events were filtered before and filtered now
-   // check if we can keep the same event open
-   Int_t index = m_currentFile->mainSelection().GetIndex(absolutePosition);
-   if (index >= 0) {
-      m_currentEntry = index;
-      m_lastEntry = m_currentFile->mainSelection().GetN()-1;
-   } else {
-      firstEventInCurrentFile();
+   if (m_guiFilter == 0)
+   {
+      m_guiFilter = new FWGUIEventFilter(p);
+      m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
    }
+   
+   m_guiFilter->show(&m_selectors, *m_currentFile->event(), m_globalOR);
 }
 
 void
-CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
-{
+CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
    int numberOfFilters(0);
    {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
@@ -619,7 +627,7 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
       s>>m_filterEvents;
    }
 
-   for (int i=0; i<numberOfFilters; ++i) {
+   for(int i=0; i<numberOfFilters; ++i) {
       FWEventSelector* selector = new FWEventSelector();
       {
          const FWConfiguration* value =
@@ -664,3 +672,4 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d",m_filterEvents)));
 }
+

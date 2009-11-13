@@ -31,7 +31,7 @@
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
-#include "Fireworks/Core/interface/FWEventSelector.h"
+#include "Fireworks/Core/interface/FWGUIEventSelector.h"
 
 namespace {
    struct Fireworks_Core {

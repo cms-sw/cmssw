@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.26 2009/11/05 01:34:09 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.27 2009/11/10 14:38:11 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@ class CSGAction;
 class CmsShowMain;
 class TFile;
 class TGWindow;
+class FWGUIEventFilter;
 
 namespace edm {
    class EventID;
@@ -61,6 +62,9 @@ public:
    bool isFirstEvent();
 
    void showEventFilter(const TGWindow*);
+   void applyFilters();
+   void applyFiltersFromGUI();
+
    const fwlite::Event* getCurrentEvent() { return m_currentFile->event();}
    sigc::signal<void, const fwlite::Event&> newEvent_;
    sigc::signal<void, const fwlite::Event&> oldEvent_;
@@ -85,7 +89,6 @@ private:
    bool filterEventsWithCustomParser(FWFileEntry& file, int, std::string);
 
    // ---------- member data --------------------------------
-
    unsigned int m_maxNumberOfFilesToChain;
    FileQueue_t m_files;
    FileQueue_i m_currentFile;
@@ -101,6 +104,8 @@ private:
    int m_currentEntry;
    int m_lastEntry;
    const CmsShowMain &m_main;
+   FWGUIEventFilter*  m_guiFilter;
+
 };
 
 #endif
