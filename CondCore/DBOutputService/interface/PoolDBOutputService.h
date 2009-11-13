@@ -16,8 +16,8 @@
 // many many clients do not include explicitely!
 #ifndef COND_EXCEPTION_H
 #include "CondCore/DBCommon/interface/Exception.h"
-#warning please include  "CondCore/DBCommon/interface/Exception.h" explicitely
-#define COND_EXP_WARNING
+// #warning please include  "CondCore/DBCommon/interface/Exception.h" explicitely
+// #define COND_EXP_WARNING
 #endif
 
 //#include <iostream>
