@@ -5,17 +5,17 @@ pfIsolatedElectrons  = cms.EDProducer(
     src = cms.InputTag("pfElectronsPtGt5"),
     isolationValueMaps = cms.VInputTag(
         cms.InputTag("isoValElectronWithCharged"),
-        cms.InputTag("isoValElectronWithNeutral"),
+#        cms.InputTag("isoValElectronWithNeutral"),
         cms.InputTag("isoValElectronWithPhotons")
        ),
     ## if True isolation is relative to pT
-    isRelative = cms.bool(False),
+    isRelative = cms.bool(True),
     ## if True all isoValues are combined (summed)
-    isCombined = cms.bool(False),
+    isCombined = cms.bool(True),
     ## not used when isCombined=True
     # non-optimised default for loose absulute isolation
     isolationCuts = cms.vdouble( 10,
-                                 10,
+#                                 10,
                                  10 ),
     ## not used when isCombined=False
     # default value for combined relative with DR={0.4,0.4,0.4}
