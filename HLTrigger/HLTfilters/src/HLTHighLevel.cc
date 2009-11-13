@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/05/04 10:47:36 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/11/09 16:28:10 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -103,9 +103,9 @@ void HLTHighLevel::init(const edm::TriggerResults & result, const edm::EventSetu
         if (matches.empty()) {
           // pattern does not match any trigger paths
           if (throw_)
-            throw cms::Exception("Configuration") << "requested pattern \"" << pattern <<  "\"does not match any HLT paths";
+            throw cms::Exception("Configuration") << "requested pattern \"" << pattern <<  "\" does not match any HLT paths";
           else
-            edm::LogWarning("Configuration") << "requested pattern \"" << pattern <<  "\"does not match any HLT paths";
+            edm::LogInfo("Configuration") << "requested pattern \"" << pattern <<  "\" does not match any HLT paths";
         } else {
           // store the matching patterns
           BOOST_FOREACH(std::vector<std::string>::const_iterator match, matches)
@@ -131,13 +131,13 @@ void HLTHighLevel::init(const edm::TriggerResults & result, const edm::EventSetu
         if (throw_)
           throw cms::Exception("Configuration") << "requested HLT path \"" << HLTPathsByName_[i] << "\" does not exist";
         else
-          edm::LogWarning("Configuration") << "requested HLT path \"" << HLTPathsByName_[i] << "\" does not exist";
+          edm::LogInfo("Configuration") << "requested HLT path \"" << HLTPathsByName_[i] << "\" does not exist";
       }
     }
     
     if (not valid) {
       // no point in throwing - if requested, it should have already happened
-      edm::LogError("Configuration") << "none of the requested paths and pattern match any HLT path - no events will be selected";
+      edm::LogWarning("Configuration") << "none of the requested paths and pattern match any HLT path - no events will be selected";
     }
     
   }
