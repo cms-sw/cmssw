@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.28 2009/10/09 12:57:56 hauk Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.29 2009/10/13 14:41:43 hauk Exp $
 //
 //
 
@@ -947,7 +947,7 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
 	 || (alivec)[0]->components().size() > 1 ) {
       DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
       this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, vProfiles);
-      vLevelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
+      vLevelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp+1, aliobjid));
       TH1 *hY = vLevelProfiles[iComp].sumYResiduals_;
       TH1 *hNormY = vLevelProfiles[iComp].sumNormYResiduals_;
       for(uint n = 0; n < vProfiles.size(); ++n) {
