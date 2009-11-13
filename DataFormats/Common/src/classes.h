@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/BoolCache.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
@@ -74,5 +75,6 @@ namespace {
     std::vector<edm::EventAuxiliary> dummyVectorEventAuxiliary;
     edm::Wrapper<std::vector<edm::EventAuxiliary> > wvea;
     edm::Wrapper<std::vector<edm::ErrorSummaryEntry> > wves;
+    edm::Wrapper<edm::MergeableCounter> mc;
   };
 }
