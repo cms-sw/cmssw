@@ -16,10 +16,45 @@ topTrigOfflineDQMCosmics = cms.EDAnalyzer("TopTrigAnalyzer",
    # This is still used
    # to select based on trigger
    TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
+   
+   #### jet selection
+   CaloJetInputTag = cms.InputTag("iterativeCone5CaloJets","",""),
+   
+   EtaCut = cms.untracked.double(2.4),
+   PtCut  = cms.untracked.double(13.0),
+   NJets  = cms.untracked.int32(2),
 
 									
    # Define the cuts for your muon selections
   customCollection = cms.VPSet(
+
+
+	#cms.untracked.PSet(
+	#  collectionName = cms.untracked.string ("topMuonPt15_anyTrig"),
+	#  trackCollection = cms.untracked.string ("globalTrack"),
+	#  requiredTriggers = cms.untracked.vstring(""),
+	#  d0cut = cms.untracked.double(2.0),
+	#  z0cut = cms.untracked.double(25.0), # 3 meters
+	#  chi2cut = cms.untracked.double(30.0),
+	#  nHits = cms.untracked.int32(20),
+	#  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1"),
+	#  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")
+	#),
+
+	
+
+	#cms.untracked.PSet(
+	#  collectionName = cms.untracked.string ("topMuonPt15_QuadJet15U"),
+	#  trackCollection = cms.untracked.string ("globalTrack"),
+	#  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
+	#  d0cut = cms.untracked.double(0.2),
+	#  z0cut = cms.untracked.double(25.0),
+	#  chi2cut = cms.untracked.double(30.0),
+	#  nHits = cms.untracked.int32(20),
+	#  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1"),
+	#  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")	  
+	#),
+
 
  	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("TopCosmicConfig3"),
@@ -27,6 +62,8 @@ topTrigOfflineDQMCosmics = cms.EDAnalyzer("TopTrigAnalyzer",
 	  requiredTriggers = cms.untracked.vstring(""),
  	  d0cut = cms.untracked.double(1000.0),
  	  z0cut = cms.untracked.double(1000.0), # 3 meters
+	  chi2cut = cms.untracked.double(30.0),
+	  nHits = cms.untracked.int32(20),
  	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
  	  hltCuts  = cms.untracked.string ("abs(eta) < 2.0")
  	),
@@ -41,7 +78,9 @@ topTrigOfflineDQMCosmics = cms.EDAnalyzer("TopTrigAnalyzer",
     EtaParameters      = cms.untracked.vdouble(40, -2.1,2.1),
     PhiParameters      = cms.untracked.vdouble(40, -3.15,3.15),
     ResParameters      = cms.untracked.vdouble(25, -0.15, 0.15),
-	DrParameters       = cms.untracked.vdouble(25, 0.0, 0.05),			
+    DrParameters       = cms.untracked.vdouble(25, 0.0, 0.5),
+	
+    JetMParameters     = cms.untracked.vdouble(11, -0.5, 10.5),			
 
     # Use Pt Parameters to set bin edges
 
