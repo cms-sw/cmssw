@@ -1,6 +1,9 @@
 #ifndef DQMSERVICES_CORE_DQM_CONNECTOR_H
 # define DQMSERVICES_CORE_DQM_CONNECTOR_H
-# define DQM_DEPRECATED __attribute__((deprecated))
+
+# if __GNUC__ && ! defined DQM_DEPRECATED
+#  define DQM_DEPRECATED __attribute__((deprecated))
+# endif
 
 # include <string>
 
