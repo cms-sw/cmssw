@@ -1,6 +1,5 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
@@ -14,7 +13,6 @@
 <export>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CaloTopology>
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalDetId>

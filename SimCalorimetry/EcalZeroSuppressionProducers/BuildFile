@@ -6,7 +6,6 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
 <use name=RecoLocalCalo/EcalRecAlgos>
-<use name=Geometry/CaloEventSetup>
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -19,5 +18,4 @@
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/EcalObjects>
    <use name=RecoLocalCalo/EcalRecAlgos>
-   <use name=Geometry/CaloEventSetup>
 </export>
