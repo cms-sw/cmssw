@@ -7,6 +7,12 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <string>
 
+/**
+ * Two ways to generate the gain:
+ * - default: geneartes gain = MeanGain (from cfg) the same for all strips
+ * - gaussian: generates gain with a gaussian distribution centered at MeanGain and with sigma = SigmaGain (from cfg)
+ */
+
 class SiStripApvGainGenerator : public SiStripCondObjBuilderBase<SiStripApvGain> {
  public:
 
