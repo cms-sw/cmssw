@@ -13,6 +13,7 @@ import FWCore.ParameterSet.Config as cms
 # Date:  3/26/09
 
 from RecoMET.Configuration.RecoMET_cff import *
+from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
 #tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
 tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
@@ -41,7 +42,31 @@ metrecoCosmics = cms.Sequence(
       corMetGlobalMuons+
       muonTCMETValueMapProducer+
       tcMet+
-      hcalnoise)
+      hcalnoise+
+      BeamHaloId
+      )
+
+metrecoCosmics_woBeamHaloId = cms.Sequence(
+    met+
+    metNoHF+
+    metHO+
+    metNoHFHO+
+    calotoweroptmaker+
+    metOpt+
+    metOptNoHF+
+    calotoweroptmakerWithHO+
+    metOptHO+metOptNoHFHO+
+    htMetSC5+
+    htMetSC7+
+    htMetKT4+
+    htMetKT6+
+    htMetIC5+
+    muonMETValueMapProducer+
+    corMetGlobalMuons+
+    muonTCMETValueMapProducer+
+    tcMet+
+    hcalnoise
+    )
 
 metrecoCosmics_woHcalNoise = cms.Sequence(
     met+
@@ -61,7 +86,8 @@ metrecoCosmics_woHcalNoise = cms.Sequence(
     muonMETValueMapProducer+
     corMetGlobalMuons+
     muonTCMETValueMapProducer+
-    tcMet
+    tcMet+
+    BeamHaloId
 )
     
 
