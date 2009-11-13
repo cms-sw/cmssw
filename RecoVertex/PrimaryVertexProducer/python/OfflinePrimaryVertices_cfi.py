@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(2), ## 2 cms in case there is no beamspot (ONLY FOR STARTUP!)
+        maxDistanceToBeam = cms.double(0.05), ## 200 microns
 
         minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
 
@@ -13,7 +13,7 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
         maxNormalizedChi2 = cms.double(5.0),
         minSiliconHits = cms.int32(7), ## hits > 7
 
-        maxD0Significance = cms.double(100.0), ## 100 is for when the beamspot is not well known (ONLY FOR STARTUP)
+        maxD0Significance = cms.double(5.0), ## keep most primary tracks
 
         minPt = cms.double(0.0), ## better for softish events
 
@@ -33,8 +33,10 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
 
     ),
     TkClusParameters = cms.PSet(
-        zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
-
+        algorithm   = cms.string('gap'),
+        TkGapClusParameters = cms.PSet( 
+            zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+        )
     )
 )
 
