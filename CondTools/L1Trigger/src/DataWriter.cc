@@ -21,8 +21,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 			  const std::string& recordType )
 {
   WriterFactory* factory = WriterFactory::get();
-  WriterProxy* writer = factory->create( recordType + "@Writer" ) ;
-  if( writer == 0 )
+  std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
+  if( writer.get() == 0 )
     {
       throw cond::Exception( "DataWriter: could not create WriterProxy with name "
 			     + recordType + "@Writer" ) ;
@@ -45,7 +45,6 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
-  delete writer;
   tr.commit ();
 
   return payloadToken ;
