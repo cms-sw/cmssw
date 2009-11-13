@@ -1,3 +1,6 @@
+#ifdef COND_EXP_WARNING
+#warning please ignore previous warning
+#endif
 #ifndef COND_EXCEPTION_H
 #define COND_EXCEPTION_H
 #include "FWCore/Utilities/interface/Exception.h"
