@@ -22,17 +22,25 @@ l1trct.rctSource = 'gctDigis::'
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 l1temumonitor = cms.Sequence(l1demon) 
 
+# AlCa
 from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
 from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
+#JetMET
 from DQM.HLTEvF.HLTMonJetMET_E28_cfi import *
-from DQM.HLTEvF.HLTMonEleBits_cfi import *
 from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
+# Electron
+from DQM.HLTEvF.HLTMonEleBits_cfi import *
+# Muon
 from DQM.HLTEvF.HLTMonMuonDQM_cfi import *
 from DQM.HLTEvF.HLTMonMuonBits_cfi import *
+# Photon
 #from DQM.HLTEvF.HLTMonPhotonBits_cfi import *
+# Tau
 from DQM.HLTEvF.HLTMonTau_cfi import *
+# BTag
 #from DQM.HLTEvF.hltMonBTagIPSource_cfi import *
 #from DQM.HLTEvF.hltMonBTagMuSource_cfi import *
+
 # hltMonjmDQM  bombs
 # hltMonMuDQM dumps names of all histograms in the directory
 # hltMonPhotonBits in later releases
@@ -43,16 +51,22 @@ from DQM.HLTEvF.HLTMonTau_cfi import *
 onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauReco)
 
 
+# FourVector
 from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
+# EGamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-##from DQMOffline.Trigger.MuonTrigRateAnalyzer_cosmics_cfi import *
+# Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cosmics_cff import *
+# Top
 from DQMOffline.Trigger.QuadJetAna_cfi import *
+# Tau
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
+# JetMET
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
+# TnP
 from DQMOffline.Trigger.TnPEfficiency_cff import *
 
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*quadJetAna *TnPEfficiency)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
 
 
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
