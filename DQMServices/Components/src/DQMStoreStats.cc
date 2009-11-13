@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/09/04 08:29:06 $
- * $Revision: 1.4 $
+ * $Date: 2009/09/11 15:08:01 $
+ * $Revision: 1.5 $
  * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -78,6 +78,10 @@ int DQMStoreStats::calcstats() {
     
     // figure out subsystem/subfolder names
     std::string path = (*it)->getPathname();
+
+    // protection against ghost ME with empty paths
+    if( 0 == path.size() ) continue;
+
     subsysStringEnd = path.find( '/', 0 );
     if( std::string::npos == subsysStringEnd ) subsysStringEnd = path.size(); // no subfolder
 
@@ -134,7 +138,7 @@ int DQMStoreStats::calcstats() {
 
       default: {}
 	// here we have a DQM_KIND_INVALID, DQM_KIND_INT, DQM_KIND_REAL or DQM_KIND_STRING
-	// which we don't much about. Alternatively:
+	// which we don't care much about. Alternatively:
 
 	//   std::cerr << "[DQMStoreStats::calcstats] ** WARNING: monitor element of kind: " 
 	// 	       << (*it)->kind() << ", name: \"" << (*it)->getName() << "\"\n"

@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/09/04 08:29:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/11 15:08:01 $
+ *  $Revision: 1.4 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -39,7 +39,7 @@
 ///
 class DQMStoreStatsSubfolder {
  public:
-  DQMStoreStatsSubfolder() { totalBins_ = 0; totalMemory_ = 0; }
+  DQMStoreStatsSubfolder() { totalHistos_ = 0; totalBins_ = 0; totalMemory_ = 0; }
   std::string subfolderName_;
   unsigned int totalHistos_;
   unsigned int totalBins_;
