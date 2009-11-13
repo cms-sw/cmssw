@@ -42,7 +42,7 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -91,6 +91,7 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 
       std::string  custompathnamemu_;
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+      std::vector<int>  prescUsed_;
 
 
       std::string dirname_;
@@ -107,27 +108,31 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 
       class PathInfo {
 	PathInfo():
-	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), DenomfilterName_("unset"), processName_("unset"), objectType_(-1)
+	  pathIndex_(-1), prescaleUsed_(-1),denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), DenomfilterName_("unset"), processName_("unset"), objectType_(-1)
 	  {};
       public:
 	void setHistos( 
 		       MonitorElement* const N, 
                        MonitorElement* const Et, 
                        MonitorElement* const EtaPhi,  
+                       MonitorElement* const Eta,  
                        MonitorElement* const Phi,  
                        MonitorElement* const NL1, 
                        MonitorElement* const l1Et, 
 		       MonitorElement* const l1EtaPhi,
+		       MonitorElement* const l1Eta,
 		       MonitorElement* const l1Phi)
 
           {
           N_ = N;
 	  Et_ = Et;
 	  EtaPhi_ = EtaPhi;
+          Eta_ = Eta;
           Phi_ = Phi;
           NL1_ = NL1;
 	  l1Et_ = l1Et;
 	  l1EtaPhi_ = l1EtaPhi;
+	  l1Eta_ = l1Eta;
 	  l1Phi_ = l1Phi;
           
 	}
@@ -181,6 +186,9 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	MonitorElement * getEtaPhiHisto() {
 	  return EtaPhi_;
 	}
+	MonitorElement * getEtaHisto() {
+	  return Eta_;
+	}
 	MonitorElement * getPhiHisto() {
 	  return Phi_;
 	}
@@ -189,6 +197,9 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	}
 	MonitorElement * getL1EtHisto() {
 	  return l1Et_;
+	}
+	MonitorElement * getL1EtaHisto() {
+	  return l1Eta_;
 	}
 	MonitorElement * getL1EtaPhiHisto() {
 	  return l1EtaPhi_;
@@ -260,6 +271,9 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	const std::string getDenomPath(void ) const {
 	  return denomPathName_;
 	}
+	const int getprescaleUsed(void) const {
+	  return prescaleUsed_;
+	}
 	const std::string getProcess(void ) const {
 	  return processName_;
 	}
@@ -276,11 +290,11 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
           return tagName;
 	}
 	~PathInfo() {};
-	PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string DenomfilterName, std::string processName, size_t type, float ptmin, 
+	PathInfo(int prescaleUsed, std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string DenomfilterName, std::string processName, size_t type, float ptmin, 
 		 float ptmax):
-	  denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), DenomfilterName_(DenomfilterName), processName_(processName), objectType_(type),
-          N_(0), Et_(0), EtaPhi_(0),
-	  NL1_(0), l1Et_(0), l1EtaPhi_(0),l1Phi_(0),
+	  prescaleUsed_(prescaleUsed),denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), DenomfilterName_(DenomfilterName), processName_(processName), objectType_(type),
+          N_(0), Et_(0), EtaPhi_(0),Eta_(0),
+	  NL1_(0), l1Et_(0), l1EtaPhi_(0),l1Eta_(0),l1Phi_(0),
           NwrtMu_(0), EtwrtMu_(0), EtaPhiwrtMu_(0),PhiwrtMu_(0),
           NEff_(0), EtEff_(0), EtaEff_(0),PhiEff_(0),
 	  NNum_(0), EtNum_(0), EtaNum_(0),PhiNum_(0),
@@ -288,14 +302,16 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-	  PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string DenomfilterName, std::string processName, size_t type,
+	  PathInfo(int prescaleUsed, std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string DenomfilterName, std::string processName, size_t type,
 		   MonitorElement *N,
 		   MonitorElement *Et,
 		   MonitorElement *EtaPhi,
+		   MonitorElement *Eta,
 		   MonitorElement *Phi,
 		   MonitorElement *NL1,
 		   MonitorElement *l1Et,
 		   MonitorElement *l1EtaPhi,
+		   MonitorElement *l1Eta,
 		   MonitorElement *l1Phi,
 		   MonitorElement *NwrtMu,
 		   MonitorElement *EtwrtMu,
@@ -315,9 +331,9 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 		   MonitorElement *PhiDenom,
 		   float ptmin, float ptmax
 		   ):
-	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), DenomfilterName_(DenomfilterName), processName_(processName), objectType_(type),
-            N_(N), Et_(Et), EtaPhi_(EtaPhi), Phi_(Phi),
-	    NL1_(NL1), l1Et_(l1Et), l1EtaPhi_(l1EtaPhi),l1Phi_(l1Phi),
+	     prescaleUsed_(prescaleUsed), denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), DenomfilterName_(DenomfilterName), processName_(processName), objectType_(type),
+            N_(N), Et_(Et), EtaPhi_(EtaPhi),Eta_(Eta), Phi_(Phi),
+	    NL1_(NL1), l1Et_(l1Et), l1EtaPhi_(l1EtaPhi),l1Eta_(l1Eta),l1Phi_(l1Phi),
             NwrtMu_(NwrtMu), EtwrtMu_(EtwrtMu), EtaPhiwrtMu_(EtaPhiwrtMu),PhiwrtMu_(PhiwrtMu),
             NEff_(NEff), EtEff_(EtEff), EtaEff_(EtaEff), PhiEff_(PhiEff),
 	    NNum_(NNum), EtNum_(EtNum), EtaNum_(EtaNum), PhiNum_(PhiNum),
@@ -330,6 +346,7 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	    }
       private:
 	  int pathIndex_;
+	  int prescaleUsed_;
 	  std::string denomPathName_;
 	  std::string pathName_;
 	  std::string l1pathName_;
@@ -339,8 +356,8 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	  int objectType_;
 
 	  // we don't own this data
-          MonitorElement *N_, *Et_, *EtaPhi_, *Phi_;
-	  MonitorElement *NL1_, *l1Et_, *l1EtaPhi_ , *l1Phi_;
+          MonitorElement *N_, *Et_, *EtaPhi_, *Eta_, *Phi_;
+	  MonitorElement *NL1_, *l1Et_, *l1EtaPhi_ ,*l1Eta_ , *l1Phi_;
 	  MonitorElement *NwrtMu_, *EtwrtMu_, *EtaPhiwrtMu_, *PhiwrtMu_;
 	  MonitorElement *NEff_, *EtEff_, *EtaEff_, *PhiEff_;
 	  MonitorElement *NNum_, *EtNum_, *EtaNum_, *PhiNum_;
@@ -374,6 +391,8 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
       MonitorElement* rate_All;
       MonitorElement* rate_All_L1;
       MonitorElement* rate_Eff;
+      MonitorElement* rate_Denom;
+      MonitorElement* rate_Num;
       MonitorElement* rate_wrtMu;
 	
 	
