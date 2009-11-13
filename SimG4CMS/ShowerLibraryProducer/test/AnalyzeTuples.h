@@ -14,7 +14,7 @@ Implementation:
 // 
 // Original Author: Taylan Yetkin
 // Created: Tue Feb 10 08:43:07 CST 2009
-// $Id: AnalyzeTuples.h,v 1.1 2009/02/10 15:54:45 tyetkin Exp $
+// $Id: AnalyzeTuples.h,v 1.1 2009/03/30 20:04:11 tyetkin Exp $
 // 
 // 
 
@@ -50,7 +50,7 @@ class AnalyzeTuples:public edm::EDAnalyzer {
 
 
   private:
-    virtual void beginJob(const edm::EventSetup &);
+    virtual void beginJob();
     virtual void analyze(const edm::Event &, const edm::EventSetup &);
     virtual void endJob();
     void loadEventInfo(TBranch *);

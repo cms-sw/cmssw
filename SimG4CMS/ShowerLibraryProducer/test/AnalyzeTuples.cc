@@ -123,7 +123,7 @@ void AnalyzeTuples::analyze(const edm::Event & iEvent, const edm::EventSetup & i
     }
 }
 
-void AnalyzeTuples::beginJob(const edm::EventSetup &) {
+void AnalyzeTuples::beginJob() {
     
     TFileDirectory HFDir = fs->mkdir("HF");
     char title[128];

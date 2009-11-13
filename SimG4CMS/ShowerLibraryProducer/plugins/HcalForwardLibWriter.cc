@@ -101,7 +101,7 @@ void HcalForwardLibWriter::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(product_had, "hadParticles");
 }
 
-void HcalForwardLibWriter::beginJob(const edm::EventSetup&) {
+void HcalForwardLibWriter::beginJob() {
 }
 //void HcalForwardLibWriter::fillEvent(HFShowerPhotonCollection& em, HFShowerPhotonCollection& had) {
 //

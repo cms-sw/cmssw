@@ -49,7 +49,7 @@ TreeProducerCalibSimul::~TreeProducerCalibSimul()
 
 // ------------------------------------------------------
 // initializations
-void TreeProducerCalibSimul::beginJob(const edm::EventSetup& iSetup)
+void TreeProducerCalibSimul::beginJob()
 {
   cout << endl;
   cout << "BeginJob" << endl;

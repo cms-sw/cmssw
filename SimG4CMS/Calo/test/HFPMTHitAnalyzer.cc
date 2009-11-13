@@ -38,7 +38,7 @@ HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
 
 HFPMTHitAnalyzer::~HFPMTHitAnalyzer() {}
 
-void HFPMTHitAnalyzer::beginJob(const edm::EventSetup&) {
+void HFPMTHitAnalyzer::beginJob() {
 
   event_no = 0;
   char name[20], title[120], sub[10];
