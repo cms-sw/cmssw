@@ -28,12 +28,9 @@ process.options = cms.untracked.PSet(
 ##
 ## Conditions
 ##
-#process.load("Configuration.StandardSequences.FakeConditions_cff")
-#process.load("CalibTracker.Configuration.Tracker_FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = 'DESIGN_31X_V2::All' # 'CRUZET4_V3P::All'
-#process.prefer("GlobalTag")
+# Tag used for reprocessing
+process.GlobalTag.globaltag = 'CRAFT09_R_V4::All' #'DESIGN_31X_V7::All'
 
 
 ##
@@ -89,50 +86,52 @@ process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTracker
 ##
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/065EC35D-00FF-DD11-A118-0018F3D0962C.root',
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/E282C810-01FF-DD11-A190-001731AF6B83.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/769DEEE1-00FF-DD11-8F8C-003048678D9A.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/3EB6FD4C-00FF-DD11-8E5F-0018F3D095EC.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/AC09161D-01FF-DD11-B9B5-00304875ABEF.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/96C579B9-00FF-DD11-AD81-0030486792B8.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/541A062C-03FF-DD11-9B1A-0018F3D0962A.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/EC9A5776-03FF-DD11-9F6B-0030486790A6.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/9281F6F7-00FF-DD11-954B-0030486791BA.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/D6DABE86-02FF-DD11-A18C-0018F3D0961E.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/6C41AD2C-03FF-DD11-9D51-001731AF6BCB.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/3EAC63B3-01FF-DD11-9BD9-0018F3D095FE.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/4676C0F2-01FF-DD11-95C3-0018F3D0960A.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/027D9E5B-02FF-DD11-B794-001731AF67B9.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/B697F214-03FF-DD11-9E7B-003048679168.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/5A2EC49F-02FF-DD11-B36A-003048678FA0.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/3A0298FF-01FF-DD11-8D17-001A92811700.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/601B9F26-03FF-DD11-BC24-003048679214.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/8ABAE8E6-02FF-DD11-8FFB-0018F3D096E8.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/50B25624-03FF-DD11-8C6F-0030486790C0.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/88210E11-03FF-DD11-816C-003048D15DB6.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/AE4CC64E-02FF-DD11-8C00-001A92810AF2.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/8C320055-03FF-DD11-9D44-001A92971B9A.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/46082956-03FF-DD11-80FC-00304875ABEF.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0005/D67A5CC5-81FE-DD11-958E-003048767D3D.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/949950CD-02FF-DD11-AF6E-001A92810AF2.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0008/CA986B41-02FF-DD11-9779-0030486792B8.root', 
-    '/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V9_StreamALCARECOTkAlCosmics0T_225-v3/0007/2C42F11A-01FF-DD11-8A80-00304867902C.root'
     ##
-    ## 218 RelVal Sample, please replace accordingly
+    ## CRAFT 09 ALCARECO (Reprocessing)
     ##
-    #'/store/relval/CMSSW_2_1_8/RelValZMM/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMuonIsolated_v1/0003/A8583C5E-0283-DD11-8D18-000423D987FC.root'
-    ##
-    ## CRUZET 4 ALCARECO (on CAF)
-    ##
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/000690AE-E771-DD11-93D6-000423D996C8.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/002C355B-3372-DD11-A93C-000423D98DD4.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/00FD0190-7A71-DD11-A95F-000423D98844.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/0237113C-1F71-DD11-95B9-000423D8FA38.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/024501B6-CE71-DD11-88F6-000423D98930.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/043D4A5B-1E71-DD11-8C00-001D09F2441B.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/048E64E3-9371-DD11-8C2C-001D09F2AF1E.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/04E932C2-A471-DD11-8CEC-001D09F2924F.root',
-    #'/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/06075384-6171-DD11-975E-001617C3B65A.root' #,...
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/9CA7B695-6ABB-DE11-8BAD-001731AF6873.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/CCC20FBE-6BBB-DE11-937A-001731AF66FD.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/F8A02714-6CBB-DE11-BB63-0026189438D3.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0011/6A40C518-A0BA-DE11-A212-001A92971B5E.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/90F1E626-A8BA-DE11-A366-0017313F02F2.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/4843B2D3-6BBB-DE11-9187-0018F3D09654.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/56A66AAB-A7BA-DE11-B7F6-003048678B92.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/943825A8-6ABB-DE11-95DE-003048678F74.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/029E6A49-6ABB-DE11-8EC2-00261894392B.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/8240E597-6ABB-DE11-AAFF-0026189438FE.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/BCD40F9A-6ABB-DE11-8D0D-002618943922.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/24DB7395-6ABB-DE11-9CD8-0030486791C6.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/AEF2C4B6-6ABB-DE11-8865-002618943963.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/584167C5-6BBB-DE11-B9E8-0018F3D09690.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/EA1D660C-6CBB-DE11-81F0-001A928116C2.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/0094AABE-6BBB-DE11-8B31-002618943800.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/B01D72EC-ABBA-DE11-8A30-00261894389E.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/E4DA1ECF-6BBB-DE11-89CB-00304867D838.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/94D30C49-6ABB-DE11-9D8E-0018F3D096C2.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/2C117B26-6CBB-DE11-912C-001A9281174A.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/3653F052-6ABB-DE11-B282-0018F3D09652.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/C24DFE9A-6ABB-DE11-8DB4-001731AF6721.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/96538FAD-6ABB-DE11-ADAE-003048678FA6.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/4ECA8719-64BB-DE11-A579-0018F3D096FE.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/62309ECC-6BBB-DE11-8AD4-00261894396A.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/6278C92A-A5BA-DE11-8CC7-00248C0BE005.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/BCBED6A2-6ABB-DE11-ACDD-001731AF66B3.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0011/8C11A0A1-85BA-DE11-8EF8-002354EF3BE3.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/0AA9E82B-A7BA-DE11-A1CC-00261894387A.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0011/2C6420B4-A0BA-DE11-8F10-001A928116FC.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/F8026020-A8BA-DE11-A7B4-001A928116FC.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/160CDBBE-6BBB-DE11-9814-0018F3D09642.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0011/2E16801E-A0BA-DE11-BE4A-001731AF67E3.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/70419677-AABA-DE11-B23F-00261894393A.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/4407E064-6ABB-DE11-8A23-0017312B56A7.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/6A708B4D-6ABB-DE11-B554-0026189438BD.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/E0154D61-6ABB-DE11-96EE-0026189438BD.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/FC54AE45-6ABB-DE11-914C-00261894388A.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/A60ACA56-6ABB-DE11-BC42-003048678FEA.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/D81F0264-6ABB-DE11-9ECC-002618943933.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/D2E4FC59-6ABB-DE11-8DED-003048678B8E.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0013/944D51AD-6ABB-DE11-B70A-001731230C61.root',	
+    '/store/data/CRAFT09/Cosmics/ALCARECO/StreamTkAlCosmics0T-CRAFT09_R_V4_CosmicsSeq_v1/0012/7CBC14B1-ACBA-DE11-A35E-001A92810AA4.root'
     )
 )
 
@@ -141,16 +140,8 @@ process.source = cms.Source("PoolSource",
 ## Maximum number of Events
 ##
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(101)
+    input = cms.untracked.int32(1001)
 )
-
-
-##
-## Output File Configuration (not used in DQM mode)
-##
-#process.TFileService = cms.Service("TFileService",
-#    fileName = cms.string('AlignmentValidation.root')
-#)
 
 
 ##
@@ -184,6 +175,7 @@ process.TrackerOfflineValidationDqm.trajectoryInput = 'TrackRefitterP5'
 ## Load and Configure TrackerOfflineValidationSummary
 ##
 process.load("Alignment.OfflineValidation.TrackerOfflineValidationSummary_cfi")
+process.TrackerOfflineValidationSummary.minEntriesPerModuleForDmr = 1  # to allow tests with few statistics
 
 
 ##
@@ -197,7 +189,7 @@ process.load("DQMServices.Core.DQM_cfg")
 ##
 process.dqmSaverMy = cms.EDFilter("DQMFileSaver",
           convention=cms.untracked.string("Offline"),
-          workflow=cms.untracked.string("/Cosmics/TrackAlign_322patch2_R000100000_R000100050_v1/ALCARECO"),   # /primaryDatasetName/WorkflowDescription/DataTier; Current Convention: Indicate run range (first and last run) in file name 
+          workflow=cms.untracked.string("/Cosmics/TrackAlign_327_R000100000_R000100050_v1/ALCARECO"),   # /primaryDatasetName/WorkflowDescription/DataTier; Current Convention: Indicate run range (first and last run) in file name 
 	  dirName=cms.untracked.string("."),
           saveByRun=cms.untracked.int32(-1),
 	  saveAtJobEnd=cms.untracked.bool(True),                        
