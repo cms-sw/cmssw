@@ -1,3 +1,9 @@
+2009-11-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-04-01
+	* Use latest version of test/ResourceMonitorCollection_t.cpp
+	* Remove large eps files from doc directory
+
 2009-11-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-04-00
