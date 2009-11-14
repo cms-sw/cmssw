@@ -194,8 +194,7 @@ namespace cond {
 
   RDBMS::RDBMS() : connection(new DbConnection) {
     //topinit();
-    connection->configuration().setMessageLevel( coral::Error );
-    connection->configure();
+    connection->configure( cond::CmsDefaults );
   }
   RDBMS::~RDBMS() {}
 
