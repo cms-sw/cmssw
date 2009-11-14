@@ -1,5 +1,4 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSel.h"
-#include "TopQuarkAnalysis/TopTools/interface/EventShapeVariables.h"
 #include "TVector3.h"
 
 TtSemiLepSignalSel::TtSemiLepSignalSel(){}
