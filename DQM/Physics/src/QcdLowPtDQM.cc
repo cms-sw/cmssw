@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.2 2009/11/11 16:01:24 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.3 2009/11/13 09:59:18 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -52,6 +52,10 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
   ZVVtxRegion_(parameters.getUntrackedParameter<double>("ZVertexVtxRegion",2)),
   dPhiVc_(parameters.getUntrackedParameter<double>("dPhiVertexCut",0.08)),
   dZVc_(parameters.getUntrackedParameter<double>("dZVertexCut",0.25)),
+  sigEtaCut_(parameters.getUntrackedParameter<double>("signalEtaCut",0.1)),
+  sigPhiCut_(parameters.getUntrackedParameter<double>("signalPhiCut",1.5)),
+  bkgEtaCut_(parameters.getUntrackedParameter<double>("backgroundEtaCut",0.1)),
+  bkgPhiCut_(parameters.getUntrackedParameter<double>("backgroundPhiCut",3.0)),
   verbose_(parameters.getUntrackedParameter<int>("verbose",2)),
   pixLayers_(parameters.getUntrackedParameter<int>("pixLayerCombinations",12)),
   usePixelQ_(parameters.getUntrackedParameter<int>("usePixelQualityWord",0)),
@@ -86,15 +90,12 @@ QcdLowPtDQM::~QcdLowPtDQM()
 {
   // Destructor.
 
-  std::for_each(NrawTracklets12_.begin(),  NrawTracklets12_.end(),  deleter());
   std::for_each(NsigTracklets12_.begin(),  NsigTracklets12_.end(),  deleter());
   std::for_each(NbkgTracklets12_.begin(),  NbkgTracklets12_.end(),  deleter());
   deleter()(AlphaTracklets12_);
-  std::for_each(NrawTracklets13_.begin(),  NrawTracklets13_.end(),  deleter());
   std::for_each(NsigTracklets13_.begin(),  NsigTracklets13_.end(),  deleter());
   std::for_each(NbkgTracklets13_.begin(),  NbkgTracklets13_.end(),  deleter());
   deleter()(AlphaTracklets13_);
-  std::for_each(NrawTracklets23_.begin(),  NrawTracklets23_.end(),  deleter());
   std::for_each(NsigTracklets23_.begin(),  NsigTracklets23_.end(),  deleter());
   std::for_each(NbkgTracklets23_.begin(),  NbkgTracklets23_.end(),  deleter());
   deleter()(AlphaTracklets23_);
@@ -184,9 +185,6 @@ void QcdLowPtDQM::beginRun(const edm::Run &, const edm::EventSetup &iSetup)
   // setup correction histograms
   if (AlphaTracklets12_) {
     for(size_t i=0;i<hltTrgNames_.size();++i) {
-      TH3F *h1 = (TH3F*)AlphaTracklets12_->Clone(Form("NrawTracklets12-%s",
-                                                      hltTrgNames_.at(i).c_str()));
-      NrawTracklets12_.push_back(h1);
       TH3F *h2 = (TH3F*)AlphaTracklets12_->Clone(Form("NsigTracklets12-%s",
                                                       hltTrgNames_.at(i).c_str()));
       NsigTracklets12_.push_back(h2);
@@ -280,7 +278,7 @@ void QcdLowPtDQM::book2D(std::vector<TH2F*> &hs,
 void QcdLowPtDQM::bookHistos()
 {
   // Book histograms if needed.
-
+  
   if (hNhitsL1_.size())
     return; // histograms already booked
 
@@ -345,13 +343,13 @@ void QcdLowPtDQM::bookHistos()
     const double y2 = +3.2;
     if (pixLayers_>=12)
       book2D(hTrkRawDetaDphi12_,"hTracklet12RawDetaDphi",
-             "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0); 
+             "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0);
     if (pixLayers_>=13)
       book2D(hTrkRawDetaDphi13_,"hTracklet13RawDetaDphi",
-             "tracklet13 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0); 
+             "tracklet13 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0);
     if (pixLayers_>=23)
       book2D(hTrkRawDetaDphi23_,"hTracklet23RawDetaDphi",
-             "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0); 
+             "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#Eta;#Delta#Phi",Nx,x1,x2,Ny,y1,y2,0,0);
   }
   if (0) {
     const int Nx = 60;
@@ -387,12 +385,6 @@ void QcdLowPtDQM::bookHistos()
     const double x1 = xa->GetBinLowEdge(1);
     const double x2 = xa->GetBinLowEdge(Nx+1);
     book1D(hdNdEtaRawTrkl12_,"hdNdEtaRawTracklets12",
-           "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
-    book1D(hdNdEtaRawTrklTestA_,"hdNdEtaRawTrackletsTESTA",
-           "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
-    book1D(hdNdEtaRawTrklTestB_,"hdNdEtaRawTrackletsTESTB",
-           "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
-    book1D(hdNdEtaRawTrklTestC_,"hdNdEtaRawTrackletsTESTC",
            "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
     book1D(hdNdEtaSubTrkl12_,"hdNdEtaSubTracklets12",
            "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
@@ -452,7 +444,6 @@ void QcdLowPtDQM::endJob(void)
 
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
-                             const std::vector<TH3F*> &NrawTracklets,
                              const std::vector<TH3F*> &NsigTracklets,
                              const std::vector<TH3F*> &NbkgTracklets,
                              const std::vector<TH1F*> &NEvsPerEta,
@@ -468,8 +459,8 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
   const int netabins = AlphaTracklets->GetNbinsX();
   const int nhitbins = AlphaTracklets->GetNbinsY();
   const int nvzbins  = AlphaTracklets->GetNbinsZ();
-  const int zvlbin   = AlphaTracklets->GetZaxis()->FindBin(-ZVVtxRegion_)-1;          
-  const int zvhbin   = AlphaTracklets->GetZaxis()->FindBin(+ZVVtxRegion_)+1;          
+  const int zvlbin   = AlphaTracklets->GetZaxis()->FindFixBin(-ZVVtxRegion_)-1;          
+  const int zvhbin   = AlphaTracklets->GetZaxis()->FindFixBin(+ZVVtxRegion_)+1;          
 
   for(size_t i=0;i<hdNdEtaRawTrkl.size();++i) {
     MonitorElement *mrawtrk = hdNdEtaRawTrkl.at(i);
@@ -480,14 +471,18 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
     msubtrk->Reset();
     mtrklet->Reset();
 
-    TH3F *hraw = NrawTracklets.at(i);
     TH3F *hsig = NsigTracklets.at(i);
     TH3F *hbkg = NbkgTracklets.at(i);
     TH1F *hepa = NEvsPerEta.at(i);
 
     for(int etabin=1;etabin<=netabins;++etabin) {
       const double etaval   = AlphaTracklets->GetXaxis()->GetBinCenter(etabin);
-      const int    zvetabin = hepa->FindBin(etaval);
+      const double etawidth = AlphaTracklets->GetXaxis()->GetBinWidth(etabin);
+      const int    zvetabin = hepa->GetXaxis()->FindFixBin(etaval);
+      const double events   = hepa->GetBinContent(zvetabin);
+      if (!events)
+        continue;
+
       int zvbin1 = 1;
       int zvbin2 = nvzbins;
       if (zvetabin==0) { // reduced phase space
@@ -495,64 +490,53 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
       } else if (zvetabin==2) {
         zvbin2 = zvlbin;
       }
-      const double etabinwidth = AlphaTracklets->GetXaxis()->GetBinWidth(etabin);
-      const double norm        = etabinwidth * hepa->GetBinContent(zvetabin);
+
       double dndetaraw     = 0;
       double dndetasub     = 0;
       double dndeta        = 0;
-      double dndetarawerr2 = 0;
-      double dndetasuberr2 = 0;
-      double dndetaerr2    = 0;
-      double errnorm       = 0;
+      double dndetarawerr  = 0;
+      double dndetasuberr  = 0;
+      double dndetaerr     = 0;
       for(int hitbin=1;hitbin<=nhitbins;++hitbin) {
         for(int vzbin=1;vzbin<=nvzbins;++vzbin) {
           int gbin = AlphaTracklets->GetBin(etabin,hitbin,vzbin);
-          double bs = hsig->GetBinContent(gbin);
-          if (bs<=0) {
+          const double nsig = hsig->GetBinContent(gbin);
+          dndetaraw += nsig;
+          const double nbkg = hbkg->GetBinContent(gbin);
+          const double nsub = nsig - nbkg;
+          if (nsub<0) {
+            CP(2) print(2,Form("Got negative contributions: %d %d %d %f",etabin,hitbin,vzbin,nsub));
             continue;
           }
-          const double nraw = hraw->GetBinContent(gbin);
-          dndetaraw += nraw;
-          const double bb = hbkg->GetBinContent(gbin);
-          const double beta = bb / bs;
-          const double nsub = nraw * (1-beta);
           dndetasub += nsub;
-          const double bs2= bs*bs;
-          const double nraw2 = nraw*nraw;
-          const double err2 = nraw2 * (nraw2/bs2*bb + bb*bb*nraw2/bs2/bs + beta*beta*nraw);
-          dndetasuberr2 += err2;
           const double alpha = AlphaTracklets->GetBinContent(gbin);
           dndeta += alpha*nsub;
-          dndetaerr2 += alpha*alpha*err2;
-          errnorm += nraw;
-          cout << etaval << " " << hitbin << " " << vzbin << " " << alpha << " " << (1-beta) << endl;
+          double nsig2  = nsig*nsig;
+          double nsub2  = nsub*nsub;
+          double alpha2 = alpha*alpha;
+          dndetarawerr  += nsig2;
+          dndetasuberr  += nsub2;
+          dndetaerr     += alpha2*nsub2;
         }
       }
 
-      if (norm) {
-        dndetaraw     /= norm;
-        dndetasub     /= norm;
-        dndeta        /= norm;
-      }
-      if (errnorm) {
-        double tmp     = errnorm*errnorm*norm*norm;
-        dndetarawerr2 /= dndetaraw/norm;
-        dndetasuberr2 /= tmp;
-        dndetaerr2    /= tmp;
-      }
-
+      double norm  = etawidth * events;
+      double enorm = etawidth * norm;
+      dndetaraw    /= norm;
+      dndetasub    /= norm;
+      dndeta       /= norm;
+      dndetarawerr /= enorm;
+      dndetasuberr /= enorm;
+      dndetaerr    /= enorm;
+      double dndetarawsigma2 = (dndetaraw*dndetaraw - dndetarawerr) / events;
+      double dndetasubsigma2 = (dndetasub*dndetasub - dndetasuberr) / events;
+      double dndetasigma2    = (dndeta*dndeta - dndetaerr) / events;
       mrawtrk->setBinContent(etabin,dndetaraw);
-      mrawtrk->setBinError(etabin,TMath::Sqrt(dndetarawerr2));
+      mrawtrk->setBinError(etabin,TMath::Sqrt(TMath::Abs(dndetarawsigma2)));
       msubtrk->setBinContent(etabin,dndetasub);
-      msubtrk->setBinError(etabin,TMath::Sqrt(dndetasuberr2));
+      msubtrk->setBinError(etabin,TMath::Sqrt(TMath::Abs(dndetasubsigma2)));
       mtrklet->setBinContent(etabin,dndeta);
-      mtrklet->setBinError(etabin,TMath::Sqrt(dndetaerr2));
-
-      hdNdEtaRawTrklTestB_.at(i)->setBinContent(etabin,dndetaraw);
-      double norm2 = etabinwidth*h2TrigCorr_->getBinContent(i+1,i+1);
-      if (norm2>0)
-        hdNdEtaRawTrklTestC_.at(i)->setBinContent(etabin,dndetaraw*norm/norm2);
-
+      mtrklet->setBinError(etabin,TMath::Sqrt(TMath::Abs(dndetasigma2)));
     }
   }
 }
@@ -563,11 +547,11 @@ void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l,
 {
   // Update various histograms.
 
-  filldNdeta(AlphaTracklets12_,NrawTracklets12_,NsigTracklets12_,NbkgTracklets12_,
+  filldNdeta(AlphaTracklets12_,NsigTracklets12_,NbkgTracklets12_,
              hEvtCountsPerEta12_,hdNdEtaRawTrkl12_,hdNdEtaSubTrkl12_,hdNdEtaTrklets12_);
-  filldNdeta(AlphaTracklets13_,NrawTracklets13_,NsigTracklets13_,NbkgTracklets13_,
+  filldNdeta(AlphaTracklets13_,NsigTracklets13_,NbkgTracklets13_,
              hEvtCountsPerEta13_,hdNdEtaRawTrkl13_,hdNdEtaSubTrkl13_,hdNdEtaTrklets13_);
-  filldNdeta(AlphaTracklets23_,NrawTracklets23_,NsigTracklets23_,NbkgTracklets23_,
+  filldNdeta(AlphaTracklets23_,NsigTracklets23_,NbkgTracklets23_,
              hEvtCountsPerEta23_,hdNdEtaRawTrkl23_,hdNdEtaSubTrkl23_,hdNdEtaTrklets23_);
 }
 
@@ -576,18 +560,15 @@ void QcdLowPtDQM::endRun(const edm::Run &, const edm::EventSetup &)
 {
   // End run, cleanup.
 
-  for(size_t i=0;i<NrawTracklets12_.size();++i) {
-    NrawTracklets12_.at(i)->Reset();
+  for(size_t i=0;i<NsigTracklets12_.size();++i) {
     NsigTracklets12_.at(i)->Reset();
     NbkgTracklets12_.at(i)->Reset();
   }
-  for(size_t i=0;i<NrawTracklets13_.size();++i) {
-    NrawTracklets13_.at(i)->Reset();
+  for(size_t i=0;i<NsigTracklets13_.size();++i) {
     NsigTracklets13_.at(i)->Reset();
     NbkgTracklets13_.at(i)->Reset();
   }
-  for(size_t i=0;i<NrawTracklets23_.size();++i) {
-    NrawTracklets23_.at(i)->Reset();
+  for(size_t i=0;i<NsigTracklets23_.size();++i) {
     NsigTracklets23_.at(i)->Reset();
     NbkgTracklets23_.at(i)->Reset();
   }
@@ -752,19 +733,19 @@ void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which)
 
   if (which>=12) {
     fillTracklets(btracklets12_,bpix1_,bpix2_,trackletV12_); 
-    fillTracklets(btracklets12_, bpix1_, trackletV12_, AlphaTracklets12_, NrawTracklets12_, 
+    fillTracklets(btracklets12_, bpix1_, trackletV12_, AlphaTracklets12_, /*NrawTracklets12_,*/ 
                   NsigTracklets12_, NbkgTracklets12_, hEvtCountsPerEta12_, hTrkRawDetaDphi12_,
                   hTrkRawDeta12_, hTrkRawDphi12_, hRawTrkEtaVtxZ12_);
   }
   if (which>=13) {
     fillTracklets(btracklets13_,bpix1_,bpix3_,trackletV12_);
-    fillTracklets(btracklets13_,bpix1_,trackletV13_,AlphaTracklets13_, NrawTracklets12_,
+    fillTracklets(btracklets13_,bpix1_,trackletV13_,AlphaTracklets13_, /*NrawTracklets12_,*/
                   NsigTracklets13_, NbkgTracklets13_, hEvtCountsPerEta13_, hTrkRawDetaDphi13_, 
                   hTrkRawDeta13_, hTrkRawDphi13_, hRawTrkEtaVtxZ13_);
   }
   if (which>=23) {
     fillTracklets(btracklets23_,bpix2_,bpix3_,trackletV12_);
-    fillTracklets(btracklets23_,bpix1_, trackletV12_, AlphaTracklets23_, NrawTracklets23_,
+    fillTracklets(btracklets23_,bpix1_, trackletV12_, AlphaTracklets23_, /*NrawTracklets23_,*/
                   NsigTracklets23_, NbkgTracklets23_, hEvtCountsPerEta23_, hTrkRawDetaDphi23_,
                   hTrkRawDeta23_, hTrkRawDphi23_, hRawTrkEtaVtxZ23_);
   }
@@ -821,7 +802,6 @@ void QcdLowPtDQM::fillTracklets(const std::vector<Tracklet> &tracklets,
                                 const std::vector<Pixel> &pixels,
                                 const Vertex &trackletV,
                                 const TH3F *AlphaTracklets,
-                                std::vector<TH3F*> &NrawTracklets,
                                 std::vector<TH3F*> &NsigTracklets,
                                 std::vector<TH3F*> &NbkgTracklets,
                                 std::vector<TH1F*> &eventpereta,
@@ -844,34 +824,32 @@ void QcdLowPtDQM::fillTracklets(const std::vector<Tracklet> &tracklets,
       continue;
     TH1 *h = eventpereta.at(i);
     h->AddBinContent(1,1);
-    if (trackletV.z()>=ZVVtxRegion_)
+    if (trackletV.z()>+ZVVtxRegion_)
       h->AddBinContent(0,1);
-    if (trackletV.z()<-ZVVtxRegion_)
+    else if (trackletV.z()<-ZVVtxRegion_)
       h->AddBinContent(2,1);
   }
 
-
   // fill tracklet based info
   TAxis *xa = AlphaTracklets->GetXaxis();
-  int ybin  = AlphaTracklets->GetYaxis()->FindBin(pixels.size());
-  int zbin  = AlphaTracklets->GetZaxis()->FindBin(trackletV.z());
+  int ybin  = AlphaTracklets->GetYaxis()->FindFixBin(pixels.size());
+  int zbin  = AlphaTracklets->GetZaxis()->FindFixBin(trackletV.z());
   int tbin  = AlphaTracklets->GetBin(0,ybin,zbin);
   for(size_t k=0; k<tracklets.size(); ++k) {
     const Tracklet &tl(tracklets.at(k));
     fill2D(detaphi,tl.deta(),tl.dphi());
     fill1D(deta,tl.deta());
     fill1D(dphi,tl.dphi());
-    int ebin = xa->FindBin(tl.eta());
+    int ebin = xa->FindFixBin(tl.eta());
     int gbin = ebin + tbin;
-    fill3D(NrawTracklets,gbin);
     fill2D(etavsvtx,tl.eta(),trackletV.z());
-    fill1D(hdNdEtaRawTrklTestA_,tl.eta());
-    if (TMath::Abs(tl.deta())>0.1)
-      continue;
+
+    double deta = TMath::Abs(tl.deta());
     double dphi = TMath::Abs(tl.dphi());
-    if (dphi<1)
+
+    if ((deta<sigEtaCut_) && (dphi<sigPhiCut_))
       fill3D(NsigTracklets,gbin);
-    else if (dphi<2)
+    else if ((deta<bkgEtaCut_) && (dphi<bkgPhiCut_) && (dphi>sigPhiCut_))
       fill3D(NbkgTracklets,gbin);
   }
 }
@@ -928,12 +906,12 @@ void QcdLowPtDQM::trackletVertexUnbinned(std::vector<Pixel> &pix1,
   // build candidates
   for(size_t i = 0; i<pix1.size(); ++i) {
     const Pixel &p1(pix1.at(i));
-    const double r12 = p1.x()*p1.x()+p1.y()*p1.y()+p1.z()*p1.z();
+    const double r12 = p1.x()*p1.x()+p1.y()*p1.y();
     for(size_t j = 0; j<pix2.size(); ++j) {
       const Pixel &p2(pix2.at(j));
       if (TMath::Abs(Geom::deltaPhi(p1.phi(),p2.phi()))>dPhiVc_)
         continue;
-      const double r22 = p2.x()*p2.x()+p2.y()*p2.y()+p2.z()*p2.z();
+      const double r22 = p2.x()*p2.x()+p2.y()*p2.y();
       const double vz = p1.z() - (p2.z()-p1.z())/(TMath::Sqrt(r22/r12)-1);
       if (TMath::IsNaN(vz))
         continue;

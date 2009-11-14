@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.2 2009/11/11 16:01:24 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.3 2009/11/13 09:59:18 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -112,7 +112,6 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                          double valx, double valy, double w=1.);
     void                          fill3D(std::vector<TH3F*> &hs, int gbin, double w=1.);
     void                          filldNdeta(const TH3F *AlphaTracklets,
-                                             const std::vector<TH3F*> &NrawTracklets,
                                              const std::vector<TH3F*> &NsigTracklets,
                                              const std::vector<TH3F*> &NbkgTracklets,
                                              const std::vector<TH1F*> &NEvsPerEta,
@@ -130,7 +129,6 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                                 const std::vector<Pixel> &pixels,
                                                 const Vertex &trackletV,
                                                 const TH3F *AlphaTracklets,
-                                                std::vector<TH3F*> &NrawTracklets,
                                                 std::vector<TH3F*> &NsigTracklets,
                                                 std::vector<TH3F*> &NbkgTracklets,
                                                 std::vector<TH1F*> &eventpereta,
@@ -163,6 +161,10 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     double                        ZVVtxRegion_;        //Z vertex vtx region
     double                        dPhiVc_;             //dPhi vertex cut for tracklet based vertex
     double                        dZVc_;               //dZ vertex cut for tracklet based vertex
+    double                        sigEtaCut_;          //signal tracklet eta cut
+    double                        sigPhiCut_;          //signal tracklet phi cut
+    double                        bkgEtaCut_;          //bkg tracklet eta cut
+    double                        bkgPhiCut_;          //bgk tracklet phi cut
     int                           verbose_;            //verbosity (0=debug,1=warn,2=error,3=throw)
     int                           pixLayers_;          //12 for 12, 13 for 12 and 13, 23 for all 
     bool                          usePixelQ_;          //if true use pixel quality word
@@ -177,17 +179,14 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     Vertex                        trackletV12_;        //reconstructed tracklet vertex 12
     Vertex                        trackletV13_;        //reconstructed tracklet vertex 13
     Vertex                        trackletV23_;        //reconstructed tracklet vertex 23
-    std::vector<TH3F*>            NrawTracklets12_;    //number raw tracklets 12
     std::vector<TH3F*>            NsigTracklets12_;    //number of signal tracklets 12
     std::vector<TH3F*>            NbkgTracklets12_;    //number of background tracklets 12
     std::vector<TH1F*>            hEvtCountsPerEta12_; //event count per tracklet12 eta-vtx region
     TH3F                         *AlphaTracklets12_;   //alpha correction for tracklets 12
-    std::vector<TH3F*>            NrawTracklets13_;    //number raw tracklets 13
     std::vector<TH3F*>            NsigTracklets13_;    //number of signal tracklets 13
     std::vector<TH3F*>            NbkgTracklets13_;    //number of background tracklets 13
     std::vector<TH1F*>            hEvtCountsPerEta13_; //event count per tracklet13 eta-vtx region 
     TH3F                         *AlphaTracklets13_;   //alpha correction for tracklets 13
-    std::vector<TH3F*>            NrawTracklets23_;    //number raw tracklets 23
     std::vector<TH3F*>            NsigTracklets23_;    //number of signal tracklets 23
     std::vector<TH3F*>            NbkgTracklets23_;    //number of background tracklets 23
     std::vector<TH1F*>            hEvtCountsPerEta23_; //event count per tracklet23 eta-vtx region
@@ -219,9 +218,6 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hTrkRawDetaDphi23_;  //tracklet23 Deta/Dphi distribution
     std::vector<MonitorElement*>  hTrkRawDeta23_;      //tracklet23 Deta distribution
     std::vector<MonitorElement*>  hTrkRawDphi23_;      //tracklet23 Dphi distribution
-    std::vector<MonitorElement*>  hdNdEtaRawTrklTestA_;   //dN/dEta from raw tracklets 12 
-    std::vector<MonitorElement*>  hdNdEtaRawTrklTestB_;   //dN/dEta from raw tracklets 12 
-    std::vector<MonitorElement*>  hdNdEtaRawTrklTestC_;   //dN/dEta from raw tracklets 12 
     std::vector<MonitorElement*>  hdNdEtaRawTrkl12_;   //dN/dEta from raw tracklets 12 
     std::vector<MonitorElement*>  hdNdEtaSubTrkl12_;   //dN/dEta from beta tracklets 12 
     std::vector<MonitorElement*>  hdNdEtaTrklets12_;   //dN/dEta corrected by alpha 12
