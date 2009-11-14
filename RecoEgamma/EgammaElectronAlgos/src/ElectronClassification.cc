@@ -41,23 +41,11 @@ void ElectronClassification::classify(const GsfElectron &electron)
     return ;
    }
 
-  if (electron.isGap())
+  if (electron.isEBEEGap() || electron.isEBEtaGap() || electron.isEERingGap())
    {
 	electronClass_ = GsfElectron::GAP ;
 	return ;
    }
-
-//  // cracks
-//  if (electron.isEBEEGap()) {
-//    electronClass_+=40;
-//    return;
-//  } else if (electron.isEBEtaGap() || electron.isEERingGap()) {
-//    electronClass_+=41;
-//    return;
-//  } else if (electron.isEBPhiGap() || electron.isEEDeeGap()) {
-//    electronClass_+=42;
-//    return;
-//  }
 
   // then decide for the others to which class it belongs
   float p0 = 7.20583e-04;
@@ -70,34 +58,16 @@ void ElectronClassification::classify(const GsfElectron &electron)
   int nbrem = electron.numberOfBrems() ;
 
   // golden
-  if (nbrem == 0 &&
-      (pin - scEnergy)/pin < 0.1 &&
-      fabs(electron.caloPosition().phi() -
-	   electron.gsfTrack()->outerMomentum().phi() - peak) < 0.15 &&
-      fbrem < 0.2) {
+  if (nbrem == 0 && (pin - scEnergy)/pin < 0.1 && fbrem < 0.5) {
 	  electronClass_ = GsfElectron::GOLDEN ;
   }
   // big brem
-  else if (nbrem == 0 &&
-	   fbrem > 0.5 &&
-	   fabs(pin - scEnergy)/pin < 0.1) {
+  else if (nbrem == 0 && (pin - scEnergy)/pin < 0.1) && fbrem > 0.5 {
 	  electronClass_ = GsfElectron::BIGBREM ;
   }
-  // narrow
-  else if (nbrem == 0 &&
-	   fabs(pin - scEnergy)/pin < 0.1) {
-    electronClass_ = GsfElectron::NARROW ;
-  }
   // showering
-  else {
-	    electronClass_ = GsfElectron::SHOWERING ;
-	  }
-//    if (nbrem == 0) electronClass_ += 30;
-//    if (nbrem == 1) electronClass_ += 31;
-//    if (nbrem == 2) electronClass_ += 32;
-//    if (nbrem == 3) electronClass_ += 33;
-//    if (nbrem >= 4) electronClass_ += 34;
-//  }
+  else 
+          electronClass_ = GsfElectron::SHOWERING ;
 
 }
 

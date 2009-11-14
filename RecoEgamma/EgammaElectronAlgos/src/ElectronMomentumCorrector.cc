@@ -25,19 +25,11 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronMomentumCorrector.cc,v 1.11 2009/03/25 02:15:43 charlot Exp $
+ * \version $Id: ElectronMomentumCorrector.cc,v 1.12 2009/11/14 14:17:51 charlot Exp $
  *
  ****************************************************************************/
 
 
-/** The electron classification.
-   barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering,
-             (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
-              40: crack, 41: eta gaps, 42: phi gaps
-   endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
-            (130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
-             140: crack
-*/
 void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryStateOnSurface & vtxTsos) {
 
   if (electron.isMomentumCorrected())
