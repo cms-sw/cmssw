@@ -13,8 +13,6 @@ public:
                          const edm::InputTag & inputTag, bool doSim);
   ~CSCStripDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-  void beginJob(const edm::EventSetup&) {}
-  void endJob() {}
  
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
 

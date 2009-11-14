@@ -14,8 +14,6 @@ public:
                         bool doSim);
   ~CSCWireDigiValidation();
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginJob(const edm::EventSetup&) {}
-  void endJob() {}
 
   void plotResolution(const PSimHit & hit, const CSCWireDigi & digi,
                       const CSCLayer * layer, int chamberType);
