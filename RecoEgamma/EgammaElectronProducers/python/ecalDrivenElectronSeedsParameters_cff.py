@@ -15,7 +15,11 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E
     applyHOverECut = cms.bool(True),
     hOverEConeSize = cms.double(0.15),
-    maxHOverE = cms.double(0.1),
+    #maxHOverE = cms.double(0.1),
+    maxHOverEBarrel = cms.double(0.15),
+    maxHOverEEndcaps = cms.double(0.15),
+    maxHBarrel = cms.double(0.0),
+    maxHEndcaps = cms.double(0.0),
     # H/E rechits
     hcalRecHits = cms.InputTag("hbhereco"), # OBSOLETE
     hOverEHBMinE = cms.double(0.7),         # OBSOLETE

@@ -177,9 +177,13 @@ class GsfElectronAlgo {
     edm::InputTag hcalTowers_;      // parameter if use towers
     double hOverEConeSize_;         // parameter if use towers
     double hOverEPtMin_;            // parameter if use towers : min tower Et for H/E evaluation
-    double maxHOverEDepth1Barrel_;  // parameter if use towers : maximum H/E for depth1
-    double maxHOverEDepth1Endcaps_; // parameter if use towers : maximum H/E for depth1
-    double maxHOverEDepth2_;        // parameter if use towers : maximum H/E for depth2
+    //double maxHOverEDepth1Barrel_;  // parameter if use towers : maximum H/E for depth1
+    //double maxHOverEDepth1Endcaps_; // parameter if use towers : maximum H/E for depth1
+    //double maxHOverEDepth2_;        // parameter if use towers : maximum H/E for depth2
+    double maxHOverEBarrel_;  // parameter if use towers : maximum H/E for Barrel
+    double maxHOverEEndcaps_; // parameter if use towers : maximum H/E for Endcaps
+    double maxHBarrel_;  // parameter if use towers : maximum H for Barrel
+    double maxHEndcaps_; // parameter if use towers : maximum H for Endcaps
 
     // maximum sigma ieta ieta
     double maxSigmaIetaIetaBarrel_;
@@ -219,11 +223,17 @@ class GsfElectronAlgo {
     double hOverEConeSizePflow_;
     // min tower Et for H/E evaluation
     double hOverEPtMinPflow_;
-    // maximum H/E for depth1
-    double maxHOverEDepth1BarrelPflow_;
-    double maxHOverEDepth1EndcapsPflow_;
-    // maximum H/E for depth2
-    double maxHOverEDepth2Pflow_;
+    //// maximum H/E for depth1
+    //double maxHOverEDepth1BarrelPflow_;
+    //double maxHOverEDepth1EndcapsPflow_;
+    //// maximum H/E for depth2
+    //double maxHOverEDepth2Pflow_;
+    // maximum H/E 
+    double maxHOverEBarrelPflow_;
+    double maxHOverEEndcapsPflow_;
+    // maximum H
+    double maxHBarrelPflow_;
+    double maxHEndcapsPflow_;
     // maximum sigma ieta ieta
     double maxSigmaIetaIetaBarrelPflow_;
     double maxSigmaIetaIetaEndcapsPflow_;

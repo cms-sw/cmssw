@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.81 2009/10/15 13:25:35 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.82 2009/10/29 23:13:27 chamont Exp $
 //
 //
 
@@ -144,36 +144,34 @@ GsfElectronAlgo::GsfElectronAlgo
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
    superClusterErrorFunction_(0)
  {
-  // this is the new version allowing to configurate the algo
-  // interfaces still need improvement!!
-  mtsTransform_ = 0 ;
-  constraintAtVtx_ = 0;
+   // this is the new version allowing to configurate the algo
+   // interfaces still need improvement!!
+   mtsTransform_ = 0 ;
+   constraintAtVtx_ = 0;
 
-  // get nested parameter set for the TransientInitialStateEstimator
-  ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+   // get nested parameter set for the TransientInitialStateEstimator
+   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
-  // hcal strategy
-//  useHcalTowers_ = conf.getParameter<bool>("useHcalTowers") ;
-//  useHcalRecHits_ = conf.getParameter<bool>("useHcalRecHits") ;
-//  if ((useHcalTowers_&&useHcalRecHits_)||((!useHcalTowers_)&&(!useHcalRecHits_)))
-//   { edm::LogError("GsfElectronAlgo")<<"useHcalTowers and useHcalRecHits parameters cannot be both true or both false" ; }
-//  if (useHcalRecHits_)
-//   {
-    hcalHelper_ = new ElectronHcalHelper(conf) ;
-    hcalHelperPflow_ = new ElectronHcalHelper(conf,true,true) ;
-//   }
-//  else
-//   {
-    //hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ;
-    hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
-    //hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ;
-    maxHOverEDepth1Barrel_ = conf.getParameter<double>("maxHOverEDepth1Barrel") ;
-    maxHOverEDepth1Endcaps_ = conf.getParameter<double>("maxHOverEDepth1Endcaps") ;
-    maxHOverEDepth2_ = conf.getParameter<double>("maxHOverEDepth2") ;
-    maxHOverEDepth1BarrelPflow_ = conf.getParameter<double>("maxHOverEDepth1BarrelPflow") ;
-    maxHOverEDepth1EndcapsPflow_ = conf.getParameter<double>("maxHOverEDepth1EndcapsPflow") ;
-    maxHOverEDepth2Pflow_ = conf.getParameter<double>("maxHOverEDepth2Pflow") ;
-//   }
+   // hcal strategy
+   hcalHelper_ = new ElectronHcalHelper(conf) ;
+   hcalHelperPflow_ = new ElectronHcalHelper(conf,true,true) ;
+   //hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ;
+   hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
+   //hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ;
+//     maxHOverEDepth1Barrel_ = conf.getParameter<double>("maxHOverEDepth1Barrel") ;
+//     maxHOverEDepth1Endcaps_ = conf.getParameter<double>("maxHOverEDepth1Endcaps") ;
+//     maxHOverEDepth2_ = conf.getParameter<double>("maxHOverEDepth2") ;
+//     maxHOverEDepth1BarrelPflow_ = conf.getParameter<double>("maxHOverEDepth1BarrelPflow") ;
+//     maxHOverEDepth1EndcapsPflow_ = conf.getParameter<double>("maxHOverEDepth1EndcapsPflow") ;
+//     maxHOverEDepth2Pflow_ = conf.getParameter<double>("maxHOverEDepth2Pflow") ;
+    maxHOverEBarrel_ = conf.getParameter<double>("maxHOverEBarrel") ;
+    maxHOverEEndcaps_ = conf.getParameter<double>("maxHOverEEndcaps") ;
+    maxHBarrel_ = conf.getParameter<double>("maxHBarrel") ;
+    maxHEndcaps_ = conf.getParameter<double>("maxHEndcaps") ;
+    maxHOverEBarrelPflow_ = conf.getParameter<double>("maxHOverEBarrelPflow") ;
+    maxHOverEEndcapsPflow_ = conf.getParameter<double>("maxHOverEEndcapsPflow") ;
+    maxHBarrelPflow_ = conf.getParameter<double>("maxHBarrelPflow") ;
+    maxHEndcapsPflow_ = conf.getParameter<double>("maxHEndcapsPflow") ;
 
   // get input collections
   //tracks_ = conf.getParameter<edm::InputTag>("tracks");
@@ -268,11 +266,8 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   const BeamSpot bs = *recoBeamSpotHandle;
 
   // prepare access to hcal data
-//  if (useHcalRecHits_)
-//   {
   hcalHelper_->readEvent(e) ;
   hcalHelperPflow_->readEvent(e) ;
-//   }
 
   // temporay array for electrons before preselection and before amb. solving
   GsfElectronPtrCollection tempEle, tempEle1;
@@ -394,10 +389,6 @@ void GsfElectronAlgo::process(
   ecalEndcapIsol04.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol04.setVetoClustered(vetoClustered_);
 
-//  // HCAL isolation algo for H/E
-//  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;
-//  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;
-
   //const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   const GsfElectronCoreCollection * coreCollection = coresH.product() ;
   for (unsigned int i=0;i<coreCollection->size();++i) {
@@ -443,16 +434,6 @@ void GsfElectronAlgo::process(
       HoE1 = hcalHelperPflow_->hcalESumDepth1(theClus)/theClus.energy() ;
       HoE2 = hcalHelperPflow_->hcalESumDepth2(theClus)/theClus.energy() ;
      }
-//    double HoE = 0. ;
-//    if (useHcalTowers_)
-//     {
-//      HoE1 = towerIso1.getTowerESum(&theClus)/theClus.energy() ;
-//      HoE2 = towerIso2.getTowerESum(&theClus)/theClus.energy() ;
-//     }
-//    else
-//     {
-//      HoE = hcalHelper_->hcalESum(theClus)/theClus.energy() ;
-//     }
 
     // charge ID
     pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
@@ -508,12 +489,23 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 
     // HoE cuts
     LogDebug("") << "HoE1 : " << (*e1)->hcalDepth1OverEcal() << "HoE2 : " << (*e1)->hcalDepth2OverEcal();
-    if ( eg && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
-    if ( eg && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
-    if ( eg && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_) ) continue;
-    if ( pf && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1BarrelPflow_) ) continue;
-    if ( pf && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1EndcapsPflow_) ) continue;
-    if ( pf && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2Pflow_) ) continue;
+//     if ( eg && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
+//     if ( eg && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
+//     if ( eg && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_) ) continue;
+//     if ( pf && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1BarrelPflow_) ) continue;
+//     if ( pf && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1EndcapsPflow_) ) continue;
+//     if ( pf && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2Pflow_) ) continue;
+    double had = (*e1)->hcalOverEcal()*(*e1)->superCluster()->energy();
+    bool HoEveto = false;
+    const reco::CaloCluster & seedCluster = *((*e1)->superCluster()->seed()) ;
+    int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
+    if (detector==EcalBarrel && (had<maxHBarrel_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrel_)) HoEveto=true;
+    else if (detector==EcalEndcap && (had<maxHEndcaps_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcaps_)) HoEveto=true;
+    if ( eg && !HoEveto ) continue;
+    bool HoEvetoPflow = false;
+    if (detector==EcalBarrel && (had<maxHBarrelPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrelPflow_)) HoEvetoPflow=true;
+    else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;    
+    if ( pf && !HoEvetoPflow ) continue;
     LogDebug("") << "H/E criteria is satisfied ";
 
     // delta eta criteria

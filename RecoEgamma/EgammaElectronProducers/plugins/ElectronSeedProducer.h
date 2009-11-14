@@ -20,6 +20,7 @@ class ElectronHcalHelper ;
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
@@ -57,17 +58,25 @@ class ElectronSeedProducer : public edm::EDProducer
     TrajectorySeedCollection * theInitialSeedColl ;
 
     // for the filter
-  //  edm::ESHandle<CaloGeometry> caloGeom_ ;
-  //  unsigned long long caloGeomCacheId_ ;
-  //  EgammaHcalIsolation * hcalIso_ ;
-  ////  CaloDualConeSelector * doubleConeSel_ ;
-  //  HBHERecHitMetaCollection * mhbhe_ ;
 
     // H/E
   //  edm::InputTag hcalRecHits_;
     bool applyHOverECut_ ;
     ElectronHcalHelper * hcalHelper_ ;
-    double maxHOverE_ ;
+  //  edm::ESHandle<CaloGeometry> caloGeom_ ;
+  //  unsigned long long caloGeomCacheId_ ;
+    edm::ESHandle<CaloGeometry> caloGeom_ ;
+    unsigned long long caloGeomCacheId_ ;
+    edm::ESHandle<CaloTopology> caloTopo_;
+    unsigned long long caloTopoCacheId_;
+  //  EgammaHcalIsolation * hcalIso_ ;
+  ////  CaloDualConeSelector * doubleConeSel_ ;
+  //  HBHERecHitMetaCollection * mhbhe_ ;
+  //  double maxHOverE_ ;
+     double maxHOverEBarrel_ ;
+     double maxHOverEEndcaps_ ;
+     double maxHBarrel_ ;
+     double maxHEndcaps_ ;
   //  double hOverEConeSize_;
   //  double hOverEHBMinE_;
   //  double hOverEHFMinE_;
