@@ -164,7 +164,7 @@ DataWriter::payloadToken( const std::string& recordName,
   // Get IOV token for tag.
   cond::DbSession session = poolDb->session();
   cond::DbScopedTransaction tr(session);
-  tr.start(false);
+  tr.start(true);
   cond::MetaData metadata(session ) ;
   std::string iovToken ;
   if( metadata.hasTag( iovTag ) )
