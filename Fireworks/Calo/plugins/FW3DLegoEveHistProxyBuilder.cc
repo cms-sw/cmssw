@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.7 2009/10/25 15:23:04 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.8 2009/11/10 20:43:56 amraktad Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "TEveSelection.h"
 
 // user include files
-#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
+#include "Fireworks/Calo/plugins/FW3DLegoEveHistProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"

@@ -1,12 +1,11 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.3 2009/10/23 01:02:52 chrjones Exp $
 
 
 // system include files
 #include "TH2F.h"
 
 #include "Fireworks/Calo/plugins/FWCaloTowerLegoHistProxyBuilder.h"
-#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
