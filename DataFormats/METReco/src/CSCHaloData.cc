@@ -7,14 +7,6 @@
   [date]: October 15, 2009
 */
 
-#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
-#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
-#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
-#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -52,23 +44,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 
 using namespace reco;
