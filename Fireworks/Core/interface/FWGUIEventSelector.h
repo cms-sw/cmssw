@@ -5,6 +5,7 @@
 
 class FWEventSelector;
 class FWHLTValidator;
+class TGTextButton;
 class TGPicture;
 
 
@@ -13,7 +14,8 @@ public:
    FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, FWHLTValidator* es);
    virtual ~FWGUIEventSelector() {}
 
-   void deleteAction();
+   void deleteCallback();
+   void enableCallback(bool);
    void removeSelector(FWGUIEventSelector*); // *SIGNAL*
    FWEventSelector* getSelector() { return m_selector; }
  
@@ -24,6 +26,7 @@ private:
 
    static const TGPicture* m_icon_delete;
    FWEventSelector*        m_selector;
+   TGTextButton*           m_enableBtn;
 
    ClassDef(FWGUIEventSelector, 0); // Manager for EVE windows.
 };

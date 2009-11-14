@@ -36,17 +36,18 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel
   
    // ---------------- enable
 
-   TGCheckButton* checkButton = new TGCheckButton(this,"");
-   checkButton->SetToolTipText("Enable/disable the selection");
-   checkButton->SetOn(sel->enabled);
-   AddFrame(checkButton, new TGLayoutHints(kLHintsNormal |  kLHintsCenterY , 2, 2, 0, 0));
+   TGCheckButton* enableBtn = new TGCheckButton(this,"");
+   enableBtn->SetToolTipText("Enable/disable the selection");
+   enableBtn->SetOn(sel->enabled);
+   enableBtn->Connect("Toggled(bool)","FWGUIEventSelector", this, "enableCallback(bool)");
+   AddFrame(enableBtn, new TGLayoutHints(kLHintsNormal |  kLHintsCenterY , 2, 2, 0, 0));
 
    // ---------------- delete 
    if (!m_icon_delete)
       m_icon_delete = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete.png");
    TGPictureButton* deleteButton = new TGPictureButton(this, m_icon_delete);
    AddFrame(deleteButton, new TGLayoutHints(kLHintsRight, 2,2,1,1));
-   TQObject::Connect(deleteButton, "Clicked()", "FWGUIEventSelector",  this, "deleteAction()");
+   TQObject::Connect(deleteButton, "Clicked()", "FWGUIEventSelector",  this, "deleteCallback()");
 }
 
 //______________________________________________________________________________
@@ -55,8 +56,14 @@ void FWGUIEventSelector::removeSelector(FWGUIEventSelector* s)
    Emit("removeSelector(FWGUIEventSelector*)", (Long_t)s);
 }
 
+//____________________________________________________________________________
+void FWGUIEventSelector::enableCallback(bool x)
+{
+   m_selector->enabled = x;
+}
+
 //______________________________________________________________________________
-void FWGUIEventSelector::deleteAction()
+void FWGUIEventSelector::deleteCallback()
 {
    removeSelector(this);
 }
