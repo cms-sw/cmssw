@@ -47,24 +47,20 @@ void ElectronClassification::classify(const GsfElectron &electron)
 	return ;
    }
 
-  // then decide for the others to which class it belongs
-  float p0 = 7.20583e-04;
-  float p1 = 9.20913e-02;
-  float p2 = 8.97269e+00;
-
   float pin  = electron.trackMomentumAtVtx().R() ;
   float fbrem = electron.fbrem() ;
-  float peak = p0 + p1/(pin-p2) ;
   int nbrem = electron.numberOfBrems() ;
 
   // golden
   if (nbrem == 0 && (pin - scEnergy)/pin < 0.1 && fbrem < 0.5) {
 	  electronClass_ = GsfElectron::GOLDEN ;
   }
+  
   // big brem
-  else if (nbrem == 0 && (pin - scEnergy)/pin < 0.1) && fbrem > 0.5 {
+  else if (nbrem == 0 && (pin - scEnergy)/pin < 0.1 && fbrem > 0.5) {
 	  electronClass_ = GsfElectron::BIGBREM ;
   }
+  
   // showering
   else 
           electronClass_ = GsfElectron::SHOWERING ;

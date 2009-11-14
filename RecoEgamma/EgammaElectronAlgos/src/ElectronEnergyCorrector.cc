@@ -9,7 +9,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.7 2009/03/25 02:15:43 charlot Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.8 2009/10/29 23:13:27 chamont Exp $
  *
  ****************************************************************************/
 
@@ -80,8 +80,7 @@ void ElectronEnergyCorrector::correct
     if (electron.isEB()) // barrel
      {
 	  if ( (elClass==reco::GsfElectron::GOLDEN) ||
-	       (elClass==reco::GsfElectron::BIGBREM) ||
-	       (elClass==reco::GsfElectron::NARROW) )
+	       (elClass==reco::GsfElectron::BIGBREM) )
 	   { newEnergy = scEnergy/fEtaBarrelGood(scEta) ; }
 	  else if (elClass==reco::GsfElectron::SHOWERING)
 	   { newEnergy = scEnergy/fEtaBarrelBad(scEta) ; }
@@ -90,8 +89,7 @@ void ElectronEnergyCorrector::correct
      {
       double ePreshower = electron.superCluster()->preshowerEnergy() ;
       if ( (elClass==reco::GsfElectron::GOLDEN) ||
-	       (elClass==reco::GsfElectron::BIGBREM) ||
-	       (elClass==reco::GsfElectron::NARROW) )
+	       (elClass==reco::GsfElectron::BIGBREM) )
        { newEnergy = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower ; }
 	  else if (elClass==reco::GsfElectron::SHOWERING)
 	   { newEnergy = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower ; }
