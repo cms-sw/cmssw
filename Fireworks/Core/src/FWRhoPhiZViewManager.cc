@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.57 2009/10/31 21:51:31 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.58 2009/11/05 22:06:02 dmytro Exp $
 //
 
 // system include files
@@ -65,7 +65,6 @@
 
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
 
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
@@ -140,9 +139,6 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
 
    m_caloData = new TEveCaloDataHist();
    m_caloData->IncDenyDestroy();
-   FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_caloData);
-   //make sure it is accessible via the base class
-   m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
    Bool_t status = TH1::AddDirectoryStatus();
    TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
    TH2F* background = new TH2F("background","",

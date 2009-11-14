@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.16 2009/10/31 21:53:31 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.17 2009/11/10 20:43:55 amraktad Exp $
 //
 
 // system include files
@@ -169,6 +169,11 @@ void
 FWCaloTowerRPZProxyBuilderBase::useCalo(TEveCaloDataHist* ioHist) 
 {
    m_data = ioHist;
+   if(0==m_data->GetUserData()) {
+      FWFromTEveCaloDataSelector* sel = new FWFromTEveCaloDataSelector(m_data);
+      //make sure it is accessible via the base class
+      m_data->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+   }
    m_data->IncDenyDestroy();
 }
 
