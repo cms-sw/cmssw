@@ -125,13 +125,13 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrFV(kTRUE);
    scene->AddElement(trk);
 
-   std::vector<TVector3> monoPoints;
-   std::vector<TVector3> stereoPoints;
-   fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
-   TEveElementList* list = new TEveElementList("hits");
-   fireworks::addTrackerHits3D(monoPoints, list, kRed, 1);
-   fireworks::addTrackerHits3D(stereoPoints, list, kRed, 1);
-   scene->AddElement(list);
+   // std::vector<TVector3> monoPoints;
+   // std::vector<TVector3> stereoPoints;
+   // fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
+   // TEveElementList* list = new TEveElementList("hits");
+   // fireworks::addTrackerHits3D(monoPoints, list, kRed, 1);
+   // fireworks::addTrackerHits3D(stereoPoints, list, kRed, 1);
+   // scene->AddElement(list);
    scene->Repaint(true);
 
    m_viewer->UpdateScene();
