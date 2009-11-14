@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.45 2009/11/13 20:58:17 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.46 2009/11/14 11:31:13 amraktad Exp $
 //
 
 // hacks
@@ -84,7 +84,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
    FWFileEntry newFile(fileName);
    if ( newFile.file() == 0 ) return false; //bad file
 
-   Int_t nFilesKeep = checkMaxFileSize ? m_maxNumberOfFilesToChain : 1;
+    unsigned int nFilesKeep = checkMaxFileSize ? m_maxNumberOfFilesToChain : 1;
    // remove extra files
    while ( m_files.size() > 0 && m_files.size() >= nFilesKeep &&
            m_files.begin() != m_currentFile)
@@ -95,7 +95,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
    
    if (m_files.size() >= m_maxNumberOfFilesToChain)
       printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
-
+   
    m_files.push_back(newFile);
    m_lastFile = m_files.end();
    --m_lastFile;
