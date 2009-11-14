@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/10/06 11:16:53 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/10/20 09:05:27 $
+ *  $Revision: 1.13 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -38,8 +38,9 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  effCmds_ = pset.getParameter<vstring>("efficiency");
-  resCmds_ = pset.getParameter<vstring>("resolution");
+  effCmds_  = pset.getParameter<vstring>("efficiency");
+  profileCmds_ = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
+  resCmds_  = pset.getParameter<vstring>("resolution");
   normCmds_ = pset.getUntrackedParameter<vstring>("normalization", dummy);
   cdCmds_ = pset.getUntrackedParameter<vstring>("cumulativeDists", dummy);
 
@@ -102,9 +103,12 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
     const string& dirName = *iSubDir;
 
-    for(vstring::const_iterator iCmd = effCmds_.begin();
-        iCmd != effCmds_.end(); ++iCmd) {
+    vstring allEffCmds = effCmds_;
+    allEffCmds.insert(allEffCmds.end(), profileCmds_.begin(), profileCmds_.end());
+    for(vstring::const_iterator iCmd = allEffCmds.begin();
+        iCmd != allEffCmds.end(); ++iCmd) {
       if ( iCmd->empty() ) continue;
+      bool isProfile = iCmd - allEffCmds.begin() >= (int)effCmds_.size();
       boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
 
       vector<string> args;
@@ -121,7 +125,10 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
       if ( args.size() == 4 ) args.push_back("eff");
 
-      computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
+      if (isProfile)
+        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4], true);
+      else 
+        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
     }
 
     for(vstring::const_iterator iCmd = resCmds_.begin();
@@ -203,7 +210,7 @@ void DQMGenericClient::endJob()
 }
 
 void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                         const string& recoMEName, const string& simMEName, const std::string & type)
+                                         const string& recoMEName, const string& simMEName, const std::string & type, const bool makeProfile)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -256,52 +263,82 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   }
   theDQM->setCurrentFolder(efficDir);
 
-  TH1* efficHist = (TH1*)hSim->Clone(newEfficMEName.c_str());
-  efficHist->SetTitle(efficMETitle.c_str());
-
-  // Here is where you have trouble --- you need
-  // to understand what type of hist you have.
-
-  ME* efficME = 0;
-
-  // Parse the class name
-  // This works, but there might be a better way
-  TClass * myHistClass = efficHist->IsA();
-  TString histClassName = myHistClass->GetName();
-  
-  if (histClassName == "TH1F"){
-    efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
-  } else if (histClassName == "TH2F"){
-    efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);    
-  } else if (histClassName == "TH3F"){
-    efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);    
-  } 
-  
-
-  if ( !efficME ) {
-    LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                                << "Cannot book effic-ME from the DQM\n";
-    return;
+  if (makeProfile) {
+    TProfile * efficHist = (hReco->GetXaxis()->GetXbins()->GetSize()==0) ?
+      new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
+                   hReco->GetXaxis()->GetNbins(),
+                   hReco->GetXaxis()->GetXmin(),
+                   hReco->GetXaxis()->GetXmax()) :
+      new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
+                   hReco->GetXaxis()->GetNbins(),
+                   hReco->GetXaxis()->GetXbins()->GetArray());
+    for (int i=1; i <= hReco->GetNbinsX(); i++) {
+      TGraphAsymmErrorsWrapper asymm;
+      std::pair<double, double> efficiencyWithError;
+      efficiencyWithError = asymm.efficiency((int)hReco->GetBinContent(i), 
+                                             (int)hSim->GetBinContent(i));
+      double effVal = efficiencyWithError.first;
+      double errVal = efficiencyWithError.second;
+      if ((int)hSim->GetBinContent(i) > 0) {
+        efficHist->SetBinContent(i, effVal);
+        efficHist->SetBinEntries(i, 1);
+        efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+      }
+    }
+    theDQM->bookProfile(newEfficMEName.c_str(),efficHist);
+    delete efficHist;  
   }
 
-  // Update: 2009-9-16 slaunwhj
-  // call the most generic efficiency function
-  // works up to 3-d histograms
+  else {
 
-  generic_eff (hSim, hReco, efficME, type);
+    TH1* efficHist = (TH1*)hSim->Clone(newEfficMEName.c_str());
+    efficHist->SetTitle(efficMETitle.c_str());
+
+    // Here is where you have trouble --- you need
+    // to understand what type of hist you have.
+
+    ME* efficME = 0;
+
+    // Parse the class name
+    // This works, but there might be a better way
+    TClass * myHistClass = efficHist->IsA();
+    TString histClassName = myHistClass->GetName();
   
-  //   const int nBin = efficME->getNbinsX();
-  //   for(int bin = 0; bin <= nBin; ++bin) {
-  //     const float nSim  = simME ->getBinContent(bin);
-  //     const float nReco = recoME->getBinContent(bin);
-  //     float eff =0;
-  //     if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
-  //     else eff= nSim ? nReco/nSim : 0.;
-  //     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
-  //     efficME->setBinContent(bin, eff);
-  //     efficME->setBinError(bin, err);
-  //   }
-  efficME->setEntries(simME->getEntries());
+    if (histClassName == "TH1F"){
+      efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
+    } else if (histClassName == "TH2F"){
+      efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);    
+    } else if (histClassName == "TH3F"){
+      efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);    
+    } 
+  
+
+    if ( !efficME ) {
+      LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                  << "Cannot book effic-ME from the DQM\n";
+      return;
+    }
+
+    // Update: 2009-9-16 slaunwhj
+    // call the most generic efficiency function
+    // works up to 3-d histograms
+
+    generic_eff (hSim, hReco, efficME, type);
+  
+    //   const int nBin = efficME->getNbinsX();
+    //   for(int bin = 0; bin <= nBin; ++bin) {
+    //     const float nSim  = simME ->getBinContent(bin);
+    //     const float nReco = recoME->getBinContent(bin);
+    //     float eff =0;
+    //     if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
+    //     else eff= nSim ? nReco/nSim : 0.;
+    //     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
+    //     efficME->setBinContent(bin, eff);
+    //     efficME->setBinError(bin, err);
+    //   }
+    efficME->setEntries(simME->getEntries());
+
+  }
 
   // Global efficiency
   ME* globalEfficME = theDQM->get(efficDir+"/globalEfficiencies");
