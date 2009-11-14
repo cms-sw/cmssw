@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.66 2009/10/26 18:08:43 yanjuntu Exp $
+// $Id: CmsShowMainFrame.cc,v 1.67 2009/11/10 14:36:09 amraktad Exp $
 //
 // hacks
 #define private public
@@ -134,6 +134,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    
    openData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
+   searchFiles->disable();
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
