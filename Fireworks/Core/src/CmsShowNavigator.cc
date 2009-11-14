@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.44 2009/11/10 14:38:11 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.45 2009/11/13 20:58:17 amraktad Exp $
 //
 
 // hacks
@@ -41,7 +41,7 @@
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
-   m_maxNumberOfFilesToChain(3),
+   m_maxNumberOfFilesToChain(1),
    m_currentFile(m_files.begin()),
    m_filterEvents(false),
    m_globalOR(true),
@@ -61,22 +61,40 @@ CmsShowNavigator::~CmsShowNavigator()
 //
 
 bool
-CmsShowNavigator::loadFile(const std::string& fileName)
+CmsShowNavigator::openFile(const std::string& fileName)
+{
+   while ( m_files.size() > 0 )
+   {
+      m_files.front().closeFile();
+      m_files.pop_front();
+   }
+   FWFileEntry newFile(fileName);
+   m_files.push_back(newFile);
+   filterEvents();
+   
+   m_lastFile = m_files.end();
+   --m_lastFile;
+   
+   return true;
+}
+
+bool
+CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
 {
    FWFileEntry newFile(fileName);
    if ( newFile.file() == 0 ) return false; //bad file
 
+   Int_t nFilesKeep = checkMaxFileSize ? m_maxNumberOfFilesToChain : 1;
    // remove extra files
-   while ( m_files.size() > 0 && m_files.size() >= m_maxNumberOfFilesToChain &&
+   while ( m_files.size() > 0 && m_files.size() >= nFilesKeep &&
            m_files.begin() != m_currentFile)
    {
       m_files.front().closeFile();
       m_files.pop_front();
    }
+   
    if (m_files.size() >= m_maxNumberOfFilesToChain)
-   {
-      printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]", m_files.size(), m_maxNumberOfFilesToChain);
-   }
+      printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
 
    m_files.push_back(newFile);
    m_lastFile = m_files.end();

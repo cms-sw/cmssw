@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.27 2009/11/10 14:38:11 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.28 2009/11/13 20:58:17 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,8 @@ public:
    Int_t realEntry(Int_t rawEntry);
    std::pair<std::deque<FWFileEntry>::iterator,Int_t> realEntry(Int_t run, Int_t event);
 
-   bool loadFile(const std::string& fileName);
+   bool openFile(const std::string& fileName);
+   bool appendFile(const std::string& fileName, bool checkMaxFileSize);
    void nextEvent();
    void previousEvent();
    void firstEvent();

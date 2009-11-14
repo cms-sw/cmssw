@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.30 2009/11/10 14:38:11 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.31 2009/11/10 15:02:06 amraktad Exp $
 //
 
 // system include files
@@ -177,6 +177,7 @@ private:
    Bool_t  m_autoLoadTimerRunning;
 
    TTimer* m_liveTimer;
+   bool m_live;
    bool m_isPlaying;
    bool m_forward;
    bool m_rewindMode;

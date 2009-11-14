@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.163 2009/11/05 22:15:56 yanjuntu Exp $
+// $Id: FWGUIManager.cc,v 1.164 2009/11/10 14:38:11 amraktad Exp $
 
 //
 
@@ -747,7 +747,7 @@ void FWGUIManager::openWebRootFiles (char *fileName)
 
   //std::cout <<"file name  "<<full_filename<<std::endl;
   if (fileName){
-    m_cmsShowMain->navigator()->loadFile(full_filename.c_str());
+    m_cmsShowMain->navigator()->openFile(full_filename.c_str());
     m_cmsShowMain->navigator()->firstEventInCurrentFile();
   }
 }

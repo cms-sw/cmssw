@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.104 2009/11/12 21:22:16 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.105 2009/11/13 21:17:21 amraktad Exp $
 //
 
 // system include files
@@ -164,6 +164,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_autoLoadTimer(0),
    m_autoLoadTimerRunning(kFALSE),
    m_liveTimer(0),
+   m_live(0),
    m_isPlaying(false),
    m_forward(true),
    m_rewindMode(false),
@@ -438,7 +439,7 @@ void CmsShowMain::openData()
    new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
-      m_navigator->loadFile(fi.fFilename);
+      m_navigator->openFile(fi.fFilename);
       m_navigator->firstEvent();
       checkPosition();
       draw();
@@ -836,7 +837,7 @@ CmsShowMain::setupDataHandling()
 
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
-      if (!m_navigator->loadFile(m_inputFileName) ) {
+      if (!m_navigator->openFile(m_inputFileName) ) {
          m_guiManager->updateStatus("failed to load data file");
          openData();
       } else {
@@ -853,6 +854,7 @@ CmsShowMain::setupDataHandling()
 void
 CmsShowMain::setLiveMode()
 {
+   m_live = true;
    m_liveTimer = new SignalTimer();
    ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
 
@@ -917,7 +919,7 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      m_navigator->loadFile(fileName);
+      m_navigator->appendFile(fileName, !m_live);
       // bootstrap case: --port  and no input file
       if (m_inputFileName.empty())
       {
