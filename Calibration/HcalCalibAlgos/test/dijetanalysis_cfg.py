@@ -8,18 +8,18 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
 
 process.load("RecoJets.Configuration.CaloTowersRec_cff")                                                           
-process.towerMaker.ecalInputs = ['DiJProd:DiJetsEcalRecHitCollection']
-process.towerMaker.hbheInput = 'HitsReCalibration:DiJetsHBHEReRecHitCollection'
-process.towerMaker.hoInput = 'HitsReCalibration:DiJetsHOReRecHitCollection'
-process.towerMaker.hfInput = 'HitsReCalibration:DiJetsHFReRecHitCollection'
-process.towerMakerWithHO.ecalInputs = ['DiJProd:DiJetsEcalRecHitCollection']
-process.towerMakerWithHO.hbheInput = 'HitsReCalibration:DiJetsHBHEReRecHitCollection'
-process.towerMakerWithHO.hoInput = 'HitsReCalibration:DiJetsHOReRecHitCollection'
-process.towerMakerWithHO.hfInput = 'HitsReCalibration:DiJetsHFReRecHitCollection'
+process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("DiJProd","DiJetsEcalRecHitCollection"))
+process.towerMaker.hbheInput = cms.InputTag("HitsReCalibration","DiJetsHBHEReRecHitCollection")
+process.towerMaker.hoInput = cms.InputTag("HitsReCalibration","DiJetsHOReRecHitCollection")
+process.towerMaker.hfInput = cms.InputTag("HitsReCalibration","DiJetsHFReRecHitCollection")
+process.towerMakerWithHO.ecalInputs = cms.VInputTag(cms.InputTag("DiJProd", "DiJetsEcalRecHitCollection"))
+process.towerMakerWithHO.hbheInput = cms.InputTag("HitsReCalibration","DiJetsHBHEReRecHitCollection")
+process.towerMakerWithHO.hoInput = cms.InputTag("HitsReCalibration","DiJetsHOReRecHitCollection")
+process.towerMakerWithHO.hfInput = cms.InputTag("HitsReCalibration","DiJetsHFReRecHitCollection")
 
 process.load("RecoJets.JetProducers.ic5CaloJets_cfi")
 
@@ -59,11 +59,11 @@ process.DiJetAnalysis = cms.EDAnalyzer("DiJetAnalyzer",
     jetsInput = cms.InputTag("iterativeCone5CaloJets")
 )
 
-process.DiJetsRecoPool = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_DiJetsReco_*_*'),
-    fileName = cms.untracked.string('/tmp/krohotin/di.root')
-)
+#process.DiJetsRecoPool = cms.OutputModule("PoolOutputModule",
+#    outputCommands = cms.untracked.vstring('drop *', 
+#        'keep *_DiJetsReco_*_*'),
+#    fileName = cms.untracked.string('/tmp/andrey/tmp.root')
+#)
 
 process.p = cms.Path(process.HitsReCalibration*process.caloTowersRec*process.iterativeCone5CaloJets*process.DiJetAnalysis)
 
