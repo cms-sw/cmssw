@@ -8,128 +8,130 @@ for i in range(len(copyargs)):
         copyargs[i] = "\"\""
 commandline = " ".join(copyargs)
 
-usage = """%prog DIRNAME ITERATIONS INITIALGEOM INPUTFILES [options]
+usage = """./%prog DIRNAME ITERATIONS INITIALGEOM INPUTFILES [options]
 
-Creates (overwrites) a directory for each of the iterations and creates (overwrites) submitJobs.sh with the submission sequence and dependencies.
+Creates (overwrites) a directory for each of the iterations and creates (overwrites)
+submitJobs.sh with the submission sequence and dependencies.
 
 DIRNAME        directories will be named DIRNAME01, DIRNAME02, etc.
 ITERATIONS     number of iterations
-INITIALGEOM    SQLite file containing muon geometry with tag names DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd
-INPUTFILES     Python file defining 'fileNames', a list of input files as strings (create with findQualityFiles.py)
-"""
+INITIALGEOM    SQLite file containing muon geometry with tag names
+               DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd
+INPUTFILES     Python file defining 'fileNames', a list of input files as
+               strings (create with findQualityFiles.py)"""
+
+parser = optparse.OptionParser(usage)
+parser.add_option("-j", "--jobs",
+                   help="approximate number of \"gather\" subjobs",
+                   type="int",
+                   default=50,
+                   dest="subjobs")
+parser.add_option("-s", "--submitJobs",
+                   help="alternate name of submitJobs.sh script (please include .sh extension); a file with this name will be OVERWRITTEN",
+                   type="string",
+                   default="submitJobs.sh",
+                   dest="submitJobs")
+parser.add_option("-b", "--big",
+                  help="if invoked, subjobs will also be run on cmscaf1nd",
+                  action="store_true",
+                  dest="big")
+parser.add_option("--mapplots",
+                  help="if invoked, draw \"map plots\"",
+                  action="store_true",
+                  dest="mapplots")
+parser.add_option("--segdiffplots",
+                  help="if invoked, draw \"segment-difference plots\"",
+                  action="store_true",
+                  dest="segdiffplots")
+parser.add_option("--globalTag",
+                  help="GlobalTag for alignment/calibration conditions (typically all conditions except muon and tracker alignment)",
+                  type="string",
+                  default="CRAFT0831X_V1::All",
+                  dest="globaltag")
+parser.add_option("--trackerconnect",
+                  help="connect string for tracker alignment (frontier://... or sqlite_file:...)",
+                  type="string",
+                  default="",
+                  dest="trackerconnect")
+parser.add_option("--trackeralignment",
+                  help="name of TrackerAlignmentRcd tag",
+                  type="string",
+                  default="Alignments",
+                  dest="trackeralignment")
+parser.add_option("--trackerAPEconnect",
+                  help="connect string for tracker APEs (frontier://... or sqlite_file:...)",
+                  type="string",
+                  default="",
+                  dest="trackerAPEconnect")
+parser.add_option("--trackerAPE",
+                  help="name of TrackerAlignmentErrorRcd tag (tracker APEs)",
+                  type="string",
+                  default="AlignmentErrors",
+                  dest="trackerAPE")
+parser.add_option("--iscosmics",
+                  help="if invoked, use cosmic track refitter instead of the standard one",
+                  action="store_true",
+                  dest="iscosmics")
+parser.add_option("--station123params",
+                  help="alignable parameters for DT stations 1, 2, 3 (see SWGuideAlignmentAlgorithms#Selection_of_what_to_align)",
+                  type="string",
+                  default="111111",
+                  dest="station123params")
+parser.add_option("--station4params",
+                  help="alignable parameters for DT station 4",
+                  type="string",
+                  default="100011",
+                  dest="station4params")
+parser.add_option("--cscparams",
+                  help="alignable parameters for CSC chambers",
+                  type="string",
+                  default="100011",
+                  dest="cscparams")
+parser.add_option("--minTrackPt",
+                  help="minimum allowed track transverse momentum (in GeV)",
+                  type="string",
+                  default="100",
+                  dest="minTrackPt")
+parser.add_option("--maxTrackPt",
+                  help="maximum allowed track transverse momentum (in GeV)",
+                  type="string",
+                  default="200",
+                  dest="maxTrackPt")
+parser.add_option("--minTrackerHits",
+                  help="minimum number of tracker hits",
+                  type="int",
+                  default=15,
+                  dest="minTrackerHits")
+parser.add_option("--maxTrackerRedChi2",
+                  help="maximum tracker chi^2 per degrees of freedom",
+                  type="string",
+                  default="10",
+                  dest="maxTrackerRedChi2")
+parser.add_option("--allowTIDTEC",
+                  help="if invoked, allow tracks that pass through the tracker's !TID/!TEC region (recommended)",
+                  action="store_true",
+                  dest="allowTIDTEC")
+parser.add_option("--twoBin",
+                  help="if invoked, apply the \"two-bin method\" to control charge-antisymmetric errors",
+                  action="store_true",
+                  dest="twoBin")
+parser.add_option("--weightAlignment",
+                  help="if invoked, segments will be weighted by ndf/chi^2 in the alignment",
+                  action="store_true",
+                  dest="weightAlignment")
+parser.add_option("--minAlignmentHits",
+                  help="minimum number of hits required to align a chamber",
+                  type="int",
+                  default=30,
+                  dest="minAlignmentHits")
 
 if len(sys.argv) < 5:
-    raise SystemError, "Too few arguments.\n\n"+usage
+    raise SystemError, "Too few arguments.\n\n"+parser.format_help()
 
 DIRNAME = sys.argv[1]
 ITERATIONS = int(sys.argv[2])
 INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
-
-parser = optparse.OptionParser(usage)
-parser.add_option("-j", "--jobs",
-                   help="Number of subjobs",
-                   type="int",
-                   default=50,
-                   dest="subjobs")
-parser.add_option("-s", "--submitJobs",
-                   help="Alternate name of submitJobs.sh script (please include .sh extension)",
-                   type="string",
-                   default="submitJobs.sh",
-                   dest="submitJobs")
-parser.add_option("-b", "--big",
-                  help="If invoked, even subjobs are so big that they must be run on cmscaf1nd",
-                  action="store_true",
-                  dest="big")
-parser.add_option("--mapplots",
-                  help="Make map plots",
-                  action="store_true",
-                  dest="mapplots")
-parser.add_option("--segdiffplots",
-                  help="Make segment-difference plots",
-                  action="store_true",
-                  dest="segdiffplots")
-parser.add_option("--globalTag",
-                  help="GlobalTag for conditions not otherwise overridden",
-                  type="string",
-                  default="CRAFT0831X_V1::All",
-                  dest="globaltag")
-parser.add_option("--trackerconnect",
-                  help="Connect string for tracker alignment (frontier:// or sqlite_file:)",
-                  type="string",
-                  default="",
-                  dest="trackerconnect")
-parser.add_option("--trackeralignment",
-                  help="Name of TrackerAlignmentRcd tag",
-                  type="string",
-                  default="Alignments",
-                  dest="trackeralignment")
-parser.add_option("--trackerAPEconnect",
-                  help="Connect string for tracker alignment (frontier:// or sqlite_file:)",
-                  type="string",
-                  default="",
-                  dest="trackerAPEconnect")
-parser.add_option("--trackerAPE",
-                  help="Name of TrackerAlignmentErrorRcd tag",
-                  type="string",
-                  default="AlignmentErrors",
-                  dest="trackerAPE")
-parser.add_option("--iscosmics",
-                  help="Use cosmic refitter instead of the standard one",
-                  action="store_true",
-                  dest="iscosmics")
-parser.add_option("--station123params",
-                  help="Alignable parameters for DT stations 1, 2, 3",
-                  type="string",
-                  default="111111",
-                  dest="station123params")
-parser.add_option("--station4params",
-                  help="Alignable parameters for DT station 4",
-                  type="string",
-                  default="100011",
-                  dest="station4params")
-parser.add_option("--cscparams",
-                  help="Alignable parameters for CSC chambers",
-                  type="string",
-                  default="100011",
-                  dest="cscparams")
-parser.add_option("--minTrackPt",
-                  help="Minimum allowed track transverse momentum",
-                  type="string",
-                  default="100",
-                  dest="minTrackPt")
-parser.add_option("--maxTrackPt",
-                  help="Maximum allowed track transverse momentum",
-                  type="string",
-                  default="200",
-                  dest="maxTrackPt")
-parser.add_option("--minTrackerHits",
-                  help="Minimum number of tracker hits",
-                  type="int",
-                  default=15,
-                  dest="minTrackerHits")
-parser.add_option("--maxTrackerRedChi2",
-                  help="Maximum tracker chi^2",
-                  type="string",
-                  default="10",
-                  dest="maxTrackerRedChi2")
-parser.add_option("--allowTIDTEC",
-                  help="Allow tracks with TID/TEC hits",
-                  action="store_true",
-                  dest="allowTIDTEC")
-parser.add_option("--twoBin",
-                  help="Apply the two-bin method to control charge-antisymmetric errors",
-                  action="store_true",
-                  dest="twoBin")
-parser.add_option("--weightAlignment",
-                  help="Use segment chi^2 weights in alignment",
-                  action="store_true",
-                  dest="weightAlignment")
-parser.add_option("--minAlignmentHits",
-                  help="Minimum number of hits required to align a chamber",
-                  type="int",
-                  default=30,
-                  dest="minAlignmentHits")
 
 options, args = parser.parse_args(sys.argv[5:])
 mapplots = options.mapplots
