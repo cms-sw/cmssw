@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.51 2009/11/11 10:45:13 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.52 2009/11/13 23:25:30 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -1001,14 +1001,13 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
     }
+
     unsigned int i = npaths;
     h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
     h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
 
     h_HLTPassFail_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
     h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
-
-
 
 
     // now set up all of the histos for each path
@@ -1245,7 +1244,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        dbe_->setCurrentFolder(pathsummary.Data()); 
 
        //int nbin_sub = 5;
-       int nbin_sub = 10;
+       int nbin_sub = v->filtersAndIndices.size()+2;
     
        // count plots for subfilter
        filters = dbe_->book1D("Filters_" + v->getPath(), 
