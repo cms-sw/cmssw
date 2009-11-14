@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.105 2009/11/13 21:17:21 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.106 2009/11/14 11:31:13 amraktad Exp $
 //
 
 // system include files
@@ -772,7 +772,7 @@ void CmsShowMain::checkPosition()
 
 void CmsShowMain::doFirstEvent()
 {
-   m_navigator->nextEvent();
+   m_navigator->firstEvent();
    checkPosition();
    draw();
 }
@@ -786,13 +786,13 @@ void CmsShowMain::doNextEvent()
 
 void CmsShowMain::doPreviousEvent()
 {
-   m_navigator->nextEvent();
+   m_navigator->previousEvent();
    checkPosition();
    draw();
 }
 void CmsShowMain::doLastEvent()
 {
-   m_navigator->nextEvent();
+   m_navigator->lastEvent();
    checkPosition();
    draw();
 }
@@ -814,9 +814,12 @@ CmsShowMain::setupDataHandling()
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
-   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0) m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::lastEvent));
+   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
+      m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doPreviousEvent));
+   if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0)
+      m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doFirstEvent));
+   if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
+      m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doLastEvent));
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
