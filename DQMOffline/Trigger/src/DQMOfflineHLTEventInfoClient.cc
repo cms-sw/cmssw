@@ -203,6 +203,22 @@ void DQMOfflineHLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& l
 
 void DQMOfflineHLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){
+}
+
+//--------------------------------------------------------
+void DQMOfflineHLTEventInfoClient::analyze(const Event& e, const EventSetup& context){
+   
+   counterEvt_++;
+   if (prescaleEvt_<1) return;
+   if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
+
+   if(verbose_) cout << "DQMOfflineHLTEventInfoClient::analyze" << endl;
+
+
+}
+
+//--------------------------------------------------------
+void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& context){
 
   float summarySum = 0;
   float reportSummary = 0;
@@ -241,22 +257,6 @@ void DQMOfflineHLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock
   CertificationSummaryMap_->setBinContent(1,1,HLT_Muon->getFloatValue());//Muon
   CertificationSummaryMap_->setBinContent(1,2,HLT_Electron->getFloatValue());//Electron
   CertificationSummaryMap_->setBinContent(1,3,HLT_Photon->getFloatValue());//Photon
-}
-
-//--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::analyze(const Event& e, const EventSetup& context){
-   
-   counterEvt_++;
-   if (prescaleEvt_<1) return;
-   if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
-
-   if(verbose_) cout << "DQMOfflineHLTEventInfoClient::analyze" << endl;
-
-
-}
-
-//--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& context){
 }
 
 //--------------------------------------------------------
