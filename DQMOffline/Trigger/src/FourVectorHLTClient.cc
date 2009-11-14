@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.15 2009/10/09 16:58:55 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.16 2009/11/13 23:25:30 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -212,16 +212,14 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   TString pathToPassPassCorrelationME_ = pathsSummaryFolder_ + "HLTPassPass_Correlation";
   MonitorElement *MEPassPass    = dbe_->get(pathToPassPassCorrelationME_.Data());
 
-  TH2F* MEHistPassPass = MEPassPass->getTH2F() ;
-
-
   // Get PassFail
   TString pathToPassFailCorrelationME_ = pathsSummaryFolder_ + "HLTPassFail_Correlation";
   MonitorElement *MEPassFail    = dbe_->get(pathToPassFailCorrelationME_.Data());
 
-  TH2F* MEHistPassFail = MEPassFail->getTH2F() ;
+  if(MEPassPass && MEPassFail) {
 
-  if(MEHistPassPass && MEHistPassFail) {
+    TH2F* MEHistPassFail = MEPassFail->getTH2F() ;
+    TH2F* MEHistPassPass = MEPassPass->getTH2F() ;
 
     TString nameMEPassPassNormalized           = MEPassPass->getName()+"_Normalized";
     TString titleMEPassPassNormalized          = MEPassPass->getTitle()+" Normalized to number of Pass";
