@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.8 2009/10/15 13:28:05 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.9 2009/10/18 21:42:13 chamont Exp $
 //
 //
 
@@ -65,7 +65,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
    { applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ; }
   if (applyHOverECut_)
    {
-    hcalHelper_ = new ElectronHcalHelper(pset,false) ;
+    hcalHelper_ = new ElectronHcalHelper(pset) ;
 //    hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits") ;
     maxHOverE_=pset.getParameter<double>("maxHOverE") ;
 //    hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
