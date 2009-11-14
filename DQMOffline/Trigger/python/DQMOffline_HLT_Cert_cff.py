@@ -9,7 +9,7 @@ from DQMOffline.Trigger.DQMOffline_HLT_SummaryCert_cfi import *
 
 #--- Note: hltOverallCertSeq must be the last sequence!
 #-- it relies on bits set in the other sequences
-dqmOfflineTriggerCert = cms.Sequence(muonHLTCertSeq*egHLTOffCertSeq*HLTOverallCertSeq)
-#dqmOfflineHLTCert = cms.Sequence(muonHLTCertSeq*egHLTOffCertSeq*hltOverallCertSeq)
+#dqmOfflineTriggerCert = cms.Sequence(muonHLTCertSeq*egHLTOffCertSeq*HLTOverallCertSeq)
+dqmOfflineHLTCert = cms.Sequence(muonHLTCertSeq*egHLTOffCertSeq*HLTOverallCertSeq)
 
 
