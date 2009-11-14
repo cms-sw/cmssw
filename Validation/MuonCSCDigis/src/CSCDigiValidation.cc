@@ -5,8 +5,8 @@
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
-
-
+#include "Validation/MuonCSCDigis/src/CSCALCTDigiValidation.h"
+#include "Validation/MuonCSCDigis/src/CSCCLCTDigiValidation.h"
 #include <iostream>
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -17,7 +17,9 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   theCSCGeometry(0),
   theStripDigiValidation(0),
   theWireDigiValidation(0),
-  theComparatorDigiValidation(0)
+  theComparatorDigiValidation(0),
+  theALCTDigiValidation(0),
+  theCLCTDigiValidation(0)
 {
   dbe_->setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
   bool doSim = ps.getParameter<bool>("doSim");
@@ -27,7 +29,8 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, 
               ps.getParameter<edm::InputTag>("comparatorDigiTag"),
               ps.getParameter<edm::InputTag>("stripDigiTag"));
-
+  theALCTDigiValidation = new CSCALCTDigiValidation(dbe_, ps.getParameter<edm::InputTag>("alctDigiTag"));
+  theCLCTDigiValidation = new CSCCLCTDigiValidation(dbe_, ps.getParameter<edm::InputTag>("clctDigiTag"));
 
   if(doSim)
   {
@@ -45,6 +48,8 @@ CSCDigiValidation::~CSCDigiValidation()
   delete theStripDigiValidation;
   delete theWireDigiValidation;
   delete theComparatorDigiValidation;
+  delete theALCTDigiValidation;
+  delete theCLCTDigiValidation;
 }
 
 
@@ -69,6 +74,9 @@ void CSCDigiValidation::analyze(const edm::Event&e, const edm::EventSetup& event
   theStripDigiValidation->analyze(e,eventSetup);
   theWireDigiValidation->analyze(e,eventSetup);
   theComparatorDigiValidation->analyze(e,eventSetup);
+  theALCTDigiValidation->analyze(e,eventSetup);
+  theCLCTDigiValidation->analyze(e,eventSetup);
+
 }
 
 
