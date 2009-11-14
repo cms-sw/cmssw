@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.46 2009/11/14 11:31:13 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.47 2009/11/14 12:48:43 amraktad Exp $
 //
 
 // hacks
@@ -34,7 +34,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 //
@@ -451,12 +451,15 @@ CmsShowNavigator::filterEvents()
       }
       // make main selection file
       file->mainSelection().Clear();
-      for ( unsigned int i=0; i < m_selectors.size(); ++i )
-         if (!m_selectors[i]->removed && m_selectors[i]->enabled)
-            if ( m_globalOR || file->mainSelection().GetN()==0 )
+      for ( unsigned int i=0; i < m_selectors.size(); ++i ) {
+ 	 if (!m_selectors[i]->removed && m_selectors[i]->enabled) {
+	    if ( m_globalOR || file->mainSelection().GetN()==0 ) {
                file->mainSelection().Add(file->lists()[i]);
-            else
+            } else {
                file->mainSelection().Intersect(file->lists()[i]);
+	    }
+	 }
+      }
       // std::cout << Form("File: %s, number of events passed OR of all selections: %d",
       // file->name.c_str(),file->mainSelection.GetN())
       // << std::endl;
@@ -513,7 +516,7 @@ CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector,
    selection = boost::regex_replace(selection,re_spaces,"");
    edm::EventID currentEvent = file.event()->id();
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   fwlite::TriggerNames const* triggerNames(0);
+   edm::TriggerNames const* triggerNames(0);
    try
    {
       hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");

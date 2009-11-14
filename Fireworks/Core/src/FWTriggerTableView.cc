@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.1 2009/10/06 18:56:06 dmytro Exp $
+// $Id: FWTriggerTableView.cc,v 1.2 2009/10/07 12:47:52 dmytro Exp $
 //
 
 // system include files
@@ -79,7 +79,7 @@
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 //
@@ -179,7 +179,7 @@ void FWTriggerTableView::dataChanged ()
             fillAverageAcceptFractions();
          }
          fwlite::Handle<edm::TriggerResults> hTriggerResults;
-         fwlite::TriggerNames const* triggerNames(0);
+         edm::TriggerNames const* triggerNames(0);
          try{
             hTriggerResults.getByLabel(*event,"TriggerResults","","HLT");
             triggerNames = &event->triggerNames(*hTriggerResults);
@@ -216,7 +216,7 @@ FWTriggerTableView::fillAverageAcceptFractions()
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
    for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
       hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
-      fwlite::TriggerNames const* triggerNames(0);
+      edm::TriggerNames const* triggerNames(0);
       try{
          hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
          triggerNames = &m_event->triggerNames(*hTriggerResults);

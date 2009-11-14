@@ -4,12 +4,14 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.h,v 1.3 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWHLTValidator.h,v 1.1 2009/10/02 17:54:40 dmytro Exp $
 //
 
 #include "Fireworks/Core/src/FWValidatorBase.h"
 namespace fwlite{
   class Event;
+}
+namespace edm {
   class TriggerNames;
 }
 

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.1 2009/10/02 17:54:41 dmytro Exp $
+// $Id: FWHLTValidator.cc,v 1.2 2009/10/03 15:18:23 dmytro Exp $
 //
 
 // system include files
@@ -14,7 +14,7 @@
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "CommonTools/Utils/src/returnType.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 void
@@ -27,7 +27,7 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
 
    if (m_triggerNames.empty()){
      fwlite::Handle<edm::TriggerResults> hTriggerResults;
-     fwlite::TriggerNames const* triggerNames(0);
+     edm::TriggerNames const* triggerNames(0);
      try{
        hTriggerResults.getByLabel(m_event,"TriggerResults","","HLT");
        triggerNames = &m_event.triggerNames(*hTriggerResults);
