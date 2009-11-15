@@ -286,7 +286,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         EcalRawToDigiNumTowerBlocks = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiTowerId = cms.untracked.PSet( 
+        EcalRawToDigiTowerId = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
         EcalRawToDigiTowerSize = cms.untracked.PSet(
@@ -319,7 +319,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         EcalRawToDigiTCC = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiSRP = cms.untracked.PSet( 
+        EcalRawToDigiSRP = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
         EcalDCCHeaderRuntypeDecoder = cms.untracked.PSet(
