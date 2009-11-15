@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.17 2009/05/25 15:53:26 fabiocos Exp $
+// $Id: DumpGeom.cc,v 1.18 2009/09/01 22:33:30 case Exp $
 //
 //
 
@@ -133,10 +133,35 @@ class DumpGeom : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       int level_;
       bool verbose_;
+      struct Info{
+	std::string name;
+	Float_t points[24]; // x1,y1,z1...x8,y8,z8
+	Info(const std::string& iname):
+	  name(iname){
+	  init();
+	}
+	Info(){
+	  init();
+	}
+	void init(){
+	  for(unsigned int i=0; i<24; ++i) points[i]=0;
+	}
+	void fillPoints(std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end)
+	{
+	  unsigned int index(0);
+	  for(std::vector<GlobalPoint>::const_iterator i = begin; i!=end; ++i){
+	    assert(index<8);
+	    points[index*3] = i->x();
+	    points[index*3+1] = i->y();
+	    points[index*3+2] = i->z();
+	    ++index;
+	  }
+	}
+      };
 
       std::map<std::string, TGeoShape*> nameToShape_;
       std::map<std::string, TGeoVolume*> nameToVolume_;
-      std::map<unsigned int, std::string> idToName_;
+      std::map<unsigned int, Info> idToName_;
 };
 
 //
@@ -490,7 +515,7 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
       
       //      std::cout << "DT chamber id: " << rawid << " \tname: " << name << std::endl;
       
-      idToName_[rawid] = name;
+      idToName_[rawid] = Info(name);
       
       doChamber = fview.nextSibling(); // go to next chamber
    }
@@ -558,7 +583,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // I will try to do the same here without actually building
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
-     idToName_[chamberId.rawId()] = name;
+     idToName_[chamberId.rawId()] = Info(name);
      //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
      
      //  If it's ME11 you need to have two detId's per chamber. This is how to construct the detId
@@ -570,7 +595,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
      if ( jstation==1 && jring==1 ) {
        CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 );
        //       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
-       idToName_[detid1a.rawId()] = name;
+       idToName_[detid1a.rawId()] = Info(name);
      }
      
     doSubDets = fview.nextSibling(); // go to next chamber
@@ -606,7 +631,7 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
     std::string name = s.str();
     id = int((*git)->geographicalID());
     //    std::cout << "Tracker id: " << id << " \tname: " << name << std::endl;
-    idToName_[id] = name;
+    idToName_[id] = Info(name);
   }
 
 }
@@ -670,7 +695,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
        s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
      
      std::string name = s.str();
-     idToName_[tid] = name;
+     idToName_[tid] = Info(name);
      doSubDets = fview.nextSibling(); // go to next
     }
   }
@@ -722,7 +747,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
        s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
      
      std::string name = s.str();
-     idToName_[tid] = name;
+     idToName_[tid] = Info(name);
      doSubDets = fview.nextSibling(); // go to next
     }
 
@@ -775,12 +800,26 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
        s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
      
      std::string name = s.str();
-     idToName_[tid] = name;
+     idToName_[tid] = Info(name);
      doSubDets = fview.nextSibling(); // go to next
     }
 
   }
-
+  // Fill reco geometry
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Ecal, EcalBarrel);//EB
+    for(std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners()) ;
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Ecal, EcalEndcap);//EE
+    for(std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners()) ;
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
 }
 
 void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
@@ -883,7 +922,7 @@ void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
        //       std::cout << thetran.x() << ", " << thetran.y() << ", " << thetran.z() << std::endl;
      }      
      
-     idToName_[rawid] = name;
+     idToName_[rawid] = Info(name);
      //      std::cout << " " << idToName_.size() << std::endl;
      
      doChamber = fview.nextSibling(); // go to next chamber
@@ -1089,6 +1128,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    UInt_t v_id;
    TString* v_path(new TString);
    char v_name[1000];
+   Float_t v_vertex[24];
    TGeoHMatrix* v_matrix(new TGeoHMatrix);
    // TGeoVolume* v_volume(new TGeoVolume);
    // TObject* v_shape(new TObject);
@@ -1100,12 +1140,14 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // tree->Branch("matrix","TGeoHMatrix",&v_matrix);
    // tree->Branch("volume","TGeoVolume",&v_volume);
    // tree->Branch("shape","TObject",&v_shape);
-   for ( std::map<unsigned int, std::string>::const_iterator itr = idToName_.begin();
+   tree->Branch("points",&v_vertex,"points[24]/F");
+   for ( std::map<unsigned int, Info>::const_iterator itr = idToName_.begin();
 	 itr != idToName_.end(); ++itr )
      {
 	v_id = itr->first;
-	*v_path = itr->second.c_str();
-	strcpy(v_name,itr->second.c_str());
+	*v_path = itr->second.name.c_str();
+	for(unsigned int i=0; i<24; ++i) v_vertex[i]=itr->second.points[i];
+	strcpy(v_name,itr->second.name.c_str());
 	geom->cd(*v_path);
 	v_matrix = geom->GetCurrentMatrix();
 	// v_volume = geom->GetCurrentVolume();
