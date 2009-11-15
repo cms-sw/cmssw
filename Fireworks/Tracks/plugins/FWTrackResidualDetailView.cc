@@ -101,12 +101,21 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
 void
 FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* slot)
 {
-   prepareData(id, track);
-
    TCanvas *infoCanvas, *histCanvas;
    TEveWindow* wp = makePackCanvas(slot, infoCanvas, histCanvas);
    setEveWindow(wp);
    wp->SetElementName("Residual Detail View");
+   
+
+   if (!track->extra().isAvailable()) {
+     printf("Error: no track extra information is available.\n");
+     histCanvas->cd();
+     TLatex* latex = new TLatex();
+     latex->SetTextSize(0.1);
+     latex->DrawLatex(0.1, 0.5, "No track extra information");
+     return;
+   }
+   prepareData(id, track);
    
    // info
    infoCanvas->cd();
