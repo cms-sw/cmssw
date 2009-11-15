@@ -239,7 +239,7 @@ namespace cond {
       dbSession.open( connstr );
       TagCollectionRetriever gtr(dbSession);
       const_cast<GlobalTag&>(m_globalTag).clear();
-      gtr.getTagCollection(const_cast<GlobalTag&>(m_globalTag), gname);
+      gtr.getTagCollection(gname,(const_cast<GlobalTag&>(m_globalTag));
       return m_globalTag;  
     }
 

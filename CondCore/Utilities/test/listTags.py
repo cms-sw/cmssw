@@ -26,6 +26,8 @@ mytree=0
 inv=0
 del session
 del svc
+
+// rdbms = RDBMS()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
 rdbms.setLogger(logName)
