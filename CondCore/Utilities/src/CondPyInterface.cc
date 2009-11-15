@@ -21,6 +21,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 
 #include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -235,11 +236,14 @@ namespace cond {
   
   GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
 				      std::string const & gname) const {
-    DbSession dbSession = connection->createSession();
-    dbSession.open( connstr );
-    TagCollectionRetriever gtr(dbSession);
+    DbSession session = connection->createSession();
+    session.open( connstr );
+    cond::DbScopedTransaction tr(session);
+    tr.start(true);
+    TagCollectionRetriever gtr(session);
     const_cast<GlobalTag&>(m_globalTag).clear();
     gtr.getTagCollection(gname,const_cast<GlobalTag&>(m_globalTag));
+    tr.commit();
     return m_globalTag;  
   }
 

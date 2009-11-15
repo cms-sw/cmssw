@@ -30,7 +30,10 @@ del svc
 // rdbms = RDBMS()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
+gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
+gName = "GR09_31X_V5P"
 rdbms.setLogger(logName)
+globalTag = rdbms.globalTag(gdbName,gName)
 
 for tag in tags:
 #    dbname = tag[3][tag[3].rfind('/'):]
