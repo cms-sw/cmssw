@@ -28,15 +28,15 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
-
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 

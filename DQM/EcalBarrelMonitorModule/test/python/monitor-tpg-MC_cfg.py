@@ -22,22 +22,22 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
 
-process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
-
-process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff")
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 
+process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
+
+process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
+
+process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff")
+
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
-
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
