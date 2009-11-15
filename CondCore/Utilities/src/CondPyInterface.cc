@@ -232,16 +232,16 @@ namespace cond {
     dbSession.setBlobStreamingService( "COND/Services/TBufferBlobStreamingService" );
     return CondDB(dbSession,logger);
   }
-
-    GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
-					std::string const & gname) const {
-      DbSession dbSession = connection->createSession();
-      dbSession.open( connstr );
-      TagCollectionRetriever gtr(dbSession);
-      const_cast<GlobalTag&>(m_globalTag).clear();
-      gtr.getTagCollection(gname,(const_cast<GlobalTag&>(m_globalTag));
-      return m_globalTag;  
-    }
+  
+  GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
+				      std::string const & gname) const {
+    DbSession dbSession = connection->createSession();
+    dbSession.open( connstr );
+    TagCollectionRetriever gtr(dbSession);
+    const_cast<GlobalTag&>(m_globalTag).clear();
+    gtr.getTagCollection(gname,const_cast<GlobalTag&>(m_globalTag));
+    return m_globalTag;  
+  }
 
 
 }

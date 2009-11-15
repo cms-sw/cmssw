@@ -65,7 +65,7 @@ namespace {
 
 
     boost::python::tuple
-    getState(cond::LogDBEntry& l)
+    getLogState(cond::LogDBEntry& l)
     {
       return boost::python::make_tuple(
 				       l.logId,
@@ -84,7 +84,7 @@ namespace {
     }
  
     boost::python::tuple
-    getState(cond::TagMetadata& l)
+    getTagState(cond::TagMetadata& l)
     {
       return boost::python::make_tuple(
 				       l.tag,
@@ -114,7 +114,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   def("unpackTime",&unpackTime);
 
   class_<cond::LogDBEntry>("LogDBEntry")
-    .def("getState",getState)
+    .def("getState",getLogState)
     .def_readonly("logId",  &cond::LogDBEntry::logId)
     .def_readonly("destinationDB",   &cond::LogDBEntry::destinationDB)   
     .def_readonly("provenance",  &cond::LogDBEntry::provenance)
@@ -128,16 +128,16 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def_readonly("exectime",   &cond::LogDBEntry::exectime)
     .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
     ;
-
+  
   class_<cond::TagMetadata>("TagEntry")
-    .def("getState",getState)
+    .def("getState",getTagState)
     .def_readonly("tag", &cond::TagMetadata::tag)
     .def_readonly("pfn", &cond::TagMetadata::tag)
     .def_readonly("record", &cond::TagMetadata::recordname)
     .def_readonly("label", &cond::TagMetadata::labelname)
     .def_readonly("object", &cond::TagMetadata::objectname)
     ;
-
+  
   class_<cond::GlobalTag >("GlobalTag", init<>())
     .def("size", &cond::GlobalTag::size)
     .add_property("elements", range( &cond::GlobalTag::begin,  &cond::GlobalTag::end))
