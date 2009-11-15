@@ -36,25 +36,25 @@ TFile* DetIdToMatrix::findFile(const char* fileName)
       }
       file += fileName;
    }
-   if ( ! gSystem->AccessPathName(file.Data()) ) {
+   if ( !gSystem->AccessPathName(file.Data()) ) {
       return TFile::Open(file);
-   } 
-   
+   }
+
    const char* searchpath = gSystem->Getenv("CMSSW_SEARCH_PATH");
    if ( searchpath == 0 ) return 0;
    TString paths(searchpath);
    TObjArray* tokens = paths.Tokenize(":");
-   for ( int i=0; i<tokens->GetEntries(); ++i )	{
+   for ( int i=0; i<tokens->GetEntries(); ++i ) {
       TObjString* path = (TObjString*)tokens->At(i);
       TString fullFileName(path->GetString());
       fullFileName += "/Fireworks/Geometry/data/";
       fullFileName += fileName;
-      if ( ! gSystem->AccessPathName(fullFileName.Data()) )
+      if ( !gSystem->AccessPathName(fullFileName.Data()) )
          return TFile::Open(fullFileName.Data());
    }
    return 0;
 }
-      
+
 void DetIdToMatrix::loadGeometry(const char* fileName)
 {
    manager_ = 0;
@@ -91,11 +91,19 @@ void DetIdToMatrix::loadMap(const char* fileName)
    }
    unsigned int id;
    char path[1000];
+   Float_t points[24];
+   bool loadPoints = tree->GetBranch("points")!=0;
    tree->SetBranchAddress("id",&id);
    tree->SetBranchAddress("path",&path);
+   if (loadPoints) tree->SetBranchAddress("points",&points);
    for ( unsigned int i = 0; i < tree->GetEntries(); ++i) {
       tree->GetEntry(i);
       idToPath_[id] = path;
+      if (loadPoints) {
+         std::vector<TEveVector> p(8);
+         for(unsigned int j=0; j<8; ++j) p[j].Set(points[3*j],points[3*j+1],points[3*j+2]);
+         idToPoints_[id] = p;
+      }
    }
    f->Close();
 }
@@ -119,30 +127,30 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
 
    DetId detId(id);
    if (detId.det() == DetId::Muon) {
-	if ( detId.subdetId() == MuonSubdetId::CSC ) {
-	     TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-	     if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
-	     idToMatrix_[id] = m;
-	     return &idToMatrix_[id];
-	} else if ( detId.subdetId() == MuonSubdetId::RPC ) {
-	     RPCDetId rpcid(detId);
-	     // std::cout << "id: " << detId.rawId() << std::endl;
-	     if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
-		  // std::cout << "before: " << std::endl;
-		  // (*(manager_->GetCurrentMatrix())).Print();
-		  TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-		  if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
-		  idToMatrix_[id] = m;
-		  // std::cout << "after: " << std::endl;
-		  // m.Print();
-		  return &idToMatrix_[id];
-	     }
-	     /* else {
-		std::cout << "BARREL station: " << rpcid.station() << std::endl;
-		(*(manager_->GetCurrentMatrix())).Print();
-		}
-	     */
-	}
+      if ( detId.subdetId() == MuonSubdetId::CSC ) {
+         TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+         if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
+         idToMatrix_[id] = m;
+         return &idToMatrix_[id];
+      } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
+         RPCDetId rpcid(detId);
+         // std::cout << "id: " << detId.rawId() << std::endl;
+         if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
+            // std::cout << "before: " << std::endl;
+            // (*(manager_->GetCurrentMatrix())).Print();
+            TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+            if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
+            idToMatrix_[id] = m;
+            // std::cout << "after: " << std::endl;
+            // m.Print();
+            return &idToMatrix_[id];
+         }
+         /* else {
+            std::cout << "BARREL station: " << rpcid.station() << std::endl;
+            (*(manager_->GetCurrentMatrix())).Print();
+            }
+          */
+      }
    }
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
 
@@ -231,106 +239,15 @@ TEveElementList* DetIdToMatrix::getAllShapes(const char* elementListName /*= "CM
    return container;
 }
 
-
-void DetIdToMatrix::printEtaPhiRange(unsigned int id) const
+std::vector<TEveVector> DetIdToMatrix::getPoints(unsigned int id) const
 {
-   Range range = getEtaPhiRange(id);
-   printf("eta: [%0.3f,%0.3f], phi: [%0.3f,%0.3f]\n",
-	  range.min1, range.max1, range.min2, range.max2);
-}
-
-DetIdToMatrix::Range DetIdToMatrix::getEtaPhiRange(unsigned int id) const
-{
-   Range range;
-   // get shape with corrected matrix (not sure if it helps)
-   TEveGeoShape* eveshape = getShape(id,true);
-   const TGeoHMatrix* matrix = getMatrix(id);
-   if ( !eveshape || !matrix ) return range;
-   if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(eveshape->GetShape()) )
-     {
-	if ( shape->GetH1() > shape->GetH2() ) {
-	   updateEtaPhiRange(matrix, +shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, -shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, +shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, -shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
-	}else{
-	   updateEtaPhiRange(matrix, +shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, -shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, +shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
-	   updateEtaPhiRange(matrix, -shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
-	}
-     }
-   return range;
-}
-
-DetIdToMatrix::Range DetIdToMatrix::getXYRange(unsigned int id) const
-{
-   Range range;
-   // get shape with corrected matrix (not sure if it helps)
-   TEveGeoShape* eveshape = getShape(id,true);
-   const TGeoHMatrix* matrix = getMatrix(id);
-   if ( !eveshape || !matrix ) return range;
-   if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(eveshape->GetShape()) )
-     {
-	if ( shape->GetH1() > shape->GetH2() ) {
-	   updateXYRange(matrix, +shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
-	   updateXYRange(matrix, -shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
-	   updateXYRange(matrix, +shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
-	   updateXYRange(matrix, -shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
-	}else{
-	   updateXYRange(matrix, +shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
-	   updateXYRange(matrix, -shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
-	   updateXYRange(matrix, +shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
-	   updateXYRange(matrix, -shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
-	}
-     }
-   return range;
-}
-
-
-void DetIdToMatrix::updateXYRange(const TGeoHMatrix* matrix,
-				      double local_x,
-				      double local_y,
-				      double local_z,
-				      Range& range) const
-{
-   Double_t local[3];
-   Double_t global[3];
-   local[0]=local_x;
-   local[1]=local_y;
-   local[2]=local_z;
-   matrix->LocalToMaster(local,global);
-   TEveVector v(global[0],global[1],global[2]);
-   // printf("local_x: %0.2f, \tlocal_y: %0.2f, \tlocal_z: %0.2f\n",local_x,local_y,local_z);
-   // printf("\tglobal_x: %0.2f, \tglobal_y: %0.2f, \tglobal_z: %0.2f\n",
-   //        global[0],global[1],global[2]);
-   // printf("\teta: %0.5f, \tphi: %0.5f\n", v.Eta(), v.Phi());
-   if ( range.min1 > v.fX ) range.min1 = v.fX;
-   if ( range.max1 < v.fX ) range.max1 = v.fX;
-   if ( range.min2 > v.fY ) range.min2 = v.fY;
-   if ( range.max2 < v.fY ) range.max2 = v.fY;
-}
-
-void DetIdToMatrix::updateEtaPhiRange(const TGeoHMatrix* matrix,
-				      double local_x,
-				      double local_y,
-				      double local_z,
-				      Range& range) const
-{
-   Double_t local[3];
-   Double_t global[3];
-   local[0]=local_x;
-   local[1]=local_y;
-   local[2]=local_z;
-   matrix->LocalToMaster(local,global);
-   TEveVector v(global[0],global[1],global[2]);
-   // printf("local_x: %0.2f, \tlocal_y: %0.2f, \tlocal_z: %0.2f\n",local_x,local_y,local_z);
-   // printf("\tglobal_x: %0.2f, \tglobal_y: %0.2f, \tglobal_z: %0.2f\n",
-   //        global[0],global[1],global[2]);
-   // printf("\teta: %0.5f, \tphi: %0.5f\n", v.Eta(), v.Phi());
-   if ( range.min1 > v.Eta() ) range.min1 = v.Eta();
-   if ( range.max1 < v.Eta() ) range.max1 = v.Eta();
-   if ( range.min2 > v.Phi() ) range.min2 = v.Phi();
-   if ( range.max2 < v.Phi() ) range.max2 = v.Phi();
+   // reco geometry points
+   std::map<unsigned int, std::vector<TEveVector> >::const_iterator points = idToPoints_.find(id);
+   if ( points == idToPoints_.end() ) {
+      printf("Warning: no reco geometry is found for id: %d\n", id);
+      return std::vector<TEveVector>();
+   } else {
+      return points->second;
+   }
 }
 

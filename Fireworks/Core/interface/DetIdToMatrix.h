@@ -17,6 +17,7 @@ class TFile;
 #include <map>
 #include <string>
 #include <vector>
+#include "TEveVSDStructs.h"
 
 class DetIdToMatrix
 {
@@ -26,9 +27,10 @@ public:
       double max1;
       double min2;
       double max2;
-      Range(): min1(9999),max1(-9999),min2(9999),max2(-9999){}
-     };
-   
+      Range() : min1(9999),max1(-9999),min2(9999),max2(-9999){
+      }
+   };
+
    DetIdToMatrix() : manager_(0){
    }
    ~DetIdToMatrix();
@@ -44,7 +46,7 @@ public:
 
    // get path to the detector volume in the geometry manager
    const char* getPath( unsigned int id ) const;
-   
+
    static TFile* findFile(const char* fileName);
 
    // extract globally positioned shape for stand alone use
@@ -72,28 +74,17 @@ public:
    // extract shapes of all known elements
    TEveElementList* getAllShapes(const char* elementListName = "CMS") const;
 
-   // get eta-phi size
-   Range getEtaPhiRange(unsigned int id) const;
-   Range getXYRange(unsigned int id) const;
-   void printEtaPhiRange(unsigned int id) const;
-   
+   // reco geometry
+   std::vector<TEveVector> getPoints(unsigned int id) const;
+
    TGeoManager* getManager() const {
       return manager_;
    }
 private:
    mutable std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_;
+   std::map<unsigned int, std::vector<TEveVector> > idToPoints_;
    mutable TGeoManager* manager_;
-   void updateEtaPhiRange(const TGeoHMatrix* matrix,
-			  double local_x,
-			  double local_y,
-			  double local_z,
-			  Range& range) const;
-   void updateXYRange(const TGeoHMatrix* matrix,
-		      double local_x,
-		      double local_y,
-		      double local_z,
-		      Range& range) const;
 };
 
 #endif
