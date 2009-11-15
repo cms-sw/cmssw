@@ -14,7 +14,15 @@ physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                    SelectedTriggerType = cms.int32(1) 
                                    )
 
+# GT unpacker
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+gtDigis.DaqGtInputTag = 'source'
 
+# filter on L1 trigger bits:
+# select only events triggered by muon L1A
+from L1Trigger.Skimmer.l1Filter_cfi import *
+l1Filter.algorithms = cms.vstring('L1_SingleMuOpen', 'L1_SingleMu0', 'L1_SingleMu3', 'L1_SingleMu5', 'L1_SingleMu7', 'L1_SingleMu10', 'L1_SingleMu14', 'L1_SingleMu20', 'L1_DoubleMuOpen', 'L1_DoubleMu3')
 
 
 # DT digitization and reconstruction
@@ -97,8 +105,14 @@ unpackers = cms.Sequence(dtunpacker + dttfunpacker)
 
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
+# sequence of DQM tasks to be run on physics events only
 dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
+# DQM clients to be run on physics event only
 dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
+# DQM tasks and clients to be run on calibration events only
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
+
+# sequence to be run on physics events (includes filters, reco and DQM)
+dtDQMPhysSequence = cms.Sequence(gtDigis + l1Filter * reco + dtDQMTask + dtDQMTest)
