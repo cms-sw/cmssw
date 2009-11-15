@@ -27,6 +27,7 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 
 #include <iterator>
 #include <iostream>
@@ -231,5 +232,16 @@ namespace cond {
     dbSession.setBlobStreamingService( "COND/Services/TBufferBlobStreamingService" );
     return CondDB(dbSession,logger);
   }
+
+    GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
+					std::string const & gname) const {
+      DbSession dbSession = connection->createSession();
+      dbSession.open( connstr );
+      TagCollectionRetriever gtr(dbSession);
+      const_cast<GlobalTag&>(m_globalTag).clear();
+      gtr.getTagCollection(const_cast<GlobalTag&>(m_globalTag), gname);
+      return m_globalTag;  
+    }
+
 
 }

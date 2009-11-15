@@ -8,8 +8,8 @@ namespace cond{
     std::string tag;
     std::string pfn;
     std::string recordname;
-    std::string objectname;
     std::string labelname;
+    std::string objectname;
     std::size_t hashvalue()const{
       boost::hash<std::string> hasher;
       std::size_t result=hasher(tag+pfn);

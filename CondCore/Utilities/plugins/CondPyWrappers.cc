@@ -14,6 +14,7 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -82,6 +83,18 @@ namespace {
 				       );
     }
  
+    boost::python::tuple
+    getState(cond::TagMetadata& l)
+    {
+      return boost::python::make_tuple(
+				       l.tag,
+				       l.pfn,
+				       l.recordname,
+				       l.labelname,	       
+				       l.objectname
+				       );
+    }
+
 
   void append2VS(std::vector<std::string> & v, std::string s) {
     v.push_back(s);
@@ -114,6 +127,20 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def_readonly("payloadContainer",   &cond::LogDBEntry::payloadContainer)
     .def_readonly("exectime",   &cond::LogDBEntry::exectime)
     .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
+    ;
+
+  class_<cond::TagMetadata>("TagEntry")
+    .def("getState",getState)
+    .def_readonly("tag", &cond::TagMetadata::tag)
+    .def_readonly("pfn", &cond::TagMetadata::tag)
+    .def_readonly("record", &cond::TagMetadata::recordname)
+    .def_readonly("label", &cond::TagMetadata::labelname)
+    .def_readonly("object", &cond::TagMetadata::objectname)
+    ;
+
+  class_<cond::GlobalTag >("GlobalTag", init<>())
+    .def("size", &cond::GlobalTag::size)
+    .add_property("elements", range( &cond::GlobalTag::begin,  &cond::GlobalTag::end))
     ;
 
   class_<std::vector<std::string> >("VString")
@@ -173,6 +200,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def(init<std::string, std::string>())
     .def("setLogger",&cond::RDBMS::setLogger)
     .def("getDB", &cond::RDBMS::getDB)
+    .def("globalTag",  &cond::RDBMS::GlobalTag, return_value_policy<copy_const_reference>())
     ;
 
 

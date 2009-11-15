@@ -8,12 +8,16 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/TagMetadata.h"
 
 
 #include<boost/shared_ptr.hpp>
 #include<string>
 
 namespace cond {
+
+  typedef std::set<cond::TagMetadata> GlobalTag;
+
 
   class Logger;
 
@@ -69,10 +73,13 @@ namespace cond {
     void setLogger(std::string const & connstr);
 
     CondDB getDB(std::string const & db);
+    GlobalTag const & globalTag(std::string const & connstr, 
+				std::string const & gname) const;
 
   private:
     boost::shared_ptr<DbConnection> connection;
     boost::shared_ptr<cond::Logger> logger;
+    GlobalTag m_globalTag;
 
   };
 
