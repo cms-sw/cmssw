@@ -1,0 +1,5 @@
+<use name=CondCore/DBCommon>
+<export>
+   <use name=CondCore/DBCommon>
+   <lib name=CondCoreTagCollection>
+</export>
