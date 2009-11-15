@@ -52,10 +52,6 @@ herwigDefaultsBlock = cms.PSet(
 		'cd /',
 	),
 
-	cm7TeV = cms.vstring(
-		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
-		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
-	),
 	cm10TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
@@ -63,24 +59,6 @@ herwigDefaultsBlock = cms.PSet(
 	cm14TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
-	),
-
-	reweightConstant = cms.vstring(
-		'mkdir /Herwig/Weights',
-		'cd /Herwig/Weights',
-		'create ThePEG::ReweightConstant reweightConstant ReweightConstant.so',
-		'cd /',
-		'set /Herwig/Weights/reweightConstant:C 1',
-		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightConstant',
-	),
-	reweightPthat = cms.vstring(
-		'mkdir /Herwig/Weights',
-		'cd /Herwig/Weights',
-		'create ThePEG::ReweightMinPT reweightMinPT ReweightMinPT.so',
-		'cd /',
-		'set /Herwig/Weights/reweightMinPT:Power 4.5',
-		'set /Herwig/Weights/reweightMinPT:Scale 15*GeV',
-		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightMinPT',
 	),
 
 	setParticlesStableForDetector = cms.vstring(

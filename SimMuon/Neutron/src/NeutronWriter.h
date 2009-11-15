@@ -10,15 +10,12 @@
  */
  
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class NeutronWriter {
 public:
-  ///  writes out a list of SimHits. 
-  virtual void writeCluster(int detType, const edm::PSimHitContainer & simHits) = 0;
+  ///  makes an "event" from a list of SimHits.  Called by writeEvent
+  virtual void writeEvent(int detType, const edm::PSimHitContainer & simHits) = 0;
   virtual void initialize(int detType) {}
-  virtual void beginEvent(edm::Event & e, const edm::EventSetup & es) {}
-  virtual void endEvent() {}
   virtual ~NeutronWriter() {}
 
 };

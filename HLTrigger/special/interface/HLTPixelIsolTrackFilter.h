@@ -14,10 +14,12 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
       edm::InputTag candTag_; 
       double maxptnearby;    
       double minpttrack;        
-      double maxetatrack;
       double minetatrack;
+      double maxetatrack;
       bool filterE_;
       double minEnergy_;
+      int nMaxTrackCandidates_;
+      bool dropMultiL2Event_;
 };
 
 #endif 

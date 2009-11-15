@@ -29,6 +29,7 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 // Numbering scheme
@@ -306,7 +307,7 @@ TrajectoryManager::reconstruct()
 	//The particle may have lost its energy in the material
 	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) && 
 	     !mySimEvent->filter().accept(PP)  ) 
-	  mySimEvent->addSimVertex(PP.vertex(),fsimi);
+	  mySimEvent->addSimVertex(PP.vertex(),fsimi, FSimVertexType::END_VERTEX);
 	  
       }
 
@@ -488,7 +489,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
       int theClosestChargedDaughterId = -1;
       DaughterParticleIterator daughter = daughters.begin();
       
-      int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
+      int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi, 
+					     FSimVertexType::DECAY_VERTEX);
       
       if ( ivertex != -1 ) {
 	for ( ; daughter != daughters.end(); ++daughter) {
@@ -626,7 +628,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 					  anyDirection);
     std::pair<bool,double> path = crossing.pathLength(det.surface());
     if (!path.first) {
-      // edm::LogError("FastTracker") << "TrajectoryManager ERROR: crossing with det failed, skipping PSimHit";
+      // edm::LogWarning("FastTracking") << "TrajectoryManager ERROR: crossing with det failed, skipping PSimHit";
       return  std::pair<double,PSimHit>(0.,PSimHit());
     }
     lpos = det.toLocal( GlobalPoint( crossing.position(path.second)));
@@ -807,18 +809,18 @@ TrajectoryManager::initializeLayerMap()
 
   std::vector< BarrelDetLayer*>   barrelLayers = 
     theGeomSearchTracker->barrelLayers();
-  LogDebug("FastTracker") << "Barrel DetLayer dump: ";
+  LogDebug("FastTracking") << "Barrel DetLayer dump: ";
   for (std::vector< BarrelDetLayer*>::const_iterator bl=barrelLayers.begin();
        bl != barrelLayers.end(); ++bl) {
-    LogDebug("FastTracker")<< "radius " << (**bl).specificSurface().radius(); 
+    LogDebug("FastTracking")<< "radius " << (**bl).specificSurface().radius(); 
   }
 
   std::vector< ForwardDetLayer*>  posForwardLayers = 
     theGeomSearchTracker->posForwardLayers();
-  LogDebug("FastTracker") << "Positive Forward DetLayer dump: ";
+  LogDebug("FastTracking") << "Positive Forward DetLayer dump: ";
   for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
        fl != posForwardLayers.end(); ++fl) {
-    LogDebug("FastTracker") << "Z pos "
+    LogDebug("FastTracking") << "Z pos "
 			    << (**fl).surface().position().z()
 			    << " radii " 
 			    << (**fl).specificSurface().innerRadius() 
@@ -829,36 +831,36 @@ TrajectoryManager::initializeLayerMap()
   const float rTolerance = 1.5;
   const float zTolerance = 3.;
 
-  LogDebug("FastTracker")<< "Dump of TrackerInteractionGeometry cylinders:";
+  LogDebug("FastTracking")<< "Dump of TrackerInteractionGeometry cylinders:";
   for( std::list<TrackerLayer>::const_iterator i=_theGeometry->cylinderBegin();
        i!=_theGeometry->cylinderEnd(); ++i) {
     const BoundCylinder* cyl = i->cylinder();
     const BoundDisk* disk = i->disk();
 
-    LogDebug("FastTracker") << "Famos Layer no " << i->layerNumber()
+    LogDebug("FastTracking") << "Famos Layer no " << i->layerNumber()
 			    << " is sensitive? " << i->sensitive()
 			    << " pos " << i->surface().position();
     if (!i->sensitive()) continue;
 
     if (cyl != 0) {
-      LogDebug("FastTracker") << " cylinder radius " << cyl->radius();
+      LogDebug("FastTracking") << " cylinder radius " << cyl->radius();
       bool found = false;
       for (std::vector< BarrelDetLayer*>::const_iterator 
 	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
 	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
 	  theLayerMap[i->layerNumber()] = *bl;
 	  found = true;
-	  LogDebug("FastTracker")<< "Corresponding DetLayer found with radius "
+	  LogDebug("FastTracking")<< "Corresponding DetLayer found with radius "
 				 << (**bl).specificSurface().radius();
 	  break;
 	}
       }
       if (!found) {
-	edm::LogError("FastTracker") << "FAILED to find a corresponding DetLayer!";
+	edm::LogWarning("FastTracking") << " Trajectory manager FAILED to find a corresponding DetLayer!";
       }
     }
     else {
-      LogDebug("FastTracker") << " disk radii " << disk->innerRadius() 
+      LogDebug("FastTracking") << " disk radii " << disk->innerRadius() 
 		 << ", " << disk->outerRadius();
       bool found = false;
       for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
@@ -866,7 +868,7 @@ TrajectoryManager::initializeLayerMap()
 	if (fabs( disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
 	  theLayerMap[i->layerNumber()] = *fl;
 	  found = true;
-	  LogDebug("FastTracker") << "Corresponding DetLayer found with Z pos "
+	  LogDebug("FastTracking") << "Corresponding DetLayer found with Z pos "
 				  << (**fl).surface().position().z()
 				  << " and radii " 
 				  << (**fl).specificSurface().innerRadius() 
@@ -876,7 +878,7 @@ TrajectoryManager::initializeLayerMap()
 	}
       }
       if (!found) {
-	edm::LogError("FastTracker") << "FAILED to find a corresponding DetLayer!";
+	edm::LogWarning("FastTracking") << "FAILED to find a corresponding DetLayer!";
       }
     }
   }

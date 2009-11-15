@@ -5,7 +5,6 @@
 <use name=Alignment/ReferenceTrajectories>
 <use name=Alignment/TrackerAlignment>
 <use name=DataFormats/CLHEP>
-<use name=DataFormats/SiStripDetId>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>

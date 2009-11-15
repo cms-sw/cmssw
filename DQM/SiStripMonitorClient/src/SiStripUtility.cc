@@ -113,32 +113,33 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, string& tag) {
 // -- Get Color code from Status
 //
 void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int& bval) {
+  // No Error
   if (status == 0) {
-    rval = 0;
-    gval = 255;
-    bval = 0;
+    rval = 0; gval = 255;bval = 0;
     return;
   }
-
-  if (status%2 == 1) { // FED Error is there
-    if (status == 1) {
-      rval = 205; gval = 0; bval = 20;
-    } else if (status == 3) { 
-      rval = 190; gval = 0; bval = 15;
-    } else if (status == 5) {
-      rval = 175; gval = 0; bval = 10;
-    } else if (status == 7) {
-      rval = 160; gval = 0; bval = 5;
-    }
-  } else {        // No FED error
-    if (status == 2) {
-      rval = 255; gval = 100; bval = 0;
-    } else if (status == 4) {
-      rval = 240; gval = 90; bval = 0;
-      gval = 100;   bval = 50;
-    } else if (status == 6) {
-      rval = 225; gval = 80; bval = 0;
-    }
+  // Error detected in FED Channel
+  if (((status >> 0) & 0x1) > 0) { 
+    rval = 150; gval = 0; bval = 0; 
+    return;
+  }
+  // Excluded FED Channel 
+  if (((status >> 3) & 0x1) > 0) {
+    rval = 255; gval = 255; bval = 255; 
+    return;
+  }
+  // DCS Error
+  if (((status >> 3) & 0x1) > 0) {
+    rval = 200; gval = 20; bval = 255; 
+    return;
+  } 
+  // Digi and Cluster Problem   
+  if (((status >> 1) & 0x1) > 0) {
+    rval = 255; bval = 0;
+    if (((status >> 2) & 0x1) > 0) gval = 0;
+    else gval = 100;
+  } else {
+    rval = 251; gval = 0; bval = 100;   
   }
 }
 
@@ -279,10 +280,12 @@ void SiStripUtility::getSubDetectorTag(uint32_t det_id, string& subdet_tag) {
 // 
 void SiStripUtility::setBadModuleFlag(string & hname, uint16_t& flg){
   
-  if (hname.find("FractionOfBadChannels") != string::npos) flg |= (1<<0);
-  else if (hname.find("NumberOfDigi")     != string::npos) flg |= (1<<1);
-  else if (hname.find("NumberOfCluster")  != string::npos) flg |= (1<<2);
-}
+  if (hname.find("FractionOfBadChannels")   != string::npos) flg |= (1<<0);
+  else if (hname.find("NumberOfDigi")       != string::npos) flg |= (1<<1);
+  else if (hname.find("NumberOfCluster")    != string::npos) flg |= (1<<2);
+  else if (hname.find("ExcludedFedChannel") != string::npos) flg |= (1<<3);
+  else if (hname.find("DCSError")           != string::npos) flg |= (1<<4); 
+}  
 //
 // -- Get the Status Message from Bad Module Flag
 //
@@ -290,8 +293,46 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, string & message){
   if (flag == 0) message += "No Error";
   else {
     message += " Error from :: "; 
-    if (((flag >>0)  & 0x1) > 0) message += " Fed BadChannel : ";
+    if (((flag >> 0) & 0x1) > 0) message += " Fed BadChannel : ";
     if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";  
-    if (((flag >> 2) & 0x1) > 0) message += " # of Clusters ";
+    if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
+    if (((flag >> 3) & 0x1) > 0) message += " Excluded FED Channel ";
+    if (((flag >> 3) & 0x1) > 0) message += " DCSError "; 
   }
 }
+//
+// -- Set Event Info Folder
+//
+void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string type, std::string& path) {
+  if (type != "SiStrip" && type != "Tracking") return;
+  path = ""; 
+  dqm_store->cd();
+  if (type == "SiStrip") {
+    if (dqm_store->dirExists(type)) {
+      dqm_store->cd(type);
+      path = dqm_store->pwd();
+    } else {
+      if (SiStripUtility::goToDir(dqm_store, type)) {
+	string mdir = "MechanicalView";
+	if (SiStripUtility::goToDir(dqm_store, mdir)) {
+	  path = dqm_store->pwd(); 
+	  path = path.substr(0, path.find(mdir)-1);
+        }
+      }
+    }
+  } else if (type == "Tracking") {
+    string top_dir = "Tracking";
+    if (dqm_store->dirExists(top_dir)) {
+      dqm_store->cd(top_dir);
+      path = dqm_store->pwd();
+    } else {
+      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
+	string tdir = "TrackParameters";
+	if (SiStripUtility::goToDir(dqm_store, tdir)) {
+	  path = dqm_store->pwd(); 
+	  path = path.substr(0, path.find(tdir)-1);
+        }
+      }	
+    }
+  }
+} 

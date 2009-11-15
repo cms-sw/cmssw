@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2009/09/11 19:56:31 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/02/12 17:29:24 $
+ *  $Revision: 1.11 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -321,15 +321,6 @@ bool HcalHTRData::wasMarkAndPassZSTP(int slb, int slbchan) const {
   unsigned short val=m_rawConst[m_rawLength-12+(linchan/8)];
   return ((val>>(linchan%8))&0x100)!=0;
 } 
-
-uint32_t HcalHTRData::zsBunchMask() const {
-  uint32_t mask=0;
-  if (isUnsuppressed() && m_formatVersion>=5) {
-    mask=m_rawConst[m_rawLength-5]|
-      ((m_rawConst[m_rawLength-6]&0xF000)<<4);
-  }
-  return mask;
-}
 
 bool HcalHTRData::isPatternRAMEvent() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x1000);

@@ -28,11 +28,6 @@ options.register('keysFromDB',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "1 = read keys from OMDS, 0 = read keys from command line")
-options.register('overwriteKeys',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Overwrite existing keys")
 
 # arguments for setting object keys by hand
 options.register('runNumber',
@@ -131,11 +126,6 @@ process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
 process.L1CondDBPayloadWriter.logTransactions = True
 
-if options.overwriteKeys == 0:
-    process.L1CondDBPayloadWriter.overwriteKeys = False
-else:
-    process.L1CondDBPayloadWriter.overwriteKeys = True
-                
 # Use highest possible run number so we always get the latest version
 # of L1TriggerKeyList.
 process.maxEvents = cms.untracked.PSet(

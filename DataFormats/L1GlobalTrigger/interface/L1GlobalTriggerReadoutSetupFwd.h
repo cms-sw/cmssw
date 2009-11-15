@@ -69,7 +69,8 @@ enum L1GtObject
     HfRingEtSums,
     TechTrig,
     Castor,
-    BPTX
+    BPTX,
+    GtExternal
 };
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/

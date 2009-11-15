@@ -455,8 +455,7 @@ INPUT                  = "@CMSSW_BASE@/src"
 
 FILE_PATTERNS          = *.doc \
 			 *.h \
-			 *.cc \
-			 *.py
+			 *.cc
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
@@ -547,7 +546,7 @@ FILTER_SOURCE_FILES    = NO
 # Note: To get rid of all source code in the generated output, make sure also 
 # VERBATIM_HEADERS is set to NO.
 
-SOURCE_BROWSER         = YES 
+SOURCE_BROWSER         = NO
 
 # Setting the INLINE_SOURCES tag to YES will include the body 
 # of functions and classes directly in the documentation.

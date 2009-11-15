@@ -1,7 +1,8 @@
 // -*- C++ -*-
 
 // CMS includes
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
@@ -68,18 +69,21 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
+   // create labels
+   edm::InputTag jetLabel ("sisCone5CaloJets");
+
    for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      fwlite::Handle< vector< reco::CaloJet > > jetCollection;
-      jetCollection.getByLabel (eventCont, "sisCone5CaloJets");
-      assert ( jetCollection.isValid() );
+      edm::Handle< vector< reco::CaloJet > > jetHandle;
+      eventCont.getByLabel (jetLabel, jetHandle );
+      assert ( jetHandle.isValid() );
 						
       // Loop over the jets
-      const vector< reco::CaloJet >::const_iterator kJetEnd = jetCollection->end();
-      for (vector< reco::CaloJet >::const_iterator jetIter = jetCollection->begin();
+      const vector< reco::CaloJet >::const_iterator kJetEnd = jetHandle->end();
+      for (vector< reco::CaloJet >::const_iterator jetIter = jetHandle->begin();
            kJetEnd != jetIter; 
            ++jetIter) 
       {         

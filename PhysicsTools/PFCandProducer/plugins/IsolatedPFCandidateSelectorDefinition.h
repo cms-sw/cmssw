@@ -13,7 +13,9 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 
   IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
     isolationValueMapLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMaps") ),
-    isolationCuts_(cfg.getParameter< std::vector<double> >("isolationCuts")) { 
+    isolationCuts_(cfg.getParameter< std::vector<double> >("isolationCuts")),
+    isolationCombRelIsoCut_(cfg.getParameter<double>("isolationCombRelIsoCut")) { 
+    
 
     if( isolationCuts_.size() != isolationValueMapLabels_.size() )
       throw cms::Exception("BadConfiguration")<<"the vector of isolation ValueMaps and the vector of the corresponding cuts must have the same size."<<std::endl;
@@ -33,7 +35,7 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
       e.getByLabel(isolationValueMapLabels_[iMap], isoMaps[iMap]);
     }
 
-    
+    //std::cout << "isolationCombRelIsoCut_ = " << isolationCombRelIsoCut_ << std::endl;
     unsigned key=0;
     //    for( unsigned i=0; i<collection->size(); i++ ) {
     for( collection::const_iterator pfc = hc->begin(); 
@@ -41,18 +43,27 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
       reco::PFCandidateRef candidate(hc,key);
 
       bool passed = true;
+      double isoSum=0.0;
       for(unsigned iMap = 0; iMap<isoMaps.size(); ++iMap) {
 	
 	const IsoMap & isoMap = *(isoMaps[iMap]);
 	
 	double val = isoMap[candidate];
 	double cut = isolationCuts_[iMap];
+	isoSum+=val;
+        //std::cout << "val " << iMap << " = " << val << std::endl;
 
 	if (val>cut) {
 	  passed = false;
-	  break; 
-	  
+	  break; 	  
 	}
+      }
+
+      //std::cout << "isoSum = " << isoSum << std::endl;
+      //std::cout << "candidate->pt() = " << candidate->pt() << std::endl;
+      if (isolationCombRelIsoCut_>=0.0 && (isoSum/candidate->pt())>isolationCombRelIsoCut_)
+      {
+	passed = false;
       }
 
       if(passed) {
@@ -67,6 +78,7 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 private:
   std::vector<edm::InputTag> isolationValueMapLabels_;
   std::vector<double> isolationCuts_;
+  double isolationCombRelIsoCut_;
 };
 
 #endif

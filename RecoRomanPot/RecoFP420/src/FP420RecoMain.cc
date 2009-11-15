@@ -60,7 +60,7 @@ FP420RecoMain::~FP420RecoMain() {
 
 
 
-void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<RecoCollectionFP420> &toutput, double VtxX, double VtxY, double VtxZ)  
+void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<RecoCollectionFP420> &toutput )
 {
   // initialization
   bool first = true;
@@ -70,8 +70,10 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
   int restracks = 10;// max # tracks
   rhits.reserve(restracks); 
   rhits.clear();
-  
-  // loop over detunits:
+
+
+
+  // loop over detunits
   for (int number_detunits=1; number_detunits<dn0; number_detunits++) {
     unsigned int StID = number_detunits;
     std::vector<RecoFP420> rcollector;
@@ -87,20 +89,12 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     double  z420    = m_rpp420_f;
     double  zref1   = m_zreff;
     double  zinibeg = zinibeg_;
-    double  VtxXcur = VtxX;
-    double  VtxYcur = VtxY;
-    double  VtxZcur = VtxZ;
     if(StID==2)  {
       StIDTrack = 2222;
       z420    = -m_rpp420_b;
       zref1   = -m_zrefb;
       zinibeg = -zinibeg_;
-      //  VtxXcur = -VtxX;
-      // VtxYcur = -VtxY;
-      // VtxZcur = -VtxZ;
-    }
-    double z1 = z420+zinibeg-VtxZcur;
-    double z2 = z420+zinibeg+zref1-VtxZcur;
+   }
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: StIDTrack=" << StIDTrack << std::endl;
     }
@@ -121,38 +115,19 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       const TrackFP420 itrack = *simHitIter;
-      double x1 = (    itrack.bx()*z1 + (itrack.ax()-VtxXcur)       )*1000.;//um
-      double y1 = (    itrack.by()*z1 + (itrack.ay()-VtxYcur)       )*1000.;//um
-      double x2 = (    itrack.bx()*z2 + (itrack.ax()-VtxXcur)    )*1000.;//um
-      double y2 = (    itrack.by()*z2 + (itrack.ay()-VtxYcur)    )*1000.;//um
+      double x1 = ( itrack.bx()*(z420+zinibeg) + itrack.ax()       )*1000.;//um
+      double y1 = ( itrack.by()*(z420+zinibeg) + itrack.ay()       )*1000.;//um
+      double x2 = ( itrack.bx()*(z420+zinibeg+zref1) + itrack.ax() )*1000.;//um
+      double y2 = ( itrack.by()*(z420+zinibeg+zref1) + itrack.ay() )*1000.;//um
       /////////////////////////////////////////////////////////////////
-	if (verbosity == -49) {
-	  std::cout << "==================================================================== " << std::endl;
+	if (verbosity > 1) {
 	  std::cout << "FP420RecoMain: StID= " << StID << std::endl;
-	  std::cout << "input coord. in mm:  z1= " <<  z1  << std::endl;
-	  std::cout << "input coord. in mm:  z2= " <<  z2  << std::endl;
-	  std::cout << "input:  itrack.bx()= " <<  itrack.bx()  << std::endl;
-	  std::cout << "input:  itrack.ax()= " <<  itrack.ax()  << std::endl;
-	  std::cout << "input:  itrack.by()= " <<  itrack.by()  << std::endl;
-	  std::cout << "input:  itrack.ay()= " <<  itrack.ay()  << std::endl;
-
-	  std::cout << "input: in um X1noVtx= " <<  (itrack.bx()*(z420+zinibeg)+itrack.ax())*1000.  << std::endl;
-	  std::cout << "input: in um Y1noVtx= " <<  (itrack.by()*(z420+zinibeg)+itrack.ay())*1000.  << std::endl;
-	  std::cout << "input: in um X2noVtx= " <<  (itrack.bx()*(z420+zinibeg+zref1)+itrack.ax())*1000.  << std::endl;
-	  std::cout << "input: in um Y2noVtx= " <<  (itrack.by()*(z420+zinibeg+zref1)+itrack.ay())*1000.  << std::endl;
-
-
-	  std::cout << "input:  in mm VtxXcur= " << VtxXcur   << std::endl;
-	  std::cout << "input:  in mm VtxYcur= " << VtxYcur   << std::endl;
-	  std::cout << "input:  in mm VtxZcur= " << VtxZcur   << std::endl;
 	  std::cout << "input coord. in um:  x1= " <<  x1  << std::endl;
 	  std::cout << "input coord. in um:  y1= " <<  y1  << std::endl;
 	  std::cout << "input coord. in um:  x2= " <<  x2  << std::endl;
 	  std::cout << "input coord. in um:  y2= " <<  y2  << std::endl;
 	}
-	double zz1=fabs(z1);
-	double zz2=fabs(z2);
-	rcollector = finderParameters_->reconstruct(StID, x1,y1,x2,y2,zz1,zz2); // x1,y1,x2,y2 input coord. in um; z1, z2 in mm
+	rcollector = finderParameters_->reconstruct(StID, x1,y1,x2,y2); // input coord. in um
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     

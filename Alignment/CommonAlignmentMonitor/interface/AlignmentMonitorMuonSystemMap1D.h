@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignmentMonitor_AlignmentMonitorMuonSystemMap1D_H
 
 /** \class AlignmentMonitorMuonSystemMap1D
- *  $Date: 2009/04/23 05:09:05 $
- *  $Revision: 1.1 $
+ *  $Date: Fri Apr 17 20:34:50 CDT 2009 $
+ *  $Revision: 1.0 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -47,6 +47,10 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
+  std::string m_writeTemporaryFile;
+  std::vector<std::string> m_readTemporaryFiles;
+  bool m_doFits;
+  int m_minFitHits;
 
   MuonSystemMapPlot1D *m_DTvsz_station1[12];
   MuonSystemMapPlot1D *m_DTvsz_station2[12];

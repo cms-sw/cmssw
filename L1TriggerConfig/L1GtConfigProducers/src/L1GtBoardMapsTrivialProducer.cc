@@ -92,6 +92,9 @@ std::vector<L1GtObject> chInputObjects(
         else if ((*itObj) == "BPTX") {
             obj = BPTX;
         }
+        else if ((*itObj) == "GtExternal") {
+            obj = GtExternal;
+        }
         else {
             throw cms::Exception("Configuration")
                     << "\nError: no such L1 GT object: " << (*itObj) << "\n"

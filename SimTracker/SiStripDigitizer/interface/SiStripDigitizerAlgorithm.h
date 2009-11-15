@@ -104,6 +104,7 @@ class SiStripDigitizerAlgorithm {
   DigitalVecType digis;
   DigitalRawVecType rawdigis;
   std::vector<StripDigiSimLink> link_coll;
+  CLHEP::RandFlat *theFlatDistribution;
 
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,

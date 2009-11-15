@@ -12,4 +12,3 @@
 <library file="*.cc" name=RecoLocalCaloEcalRecProducersPlugins>
 <flags EDM_PLUGIN=1>
 </library>
-<Flags CXXFLAGS="-O0 -g -DDEBUG">

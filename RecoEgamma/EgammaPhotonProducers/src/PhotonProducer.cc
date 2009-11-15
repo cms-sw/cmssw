@@ -87,7 +87,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 }
 
-PhotonProducer::~PhotonProducer() {}
+PhotonProducer::~PhotonProducer() {
+
+  delete energyCorrectionF;
+
+}
 
 
 

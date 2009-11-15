@@ -1,6 +1,0 @@
-<use name=DQM/BeamMonitor>
-<use name=FWCore/Framework>
-
-<library file=*.cc name=BeamMonitorPlugins>
-	<flags EDM_PLUGIN=1>
-</library>

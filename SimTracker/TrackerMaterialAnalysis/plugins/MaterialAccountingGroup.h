@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"

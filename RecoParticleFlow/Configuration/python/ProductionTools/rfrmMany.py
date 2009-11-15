@@ -5,7 +5,7 @@ import sys,os, re, pprint
 import castortools
 
 parser = OptionParser()
-parser.usage = "%prog <castor dir> <regexp pattern>: place all files matching regexp in a castor directory in a Trash."
+parser.usage = "%prog <castor dir> <regexp pattern>: place all files matching regexp in a castor directory in a Trash.\n\nExample (just try, the -n option negates the command!):\nrfrmMany.py  /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root' -n"
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not proceed",

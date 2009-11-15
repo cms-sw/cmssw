@@ -23,8 +23,10 @@ class FineDelayTask : public CommissioningTask {
   virtual void update();
   
   static HistoSet timing_;
-  static MonitorElement * mode_;
 
+  float fiberLengthCorrection_;
+
+  static MonitorElement * mode_;
 };
 
 #endif // DQM_SiStripCommissioningSources_FineDelayTask_h

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id: CSGContinuousAction.cc,v 1.5 2009/08/14 15:35:04 chrjones Exp $
+// $Id: CSGContinuousAction.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 //
 // constructors and destructor
 //
-CSGContinuousAction::CSGContinuousAction(CSGActionSupervisor *iSupervisor, const char *iName) :
-   CSGAction(iSupervisor,iName),
+CSGContinuousAction::CSGContinuousAction(CmsShowMainFrame *iFrame, const char *iName) :
+   CSGAction(iFrame,iName),
    m_upPic(0),
    m_downPic(0),
    m_disabledPic(0),
@@ -41,6 +41,38 @@ CSGContinuousAction::CSGContinuousAction(CSGActionSupervisor *iSupervisor, const
    m_isRunning(false)
 {
    activated.connect(boost::bind(&CSGContinuousAction::switchMode, this));
+}
+
+// CSGContinuousAction::CSGContinuousAction(const CSGContinuousAction& rhs)
+// {
+//    // do actual copying here;
+// }
+
+//CSGContinuousAction::~CSGContinuousAction()
+//{
+//}
+
+//
+// assignment operators
+//
+// const CSGContinuousAction& CSGContinuousAction::operator=(const CSGContinuousAction& rhs)
+// {
+//   //An exception safe implementation is
+//   CSGContinuousAction temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
+
+//
+// member functions
+//
+void
+CSGContinuousAction::createToolBarEntry(TGToolBar *iToolbar, const char *iImageFileName, const char* iRunningImageFileName)
+{
+   m_imageFileName=iImageFileName;
+   m_runningImageFileName=iRunningImageFileName;
+   CSGAction::createToolBarEntry(iToolbar,iImageFileName);
 }
 
 void

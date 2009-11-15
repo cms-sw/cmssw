@@ -21,9 +21,7 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
   theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
   theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
   theNeutronReader(0),
-  theCSCGeometry(0),
-  theLayersNeeded(p.getParameter<unsigned int>("layersNeeded")),
-  digitizeBadChambers_(p.getParameter<bool>("digitizeBadChambers"))
+  theCSCGeometry(0)
 {
   if(p.getParameter<bool>("doNeutrons"))
   {
@@ -58,16 +56,6 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     hitMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 
-  // count how many layers on each chamber are hit
-  std::map<int, std::list<int> > layersInChamberHit;
-  for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
-      hitMapItr != hitMap.end(); ++hitMapItr)
-  {
-    CSCDetId cscDetId(hitMapItr->first); 
-    int chamberId = cscDetId.chamberId();
-    layersInChamberHit[chamberId].push_back(cscDetId.layer());
-  }
-
   // add neutron background, if needed
   if(theNeutronReader != 0)
   {
@@ -78,11 +66,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
-    int chamberId = CSCDetId(hitMapItr->first).chamberId();
-    unsigned int nLayersInChamberHit = layersInChamberHit[chamberId].size();
-    if(nLayersInChamberHit < theLayersNeeded) continue;
-    // skip bad chambers
-    if ( !digitizeBadChambers_ && theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue;
+    if ( theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue; // skip 'bad' chamber
 
     const CSCLayer * layer = findLayer(hitMapItr->first);
     const edm::PSimHitContainer & layerSimHits = hitMapItr->second;
@@ -117,60 +101,6 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
       stripDigiSimLinks.insert( theStripElectronicsSim->digiSimLinks() );
     }
   }
-
-  // fill in the layers were missing from this chamber
-  std::list<int> missingLayers = layersMissing(stripDigis);
-  for(std::list<int>::const_iterator missingLayerItr = missingLayers.begin();
-      missingLayerItr != missingLayers.end(); ++missingLayerItr)
-  {
-    const CSCLayer * layer = findLayer(*missingLayerItr);
-    theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis);
-  }
-}
-
-
-std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection & stripDigis) const
-{
-  std::list<int> result;
-
-  std::map<int, std::list<int> > layersInChamberWithDigi;
-  for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); 
-       j!=stripDigis.end(); j++) 
-  {
-    CSCDetId layerId((*j).first);
-    // make sure the vector of digis isn't empty
-    if((*j).second.first != (*j).second.second)
-    {
-      int chamberId = layerId.chamberId();
-      layersInChamberWithDigi[chamberId].push_back(layerId.layer());
-    }
- } 
-
-  std::list<int> oneThruSix;
-  for(int i = 1; i <=6; ++i)
-    oneThruSix.push_back(i);
-
-  for(std::map<int, std::list<int> >::iterator layersInChamberWithDigiItr = layersInChamberWithDigi.begin();
-      layersInChamberWithDigiItr != layersInChamberWithDigi.end(); ++ layersInChamberWithDigiItr)
-  {
-    std::list<int> & layersHit = layersInChamberWithDigiItr->second;
-    if (layersHit.size() < 6 && layersHit.size() >= theLayersNeeded) 
-    {
-      layersHit.sort();
-      std::list<int> missingLayers(6);
-      std::list<int>::iterator lastLayerMissing =
-        set_difference(oneThruSix.begin(), oneThruSix.end(),
-                       layersHit.begin(), layersHit.end(), missingLayers.begin());
-      int chamberId = layersInChamberWithDigiItr->first;
-      for(std::list<int>::iterator layerMissingItr = missingLayers.begin();
-          layerMissingItr != lastLayerMissing; ++layerMissingItr)
-      {
-        // got from layer 1-6 to layer ID
-        result.push_back(chamberId + *layerMissingItr); 
-      }
-    }
-  }
-  return result;
 }
 
 

@@ -1,4 +1,5 @@
 #include "DQMServices/Components/src/DQMFileReader.h"
+#include <iostream>
 
 DQMFileReader::DQMFileReader(const edm::ParameterSet& iConfig)  
 {   

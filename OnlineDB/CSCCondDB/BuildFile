@@ -33,7 +33,5 @@
    <use name=CondCore/PopCon>
    <use name=clhep>
    <use name=root>
-   <lib name=occi>
-   <lib name=Minuit2>
 </export>
 

@@ -57,7 +57,7 @@ void CSCCLCTData::zero()
 
 std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, unsigned cfeb) 
 {
-  static const bool doStripSwapping = false;
+  static const bool doStripSwapping = true;
   bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
   bool zplus = (CSCDetId::endcap(idlayer) == 1); 
   bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);

@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.10 2008/10/15 13:03:14 uberthon Exp $
+// $Id: EcalTPCondAnalyzer.h,v 1.1 2008/10/15 15:51:15 uberthon Exp $
 //
 //
 
@@ -56,7 +56,8 @@ class EcalTPCondAnalyzer : public edm::EDAnalyzer {
 
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(edm::EventSetup const& setup);
+  virtual void beginJob();
+  void beginRun(const edm::Run & run, const edm::EventSetup & es);
   virtual void endJob();
 
  private:

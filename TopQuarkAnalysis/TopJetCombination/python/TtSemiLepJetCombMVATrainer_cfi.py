@@ -5,9 +5,9 @@ import FWCore.ParameterSet.Config as cms
 #
 trainTtSemiLepJetCombMVA = cms.EDAnalyzer("TtSemiLepJetCombMVATrainer",
     #-------------------------------------------------
-    # sources
+    # sources (leptons, jets, MET, jet-parton matching)
     #-------------------------------------------------
-    leptons  = cms.InputTag("selectedLayer1Muons"),
+    leps     = cms.InputTag("selectedLayer1Muons"),
     jets     = cms.InputTag("selectedLayer1Jets"),
     mets     = cms.InputTag("layer1METs"),
     matching = cms.InputTag("ttSemiLepJetPartonMatch"),                                       

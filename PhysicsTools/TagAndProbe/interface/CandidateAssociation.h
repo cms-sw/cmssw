@@ -7,7 +7,7 @@
 
 namespace reco
 {
-   typedef edm::AssociationMap< edm::OneToManyWithQualityGeneric< CandidateView, CandidateView, double > > CandViewCandViewAssociation;
+   typedef edm::AssociationMap< edm::OneToManyWithQualityGeneric< CandidateView, CandidateView, bool > > CandViewCandViewAssociation;
 }
 
 #endif

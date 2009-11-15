@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.21 2009/03/30 17:30:56 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.22 2009/03/30 20:49:11 saout Exp $
 //
 //
 
@@ -282,7 +282,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
-#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"

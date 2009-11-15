@@ -36,23 +36,20 @@
  *  @author Andres Felipe Osorio Oliveros
  *  @date   2009-04-15
  */
-
 class RBCProcessRPCDigis : public ProcessInputSignal {
 public: 
   /// Standard constructor
   RBCProcessRPCDigis( ) {};
-  
+
   RBCProcessRPCDigis( const edm::ESHandle<RPCGeometry> &, 
-                      const edm::Handle<RPCDigiCollection> & );
-  
+                          const edm::Handle<RPCDigiCollection> & );
+
   virtual ~RBCProcessRPCDigis( ); ///< Destructor
   
   int  next();
   
   void reset();
   
-  void configure();
-    
   void initialize( std::vector<RPCData*> & );
   
   void builddata();
@@ -81,7 +78,7 @@ private:
   
   RPCDigiCollection::const_iterator m_digiItr;
   RPCDigiCollection::DigiRangeIterator m_detUnitItr;
-  
+
   RPCData  * m_block;
   
   RPCInputSignal * m_lbin;

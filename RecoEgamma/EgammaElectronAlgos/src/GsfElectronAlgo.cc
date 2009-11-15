@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.77 2009/08/21 12:23:34 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.78 2009/08/21 12:43:09 chamont Exp $
 //
 //
 
@@ -396,7 +396,10 @@ void GsfElectronAlgo::process(
     //const edm::ValueMap<float> & pfmvas = *pfMVAH.product() ;
     //float mva=std::numeric_limits<float>::infinity();
     //if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
+
+    double mvaInfinite = 9999 ;
     float mva = (*pfMVAH.product())[gsfTrackRef] ;
+    if (mva<(-mvaInfinite)) { edm::LogError("GsfElectronAlgo")<<"unexpected MVA value: "<<mva ; }
 
     // electron basic cluster
     CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
@@ -441,14 +444,17 @@ void GsfElectronAlgo::process(
 
 void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& bs )
  {
-  GsfElectronPtrCollection::iterator e1;
-  for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
+  GsfElectronPtrCollection::size_type ei, emax = inEle.size() ;
+  GsfElectronPtrCollection::iterator e1 ;
+  for( ei=1, e1=inEle.begin() ;  e1!=inEle.end() ; ++ei, ++e1 )
    {
+    LogDebug("")<<"========== preSelection "<<ei<<"/"<<emax<<"==========" ;
 
-    LogDebug("")<< "========== preSelection ==========";
-
+    // kind of construction algorithm
     bool eg = (*e1)->core()->isEcalDriven();
-    bool pf = (*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven();
+    bool pf = (*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven() ;
+    if (eg&&pf) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be both egamma and purely pflow" ; }
+    if ((!eg)&&(!pf)) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be neither egamma nor purely pflow" ; }
 
     // Et cut
     LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
@@ -497,6 +503,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (pf && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) continue;
     LogDebug("") << "Delta phi criteria is satisfied ";
 
+    //
     if (eg && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) continue;
     if (eg && (*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcaps_)) continue;
     if (pf && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrelPflow_)) continue;
@@ -515,14 +522,13 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     // seed in TEC
     edm::RefToBase<TrajectorySeed> seed = (*e1)->gsfTrack()->extra()->seedRef() ;
     ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
-    if (eg && !seedFromTEC_) {
+    if (eg && !seedFromTEC_)
+     {
       if (elseed.isNull())
-	 { edm::LogError("GsfElectronAlgo")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
-	else
-	 {
-	  if (elseed->subDet2()==6) continue;
-	 }
-    }
+	   { edm::LogError("GsfElectronAlgo")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
+	  else
+	   { if (elseed->subDet2()==6) continue ; }
+     }
 
     // BDT output
     if (eg && ((*e1)->mva()<minMVA_)) continue ;

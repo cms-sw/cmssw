@@ -3,8 +3,14 @@
 
 #include <map>
 #include <stdexcept>
-
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
+#define USE_NORM 1
+#define USE_CHUN 2
+#define USE_BUFF 3
+
+/* Buffer Size */
+#define BUFSIZE 200;
 
 class ODLaserConfig : public IODConfig {
  public:
@@ -17,6 +23,9 @@ class ODLaserConfig : public IODConfig {
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
+  inline void setSize(unsigned int id) { m_size = id; }
+  inline unsigned int getSize() const { return m_size; }
+
 
   inline void setDebug(int x) { m_debug = x; }
   inline int getDebug() const { return m_debug; }
@@ -83,7 +92,7 @@ class ODLaserConfig : public IODConfig {
   inline void setEMTCSlotId(int x) { m_emtc_5 = x; }
   inline int getEMTCSlotId() const { return m_emtc_5; }
 
-  void setParameters(std::map<string,string> my_keys_map);
+  //  void setParameters(std::map<string,string> my_keys_map);
 
   // laser 
 
@@ -112,6 +121,75 @@ class ODLaserConfig : public IODConfig {
 
   inline void setLaserTag(std::string x) { m_laser_tag = x; }
   inline std::string getLaserTag() const { return m_laser_tag ; }
+
+
+
+  // new parameters 
+
+  inline void setWTE2LedDelay(int x) { m_wte_2_led_delay = x; }
+  inline int getWTE2LedDelay() const { return m_wte_2_led_delay; }
+
+  inline void setLed1ON(int x) { m_led1_on = x; }
+  inline int getLed1ON() const { return m_led1_on; }
+
+  inline void setLed2ON(int x) { m_led2_on = x; }
+  inline int getLed2ON() const { return m_led2_on; }
+
+  inline void setLed3ON(int x) { m_led3_on = x; }
+  inline int getLed3ON() const { return m_led3_on; }
+
+  inline void setLed4ON(int x) { m_led4_on = x; }
+  inline int getLed4ON() const { return m_led4_on; }
+
+  inline void setVinj(int x) { m_vinj = x; }
+  inline int getVinj() const { return m_vinj; }
+
+  inline void setOrangeLedMonAmpl(int x) { m_orange_led_mon_ampl = x; }
+  inline int getOrangeLedMonAmpl() const { return m_orange_led_mon_ampl; }
+
+  inline void setBlueLedMonAmpl(int x) { m_blue_led_mon_ampl = x; }
+  inline int getBlueLedMonAmpl() const { return m_blue_led_mon_ampl; }
+
+  inline void setTrigLogFile(std::string x) { m_trig_log_file = x; }
+  inline std::string getTrigLogFile() const { return m_trig_log_file; }
+
+  inline void setLedControlON(int x) { m_led_control_on = x; }
+  inline int getLedControlON() const { return m_led_control_on; }
+
+  inline void setLedControlHost(std::string x) { m_led_control_host = x; }
+  inline std::string getLedControlHost() const { return m_led_control_host; }
+
+  inline void setLedControlPort(int x) { m_led_control_port = x; }
+  inline int getLedControlPort() const { return m_led_control_port; }
+
+  inline void setIRLaserPower(int x) { m_ir_laser_power = x; }
+  inline int getIRLaserPower() const { return m_ir_laser_power; }
+
+  inline void setGreenLaserPower(int x) { m_green_laser_power = x; }
+  inline int getGreenLaserPower() const { return m_green_laser_power; }
+
+  inline void setRedLaserPower(int x) { m_red_laser_power = x; }
+  inline int getRedLaserPower() const { return m_red_laser_power; }
+
+  inline void setBlueLaserLogAttenuator(int x) { m_blue_laser_log_attenuator = x; }
+  inline int getBlueLaserLogAttenuator() const { return m_blue_laser_log_attenuator; }
+
+  inline void setIRLaserLogAttenuator(int x) { m_ir_laser_log_attenuator = x; }
+  inline int getIRLaserLogAttenuator() const { return m_ir_laser_log_attenuator; }
+
+  inline void setGreenLaserLogAttenuator(int x) { m_green_laser_log_attenuator = x; }
+  inline int getGreenLaserLogAttenuator() const { return m_green_laser_log_attenuator; }
+
+  inline void setRedLaserLogAttenuator(int x) { m_red_laser_log_attenuator = x; }
+  inline int getRedLaserLogAttenuator() const { return m_red_laser_log_attenuator; }
+
+  inline void setLaserConfigFile(std::string x) { m_laser_config_file = x; }
+  inline std::string getLaserConfigFile() const { return m_laser_config_file ; }
+
+  inline void setLaserClob(unsigned char* x) { m_laser_clob = x; }
+  inline unsigned char* getLaserClob() const { return m_laser_clob; }
+
+  void setParameters(std::map<string,string> my_keys_map);
 
   int fetchNextId() throw(std::runtime_error);
   
@@ -167,6 +245,32 @@ class ODLaserConfig : public IODConfig {
   int m_laserport;
 
   std::string m_laser_tag;
+
+
+  // led 
+ int m_wte_2_led_delay;
+ int m_led1_on; 
+ int m_led2_on ;
+ int m_led3_on ;
+ int m_led4_on ;
+ int m_vinj;
+ int m_orange_led_mon_ampl ;
+ int m_blue_led_mon_ampl ;
+ std::string m_trig_log_file; 
+ int m_led_control_on ;
+ std::string m_led_control_host; 
+ int m_led_control_port ;
+ int m_ir_laser_power ;
+ int m_green_laser_power; 
+ int m_red_laser_power ;
+ int m_blue_laser_log_attenuator; 
+ int m_ir_laser_log_attenuator;
+ int m_green_laser_log_attenuator;
+ int m_red_laser_log_attenuator;
+ std::string m_laser_config_file;
+ unsigned char* m_laser_clob ;
+ unsigned int m_size;
+
 
 };
 

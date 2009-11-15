@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.2 2009/08/20 14:15:22 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.6.2.2 2009/09/25 09:57:46 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -7,6 +7,7 @@
 #include "sentinel/utils/Alarm.h"
 #endif
 
+#include "xcept/tools.h"
 #include "xdata/InfoSpaceFactory.h"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
@@ -25,6 +26,7 @@ _app(app)
   catch(xdata::exception::Exception)
   {
     // sentinel is not available
+    _alarmInfoSpace = 0;
   }
 #endif
 }
@@ -37,6 +39,7 @@ void AlarmHandler::raiseAlarm
   xcept::Exception& exception
 )
 {
+
   switch( level )
   {
     case OKAY:
@@ -67,6 +70,47 @@ void AlarmHandler::raiseAlarm
   }
 }
 
+
+void AlarmHandler::notifySentinel
+(
+  const ALARM_LEVEL level,
+  xcept::Exception& exception
+)
+{
+
+  switch( level )
+  {
+    case OKAY:
+      LOG4CPLUS_INFO(_app->getApplicationLogger(),
+        xcept::stdformat_exception_history(exception));
+      break;
+
+    case WARNING:
+      LOG4CPLUS_WARN(_app->getApplicationLogger(),
+        xcept::stdformat_exception_history(exception));
+      _app->notifyQualified("warning", exception);
+      break;
+
+    case ERROR:
+      LOG4CPLUS_ERROR(_app->getApplicationLogger(),
+        xcept::stdformat_exception_history(exception));
+      _app->notifyQualified("error", exception);
+      break;
+
+    case FATAL:
+      LOG4CPLUS_FATAL(_app->getApplicationLogger(),
+        xcept::stdformat_exception_history(exception));
+      _app->notifyQualified("fatal", exception);
+      break;
+
+    default:
+      LOG4CPLUS_WARN(_app->getApplicationLogger(),
+        "Unknown alarm level received for exception: " <<
+        xcept::stdformat_exception_history(exception));
+  }
+}
+
+
 bool AlarmHandler::raiseAlarm
 (
   const std::string name,
@@ -74,6 +118,11 @@ bool AlarmHandler::raiseAlarm
   xcept::Exception& exception
 )
 {
+
+  if (!_alarmInfoSpace) return false;
+
+  boost::mutex::scoped_lock sl( _mutex );
+
   #if SENTINELUTILS_VERSION_MAJOR>1
   
   sentinel::utils::Alarm *alarm =
@@ -102,6 +151,10 @@ void AlarmHandler::revokeAlarm
   const std::string name
 )
 {
+  if (!_alarmInfoSpace) return;
+
+  boost::mutex::scoped_lock sl( _mutex );
+
   #if SENTINELUTILS_VERSION_MAJOR>1
   
   sentinel::utils::Alarm *alarm;

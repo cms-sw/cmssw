@@ -11,9 +11,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CandReducer.cc,v 1.1 2007/01/30 15:16:56 llista Exp $
+ * $Id: CandReducer.cc,v 1.2 2009/03/04 10:33:02 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -28,11 +28,12 @@ private:
   /// process one evevnt
   void produce( edm::Event& evt, const edm::EventSetup& );
   /// label of source candidate collection
-  std::string src_;
+  edm::InputTag src_;
 };
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -40,7 +41,7 @@ using namespace reco;
 using namespace edm;
 
 CandReducer::CandReducer( const edm::ParameterSet& cfg ) :
-  src_( cfg.getParameter<std::string>("src") ) {
+  src_( cfg.getParameter<edm::InputTag>("src") ) {
   produces<CandidateCollection>();
 }
 
@@ -48,10 +49,10 @@ CandReducer::~CandReducer() {
 }
 
 void CandReducer::produce( Event& evt, const EventSetup& ) {
-  Handle<CandidateCollection> cands;
+  Handle<reco::CandidateView> cands;
   evt.getByLabel( src_, cands );
   std::auto_ptr<CandidateCollection> comp( new CandidateCollection );
-  for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
+  for( reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
     std::auto_ptr<Candidate> cand( new LeafCandidate( * c ) );
     comp->push_back( cand.release() );
   }

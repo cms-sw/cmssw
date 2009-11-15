@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.11 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Failed.cc,v 1.10.4.1 2009/09/25 09:57:48 mommsen Exp $
 /// @file: Failed.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -29,7 +29,7 @@ void Failed::do_entryActionWork()
 
 Failed::Failed( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Failed::do_exitActionWork()
@@ -40,7 +40,7 @@ void Failed::do_exitActionWork()
 
 Failed::~Failed()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 string Failed::do_stateName() const
@@ -48,7 +48,7 @@ string Failed::do_stateName() const
   return string( "Failed" );
 }
 
-void Failed::do_moveToFailedState( const std::string& reason ) const
+void Failed::do_moveToFailedState( xcept::Exception& exception ) const
 {
   // nothing can be done here
 }

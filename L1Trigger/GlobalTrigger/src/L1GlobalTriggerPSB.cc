@@ -570,6 +570,18 @@ void L1GlobalTriggerPSB::receiveBptxData(
 
 }
 
+// receive External objects
+//   from a GT record with ExternalInputTag - if readFromPsb is true
+//   otherwise, generate them from randomly
+void L1GlobalTriggerPSB::receiveExternalData(edm::Event& iEvent,
+        const std::vector<edm::InputTag>&  externalInputTags,
+        const int iBxInEvent,
+        const bool receiveExternal, const bool readFromPsb) {
+
+
+}
+
+
 // receive technical triggers
 // each L1GtTechnicalTriggerRecord can have more than one technical trigger bit,
 // such that a single producer per system can be used (if desired)

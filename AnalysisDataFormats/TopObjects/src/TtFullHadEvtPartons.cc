@@ -30,12 +30,12 @@ TtFullHadEvtPartons::vec(const TtGenEvent& genEvt)
     // fill vector with partons from genEvent
     // (use enum for positions of the partons in the vector)
     vec.resize(6);
-    vec[LightQTop      ] = genEvt.lightQFromTop()       ? genEvt.lightQFromTop()       : dummyCandidatePtr();
-    vec[LightQBarTop   ] = genEvt.lightQBarFromTop()    ? genEvt.lightQBarFromTop()    : dummyCandidatePtr();
-    vec[B              ] = genEvt.b()                   ? genEvt.b()                   : dummyCandidatePtr();
-    vec[LightQTopBar   ] = genEvt.lightQFromTopBar()    ? genEvt.lightQFromTopBar()    : dummyCandidatePtr();
-    vec[LightQBarTopBar] = genEvt.lightQBarFromTopBar() ? genEvt.lightQBarFromTopBar() : dummyCandidatePtr();
-    vec[BBar           ] = genEvt.bBar()                ? genEvt.bBar()                : dummyCandidatePtr();
+    vec[LightQTop      ] = genEvt.daughterQuarkOfWPlus()     ? genEvt.daughterQuarkOfWPlus()     : dummyCandidatePtr();
+    vec[LightQBarTop   ] = genEvt.daughterQuarkBarOfWPlus()  ? genEvt.daughterQuarkBarOfWPlus()  : dummyCandidatePtr();
+    vec[B              ] = genEvt.b()                        ? genEvt.b()                        : dummyCandidatePtr();
+    vec[LightQTopBar   ] = genEvt.daughterQuarkOfWMinus()    ? genEvt.daughterQuarkOfWMinus()    : dummyCandidatePtr();
+    vec[LightQBarTopBar] = genEvt.daughterQuarkBarOfWMinus() ? genEvt.daughterQuarkBarOfWMinus() : dummyCandidatePtr();
+    vec[BBar           ] = genEvt.bBar()                     ? genEvt.bBar()                     : dummyCandidatePtr();
   }
   else {
     // fill vector with dummy objects if the event is not fully-hadronic ttbar

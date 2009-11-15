@@ -63,7 +63,7 @@ PatZjetsElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     for(int bin=1; bin<=histContainer_["dr"]->GetNbinsX(); ++bin){
       double lowerEdge = histContainer_["dr"]->GetBinLowEdge(bin);
       double upperEdge = histContainer_["dr"]->GetBinLowEdge(bin)+histContainer_["dr"]->GetBinWidth(bin);
-      histContainer_["dr"]->Fill(histContainer_["dr"]->GetBinCenter(bin), elec->trackerIsoDeposit()->depositWithin(upperEdge) - elec->trackerIsoDeposit()->depositWithin(lowerEdge));
+      histContainer_["dr"]->Fill(histContainer_["dr"]->GetBinCenter(bin), elec->trackIsoDeposit()->depositWithin(upperEdge) - elec->trackIsoDeposit()->depositWithin(lowerEdge));
     }
     // fill electron id histograms
     if( elec->electronID("eidRobustLoose") > 0.5 )

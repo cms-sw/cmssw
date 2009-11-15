@@ -45,9 +45,6 @@ private:
   std::string legendName;
 };
 
-bool useFit_ =false;
-
-
 TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName, int lColor, int lStyle)
 {
   lineColor = lColor;
@@ -80,7 +77,6 @@ public:
   PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
-  void useFitForDMRplots(bool usefit = false);
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
   void plotDMR(const std::string plotVar="medianX",Int_t minHits = 50);//plotVar default is medianX, but meanX and rmsX possible as well
@@ -137,13 +133,6 @@ void PlotAlignmentValidation::loadFileList(const char *inputFile, std::string le
 {
 
   sourceList.push_back( new TkOfflineVariables( inputFile, treeBaseDir, legendName, lineColor, lineStyle ) );
-  
-}
-
-void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
-{
-
-  useFit_ = usefit;
   
 }
 
@@ -428,10 +417,9 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
      sprintf (binning, ">>myhisto(%d,  %f , %f)", nbinsX, xmin, xmax);
      TH1F *h = 0;
      
-     if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.001,0.001)").c_str(),subdet,"goff");
+     if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="meanY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="medianX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-     else if (histo_Counter==1&&plotVar=="medianY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="meanNormX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,-2,2)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="rmsX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,0.,0.1)").c_str(),subdet,"goff");
      else if (histo_Counter!=1)(*it)->getTree()->Draw( (plotVar+=binning).c_str(),subdet,"goff");
@@ -472,10 +460,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
      
 	 char legend [50]="";
 	 std::string legEntry = (*it)->getName();
-	 if ( (variable=="medianX"||variable =="meanX") && useFit_)
-	   sprintf (legend, "%s: #mu = %4.2f#mum, #sigma = %4.2f#mum ",legEntry.c_str(),fitResults.first ,fitResults.second);
-	 if ( (variable=="medianX"||variable =="meanX"||variable=="medianY"||variable =="meanY" )&&useFit_ == false)
-	   sprintf (legend, "%s: #mu = %4.2f#mum, rms = %4.2f#mum ",legEntry.c_str(),h->GetMean(1)*10000 ,h->GetRMS(1)*10000);
+	 if (variable=="medianX"||variable =="meanX")sprintf (legend, "%s: #mu = %4.2f#mum, #sigma = %4.2f#mum ",legEntry.c_str(),fitResults.first ,fitResults.second);
 	 else sprintf (legend, "%s ",legEntry.c_str());
 	 if(h)
 	   leg_hist->AddEntry(h,legend,"l");
@@ -498,7 +483,6 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 
      std::string histName="D";
      if (variable=="medianX") histName+="medianR_";
-     else if (variable=="medianY") histName+="medianYR_";
      else if (variable=="meanX") histName+="meanR_";
      else if (variable=="meanY") histName+="meanYR_";
      else if (variable=="rmsX") histName+="rmsR_";
@@ -555,7 +539,7 @@ PlotAlignmentValidation::fitGauss(TH1 *hist,int color)
     // L: Likelihood can treat empty bins correctly (if hist not weighted...)
     if (0 == hist->Fit(&func, "Q0ILR")) {
       if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
-	//hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
+	hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
       }
       fitResult.first = func.GetParameter(1)*10000;//convert from cm to micron
       fitResult.second = func.GetParameter(2)*10000;//convert from cm to micron
@@ -631,14 +615,12 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
   TString titelYAxis=titleY;
   cout<<"plot "<<titelXAxis<<" vs "<<titelYAxis<<endl;
  
- if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("medianY")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
+ if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
     std::string histTitel="";
     if (titelXAxis.Contains("medianX")) histTitel="Distribution of the median of the residuals in ";
-    if (titelXAxis.Contains("medianY")) histTitel="Distribution of the median of the y residuals in ";
     if (titelXAxis.Contains("meanX")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("meanY")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("rmsX")) histTitel="Distribution of the rms of the residuals in ";
-
       switch (subDetId) {
 	case 1: histTitel+="TPB";break;
 	case 2: histTitel+="TPE";break;
@@ -683,7 +665,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   else if( titelXAxis.Contains("meanNormLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}/#sigma#GT[cm]";
   else if( titelXAxis.Contains("rmsNormLocalX") )titel_Xaxis<<"RMS(x_{pred}-x_{hit}/#sigma)[cm]";
   else if( titelXAxis.Contains("medianX") )titel_Xaxis<<"median(x'_{pred}-x'_{hit})[cm]";
-  else if( titelXAxis.Contains("medianY") )titel_Xaxis<<"median(y'_{pred}-y'_{hit})[cm]";
+
   else titel_Xaxis<<titleX<<"[cm]";
   
   if (hist.IsA()->InheritsFrom( TH1F::Class() ) )hist.SetLineColor(color);

@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.53 $
- *  $Date: 2009/08/21 16:40:16 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.46 $
+ *  $Date: 2009/07/17 14:03:53 $
+ *  (last update by $Author: kaschube $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -40,7 +40,7 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
@@ -55,7 +55,6 @@
 #include <TMatrixDSymEigen.h>
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
-typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
@@ -66,8 +65,9 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theAlignmentParameterStore(0), theAlignables(), theAlignableNavigator(0),
   theMonitor(0), theMille(0), thePedeLabels(0), thePedeSteer(0),
   theTrajectoryFactory(0),
-  theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
-  theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation"))
+  theMinNumHits(cfg.getParameter<int>("minNumHits")),
+  theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
+  theUseTrackTsos(cfg.getParameter<bool>("useTrackTsos"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -210,92 +210,73 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   if (!this->isMode(myMilleBit)) return; // no theMille created...
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
 
-  if (theMonitor) { // monitor input tracks
-    for (ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
-	 iTrajTrack != tracks.end(); ++iTrajTrack) {
-      theMonitor->fillTrack((*iTrajTrack).second);
-    }
-  }
-
+  typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
   const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
+  // Assume that same container size means same order... :-(
+  const bool canUseTrack = (trajectories.size() == tracks.size());
+  const bool useTrackTsosBack = theUseTrackTsos;
+  if (!canUseTrack) theUseTrackTsos = false;
 
-  // Now loop over ReferenceTrajectoryCollection
-  unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
+  // Loop over ReferenceTrajectoryCollection and possibly over tracks,
+  // but in case Ref.-Traj. are not parallel to tracks, first fill monitor for tracks:
+  ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
+  if (theMonitor) {
+    for (; iTrajTrack != tracks.end(); ++iTrajTrack) theMonitor->fillTrack((*iTrajTrack).second);
+    iTrajTrack = tracks.begin(); // set back...
+  }
+  // Now really loop over ReferenceTrajectoryCollection
+  std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
-       iRefTraj != iRefTrajE; ++iRefTraj, ++refTrajCount) {
+       iRefTraj != iRefTrajE; ++iRefTraj) {
 
     RefTrajColl::value_type refTrajPtr = *iRefTraj; 
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
-
-    const std::pair<unsigned int, unsigned int> nHitXy = this->addReferenceTrajectory(refTrajPtr);
-
-    if (theMonitor && (nHitXy.first || nHitXy.second)) {
-      // if track used (i.e. some hits), fill monitoring
-      // track NULL ptr if trajectories and tracks do not match
-      const reco::Track *trackPtr = 
-	(trajectories.size() == tracks.size() ? tracks[refTrajCount].second : 0);
-      theMonitor->fillUsedTrack(trackPtr, nHitXy.first, nHitXy.second);
+    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
+    
+    if (canUseTrack) {
+      if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
+    } else {
+      trackTsos.clear();
+      trackTsos.resize((*iTrajTrack).second->recHitsSize());
     }
 
-  } // end of reference trajectory and track loop
-}
-
-
-
-//____________________________________________________
-std::pair<unsigned int, unsigned int>
-MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_type &refTrajPtr)
-{
-  std::pair<unsigned int, unsigned int> hitResultXy(0,0);
-  if (refTrajPtr->isValid()) {
-    
-//  // write special data to the milleBinary.dat
-//  const unsigend int nPar = 6;
-//  std::vector<int> integers(nPar); // filled with 0.
-//  std::vector<float> floats(nPar);
-//  for (int i = 0; i < nPar; ++i) {
-//    floats[i] = refTrajPtr->globalPars()[i];
-//  }
-//  theMille->special(nPar, &(floats[0]), &(integers[0]));
-
-    // to add hits if all fine:
-    std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());
-    // collect hit statistics, assuming that there are no y-only hits
-    std::vector<bool> validHitVecY(refTrajPtr->recHits().size(), false);
+    std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
+    std::vector<bool> validHitVecY(refTrajPtr->recHits().size()); // collect hit statistics...
+    int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addMeasurementData(refTrajPtr, iHit, parVec[iHit]);
+      const int flagXY = this->addMeasurementData(refTrajPtr,iHit,trackTsos[iHit],parVec[iHit]);
       if (flagXY < 0) { // problem
-	hitResultXy.first = 0;
-	break;
+        nValidHitsX = -1;
+        break;
       } else { // hit is fine, increase x/y statistics
-	if (flagXY >= 1) ++hitResultXy.first;
-	validHitVecY[iHit] = (flagXY >= 2);
+        if (flagXY >= 1) ++nValidHitsX;
+        validHitVecY[iHit] = (flagXY >= 2);
       } 
     } // end loop on hits
-
-// CHK add 'Multiple Scattering Measurements' for break points, broken lines
-    for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) { this->addMsMeas(refTrajPtr,iMsMeas); }
-        
-    // kill or end 'track' for mille, depends on #hits criterion
-    if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
-      theMille->kill();
-    } else {
-      theMille->end();
-      // take care about hit statistics as well
+    
+    if (nValidHitsX >= theMinNumHits) { // enough 'good' alignables hit: increase the hit statistics
+      unsigned int nValidHitsY = 0;
       for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
-	if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
-	MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
-	mpVar->increaseHitsX(); // every hit has an x-measurement, cf. above...
-	if (validHitVecY[iHit]) {
+        if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
+        MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
+        mpVar->increaseHitsX(); // every hit has an x-measurement, cf. above...
+        if (validHitVecY[iHit]) {
 	  mpVar->increaseHitsY();
-	  ++hitResultXy.second;
+	  ++nValidHitsY;
 	}
-      }  
+      }
+      theMille->end();
+      if (theMonitor) {
+        theMonitor->fillUsedTrack((canUseTrack ? iTrajTrack->second : 0), nValidHitsX, nValidHitsY);
+      }
+    } else {
+      theMille->kill();
     }
-  } // end if valid trajectory
+    if (canUseTrack) ++iTrajTrack;
+  } // end of reference trajectory and track loop
 
-  return hitResultXy;
+  theUseTrackTsos = useTrackTsosBack;
 }
 
 //____________________________________________________
@@ -311,18 +292,16 @@ void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo,
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData
 (const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iHit,
- AlignmentParameters *&params)
+ const TrajectoryStateOnSurface &trackTsos, AlignmentParameters *&params)
 {
   params = 0;
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
  
-  const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
+  const TrajectoryStateOnSurface &tsos = 
+    (theUseTrackTsos ? trackTsos : refTrajPtr->trajectoryStates()[iHit]);
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
-  // ignore invalid hits
-  if (!recHitPtr->isValid()) return 0;
-
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
   if (!this->globalDerivativesHierarchy(tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
@@ -663,6 +642,45 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
   return allOk;
 }
 
+
+//__________________________________________________________________________________________________
+bool MillePedeAlignmentAlgorithm::orderedTsos(const Trajectory *traj, 
+                                              std::vector<TrajectoryStateOnSurface> &trackTsos)const
+{
+  trackTsos.clear();
+  // FIXME: if (theUseTrackTsos == false) fill only first/last!
+  Trajectory::DataContainer trajMeas(traj->measurements());
+  PropagationDirection dir = traj->direction();
+  if (dir == oppositeToMomentum) {
+    // why does const_reverse_operator not compile?
+    for (Trajectory::DataContainer::reverse_iterator rMeas = trajMeas.rbegin();
+         rMeas != trajMeas.rend(); ++rMeas) {
+      trackTsos.push_back((*rMeas).updatedState());
+    }
+  } else if (dir == alongMomentum) {
+    for (Trajectory::DataContainer::const_iterator iMeas = trajMeas.begin();
+         iMeas != trajMeas.end(); ++iMeas) {
+      trackTsos.push_back((*iMeas).updatedState());
+    }
+  } else {
+    edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::orderedTsos"
+                               << "Trajectory neither along nor opposite to momentum.";
+    return false;
+  }
+
+  for (std::vector<TrajectoryStateOnSurface>::const_iterator iTraj = trackTsos.begin(),
+	 iEnd = trackTsos.end(); iTraj != iEnd; ++iTraj) {
+    if (!(*iTraj).isValid()) {
+      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::orderedTsos"
+				 << "an invalid  TSOS...?";
+      return false;
+    }
+  }
+  
+
+  return true;
+}
+
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
                                                       const std::vector<float> &globalDerivativesy,
@@ -685,11 +703,6 @@ void MillePedeAlignmentAlgorithm::diagonalize
   TMatrixD aTranfoToDiagonalSystemInv = myDiag.GetEigenVectors( );
   TMatrixF aTranfoToDiagonalSystemInvF = myDiag.GetEigenVectors( );
   TMatrixD aMatrix = aTranfoToDiagonalSystemInv.Invert() * aHitCovarianceM * aTranfoToDiagonalSystem;
-  // Tranformation of matrix M is done by A^T*M*A, not A^{-1}*M*A.
-  // But here A^T == A^{-1}, so we would only save CPU by Transpose()...
-  // FIXME this - I guess simply use T(), not Transpose()...
-  // TMatrixD aMatrix = aTranfoToDiagonalSystemInv.Transpose() * aHitCovarianceM
-  //    * aTranfoToDiagonalSystem;
   aHitCovarianceM = TMatrixDSym(2, aMatrix.GetMatrixArray());
   aTranfoToDiagonalSystemInvF.Invert();
   //edm::LogInfo("Alignment") << "NEW HIT loca in matrix"<<aLocalDerivativesM(0,0);
@@ -698,34 +711,6 @@ void MillePedeAlignmentAlgorithm::diagonalize
   //edm::LogInfo("Alignment") << "NEW HIT loca in matrix after diag:"<<aLocalDerivativesM(0,0);
   aHitResidualsM      = aTranfoToDiagonalSystemInvF * aHitResidualsM;
   aGlobalDerivativesM = aTranfoToDiagonalSystemInvF * aGlobalDerivativesM;
-}
-
-//__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm
-::addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                    unsigned int iMsMeas, TMatrixDSym &aHitCovarianceM,
-                    TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
-{
-
-  // This Method is valid for 1D measurements only
-  
-  const unsigned int xIndex = iMsMeas + refTrajPtr->numberOfHitMeas();
-  // Covariance into a TMatrixDSym
-  
-  //aHitCovarianceM = new TMatrixDSym(1);
-  aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
-  
-  //theHitResidualsM= new TMatrixF(1,1);
-  aHitResidualsM(0,0)= refTrajPtr->measurements()[xIndex];
-  
-  // Local Derivatives into a TMatrixDSym (to use matrix operations)
-  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
-  //  theLocalDerivativeNumber = locDerivMatrix.num_col();
-  
-  //theLocalDerivativesM = new TMatrixF(1,locDerivMatrix.num_col());
-  for (int i = 0; i < locDerivMatrix.num_col(); ++i) {
-    aLocalDerivativesM(0,i) = locDerivMatrix[xIndex][i];
-  }
 }
 
 //__________________________________________________________________________________________________
@@ -770,7 +755,6 @@ int MillePedeAlignmentAlgorithm
               const std::vector<float> &globalDerivativesy)
 {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
-  
   if((aRecHit)->dimension() != 2) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::callMille2D"
                                << "You try to call method for 2D hits for a " 
@@ -792,16 +776,10 @@ int MillePedeAlignmentAlgorithm
   //        not 2x2 matrix from ReferenceTrajectory: That can come from error propagation etc.!
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
   if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
-  bool diag = false; // diagonalise only tracker TID, TEC
-  switch(aRecHit->geographicalId().subdetId()) {
-  case SiStripDetId::TID:
-  case SiStripDetId::TEC:
-    if (aRecHit->geographicalId().det() == DetId::Tracker && TMath::Abs(corr) > theMaximalCor2D) {
-      this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);
-      diag = true;
-    }
-    break;
-  default:;
+  bool diag = false;
+  if (TMath::Abs(corr) > theMaximalCor2D) {
+    this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);
+    diag = true;
   }
 
   float newResidX = aHitResidualsM(0,0);
@@ -827,16 +805,6 @@ int MillePedeAlignmentAlgorithm
   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
 		  &(globalLabels[0]), newResidX, newHitErrX);
-
-//   // write special (hit) data to the milleBinary.dat
-//   int nPar=3;
-//   std::vector<int> integers(nPar); // filled with 0.
-//   std::vector<float> floats(nPar);
-//   floats[0] = aRecHit->globalPosition().x();
-//   floats[1] = aRecHit->globalPosition().y();
-//   floats[2] = aRecHit->globalPosition().z();
-//   theMille->special(nPar, &(floats[0]), &(integers[0]));
-
   if (theMonitor) {
     theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal);
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
@@ -855,36 +823,16 @@ int MillePedeAlignmentAlgorithm
 
   return (isReal2DHit ? 2 : 1);
 }
-//__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm
-::addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iMsMeas)
-{
-  TMatrixDSym aHitCovarianceM(1);
-  TMatrixF aHitResidualsM(1,1);
-  TMatrixF aLocalDerivativesM(1, refTrajPtr->derivatives().num_col());
-  // below method fills above 3 'matrices'
-  this->addRefTrackMsMeas1D(refTrajPtr, iMsMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
-  
-  // no global parameters (use dummy 0)
-  TMatrixF aGlobalDerivativesM(1,1);
-  aGlobalDerivativesM(0,0) = 0;
-      
-  float newResidX = aHitResidualsM(0,0);  
-  float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
-  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
-  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
-  const int nLocal  = aLocalDerivativesM.GetNcols();
-  const int nGlobal = 0;
-              
-  theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
-		  &nGlobal, newResidX, newHitErrX);  
-}
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &lasBeams,
 					       const TsosVectorCollection &lasBeamTsoses)
 {
+  AlignmentParameters *dummyPointer = 0; // for globalDerivativesHierarchy()
+  std::vector<float> lasLocalDerivsX;
+
   TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
+  int tmpCounter = 0; // very ugly hack for global LAS parameters
   for(TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
       iBeam != iEnd; ++iBeam, ++iTsoses){ // beam/tsoses parallel!
 
@@ -893,52 +841,45 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
 			      << iBeam->parameters().size() << " parameters and " 
 			      << iBeam->getData().size() << " hits.\n There are " 
 			      << iTsoses->size() << " TSOSes.";
+    if(iTsoses->size() > 0){
+      edm::LogInfo("Alignment")	<< " First TSOS is " << ((*iTsoses)[0].isValid() ? "valid." : "invalid.");
+    }
 
-    this->addLasBeam(*iBeam, *iTsoses);
+    for(unsigned int hit = 0; hit < (*iTsoses).size(); ++hit){
+      
+      theFloatBufferX.clear();
+      theFloatBufferY.clear();
+      theIntBuffer.clear();
+      lasLocalDerivsX.clear();
+  
+      if((*iTsoses)[hit].isValid()){
+	
+	AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(iBeam->getData()[hit].getDetId()));
+	
+	this->globalDerivativesHierarchy((*iTsoses)[hit], lasAli, lasAli, 
+					 theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPointer);
+	// fill derivatives vector from derivatives matrix
+	for (unsigned int nFitParams = 0; nFitParams < iBeam->parameters().size(); ++nFitParams) {
+ 	  if (nFitParams < iBeam->firstFixedParameter()) { // first local beam parameters
+ 	    lasLocalDerivsX.push_back((iBeam->derivatives())[hit][nFitParams]);
+ 	  } else {                                         // now global ones
+	    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
+					 << "Labels of global beam parameters not defined properly.";
+	    theFloatBufferX.push_back((iBeam->derivatives())[hit][nFitParams]);
+	    theIntBuffer.push_back(2147483647 - tmpCounter); // FIXME: label for global param!
+	    tmpCounter += 10; // hacking 10 is PedeLabeler::theMaxNumParam
+ 	  }
+	}
+
+	float localResidual = ((iBeam->getData())[hit].localPosition().x()) - ((*iTsoses)[hit].localPosition().x());
+	// error from file or assume 0.003
+	float localError = 0.003; // (iBeam->getData())[hit].localPositionError().xx();
+	
+	theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(), &(theFloatBufferX[0]), 
+			&(theIntBuffer[0]), localResidual, localError);
+      }
+    } // end of loop over hits
+    theMille->end();
   }
 }
 
-//____________________________________________________
-void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
-					     const std::vector<TrajectoryStateOnSurface> &tsoses)
-{
-  AlignmentParameters *dummyPtr = 0; // for globalDerivativesHierarchy()
-  std::vector<float> lasLocalDerivsX; // buffer for local derivatives
-  const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
-  
-  for (unsigned int iHit = 0; iHit < tsoses.size(); ++iHit) {
-    if (!tsoses[iHit].isValid()) continue;
-    // clear buffer
-    theFloatBufferX.clear();
-    theFloatBufferY.clear();
-    theIntBuffer.clear();
-    lasLocalDerivsX.clear();
-    // get alignables and global parameters
-    const SiStripLaserRecHit2D &hit = lasBeam.getData()[iHit];
-    AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(hit.getDetId()));
-    this->globalDerivativesHierarchy(tsoses[iHit], lasAli, lasAli, 
-				     theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPtr);
-    // fill derivatives vector from derivatives matrix
-    for (unsigned int nFitParams = 0; 
-	 nFitParams < static_cast<unsigned int>(lasBeam.parameters().size()); 
-	 ++nFitParams) {
-      const float derivative = lasBeam.derivatives()[iHit][nFitParams];
-      if (nFitParams < lasBeam.firstFixedParameter()) { // first local beam parameters
-	lasLocalDerivsX.push_back(derivative);
-      } else {                                          // now global ones
-	const unsigned int numPar = nFitParams - lasBeam.firstFixedParameter();
-	theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
-	theFloatBufferX.push_back(derivative);
-      }
-    } // end loop over parameters
-
-    const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
-    // error from file or assume 0.003
-    const float error = 0.003; // hit.localPositionError().xx(); sqrt???
-    
-    theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
-		    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
-  } // end of loop over hits
-  
-  theMille->end();
-}

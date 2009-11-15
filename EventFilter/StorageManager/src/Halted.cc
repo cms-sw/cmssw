@@ -1,4 +1,4 @@
-// $Id: Halted.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: Halted.cc,v 1.7.4.1 2009/09/25 09:57:48 mommsen Exp $
 /// @file: Halted.cc
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
@@ -22,7 +22,7 @@ void Halted::do_entryActionWork()
 
 Halted::Halted( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Halted::do_exitActionWork()
@@ -33,7 +33,7 @@ void Halted::do_exitActionWork()
 
 Halted::~Halted()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 string Halted::do_stateName() const
@@ -41,9 +41,9 @@ string Halted::do_stateName() const
   return string( "Halted" );
 }
 
-void Halted::do_moveToFailedState( const std::string& reason ) const
+void Halted::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 

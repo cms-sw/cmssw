@@ -86,6 +86,7 @@ private:
   double enumin;
   double enumax;
 
+
 public:
 
   // constructor
@@ -94,7 +95,7 @@ public:
   //destructor
   ~CMSCGEN();
 
-        // to set the energy and cos theta range
+        // to set the energy and cos theta range 
   int initialize(double,double,double,double,CLHEP::HepRandomEngine*,bool,bool);
   int initialize(double,double,double,double,int,bool,bool);
 
@@ -108,8 +109,8 @@ public:
   double flux();
    
   //upward going muons from neutrinos
-  int initializeNuMu(double, double, double, double, double, double, double, double, double, CLHEP::HepRandomEngine*);
-  int initializeNuMu(double, double, double, double, double, double, double, double, double, int);
+  int initializeNuMu(double, double, double, double, double, double, double, double, CLHEP::HepRandomEngine*);
+  int initializeNuMu(double, double, double, double, double, double, double, double, int);
   int generateNuMu();
 
 
