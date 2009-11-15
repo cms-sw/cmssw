@@ -26,12 +26,12 @@ if [ ! -n "$CMSSW_BASE" ] ; then
   PATH=${ROOTSYS}/bin:$PATH
   export PATH
 fi
-if [ "`echo $@ | awk '/\-\-soft/'`" != "" ] ; then
+if [ "`echo $@ | awk '/\-\-soft /'`" != "" ] ; then
   LIBGL_DRIVERS_PATH=/tmp/
   export LIBGL_DRIVERS_PATH
 fi
-
-if [ "`echo $@ | awk '/\-d/'`" != "" ] ; then
+echo $@ 
+if [ "`echo $@ | awk '/\-d /'`" != "" ] ; then
    echo "set args $@" > gdb.cmd
    echo "run"        >> gdb.cmd
    echo "bt"         >> gdb.cmd
