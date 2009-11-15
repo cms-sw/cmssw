@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.h,v 1.1 2009/11/03 17:48:16 wto Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.h,v 1.2 2009/11/10 14:49:01 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H
@@ -27,6 +27,8 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
     // parameters
     float highThreshold_;
     float lowThreshold_;
+    bool disableBadStrips_;
+    bool keepStripsDisabled_;
 
 };
 
