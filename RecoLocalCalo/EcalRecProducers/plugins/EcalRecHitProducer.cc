@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.8 2009/10/16 15:48:11 ferriff Exp $
- *  $Date: 2009/10/16 15:48:11 $
- *  $Revision: 1.8 $
+ *  $Id: EcalRecHitProducer.cc,v 1.9 2009/10/16 16:03:41 ferriff Exp $
+ *  $Date: 2009/10/16 16:03:41 $
+ *  $Revision: 1.9 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -245,9 +245,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
                 if ( scIds ) {
                         for( std::set<EcalScDetId>::const_iterator it = scIds->begin(); it != scIds->end(); ++it ) {
-                                // uses the EcalUncalibratedRecHit to pass the DetId info
-                                EcalUncalibratedRecHit urh( EEDetId( ((*it).ix()-1)*5+1, ((*it).iy()-1)*5+1, (*it).zside() ), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_FE );
-                                workerRecover_->run( evt, urh, *eeRecHits );
+			  // uses the EcalUncalibratedRecHit to pass the DetId info
+			  if (EEDetId::validDetId( ((*it).ix()-1)*5+1, ((*it).iy()-1)*5+1, (*it).zside() )){
+			    EcalUncalibratedRecHit urh( EEDetId( ((*it).ix()-1)*5+1, ((*it).iy()-1)*5+1, (*it).zside() ), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_FE );
+			    workerRecover_->run( evt, urh, *eeRecHits ); }
+			  else
+			    { edm::LogError("EcalRecHitError") << "EEDetId requested which does not exist. ";}
                         }
                 }
         }
