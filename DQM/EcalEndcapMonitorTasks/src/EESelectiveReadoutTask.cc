@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/10/13 11:41:18 $
- * $Revision: 1.37 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.38 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -631,13 +631,13 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   }
 
   for(int iz = 0; iz < 2; iz++) {
-    for(int ix = 0; ix < 100; ix++ ) {
-      for(int iy = 0; iy < 100; iy++ ) {
+    for(int ix = 0; ix < 20; ix++ ) {
+      for(int iy = 0; iy < 20; iy++ ) {
 
         if( nEvtAnyInterest[ix][iy][iz] ) {
 
           float xix = ix-0.5;
-          if ( iz == 0 ) xix = 100 - xix;
+          if ( iz == 0 ) xix = 20 - xix;
           float xiy = iy-0.5;
 
           float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
@@ -654,7 +654,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
-
 
           fraction = float(nEvtLowInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
           error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
