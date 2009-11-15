@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.3 2009/11/13 09:59:18 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.4 2009/11/14 06:54:31 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -24,17 +24,23 @@ class QcdLowPtDQM : public edm::EDAnalyzer
   public:
     class Pixel {
       public:
-        Pixel(double x=0, double y=0, double z=0, double eta=0, double phi=0) : 
-          x_(x), y_(y), z_(z), eta_(eta), phi_(phi) {}
-        Pixel(const GlobalPoint &p) :
-          x_(p.x()), y_(p.y()), z_(p.z()), eta_(p.eta()), phi_(p.phi()) {}
-        double x()   const { return x_;   }
-        double y()   const { return y_;   }
-        double z()   const { return z_;   }
-        double eta() const { return eta_; }
-        double phi() const { return phi_; }
+        Pixel(double x=0, double y=0, double z=0, double eta=0, double phi=0, 
+              double adc=0, double sx=0, double sy=0) : 
+          x_(x), y_(y), z_(z), eta_(eta), phi_(phi), adc_(adc), sizex_(sx), sizey_(sy) {}
+        Pixel(const GlobalPoint &p, double adc=0, double sx=0, double sy=0) :
+          x_(p.x()), y_(p.y()), z_(p.z()), eta_(p.eta()), phi_(p.phi()), 
+          adc_(adc), sizex_(sx), sizey_(sy) {}
+        double adc()   const { return adc_;   }
+        double x()     const { return x_;     }
+        double y()     const { return y_;     }
+        double z()     const { return z_;     }
+        double eta()   const { return eta_;   }
+        double phi()   const { return phi_;   }
+        double sizex() const { return sizex_; }
+        double sizey() const { return sizey_; }
       protected:    
         double x_,y_,z_,eta_,phi_;
+        double adc_,sizex_,sizey_;
     };
     class Tracklet {
       public:
@@ -92,18 +98,18 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     void                          book1D(std::vector<MonitorElement*> &mes, 
                                          const std::string &name, const std::string &title, 
                                          int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
-    void                          book1D(std::vector<TH1F*> &mes, 
-                                         const std::string &name, const std::string &title, 
-                                         int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
-    void                          book2D(std::vector<TH2F*> &mes, 
-                                         const std::string &name, const std::string &title, 
-                                         int nx, double x1, double x2, int ny, double y1, double y2,
-                                         bool sumw2=1, bool sbox=1);
     void                          book2D(std::vector<MonitorElement*> &mes, 
                                          const std::string &name, const std::string &title, 
                                          int nx, double x1, double x2, int ny, double y1, double y2,
                                          bool sumw2=1, bool sbox=1);
-    void                          bookHistos();
+    void                          create1D(std::vector<TH1F*> &mes, 
+                                           const std::string &name, const std::string &title, 
+                                           int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
+    void                          create2D(std::vector<TH2F*> &mes, 
+                                           const std::string &name, const std::string &title, 
+                                           int nx, double x1, double x2, int ny, double y1, double y2,
+                                           bool sumw2=1, bool sbox=1);
+    void                          createHistos();
     void                          fill1D(std::vector<TH1F*> &hs, double val, double w=1.);
     void                          fill1D(std::vector<MonitorElement*> &mes, double val, double w=1.);
     void                          fill2D(std::vector<TH2F*> &hs, 
@@ -120,6 +126,11 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                              std::vector<MonitorElement*> &hdNdEtaTrklets);
     void                          fillHltBits(const edm::Event &iEvent);
     void                          fillPixels(const edm::Event &iEvent);
+    void                          fillPixelClusterInfos(const edm::Event &iEvent, int which=12);
+    void                          fillPixelClusterInfos(const double vz,
+                                                        const std::vector<Pixel> &pix, 
+                                                        std::vector<MonitorElement*> &hClusterYSize,
+                                                        std::vector<MonitorElement*> &hClusterADC);
     void                          fillTracklets(const edm::Event &iEvent, int which=12);
     void                          fillTracklets(std::vector<Tracklet> &tracklets, 
                                                 const std::vector<Pixel> &pix1, 
@@ -150,12 +161,13 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     void                          trackletVertexUnbinned(std::vector<Pixel> &pix1, 
                                                          std::vector<Pixel> &pix2,
                                                          Vertex &vtx);
-    void                          yieldAlphaHistogram();
+    void                          yieldAlphaHistogram(int which=12);
 
     std::string                   hltResName_;         //HLT trigger results name
     std::string                   hltProcName_;        //HLT process name
     std::vector<std::string>      hltTrgNames_;        //HLT trigger name(s)
     std::string                   pixelName_;          //pixel reconstructed hits name
+    std::string                   clusterVtxName_;     //cluster vertex name
     double                        ZVCut_;              //Z vertex cut for selected events
     double                        ZVEtaRegion_;        //Z vertex eta region
     double                        ZVVtxRegion_;        //Z vertex vtx region
@@ -167,7 +179,9 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     double                        bkgPhiCut_;          //bgk tracklet phi cut
     int                           verbose_;            //verbosity (0=debug,1=warn,2=error,3=throw)
     int                           pixLayers_;          //12 for 12, 13 for 12 and 13, 23 for all 
-    bool                          usePixelQ_;          //if true use pixel quality word
+    int                           clusLayers_;         //12 for 12, 13 for 12 and 13, 23 for all 
+    bool                          useRecHitQ_;         //if true use rec hit quality word
+    bool                          usePixelQ_;          //if true use pixel hit quality word
     std::vector<int>              hltTrgBits_;         //HLT trigger bit(s)
     std::vector<bool>             hltTrgDeci_;         //HLT trigger descision(s)
     std::vector<Pixel>            bpix1_;              //barrel pixels layer 1
@@ -227,6 +241,13 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hdNdEtaRawTrkl23_;   //dN/dEta from raw tracklets 23
     std::vector<MonitorElement*>  hdNdEtaSubTrkl23_;   //dN/dEta from beta tracklets 23
     std::vector<MonitorElement*>  hdNdEtaTrklets23_;   //dN/dEta corrected by alpha 23
+    std::vector<MonitorElement*>  hClusterVertexZ_;    //cluster z vertex histograms
+    std::vector<MonitorElement*>  hClusterYSize1_;     //cluster y size histograms on layer 1
+    std::vector<MonitorElement*>  hClusterYSize2_;     //cluster y size histograms on layer 2
+    std::vector<MonitorElement*>  hClusterYSize3_;     //cluster y size histograms on layer 3
+    std::vector<MonitorElement*>  hClusterADC1_;       //cluster adc histograms on layer 1
+    std::vector<MonitorElement*>  hClusterADC2_;       //cluster adc histograms on layer 2
+    std::vector<MonitorElement*>  hClusterADC3_;       //cluster adc histograms on layer 3
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -250,6 +271,9 @@ inline bool QcdLowPtDQM::getProductSafe(const std::string name, edm::Handle<TYPE
 {
   // Try to safely access data collection from EDM file. We check if we really get just one
   // product with the given name. If not, we return false.
+
+  if (name.size()==0)
+    return false;
 
   try {
     event.getByLabel(edm::InputTag(name),prod);
