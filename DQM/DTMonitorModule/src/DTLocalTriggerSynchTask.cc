@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2009/10/16 08:38:49 $
- * $Revision: 1.1 $
+ * $Date: 2009/11/02 14:42:45 $
+ * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -260,7 +260,7 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
   for (int iHisto=0;iHisto<5;++iHisto) {
-    string histoName = histoTag[iHisto] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+    string histoName = histoTag[iHisto] + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: booking " 
 					    << "DT/90-LocalTriggerSynch/Wheel" << wheel.str()
 					    << "/Sector" << sector.str()
