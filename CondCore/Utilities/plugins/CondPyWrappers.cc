@@ -200,7 +200,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def(init<std::string, std::string>())
     .def("setLogger",&cond::RDBMS::setLogger)
     .def("getDB", &cond::RDBMS::getDB)
-    .def("globalTag",  &cond::RDBMS::GlobalTag, return_value_policy<copy_const_reference>())
+    .def("globalTag",  &cond::RDBMS::globalTag, return_value_policy<copy_const_reference>())
     ;
 
 
