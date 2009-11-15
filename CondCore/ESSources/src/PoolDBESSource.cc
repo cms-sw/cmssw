@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include <cstdlib>
-#include "TagCollectionRetriever.h"
+#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 #include <exception>
 //#include <iostream>
 

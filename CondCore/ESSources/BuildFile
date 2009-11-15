@@ -5,6 +5,7 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/IOVService>	
 <use name=CondCore/MetaDataService>	
+<use name=CondCore/TagCollection>	
 <use name=DataSvc>
 <export>
    <lib name=CondCoreESSources>
