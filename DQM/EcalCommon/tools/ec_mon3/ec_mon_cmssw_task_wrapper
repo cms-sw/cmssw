@@ -93,7 +93,8 @@ try:
     if line.find('dbPassword') >= 0:
       dbPassword = line.split()[2]
   file.close()
-except:  pass
+except IOError:
+  pass
 
 process = cms.Process("ECALDQM")
 
@@ -111,14 +112,6 @@ process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRec
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
-process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
-
-process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
-
-process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
-
-process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
-
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
@@ -127,21 +120,29 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_craft_cff")
-#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
-
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
-
-process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
-
 process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+
+#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_craft_cff")
+#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
+
+process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
+
+process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
+
+process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
+
+process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
+
+process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
+
+process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 

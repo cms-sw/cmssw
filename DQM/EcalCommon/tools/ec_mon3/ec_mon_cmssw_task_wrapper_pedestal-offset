@@ -96,7 +96,8 @@ try:
     if line.find('dbPassword') >= 0:
       dbPassword = line.split()[2]
   file.close()
-except:  pass
+except IOError:
+  pass
 
 process = cms.Process("ECALDQM")
 
