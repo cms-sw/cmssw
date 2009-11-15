@@ -30,7 +30,7 @@ if [ "`echo $@ | awk '/\-\-soft /'`" != "" ] ; then
   LIBGL_DRIVERS_PATH=/tmp/
   export LIBGL_DRIVERS_PATH
 fi
-echo $@ 
+
 if [ "`echo $@ | awk '/\-d /'`" != "" ] ; then
    echo "set args $@" > gdb.cmd
    echo "run"        >> gdb.cmd
