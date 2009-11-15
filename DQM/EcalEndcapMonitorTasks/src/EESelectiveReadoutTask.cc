@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 12:23:23 $
- * $Revision: 1.41 $
+ * $Date: 2009/11/15 12:32:53 $
+ * $Revision: 1.42 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -621,9 +621,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
 
-        float xix = ix-0.5;
+        float xix = ix;
         if ( iz == 0 ) xix = 100 - xix;
-        float xiy = iy-0.5;
+        xix += 0.5;
+
+        float xiy = iy+0.5;
 
         if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
              && nCryTT[itcc-1][itt-1] != (int)crystals.size() ) EETTFMismatch_[iz]->Fill(xix, xiy);
