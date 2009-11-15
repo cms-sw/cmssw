@@ -621,11 +621,9 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
 
-        float xix = ix;
+        float xix = ix-0.5;
         if ( iz == 0 ) xix = 100 - xix;
-        xix += 0.5;
-
-        float xiy = iy+0.5;
+        float xiy = iy-0.5;
 
         if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
              && nCryTT[itcc-1][itt-1] != (int)crystals.size() ) EETTFMismatch_[iz]->Fill(xix, xiy);
@@ -643,10 +641,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         if( nEvtAnyInterest[ix][iy][iz] ) {
 
-          float xix = ix-0.5;
+          float xix = ix;
           if ( iz == 0 ) xix = 100 - xix;
+          xix += 0.5;
 
-          float xiy = iy-0.5;
+          float xiy = iy+0.5;
 
           float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
