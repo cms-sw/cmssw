@@ -91,7 +91,7 @@ dtqTester = cms.EDFilter("QualityTester",
 from DQM.DTMonitorModule.dtDigiTask_TP_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_TP_cfi import *
 # New time window for TPs
-dtTPmonitor.defaultTtrig = 700
+dtTPmonitor.defaultTtrig = 750
 dtTPmonitor.defaultTmax = 200
 dtTPmonitor.inTimeHitsLowerBound = 0
 dtTPmonitor.inTimeHitsUpperBound = 0
