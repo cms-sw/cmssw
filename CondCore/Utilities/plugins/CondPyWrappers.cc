@@ -132,7 +132,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<cond::TagMetadata>("TagEntry")
     .def("getState",getTagState)
     .def_readonly("tag", &cond::TagMetadata::tag)
-    .def_readonly("pfn", &cond::TagMetadata::tag)
+    .def_readonly("pfn", &cond::TagMetadata::pfn)
     .def_readonly("record", &cond::TagMetadata::recordname)
     .def_readonly("label", &cond::TagMetadata::labelname)
     .def_readonly("object", &cond::TagMetadata::objectname)
