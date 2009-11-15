@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 10:39:10 $
- * $Revision: 1.39 $
+ * $Date: 2009/11/15 11:00:17 $
+ * $Revision: 1.40 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -566,10 +566,9 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
           double towerSize =  nCrySC[ix][iy][iz] * bytesPerCrystal;
 
           float xix = ix;
-
           if ( iz == 0 ) xix = 19 - xix;
-
           xix += 0.5;
+
           float xiy = iy+0.5;
 
           EETowerSize_[iz]->Fill(xix, xiy, towerSize);
