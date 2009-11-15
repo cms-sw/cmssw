@@ -538,6 +538,18 @@ public :
   Int_t           HLT_PixelFEDSize; 
   Int_t           HLT_GlobalRunHPDNoise; 
 
+  // HLT paths for the 2009 Circulating Beam menu 
+  Int_t  HLT_L2Mu0_NoVertex;
+  Int_t  HLT_TkMu3_NoVertex;
+  Int_t  HLT_IsoTrackHB_8E29;
+  Int_t  HLT_IsoTrackHE_8E29;
+  Int_t  HLT_MinBiasPixel_DoubleIsoTrack5;
+  Int_t  HLT_MinBiasPixel_DoubleTrack;
+  Int_t  HLT_MinBiasPixel_SingleTrack;
+  Int_t  HLT_TechTrigHCALNoise;
+  Int_t  HLT_HcalNZS_8E29;
+  Int_t  HLT_HcalPhiSym;
+
     
   // List of branches
   TBranch        *b_NrecoJetCal;   //!
@@ -1029,6 +1041,19 @@ public :
   TBranch        *b_HLT_EcalCalibration;   //!  
   TBranch        *b_HLT_PixelFEDSize;   //!  
   TBranch        *b_HLT_GlobalRunHPDNoise;   //!  
+
+  // HLT paths for the 2009 Circulating Beam menu
+  TBranch        *b_HLT_L2Mu0_NoVertex;
+  TBranch        *b_HLT_TkMu3_NoVertex;
+  TBranch        *b_HLT_IsoTrackHB_8E29;
+  TBranch        *b_HLT_IsoTrackHE_8E29;
+  TBranch        *b_HLT_MinBiasPixel_DoubleIsoTrack5;
+  TBranch        *b_HLT_MinBiasPixel_DoubleTrack;
+  TBranch        *b_HLT_MinBiasPixel_SingleTrack;
+  TBranch        *b_HLT_TechTrigHCALNoise;
+  TBranch        *b_HLT_HcalNZS_8E29;
+  TBranch        *b_HLT_HcalPhiSym;
+
 
   // Cut on mu quality
   Int_t           NL1OpenMu;
@@ -1748,6 +1773,19 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_PixelFEDSize", &HLT_PixelFEDSize, &b_HLT_PixelFEDSize);  
   fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &HLT_GlobalRunHPDNoise, &b_HLT_GlobalRunHPDNoise);  
 
+  // HLT paths for the 2009 Circulating Beam menu
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &HLT_L2Mu0_NoVertex, &b_HLT_L2Mu0_NoVertex);
+  fChain->SetBranchAddress("HLT_TkMu3_NoVertex", &HLT_TkMu3_NoVertex, &b_HLT_TkMu3_NoVertex);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &HLT_IsoTrackHB_8E29, &b_HLT_IsoTrackHB_8E29);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &HLT_IsoTrackHE_8E29, &b_HLT_IsoTrackHE_8E29);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &HLT_MinBiasPixel_DoubleIsoTrack5, &b_HLT_MinBiasPixel_DoubleIsoTrack5);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &HLT_MinBiasPixel_DoubleTrack, &b_HLT_MinBiasPixel_DoubleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &HLT_MinBiasPixel_SingleTrack, &b_HLT_MinBiasPixel_SingleTrack);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &HLT_TechTrigHCALNoise, &b_HLT_TechTrigHCALNoise);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &HLT_HcalNZS_8E29, &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_HcalPhiSym", &HLT_HcalPhiSym, &b_HLT_HcalPhiSym);
+
+
   //
   /* Also associate with the maps to speed up code! */
   fChain->SetBranchAddress("L1_Mu5_Jet6", &map_BitOfStandardHLTPath["L1_Mu5_Jet6"], &b_L1_Mu5_Jet6); 
@@ -1995,6 +2033,19 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_EcalCalibration", &map_BitOfStandardHLTPath["HLT_EcalCalibration"], &b_HLT_EcalCalibration);   
   fChain->SetBranchAddress("HLT_PixelFEDSize", &map_BitOfStandardHLTPath["HLT_PixelFEDSize"], &b_HLT_PixelFEDSize);   
   fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &map_BitOfStandardHLTPath["HLT_GlobalRunHPDNoise"], &b_HLT_GlobalRunHPDNoise);   
+
+  // HLT paths for the 2009 Circulating Beam menu
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &map_BitOfStandardHLTPath["HLT_L2Mu0_NoVertex"], &b_HLT_L2Mu0_NoVertex);
+  fChain->SetBranchAddress("HLT_TkMu3_NoVertex", &map_BitOfStandardHLTPath["HLT_TkMu3_NoVertex"], &b_HLT_TkMu3_NoVertex);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHB_8E29"], &b_HLT_IsoTrackHB_8E29);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHE_8E29"], &b_HLT_IsoTrackHE_8E29);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleIsoTrack5"], &b_HLT_MinBiasPixel_DoubleIsoTrack5);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleTrack"], &b_HLT_MinBiasPixel_DoubleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_SingleTrack"], &b_HLT_MinBiasPixel_SingleTrack);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &map_BitOfStandardHLTPath["HLT_TechTrigHCALNoise"], &b_HLT_TechTrigHCALNoise);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &map_BitOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_HcalPhiSym", &map_BitOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym);
+
   
   Notify();
 }
