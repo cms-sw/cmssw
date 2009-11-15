@@ -203,9 +203,13 @@ namespace cond {
   RDBMS::RDBMS(std::string const & authPath,  bool debug) : connection(new DbConnection) {
     //topinit();
     connection->configuration().setAuthenticationPath(authPath);
-    if (debug) connection->configuration().setMessageLevel( coral::Debug );
+    if (debug) 
+      connection->configuration().setMessageLevel( coral::Debug );
     else
       connection->configuration().setMessageLevel( coral::Error );
+    connection->configuration().setPoolAutomaticCleanUp( false );
+    connection->configuration().setConnectionTimeOut(0);
+
     connection->configure();
   }
   
@@ -216,6 +220,8 @@ namespace cond {
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
     connection->configuration().setMessageLevel( coral::Error );
+    connection->configuration().setPoolAutomaticCleanUp( false );
+    connection->configuration().setConnectionTimeOut(0);
     connection->configure();
   }
 

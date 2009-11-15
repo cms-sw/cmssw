@@ -7,7 +7,7 @@ a = FWIncantation()
 
 
 
-// rdbms = RDBMS()
+# rdbms = RDBMS()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
 gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
