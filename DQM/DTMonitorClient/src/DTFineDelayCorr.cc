@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/16 08:40:03 $
+ *  $Date: 2009/10/30 14:27:54 $
  *  $Revision: 1.1 $
  *  \author M. Giunta, C. Battilana 
  */
@@ -156,7 +156,7 @@ void DTFineDelayCorr::runClientDiagnostic() {
 // 	   << oldFineDelay << " " << mean << endl;
       float bpFineDelay = (wpFineDelay < 12.5)? (wpFineDelay + 12.5) : (wpFineDelay - 12.5);  // Best Phase: half BX far from the worst phase 
       // ** Calculate correction **
-      float diffFineDelays  = oldFineDelay + (bpFineDelay - mean);
+      float diffFineDelays  = oldFineDelay + (mean - bpFineDelay); // positive mean shift implies positive delay correction
       int bxDiff = (int) (diffFineDelays / 25);
       coarseDelay += bxDiff;
       newFineDelay = fmodf(diffFineDelays, 25);
@@ -164,10 +164,8 @@ void DTFineDelayCorr::runClientDiagnostic() {
 // 	   << " "<< newFineDelay << " " << bxDiff << " " << coarseDelay << endl;
     }
     else {
-      cout << "[MG Test]:  Not enough entries in hist for Chamber "  
-	   << indexCh << endl;
-// 	LogProblem(category()) << "[" << testName << "Test]:  Not enough entries in hist for Chamber "  
-// 			       << indexCh << endl;
+      LogProblem(category()) << "[" << testName << "Test]:  Not enough entries in hist for Chamber "  
+			     << indexCh << endl;
     }
 
     newDelays.push_back(wheel);
