@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.45 2009/11/03 00:01:14 chrjones Exp $
+// $Id: FWElectronDetailView.cc,v 1.46 2009/11/06 06:34:07 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -166,28 +166,6 @@ FWElectronDetailView::makeLegend( double x0, double y0,
    latex->DrawLatex(x2, y, dout);
    y -= 2*fontsize;
 
-   // legend
-   /* it should be clear from the tool tip pop-up what a user is looking at
-      latex->SetTextSize(1.5*textsize);
-      latex->DrawLatex(x, y, "Legend:"); y -= fontsize*1.5;
-      latex->SetTextSize(textsize);
-      latex->DrawLatex(x, y, " #color[2]{#bullet} seed cluster centroid");
-      y -= fontsize;
-      latex->DrawLatex(x, y, " #color[4]{#bullet} supercluster centroid");
-      y -= fontsize;
-      // latex->DrawLatex(x, y, "#color[618]{#Box} seed cluster");
-      // y -= fontsize;
-      // latex->DrawLatex(x, y, "#color[608]{#Box} other clusters"); // kCyan+1
-      // eta, phi axis or x, y axis?
-      // y -= fontsize;
-
-      latex->DrawLatex(x, y, "track position at calo:");
-      y -= fontsize;
-      latex->DrawLatex(x, y, " #color[2]{+} extrapolating from innermost state");
-      y -= fontsize;
-      latex->DrawLatex(x, y, " #color[4]{+} extrapolating from outermost state");
-      y -= fontsize;
-    */
    return y;
 }
 
@@ -256,22 +234,6 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
    }
-/*
-   printf("TrackPositionAtCalo: %f %f\n",
-          trackPositionAtCalo(*i).eta(), trackPositionAtCalo(*i).phi());
-   printf("TrackPositionAtCalo: %f %f\n",
-          i->superCluster()->seed()->position().eta() -
-          i->deltaEtaSeedClusterTrackAtCalo(),
-          i->superCluster()->seed()->position().phi() -
-          i->deltaPhiSeedClusterTrackAtCalo());
-   printf("TrackPositionInner: %f %f\n",
-          i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i),
-          i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i));
-   printf("calo position %f, deltaEta %f, track position %f\n",
-          i->caloPosition().eta(),
-          deltaEtaSuperClusterTrackAtVtx(*i),
-          trackPositionAtCalo(*i).eta());
- */
 }
 
 Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
@@ -377,9 +339,11 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
    if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
       subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
-   // points for centroids
+   // centroids
    Double_t x(0), y(0), z(0);
-   TEvePointSet *scposition = new TEvePointSet("sc position");
+   Double_t delta(0.02);
+   if (subdetId == EcalEndcap) delta = 2.5;
+   TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
    scposition->SetPickable(kTRUE);
    scposition->SetTitle("Super cluster centroid");
    if (subdetId == EcalBarrel) {
@@ -389,28 +353,32 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
       x = i->caloPosition().x();
       y = i->caloPosition().y();
    }
-   scposition->SetNextPoint(x,y,z);
-   scposition->SetMarkerSize(1);
-   scposition->SetMarkerStyle(4);
-   scposition->SetMarkerColor(kBlue);
+   scposition->AddLine(x-delta,y,z,x+delta,y,z);
+   scposition->AddLine(x,y-delta,z,x,y+delta,z);
+   scposition->AddLine(x,y,z-delta,x,y,z+delta);
+   scposition->SetLineColor(kBlue);
+   scposition->SetLineWidth(2);
+   scposition->SetDepthTest(kFALSE);
    tList->AddElement(scposition);
 
-   // points for seed position
-   TEvePointSet *seedposition = new TEvePointSet("seed position");
+   // seed position
+   TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
    seedposition->SetTitle("Seed cluster centroid");
    seedposition->SetPickable(kTRUE);
    if (subdetId == EcalBarrel) {
       x  = i->superCluster()->seed()->position().eta();
       y  = i->superCluster()->seed()->position().phi();
-      seedposition->SetMarkerSize(0.01);
+      seedposition->SetMarkerSize(delta);
    } else if (subdetId == EcalEndcap) {
       x  = i->superCluster()->seed()->position().x();
       y  = i->superCluster()->seed()->position().y();
       seedposition->SetMarkerSize(1);
    }
-   seedposition->SetNextPoint(x, y, z);
-   seedposition->SetMarkerStyle(2);
-   seedposition->SetMarkerColor(kRed);
+   seedposition->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
+   seedposition->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
+   seedposition->SetLineColor(kRed);
+   seedposition->SetLineWidth(2);
+   seedposition->SetDepthTest(kFALSE);
    tList->AddElement(seedposition);
 
    // electron direction (show it if it's within
@@ -418,20 +386,20 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
    if ( fabs(i->phi()-i->caloPosition().phi())< 25*0.0172 &&
         fabs(i->eta()-i->caloPosition().eta())< 25*0.0172 )
    {
-      TEvePointSet *eldirection = new TEvePointSet("seed position");
+      TEveStraightLineSet *eldirection = new TEveStraightLineSet("seed position");
       eldirection->SetTitle("Electron direction at vertex");
       eldirection->SetPickable(kTRUE);
-      eldirection->SetMarkerStyle(2);
       if (subdetId == EcalBarrel) {
-         eldirection->SetNextPoint(i->eta(), i->phi(), z);
-         eldirection->SetMarkerSize(0.01);
+         x = i->eta();
+         y = i->phi();
       }else{
-         eldirection->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()),
-                                   310*fabs(tan(i->theta()))*sin(i->phi()),
-                                   z);
-         eldirection->SetMarkerSize(1);
+         x = 310*fabs(tan(i->theta()))*cos(i->phi());
+         y = 310*fabs(tan(i->theta()))*sin(i->phi());
       }
-      eldirection->SetMarkerColor(kYellow);
+      eldirection->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
+      eldirection->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
+      eldirection->SetLineColor(kYellow);
+      eldirection->SetDepthTest(kFALSE);
       tList->AddElement(eldirection);
    }
 }
