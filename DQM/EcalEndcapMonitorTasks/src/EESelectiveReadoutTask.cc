@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 12:32:53 $
- * $Revision: 1.42 $
+ * $Date: 2009/11/15 12:52:10 $
+ * $Revision: 1.44 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -642,7 +642,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         if( nEvtAnyInterest[ix][iy][iz] ) {
 
           float xix = ix;
-          if ( iz == 0 ) xix = 100 - xix;
+          if ( iz == 0 ) xix = 99 - xix;
           xix += 0.5;
 
           float xiy = iy+0.5;
