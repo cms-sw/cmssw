@@ -47,8 +47,6 @@
 #include <netdb.h>
 #include <stdio.h>
 
-//@@ Temporary! Only used for #define USING_NEW_COLLATE_METHODS
-#include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
 using namespace sistrip;
 
@@ -124,13 +122,6 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   // ---------- Base directory ----------
 
   std::stringstream dir(""); 
-  
-#ifndef USING_NEW_COLLATE_METHODS 	 
-  dir << "FU_"; 	 
-  directory(dir); 	 
-  dir << "/"; 	 
-#endif 	 
-  
   base_ = dir.str();
   
   // ---------- Reset ---------- 
