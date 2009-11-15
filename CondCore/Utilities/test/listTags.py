@@ -21,11 +21,15 @@ for tag in globalTag.elements:
     db = rdbms.getDB(tag.pfn)
     log = db.lastLogEntry(tag.tag)
     iov = db.iov(tag.tag)
+    iov.tail(1)
+    for elem in iov.elements :
+        lastSince = elem.since()
     print tag.record,tag.label,tag.pfn,tag.tag
-    print iov.size(), iov.revision(), time.asctime(time.gmtime(unpackTime(iov.timestamp())[0])), iov.comment()
+    print iov.size(), iov.revision(), time.asctime(time.gmtime(unpackTime(iov.timestamp())[0])), iov.comment(), lastSince
     print log.getState()
     iov=0
     db=0
+
 
 def iovSize(rdbms,conn,tag) :
     try :
