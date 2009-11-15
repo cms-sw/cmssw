@@ -78,6 +78,11 @@ namespace cond {
     return anew;
   }
 
+  void IOVProxy::resetRange() const {
+    m_low=0;
+    m_high=size();
+  }
+
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
     m_low=iov().find(since)-iov().iovs().begin();

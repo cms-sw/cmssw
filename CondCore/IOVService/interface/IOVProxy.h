@@ -96,6 +96,7 @@ namespace cond {
     const_iterator find(cond::Time_t time) const;
 
     // limit range
+    void resetRange() const;
     void setRange(cond::Time_t since, cond::Time_t  till) const;
     // limit to the first n 
     void head(int n) const;
