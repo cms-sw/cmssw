@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 11:00:17 $
- * $Revision: 1.40 $
+ * $Date: 2009/11/15 12:23:23 $
+ * $Revision: 1.41 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -123,6 +123,12 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
         nEvtFullReadout[ix][iy][iz] = 0;
         nEvtRUForced[ix][iy][iz] = 0;
         nEvtAnyReadout[ix][iy][iz] = 0;
+      }
+    }
+  }
+  for(int ix = 0; ix < 100; ix++ ) {
+    for(int iy = 0; iy < 100; iy++ ) {
+      for(int iz = 0; iz < 2; iz++) {
         nEvtHighInterest[ix][iy][iz] = 0;
         nEvtLowInterest[ix][iy][iz] = 0;
         nEvtAnyInterest[ix][iy][iz] = 0;
@@ -629,17 +635,16 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-  for(int ix = 0; ix < 20; ix++ ) {
-    for(int iy = 0; iy < 20; iy++ ) {
+  for(int ix = 0; ix < 100; ix++ ) {
+    for(int iy = 0; iy < 100; iy++ ) {
       for(int iz = 0; iz < 2; iz++) {
 
         if( nEvtAnyInterest[ix][iy][iz] ) {
 
-          float xix = ix;
-          if ( iz == 0 ) xix = 19 - xix;
-          xix += 0.5;
+          float xix = ix-0.5;
+          if ( iz == 0 ) xix = 100 - xix;
 
-          float xiy = iy+0.5;
+          float xiy = iy-0.5;
 
           float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
