@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  * 
- * $Date: 2009/09/11 11:39:15 $
- * $Revision: 1.12 $
+ * $Date: 2009/09/23 16:05:56 $
+ * $Revision: 1.13 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -346,14 +346,20 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
       const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
 
       // walk through the HTR data...
-      HcalHTRData htr;  
+      HcalHTRData htr;
+
+      int nspigot =0; 
       for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+       nspigot++;
+
 	if (!dccHeader->getSpigotPresent(spigot)) continue;
 
 	// Load the given decoder with the pointer and length from this spigot.
 	dccHeader->getSpigotData(spigot,htr, fedData.size()); 
-      
+
+        if(k != 20 && nspigot !=14 ) {      
 	if ( !htr.isUnsuppressed() ) { hcalIsZS = true; }
+        }
       } 
     
     } // loop over HcalFEDs
