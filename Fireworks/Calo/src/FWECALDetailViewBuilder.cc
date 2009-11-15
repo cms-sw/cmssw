@@ -1,4 +1,10 @@
+// FIXME - needed to set fixed eta-phi limits. Without the
+//         visible area may change widely depending on energy
+//         deposition availability
+#define protected public
 #include "TEveCaloData.h"
+#undef protected
+
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
@@ -31,6 +37,7 @@
 
 #include "TGeoMatrix.h"
 #include "TEveTrans.h"
+#include "TEveStraightLineSet.h"
 
 #include <utility>
 
@@ -77,29 +84,69 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   data->GetEtaLimits(etaMin, etaMax);
-   data->GetPhiLimits(phiMin, phiMax);
-   Double_t bl, bh, bw;
-   Int_t bn, n = 20;
-   THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
-   data->SetEtaBins( new TAxis(bn, bl, bh));
-   THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
-   data->SetPhiBins( new TAxis(bn, bl, bh));
+   if (fabs(m_eta) < 1.5) {
+      // setting requested view size
+      // data driven limits may lead to
+      // very asymmetric and hard to use regions
+      etaMin = m_eta-m_size*0.0172;
+      etaMax = m_eta+m_size*0.0172;
+      phiMin = m_phi-m_size*0.0172;
+      phiMax = m_phi+m_size*0.0172;
+      data->fEtaMin = etaMin;
+      data->fEtaMax = etaMax;
+      data->fPhiMin = phiMin;
+      data->fPhiMax = phiMax;
+   }else{
+      // it's hard to define properly visible area in X-Y,
+      // so we rely on auto limits
+      data->GetEtaLimits(etaMin, etaMax);
+      data->GetPhiLimits(phiMin, phiMax);
+      Double_t bl, bh, bw;
+      Int_t bn, n = 20;
+      THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
+      data->SetEtaBins( new TAxis(bn, bl, bh));
+      THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
+      data->SetPhiBins( new TAxis(bn, bl, bh));
+   }
+   // make tower grid
+   std::vector<double> etaBinsWithinLimits;
+   etaBinsWithinLimits.push_back(etaMin);
+   for (unsigned int i=0; i<83; ++i)
+      if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
+         etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
+   etaBinsWithinLimits.push_back(etaMax);
+   Double_t* eta_bins = new Double_t[etaBinsWithinLimits.size()];
+   for (unsigned int i=0; i<etaBinsWithinLimits.size(); ++i)
+      eta_bins[i] = etaBinsWithinLimits[i];
+
+   std::vector<double> phiBinsWithinLimits;
+   phiBinsWithinLimits.push_back(phiMin);
+   for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
+      if ( phi > phiMin && phi < phiMax ) // it's stupid, I know, but I'm lazy right now
+         phiBinsWithinLimits.push_back(phi);
+   phiBinsWithinLimits.push_back(phiMax);
+   Double_t* phi_bins = new Double_t[phiBinsWithinLimits.size()];
+   for (unsigned int i=0; i<phiBinsWithinLimits.size(); ++i)
+      phi_bins[i] = phiBinsWithinLimits[i];
    if (fabs(m_eta) > 1.5) {
       data->GetEtaBins()->SetTitle("X[cm]");
       data->GetPhiBins()->SetTitle("Y[cm]");
    } else {
+      data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
+      data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
       data->GetEtaBins()->SetTitleFont(122);
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(122);
       data->GetPhiBins()->SetTitle("f");
    }
+   delete [] eta_bins;
+   delete [] phi_bins;
    data->GetPhiBins()->SetTitleSize(0.03);
    data->GetEtaBins()->SetTitleSize(0.03);
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
-   lego->SetDrawNumberCellPixels(50);
+   lego->SetDrawNumberCellPixels(100);
    // scale and translate to real world coordinates
    lego->SetEta(etaMin, etaMax);
    lego->SetPhiWithRng((phiMin+phiMax)*0.5, (phiMax-phiMin)*0.5); // phi range = 2* phiOffset
@@ -213,29 +260,47 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
       std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
       if (itr != m_detIdsToColor.end()) slice = itr->second;
 
+      // get reco geometry
+      const std::vector<TEveVector>& points = m_geom->getPoints(k->id().rawId());
+
       // if in the EB
       if (k->id().subdetId() == EcalBarrel) {
-
          // do phi wrapping
          double phi = v.Phi();
-         if (v.Phi() > m_phi + M_PI)
-            phi -= 2 * M_PI;
-         if (v.Phi() < m_phi - M_PI)
-            phi += 2 * M_PI;
+         if (v.Phi() > m_phi + M_PI) phi -= 2 * M_PI;
+         if (v.Phi() < m_phi - M_PI) phi += 2 * M_PI;
 
          // check if the hit is in the window to be drawn
          if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
-               && fabs(phi - m_phi) < (m_size*0.0172)))
-            continue;
+               && fabs(phi - m_phi) < (m_size*0.0172))) continue;
 
-         // if in the window to be drawn then draw it
-         // data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
-         //                             phi - 0.0172 / 2, phi + 0.0172 / 2);
-         DetIdToMatrix::Range range = m_geom->getEtaPhiRange(k->id().rawId());
-         data->AddTower(range.min1, range.max1, range.min2, range.max2);
+         if ( points.size() == 8 ) {
+            // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
+            // so if we simply get the largest eta and phi, cells will overlap
+            // therefore we get a smaller eta-phi range representing the inner square
+            // we also should use only points from the inner face of the crystal, since
+            // non-projecting direction of crystals leads to large shift in eta on outter
+            // face.
+            double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
+            for (unsigned int i=0; i<points.size(); ++i) {
+               double eta = points[i].Eta();
+               double phi = points[i].Phi();
+               if ( points[i].Perp() > 135 ) continue;
+               if ( minEta - eta > 0.01) minEta = eta;
+               if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
+               if ( eta - maxEta > 0.01) maxEta = eta;
+               if ( maxEta - eta > 0 && maxEta - eta < 0.01 ) maxEta = eta;
+               if ( minPhi - phi > 0.01) minPhi = phi;
+               if ( phi - minPhi > 0 && phi - minPhi < 0.01 ) minPhi = phi;
+               if ( phi - maxPhi > 0.01) maxPhi = phi;
+               if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
+            }
+            data->AddTower(minEta, maxEta, minPhi, maxPhi);
+         } else {
+            data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
+                           phi - 0.0172 / 2, phi + 0.0172 / 2);
+         }
          data->FillSlice(slice, size);
-         // if (size>0.5)
-         // std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
 
          // otherwise in the EE
       } else if (k->id().subdetId() == EcalEndcap) {
@@ -245,17 +310,28 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
                && fabs(v.Phi() - m_phi) < (m_size*0.0172)))
             continue;
 
-         // if in the window to be drawn then draw it
-         DetIdToMatrix::Range range = m_geom->getXYRange(k->id().rawId());
-         data->AddTower(range.min1, range.max1, range.min2, range.max2);
-         // data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
-         //             (v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
+         if ( points.size() == 8 ) {
+            double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
+            for (unsigned int i=0; i<points.size(); ++i) {
+               double x = points[i].fX;
+               double y = points[i].fY;
+               if ( fabs(points[i].fZ) > 330 ) continue;
+               if ( minX - x > 0.01) minX = x;
+               if ( x - maxX > 0.01) maxX = x;
+               if ( minY - y > 0.01) minY = y;
+               if ( y - maxY > 0.01) maxY = y;
+            }
+            data->AddTower(minX, maxX, minY, maxY);
+         } else {
+            data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
+                           (v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
+         }
          data->FillSlice(slice, size);
       }
-
    } // end loop on hits
 
    data->DataChanged();
+
 }
 
 double
