@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.3 2009/03/04 13:28:51 jserrano Exp $
+# $Id: smCleanupFiles.pl,v 1.4 2009/10/21 15:48:28 gbauer Exp $
 
 use strict;
 use warnings;
@@ -51,6 +51,8 @@ sub gettimestamp($)
     return $timestr;
 }
 
+
+
 $help       = 0;
 $debug      = 0;
 $nothing    = 0;
@@ -64,7 +66,7 @@ $hostname   = '';
 $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
-$fileagemin = 70;
+$fileagemin = 130;
 $force      = 0;
 $config     = "/opt/injectworker/.db.conf";
 
@@ -91,6 +93,8 @@ GetOptions(
 
 $help && usage;
 if ($nothing) { $execute = 0; $debug = 1; }
+
+
 
 
 #time stagger deletes on the various MAIN SM nodes:
