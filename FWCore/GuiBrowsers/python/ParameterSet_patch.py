@@ -87,12 +87,7 @@ cms.Process.old_setLooper_=cms.Process.setLooper_
 cms.Process.setLooper_=new_setLooper_
 
 def new_history(self):
-    modifications = self.dumpModifications(False)
-    if modifications!="":
-        modifiedObjects = self.dumpModifiedObjects()
-        return self.__dict__['_Process__history']+[(modifications,modifiedObjects)]
-    else:
-        return self.__dict__['_Process__history']
+    return self.__dict__['_Process__history']+self.dumpModificationsWithObjects()
 cms.Process.history=new_history
 
 def new_resetHistory(self):
@@ -120,7 +115,9 @@ cms.Process.dumpHistory=new_dumpHistory
 
 def new_addAction(self,tool):
     if self.__dict__['_Process__enableRecording'] == 0:
-        modifiedObjects=self.dumpModifiedObjects()
+        modifiedObjects=self.modifiedObjects()
+        for m,o in self.dumpModificationsWithObjects():
+            modifiedObjects+=o
         self.__dict__['_Process__history'].append((tool,modifiedObjects))
         self.resetModified()
         self.resetModifiedObjects()
@@ -132,11 +129,8 @@ cms.Process.deleteAction=new_deleteAction
 
 def new_disableRecording(self):
     if self.__dict__['_Process__enableRecording'] == 0:
-        # remeber modifications in history
-        modification = self.dumpModifications(False)
-        if modification!="":
-            modifiedObjects=self.dumpModifiedObjects()
-            self.__dict__['_Process__history'].append((modification,modifiedObjects))
+        # remember modifications in history
+        self.__dict__['_Process__history']+=self.dumpModificationsWithObjects()
         self.resetModified()
         self.resetModifiedObjects()
     self.__dict__['_Process__enableRecording'] += 1
@@ -230,14 +224,14 @@ def new_dumpModifications(self,comments=True):
     return dumpModifications
 cms.Process.dumpModifications=new_dumpModifications
 
-def new_dumpModifiedObjects(self):
-    modifiedObjects = []
+def new_dumpModificationsWithObjects(self):
+    modifications = []
     for name, o in self.items_():
-        if self.recurseDumpModifications_(name, o, False) != "" and\
-            not o in modifiedObjects:
-            modifiedObjects += [o]
-    return modifiedObjects+self.modifiedObjects()
-cms.Process.dumpModifiedObjects=new_dumpModifiedObjects
+        m=self.recurseDumpModifications_(name, o, False)
+        if m != "":
+            modifications += [(m,[o])]
+    return modifications
+cms.Process.dumpModificationsWithObjects=new_dumpModificationsWithObjects
 
 def new_moduleItems_(self):
     items = []
