@@ -66,7 +66,7 @@ private:
     const edm::InputTag hepMCLabel_;
     const edm::InputTag beamSpotLabel_;
 
-    double badD0Pull_;
+    double badPull_;
     double longLivedDecayLength_;
     double vertexClusteringSqDistance_;
     unsigned int numberOfInnerLayers_;
@@ -107,7 +107,7 @@ private:
 
     edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
 
-    reco::TrackBase::Point beamSpot_;
+    edm::Handle<reco::BeamSpot> beamSpot_;
 
     //! Classify all the tracks by their association and reconstruction information
     void reconstructionInformation(reco::TrackBaseRef const &);
