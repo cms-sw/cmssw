@@ -1,9 +1,11 @@
 import copy
-import FWCore.ParameterSet.Config as cms  
+import FWCore.ParameterSet.Config as cms
 
+#import PhysicsTools.PatAlgos.Config as cms
 class parameter:
     pass
 
+        
 class ConfigToolBase(object) :
 
     """ Base class for PAT tools
@@ -12,7 +14,8 @@ class ConfigToolBase(object) :
     _defaultValue="No default value. Set parameter value."
     def __init__(self):
         self._parameters={}
-        self._description=self.__doc__  
+        self._description=self.__doc__
+        self._comment = ''
     def __call__(self):
         """ Call the istance 
         """
@@ -20,9 +23,8 @@ class ConfigToolBase(object) :
     def __copy__(self):
         c=type(self)()
         c.setParameters(copy.deepcopy(self._parameters))
+        c.setComment(self._comment)
         return c
-    def apply(self,process):
-        raise NotImplementedError
     def setDefaultParameters(self):
         pass
     def reset(self):
@@ -71,16 +73,17 @@ class ConfigToolBase(object) :
     def setComment(self, comment):
         """ Write a comment in the configuration file
         """
-        dumpPython='#'+comment+'\n'
-        return dumpPython
+        self._comment = comment
+                
 
     def errorMessage(self,value,type):
         return "The type for parameter "+'"'+str(value)+'"'+" is not "+'"'+str(type)+'"'
 
-    def typeError(self,name, bool):
+    def typeError(self,name, bool=False):
         if bool is False:
             if not isinstance(self._parameters[name].value,self._parameters[name].type):
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
         else:
             if not (isinstance(self._parameters[name].value,self._parameters[name].type) or self._parameters[name].value is None):
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
+            
