@@ -37,9 +37,9 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-   {"http://uaf-2.t2.ucsd.edu/~yanjuntu/fireworks/","Example Files from Web","t"},
+   {"http://uaf-2.t2.ucsd.edu/~yanjuntu/fireworks/","Pre-selected example files","t"},
    {"http://", "Web site known by you",0},
-   {"file:","local file",0},
+   {"file:","local file [you must type full path name]",0},
    {"dcap://","dCache [FNAL]",0},
    {"rfio://","Castor [CERN]",0}
 };
@@ -54,8 +54,8 @@ static const char *s_noBrowserMessage[] = {
    "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
    "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
    "<BODY> ",
-   "No file browser is available for this prefix<BR>",
-   "Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name is supported for browsing."
+   "No file browser is available for this prefix.  You can still type the full URL into the above text box to open the EDM ROOT file.<BR>",
+   "Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
    "</BODY></HTML> ",
    0
 };
@@ -172,6 +172,8 @@ CmsShowSearchFiles::hyperlinkClicked(const char* iLink)
    
    if(postfix !=s_rootPostfix) {
       updateBrowser();
+   } else {
+      openClicked();
    }
 }
 
