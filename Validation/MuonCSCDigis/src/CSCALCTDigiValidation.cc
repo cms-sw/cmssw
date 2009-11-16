@@ -29,16 +29,12 @@ CSCALCTDigiValidation::CSCALCTDigiValidation(DQMStore* dbe, const edm::InputTag 
 
 CSCALCTDigiValidation::~CSCALCTDigiValidation()
 {
-  /*
   for(int i = 0; i < 10; ++i)
   {
-    std::cout << "Mean of " << theTimeBinPlots[i]->getName() 
+    edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
       << " is " << theTimeBinPlots[i]->getMean() 
-      << " +/- " << theTimeBinPlots[i]->getRMS() << std::endl;
-    std::cout << "RMS of " << theResolutionPlots[i]->getName() 
-      << " is " << theResolutionPlots[i]->getRMS() << std::endl;
+      << " +/- " << theTimeBinPlots[i]->getRMS();
   }
-  */
 }
 
 
@@ -50,16 +46,13 @@ void CSCALCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
   if (!alcts.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get alcts by label " << theInputTag.encode();
   }
-
   unsigned nDigisPerEvent = 0;
 
   for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
     std::vector<CSCALCTDigi>::const_iterator beginDigi = (*j).second.first;
     std::vector<CSCALCTDigi>::const_iterator endDigi = (*j).second.second;
-    int detId = (*j).first.rawId();
-    
-    const CSCLayer * layer = findLayer(detId);
-    int chamberType = layer->chamber()->specs()->chamberType();
+    CSCDetId detId((*j).first.rawId());
+    int chamberType = detId.iChamberType();
     int nDigis = endDigi-beginDigi;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlots[chamberType-1]->Fill(nDigis);
@@ -69,6 +62,5 @@ void CSCALCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
     {
       theTimeBinPlots[chamberType-1]->Fill(digiItr->getBX());
     }
-
   }
 }

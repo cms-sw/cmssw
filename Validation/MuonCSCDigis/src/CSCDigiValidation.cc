@@ -70,6 +70,9 @@ void CSCDigiValidation::analyze(const edm::Event&e, const edm::EventSetup& event
   theStripDigiValidation->setGeometry( pGeom );
   theWireDigiValidation->setGeometry( pGeom );
   theComparatorDigiValidation->setGeometry( pGeom );
+  theALCTDigiValidation->setGeometry( pGeom );
+  theCLCTDigiValidation->setGeometry( pGeom );
+
 
   theStripDigiValidation->analyze(e,eventSetup);
   theWireDigiValidation->analyze(e,eventSetup);
