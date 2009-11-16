@@ -1,4 +1,3 @@
-<use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Algorithm>
 <use name=DetectorDescription/Base>
 <use name=DetectorDescription/Core>
