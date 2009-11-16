@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.108 2009/11/16 17:26:31 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.109 2009/11/16 21:01:50 chrjones Exp $
 //
 
 // system include files
@@ -456,7 +456,7 @@ CmsShowMain::openDataViaURL()
       m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("", 
                                                                                 "Open Remote Data Files",
                                                                                 m_guiManager->getMainFrame(),
-                                                                                500, 200));
+                                                                                500, 400));
       m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
