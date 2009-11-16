@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.30 2009/08/26 12:14:25 wteo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.32 2009/10/27 08:55:00 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -818,18 +818,21 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
   
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
-  iEvent.getByLabel (l2collectionTag_,l2mucands);
-  //iEvent.getByLabel (l3collectionTag_,l3mucands);
+  Handle<L2MuonTrajectorySeedCollection> l2seeds; 
+  Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
   
-  Handle<L2MuonTrajectorySeedCollection> l2seeds; 
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
-  Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   //iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+  //iEvent.getByLabel (l2collectionTag_,l2mucands);
+  //iEvent.getByLabel (l3collectionTag_,l3mucands);
 
-  if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-  if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) {
-    if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
+  if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
+    iEvent.getByLabel (l2collectionTag_,l2mucands);
+    if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) {
+      iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+      if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
+    }
   }
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {

@@ -15,18 +15,18 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L2 muon
 	cms.PSet(
 		directoryName = cms.string('L2PassThrough'),
-		triggerBits = cms.vstring('HLT_L2Mu3','HLT_L2Mu9')
+		triggerBits = cms.vstring('HLT_L2Mu3','HLT_L2Mu9','HLT_L2Mu0_NoVertex')
 	),
     	# L3 muon
 	cms.PSet(
 		directoryName = cms.string('L3Triggers'),
-		triggerBits = cms.vstring('HLT_Mu3','HLT_Mu5')
-	),
-    	# JetStream
-	cms.PSet(
-		directoryName = cms.string('JetStream'),
-		triggerBits = cms.vstring('HLT_Jet15U', 'HLT_Jet30U')
+		triggerBits = cms.vstring('HLT_Mu3','HLT_Mu5','HLT_Mu9','HLT_TkMu3_NoVertex')
 	)
+    	# JetStream
+	#cms.PSet(
+	#	directoryName = cms.string('JetStream'),
+	#	triggerBits = cms.vstring('HLT_Jet15U', 'HLT_Jet30U')
+	#)
     ),
     disableROOToutput = cms.untracked.bool(True)
 )
