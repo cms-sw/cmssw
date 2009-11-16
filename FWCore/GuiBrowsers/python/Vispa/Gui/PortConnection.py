@@ -61,6 +61,8 @@ class PointToPointConnection(ZoomableWidget):
         self.setFocusPolicy(self.FOCUSPOLICY)
         self.setType(self.CONNECTION_TYPE)
         
+        self.updateConnection()
+        
         # debug
         #self.setAutoFillBackground(True)
         #self.setPalette(QPalette(Qt.green))

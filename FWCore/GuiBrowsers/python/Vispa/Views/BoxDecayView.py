@@ -124,7 +124,7 @@ class BoxDecayView(WidgetView):
             widget = ConnectableWidget(widgetParent)
             widget.noRearangeContent()
             widget.setText(text)
-            widget.textField().setOutputFlags(0)
+            widget.textField().setOutputFlags(Qt.AlignLeft)
             widget.setShowPortNames(True)
         widget.setDragable(False)
         widget.setDeletable(False)
@@ -168,14 +168,7 @@ class BoxDecayView(WidgetView):
         connection = LinearPortConnection(w1.parent(), port1, port2)
         connection.setSelectable(False)
         connection.setDeletable(False)
-        # need to move connection or hide
-        # otherwise childrenRect() will be too big when called for first layout
-        #connection.move(1, 50)
-        #connection.hide()
-        
-        # found real solution:
-        # call updateConnections of ConnectableWidgetOwner before 
-        # childrenRect is called for the first time
+
         if color:
             connection.FILL_COLOR2 = color
         return connection
@@ -241,6 +234,12 @@ class BoxDecayView(WidgetView):
 
         i = 1
         for object in otherChildren:
+            # Process application event loop in order to accept user input during time consuming drawing operation
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
             # create box
             text = ""
             if self._boxContentScript != "":
@@ -262,12 +261,6 @@ class BoxDecayView(WidgetView):
             return None
 
         for widget in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            self._updateCounter+=1
-            if self._updateCounter>=self.UPDATE_EVERY:
-                self._updateCounter=0
-                if not Application.NO_PROCESS_EVENTS:
-                    QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 return None
@@ -338,14 +331,14 @@ class BoxDecayView(WidgetView):
             if object in sv.dataObjects():
                 self._selection = "subview-" + str(self._subViews.index(sv)) + "-" + str(sv.dataObjects().index(object))
 
-    def select(self, object):
+    def select(self, object, offset=5):
         """ Mark an object as selected. Also in subviews.
         """
         logging.debug(self.__class__.__name__ + ": select")
-        WidgetView.select(self, object)
+        WidgetView.select(self, object, offset)
         for sv in self._subViews:
             if object in sv.dataObjects():
-                sv.select(object)
+                sv.select(object, offset)
     
     def selection(self):
         """ Return the selected object. Also in subviews.
@@ -429,5 +422,6 @@ class BoxDecayContainer(WidgetContainer):
                 # remember the position below all other objects as min_y
                 min_y = y + widget.height() + widget.getDistance("topMargin")
         self.autosizeScrollArea()
+        self.updateConnections()
         return True
     autolayoutAlgorithm = staticmethod(autolayoutAlgorithm)

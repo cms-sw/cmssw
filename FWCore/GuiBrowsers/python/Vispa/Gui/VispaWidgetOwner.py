@@ -22,6 +22,14 @@ class VispaWidgetOwner(object):
             if isinstance(self.parent(), VispaWidgetOwner):
                 self.parent().widgetSelected(widget)
             
+    def widgetDoubleClicked(self, widget):
+        """ Forward selection information to super class if it is a VispaWidgetOwner.
+        """
+        #logging.debug(self.__class__.__name__ +": widgetDoubleClicked()")
+        if isinstance(self, QObject):
+            if isinstance(self.parent(), VispaWidgetOwner):
+                self.parent().widgetDoubleClicked(widget)
+            
     def widgetMoved(self, widget):
         """ Tell parent widget has moved.
         

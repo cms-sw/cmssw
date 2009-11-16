@@ -2,7 +2,7 @@ import logging
 import sys
 
 from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon
+from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
@@ -64,6 +64,7 @@ class PropertyView(QTableWidget, AbstractView):
         self._readOnly = False
         self._showAddDeleteButtonFlag = False
         
+        self.connect(self.horizontalHeader(), SIGNAL("sectionResized(int,int,int)"), self.sectionResized)
         self.connect(self, SIGNAL("itemDoubleClicked(QTableWidgetItem *)"), self.itemDoubleClickedSlot)
         
     def cancel(self):
@@ -163,6 +164,15 @@ class PropertyView(QTableWidget, AbstractView):
         """
         if event != None:
             QTableWidget.resizeEvent(self, event)
+        space = self.width() - 4
+        if self.verticalScrollBar().isVisible():
+            space -= self.verticalScrollBar().width()
+        space -= self.columnWidth(0)
+        self.setColumnWidth(1, space)
+        if self.updateIni:
+            self.writeIni()
+
+    def sectionResized(self,index,old,new):
         space = self.width() - 4
         if self.verticalScrollBar().isVisible():
             space -= self.verticalScrollBar().width()

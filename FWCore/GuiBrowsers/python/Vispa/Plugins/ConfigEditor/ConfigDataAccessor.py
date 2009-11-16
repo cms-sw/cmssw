@@ -11,7 +11,6 @@ import FWCore.ParameterSet.SequenceTypes as sqt
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
-import FWCore.GuiBrowsers.ParameterSet_patch 
 
 imported_configs = {}
 file_dict = {}
@@ -90,10 +89,11 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             if isinstance(o, sqt._Sequenceable):
                 self._readRecursive(next_mother, o)
  
-    def _readPaths(self, path_list, mother=None):
-        """ Read objects from list of paths """
-        for path in path_list:
-            self._readRecursive(mother, path)
+    def allObjects(self):
+        objects=[]
+        for o in self.topLevelObjects():
+            objects+=self.allChildren(o)
+        return objects
 
     def readConnections(self, objects):
         """ Read connection between objects """
@@ -104,7 +104,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 module = str(value).split(":")[0]
                 product = ".".join(str(value).split(":")[1:])
                 found = False
-                for entry2 in objects:
+                for entry2 in self.allObjects():
                     if self._cancelOperationsFlag:
                         break
                     if module == self.label(entry2):
@@ -178,18 +178,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if self.process():
             self.setProcess(self.process())
             self._readHeaderInfo()
-            if not self._isReplaceConfig:
+            if not self._isReplaceConfig and hasattr(self.process(),"resetHistory"):
                 self.process().resetHistory()
         else:
             self._initLists()
-            path_list = []
             for entry in dir(self._file):
-                if entry[0] != "_" and entry != "cms" and hasattr(getattr(self._file, entry), "label_"):
+                o=getattr(self._file, entry)
+                if entry[0] != "_" and entry != "cms" and hasattr(o, "label_"):
                     getattr(self._file, entry).setLabel(entry)
-                    text = os.path.splitext(os.path.basename(file_dict[getattr(self._file, entry).label_()]))[0]
-                    if text == os.path.splitext(os.path.basename(self._filename))[0]:
-                        path_list += [getattr(self._file, entry)]
-            self._readPaths(path_list)
+                    text = os.path.splitext(os.path.basename(file_dict[o.label_()]))[0]
+                    if text == os.path.splitext(os.path.basename(self._filename))[0] and not o in self._allObjects:
+                        self._readRecursive(None, o)
         return True
 
     def setProcess(self,process):
@@ -217,7 +216,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         for foldername, entry in folder_list:
             folder = ConfigFolder(foldername, process_folder)
             self._allObjects += [folder]
-            self._readPaths(entry, folder)
+            for path in entry:
+                self._readRecursive(folder, path)
 
     def process(self):
         if hasattr(self._file, "process"):
@@ -277,16 +277,11 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         return isinstance(object, (ConfigFolder, list, cms.Path, cms.Sequence))
 
     def nonSequenceChildren(self, object):
-        objects = []
-        if not self.isContainer(object):
-            objects = [object]
+        if self.isContainer(object):
+            objects = [child for child in self.allChildren(object) if not self.isContainer(child) and len(self.children(child)) == 0]
         else:
-            for o in self.children(object):
-                if not self.isContainer(o):
-                    objects += [o]
-                else:
-                    objects += [child for child in self.allChildren(o) if len(self.children(child)) == 0]
-        return tuple(objects)
+            objects = self.motherRelations(object)+[object]+self.daughterRelations(object)
+        return objects
                 
     def motherRelations(self, object):
         """ Get motherRelations of an object """

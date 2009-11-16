@@ -56,7 +56,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         else:
             return None
 
-    def select(self, object):
+    def select(self, object, offset=5):
         """ Mark an object as selected.
         """
         widget = self.widgetByObject(object)
@@ -66,7 +66,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
             widget.select()
             self._updatingFlag -=1
             if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
-                self.parent().parent().ensureWidgetVisible(widget,0,0)
+                self.parent().parent().ensureWidgetVisible(widget,offset,offset)
         else:
             self._selection = None
             self._updatingFlag +=1

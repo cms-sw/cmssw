@@ -1,6 +1,6 @@
 import logging
 
-from PyQt4.QtCore import Qt,QCoreApplication
+from PyQt4.QtCore import Qt,QCoreApplication,SIGNAL
 
 from Vispa.Main.Application import Application
 from Vispa.Views.BoxDecayView import BoxDecayView
@@ -46,23 +46,30 @@ class ConfigEditorBoxView(BoxDecayView):
             w1 = self.widgetByObject(connection[0])
             w2 = self.widgetByObject(connection[2])
             if w1 and w2:
-                col = - 1
-                if widgetParent:
-                    for w in widgetParent.children():
-                        if isinstance(w, PortConnection):
-                            if w.sourcePort() == self.createSourcePort(w1, connection[1]):
-                                col = w.colorIndex
-                            if w.sinkPort().parent() == w1:
-                                col = w.colorIndex
-                if col < 0:
+                if hasattr(w1,"colorIndex"):
+                    col = w1.colorIndex
+                else:
                     self._colorIndex += 1
                     if self._colorIndex >= len(self._colors):
                         self._colorIndex = 0
                     col = self._colorIndex
+                    w1.colorIndex=col
+                    w2.colorIndex=col
                 connectionWidget = self.createConnection(w1, connection[1], w2, connection[3], self._colors[col])
-                connectionWidget.colorIndex = self._colorIndex
                 connectionWidget.show()
         return True
+    
+    def widgetDoubleClicked(self, widget):
+        """ Emits signal widgetSelected that the TabController can connect to.
+        """
+        logging.debug(__name__ + ": widgetDoubleClicked")
+        BoxDecayView.widgetDoubleClicked(self, widget)
+        if hasattr(widget, "object"):
+            if hasattr(widget, "positionName"):
+                self._selection = widget.positionName
+                self.emit(SIGNAL("doubleClicked"), widget.object)
+            else:
+                self.emit(SIGNAL("doubleClicked"), widget.object())
 
 class ConnectionStructureView(ConfigEditorBoxView):
     LABEL="Connection structure"

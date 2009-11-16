@@ -67,6 +67,16 @@ class ConfigEditorTabController(BrowserTabController):
     def dumpAction(self):
         return self._dumpAction
     
+    def updateViewMenu(self):
+        BrowserTabController.updateViewMenu(self)
+        self.disconnect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onCenterViewDoubleClicked)
+        self.connect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onCenterViewDoubleClicked)
+
+    def onCenterViewDoubleClicked(self,object):
+        logging.debug(__name__ + ": onCenterViewDoubleClicked()")
+        self.tab().treeView().select(object)
+        self.onTreeViewSelected(object)
+
     def updateCenterView(self, propertyView=True):
         """ Fill the center view from an item in the TreeView and update it """
         statusMessage = self.plugin().application().startWorking("Updating center view")
@@ -101,7 +111,10 @@ class ConfigEditorTabController(BrowserTabController):
                 self.tab().centerView().setArrangeUsingRelations(False)
                 self.tab().centerView().setConnections([])
         if self.tab().centerView().updateContent():
-            self.tab().centerView().restoreSelection()
+            if select in objects:
+                self.tab().centerView().select(select,500)
+            else:
+                self.tab().centerView().restoreSelection()
             select = self.tab().centerView().selection()
             if select != None:
                 if self.tab().propertyView().dataObject() != select and propertyView:

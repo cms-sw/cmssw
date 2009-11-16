@@ -73,10 +73,10 @@ class LineDecayView(WidgetView):
                 # event or event view
                 eventWidget = self.createLineDecayContainer(object)
                 existingWidgets += [eventWidget]
-                if self.dataAccessor():
-                    for childObject in self.applyFilter(self.dataAccessor().children(object)):
-                        if self.dataAccessor().isContainer(childObject):
-                            self.createLineDecayContainer(childObject, object)
+#                if self.dataAccessor():
+#                    for childObject in self.applyFilter(self.dataAccessor().children(object)):
+#                        if self.dataAccessor().isContainer(childObject):
+#                            self.createLineDecayContainer(childObject, object)
             else:
                 # particle
                 particleWidget = ParticleWidget(self, ParticleWidget.NONE, "", "")
@@ -572,7 +572,9 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 self._updatingFlag -=1
                 return False
             for childObject in self.applyFilter(self.dataAccessor().children(self._pxlObject)):
-                if not self.dataAccessor().isContainer(childObject):
+                if self.dataAccessor().isContainer(childObject):
+                    self.createChildContainer(childObject)
+                else:
                     self.addDecayObject(childObject)
                 
         for child in self.children():

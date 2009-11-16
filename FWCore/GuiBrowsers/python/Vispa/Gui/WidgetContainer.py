@@ -148,11 +148,12 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         
         Overwritten function of ConnectableWidgetOwner.
         """
-        ConnectableWidgetOwner.widgetMoved(self, widget)
         if self.autosizeEnabled():
             self.autosize()
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
             connection.updateConnection()
+            
+        ConnectableWidgetOwner.widgetMoved(self, widget)
     
     def mouseDoubleClickEvent(self, event):
         """ Call toggleCollapse().

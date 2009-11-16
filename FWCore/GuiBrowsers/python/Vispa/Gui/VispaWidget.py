@@ -29,8 +29,7 @@ class TextField(object):
         self._penColor = QColor(Qt.black)
         self._minFontSize = 1
         self._maxFontSize = 30
-        self.outputFlags = 0
-        
+        self._outputFlags = Qt.AlignLeft
         
         self._defaultWidth = self.WIDTH
         self._defaultHeight = self.HEIGHT
@@ -178,12 +177,12 @@ class TextField(object):
     def setOutputFlags(self, flags):
         """ Set Qt output flags for drawing text.
         """
-        self.outputFlags = flags
+        self._outputFlags = flags
     
     def  getOutputFlags(self):
         """ Returns set output flags.
         """
-        return self.outputFlags
+        return self._outputFlags
     
     def truncated(self):
         """ Returns True if text was truncated.
@@ -236,7 +235,7 @@ class TextField(object):
         
         if not self._autoscaleKeepAspectRatioFlag:
             # test for replacing else part in while-loop (2009-02-23)
-            neededRect = fm.boundingRect(0, 0, self._defaultWidth*100, self._defaultHeight*100, self.outputFlags, self._text)
+            neededRect = fm.boundingRect(0, 0, self._defaultWidth*100, self._defaultHeight*100, self._outputFlags, self._text)
             self._width = neededRect.width()
             self._height = neededRect.height()
             return
@@ -251,7 +250,7 @@ class TextField(object):
                     self._width += 1
                 if not heightFits:
                     self._height += 1
-            neededRect = fm.boundingRect(0, 0, self._width, self._height, self.outputFlags, self._text)
+            neededRect = fm.boundingRect(0, 0, self._width, self._height, self._outputFlags, self._text)
             if neededRect.width() <= self._width:
                 widthFits = True
                 self._width += 1 # prevent slightly too small width (maybe due to rounding while zoooming)
@@ -268,33 +267,24 @@ class TextField(object):
             
         drawRect = self.getDrawRect()
         font = self._font
-        decSize = percentSize = 0
+        decSize = 0
         for size in range(self._minFontSize + 1, self._maxFontSize + 1):
-            font.setPointSizeF(size + 0.1 * decSize + 0.01 * percentSize)    
+            font.setPointSizeF(size + 0.1 * decSize)    
             fm = QFontMetricsF(font)
-            neededRect = fm.boundingRect(drawRect, self.outputFlags, self._text)
+            neededRect = fm.boundingRect(drawRect, self._outputFlags, self._text)
             if neededRect.width() > drawRect.width() or neededRect.height() > drawRect.height():
                 size -= 1
                 break
             
         for decSize in range(0, 10):
-            font.setPointSizeF(size + 0.1 * decSize + 0.01 * percentSize)    
+            font.setPointSizeF(size + 0.1 * decSize)    
             fm = QFontMetricsF(font)
-            neededRect = fm.boundingRect(drawRect, self.outputFlags, self._text)
+            neededRect = fm.boundingRect(drawRect, self._outputFlags, self._text)
             if neededRect.width() > drawRect.width() or neededRect.height() > drawRect.height():
                 decSize -= 1
                 break
             
-        for percentSize in range(0, 10):
-            font.setPointSizeF(size + 0.1 * decSize + 0.01 * percentSize)
-            
-            fm = QFontMetricsF(font)
-            neededRect = fm.boundingRect(drawRect, self.outputFlags, self._text)
-            if neededRect.width() > drawRect.width() or neededRect.height() > drawRect.height():
-                percentSize -= 1
-                break
-            
-        self._fontSize = size + 0.1 * decSize + 0.01 * percentSize
+        self._fontSize = size + 0.1 * decSize
         #print "determineTextFieldSize(", self._fontSize, ")"
         
     def truncate(self):
@@ -311,7 +301,7 @@ class TextField(object):
             
         for pattern in patterns:
             short.append(pattern)
-            neededRect = fm.boundingRect(drawRect, self.outputFlags, short)
+            neededRect = fm.boundingRect(drawRect, self._outputFlags, short)
             
             if neededRect.width() > drawRect.width() or neededRect.height() > drawRect.height():
                 break
@@ -648,7 +638,11 @@ class VispaWidget(ZoomableWidget):
 
         if self.isSelected() and isinstance(self.parent(), VispaWidgetOwner):
             self.parent().widgetSelected(self)
-        
+    
+    def mouseDoubleClickEvent(self, event):
+        if isinstance(self.parent(), VispaWidgetOwner):
+            self.parent().widgetDoubleClicked(self)
+    
     def isSelected(self):
         """ Returns True if widget is selected.
         """
