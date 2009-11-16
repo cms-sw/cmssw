@@ -63,6 +63,7 @@ HLT_CSCBeamHaloOverlapRing2
 HLT_CSCBeamHaloRing2or3
 HLT_BackwardBSC
 HLT_ForwardBSC
+HLT_HighMultiplicityBSC
 HLT_TrackerCosmics
 HLT_StoppedHSCP_8E29
 HLT_IsoTrackHB_8E29
