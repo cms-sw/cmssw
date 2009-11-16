@@ -1,13 +1,20 @@
 from copy import deepcopy
 import inspect
 
+ACTIVATE_INSPECTION=True
+
 #### helpers for inspection ####
 
 def auto_inspect():
+    if not ACTIVATE_INSPECTION:
+        return [("unknown","unknown","unknown")]
     stack = inspect.stack()
-    while 'ParameterSet' in stack[0][1]:
+    while len(stack)>=1 and len(stack[0])>=2 and 'ParameterSet' in stack[0][1]:
         stack = stack[1:]
-    return stack
+    if len(stack)>=1 and len(stack[0])>=3:
+       return stack
+    else:
+       return [("unknown","unknown","unknown")]
 
 #### patches needed for deepcopy of process ####
 
