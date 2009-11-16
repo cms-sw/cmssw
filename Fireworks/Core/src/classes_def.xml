@@ -34,4 +34,5 @@
   <class name="FWGUIEventFilter"/>
   <class name="FWGUIEventSelector"/>
   <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
+  <class name="CmsShowSearchFiles"/>
 </lcgdict>
