@@ -1,26 +1,22 @@
 import FWCore.ParameterSet.Config as cms
-from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a better way to do this, once I discover the difference between import and load
-from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
-
+from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # need for setHcalTaskValues, setHcalSubdetTaskValues functions
+from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * 
 
 process = cms.Process("HCALDQM")
 
-#-----------------------------------
+#------------------------------------------------------
 #  variables used in multiple places
-#-----------------------------------                      
+#-----------------------------------------------------                      
 
-maxevents      = 2000       # maximum number of events to process
-checkNevents   = 1000    # histograms are filled 'every checkNevents' events
+maxevents      = 1000    # maximum number of events to process
+checkNevents   = 1000    # some histograms are filled 'every checkNevents' events; others are filled every luminosity block or every event
 debuglevel     = 0      # larger value means more debug messages (0=no debug)
-dump2database  = False  # turn on to dump out channel status in form DB can use
+databasedir  = ''       # Set to an existing directory to dump out database info
 
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
+source="NewEventStreamFileReader"
 memcheck=False          # Dump out memory usage information
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# Reduce frequency of MessageLogger event output messages
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 #----------------------------
 # Specify Event Source
@@ -63,7 +59,11 @@ elif source=="NewEventStreamFileReader":
         # example file from online (cmsusr0) directory (lookarea_SM)
         #'file:/lookarea_SM/MWGR_40_2009.00116136.0036.A.storageManager.07.0000.dat',
         #'/store/streamer/RunPrep09/A/000/120/325/RunPrep09.00120325.0002.A.storageManager.06.0001.dat',
-        '/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0196.A.storageManager.04.0000.dat'
+        #'/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0196.A.storageManager.04.0000.dat'
+        #Francesco's check
+        '/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0060.A.storageManager.00.0000.dat',
+        #'/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0060.A.storageManager.01.0000.dat',
+        '/store/streamer/RunPrep09/A/000/120/331/RunPrep09.00120331.0197.A.storageManager.07.0000.dat'
         )
                                 )
 
@@ -84,6 +84,15 @@ elif source=="HcalTBSource":
         'HCAL_Trigger','HCAL_SlowData'
         )
                                 )
+
+
+#-------------------------------------------
+#  Message Logger stuff
+#-------------------------------------------
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+# Reduce frequency of MessageLogger event output messages
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 
 #----------------------------
@@ -111,10 +120,12 @@ process.dqmSaver.saveByRun = 1
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 
+# Use https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
+# to choose appropriate global tags
+
 # lxplus
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFrontierConditions twiki
-process.GlobalTag.globaltag = "GR09_P_V4::All" 
+process.GlobalTag.globaltag = "GR09_P_V5::All" 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
@@ -289,7 +300,7 @@ process.hcalMonitor.DeadCellMonitor               = True
 process.hcalMonitor.HotCellMonitor                = True
 process.hcalMonitor.BeamMonitor                   = True
 process.hcalMonitor.ReferencePedestalMonitor      = True
-process.hcalMonitor.LaserMonitor  =                 False
+process.hcalMonitor.LaserMonitor                  = True
 
 process.hcalMonitor.DetDiagNoiseMonitor           = False
 process.hcalMonitor.DetDiagTimingMonitor          = False
@@ -300,6 +311,7 @@ process.hcalMonitor.DetDiagPedestalMonitor        = False
 process.hcalMonitor.DataIntegrityTask             = False
 
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
+
 setHcalTaskValues(process.hcalMonitor)
 
 process.hcalMonitor.subSystemFolder = subsystem
@@ -308,12 +320,17 @@ process.hcalMonitor.subSystemFolder = subsystem
 #(otherwise they will remain set to the values specified for the hcalMonitor.)
 
 # Loosen HF hot cell thresholds when using cosmic reconstruction
-process.hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
-process.hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
+#process.hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
+#process.hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
+
 process.hcalMonitor.ReferencePedestalMonitor_makeDiagnosticPlots = True
-#-----------------------------
+process.hcalMonitor.DigiMonitor_makeDiagnosticPlots = True
+process.hcalMonitor.RecHitMonitor_makeDiagnosticPlots = True
+process.hcalMonitor.ReferencePedestalMonitor_minEntriesPerPed=1
+process.hcalMonitor.BeamMonitor_lumiqualitydir="."
+#---------------------------------------------------------------------
 # Hcal DQM Client
-#-----------------------------
+#---------------------------------------------------------------------
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 
 # hcalClient configurable values ------------------------
@@ -321,17 +338,19 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
 process.hcalClient.subSystemFolder  = subsystem
 
-#Unnecessary?
-#process.hcalClient.prefixME = cms.untracked.string(subsystem)
+# Set client settings to the same as monitor.
+# At the moment, this doesn't affect the client minErrorFlag
+# Summary Client is also unaffected, since we want that on all the time
 
-# Set client settings to the same as monitor.  At the moment, this doesn't affect the client minErrorFlag
-# Summary Client is also unaffected
+process.hcalClient.databasedir   = databasedir
 
-process.hcalClient.dump2database   = dump2database
-setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=debuglevel)
+setHcalClientValuesFromMonitor(process.hcalClient,
+                               process.hcalMonitor,
+                               debug=debuglevel)
 
 # Keep Summary Client turned on
 process.hcalClient.SummaryClient        = True
+
 
 #----------------------------------------
 # Scheduling & Path to follow each event

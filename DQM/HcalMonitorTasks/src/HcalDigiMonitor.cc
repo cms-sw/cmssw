@@ -59,7 +59,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       std::cout << "<HcalDigiMonitor> Digi ADC occupancy threshold set to: >" << occThresh_ << std::endl;
       std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ << std::endl;
     }
-  makeDiagnostics = ps.getUntrackedParameter<bool>("DigiMonitor_MakeDiagnosticPlots",false); // not yet used
+  makeDiagnostics = ps.getUntrackedParameter<bool>("DigiMonitor_makeDiagnosticPlots",false); // not yet used
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("DigiMonitor_DigisPerchannel",false); // not yet used -- never will be?
   if (fVerbosity>1)
@@ -577,7 +577,6 @@ template <class DIGI>
 int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 {
   int err=0x0;
-  
   bool occ=false;
   bool bitUp = false;
   int ADCcount=0;
@@ -633,6 +632,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int tssum=0;
 
   bool digi_error=false;
+
   for (int i=0;i<digi.size();++i)
     {
       if (makeDiagnostics)
@@ -644,6 +644,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	  // Check for digi error bits
 	  if (digi_checkdverr_)
 	    {
+	      //cout <<"CHECK DV"<<endl;
 	      if(digi.sample(i).er()) err=(err|0x2);
 	      if(!digi.sample(i).dv()) err=(err|0x2);
 	    }

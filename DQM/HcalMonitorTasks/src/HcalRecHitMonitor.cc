@@ -4,8 +4,7 @@
 //to exclude bits 2 to 5
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
-#define TIME_MIN -250
-#define TIME_MAX 250
+
 
 using namespace std;
 
@@ -175,8 +174,8 @@ void HcalRecHitMonitor::beginRun()
       h_HBThreshEnergy=m_dbe->book1D("HB_energy_thresh", "HB RecHit Energy Above Threshold",200,-5,5);
       h_HBTotalEnergy=m_dbe->book1D("HB_total_energy","HB RecHit Total Energy",200,-200,200);
       h_HBThreshTotalEnergy=m_dbe->book1D("HB_total_energy_thresh", "HB RecHit Total Energy Above Threshold",200,-200,200);
-      h_HBTime=m_dbe->book1D("HB_time","HB RecHit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
-      h_HBThreshTime=m_dbe->book1D("HB_time_thresh", "HB RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+      h_HBTime=m_dbe->book1D("HB_time","HB RecHit Time",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
+      h_HBThreshTime=m_dbe->book1D("HB_time_thresh", "HB RecHit Time Above Threshold",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
       h_HBOccupancy=m_dbe->book1D("HB_occupancy","HB RecHit Occupancy",2593,-0.5,2592.5);
       h_HBThreshOccupancy=m_dbe->book1D("HB_occupancy_thresh","HB RecHit Occupancy Above Threshold",2593,-0.5,2592.5);
       
@@ -186,8 +185,8 @@ void HcalRecHitMonitor::beginRun()
       h_HEThreshEnergy=m_dbe->book1D("HE_energy_thresh", "HE RecHit Energy Above Threshold",200,-5,5);
       h_HETotalEnergy=m_dbe->book1D("HE_total_energy","HE RecHit Total Energy",200,-200,200);
       h_HEThreshTotalEnergy=m_dbe->book1D("HE_total_energy_thresh", "HE RecHit Total Energy Above Threshold",200,-200,200);
-      h_HETime=m_dbe->book1D("HE_time","HE RecHit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
-      h_HEThreshTime=m_dbe->book1D("HE_time_thresh", "HE RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+      h_HETime=m_dbe->book1D("HE_time","HE RecHit Time",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
+      h_HEThreshTime=m_dbe->book1D("HE_time_thresh", "HE RecHit Time Above Threshold",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
       h_HEOccupancy=m_dbe->book1D("HE_occupancy","HE RecHit Occupancy",2593,-0.5,2592.5);
       h_HEThreshOccupancy=m_dbe->book1D("HE_occupancy_thresh","HE RecHit Occupancy Above Threshold",2593,-0.5,2592.5);
       
@@ -197,8 +196,8 @@ void HcalRecHitMonitor::beginRun()
       h_HOThreshEnergy=m_dbe->book1D("HO_energy_thresh", "HO RecHit Energy Above Threshold",200,-5,5);
       h_HOTotalEnergy=m_dbe->book1D("HO_total_energy","HO RecHit Total Energy",200,-200,200);
       h_HOThreshTotalEnergy=m_dbe->book1D("HO_total_energy_thresh", "HO RecHit Total Energy Above Threshold",200,-200,200);
-      h_HOTime=m_dbe->book1D("HO_time","HO RecHit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
-      h_HOThreshTime=m_dbe->book1D("HO_time_thresh", "HO RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+      h_HOTime=m_dbe->book1D("HO_time","HO RecHit Time",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
+      h_HOThreshTime=m_dbe->book1D("HO_time_thresh", "HO RecHit Time Above Threshold",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
       h_HOOccupancy=m_dbe->book1D("HO_occupancy","HO RecHit Occupancy",2161,-0.5,2160.5);
       h_HOThreshOccupancy=m_dbe->book1D("HO_occupancy_thresh","HO RecHit Occupancy Above Threshold",2161,-0.5,2160.5);
       
@@ -208,8 +207,8 @@ void HcalRecHitMonitor::beginRun()
       h_HFThreshEnergy=m_dbe->book1D("HF_energy_thresh", "HF RecHit Energy Above Threshold",200,-5,5);
       h_HFTotalEnergy=m_dbe->book1D("HF_total_energy","HF RecHit Total Energy",200,-200,200);
       h_HFThreshTotalEnergy=m_dbe->book1D("HF_total_energy_thresh", "HF RecHit Total Energy Above Threshold",200,-200,200);
-      h_HFTime=m_dbe->book1D("HF_time","HF RecHit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
-      h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+      h_HFTime=m_dbe->book1D("HF_time","HF RecHit Time",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
+      h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF RecHit Time Above Threshold",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
       h_HFOccupancy=m_dbe->book1D("HF_occupancy","HF RecHit Occupancy",1729,-0.5,1728.5);
       h_HFThreshOccupancy=m_dbe->book1D("HF_occupancy_thresh","HF RecHit Occupancy Above Threshold",1729,-0.5,1728.5);
     } // if (rechit_Diagnostics_)
@@ -399,11 +398,11 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	    {
 	      ++hbocc;
 	      hbenergy+=en;
-	      if (ti<TIME_MIN || ti>TIME_MAX)
+	      if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
 		h_HBTime->Fill(ti);
 	      else
-		++HBtime_[int(ti-TIME_MIN)];
-	      if (en<5 || en>-5)
+		++HBtime_[int(ti-RECHITMON_TIME_MIN)];
+	      if (en<-5 || en>5)
 		h_HBEnergy->Fill(en);
 	      else
 		++HBenergy_[20*int(en+5)];
@@ -411,11 +410,11 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		{
 		  ++hboccthresh;
 		  hbenergythresh+=en;
-		  if (ti<TIME_MIN || ti>TIME_MAX)
+		  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
 		    h_HBThreshTime->Fill(ti);
 		  else
-		    ++HBtime_thresh_[int(ti-TIME_MIN)];
-		  if (en<5 || en>-5)
+		    ++HBtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
+		  if (en<-5 || en>5)
 		    h_HBThreshEnergy->Fill(en);
 		  else
 		    ++HBenergy_thresh_[20*int(en+5)];
@@ -455,7 +454,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		h_HETime->Fill(ti);
 	      else
 		++HEtime_[int(ti+100)];
-	      if (en<5 || en>-5)
+	      if (en<-5 || en>5)
 		h_HEEnergy->Fill(en);
 	      else
 		++HEenergy_[20*int(en+5)];
@@ -467,7 +466,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		    h_HEThreshTime->Fill(ti);
 		  else
 		    ++HEtime_thresh_[int(ti+100)];
-		  if (en<5 || en>-5)
+		  if (en<-5 || en>5)
 		    h_HEThreshEnergy->Fill(en);
 		  else
 		    ++HEenergy_thresh_[20*int(en+5)];
@@ -523,6 +522,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
 	 time_[calcEta][iphi-1][depth-1]+=ti;
 
+	 
 	 if (en>=HOenergyThreshold_)
 	   {
 	     ++occupancy_thresh_[calcEta][iphi-1][depth-1];
@@ -537,7 +537,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	       h_HOTime->Fill(ti);
 	     else
 	       ++HOtime_[int(ti+100)];
-	     if (en<5 && en>-5)
+	     if (en<-5 || en>5)
 	       h_HOEnergy->Fill(en);
 	     else
 	       ++HOenergy_[20*int(en+5)];
@@ -549,7 +549,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		   h_HOThreshTime->Fill(ti);
 		 else
 		   ++HOtime_thresh_[int(ti+100)];
-		 if (en<5 && en>-5)
+		 if (en<-5 || en>5)
 		   h_HOThreshEnergy->Fill(en);
 		 else
 		   ++HOenergy_thresh_[20*int(en+5)];
@@ -612,7 +612,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	       h_HFTime->Fill(ti);
 	     else
 	       ++HFtime_[int(ti+100)];
-	     if (en<5 && en>-5)
+	     if (en<-5 || en>5)
 	       h_HFEnergy->Fill(en);
 	     else
 	       ++HFenergy_[20*int(en+5)];
@@ -624,7 +624,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		   h_HFThreshTime->Fill(ti);
 		 else
 		   ++HFtime_thresh_[int(ti+100)];
-		 if (en<5 && en>-5)
+		 if (en<-5 || en>5)
 		   h_HFThreshEnergy->Fill(en);
 		 else
 		   ++HFenergy_thresh_[20*int(en+5)];
@@ -753,7 +753,7 @@ void HcalRecHitMonitor::fill_Nevents(void)
 	}
     }// for (int i=0;i<200;++i) // Jeff
 
-  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
+  for (int i=0;i<(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN);++i)
     {
       if (HBtime_[i]!=0)
 	{
@@ -788,7 +788,7 @@ void HcalRecHitMonitor::fill_Nevents(void)
 	{
 	  h_HFThreshTime->setBinContent(i+1,HFtime_thresh_[i]);
 	}
-    } // for (int  i=0;i<(TIME_MAX-TIME_MIN);++i)
+    } // for (int  i=0;i<(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN);++i)
 
   for (int i=0;i<2593;++i)
     {
@@ -897,7 +897,7 @@ void HcalRecHitMonitor::zeroCounters(void)
     }
 
   // time
-  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
+  for (int i=0;i<(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN);++i)
     {
       HBtime_[i]=0;
       HBtime_thresh_[i]=0;

@@ -11,10 +11,13 @@
 #include <iostream>
 #include <fstream>
 
+#define RECHITMON_TIME_MIN -250
+#define RECHITMON_TIME_MAX 250
+
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/11/10 21:03:13 $
-  * $Revision: 1.34 $
+  * $Date: 2009/11/11 20:54:29 $
+  * $Revision: 1.35 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -81,34 +84,34 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
 
   double HBenergy_[200];
   double HBenergy_thresh_[200];
-  double HBtime_[300];
-  double HBtime_thresh_[300];
+  double HBtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HBtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HB_occupancy_[2593];
   double HB_occupancy_thresh_[2593];
   double HEenergy_[200];
   double HEenergy_thresh_[200];
-  double HEtime_[300];
-  double HEtime_thresh_[300];
+  double HEtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HEtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HE_occupancy_[2593];
   double HE_occupancy_thresh_[2593];
   double HOenergy_[200];
   double HOenergy_thresh_[200];
-  double HOtime_[300];
-  double HOtime_thresh_[300];
+  double HOtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HOtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HO_occupancy_[2161];
   double HO_occupancy_thresh_[2161];
   double HFenergy_[200];
   double HFenergy_thresh_[200];
-  double HFtime_[300];
-  double HFtime_thresh_[300];
+  double HFtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HFenergyLong_[200];
   double HFenergyLong_thresh_[200];
-  double HFtimeLong_[300];
-  double HFtimeLong_thresh_[300];
+  double HFtimeLong_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtimeLong_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HFenergyShort_[200];
   double HFenergyShort_thresh_[200];
-  double HFtimeShort_[300];
-  double HFtimeShort_thresh_[300];
+  double HFtimeShort_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtimeShort_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HF_occupancy_[1729];
   double HF_occupancy_thresh_[1729];
   double HFlong_occupancy_[865];

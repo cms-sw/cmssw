@@ -391,7 +391,7 @@ void HcalHotCellClient::analyze(void)
 void HcalHotCellClient::calculateProblems()
 {
   getHistograms();
-  if (ievt_<=0) return;
+
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
 
@@ -401,6 +401,15 @@ void HcalHotCellClient::calculateProblems()
   for  (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
     if (ProblemCellsByDepth.depth[d]!=0) 
       ProblemCellsByDepth.depth[d]->Reset();
+
+  // totalevents still has to come from the task histograms, since offline running won't process the 'ievt' value into a sum.
+  // (Should we book ievt as a histogram within the tasks, so that we can get the value directly from offline?)
+  double totalevents=0;
+  if (hotclient_test_persistent_) totalevents = AbovePersistentThresholdCellsByDepth[0]->GetBinContent(0);
+  if (totalevents==0 && hotclient_test_neighbor_) totalevents = AboveNeighborsHotCellsByDepth[0]->GetBinContent(0);
+  if (totalevents==0 && hotclient_test_energy_)   totalevents = AboveEnergyThresholdCellsByDepth[0]->GetBinContent(0);
+  if (totalevents==0)
+    return;
 
   // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
   // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
@@ -427,7 +436,7 @@ void HcalHotCellClient::calculateProblems()
 		  problemvalue+=AboveNeighborsHotCellsByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (hotclient_test_energy_)
 		  problemvalue+=AboveEnergyThresholdCellsByDepth[d]->GetBinContent(eta+1,phi+1);
-	      problemvalue = min((double)ievt_, problemvalue);
+	      problemvalue = min((double)totalevents, problemvalue);
 	      if (problemvalue==0) continue; // no problem found
 	      zside=0;
 	      if (d<2)
@@ -435,8 +444,8 @@ void HcalHotCellClient::calculateProblems()
 		  if (isHF(eta,d+1))
 		    ieta<0 ? zside = -1 : zside= 1;
 		}
-	      ProblemCellsByDepth.depth[d]->Fill(ieta+zside,phi+1,problemvalue/ievt_);
-	      ProblemCells->Fill(ieta+zside,phi+1,problemvalue/ievt_);
+	      ProblemCellsByDepth.depth[d]->Fill(ieta+zside,phi+1,problemvalue/totalevents);
+	      ProblemCells->Fill(ieta+zside,phi+1,problemvalue/totalevents);
 	    } // loop over phi
 	} // loop over eta
     } //loop over d

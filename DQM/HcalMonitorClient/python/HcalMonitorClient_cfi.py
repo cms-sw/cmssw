@@ -6,8 +6,6 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
                           Online                    = cms.untracked.bool(False), 
-
-                          dump2database             = cms.untracked.bool(False), # dumps channel status to text file
                           databasedir               = cms.untracked.string(''),
 
                           # maximum number of lumi blocks to appear in some histograms
@@ -168,7 +166,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "HcalMonitorClient values from HcalMonitorModule: "
         print "Debug              = ", client.debug
         print "Online             = ", client.Online
-        print "Dump to database   ? ", client.dump2database
+        print "Channel status output dir = ", client.databasedir
         print "Nlumiblocks        = ", client.Nlumiblocks
         print "showTiming         = ", client.showTiming
         print "PrescaleEvt        = ", client.diagnosticPrescaleEvt

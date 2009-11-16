@@ -94,7 +94,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
       else std::cout << "-->standAlone switch is OFF" << endl;
     }
 
-  dump2database_ = ps.getUntrackedParameter<bool>("dump2database",false);
   databasedir_   = ps.getUntrackedParameter<std::string>("databasedir","");
 
   // clients' constructors
@@ -290,7 +289,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( detdiaglas_client_ ) detdiaglas_client_->beginRun();
   /////////////////////////////////////////////////////////
 
-  if (!dump2database_) return;
+  if (databasedir_.size()==0) return;
   // Get current channel quality 
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
@@ -370,7 +369,7 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 void HcalMonitorClient::writeDBfile()
 
 {
-  if (!dump2database_) return;
+  if (databasedir_.size()==0) return;
   if (debug_>0) std::cout <<"<HcalMonitorClient::writeDBfile>  Writing file for database"<<endl;
   std::vector<DetId> mydetids = chanquality_->getAllChannels();
   HcalChannelQuality* newChanQual = new HcalChannelQuality();
@@ -402,8 +401,7 @@ void HcalMonitorClient::writeDBfile()
     } // for (unsigned int i=0;...)
       // Now dump out to text file
   std::ostringstream file;
-  if (databasedir_!="")
-    databasedir_=databasedir_+"/";
+  databasedir_=databasedir_+"/"; // add extra slash, just in case
   file <<databasedir_<<"HcalDQMstatus_"<<irun_<<".txt";
   std::ofstream outStream(file.str().c_str());
   HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));

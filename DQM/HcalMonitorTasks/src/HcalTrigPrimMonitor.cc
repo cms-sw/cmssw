@@ -24,7 +24,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   ZSAlarmThreshold_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_ZSAlarmThreshold", 0);
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("TrigPrimMonitor_AllowedCalibTypes",AllowedCalibTypes_);
-
+  makeDiagnostics = ps.getUntrackedParameter<bool>("TrigPrimMonitor_makeDiagnosticPlots",makeDiagnostics);
   return;
 }
 

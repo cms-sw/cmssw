@@ -196,8 +196,7 @@ public:
   //////////////////////////////////////////////////
 
   // myquality_ will store status values for each det ID I find
-  bool dump2database_;
-  std::string databasedir_;
+  std::string databasedir_; // empty string means don't dump out db info
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
 

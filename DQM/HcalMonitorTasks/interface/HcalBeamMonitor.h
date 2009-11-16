@@ -11,13 +11,15 @@
 
 // Use for stringstream
 #include <iostream>
+#include <fstream>
+
 #include <iomanip>
 #include <cmath>
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/11/10 21:03:13 $
-  * $Revision: 1.12 $
+  * $Date: 2009/11/11 20:54:29 $
+  * $Revision: 1.13 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -27,7 +29,7 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   ~HcalBeamMonitor();
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::EventSetup& c, int run);
   void processEvent(const  HBHERecHitCollection& hbHits,
 		    const  HORecHitCollection& hoHits, 
 		    const  HFRecHitCollection& hfHits,
@@ -48,7 +50,6 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   bool     beammon_makeDiagnostics_;
   int      beammon_checkNevents_;
   double   beammon_minErrorFlag_;
-  int      beammon_lumiprescale_;
 
   std::map<int,MonitorElement* > HB_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
@@ -126,6 +127,9 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   static const float area[];
   static const float radius[];
 
+  std::string beammon_lumiqualitydir_;
+  std::ostringstream outfile_;
+  int irun_;
 }; // class HcalBeamMonitor
 
 #endif  

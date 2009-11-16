@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/10 21:03:12 $
- * $Revision: 1.146 $
+ * $Date: 2009/11/11 20:54:34 $
+ * $Revision: 1.147 $
  * \author W Fisher
  * \author J Temple
  *
@@ -394,7 +394,7 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   if (digiMon_)   digiMon_->beginRun();
   if (pedMon_)    pedMon_->beginRun();
   if (rhMon_)     rhMon_->beginRun();
-  if (beamMon_)   beamMon_->beginRun(c); // pass in event setup to get list of bad channel quality cells 
+  if (beamMon_)   beamMon_->beginRun(c,run.run()); // pass in event setup to get list of bad channel quality cells 
   if (expertMon_) expertMon_->beginRun();
   if (pedMon_)    pedMon_->beginRun();
   if (ledMon_)    ledMon_->beginRun();
@@ -498,15 +498,17 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 //--------------------------------------------------------
 void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					   const edm::EventSetup& context) {
-  // fill plots every N lumi blocks
-  if (prescaleLS_>0 && !prescale())
-  {
-    // do scheduled tasks...
-    if (beamMon_) beamMon_->endLuminosityBlock();
-    if (digiMon_) digiMon_->endLuminosityBlock();
-    if (rhMon_)   rhMon_  ->endLuminosityBlock();
-    //if (deadMon_) deadMon_->endLuminosityBlock();
-  }
+  
+  // Call these every luminosity block
+  if (beamMon_) beamMon_->endLuminosityBlock();
+  if (digiMon_) digiMon_->endLuminosityBlock();
+  if (rhMon_)   rhMon_  ->endLuminosityBlock();
+
+  // Call these only if prescale set
+  if (prescaleLS_>-1 && !prescale())
+    {
+    }
+  return;
 }
 
 //--------------------------------------------------------
@@ -538,6 +540,8 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   // Ditto for rechit monitor
   if (rhMon_!=NULL)
     rhMon_->endLuminosityBlock();
+  if (beamMon_!=NULL)
+    beamMon_->endLuminosityBlock();
 
   if (dfMon_!=NULL) dfMon_->UpdateMEs();
   /////////////////////////////////////////////////////
@@ -697,7 +701,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     // checking FEDs for calibration information
     int numEmptyFEDs = 0 ;
     std::vector<int> calibTypeCounter(8,0) ;
-    std::vector<int> eventsByType(8,0) ;
     for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawraw->FEDData(i) ;
       if ( fedData.size() < 24 ) numEmptyFEDs++ ;

@@ -58,18 +58,26 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   // These two variables aren't yet in use
   beammon_checkNevents_    = ps.getUntrackedParameter<int>("BeamMonitor_checkNevents",checkNevents_);
   beammon_minErrorFlag_    = ps.getUntrackedParameter<double>("BeamMonitor_minErrorFlag",0.);
-  beammon_lumiprescale_   = ps.getUntrackedParameter<int>("BeamMonitor_lumiprescale",1);
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("BeamMonitor_AllowedCalibTypes",AllowedCalibTypes_);
+  beammon_lumiqualitydir_ = ps.getUntrackedParameter<std::string>("BeamMonitor_lumiqualitydir","");
 
   return;
 }
 
-void HcalBeamMonitor::beginRun(const edm::EventSetup& c)
+void HcalBeamMonitor::beginRun(const edm::EventSetup& c, int run)
 {
   HcalBaseMonitor::beginRun();  // increment counters
-
   // Default number of expected good channels in the run
-
+  irun_ = run;
+  if (beammon_lumiqualitydir_.size()>0)
+    {
+      outfile_ <<beammon_lumiqualitydir_<<"/HcalHFLumistatus_"<<irun_<<".txt";
+      std::ofstream outStream(outfile_.str().c_str(),ios::out);
+      outStream<<"## Run "<<run<<endl;
+      outStream<<"## LumiBlock\tRing1Status\tRing2Status\t GlobalStatus"<<endl;
+      outStream.close();
+    }
+  // Default number of expected good channels in the run
   ring1totalchannels_=144;
   ring2totalchannels_=144;
   BadCells_.clear(); // remove any old maps
@@ -308,23 +316,23 @@ void HcalBeamMonitor::beginRun(const edm::EventSetup& c)
   HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2;wedge",36,1,37);
   HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2;wedge",36,1,37);
       
-  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-  HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-  HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block;LS;ET",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block;LS;ET",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->getTProfile()->SetMarkerStyle(20);
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->getTProfile()->SetMarkerStyle(20);
   HFlumi_Et_per_channel_vs_lumiblock->getTProfile()->SetMarkerStyle(20);
 
-  HFlumi_Ring1Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring1Status_vs_LS","Fraction of good Ring 1 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-  HFlumi_Ring2Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring2Status_vs_LS","Fraction of good Ring 2 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Ring1Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring1Status_vs_LS","Fraction of good Ring 1 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+  HFlumi_Ring2Status_vs_LS = m_dbe->bookProfile("HFlumi_Ring2Status_vs_LS","Fraction of good Ring 2 channels vs LS;LS; Fraction of Good Channels",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
   HFlumi_Ring1Status_vs_LS->getTProfile()->SetMarkerStyle(20);
   HFlumi_Ring2Status_vs_LS->getTProfile()->SetMarkerStyle(20);
 
   return;
 
-} // void HcalBeamMonitor::beginRun(const EventSetup& c)
+} // void HcalBeamMonitor::beginRun(const EventSetup& c, int run)
 
 void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				   const HORecHitCollection& hoHits,
@@ -1040,15 +1048,30 @@ void HcalBeamMonitor::endLuminosityBlock()
     } // loop over x
 
   // Fill fraction of bad channels found in this LS
-  if (ring1totalchannels_!=0)
-    HFlumi_Ring1Status_vs_LS->Fill(lumiblock,1-1.*badring1/ring1totalchannels_);
+  double ring1status=0, ring2status=0;
+  if (ring1totalchannels_==0)
+    ring1status=0;
   else
-    HFlumi_Ring1Status_vs_LS->Fill(lumiblock,0);
-  if (ring2totalchannels_!=0)
-    HFlumi_Ring2Status_vs_LS->Fill(lumiblock,1-1.*badring2/ring2totalchannels_);
+    ring1status=1-1.*badring1/ring1totalchannels_;
+  HFlumi_Ring1Status_vs_LS->Fill(lumiblock,ring1status);
+  if (ring2totalchannels_==0)
+    ring2status=0;
   else
-    HFlumi_Ring2Status_vs_LS->Fill(lumiblock,0);
+    ring2status=1-1.*badring2/ring2totalchannels_;
+  HFlumi_Ring2Status_vs_LS->Fill(lumiblock,ring2status);
+
+  // Good status:  ring1 and ring2 status both > 90%
+  bool totalstatus=false;
+  if (ring1status>0.9 && ring2status>0.9)
+    totalstatus=true;
+
   LBprocessed_=true;
+  if (beammon_lumiqualitydir_.size()==0)
+    return;
+  // dump out lumi quality file
+  std::ofstream outStream(outfile_.str().c_str(),ios::app);
+  outStream<<lumiblock<<"\t\t"<<ring1status<<"\t\t"<<ring2status<<"\t\t"<<totalstatus<<endl;
+  outStream.close();
   return;
 }
 

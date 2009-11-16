@@ -412,7 +412,8 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
   // Do Digi-Based dead cell searches 
 
 
-  // Dummy fills
+  // Dummy fills needed for client normalization of problems
+  // (though not necessarily here; we could do this in endluminosityblock)
   for (unsigned int i=0;i<DigiPresentByDepth.depth.size();++i)
     DigiPresentByDepth.depth[i]->setBinContent(0,0,ievt_); 
     
