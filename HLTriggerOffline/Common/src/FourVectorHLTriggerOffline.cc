@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.30 2009/06/28 23:27:43 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.31 2009/11/13 20:41:06 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -618,6 +618,23 @@ vector< pair<int,int> > FourVectorHLTriggerOffline::ParseTriggerType(const std::
 }
 
 
+std::string FourVectorHLTriggerOffline::ParseL1SeedModule(const std::string& pathname)
+{
+  std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+  std::string l1pathname = "dummy";
+  for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+      numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+    //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+    if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
+      {
+	edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+	//                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+	//  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+	return *numpathmodule;  
+      }
+  } 
+  return l1pathname;	   
+}
 
 // BeginRun
 void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -665,24 +682,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	    objectType = !objectTypeList.empty()?objectTypeList[0].first:0;
 	    std::vector< pair<int,int> > denomobjectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(denompathname);
 	    denomobjectType = !denomobjectTypeList.empty()?denomobjectTypeList[0].first:0;
-	    // find L1 condition for numpath with numpath objecttype 
-	    // find PSet for L1 global seed for numpath, 
-	    // list module labels for numpath
-	    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-
-	    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-		numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
-	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-		{
-		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
-		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
-		  //  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
-		  l1pathname = *numpathmodule; 
-		  break; 
-		}
-	    } 
-   
+            l1pathname = FourVectorHLTriggerOffline::ParseL1SeedModule(pathname);
     
 	    std::string filtername("dummy");
 	    float ptMin = 0.0;
@@ -713,22 +713,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	    // find PSet for L1 global seed for numpath, 
 	    // list module labels for numpath
 	    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-
-	    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-		numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
-	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-		{
-		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
-		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
-		  //l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression"); 
-		  l1pathname = *numpathmodule;
-		  break; 
-		}
-	    } 
-   
-    
-
+            l1pathname = FourVectorHLTriggerOffline::ParseL1SeedModule(pathname);
 
 
 	    std::string filtername("dummy");
@@ -780,34 +765,10 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 		  //cout << pathname << "\t" << denompathname << endl;
 		  std::string l1pathname = "dummy";
 		  int objectType = 0;
-		  //int denomobjectType = 0;
-
 
 		  std::vector< pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
 		  objectType = !objectTypeList.empty()?objectTypeList[0].first:0;
-		  // find L1 condition for numpath with numpath objecttype 
-		  // find PSet for L1 global seed for numpath, 
-		  // list module labels for numpath
-  
-		  std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-    
-		  for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-		      numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-		    //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
-		    if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
-		      {
-			edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
-			//                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
-			// l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
-			l1pathname = *numpathmodule;
-			//cout << *numpathmodule << endl; 
-			break; 
-		      }
-		  }
-    
-    
-
-
+                  l1pathname = FourVectorHLTriggerOffline::ParseL1SeedModule(pathname);
 
 		  std::string filtername("dummy");
 		  float ptMin = 0.0;
