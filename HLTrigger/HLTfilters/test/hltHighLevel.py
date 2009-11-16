@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('TEST')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.destinations.append('log.txt')
 
 # read back the trigger decisions
 process.source = cms.Source('PoolSource',
