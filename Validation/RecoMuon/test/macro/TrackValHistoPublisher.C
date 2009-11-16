@@ -436,6 +436,12 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/pullDz",sh6);
 
 
+   fixRangeY(rh1,sh1);
+   fixRangeY(rh2,sh2);
+   fixRangeY(rh3,sh3);
+   fixRangeY(rh4,sh4);
+   fixRangeY(rh5,sh5);
+   fixRangeY(rh6,sh6);
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
@@ -484,6 +490,153 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
+   //===== residuals
+
+   TH2F *rtemp, *stemp;
+   TH1F *rproj, *sproj;
+
+   rdir->GetObject(collname1+"/ptres_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/ptres_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres1 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F *shres1 = new TH1F(*sproj);
+
+   rdir->GetObject(collname1+"/etares_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/etares_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres2 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F* shres2 = new TH1F(*sproj);
+
+   rdir->GetObject(collname1+"/phires_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/phires_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres3 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F* shres3 = new TH1F(*sproj);
+
+   rdir->GetObject(collname1+"/cotThetares_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/cotThetares_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres4 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F* shres4 = new TH1F(*sproj);
+
+   rdir->GetObject(collname1+"/dxyres_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/dxyres_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres5 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F* shres5 = new TH1F(*sproj);
+
+   rdir->GetObject(collname1+"/dzres_vs_eta",rtemp);
+   sdir->GetObject(collname2+"/dzres_vs_eta",stemp);
+   rproj = (TH1F*) rtemp->ProjectionY();
+   TH1F *rhres6 = new TH1F(*rproj);
+   sproj = (TH1F*) stemp->ProjectionY();
+   TH1F* shres6 = new TH1F(*sproj);
+
+   NormalizeHistograms(rhres1,shres1);
+   NormalizeHistograms(rhres2,shres2);
+   NormalizeHistograms(rhres3,shres3);
+   NormalizeHistograms(rhres4,shres4);
+   NormalizeHistograms(rhres5,shres5);
+   NormalizeHistograms(rhres6,shres6);
+   fixRangeY(rhres1,shres1);
+   fixRangeY(rhres2,shres2);
+   fixRangeY(rhres3,shres3);
+   fixRangeY(rhres4,shres4);
+   fixRangeY(rhres5,shres5);
+   fixRangeY(rhres6,shres6);
+
+   rhres1->SetTitle("p_{t} resolution"); 
+   //   rh1->GetXaxis()->SetTitleSize(0.07);
+//   rh1->GetXaxis()->SetTitleOffset(0.6);
+//   rh1->GetXaxis()->SetTitle("(p_{t}(rec)-p_{t}(sim))/p_{t}(sim)");
+   shres1->SetTitle("p_{t} resolution"); 
+//   sh1->GetXaxis()->SetTitleSize(0.07);
+//   sh1->GetXaxis()->SetTitleOffset(0.6);
+//   sh1->GetXaxis()->SetTitle("(p_{t}(rec)-p_{t}(sim))/p_{t}(sim)");
+   rhres2->SetTitle("#eta resolution"); 
+//   rh2->GetXaxis()->SetTitleSize(0.07);
+//   rh2->GetXaxis()->SetTitleOffset(0.6);
+//   rh2->GetXaxis()->SetTitle("#eta(rec)-#eta(sim)");
+   shres2->SetTitle("#eta resolution"); 
+//   sh2->GetXaxis()->SetTitleSize(0.07);
+//   sh2->GetXaxis()->SetTitleOffset(0.6);
+//   sh2->GetXaxis()->SetTitle("#eta(rec)-#eta(sim)");
+   rhres3->SetTitle("#phi resolution"); 
+//   rh3->GetXaxis()->SetTitleSize(0.07);
+//   rh3->GetXaxis()->SetTitleOffset(0.6);
+//   rh3->GetXaxis()->SetTitle("#phi(rec)-#phi(sim)");
+   shres3->SetTitle("#phi resolution"); 
+//   sh3->GetXaxis()->SetTitleSize(0.07);
+//   sh3->GetXaxis()->SetTitleOffset(0.6);
+//   sh3->GetXaxis()->SetTitle("#phi(rec)-#phi(sim)");
+   rhres4->SetTitle("cot(#Theta) resolution"); 
+//   rh4->GetXaxis()->SetTitleSize(0.07);
+//   rh4->GetXaxis()->SetTitleOffset(0.6);
+//   rh4->GetXaxis()->SetTitle("cotTheta(rec)-cotTheta(sim)");
+   shres4->SetTitle("cot(#Theta) resolution"); 
+//   sh4->GetXaxis()->SetTitleSize(0.07);
+//   sh4->GetXaxis()->SetTitleOffset(0.6);
+//   sh4->GetXaxis()->SetTitle("cotTheta(rec)-cotTheta(sim)");
+   rhres5->SetTitle("dxy resolution"); 
+//   rh5->GetXaxis()->SetTitleSize(0.07);
+//   rh5->GetXaxis()->SetTitleOffset(0.6);
+//   rh5->GetXaxis()->SetTitle("dxy(rec)-dxy(sim)");
+   shres5->SetTitle("dxy resolution"); 
+//   sh5->GetXaxis()->SetTitleSize(0.07);
+//   sh5->GetXaxis()->SetTitleOffset(0.6);
+//   sh5->GetXaxis()->SetTitle("dxy(rec)-dxy(sim)");
+   rhres6->SetTitle("dz resolution"); 
+//   rh6->GetXaxis()->SetTitleSize(0.07);
+//   rh6->GetXaxis()->SetTitleOffset(0.6);
+//   rh6->GetXaxis()->SetTitle("dz(rec)-dz(sim)");
+   shres6->SetTitle("dz resolution"); 
+//   sh6->GetXaxis()->SetTitleSize(0.07);
+//   sh6->GetXaxis()->SetTitleOffset(0.6);
+//   sh6->GetXaxis()->SetTitle("dz(rec)-dz(sim)");
+
+   canvas = new TCanvas("Tracks5","Track residuals",1000,1400);
+
+   plotPulls(canvas,
+	     shres1,rhres1,shres2,rhres2,
+	     shres3,rhres3,shres4,rhres4,
+	     shres5,rhres5,shres6,rhres6,
+	     te,"UU",-1);
+
+   canvas->cd();
+
+   l = new TLegend(0.10,0.655,0.90,0.69);
+   //   l = new TLegend(0.20,0.655,0.80,0.69);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print(newDir+"/residuals.pdf");
+   delete l;
+   delete canvas;
+
+   delete rhres1;
+   delete shres1;
+   delete rhres2;
+   delete shres2;
+   delete rhres3;
+   delete shres3;
+   delete rhres4;
+   delete shres4;
+   delete rhres5;
+   delete shres5;
+   delete rhres6;
+   delete shres6;
+
    
 
    //===== resolutions vs eta
@@ -494,11 +647,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",sh2);
 
    rdir->GetObject(collname1+"/dxyres_vs_eta_Sigma",rh3);
-   //rdir->GetObject(collname1+"/sigmad0",rh3);
    sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",sh3);
 
    rdir->GetObject(collname1+"/dzres_vs_eta_Sigma",rh4);
-   //rdir->GetObject(collname1+"/sigmaz0",rh4);
    sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",sh4);
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Sigma",rh5);
@@ -506,7 +657,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   canvas = new TCanvas("Tracks5","Tracks: Dxy, Dz, Theta resolution",1000,1400);
+   canvas = new TCanvas("Tracks6","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
 		   sh1,rh1,sh2,rh2,
@@ -648,7 +799,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   canvas = new TCanvas("Tracks6","Tracks: Dxy, Dz, Theta mean values",1000,1400);
+   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta mean values",1000,1400);
 
    plotMeanValues(canvas,
 		   sh1,rh1,sh2,rh2,
@@ -793,7 +944,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //   sh6->GetXaxis()->SetRangeUser(0,maxPT);
 
 
-   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
+   canvas = new TCanvas("Tracks8","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
 	     sh1,rh1,sh2,rh2,
@@ -827,6 +978,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	       +newDir+"/hitsAndPt.pdf "
 	       +newDir+"/tuning.pdf "
 	       +newDir+"/pulls.pdf "
+	       +newDir+"/residuals.pdf "
 	       +newDir+"/resolutionsEta.pdf "
 	       +newDir+"/meanvaluesEta.pdf "
 	       +newDir+"/resolutionsPt.pdf ");
