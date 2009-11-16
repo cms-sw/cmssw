@@ -238,9 +238,9 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
   unsigned int anotherLayerNumber = anotherHit.layerNumber();
   isAProperPair = 
     // First hit on PXB1
-    ( (( theSubDetId == 1 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 1 && anotherLayerNumber == 2)) || 
-      ( anotherSubDetId == 2 && anotherLayerNumber == 1) ) || 
+    ( ( theSubDetId == 1 && theLayerNumber == 1 ) && (
+      ( anotherSubDetId == 1 && anotherLayerNumber == 2) || 
+      ( anotherSubDetId == 2 && anotherLayerNumber == 1) ) ) || 
       // First hit on PXB2
     ( ( theSubDetId == 1 && theLayerNumber == 2 ) && 
       ( anotherSubDetId == 1 && anotherLayerNumber == 3) ) || 
