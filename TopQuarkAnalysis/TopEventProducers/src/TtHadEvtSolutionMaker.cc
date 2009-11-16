@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.18 2009/04/29 13:29:11 snaumann Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.18.4.2 2009/11/06 13:21:31 eschliec Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +31,7 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
   maxDeltaS_       = iConfig.getParameter<double>           ("maxDeltaS");
   maxF_            = iConfig.getParameter<double>           ("maxF");
   jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
-  constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
+  constraints_     = iConfig.getParameter<std::vector<unsigned int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
   matchingAlgo_    = iConfig.getParameter<bool>             ("matchingAlgorithm");
   useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
