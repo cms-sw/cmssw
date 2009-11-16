@@ -46,7 +46,7 @@ private:
   edm::InputTag genParticles_;
 
   double zMassMin_, zMassMax_, ptmin_, etamax_, isomax_;
-  size_t nbinsPt_, nbinsEta_;
+  unsigned int nbinsPt_, nbinsEta_;
   reco::CandidateBaseRef globalMuonCandRef_, trackMuonCandRef_, standAloneMuonCandRef_;
   OverlapChecker overlap_;
 
@@ -122,8 +122,8 @@ ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
   ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
   etamax_(pset.getUntrackedParameter<double>("etamax")),  
   isomax_(pset.getUntrackedParameter<double>("isomax")), 
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")), 
-  nbinsEta_(pset.getUntrackedParameter<size_t>("nbinsEta")) {
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")), 
+  nbinsEta_(pset.getUntrackedParameter<unsigned int>("nbinsEta")) {
   Service<TFileService> fs;
   TFileDirectory trackEffDir = fs->mkdir("TrackEfficiency");
 

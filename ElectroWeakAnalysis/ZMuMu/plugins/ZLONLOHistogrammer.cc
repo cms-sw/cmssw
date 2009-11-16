@@ -9,7 +9,7 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endJob();
   edm::InputTag   gen_, weights_;
-  size_t nbinsMass_, nbinsPt_, nbinsAng_;
+  unsigned int nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;
   double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
@@ -44,9 +44,9 @@ using namespace edm;
 ZLONLOHistogrammer::ZLONLOHistogrammer(const ParameterSet& pset) :
   gen_(pset.getParameter<InputTag>("genParticles")),
   weights_(pset.getParameter<InputTag>("weights")),
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
