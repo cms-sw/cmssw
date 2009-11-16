@@ -31,6 +31,9 @@ namespace reco {
     //Correction to CaloMET y-component
     float DeltaMEy() const {return dMEy_;}
 
+    //Correction to SumEt
+    float DeltaSumEt() const { return dSumEt_;}
+
     //Get CaloMET Object corrected for BeamHalo
     reco::CaloMET GetCorrectedCaloMET(const reco::CaloMET& RawMET) const ;
 
