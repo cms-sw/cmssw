@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.2 2009/03/17 08:42:46 safronov Exp $
+// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.3 2009/09/14 15:48:16 kodolova Exp $
 //
 //
 
@@ -79,7 +79,8 @@ private:
   bool saveToFile_;
   std::string outRootFileName_;
   edm::InputTag hltEventTag_;
-  edm::InputTag hltFilterTag_;
+//  edm::InputTag hltFilterTag_;
+  std::vector<std::string> hltFilterTag_;
   edm::InputTag arITrLabel_;
   edm::InputTag recoTrLabel_;
   double pThr_;
@@ -123,6 +124,13 @@ private:
   int nHLTL3accepts;
   
   double getDist(double, double, double, double);
+
+// Sergey +
+
+  double getDistInCM(double eta1, double phi1, double eta2, double phi2);
+
+// Sergey -
+
   std::pair<int, int> towerIndex(double eta, double phi);
 
 };
@@ -134,7 +142,6 @@ double DQMHcalIsoTrackAlCaReco::getDist(double eta1, double phi1, double eta2, d
   double dr = sqrt(dphi*dphi + pow(eta1-eta2,2));
   return dr;
 }
-
 
 std::pair<int,int> DQMHcalIsoTrackAlCaReco::towerIndex(double eta, double phi) 
 {
@@ -176,7 +183,8 @@ DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfi
   saveToFile_=iConfig.getParameter<bool>("saveToFile");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");
-  hltFilterTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+//  hltFilterTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+  hltFilterTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
   arITrLabel_=iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel");
   recoTrLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
   pThr_=iConfig.getUntrackedParameter<double>("pThrL3",0);
@@ -192,6 +200,7 @@ DQMHcalIsoTrackAlCaReco::~DQMHcalIsoTrackAlCaReco()
 
 void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   nTotal++;
 
   edm::Handle<trigger::TriggerEvent> trEv;
@@ -206,9 +215,12 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
   const trigger::size_type nFilt(trEv->sizeFilters());
   for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
     {
-      if (trEv->filterTag(iFilt)==hltFilterTag_) 
+      for (unsigned l=0; l<hltFilterTag_.size(); l++)
 	{
-	  KEYS=trEv->filterKeys(iFilt);
+	  if (trEv->filterTag(iFilt).label()==hltFilterTag_[l]) 
+	    {
+	      KEYS=trEv->filterKeys(iFilt);
+	    }
 	}
     }
   
@@ -285,7 +297,8 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
       std::pair<int,int> TI=towerIndex(itr->eta(),itr->phi());
       hOccupancyFull->Fill(TI.first,TI.second,1);
       if (itr->p()>heLow_&&itr->p()<heUp_) hOccupancyHighEn->Fill(TI.first,TI.second,1);
-    }
+    }    
+      
 }
 
 void DQMHcalIsoTrackAlCaReco::beginJob(const edm::EventSetup&)
@@ -344,6 +357,7 @@ void DQMHcalIsoTrackAlCaReco::beginJob(const edm::EventSetup&)
   hOffL3TrackMatch->setAxisTitle("R(eta,phi)",1);
   hOffL3TrackPtRat=dbe_->book1D("hOffL3TrackPtRat","Ratio of pT: L3/offline",100,0,10);
   hOffL3TrackPtRat->setAxisTitle("ratio L3/offline",1);
+
 }
 
 void DQMHcalIsoTrackAlCaReco::endJob() {
