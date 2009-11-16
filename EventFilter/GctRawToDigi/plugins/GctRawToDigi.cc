@@ -35,6 +35,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getUntrackedParameter<int>("gctFedId", FEDNumbering::MINTriggerGCTFEDID)),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
+  numberOfGctSamplesToUnpack_(iConfig.getParameter<unsigned>("numberOfGctSamplesToUnpack")),
+  numberOfRctSamplesToUnpack_(iConfig.getParameter<unsigned>("numberOfRctSamplesToUnpack")),
   unpackSharedRegions_(iConfig.getParameter<bool>("unpackSharedRegions")),
   formatVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
   checkHeaders_(iConfig.getUntrackedParameter<bool>("checkHeaders",false)),
@@ -48,6 +50,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
 
   // If the GctFormatTranslate version has been forced from config file, instantiate the relevant one.
   /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
+  /***  WHEN THIS MESS IS REMOVED REMEMBER THAT THE V38 FORMAT TRANSLATE HAS A DIFERENT CTOR TO THE OTHERS ***/
   if(formatVersion_ == 0) { edm::LogInfo("GCT") << "The required GCT Format Translator will be automatically determined from the first S-Link packet header."; }
   else if(formatVersion_ == 1)
   {
@@ -62,7 +65,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   else if(formatVersion_ == 3)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV38";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);    
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_, numberOfGctSamplesToUnpack_, numberOfRctSamplesToUnpack_);    
   }
   else
   { 
@@ -231,6 +234,8 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   unsigned firmwareHeader = p32[2];
 
   /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
+  /***  WHEN THIS MESS IS REMOVED REMEMBER THAT THE V38 FORMAT TRANSLATE HAS A DIFERENT CTOR TO THE OTHERS ***/
+
   if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
@@ -240,7 +245,7 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   else if( firmwareHeader == 38 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_, numberOfGctSamplesToUnpack_, numberOfRctSamplesToUnpack_);
     return true;
   }
   else if( firmwareHeader == 0x00000000 )

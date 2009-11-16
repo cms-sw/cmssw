@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.30 2009/04/21 15:33:16 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.31 2009/09/18 15:07:05 jbrooke Exp $
 //
 //
 
@@ -85,7 +85,9 @@ private: // members
   edm::InputTag inputLabel_;  ///< FED collection label.
   int fedId_;                 ///< GCT FED ID.
 
-  const bool hltMode_;        ///< If true, only outputs the GT output data, and only BX = 0.
+  const bool hltMode_;        ///< If true, only outputs the GCT data sent to the GT (number of BXs defined by numberOfGctSamplesToUnpack_)
+  const unsigned numberOfGctSamplesToUnpack_; ///< Number of BXs of GCT data to unpack (assuming they are in the raw data)
+  const unsigned numberOfRctSamplesToUnpack_; ///< Number of BXs of RCT data to unpack (assuming they are in the raw data)
   const bool unpackSharedRegions_;  ///< Commissioning option: if true, where applicable the shared RCT calo regions will also be unpacked.
   const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
   const bool checkHeaders_;  ///< If true, check block headers for synchronisation
