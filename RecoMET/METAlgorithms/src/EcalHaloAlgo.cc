@@ -75,7 +75,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
 	  if( iPhi < 361 )	  // just to be safe
  	    {
-	      iPhi = iPhi/5;   // convert ecal iphi to phiwedge iphi  (e.g. there are 5 crystal per phi wedge, as in calotowers )
+	      iPhi = (iPhi-1)/5 +1;  // convert ecal iphi to phiwedge iphi  (e.g. there are 5 crystal per phi wedge, as in calotowers )
 	      SumE[iPhi] += hit->energy();
 	      NumHits[iPhi] ++;
 
