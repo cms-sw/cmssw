@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.82 2009/11/03 08:39:18 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.83 2009/11/10 14:38:11 amraktad Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ class FWViewManagerManager;
 class FWColorManager;
 class CmsShowBrightnessPopup;
 class CmsShowHelpPopup;
-class CmsShowSearchFiles;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -131,12 +130,6 @@ public:
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
-
-
-  void createSearchFiles ();
-  void resetSearchFiles ();
-
-  void openWebRootFiles(char *);
 
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;
@@ -290,7 +283,6 @@ private:
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
 
   
-   CmsShowSearchFiles *m_searchFiles;
    CmsShowMain *m_cmsShowMain;
   
   

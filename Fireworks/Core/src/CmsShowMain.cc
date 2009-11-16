@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.106 2009/11/14 11:31:13 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.107 2009/11/14 12:37:50 amraktad Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
+
 #include "TVirtualX.h"
 
 //
@@ -447,6 +449,37 @@ void CmsShowMain::openData()
    m_guiManager->clearStatus();
 }
 
+void 
+CmsShowMain::openDataViaURL()
+{
+   if (m_searchFiles.get() == 0) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      std::string filename= std::string(cmspath) + "/src/Fireworks/Core/data/datacatalog.html";
+      
+      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles(filename.c_str(), 
+                                                                                "Open Remote Data Files",
+                                                                                m_guiManager->getMainFrame(),
+                                                                                500, 200));
+      m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   std::string chosenFile = m_searchFiles->chooseFileFromURL();
+   m_guiManager->updateStatus("loading file ...");
+   if(!chosenFile.empty()) {
+      if(m_navigator->openFile(chosenFile.c_str())) {
+         m_navigator->firstEvent();
+         checkPosition();
+         draw();
+         m_guiManager->clearStatus();
+      } else {
+         m_guiManager->updateStatus("failed to load data file");
+      }
+   }   
+}
+
+
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
    m_eiManager->add(iItem);
@@ -812,6 +845,7 @@ CmsShowMain::setupDataHandling()
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
    m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessage,m_guiManager.get(),_1));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)

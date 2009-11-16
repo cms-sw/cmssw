@@ -32,7 +32,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
-
+#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 namespace {
    struct Fireworks_Core {
       //add 'dummy' Wrapper variable for each class type you put into the Event

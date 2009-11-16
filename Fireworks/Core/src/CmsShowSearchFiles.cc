@@ -1,29 +1,265 @@
 #include <stdexcept>
+#include <iostream>
 #include "TGClient.h"
 #include "TGHtml.h"
-#include "TGHtmlBrowser.h"
+#include "TGButton.h"
+#include "TGMenu.h"
 #include "TGText.h"
 #include "TSystem.h"
+#include "TGFrame.h"
+#include "TGLabel.h"
+#include "TGTextEntry.h"
+#include "TPluginManager.h"
+#include "TUrl.h"
+#include "TSocket.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
+static const unsigned int s_columns = 3;
+static const char* const s_prefixes[][s_columns] ={ 
+   {"http://", "Web Site",0},
+   {"http://uaf-2.t2.ucsd.edu/~yanjuntu/fireworks/","Example Files from Web","t"},
+   {"file:","local file",0},
+   {"dcap://","dCache [FNAL]",0},
+   {"rfio://","Castor [CERN]",0}
+};
+
+static const std::string s_httpPrefix("http:");
+static const std::string s_filePrefix("file:");
+static const std::string s_rootPostfix(".root");
+
+
+static const char *s_noBrowserMessage[] = {
+   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
+   "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
+   "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
+   "<BODY> ",
+   "<P>No file browser is available for this prefix</P>",
+   "<P>Only a prefix beginning in <BOLD>http:</BOLD> is supported for browsing.</P>"
+   "</BODY></HTML> ",
+   0
+};
+
+static const char *s_readError[] = {
+   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
+   "<HTML><HEAD><TITLE>HTTP Read Error</TITLE> ",
+   "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
+   "<BODY> ",
+   "<P>Unknown error while trying to get file via http</P>",
+   "</BODY></HTML> ",
+   0
+};
 
 
 CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
-                                    const std::string &windowname,
+                                    const char* windowname,
                                     const TGWindow* p, UInt_t w, UInt_t h)
-   : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
-     m_searchFileHtml(new TGHtmlBrowser(filename,this,w, h))
+   : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h)
 {
-   AddFrame(m_searchFileHtml, new TGLayoutHints(kLHintsTop | kLHintsLeft |
-                                          kLHintsExpandX | kLHintsExpandY));
-   SetWindowName(windowname.c_str());
-   MapSubwindows();
-   m_searchFileHtml->Layout();
-}
+   TGVerticalFrame* vf = new TGVerticalFrame(this);
+   this->AddFrame(vf,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5));
+   TGHorizontalFrame* urlFrame = new TGHorizontalFrame(this);
+   vf->AddFrame(urlFrame,new TGLayoutHints(kLHintsExpandX));
+   
+   TGLabel* urlLabel = new TGLabel(urlFrame,"URL");
+   urlFrame->AddFrame(urlLabel, new TGLayoutHints(kLHintsLeft,1,1,1,1));
+   m_choosePrefix = new TGTextButton(urlFrame,"Choose Prefix");
+   urlFrame->AddFrame(m_choosePrefix, new TGLayoutHints(kLHintsLeft,1,1,1,1));
+   
+   m_file= new TGTextEntry(urlFrame);
+   urlFrame->AddFrame(m_file, new TGLayoutHints(kLHintsExpandX,1,1,1,1));
+   m_file->Connect("TextChanged(const char*)", "CmsShowSearchFiles",this,"fileEntryChanged(const char*)");
+   m_file->Connect("ReturnPressed()", "CmsShowSearchFiles",this,"updateBrowser()");
+   
+   m_webFile = new TGHtml(vf,1,1);
+   m_webFile->Connect("MouseDown(const char*)","CmsShowSearchFiles",this,"hyperlinkClicked(const char*)");
+   vf->AddFrame(m_webFile, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,1,1,1,1));
+   
+   TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
+   vf->AddFrame(buttonFrame, new TGLayoutHints(kLHintsExpandX,1,10,1,10));
+   
+   m_openButton = new TGTextButton(buttonFrame,"Open");
+   buttonFrame->AddFrame(m_openButton, new TGLayoutHints(kLHintsRight,5,5,1,1));
+   m_openButton->SetEnabled(kFALSE);
+   m_openButton->Connect("Clicked()","CmsShowSearchFiles",this,"openClicked()");
 
+   TGTextButton* cancel = new TGTextButton(buttonFrame,"Cancel");
+   buttonFrame->AddFrame(cancel, new TGLayoutHints(kLHintsRight,5,5,1,1));
+   cancel->Connect("Clicked()","CmsShowSearchFiles",this,"UnmapWindow()");
+
+   SetWindowName(windowname);
+   sendToWebBrowser("");
+   MapSubwindows();
+   Layout();
+   m_prefixMenu=0;
+   m_choosePrefix->Connect("Clicked()","CmsShowSearchFiles",this,"showPrefixes()");
+}
 
 CmsShowSearchFiles::~CmsShowSearchFiles()
 {
-   delete m_searchFileHtml;
+   delete m_prefixMenu;
+}
+
+void 
+CmsShowSearchFiles::prefixChoosen(Int_t iIndex)
+{
+   m_file->SetText(m_prefixes[iIndex].c_str(),kFALSE);
+   if(m_prefixComplete[iIndex]) {
+      updateBrowser();
+   }
+}
+
+void 
+CmsShowSearchFiles::fileEntryChanged(const char* iFileName)
+{
+   std::string fileName =iFileName;
+   size_t index = fileName.find_last_of(".");
+   std::string postfix = fileName.substr(index,std::string::npos);
+   
+   if(postfix ==s_rootPostfix) {
+      m_openButton->SetEnabled(kTRUE);
+   } else {
+      m_openButton->SetEnabled(kFALSE);
+   }
+}
+
+void 
+CmsShowSearchFiles::updateBrowser()
+{
+   sendToWebBrowser(m_file->GetText());
+}
+
+
+void 
+CmsShowSearchFiles::hyperlinkClicked(const char* iLink)
+{
+   m_file->SetText(iLink,kTRUE);
+   
+   std::string fileName =iLink;
+   size_t index = fileName.find_last_of(".");
+   std::string postfix = fileName.substr(index,std::string::npos);
+   
+   if(postfix !=s_rootPostfix) {
+      updateBrowser();
+   }
+}
+
+void 
+CmsShowSearchFiles::openClicked()
+{
+   m_openCalled=true;
+   this->UnmapWindow();
+}
+
+
+void 
+CmsShowSearchFiles::showPrefixes()
+{
+   if(0==m_prefixMenu) {
+      m_prefixMenu = new TGPopupMenu(this);
+      const char* const (*itEnd)[s_columns] = s_prefixes+sizeof(s_prefixes)/sizeof(const char*[3]);
+      int index = 0;
+      for(const char* const (*it)[s_columns] = s_prefixes;
+          it != itEnd;
+          ++it,++index) {
+         //only add the protocols this version of the code actually can load
+         std::string prefix = std::string((*it)[0]).substr(0,std::string((*it)[0]).find_first_of(":")+1);
+         if(s_httpPrefix==prefix ||
+            s_filePrefix==prefix ||
+            (gPluginMgr->FindHandler("TSystem",prefix.c_str()) && 
+             gPluginMgr->FindHandler("TSystem",prefix.c_str())->CheckPlugin() != -1)) {
+               m_prefixMenu->AddEntry((std::string((*it)[0])+" ("+((*it)[1])+")").c_str(),index);
+               m_prefixes.push_back((*it)[0]);
+               m_prefixComplete.push_back(0!=(*it)[2]);
+         }
+      }
+      m_prefixMenu->Connect("Activated(Int_t)","CmsShowSearchFiles",this,"prefixChoosen(Int_t)");
+   }
+   m_prefixMenu->PlaceMenu(0,0,true,true);
+}
+
+//Copied from TGHtmlBrowser
+static std::string readRemote(const char *url)
+{
+   // Read (open) remote files.
+   
+   char *buf = 0;
+   TUrl fUrl(url);
+   
+   TString msg = "GET ";
+   msg += fUrl.GetProtocol();
+   msg += "://";
+   msg += fUrl.GetHost();
+   msg += ":";
+   msg += fUrl.GetPort();
+   msg += "/";
+   msg += fUrl.GetFile();
+   msg += "\r\n";
+   
+   TString uri(url);
+   if (!uri.BeginsWith("http://"))
+      return std::string();
+   TSocket s(fUrl.GetHost(), fUrl.GetPort());
+   if (!s.IsValid())
+      return std::string();
+   if (s.SendRaw(msg.Data(), msg.Length()) == -1)
+      return std::string();
+   Int_t size = 1024*1024;
+   buf = (char *)calloc(size, sizeof(char));
+   if (s.RecvRaw(buf, size) == -1) {
+      free(buf);
+      return std::string();
+   }
+   std::string returnValue(buf);
+   free(buf);
+   return returnValue;
+}
+
+
+void 
+CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
+{
+   const std::string fileName(iWebFile);
+   size_t index = fileName.find_first_of(":");
+   if(index != std::string::npos) {
+      ++index;
+   } else {
+      index = 0;
+   }
+   std::string prefix = fileName.substr(0,index);
+
+   m_webFile->Clear();
+   m_webFile->Layout();
+   if(prefix == s_httpPrefix) {
+      TUrl url(iWebFile);
+      std::string buffer = readRemote(url.GetUrl());
+      if (buffer.size()) {
+         m_webFile->SetBaseUri(url.GetUrl());
+         m_webFile->ParseText(const_cast<char*>(buffer.c_str()));
+      }
+      else {
+         m_webFile->SetBaseUri("");
+         for (int i=0; s_readError[i]; i++) {
+            m_webFile->ParseText((char *)s_readError[i]);
+         }
+      }
+   } else {
+      m_webFile->SetBaseUri("");
+      for (int i=0; s_noBrowserMessage[i]; i++) {
+         m_webFile->ParseText((char *)s_noBrowserMessage[i]);
+      }
+   }
+}
+
+std::string 
+CmsShowSearchFiles::chooseFileFromURL()
+{
+   m_openCalled = false;
+   MapWindow();
+   gClient->WaitForUnmap(this);
+
+   if(!m_openCalled) {
+      return std::string();
+   }
+   return m_file->GetText();
 }
 

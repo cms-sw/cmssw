@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.31 2009/11/10 15:02:06 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.32 2009/11/14 11:31:13 amraktad Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ class TSocket;
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
 class CSGAction;
+class CmsShowSearchFiles;
 
 namespace fireworks {
    class Context;
@@ -66,6 +67,7 @@ public:
    void resetInitialization();
    void draw();
    void openData();
+   void openDataViaURL();
    void quit();
    void doExit();
 
@@ -172,6 +174,7 @@ private:
    static double m_caloScale;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
+   std::auto_ptr<CmsShowSearchFiles> m_searchFiles;
 
    TTimer* m_autoLoadTimer;
    Bool_t  m_autoLoadTimerRunning;

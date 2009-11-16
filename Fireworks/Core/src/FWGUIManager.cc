@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.164 2009/11/10 14:38:11 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.165 2009/11/14 11:31:13 amraktad Exp $
 
 //
 
@@ -83,7 +83,6 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
-#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
@@ -139,7 +138,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_brightnessPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
-   m_searchFiles(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
@@ -191,8 +189,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-      assert(getAction(cmsshow::sSearchFiles) != 0);
-      getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createSearchFiles));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
@@ -704,57 +700,6 @@ void FWGUIManager::createHelpPopup ()
       m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    m_helpPopup->MapWindow();
-}
-
-
-
-void FWGUIManager::createSearchFiles ()
-{
-   if (m_searchFiles == 0) {
-     const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-     if(0 == cmspath) {
-       throw std::runtime_error("CMSSW_BASE environment variable not set");
-     }
-     std::string filename= std::string(cmspath) + "/src/Fireworks/Core/data/datacatalog.html";
-
-     m_searchFiles = new CmsShowSearchFiles(filename.c_str(), "Open Remote Data Files",
-					    m_cmsShowMainFrame,
-					    800, 600);
-     m_searchFiles->browser()->Connect("Clicked(char*)", "FWGUIManager", this,
-                           "openWebRootFiles(char *)");
-     m_searchFiles->Connect("CloseWindow()", "FWGUIManager", this,
-                            "resetSearchFiles()");
-     m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-   }
-   m_searchFiles->MapWindow();
-}
-
-void FWGUIManager::openWebRootFiles (char *fileName)
-{
-  std::string full_filename = fileName;
-  std::string pre1 = "file://dcap:";
-  std::string pre2 = "file://rfio:";
-  int pos1=full_filename.find(pre1); 
-  int pos2=full_filename.find(pre2); 
-  if(pos1!= (int)std::string::npos)
-    {
-      full_filename.replace(pos1,pre1.size(),"dcap:");
-    }
-  else if(pos2!= (int)std::string::npos)
-    {
-      full_filename.replace(pos2,pre2.size(),"rfio:");
-    }
-
-  //std::cout <<"file name  "<<full_filename<<std::endl;
-  if (fileName){
-    m_cmsShowMain->navigator()->openFile(full_filename.c_str());
-    m_cmsShowMain->navigator()->firstEventInCurrentFile();
-  }
-}
-void FWGUIManager::resetSearchFiles ()
-{
-   m_searchFiles->DontCallClose();
-   m_searchFiles->UnmapWindow();
 }
 
 
