@@ -12,6 +12,7 @@
 #include "TPluginManager.h"
 #include "TUrl.h"
 #include "TSocket.h"
+#include "TVirtualX.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 static const unsigned int s_columns = 3;
@@ -58,15 +59,15 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    TGVerticalFrame* vf = new TGVerticalFrame(this);
    this->AddFrame(vf,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5));
    TGHorizontalFrame* urlFrame = new TGHorizontalFrame(this);
-   vf->AddFrame(urlFrame,new TGLayoutHints(kLHintsExpandX));
+   vf->AddFrame(urlFrame,new TGLayoutHints(kLHintsExpandX,5,0,5,5));
    
    TGLabel* urlLabel = new TGLabel(urlFrame,"URL");
-   urlFrame->AddFrame(urlLabel, new TGLayoutHints(kLHintsLeft,1,1,1,1));
+   urlFrame->AddFrame(urlLabel, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,1,1,1,1));
    m_choosePrefix = new TGTextButton(urlFrame,"Choose Prefix");
    urlFrame->AddFrame(m_choosePrefix, new TGLayoutHints(kLHintsLeft,1,1,1,1));
    
    m_file= new TGTextEntry(urlFrame);
-   urlFrame->AddFrame(m_file, new TGLayoutHints(kLHintsExpandX,1,1,1,1));
+   urlFrame->AddFrame(m_file, new TGLayoutHints(kLHintsExpandX,1,0,1,1));
    m_file->Connect("TextChanged(const char*)", "CmsShowSearchFiles",this,"fileEntryChanged(const char*)");
    m_file->Connect("ReturnPressed()", "CmsShowSearchFiles",this,"updateBrowser()");
    
@@ -104,6 +105,10 @@ CmsShowSearchFiles::prefixChoosen(Int_t iIndex)
 {
    m_file->SetText(m_prefixes[iIndex].c_str(),kFALSE);
    if(m_prefixComplete[iIndex]) {
+      //gClient->NeedRedraw(this);
+      gClient->NeedRedraw(m_choosePrefix);
+      gClient->NeedRedraw(m_webFile);
+      gClient->ProcessEventsFor(this);
       updateBrowser();
    }
 }
@@ -174,7 +179,7 @@ CmsShowSearchFiles::showPrefixes()
       }
       m_prefixMenu->Connect("Activated(Int_t)","CmsShowSearchFiles",this,"prefixChoosen(Int_t)");
    }
-   m_prefixMenu->PlaceMenu(0,0,true,true);
+   m_prefixMenu->PlaceMenu(m_choosePrefix->GetX(),m_choosePrefix->GetY(),true,true);
 }
 
 //Copied from TGHtmlBrowser
@@ -230,6 +235,12 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
    m_webFile->Clear();
    m_webFile->Layout();
    if(prefix == s_httpPrefix) {
+      gVirtualX->SetCursor(GetId(),gVirtualX->CreateCursor(kWatch));
+      //If you clicked a hyperlink then the cursor is still a hand but we now
+      // want it to be a watch
+      gVirtualX->SetCursor(m_webFile->GetId(),gVirtualX->CreateCursor(kWatch));
+      //If we don't call ProcessEventsFor then the cursor will not be updated
+      gClient->ProcessEventsFor(this);
       TUrl url(iWebFile);
       std::string buffer = readRemote(url.GetUrl());
       if (buffer.size()) {
@@ -239,9 +250,11 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
       else {
          m_webFile->SetBaseUri("");
          for (int i=0; s_readError[i]; i++) {
-            m_webFile->ParseText((char *)s_readError[i]);
+            m_webFile->ParseText(const_cast<char *>(s_readError[i]));
          }
       }
+      gVirtualX->SetCursor(GetId(),gVirtualX->CreateCursor(kPointer));
+      gVirtualX->SetCursor(m_webFile->GetId(),gVirtualX->CreateCursor(kPointer));
    } else {
       m_webFile->SetBaseUri("");
       for (int i=0; s_noBrowserMessage[i]; i++) {
@@ -253,6 +266,8 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
 std::string 
 CmsShowSearchFiles::chooseFileFromURL()
 {
+   DontCallClose();
+   Connect("CloseWindow()","CmsShowSearchFiles",this,"UnmapWindow()");
    m_openCalled = false;
    MapWindow();
    gClient->WaitForUnmap(this);
