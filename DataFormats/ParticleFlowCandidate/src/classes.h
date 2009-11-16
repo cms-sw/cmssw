@@ -24,6 +24,7 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef> bla1; 
     edm::reftobase::RefHolder<reco::PFCandidateRef> bla2; 
     reco::PFCandidatePtr bla3;     
+    std::vector<reco::PFCandidatePtr> bla33;     
 
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  

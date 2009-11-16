@@ -11,6 +11,7 @@
   <class name="edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef>"/>
   <class name="edm::reftobase::RefHolder<reco::PFCandidateRef>"/>
   <class name="reco::PFCandidatePtr"/>
+  <class name="std::vector<reco::PFCandidatePtr>"/>
 
   <class name="reco::IsolatedPFCandidate" />
   <class name="std::vector<reco::IsolatedPFCandidate>"/>
