@@ -1,6 +1,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoExtended.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -13,27 +14,30 @@
 
 namespace {
   struct dictionary {
- 	CrossingFrame<PSimHit> dummy1;
+ 	CrossingFrame<PSimHit> dummy0;
+	
+	CrossingFramePlaybackInfo dummy1;
+	CrossingFramePlaybackInfoExtended dummy2;
+ 	CrossingFrame<PCaloHit> dummy3;
+ 	CrossingFrame<SimTrack> dummy4;
+ 	CrossingFrame<SimVertex> dummy5;
+ 	CrossingFrame<edm::HepMCProduct> dummy6;
 
- 	CrossingFramePlaybackInfo dummy0;
- 	CrossingFrame<PCaloHit> dummy2;
- 	CrossingFrame<SimTrack> dummy3;
- 	CrossingFrame<SimVertex> dummy4;
- 	CrossingFrame<edm::HepMCProduct> dummy5;
-
- 	PCrossingFrame<PSimHit> dummy6;
+ 	PCrossingFrame<PSimHit> dummy7;
  	PCrossingFrame<PCaloHit> dummy8;
  	PCrossingFrame<SimTrack> dummy9;
  	PCrossingFrame<SimVertex> dummy10;
  	PCrossingFrame<edm::HepMCProduct> dummy11;
 
+        std::vector<int> dummy14;
         std::vector<const PSimHit *> dummy15;
         std::vector<const PCaloHit *> dummy16;
         std::vector<const SimTrack *> dummy17;
         std::vector<const SimVertex *> dummy18;
         std::vector<const edm::HepMCProduct *> dummy19;
 
-        edm::Wrapper<CrossingFramePlaybackInfo > dummy24;
+	edm::Wrapper<CrossingFramePlaybackInfo > dummy23;
+	edm::Wrapper<CrossingFramePlaybackInfoExtended > dummy24;
         edm::Wrapper<CrossingFrame<PSimHit> > dummy25;
         edm::Wrapper<CrossingFrame<PCaloHit> > dummy26;
         edm::Wrapper<CrossingFrame<SimTrack> > dummy27;
