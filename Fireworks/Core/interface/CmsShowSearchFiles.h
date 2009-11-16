@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowSearchFiles.h,v 1.1 2009/10/26 18:09:34 yanjuntu Exp $
+// $Id: CmsShowSearchFiles.h,v 1.2 2009/11/16 17:26:31 chrjones Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 // forward declarations
 
-class TGHtml;
+class FWHtml;
 class TGComboBox;
 class TGTextButton;
 class TGPopupMenu;
@@ -58,7 +58,7 @@ private:
    TGTextButton* m_choosePrefix;
    TGPopupMenu* m_prefixMenu;
    TGTextEntry* m_file; 
-   TGHtml  *m_webFile;
+   FWHtml  *m_webFile;
    std::vector<std::string> m_prefixes;
    std::vector<bool> m_prefixComplete;
    TGTextButton* m_openButton;

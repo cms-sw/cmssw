@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <set>
 #include "TGClient.h"
 #include "TGHtml.h"
 #include "TGButton.h"
@@ -14,6 +15,25 @@
 #include "TSocket.h"
 #include "TVirtualX.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
+
+
+class FWHtml : public TGHtml {
+public:
+   FWHtml(const TGWindow* p, int w, int h, int id = -1):
+   TGHtml(p,w,h,id) {}
+   
+   int	IsVisited(const char* iCheck) {
+      std::string check(GetBaseUri());
+      check +=iCheck;
+      int value = m_visited.find(check)==m_visited.end()?kFALSE:kTRUE;
+      return value;
+   }
+   void addToVisited(const char* iToVisit) {
+      m_visited.insert(iToVisit);
+   }
+private:
+   std::set<std::string> m_visited;
+};
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
@@ -71,7 +91,7 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    m_file->Connect("TextChanged(const char*)", "CmsShowSearchFiles",this,"fileEntryChanged(const char*)");
    m_file->Connect("ReturnPressed()", "CmsShowSearchFiles",this,"updateBrowser()");
    
-   m_webFile = new TGHtml(vf,1,1);
+   m_webFile = new FWHtml(vf,1,1);
    m_webFile->Connect("MouseDown(const char*)","CmsShowSearchFiles",this,"hyperlinkClicked(const char*)");
    vf->AddFrame(m_webFile, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,1,1,1,1));
    
@@ -139,6 +159,7 @@ CmsShowSearchFiles::hyperlinkClicked(const char* iLink)
 {
    m_file->SetText(iLink,kTRUE);
    
+   m_webFile->addToVisited(iLink);
    std::string fileName =iLink;
    size_t index = fileName.find_last_of(".");
    std::string postfix = fileName.substr(index,std::string::npos);
