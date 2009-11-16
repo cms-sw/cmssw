@@ -144,7 +144,7 @@ startinjectworker () {
     local reference_file="/nfshome0/smpro/configuration/db.conf"
 
     if test -f "$reference_file"; then
-        if test -f "$local_file"; then
+        if test -s "$local_file"; then
             local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
             local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
             if test $reference_time -gt $local_time; then
@@ -157,7 +157,12 @@ startinjectworker () {
                 chown smpro.smpro $local_file
             fi
         else
-            logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
+            if [ -f "$local_file" ]; then
+                logger -s -t "SM INIT" "WARNING: $local_file is empty, copying from $reference_file"
+                rm -f "$local_file"
+            else
+                logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
+            fi
             su - smpro -c "cp $reference_file $local_file"
             sed -i "1i# File copied from $reference_file on `date`" $local_file
             chmod 400 $local_file
