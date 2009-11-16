@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2009/08/03 12:49:21 $
- * $Revision: 1.23 $
+ * $Date: 2009/11/04 09:51:16 $
+ * $Revision: 1.25 $
  *
  */
 
@@ -100,29 +100,29 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   eeDigis_(ps.getParameter<edm::InputTag>("EeDigiCollection"), false,
 	   collNotFoundWarn_),
   ebNoZsDigis_(ps.getParameter<edm::InputTag>("EbUnsuppressedDigiCollection"),
-	       false, collNotFoundWarn_),
+	       false, false/*collNotFoundWarn_*/),
   eeNoZsDigis_(ps.getParameter<edm::InputTag>("EeUnsuppressedDigiCollection"),
-	       false, collNotFoundWarn_),
+	       false, false/*collNotFoundWarn_*/),
   ebSrFlags_(ps.getParameter<edm::InputTag>("EbSrFlagCollection"), false,
 	     collNotFoundWarn_),
   eeSrFlags_(ps.getParameter<edm::InputTag>("EeSrFlagCollection"), false,
 	     collNotFoundWarn_),
   ebComputedSrFlags_(ps.getParameter<edm::InputTag>("EbSrFlagFromTTCollection"), false,
-		   collNotFoundWarn_),
+		     false/*collNotFoundWarn_*/),
   eeComputedSrFlags_(ps.getParameter<edm::InputTag>("EeSrFlagFromTTCollection"), false,
-		   collNotFoundWarn_),
+		     false/*collNotFoundWarn_*/),
   ebSimHits_(ps.getParameter<edm::InputTag>("EbSimHitCollection"), false,
-	     collNotFoundWarn_),
+	     false/*collNotFoundWarn_*/),
   eeSimHits_(ps.getParameter<edm::InputTag>("EeSimHitCollection"), false,
-	     collNotFoundWarn_),
+	     false/*collNotFoundWarn_*/),
   tps_(ps.getParameter<edm::InputTag>("TrigPrimCollection"), false,
        collNotFoundWarn_),
   ebRecHits_(ps.getParameter<edm::InputTag>("EbRecHitCollection"), false,
-	     collNotFoundWarn_),
+	     false/*collNotFoundWarn_*/),
   eeRecHits_(ps.getParameter<edm::InputTag>("EeRecHitCollection"), false,
-	     collNotFoundWarn_),
+	     false/*collNotFoundWarn_*/),
   fedRaw_(ps.getParameter<edm::InputTag>("FEDRawCollection"), false,
-	  collNotFoundWarn_),
+	  false/*collNotFoundWarn_*/),
   tmax(0),
   tmin(numeric_limits<int64_t>::max()),
   l1aOfTmin(0),
@@ -697,10 +697,10 @@ void EcalSelectiveReadoutValidation::updateL1aRate(const edm::Event& event){
 }
 
 double EcalSelectiveReadoutValidation::getL1aRate() const{
-  cout << __FILE__ << ":" << __LINE__ << ": "
-       <<  "Tmax = " << tmax << " x 25ns; Tmin = " << tmin
-       << " x 25ns; L1A(Tmax) = " << l1aOfTmax << "; L1A(Tmin) = "
-       << l1aOfTmin << "\n";
+  LogDebug("EcalSrValid") << __FILE__ << ":" << __LINE__ << ": "
+			  <<  "Tmax = " << tmax << " x 25ns; Tmin = " << tmin
+			  << " x 25ns; L1A(Tmax) = " << l1aOfTmax << "; L1A(Tmin) = "
+			  << l1aOfTmin << "\n";
   return (double)(l1aOfTmax - l1aOfTmin) / ((tmax-tmin) * 25e-9);
 }
 
@@ -721,17 +721,17 @@ void EcalSelectiveReadoutValidation::analyze(const Event& event,
   withEbSimHit_ = (ebSimHits_->size()!=0);
 
   if(ievt_<10){
-
-  cout << "Size of TP collection: " << tps_->size() << "\n";
-  cout << "Size of EB SRF collection read from data: "
-       << ebSrFlags_->size() << "\n";
-  cout << "Size of EB SRF collection computed from data TTFs: "
-       << ebComputedSrFlags_->size() << "\n";
-  cout << "Size of EE SRF collection read from data: "
-       << eeSrFlags_->size() << "\n";
-  cout << "Size of EE SRF collection computed from data TTFs: "
-       << eeComputedSrFlags_->size() << "\n";
+    edm::LogInfo("EcalSrValid") << "Size of TP collection: " << tps_->size() << "\n"
+				<< "Size of EB SRF collection read from data: "
+				<< ebSrFlags_->size() << "\n"
+				<< "Size of EB SRF collection computed from data TTFs: "
+				<< ebComputedSrFlags_->size() << "\n"
+				<< "Size of EE SRF collection read from data: "
+				<< eeSrFlags_->size() << "\n"
+				<< "Size of EE SRF collection computed from data TTFs: "
+				<< eeComputedSrFlags_->size() << "\n";
   }
+  
   if(ievt_==0){
     selectFedsForLog(); //note: must be called after readAllCollection
   }
@@ -838,12 +838,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
         int iZ0 = frame.id().zside()>0?1:0;
 
         if(iX0<0 || iX0>=nEeX){
-          cout << "iX0 (= " << iX0 << ") is out of range ("
-               << "[0," << nEeX -1 << "]\n";
+          edm::LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				       << "[0," << nEeX -1 << "]\n";
         }
         if(iY0<0 || iY0>=nEeY){
-          cout << "iY0 (= " << iY0 << ") is out of range ("
-               << "[0," << nEeY -1 << "]\n";
+          edm::LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
+				       << "[0," << nEeY -1 << "]\n";
         }
         //    cout << "EE no ZS energy computation..." ;
         eeEnergies[iZ0][iX0][iY0].noZsRecE = frame2Energy(frame);
@@ -875,11 +875,11 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
         int iZ0 = static_cast<const EEDetId&>(hit.id()).zside()>0?1:0;
 
         if(iX0<0 || iX0>=nEeX){
-          cout << "iX0 (= " << iX0 << ") is out of range ("
-               << "[0," << nEeX -1 << "]\n";
+          LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				  << "[0," << nEeX -1 << "]\n";
         }
         if(iY0<0 || iY0>=nEeY){
-          cout << "iY0 (= " << iY0 << ") is out of range ("
+          LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
                << "[0," << nEeY -1 << "]\n";
         }
         //    cout << "EE no ZS energy computation..." ;
@@ -916,12 +916,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
       int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
       int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
       if(iX0<0 || iX0>=nEeX){
-        cout << "iX0 (= " << iX0 << ") is out of range ("
-             << "[0," << nEeX -1 << "]\n";
+        LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				<< "[0," << nEeX -1 << "]\n";
       }
       if(iY0<0 || iY0>=nEeY){
-        cout << "iY0 (= " << iY0 << ") is out of range ("
-             << "[0," << nEeY -1 << "]\n";
+        LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
+				<< "[0," << nEeY -1 << "]\n";
       }
 
       if(localReco_){
@@ -1254,12 +1254,12 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
           int iEta0 = iEta2cIndex(iEta);
           int iPhi0 = iPhi2cIndex(iPhi);
           if(iEta0<0 || iEta0>=nEbEta){
-            cout << "iEta0 (= " << iEta0 << ") is out of range ("
-                 << "[0," << nEbEta -1 << "]\n";
+            LogError("EcalSrValid") << "iEta0 (= " << iEta0 << ") is out of range ("
+				    << "[0," << nEbEta -1 << "]\n";
           }
           if(iPhi0<0 || iPhi0>=nEbPhi){
-            cout << "iPhi0 (= " << iPhi0 << ") is out of range ("
-                 << "[0," << nEbPhi -1 << "]\n";
+            LogError("EcalSrValid") << "iPhi0 (= " << iPhi0 << ") is out of range ("
+				    << "[0," << nEbPhi -1 << "]\n";
           }
           ebEnergies[iEta0][iPhi0].recE = hit.energy();
         }
@@ -1617,11 +1617,12 @@ void EcalSelectiveReadoutValidation::anaDigiInit(){
 double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) const{
   static bool firstCall = true;
   if(firstCall){
-    cout << "Weights:";
+    stringstream buf;
+    buf << "Weights:";
     for(unsigned i=0; i<weights_.size();++i){
-      cout << "\t" << weights_[i];
+      buf << "\t" << weights_[i];
     }
-    cout << "\n";
+    edm::LogInfo("EcalSrValid") << buf.str() << "\n";
     firstCall = false;
   }
   double adc2GeV = 0.;
@@ -2032,7 +2033,7 @@ void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
                             meEeLiZsFir_, meEeHiZsFir_, };
 
   double scale = 1./eventCount;
-
+  stringstream buf;
   for(unsigned i = 0; i < sizeof(mes)/sizeof(mes[0]); ++i){
     if(mes[i] == 0) continue;
     TH1* h = mes[i]->getTH1();
@@ -2041,9 +2042,10 @@ void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
     } else{ //assuming TH1
       h->GetYaxis()->SetTitle("<Count>");
     }
-    cout << "[SRValid] " << "Normalising " << h->GetName() << "\n";
+    buf << "Normalising " << h->GetName() << "\n";
     h->Scale(scale);
   }
+  edm::LogInfo("EcalSrValid") << buf.str();
 }
 
 //This implementation  assumes that int is coded on at least 28-bits,
@@ -2311,7 +2313,7 @@ void EcalSelectiveReadoutValidation::selectFedsForLog(){
   buf <<  "\nOnly DCCs from this list will be considered for error logging\n";
   srpAlgoErrorLog_ << buf.str();
   srApplicationErrorLog_<<  buf.str();
-  cout << buf;
+  LogInfo("EcalSrValid") << buf;
 }
 
 
