@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: today $
- *  $Revision: 0.0 $
+ *  $Date: 2009/11/16 14:06:15 $
+ *  $Revision: 1.1 $
  *
  *  \author Andrea Bocci
  *
@@ -35,7 +35,7 @@ public:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
-  emd::InputTag     m_gtReadoutRecord;
+  edm::InputTag     m_gtReadoutRecord;
 
   std::vector<int>  m_bunchCrossings;
   std::vector<bool> m_selectPhysics;
@@ -47,6 +47,8 @@ private:
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
 };
+
+#include <boost/foreach.hpp>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
