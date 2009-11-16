@@ -37,7 +37,7 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 	GlobalPoint center(0.0, 0.0, 0.0);
 	float theMagField = magfield.product()->inTesla(center).mag();
 
-	if(std::abs(theMagField)<0.1) {
+	if(std::fabs(theMagField)<0.1) {
 		ESHandle<SiPixelTemplateDBObject> SiPixelTemplateDBObject0T;
 		iRecord.getRecord<SiPixelTemplateDBObject0TRcd>().get(SiPixelTemplateDBObject0T);
 		boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(SiPixelTemplateDBObject0T)));
