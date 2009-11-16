@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoExtended.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "MixingModule.h"
 #include "MixingWorker.h"
@@ -292,7 +292,7 @@ namespace edm
   
     dropUnwantedBranches(wantedBranches_);
     
-    produces<CrossingFramePlaybackInfo>();
+    produces<CrossingFramePlaybackInfoExtended>();
   }
  
 
@@ -325,7 +325,7 @@ namespace edm
   
   void MixingModule::createnewEDProduct() {
     //create playback info
-    playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
+    playbackInfo_=new CrossingFramePlaybackInfoExtended(minBunch_,maxBunch_,maxNbSources_); 
 
     //and CrossingFrames
     for (unsigned int ii=0;ii<workers_.size();ii++){
@@ -386,13 +386,13 @@ namespace edm
   }
   
   void MixingModule::setEventStartInfo(const unsigned int s) {
-    playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
+    playbackInfo_->setEventStartInfo(vectorEventIDs_,s); 
   }
 
   void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
     if (playbackInfo_) {
-      std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
+      std::auto_ptr<CrossingFramePlaybackInfoExtended> pOut(playbackInfo_);
       e.put(pOut);
     }
   }
@@ -400,12 +400,12 @@ namespace edm
   void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
     if (playback_) {
  
-      edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;
+      edm::Handle<CrossingFramePlaybackInfoExtended>  playbackInfo_H;
       bool got=e.get((*sel_), playbackInfo_H); 
       if (got) {
-	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
+	playbackInfo_H->getEventStartInfo(vectorEventIDs_,s);
       }else{
-	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
+	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfoExtended on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
       }
     }
   }

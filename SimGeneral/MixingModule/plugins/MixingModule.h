@@ -36,7 +36,7 @@
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfo;
+class CrossingFramePlaybackInfoExtended;
 class MixingWorkerBase;
 namespace edm
 {
@@ -66,7 +66,7 @@ namespace edm
       std::string labelPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
-      CrossingFramePlaybackInfo *playbackInfo_;
+      CrossingFramePlaybackInfoExtended *playbackInfo_;
 
       Selector * sel_;
 
