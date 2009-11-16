@@ -7,6 +7,7 @@ class RPCObUXC {
       struct Item {
         float temperature;
         float pressure;
+        float humidity;
 	int unixtime;
       };
     RPCObUXC(){}
