@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.6 2009/05/08 08:26:10 demattia Exp $
+// $Id: SiStripGain.cc,v 1.7 2009/11/13 16:19:46 demattia Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -22,21 +22,26 @@ void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor
   norm_.push_back(factor);
 }
 
-float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) const
+float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index) const
 {
   if( !(apvgain_.empty()) ) {
+    return (apvgain_[index]->getStripGain(strip, range))/(norm_[0]);
+  }
+  else {
+    edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << endl;
+    return 1.;
+  }
+}
 
-    double gain = (apvgain_[0]->getStripGain(strip, range))/(norm_[0]);
-
-    if( apvgain_.size() > 1 ) {
-      // Start looping from the second
-      vector<const SiStripApvGain*>::const_iterator apvIt = apvgain_.begin()+1;
-      vector<double>::const_iterator normIt = norm_.begin()+1;
-      for( ; apvIt != apvgain_.end(); ++apvIt, ++normIt ) {
-        gain*=((*apvIt)->getStripGain(strip, range))/(*normIt);
-      }
+float SiStripGain::getStripGain(const uint16_t& strip, const vector<SiStripApvGain::Range>& rangeVector) const
+{
+  if( !(apvgain_.empty()) ) {
+    double gain = 1.;
+    vector<SiStripApvGain::Range>::const_iterator range = rangeVector.begin();
+    int i = 0;
+    for( ; range != rangeVector.end(); ++range, ++i ) {
+      gain*=(apvgain_[i]->getStripGain(strip, *range))/(norm_[i]);
     }
-
     return gain;
   }
   else {
@@ -45,21 +50,29 @@ float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Ran
   }
 }
 
-float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) const
+float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index) const
 {
   if( !(apvgain_.empty()) ) {
+    return (apvgain_[index]->getApvGain(apv, range))/(norm_[0]);
+  }
+  else {
+    edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << endl;
+    return 1.;
+  }
+}
 
-    double gain = (apvgain_[0]->getApvGain(apv, range))/(norm_[0]);
-
-    if( apvgain_.size() > 1 ) {
-      // Start looping from the second
-      vector<const SiStripApvGain*>::const_iterator apvIt = apvgain_.begin()+1;
-      vector<double>::const_iterator normIt = norm_.begin()+1;
-      for( ; apvIt != apvgain_.end(); ++apvIt, ++normIt ) {
-        gain*=((*apvIt)->getApvGain(apv, range))/(*normIt);
-      }
+float SiStripGain::getApvGain(const uint16_t& apv, const vector<SiStripApvGain::Range>& rangeVector) const
+{
+  if( !(apvgain_.empty()) ) {
+    // cout << "apvgain_.size() = " << apvgain_.size() << endl;
+    // cout << "apvgain_[0] = " << apvgain_[0]->getApvGain(apv, range) << endl;
+    double gain = 1.;
+    vector<SiStripApvGain::Range>::const_iterator range = rangeVector.begin();
+    int i = 0;
+    for( ; range != rangeVector.end(); ++range, ++i ) {
+      gain *= apvgain_[i]->getApvGain(apv, *range)/norm_[i];
+      // cout << "apvgain_["<<i<<"] = " << apvgain_[i]->getApvGain(apv, *range) << endl;
     }
-
     return gain;
   }
   else {
@@ -70,25 +83,26 @@ float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& 
 
 void SiStripGain::getDetIds(std::vector<uint32_t>& DetIds_) const
 {
-  // Note: we assume the detIds are the ones from the first gain
+  // ATTENTION: we assume the detIds are the same as those from the first gain
   return apvgain_[0]->getDetIds(DetIds_);
 }
 
-const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const
+const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const int index) const
 {
-  // Note: we assume the range is the one from the first gain
-  return apvgain_[0]->getRange(DetId);
+  return apvgain_[index]->getRange(DetId);
 }
 
-void SiStripGain::printDebug(std::stringstream& ss) const
+const vector<SiStripApvGain::Range> SiStripGain::getAllRanges(const uint32_t& DetId) const
 {
-  vector<const SiStripApvGain*>::const_iterator apvIt = apvgain_.begin();
-  for( ; apvIt != apvgain_.end(); ++apvIt ) {
-    (*apvIt)->printDebug(ss);
+  vector<SiStripApvGain::Range> allRanges;
+  vector<const SiStripApvGain*>::const_iterator apvGainIt = apvgain_.begin();
+  for( ; apvGainIt != apvgain_.end(); ++apvGainIt ) {
+    allRanges.push_back((*apvGainIt)->getRange(DetId));
   }
+  return allRanges;
 }
 
-void SiStripApvGain::printDebug(std::stringstream & ss) const
+void SiStripGain::printDebug(std::stringstream & ss) const
 {
   vector<unsigned int> detIds;
   getDetIds(detIds);
@@ -96,13 +110,16 @@ void SiStripApvGain::printDebug(std::stringstream & ss) const
   ss << "Number of detids " << detIds.size() << std::endl;
 
   for( ; detid != detIds.end(); ++detid ) {
-    SiStripApvGain::Range range = getRange(*detid);
-    int apv=0;
-    for( int it=0; it < range.second - range.first; ++it ) {
-      ss << "detid " << *detid << " \t"
-         << " apv " << apv++ << " \t"
-         << getApvGain(it,range) << " \t"
-         << std::endl;
+    vector<SiStripApvGain::Range> rangeVector = getAllRanges(*detid);
+    if( !rangeVector.empty() ) {
+      // SiStripApvGain::Range range = getRange(*detid);
+      int apv=0;
+      for( int it=0; it < rangeVector[0].second - rangeVector[0].first; ++it ) {
+        ss << "detid " << *detid << " \t"
+           << " apv " << apv++ << " \t"
+           << getApvGain(it,rangeVector) << " \t"
+           << std::endl;
+      }
     }
   }
 }
@@ -115,9 +132,11 @@ void SiStripGain::printSummary(std::stringstream& ss) const
   getDetIds(detIds);
   std::vector<uint32_t>::const_iterator detid = detIds.begin();
   for( ; detid != detIds.end(); ++detid ) {
-    SiStripApvGain::Range range = getRange(*detid);
-    for( int it=0; it < range.second - range.first; ++it ) {
-      summaryGain.add(*detid, getApvGain(it, range));
+    vector<SiStripApvGain::Range> rangeVector = getAllRanges(*detid);
+    if( !rangeVector.empty() ) {
+      for( int it=0; it < rangeVector[0].second - rangeVector[0].first; ++it ) {
+        summaryGain.add(*detid, getApvGain(it, rangeVector));
+      }
     }
   }
   ss << "Summary of gain values:" << endl;
