@@ -32,7 +32,7 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag 
     theSimHitPosInStrip[i] = dbe_->book1D(title6, title6, 100, -2, 2);
     theScatterPlots[i] = dbe->book2D(title7, title7, 200, -20, 20, 200, -250, 250);
     theSimHitScatterPlots[i] = dbe->book2D(title8, title8, 200, -20, 20, 200, -250, 250);
-    theTPeaks[i] =  dbe->book1D(title9, title9, 100, 0, 10);
+    theTPeaks[i] =  dbe->book1D(title9, title9, 200, 0, 400);
   }
 
 }
@@ -41,8 +41,8 @@ CSCRecHit2DValidation::~CSCRecHit2DValidation()
 {
   for(int i = 0; i < 10; ++i)
   {
-     std::cout << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS() << std::endl;
-     std::cout << "Peak Time is " << theTPeaks[i]->getMean() << std::endl;
+    edm::LogInfo("CSCRecHitValidation") << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS();
+    edm::LogInfo("CSCRecHitValidation") << "Peak Time is " << theTPeaks[i]->getMean();
   }
 }
 
@@ -64,7 +64,6 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
     const CSCLayer * layer = findLayer(detId);
     int chamberType = layer->chamber()->specs()->chamberType();
-
     theTPeaks[chamberType-1]->Fill(recHitItr->tpeak());
     if(simHits.size() == 1)
     {
