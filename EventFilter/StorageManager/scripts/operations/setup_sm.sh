@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.41 2009/08/17 13:30:08 gbauer Exp $
+# $Id: setup_sm.sh,v 1.42 2009/09/18 15:26:13 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -81,14 +81,24 @@ checkSLCversion () {
 # Mounts a disk, looking for its label
 mountByLabel () {
     sn=`basename $1`
+    # First, trying to mount by label
+    mount -L $sn $1 >/dev/null
+    # If the previous mount failed, it's most likely because it found a disk
+    # inside the multipath, instead of the multipath one, so try manually
     if mount | grep -q $sn; then
+	echo "Mounted $1 using label"
+    else
         device=''
         for dev in /dev/mapper/mpath*; do
             xfs_admin -l $dev | grep -q 'label = "'$sn'"' && device=$dev
         done
         if [ -b "$device" ]; then
             echo "Attempting to mount $1 from $device"
-            mount $device $1
+            if mount $device $1; then
+		echo "Mounted $1 manually from $device"
+	    else
+		echo "Could not mount $1 from $device!"
+	    fi
         else
             echo "Could not mount $1: no device in /dev/mapper/mpath* with label $sn"
         fi
@@ -204,6 +214,8 @@ start () {
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 if mount | grep -q $sn; then
+                    echo "$sn is already mounted"
+                else
                     echo "Attempting to mount $i"
                     mount -L $sn $i
                 fi
