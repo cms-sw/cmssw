@@ -221,7 +221,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            TrigPrimMonitor_TPdigiTS                       = cms.untracked.int32(1),
                            TrigPrimMonitor_ADCdigiTS                      = cms.untracked.int32(3),
                            TrigPrimMonitor_checkNevents                   = cms.untracked.int32(1000),
-                           TrigPrimMonitor_makeDiagnostics                = cms.untracked.bool(False),
+                           TrigPrimMonitor_makeDiagnosticPlots            = cms.untracked.bool(False),
                            TrigPrimMonitor_ZSAlarmThreshold               = cms.untracked.int32(12),
                            TrigPrimMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
                            gtLabel = cms.InputTag("l1GtUnpack"),
@@ -300,21 +300,18 @@ def setHcalTaskValues(process):
     # or future changes to PedestalMonitor_minErrorFlag will also change minErrorFlag!
 
     # set minimum error value -- we may want to keep them assigned explicitly as above
-    #minErrorFlag = deepcopy(process.minErrorFlag)
-    #process.BeamMonitor_minErrorFlag     = minErrorFlag
-    #process.DeadCellMonitor_minErrorFlag = minErrorFlag
-    #process.HotCellMonitor_minErrorFlag  = minErrorFlag
-    #process.ReferencePedestalMonitor_minErrorFlag = minErrorFlag
-    #process.RecHitMonitor_minErrorFlag   = minErrorFlag
+    #minErrorFlag = deepcopy(process.minErrorFlag.value())
+    #process.BeamMonitor_minErrorFlag     = cms.untracked.double(minErrorFlag)
+    #process.DeadCellMonitor_minErrorFlag = cms.untracked.double(minErrorFlag)
+    #process.HotCellMonitor_minErrorFlag  = cms.untracked.double(minErrorFlag)
+    #process.ReferencePedestalMonitor_minErrorFlag = cms.untracked.double(minErrorFlag)
+    #process.RecHitMonitor_minErrorFlag   = cms.untracked.double(minErrorFlag)
 
-    # set checkNevents
-    checkNevents = deepcopy(process.checkNevents)
+    # set checkNevents -- soon to be deprecated in favor of checking once/lum'y block
+    checkNevents = deepcopy(process.checkNevents.value())
     process.BeamMonitor_checkNevents                      = checkNevents
     process.DataFormatMonitor_checkNevents                = checkNevents
-
-    # Dead cells have additional prescale factor that are applied to default checkNevents
     process.DeadCellMonitor_checkNevents                  = checkNevents
-
     process.DigiMonitor_checkNevents                      = checkNevents
     process.HotCellMonitor_checkNevents                   = checkNevents
     process.ReferencePedestalMonitor_checkNevents                  = checkNevents
@@ -323,20 +320,21 @@ def setHcalTaskValues(process):
     process.ZDCMonitor_checkNevents                       = checkNevents
     
     # set pedestalsInFC
-    pedestalsInFC = deepcopy(process.pedestalsInFC)
-    process.HotCellMonitor_pedestalsInFC  = pedestalsInFC
-    process.ReferencePedestalMonitor_pedestalsInFC = pedestalsInFC
+    pedestalsInFC = deepcopy(process.pedestalsInFC.value())
+    process.HotCellMonitor_pedestalsInFC  = cms.untracked.bool(pedestalsInFC)
+    process.ReferencePedestalMonitor_pedestalsInFC = cms.untracked.bool(pedestalsInFC)
 
     # set makeDiagnoticPlots
-    makeDiagnosticPlots                         = deepcopy(process.makeDiagnosticPlots)
+    makeDiagnosticPlots                         = deepcopy(process.makeDiagnosticPlots.value())
+
     process.BeamMonitor_makeDiagnosticPlots     = makeDiagnosticPlots
     process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
-    process.DigiMonitor_makeDiagnosticsPlots    = makeDiagnosticPlots
+    process.DigiMonitor_makeDiagnosticPlots     = makeDiagnosticPlots
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
     process.TrigPrimMonitor_makeDiagnosticPlots = makeDiagnosticPlots
     process.ReferencePedestalMonitor_makeDiagnosticPlots = makeDiagnosticPlots
-
+    
     return
 
 
@@ -344,33 +342,33 @@ def setHcalSubdetTaskValues(process):
     # Set HB/HE/HO/HF
 
     # Dead Cell Monitor
-    dead_energyThreshold = deepcopy(process.DeadCellMonitor_energyThreshold)
-    process.DeadCellMonitor_HB_energyThreshold           = dead_energyThreshold
-    process.DeadCellMonitor_HE_energyThreshold           = dead_energyThreshold
-    process.DeadCellMonitor_HO_energyThreshold           = dead_energyThreshold
-    process.DeadCellMonitor_HF_energyThreshold           = dead_energyThreshold
-    process.DeadCellMonitor_ZDC_energyThreshold          = dead_energyThreshold
+    dead_energyThreshold = deepcopy(process.DeadCellMonitor_energyThreshold.value())
+    process.DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(dead_energyThreshold)
+    process.DeadCellMonitor_HE_energyThreshold           = cms.untracked.double(dead_energyThreshold)
+    process.DeadCellMonitor_HO_energyThreshold           = cms.untracked.double(dead_energyThreshold)
+    process.DeadCellMonitor_HF_energyThreshold           = cms.untracked.double(dead_energyThreshold)
+    process.DeadCellMonitor_ZDC_energyThreshold          = cms.untracked.double(dead_energyThreshold)
 
     # Hot Cell Monitor
-    hot_energyThreshold = deepcopy(process.HotCellMonitor_energyThreshold)
-    process.HotCellMonitor_HB_energyThreshold           = hot_energyThreshold
-    process.HotCellMonitor_HE_energyThreshold           = hot_energyThreshold
-    process.HotCellMonitor_HO_energyThreshold           = hot_energyThreshold
-    process.HotCellMonitor_HF_energyThreshold           = hot_energyThreshold
-    process.HotCellMonitor_ZDC_energyThreshold          = hot_energyThreshold
+    hot_energyThreshold = deepcopy(process.HotCellMonitor_energyThreshold.value())
+    process.HotCellMonitor_HB_energyThreshold           = cms.untracked.double(hot_energyThreshold)
+    process.HotCellMonitor_HE_energyThreshold           = cms.untracked.double(hot_energyThreshold)
+    process.HotCellMonitor_HO_energyThreshold           = cms.untracked.double(hot_energyThreshold)
+    process.HotCellMonitor_HF_energyThreshold           = cms.untracked.double(hot_energyThreshold)
+    process.HotCellMonitor_ZDC_energyThreshold          = cms.untracked.double(hot_energyThreshold)
 
-    hot_persistentThreshold = deepcopy(process.HotCellMonitor_persistentThreshold)
-    process.HotCellMonitor_HB_persistentThreshold           = hot_persistentThreshold
-    process.HotCellMonitor_HE_persistentThreshold           = hot_persistentThreshold
-    process.HotCellMonitor_HO_persistentThreshold           = hot_persistentThreshold
-    process.HotCellMonitor_HF_persistentThreshold           = hot_persistentThreshold
-    process.HotCellMonitor_ZDC_persistentThreshold          = hot_persistentThreshold
+    hot_persistentThreshold = deepcopy(process.HotCellMonitor_persistentThreshold.value())
+    process.HotCellMonitor_HB_persistentThreshold           = cms.untracked.double(hot_persistentThreshold)
+    process.HotCellMonitor_HE_persistentThreshold           = cms.untracked.double(hot_persistentThreshold)
+    process.HotCellMonitor_HO_persistentThreshold           = cms.untracked.double(hot_persistentThreshold)
+    process.HotCellMonitor_HF_persistentThreshold           = cms.untracked.double(hot_persistentThreshold)
+    process.HotCellMonitor_ZDC_persistentThreshold          = cms.untracked.double(hot_persistentThreshold)
 
     # Rec Hit Monitor
-    rechit_energyThreshold = deepcopy(process.RecHitMonitor_energyThreshold)
-    process.RecHitMonitor_HB_energyThreshold           = rechit_energyThreshold
-    process.RecHitMonitor_HE_energyThreshold           = rechit_energyThreshold
-    process.RecHitMonitor_HO_energyThreshold           = rechit_energyThreshold
-    process.RecHitMonitor_HF_energyThreshold           = rechit_energyThreshold
-    process.RecHitMonitor_ZDC_energyThreshold          = rechit_energyThreshold
+    rechit_energyThreshold = deepcopy(process.RecHitMonitor_energyThreshold.value())
+    process.RecHitMonitor_HB_energyThreshold           = cms.untracked.double(rechit_energyThreshold)
+    process.RecHitMonitor_HE_energyThreshold           = cms.untracked.double(rechit_energyThreshold)
+    process.RecHitMonitor_HO_energyThreshold           = cms.untracked.double(rechit_energyThreshold)
+    process.RecHitMonitor_HF_energyThreshold           = cms.untracked.double(rechit_energyThreshold)
+    process.RecHitMonitor_ZDC_energyThreshold          = cms.untracked.double(rechit_energyThreshold)
     return 

@@ -31,8 +31,6 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           BadCells = cms.untracked.vstring(),
 
-
-
                           # Reference Pedestal Client,
                           ReferencePedestalClient                       = cms.untracked.bool(True),
                           ReferencePedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
@@ -40,6 +38,7 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           ReferencePedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
                           ReferencePedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
                           ReferencePedestalClient_minErrorFlag          = cms.untracked.double(0.05),
+                          ReferencePedestalClient_makeDiagnosticPlots   = cms.untracked.bool(False),
                           
                           # DigiClient
                           DigiClient                 = cms.untracked.bool(True),
@@ -98,12 +97,13 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           BeamClient                     = cms.untracked.bool(True),
                           BeamClient_checkNevents        = cms.untracked.int32(100),
                           BeamClient_minErrorFlag        = cms.untracked.double(0.05),
-                          BeamClient_makeDiagosticPlots  = cms.untracked.bool(False)
+                          BeamClient_makeDiagnosticPlots = cms.untracked.bool(False)
                           )
 
 
 
 def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
+
     # need to make separate copy, or changing client after this call will also change monitor!
     monitor=deepcopy(origmonitor)
     
@@ -112,62 +112,57 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     client.subSystemFolder = monitor.subSystemFolder
 
-    # Set update period of client to checkNevents value of monitor 
-
-    # This doesn't work, because monitor.checkNevents returns 'cms.untracked.bool(...)'
-    #client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
-
-    checkN = deepcopy(client.diagnosticPrescaleEvt)
+    # Set update period of client to checkNevents value of monitor ?
+    checkN = deepcopy(client.diagnosticPrescaleEvt.value())
     
-    client.Online                                 = monitor.Online
-    client.Nlumiblocks                            = monitor.Nlumiblocks
+    client.Online                                 = monitor.Online.value()
+    client.Nlumiblocks                            = monitor.Nlumiblocks.value()
 
     # Beam Client
-    client.BeamClient                             = monitor.BeamMonitor
-    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
-    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
+    client.BeamClient                             = monitor.BeamMonitor.value()
+    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag.value()
+    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots.value()
     
     # Dead Cell
-    client.DeadCellClient                         = monitor.DeadCellMonitor
-    client.DeadCellClient_test_neverpresent       = monitor.DeadCellMonitor_test_neverpresent
-    client.DeadCellClient_test_digis              = monitor.DeadCellMonitor_test_digis
-    client.DeadCellClient_test_rechits            = monitor.DeadCellMonitor_test_rechits
-    #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
-    client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
+    client.DeadCellClient                         = monitor.DeadCellMonitor.value()
+    client.DeadCellClient_test_digis              = monitor.DeadCellMonitor_test_digis.value()
+    client.DeadCellClient_test_rechits            = monitor.DeadCellMonitor_test_rechits.value()
+    #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag.value() # want to keep these separate?
+    client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots.value()         
 
     # Digi 
-    client.DigiClient                             = monitor.DigiMonitor
+    client.DigiClient                             = monitor.DigiMonitor.value()
 
     # Hot Cell
-    client.HotCellClient                          = monitor.HotCellMonitor
-    client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent
-    client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy
-    client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor
-    #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
-    client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
+    client.HotCellClient                          = monitor.HotCellMonitor.value()
+    client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent.value()
+    client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy.value()
+    client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor.value()
+    #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag.value() # want to keep these separate?
+    client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots.value()
 
     # Pedestal Client
-    client.ReferencePedestalClient                         = monitor.ReferencePedestalMonitor
-    client.ReferencePedestalClient_nominalPedMeanInADC     = monitor.ReferencePedestalMonitor_nominalPedMeanInADC
-    client.ReferencePedestalClient_nominalPedWidthInADC    = monitor.ReferencePedestalMonitor_nominalPedWidthInADC
-    client.ReferencePedestalClient_maxPedMeanDiffADC       = monitor.ReferencePedestalMonitor_maxPedMeanDiffADC
-    client.ReferencePedestalClient_maxPedWidthDiffADC      = monitor.ReferencePedestalMonitor_maxPedWidthDiffADC
-    client.ReferencePedestalClient_makeDiagnosticPlots     = monitor.ReferencePedestalMonitor_makeDiagnosticPlots
-    #client.ReferencePedestalClient_minErrorFlag           = monitor.ReferencePedestalMonitor_minErrorFlag # want to keep these separate?
+    client.ReferencePedestalClient                         = monitor.ReferencePedestalMonitor.value()
+    client.ReferencePedestalClient_nominalPedMeanInADC     = monitor.ReferencePedestalMonitor_nominalPedMeanInADC.value()
+    client.ReferencePedestalClient_nominalPedWidthInADC    = monitor.ReferencePedestalMonitor_nominalPedWidthInADC.value()
+    client.ReferencePedestalClient_maxPedMeanDiffADC       = monitor.ReferencePedestalMonitor_maxPedMeanDiffADC.value()
+    client.ReferencePedestalClient_maxPedWidthDiffADC      = monitor.ReferencePedestalMonitor_maxPedWidthDiffADC.value()
+    client.ReferencePedestalClient_makeDiagnosticPlots     = monitor.ReferencePedestalMonitor_makeDiagnosticPlots.value()
+    #client.ReferencePedestalClient_minErrorFlag           = monitor.ReferencePedestalMonitor_minErrorFlag.value() # want to keep these separate?
 
     # Rec Hit Client
-    client.RecHitClient                           = monitor.RecHitMonitor
-    client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
-    client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
+    client.RecHitClient                           = monitor.RecHitMonitor.value()
+    client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag.value()
+    client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots.value()
 
 
-    client.DataFormatClient  = monitor.DataFormatMonitor
-    client.LEDClient         = monitor.LEDMonitor
-    client.CaloTowerClient   = monitor.CaloTowerMonitor
-    client.TrigPrimClient    = monitor.TrigPrimMonitor
+    client.DataFormatClient  = monitor.DataFormatMonitor.value()
+    client.LEDClient         = monitor.LEDMonitor.value()
+    client.CaloTowerClient   = monitor.CaloTowerMonitor.value()
+    client.TrigPrimClient    = monitor.TrigPrimMonitor.value()
 
-    client.showTiming        = monitor.showTiming
-    client.debug             = monitor.debug
+    client.showTiming        = monitor.showTiming.value()
+    client.debug             = monitor.debug.value()
 
     if (debug):
         print "HcalMonitorClient values from HcalMonitorModule: "
