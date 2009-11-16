@@ -39,7 +39,10 @@ namespace reco {
 
     // Store Shower Shape variables for SuperClusters
     edm::ValueMap<float>& GetShowerShapesRoundness(){ return ShowerShapes_Roundness;}    
+    const edm::ValueMap<float>& GetShowerShapesRoundness()const { return ShowerShapes_Roundness;}    
+
     edm::ValueMap<float>& GetShowerShapesAngle() { return ShowerShapes_Angle;}
+    const edm::ValueMap<float>& GetShowerShapesAngle() const { return ShowerShapes_Angle;}
   private:
     std::vector<PhiWedge> PhiWedgeCollection;
     edm::RefVector<reco::SuperClusterCollection> TheSuperClusterRefs;
