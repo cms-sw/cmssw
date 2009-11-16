@@ -136,8 +136,8 @@ CREATE OR REPLACE FUNCTION GENERATE_FLAG_DELETED(run in number, maxLastClosedTim
 BEGIN
     flag := ' ';
     numFlagged := 0;
-    --If a file has been closed within the last 2.5 hours then don't do the check
-    IF (time_diff(sysdate, maxLastClosedTime) < 9000) THEN
+    --If a file has been closed within the last 3hrs20 then don't do the check
+    IF (time_diff(sysdate, maxLastClosedTime) < 12000) THEN
         RETURN flag;
     END IF;
 
