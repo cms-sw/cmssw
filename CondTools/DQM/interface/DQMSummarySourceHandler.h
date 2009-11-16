@@ -17,7 +17,7 @@ namespace popcon {
    private:
     std::string m_name;
     //cond::Time_t m_since;
-    boost::uint64_t m_since;
+    unsigned long long m_since;
     // for reading from omds 
     std::string m_connectionString;
     std::string m_user;

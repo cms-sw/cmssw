@@ -19,7 +19,7 @@ namespace popcon {
     std::string m_file;
     bool m_zip;
     //cond::Time_t m_since;
-    boost::uint64_t m_since;
+    unsigned long long m_since;
     bool m_debugMode;
   };
 }
