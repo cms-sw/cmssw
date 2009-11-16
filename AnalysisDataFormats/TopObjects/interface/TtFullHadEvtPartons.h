@@ -1,14 +1,14 @@
-#ifndef TtFullLepEvtPartons_h
-#define TtFullLepEvtPartons_h
+#ifndef TtFullHadEvtPartons_h
+#define TtFullHadEvtPartons_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
 
 #include <vector>
 
 /**
-   \class   TtFullLepEvtPartons TtFullLepEvtPartons.h "AnalysisDataFormats/TopObjects/interface/TtFullLepEvtPartons.h"
+   \class   TtFullHadEvtPartons TtFullHadEvtPartons.h "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 
-   \brief   Class to fill partons in a well defined order for fully-leptonic ttbar events
+   \brief   Class to fill partons in a well defined order for fully-hadronic ttbar events
 
    This class is mainly used for the jet-parton matching in TopTools.
 */

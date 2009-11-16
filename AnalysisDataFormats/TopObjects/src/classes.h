@@ -4,6 +4,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 
@@ -34,20 +35,23 @@ namespace {
     StGenEvent stgen;
     TopGenEvent topgen;
     TtEvent ttevt;
-    TtFullLeptonicEvent ttfullevt;
-    TtSemiLeptonicEvent ttsemievt;
+    TtFullLeptonicEvent ttfulllepevt;
+    TtSemiLeptonicEvent ttsemilepevt;
+    TtFullHadronicEvent ttfullhadevt;
     edm::Wrapper<TtGenEvent> w_ttgen;
     edm::Wrapper<StGenEvent> w_stgen;
     edm::Wrapper<TopGenEvent> w_topgen;
-    edm::Wrapper<TtFullLeptonicEvent> w_ttfullevt;
-    edm::Wrapper<TtSemiLeptonicEvent> w_ttsemievt;
+    edm::Wrapper<TtFullLeptonicEvent> w_ttfulllepevt;
+    edm::Wrapper<TtSemiLeptonicEvent> w_ttsemilepevt;
+    edm::Wrapper<TtFullHadronicEvent> w_ttfullhadevt;
     edm::Wrapper<reco::CompositeCandidate> ttcompcand;
 
     edm::RefProd<TtGenEvent> rp_ttgen;
     edm::RefProd<StGenEvent> rp_stgen;
     edm::RefProd<TopGenEvent> rp_topgen;
-    edm::RefProd<TtFullLeptonicEvent> rp_ttfullevt;
-    edm::RefProd<TtSemiLeptonicEvent> rp_ttsemievt;
+    edm::RefProd<TtFullLeptonicEvent> rp_ttfulllepevt;
+    edm::RefProd<TtSemiLeptonicEvent> rp_ttsemilepevt;
+    edm::RefProd<TtFullHadronicEvent> rp_ttfullhadevt;
 
     std::pair<WDecay::LeptonType, WDecay::LeptonType> p_lepdecay_lepdecay;
     std::pair<reco::CompositeCandidate, std::vector<int> > p_compcand_vint;
