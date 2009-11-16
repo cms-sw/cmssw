@@ -421,7 +421,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     *savefile << "</svg:svg>"<<endl;
     *savefile << "</svg>"<<endl;
   }
-  savefile->close(); 
+  savefile->close(); delete savefile;
 
   const char * command1;
   string tempfilename = outputfilename + ".coor";
@@ -737,14 +737,14 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     *savefile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
     *savefile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
     *savefile << " </text> </svg>" << endl;
-    savefile->close();
+    savefile->close();delete savefile;
      saveAsSingleLayer=false;
       }
       }
     }
     if(filetype=="svg"){
     *savefile << "</g> </svg> </svg> " << endl;
-    savefile->close();
+    savefile->close();delete savefile;
       }
   if(!print_total && !useApvPairValue){
 //Restore module value
@@ -761,7 +761,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   
   if(temporary_file){
     if(printflag)drawPalette(savefile);
-  savefile->close(); 
+  savefile->close(); delete savefile;
 
   const char * command1;
   string tempfilename = outputfilename + ".coor";
@@ -874,6 +874,7 @@ void TrackerMap::load(string inputfilename){
 
         }
        cout << nline << " modules found in this svg file " << endl;
+       inputfile->close();delete inputfile;
  }
 
 
@@ -895,6 +896,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
         {
             *svgfile << line << endl;
         }
+  jsfile->close();delete jsfile;
   //
  if(!print_total){
   for (int layer=1; layer < 44; layer++){
@@ -943,7 +945,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
   if(printflag)drawPalette(svgfile);
   *svgfile << "</svg:svg>"<<endl;
   *svgfile << "</body></html>"<<endl;
-   svgfile->close();
+   svgfile->close();delete svgfile;
 
 }
 
@@ -1189,9 +1191,10 @@ void TrackerMap::printonline(){
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+   ifilename->close();delete ifilename;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofilename -> close();
+   ofilename->close();delete ofilename;
    command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
     cout << "Executing " << command << endl;
     system(command.c_str());
@@ -1199,20 +1202,27 @@ void TrackerMap::printonline(){
     cout << "Executing " << command << endl;
     system(command.c_str());
   ofname.str("");
+   ifilename->close();delete ifilename;
   ifilename=findfile("jqviewer.js");
   ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   
     ostringstream outs,outs1,outs2;
     outs << outputfilename<<".png";
@@ -1250,7 +1260,7 @@ for (int layer=1; layer < 44; layer++){
                 }
                 }
     *txtfile << "</body></html>" << endl;
-    txtfile->close();
+    txtfile->close();delete txtfile;
                 }
 if(enableFedProcessing){
     outs1 << outputfilename<<"fed.png";
@@ -1283,7 +1293,7 @@ save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
       }
       }
     *txtfile << "</body></html>" << endl;
-    txtfile->close();
+    txtfile->close();delete txtfile;
                 }
   }
 }
@@ -1302,9 +1312,11 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+   ifilename->close();delete ifilename;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofilename -> close();
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
    command = "sed -i \"s/XtmapnameX/"+outputfilename+"/g\" "+ ofname.str();
     cout << "Executing " << command << endl;
     system(command.c_str());
@@ -1317,16 +1329,22 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   ofname.str("");
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
   
    command = "scp -r ../../DQM/TrackerCommon/test/jquery/ .";
     cout << "Executing " << command << endl;
@@ -1372,7 +1390,7 @@ for (int layer=1; layer < 44; layer++){
                 }
                 }
     *txtfile << "</body></html>" << endl;
-    txtfile->close();
+    txtfile->close();delete txtfile;
                 }
 if(enableFedProcessing){
     outs1 << outputfilename<<"fed.png";
@@ -1405,7 +1423,7 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
       }
       }
     *txtfile << "</body></html>" << endl;
-    txtfile->close();
+    txtfile->close();delete txtfile;
                 }
   }
 }
@@ -1488,7 +1506,7 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<tspan id=\"line3\" x=\"40\" y=\"90\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line4\" x=\"40\" y=\"120\"> </tspan> " << endl;
     *xmlfile << " </text> </svg>" << endl;
-    xmlfile->close();
+    xmlfile->close();delete xmlfile;
   }
 saveAsSingleLayer=false;
 }
