@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.20 2009/06/28 23:27:43 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.21 2009/11/13 20:41:38 berryhil Exp $
 //
 //
 
@@ -104,7 +104,8 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       ~FourVectorHLTriggerOffline();
 
       void cleanDRMatchSet(mmset& tempSet);
-      vector< pair<int,int> > ParseTriggerType(const std::string& pathname);
+      std::vector< std::pair<int,int> > ParseTriggerType(const std::string& pathname);
+      std::string ParseL1SeedModule(const std::string& pathname);
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
