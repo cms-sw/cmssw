@@ -18,6 +18,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/CaloTopology>
+<use name=EventFilter/HcalRawToDigi>
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
