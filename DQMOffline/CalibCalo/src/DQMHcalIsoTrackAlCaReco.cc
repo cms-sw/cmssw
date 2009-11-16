@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.3 2009/09/14 15:48:16 kodolova Exp $
+// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.4 2009/11/16 11:08:38 safronov Exp $
 //
 //
 
@@ -122,6 +122,7 @@ private:
 
   int nTotal;
   int nHLTL3accepts;
+  int nameLength_;
   
   double getDist(double, double, double, double);
 
@@ -183,8 +184,8 @@ DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfi
   saveToFile_=iConfig.getParameter<bool>("saveToFile");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");
-//  hltFilterTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
   hltFilterTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
+  nameLength_=iConfig.getParameter<int>("filterNameLength");
   arITrLabel_=iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel");
   recoTrLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
   pThr_=iConfig.getUntrackedParameter<double>("pThrL3",0);
@@ -217,7 +218,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
     {
       for (unsigned l=0; l<hltFilterTag_.size(); l++)
 	{
-	  if (trEv->filterTag(iFilt).label()==hltFilterTag_[l]) 
+	  if ((trEv->filterTag(iFilt).label()).substr(0,nameLength_)==hltFilterTag_[l]) 
 	    {
 	      KEYS=trEv->filterKeys(iFilt);
 	    }
