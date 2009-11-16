@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.3 2009/09/11 11:40:02 kodolova Exp $
+# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.4 2009/09/23 16:05:56 kodolova Exp $
 #
 # \author Stefano Argiro
 #
@@ -17,7 +17,7 @@ HcalPhiSymMon = cms.EDAnalyzer("DQMHcalPhiSymAlCaReco",
     hbheInputNoise = cms.InputTag("hbherecoNoise"),
     hoInputNoise = cms.InputTag("horecoNoise"),
     hfInputNoise = cms.InputTag("hfrecoNoise"),
-    rawInputLabel=cms.InputTag("hltAlCaHcalFEDSelector"),
+    rawInputLabel=cms.InputTag("source"),
     period = cms.uint32(4096),                               
     # File to save 
     SaveToFile = cms.untracked.bool(False),
