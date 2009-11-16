@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.107 2009/11/14 12:37:50 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.108 2009/11/16 17:26:31 chrjones Exp $
 //
 
 // system include files
@@ -453,21 +453,15 @@ void
 CmsShowMain::openDataViaURL()
 {
    if (m_searchFiles.get() == 0) {
-      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
-         throw std::runtime_error("CMSSW_BASE environment variable not set");
-      }
-      std::string filename= std::string(cmspath) + "/src/Fireworks/Core/data/datacatalog.html";
-      
-      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles(filename.c_str(), 
+      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("", 
                                                                                 "Open Remote Data Files",
                                                                                 m_guiManager->getMainFrame(),
                                                                                 500, 200));
       m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
-   m_guiManager->updateStatus("loading file ...");
    if(!chosenFile.empty()) {
+      m_guiManager->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
          m_navigator->firstEvent();
          checkPosition();
@@ -476,7 +470,7 @@ CmsShowMain::openDataViaURL()
       } else {
          m_guiManager->updateStatus("failed to load data file");
       }
-   }   
+   }
 }
 
 
