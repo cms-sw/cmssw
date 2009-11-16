@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.9 2009/05/13 20:26:05 amraktad Exp $
+// $Id: FW3DViewManager.h,v 1.10 2009/10/08 19:30:46 amraktad Exp $
 
 // system include files
 #include <string>
@@ -36,6 +36,7 @@ public:
 
    // ---------- const member functions ---------------------
    FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   void eventEnd();
 
    // ---------- static member functions --------------------
 

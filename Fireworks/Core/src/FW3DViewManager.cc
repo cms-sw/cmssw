@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.12 2009/07/02 18:35:43 amraktad Exp $
+// $Id: FW3DViewManager.cc,v 1.13 2009/10/08 18:35:03 amraktad Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveCalo.h"
+#include "TEveScalableStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DViewManager.h"
@@ -41,6 +42,7 @@
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
 
 
 //
@@ -229,4 +231,20 @@ FW3DViewManager::supportedTypesAndRepresentations() const
 
    }
    return returnValue;
+}
+
+void
+FW3DViewManager::eventEnd()
+{
+  double scale = m_calo3d->GetValToHeight();
+  TEveElementIter child(m_elements.get());
+   while ( TEveElement* el = child.current() )
+   {
+     if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
+       {
+	 line->SetScale( scale );
+	 line->ElementChanged();
+       }
+     child.next();
+   }
 }
