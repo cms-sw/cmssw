@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2009/11/16 14:06:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/16 15:34:06 $
+ *  $Revision: 1.2 $
  *
  *  \author Andrea Bocci
  *
@@ -107,7 +107,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
     setup.get<L1GtTriggerMaskAlgoTrigRcd>().get(h_mask);
     const std::vector<unsigned int> & mask = h_mask->gtTriggerMask();
     for (unsigned int i = 0; i < PHTSICS_BITS_SIZE; ++i)
-      m_maskedPhysics[i] = m_selectPhysics[i] and (mask[i] & DAQ_PARTITIONS);
+      m_maskedPhysics[i] = m_selectPhysics[i] and ((mask[i] & DAQ_PARTITIONS) != DAQ_PARTITIONS);
   }
   
   // apply L1 mask to the technical bits
@@ -116,7 +116,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
     setup.get<L1GtTriggerMaskTechTrigRcd>().get(h_mask);
     const std::vector<unsigned int> & mask = h_mask->gtTriggerMask();
     for (unsigned int i = 0; i < TECHNICAL_BITS_SIZE; ++i)
-      m_maskedTechnical[i] = m_selectTechnical[i] and (mask[i] & DAQ_PARTITIONS);
+      m_maskedTechnical[i] = m_selectTechnical[i] and ((mask[i] & DAQ_PARTITIONS) != DAQ_PARTITIONS);
   }
 
   // access the L1 decisions
