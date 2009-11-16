@@ -51,8 +51,9 @@ HLT_L1Mu14_L1SingleEG10
 HLT_L1Mu14_L1SingleJet6U
 HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
-HLT_MinBiasHcal
+HLT_MinBiasBSC
 HLT_MinBiasEcal
+HLT_MinBiasHcal
 HLT_MinBiasPixel_SingleTrack
 HLT_MinBiasPixel_DoubleTrack
 HLT_MinBiasPixel_DoubleIsoTrack5
