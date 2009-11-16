@@ -71,8 +71,9 @@ public:
    // get all known detector ids with path matching regular expression
    std::vector<unsigned int> getMatchedIds( const char* selection ) const;
 
-   // extract shapes of all known elements
-   TEveElementList* getAllShapes(const char* elementListName = "CMS") const;
+   // extract shapes of all known elements with path matching regular expression
+   // if empty string is given, return all shapes
+   TEveElementList* getAllShapes( const char* selection = 0 ) const;
 
    // reco geometry
    std::vector<TEveVector> getPoints(unsigned int id) const;
