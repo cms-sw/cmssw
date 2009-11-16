@@ -168,9 +168,13 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       vShowerShapes_Angle.push_back(-1.);      
     }
   
-  edm::ValueMap<float>::Filler TheFiller( TheEcalHaloData.GetShowerShapesRoundness() );
-  TheFiller.insert( TheSuperClusters, vShowerShapes_Roundness.begin(), vShowerShapes_Roundness.end() );
-  TheFiller.fill();  
+  edm::ValueMap<float>::Filler TheRoundnessFiller( TheEcalHaloData.GetShowerShapesRoundness() );
+  TheRoundnessFiller.insert( TheSuperClusters, vShowerShapes_Roundness.begin(), vShowerShapes_Roundness.end() );
+  TheRoundnessFiller.fill();  
+
+  edm::ValueMap<float>::Filler TheAngleFiller( TheEcalHaloData.GetShowerShapesAngle() );
+  TheAngleFiller.insert( TheSuperClusters, vShowerShapes_Angle.begin() , vShowerShapes_Angle.end() );
+  TheAngleFiller.fill();
 
   return TheEcalHaloData;
 }
