@@ -3,23 +3,25 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
-
 typedef math::XYZTLorentzVector LorentzVector;
 
 ConversionFinder::ConversionFinder(){ }
 
 ConversionFinder::~ConversionFinder(){ }
 
-bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron, 
-					  const edm::View<reco::Track>& v_tracks,
-					  const float bFieldAtOrigin, 
-					  const float maxAbsDist,
-					  const float maxAbsDCot,
-					  const float minFracSharedHits) {
+
+reco::TrackRef ConversionFinder::getConversionPartnerTrack(const reco::GsfElectron& gsfElectron, 
+							   const edm::Handle<reco::TrackCollection>& track_h, 
+							   const float bFieldAtOrigin,
+							   const float maxAbsDist,
+							   const float maxAbsDCot,
+							   const float minFracSharedHits) {
+
   using namespace edm;
   using namespace reco;
   const reco::GsfTrackRef el_gsftrack = gsfElectron.gsfTrack();
   const reco::TrackRef el_ctftrack = gsfElectron.closestCtfTrackRef();
+  const TrackCollection *ctftracks = track_h.product();
   
   
   int ctfidx = el_ctftrack.isNonnull() ? static_cast<int>(el_ctftrack.key()) : -999;
@@ -28,26 +30,46 @@ bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron,
 					 el_gsftrack->pz(), el_gsftrack->p());
   double el_d0 = el_gsftrack->d0();
 
+
+  //if the CTF track is truly the electron's CTF track, then use it's
+  //parameters instead of the GSF track's as it has been shown to lower
+  //the inefficiency of the algoritm for prompt electrons by F. Bostock
+  if(ctfidx != -999 && gsfElectron.shFracInnerHits() > minFracSharedHits) {
+    el_tk_p4 = LorentzVector(el_ctftrack->px() , el_ctftrack->py(),
+			     el_ctftrack->pz(), el_ctftrack->p());
+    el_q  = el_ctftrack->charge();
+    el_d0 = el_ctftrack->d0();
+  }
+
   int tk_i = 0;
-  for(View<Track>::const_iterator tk = v_tracks.begin();
-      tk != v_tracks.end(); tk++, tk_i++) {
+  double mindR = 999;
+
+  //make a null Track Ref
+  TrackRef ctfTrackRef = TrackRef() ;
+
+  
+  for(TrackCollection::const_iterator tk = ctftracks->begin();
+      tk != ctftracks->end(); tk++, tk_i++) {
     //if the general Track is the same one as made by the electron, skip it
-    if(tk_i == ctfidx && gsfElectron.shFracInnerHits() > minFracSharedHits)
+    if((tk_i == ctfidx)  &&  (gsfElectron.shFracInnerHits() > minFracSharedHits))
       continue;
     
+    
+    LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),
+					tk->pz(), tk->p());
+ 
     //look only in a cone of 0.3
-    double dR = deltaR(el_tk_p4, LorentzVector(tk->px(), tk->py(), tk->pz(), tk->p()));
+    double dR = deltaR(el_tk_p4, tk_p4);
     if(dR > 0.3)
       continue;
 
     int tk_q = tk->charge();
+    double tk_d0 = tk->d0();
 
     //the electron and track must be opposite charge
-    if(tk_q + gsfElectron.charge() != 0)
+    if(tk_q + el_q != 0)
       continue;
-    LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),
-					tk->pz(), tk->p());
-    double tk_d0 = tk->d0();
+    
     std::pair<double, double> convInfo =  getConversionInfo(el_tk_p4, el_q, el_d0,
 							    tk_p4, tk_q, tk_d0,
 							    bFieldAtOrigin);
@@ -55,11 +77,32 @@ bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron,
     double dist = convInfo.first;
     double dcot = convInfo.second;
     
-    if(fabs(dist) < maxAbsDist && fabs(dcot) < maxAbsDCot)
-      return true;
+    if(fabs(dist) < maxAbsDist && fabs(dcot) < maxAbsDCot && dR < mindR) {
+      ctfTrackRef = reco::TrackRef(track_h, tk_i);
+      mindR = dR;
+    }
+      
   }//track loop
   
-  return false;
+  return ctfTrackRef;
+}
+
+
+bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron, 
+					  const edm::Handle<reco::TrackCollection>& track_h, 
+					  const float bFieldAtOrigin,
+					  const float maxAbsDist,
+					  const float maxAbsDCot,
+					  const float minFracSharedHits) {
+
+
+
+  reco::TrackRef partner  = getConversionPartnerTrack(gsfElectron, track_h, bFieldAtOrigin, 
+			    maxAbsDist, maxAbsDCot, minFracSharedHits);
+  
+  
+  
+  return partner.isNonnull();
     
 }
 
