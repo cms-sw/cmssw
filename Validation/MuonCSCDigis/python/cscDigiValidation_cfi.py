@@ -6,6 +6,8 @@ cscDigiValidation = cms.EDAnalyzer("CSCDigiValidation",
     outputFile = cms.string(''),
     stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     comparatorDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
+    alctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
+    clctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
     doSim = cms.bool(False)
 )
 
