@@ -94,9 +94,7 @@ namespace edm {
     beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
 
     //prepare playback info structures
-    fileSeqNrs_.resize(maxBunch_-minBunch_+1);
-    eventIDs_.resize(maxBunch_-minBunch_+1);
-    nrEvents_.resize(maxBunch_-minBunch_+1);
+    vectorEventIDs_.resize(maxBunch_-minBunch_+1);
   }
 
   // Virtual destructor needed.
@@ -126,9 +124,9 @@ namespace edm {
     if ( input_)  {  
       if (playback_) {
 	getEventStartInfo(e,0);
-	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_);
+	input_->readPileUp(pileup_[0], vectorEventIDs_);
       } else {
-	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_); 
+	input_->readPileUp(pileup_[0], vectorEventIDs_); 
         setEventStartInfo(0);
       }
       if (input_->doPileup()) {  
@@ -139,9 +137,9 @@ namespace edm {
     if (cosmics_) {
       if (playback_) {
 	getEventStartInfo(e,1);
-	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
+	cosmics_->readPileUp(pileup_[1], vectorEventIDs_); 
       } else {
-	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
+	cosmics_->readPileUp(pileup_[1], vectorEventIDs_); 
 	setEventStartInfo(1);
       }
       if (cosmics_->doPileup()) {  
@@ -153,9 +151,9 @@ namespace edm {
     if (beamHalo_p_) {
       if (playback_) {
 	getEventStartInfo(e,2);
-	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_);
       } else {
-	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_);
 	setEventStartInfo(2);
       }
       if (beamHalo_p_->doPileup()) {  
@@ -167,9 +165,9 @@ namespace edm {
     if (beamHalo_m_) {
       if (playback_) {
 	getEventStartInfo(e,3);
-	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_);
       } else {
-	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_);
 	setEventStartInfo(3);
       }
       if (beamHalo_m_->doPileup()) {  
@@ -191,10 +189,13 @@ namespace edm {
     eventId_=0;
     LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
     vertexoffset=0;
+    int i=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+      std::cout << " i = " << i << std::endl;
       LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
       
       addPileups(bcr, &(**it), ++eventId_,worker,setup);
+      i = i + 1;
     }// end main loop
   }
 
