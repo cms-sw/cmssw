@@ -8,7 +8,7 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   edm::InputTag  z_, gen_, match_;
-  size_t nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
+  unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
   TH1F *h_invmMuMu_;
@@ -41,10 +41,10 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   z_(pset.getParameter<InputTag>("z")),
   gen_(pset.getParameter<InputTag>("gen")), 
   match_(pset.getParameter<InputTag>("match")), 
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
-  nbinsMassRes_(pset.getUntrackedParameter<size_t>("nbinsMassRes")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
+  nbinsMassRes_(pset.getUntrackedParameter<unsigned int>("nbinsMassRes")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
