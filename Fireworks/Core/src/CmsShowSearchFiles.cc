@@ -37,8 +37,8 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-   {"http://", "Web Site",0},
    {"http://uaf-2.t2.ucsd.edu/~yanjuntu/fireworks/","Example Files from Web","t"},
+   {"http://", "Web site known by you",0},
    {"file:","local file",0},
    {"dcap://","dCache [FNAL]",0},
    {"rfio://","Castor [CERN]",0}
@@ -54,8 +54,8 @@ static const char *s_noBrowserMessage[] = {
    "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
    "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
    "<BODY> ",
-   "<P>No file browser is available for this prefix</P>",
-   "<P>Only a prefix beginning in <BOLD>http:</BOLD> is supported for browsing.</P>"
+   "No file browser is available for this prefix<BR>",
+   "Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name is supported for browsing."
    "</BODY></HTML> ",
    0
 };
@@ -124,12 +124,16 @@ void
 CmsShowSearchFiles::prefixChoosen(Int_t iIndex)
 {
    m_file->SetText(m_prefixes[iIndex].c_str(),kFALSE);
+   m_openButton->SetEnabled(kFALSE);
+
    if(m_prefixComplete[iIndex]) {
       //gClient->NeedRedraw(this);
       gClient->NeedRedraw(m_choosePrefix);
       gClient->NeedRedraw(m_webFile);
       gClient->ProcessEventsFor(this);
       updateBrowser();
+   } else {
+      sendToWebBrowser("");
    }
 }
 
@@ -138,8 +142,10 @@ CmsShowSearchFiles::fileEntryChanged(const char* iFileName)
 {
    std::string fileName =iFileName;
    size_t index = fileName.find_last_of(".");
-   std::string postfix = fileName.substr(index,std::string::npos);
-   
+   std::string postfix;
+   if(index != std::string::npos) {
+      postfix=fileName.substr(index,std::string::npos);
+   }
    if(postfix ==s_rootPostfix) {
       m_openButton->SetEnabled(kTRUE);
    } else {
@@ -254,7 +260,6 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
    std::string prefix = fileName.substr(0,index);
 
    m_webFile->Clear();
-   m_webFile->Layout();
    if(prefix == s_httpPrefix) {
       gVirtualX->SetCursor(GetId(),gVirtualX->CreateCursor(kWatch));
       //If you clicked a hyperlink then the cursor is still a hand but we now
@@ -282,6 +287,7 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
          m_webFile->ParseText((char *)s_noBrowserMessage[i]);
       }
    }
+   m_webFile->Layout();
 }
 
 std::string 
