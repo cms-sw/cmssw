@@ -414,10 +414,13 @@ class ConfigEditorTabController(BrowserTabController):
 
     def updateConfigContent(self):
         if self.tab().editorTableView().selection() in self.toolDataAccessor().toolModules().keys():
-            self._filterObjects=self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()]
-        elif self._filterObjects!=None:
-            self._filterObjects=None
-        self.updateContent(False,False)
+            # TODO multiple selection
+            if len(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()])>0:
+                self.select(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()][0])
+            #self._filterObjects=self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()]
+        #elif self._filterObjects!=None:
+        #    self._filterObjects=None
+        #self.updateContent(False,False)
             
     def importButtonClicked(self):
         logging.debug(__name__ + ": importButtonClicked")

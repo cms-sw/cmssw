@@ -34,7 +34,7 @@ cmsswDir="$CMSSW_BASE"
 cmsswReleaseDir="$CMSSW_RELEASE_BASE"
 standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswDir,"src/PhysicsTools/PatAlgos/test")))
 if not os.path.exists(standardConfigDir):
-    standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswReleaseDir,"/src/PhysicsTools/PatAlgos/test")))
+    standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswReleaseDir,"src/PhysicsTools/PatAlgos/test")))
 
 class ImportTool(ConfigToolBase):
     """ Import configuration tool """
