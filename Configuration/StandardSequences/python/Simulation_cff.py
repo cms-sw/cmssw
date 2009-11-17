@@ -34,7 +34,8 @@ from Configuration.StandardSequences.Sim_cff import *
 # returns sequence "doAllDigi"
 #
 from Configuration.StandardSequences.Digi_cff import *
-from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
+#from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
+from SimGeneral.HepPDTESSource.pdt_cfi import *
 simulation = cms.Sequence(psim*pdigi)
 
 
