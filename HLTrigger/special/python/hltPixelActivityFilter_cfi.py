@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPixelActivityFilter = cms.EDFilter( "HLTPixelActivityFilter",
-   pixelTag     = cms.InputTag( "hltSiPixelClusters" ),
-   minClusters  = cms.uint32( 3 )
+   inputTag    = cms.InputTag( "hltSiPixelClusters" ),
+   saveTag     = cms.untracked.bool( False ),
+   minClusters = cms.uint32( 3 )
 )

@@ -21,6 +21,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 //
@@ -28,29 +30,33 @@
 //
 class HLTCaloTowerFilter : public HLTFilter {
 public:
-    explicit HLTCaloTowerFilter(const edm::ParameterSet&);
-    ~HLTCaloTowerFilter();
+  explicit HLTCaloTowerFilter(const edm::ParameterSet&);
+  ~HLTCaloTowerFilter();
     
 private:
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-    
-    // ----------member data ---------------------------
-    edm::InputTag inputTag_;    // input tag identifying product
-    double        min_Pt_;      // pt threshold in GeV 
-    double        max_Eta_;     // eta range (symmetric)
-    unsigned int  min_N_;       // number of objects passing cuts required
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+
+  // ----------member data ---------------------------
+  edm::InputTag inputTag_;    // input tag identifying product
+  bool          saveTag_;     // whether to save this tag
+  double        min_Pt_;      // pt threshold in GeV 
+  double        max_Eta_;     // eta range (symmetric)
+  unsigned int  min_N_;       // number of objects passing cuts required
 
 };
 
 //
 // constructors and destructor
 //
-HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& iConfig) :
-  inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  min_Pt_   (iConfig.getParameter<double>       ("MinPt"   )),
-  max_Eta_  (iConfig.getParameter<double>       ("MaxEta"  )),
-  min_N_    (iConfig.getParameter<unsigned int> ("MinN"    ))
+HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) :
+  inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
+  saveTag_  (config.getUntrackedParameter<bool>("saveTag", false)),
+  min_Pt_   (config.getParameter<double>       ("MinPt"   )),
+  max_Eta_  (config.getParameter<double>       ("MaxEta"  )),
+  min_N_    (config.getParameter<unsigned int> ("MinN"    ))
 {
+  // register your products
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -76,6 +82,10 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
 
+  // The filter object
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+
   // get hold of collection of objects
   Handle<CaloTowerCollection> caloTowers;
   event.getByLabel(inputTag_, caloTowers);
@@ -85,7 +95,12 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   for (CaloTowerCollection::const_iterator i = caloTowers->begin(); i != caloTowers->end(); ++i) {
     if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (abs(i->eta()) <= max_Eta_) ) )
       ++n;
+      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(caloTowers->begin(), i));
+      //filterobject->addObject(TriggerJet, ref);
   }
+
+  // put filter object into the Event
+  event.put(filterobject);
 
   // filter decision
   return (n >= min_N_);
