@@ -42,6 +42,7 @@ namespace reco {
 
     // Get Reference to the Tracks
     edm::RefVector<reco::TrackCollection>& GetTracks(){return TheTrackRefs;}
+    const edm::RefVector<reco::TrackCollection>& GetTracks()const {return TheTrackRefs;}
     
     // Set Number of Halo Triggers
     void SetNumberOfHaloTriggers(int PlusZ,  int MinusZ ){ nTriggers_PlusZ =PlusZ; nTriggers_MinusZ = MinusZ ;}
