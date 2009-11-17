@@ -147,7 +147,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   TH2D *h2 = (TH2D*) dir->Get(key);
   TH2Analyzer TH2Ana(h2, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D* hrms=TH2Ana.RMS();
-  TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
   fitfcndgssrms3->SetNpx(500);
   fitfcndgssrms3->SetLineWidth(3);
   fitfcndgssrms3->SetLineStyle(2);
@@ -155,7 +155,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   hrms->Fit("fitfcndgssrms3","0R");
 
   TH1D* ha=TH2Ana.SigmaGauss();
-  TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
   fitfcndgsse3->SetNpx(500);
   fitfcndgsse3->SetLineWidth(3);
   fitfcndgsse3->SetLineStyle(1);
@@ -167,7 +167,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   TH2D *h2b = (TH2D*) dir->Get(key);
   TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D* hrmsb=TH2Anab.RMS();
-  TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
   fitfcndgssrmsb3->SetNpx(500);
   fitfcndgssrmsb3->SetLineWidth(3);
   fitfcndgssrmsb3->SetLineStyle(2);
@@ -175,7 +175,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   hrmsb->Fit("fitfcndgssrmsb3","0R");
 
   TH1D* hb=TH2Anab.SigmaGauss();
-  TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
   fitfcndgsseb3->SetNpx(500);
   fitfcndgsseb3->SetLineWidth(3);
   fitfcndgsseb3->SetLineStyle(1);
@@ -211,7 +211,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   //Draw(meanXslice,meanXslice,mode);
   hrms->Divide(meanXslice);
 
-  TF1 *fitXfcndgssrms3 = new TF1("fitXfcndgssrms3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitXfcndgssrms3 = new TF1("fitXfcndgssrms3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
   fitXfcndgssrms3->SetNpx(500);
   fitXfcndgssrms3->SetLineWidth(3);
   fitXfcndgssrms3->SetLineStyle(2);
@@ -220,7 +220,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
 
   TH1D* ha=TH2Ana.SigmaGauss();
   ha->Divide(meanXslice);
-  TF1 *fitXfcndgsse3 = new TF1("fitXfcndgsse3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitXfcndgsse3 = new TF1("fitXfcndgsse3",fitFunction_f,ha->GetXaxis()->GetBinLowEdge(1),ha->GetXaxis()->GetBinUpEdge(ha->GetNbinsX()),4);
   fitXfcndgsse3->SetNpx(500);
   fitXfcndgsse3->SetLineWidth(3);
   fitXfcndgsse3->SetLineStyle(1);
@@ -233,7 +233,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D* hrmsb=TH2Anab.RMS();
   hrmsb->Divide(meanXslice);
-  TF1 *fitXfcndgssrmsb3 = new TF1("fitXfcndgssrmsb3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitXfcndgssrmsb3 = new TF1("fitXfcndgssrmsb3",fitFunction_f,hrmsb->GetXaxis()->GetBinLowEdge(1),hrmsb->GetXaxis()->GetBinUpEdge(hrmsb->GetNbinsX()),4);
   fitXfcndgssrmsb3->SetNpx(500);
   fitXfcndgssrmsb3->SetLineWidth(3);
   fitXfcndgssrmsb3->SetLineStyle(2);
@@ -242,7 +242,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
 
   TH1D* hb=TH2Anab.SigmaGauss();
   hb->Divide(meanXslice);
-  TF1 *fitXfcndgsseb3 = new TF1("fitXfcndgsseb3",fitFunction_f,binxmin,binxmax,4);
+  TF1 *fitXfcndgsseb3 = new TF1("fitXfcndgsseb3",fitFunction_f,hb->GetXaxis()->GetBinLowEdge(1),hb->GetXaxis()->GetBinUpEdge(hb->GetNbinsX()),4);
   fitXfcndgsseb3->SetNpx(500);
   fitXfcndgsseb3->SetLineWidth(3);
   fitXfcndgsseb3->SetLineStyle(1);
