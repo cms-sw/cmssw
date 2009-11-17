@@ -16,22 +16,22 @@ using namespace edm;
 using namespace std;
 
 ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps) {
-
-   verbose_       = ps.getUntrackedParameter<bool>("verbose", true);
-   debug_         = ps.getUntrackedParameter<bool>("debug", true);
-   prefixME_	  = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
-   lookup_	  = ps.getUntrackedParameter<FileInPath>("LookupTable");
-   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-   fitPedestal_   = ps.getUntrackedParameter<bool>("fitPedestal", false);
-
-   for (int i=0; i<2; i++) 
-      for (int j=0; j<2; j++) 
-	 for (int k=0; k<40; k++) 
-	    for (int m=0; m<40; m++) {
-	       hPed_[i][j][k][m] = 0;
-	       hTotN_[i][j][k][m] = 0;
-	    }
-
+  
+  verbose_       = ps.getUntrackedParameter<bool>("verbose", true);
+  debug_         = ps.getUntrackedParameter<bool>("debug", true);
+  prefixME_	  = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
+  lookup_	  = ps.getUntrackedParameter<FileInPath>("LookupTable");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+  fitPedestal_   = ps.getUntrackedParameter<bool>("fitPedestal", false);
+  
+  for (int i=0; i<2; i++) 
+    for (int j=0; j<2; j++) 
+      for (int k=0; k<40; k++) 
+	for (int m=0; m<40; m++) {
+	  hPed_[i][j][k][m] = 0;
+	  hTotN_[i][j][k][m] = 0;
+	}
+  
 }
 
 ESPedestalClient::~ESPedestalClient() {
@@ -117,9 +117,9 @@ void ESPedestalClient::endJob(void) {
 
 void ESPedestalClient::endRun(void) {
 
-   if ( debug_ ) cout << "ESPedestalClient: endRun, jevt = " << jevt_ << endl;
-
-   this->cleanup();
+  if ( debug_ ) cout << "ESPedestalClient: endRun, jevt = " << jevt_ << endl;
+  
+  this->cleanup();
 }
 
 void ESPedestalClient::setup(void) {
