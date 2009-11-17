@@ -27,6 +27,7 @@ class CodeTableView(TableView):
         """
         TableView._createItem(self, object, properties, depth)
         button=QToolButton()
+        button.object=object
         if self.dataAccessor().label(object)=="Import":
             button.setText("...")
             self.connect(button, SIGNAL('clicked(bool)'), self.importButtonClicked)
