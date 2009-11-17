@@ -91,21 +91,22 @@ class TableView(AbstractView, QTableWidget):
         objects=[]
         for object in self.applyFilter(self.dataObjects()):
             objects+=self._getObjects(object)
+        properties={}
+        for object,depth in objects:
+            thread = ThreadChain(self.dataAccessor().properties, object)
+            while thread.isRunning():
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
+            if operationId != self._operationId:
+                self._updatingFlag-=1
+                return False
+            properties[object]=thread.returnValue()
         if self._filteredColumns!=[]:
             self._columns=self._filteredColumns
         else:
             self._columns=[]
             ranking={}
-            properties={}
             for object,depth in objects:
-                thread = ThreadChain(self.dataAccessor().properties, object)
-                while thread.isRunning():
-                    if not Application.NO_PROCESS_EVENTS:
-                        QCoreApplication.instance().processEvents()
-                if operationId != self._operationId:
-                    self._updatingFlag-=1
-                    return False
-                properties[object]=thread.returnValue()
                 for property in properties[object]:
                     if not property[1] in ranking.keys():
                         ranking[property[1]]=1
@@ -150,24 +151,28 @@ class TableView(AbstractView, QTableWidget):
         row=self.rowCount()
         self.setRowCount(self.rowCount()+1)
         height=Property.DEFAULT_HEIGHT
+        firstColumnDone=False
         for property in properties:
-            if property[1] in self._columns:
+            if property!=None and property[1] in self._columns:
                 i=self._columns.index(property[1])
-            else:
-                continue
-            if property!=None:
-                # too slow
-                #propertyWidget=PropertyView.propertyWidgetFromProperty(property)
-                #if propertyWidget.properyHeight()>height:
-                #    height=propertyWidget.properyHeight()
-                #text=str(propertyWidget.value())
-                text=str(property[2])
-            else:
-                text=""
-            item=QTableWidgetItem(text)
+                if property[0] in ["MultilineString","Double"]: 
+                    propertyWidget=PropertyView.propertyWidgetFromProperty(property)
+                    if propertyWidget.properyHeight()>height:
+                        height=propertyWidget.properyHeight()
+                    text=str(propertyWidget.value())
+                else:
+                    text=str(property[2])
+                item=QTableWidgetItem(text)
+                item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+                item.object=object
+                self.setItem(row,i,item)
+                if i==self._firstColumn:
+                    firstColumnDone=True
+        if not firstColumnDone:
+            item=QTableWidgetItem("")
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
             item.object=object
-            self.setItem(row,i,item)
+            self.setItem(row,self._firstColumn,item)
         self.verticalHeader().resizeSection(row,height)
 
     def itemSelectionChanged(self):
