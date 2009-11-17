@@ -176,7 +176,7 @@ void ESIntegrityClient::analyze(void) {
     }
     for (int j=0; j<36; ++j) {
       if (hFiberBadStatus_) {
-	if (hFiberBadStatus_->GetBinContent(i+58+59*j) > 0) 
+	if (hFiberBadStatus_->GetBinContent(i, j+1) > 0) 
 	  fiberStatus_[i-1][j] = 2; // bad
 	else 
 	  fiberStatus_[i-1][j] = 1; // good
@@ -284,7 +284,7 @@ void ESIntegrityClient::analyze(void) {
 
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
 	  nErr = 0;
-	  
+
 	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
 
 	    if (hFED_) {
