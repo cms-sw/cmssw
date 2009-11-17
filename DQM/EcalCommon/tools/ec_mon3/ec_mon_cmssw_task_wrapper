@@ -84,6 +84,8 @@ cmsPlayHostEE = 'srv-c2d05-11'.lower()
 
 host = socket.gethostname().split('.')[0].lower()
 
+print "Running on host:", host
+
 if (host == ecalHostEC) :
   print "ERROR: Wrong host configuration."
   sys.exit(1)
