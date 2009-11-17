@@ -142,9 +142,9 @@ void FUResource::process(MemRef_t* bufRef)
   MemRef_t* itBufRef = bufRef;
   while(0!=itBufRef&&!fatalError()) {
     MemRef_t* next=itBufRef->getNextReference();
+    itBufRef->setNextReference(0);
     try {
       processDataBlock(itBufRef);
-      itBufRef->setNextReference(0);
     }
     catch (xcept::Exception& e) {
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
