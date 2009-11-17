@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.5 2009/11/12 23:55:59 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.6 2009/11/13 00:11:21 fwyzard Exp $
 //
 
 
@@ -129,9 +129,9 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
 
   typedef std::vector<edm::ParameterSet> VPSet; 
   const VPSet & categories = config.getParameter<VPSet>("categories");
-  BOOST_FOREACH(const edm::ParameterSet & category, categories) {
-    const std::string & name = category.getParameter<std::string>("name");
-    uint32_t threshold       = category.getParameter<uint32_t>("threshold");
+  for (VPSet::const_iterator category = categories.begin(); category != categories.end(); ++category) {
+    const std::string & name = category->getParameter<std::string>("name");
+    uint32_t threshold       = category->getParameter<uint32_t>("threshold");
     addCategory(name, threshold);
   }
 
