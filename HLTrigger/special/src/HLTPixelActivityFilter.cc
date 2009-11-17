@@ -32,7 +32,7 @@ private:
 //
  
 HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) :
-  inputTag_     (config.getParameter<edm::InputTag>("nputTag")),
+  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
   min_clusters_ (config.getParameter<unsigned int>("minClusters"))
 {
