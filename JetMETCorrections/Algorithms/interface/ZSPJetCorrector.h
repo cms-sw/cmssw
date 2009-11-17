@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: ZSPJetCorrector.h,v 1.4 2009/10/19 15:14:59 kodolova Exp $
+// $Id: ZSPJetCorrector.h,v 1.5 2009/11/09 20:39:58 kkousour Exp $
 //
 // MC Jet Corrector
 //
@@ -25,7 +25,10 @@ class ZSPJetCorrector : public JetCorrector {
   ZSPJetCorrector (const edm::ParameterSet& fParameters);
   virtual ~ZSPJetCorrector ();
   /// apply correction using Event information 
-  virtual double correction( const reco::Jet&, const edm::Event&, const edm::EventSetup& ) const;
+  virtual double correction( const reco::Jet&,
+			     const edm::RefToBase<reco::Jet>&,
+			     const edm::Event&,
+			     const edm::EventSetup& ) const;
   /// apply correction using Jet information only
   virtual double correction (const LorentzVector& fJet) const;
   /// apply correction using Jet information only

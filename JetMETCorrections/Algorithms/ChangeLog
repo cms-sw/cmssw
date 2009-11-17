@@ -1,3 +1,8 @@
+2009-11-17  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* adjust ZSPCorrector and JetPlusTrackCorrector to interface
+	change in JetCorrector baseclass.
+
 2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* remove tagName parameters, introduce parameters era, level,
