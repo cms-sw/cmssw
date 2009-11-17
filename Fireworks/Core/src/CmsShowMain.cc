@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.109 2009/11/16 21:01:50 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.110 2009/11/16 21:50:26 chrjones Exp $
 //
 
 // system include files
@@ -837,7 +837,8 @@ CmsShowMain::setupDataHandling()
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
    m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
-   m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessage,m_guiManager.get(),_1));
+   m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventSelectionChanged,m_guiManager.get(),_1, _2));
+
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
@@ -859,7 +860,7 @@ CmsShowMain::setupDataHandling()
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1,_2));
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
    m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator,_1));
    m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
  

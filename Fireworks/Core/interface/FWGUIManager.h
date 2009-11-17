@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.83 2009/11/10 14:38:11 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.84 2009/11/16 17:26:31 chrjones Exp $
 //
 
 // system include files
@@ -184,7 +184,7 @@ public:
 
    // void eventFilterChanged();       // CmsShowMainFrame -> CmsShowNavigator
    void eventFilterStatusChanged(); // CmsShowMainFrame -> CmsShowNavigator
-   void eventFilterMessage(const std::string&); // CmsShowNavigator -> CmsShowMainFrame
+   void eventSelectionChanged(int, int); // CmsShowNavigator -> CmsShowMainFrame
    void runIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);

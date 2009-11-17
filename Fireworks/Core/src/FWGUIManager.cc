@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.165 2009/11/14 11:31:13 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.166 2009/11/16 17:26:31 chrjones Exp $
 
 //
 
@@ -1200,16 +1200,15 @@ FWGUIManager::finishUpColorChange()
    gEve->FullRedraw3D(kFALSE,kTRUE);
 }
 
-void FWGUIManager::eventFilterMessage(const std::string& message)
+void FWGUIManager::eventSelectionChanged(int sel, int total)
 {
-  if ( message.empty() ){
-    // if (m_cmsShowMainFrame->m_filterState->IsOn()) warning
-    m_cmsShowMainFrame->m_filterState->SetOn(kFALSE);
-    m_cmsShowMainFrame->m_filterEditButton->SetText("Event Filtering is OFF");
-  } else {
-    m_cmsShowMainFrame->m_filterState->SetOn(kTRUE);
-    m_cmsShowMainFrame->m_filterEditButton->SetText(message.c_str());
-  }
+   if ( sel){
+      m_cmsShowMainFrame->m_filterState->SetOn(kTRUE);
+      m_cmsShowMainFrame->m_filterEditButton->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
+   } else {
+      m_cmsShowMainFrame->m_filterState->SetOn(kFALSE);
+      m_cmsShowMainFrame->m_filterEditButton->SetText(Form("Event Filtering is OFF.  %d events are shown.", total));
+   }
 }
 
 //
