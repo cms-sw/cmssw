@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.8 2009/10/07 08:06:26 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.9 2009/11/13 14:26:58 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -41,15 +41,18 @@ LumiSummary::isValid() const {
   return (lsnumber_ > 0); 
 }
 LumiSummary::L1   
-LumiSummary::l1info(int linenumber) const{
-  return l1data_.at(linenumber);
+LumiSummary::l1info(const std::string& name) const{
+  for(std::vector<L1>::const_iterator it=l1data_.begin();it!=l1data_.end();++it){
+    if(it->triggersource==name) return *it;
+  }
+  return LumiSummary::L1();
 }
-std::string
-LumiSummary::triggerConfig(int linenumber)const{
-  return l1data_.at(linenumber).triggersource;
+LumiSummary::L1  
+LumiSummary::l1info(unsigned int idx)const{
+  return l1data_.at(idx);
 }
 LumiSummary::HLT  
-LumiSummary::hltinfo(int idx) const {
+LumiSummary::hltinfo(unsigned int idx) const {
   return hltdata_.at(idx);
 }
 LumiSummary::HLT  
@@ -57,7 +60,7 @@ LumiSummary::hltinfo(const std::string& pathname) const {
   for(std::vector<HLT>::const_iterator it=hltdata_.begin();it!=hltdata_.end();++it){
     if(it->pathname==pathname) return *it;
   }
-  return LumiSummary::HLT() ;
+  return LumiSummary::HLT();
 }
 size_t
 LumiSummary::nTriggerLine()const{
