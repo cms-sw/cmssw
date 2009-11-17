@@ -5,6 +5,8 @@ from PyQt4.QtCore import Qt,QCoreApplication,SIGNAL
 from Vispa.Main.Application import Application
 from Vispa.Views.BoxDecayView import BoxDecayView
 from Vispa.Gui.PortConnection import PortConnection,PointToPointConnection
+from Vispa.Gui.ConnectableWidget import ConnectableWidget
+from Vispa.Gui.WidgetContainer import WidgetContainer
 
 class ConfigEditorBoxView(BoxDecayView):
     """
@@ -20,6 +22,8 @@ class ConfigEditorBoxView(BoxDecayView):
         self._colorIndex = 0
         PointToPointConnection.CONNECTION_THICKNESS=2
         self.setSortBeforeArranging(False)
+        self._highlightedObjects=[]
+        self._highlightedWidgets=[]
 
     def connections(self):
         return self._connections
@@ -70,6 +74,43 @@ class ConfigEditorBoxView(BoxDecayView):
                 self.emit(SIGNAL("doubleClicked"), widget.object)
             else:
                 self.emit(SIGNAL("doubleClicked"), widget.object())
+    
+    def highlight(self, objects=None):
+        """ Mark objects.
+        """
+        if objects!=None:
+            self._highlightedObjects=objects
+        for widget in self._highlightedWidgets:
+            if isinstance(widget,ConnectableWidget):
+                widget.setColors(ConnectableWidget.PEN_COLOR,
+                                 ConnectableWidget.FILL_COLOR1,
+                                 ConnectableWidget.FILL_COLOR2)
+            elif isinstance(widget,WidgetContainer):
+                widget.setColors(WidgetContainer.PEN_COLOR,
+                                 WidgetContainer.FILL_COLOR1,
+                                 WidgetContainer.FILL_COLOR2)
+            widget.update()
+        self._highlightedWidgets=[]
+        for object in self._highlightedObjects:
+            widget = self.widgetByObject(object)
+            if widget==None:
+                continue
+            if isinstance(widget,ConnectableWidget):
+                widget.setColors(ConnectableWidget.PEN_COLOR.darker(),
+                                 ConnectableWidget.FILL_COLOR1,
+                                 ConnectableWidget.FILL_COLOR2)
+            elif isinstance(widget,WidgetContainer):
+                widget.setColors(WidgetContainer.PEN_COLOR.darker(),
+                                 WidgetContainer.FILL_COLOR1,
+                                 WidgetContainer.FILL_COLOR2)
+            widget.update()
+            self._highlightedWidgets+=[widget]
+
+    def updateContent(self):
+        self._highlightedWidgets=[]
+        ok=BoxDecayView.updateContent(self)
+        self.highlight()
+        return ok
 
 class ConnectionStructureView(ConfigEditorBoxView):
     LABEL="Connection structure"

@@ -12,6 +12,7 @@ class TreeView(AbstractView, QTreeWidget):
     """
 
     LABEL = "&Tree View"
+    UPDATE_EVERY = 20
     
     def __init__(self, parent=None, maxDepth=100):
         logging.debug(__name__ + ": __init__")
@@ -25,6 +26,7 @@ class TreeView(AbstractView, QTreeWidget):
         self._selection = None
         self._updatingFlag = 0
         self._treeDepth=1
+        self._updateCounter=0
 
         self.setSortingEnabled(False)
         self.setColumnCount(1)
@@ -78,8 +80,11 @@ class TreeView(AbstractView, QTreeWidget):
         i = 0
         for object in self.applyFilter(self.dataObjects()):
             # Process application event loop in order to accept user input during time consuming drawing operation
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break

@@ -105,7 +105,7 @@ class ConfigEditorTabController(BrowserTabController):
                 self.tab().centerView().setArrangeUsingRelations(True)
             else:
                 self.tab().centerView().setDataObjects([select])
-                self.tab().centerView().setConnections([])
+                self.tab().centerView().setConnections({})
                 self.tab().centerView().setArrangeUsingRelations(False)
         if self.tab().centerView().updateContent():
             if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
@@ -117,6 +117,8 @@ class ConfigEditorTabController(BrowserTabController):
                 if self.tab().propertyView().dataObject() != select and propertyView:
                     self.tab().propertyView().setDataObject(select)
                     self.tab().propertyView().updateContent()
+        if import_tools_error==None and self.tab().editorSplitter():
+            self.updateConfigHighlight()
         self.plugin().application().stopWorking(statusMessage)
         
     def selected(self):
@@ -366,6 +368,7 @@ class ConfigEditorTabController(BrowserTabController):
         self.tab().editorTableView().setDataObjects(self.toolDataAccessor().topLevelObjects())
         if self.tab().editorTableView().updateContent():
             self.tab().editorTableView().restoreSelection()
+        self.updateContent()
 
     def importConfig(self,filename):
         logging.debug(__name__ + ": importConfig")
@@ -391,10 +394,10 @@ class ConfigEditorTabController(BrowserTabController):
             self.setFilename(None)
             self.updateLabel()
         self.toolDataAccessor().setConfigDataAccessor(self.dataAccessor())
-        self._updateCode()
-        self.plugin().application().stopWorking(statusMessage)
         self.tab().propertyView().setDataObject(None)
-        self.updateContent()
+        self._updateCode()
+        self._applyPatToolAction.setVisible(True)
+        self.plugin().application().stopWorking(statusMessage)
         return True
 
     def setModified(self, modified=True, update=True):
@@ -412,15 +415,11 @@ class ConfigEditorTabController(BrowserTabController):
                 self.tab().editorTableView().select(self.tab().editorTableView().dataObjects()[-1])
         return True
 
-    def updateConfigContent(self):
+    def updateConfigHighlight(self):
         if self.tab().editorTableView().selection() in self.toolDataAccessor().toolModules().keys():
-            # TODO multiple selection
-            if len(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()])>0:
-                self.select(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()][0])
-            #self._filterObjects=self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()]
-        #elif self._filterObjects!=None:
-        #    self._filterObjects=None
-        #self.updateContent(False,False)
+            self.tab().centerView().highlight(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()])
+        else:
+            self.tab().centerView().highlight([])
             
     def importButtonClicked(self):
         logging.debug(__name__ + ": importButtonClicked")
@@ -485,4 +484,4 @@ class ConfigEditorTabController(BrowserTabController):
             self.tab().propertyView().setDataObject(select)
             self.tab().propertyView().updateContent()
             self.plugin().application().stopWorking(statusMessage)
-        self.updateConfigContent()
+        self.updateConfigHighlight()

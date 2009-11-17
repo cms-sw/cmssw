@@ -42,7 +42,7 @@ class ImportTool(ConfigToolBase):
     _defaultParameters={}
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'filename','', 'The name of the configuration file')
+        self.addParameter(self._defaultParameters,'filename','/', 'The name of the configuration file')
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._importCommands=[]
     def dumpPython(self):
@@ -199,8 +199,7 @@ class ToolDataAccessor(BasicDataAccessor):
         except Exception,e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
-            self.configDataAccessor().process().resetModified()
-            self.configDataAccessor().process().resetModifiedObjects()
+            self.updateProcess()
             return False
         self.configDataAccessor().setProcess(self.configDataAccessor().process())
         return True
@@ -217,8 +216,6 @@ class ToolDataAccessor(BasicDataAccessor):
         except Exception,e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
-            process.resetModified()
-            process.resetModifiedObjects()
             return False
         self.configDataAccessor().setProcess(process)
         return True
