@@ -15,7 +15,7 @@ class ConfigEditorBoxView(BoxDecayView):
     def __init__(self, parent=None,label=""):
         logging.debug(__name__ + ": __init__")
         BoxDecayView.__init__(self, parent)
-        self._connections = []
+        self._connections = {}
         self._colors = [Qt.red, Qt.green, Qt.blue, Qt.cyan, Qt.magenta]
         self._colorIndex = 0
         PointToPointConnection.CONNECTION_THICKNESS=3
@@ -33,7 +33,7 @@ class ConfigEditorBoxView(BoxDecayView):
         self._connections = connections
         
     def createConnections(self, operationId, widgetParent):
-        for connection in self._connections:
+        for connection,values in self._connections.items():
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
             if self._updateCounter>=self.UPDATE_EVERY:
@@ -44,7 +44,7 @@ class ConfigEditorBoxView(BoxDecayView):
             if operationId != self._operationId:
                 return None
             w1 = self.widgetByObject(connection[0])
-            w2 = self.widgetByObject(connection[2])
+            w2 = self.widgetByObject(connection[1])
             if w1 and w2:
                 if hasattr(w1,"colorIndex"):
                     col = w1.colorIndex
@@ -55,7 +55,7 @@ class ConfigEditorBoxView(BoxDecayView):
                     col = self._colorIndex
                     w1.colorIndex=col
                     w2.colorIndex=col
-                connectionWidget = self.createConnection(w1, connection[1], w2, connection[3], self._colors[col])
+                connectionWidget = self.createConnection(w1, values[0], w2, values[1], self._colors[col])
                 connectionWidget.show()
         return True
     

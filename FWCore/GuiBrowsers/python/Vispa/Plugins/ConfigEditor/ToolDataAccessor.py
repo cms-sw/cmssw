@@ -13,6 +13,7 @@ from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.GuiBrowsers.ParameterSet_patch
+FWCore.GuiBrowsers.ParameterSet_patch.ACTIVATE_INSPECTION=False
 from FWCore.GuiBrowsers.ConfigToolBase import ConfigToolBase
 from FWCore.GuiBrowsers.editorTools import UserCodeTool
 import PhysicsTools.PatAlgos.tools as tools

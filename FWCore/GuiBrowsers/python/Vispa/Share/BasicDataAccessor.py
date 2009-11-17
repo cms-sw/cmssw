@@ -66,8 +66,8 @@ class BasicDataAccessor(object):
         """
         children = []
         for child in self.children(object):
-            children += [child]+list(self.allChildren(child))
-        return tuple(children)
+            children += [child]+self.allChildren(child)
+        return children
 
     def topLevelObjects(self):
         """ Return top level objects, e.g. the event.

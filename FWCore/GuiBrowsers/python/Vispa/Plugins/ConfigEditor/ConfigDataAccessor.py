@@ -43,7 +43,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     
     def _initLists(self):
         self._allObjects = []
-        self._connections = []
+        self._connections = {}
         self._topLevelObjects = []
         self._inputTagsDict = {}
         self._foundInDict = {}
@@ -89,38 +89,36 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             if isinstance(o, sqt._Sequenceable):
                 self._readRecursive(next_mother, o)
  
-    def allObjects(self):
-        objects=[]
-        for o in self.topLevelObjects():
-            objects+=self.allChildren(o)
-        return objects
-
-    def readConnections(self, objects):
+    def readConnections(self, objects,toNeighbors=False):
         """ Read connection between objects """
-        for entry1 in objects:
+        connections={}
+        self._motherRelationsDict={}
+        self._daughterRelationsDict={}
+        if toNeighbors:
+            compareObjectList=[]
+            for obj in objects:
+                compareObjectList+=[(obj,o) for o in self._allObjects]
+                compareObjectList+=[(o,obj) for o in self._allObjects]
+        else:
+            compareObjectList=[(o1,o2) for o1 in objects for o2 in objects]
+        for connection in compareObjectList:
             if self._cancelOperationsFlag:
                 break
-            for key, value in self.inputTags(entry1):
-                module = str(value).split(":")[0]
-                product = ".".join(str(value).split(":")[1:])
-                found = False
-                for entry2 in self.allObjects():
-                    if self._cancelOperationsFlag:
-                        break
-                    if module == self.label(entry2):
-                        connection = (entry2, product, entry1, key)
-                        found = True
-                        if not connection in self._connections:
-                            self._connections += [connection]
-                            if not entry1 in self._motherRelationsDict.keys():
-                                self._motherRelationsDict[entry1]=[]
-                            self._motherRelationsDict[entry1]+=[entry2]
-                            if not entry2 in self._daughterRelationsDict.keys():
-                                self._daughterRelationsDict[entry2]=[]
-                            self._daughterRelationsDict[entry2]+=[entry1]
-        ok = not self._cancelOperationsFlag
-        self._cancelOperationsFlag = False
-        return ok
+            if not connection in self._connections:
+                for key, value in self.inputTags(connection[1]):
+                    module = str(value).split(":")[0]
+                    if module == self.label(connection[0]):
+                        product = ".".join(str(value).split(":")[1:])
+                        self._connections[connection]=(product, key)
+            if connection in self._connections:
+                connections[connection]=self._connections[connection]
+                if not connection[1] in self._motherRelationsDict.keys():
+                    self._motherRelationsDict[connection[1]]=[]
+                self._motherRelationsDict[connection[1]]+=[connection[0]]
+                if not connection[0] in self._daughterRelationsDict.keys():
+                    self._daughterRelationsDict[connection[0]]=[]
+                self._daughterRelationsDict[connection[0]]+=[connection[1]]
+        return connections
     
     def connections(self):
         return self._connections
@@ -277,10 +275,15 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         return isinstance(object, (ConfigFolder, list, cms.Path, cms.Sequence))
 
     def nonSequenceChildren(self, object):
+        objects=[]
         if self.isContainer(object):
-            objects = [child for child in self.allChildren(object) if not self.isContainer(child) and len(self.children(child)) == 0]
+            for o in self.allChildren(object):
+                if not self.isContainer(o) and len(self.children(o)) == 0 and not o in objects:
+                    objects += [o] 
         else:
-            objects = self.motherRelations(object)+[object]+self.daughterRelations(object)
+            for o in self.motherRelations(object)+[object]+self.daughterRelations(object):
+                if not o in objects:
+                    objects += [o] 
         return objects
                 
     def motherRelations(self, object):

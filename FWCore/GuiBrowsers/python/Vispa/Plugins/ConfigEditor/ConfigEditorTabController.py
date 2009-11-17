@@ -93,26 +93,23 @@ class ConfigEditorTabController(BrowserTabController):
         select=self.tab().treeView().selection()
         if select != None:
             if self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
-                objects = self.dataAccessor().nonSequenceChildren(select)
+                if self.dataAccessor().isContainer(select):
+                    self._thread = ThreadChain(self.dataAccessor().readConnections, [select]+self.dataAccessor().allChildren(select))
+                else:
+                    self._thread = ThreadChain(self.dataAccessor().readConnections, [select], True)
+                while self._thread.isRunning():
+                    if not Application.NO_PROCESS_EVENTS:
+                        QCoreApplication.instance().processEvents()
+                self.tab().centerView().setDataObjects(self.dataAccessor().nonSequenceChildren(select))
+                self.tab().centerView().setConnections(self._thread.returnValue())
+                self.tab().centerView().setArrangeUsingRelations(True)
             else:
-                objects = [select]
-        self.tab().centerView().setDataObjects(objects)
-        if self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
-            self._thread = ThreadChain(self.dataAccessor().readConnections, objects)
-            while self._thread.isRunning():
-                if not Application.NO_PROCESS_EVENTS:
-                    QCoreApplication.instance().processEvents()
-            if self._thread.returnValue():
-                if isinstance(self.tab().centerView(), ConfigEditorBoxView):
-                    self.tab().centerView().setArrangeUsingRelations(True)
-                    self.tab().centerView().setConnections(self.dataAccessor().connections())
-        else:
-            if isinstance(self.tab().centerView(), ConfigEditorBoxView):
-                self.tab().centerView().setArrangeUsingRelations(False)
+                self.tab().centerView().setDataObjects([select])
                 self.tab().centerView().setConnections([])
+                self.tab().centerView().setArrangeUsingRelations(False)
         if self.tab().centerView().updateContent():
-            if select in objects:
-                self.tab().centerView().select(select,500)
+            if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
+                    self.tab().centerView().select(select,500)
             else:
                 self.tab().centerView().restoreSelection()
             select = self.tab().centerView().selection()
@@ -303,6 +300,7 @@ class ConfigEditorTabController(BrowserTabController):
         return False
 
     def startEditMode(self):
+        logging.debug(__name__ + ": startEditMode")
         if import_tools_error!=None:
             logging.error(__name__ + ": Could not import tools for ConfigEditor: "+import_tools_error[1])
             self.plugin().application().errorMessage("Could not import tools for ConfigEditor (see logfile for details):\n"+import_tools_error[0])
@@ -370,20 +368,24 @@ class ConfigEditorTabController(BrowserTabController):
             self.tab().editorTableView().restoreSelection()
 
     def importConfig(self,filename):
+        logging.debug(__name__ + ": importConfig")
         statusMessage = self.plugin().application().startWorking("Import python configuration in Editor")
         try:
             good=self.open(filename,False)
         except:
             logging.error(__name__ + ": Could not open configuration file: "+exception_traceback())
             self.plugin().application().errorMessage("Could not open configuration file (see log file for details).")
+            self.plugin().application().stopWorking(statusMessage,"failed")
             return False
         if not good:
             logging.error(__name__ + ": Could not open configuration file.")
             self.plugin().application().errorMessage("Could not open configuration file.")
+            self.plugin().application().stopWorking(statusMessage,"failed")
             return False
         if not self.dataAccessor().process():
             logging.error(__name__ + ": Config does not contain a process and cannot be edited using ConfigEditor.")
             self.plugin().application().errorMessage("Config does not contain a process and cannot be edited using ConfigEditor.")
+            self.plugin().application().stopWorking(statusMessage,"failed")
             return False
         if self._filename and not self.dataAccessor().isReplaceConfig():
             self.setFilename(None)
@@ -454,6 +456,10 @@ class ConfigEditorTabController(BrowserTabController):
     def onSelected(self, select):
         self.selectDataAccessor(select)
         BrowserTabController.onSelected(self, select)
+
+    def refresh(self):
+        self.tab().propertyView().setDataObject(None)
+        BrowserTabController.refresh(self)
 
     def updateContent(self, filtered=False, propertyView=True):
         self.selectDataAccessor(self.tab().propertyView().dataObject())

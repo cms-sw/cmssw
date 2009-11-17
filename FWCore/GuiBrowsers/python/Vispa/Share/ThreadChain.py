@@ -57,7 +57,7 @@ class ThreadChain(QThread):
             return self._returnValues[id]
         valueLength = len(self._returnValues)
         if valueLength == 0:
-            return None
+            return []
             # TODO: maybe raise exception to distinguish from None return value?
         return self._returnValues[self._returnValues.keys()[valueLength-1]]
         
