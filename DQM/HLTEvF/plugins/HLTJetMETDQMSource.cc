@@ -101,7 +101,9 @@ HLTJetMETDQMSource::HLTJetMETDQMSource(const edm::ParameterSet& iConfig):
 
 HLTJetMETDQMSource::~HLTJetMETDQMSource() {
  
-  // do anything here that needs to be done at desctruction time
+ 
+  //
+ // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
 }
@@ -173,7 +175,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //if (verbose_) std::cout << "filterID "<< idtype << " keys " << l1k << std::endl;
       //if (verbose_) std::cout << " keys " << l1k << std::endl;
       l1accept = l1k.size() > 0;
-      if (l1accept) rate_All_L1->Fill(NL1-0.5);
+      //if (l1accept) 
       //l1accept = true ;
      
       //
@@ -256,8 +258,9 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
 		if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
 		  {
-		    //NL1[npth]++;
-		    //rate_All_L1->Fill(NL1-0.5);
+		     if (verbose_)	cout << " filling L1 HLT " <<  v->getPath() << "\t" << "  *l1ki  " << *l1ki << " NL1   "<< NL1<< " " << toc[*l1ki].pt() << "\t" << toc[*l1ki].eta() << "\t" << toc[*l1ki].phi() << endl;
+		     
+		    rate_All_L1->Fill(NL1-0.5);
 		    v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		    v->getL1PhiHisto()->Fill(toc[*l1ki].phi());
 		    v->getL1PhiHisto()->Fill(toc[*l1ki].eta());
@@ -285,7 +288,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (*idtypeiter == trigger::TriggerL1Mu)
 		{
 		  //NL1[npth]++;
-		  //rate_All_L1->Fill(NL1-0.5);
+		  rate_All_L1->Fill(NL1-0.5);
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].phi()());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].eta()());
@@ -309,7 +312,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (*idtypeiter == trigger::TriggerL1ETM)
 		{
 		  //NL1[npth]++;
-		  //rate_All_L1->Fill(NL1-0.5);
+		  rate_All_L1->Fill(NL1-0.5);
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].phi()());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].eta()());
@@ -330,7 +333,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (*idtypeiter == TriggerL1ETT)
 		{
 		  //NL1[npth]++;
-		  //rate_All_L1->Fill(NL1-0.5);
+		  rate_All_L1->Fill(NL1-0.5);
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].phi()());
 		  //v->getL1PhiHisto()->Fill(toc[*l1ki].eta()());
@@ -477,8 +480,9 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	   
 	    }
 	  //--------------------------------------
-	  else if ( triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM
-	       || triggertype == trigger::TriggerTET){
+	  else if ( triggertype == trigger::TriggerMET 
+		    || triggertype == trigger::TriggerL1ETM
+	  ){
 	    
 	    v->getEtwrtMuHisto()->Fill(toc[*ki].pt());
 	    
@@ -506,7 +510,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   //----------plot efficiency---------------
-
+  
   if (plotEff_) {
  if (verbose_) std::cout << " Look at basic distributions for Eff " << std::endl; 
     
@@ -519,208 +523,181 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       Ndenom++;
       Nnum++;
       N++;
+
       int triggertype = 0;     
       triggertype = v->getObjectType();
       
       bool l1accept = false;
-      
-      
-      edm::InputTag filterTagDenom = v->getDenomTag();
-      edm::InputTag filterTag = v->getTag();
-      
       edm::InputTag l1testTag(v->getl1Path(),"",processname_);
       const int l1index = triggerObj->filterIndex(l1testTag);
       if ( l1index >= triggerObj->sizeFilters() ) {
 	if (verbose_) std::cout<< "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag << endl;
 	continue;
       }
-
+      
       //const trigger::Vids & idtype = triggerObj->filterIds(l1index);
       const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
       //if (verbose_) std::cout << "filterID "<< idtype << " keys " << l1k << std::endl;
       //if (verbose_) std::cout << " keys " << l1k << std::endl;
       l1accept = l1k.size() > 0;
-      //if (l1accept) rate_All_L1->Fill(NL1-0.5);
-      //l1accept = true ;
-     
-      //
-      //-----------------------------------------------------
-
-      bool denompassed = false;
       bool passed = false;
       for(unsigned int i = 0; i < npath; ++i) {
 	if ( triggerNames.triggerName(i).find(v->getPath()) != std::string::npos  
 	     && triggerResults->accept(i)){
 	  passed = true;
-	  if (verbose_) cout << " i " << i << "  trigger Num name for eff" << v->getPath() << endl;
+	  if (verbose_) cout << " i " << i << "  trigger name " << v->getPath() << endl;
 	  break;
 	}
 	
       }
+      bool denompassed = false;
       for(unsigned int i = 0; i < npath; ++i) {
-	if (triggerNames.triggerName(i).find(v->getDenomPath()) != std::string::npos  && triggerResults->accept(i)){
-	denompassed = true;
-	if (verbose_) cout << " i " << i << "  trigger Denom name for eff" << v->getPath() << endl;
+	if ( triggerNames.triggerName(i).find(v->getDenomPath()) != std::string::npos  
+	     && triggerResults->accept(i)){
+	  denompassed = true;
+	  if (verbose_) cout << " i " << i << "  trigger name " << v->getDenomPath() << endl;
 	  break;
 	}
+	
       }
-      
-      if(denompassed){
-      	 rate_Denom->Fill(Ndenom-0.5);
+
+      if (denompassed){
+	rate_Denom->Fill(Ndenom-0.5);
+	if (verbose_) cout <<  "  N " << N << "  trigger name " << v->getDenomPath() << endl;
+	
 	if (!l1accept) {
-	  edm::LogInfo("HLTJetMETDQMSource") << "l1 seed path not accepted for hlt path " << v->getDenomPath() << "\t" << v->getl1Path() << endl;
+	  edm::LogInfo("HLTJetMETDQMSource") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+	}
+	
+		edm::InputTag filterTag = v->getDenomTag();
+	
+	
+	//const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+		if (verbose_) cout << v->getDenomPath() << "\t" << v->getDenomLabel() << "\t"  << endl;
+		    
+	        
+		if (v->getDenomLabel() == "denomdummy"){
+		  const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getDenomPath());
+		  //loop over labels
+		  
+		  
+		  for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)  {	  	
+		    edm::InputTag testTag(*labelIter,"",processname_);
+		    if (verbose_) cout << v->getDenomPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+		    
+		    int testindex = triggerObj->filterIndex(testTag);
+		    
+		    if ( !(testindex >= triggerObj->sizeFilters()) ) {
+		      if (verbose_) cout << "found one! " << v->getDenomPath() << "\t" << testTag.label() << endl; 
+		      
+		      
+		      filterTag = testTag; 
+		      v->setDenomLabel(*labelIter);
+		    }
+		  }
+		}
+		const int index = triggerObj->filterIndex(filterTag);
+		if (verbose_)      cout << "filter index "<< index << " of that name " << filterTag << endl;
+		if ( index >= triggerObj->sizeFilters() ) {
+		  if (verbose_)      cout << "WTF no index "<< index << " of that name " << filterTag << endl;
+		  continue; // 
+		}
+		const trigger::Keys & k = triggerObj->filterKeys(index);
+		
+		int numobj=-1;
+		for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+		  if (verbose_)	cout << " filling HLT Denom " <<  v->getDenomPath() << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+		  if ( triggertype == trigger::TriggerJet 
+		       || triggertype == trigger::TriggerL1TauJet 
+		       || triggertype == trigger::TriggerL1CenJet 
+		       || triggertype == trigger::TriggerL1ForJet)
+		    {
+		      if (verbose_)	cout << " filling HLT Denom" <<  v->getDenomPath() << "\t" << "  *kiDeno  " << *ki << " NkiDenom   "<< Ndenom<< " " << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+		      
+		      numobj=*ki;
+		      v->getEtDenomHisto()->Fill(toc[*ki].pt());
+		      v->getEtaDenomHisto()->Fill(toc[*ki].eta());
+		      v->getPhiDenomHisto()->Fill(toc[*ki].phi());
+		    }
+		  //--------------------------------------
+		  else if ( triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM
+			    || triggertype == trigger::TriggerTET){
+		    
+		    v->getEtDenomHisto()->Fill(toc[*ki].pt());
+		    v->getPhiDenomHisto()->Fill(toc[*ki].phi());
+		  }
+		  //-------------------------------------------
+		  else if ( triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT){
+		    v->getEtDenomHisto()->Fill(toc[*ki].pt());
+		    v->getPhiDenomHisto()->Fill(toc[*ki].phi());
+		    
+		  }
+		  if ( numobj != -1) break;
+		}
+		
+      }//if denom passed
+      
+
+      if(denompassed){
+
+	if (passed){
+
+ rate_Num->Fill(Nnum-0.5);
+ 
+if (verbose_) cout <<  "  N " << N << "  trigger name " << v->getPath() << endl;
+		
+	if (!l1accept) {
+            edm::LogInfo("HLTJetMETDQMSource") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
       }
     
 	
-	edm::InputTag filterTagDenom = v->getTag();
-
-	
-	//const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
-	
-	if (v->getLabel() == "dummy"){
-	  const std::vector<std::string> filterLabelsDenom = hltConfig_.moduleLabels(v->getDenomPath());
-	  //loop over labels
-	  
-
-	for (std::vector<std::string>::const_iterator labelIterDenom= filterLabelsDenom.begin(); labelIterDenom!=filterLabelsDenom.end(); labelIterDenom++)  {	  	
-	  edm::InputTag testTagDenom(*labelIterDenom,"",processname_);
-	  if (verbose_) cout << v->getDenomPath() << "\t" << testTagDenom.label() << "\t" << testTagDenom.process() << endl;
-	  
-	  int testindexDenom = triggerObj->filterIndex(testTagDenom);
-	  
-	  if ( !(testindexDenom >= triggerObj->sizeFilters()) ) {
-	    if (verbose_) cout << "found one! " << v->getDenomPath() << "\t" << testTagDenom.label() << endl; 
-	    
-	    
-            filterTagDenom = testTagDenom; 
-	    v->setLabel(*labelIterDenom);
-	  }
-	}
-	}
-	const int indexDenom = triggerObj->filterIndex(filterTagDenom);
-	if (verbose_)      cout << "filter index "<< indexDenom << " of that Denom name " << filterTagDenom << endl;
-	if ( indexDenom >= triggerObj->sizeFilters() ) {
-	  if (verbose_)      cout << "WTF no index "<< indexDenom << " of that name " << filterTagDenom << endl;
-	  continue; // 
-	}
-	const trigger::Keys & kDenom = triggerObj->filterKeys(indexDenom);
-	
-	for (trigger::Keys::const_iterator kiDenom = kDenom.begin(); kiDenom !=kDenom.end(); ++kiDenom ) {
-	  
-	  	  
-	  if (verbose_)	cout << " filling HLT Denom Eff " <<  v->getDenomPath() << "\t" << toc[*kiDenom].pt() << "\t" << toc[*kiDenom].eta() << "\t" << toc[*kiDenom].phi() << endl;
-	  if ( triggertype == trigger::TriggerJet 
-	       || triggertype == trigger::TriggerL1TauJet 
-	       || triggertype == trigger::TriggerL1CenJet 
-	       || triggertype == trigger::TriggerL1ForJet)
-	    {
-	      if (verbose_)	cout << " filling HLT Denom Eff " <<  v->getDenomPath() << "\t" << "  *kiDenom  " << *kiDenom << " Nki   "<< Ndenom << " " << toc[*kiDenom].pt() << "\t" << toc[*kiDenom].eta() << "\t" << toc[*kiDenom].phi() << endl;
-	      
-	      
-	      v->getEtDenomHisto()->Fill(toc[*kiDenom].pt());
-	      v->getEtaDenomHisto()->Fill(toc[*kiDenom].eta());
-	      v->getPhiDenomHisto()->Fill(toc[*kiDenom].phi());
-	      
-	    }
-	  
-	  //----------------------------
-	  else if (triggertype == trigger::TriggerMuon ||triggertype == trigger::TriggerL1Mu  )
-	    {
-	    if (verbose_)	cout << " filling HLT Denom EFF " <<  v->getDenomPath() << "\t" << "  *kiDenom  " << *kiDenom << " Nki   "<< Ndenom << " " << toc[*kiDenom].pt() << "\t" << toc[*kiDenom].eta() << "\t" << toc[*kiDenom].phi() << endl;
-	  
-	    
-	    v->getEtDenomHisto()->Fill(toc[*kiDenom].pt());
-	    v->getEtaDenomHisto()->Fill(toc[*kiDenom].eta());
-	    v->getPhiDenomHisto()->Fill(toc[*kiDenom].phi());
-	      //v->getDenomHisto()->Fill(toc[*ki].phi());
-	    }
-	  //--------------------------------------
-	  else if ( triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM
-	       || triggertype == trigger::TriggerTET){
-	    
-	    v->getEtDenomHisto()->Fill(toc[*kiDenom].pt());
-	    v->getPhiDenomHisto()->Fill(toc[*kiDenom].phi());
-	  
-	  }
-	  //-------------------------------------------
-      else if ( triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT){
-	    
-	    v->getEtDenomHisto()->Fill(toc[*kiDenom].pt());
-	    v->getPhiDenomHisto()->Fill(toc[*kiDenom].phi());
-	   
-	    
-	  }
-      
-	}
-	//---IF nUM PASSED-------------
-	if(passed){
-      	  rate_Num->Fill(Nnum-0.5);
-	  if (!l1accept) {
-            edm::LogInfo("HLTJetMETDQMSource") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path() << endl;
-	  }
-	  
-	  
 	edm::InputTag filterTag = v->getTag();
-	
+
 	
 	//const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
-	
+	if (verbose_) cout << v->getPath() << "\t" << v->getLabel()  << endl;
 	if (v->getLabel() == "dummy"){
 	  const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
 	  //loop over labels
 	  
+
+	for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)  {	  	
+	  edm::InputTag testTag(*labelIter,"",processname_);
+	  if (verbose_) cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
 	  
-	  for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)  {	  	
-	    edm::InputTag testTag(*labelIter,"",processname_);
-	    if (verbose_) cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+	  int testindex = triggerObj->filterIndex(testTag);
+	  
+	  if ( !(testindex >= triggerObj->sizeFilters()) ) {
+	    if (verbose_) cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
 	    
-	    int testindex = triggerObj->filterIndex(testTag);
 	    
-	    if ( !(testindex >= triggerObj->sizeFilters()) ) {
-	      if (verbose_) cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
-	      
-	      
-	      filterTag = testTag; 
-	      v->setLabel(*labelIter);
-	    }
+            filterTag = testTag; 
+	    v->setLabel(*labelIter);
 	  }
 	}
+	}
 	const int index = triggerObj->filterIndex(filterTag);
-	if (verbose_)      cout << "filter index "<< index << " of that  name " << filterTag << endl;
+	if (verbose_)      cout << "filter index "<< index << " of that name " << filterTag << endl;
 	if ( index >= triggerObj->sizeFilters() ) {
 	  if (verbose_)      cout << "WTF no index "<< index << " of that name " << filterTag << endl;
 	  continue; // 
 	}
 	const trigger::Keys & k = triggerObj->filterKeys(index);
-	
+	int numobj = -1;
 	for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-	  
-	  	  
-	  if (verbose_)	cout << " filling HLT " <<  v->getPath() << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+	 	  
+	  if (verbose_)	cout << " filling HLT  " <<  v->getPath() << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
 	  if ( triggertype == trigger::TriggerJet 
 	       || triggertype == trigger::TriggerL1TauJet 
 	       || triggertype == trigger::TriggerL1CenJet 
 	       || triggertype == trigger::TriggerL1ForJet)
 	    {
-	      if (verbose_)	cout << " filling HLT " <<  v->getPath() << "\t" << "  *ki  " << *ki << " Nki   "<< N << " " << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-	      
-	      
-	      v->getEtNumHisto()->Fill(toc[*ki].pt());
-	      v->getEtaNumHisto()->Fill(toc[*ki].eta());
-	      v->getPhiNumHisto()->Fill(toc[*ki].phi());
-	      
-	    }
-	  
-	  //----------------------------
-	  else if (triggertype == trigger::TriggerMuon ||triggertype == trigger::TriggerL1Mu  )
-	    {
-	      if (verbose_)	cout << " filling HLT " <<  v->getPath() << "\t" << "  *ki  " << *ki << " Nki   "<< N << " " << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-	      
+	      if (verbose_)	cout << " filling HLT " <<  v->getPath() << "\t" << "  *ki  " << *ki << " Nki   "<< N<< " " << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+	      numobj=*ki;
 	      
 	      v->getEtNumHisto()->Fill(toc[*ki].pt());
 	      v->getEtaNumHisto()->Fill(toc[*ki].eta());
 	      v->getPhiNumHisto()->Fill(toc[*ki].phi());
-	      
 	    }
 	  //--------------------------------------
 	  else if ( triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM
@@ -728,31 +705,24 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    
 	    v->getEtNumHisto()->Fill(toc[*ki].pt());
 	    v->getPhiNumHisto()->Fill(toc[*ki].phi());
-	      
-	    
 	  }
 	  //-------------------------------------------
 	  else if ( triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT){
-	    
 	    v->getEtNumHisto()->Fill(toc[*ki].pt());
 	    v->getPhiNumHisto()->Fill(toc[*ki].phi());
-	   	    
+	    
 	  }
-	  
-	}// trigger ki loop
+	   if ( numobj != -1) break;
+	}
+
+	}//end if passed
+      } //if denompassed
 	
-	} //if Num passed
-      }//if dENOM passed 
-      
-      
-    } 
-    
-    
-  
-  
+    }
+
     //----------plot efficiency---------------
  
-    if ( (nev_ % 100) == 0 ){
+    if ( (nev_ % 1000) == 0 ){
       if (verbose_) cout << " Calculating Eff.... " << nev_ << endl;   
 
       //if (nev_ % 1000)
@@ -988,6 +958,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	   ) continue;
 	    
       if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+      if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
       if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
       if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
       //if (pathname.find("HLT_Jet30") != std::string::npos) objectType = trigger::TriggerJet;    
@@ -1157,7 +1128,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			     title.c_str(),
 			     nBins_,-histEtaMax,histEtaMax);
       } 
-      else if( (labelname.find("MET") != std::string::npos) 
+      else if( (labelname.find("MET") != std::string::npos)
 	       || (labelname.find("SumET") != std::string::npos)    ){
 	histoname = labelname+"_phi";
 	title = labelname+" #phi";
@@ -1206,6 +1177,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	   ) continue;
 	    
       if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+      if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
       if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
       if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
       //if (pathname.find("HLT_Jet30") != std::string::npos) objectType = trigger::TriggerJet;    
@@ -1311,8 +1283,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 
-      if (labelname.find("Jet") != std::string::npos
-	  || labelname.find("Mu") != std::string::npos) {
+      if ((v->getPath()).find("Jet") != std::string::npos
+	  || (v->getPath()).find("Mu") != std::string::npos) {
 	histoname = labelname+"_EtaPhi";
 	title = labelname+" #eta vs #phi";
 	EtaPhiwrtMu =  dbe->book2D(histoname.c_str(),
@@ -1320,8 +1292,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 				   nBins2D,-histEtaMax,histEtaMax,
 				   nBins2D,-TMath::Pi(), TMath::Pi());
       }
-      else if( (labelname.find("MET") != std::string::npos) 
-	       || (labelname.find("SumET") != std::string::npos)    ){
+      else if( ((v->getPath()).find("MET") != std::string::npos) 
+	       || ((v->getPath()).find("SumET") != std::string::npos)    ){
 	histoname = labelname+"_phi";
 	title = labelname+" #phi";
 	PhiwrtMu =  dbe->book1D(histoname.c_str(),
@@ -1382,6 +1354,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       //int denomobjectType = 0;
       //parse pathname to guess object type
       if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;  
+      if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;  
       if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;
       if (pathname.find("Jet") != std::string::npos)  objectType = trigger::TriggerJet;
       if ((pathname.find("HLT_Mu3") != std::string::npos) || (pathname.find("HLT_Mu9") != std::string::npos)  || (pathname.find("HLT_L1MuOpen") != std::string::npos)  )  objectType = trigger::TriggerMuon;
@@ -1516,8 +1489,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			     v->getPtMin(),
 			     v->getPtMax());
       
-      if (labelname.find("Jet") != std::string::npos
-	  || labelname.find("Mu") != std::string::npos) {
+      if ((v->getPath()).find("Jet") != std::string::npos
+	  || (v->getPath()).find("Mu") != std::string::npos) {
 	histoname = labelname+"_Eta_Eff";
 	title = labelname+" #eta  Eff";
 	EtaEff =  dbe->book1D(histoname.c_str(),
@@ -1553,8 +1526,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       }
 
 
-      else if( (labelname.find("MET") != std::string::npos) 
-	       || (labelname.find("SumET") != std::string::npos)    ){
+      else if( ((v->getPath()).find("MET") != std::string::npos) 
+	       || ((v->getPath()).find("SumET") != std::string::npos)    ){
 	
      	histoname = labelname+"_Phi_Eff";
 	title = labelname+" #phi Eff";

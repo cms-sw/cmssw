@@ -258,8 +258,16 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 	const std::string getLabel(void ) const {
 	  return filterName_;
 	}
+	const std::string getDenomLabel(void ) const {
+	  return DenomfilterName_;
+	}
+	
 	void setLabel(std::string labelName){
 	  filterName_ = labelName;
+          return;
+	}
+	void setDenomLabel(std::string labelName){
+	  DenomfilterName_ = labelName;
           return;
 	}
 	const std::string getPath(void ) const {
