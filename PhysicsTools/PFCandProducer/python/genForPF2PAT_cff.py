@@ -17,7 +17,7 @@ ak5GenJetsNoNu.src = "genParticlesForJets"
 iterativeCone5GenJetsNoNu.src = "genParticlesForJets"
 
 genForPF2PATSequence = cms.Sequence(
-    genMetTrueSequence + 
+    #MB genMetTrueSequence + 
     genJetParticles +  
     ak5GenJetsNoNu +
     iterativeCone5GenJetsNoNu
