@@ -84,7 +84,6 @@ HLT_HcalCalibration
 HLT_Random
 HLT_Physics
 HLT_PhysicsNoMuon
-HLT_PixelFEDSize
 HLT_HFThreshold
 HLT_GlobalRunHPDNoise
 HLT_TechTrigHCALNoise
