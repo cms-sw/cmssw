@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.5 2009/11/15 19:45:55 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.6 2009/11/17 06:44:55 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -168,7 +168,7 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     void                          yieldAlphaHistogram(int which=12);
 
     std::string                   hltResName_;         //HLT trigger results name
-    std::string                   hltProcName_;        //HLT process name
+    std::vector<std::string>      hltProcNames_;       //HLT process name(s)
     std::vector<std::string>      hltTrgNames_;        //HLT trigger name(s)
     std::string                   pixelName_;          //pixel reconstructed hits name
     std::string                   clusterVtxName_;     //cluster vertex name

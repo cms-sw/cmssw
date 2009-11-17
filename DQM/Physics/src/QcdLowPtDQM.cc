@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.5 2009/11/15 19:45:55 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.6 2009/11/17 06:44:55 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -49,7 +49,6 @@ bool compareTracklets(const QcdLowPtDQM::Tracklet &a, const QcdLowPtDQM::Trackle
 //--------------------------------------------------------------------------------------------------
 QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
   hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults","TriggerResults")),
-  hltProcName_(parameters.getUntrackedParameter<string>("hltProcName","HLT")),
   pixelName_(parameters.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits")),
   clusterVtxName_(parameters.getUntrackedParameter<string>("clusterVertices","")),
   ZVCut_(parameters.getUntrackedParameter<double>("ZVertexCut",10)),
@@ -79,11 +78,12 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
     hltTrgNames_ = parameters.getUntrackedParameter<vector<string> >("hltTrgNames");
   hltTrgNames_.insert(hltTrgNames_.begin(),"Any");
 
-  if (hltResName_.find(':')==string::npos)
-    hltResName_ += "::";
-  else 
-    hltResName_ += ":";
-  hltResName_ += hltProcName_;
+  if (parameters.exists("hltProcNames"))
+     hltProcNames_ = parameters.getUntrackedParameter<vector<string> >("hltProcNames");
+  else {
+     hltProcNames_.push_back("FU");
+     hltProcNames_.push_back("HLT");
+  }
 
   if ((pixLayers_!=12) && (pixLayers_!=13) && (pixLayers_!=23)) {
     print(2,Form("Value for pixLayerCombinations must be one of 12,13, or 23. "
@@ -129,7 +129,7 @@ void QcdLowPtDQM::beginJob()
   if (!theDbe_)
     print(3,"Could not obtain pointer to DQMStore");
   theDbe_->setCurrentFolder("Physics/QcdLowPt");
-  yieldAlphaHistogram(clusLayers_);
+  yieldAlphaHistogram(pixLayers_);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,8 +153,21 @@ void QcdLowPtDQM::beginRun(const Run &, const EventSetup &iSetup)
 
   // get trigger bits
   HLTConfigProvider hltConfig;
-  if (!hltConfig.init(hltProcName_))
-    print(3,Form("Could not obtain HLT config for process name %s", hltProcName_.c_str()));
+
+  bool isinit = false;
+  string teststr;
+  for(size_t i=0; i<hltProcNames_.size(); ++i) {
+    if (i>0) 
+      teststr += ", ";
+    teststr += hltProcNames_.at(i);
+    if (hltConfig.init(hltProcNames_.at(i))) {
+      isinit = true;
+      break;
+    }
+  }
+
+  if (!isinit)
+    print(3,Form("Could not obtain HLT config for process name(s) %s", teststr.c_str()));
 
   // setup "Any" bit
   hltTrgBits_.clear();
@@ -723,7 +736,7 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
 
   for(size_t i=1;i<hltTrgBits_.size();++i) {
     int tbit = hltTrgBits_.at(i-1);
-    if (i<0) //ignore unknown trigger 
+    if (tbit<0) //ignore unknown trigger 
       continue; 
     hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
     if (0) print(0,Form("Decision %i for %s",
