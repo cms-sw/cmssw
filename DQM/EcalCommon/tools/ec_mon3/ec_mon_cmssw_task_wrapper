@@ -720,7 +720,7 @@ process.multi5x5BasicClusters.IslandEndcapSeedThr = 0.150
 
 process.multi5x5SuperClusters.seedTransverseEnergyThreshold = 0.150
 
-if (liveECAL == 1) :
+if (globalDAQ == 1) | (liveECAL == 1) :
   process.DQMStore.referenceFileName = '/data/ecalod-disk01/dqm-data/reference/REFERENCE.root'
 
 if (liveCMS == 1) | (playCMS == 1) :
