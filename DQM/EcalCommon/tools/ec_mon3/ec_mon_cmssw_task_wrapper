@@ -231,7 +231,6 @@ if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online'),
     referenceHandling = cms.untracked.string('qtests')
-    #referenceHandling = cms.untracked.string('all')
   )
 
   process.dqmEnv = cms.EDFilter("DQMEventInfo",
@@ -251,10 +250,14 @@ if (liveCMS == 1) :
 
   process.load("DQM.Integration.test.environment_cfi")
 
+  process.dqmSaver.referenceHandling = 'qtests'
+
 if (playCMS == 1) :
   process.load("DQMServices.Components.DQMEnvironment_cfi")
 
   process.load("DQM.Integration.test.environment_playback_cfi")
+
+  process.dqmSaver.referenceHandling = 'qtests'
 
 process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string('red'),
