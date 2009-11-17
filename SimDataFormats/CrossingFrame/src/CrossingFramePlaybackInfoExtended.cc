@@ -8,9 +8,6 @@ CrossingFramePlaybackInfoExtended::CrossingFramePlaybackInfoExtended(int minBunc
   idFirstPileup_.resize(maxNbSources_);
   for (unsigned int i=0;i<maxNbSources_;++i) {
     idFirstPileup_[i].resize(nBcrossings_);
-    for (int j=0;j<nBcrossings_;++j) {
-      (idFirstPileup_[i])[j][0]=edm::EventID(0,0);
-    }
   }
 }
 
