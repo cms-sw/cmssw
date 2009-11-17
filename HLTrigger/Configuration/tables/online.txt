@@ -87,6 +87,8 @@ HLT_HFThreshold
 HLT_GlobalRunHPDNoise
 HLT_TechTrigHCALNoise
 HLT_L1_BPTX
+HLT_L1_BPTX_MinusOnly
+HLT_L1_BPTX_PlusOnly
 HLT_L1_BSC
 HLT_L1_HFtech
 HLT_L2Mu0_NoVertex
