@@ -15,7 +15,6 @@ databasedir  = ''       # Set to an existing directory to dump out database info
 
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
-source="NewEventStreamFileReader"
 memcheck=False          # Dump out memory usage information
 
 #----------------------------
@@ -323,11 +322,8 @@ process.hcalMonitor.subSystemFolder = subsystem
 #process.hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
 #process.hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
 
-process.hcalMonitor.ReferencePedestalMonitor_makeDiagnosticPlots = True
-process.hcalMonitor.DigiMonitor_makeDiagnosticPlots = True
-process.hcalMonitor.RecHitMonitor_makeDiagnosticPlots = True
-process.hcalMonitor.ReferencePedestalMonitor_minEntriesPerPed=1
-process.hcalMonitor.BeamMonitor_lumiqualitydir="."
+# Dump out hflumi information to text file, if directory is specified
+process.hcalMonitor.BeamMonitor_lumiqualitydir=""
 #---------------------------------------------------------------------
 # Hcal DQM Client
 #---------------------------------------------------------------------
