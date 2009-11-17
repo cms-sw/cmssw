@@ -25,6 +25,8 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/METReco/interface/CSCHaloData.h"
 #include "DataFormats/METReco/interface/EcalHaloData.h"
 #include "DataFormats/METReco/interface/HcalHaloData.h"
@@ -97,6 +99,7 @@ namespace {
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
 
+    std::vector<SpecificCaloMETData> bcv2;
 
     reco::PhiWedge x1;  
     edm::Wrapper<reco::PhiWedge> w1;
@@ -120,6 +123,9 @@ namespace {
 
     std::vector<Point3DBase<float,GlobalTag> > x7;
     edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > > w8;
+
+    edm::Ptr<reco::MET> ptr_m;
+    edm::PtrVector<reco::MET> ptrv_m;
 
 
   };

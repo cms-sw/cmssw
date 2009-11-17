@@ -4,6 +4,8 @@
   <class name="std::vector<CorrMETData>"/> 
 
   <class name="SpecificCaloMETData"/>
+  <class name="std::vector<SpecificCaloMETData> "/>
+
   <class name="SpecificPFMETData"/>
   <class name="SpecificGenMETData"/>
 
@@ -100,7 +102,8 @@
  <class name="std::vector<Point3DBase<float,GlobalTag> >"/>
  <class name="edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > >"/>
 
-
+ <class name="edm::Ptr<reco::MET>" />
+ <class name="edm::PtrVector<reco::MET>" />
 
 
 </lcgdict>
