@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2009/11/16 15:34:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/16 16:23:38 $
+ *  $Revision: 1.3 $
  *
  *  \author Andrea Bocci
  *
@@ -137,3 +137,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
  
   return false; 
 }
+
+// define as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTLevel1Activity);
