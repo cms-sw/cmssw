@@ -164,7 +164,7 @@ namespace evf{
     hasModuleWebRegistry_ = serviceMap & 0x2;
     hasServiceWebRegistry_ = serviceMap & 0x4;
     bool instanceZero = serviceMap & 0x8;
-    bool hasSubProcesses = serviceMap & 0x10;
+    hasSubProcesses = serviceMap & 0x10;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
     if (epInitialized_) {
@@ -506,7 +506,7 @@ namespace evf{
     gettimeofday(&monEndTime,&timezone);
     edm::ServiceRegistry::Operate operate(serviceToken_);
     MicroStateService *mss = 0;
-    monitorInfoSpace_->lock();
+    if(!hasSubProcesses) monitorInfoSpace_->lock();
     if(evtProcessor_)
       {
 	epMState_ = evtProcessor_->currentStateName();
@@ -557,7 +557,7 @@ namespace evf{
 	nbProcessed_ = evtProcessor_->totalEvents();
 	nbAccepted_  = evtProcessor_->totalEventsPassed(); 
       }
-    monitorInfoSpace_->unlock();  
+    if(!hasSubProcesses) monitorInfoSpace_->unlock();  
 
     ::sleep(monSleepSec_.value_);
     return true;
@@ -1110,11 +1110,15 @@ namespace evf{
 	  LOG4CPLUS_INFO(log_,
 			 "exception when trying to get service MicroStateService");
 	}
+	monitorInfoSpace_->lock();
+	micro1 = evtProcessor_->currentStateName();
+	monitorInfoSpace_->unlock();
       }
+
     if(mss) {
-      micro1 = evtProcessor_->currentStateName();
       micro2 = mss->getMicroState2();
     }
+
     //    *out << fsm_.stateName()->toString() << std::endl;   
     *out << "<td>" << micro1 << "</td>";
     *out << "<td>" << micro2 << "</td>";

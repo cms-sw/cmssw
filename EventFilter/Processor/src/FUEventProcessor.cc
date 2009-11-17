@@ -21,6 +21,7 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <boost/tokenizer.hpp>
@@ -241,7 +242,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\"> 2.0.3 </div>"
+  ost  << "<div id=\"ve\">2.0.6 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -1311,6 +1312,10 @@ bool FUEventProcessor::enableMPEPSlave(int ind)
     localLog(reasonForFailedState_);
   }
   bool retval =  enableCommon();
+  while(evtProcessor_->getState()!= edm::event_processor::sRunning){
+    LOG4CPLUS_INFO(getApplicationLogger(),"waiting for edm::EventProcessor to start before enabling watchdog");
+    ::sleep(1);
+  }
   startScalersWorkLoop();
   return retval;
 }

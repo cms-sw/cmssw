@@ -202,6 +202,7 @@ namespace evf{
     xdaq::ApplicationContext*        xappCtxt_;
     std::string                      configuration_;
     xdata::UnsignedInteger32         instance_;
+    bool                             hasSubProcesses;
     friend class FUEventProcessor;
   };
 }
