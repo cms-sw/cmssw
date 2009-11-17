@@ -8,8 +8,8 @@
  *    --- time of wire propagation
  *    --- time of fly
  *
- *  $Date: 2008/03/12 18:21:09 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/08 15:11:30 $
+ *  $Revision: 1.2 $
  *  \author Giorgia Mila - INFN Torino
  */
 
@@ -36,7 +36,8 @@ public:
   virtual ~FakeTTrig();
 
   // Operations
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  //virtual void beginJob(const edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
   virtual void endJob();
 
