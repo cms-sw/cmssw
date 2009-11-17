@@ -13,10 +13,11 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.5 2009/10/29 15:32:59 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.2 2009/10/07 11:59:39 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
+#include "FWCore/Framework/interface/Selector.h"
 
 using namespace edm;
 using namespace reco;
@@ -115,15 +116,36 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   const TrackerGeometry *theTrackerGeometry = TG.product ();
   const TrackerGeometry & theTracker (*theTrackerGeometry);
 
+  int verbosity_ = 2;
+  //Access to L3MuonCand
   Handle < RecoChargedCandidateCollection > l3mucands;
-  iEvent.getByLabel (l3collectionTag_, l3mucands);
+  bool accessToL3Muons = true;
+  try
+     {
+  	iEvent.getByLabel (l3collectionTag_, l3mucands);
+     }
+     catch (cms::Exception& exception)
+     {
+        if(verbosity_>1) cout <<  "   ===> no access to L3MuonCandidates, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+        accessToL3Muons = false;
+     }
   RecoChargedCandidateCollection::const_iterator cand;
-
+  
+  //Access to clusters
   Handle < edm::LazyGetter < SiStripCluster > >clusters;
-  iEvent.getByLabel (clusterCollectionTag_, clusters);
+  bool accessToClusters = true;
+  try
+     {
+  	iEvent.getByLabel (clusterCollectionTag_, clusters);
+     }
+     catch (cms::Exception& exception)
+     {
+        if(verbosity_>1) cout <<  "   ===> no access to LazzyGetterClusters, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+        accessToClusters = false;
+     }
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
 
-  if (!clusters.failedToGet () && clusters.isValid())
+  if (accessToClusters && !clusters.failedToGet ())
     {
       for (clust = clusters->begin_record (); clust != clusters->end_record (); ++clust)
 	{
@@ -143,7 +165,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	}
     }
 
-  if (!l3mucands.failedToGet () && l3mucands.isValid())
+  if (accessToL3Muons  && !l3mucands.failedToGet ())
     {
       for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand)
 	{
@@ -155,39 +177,11 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	      if (l3tk->recHit (hit)->isValid () == true && l3tk->recHit (hit)->geographicalId ().det () == DetId::Tracker)
 		{
 		  uint detID = l3tk->recHit (hit)->geographicalId ()();
-		  const SiStripRecHit1D *hit1D = dynamic_cast < const SiStripRecHit1D * >(l3tk->recHit (hit).get ());
 		  const SiStripRecHit2D *hit2D = dynamic_cast < const SiStripRecHit2D * >(l3tk->recHit (hit).get ());
 		  const SiStripMatchedRecHit2D *hitMatched2D = dynamic_cast < const SiStripMatchedRecHit2D * >(l3tk->recHit (hit).get ());
 		  const ProjectedSiStripRecHit2D *hitProj2D = dynamic_cast < const ProjectedSiStripRecHit2D * >(l3tk->recHit (hit).get ());
 
 
-		  // if SiStripRecHit1D
-		  if (hit1D != 0)
-		    {
-		      if (hit1D->cluster_regional ().isNonnull ())
-			{
-			  if (hit1D->cluster_regional ().isAvailable ())
-			    {
-			      detID = hit1D->cluster_regional ()->geographicalId ();
-			    }
-			}
-		      int layer = tkdetmap_->FindLayer (detID);
-		      string label = tkdetmap_->getLayerName (layer);
-		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
-		      if (theGeomDet != 0)
-			{
-			  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
-			  if (topol != 0)
-			    {
-			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hit1D->cluster_regional ()->barycenter ());
-			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
-			      LayerMEMap[label.c_str ()].EtaDistribOnTrackClustersMap->Fill (clustgp.eta ());
-			      LayerMEMap[label.c_str ()].PhiDistribOnTrackClustersMap->Fill (clustgp.phi ());
-			      LayerMEMap[label.c_str ()].EtaPhiOnTrackClustersMap->Fill (clustgp.eta (), clustgp.phi ());
-			    }
-			}
-		    }
 		  // if SiStripRecHit2D
 		  if (hit2D != 0)
 		    {
@@ -560,9 +554,9 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       sort(vectorEta_StripPhi.begin(),vectorEta_StripPhi.end());
 
       //MONO OR STEREO
-      int step = 0;
-      if (map_boolStereo[labelHisto] == false) step = 1;
-      if (map_boolStereo[labelHisto] == true) step = 2;
+      int step;
+      if (map_boolStereo[labelHisto] = false) step = 1;
+      if (map_boolStereo[labelHisto] = true) step = 2;
 
       //BUILD ETA VECTOR
       i = 0;
@@ -659,7 +653,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es)
+SiStripMonitorMuonHLT::beginJob (const edm::EventSetup & es)
 {
   if (dbe_)
     {
