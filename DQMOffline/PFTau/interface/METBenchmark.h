@@ -10,7 +10,6 @@ class METBenchmark : public Benchmark {
 
  public:
 
-
   METBenchmark(Mode mode) : Benchmark(mode) {}
   virtual ~METBenchmark();
 
@@ -27,20 +26,19 @@ class METBenchmark : public Benchmark {
  protected:
   
   TH1F*   pt_; 
+  TH1F*   px_; 
   TH1F*   phi_; 
   TH1F*   sumEt_;  
 
 };
 
-
 template< class C>
 void METBenchmark::fill(const C& candCollection) {
 
-  for (unsigned int i = 0; i < candCollection.size(); i++) {
+  for (unsigned int i = 0; i < candCollection.size(); ++i) {
     const reco::MET& cand = candCollection[i];
     fillOne(cand);
   }
 }
-
 
 #endif 
