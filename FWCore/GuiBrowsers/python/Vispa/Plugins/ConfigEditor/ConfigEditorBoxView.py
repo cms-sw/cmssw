@@ -18,7 +18,7 @@ class ConfigEditorBoxView(BoxDecayView):
         self._connections = {}
         self._colors = [Qt.red, Qt.green, Qt.blue, Qt.cyan, Qt.magenta]
         self._colorIndex = 0
-        PointToPointConnection.CONNECTION_THICKNESS=3
+        PointToPointConnection.CONNECTION_THICKNESS=2
         self.setSortBeforeArranging(False)
 
     def connections(self):

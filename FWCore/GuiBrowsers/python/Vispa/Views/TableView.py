@@ -7,12 +7,14 @@ from Vispa.Main.Application import Application
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 from Vispa.Views.AbstractView import AbstractView
 from Vispa.Views.PropertyView import PropertyView,Property
+from Vispa.Share.ThreadChain import ThreadChain
 
 class TableView(AbstractView, QTableWidget):
     """ The TableView widget fills itself using a DataAccessor.
     """
     
     LABEL = "&Table View"
+    UPDATE_EVERY = 20
     
     def __init__(self, parent=None, maxDepth=100):
         logging.debug(__name__ + ": __init__")
@@ -27,6 +29,7 @@ class TableView(AbstractView, QTableWidget):
         self._sortingFlag=False
         self._filteredColumns=[]
         self._firstColumn=0
+        self._updateCounter=0
 
         self.setSortingEnabled(False)
         self.verticalHeader().hide()
@@ -93,8 +96,17 @@ class TableView(AbstractView, QTableWidget):
         else:
             self._columns=[]
             ranking={}
+            properties={}
             for object,depth in objects:
-                for property in self.dataAccessor().properties(object):
+                thread = ThreadChain(self.dataAccessor().properties, object)
+                while thread.isRunning():
+                    if not Application.NO_PROCESS_EVENTS:
+                        QCoreApplication.instance().processEvents()
+                if operationId != self._operationId:
+                    self._updatingFlag-=1
+                    return False
+                properties[object]=thread.returnValue()
+                for property in properties[object]:
                     if not property[1] in ranking.keys():
                         ranking[property[1]]=1
                         if property[0]!="Category":
@@ -110,12 +122,15 @@ class TableView(AbstractView, QTableWidget):
         self.setHorizontalHeaderLabels(self._columns)
         for object,depth in objects:
             # Process application event loop in order to accept user input during time consuming drawing operation
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
+            self._updateCounter+=1
+            if self._updateCounter>=self.UPDATE_EVERY:
+                self._updateCounter=0
+                if not Application.NO_PROCESS_EVENTS:
+                    QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break
-            self._createItem(object,depth)
+            self._createItem(object,properties[object],depth)
         for i in range(len(self._columns)):
             self.resizeColumnToContents(i)
         self.setSortingEnabled(self._sortingFlag)
@@ -129,29 +144,30 @@ class TableView(AbstractView, QTableWidget):
                 objects+=self._getObjects(daughter,depth+1)
         return objects
         
-    def _createItem(self, object, depth=0):
+    def _createItem(self, object, properties, depth=0):
         """ Create item for an object.
         """
         row=self.rowCount()
         self.setRowCount(self.rowCount()+1)
-        height=0
-        i=0
-        for column in self._columns:
-            property=self.dataAccessor().property(object,column)
-            if property!=None:
-                propertyWidget=PropertyView.propertyWidgetFromProperty(property)
-                if propertyWidget.properyHeight()>height:
-                    height=propertyWidget.properyHeight()
-                text=str(propertyWidget.value())
+        height=Property.DEFAULT_HEIGHT
+        for property in properties:
+            if property[1] in self._columns:
+                i=self._columns.index(property[1])
             else:
-                if Property.DEFAULT_HEIGHT>height:
-                    height=Property.DEFAULT_HEIGHT
+                continue
+            if property!=None:
+                # too slow
+                #propertyWidget=PropertyView.propertyWidgetFromProperty(property)
+                #if propertyWidget.properyHeight()>height:
+                #    height=propertyWidget.properyHeight()
+                #text=str(propertyWidget.value())
+                text=str(property[2])
+            else:
                 text=""
             item=QTableWidgetItem(text)
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
             item.object=object
             self.setItem(row,i,item)
-            i+=1
         self.verticalHeader().resizeSection(row,height)
 
     def itemSelectionChanged(self):
