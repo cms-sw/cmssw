@@ -4,21 +4,28 @@
 //
 // Package:     newVersion
 // Class  :     FWEventSelector
-// $Id: FWEventSelector.h,v 1.1 2009/09/29 19:20:18 dmytro Exp $
+// $Id: FWEventSelector.h,v 1.2 2009/11/13 20:58:17 amraktad Exp $
 //
 
 // system include files
 #include <string>
 
-struct FWEventSelector{
-  FWEventSelector(const char* iSelection, const char* iTitle, bool enable):
-    selection(iSelection), title(iTitle), enabled(enable), removed(false){}
-  FWEventSelector():
-    enabled(false), removed(false){}
+struct FWEventSelector
+{
+   FWEventSelector(const char* iSelection, const char* iTitle, bool enable):
+      m_expression(iSelection), m_description(iTitle), m_enabled(enable) {}
 
-  std::string selection;
-  std::string title;
-  bool enabled;
-  bool removed;
+   FWEventSelector(FWEventSelector* s)
+   {
+      m_expression  = s->m_expression;
+      m_description = s->m_description;
+      m_enabled     = s->m_enabled;
+   }
+
+   FWEventSelector():m_enabled(false) {}
+
+   std::string m_expression;
+   std::string m_description;
+   bool        m_enabled;
 };
 #endif
