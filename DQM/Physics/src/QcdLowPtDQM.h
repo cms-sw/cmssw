@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.4 2009/11/14 06:54:31 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.5 2009/11/15 19:45:55 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <TMath.h>
 #include <vector>
 
 class DQMStore;
@@ -26,20 +27,22 @@ class QcdLowPtDQM : public edm::EDAnalyzer
       public:
         Pixel(double x=0, double y=0, double z=0, double eta=0, double phi=0, 
               double adc=0, double sx=0, double sy=0) : 
-          x_(x), y_(y), z_(z), eta_(eta), phi_(phi), adc_(adc), sizex_(sx), sizey_(sy) {}
+          x_(x), y_(y), z_(z), rho_(TMath::Sqrt(x_*x_+y_*y_)), 
+          eta_(eta), phi_(phi), adc_(adc), sizex_(sx), sizey_(sy) {}
         Pixel(const GlobalPoint &p, double adc=0, double sx=0, double sy=0) :
-          x_(p.x()), y_(p.y()), z_(p.z()), eta_(p.eta()), phi_(p.phi()), 
-          adc_(adc), sizex_(sx), sizey_(sy) {}
+          x_(p.x()), y_(p.y()), z_(p.z()), rho_(TMath::Sqrt(x_*x_+y_*y_)), 
+          eta_(p.eta()), phi_(p.phi()), adc_(adc), sizex_(sx), sizey_(sy) {}
         double adc()   const { return adc_;   }
-        double x()     const { return x_;     }
-        double y()     const { return y_;     }
-        double z()     const { return z_;     }
         double eta()   const { return eta_;   }
+        double rho()   const { return rho_;   }
         double phi()   const { return phi_;   }
         double sizex() const { return sizex_; }
         double sizey() const { return sizey_; }
+        double x()     const { return x_;     }
+        double y()     const { return y_;     }
+        double z()     const { return z_;     }
       protected:    
-        double x_,y_,z_,eta_,phi_;
+        double x_,y_,z_,rho_,eta_,phi_;
         double adc_,sizex_,sizey_;
     };
     class Tracklet {
@@ -161,6 +164,7 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     void                          trackletVertexUnbinned(std::vector<Pixel> &pix1, 
                                                          std::vector<Pixel> &pix2,
                                                          Vertex &vtx);
+    double                        vertexZFromClusters(const std::vector<Pixel> &pix) const;
     void                          yieldAlphaHistogram(int which=12);
 
     std::string                   hltResName_;         //HLT trigger results name
@@ -211,6 +215,9 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hNhitsL1_;           //number of hits on layer 1
     std::vector<MonitorElement*>  hNhitsL2_;           //number of hits on layer 2
     std::vector<MonitorElement*>  hNhitsL3_;           //number of hits on layer 3
+    std::vector<MonitorElement*>  hNhitsL1z_;          //number of hits on layer 1 (zoomed)
+    std::vector<MonitorElement*>  hNhitsL2z_;          //number of hits on layer 2 (zoomed)
+    std::vector<MonitorElement*>  hNhitsL3z_;          //number of hits on layer 3 (zoomed)
     std::vector<MonitorElement*>  hdNdEtaHitsL1_;      //dN/dEta of hits on layer 1
     std::vector<MonitorElement*>  hdNdEtaHitsL2_;      //dN/dEta of hits on layer 2
     std::vector<MonitorElement*>  hdNdEtaHitsL3_;      //dN/dEta of hits on layer 3

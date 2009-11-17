@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.4 2009/11/14 06:54:31 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.5 2009/11/15 19:45:55 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -51,7 +51,7 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
   hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults","TriggerResults")),
   hltProcName_(parameters.getUntrackedParameter<string>("hltProcName","HLT")),
   pixelName_(parameters.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits")),
-  clusterVtxName_(parameters.getUntrackedParameter<string>("clusterVertices","clusterVertices")),
+  clusterVtxName_(parameters.getUntrackedParameter<string>("clusterVertices","")),
   ZVCut_(parameters.getUntrackedParameter<double>("ZVertexCut",10)),
   ZVEtaRegion_(parameters.getUntrackedParameter<double>("ZVertexEtaRegion",2)),
   ZVVtxRegion_(parameters.getUntrackedParameter<double>("ZVertexVtxRegion",2)),
@@ -61,7 +61,7 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
   sigPhiCut_(parameters.getUntrackedParameter<double>("signalPhiCut",1.5)),
   bkgEtaCut_(parameters.getUntrackedParameter<double>("backgroundEtaCut",0.1)),
   bkgPhiCut_(parameters.getUntrackedParameter<double>("backgroundPhiCut",3.0)),
-  verbose_(parameters.getUntrackedParameter<int>("verbose",2)),
+  verbose_(parameters.getUntrackedParameter<int>("verbose",3)),
   pixLayers_(parameters.getUntrackedParameter<int>("pixLayerCombinations",12)),
   clusLayers_(parameters.getUntrackedParameter<int>("clusLayerCombinations",12)),
   useRecHitQ_(parameters.getUntrackedParameter<bool>("useRecHitQualityWord",false)),
@@ -325,11 +325,19 @@ void QcdLowPtDQM::createHistos()
   }
   if (1) {
     const int Nx = 30;
-    const double x1 = 0;
-    const double x2 = 150;
+    const double x1 = -0.5;
+    const double x2 = 149.5;
     book1D(hNhitsL1_,"hNhitsLayer1","number of hits on layer 1;#hits;#",Nx,x1,x2);
     book1D(hNhitsL2_,"hNhitsLayer2","number of hits on layer 2;#hits;#",Nx,x1,x2);
     book1D(hNhitsL3_,"hNhitsLayer3","number of hits on layer 3;#hits;#",Nx,x1,x2);
+  }
+  if (1) {
+    const int Nx = 15;
+    const double x1 = -0.5;
+    const double x2 = 14.5;
+    book1D(hNhitsL1z_,"hNhitsLayer1Zoom","number of hits on layer 1;#hits;#",Nx,x1,x2);
+    book1D(hNhitsL2z_,"hNhitsLayer2Zoom","number of hits on layer 2;#hits;#",Nx,x1,x2);
+    book1D(hNhitsL3z_,"hNhitsLayer3Zoom","number of hits on layer 3;#hits;#",Nx,x1,x2);
   }
   if (1) {
     const int Nx = 60;
@@ -463,8 +471,7 @@ void QcdLowPtDQM::createHistos()
     create1D(hEvtCountsPerEta23_,"hEventCountsPerEta23",
              "Events per vtx-#eta bin from tracklets23;#eta;#",1,-ZVEtaRegion_,ZVEtaRegion_,0,0);
   }
-  if (clusterVtxName_.size()) {
-
+  if (1) {
     if (1) {
       const int Nx = 100;
       const double x1 = -25;
@@ -725,14 +732,13 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
 
   // fill correlation histogram
   for(size_t i=0;i<hltTrgBits_.size();++i) {
-    if (!hltTrgDeci_.at(i))
-      continue;
-    h2TrigCorr_->Fill(i,i);
+    if (hltTrgDeci_.at(i))
+      h2TrigCorr_->Fill(i,i);
     for(size_t j=i+1;j<hltTrgBits_.size();++j) {
-    if (!hltTrgDeci_.at(j))
-      continue;
-      h2TrigCorr_->Fill(i,j);
-      h2TrigCorr_->Fill(j,i);
+      if (hltTrgDeci_.at(i) && hltTrgDeci_.at(j))
+        h2TrigCorr_->Fill(i,j);
+      if (hltTrgDeci_.at(i) && !hltTrgDeci_.at(j))
+        h2TrigCorr_->Fill(j,i);
     }
   }
 }
@@ -774,14 +780,18 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent)
       const RectangularPixelTopology *pixTopo = 
         static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
       vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+      bool pixelOnEdge = false;
       for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
           pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
         int pixelY = pixel->y;
         if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
-          continue;
+          pixelOnEdge = true;
+          break;
         }
       }
+      if (pixelOnEdge)
+        continue;
     }
 
     LocalPoint lpos = LocalPoint(hit->localPosition().x(),
@@ -816,25 +826,39 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent)
   fill1D(hNhitsL1_,bpix1_.size());
   fill1D(hNhitsL2_,bpix2_.size());
   fill1D(hNhitsL3_,bpix3_.size());
+  fill1D(hNhitsL1z_,bpix1_.size());
+  fill1D(hNhitsL2z_,bpix2_.size());
+  fill1D(hNhitsL3z_,bpix3_.size());
 }
 
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which)
 {
-  // Get pixel vertex produced by PixelVertexProducerClusters
+  // Get information related to pixel cluster counting methods.
 
-  Handle<reco::VertexCollection> hVertexCollection;
-  if (!getProductSafe(clusterVtxName_, hVertexCollection, iEvent)) {
-    CP(2) print(2,Form("Can not obtain pixel vertex from cluster collection with name %s", 
-                       clusterVtxName_.c_str()));
-    return;
+  double vz = -999;
+
+  if (clusterVtxName_.size()) { // get vertex from producer
+    Handle<reco::VertexCollection> hVertexCollection;
+    if (!getProductSafe(clusterVtxName_, hVertexCollection, iEvent)) {
+      CP(2) print(2,Form("Can not obtain pixel vertex from cluster collection with name %s", 
+                         clusterVtxName_.c_str()));
+      return;
+    }
+
+    const reco::VertexCollection *vertices = hVertexCollection.product();
+    if (!vertices || vertices->size()==0)
+      return;
+    reco::VertexCollection::const_iterator vertex = vertices->begin();
+    vz = vertex->z();
+  } else { // calculate vertex from clusters
+    std::vector<Pixel> allp(bpix1_);
+    allp.insert(allp.end(),bpix2_.begin(),bpix2_.end());
+    allp.insert(allp.end(),bpix3_.begin(),bpix3_.end());
+    vz = vertexZFromClusters(allp);
   }
-
-  const reco::VertexCollection *vertices = hVertexCollection.product();
-  if (!vertices || vertices->size()==0)
+  if (vz<=-999)
     return;
-  reco::VertexCollection::const_iterator vertex = vertices->begin();
-  double vz = vertex->z();
 
   fill1D(hClusterVertexZ_,vz);
   if (which>=12)
@@ -851,7 +875,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const double vz,
                                         std::vector<MonitorElement*> &hClusterYSize,
                                         std::vector<MonitorElement*> &hClusterADC)
 {
-  // Fill histograms with pixel cluster infos.
+  // Fill histograms with pixel cluster counting related infos.
 
   for(size_t i = 0; i<pix.size(); ++i) {
     const Pixel &p(pix.at(i));
@@ -1093,6 +1117,46 @@ void QcdLowPtDQM::trackletVertexUnbinned(std::vector<Pixel> &pix1,
 
   // set the vertex
   vtx.set(mcl, mzv, ms2);
+}
+
+//--------------------------------------------------------------------------------------------------
+double QcdLowPtDQM::vertexZFromClusters(const std::vector<Pixel> &pix) const
+{
+  // Estimate z vertex position from clusters.
+
+  double chi_max = 1e+9;
+  double z_best  = -999;
+  int nhits_max  = 0;
+
+  for(double z0 = -15.9; z0 <= 15.95; z0 += 0.1) {
+    int nhits  = 0;
+    double chi = 0;
+    for(size_t i=0; i<pix.size(); ++i) {
+      const Pixel &p = pix.at(i);
+
+      // predicted cluster width in y direction
+      double pval = 2*TMath::Abs(p.z()-z0)/p.rho() + 0.5; // FIXME
+      double chitest = TMath::Abs(pval - p.sizey());
+      if(chitest <= 1.) { 
+        chi += chitest;
+        ++nhits;
+      }
+    }
+
+    if(nhits <= 0)
+      continue;
+
+    if(nhits < nhits_max)
+      continue;
+
+    if ((nhits > nhits_max) || (chi < chi_max)) { 
+      z_best    = z0; 
+      nhits_max = nhits; 
+      chi_max   = chi; 
+    }
+  }
+
+  return z_best;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -4415,4 +4479,3 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which)
     AlphaTracklets23_->SetBinContent(10,14,6,0);
   }
 }
-
