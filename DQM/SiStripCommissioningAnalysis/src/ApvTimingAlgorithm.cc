@@ -90,8 +90,6 @@ void ApvTimingAlgorithm::analyse() {
     return;
   }
   
-  //  std::cout << "Histo name " << histo_.second << std::endl;
-
   // Transfer histogram contents/errors/stats to containers
   uint16_t non_zero = 0;
   float max = -1. * sistrip::invalid_;
@@ -229,14 +227,6 @@ void ApvTimingAlgorithm::analyse() {
 	max_derivative = temp;
 	max_derivative_bin = bin;
       }
-      
-      /*
-      // Check if samples following edge are all "high"
-      if ( ii > 10 && ii < 40 && bin_entries[bin] &&
-	   bin_contents[bin] < baseline + 5.*baseline_rms ) { 
-	   valid = false; 
-      }
-      */
 
 
       // Check if majority of samples following edge are all "high"
