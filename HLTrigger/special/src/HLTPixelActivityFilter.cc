@@ -76,3 +76,7 @@ bool HLTPixelActivityFilter::filter(edm::Event& event, const edm::EventSetup& iS
   // return with final filter decision
   return accept;
 }
+
+// define as a framework module
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPixelActivityFilter);
