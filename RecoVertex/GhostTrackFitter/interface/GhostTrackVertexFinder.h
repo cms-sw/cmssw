@@ -19,6 +19,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackFitter.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
 
 namespace reco {
 
@@ -98,6 +99,39 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 		         const std::vector<TransientTrack> &primaries,
 		         const std::vector<TransientTrack> &tracks,
 	                 const std::vector<float> &weights = std::vector<float>()) const;
+
+	std::vector<TransientVertex>
+		vertices(const GlobalPoint &primaryPosition,
+		         const GlobalError &primaryError,
+		         const GhostTrack &ghostTrack) const;
+
+	std::vector<TransientVertex>
+		vertices(const GlobalPoint &primaryPosition,
+		         const GlobalError &primaryError,
+		         const reco::BeamSpot &beamSpot,
+		         const GhostTrack &ghostTrack) const;
+
+	std::vector<TransientVertex>
+		vertices(const GlobalPoint &primaryPosition,
+		         const GlobalError &primaryError,
+		         const reco::BeamSpot &beamSpot,
+		         const std::vector<TransientTrack> &primaries,
+		         const GhostTrack &ghostTrack) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const GhostTrack &ghostTrack) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const reco::BeamSpot &beamSpot,
+		         const GhostTrack &ghostTrack) const;
+
+	std::vector<TransientVertex>
+		vertices(const reco::Vertex &primaryVertex,
+		         const reco::BeamSpot &beamSpot,
+		         const std::vector<TransientTrack> &primaries,
+		         const GhostTrack &ghostTrack) const;
 
 	std::vector<TransientVertex> vertices(
 		const GhostTrack &ghostTrack,

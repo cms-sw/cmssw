@@ -37,9 +37,10 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 			double ndof, chi2;
 
 			updater.contribution(prior, testState, ndof, chi2, true);
-			if (ndof > 0. && chi2 < 5.) {
+			if (ndof > 0. && chi2 < 10.) {
 				state = testState;
-				state.setWeight(1.);
+				if (state.weight() != 1.)
+					state.setWeight(3.);
 				done = false;
 			}
 		}
