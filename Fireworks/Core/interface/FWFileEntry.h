@@ -4,18 +4,20 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: CmsShowNavigator.h,v 1.25 2009/10/27 01:55:28 dmytro Exp $
+// $Id: FWFileEntry.h,v 1.1 2009/11/05 01:34:09 dmytro Exp $
 //
 
 // system include files
 #include <string>
 #include <sigc++/sigc++.h>
 
+#include "TEventList.h"
+#include "TTree.h"
+
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
-#include "TEventList.h"
 
 // forward declarations
 class TEventList;
@@ -23,6 +25,7 @@ class CSGAction;
 class CmsShowMain;
 class TFile;
 class TGWindow;
+class FWEventItemsManager;
 
 namespace edm {
    class EventID;
@@ -30,43 +33,65 @@ namespace edm {
 
 class FWFileEntry {
 public:
+   struct Filter
+   {
+      TEventList*        m_eventList;
+      FWEventSelector*   m_selector;  // owned by navigator
+      bool               m_needsUpdate;
+      
+      Filter(FWEventSelector* s) : m_eventList(0), m_selector(s), m_needsUpdate(true) {}
+      ~Filter()
+      {
+         delete m_eventList;
+      }
+   };
+   
    FWFileEntry(const std::string& name);
-   bool anySelectedEvents() const {
-      if ( m_eventTree && m_mainSelection.GetN()>0 )
-         return true;
-      else
-         return false;
+   virtual ~FWFileEntry();
+   
+   bool hasSelectedEvents() const {
+      return m_eventTree && m_globalEventList->GetN()>0;
    }
-   TFile*         file(){
-      return m_file;
-   }
-   fwlite::Event* event(){
-      return m_event;
-   }
-   TTree*         tree(){
-      return m_eventTree;
-   }
-   TEventList&    mainSelection(){
-      return m_mainSelection;
-   }
-   std::vector<std::string>& selections(){
-      return m_selections;
-   }
-   std::vector<TEventList*>& lists(){
-      return m_lists;
-   }
-   bool openFile();
+   
+   TFile*         file()  { return m_file; }
+   fwlite::Event* event() { return m_event; }
+   TTree*         tree()  { return m_eventTree; }
+   TEventList*    globalSelection() { return m_globalEventList; }
+   
+   std::list<Filter*>& filters() { return m_filterEntries; }
+   
+   void openFile();
    void closeFile();
+
+   bool isEventSelected(int event);
+
+   bool hasSelectedEvents();
+
+   int  firstSelectedEvent();
+   int  lastSelectedEvent();
+
+   int  lastEvent() { return m_eventTree->GetEntries() -1; }
+
+   int  nextSelectedEvent(int event);
+   int  previousSelectedEvent(int event);
+
+   void filtersNeedUpdate() { m_filtersNeedUpdate = true; }
+   void updateFilters(FWEventItemsManager* eiMng, bool isOR);
+
 private:
-   // file name
-   std::string m_name;
-   // named lists in order to use in Draw() command living in the file directory
-   std::vector<TEventList*> m_lists;
-   std::vector<std::string> m_selections;
-   // unnamed main selection list
-   TEventList m_mainSelection;
-   TFile* m_file;
-   TTree* m_eventTree;
-   fwlite::Event* m_event;
+   FWFileEntry(const FWFileEntry&);    // stop default
+   const FWFileEntry& operator=(const FWFileEntry&);    // stop default
+   
+   void runFilter(Filter* fe, FWEventItemsManager* eiMng);
+
+   std::string            m_name;
+   TFile*                 m_file;
+   TTree*                 m_eventTree;
+   fwlite::Event*         m_event;
+   
+   bool                   m_filtersNeedUpdate; // To be set in navigator::filterChanged/Added, newFile
+   
+   std::list<Filter*>     m_filterEntries;
+   TEventList*            m_globalEventList;
 };
 #endif
