@@ -1,4 +1,5 @@
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
