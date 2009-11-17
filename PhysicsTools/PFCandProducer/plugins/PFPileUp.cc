@@ -26,6 +26,8 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   inputTagVertices_ 
     = iConfig.getParameter<InputTag>("Vertices");
 
+  enable_ = iConfig.getParameter<bool>("Enable");
+
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -50,49 +52,49 @@ void PFPileUp::produce(Event& iEvent,
 //   LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
 // 			 <<" in run "<<iEvent.id().run()<<endl;
   
-  
-  
+   
   // get PFCandidates
 
-  Handle<PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
-
-  
-  // get vertices 
-
-  Handle<VertexCollection> vertices;
-  iEvent.getByLabel( inputTagVertices_, vertices);
-
-  
   auto_ptr< reco::PileUpPFCandidateCollection > 
     pOutput( new reco::PileUpPFCandidateCollection ); 
   
-  for( unsigned i=0; i<pfCandidates->size(); i++ ) {
-    
-    // const reco::PFCandidate& cand = (*pfCandidates)[i];
-    PFCandidatePtr candptr(pfCandidates, i);
+  if(enable_) {
 
-//     PFCandidateRef pfcandref(pfCandidates,i); 
+    Handle<PFCandidateCollection> pfCandidates;
+    iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
 
-    VertexRef vertexref;
-
-    switch( candptr->particleId() ) {
-    case PFCandidate::h:
-      vertexref = chargedHadronVertex( vertices, *candptr );
-      break;
-    default:
-      continue;
-    } 
-    
-    // no associated vertex, or primary vertex
-    // not pile-up
-    if( vertexref.isNull() || 
-	vertexref.key()==0 ) continue;
-
-    pOutput->push_back( PileUpPFCandidate( candptr, vertexref ) );
-    pOutput->back().setSourceCandidatePtr( candptr );
-  }
   
+    // get vertices 
+
+    Handle<VertexCollection> vertices;
+    iEvent.getByLabel( inputTagVertices_, vertices);
+  
+    for( unsigned i=0; i<pfCandidates->size(); i++ ) {
+    
+      // const reco::PFCandidate& cand = (*pfCandidates)[i];
+      PFCandidatePtr candptr(pfCandidates, i);
+
+      //     PFCandidateRef pfcandref(pfCandidates,i); 
+
+      VertexRef vertexref;
+
+      switch( candptr->particleId() ) {
+      case PFCandidate::h:
+	vertexref = chargedHadronVertex( vertices, *candptr );
+	break;
+      default:
+	continue;
+      } 
+    
+      // no associated vertex, or primary vertex
+      // not pile-up
+      if( vertexref.isNull() || 
+	  vertexref.key()==0 ) continue;
+
+      pOutput->push_back( PileUpPFCandidate( candptr, vertexref ) );
+      pOutput->back().setSourceCandidatePtr( candptr );
+    }
+  }
   iEvent.put( pOutput );
   
 }

@@ -52,6 +52,9 @@ class PFPileUp : public edm::EDProducer {
   /// vertices
   edm::InputTag   inputTagVertices_;
 
+  /// enable PFPileUp selection
+  bool   enable_;
+
   /// verbose ?
   bool   verbose_;
 
