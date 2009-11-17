@@ -12,7 +12,6 @@ const TGPicture* FWGUIEventFilter::m_icon_add = 0;
 
 FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
-   m_sels(0),
    m_validator(0),
    m_selectionFrameParent(0),
    m_selectionFrame(0),
@@ -76,14 +75,16 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
 
 void FWGUIEventFilter::CloseWindow()
 {
-   if (m_selectionFrame) {
-      m_selectionFrameParent->RemoveFrame(m_selectionFrame);
-      m_selectionFrame = 0;
-
-      delete m_validator;
-      m_validator = 0;
-   }
-
+   m_selectionFrameParent->RemoveFrame(m_selectionFrame);
+   m_selectionFrame = 0;
+   
+   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+      delete *i;
+      m_guiSelectors.clear();   
+      
+   delete m_validator;
+   m_validator = 0;
+   
    UnmapWindow();
 }
 
@@ -93,17 +94,25 @@ void FWGUIEventFilter::filterOK()
    CloseWindow();
 }
  
-void FWGUIEventFilter::show( std::vector<FWEventSelector*>* sels,  fwlite::Event& event, bool isLogicalOR)
+void FWGUIEventFilter::addSelector(FWEventSelector* sel)
 {
-   m_sels = sels;
-   m_validator = new FWHLTValidator(event);
+   FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, m_validator, sel);
+   m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
+   TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
+   
+   m_guiSelectors.push_back(es);
+}
+
+void FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR)
+{
+   m_validator = new FWHLTValidator(*event);
    m_orBtn->SetOn(isLogicalOR, kFALSE);
 
    assert(m_selectionFrame == 0);
    m_selectionFrame = new TGVerticalFrame(m_selectionFrameParent);
    m_selectionFrameParent->AddFrame(m_selectionFrame,  new TGLayoutHints(kLHintsExpandX));
 
-   for(std::vector<FWEventSelector*>::iterator i = m_sels->begin(); i != m_sels->end(); ++i)
+   for(std::list<FWEventSelector*>::iterator i = sels->begin(); i != sels->end(); ++i)
       addSelector(*i);
 
    MapSubwindows();
@@ -111,27 +120,19 @@ void FWGUIEventFilter::show( std::vector<FWEventSelector*>* sels,  fwlite::Event
    MapWindow();
 }
 
-void FWGUIEventFilter::addSelector(FWEventSelector* sel)
-{
-   FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, sel, m_validator);
-   m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
-
-   TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
-}
-
 void FWGUIEventFilter::deleteEntry(FWGUIEventSelector* sel)
 {
-   sel->getSelector()->removed = true;
+   m_guiSelectors.remove(sel);
+   
    m_selectionFrame->RemoveFrame(sel);
    Layout();
    gClient->NeedRedraw(this);
+   
 }
 
 void FWGUIEventFilter::newEntry()
 {
-   FWEventSelector* sel = new  FWEventSelector();
-   m_sels->push_back(sel);
-   addSelector(sel);
+   addSelector(0);
    MapSubwindows();
    Layout();
 }
@@ -139,13 +140,4 @@ void FWGUIEventFilter::newEntry()
 bool FWGUIEventFilter::isLogicalOR()
 {
    return m_orBtn->GetState();
-}
-
-void FWGUIEventFilter::dump(const char* text){
-  std::cout << "Text changed: " << text << std::endl;
-  
-  for(std::vector<FWEventSelector*>::iterator sel = m_sels->begin();
-      sel != m_sels->end(); ++sel)
-    std::cout << "\t" << (*sel)->enabled << "\t " << (*sel)->selection << "\t" << (*sel)->title<< 
-      "\t " << (*sel)->removed << std::endl;
 }

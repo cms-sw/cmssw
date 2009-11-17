@@ -11,22 +11,25 @@ class TGPicture;
 
 class FWGUIEventSelector : public TGHorizontalFrame {
 public:
-   FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, FWHLTValidator* es);
-   virtual ~FWGUIEventSelector() {}
+   FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* es, FWEventSelector* sel);
+   virtual ~FWGUIEventSelector();
 
    void deleteCallback();
    void enableCallback(bool);
    void removeSelector(FWGUIEventSelector*); // *SIGNAL*
-   FWEventSelector* getSelector() { return m_selector; }
- 
+   
+   FWEventSelector* guiSelector()  { return m_guiSelector;  }
+   FWEventSelector* origSelector() { return m_origSelector; }
+   
 private:
 
    FWGUIEventSelector(const FWGUIEventSelector&); // stop default
    const FWGUIEventSelector& operator=(const FWGUIEventSelector&); // stop default
 
    static const TGPicture* m_icon_delete;
-   FWEventSelector*        m_selector;
-   TGTextButton*           m_enableBtn;
+   
+   FWEventSelector*   m_guiSelector;
+   FWEventSelector*   m_origSelector;
 
    ClassDef(FWGUIEventSelector, 0); // Manager for EVE windows.
 };
