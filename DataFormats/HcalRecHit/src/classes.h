@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace {
   struct dictionary {
@@ -60,6 +62,11 @@ namespace {
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
     edm::RefVector<CastorRecHitCollection> theCastorrv_;
     edm::RefVector<HcalCalibRecHitCollection> theCalibrv_;
+
+    edm::reftobase::Holder<CaloRecHit, HBHERecHitRef> rb4;
+    edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
+    edm::reftobase::Holder<CaloRecHit, HFRecHitRef> rb6;
+    edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
   };
 }
 

@@ -174,4 +174,16 @@
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>" />
+
+  <class name="edm::Ptr<reco::BaseTagInfo>" />
+  <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
+  <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" /> 
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" /> 
+  <class name="std::vector<reco::BaseTagInfo *>" />
+  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
+ <exclusion>
+  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
+   <method name="sort" />
+  </class>
+ </exclusion>
 </lcgdict>

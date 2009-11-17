@@ -3,6 +3,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Holder.h"
 #include <vector>
 
 namespace {
@@ -33,6 +35,7 @@ namespace {
     EcalRecHitRef _ERHitRef;
     EcalRecHitRefs _ERHitRefs;
     EcalRecHitsRef _ERHitsRef;
+    edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
   };
 }
 

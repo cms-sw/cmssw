@@ -61,12 +61,6 @@ namespace {
 
     edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rb2;
-    edm::reftobase::Holder<CaloRecHit, HBHERecHitRef> rb4;
-    edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
-    edm::reftobase::Holder<CaloRecHit, HFRecHitRef> rb6;
-    edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
-    edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
-    edm::RefToBase<CaloRecHit> rbh3;
 
     edm::Wrapper<reco::FitResultCollection> wfr1;
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
@@ -85,14 +79,11 @@ namespace {
     edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > > aaa;
     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > > aaaa;
     std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > > aaaaa;
-    edm::RefToBaseProd<reco::Track> aaaaaa;
     edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > aaaaaaa;
     edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > aaaaaaaa;
     
     std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > aaaaaaaaa;
-    std::vector<std::pair<edm::RefToBase<reco::Track>,double> > aaaaaaaaaa;
     std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> aaaaaaaaaaa;  
-    std::pair<edm::RefToBase<reco::Track>,double> aaaaaaaaaaaa;
     
       
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rbc1;
@@ -117,6 +108,7 @@ namespace {
     reco::IsoDepositMap::const_iterator idvmci;
     edm::Wrapper<reco::IsoDepositMap> w_idvm;
     
+    edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > > tpaaa;
 
   };
 }

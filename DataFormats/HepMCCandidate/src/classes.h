@@ -8,6 +8,7 @@
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
+#include <vector>
 
 namespace {
   struct dictionary {
@@ -34,5 +35,6 @@ namespace {
     edm::Wrapper<std::vector<reco::FlavorHistoryEvent> > wvfhe1;
     edm::ValueMap<reco::FlavorHistoryEvent> vmfhe1;
     edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;
+    std::vector<reco::GenParticleRef>	v_gpr;
   };
 }

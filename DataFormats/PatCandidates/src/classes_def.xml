@@ -2,173 +2,6 @@
  <selection>
 
   <!-- ==========================================================================================================================
-              NON PAT Dataformats, except those for RefToBase/Ptr
-       ========================================================================================================================== -->
-
-  <!-- To go into DataFormats/Candidate -->
-  <!--
-  <class name="std::vector<reco::CandidatePtr>" />
-  -->
-  <class name="edm::ValueMap<reco::CandidatePtr>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::CandidatePtr> >" />
-  <class name="std::pair<std::string,edm::Ptr<reco::Candidate> >" />
-  <class name="std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > >" />
-
-  <!-- To go into DataFormats/HepMCCandidate -->
-  <class name="std::vector<reco::GenParticleRef>" />
-
-  <!-- To go into DataFormats/JetReco -->
-  <class name="edm::Association<reco::GenJetCollection>" />
-  <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
-  <class name="std::vector<reco::CaloJet::Specific>" />
-  <class name="std::vector<reco::PFJet::Specific>"   />
-
-  <!-- To go into DataFormats/BTauReco -->
-  <class name="edm::Ptr<reco::BaseTagInfo>" />
-  <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
-  <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" /> 
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" /> 
-  <class name="std::vector<reco::BaseTagInfo *>" />
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
-
-  <!-- To go into DataFormats/TrackReco -->
-  <!--
-  <class name="std::vector<reco::TrackRefVector>" />
-  -->
-  <class name="edm::ValueMap<reco::TrackRefVector>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
-
-
-   <!-- ==========================================================================================================================
-              NON PAT Dataformats: RefToBase for Candidates
-                                   Needed to make RefToBase<Candidate> from
-                                   AOD objects: GsfElectron, Muon, Photon, BaseTau, MET,
-                                        CaloMet, GenMET, CaloTau, PFTau, CaloJet, PFJet, BasicJet, GenJet
-                                   No longer needed by PAT, but needed by core PhysicsTools.
-       ========================================================================================================================== -->
-  <!--
-  <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
-
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::PFTauRef>" /> 
-  <class name="edm::reftobase::RefHolder<reco::BaseTauRef>" />
-  <class name="edm::reftobase::RefHolder<reco::CaloTauRef>" />
-  <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
-  -->
-
-   <!-- ==========================================================================================================================
-              NON PAT Dataformats: RefToBaseVector for Candidates
-                                   Needed to make RefToBaseVector<Candidate> from
-                                   AOD objects: GsfElectron, Muon, Photon, BaseTau, MET,
-                                        CaloMet, GenMET, CaloTau, PFTau, CaloJet, PFJet, BasicJet, GenJet
-                                   No longer needed by PAT, but probably needed by core PhysicsTools.
-       ========================================================================================================================== -->
-  <!--
-  <class name="edm::reftobase::RefVectorHolder<reco::CaloJetRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::BasicJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CaloJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PFJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::BasicJetRefVector>" />
-
-  <class name="edm::reftobase::RefVectorHolder<reco::BaseTauRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::CaloTauRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::PFTauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::BaseTauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CaloTauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PFTauRefVector>" />
-
-  <class name="edm::reftobase::RefVectorHolder<reco::METRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::CaloMETRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::GenMETRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::METRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CaloMETRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenMETRefVector>" />
-  -->
-
-
-  <!-- ==========================================================================================================================
-              NON PAT Dataformats: RefToBase for AOD Types (only the ones missing from 2.1.9)
-                                   Should be elsewhere. Also, no longer needed by PAT.
-                                   They allow to make RefToBase<T> and RefToBaseVector<T> 
-                                   for each T = GsfElectron, Muon, Photon, Jet, BaseTau, MET
-                                   filled from all concrete types (all T above except Jet, 
-                                   plus CaloMet, GenMET, CaloTau, PFTau, CaloJet, PFJet, BasicJet).
-                                   This does not include those alrady needed to make RefToBase(Vector)<Candidate>
-       ========================================================================================================================== -->
-  <!--
-  <class name="edm::reftobase::BaseHolder<reco::GsfElectron>" />
-  <class name="edm::reftobase::Holder<reco::GsfElectron, reco::GsfElectronRef>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::GsfElectron>" />
-  <class name="edm::reftobase::VectorHolder<reco::GsfElectron, reco::GsfElectronRefVector>" />
-
-  <class name="edm::reftobase::BaseHolder<reco::Photon>" />
-  <class name="edm::reftobase::Holder<reco::Photon, reco::PhotonRef>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::Photon>" />
-  <class name="edm::reftobase::VectorHolder<reco::Photon, reco::PhotonRefVector>" />
-
-  <class name="edm::reftobase::BaseHolder<reco::Muon>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::Muon>" />
-  <class name="edm::reftobase::Holder<reco::Muon, reco::MuonRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Muon, reco::MuonRefVector>" />
-
-  <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Jet, reco::CaloJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Jet, reco::PFJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Jet, reco::BasicJetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Jet, reco::GenJetRefVector>" />
-  
-  <class name="edm::RefToBase<reco::BaseTau>" />
-  <class name="edm::RefToBaseVector<reco::BaseTau>" />
-  <class name="edm::reftobase::BaseHolder<reco::BaseTau>" />
-  <class name="edm::reftobase::BaseVectorHolder<reco::BaseTau>" />
-  <class name="edm::reftobase::IndirectHolder<reco::BaseTau>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::BaseTau>" />
-  <class name="edm::reftobase::Holder<reco::BaseTau, reco::BaseTauRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::BaseTau, reco::BaseTauRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::BaseTau, reco::CaloTauRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::BaseTau, reco::PFTauRef>" />
-
-  <class name="edm::RefToBase<reco::MET>" />
-  <class name="edm::RefToBaseVector<reco::MET>" />
-  <class name="edm::reftobase::BaseHolder<reco::MET>" />
-  <class name="edm::reftobase::BaseVectorHolder<reco::MET>" />
-  <class name="edm::reftobase::IndirectHolder<reco::MET>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::MET>" />
-  <class name="edm::reftobase::Holder<reco::MET, reco::METRef>" />
-  <class name="edm::reftobase::Holder<reco::MET, reco::CaloMETRef>" />
-  <class name="edm::reftobase::Holder<reco::MET, reco::GenMETRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::MET, reco::METRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::MET, reco::CaloMETRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::MET, reco::GenMETRefVector>" />
-  -->
-
-  <!-- ==========================================================================================================================
-              NON PAT Dataformats: Ptr for AOD Types
-                                   Should be elsewhere.
-                                   Needed by PAT for Electrons and Photons after reshuffling.
-       ========================================================================================================================== -->
-
-  <!--
-  <class name="edm::Ptr<reco::GsfElectron>" />
-  <class name="edm::PtrVector<reco::GsfElectron>" />
-  -->
-
-  <class name="edm::Ptr<reco::BaseTau>" />
-  <class name="edm::PtrVector<reco::BaseTau>" />
-
-  <class name="edm::Ptr<reco::Photon>" />
-  <class name="edm::PtrVector<reco::Photon>" />
-
-  <!--
-  <class name="edm::Ptr<reco::Jet>" />
-  <class name="edm::PtrVector<reco::Jet>" />
-  -->
-
-  <class name="edm::Ptr<reco::MET>" />
-  <class name="edm::PtrVector<reco::MET>" />
-
-  <!-- ==========================================================================================================================
               PAT Dataformats: PatObjects
        ========================================================================================================================== -->
   <!-- PAT Base Templates -->
@@ -202,7 +35,6 @@
     <field name="oldPt_" transient="true"/>     
   </class>
   <class name="pat::MHT" />
-     <class name="std::vector<SpecificCaloMETData> "/>
   <class name="pat::Particle" />
   <class name="pat::CompositeCandidate" />
   <class name="pat::PFParticle" />
@@ -316,47 +148,6 @@
   <class name="edm::reftobase::RefHolder<pat::CompositeCandidateRef>" />
   <class name="edm::reftobase::RefHolder<pat::PFParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::GenericParticleRef>" />
-  <!-- RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful? -->
-    <!-- With direct VectorHolder -->
-  <!--
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::ElectronRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::MuonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::TauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::PhotonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::JetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::METRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::ParticleRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::PFParticleRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::GenericParticleRefVector>" />
-  -->
-    <!-- With indirect holder (RefVectorHolder) -->
-  <!--
-  <class name="edm::reftobase::RefVectorHolder<pat::ElectronRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::MuonRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::TauRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::PhotonRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::JetRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::METRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::ParticleRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::PFParticleRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<pat::GenericParticleRefVector>" />
-  -->
-
-  <!-- RefToBase<AODType> from PATObjects. In addition to the ones for Candidate  -->
-  <!--
-  <class name="edm::reftobase::Holder<reco::GstElectron, pat::ElectronRef>" />
-  <class name="edm::reftobase::Holder<reco::Muon, pat::MuonRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTau, pat::TauRef>" />
-  <class name="edm::reftobase::Holder<reco::Photon, pat::PhotonRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, pat::JetRef>" />
-  <class name="edm::reftobase::Holder<reco::MET, pat::METRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::GsfElectron, pat::ElectronRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Muon, pat::MuonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::BaseTau, pat::TauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Photon, pat::PhotonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Jet, pat::JetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::MET, pat::METRefVector>" />
-  -->
 
   <!-- ==========================================================================================================================
               PAT Dataformats beyond PatObjects
@@ -394,8 +185,6 @@
   <class name="edm::Association<std::vector<pat::TriggerObject> >" />
   <class name="edm::reftobase::Holder<reco::Candidate,pat::TriggerObjectRef>" />
   <class name="edm::reftobase::RefHolder<pat::TriggerObjectRef>" />
-<!--   <class name="edm::reftobase::VectorHolder<reco::Candidate,pat::TriggerObjectRefVector>" /> -->
-<!--   <class name="edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector>" /> -->
   <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObject> > >" />
   <class name="edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > >" />
   <class name="std::pair<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >" />
@@ -415,8 +204,6 @@
   <class name="edm::Association<std::vector<pat::TriggerObjectStandAlone> >" />
   <class name="edm::reftobase::Holder<reco::Candidate,pat::TriggerObjectStandAloneRef>" />
   <class name="edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef>" />
-<!--   <class name="edm::reftobase::VectorHolder<reco::Candidate,pat::TriggerObjectStandAloneRefVector>" /> -->
-<!--   <class name="edm::reftobase::RefVectorHolder<pat::TriggerObjectStandAloneRefVector>" /> -->
   <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObjectStandAlone> > >" />
 
   <class name="pat::TriggerFilter" />
@@ -472,9 +259,6 @@
  
  </selection>
  <exclusion>
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
-   <method name="sort" />
-  </class>
   <class name="edm::OwnVector<pat::UserData, edm::ClonePolicy<pat::UserData> >">
    <method name="sort" />
   </class>

@@ -60,9 +60,6 @@
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
 
-  <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
-  <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
-
   <class name="ProjectedSiStripRecHit2D"/>
   <class name="SiPixelRecHit"/>
   <class name="std::vector<SiPixelRecHit*>"/>

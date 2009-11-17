@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.33 2009/06/15 22:44:16 chamont Exp $
+// $Id: classes.h,v 1.34 2009/09/02 15:46:10 sani Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -183,6 +183,9 @@ namespace {
 
     edm::PtrVector<reco::GsfElectron>                   pv_gsfElectron ;
     edm::Wrapper<edm::PtrVector<reco::GsfElectron> >    w_pv_gsfElectron ;
+
+    edm::Ptr<reco::Photon>	 ptr_ph;
+    edm::PtrVector<reco::Photon>	 ptrv_ph;
    } ;
 
  }

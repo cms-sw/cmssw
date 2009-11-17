@@ -14,10 +14,11 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
-#include "DataFormats/Math/interface/Point3D.h"
 
 #include <vector>
 #include <map>
@@ -40,7 +41,6 @@ namespace {
     edm::Ref<std::vector<reco::CaloTauTagInfo> >                calotti_r;
     edm::RefProd<std::vector<reco::CaloTauTagInfo> >            calotti_rp;
     edm::RefVector<std::vector<reco::CaloTauTagInfo> >          calotti_rv;
-    std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;    
 
     std::vector<reco::PFTauTagInfo>                             pftti_v;
     edm::Wrapper<std::vector<reco::PFTauTagInfo> >              pftti_w;
@@ -142,6 +142,9 @@ namespace {
     edm::Ref<std::vector<reco::HLTTau> >                       ht_r;
     edm::RefProd<std::vector<reco::HLTTau> >                   ht_rp;
     edm::RefVector<std::vector<reco::HLTTau> >                 ht_rv;
+
+    edm::Ptr<reco::BaseTau>	 ptr_t;
+    edm::PtrVector<reco::BaseTau>	 ptrv_t;
 
   };
 }

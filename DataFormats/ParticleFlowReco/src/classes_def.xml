@@ -146,9 +146,7 @@
   <class name="std::map<unsigned int, pftools::CaloRing>"/>
   <class name="std::vector<pftools::CaloRing>"/>
   <class name="pftools::CaloEllipse" />
-  <class name="std::vector<std::pair<double, double> >"/>
   <class name="pftools::CaloBox" />
-  <class name="std::map<std::pair<int, int>, double>"/>
   <class name="std::pair<unsigned int,pftools::CaloRing>" />  
   
   <class name="pftools::ParticleFiltrationDecision"/>

@@ -10,6 +10,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -213,5 +215,12 @@ namespace {
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>                 rbh_tp;
+
+    edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > vm_ptr_bti;
+    edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > w_vm_ptr_bti;
+    std::vector<reco::BaseTagInfo*> pv_bti;
+    edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> > ov_bti;
+    edm::Ptr<reco::BaseTagInfo> ptr_bti;
+    std::vector<edm::Ptr<reco::BaseTagInfo> > v_ptr_bti;
   };
 }

@@ -90,6 +90,13 @@
 
      <class name="std::vector<edm::RefToBase<reco::Track> >" />
 
+     <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
+     <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
 
+     <!-- RefToBaseProd<reco::Track> -->
+     <class name="edm::RefToBaseProd<reco::Track>" />
 
+     <!-- ValueMap<reco::Track> -->
+     <class name="edm::ValueMap<reco::TrackRefVector>" />
+     <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
   </lcgdict>

@@ -1,5 +1,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <boost/cstdint.hpp> 
+#include <map>
 #include <vector>
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
@@ -14,5 +15,7 @@ namespace {
     edm::Wrapper< edm::EDCollection<DetId> > theDIw_;
     std::vector<std::pair<DetId,float> > dummyPairFloat;
     std::pair<DetId,float>    thepair;           
+    std::map<DetId, std::pair<unsigned int, unsigned int> > dummytrkrechit2d1;
+    std::map<DetId, std::pair<unsigned long, unsigned long> > dummytrkrechit2d2;
   };
 }

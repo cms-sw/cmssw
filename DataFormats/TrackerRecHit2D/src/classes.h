@@ -27,9 +27,6 @@
 
 namespace {
   struct dictionary {
-    std::map<DetId, std::pair<unsigned int, unsigned int> > dummytrkrechit2d1;
-    std::map<DetId, std::pair<unsigned long, unsigned long> > dummytrkrechit2d2;
-
     ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
     SiStripRecHit1D a11;

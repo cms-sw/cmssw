@@ -1,3 +1,5 @@
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "Rtypes.h" 
 #include "Math/Cartesian3D.h" 
@@ -14,6 +16,7 @@
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
@@ -24,6 +27,17 @@
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
+#include <string>
+#include <vector>
+
+namespace reco {
+   typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<CandidateView,CandidateView,bool> > CandViewCandViewAssociation;
+}
 
 namespace {
   struct dictionary {
@@ -98,5 +112,18 @@ namespace {
     edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
     edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
     edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
+    reco::CandViewCandViewAssociation tpa1;
+    edm::Wrapper<reco::CandViewCandViewAssociation> tpw1;
+
+    edm::helpers::KeyVal<edm::View<reco::Candidate>, edm::View<reco::Candidate> > tpk1;
+     
+    std::pair<edm::RefToBaseProd<reco::Candidate>,double> tpa;
+    std::pair<edm::RefToBase<reco::Candidate>,double> tpaa;
+    std::pair<edm::RefToBase<reco::Candidate>,bool> tpaaaaa;
+    std::vector<std::pair<unsigned int,bool> > tpaaaaaa;
+
+    edm::Wrapper<edm::ValueMap<reco::CandidatePtr> > w_vm_cptr;
+    std::pair<std::string,edm::Ptr<reco::Candidate> > p_s_cptr;
+    std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > > v_p_s_cptr;
   };
 }

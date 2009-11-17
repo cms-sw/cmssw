@@ -3,7 +3,6 @@
   <class name="reco::RecoChargedCandidate" />
   <class name="reco::RecoEcalCandidate" />
   <class name="reco::RecoCaloTowerCandidate"/> 
-  <class name="edm::RefToBase<CaloRecHit>" />
   <class name="reco::CaloRecHitCandidate"/> 
 
   <class name="reco::FitQuality" />
@@ -26,12 +25,6 @@
   <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
-  <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >,ZDCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >,ZDCRecHit> > >" />
-  <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit> > >" />
-  <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />
-  <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit> > >" />
-  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit> > >" />
-  <class name="edm::reftobase::BaseHolder<CaloRecHit>" />
 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> >">
     <field name="transientMap_" transient="true" />
@@ -55,14 +48,11 @@
   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > >" />
   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > >" />
 
-  <class name="edm::RefToBaseProd<reco::Track>" />
   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > >" />
   <class name="edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > >" />
 
   <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
-  <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
   <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />
-  <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
 
 
 
@@ -112,6 +102,7 @@
   </class>
   <class name="edm::Wrapper<reco::IsoDepositMap>"/>
   
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
 
 </lcgdict>
  

@@ -1,22 +1,3 @@
 <lcgdict>
-   <class name="edm::Wrapper< reco::CandViewCandViewAssociation>"/>
-   <class name="reco::CandViewCandViewAssociation"/>
-
-   <class name="std::vector<std::pair<edm::RefToBase<reco::Candidate>,bool> >" />
-   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Candidate>,std::vector<std::pair<edm::RefToBase<reco::Candidate>,bool> > > >" />
-
-   <class name="edm::helpers::KeyVal<edm::RefToBase< reco::Candidate >,std::vector<std::pair<edm::RefToBase<reco::Candidate>,bool> > >" /> 
- 
-   <class name="std::pair<edm::RefToBase<reco::Candidate>,double>" />
-   <class name="std::pair<edm::RefToBaseProd<reco::Candidate>,double>" />
-
-   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
-
-
-   <class pattern="edm::KeyVal<*>" />
-   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-
-
-<class pattern="std::pair<edm::RefToBase<reco::Candidate>,bool>" />
-
+   <class name="tagandprobe::dummy"/>
 </lcgdict>

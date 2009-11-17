@@ -25,11 +25,11 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
- 
 using namespace reco;
 
 namespace {
@@ -147,6 +147,11 @@ namespace {
 
     edm::Ptr<reco::JetID> ptrjid;
     edm::PtrVector<reco::JetID> ptrvjid;
+
+    edm::Association<reco::GenJetCollection> a_gj;
+    edm::Wrapper<edm::Association<reco::GenJetCollection> > w_a_gj;
+    std::vector<reco::CaloJet::Specific> v_cj_s;
+    std::vector<reco::PFJet::Specific> v_pj_s;
   };
 }
 #endif

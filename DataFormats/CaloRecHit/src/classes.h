@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/Ref.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -14,5 +15,7 @@ namespace {
     edm::Ptr<reco::CaloCluster> p1;
     edm::PtrVector<reco::CaloCluster> pv1;
     edm::Wrapper<edm::PtrVector<reco::CaloCluster> > wpv1;
+    edm::RefToBase<CaloRecHit> rtb1;
+    edm::reftobase::Holder<CaloRecHit, edm::Ref<std::vector<CaloRecHit> > > rb8;
   };
 }

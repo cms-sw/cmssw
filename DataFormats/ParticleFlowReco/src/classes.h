@@ -136,7 +136,6 @@ namespace {
     std::vector<pftools::CalibratableElement> dummy55;
     std::vector<pftools::CandidateWrapper> dummy56;
     std::vector<pftools::CalibrationResultWrapper> dummy57;
-    std::vector<std::pair<float,float> > dummy58;
     pftools::CaloWindow dummy59;
     pftools::TestCaloWindow dummy59a;
     pftools::CaloRing dummy60;
