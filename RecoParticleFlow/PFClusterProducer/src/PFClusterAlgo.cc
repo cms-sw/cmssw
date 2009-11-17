@@ -455,19 +455,21 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   // in the position calculation (posCalcNCrystal = -1)
   // otherwise, use the user specified value
   int posCalcNCrystal = seedsintopocluster.size()>1 ? posCalcNCrystal_:-1;
+  double ns2 = std::max(1.,(double)(seedsintopocluster.size())-1.);
+  ns2 *= ns2;
     
   // Find iteratively the energy and position
   // of each pfcluster in the topological cluster
   unsigned iter = 0;
   unsigned niter = 50;
-  double diff = 1.;
+  double diff = ns2;
 
   // if(debug_) niter=2;
   vector<double> ener;
   vector<double> dist;
   vector<double> frac;
   vector<math::XYZVector> tmp;
-  while ( iter++ < niter && diff > 1E-8 ) {
+  while ( iter++ < niter && diff > 1E-8*ns2 ) {
 
     // Store previous iteration's result and reset pfclusters     
     ener.clear();
