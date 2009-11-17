@@ -1,7 +1,7 @@
 #include "DQMOffline/PFTau/interface/MatchMETBenchmark.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // #include "DQMServices/Core/interface/MonitorElement.h"
 // #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -16,6 +16,7 @@ MatchMETBenchmark::~MatchMETBenchmark() {}
 
 void MatchMETBenchmark::setup() {
 
+  //std::cout << "FL: MatchMETBenchmark.cc: start setup()" << std::endl;
   PhaseSpace ptPS;
   PhaseSpace dptOvptPS;
   PhaseSpace dptPS;
@@ -29,7 +30,7 @@ void MatchMETBenchmark::setup() {
     ptPS = PhaseSpace(100,0,1000);
     dptOvptPS = PhaseSpace( 200, -1, 1);
     dphiPS = PhaseSpace( 100, -3.2, 3.2);
-    dptPS = PhaseSpace( 100, -500, 500);
+    dptPS = PhaseSpace( 200, -500, 500);
     setPS = PhaseSpace( 300, 0.0, 3000);
     dsetPS = PhaseSpace( 200, 0.-1000, 1000);
     setOvsetPS = PhaseSpace( 500,0., 2.);
@@ -67,7 +68,7 @@ void MatchMETBenchmark::setup() {
 
   delta_ex_ = book1D("delta_ex_", 
 			   "#DeltaME_{X}",
-			   ptPS.n, -ptPS.M, ptPS.M );
+			   dptPS.n, dptPS.m, dptPS.M );
 
   RecEt_VS_TrueEt_ = book2D("RecEt_VS_TrueEt_", 
 			   ";ME_{T, true} (GeV);ME_{T}",
@@ -100,8 +101,8 @@ void MatchMETBenchmark::fillOne(const reco::MET& cand,
   
   if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) return;
   
-  // in case it happens, print an error message LogWarning
   if ( matchedCand.pt()>0.001 ) delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() - matchedCand.pt())/matchedCand.pt() );
+  else edm::LogWarning("MatchMETBenchmark") << " matchedCand.pt()<0.001";
   delta_et_VS_et_->Fill( matchedCand.pt(), cand.pt() - matchedCand.pt() );
   delta_phi_VS_et_->Fill( matchedCand.pt(), cand.phi() - matchedCand.phi() );
   delta_ex_->Fill(cand.px()-matchedCand.px());
@@ -109,6 +110,7 @@ void MatchMETBenchmark::fillOne(const reco::MET& cand,
   RecEt_VS_TrueEt_->Fill(matchedCand.pt(),cand.pt());
   delta_set_VS_set_->Fill(matchedCand.sumEt(),cand.sumEt()-matchedCand.sumEt());
   if ( matchedCand.sumEt()>0.001 ) delta_set_Over_set_VS_set_->Fill(matchedCand.sumEt(),(cand.sumEt()-matchedCand.sumEt())/matchedCand.sumEt());
+  else edm::LogWarning("MatchMETBenchmark") << " matchedCand.sumEt()<0.001";
   delta_ex_VS_set_->Fill(matchedCand.sumEt(),cand.px()-matchedCand.px());
   delta_ex_VS_set_->Fill(matchedCand.sumEt(),cand.py()-matchedCand.py());
   if ( matchedCand.sumEt()>0.001 ) RecSet_Over_TrueSet_VS_TrueSet_->Fill(matchedCand.sumEt(),cand.sumEt()/matchedCand.sumEt());

@@ -2,23 +2,12 @@
 #define RecoParticleFlow_Benchmark_MatchMETBenchmark_h
 
 #include "DQMOffline/PFTau/interface/Benchmark.h"
-
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-
 #include "DataFormats/METReco/interface/METFwd.h"
-
-// is this include necessary? 
-// check all includes 
 
 // integrate and check your benchmarks in PFRootEvent (take PFCandidateManager as an example)
 
-// integrate and check your benchmarks Validation/RecoParticleFlow (take PFCandidateManager as an example)
-
-// remove the old benchmarks from these 2 packages (python files, C++ code, ...)
-
-#include <vector>
-
+// remove the old benchmarks from these 2 packages (Validation and PFRootEvent) (python files, C++ code, ...)
 class MatchMETBenchmark : public Benchmark {
 
  public:
@@ -37,8 +26,7 @@ class MatchMETBenchmark : public Benchmark {
  protected:
   // next 3: add to MatchCandidateBenchmark? 
 
-  // (rec - true) / true = rec/true - 1 
-  TH2F*   delta_et_VS_et_; 
+  TH2F*   delta_et_VS_et_;
   TH2F*   delta_et_Over_et_VS_et_; 
 
   TH2F*   delta_phi_VS_et_; 
