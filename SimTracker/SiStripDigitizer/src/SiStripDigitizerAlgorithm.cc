@@ -89,10 +89,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // total amplitude of detector channels
   detAmpl.insert(detAmpl.begin(),numStrips,0.);
 
-  // to speed-up vector filling (only for channels with signal)
-  //  the size_t corresponds to the channel number
-  //  and NOT to the vector position (which is channel-1)
-  firstChannelWithSignal = numStrips+1;
+  firstChannelWithSignal = numStrips;
   lastChannelWithSignal  = 0;
 
   // First: loop on the SimHits
@@ -102,7 +99,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       // check TOF
       if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {
-        localFirstChannel = numStrips+1;
+        localFirstChannel = numStrips;
         localLastChannel  = 0;
         // process the hit
         theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);

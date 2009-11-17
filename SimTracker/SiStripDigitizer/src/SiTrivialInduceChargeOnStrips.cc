@@ -77,8 +77,8 @@ induce(SiChargeCollectionDrifter::collection_type collection_points,
 	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
       }
 
-      if(  affectedFromStrip < recordMinAffectedStrip  ) recordMinAffectedStrip = affectedFromStrip;
-      if( affectedUntilStrip > recordMaxAffectedStrip+1) recordMaxAffectedStrip = affectedUntilStrip-1;
+      if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;
+      if( affectedUntilStrip > recordMaxAffectedStrip ) recordMaxAffectedStrip = affectedUntilStrip;
     }
   }
   return;
