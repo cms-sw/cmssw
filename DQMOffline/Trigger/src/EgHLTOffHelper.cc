@@ -41,6 +41,7 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
   hltTag_ = conf.getParameter<std::string>("hltTag");
   beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpotProducer");
   caloTowersTag_ = conf.getParameter<edm::InputTag>("CaloTowers");
+  trigResultsTag_ = conf.getParameter<edm::InputTag>("TrigResults");
 
   eleCuts_.setup(conf.getParameter<edm::ParameterSet>("eleCuts"));
   eleLooseCuts_.setup(conf.getParameter<edm::ParameterSet>("eleLooseCuts"));
@@ -100,6 +101,30 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
     }
   }
 
+  //to make my life difficult, the scaled l1 paths are special
+  //and arent stored in trigger event
+  //to I have to figure out the path, see if it passes
+  //and then hunt down the l1 seed filter and use that to match to the pho/ele
+  //matching on l1 seed filter is not enough as that will be passed for normal 
+  //electron triggers even if pre-scale hasnt fired
+  l1PreScaledFilters_.clear();
+  l1PreScaledPaths_.clear();
+  l1PreAndSeedFilters_.clear();
+  for(size_t filterNr=0;filterNr<hltFiltersUsed_.size();filterNr++){
+    if(hltFiltersUsed_[filterNr].find("hltPreL1")==0){ //l1 prescaled path
+      l1PreScaledFilters_.push_back(hltFiltersUsed_[filterNr]);
+    }
+  }
+
+  egHLT::trigTools::translateFiltersToPathNames(l1PreScaledFilters_,l1PreScaledPaths_,hltTag_);
+  if(l1PreScaledPaths_.size()==l1PreScaledFilters_.size()){
+    for(size_t pathNr=0;pathNr<l1PreScaledPaths_.size();pathNr++){
+     
+      std::string l1SeedFilter =egHLT::trigTools::getL1SeedFilterOfPath(l1PreScaledPaths_[pathNr],hltTag_);
+     
+      l1PreAndSeedFilters_.push_back(std::make_pair(l1PreScaledFilters_[pathNr],l1SeedFilter));
+    }
+  }
 
   hltEleTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltEleTrkIsolPtMin_,hltEleTrkIsolOuterCone_,hltEleTrkIsolZSpan_,hltEleTrkIsolRSpan_,hltEleTrkIsolInnerCone_);
   hltPhoTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltPhoTrkIsolPtMin_,hltPhoTrkIsolOuterCone_,hltPhoTrkIsolZSpan_,hltPhoTrkIsolRSpan_,hltPhoTrkIsolInnerCone_);
@@ -135,6 +160,7 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
 
   //get objects
   if(!getHandle(event,triggerSummaryLabel_,trigEvt_)) return errCodes::TrigEvent; //must have this, otherwise skip event
+  if(!getHandle(event,trigResultsTag_,trigResults_)) return errCodes::TrigEvent; //re using bit to minimise bug fix code changes
   if(!getHandle(event,electronsTag_,recoEles_)) return errCodes::OffEle; //need for electrons
   if(!getHandle(event,photonsTag_, recoPhos_)) return errCodes::OffPho; //need for photons
   if(!getHandle(event,caloJetsTag_,recoJets_)) return errCodes::OffJet; //need for electrons and photons
@@ -147,7 +173,7 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
   if(!getHandle(event,hfHitsTag_, hfHits_)) return errCodes::HFRecHits;//I dont think we need hf rec-hits any more
   if(!getHandle(event,beamSpotTag_,beamSpot_)) return errCodes::BeamSpot;
   if(!getHandle(event,caloTowersTag_,caloTowers_)) return errCodes::CaloTowers;
-  
+
   
   return 0;
 }
@@ -374,8 +400,20 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho,OffPho::ClusShapeData&
 int OffHelper::setTrigInfo(egHLT::OffEvt& offEvent)
 {
   TrigCodes::TrigBitSet evtTrigBits = trigTools::getFiltersPassed(hltFiltersUsedWithNrCandsCut_,trigEvt_.product(),hltTag_);
+  //the l1 prescale paths dont have a filter with I can figure out if it passed or failed with so have to use TriggerResults
+  if(l1PreScaledPaths_.size()==l1PreScaledFilters_.size()){ //check to ensure both vectors have same number of events incase of screw ups     
+    trigNames_.init(*trigResults_); //only used here...
+    for(size_t pathNr=0;pathNr<l1PreScaledPaths_.size();pathNr++){ //now we have to check the prescaled l1 trigger paths
+      unsigned int pathIndex = trigNames_.triggerIndex(l1PreScaledPaths_[pathNr]);
+      if(pathIndex<trigResults_->size() && trigResults_->accept(pathIndex)){
+	evtTrigBits |=TrigCodes::getCode(l1PreScaledFilters_[pathNr]);
+      }    
+    }
+  }
+
   offEvent.setEvtTrigBits(evtTrigBits);
-  trigTools::setFiltersObjPasses(offEvent.eles(),hltFiltersUsed_,trigEvt_.product(),hltTag_);
-  trigTools::setFiltersObjPasses(offEvent.phos(),hltFiltersUsed_,trigEvt_.product(),hltTag_); 
+
+  trigTools::setFiltersObjPasses(offEvent.eles(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_);
+  trigTools::setFiltersObjPasses(offEvent.phos(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_); 
   return 0;
 }

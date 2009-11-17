@@ -21,9 +21,12 @@ TrigCodes::TrigBitSet trigTools::getFiltersPassed(const std::vector<std::pair<st
     }//end check if filter is present
   }//end loop over all filters
 
+
   return evtTrigs;
 
 }
+
+
 
 
 //this function runs over all parameter sets for every module that has ever run on an event in this job
@@ -166,5 +169,21 @@ void trigTools::translateFiltersToPathNames(const std::vector<std::string>& filt
     else paths.push_back(filters[filterNr]);//if cant find the path, just  write the filter
  
   }
+
+}
+
+std::string trigTools::getL1SeedFilterOfPath(const std::string& path,const std::string& hltTag)
+{
+  HLTConfigProvider hltConfig;
+  hltConfig.init(hltTag);
+ 
+  const std::vector<std::string>& modules = hltConfig.moduleLabels(path);
+
+  for(size_t moduleNr=0;moduleNr<modules.size();moduleNr++){
+    const std::string& moduleName=modules[moduleNr]; 
+    if(moduleName.find("hltL1s")==0) return moduleName; //found l1 seed module
+  }
+  std::string dummy;
+  return dummy;
 
 }

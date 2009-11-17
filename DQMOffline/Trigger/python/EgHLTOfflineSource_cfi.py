@@ -14,6 +14,7 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  #products we need
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                  hltTag = cms.string("HLT"),
+                                 TrigResults = cms.InputTag("TriggerResults","","HLT"),
                                  filterInactiveTriggers = cms.bool(True),
                                  EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
