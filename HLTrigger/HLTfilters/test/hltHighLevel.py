@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('TEST')
 
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # read back the trigger decisions
@@ -46,6 +49,13 @@ process.filter_any_star = hlt.hltHighLevel.clone(
     throw = False
     )
 
+# accept if any path succeeds (wildcard, twice '*')
+process.filter_any_doublestar = hlt.hltHighLevel.clone(
+    HLTPaths = ['p*t*'],
+    throw = False
+    )
+
+
 # accept if any path succeeds (wildcard, '?')
 process.filter_any_question = hlt.hltHighLevel.clone(
     HLTPaths = ['path_?'],
@@ -69,6 +79,13 @@ process.filter_all_explicit = hlt.hltHighLevel.clone(
 # accept if all path succeed (wildcard, '*')
 process.filter_all_star = hlt.hltHighLevel.clone(
     HLTPaths = ['p*'],
+    andOr = False,
+    throw = False
+)
+
+# accept if all path succeed (wildcard, '*')
+process.filter_all_doublestar = hlt.hltHighLevel.clone(
+    HLTPaths = ['p*t*'],
     andOr = False,
     throw = False
 )
@@ -128,19 +145,21 @@ process.end_3 = cms.Path( process.filter_3 )
 process.end_any_implicit = cms.Path( process.filter_any_implicit )
 process.end_any_explicit = cms.Path( process.filter_any_explicit )
 process.end_any_star     = cms.Path( process.filter_any_star )
+process.end_any_doublestar = cms.Path( process.filter_any_doublestar )
 process.end_any_question = cms.Path( process.filter_any_question )
 #process.end_any_filter   = cms.Path( ~ ( ~ process.filter_1 + ~ process.filter_2 + ~ process.filter_3) )
 
 process.end_all_implicit = cms.Path( process.filter_all_implicit )
 process.end_all_explicit = cms.Path( process.filter_all_explicit )
 process.end_all_star     = cms.Path( process.filter_all_star )
+process.end_all_doublestar = cms.Path( process.filter_all_doublestar )
 process.end_all_question = cms.Path( process.filter_all_question )
 process.end_all_filter   = cms.Path( process.filter_1 + process.filter_2 + process.filter_3 )
 
 process.end_wrong_name    = cms.Path( process.filter_wrong_name )
 process.end_wrong_pattern = cms.Path( process.filter_wrong_pattern )
 
-# define and EndPath to analyze all other path results
+# define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
     HLTriggerResults = cms.InputTag( 'TriggerResults','','TEST' )
 )
