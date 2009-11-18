@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.64 2009/11/04 18:09:45 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.65 2009/11/10 14:36:23 amraktad Exp $
 //
 
 // system include files
@@ -121,7 +121,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          ev->AddOverlayElement(m_overlay);
          m_overlay->SetCaloLego(m_lego);
          m_overlay->SetShowScales(1); //temporary
-         m_overlay->SetScalePosition(0.88, 0.6);
+         m_overlay->SetScalePosition(0.8, 0.6);
          m_overlay->SetScaleColorTransparency(kWhite, 0);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
