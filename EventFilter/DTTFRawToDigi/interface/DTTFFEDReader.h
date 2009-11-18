@@ -5,8 +5,8 @@
  *   L1 DT Track Finder Raw-to-Digi
  *
  *
- *   $Date: 2008/08/05 11:12:07 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/10/13 07:43:52 $
+ *   $Revision: 1.6 $
  *
  *   J. Troconiz  UAM Madrid
  *   E. Delmeire  UAM Madrid
@@ -92,7 +92,7 @@ class DTTFFEDReader : public edm::EDProducer {
 
   int wheel(int channel);
 
-  void calcCRC(long myD1, long myD2, int &myC);
+  void calcCRC(int myD1, int myD2, int &myC);
 
   edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 

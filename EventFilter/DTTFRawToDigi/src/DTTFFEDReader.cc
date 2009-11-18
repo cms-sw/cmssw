@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2009/05/28 15:54:29 $
-//   $Revision: 1.14 $
+//   $Date: 2009/05/28 16:20:59 $
+//   $Revision: 1.15 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -91,14 +91,14 @@ void DTTFFEDReader::analyse(edm::Event& e) {
 void DTTFFEDReader::process(edm::Event& e) {
 
   // Container
-  vector<long> DTTFWordContainer; 
-  vector<long>::iterator DTTFiterator;
+  vector<int> DTTFWordContainer; 
+  vector<int>::iterator DTTFiterator;
 
   // Header constituents
   int BOEevTy, DTTFId;
 
   // DTTF Payload constituents 
-  long DTTFWord;
+  int DTTFWord;
   int DTTFChan, bitsID;
   int addr1[2] = { 3,  3};
   int addr2[2] = {15, 15};
@@ -115,12 +115,12 @@ void DTTFFEDReader::process(edm::Event& e) {
   FEDRawData dttfdata = data->FEDData(0x030C);
   if ( dttfdata.size() == 0 ) return;
 
-  long* dataWord1 = new long;
-  long* dataWord2 = new long;
+  int* dataWord1 = new int;
+  int* dataWord2 = new int;
   unsigned char* LineFED=dttfdata.data();
-  *dataWord2=*((long*)LineFED);
+  *dataWord2=*((int*)LineFED);
   LineFED+=4;
-  *dataWord1=*((long*)LineFED);
+  *dataWord1=*((int*)LineFED);
   int lines  = 1; // already counting header
 
   BOEevTy = ((*dataWord1)&0xFF000000)>>24; // positions 57 ->64
@@ -141,9 +141,9 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> DTTF data 
 
   LineFED+=4;
-  *dataWord2=*((long*)LineFED);
+  *dataWord2=*((int*)LineFED);
   LineFED+=4;
-  *dataWord1=*((long*)LineFED);
+  *dataWord1=*((int*)LineFED);
   int chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
   lines++;
 
@@ -157,9 +157,9 @@ void DTTFFEDReader::process(edm::Event& e) {
     DTTFWordContainer.push_back(DTTFWord);
 
     LineFED+=4;
-    *dataWord2=*((long*)LineFED);
+    *dataWord2=*((int*)LineFED);
     LineFED+=4;
-    *dataWord1=*((long*)LineFED);
+    *dataWord1=*((int*)LineFED);
     chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
     lines++;
 
@@ -524,7 +524,7 @@ int DTTFFEDReader::wheel( int channel ){
   return myWheel;
 }
 
-void DTTFFEDReader::calcCRC(long myD1, long myD2, int &myC){
+void DTTFFEDReader::calcCRC(int myD1, int myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 

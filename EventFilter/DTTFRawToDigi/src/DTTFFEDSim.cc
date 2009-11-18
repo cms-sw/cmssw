@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2009/06/01 06:56:32 $
-//   $Revision: 1.11 $
+//   $Date: 2009/07/29 16:42:22 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -73,8 +73,8 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   dttfdata.resize(lines*8); // size in bytes
   unsigned char* LineFED=dttfdata.data();
 
-  long* dataWord1 = new long;
-  long* dataWord2 = new long;
+  int* dataWord1 = new int;
+  int* dataWord2 = new int;
 
   //--> Header
 
@@ -84,9 +84,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
   int newCRC =  0xFFFF;
   calcCRC(*dataWord1, *dataWord2, newCRC);
-  *((long*)LineFED)=*dataWord2; 
+  *((int*)LineFED)=*dataWord2; 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord1; 
+  *((int*)LineFED)=*dataWord1; 
 
   //--> DTTF data 
 
@@ -134,9 +134,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
       calcCRC(*dataWord1, *dataWord2, newCRC);
       LineFED+=4;
-      *((long*)LineFED)=*dataWord2; 
+      *((int*)LineFED)=*dataWord2; 
       LineFED+=4;
-      *((long*)LineFED)=*dataWord1; 
+      *((int*)LineFED)=*dataWord1; 
     }
   }
   //Input
@@ -171,9 +171,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;
-    *((long*)LineFED)=*dataWord2; 
+    *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
-    *((long*)LineFED)=*dataWord1; 
+    *((int*)LineFED)=*dataWord1; 
   }
   //Input
 
@@ -199,9 +199,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;
-    *((long*)LineFED)=*dataWord2; 
+    *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
-    *((long*)LineFED)=*dataWord1; 
+    *((int*)LineFED)=*dataWord1; 
 
     TSId = ( tstrk->TrkTag() == 0 ) ? 0xCFFE : 0xDFFE;
 
@@ -216,9 +216,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;
-    *((long*)LineFED)=*dataWord2; 
+    *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
-    *((long*)LineFED)=*dataWord1; 
+    *((int*)LineFED)=*dataWord1; 
 
     channelNr = channel(0, tstrk->scNum(), tstrk->bx());
     if ( channelNr == 255 ) continue;
@@ -243,9 +243,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;
-    *((long*)LineFED)=*dataWord2; 
+    *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
-    *((long*)LineFED)=*dataWord1; 
+    *((int*)LineFED)=*dataWord1; 
   }
   //Output
 
@@ -260,9 +260,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   *dataWord2 += (newCRC&0xFFFF)<<16;
 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord2; 
+  *((int*)LineFED)=*dataWord2; 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord1; 
+  *((int*)LineFED)=*dataWord1; 
 
   delete dataWord1;
   delete dataWord2;
@@ -326,7 +326,7 @@ int DTTFFEDSim::wheel( int channel ){
   return myWheel;
 }
 
-void DTTFFEDSim::calcCRC(long myD1, long myD2, int &myC){
+void DTTFFEDSim::calcCRC(int myD1, int myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 
