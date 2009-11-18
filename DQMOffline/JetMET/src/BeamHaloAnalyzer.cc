@@ -64,9 +64,9 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   dqm = edm::Service<DQMStore>().operator->();
   if( dqm ) {
   
-    // Output File
-    dqm->setCurrentFolder(FolderName);
+
     // EcalHaloData
+    dqm->setCurrentFolder(FolderName+"/EcalHaloData");
     ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
     ME["EcalHaloData_PhiWedgeEnergy"]       = dqm->book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
     ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
@@ -78,6 +78,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["EcalHaloData_SuperClusterShowerShapes"]  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
     
     // HcalHaloData
+    dqm->setCurrentFolder(FolderName+"/HcalHaloData");    
     ME["HcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
     ME["HcalHaloData_PhiWedgeEnergy"]       = dqm->book1D("HcalHaloData_PhiWedgeEnergy", "", 50,-0.5,199.5);
     ME["HcalHaloData_PhiWedgeConstituents"] = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
@@ -88,17 +89,20 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["HcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("HcalHaloData_PhiWedgeMinVsMaxTime","" , 50,-100.0, 100.0, 50, -100.0, 100.0);
     
     // CSCHaloData
+    dqm->setCurrentFolder(FolderName+"/CSCHaloData");
     ME["CSCHaloData_TrackMultiplicity"]  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
     ME["CSCHaloData_TrackMultiplicityMEPlus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
     ME["CSCHaloData_TrackMultiplicityMEMinus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-    //ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+    ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
     ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
     ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
     ME["CSCHaloData_HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_HaloTriggersMEPlus", "", 10, -0.5, 9.5);
     ME["CSCHaloData_HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
     ME["CSCHaloData_HaloTriggers"]  = dqm->book1D("CSCHaloData_HaloTriggers", "", 10, -0.5, 9.5);
     ME["CSCHaloData_CaloPointingHaloTrackMultiplicity"] = dqm->book1D("CSCHaloData_CaloPointingHaloTrackMultiplicity","", 10, -0.5, 9.5 );
+
     // GlobalHaloData
+    dqm->setCurrentFolder(FolderName+"/GlobalHaloData");
     ME["GlobalHaloData_MExCorrection"]  = dqm->book1D("GlobalHaloData_MExCorrection", "" , 200, -200., 200.);
     ME["GlobalHaloData_MEyCorrection"]  = dqm->book1D("GlobalHaloData_MEyCorrection", "" , 200, -200., 200.);
     ME["GlobalHaloData_SumEtCorrection"] = dqm->book1D("GlobalHaloData_SumEtCorrection", "" , 200, -0.5, 399.5);
@@ -118,8 +122,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
 
-
     // Extra
+    dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
     ME["Extra_CSCActivityWithMET"]= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",1);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",2);
@@ -129,7 +133,6 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 2);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 1);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
-    
     ME["Extra_HcalToF"]  = dqm->book2D("HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
     ME["Extra_HcalToF_HaloId"]  = dqm->book2D("HcalToF","", 83,-41.5,41.5 , 1000, -125., 125.); 
     ME["Extra_EcalToF"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 1000, -125., 125.); 
@@ -151,26 +154,28 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
 
   // Get BeamHalo Muon Collection from Cosmic Muon Reconstruction 
+  /*
   edm::Handle<reco::MuonCollection> TheBeamHaloMuons;
   iEvent.getByLabel(IT_BeamHaloMuon,TheBeamHaloMuons);
   if( TheBeamHaloMuons.isValid() )
     {
       for( reco::MuonCollection::const_iterator iMuon = TheBeamHaloMuons->begin() ; iMuon != TheBeamHaloMuons->end(); iMuon++)
         {
-
         }
     }
+  */
 
   //Get Collision Stand-Alone Muons
+  /*
   edm::Handle<reco::TrackCollection> TheSAMuons;
   iEvent.getByLabel( IT_CollisionStandAloneMuon, TheSAMuons);
-
   if( TheSAMuons.isValid() )
     {
       for( reco::TrackCollection::const_iterator sa = TheSAMuons->begin() ; sa != TheSAMuons->end() ; sa++ )
 	{
 	}
     }
+  */
 
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
   edm::Handle< reco::TrackCollection > TheCosmics;
@@ -217,13 +222,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //Get CSC RecHits
   Handle<CSCRecHit2DCollection> TheCSCRecHits;
   iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
-
   bool CSCRecHitPlus = false; 
   bool CSCRecHitMinus = false;
   if( TheCSCRecHits.isValid() )
     {
-    
-
       for(CSCRecHit2DCollection::const_iterator iCSCRecHit = TheCSCRecHits->begin();   iCSCRecHit != TheCSCRecHits->end(); iCSCRecHit++ )
 	{
 	  DetId TheDetUnitId(iCSCRecHit->geographicalId());
@@ -241,8 +243,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
   //iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
   
-
-
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
   iEvent.getByLabel(IT_EBRecHit, TheEBRecHits);
@@ -261,32 +261,30 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   
   //Get EE RecHits
+  /*
   edm::Handle<EERecHitCollection> TheEERecHits;
   iEvent.getByLabel(IT_EERecHit, TheEERecHits);
-  int EEHits = 0;
   if( TheEERecHits.isValid() )
     {
       for( EERecHitCollection::const_iterator iEERecHit = TheEERecHits->begin() ; iEERecHit != TheEERecHits->end(); iEERecHit++)
 	{
 	  if( iEERecHit->energy() < 0.2 ) continue;
-	  
-
-	  EEHits++;
 	}
     }
+  */
 
   //Get ES RecHits
+  /*
   edm::Handle<ESRecHitCollection> TheESRecHits;
   iEvent.getByLabel(IT_ESRecHit, TheESRecHits);
-  int ESHits=0;
   if( TheESRecHits.isValid() )
     {
       for( ESRecHitCollection::const_iterator iESRecHit = TheESRecHits->begin() ; iESRecHit != TheESRecHits->end(); iESRecHit++)
 	{
 	  if( iESRecHit->energy() < 0.2 ) continue;
-	  ESHits++;
 	}
     }
+  */
 
   //Get HB/HE RecHits
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
@@ -302,6 +300,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   //Get HF RecHits
+  /*
   edm::Handle<HFRecHitCollection> TheHFRecHits;
   iEvent.getByLabel(IT_HFRecHit, TheHFRecHits);
   if( TheHFRecHits.isValid() )
@@ -310,8 +309,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	}
     }
-  
+  */
+
   //Get HO RecHits
+  /*
   edm::Handle<HORecHitCollection> TheHORecHits;
   iEvent.getByLabel(IT_HORecHit, TheHORecHits);
   if( TheHORecHits.isValid() )
@@ -320,8 +321,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	}
     }
-  
+  */
+
   //Get ECAL Barrel SuperClusters                                                                                                                         
+  /*
   edm::Handle<reco::SuperClusterCollection> TheSuperClusters;
   iEvent.getByLabel(IT_SuperCluster, TheSuperClusters);
   if( TheSuperClusters.isValid() )
@@ -329,10 +332,11 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for( SuperClusterCollection::const_iterator iSCluster = TheSuperClusters->begin() ; iSCluster != TheSuperClusters->end() ; iSCluster++ )
         {
         }
-      
     }
+  */
   
   // Get Photons
+  /*
   edm::Handle<reco::PhotonCollection> ThePhotons;
   iEvent.getByLabel(IT_Photon, ThePhotons);
   if(ThePhotons.isValid())
@@ -341,9 +345,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	}
     }
-  
+  */
  
   //Get CaloTowers
+  /*
   edm::Handle<edm::View<Candidate> > TheCaloTowers;
   iEvent.getByLabel(IT_CaloTower,TheCaloTowers);
   for( edm::View<Candidate>::const_iterator iCandidate = TheCaloTowers->begin() ; iCandidate != TheCaloTowers->end() ; iCandidate++ )
@@ -351,10 +356,11 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const Candidate* c = &(*iCandidate);
       if ( c )
 	{
-	  const CaloTower* iTower = dynamic_cast<const CaloTower*> (c);
+	//  const CaloTower* iTower = dynamic_cast<const CaloTower*> (c);
 	}
     }
-
+  */
+  
   //Get MET
   edm::Handle< reco::CaloMETCollection > TheCaloMET;
   iEvent.getByLabel(IT_met, TheCaloMET);
