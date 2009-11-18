@@ -190,6 +190,15 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
    Handle<ESRawDataCollection> dccs;
    Handle<ESLocalRawDataCollection> kchips;
 
+   // Fill # of events
+   meDCCErr_->Fill(575, 2, 1);
+   meDCCCRCErr_->Fill(575, 2, 1);
+   meOptoRX_->Fill(575, 2, 1);
+   meOptoBC_->Fill(575, 2, 1);
+   meFiberBadStatus_->Fill(575, 36, 1);
+   meFiberOff_->Fill(575, 36, 1);
+   meEVDR_->Fill(575, 36, 1);
+
    // DCC 
    vector<int> fiberStatus;
    if ( e.getByLabel(dccCollections_, dccs) ) {

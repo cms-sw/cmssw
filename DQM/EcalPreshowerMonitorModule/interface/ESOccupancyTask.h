@@ -1,14 +1,10 @@
 #ifndef ESOccupancyTask_H
 #define ESOccupancyTask_H
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//
-// class decleration
-//
 class MonitorElement;
 class DQMStore;
 
@@ -33,7 +29,7 @@ class ESOccupancyTask : public edm::EDAnalyzer {
   DQMStore* dqmStore_;
   MonitorElement* hRecOCC_[2][2];
   MonitorElement* hRecNHit_[2][2];
-  MonitorElement* hDigiOCC_[2][2];
+  MonitorElement* hEnDensity_[2][2];
   MonitorElement* hDigiNHit_[2][2];
   MonitorElement* hEng_[2][2];
   MonitorElement* hEvEng_[2][2];

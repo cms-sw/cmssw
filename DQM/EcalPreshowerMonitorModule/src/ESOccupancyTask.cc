@@ -2,24 +2,18 @@
 #include <fstream>
 #include <iostream>
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQM/EcalPreshowerMonitorModule/interface/ESOccupancyTask.h"
 
 #include "TStyle.h"
@@ -29,11 +23,10 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
-{
+ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
 
-   rechitlabel_    = ps.getParameter<InputTag>("RecHitLabel");
-   digilabel_    	= ps.getParameter<InputTag>("DigiLabel");
+   rechitlabel_ = ps.getParameter<InputTag>("RecHitLabel");
+   digilabel_   = ps.getParameter<InputTag>("DigiLabel");
    prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
 
    dqmStore_	= Service<DQMStore>().operator->();
@@ -46,12 +39,12 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
 	 hRecNHit_[i][j]=0;
 	 hEng_[i][j]=0;
 	 hEvEng_[i][j]=0;
-	 hDigiOCC_[i][j]=0;
+	 hEnDensity_[i][i]=0;
 	 hDigiNHit_[i][j]=0;
       }
    }
 
-   for(int i = 0; i<2; i++){
+   for(int i = 0; i<2; i++) {
       hE1E2_[i]=0;
    }
 
@@ -69,10 +62,10 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
 	 hRecOCC_[i][j]->setAxisTitle("Si Y", 2);
 
 	 //Bin 40,40 is used to save eumber of event for scaling.
-	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
-	 hDigiOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
-	 hDigiOCC_[i][j]->setAxisTitle("Si X", 1);
-	 hDigiOCC_[i][j]->setAxisTitle("Si Y", 2);
+	 sprintf(histo, "ES Energy Density Z %d P %d", iz, j+1);
+	 hEnDensity_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+	 hEnDensity_[i][j]->setAxisTitle("Si X", 1);
+	 hEnDensity_[i][j]->setAxisTitle("Si Y", 2);
 
 	 sprintf(histo, "ES RecHit 1D Occupancy Z %d P %d", iz, j+1);
 	 hRecNHit_[i][j] = dqmStore_->book1D(histo, histo, 30,0,300);
@@ -145,9 +138,12 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        int j = plane-1;
        
        sum_RecHits[i][j]++;
-       sum_Energy[i][j]+=hitItr->energy();
+       sum_Energy[i][j] += hitItr->energy();
        hRecOCC_[i][j]->Fill(ix, iy);
-       if(hitItr->energy() != 0) hEng_[i][j]->Fill(hitItr->energy());
+       if(hitItr->energy() != 0) {
+	 hEng_[i][j]->Fill(hitItr->energy());
+	 hEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
+       }
        
      }
    } else {
@@ -173,7 +169,6 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        int j = plane-1;
        
        sum_DigiHits[i][j]++;
-       hDigiOCC_[i][j]->Fill(ix, iy, dataframe.sample(1).adc());
        
      }
    } else {
@@ -190,7 +185,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
 	 //Save eCount_ for Scaling
 	 hRecOCC_[i][j]->setBinContent(40,40,eCount_);
-	 hDigiOCC_[i][j]->setBinContent(40,40,eCount_);
+	 hEnDensity_[i][j]->setBinContent(40,40,eCount_);
       }
    }
 
