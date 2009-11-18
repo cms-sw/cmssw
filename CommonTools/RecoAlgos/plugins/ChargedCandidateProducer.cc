@@ -1,11 +1,11 @@
 /** \class ChargedCandidateProducer
  *
  * Framework module that produces a collection
- * of candidates with a Track compoment
+ * of candidates with a Track Component
  *
  * \author Steven Lowette
  *
- * $Id$
+ * $Id: ChargedCandidateProducer.cc,v 1.1 2009/11/17 12:01:31 lowette Exp $
  *
  */
 
