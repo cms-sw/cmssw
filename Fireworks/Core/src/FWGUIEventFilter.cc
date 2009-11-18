@@ -12,11 +12,16 @@ const TGPicture* FWGUIEventFilter::m_icon_add = 0;
 
 FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
+   m_origOr(false),
+   m_applyAction(0),
+   m_finishEditAction(0),
    m_validator(0),
    m_selectionFrameParent(0),
    m_selectionFrame(0),
-   m_orBtn(0)
+   m_btnGroup(false)
 {  
+   SetWindowName("Event Filters");
+
    TGVerticalFrame* v1 = new TGVerticalFrame(this);
    AddFrame(v1, new TGLayoutHints(kLHintsExpandX |kLHintsExpandY));
 
@@ -25,10 +30,10 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
    v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 1, 1, 1, 1));
 
-   TGButtonGroup* cont = new TGButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:");
-   m_orBtn = new TGRadioButton(cont, "OR", 1);
-   new TGRadioButton(cont, "AND", 2);
-   headerFrame->AddFrame(cont, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 3, 0, 0));
+   m_btnGroup = new TGButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:");
+   new TGRadioButton(m_btnGroup, "OR",  1);
+   new TGRadioButton(m_btnGroup, "AND", 2);
+   headerFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 3, 0, 0));
   
    //-------------------- selection header
 
@@ -57,42 +62,87 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TQObject::Connect(addButton, "Clicked()", "FWGUIEventFilter",  this, "newEntry()");
 
    //-------------------- external actions
+   m_finishEditAction = new CSGAction(this, "Finish");
 
    TGHorizontalFrame* btnFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
    v1->AddFrame(btnFrame, new TGLayoutHints(kLHintsExpandX|kLHintsBottom));
 
    m_applyAction = new CSGAction(this, "Apply");
-   m_applyAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsRight, 1, 1, 1, 1) );
+   m_applyAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2) );
+
+   TGTextButton* revert = new TGTextButton(btnFrame," Revert ");
+   btnFrame->AddFrame(revert, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
+   revert->Connect("Clicked()","FWGUIEventFilter", this, "revert()");
 
    TGTextButton* ok = new TGTextButton(btnFrame," OK ");
-   btnFrame->AddFrame(ok, new TGLayoutHints(kLHintsRight, 1, 1, 1, 1));
+   btnFrame->AddFrame(ok, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
    ok->Connect("Clicked()","FWGUIEventFilter", this, "filterOK()");
 
    TGTextButton* cancel = new TGTextButton(btnFrame," Cancel ");
-   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsRight, 1, 1, 1, 1));
+   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsRight, 4, 2, 2, 2));
    cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 }
+
+//______________________________________________________________________________
 
 void FWGUIEventFilter::CloseWindow()
 {
    m_selectionFrameParent->RemoveFrame(m_selectionFrame);
    m_selectionFrame = 0;
    
+   FWGUIEventSelector* gs;
    for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-      delete *i;
-      m_guiSelectors.clear();   
+   { 
+      gs = *i;
+      delete gs;
+   }
+
+   m_guiSelectors.clear();   
       
    delete m_validator;
    m_validator = 0;
    
    UnmapWindow();
+   m_finishEditAction->activated();
 }
 
-void FWGUIEventFilter::filterOK()
+//______________________________________________________________________________
+
+void FWGUIEventFilter::revert()
 {
-   m_applyAction->activated();
-   CloseWindow();
+   m_btnGroup->SetButton( m_origOr ? 1 : 2);
+
+   std::list<FWEventSelector*> orig;
+   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+   {
+      if ((*i)->origSelector())
+         orig.push_back((*i)->origSelector());
+   }
+
+   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+   { 
+      m_selectionFrame->RemoveFrame(*i);
+   }
+
+   FWGUIEventSelector* gs;
+   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+   { 
+      gs = *i;
+      delete gs;
+   }
+   m_guiSelectors.clear();
+
+
+   // add
+   for(std::list<FWEventSelector*>::iterator i = orig.begin(); i != orig.end(); ++i)
+      addSelector(*i);
+
+   MapSubwindows();
+   Layout();
+   gClient->NeedRedraw(this);
 }
+
+//______________________________________________________________________________
  
 void FWGUIEventFilter::addSelector(FWEventSelector* sel)
 {
@@ -103,10 +153,14 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel)
    m_guiSelectors.push_back(es);
 }
 
+//______________________________________________________________________________
+
 void FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR)
 {
    m_validator = new FWHLTValidator(*event);
-   m_orBtn->SetOn(isLogicalOR, kFALSE);
+
+   m_origOr = isLogicalOR;
+   m_btnGroup->SetButton( m_origOr ? 1 : 2);
 
    assert(m_selectionFrame == 0);
    m_selectionFrame = new TGVerticalFrame(m_selectionFrameParent);
@@ -119,6 +173,8 @@ void FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* 
    Layout();
    MapWindow();
 }
+
+//______________________________________________________________________________
 
 void FWGUIEventFilter::deleteEntry(FWGUIEventSelector* sel)
 {
@@ -139,5 +195,14 @@ void FWGUIEventFilter::newEntry()
 
 bool FWGUIEventFilter::isLogicalOR()
 {
-   return m_orBtn->GetState();
+   //return m_orBtn->GetState();
+    printf("or %d\n", m_btnGroup->GetButton(1)->GetState());
+
+   return m_btnGroup->GetButton(1)->GetState();
+}
+
+void FWGUIEventFilter::filterOK()
+{
+   m_applyAction->activated();
+   CloseWindow();
 }

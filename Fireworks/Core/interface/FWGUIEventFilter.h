@@ -12,6 +12,7 @@ class TGTransientFrame;
 class TGCompositeFrame;
 class TGTextButton;
 class FWGUIEventSelector;
+class TGButtonGroup;
 
 class FWGUIEventFilter: public TGTransientFrame,
                         CSGActionSupervisor
@@ -23,11 +24,13 @@ public:
    void show(std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR);
    
    CSGAction* m_applyAction;     
-   
+   CSGAction* m_finishEditAction; 
+
    std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
    bool isLogicalOR();
    
    void filterOK();
+   void revert();
    
    void newEntry();
    void deleteEntry(FWGUIEventSelector*);
@@ -45,6 +48,7 @@ private:
    
    TGCompositeFrame* m_selectionFrameParent;
    TGCompositeFrame* m_selectionFrame;
-   TGTextButton*     m_orBtn;
+   bool              m_origOr;
+   TGButtonGroup*    m_btnGroup;
 };
 
