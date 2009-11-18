@@ -8003,7 +8003,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
-process.GlobalTag.globaltag = 'STARTUP3X_V13::All'
+process.GlobalTag.globaltag = 'STARTUP3X_V14::All'
 
 
 # Automatic addition of the customisation function
