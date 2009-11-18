@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.20 2009/09/01 10:08:31 dellaric Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.21 2009/11/03 09:57:38 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -194,6 +194,13 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Insert a monitoring run object.  Nothing is committed in the event of an exception
    */
   void insertMonRunIOV(MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
+  /**
+   *  Insert a DCU IOV object.  Nothing is committed in the event of an exception
+   */
+  void insertDCUIOV(DCUIOV* iov)
     throw(std::runtime_error);
 
 
