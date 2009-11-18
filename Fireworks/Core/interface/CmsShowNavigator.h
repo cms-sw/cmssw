@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.29 2009/11/14 11:31:13 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.30 2009/11/17 22:24:32 amraktad Exp $
 //
 
 // system include files
@@ -33,9 +33,37 @@ namespace edm {
 class CmsShowNavigator : public FWConfigurable
 {
 private:
-   typedef std::deque<FWFileEntry*>       FileQueue_t;
-   typedef FileQueue_t::iterator          FileQueue_i;
-   typedef FileQueue_t::reverse_iterator  FileQueue_ri;
+   typedef std::deque<FWFileEntry*> FQBase_t;
+   typedef FQBase_t::iterator       FQBase_i;
+
+
+   struct FileQueue_t : public FQBase_t
+   {
+      struct iterator : public FQBase_i
+      {
+         bool m_isSet;
+
+         iterator() : m_isSet(false) {}
+         iterator(FQBase_i i) : FQBase_i(i), m_isSet(true) {}
+
+         iterator& previous(FileQueue_t& cont)
+         {
+            // Go back one element, set to end() when falling off the end.
+            if (*this == cont.begin())
+              *this = cont.end();
+            else
+               FQBase_i::operator--();
+            return *this;
+         }
+      };
+
+      FileQueue_t() : FQBase_t() {}
+
+      iterator begin() { return iterator(FQBase_t::begin()); }
+      iterator end()   { return iterator(FQBase_t::end()); }
+   };
+
+   typedef FileQueue_t::iterator FileQueue_i;
 
 public:
    CmsShowNavigator(const CmsShowMain &);

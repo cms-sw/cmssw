@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.47 2009/11/14 12:48:43 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.49 2009/11/17 22:24:32 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -47,7 +47,6 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_main(main),
    m_guiFilter(0)
 { 
-   m_currentFile = m_files.begin();
 }
 
 CmsShowNavigator::~CmsShowNavigator()
@@ -74,6 +73,8 @@ CmsShowNavigator::openFile(const std::string& fileName)
       
       FWFileEntry* newFile = new FWFileEntry(fileName);
       m_files.push_back(newFile);
+      if (!m_currentFile.m_isSet)
+         setCurrentFile(m_files.begin());
    
       // add selectors in new file
       for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
@@ -117,6 +118,8 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
          printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
    
       m_files.push_back(newFile);
+      if (!m_currentFile.m_isSet)
+         setCurrentFile(m_files.begin());
 
       // update file filters
       for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
@@ -280,15 +283,15 @@ CmsShowNavigator::previousSelectedEvent()
    }
    else
    {
-      FileQueue_ri i(m_currentFile); //  ++i; not needed for reverse iterator
-      while (i != m_files.rend())
+      FileQueue_i i(m_currentFile); i.previous(m_files);
+      while (i != m_files.end())
       {
          if ((*i)->hasSelectedEvents())
          {
-            goTo(i.base() - 1, (*i)->firstSelectedEvent());
+            goTo(i, (*i)->lastSelectedEvent());
             return true;
          }
-         ++i;
+         i.previous(m_files);
       }
    }
    return false;
