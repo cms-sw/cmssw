@@ -496,8 +496,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 	}
     }
 
-  if (0== (ievt_ % dfmon_checkNevents))
-    UpdateMEs();
+  //if (0== (ievt_ % dfmon_checkNevents))
+  //  UpdateMEs();
   //Transfer this event's problem info to 
   for (unsigned int depth=0; depth<4; ++depth)
     {
@@ -1193,6 +1193,10 @@ void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
     problemfound[myeta][myphi-1][mydepth-1] = true;
 }   // void HcalDataFormatMonitor::mapChannproblem(...)
 
+void HcalDataFormatMonitor::endLuminosityBlock(void) {
+  UpdateMEs();
+  return;
+}
 
 void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int x=0; x<THREE_FED; x++)

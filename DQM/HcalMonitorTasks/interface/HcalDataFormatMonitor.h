@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/11/03 16:28:16 $
- * $Revision: 1.54 $
+ * $Date: 2009/11/11 20:54:29 $
+ * $Revision: 1.55 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -65,7 +65,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 	     ?(HcalDetId::Undefined)
 	     :(hashedHcalDetId_[thehash]));
   };
-
+  void endLuminosityBlock();
   void UpdateMEs ();  //Prescalable copy into MonitorElements
 
  private: 
