@@ -65,9 +65,6 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   if( dqm ) {
   
     // Output File
-    OutputFile = new TFile(OutputFileName.c_str(),"RECREATE");
-    OutputFile->cd();
-    
     dqm->setCurrentFolder(FolderName);
     // EcalHaloData
     ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
@@ -594,8 +591,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 void BeamHaloAnalyzer::endJob()
 {
-  OutputFile->cd();
-  OutputFile->Close();
+
 }
 
 BeamHaloAnalyzer::~BeamHaloAnalyzer(){

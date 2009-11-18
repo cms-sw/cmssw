@@ -202,7 +202,7 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){};
+  virtual void endRun(const edm::Run&, const edm::EventSetup&){ dqm->save(OutputFileName);}
 
   edm::InputTag IT_L1MuGMTReadout;
 
@@ -234,7 +234,6 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   edm::InputTag IT_GlobalHaloData;
 
   //Output File
-  TFile *OutputFile;
   std::string OutputFileName;
   std::string FolderName;
 
