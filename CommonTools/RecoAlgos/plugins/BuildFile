@@ -10,7 +10,6 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/HcalRecHit>
   <use name=SimDataFormats/TrackingAnalysis>
-  <use name=CommonTools/RecoUtils>
   <use name=CommonTools/CandAlgos>
   <use name=CommonTools/RecoAlgos>
   <use name=CommonTools/UtilAlgos>
