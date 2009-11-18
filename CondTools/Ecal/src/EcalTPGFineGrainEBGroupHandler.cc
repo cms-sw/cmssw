@@ -198,7 +198,8 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 	        	int smid=ecid_xt.getID1();
 	        	// TT number
 	        	int towerid=ecid_xt.getID2();
-                
+
+			/*                
 			char identTT[10];
 			sprintf(identTT,"%d%d", smid, towerid);
 	        
@@ -207,8 +208,19 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 		
 			unsigned int towerEBId = 0;
 			towerEBId = atoi(S.c_str());
+
+			*/
+
+			int tow_eta=(towerid-1)/4; 
+			int tow_phi=((towerid-1)-tow_eta*4);
+
+			int axt=(tow_eta*5)*20 + tow_phi*5 +1 ;
+
+			EBDetId id(smid, axt, EBDetId::SMCRYSTALMODE ) ;
+			const EcalTrigTowerDetId towid= id.tower();
+			
 				
-                	fgrMap->setValue(towerEBId, rd_fgr.getFgrGroupId());
+                	fgrMap->setValue(towid.rawId() , rd_fgr.getFgrGroupId());
 	        	++itowers;
 	      	     }
 	    	   }

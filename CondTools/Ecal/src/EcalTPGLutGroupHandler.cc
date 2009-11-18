@@ -6,13 +6,27 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigLUTDat.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+
+
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+
+
 
 #include<iostream>
 #include<fstream>
@@ -50,7 +64,34 @@ popcon::EcalTPGLutGroupHandler::~EcalTPGLutGroupHandler()
 void popcon::EcalTPGLutGroupHandler::getNewObjects()
 {
 
+
+	using namespace edm;
+	using namespace std;
+
 	edm::LogInfo("EcalTPGLutGroupHandler") << "Started GetNewObjects!!!";
+
+
+	/*
+	// geometry
+	ESHandle<CaloGeometry> theGeometry;
+	ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
+	evtSetup.get<CaloGeometryRecord>().get( theGeometry );
+	evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+	evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+	evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
+	theEndcapGeometry_ = &(*theEndcapGeometry_handle);
+	theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+
+	// electronics mapping
+	ESHandle< EcalElectronicsMapping > ecalmapping;
+	evtSetup.get< EcalMappingRcd >().get(ecalmapping);
+	theMapping_ = ecalmapping.product();
+
+	const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+
+	*/
+
+
 
 	//check whats already inside of database
 	if (tagInfo().size){
@@ -128,11 +169,20 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 	unsigned long irun;
 	if(num_runs>0){
 
+
+	  // going to query the ecal logic id 
+	    vector<EcalLogicID> my_TTEcalLogicId_EE;
+	    my_TTEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "EE_trigger_tower",
+						    1, 200,
+						    1, 70,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_offline_towerid",12 );
+	    std::cout <<" GOT the logic ID for the EE trigger towers "<< std::endl;
+
 	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
-	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" run= "<<irun<<std::endl;
 
@@ -207,16 +257,28 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
               	      int smid=ecid_xt.getID1();
               	      // TT number
 	      	      int towerid=ecid_xt.getID2();
+
+
+		      int tow_eta=(towerid-1)/4;
+		      int tow_phi=((towerid-1)-tow_eta*4);
+
+		      int axt=(tow_eta*5)*20 + tow_phi*5 +1 ;
+
+		      EBDetId id(smid, axt, EBDetId::SMCRYSTALMODE ) ;
+		      const EcalTrigTowerDetId towid= id.tower();
 	  
-	      	      char ch[10];
+		      /*	 
+		      char ch[10];
 	      	      sprintf(ch,"%d%d", smid, towerid);
 	      	      std::string S="";
 	      	      S.insert(0,ch);
 	  
 	      	      unsigned int towerEBId = 0;
 	      	      towerEBId = atoi(S.c_str());
-	  	     	  
-	      	      lut->setValue(towerEBId, rd_lut.getLUTGroupId());
+		      */
+
+  
+	      	      lut->setValue(towid.rawId(), rd_lut.getLUTGroupId());
 	      	      ++itowers;
 	    	    }
 	    	    else if (ecid_name=="EE_trigger_tower") {
@@ -225,16 +287,29 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
       	      	      int tccid=ecid_xt.getID1();
       	      	      // TT number
 	      	      int towerid=ecid_xt.getID2();
-	  
-	      	      char ch[10];
-	      	      sprintf(ch,"%d%d",tccid, towerid);
-	      	      std::string S="";
-	      	      S.insert(0,ch);
-	  
-	      	      unsigned int towerEEId = 0;
-	      	      towerEEId = atoi(S.c_str());
-	    	     	  
-	      	      lut->setValue(towerEEId, rd_lut.getLUTGroupId());
+
+		      bool set_the_tower=false;
+		      int towid;
+		      for (int itower=0; itower<my_TTEcalLogicId_EE.size(); itower++) {
+
+			if(!set_the_tower){
+			  
+			  if(my_TTEcalLogicId_EE[itower].getID1()==tccid && my_TTEcalLogicId_EE[itower].getID2()==towerid){
+			    towid =my_TTEcalLogicId_EE[itower].getLogicID();
+			    set_the_tower=true;
+			    break;
+			  }
+			}
+			
+		      }
+		      
+		      if(set_the_tower){
+			lut->setValue(towid, rd_lut.getLUTGroupId());
+		      } else {
+			std::cout <<" these may be the additional towers TCC/TT "
+				  << tccid<<"/"<<towerid<<endl;
+		      }
+	      	      
 	      	      ++itowers;
 	  	    }
 		  }
