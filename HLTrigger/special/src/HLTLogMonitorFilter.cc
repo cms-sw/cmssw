@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.6 2009/11/13 00:11:21 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.7 2009/11/17 10:43:11 fwyzard Exp $
 //
 
 
@@ -59,19 +59,20 @@ private:
         if (not done) {
           done = true;
           ++counter;
-
-          // fail if the prescaler is disabled (threshold == 0), or if the counter is not a multiple of the prescale
-          if ((threshold == 0) or (counter % prescale))
-            return false;
-
-          // quasi-logarithmic increase in the prescale factor (should be safe even if threshold is 1)
-          if (counter == prescale * threshold)
-            prescale *= threshold;
-
-          ++accepted;
-          return true;
         }
+
+        // fail if the prescaler is disabled (threshold == 0), or if the counter is not a multiple of the prescale
+        if ((threshold == 0) or (counter % prescale))
+          return false;
+
+        // quasi-logarithmic increase in the prescale factor (should be safe even if threshold is 1)
+        if (counter == prescale * threshold)
+          prescale *= threshold;
+
+        ++accepted;
+        return true;
       }
+
     };
 
     typedef std::map<std::string, CategoryEntry> CategoryMap;
