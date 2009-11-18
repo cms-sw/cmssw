@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.51 2009/11/18 17:13:56 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.52 2009/11/18 18:40:57 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -361,7 +361,7 @@ CmsShowNavigator::updateFileFilters()
 void
 CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 {
-   // printf("remove filter %s \n", (*si)->m_expression.c_str());
+  printf("remove filter %s \n", (*si)->m_expression.c_str());
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -386,7 +386,7 @@ CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 void
 CmsShowNavigator::addFilter(FWEventSelector* ref)
 {
-   //  printf("add filter %s\n", ref->m_expression.c_str());
+   printf("add filter %s\n", ref->m_expression.c_str());
 
    FWEventSelector* selector = new FWEventSelector(ref);
    m_selectors.push_back(selector);
@@ -401,7 +401,7 @@ CmsShowNavigator::addFilter(FWEventSelector* ref)
 void
 CmsShowNavigator::changeFilter(FWEventSelector* selector)
 {
-   // printf("change filter %s\n", selector->m_expression.c_str());
+   printf("change filter %s\n", selector->m_expression.c_str());
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -436,13 +436,14 @@ CmsShowNavigator::applyFiltersFromGUI()
       
    while (si != m_selectors.end() || gi != m_guiFilter->guiSelectors().end())
    {
-      if (gi == m_guiFilter->guiSelectors().end())
+      if (gi == m_guiFilter->guiSelectors().end() && si != m_selectors.end())
       {
          removeFilter(si++);
       }
-      else if (si == m_selectors.end() )
+      else if (si == m_selectors.end() && gi != m_guiFilter->guiSelectors().end() )
       {
          addFilter((*gi)->guiSelector());
+         (*gi)->setOrigSelector(m_selectors.back());
          ++gi;
       }
       else
@@ -466,6 +467,7 @@ CmsShowNavigator::applyFiltersFromGUI()
          else if ((*gi)->origSelector() == 0)
          {
             addFilter((*gi)->guiSelector());
+            (*gi)->setOrigSelector(m_selectors.back());
             ++gi;
          }
          else
@@ -547,7 +549,10 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
    }
    
-   m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
+   if (m_guiFilter->IsMapped())
+      m_guiFilter->CloseWindow();
+   else
+      m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
 }
 
 void

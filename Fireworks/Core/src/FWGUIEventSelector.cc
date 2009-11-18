@@ -36,7 +36,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    text2->setValidator(validator);
    text2->ChangeOptions(0);
    text2->Connect("TextChanged(char*)", "string", &m_guiSelector->m_description, "assign(char*)");
-   cfr->AddFrame(text2);
+   cfr->AddFrame(text2, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,1,1));
   
    // ---------------- enable
 
