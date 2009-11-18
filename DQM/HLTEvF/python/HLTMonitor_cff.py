@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # electron
 from DQM.HLTEvF.HLTMonElectron_cff import *
 # tau
-#from DQM.HLTEvF.HLTMonTau_cff import *
+from DQM.HLTEvF.HLTMonTau_cff import *
 # four vector
 from DQM.HLTEvF.FourVectorHLTOnline_cff import *
 # jet met
