@@ -7,7 +7,7 @@
 
 import os, string, sys, posix, tokenize, array, getopt, operator
 
-sys.path.append(os.environ.get("CMS_PATH") + "/sw/slc4_ia32_gcc345/external/py2-cx-oracle/4.2/lib/python2.4/site-packages/") 
+sys.path.append(os.environ.get("CMS_PATH") + "/slc4_ia32_gcc345/external/py2-cx-oracle/4.2/lib/python2.4/site-packages/") 
  
 import cx_Oracle 
 
