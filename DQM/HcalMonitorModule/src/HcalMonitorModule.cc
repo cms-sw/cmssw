@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/11 20:54:34 $
- * $Revision: 1.147 $
+ * $Date: 2009/11/16 18:31:49 $
+ * $Revision: 1.148 $
  * \author W Fisher
  * \author J Temple
  *
@@ -500,9 +500,20 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					   const edm::EventSetup& context) {
   
   // Call these every luminosity block
-  if (beamMon_) beamMon_->endLuminosityBlock();
-  if (digiMon_) digiMon_->endLuminosityBlock();
-  if (rhMon_)   rhMon_  ->endLuminosityBlock();
+  if(digiMon_!=0)   {  digiMon_->endLuminosityBlock();}
+  if(dfMon_!=0)     {  dfMon_->endLuminosityBlock();}
+  if(diTask_!=0)    {  diTask_->endLuminosityBlock();}
+  if(pedMon_!=0)    {  pedMon_->endLuminosityBlock();}
+  if(ledMon_!=0)    {  ledMon_->endLuminosityBlock();}
+  if(laserMon_!=0)  {  laserMon_->endLuminosityBlock();}
+  if(hotMon_!=0)    {  hotMon_->endLuminosityBlock();}
+  if(deadMon_!=0)   {  deadMon_->endLuminosityBlock();}
+  if(mtccMon_!=0)   {  mtccMon_->endLuminosityBlock();}
+  if(rhMon_!=0)     {  rhMon_->endLuminosityBlock();}
+  if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
+  if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
+  if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
+
 
   // Call these only if prescale set
   if (prescaleLS_>-1 && !prescale())
