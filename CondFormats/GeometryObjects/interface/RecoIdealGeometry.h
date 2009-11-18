@@ -68,7 +68,8 @@ class RecoIdealGeometry {
   // for ( size_t it = 0 ; it < myds.size(); ++it ) 
   // and ask for the parts ...
   // {
-  //   std::vector<double> xyz ( classofthistype.translation(it) );
+  //   std::vector<double>::const_iterator xyzB = classofthistype.transStart(it);
+  //   std::vector<double>::const_iterator xyzE = classofthistype.transEnd(it);
   // }
   const std::vector<DetId>& detIds () const {
     return pDetIds;

@@ -2,7 +2,7 @@
 #define CondFormats_PCaloGeometry_h
 
 #include <vector>
-#include <cstdint>
+#include <stdint.h>
 
 class PCaloGeometry{
 
