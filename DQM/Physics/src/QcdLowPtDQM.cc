@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.6 2009/11/17 06:44:55 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.7 2009/11/17 16:25:22 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -327,7 +327,7 @@ void QcdLowPtDQM::createHistos()
     const int Nx = hltTrgNames_.size();
     const double x1 = -0.5;
     const double x2 = Nx-0.5;
-    h2TrigCorr_ = theDbe_->book2D("h2TriCorr",";;",Nx,x1,x2,Nx,x1,x2);
+    h2TrigCorr_ = theDbe_->book2D("h2TriCorr","Trigger bit x vs y;y&&!x;x&&y",Nx,x1,x2,Nx,x1,x2);
     for(size_t i=1;i<=hltTrgNames_.size();++i) {
       h2TrigCorr_->setBinLabel(i,hltTrgNames_.at(i-1),1);
       h2TrigCorr_->setBinLabel(i,hltTrgNames_.at(i-1),2);
@@ -356,17 +356,17 @@ void QcdLowPtDQM::createHistos()
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
-    book1D(hdNdEtaHitsL1_,"hdNdEtaHitsLayer1","dN/d#eta hits on layer 1;#eta;#",Nx,x1,x2);
-    book1D(hdNdEtaHitsL2_,"hdNdEtaHitsLayer2","dN/d#eta hits on layer 2;#eta;#",Nx,x1,x2);
-    book1D(hdNdEtaHitsL3_,"hdNdEtaHitsLayer3","dN/d#eta hits on layer 3;#eta;#",Nx,x1,x2);
+    book1D(hdNdEtaHitsL1_,"hdNdEtaHitsLayer1","Hits on layer 1;detector #eta;#",Nx,x1,x2);
+    book1D(hdNdEtaHitsL2_,"hdNdEtaHitsLayer2","Hits on layer 2;detector #eta;#",Nx,x1,x2);
+    book1D(hdNdEtaHitsL3_,"hdNdEtaHitsLayer3","Hits on layer 3;detector #eta;#",Nx,x1,x2);
   }
   if (1) {
     const int Nx = 64;
     const double x1 = -3.2;
     const double x2 = +3.2;
-    book1D(hdNdPhiHitsL1_,"hdNdPhiHitsLayer1","dN/d#phi hits on layer 1;#phi;#",Nx,x1,x2);
-    book1D(hdNdPhiHitsL2_,"hdNdPhiHitsLayer2","dN/d#phi hits on layer 2;#phi;#",Nx,x1,x2);
-    book1D(hdNdPhiHitsL3_,"hdNdPhiHitsLayer3","dN/d#phi hits on layer 3;#phi;#",Nx,x1,x2);
+    book1D(hdNdPhiHitsL1_,"hdNdPhiHitsLayer1","Hits on layer 1;#phi;#",Nx,x1,x2);
+    book1D(hdNdPhiHitsL2_,"hdNdPhiHitsLayer2","Hits on layer 2;#phi;#",Nx,x1,x2);
+    book1D(hdNdPhiHitsL3_,"hdNdPhiHitsLayer3","Hits on layer 3;#phi;#",Nx,x1,x2);
   }
   if (1) {
     const int Nx = 100;
