@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/16 18:31:49 $
- * $Revision: 1.148 $
+ * $Date: 2009/11/18 09:59:24 $
+ * $Revision: 1.149 $
  * \author W Fisher
  * \author J Temple
  *
@@ -536,23 +536,21 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (pedMon_!=NULL)
     pedMon_->fillPedestalHistos();
 
-  if (deadMon_!=NULL)
-    deadMon_->endLuminosityBlock();
-
-  if (hotMon_!=NULL)
-    hotMon_->endLuminosityBlock();
-
-  // Digi monitor doesn't require any persistent issues (dead for N events, etc)
-  // to mark bad channels; we can simply call the 'fill_Nevents' method at the end of the run.
-
-  if (digiMon_!=NULL) // try to fill at end of run; should be redundant, since end of run is also the end of an LB? 
-    digiMon_->endLuminosityBlock(); 
-
-  // Ditto for rechit monitor
-  if (rhMon_!=NULL)
-    rhMon_->endLuminosityBlock();
-  if (beamMon_!=NULL)
-    beamMon_->endLuminosityBlock();
+  // These should be unnecessary; call them just in case, so that
+  // we're sure we get at least one fill per run
+  if(digiMon_!=0)   {  digiMon_->endLuminosityBlock();}
+  if(dfMon_!=0)     {  dfMon_->endLuminosityBlock();}
+  if(diTask_!=0)    {  diTask_->endLuminosityBlock();}
+  if(pedMon_!=0)    {  pedMon_->endLuminosityBlock();}
+  if(ledMon_!=0)    {  ledMon_->endLuminosityBlock();}
+  if(laserMon_!=0)  {  laserMon_->endLuminosityBlock();}
+  if(hotMon_!=0)    {  hotMon_->endLuminosityBlock();}
+  if(deadMon_!=0)   {  deadMon_->endLuminosityBlock();}
+  if(mtccMon_!=0)   {  mtccMon_->endLuminosityBlock();}
+  if(rhMon_!=0)     {  rhMon_->endLuminosityBlock();}
+  if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
+  if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
+  if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
 
   if (dfMon_!=NULL) dfMon_->UpdateMEs();
   /////////////////////////////////////////////////////
