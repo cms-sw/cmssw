@@ -63,5 +63,6 @@ double L1FastjetCorrector::correction(const reco::Jet& fJet,
 {
   edm::Handle<double> medianPt;
   fEvent.getByLabel(srcMedianPt_,medianPt);
-  return (fJet.pt()-(*medianPt)*fJet.jetArea())/fJet.pt();
+  double result = (fJet.pt()-(*medianPt)*fJet.jetArea())/fJet.pt();
+  return (result>0) ? result : 0.0;
 }
