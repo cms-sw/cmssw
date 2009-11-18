@@ -531,13 +531,16 @@ public :
   Int_t           HLT_L1_BSC; 
   Int_t           HLT_L1_HFtech; 
   Int_t           HLT_HFThreshold; 
-  Int_t           HLT_Physics; 
-  Int_t           HLT_PhysicsNoMuon; 
+  Int_t           HLT_Physics;
+  Int_t           HLT_PhysicsNoMuon;
   Int_t           HLT_Calibration; 
-  Int_t           HLT_EcalCalibration; 
+  Int_t           HLT_EcalCalibration;
   Int_t           HLT_PixelFEDSize; 
   Int_t           HLT_GlobalRunHPDNoise; 
 
+
+
+  
   // HLT paths for the 2009 Circulating Beam menu 
   Int_t  HLT_L2Mu0_NoVertex;
   Int_t  HLT_TkMu3_NoVertex;
@@ -550,7 +553,48 @@ public :
   Int_t  HLT_HcalNZS_8E29;
   Int_t  HLT_HcalPhiSym;
 
-    
+  // Add-ons for Circulation beam v2 (2009Nov18)
+  Int_t           HLT_DTErrors;
+  Int_t           HLT_HcalCalibration;
+  Int_t           HLT_LogMonitor;
+  Int_t           HLT_Activity_PixelClusters;
+  Int_t           HLT_Activity_Ecal;
+  Int_t           HLT_Activity_EcalREM;
+  Int_t           HLT_L1SingleEG2_NoBPTX;
+  Int_t           HLT_RPCBarrelCosmics;
+  Int_t           HLT_L1_BPTX_MinusOnly;
+  Int_t           HLT_L1_BPTX_PlusOnly;
+  Int_t           HLT_Activity_L1A;
+  Int_t           HLT_L1SingleForJet;
+  Int_t           HLT_L1SingleEG2;
+  Int_t           HLT_MinBias;
+  Int_t           HLT_MinBiasBSC;
+  Int_t           HLT_MinBiasBSC_OR;
+  Int_t           HLT_HighMultiplicityBSC;
+
+
+
+  // Add-ons for Circulation beam v2 (2009Nov18)
+  TBranch        *b_HLT_DTErrors;   //!
+  TBranch        *b_HLT_HcalCalibration;   //!
+  TBranch        *b_HLT_LogMonitor;   //!
+  TBranch        *b_HLT_Activity_PixelClusters;   //!
+  TBranch        *b_HLT_Activity_Ecal;   //!
+  TBranch        *b_HLT_Activity_EcalREM;   //!
+  TBranch        *b_HLT_L1SingleEG2_NoBPTX;   //!
+  TBranch        *b_HLT_RPCBarrelCosmics;   //!
+  TBranch        *b_HLT_L1_BPTX_MinusOnly;   //!
+  TBranch        *b_HLT_L1_BPTX_PlusOnly;   //!
+  TBranch        *b_HLT_Activity_L1A;   //!
+  TBranch        *b_HLT_L1SingleForJet;   //!
+  TBranch        *b_HLT_L1SingleEG2;   //!
+  TBranch        *b_HLT_MinBias;   //!
+  TBranch        *b_HLT_MinBiasBSC;   //!
+  TBranch        *b_HLT_MinBiasBSC_OR;   //!
+  TBranch        *b_HLT_HighMultiplicityBSC;   //!
+
+
+  
   // List of branches
   TBranch        *b_NrecoJetCal;   //!
   TBranch        *b_NrecoJetGen;   //!
@@ -2046,6 +2090,42 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HcalNZS_8E29", &map_BitOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29);
   fChain->SetBranchAddress("HLT_HcalPhiSym", &map_BitOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym);
 
+  
+  // Add-ons for Circulation beam v2 (2009Nov18)
+  fChain->SetBranchAddress("HLT_DTErrors", &HLT_DTErrors, &b_HLT_DTErrors);
+  fChain->SetBranchAddress("HLT_HcalCalibration", &HLT_HcalCalibration, &b_HLT_HcalCalibration);
+  fChain->SetBranchAddress("HLT_LogMonitor", &HLT_LogMonitor, &b_HLT_LogMonitor);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &HLT_Activity_PixelClusters, &b_HLT_Activity_PixelClusters);
+  fChain->SetBranchAddress("HLT_Activity_Ecal", &HLT_Activity_Ecal, &b_HLT_Activity_Ecal);
+  fChain->SetBranchAddress("HLT_Activity_EcalREM", &HLT_Activity_EcalREM, &b_HLT_Activity_EcalREM);
+  fChain->SetBranchAddress("HLT_L1SingleEG2_NoBPTX", &HLT_L1SingleEG2_NoBPTX, &b_HLT_L1SingleEG2_NoBPTX);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &HLT_RPCBarrelCosmics, &b_HLT_RPCBarrelCosmics);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &HLT_L1_BPTX_MinusOnly, &b_HLT_L1_BPTX_MinusOnly);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &HLT_L1_BPTX_PlusOnly, &b_HLT_L1_BPTX_PlusOnly);
+  fChain->SetBranchAddress("HLT_Activity_L1A", &HLT_Activity_L1A, &b_HLT_Activity_L1A);
+  fChain->SetBranchAddress("HLT_L1SingleForJet", &HLT_L1SingleForJet, &b_HLT_L1SingleForJet);
+  fChain->SetBranchAddress("HLT_L1SingleEG2", &HLT_L1SingleEG2, &b_HLT_L1SingleEG2);
+  fChain->SetBranchAddress("HLT_MinBias", &HLT_MinBias, &b_HLT_MinBias);
+  fChain->SetBranchAddress("HLT_MinBiasBSC", &HLT_MinBiasBSC, &b_HLT_MinBiasBSC);
+  fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &HLT_MinBiasBSC_OR, &b_HLT_MinBiasBSC_OR);
+  fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &HLT_HighMultiplicityBSC, &b_HLT_HighMultiplicityBSC);
+  fChain->SetBranchAddress("HLT_DTErrors", &map_BitOfStandardHLTPath["HLT_DTErrors"], &b_HLT_DTErrors);
+  fChain->SetBranchAddress("HLT_HcalCalibration", &map_BitOfStandardHLTPath["HLT_HcalCalibration"], &b_HLT_HcalCalibration);
+  fChain->SetBranchAddress("HLT_LogMonitor", &map_BitOfStandardHLTPath["HLT_LogMonitor"], &b_HLT_LogMonitor);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &map_BitOfStandardHLTPath["HLT_Activity_PixelClusters"], &b_HLT_Activity_PixelClusters);
+  fChain->SetBranchAddress("HLT_Activity_Ecal", &map_BitOfStandardHLTPath["HLT_Activity_Ecal"], &b_HLT_Activity_Ecal);
+  fChain->SetBranchAddress("HLT_Activity_EcalREM", &map_BitOfStandardHLTPath["HLT_Activity_EcalREM"], &b_HLT_Activity_EcalREM);
+  fChain->SetBranchAddress("HLT_L1SingleEG2_NoBPTX", &map_BitOfStandardHLTPath["HLT_L1SingleEG2_NoBPTX"], &b_HLT_L1SingleEG2_NoBPTX);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &map_BitOfStandardHLTPath["HLT_RPCBarrelCosmics"], &b_HLT_RPCBarrelCosmics);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_MinusOnly"], &b_HLT_L1_BPTX_MinusOnly);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_PlusOnly"], &b_HLT_L1_BPTX_PlusOnly);
+  fChain->SetBranchAddress("HLT_Activity_L1A", &map_BitOfStandardHLTPath["HLT_Activity_L1A"], &b_HLT_Activity_L1A);
+  fChain->SetBranchAddress("HLT_L1SingleForJet", &map_BitOfStandardHLTPath["HLT_L1SingleForJet"], &b_HLT_L1SingleForJet);
+  fChain->SetBranchAddress("HLT_L1SingleEG2", &map_BitOfStandardHLTPath["HLT_L1SingleEG2"], &b_HLT_L1SingleEG2);
+  fChain->SetBranchAddress("HLT_MinBias", &map_BitOfStandardHLTPath["HLT_MinBias"], &b_HLT_MinBias);
+  fChain->SetBranchAddress("HLT_MinBiasBSC", &map_BitOfStandardHLTPath["HLT_MinBiasBSC"], &b_HLT_MinBiasBSC);
+  fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_OR"], &b_HLT_MinBiasBSC_OR);
+  fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &map_BitOfStandardHLTPath["HLT_HighMultiplicityBSC"], &b_HLT_HighMultiplicityBSC);
   
   Notify();
 }
