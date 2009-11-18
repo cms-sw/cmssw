@@ -116,8 +116,8 @@ class relvalmc(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = 'ALCA:MuAlStandAloneCosmics+DQM,ENDJOB'
-        options.isMC = False
-        options.isData = True
+        options.isMC = True
+        options.isData = False
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.beamspot = None
         options.eventcontent = None
@@ -174,8 +174,8 @@ class relvalmc(Scenario):
         options = defaultOptions
         options.scenario = "pp"
         options.step = "HARVESTING:validationHarvesting+dqmHarvesting"
-        options.isMC = False
-        options.isData = True
+        options.isMC = True
+        options.isData = False
         options.beamspot = None
         options.eventcontent = None
         options.name = "EDMtoMEConvert"
