@@ -24,7 +24,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   reports( conf.getParameter<edm::VParameterSet>("Reports")),
   measurementPreferences( conf.getParameter<edm::VParameterSet>("MeasurementPreferences")),
   calibrations(conf.getParameter<edm::VParameterSet>("Calibrations")),
-  methods(0), byModule(false), byLayer(false)
+  methods(0), byModule(false), byLayer(false), localybin(conf.getUntrackedParameter<double>("LocalYBin",0.0))
 {
   store_methods_and_granularity( reports );
   store_methods_and_granularity( measurementPreferences );
@@ -33,7 +33,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   TChain*const chain = new TChain("la_data"); 
   BOOST_FOREACH(const std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
-  LA_Filler_Fitter laff(methods, byLayer, byModule, maxEvents);
+  LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, maxEvents);
   laff.fill(chain, book);
   laff.fit(book);
   summarize_module_muH_byLayer();
@@ -102,7 +102,7 @@ write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARIT
   TFile file((name+".root").c_str(),"RECREATE");
   const std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+".*)";
   for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist) 
-    hist->second->Write();
+    if(hist->second) hist->second->Write();
   file.Close();
 }
 

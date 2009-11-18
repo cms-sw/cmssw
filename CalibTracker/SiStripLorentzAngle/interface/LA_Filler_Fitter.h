@@ -62,14 +62,16 @@ class LA_Filler_Fitter {
     ensembleSize_(M),
     ensembleBins_(N),ensembleLow_(low),ensembleUp_(up),
     byLayer_(true),byModule_(false),
+    localYbin_(0),
     maxEvents_(max),
     methods_(methods)
-    {};
-  
-  LA_Filler_Fitter(int methods, bool layer, bool module, unsigned max=0) : 
+      {};
+    
+  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned max=0) : 
     ensembleSize_(0),
     ensembleBins_(0),ensembleLow_(0),ensembleUp_(0),
     byLayer_(layer),byModule_(module),
+    localYbin_(localybin),
     maxEvents_(max),
     methods_(methods)
     {};
@@ -101,11 +103,12 @@ class LA_Filler_Fitter {
 
  private:
   
-  int ensembleSize_, ensembleBins_;
-  double ensembleLow_, ensembleUp_;
-  bool byLayer_, byModule_;
-  Long64_t maxEvents_;
-  int methods_;
+  const int ensembleSize_, ensembleBins_;
+  const double ensembleLow_, ensembleUp_;
+  const bool byLayer_, byModule_;
+  const float localYbin_;
+  const Long64_t maxEvents_;
+  const int methods_;
 };
 
 std::ostream& operator<<(std::ostream&, const LA_Filler_Fitter::Result&);

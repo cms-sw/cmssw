@@ -26,6 +26,7 @@ fill(TTree* tree, Book& book) {
 		      const std::vector<float>*    LEAF( tsoslocalphi )
 		      const std::vector<float>*    LEAF( tsosBdotY )
 		      const std::vector<float>*    LEAF( tsosglobalZofunitlocalY )
+		      //const std::vector<float>*    LEAF( tsoslocaly )
 		      ) {
     if(maxEvents_) TTREE_FOREACH_ENTRY_total = std::min(maxEvents_,TTREE_FOREACH_ENTRY_total);
     for(unsigned i=0; i< clusterwidth->size() ; i++) {
@@ -43,11 +44,13 @@ fill(TTree* tree, Book& book) {
       const int sign = (*tsosglobalZofunitlocalY)[i] < 0  ?  -1  :  1 ;
       const unsigned width = (*clusterwidth)[i];
       const double var = (*clustervariance)[i];
+      //const float localy = (*tsoslocaly)[i];
 
       poly<std::string> granular;
       granular += subdetLabel(detid);
       if(byLayer_)  granular *= layerLabel(detid);
       if(byModule_) granular *= moduleLabel(detid);
+      //if(localYbin_) granular += (localy < 0 ? "_yM":"_yP") + boost::lexical_cast<std::string>(abs((int)(localy/localYbin_+(localy<0?-1:0))));
       if(ensembleBins_) {
 	granular+= "_ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
 	granular+= "";
@@ -107,8 +110,8 @@ make_and_fit_symmchi2(Book& book) {
     const std::string base = boost::erase_all_copy(it->first,"_all");
 
     std::vector<Book::iterator> rebin_hists;              
-    Book::iterator    all = it;	                           rebin_hists.push_back(all);   
-    Book::iterator     w1 = book.find(base+"_w1");         rebin_hists.push_back(w1);    
+    Book::iterator    all = it;	                             rebin_hists.push_back(all);   
+    Book::iterator     w1 = book.find(base+"_w1");           rebin_hists.push_back(w1);    
     Book::iterator var_w2 = book.find(base+method(AVGV2,0)); rebin_hists.push_back(var_w2);
     Book::iterator var_w3 = book.find(base+method(AVGV3,0)); rebin_hists.push_back(var_w3);
 
@@ -116,26 +119,30 @@ make_and_fit_symmchi2(Book& book) {
 				     var_w3==book.end() ? 0 : find_rebin(var_w3->second) );
     BOOST_FOREACH(Book::iterator it, rebin_hists) if(it!=book.end()) it->second->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
 
-    TH1* const prob_w1 = w1==book.end()     ? 0 : subset_probability( base+method(PROB1,0) ,w1->second,all->second);         book.book(base+method(PROB1,0),prob_w1);
-    TH1* const rmsv_w2 = var_w2==book.end() ? 0 :        rms_profile( base+method(RMSV2,0), (TProfile*const)var_w2->second); book.book(base+method(RMSV2,0),rmsv_w2);
-    TH1* const rmsv_w3 = var_w3==book.end() ? 0 :        rms_profile( base+method(RMSV3,0), (TProfile*const)var_w3->second); book.book(base+method(RMSV3,0),rmsv_w3);
+    TH1* const prob_w1 = w1==book.end()     ? 0 : subset_probability( base+method(PROB1,0) ,w1->second,all->second);
+    TH1* const rmsv_w2 = var_w2==book.end() ? 0 :        rms_profile( base+method(RMSV2,0), (TProfile*const)var_w2->second);
+    TH1* const rmsv_w3 = var_w3==book.end() ? 0 :        rms_profile( base+method(RMSV3,0), (TProfile*const)var_w3->second);
     
     //book.erase(all);
     //if(w1!=book.end()) book.erase(w1);
 
     std::vector<TH1*> fit_hists;
     if(prob_w1) {
+      book.book(base+method(PROB1,0),prob_w1);
       fit_hists.push_back(prob_w1);  prob_w1->SetTitle("Width==1 Probability;tan#theta_{t}-(dx/dz)_{reco}");
     }
     if(var_w2!=book.end())  {
+      book.book(base+method(RMSV2,0),rmsv_w2);
       fit_hists.push_back(var_w2->second);   var_w2->second->SetTitle("Width==2 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
       fit_hists.push_back(rmsv_w2);                 rmsv_w2->SetTitle("Width==2 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
     }
     if(var_w3!=book.end())  {
+      book.book(base+method(RMSV3,0),rmsv_w3);
       fit_hists.push_back(var_w3->second);   var_w3->second->SetTitle("Width==3 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
       fit_hists.push_back(rmsv_w3);                 rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
     }
 
+    if(!fit_hists.size()) continue;
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
     const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30-1);
@@ -144,8 +151,6 @@ make_and_fit_symmchi2(Book& book) {
       TH1*const chi2 = SymmetryFit::symmetryChi2(hist,range);
       if(chi2) {book.book(chi2->GetName(),chi2); chi2->SetTitle("Symmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
     }
-    //TH1* const chi2 = SymmetryFit::symmetryChi2(base+method(MULTI,0), fit_hists, range);
-    //if(chi2) { book.book(SymmetryFit::name(base+method(MULTI,0)), chi2); chi2->SetTitle("MultiSymmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
   }
 }
 

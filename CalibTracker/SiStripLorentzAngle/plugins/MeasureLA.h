@@ -49,6 +49,7 @@ class MeasureLA : public edm::ESProducer {
   std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
   int32_t methods;
   bool byModule, byLayer;
+  float localybin;
   Book book;
 
 };
