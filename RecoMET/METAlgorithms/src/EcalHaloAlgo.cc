@@ -105,7 +105,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	      DetId id = DetId(hit->id()); 
 	      EBDetId EcalID(id.rawId());
 	      int Hit_iPhi = EcalID.iphi();
-	      Hit_iPhi = Hit_iPhi/5;
+	      Hit_iPhi = (Hit_iPhi-1)/5 +1; // convert ecal iphi to phiwedge iphi
 	      if( Hit_iPhi != iPhi ) continue;
 	      Hits.push_back( &(*hit) );
 	      
