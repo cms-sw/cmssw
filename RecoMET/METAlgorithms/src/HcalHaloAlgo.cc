@@ -68,7 +68,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	}
     }
   
-  for( int iPhi = 1 ; iPhi < 72 ; iPhi++ )
+  for( int iPhi = 1 ; iPhi < 73 ; iPhi++ )
     {
       if( SumE[iPhi] >= SumEnergyThreshold || NumHits[iPhi] >= NHitsThreshold )
 	{
@@ -79,11 +79,21 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  std::vector<const HBHERecHit*> Hits;
 	  for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
 	    {
-	      // Arbitrary threshold to kill noise (needs to be optimized with data)
-	      if(hit->energy() < HBRecHitEnergyThreshold )continue;
-	      HcalDetId id = HcalDetId(hit->id()); 
+
+	      HcalDetId id = HcalDetId(hit->id());
 	      if( id.iphi() != iPhi ) continue;
 	      if( TMath::Abs(id.ieta() ) > 22 ) continue;  // has to overlap geometrically w/ HB
+	      switch ( id.subdet() )
+		{
+		case HcalBarrel:
+		  if(hit->energy() < HBRecHitEnergyThreshold )continue;
+		  break;
+		case HcalEndcap:
+		  if(hit->energy() < HERecHitEnergyThreshold ) continue;
+		  break;
+		default:
+		  continue;
+		}
 	      Hits.push_back(&(*hit));
 	    }
 	      
