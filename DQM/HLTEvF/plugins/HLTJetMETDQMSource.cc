@@ -1254,15 +1254,15 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
       double histEtaMax = 2.5;
       if (v->getObjectType() == trigger::TriggerMuon || v->getObjectType() == trigger::TriggerL1Mu)  {
-	histEtaMax = muonEtaMax_;nBins_ = 50 ;
+	histEtaMax = muonEtaMax_;nBins_ = 20 ;
       }
         
       else if (v->getObjectType() == trigger::TriggerJet || v->getObjectType() == trigger::TriggerL1CenJet || v->getObjectType() == trigger::TriggerL1ForJet ){
-	histEtaMax = jetEtaMax_; nBins_ = 100 ;
+	histEtaMax = jetEtaMax_; nBins_ = 60 ;
       }
         
       else if (v->getObjectType() == trigger::TriggerMET || v->getObjectType() == trigger::TriggerL1ETM )  {
-	histEtaMax = 5.0; nBins_ = 100 ;
+	histEtaMax = 5.0; nBins_ = 60 ;
       }
         
       TString pathfolder = dirname_ + foldernm + v->getPath();
@@ -1450,15 +1450,15 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
       double histEtaMax = 5.0;
       if (v->getObjectType() == trigger::TriggerMuon || v->getObjectType() == trigger::TriggerL1Mu) {
-	histEtaMax = muonEtaMax_; nBins_ = 100 ;
+	histEtaMax = muonEtaMax_; nBins_ = 20 ;
       }
         
       else if (v->getObjectType() == trigger::TriggerJet || v->getObjectType() == trigger::TriggerL1CenJet || v->getObjectType() == trigger::TriggerL1ForJet ){
-	histEtaMax = jetEtaMax_; nBins_ = 300 ;
+	histEtaMax = jetEtaMax_; nBins_ = 60 ;
       }
         
       else if (v->getObjectType() == trigger::TriggerMET || v->getObjectType() == trigger::TriggerL1ETM ) {
-	histEtaMax = 5.0; nBins_ = 300 ;
+	histEtaMax = 5.0; nBins_ = 60 ;
       }
         
       TString pathfolder = dirname_ + foldernm + v->getPath();
