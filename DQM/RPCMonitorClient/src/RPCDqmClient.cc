@@ -65,14 +65,15 @@ void RPCDqmClient::beginJob(const EventSetup& iSetup){
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   
+
   //Do whatever the begin jobs of all client modules do
   for(vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
    (*it)->beginJob(dbe_);
   
 }
 
-void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
-   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Run";
+void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
+   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
   if (!enableDQMClients_) return;
 
   init_ = false;
@@ -117,7 +118,18 @@ void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
   }//end loop on all geometry and get all histos  
   
   for (vector<RPCClient*>::iterator  it= clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->beginRun(r,c,myMeVect, myDetIds);
+    (*it)->endRun(r,c,myMeVect, myDetIds);
+
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+
+  float   rpcevents = minimumEvents_;
+  if(RPCEvents) rpcevents = RPCEvents -> getEntries();
+    
+  if(rpcevents < minimumEvents_) return;
+
+  for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->clientOperation(c);
+
 }
 
 void RPCDqmClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -141,28 +153,18 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
  
-  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-  float   rpcevents = RPCEvents -> getEntries();
-  
-  if(!init_ && rpcevents < minimumEvents_) return;
-  else if(!init_) {
-    init_=true;
-    numLumBlock_ = prescaleGlobalFactor_;
-  }else numLumBlock_++;
-   
-  if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
-  
-  
+  if (!enableDQMClients_ ) return;
+    
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
 }
 
 
-void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
+void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
 
  if (!enableDQMClients_) return;
    for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->endRun(r,c);
+    (*it)->beginRun(r,c);
 }
 
 

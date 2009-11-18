@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.51 2009/09/18 13:35:23 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.64 2009/11/04 18:09:45 amraktad Exp $
 //
 
 // system include files
@@ -24,8 +24,6 @@
 #define private public
 #include "TGLOrthoCamera.h"
 #undef private
-
-#include "TEveLegoEventHandler.h"
 
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
@@ -47,7 +45,6 @@
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
 #include "TEveElement.h"
-#include "TEveRGBAPalette.h"
 #include "TGLPerspectiveCamera.h"
 #include "TGLWidget.h"
 #include "TEveTrans.h"
@@ -59,6 +56,9 @@
 #include "Fireworks/Core/interface/FWEveLegoView.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 
 //
@@ -73,13 +73,10 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
-   //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
-   //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
-   //m_ecalSlice(0),
-   //m_hcalSlice(0),
    m_lego(0),
    m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom",true),
+   m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_showScales(this,"Show scales",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
@@ -97,8 +94,13 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    iParent->ReplaceWindow(nv);
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)ev->GetGLWidget(), (TObject*)ev);
+   ev->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
+   m_pixelsPerBin.changed_.connect(boost::bind(&FWEveLegoView::setPixelsPerBin,this));
    m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
@@ -106,6 +108,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    nv->AddScene(ns);
    m_viewer.reset(nv);
    gEve->AddElement(nv, gEve->GetViewers());
+
 
    if (list->HasChildren())
    {
@@ -117,10 +120,12 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->GetAttAxis()->SetLabelSize(0.02);
          ev->AddOverlayElement(m_overlay);
          m_overlay->SetCaloLego(m_lego);
-	 m_overlay->SetShowScales(1); //temporary
+         m_overlay->SetShowScales(1); //temporary
          m_overlay->SetScalePosition(0.88, 0.6);
+         m_overlay->SetScaleColorTransparency(kWhite, 0);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         eh->SetLego(m_lego);
       }
    }
    // take care of cameras
@@ -136,11 +141,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
 
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
-
-   //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
-   //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
- 
-   setCameras();
 }
 
 FWEveLegoView::~FWEveLegoView()
@@ -164,13 +164,17 @@ FWEveLegoView::finishSetup()
 void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
+   TGLViewer* v =  m_viewer->GetGLViewer();
+   if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
+        iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+   {
+      v->SwitchColorSet();
+      m_overlay->SetScaleColorTransparency(iColor==FWColorManager::kWhiteIndex ? kGray + 3 : kWhite, 0);
+      m_overlay->SetFrameAttribs(iColor==FWColorManager::kWhiteIndex ? kBlack : kWhite, 70, 90);
+      m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   }
 
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-      m_viewer->GetGLViewer()->SwitchColorSet();
 }
-
 void
 FWEveLegoView::setCameras()
 {
@@ -193,69 +197,6 @@ FWEveLegoView::setCameras()
    m_cameraSet = true;
 }
 
-#if defined(THIS_WILL_NEVER_BE_DEFINED)
-void
-FWEveLegoView::draw(TEveCaloDataHist* data)
-{
-   // bool firstTime = (m_lego->GetData() == 0);
-   m_lego->SetData(data);
-   m_lego->ElementChanged();
-   m_lego->DataChanged();
-   if ( !m_cameraSet ) setCameras();
-}
-
-void
-FWEveLegoView::setMinEcalEnergy(double value)
-{
-   /*
-      const std::string name = "ecalLego";
-      if ( ! m_lego->GetData() ) return;
-      if ( ! m_ecalSlice )
-      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
-       if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
-         {
-            m_ecalSlice = &(m_lego->GetData()->RefSliceInfo(i));
-            break;
-         }
-      if ( ! m_ecalSlice ) return;
-      m_ecalSlice->fThreshold = value;
-      m_lego->ElementChanged();
-      m_lego->DataChanged();
-      m_viewer->GetGLViewer()->RequestDraw();
-    */
-}
-
-void
-FWEveLegoView::setMinHcalEnergy(double value)
-{
-   /*
-      const std::string name = "hcalLego";
-      if ( ! m_lego->GetData() ) return;
-      if ( ! m_hcalSlice )
-      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
-       if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
-         {
-            m_hcalSlice = &(m_lego->GetData()->RefSliceInfo(i));
-            break;
-         }
-      if ( ! m_hcalSlice ) return;
-      m_hcalSlice->fThreshold = value;
-      m_lego->ElementChanged();
-      m_lego->DataChanged();
-      m_viewer->GetGLViewer()->RequestDraw();
-    */
-}
-
-void
-FWEveLegoView::setMinEnergy()
-{
-   /*
-      setMinEcalEnergy( m_minEcalEnergy.value() );
-      setMinHcalEnergy( m_minHcalEnergy.value() );
-    */
-}
-#endif
-
 void
 FWEveLegoView::setFrom(const FWConfiguration& iFrom)
 {
@@ -270,7 +211,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
@@ -282,7 +223,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    // transformation matrix base
    assert(m_cameraMatrixBase);
    matrixName = "cameraMatrixBase";
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
@@ -300,7 +241,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    // transformation matrix
    assert(m_orthoCameraMatrix);
    std::string orthoMatrixName("orthoCameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( orthoMatrixName + os.str() + typeName() );
@@ -318,7 +259,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    }
 }
 
-void 
+void
 FWEveLegoView::setAutoRebin()
 {
    if(m_lego) {
@@ -327,7 +268,16 @@ FWEveLegoView::setAutoRebin()
    }
 }
 
-void 
+void
+FWEveLegoView::setPixelsPerBin()
+{
+   if(m_lego) {
+      m_lego->SetPixelsPerBin((Int_t) (m_pixelsPerBin.value()));
+      m_lego->ElementChanged(kTRUE,kTRUE);
+   }
+}
+
+void
 FWEveLegoView::showScales()
 {
    m_overlay->SetShowScales(m_showScales.value());
@@ -350,6 +300,11 @@ FWEveLegoView::typeName() const
    return staticTypeName();
 }
 
+FWViewContextMenuHandlerBase* 
+FWEveLegoView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+}
+
 void
 FWEveLegoView::addTo(FWConfiguration& iTo) const
 {
@@ -361,7 +316,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    // transformation matrix
    assert(m_cameraMatrixRef);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream osIndex;
       osIndex << i;
       std::ostringstream osValue;
@@ -372,7 +327,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    // transformation matrix base
    assert(m_cameraMatrixBaseRef);
    matrixName = "cameraMatrixBase";
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream osIndex;
       osIndex << i;
       std::ostringstream osValue;
@@ -399,7 +354,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    // transformation matrix
    assert(m_orthoCameraMatrixRef);
    std::string orthoMatrixName("orthoCameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream osIndex;
       osIndex << i;
       std::ostringstream osValue;

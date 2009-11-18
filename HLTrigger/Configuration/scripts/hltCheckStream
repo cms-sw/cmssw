@@ -1,0 +1,61 @@
+#! /usr/bin/env python
+import sys, imp
+
+#print 'Parsing HLT menu...'
+hlt = imp.new_module('hlt')
+try:
+  configname = sys.argv[1]
+except:
+  config = sys.stdin
+else:
+  config = open(configname)
+exec config in globals(), hlt.__dict__
+config.close()
+process = hlt.process
+
+streams = process.streams._Parameterizable__parameterNames
+streams.sort()
+
+#print 'Parsing Streams and PDs...'
+paths_in_stream = dict()
+for stream in streams:
+  paths_in_stream[stream] = [ path for pd in process.streams.__dict__[stream] for path in process.datasets.__dict__[pd] ]
+  paths_in_stream[stream].sort()
+
+#print 'Parsing Output Modules...'
+paths_in_output = dict()
+for stream in streams:
+  output = eval('process.hltOutput%s' % stream)
+  paths_in_output[stream] = [ path for path in output.SelectEvents.SelectEvents ]
+  paths_in_output[stream].sort()
+
+success = True
+
+#print 'Looking for differences...'
+for stream in paths_in_stream:
+  s = set(paths_in_stream[stream])
+  o = set(paths_in_output[stream])
+  if s == o:
+    #print 'stream', stream, 'is consistent with its output module'
+    continue
+  success = False
+  
+  diff = [ x for x in (s - o) ]
+  diff.sort()
+  if diff:
+    print 'stream', stream, 'is missing these paths in the output module:'
+    for p in diff:
+      print '\t', p
+
+  diff = [ x for x in (o - s) ]
+  diff.sort()
+  if diff:
+    print 'stream', stream, 'is missing these paths in the primary datasets:'
+    for p in diff:
+      print '\t', p
+
+if success:
+  print 'no errors found'
+  sys.exit(0)
+else:
+  sys.exit(1)

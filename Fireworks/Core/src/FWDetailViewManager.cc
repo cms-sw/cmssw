@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.45 2009/07/28 17:25:55 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.50 2009/10/12 17:54:05 amraktad Exp $
 //
 
 #include <stdio.h>
 #include <boost/bind.hpp>
+#include <algorithm>
 
 #include "TClass.h"
 #include "TGWindow.h"
@@ -22,6 +23,7 @@
 #include "TEveWindowManager.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -29,11 +31,11 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 
-class DetailViewFrame : public TGTransientFrame
+class DetailViewFrame : public TGMainFrame
 {
 public:
-   DetailViewFrame(const TGWindow *p):
-      TGTransientFrame(gClient->GetRoot(), p, 800, 600)
+   DetailViewFrame():
+      TGMainFrame(gClient->GetRoot(), 790, 450)
    {
    };
 
@@ -44,15 +46,25 @@ public:
 };
 
 
+static
+std::string viewNameFrom(const std::string& iFull)
+{
+   std::string::size_type first = iFull.find_first_of('@');
+   std::string::size_type second = iFull.find_first_of('@',first+1);
+   return iFull.substr(first+1,second-first-1);
+   
+}
 //
 // constructors and destructor
 //
-FWDetailViewManager::FWDetailViewManager(const TGWindow* cmsShowMainFrame):
+FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
+   m_colorManager(colMng),
    m_mainFrame(0),
    m_eveFrame(0),
    m_detailView(0)
 {
-   m_mainFrame = new DetailViewFrame(cmsShowMainFrame);
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
+   m_mainFrame = new DetailViewFrame();
    m_mainFrame->SetCleanup(kLocalCleanup);
 
    m_eveFrame = new TEveCompositeFrameInMainFrame(m_mainFrame, 0, m_mainFrame);
@@ -71,53 +83,69 @@ FWDetailViewManager::FWDetailViewManager(const TGWindow* cmsShowMainFrame):
 }
 
 FWDetailViewManager::~FWDetailViewManager()
-{}
+{
+   if (m_detailView != 0)
+      delete m_detailView;
+}
 
 void
-FWDetailViewManager::openDetailViewFor(const FWModelId &id)
+FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& iViewName)
 {
    if (m_detailView != 0)
    {
-      m_detailView->getEveWindow()->DestroyWindow();
       delete m_detailView;
    }
 
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
-   std::string viewerName = findViewerFor(typeName);
-   if(0==viewerName.size()) {
+   std::vector<std::string> viewerNames = findViewersFor(typeName);
+   if(0==viewerNames.size()) {
       std::cout << "FWDetailViewManager: don't know what detailed view to "
          "use for object " << id.item()->name() << std::endl;
-      assert(0!=viewerName.size());
+      assert(0!=viewerNames.size());
    }
 
-   m_detailView = FWDetailViewFactory::get()->create(viewerName);
+   //see if one of the names matches iViewName
+   std::string match;
+   for(std::vector<std::string>::iterator it = viewerNames.begin(), itEnd = viewerNames.end(); it != itEnd; ++it) {
+      std::string t = viewNameFrom(*it);
+      //std::cout <<"'"<<iViewName<< "' '"<<t<<"'"<<std::endl;
+      if(t == iViewName) {
+         match = *it;
+         break;
+      }
+   }
+   assert(match.size() != 0);
+   m_detailView = FWDetailViewFactory::get()->create(match);
+   assert(0!=m_detailView);
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
    m_detailView->build(id, ws);
-
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
    m_mainFrame->MapSubwindows();
    m_mainFrame->Layout();
    m_mainFrame->MapWindow();
+
+   colorsChanged();
 }
 
-bool
-FWDetailViewManager::haveDetailViewFor(const FWModelId& iId) const
+std::vector<std::string>
+FWDetailViewManager::detailViewsFor(const FWModelId& iId) const
 {
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(iId.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
-   if(m_detailViews.end() == m_detailViews.find(typeName)) {
-      return findViewerFor(typeName).size()!=0;
-   }
-   return true;
+   std::vector<std::string> fullNames = findViewersFor(typeName);
+   std::vector<std::string> justViewNames;
+   justViewNames.reserve(fullNames.size());
+   std::transform(fullNames.begin(),fullNames.end(),std::back_inserter(justViewNames),&viewNameFrom);
+   return justViewNames;
 }
 
-std::string
-FWDetailViewManager::findViewerFor(const std::string& iType) const
+std::vector<std::string>
+FWDetailViewManager::findViewersFor(const std::string& iType) const
 {
-   std::string returnValue;
+   std::vector<std::string> returnValue;
 
-   std::map<std::string,std::string>::const_iterator itFind = m_typeToViewers.find(iType);
+   std::map<std::string,std::vector<std::string> >::const_iterator itFind = m_typeToViewers.find(iType);
    if(itFind != m_typeToViewers.end()) {
       return itFind->second;
    }
@@ -137,17 +165,25 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
       std::string type = it->substr(0,first);
 
       if(type == iType) {
-         m_typeToViewers[iType]=*it;
-         return *it;
+         returnValue.push_back(viewNameFrom(*it));
       }
       //see if we match via inheritance
       FWSimpleRepresentationChecker checker(type,"");
       FWRepresentationInfo info = checker.infoFor(iType);
       if(closestMatch > info.proximity()) {
-         closestMatch = info.proximity();
-         returnValue=*it;
+         //closestMatch = info.proximity();
+         returnValue.push_back(*it);
       }
    }
    m_typeToViewers[iType]=returnValue;
    return returnValue;
+}
+
+
+void
+FWDetailViewManager::colorsChanged()
+{
+   if (m_detailView) { 
+      m_detailView->setBackgroundColor(m_colorManager->background());
+   }
 }

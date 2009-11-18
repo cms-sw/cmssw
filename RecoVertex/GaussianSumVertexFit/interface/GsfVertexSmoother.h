@@ -64,7 +64,6 @@ private:
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef VertexTrack<5>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
   typedef VertexTrack<5>::AlgebraicMatrix3M AlgebraicMatrix3M;
-  typedef VertexTrack<5>::AlgebraicSymMatrixOO AlgebraicSymMatrixOO;
 
   typedef std::vector<VertexState> VSC;
   typedef std::vector<RefCountedLinearizedTrackState> LTC;

@@ -46,7 +46,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl2chg = new int[kMaxMuonL2];
   muonl2pterr = new float[kMaxMuonL2];
   muonl2iso = new int[kMaxMuonL2];
-  muonl21idx = new int[kMaxMuonL2];
   const int kMaxMuonL3 = 500;
   muonl3pt = new float[kMaxMuonL3];
   muonl3phi = new float[kMaxMuonL3];
@@ -74,7 +73,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL2Iso",muonl2iso,"ohMuL2Iso[NohMuL2]/I");
   HltTree->Branch("ohMuL2Dr",muonl2dr,"ohMuL2Dr[NohMuL2]/F");
   HltTree->Branch("ohMuL2Dz",muonl2dz,"ohMuL2Dz[NohMuL2]/F");
-  HltTree->Branch("ohMuL2L1idx",muonl21idx,"ohMuL2L1idx[NohMuL2]/I");   
   HltTree->Branch("NohMuL3",&nmu3cand,"NohMuL3/I");
   HltTree->Branch("ohMuL3Pt",muonl3pt,"ohMuL3Pt[NohMuL3]/F");
   HltTree->Branch("ohMuL3Phi",muonl3phi,"ohMuL3Phi[NohMuL3]/F");
@@ -90,11 +88,11 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
-                      const edm::Handle<l1extra::L1MuonParticleCollection>   & MuCands1, 
 		      const edm::Handle<RecoChargedCandidateCollection> & MuCands2,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 		      const edm::Handle<RecoChargedCandidateCollection> & MuCands3,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+		      //		      const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;
@@ -116,11 +114,6 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
     }
   }
   else {nmuon = 0;}
-
-  l1extra::L1MuonParticleCollection myMucands1; 
-  myMucands1 = * MuCands1; 
-  //  RecoChargedCandidateCollection myMucands1;
-  std::sort(myMucands1.begin(),myMucands1.end(),PtGreater()); 
 
   /////////////////////////////// Open-HLT muons ///////////////////////////////
 
@@ -180,30 +173,6 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
       }
       else {muonl2iso[imu2c] = -999;}
 
-      //JH
-      l1extra::L1MuonParticleRef l1; 
-      int il2 = 0; 
-      //find the corresponding L1 
-      l1 = tk->seedRef().castTo<edm::Ref< L2MuonTrajectorySeedCollection> >()->l1Particle();
-      il2++; 
-      int imu1idx = 0; 
-      if (MuCands1.isValid()) { 
-        typedef l1extra::L1MuonParticleCollection::const_iterator candl1; 
-        for (candl1 j=myMucands1.begin(); j!=myMucands1.end(); j++) { 
-	  if((j->pt() == l1->pt()) &&
-	     (j->eta() == l1->eta()) &&
-	     (j->phi() == l1->phi()) &&
-	     (j->gmtMuonCand().quality() == l1->gmtMuonCand().quality()))
-	    {break;}
-	  //	  cout << << endl;
-	  //          if ( tkl1 == l1 ) {break;} 
-          imu1idx++; 
-        } 
-      } 
-      else {imu1idx = -999;} 
-      muonl21idx[imu2c] = imu1idx; // Index of the L1 muon having matched with the L2 muon with index imu2c 
-      //end JH
-
       imu2c++;
     }
   }
@@ -226,6 +195,15 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
       //find the corresponding L2 track
       staTrack = tk->seedRef().castTo<edm::Ref< L3MuonTrajectorySeedCollection> >()->l2Track();
       il3++;
+      /*
+	for (l3muon j=mulinks->begin(); j!=mulinks->end(); j++){
+	if (j->globalTrack() == tk) {
+	staTrack = j->standAloneTrack();
+	break;
+	}
+	il3++;
+	}
+      */
       int imu2idx = 0;
       if (MuCands2.isValid()) {
 	typedef RecoChargedCandidateCollection::const_iterator candl2;

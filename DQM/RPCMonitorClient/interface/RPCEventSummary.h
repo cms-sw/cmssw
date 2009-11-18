@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2009/03/28 03:31:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/12 12:58:50 $
+ *  $Revision: 1.12 $
  *  \author Anna Cimmino
  *   
  */
@@ -43,6 +43,8 @@ public:
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
+   //End Run
+   void endRun(const edm::Run& r, const edm::EventSetup& c);
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -62,6 +64,7 @@ public:
   bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
+
   bool init_;
   DQMStore* dbe_;
  

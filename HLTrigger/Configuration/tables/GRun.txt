@@ -63,8 +63,10 @@ HLT_BackwardBSC
 HLT_ForwardBSC
 HLT_TrackerCosmics
 HLT_StoppedHSCP_8E29
-HLT_IsoTrack_8E29
-AlCa_HcalPhiSym
+HLT_IsoTrackHB_8E29
+HLT_IsoTrackHE_8E29
+HLT_HcalPhiSym
+HLT_HcalNZS_8E29
 AlCa_EcalPhiSym
 AlCa_EcalPi0_8E29
 AlCa_EcalEta_8E29
@@ -81,6 +83,7 @@ HLT_PhysicsNoMuon
 HLT_PixelFEDSize
 HLT_HFThreshold
 HLT_GlobalRunHPDNoise
+HLT_TechTrigHCALNoise
 HLT_L1_BPTX
 HLT_L1_BSC
 HLT_L1_HFtech
@@ -91,9 +94,6 @@ HLT_TrackPointing
 HLT_PhysicsNoMuonPrescaled
 HLT_ZeroBiasPrescaled
 HLT_L1MuOpenPrescaled
-AlCa_HcalNZS
-AlCa_EcalPi0_Cosmics
-AlCa_EcalEta_Cosmics
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput

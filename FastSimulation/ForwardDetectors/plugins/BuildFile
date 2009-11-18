@@ -11,7 +11,7 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library name="CastorFastTowerProducer" file="CastorFastTowerProducer.cc>
+<library name="CastorFastTowerProducer" file="CastorFastTowerProducer.cc">
 <use name=DataFormats/Common>
 <use name=DataFormats/CastorReco>
 <use name=FWCore/Framework>
@@ -26,7 +26,7 @@
 <flags EDM_PLUGIN="1">
 </library> 
 
-<library name="CastorFastClusterProducer" file="CastorFastClusterProducer.cc>
+<library name="CastorFastClusterProducer" file="CastorFastClusterProducer.cc">
 <use name=DataFormats/Common>
 <use name=DataFormats/CastorReco>
 <use name=FWCore/Framework>

@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.2 2009/08/21 13:51:19 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.3.2.2 2009/09/25 09:57:50 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h
@@ -24,6 +24,18 @@ namespace stor {
 
     typedef std::pair<ALARM_LEVEL,xcept::Exception> Alarms;
     typedef std::multimap<std::string, Alarms> AlarmsList;
+
+    /**
+      Notifies the sentinel
+    */
+    virtual void notifySentinel
+    (
+      const ALARM_LEVEL level,
+      xcept::Exception& e
+    )
+    {
+      raiseAlarm("SentinelException", level, e);
+    }
 
     /**
       Raises a sentinel alarm

@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.3y7 2009/09/06 19:35:44 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.45 2009/11/03 00:01:14 chrjones Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -16,7 +16,7 @@
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TEveManager.h"
-#include "TCanvas.h" 
+#include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
 
@@ -27,18 +27,23 @@
 // Fireworks includes
 #include "Fireworks/Electrons/plugins/FWElectronDetailView.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 //
 // constructors and destructor
 //
-FWElectronDetailView::FWElectronDetailView()
+FWElectronDetailView::FWElectronDetailView() :
+   m_viewer(0),
+   m_data(0)
 {
 }
 
 FWElectronDetailView::~FWElectronDetailView()
 {
+   getEveWindow()->DestroyWindow();
+   if(0!=m_data) { m_data->DecDenyDestroy();}
 }
 
 //
@@ -47,77 +52,52 @@ FWElectronDetailView::~FWElectronDetailView()
 void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* iElectron, TEveWindowSlot* base)
 {
    if(0==iElectron) return;
-   TEveWindowPack* eveWindow = base->MakePack();
-   eveWindow->SetShowTitleBar(kFALSE);
 
-   TEveWindow* ew(0);
-   TEveWindowSlot* slot(0);
-   TEveScene*      scene(0);
-   TEveViewer*     viewer(0);
-   TGVerticalFrame* ediFrame(0);
+   TEveScene*  scene(0);
+   TEveViewer* viewer(0);
+   TCanvas*    canvas(0);
+   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
+   setEveWindow(eveWindow);
+   m_viewer = viewer->GetGLViewer();
 
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 1
-   ///////////////////////////////////////////////////////////////////////
-
-   // prepare window
-   slot = eveWindow->NewSlot();
-   ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("ECAL based view");
-   FWDetailViewBase::setEveWindow(ew);
-   
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
-				   iElectron->caloPosition().eta(), iElectron->caloPosition().phi(), 25);
+                                   iElectron->caloPosition().eta(), iElectron->caloPosition().phi(), 25);
+   canvas->cd();
+   double y = makeLegend(0.02,0.95,iElectron, id);
+   builder.makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
+
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iElectron->superCluster().isAvailable() )
-     builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
+      builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
    TEveCaloLego* lego = builder.build();
+   m_data = lego->GetData();
+   scene->AddElement(lego->GetData());
    scene->AddElement(lego);
-   
    // add Electron specific details
    addTrackPointsInCaloData( iElectron, lego);
    drawCrossHair(iElectron, lego, scene);
    addInfo(iElectron, scene);
 
-   // draw legend in latex
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
-   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   ediFrame->MapSubwindows();
-   ediFrame->Layout();
-   ec->GetCanvas()->SetBorderMode(0);
-   makeLegend(iElectron, id, ec->GetCanvas());
-   
    // draw axis at the window corners
-   // std::cout << "TEveViewer: " << viewer << std::endl;
-   TGLViewer* glv =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
    overlay->SetShowScales(1); // temporary
-   glv->AddOverlayElement(overlay);
+   m_viewer->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh = 
-     new TEveLegoEventHandler(lego,(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
-   glv->SetEventHandler(eh);
-   glv->UpdateScene();
-   glv->CurrentCamera().Reset();
+   m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   TEveLegoEventHandler* eh =
+      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
+   m_viewer->SetEventHandler(eh);
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
 
-   scene->Repaint(true);
-   viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+
+   m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
-   
-   ////////////////////////////////////////////////////////////////////////
-   //                              Sub-view 2
-   ///////////////////////////////////////////////////////////////////////
-   // slot = eveWindow->NewSlot();
-   // ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   // ew->SetElementName("View C");
-
-   // eveWindow->GetTab()->SetTab(1);
 }
 
 
@@ -136,87 +116,86 @@ double FWElectronDetailView::deltaPhiSuperClusterTrackAtVtx (const reco::GsfElec
    return t.deltaPhiSuperClusterTrackAtVtx();
 }
 
-void
-FWElectronDetailView::makeLegend(const reco::GsfElectron *electron, 
-				 const FWModelId& id,
-				 TCanvas* textCanvas)
+double
+FWElectronDetailView::makeLegend( double x0, double y0,
+                                  const reco::GsfElectron *electron,
+                                  const FWModelId& id)
 {
-   textCanvas->cd();
-
    TLatex* latex = new TLatex(0.02, 0.970, "");
    const double textsize(0.05);
    latex->SetTextSize(2*textsize);
 
-   float_t x = 0.02;
+   float_t x = x0;
    float_t x2 = 0.52;
-   float   y = 0.95;
+   float y = y0;
    float fontsize = latex->GetTextSize()*0.6;
-   
+
    latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
    y -= fontsize;
    latex->SetTextSize(textsize);
    fontsize = latex->GetTextSize()*0.6;
 
-   latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f", 
-			       electron->et(), electron->eta(), electron->phi()) );
+   latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
+                               electron->et(), electron->eta(), electron->phi()) );
    y -= fontsize;
    // summary
    if (electron->charge() > 0)
-     latex->DrawLatex(x, y, " charge = +1");
-   else 
-     latex->DrawLatex(x, y, " charge = -1");
+      latex->DrawLatex(x, y, " charge = +1");
+   else
+      latex->DrawLatex(x, y, " charge = -1");
    y -= fontsize;
 
    // delta phi/eta in
    latex->DrawLatex(x, y, "SuperCluster vs inner state extrapolation");
    y -= fontsize;
    latex->DrawLatex(x, y,  Form(" #Delta#eta_{in} = %.3f",
-				electron->deltaEtaSuperClusterTrackAtVtx()) );
+                                electron->deltaEtaSuperClusterTrackAtVtx()) );
    latex->DrawLatex(x2, y, Form("#Delta#varphi_{in} = %.3f",
-				electron->deltaPhiSuperClusterTrackAtVtx()) );
+                                electron->deltaPhiSuperClusterTrackAtVtx()) );
    y -= fontsize;
-   
+
    // delta phi/eta out
    latex->DrawLatex(x, y, "SeedCluster vs outer state extrapolation");
    y -= fontsize;
    char dout[128];
    sprintf(dout, " #Delta#eta_{out} = %.3f",
-	   electron->deltaEtaSeedClusterTrackAtCalo());
+           electron->deltaEtaSeedClusterTrackAtCalo());
    latex->DrawLatex(x, y, dout);
    sprintf(dout, " #Delta#varphi_{out} = %.3f",
-	   electron->deltaPhiSeedClusterTrackAtCalo());
+           electron->deltaPhiSeedClusterTrackAtCalo());
    latex->DrawLatex(x2, y, dout);
    y -= 2*fontsize;
-   
+
    // legend
    /* it should be clear from the tool tip pop-up what a user is looking at
-   latex->SetTextSize(1.5*textsize);
-   latex->DrawLatex(x, y, "Legend:"); y -= fontsize*1.5;
-   latex->SetTextSize(textsize);
-   latex->DrawLatex(x, y, " #color[2]{#bullet} seed cluster centroid");
-   y -= fontsize;
-   latex->DrawLatex(x, y, " #color[4]{#bullet} supercluster centroid");
-   y -= fontsize;
-   // latex->DrawLatex(x, y, "#color[618]{#Box} seed cluster");
-   // y -= fontsize;
-   // latex->DrawLatex(x, y, "#color[608]{#Box} other clusters"); // kCyan+1
-   // eta, phi axis or x, y axis?
-   // y -= fontsize;
+      latex->SetTextSize(1.5*textsize);
+      latex->DrawLatex(x, y, "Legend:"); y -= fontsize*1.5;
+      latex->SetTextSize(textsize);
+      latex->DrawLatex(x, y, " #color[2]{#bullet} seed cluster centroid");
+      y -= fontsize;
+      latex->DrawLatex(x, y, " #color[4]{#bullet} supercluster centroid");
+      y -= fontsize;
+      // latex->DrawLatex(x, y, "#color[618]{#Box} seed cluster");
+      // y -= fontsize;
+      // latex->DrawLatex(x, y, "#color[608]{#Box} other clusters"); // kCyan+1
+      // eta, phi axis or x, y axis?
+      // y -= fontsize;
 
-   latex->DrawLatex(x, y, "track position at calo:");
-   y -= fontsize;
-   latex->DrawLatex(x, y, " #color[2]{+} extrapolating from innermost state");
-   y -= fontsize;
-   latex->DrawLatex(x, y, " #color[4]{+} extrapolating from outermost state");
-   y -= fontsize;
+      latex->DrawLatex(x, y, "track position at calo:");
+      y -= fontsize;
+      latex->DrawLatex(x, y, " #color[2]{+} extrapolating from innermost state");
+      y -= fontsize;
+      latex->DrawLatex(x, y, " #color[4]{+} extrapolating from outermost state");
+      y -= fontsize;
     */
+   return y;
 }
 
 void
 FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *lego, TEveElementList* tList)
 {
-    unsigned int subdetId(0);
-    if ( ! i->superCluster()->seed()->hitsAndFractions().empty() )
+   unsigned int subdetId(0);
+   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
       subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
    double ymax = lego->GetPhiMax();
@@ -228,9 +207,9 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
 
    {
       const double eta = i->superCluster()->seed()->position().eta() -
-         i->deltaEtaSeedClusterTrackAtCalo();
+                         i->deltaEtaSeedClusterTrackAtCalo();
       const double phi = i->superCluster()->seed()->position().phi() -
-         i->deltaPhiSeedClusterTrackAtCalo();
+                         i->deltaPhiSeedClusterTrackAtCalo();
 
       TEveStraightLineSet *trackpositionAtCalo = new TEveStraightLineSet("sc trackpositionAtCalo");
       trackpositionAtCalo->SetPickable(kTRUE);
@@ -296,7 +275,7 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
 }
 
 Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
-                                       Double_t eta, Double_t phi)
+                                        Double_t eta, Double_t phi)
 {
    Bool_t changed = kFALSE;
 
@@ -329,24 +308,24 @@ Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm
 void
 FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, TEveCaloLego* lego)
 {
-  unsigned int subdetId(0);
-  if ( ! i->superCluster()->seed()->hitsAndFractions().empty() )
-    subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
+   unsigned int subdetId(0);
+   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
+      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
    TEveCaloDataVec* data = (TEveCaloDataVec*)lego->GetData();
    Double_t em, eM, pm, pM;
    data->GetEtaLimits(em, eM);
    data->GetPhiLimits(pm, pM);
-
+   data->IncDenyDestroy();
    Bool_t changed = kFALSE;
    // add cells in third layer if necessary
 
    //   trackpositionAtCalo
    {
       double eta = i->superCluster()->seed()->position().eta() -
-         i->deltaEtaSeedClusterTrackAtCalo();
+                   i->deltaEtaSeedClusterTrackAtCalo();
       double phi = i->superCluster()->seed()->position().phi() -
-         i->deltaPhiSeedClusterTrackAtCalo();
+                   i->deltaPhiSeedClusterTrackAtCalo();
 
       if (subdetId == EcalBarrel)
       {
@@ -395,9 +374,9 @@ void
 FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList)
 {
    unsigned int subdetId(0);
-   if ( ! i->superCluster()->seed()->hitsAndFractions().empty() )
-     subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
-  
+   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
+      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
+
    // points for centroids
    Double_t x(0), y(0), z(0);
    TEvePointSet *scposition = new TEvePointSet("sc position");
@@ -433,28 +412,35 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
    seedposition->SetMarkerStyle(2);
    seedposition->SetMarkerColor(kRed);
    tList->AddElement(seedposition);
-   
+
    // electron direction (show it if it's within
    // the area of interest)
    if ( fabs(i->phi()-i->caloPosition().phi())< 25*0.0172 &&
-	fabs(i->eta()-i->caloPosition().eta())< 25*0.0172 )
-     {
-	TEvePointSet *eldirection = new TEvePointSet("seed position");
-	eldirection->SetTitle("Electron direction at vertex");
-	eldirection->SetPickable(kTRUE);
-	eldirection->SetMarkerStyle(2);
-	if (subdetId == EcalBarrel) {
-	   eldirection->SetNextPoint(i->eta(), i->phi(), z);
-	   eldirection->SetMarkerSize(0.01);
-	}else{
-	   eldirection->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()), 
-				     310*fabs(tan(i->theta()))*sin(i->phi()),
-				     z);
-	   eldirection->SetMarkerSize(1);
-	}
-	eldirection->SetMarkerColor(kYellow);
-	tList->AddElement(eldirection);
-     }
+        fabs(i->eta()-i->caloPosition().eta())< 25*0.0172 )
+   {
+      TEvePointSet *eldirection = new TEvePointSet("seed position");
+      eldirection->SetTitle("Electron direction at vertex");
+      eldirection->SetPickable(kTRUE);
+      eldirection->SetMarkerStyle(2);
+      if (subdetId == EcalBarrel) {
+         eldirection->SetNextPoint(i->eta(), i->phi(), z);
+         eldirection->SetMarkerSize(0.01);
+      }else{
+         eldirection->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()),
+                                   310*fabs(tan(i->theta()))*sin(i->phi()),
+                                   z);
+         eldirection->SetMarkerSize(1);
+      }
+      eldirection->SetMarkerColor(kYellow);
+      tList->AddElement(eldirection);
+   }
 }
 
-REGISTER_FWDETAILVIEW(FWElectronDetailView);
+void
+FWElectronDetailView::setBackgroundColor(Color_t col)
+{
+   return;
+   FWColorManager::setColorSetViewer(m_viewer, col);
+}
+
+REGISTER_FWDETAILVIEW(FWElectronDetailView,Electron);

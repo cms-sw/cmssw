@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jan 12 09:48:04 EST 2009
-// $Id: FWDetailViewFactory.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWDetailViewFactory.h,v 1.3 2009/04/27 14:42:33 chrjones Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@ class FWDetailViewBase;
 
 typedef edmplugin::PluginFactory<FWDetailViewBase*()> FWDetailViewFactory;
 
-#define REGISTER_FWDETAILVIEW(_name_) \
-   DEFINE_EDM_PLUGIN(FWDetailViewFactory,_name_,_name_::classRegisterTypeName()+"@" # _name_)
+#define REGISTER_FWDETAILVIEW(_classname_,_name_) \
+   DEFINE_EDM_PLUGIN(FWDetailViewFactory,_classname_,_classname_::classRegisterTypeName()+"@" # _name_ "@" # _classname_)
 
 
 #endif

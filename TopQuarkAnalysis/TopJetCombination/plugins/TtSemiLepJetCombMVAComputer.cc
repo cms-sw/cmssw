@@ -9,7 +9,7 @@
 #include "TString.h"
 
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
-  leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
+  leps_    (cfg.getParameter<edm::InputTag>("leps")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
   mets_    (cfg.getParameter<edm::InputTag>("mets")),
   maxNJets_(cfg.getParameter<int>("maxNJets")),
@@ -44,7 +44,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
 
   // get lepton, jets and mets
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
-  evt.getByLabel(leptons_, leptons);
+  evt.getByLabel(leps_, leptons);
 
   edm::Handle< std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);

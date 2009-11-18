@@ -164,13 +164,13 @@ SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid,std::vector<TH
 }
 
 TH2F*
-SiStripCorrelateBadStripAndNoise::getHisto(const size_t& index){
+SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int& index){
   if(vTH2.size()<index+1)
     vTH2.resize(index+1,0);
   
   if(vTH2[index]==0){
     char name[128];
-    sprintf(name,"%d",index);
+    sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
     vTH2[index]=new TH2F(name,name,50,-2.,2.,21,0.5,21.5);
   }

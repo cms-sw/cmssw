@@ -1,7 +1,8 @@
 // -*- C++ -*-
 
 // CMS includes
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
@@ -69,14 +70,16 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
+   // create labels
+   edm::InputTag muonLabel ("selectedLayer1Muons");
+
    for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      fwlite::Handle<std::vector<pat::Muon> > muonHandle;
-
-      muonHandle.getByLabel (eventCont, "selectedLayer1Muons");
+      edm::Handle<std::vector<pat::Muon> > muonHandle;
+      eventCont.getByLabel (muonLabel, muonHandle);
       assert (muonHandle.isValid());
       vector< pat::Muon > const & muonVec = *muonHandle;
 

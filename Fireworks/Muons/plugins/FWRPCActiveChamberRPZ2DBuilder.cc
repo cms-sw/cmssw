@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCActiveChamberRPZ2DBuilder.cc,v 1.1 2009/01/19 14:09:35 amraktad Exp $
+// $Id: FWRPCActiveChamberRPZ2DBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
 //
 
 
@@ -27,7 +27,6 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 

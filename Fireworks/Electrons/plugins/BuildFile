@@ -1,6 +1,7 @@
 <library file=*.cc name=FireworksElectronsPlugins>
   <use name=Fireworks/Electrons>
   <use name=Fireworks/Tracks>
+  <use name=Fireworks/Calo>
   <use name=Fireworks/Candidates>
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/EgammaReco>

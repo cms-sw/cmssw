@@ -14,7 +14,7 @@ AsciiNeutronWriter::~AsciiNeutronWriter() {
 }
 
 
-void AsciiNeutronWriter::writeCluster(int chamberType, const edm::PSimHitContainer & hits) 
+void AsciiNeutronWriter::writeEvent(int chamberType, const edm::PSimHitContainer & hits) 
 {
   // open the correct file
   stringstream s;

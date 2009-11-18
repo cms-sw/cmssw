@@ -36,7 +36,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
   typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
-  typedef std::map< std::string,  ProxyP> ProxyMap;
+  typedef std::multimap< std::string,  ProxyP> ProxyMap;
  
 
   PoolDBESSource( const edm::ParameterSet& );

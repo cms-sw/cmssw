@@ -50,7 +50,7 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
   
     ////---- book the following histograms 
-    char* type = "Castor All Pedestal Values";
+    string type = "Castor All Pedestal Values";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,50,0,50);
     
     type = "Castor Pedestal Mean Reference Values";

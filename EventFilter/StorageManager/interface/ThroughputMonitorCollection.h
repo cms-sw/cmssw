@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.11 2009/08/28 13:08:58 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.12 2009/08/28 14:35:33 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/08/28 13:08:58 $
+   * $Revision: 1.12 $
+   * $Date: 2009/08/28 14:35:33 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection

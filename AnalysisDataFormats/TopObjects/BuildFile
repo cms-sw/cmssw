@@ -8,7 +8,7 @@
 <use name=DataFormats/PatCandidates>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/EgammaCandidates>
-<use name=PhysicsTools/CandUtils>
+<use name=CommonTools/CandUtils>
 <use name=root>
 
 <export>
@@ -21,7 +21,7 @@
   <use name=DataFormats/PatCandidates>
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/EgammaCandidates>
-  <use name=PhysicsTools/CandUtils>
+  <use name=CommonTools/CandUtils>
   <use name=root>
 
   <lib name=AnalysisDataFormatsTopObjects>

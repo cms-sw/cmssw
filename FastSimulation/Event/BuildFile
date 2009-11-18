@@ -9,6 +9,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=FastSimDataFormats/NuclearInteractions>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
 <export>
@@ -18,6 +19,7 @@
   <use name=FastSimulation/Particle>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>
+  <use name=FastSimDataFormats/NuclearInteractions>
   <use name=SimGeneral/HepPDTRecord>
   <lib name=FastSimulationEvent>
 </export>

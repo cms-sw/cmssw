@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2008/12/19 13:13:00 $
- * $Revision: 1.2 $
+ * $Date: 2009/07/27 20:32:24 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -25,13 +25,14 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-
+#include <FWCore/Framework/interface/ESWatcher.h>
 #include <sys/time.h>
 
 class EcalElectronicsMapper;
@@ -55,6 +56,10 @@ class EcalRawToDigi : public edm::EDProducer{
    * Class destructor
    */
   virtual ~EcalRawToDigi();
+
+ 
+  edm::ESWatcher<EcalMappingRcd> watcher_;
+
   
  private:
 

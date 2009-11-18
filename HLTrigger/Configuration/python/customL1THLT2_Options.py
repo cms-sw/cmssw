@@ -3,8 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.Configuration import patchToRerunL1Emulator
 
 def customise(process):
+    if 'hltTrigReport' in process.__dict__:
+        process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
-    process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
+    if 'hltDQMHLTScalers' in process.__dict__:
+        process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
     process.options.wantSummary = cms.untracked.bool(True)
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

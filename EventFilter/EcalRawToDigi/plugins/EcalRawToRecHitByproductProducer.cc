@@ -48,7 +48,7 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, workerESH);
   const EcalUnpackerWorker * worker =  dynamic_cast<const EcalUnpackerWorker *>(&*workerESH);
   if (!worker) 
-    edm::LogError("EcalRawToRecHit|Byproducts")<<"worker "<< workerName_ <<" could not be cast in EcalUnpackerWorker type."
+    edm::LogError("IncorrectConfiguration")<<"worker "<< workerName_ <<" could not be cast in EcalUnpackerWorker type."
 					       <<" this must be a configuration mistake. Expect a segfault right now.";
 
   LogDebug("EcalRawToRecHit|Byproducts")<<"worker retrieved.";

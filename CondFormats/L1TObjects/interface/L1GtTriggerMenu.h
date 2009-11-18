@@ -36,6 +36,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 
 // forward declarations
 class L1GtCondition;
@@ -59,6 +60,7 @@ public:
             const std::vector<std::vector<L1GtHfBitCountsTemplate> >&,
             const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&,
             const std::vector<std::vector<L1GtBptxTemplate> >&,
+            const std::vector<std::vector<L1GtExternalTemplate> >&,
             const std::vector<std::vector<L1GtCorrelationTemplate> >&,
             const std::vector<std::vector<L1GtMuonTemplate> >&,
             const std::vector<std::vector<L1GtCaloTemplate> >&,
@@ -187,6 +189,16 @@ public:
             const std::vector<std::vector<L1GtBptxTemplate> >&);
 
     //
+
+    inline const std::vector<std::vector<L1GtExternalTemplate> >&
+        vecExternalTemplate() const {
+
+        return m_vecExternalTemplate;
+    }
+
+    void setVecExternalTemplate(
+            const std::vector<std::vector<L1GtExternalTemplate> >&);
+
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >&
         vecCorrelationTemplate() const {
@@ -280,6 +292,7 @@ private:
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
     std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
     std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
+    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;

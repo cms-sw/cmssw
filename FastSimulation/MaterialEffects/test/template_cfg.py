@@ -20,7 +20,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_30X::All"
+process.GlobalTag.globaltag = "MC_31X_V8::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -38,8 +38,7 @@ process.load("Configuration.StandardSequences.Generator_cff")
 #
 process.load("Configuration.StandardSequences.Simulation_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed= ==SEED==
-#process.RandomNumberGeneratorService.theSource.initialSeed= 1414
+process.RandomNumberGeneratorService.generator.initialSeed= ==SEED==
 
 # please note the IMPORTANT: 
 # in order to operate Digis, one needs to include Mixing module 
@@ -72,6 +71,8 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.RandomNumberGeneratorService.theSource.initialSeed= ==SEED==
 
+process.source = cms.Source("EmptySource")
+
 # Flat energy gun
 """
 process.source = cms.Source(
@@ -89,33 +90,30 @@ process.source = cms.Source(
 )
 """
 # Flat pT gun
-process.source = cms.Source(
-    "FlatRandomPtGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(==PID==),
-        MinEta = cms.untracked.double(-5.10000),
-        MaxEta = cms.untracked.double(5.10000),
-        MinPhi = cms.untracked.double(-3.14159), ## in radians
-        MaxPhi = cms.untracked.double(3.14159),
-        MinPt = cms.untracked.double(==PT==),
-        MaxPt = cms.untracked.double(==PT==),
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    firstRun = cms.untracked.uint32(1),
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(==PID==),
+        # you can request more than 1 particle
+        # PartID = cms.vint32(211,11,-13),
+        MinPt = cms.double(==PT==),
+        MaxPt = cms.double(==PT==),
+        MinEta = cms.double(-5.1),
+        MaxEta = cms.double(5.1),
+        MinPhi = cms.double(-3.14159265359), ## it must be in radians
+        MaxPhi = cms.double(3.14159265359),
     ),
-    Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts
+    AddAntiParticle = cms.bool(False), # back-to-back particles
+    Verbosity = cms.untracked.int32(0) ## for printouts, set it to 1 (or greater)   
 )
+
+process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 process.MessageLogger = cms.Service("MessageLogger",
     reco = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG')
     ),
    destinations = cms.untracked.vstring('reco')
-)
-
-# Geant4-based CMS Detector simulation (OscarProducer)
-#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.load("SimG4Core.Application.g4SimHits_cfi")
-process.psim = cms.Sequence(
-    process.VtxSmeared+
-    process.g4SimHits
 )
 
 process.options = cms.untracked.PSet(
@@ -130,7 +128,7 @@ process.outSim = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('==OUTPUT==')
 )
 
-process.p1 = cms.Path(process.psim)
+process.p1 = cms.Path(process.generator+process.pgen+process.psim)
 process.outpath = cms.EndPath(process.outSim)
 
 # Overall schedule

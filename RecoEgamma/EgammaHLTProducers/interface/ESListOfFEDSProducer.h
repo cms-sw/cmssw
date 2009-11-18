@@ -23,7 +23,7 @@ public:
 	ESListOfFEDSProducer(const edm::ParameterSet& pset);
 	virtual ~ESListOfFEDSProducer();
 	void produce(edm::Event & e, const edm::EventSetup& c);
-	void beginJob(const edm::EventSetup& c);
+	void beginJob(void);
 	void endJob(void);
 	// std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
 	// std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);

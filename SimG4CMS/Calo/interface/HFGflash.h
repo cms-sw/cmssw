@@ -15,9 +15,6 @@
 #include "G4TouchableHandle.hh"
 #include "G4Navigator.hh"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandGamma.h"
-
 #include <string>
 #include <vector>
 
@@ -56,7 +53,6 @@ private:
   G4Navigator *theGflashNavigator;
   G4TouchableHandle  theGflashTouchableHandle;
 
-  CLHEP::RandGaussQ* theRandGauss;
   Gflash::CalorimeterNumber jCalorimeter;
 
   bool theWatcherOn;
@@ -68,8 +64,6 @@ private:
   G4double longHcal[Gflash::NPar];  
   G4double longEcal[Gflash::NPar];  
   G4double lateralPar[4]; 
-
-  CLHEP::RandGamma*  theRandGamma;
 
 };
 

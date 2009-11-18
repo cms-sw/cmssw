@@ -66,7 +66,7 @@ class EcalErrorDictionary {
   EcalErrorDictionary() {}; // Hidden to force static use
   ~EcalErrorDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 50;
+  const static unsigned int DICTSIZE = 51;
   
   static errorDef_t getDef(unsigned int i) {
     const static errorDef_t ERRORDICT[DICTSIZE] =
@@ -133,7 +133,9 @@ class EcalErrorDictionary {
 	{ ((uint64_t)1<<49), "PHYSICS_RMS_TT_TIMING_WARNING" , "TT rms timing outside range for physics events"},
 
 	{ ((uint64_t)1<<50), "PHYSICS_BAD_CHANNEL_WARNING" , "Bad signal for physics events"},
-	{ ((uint64_t)1<<51), "PHYSICS_BAD_CHANNEL_ERROR" , "No signal for physics events"}
+	{ ((uint64_t)1<<51), "PHYSICS_BAD_CHANNEL_ERROR" , "No signal for physics events"},
+
+	{ ((uint64_t)1<<52), "STATUS_FLAG_ERROR" , "Readout tower front end error (any type)"}
 
 
 

@@ -3,7 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.15 2009/09/08 08:30:09 andreasp Exp $
+#  $Id: addpkg,v 1.16 2009/09/08 08:59:26 andreasp Exp $
 #
 use strict;
 use warnings;
@@ -49,17 +49,17 @@ my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
 die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
 
+my $exitcode=0;
 if(!(defined $file)) {
 
 # addpkg <package> : use default tag for the release - 1 argument
 # addpkg <package> <tag>: use tag provided by user. simple cvs co - 2 arguments
     if ( $#ARGV > 0){
-	addTag($ARGV[0],$ARGV[1]);
+	$exitcode+=addTag($ARGV[0],$ARGV[1]);
     }
     else{
-	addTag($ARGV[0]);
+	$exitcode+=addTag($ARGV[0]);
     }
-    exit 0;
 }
 else{
 # addpkg -f file: checkout tags provided in the file
@@ -77,7 +77,6 @@ my %tags;
 open INFILE, "<$file";
 
 chdir("$ENV{'CMSSW_BASE'}/src");
-
 while(my $line = <INFILE>) {
     chomp $line;
     $line =~ s/#.*//;
@@ -95,15 +94,16 @@ while(my $line = <INFILE>) {
        $package = $tt;
    }
     if ($tag eq "") {
-	addTag($package);
+	$exitcode+=addTag($package);
     }
     else{
-	addTag($package,$tag);
+	$exitcode+=addTag($package,$tag);
     }
 }
 chdir($currdir);
-exit 0;
 }
+if ($exitcode>0){$exitcode=1;}
+exit($exitcode);
 # -- main ends here
 
 #-----------
@@ -202,7 +202,7 @@ sub addTag {
 	$tagco = $args[1];   # user provided tag
 	$reversePrint ? print "Checking out $tagco $package (into $realPackage)\n" : print "Checking out $package $tagco (into $realPackage)\n";
 	system("cvs $cvsOpt co -r $tagco -d $realPackage $package"); 
-	return 0;
+	return $?;
     }
 
 # user supplies a tag and we have a package not a subsystem
@@ -211,7 +211,7 @@ sub addTag {
 	$tagaction = "specified";
 	$reversePrint ? print "Checking out $tagco $package\n" : print "Checking out $package $tagco\n";
 	system("cvs $cvsOpt co -r $tagco $package"); 
-	return 0;
+	return $?;
     }
 
 #otherwise we have a complicated case - read the list of packages
@@ -221,6 +221,7 @@ sub addTag {
     open IN, "$taglist";
     my $l2="";
     my $thepack=""; my $thetag="";
+    my $code=0;
     while(my $l = <IN>) {
 	chomp $l;
 	($thepack,$thetag) = split '\s+', $l;
@@ -231,6 +232,7 @@ sub addTag {
 		$tagco = $args[1];   # user provided tag
 		$reversePrint  ? print "Checking out $tagco $thepack\n" : print "Checking out $thepack $tagco\n";
 		system("cvs $cvsOpt co -r $tagco $thepack"); 
+		$code += $?;
 	    }
 	    else{
 		if(defined $pkgquery) {
@@ -239,11 +241,12 @@ sub addTag {
 		else{
 		    $reversePrint ? print "Checking out $tagrel $thepack\n" : print "Checking out $thepack $tagrel\n";
 		    system("cvs $cvsOpt co -r $tagrel $thepack"); 
+		    $code += $?;
 		}
 	    }
 	}
     }
     close IN;
     die "No package <$package> found in the release.\n" if( $tagrel eq "" );
-    return 0;
+    return $code;
 }

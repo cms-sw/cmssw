@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.34 2009/09/18 14:01:11 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.38 2009/09/24 09:54:27 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -53,9 +53,9 @@ _smVersion(SMversion)
   _specialRowAttr[ "class" ] = "special";
 
   _alarmColors[ AlarmHandler::OKAY ] = "#FFFFFF";
-  _alarmColors[ AlarmHandler::WARNING ] = "#EF5A10";
-  _alarmColors[ AlarmHandler::ERROR ] = "#FFA349";
-  _alarmColors[ AlarmHandler::FATAL ] = "#FF4646";
+  _alarmColors[ AlarmHandler::WARNING ] = "#FFE635";
+  _alarmColors[ AlarmHandler::ERROR ] = "#FF9F36";
+  _alarmColors[ AlarmHandler::FATAL ] = "#FF2338";
 
   _tableLabelAttr[ "align" ] = "left";
 
@@ -349,7 +349,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
         // HLT output module:
         XHTMLMaker::Node* cs_td_hlt = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_hlt, (*it)->selHLTOut() );
+        maker.addText( cs_td_hlt, (*it)->outputModuleLabel() );
 
         // Filter list:
         std::string fl_str;
@@ -2006,11 +2006,11 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of fragments in fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 0 );
   
   // number of fragments popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 0 );
   
   // data rate popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2022,15 +2022,15 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of events in fragment store
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 1 );
+  maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 0 );
   
   // number of events in stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 0 );
   
   // number of events popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.streamQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.streamQueueRate, 0 );
   
   // data rate popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2042,7 +2042,7 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of events written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.writtenEventsRate, 1 );
+  maker.addDouble( tableDiv, snapshot.writtenEventsRate, 0 );
   
   // date rate written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2050,11 +2050,11 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of dqm events in DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 0 );
   
   // number of dqm events popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.dqmQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.dqmQueueRate, 0 );
   
   // data rate popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2338,7 +2338,8 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       }
       maker.addInt( tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount() );
 
-      if (rbResultsList[idx]->skippedDiscardCount != 0)
+      const int skippedDiscards = rbResultsList[idx]->skippedDiscardStats.getSampleCount();
+      if (skippedDiscards != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
       }
@@ -2346,7 +2347,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addInt( tableDiv, rbResultsList[idx]->skippedDiscardCount );
+      maker.addInt( tableDiv, skippedDiscards );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addDouble( tableDiv, rbResultsList[idx]->eventStats.
@@ -2453,7 +2454,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Data Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addInt( tableDiv, rbResultPtr->dataDiscardCount );
+  maker.addInt( tableDiv, rbResultPtr->dataDiscardStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2465,7 +2466,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "DQM Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addInt( tableDiv, rbResultPtr->dqmDiscardCount );
+  maker.addInt( tableDiv, rbResultPtr->dqmDiscardStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2477,7 +2478,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Ignored Discards Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addInt( tableDiv, rbResultPtr->skippedDiscardCount );
+  maker.addInt( tableDiv, rbResultPtr->skippedDiscardStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2619,7 +2620,8 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       }
       maker.addInt( tableDiv, fuResultsList[idx]->staleChainStats.getSampleCount() );
 
-      if (fuResultsList[idx]->skippedDiscardCount != 0)
+      const int skippedDiscards = fuResultsList[idx]->skippedDiscardStats.getSampleCount();
+      if (skippedDiscards != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
       }
@@ -2627,7 +2629,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addInt( tableDiv, fuResultsList[idx]->skippedDiscardCount );
+      maker.addInt( tableDiv, skippedDiscards );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addDouble( tableDiv, fuResultsList[idx]->shortIntervalEventStats.

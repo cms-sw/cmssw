@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.11 2009/04/23 04:15:42 jmuelmen Exp $
+// $Id: FWTableWidget.cc,v 1.12 2009/05/20 02:08:51 jmuelmen Exp $
 //
 
 // system include files
@@ -345,7 +345,7 @@ FWTableWidget::buttonReleasedInHeader(Int_t row, Int_t column, Event_t* event,In
 }
 
 void 
-FWTableWidget::buttonReleasedInBody(Int_t row, Int_t column, Event_t* event,Int_t,Int_t)
+FWTableWidget::buttonReleasedInBody(Int_t row, Int_t column, Event_t* event,Int_t iRelX,Int_t iRelY)
 {
    Int_t btn = event->fCode;
    Int_t keyMod = event->fState;
@@ -372,20 +372,27 @@ FWTableWidget::buttonReleasedInBody(Int_t row, Int_t column, Event_t* event,Int_
    }
    if(btn != kButton1 && btn != kButton3) {return;}
    if(row>=-1 and row < m_bodyTable->numberOfRows()) {
-      rowClicked(m_bodyTable->unsortedRowNumber(row),btn,keyMod);
+      Int_t globalX,globalY;
+      Window_t childdum;
+      gVirtualX->TranslateCoordinates(m_body->GetId(),
+                                      gClient->GetDefaultRoot()->GetId(),
+                                      event->fX,event->fY,globalX,globalY,childdum);
+      rowClicked(m_bodyTable->unsortedRowNumber(row),btn,keyMod,globalX,globalY);
    }
 }
 
 void 
-FWTableWidget::rowClicked(Int_t row, Int_t btn, Int_t keyMod)
+FWTableWidget::rowClicked(Int_t row, Int_t btn, Int_t keyMod, Int_t iGlobalX, Int_t iGlobalY)
 {
    keyMod = (keyMod&(kKeyShiftMask|kKeyControlMask));
    //std::cout <<"rowClicked "<<row<<" "<<btn<<" "<<keyMod<<std::endl;
-   Long_t args[3];
+   Long_t args[5];
    args[0]=(Long_t)row;
    args[1]=(Long_t)btn;
    args[2]=(Long_t)keyMod;
-   Emit("rowClicked(Int_t,Int_t,Int_t)",args);      
+   args[3]=(Long_t)iGlobalX;
+   args[4]=(Long_t)iGlobalY;
+   Emit("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",args);      
 }
 
 void 

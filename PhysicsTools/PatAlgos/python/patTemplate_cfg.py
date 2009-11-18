@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_3_0_pre2/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V7-v1/0002/BA958CA5-B19B-DE11-90C6-0018F3D0961A.root'
+        '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
     )
 )
 ## Maximal Number of Events
@@ -20,7 +20,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+## global tag for 33X
 process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+## global tag for 34X
+## process.GlobalTag.globaltag = cms.string('STARTUP3XY_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
@@ -30,7 +33,9 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 print "*********************************************************************"
 print "Switching all processes to use the anti-kT algorithm by default."
 print "Switch the jet collection to your desired algorithm if this is not"
-print "what you want to use."
+print "what you want to use. Note that L7Parton correction are taken from"
+print "SC5 instead of AK5. This is an intermediate solution for the time "
+print "being."
 print "*********************************************************************"
 switchJetCollection(process, 
                     cms.InputTag('ak5CaloJets'),   

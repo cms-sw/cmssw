@@ -11,15 +11,12 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
  #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
 #include "G4ParticleTable.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Random/Randomize.h"
+#include "Randomize.hh"
+#include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
 	     SensitiveDetectorCatalog & clg, 
@@ -351,17 +348,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
 	// dLamdX:  meanNCherPhot = (2.*pi/137.)*charge*charge* 
 	//                          ( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDL * stepL;
-	edm::Service<edm::RandomNumberGenerator> rng;
-	if ( ! rng.isAvailable()) {
-	  throw cms::Exception("Configuration")
-	    << "ZdcSD requires the RandomNumberGeneratorService\n"
-	    << "which is not present in the configuration file.  "
-	    << "You must add the service\n" << "in the configuration file "
-	    << "or remove the modules that require it.";
-	}
-	CLHEP::RandPoissonQ randPoisson(rng->getEngine());
-	poissNCherPhot = (G4int) randPoisson.fire(meanNCherPhot);
-	// poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
+	poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
 
 	if (poissNCherPhot < 0) poissNCherPhot = 0; 
 

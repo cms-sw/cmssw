@@ -26,12 +26,12 @@
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) : conf_(iConfig), m_cacheID_(0) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  folder_organizer = new SiStripFolderOrganizer();
 }
 
 
 
-MonitorTrackResiduals::~MonitorTrackResiduals() { }
+MonitorTrackResiduals::~MonitorTrackResiduals() {
+}
 
 
 void MonitorTrackResiduals::beginJob(const edm::EventSetup& es) {
@@ -52,7 +52,7 @@ void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const&
       for(std::map<int32_t, MonitorElement*>::const_iterator it = HitResidual.begin(), 
 	    itEnd = HitResidual.end(); it!= itEnd;++it) {
 	this->resetModuleMEs(it->first);
-	this->resetLayerMEs(folder_organizer->GetSubDetAndLayer(it->first));
+	this->resetLayerMEs(folder_organizer.GetSubDetAndLayer(it->first));
       }
     } else {
       for(std::map< std::pair<std::string,int32_t>, MonitorElement*>::const_iterator it = m_SubdetLayerResiduals.begin(), 
@@ -77,7 +77,7 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
   
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
-  folder_organizer->setSiStripFolder(); // top SiStrip folder
+  folder_organizer.setSiStripFolder(); // top SiStrip folder
   
   // take from eventSetup the SiStripDetCabling object
   edm::ESHandle<SiStripDetCabling> tkmechstruct;
@@ -101,7 +101,7 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
       // is this a StripModule?
       if( SiStripDetId(ModuleID).subDetector() != 0 ) {
 	
-	folder_organizer->setDetectorFolder(ModuleID); //  detid sets appropriate detector folder		
+	folder_organizer.setDetectorFolder(ModuleID); //  detid sets appropriate detector folder		
 	// Book module histogramms? 
 	if (ModOn) { 
 	  std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
@@ -114,8 +114,8 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 	  NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
 	// book layer level histogramms
-	std::pair<std::string,int32_t> subdetandlayer = folder_organizer->GetSubDetAndLayer(ModuleID);
-	folder_organizer->setLayerFolder(ModuleID,subdetandlayer.second);
+	std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID);
+	folder_organizer.setLayerFolder(ModuleID,subdetandlayer.second);
 	if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
 	  // book histogramms on layer level, check for barrel for correct labeling
 	  std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ? 
@@ -181,7 +181,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	HitResidual[RawId]->Fill(it->resXprime);
 	NormedHitResiduals[RawId]->Fill(it->resXprime/it->resXprimeErr);
       }
-      std::pair<std::string, int32_t> subdetandlayer = folder_organizer->GetSubDetAndLayer(RawId);
+      std::pair<std::string, int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(RawId);
       if(m_SubdetLayerResiduals[subdetandlayer]) {
 	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resXprime);
 	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resXprime/it->resXprimeErr);

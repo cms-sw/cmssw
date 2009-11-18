@@ -27,18 +27,6 @@ namespace edm {
     mapper->processHistoryID() = processHistoryID();
   }
 
-  void
-  LuminosityBlockPrincipal::fillFrom(LuminosityBlockPrincipal& lbp) {
-    fillLuminosityBlockPrincipal(lbp.branchMapperPtr(), lbp.store());
-    mergeAuxiliary(lbp.aux());
-     for(const_iterator i = lbp.begin(), iEnd = lbp.end(); i != iEnd; ++i) {
-       Group& group = **i;
-       Group *g = getExistingGroup(group);
-       assert(g);
-       g->swap(group);
-     }
-  }
-
   void 
   LuminosityBlockPrincipal::put(
 	ConstBranchDescription const& bd,
@@ -94,5 +82,6 @@ namespace edm {
     std::swap(runPrincipal_,iOther.runPrincipal_);
     std::swap(aux_, iOther.aux_);
   }
+  
 }
 

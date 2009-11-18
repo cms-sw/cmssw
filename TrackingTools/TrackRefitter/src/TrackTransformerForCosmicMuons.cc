@@ -63,12 +63,12 @@ void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
     
-    setup.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterIO);
-    setup.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherIO);
+    setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut",theFitterIO);
+    setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut",theSmootherIO);
     setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIO);
 
-    setup.get<TrackingComponentsRecord>().get("KFFitterForRefitOutsideIn",theFitterOI);
-    setup.get<TrackingComponentsRecord>().get("KFSmootherForRefitOutsideIn",theSmootherOI);
+    setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitOutsideIn",theFitterOI);
+    setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitOutsideIn",theSmootherOI);
     setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOI);
 
   }

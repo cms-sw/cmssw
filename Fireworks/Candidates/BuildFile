@@ -1,8 +1,6 @@
-<use name=DataFormats/Candidate>
 <use name=rootrflx>
+<use name=boost>
 <lib name=Eve>
-
-<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FireworksCandidates>
 </export>

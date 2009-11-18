@@ -1,4 +1,5 @@
-from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecaldigi_cfi import *
 
-ecal_notCont_sim.EBs25notContainment = 1.0
-ecal_notCont_sim.EEs25notContainment = 1.0
+simEcalUnsuppressedDigis.EBs25notContainment = 1.0
+simEcalUnsuppressedDigis.EEs25notContainment = 1.0
+

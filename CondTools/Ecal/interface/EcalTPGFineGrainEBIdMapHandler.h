@@ -59,11 +59,23 @@ namespace popcon
 		public:
                         EcalTPGFineGrainEBIdMapHandler(edm::ParameterSet const & );
 			~EcalTPGFineGrainEBIdMapHandler(); 
+			
 			void getNewObjects();
+			
 			std::string id() const { return m_name;}
+			
+			void readFromFile(const char* inputFile) ;
+			void writeFile(const char* inputFile);
+			
 			EcalCondDBInterface* econn;
 
 		private:
+			std::string to_string( char value[]) {
+	    		  std::ostringstream streamOut;
+	    		  streamOut << value;
+	    		  return streamOut.str();
+	  		}
+
 			const EcalTPGFineGrainEBIdMap * mypedestals;
 
 			unsigned long m_firstRun ;
@@ -77,6 +89,11 @@ namespace popcon
                         std::string m_locationsource;
                         std::string m_name;
 			unsigned int m_runnr;
+			std::string m_runtype;
+			string m_i_tag;
+			int m_i_version;
+			int m_i_run_number;
+			int m_i_fgrIdMap;
 
 
 

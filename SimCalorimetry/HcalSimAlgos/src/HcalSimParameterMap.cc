@@ -3,8 +3,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"  
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include <iostream>
 HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., 0.3305,
 		  117, 5, 
@@ -76,42 +75,3 @@ void HcalSimParameterMap::setDbService(const HcalDbService * dbService)
   theHFParameters2.setDbService(dbService);
   theZDCParameters.setDbService(dbService);
 }
-
-void HcalSimParameterMap::setFrameSize(const DetId & detId, int frameSize)
-{
-  HcalGenericDetId genericId(detId);
-  if(genericId.isHcalZDCDetId())
-    setFrameSize(theZDCParameters, frameSize);
-  else
-  {
-    HcalDetId hcalDetId(detId);
-    if(hcalDetId.subdet() == HcalForward) {
-      // do both depths
-      setFrameSize(theHFParameters1,frameSize);
-      setFrameSize(theHFParameters2,frameSize);
-    }
-    else
-    {
-      CaloSimParameters & parameters = const_cast<CaloSimParameters &>(simParameters(detId));
-      setFrameSize(parameters, frameSize);
-    }
-  }
-}
-
-
-void HcalSimParameterMap::setFrameSize(CaloSimParameters & parameters, int frameSize)
-{
-  int binOfMaximum = 5;
-  if(frameSize == 10) {}
-  else if(frameSize == 6) binOfMaximum = 4;
-  else {
-    edm::LogError("HcalSimParameterMap")<< "Bad HCAL frame size " << frameSize;
-  }
-  if(parameters.readoutFrameSize() != frameSize)
-  {
-    edm::LogWarning("HcalSignalGenerator")<< "Mismatch in frame sizes.  Setting to " << frameSize;
-    parameters.setReadoutFrameSize(frameSize);
-    parameters.setBinOfMaximum(binOfMaximum);
-  }
-}
- 

@@ -23,8 +23,8 @@ class NoisyChannel;			typedef NoisyChannel NoisyChannelROOT;
 class DeadChannel;			typedef DeadChannel DeadChannelROOT;
 class ContentsWithinExpected;		typedef ContentsWithinExpected ContentsWithinExpectedROOT;
 class MeanWithinExpected;		typedef MeanWithinExpected MeanWithinExpectedROOT;
-class AllContentWithinFixedRange;	typedef AllContentWithinFixedRange RuleAllContentWithinFixedRange; typedef AllContentWithinFixedRange AllContentWithinFixedRangeROOT;
-class AllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange RuleAllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange AllContentWithinFloatingRangeROOT;
+//class AllContentWithinFixedRange;	typedef AllContentWithinFixedRange RuleAllContentWithinFixedRange; typedef AllContentWithinFixedRange AllContentWithinFixedRangeROOT;
+//class AllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange RuleAllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange AllContentWithinFloatingRangeROOT;
 class FlatOccupancy1d;			typedef FlatOccupancy1d RuleFlatOccupancy1d; typedef FlatOccupancy1d FlatOccupancy1dROOT;
 class FixedFlatOccupancy1d;		typedef FixedFlatOccupancy1d RuleFixedFlatOccupancy1d; typedef FixedFlatOccupancy1d FixedFlatOccupancy1dROOT;
 class CSC01;				typedef CSC01 RuleCSC01; typedef CSC01 CSC01ROOT;
@@ -207,7 +207,7 @@ protected:
   }
 
   // # of degrees of freedom and chi^2 for test
-  int Ndof_; float chi2_;
+  int Ndof_; double chi2_;
 };
 
 //===================== Comp2RefKolmogorov ===================//
@@ -238,7 +238,7 @@ public:
   float runTest(const MonitorElement *me) ;
 
   /// set allowed range in X-axis (default values: histogram's X-range)
-  virtual void setAllowedXRange(float xmin, float xmax)
+  virtual void setAllowedXRange(double xmin, double xmax)
   { 
     xmin_ = xmin; xmax_ = xmax; 
     rangeInitialized_ = true; 
@@ -253,7 +253,7 @@ protected:
     message_ = message.str();
   }
 
-  float xmin_;float xmax_;
+  double xmin_;double xmax_;
   bool rangeInitialized_;
 };
 
@@ -271,7 +271,7 @@ public:
   float runTest(const MonitorElement *me);
 
   void setUseEmptyBins(unsigned int useEmptyBins) { useEmptyBins_ = useEmptyBins; }
-  virtual void setAllowedYRange(float ymin, float ymax)
+  virtual void setAllowedYRange(double ymin, double ymax)
   { 
     ymin_ = ymin; ymax_ = ymax; 
     rangeInitialized_ = true; 
@@ -286,7 +286,7 @@ protected:
 	    << "): Bin fraction within Y range = " << prob_;
     message_ = message.str();
   }
-  float ymin_; float ymax_;
+  double ymin_; double ymax_;
   bool rangeInitialized_;
   unsigned int useEmptyBins_;
 
@@ -306,7 +306,7 @@ public:
   float runTest(const MonitorElement *me);
 
   /// set Ymin (inclusive) threshold for "dead" channel (default: 0)
-  void setThreshold(float ymin)
+  void setThreshold(double ymin)
   { 
     ymin_ = ymin;  
     rangeInitialized_ = true; 
@@ -320,7 +320,7 @@ protected:
 	    << "): Alive channel fraction = " << prob_;
     message_ = message.str();
   }
-  float ymin_;
+  double ymin_;
   bool rangeInitialized_;
 };
 
@@ -373,7 +373,7 @@ protected:
 
   /// get average for bin under consideration
   /// (see description of method setNumNeighbors)
-  Double_t getAverage(int bin, const TH1 *h) const;
+  double getAverage(int bin, const TH1 *h) const;
 
   float tolerance_;        /*< tolerance for considering a channel noisy */
   unsigned numNeighbors_;  /*< # of neighboring channels for calculating average to be used
@@ -400,8 +400,8 @@ public:
   void setUseEmptyBins(unsigned int useEmptyBins) { 
     useEmptyBins_ = useEmptyBins; 
   }
-  void setMeanRange(float xmin, float xmax);
-  void setRMSRange(float xmin, float xmax);
+  void setMeanRange(double xmin, double xmax);
+  void setRMSRange(double xmin, double xmax);
 
   /// set (fractional) tolerance for mean
   void setMeanTolerance(float fracTolerance)
@@ -445,9 +445,9 @@ public:
   static std::string getAlgoName(void) { return "MeanWithinExpected"; }
   float runTest(const MonitorElement*me);
 
-  void setExpectedMean(float mean) { expMean_ = mean; }
-  void useRange(float xmin, float xmax);
-  void useSigma(float expectedSigma);
+  void setExpectedMean(double mean) { expMean_ = mean; }
+  void useRange(double xmin, double xmax);
+  void useSigma(double expectedSigma);
   void useRMS(void) ;
 
 protected:
@@ -473,14 +473,14 @@ protected:
   bool useRMS_;       //< if true, will use RMS of distribution
   bool useSigma_;     //< if true, will use expected_sigma
   bool useRange_;     //< if true, will use allowed range
-  float sigma_;       //< sigma to be used in probability calculation (use only if useSigma_ = true)
-  float expMean_;     //< expected mean value (used only if useSigma_ = true or useRMS_ = true)
-  float xmin_, xmax_; //< allowed range for mean (use only if useRange_ = true)
+  double sigma_;       //< sigma to be used in probability calculation (use only if useSigma_ = true)
+  double expMean_;     //< expected mean value (used only if useSigma_ = true or useRMS_ = true)
+  double xmin_, xmax_; //< allowed range for mean (use only if useRange_ = true)
 
 };
 
 //==================== AllContentWithinFixedRange   =========================//
-class AllContentWithinFixedRange : public SimpleTest
+/*class AllContentWithinFixedRange : public SimpleTest
 {
 public:
   AllContentWithinFixedRange(const std::string &name) : SimpleTest(name)
@@ -509,9 +509,9 @@ protected:
   double S_fail_obs, S_pass_obs;
   int result;
 };
-
+*/
 //==================== AllContentWithinFloatingRange  =========================//
-class AllContentWithinFloatingRange : public SimpleTest
+/*class AllContentWithinFloatingRange : public SimpleTest
 {
 public:
   AllContentWithinFloatingRange(const std::string &name) : SimpleTest(name)
@@ -539,7 +539,7 @@ protected:
   double epsilon_obs;
   double S_fail_obs, S_pass_obs;
   int result;
-};
+};*/
 
 //==================== FlatOccupancy1d   =========================//
 #if 0 // FIXME: need to know what parameters to set before runTest!

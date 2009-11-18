@@ -569,16 +569,6 @@ namespace edm {
          << "The branch id is " << bid << "\n"
          << "Contact a framework developer.\n";
     }
-    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->branchDescription().present() &&
-	    g->branchDescription().branchType() == InEvent &&
-	    g->productProvenancePtr() &&
-            productstatus::present(g->productProvenancePtr()->productStatus())) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
-         << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->branchDescription().branchName() << "\n"
-         << "Contact a framework developer.\n";
-    }
     if (!g->product() && !g->productProvenancePtr()) {
       return OutputHandle();
     }
@@ -700,5 +690,35 @@ namespace edm {
     std::swap(preg_, iOther.preg_);
     std::swap(branchMapperPtr_,iOther.branchMapperPtr_);
     std::swap(store_,iOther.store_);
+  }
+
+  void
+  Principal::adjustIndexesAfterProductRegistryAddition() {
+    if (preg_->constProductList().size() > groups_.size()) {
+      GroupCollection newGroups(preg_->constProductList().size(), SharedGroupPtr());
+      for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+        ProductTransientIndex index = preg_->indexFrom((*i)->branchDescription().branchID());
+        assert(index != ProductRegistry::kInvalidIndex);
+        newGroups[index] = *i;
+      }
+      groups_.swap(newGroups);
+      // Now we must add new groups for any new product registry entries.
+      ProductRegistry::ProductList const& prodsList = preg_->productList();
+      for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+          itProdInfoEnd = prodsList.end();
+          itProdInfo != itProdInfoEnd;
+          ++itProdInfo) {
+        if (itProdInfo->second.branchType() == branchType_) {
+          ProductTransientIndex index = preg_->indexFrom(itProdInfo->second.branchID());
+          assert(index != ProductRegistry::kInvalidIndex);
+          if (!groups_[index]) {
+	    // no group.  Must add one. The new entry must be an input group.
+	    assert(!itProdInfo->second.produced());
+            boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
+            addGroupInput(bd);
+          }
+        }
+      }
+    }
   }
 }

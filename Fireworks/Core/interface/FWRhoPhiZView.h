@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.17 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.23 2009/11/05 13:58:58 dmytro Exp $
 //
 
 // system include files
@@ -38,10 +38,12 @@ class TEveProjectionManager;
 class TGFrame;
 class TGLMatrix;
 class TEveCalo2D;
-class FWRhoPhiZViewManager;
 class TEveScene;
 class TEveProjectionAxes;
 class TEveWindowSlot;
+
+class FWRhoPhiZViewManager;
+class FWViewContextMenuHandlerGL;
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -55,32 +57,34 @@ public:
    // ---------- const member functions ---------------------
    TGFrame* frame() const;
    const std::string& typeName() const;
+
    virtual void addTo(FWConfiguration&) const;
-
    virtual void saveImageTo(const std::string& iName) const;
+   virtual void setFrom(const FWConfiguration&);
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
-   // ---------- static member functions --------------------
    // ---------- member functions ---------------------------
    void resetCamera();
    void destroyElements();
    void replicateGeomElement(TEveElement*);
    void showProjectionAxes( );
-   virtual void setFrom(const FWConfiguration&);
    void setBackgroundColor(Color_t);
+   void eventEnd();
 
    //returns the new element created from this import
    TEveElement* importElements(TEveElement*, float iLayer);
+
 private:
    void doDistortion();
    void doCompression(bool);
    void doZoom(double);
    void updateCaloParameters();
-   void updateCaloThresholdParameters();
    void updateScaleParameters();
    void updateCalo(TEveElement*, bool dataChanged = false);
-   void updateCaloThresholds(TEveElement*);
    void updateCaloLines(TEveElement*);
-   void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
+   // void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
+   void lineWidthChanged();
+   void lineSmoothnessChanged();
 
    FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
 
@@ -96,6 +100,7 @@ private:
    FWEvePtr<TEveScene> m_scene;
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
+   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
 
    // parameters
    FWDoubleParameter m_caloDistortion;
@@ -104,10 +109,10 @@ private:
    FWBoolParameter m_compressMuon;
    FWDoubleParameter m_caloFixedScale;
    FWBoolParameter m_caloAutoScale;
-   FWBoolParameter*   m_showHF;
-   FWBoolParameter*   m_showEndcaps;
-   //FWDoubleParameter  m_minEcalEnergy;
-   //FWDoubleParameter  m_minHcalEnergy;
+   FWDoubleParameter m_lineWidth;
+   FWBoolParameter m_smoothLine;
+   FWBoolParameter*  m_showHF;
+   FWBoolParameter*  m_showEndcaps;
 
    // camera parameters
    double* m_cameraZoom;

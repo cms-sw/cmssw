@@ -50,7 +50,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if( fedId_ != expFedId  ){ 
 
   if( ! DCCDataUnpacker::silentMode_ ){  
-    edm::LogWarning("EcalRawToDigi")
+    edm::LogWarning("IncorrectEvent")
       <<"\n For event L1A: "<<l1_
       <<"\n Expected FED id is: "<<expFedId<<" while current FED id is: "<<fedId_
       <<"\n => Skipping to next fed block...";
@@ -64,7 +64,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // Check if this event is an empty event 
   if( eventSize_ == EMPTYEVENTSIZE ){ 
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigi")
+      edm::LogWarning("IncorrectEvent")
         <<"\n Event L1A: "<<l1_<<" is empty for fed: "<<fedId_
         <<"\n => Skipping to next fed block...";
     }
@@ -75,7 +75,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   //Check if event size allows at least building the header
   else if( eventSize_ < HEADERSIZE ){    
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalRawToDigi")
+      edm::LogError("IncorrectEvent")
         <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
         <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
         <<"\n => Skipping to next fed block..."; 
@@ -97,7 +97,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   if( eventSize_ != blockLength_*8 ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalRawToDigi")
+      edm::LogError("IncorrectEvent")
         <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
         <<"\n size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
         <<"\n => Skipping to next fed block..."; 
@@ -182,7 +182,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
   else {
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalRawToDigi")
+      edm::LogError("IncorrectEvent")
         <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
         <<"\n Event has an unsupported trigger type "<<triggerType_
         <<"\n => Skipping to next fed block..."; 
@@ -213,7 +213,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR  || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL )
 	{
 	  if( ! DCCDataUnpacker::silentMode_ ){ 
-            edm::LogWarning("EcalRawToDigi") << "In fed: " << fedId_ << " at LV1: " << l1_
+            edm::LogWarning("IncorrectBlock") << "In fed: " << fedId_ << " at LV1: " << l1_
     					        << " the DCC channel: " << chNumber 
 					        << " has channel status: " << chStatus 
 					        << " and is not being unpacked";

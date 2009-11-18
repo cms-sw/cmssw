@@ -5,6 +5,12 @@ kinSolutionTtFullLepEvent = cms.EDProducer("TtFullLepKinSolutionProducer",
     electrons = cms.InputTag("selectedLayer1Electrons"),
     muons = cms.InputTag("selectedLayer1Muons"),       
     mets = cms.InputTag("layer1METs"),
+    
+    # ------------------------------------------------
+    # specify jet correction step and flavor correction
+    # ------------------------------------------------
+    jetCorrectionLevel = cms.string("abs"),
+
 
     # ------------------------------------------------
     # maximum number of jets to be considered in the

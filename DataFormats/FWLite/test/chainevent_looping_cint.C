@@ -21,7 +21,7 @@ for( ;e.isValid();++e,++i) {
   //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
   pThing.getByLabel(e,"Thing");
   
-  for(int i=0; i!=pThing.ref().size();++i) {
+  for(i=0; i!=pThing.ref().size();++i) {
     cout <<pThing.ref().at(i).a<<endl;
   }
 }  
@@ -46,7 +46,7 @@ for(e.toBegin(); !e.atEnd();++e,++i) {
    //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
    pThing.getByLabel(e,"Thing");
    
-   for(int i=0; i!=pThing.ref().size();++i) {
+   for(i=0; i!=pThing.ref().size();++i) {
       cout <<pThing.ref().at(i).a<<endl;
    }
 
@@ -59,5 +59,13 @@ if (i==0) {
   cout <<"Third loop failed!"<<endl;
   returnValue = 1;
 }
+e.to(0);
+for (int j = 0; j<20; ++j) {
+  int k = rand() % 10;
+  e.to(k);
+  edm::EventID id = e.id();
+  cout << "Entry " << k << " Run " << id.run() << " event " << id.event() << endl;
+}
+
 exit(returnValue);
 }

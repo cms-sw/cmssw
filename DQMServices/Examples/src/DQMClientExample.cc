@@ -3,8 +3,8 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2009/01/19 12:58:23 $
- * $Revision: 1.13 $
+ * $Date: 2009/01/19 13:30:24 $
+ * $Revision: 1.14 $
  * $Author: dvolyans $
  *
  */
@@ -140,7 +140,8 @@ void DQMClientExample::endRun(const Run& r, const EventSetup& context){
 //============================= endJob =============================//
 //==================================================================//
 void DQMClientExample::endJob(){
- if(clientOnEndJob) performClient();
+   std::cout << "DQMSourceClient::endJob()" << std::endl;
+   if(clientOnEndJob) performClient();
 }
 
 

@@ -84,8 +84,6 @@ private:
   edm::ParameterSet theConfig;
 
   edm::ESHandle<MeasurementTracker> theMeasurementTracker;
-  edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
-
   TrajectoryStateUpdator * theUpdator;
   const MuonServiceProxy * theProxyService;
 

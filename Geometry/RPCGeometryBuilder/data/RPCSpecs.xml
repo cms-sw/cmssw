@@ -16,7 +16,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
      &                   90,      84,
      &                   42,
      &                   48,      36,     48,    60,
-     &                   32,      28,     32,       
+     &                   32,      32,     32,       
      &                   64,      32,     32,
      &                   64,      64/
 -->
@@ -139,7 +139,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
     </SpecPar>
     <SpecPar name="nStrips28" eval="true">
       <PartSelector path="//REB."/> <!-- B1,2,3 -->
-      <Parameter name="nStrips" value="28"/>
+      <Parameter name="nStrips" value="32"/>
     </SpecPar>
 
   </SpecParSection>

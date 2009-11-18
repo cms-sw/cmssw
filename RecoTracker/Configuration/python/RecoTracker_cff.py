@@ -26,6 +26,9 @@ newCombinedSeeds.clusterRemovalInfos = cms.VInputTag(
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_cff import *
 
+#special sequences, such as pixel-less
+from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
+
 ckftracks = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds*doAlldEdXEstimators)
 ckftracks_wodEdX = ckftracks.copy()
 ckftracks_wodEdX.remove(doAlldEdXEstimators)
@@ -34,5 +37,5 @@ rstracks = cms.Sequence(roadSearchSeeds*
                         roadSearchClouds*rsTrackCandidates*
                         rsWithMaterialTracks)
 
-
+ckftracks_plus_pixelless = cms.Sequence(ckftracks*ctfTracksPixelLess)
 

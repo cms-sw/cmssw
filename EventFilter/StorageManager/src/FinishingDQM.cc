@@ -1,9 +1,8 @@
-// $Id: FinishingDQM.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: FinishingDQM.cc,v 1.7.4.1 2009/09/25 09:57:48 mommsen Exp $
 /// @file: FinishingDQM.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
@@ -16,7 +15,7 @@ using namespace stor;
 
 FinishingDQM::FinishingDQM( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void FinishingDQM::do_entryActionWork()
@@ -35,7 +34,7 @@ void FinishingDQM::do_entryActionWork()
 
 FinishingDQM::~FinishingDQM()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void FinishingDQM::do_exitActionWork()
@@ -49,9 +48,9 @@ string FinishingDQM::do_stateName() const
   return string( "FinishingDQM" );
 }
 
-void FinishingDQM::do_moveToFailedState( const std::string& reason ) const
+void FinishingDQM::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void

@@ -18,3 +18,7 @@ globalPixelLessSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsED
         SeedingLayers = cms.string('pixelLessLayerPairs4PixelLessTracking')
         )
     )
+## whatever happens to the beam spot
+globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 40
+## safe against APV-induced noise
+globalPixelLessSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters    = 5000

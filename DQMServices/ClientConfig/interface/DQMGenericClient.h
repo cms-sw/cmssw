@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2009/04/21 15:57:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/18 14:13:38 $
+ *  $Revision: 1.4 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -59,7 +59,7 @@ class DQMGenericClient : public edm::EDAnalyzer
   std::vector<std::string> effCmds_, resCmds_, normCmds_, cdCmds_;
   bool resLimitedFit_;
 
- void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist);
+ void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const std::string& type="eff");
 
  void findAllSubdirectories (std::string dir, std::set<std::string> * myList);
 

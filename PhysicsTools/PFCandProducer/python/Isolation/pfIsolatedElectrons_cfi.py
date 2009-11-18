@@ -11,5 +11,6 @@ pfIsolatedElectrons  = cms.EDProducer(
     # no cut on the photon deposits yet
     isolationCuts = cms.vdouble( 10,
                                  10,
-                                 10 )
+                                 10 ),
+    isolationCombRelIsoCut = cms.double(-1.0)
     )

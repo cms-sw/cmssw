@@ -255,8 +255,9 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 		  errorfl[itime] = word->errorstat;
 
 		  // Stick the l1a_phase bit into 'overlap' too (so we can store it in CSCStripDigi
-		  // without changing CSCStripDigi format)
-                  overlap[itime] = (( l1a_phase[itime] & 0x1 ) >> 16 ) | ( word->overlappedSampleFlag & 0x1 );
+		  // without changing CSCStripDigi format). 
+		  // Put it in the 9th bit of the overlap word which is only 1-bit anyway.
+                  overlap[itime] = (( l1a_phase[itime] & 0x1 ) << 8 ) | ( word->overlappedSampleFlag & 0x1 );
 		}
 	    }
 	}

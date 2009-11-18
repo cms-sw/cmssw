@@ -37,10 +37,10 @@ void CopyDir(TDirectory *source) {
 void CopySubdir(const char * oldfile, const char * newfile, const char * dirname, const char * type="Track"){
 
   TFile *oldf = TFile::Open(oldfile);
-  bool success=oldf->cd(Form("DQMData/Run 1/RecoTrackV/Run summary/%s",type));
+  bool success=oldf->cd(Form("DQMData/Run 1/Tracking/Run summary/%s",type));
   //  cerr<<success<<endl;
   //cerr<<Form("DQMData/RecoTrackV/%s",type)<<endl;
-  if(!success)success=oldf->cd(Form("DQMData/RecoTrackV/%s",type));
+  if(!success)success=oldf->cd(Form("DQMData/Tracking/%s",type));
   //  cerr<<success<<endl;
   //gDirectory->ls();
   TDirectory *dirold=gDirectory;

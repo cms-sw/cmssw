@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.32 2009/08/26 08:34:05 cbern Exp $
+// $Id: PATElectronProducer.cc,v 1.36 2009/10/15 14:23:44 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -32,7 +32,7 @@ using namespace std;
 
 
 PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
 
@@ -563,7 +563,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
   // Resolution configurables
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
@@ -590,20 +590,20 @@ void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig
     edm::ParameterSet depconf 
       = iConfig.getParameter<edm::ParameterSet>(psetName);
 
-    if (depconf.exists("tracker")) labels.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
     if (depconf.exists("pfAllParticles"))  {
-      labels.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
     }
     if (depconf.exists("pfChargedHadrons"))  {
-      labels.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+      labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
     }
     if (depconf.exists("pfNeutralHadrons"))  {
-      labels.push_back(std::make_pair(NeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+      labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
     }
     if (depconf.exists("pfPhotons")) {
-      labels.push_back(std::make_pair(PhotonIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
     }
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");

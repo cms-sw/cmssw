@@ -11,7 +11,7 @@ namespace popcon {
     m_name(pset.getUntrackedParameter<std::string>("name","DQMReferenceHistogramRootFileSourceHandler")),
     m_file(pset.getUntrackedParameter<std::string>("ROOTFile","./file.root")),
     m_zip(pset.getUntrackedParameter<bool>("zip",false)),
-    m_since(pset.getUntrackedParameter<boost::int64_t>("firstSince",1)),
+    m_since(pset.getUntrackedParameter<boost::uint64_t>("firstSince",1)),
     m_debugMode(pset.getUntrackedParameter<bool>("debug",false)) {
   }
   

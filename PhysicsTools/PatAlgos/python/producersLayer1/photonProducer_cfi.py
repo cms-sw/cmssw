@@ -30,8 +30,17 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     # embedding of AOD items
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
-    # isolation
-    isolation = cms.PSet(
+    # embed IsoDeposits to recompute isolation
+    isoDeposits = cms.PSet(
+        tracker = cms.InputTag("gamIsoDepositTk"),
+        ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
+        hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
+    ),
+
+    # user defined isolation variables the variables defined here will be accessible
+    # via pat::Photon::userIsolation(IsolationKeys key) with the key as defined in
+    # DataFormats/PatCandidates/interface/Isolation.h
+    userIsolation = cms.PSet(
         tracker = cms.PSet(
             src = cms.InputTag("gamIsoFromDepsTk"),
         ),
@@ -43,17 +52,15 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         ),
         user = cms.VPSet(),
     ),
-    # embed IsoDeposits to recompute isolation
-    isoDeposits = cms.PSet(
-        tracker = cms.InputTag("gamIsoDepositTk"),
-        ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-        hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-    ),
 
     # photon ID
-    addPhotonID = cms.bool(False),
-    photonIDSource = cms.InputTag("PhotonIDProd","PhotonAssociatedID"), ## ValueMap<reco::PhotonID> keyed to photonSource
-
+    addPhotonID = cms.bool(True),
+    photonIDSources = cms.PSet(
+             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProd',
+                                                  'PhotonCutBasedIDLoose'),
+             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProd',
+                                                  'PhotonCutBasedIDTight')
+           ),
     # mc matching
     addGenMatch = cms.bool(True),
     embedGenMatch = cms.bool(True),

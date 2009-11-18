@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.49 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.58 2009/11/05 22:06:02 dmytro Exp $
 //
 
 // system include files
@@ -32,12 +32,17 @@
 #include "TGeoManager.h"
 #include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
-
 #include "TGeoManager.h"
+
+#include "TH2.h"
+
+#include "TEveCaloData.h"
+#include "TEveCalo.h"
 
 #include <iostream>
 #include <exception>
 #include <boost/bind.hpp>
+#include <sstream>
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
@@ -58,7 +63,9 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
-#include <sstream>
+#include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 //
@@ -92,20 +99,15 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
    iGUIMgr->registerViewBuilder(kRhoZViewTypeName,f);
 
    //setup geometry projections
-   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager);
-   //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
-
-   m_rhoZGeomProjMgr.reset(new TEveProjectionManager);
-   m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
-   //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
+   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RPhi));
+   m_rhoZGeomProjMgr.reset(new TEveProjectionManager(TEveProjection::kPT_RhoZ));
 
    m_eveStore = new TEveElementList();
 
-   //kTRUE tells it to reset the camera so we see everything
-   //gEve->Redraw3D(kTRUE);
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
+   m_eveSelection->Connect("SelectionRepeated(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWRhoPhiZViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWRhoPhiZViewManager",this,"selectionCleared()");
 
@@ -134,13 +136,21 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
-   
-}
 
-// FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
-// {
-//    // do actual copying here;
-// }
+   m_caloData = new TEveCaloDataHist();
+   m_caloData->IncDenyDestroy();
+   Bool_t status = TH1::AddDirectoryStatus();
+   TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+   TH2F* background = new TH2F("background","",
+                               82, fw3dlego::xbins, 72/1, -3.1416, 3.1416);
+   TH1::AddDirectory(status);
+   m_caloData->AddHistogram(background);
+
+   m_calo3d = new TEveCalo3D(m_caloData, "RPZCalo3D");
+   m_calo3d->SetBarrelRadius(129);
+   m_calo3d->SetEndCapPos(310);
+   m_calo3d->IncDenyDestroy();
+}
 
 FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 {
@@ -150,19 +160,11 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 
    m_eveStore->DestroyElements();
    m_eveStore->Destroy();
+
+   m_calo3d->DecDenyDestroy();
+   m_caloData->DecDenyDestroy();
 }
 
-//
-// assignment operators
-//
-// const FWRhoPhiZViewManager& FWRhoPhiZViewManager::operator=(const FWRhoPhiZViewManager& rhs)
-// {
-//   //An exception safe implementation is
-//   FWRhoPhiZViewManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -190,6 +192,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TEveWindowSlot* iParent)
    }
    pView->resetCamera();
 
+   pView->importElements(m_calo3d,0);
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
          builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoPhiView(pView);
@@ -214,12 +217,14 @@ FWRhoPhiZViewManager::createRhoZView(TEveWindowSlot* iParent)
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(),
-                           itEnd = m_rhoZGeomProjMgr->EndChildren();
+       itEnd = m_rhoZGeomProjMgr->EndChildren();
        it != itEnd;
        ++it) {
       pView->replicateGeomElement(*it);
    }
    pView->resetCamera();
+
+   pView->importElements(m_calo3d,0);
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
          builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoZView(pView);
@@ -242,7 +247,6 @@ FWRhoPhiZViewManager::setupGeometry()
    }
 }
 
-
 void
 FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
@@ -254,6 +258,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
          boost::shared_ptr<FWRPZDataProxyBuilderBase> pB( builder );
          builder->setItem(iItem);
          m_builders.push_back(pB);
+         pB->useCalo(m_caloData);
          pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
       }
    }
@@ -281,7 +286,7 @@ FWRhoPhiZViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
-void 
+void
 FWRhoPhiZViewManager::colorsChanged()
 {
    for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it =  m_rhoPhiViews.begin(), itEnd=m_rhoPhiViews.end();
@@ -299,17 +304,16 @@ FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 {
    //std::cout <<"selection added "<<iElement<< std::endl;
    if(0!=iElement) {
+      //std::cout <<"  non null"<<std::endl;
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
       if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( not id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   selecting"<<std::endl;
-
-            id->select();
-            m_eveSelection->BlockSignals(last);
-         }
+         //std::cout <<"    have userData"<<std::endl;
+         //std::cout <<"      calo"<<std::endl;
+         bool last = m_eveSelection->BlockSignals(kTRUE);
+         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
+         base->doSelect();
+         m_eveSelection->BlockSignals(last);
       }
    }
 }
@@ -321,21 +325,19 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
       if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   removing"<<std::endl;
-            id->unselect();
-            m_eveSelection->BlockSignals(last);
-         }
+         FWFromEveSelectorBase* base = static_cast<FWFromEveSelectorBase*>(userData);
+         bool last = m_eveSelection->BlockSignals(kTRUE);
+         //std::cout <<"   removing"<<std::endl;
+         base->doUnselect();
+         m_eveSelection->BlockSignals(last);
       }
    }
-
 }
 
 void
 FWRhoPhiZViewManager::selectionCleared()
 {
+   //std::cout<<"selection cleared"<<std::endl;
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }
@@ -366,9 +368,6 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
    }
 }
 
-//
-// const member functions
-//
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
    if ( !detIdToGeo() ) return;
@@ -410,7 +409,6 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
          iter.next();
       }
    }
-
    m_eveStore->AddElement(container);
 }
 
@@ -741,29 +739,30 @@ TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
 {
    TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
-   list->SetPickable(kFALSE);
+
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   list->AddElement(ref);
    ref->SetNextPoint(0.,0.,0.);
+   list->AddElement(ref);
+
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
-   list->AddElement(el);
    el->SetLineColor(colorManager().geomColor(kFWTrackerColorIndex));
    el->AddLine(0, 123,-300, 0, 123, 300);
    el->AddLine(0, 123, 300, 0,-123, 300);
    el->AddLine(0,-123, 300, 0,-123,-300);
    el->AddLine(0,-123,-300, 0, 123,-300);
+   list->AddElement(el);
+
+   m_eveStore->AddElement(list);
+
    float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( list );
-   m_rhoZGeomProjMgr->ImportElements( list ); // hack
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
-
-   m_eveStore->AddElement(list);
 }
 
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
@@ -776,20 +775,21 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    for ( unsigned int i = 1; i <= nSegments; ++i )
       el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
                   r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
-   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   el->AddElement(ref);
    ref->SetNextPoint(0.,0.,0.);
-   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
-   m_rhoPhiGeomProjMgr->ImportElements( el );
-   m_rhoPhiGeomProjMgr->ImportElements( el ); // hack
-   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
+   el->AddElement(ref);
 
    m_eveStore->AddElement(el);
+
+   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
+   m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
 }
 
 FWTypeToRepresentations
@@ -811,5 +811,14 @@ FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
       }
    }
    return returnValue;
+}
 
+void
+FWRhoPhiZViewManager::eventEnd(){
+   for ( std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator view = m_rhoPhiViews.begin();
+         view != m_rhoPhiViews.end(); ++view )
+      (*view)->eventEnd();
+   for ( std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator view = m_rhoZViews.begin();
+         view != m_rhoZViews.end(); ++view )
+      (*view)->eventEnd();
 }

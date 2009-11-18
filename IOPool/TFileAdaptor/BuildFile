@@ -4,7 +4,6 @@
 <use name=FWCore/ParameterSet>
 <use name=rootcore>
 <flags EDM_PLUGIN=1>
-<flags CXXFLAGS="-g -O0">
 
 <export>
  <lib name=IOPoolTFileAdaptor>

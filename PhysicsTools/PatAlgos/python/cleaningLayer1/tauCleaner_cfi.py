@@ -4,7 +4,14 @@ cleanLayer1Taus = cms.EDFilter("PATTauCleaner",
     src = cms.InputTag("selectedLayer1Taus"), 
 
     # preselection (any string-based cut on pat::Tau)
-    preselection = cms.string('tauID("byIsolation") > 0'),
+    preselection = cms.string(
+        'tauID("leadingTrackFinding") > 0.5 &'
+        ' tauID("leadingPionPtCut") > 0.5 &'
+        ' tauID("byIsolationUsingLeadingPion") > 0.5 &'
+        ' tauID("againstMuon") > 0.5 &'
+        ' tauID("againstElectron") > 0.5 &'
+        ' (signalTracks.size() = 1 | signalTracks.size() = 3)'
+    ),
 
     # overlap checking configurables
     checkOverlaps = cms.PSet(

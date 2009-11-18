@@ -8,9 +8,9 @@
 namespace reco {
   namespace parser {
     template<typename T>
-    bool expressionParser( const std::string & value, ExpressionPtr & expr, bool lazy=false) {
+    bool expressionParser( const std::string & value, ExpressionPtr & expr) {
       using namespace boost::spirit::classic;
-      Grammar grammar(expr, (const T*)(0), lazy);
+      Grammar grammar(expr, (const T*)(0));
       bool returnValue = false;
       const char* startingFrom = value.c_str();
       try {
