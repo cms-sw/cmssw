@@ -80,9 +80,14 @@ class ConfdbToOpenHLT:
         theconfdbpaths = []
         thefullhltpaths = []
         theopenhltpaths = []
+        theintbits = []
+        thebranches = []
+        theaddresses = [] 
+        themaps = []
 
         rateeffhltcfgfile = open("hltmenu_extractedhltmenu.cfg",'w')
         rateeffopenhltcfgfile = open("openhltmenu_extractedhltmenu.cfg",'w')
+        rateefflibfile = open("OHltTree_FromConfDB.h",'w')
 
         self.dbcursor.execute("SELECT Configurations.configId FROM Configurations WHERE (configDescriptor = '" + self.configname + "')")
         tmpconfid = self.dbcursor.fetchone()
@@ -111,6 +116,12 @@ class ConfdbToOpenHLT:
                 else:
                     theconfdbpaths.append((thepathname[0],'"OpenL1_ZeroBias"'))
 
+                theintbits.append('  Int_t           ' + thepathname[0] + ';')
+                thebranches.append('  TBranch        *b_' + thepathname[0] + ';   //!')
+                theaddresses.append('  fChain->SetBranchAddress("' + thepathname[0] + '", &' + thepathname[0] + ', &b_' + thepathname[0] + ');')
+                themaps.append('  fChain->SetBranchAddress("' + thepathname[0] + '", &map_BitOfStandardHLTPath["' + thepathname[0] + '"], &b_' + thepathname[0] + ');')
+                
+
         npaths = len(theconfdbpaths)
         pathcount = 1
         
@@ -137,9 +148,24 @@ class ConfdbToOpenHLT:
             rateeffhltcfgfile.write(rateeffpath + "\n")
         for rateeffpath in theopenhltpaths:
             rateeffopenhltcfgfile.write(rateeffpath + "\n")
-                                    
+
+        # Now write .h file    
+        rateefflibfile.write("// The following lines should be included once and only once in OHltTree.h\n\n") 
+        for intbit in theintbits:
+            rateefflibfile.write(intbit + "\n")
+        rateefflibfile.write("\n")    
+        for branch in thebranches:
+            rateefflibfile.write(branch + "\n")
+        rateefflibfile.write("\n")
+        for address in theaddresses:
+            rateefflibfile.write(address + "\n")
+        rateefflibfile.write("\n")
+        for mapping in themaps:
+            rateefflibfile.write(mapping + "\n")
+        
         rateeffhltcfgfile.close()
         rateeffopenhltcfgfile.close()
+        rateefflibfile.close()
 
         self.connection.commit() 
         self.connection.close() 
