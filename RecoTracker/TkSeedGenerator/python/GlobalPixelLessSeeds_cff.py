@@ -21,4 +21,4 @@ globalPixelLessSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsED
 ## whatever happens to the beam spot
 globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 40
 ## safe against APV-induced noise
-globalPixelLessSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters    = 10000
+globalPixelLessSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters    = 5000
