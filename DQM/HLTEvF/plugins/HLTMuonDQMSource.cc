@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.32 2009/10/27 08:55:00 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.33 2009/11/16 01:10:22 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -822,6 +822,49 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
   
+  bool accessToL2Seed = true;
+  try {
+    iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
+  }
+  catch( cms::Exception& exception ) {
+    LogDebug("HLTMuonDQMSource") << "no L2 seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    accessToL2Seed = false;
+  }
+  
+  if( accessToL2Seed ) {
+    bool accessToL2Muon = true;
+    try{
+      iEvent.getByLabel (l2collectionTag_,l2mucands);
+    }
+    catch( cms::Exception& exception ) {
+      LogDebug("HLTMuonDQMSource") << "no L2 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+      accessToL2Muon = false;
+    }
+
+    if( accessToL2Muon ) {
+      bool accessToL3Seed = true;
+      try {
+	iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+      }
+      catch( cms::Exception& exception ) {
+        LogDebug("HLTMuonDQMSource") << "no L3 Seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+        accessToL3Seed = false;
+      }
+
+      if( accessToL3Seed ) {
+	bool accessToL3Muon = true;
+	try {
+	  iEvent.getByLabel (l3collectionTag_,l3mucands);
+	}
+        catch( cms::Exception& exception ) {
+          LogDebug("HLTMuonDQMSource") << "no L3 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+          accessToL3Muon = false;
+        }
+      }
+    }
+  }
+
+  /*
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
   //iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
   //iEvent.getByLabel (l2collectionTag_,l2mucands);
@@ -834,6 +877,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
     }
   }
+  */
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
