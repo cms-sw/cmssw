@@ -177,7 +177,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
      bool gotPreJets =true;
      try {
-       iEvent.getByLabel(l2preJets_[j],l2Regional);
+       gotPreJets*=iEvent.getByLabel(l2preJets_[j],l2Regional);
      }
      catch (cms::Exception& exception) {
        gotPreJets =false;
@@ -220,7 +220,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
      bool gotL2 =true;
      try {
-       iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
+       gotL2*=iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
      }
      catch (cms::Exception& exception) {
        gotL2 =false;
@@ -282,7 +282,17 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		   isoEtaEffDenom->Fill(refLV.eta());
 		   isoPhiEffDenom->Fill(refLV.phi());
 
-  		   if(iEvent.getByLabel(l2Isolated_,l2Isolated))
+		   bool gotIsoL2 =true;
+		   try {
+		     gotIsoL2*=iEvent.getByLabel(l2Isolated_,l2Isolated);
+		   }
+		   catch (cms::Exception& exception) {
+		     gotIsoL2 =false;
+		   }
+
+  	
+
+		   if(gotIsoL2)
 		     if(l2Isolated.isValid());
 		     {
 		       if(matchJet(jet,*l2Isolated))

@@ -252,7 +252,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool gotL1Taus =true;
   try {
-    iEvent.getByLabel(l1ExtraTaus_,taus);
+    gotL1Taus*=iEvent.getByLabel(l1ExtraTaus_,taus);
   }
   catch (cms::Exception& exception) {
     gotL1Taus =false;
@@ -260,7 +260,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool gotL1Jets =true;
   try {
-    iEvent.getByLabel(l1ExtraJets_,jets);
+    gotL1Jets*=iEvent.getByLabel(l1ExtraJets_,jets);
   }
   catch (cms::Exception& exception) {
     gotL1Jets =false;
@@ -268,7 +268,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool gotL1Electrons =true;
   try {
-    iEvent.getByLabel(l1ExtraElectrons_,electrons);
+    gotL1Electrons*=iEvent.getByLabel(l1ExtraElectrons_,electrons);
   }
   catch (cms::Exception& exception) {
     gotL1Electrons =false;
@@ -276,7 +276,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool gotL1Muons =true;
   try {
-    iEvent.getByLabel(l1ExtraMuons_,muons);
+    gotL1Muons*=iEvent.getByLabel(l1ExtraMuons_,muons);
   }
   catch (cms::Exception& exception) {
     gotL1Muons =false;

@@ -120,7 +120,7 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
 	  //get The triggerEvent
 	  bool gotTEV =true;
 	  try {
-	    iEvent.getByLabel(triggerEvent_,trigEv);
+	     gotTEV*= iEvent.getByLabel(triggerEvent_,trigEv);
 	      }
 	  catch (cms::Exception& exception) {
 	    gotTEV =false;

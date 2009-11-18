@@ -142,7 +142,7 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
   //get The triggerEvent
      bool gotTEV =true;
      try {
-       iEvent.getByLabel(triggerEvent_,trigEv);
+       gotTEV*=iEvent.getByLabel(triggerEvent_,trigEv);
      }
      catch (cms::Exception& exception) {
        gotTEV =false;
