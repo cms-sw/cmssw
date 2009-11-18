@@ -19,34 +19,25 @@ reco::TrackRef ConversionFinder::getConversionPartnerTrack(const reco::GsfElectr
 
   using namespace edm;
   using namespace reco;
-  const reco::GsfTrackRef el_gsftrack = gsfElectron.gsfTrack();
   const reco::TrackRef el_ctftrack = gsfElectron.closestCtfTrackRef();
   const TrackCollection *ctftracks = track_h.product();
   
   
-  int ctfidx = el_ctftrack.isNonnull() ? static_cast<int>(el_ctftrack.key()) : -999;
-  int el_q = el_gsftrack->charge();
-  LorentzVector el_tk_p4 = LorentzVector(el_gsftrack->px(), el_gsftrack->py(),
-					 el_gsftrack->pz(), el_gsftrack->p());
-  double el_d0 = el_gsftrack->d0();
+  const reco::Track* el_track = getElectronTrack(gsfElectron, minFracSharedHits);
+  int ctfidx = -999;
+  int el_q   = el_track->charge();
+  LorentzVector el_tk_p4(el_track->px(), el_track->py(), el_track->pz(), el_track->p());
+  double el_d0 = el_track->d0();
 
 
-  //if the CTF track is truly the electron's CTF track, then use it's
-  //parameters instead of the GSF track's as it has been shown to lower
-  //the inefficiency of the algoritm for prompt electrons by F. Bostock
-  if(ctfidx != -999 && gsfElectron.shFracInnerHits() > minFracSharedHits) {
-    el_tk_p4 = LorentzVector(el_ctftrack->px() , el_ctftrack->py(),
-			     el_ctftrack->pz(), el_ctftrack->p());
-    el_q  = el_ctftrack->charge();
-    el_d0 = el_ctftrack->d0();
-  }
-
+  if(el_ctftrack.isNonnull() && gsfElectron.shFracInnerHits() > minFracSharedHits)
+    ctfidx = static_cast<int>(el_ctftrack.key());
+  
   int tk_i = 0;
   double mindR = 999;
 
   //make a null Track Ref
   TrackRef ctfTrackRef = TrackRef() ;
-
   
   for(TrackCollection::const_iterator tk = ctftracks->begin();
       tk != ctftracks->end(); tk++, tk_i++) {
@@ -132,4 +123,14 @@ std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1
 
   return std::make_pair(dist, dcot);
   
+}
+
+
+const reco::Track* ConversionFinder::getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits) {
+
+  if(electron.closestCtfTrackRef().isNonnull() &&
+     electron.shFracInnerHits() > minFracSharedHits)
+    return (const reco::Track*)electron.closestCtfTrackRef().get();
+  
+  return (const reco::Track*)(electron.gsfTrack().get());
 }
