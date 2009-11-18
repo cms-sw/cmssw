@@ -67,9 +67,15 @@ HLTTauDQMTrkPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    Handle<IsolatedTauTagInfoCollection> tauTagInfos;
    Handle<CaloJetCollection> isolJets;			   
 
+     bool gotL3 =true;
+     try {
+       iEvent.getByLabel(jetTagSrc_, tauTagInfos);
+     }
+     catch (cms::Exception& exception) {
+       gotL3 =false;
+     }
   
-   if(iEvent.getByLabel(jetTagSrc_, tauTagInfos))
-     if(tauTagInfos.isValid())
+     if(gotL3)
      {
 	     for(unsigned int i=0;i<tauTagInfos->size();++i)
 	       {

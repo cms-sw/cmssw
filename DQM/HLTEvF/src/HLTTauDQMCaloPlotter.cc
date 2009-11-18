@@ -173,8 +173,18 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    //Fill the regional Jets
    //Be carefu;l with the double counting
 
-   for(unsigned int j=0;j<l2preJets_.size();++j)
-     if(iEvent.getByLabel(l2preJets_[j],l2Regional))
+   for(unsigned int j=0;j<l2preJets_.size();++j) {
+
+     bool gotPreJets =true;
+     try {
+       iEvent.getByLabel(l2preJets_[j],l2Regional);
+     }
+     catch (cms::Exception& exception) {
+       gotPreJets =false;
+     }
+
+
+     if(gotPreJets)
        if((!l2Regional.failedToGet()))
        {
        for(unsigned int i=0;i<l2Regional->size();++i)
@@ -205,12 +215,19 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	 }
      }
+   }
 
 
+     bool gotL2 =true;
+     try {
+       iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
+     }
+     catch (cms::Exception& exception) {
+       gotL2 =false;
+     }
 
 
-   if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the Association class
-     if((!l2TauInfoAssoc.failedToGet()))
+     if(gotL2)
      {
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)

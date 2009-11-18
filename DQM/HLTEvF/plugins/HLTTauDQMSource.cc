@@ -116,8 +116,19 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
       if(doRefAnalysis_)
 	{
 	  Handle<TriggerEvent> trigEv;
-	  if(iEvent.getByLabel(triggerEvent_,trigEv))
-	    if(trigEv.isValid())
+
+	  //get The triggerEvent
+	  bool gotTEV =true;
+	  try {
+	    iEvent.getByLabel(triggerEvent_,trigEv);
+	      }
+	  catch (cms::Exception& exception) {
+	    gotTEV =false;
+	  }
+
+
+
+	    if(gotTEV)
 	      for(unsigned int i=0;i<refFilter_.size();++i)
 		{
 		  size_t ID =trigEv->filterIndex(refFilter_[i]);

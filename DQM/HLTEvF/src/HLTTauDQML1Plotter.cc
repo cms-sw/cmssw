@@ -250,10 +250,45 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 
+  bool gotL1Taus =true;
+  try {
+    iEvent.getByLabel(l1ExtraTaus_,taus);
+  }
+  catch (cms::Exception& exception) {
+    gotL1Taus =false;
+  }
+
+  bool gotL1Jets =true;
+  try {
+    iEvent.getByLabel(l1ExtraJets_,jets);
+  }
+  catch (cms::Exception& exception) {
+    gotL1Jets =false;
+  }
+
+  bool gotL1Electrons =true;
+  try {
+    iEvent.getByLabel(l1ExtraElectrons_,electrons);
+  }
+  catch (cms::Exception& exception) {
+    gotL1Electrons =false;
+  }
+
+  bool gotL1Muons =true;
+  try {
+    iEvent.getByLabel(l1ExtraMuons_,muons);
+  }
+  catch (cms::Exception& exception) {
+    gotL1Muons =false;
+  }
 
 
-  if(iEvent.getByLabel(l1ExtraTaus_,taus))
-    if((!taus.failedToGet())&&taus->size()>0)
+
+
+
+
+  if(gotL1Taus)
+    if(taus->size()>0)
     {
 	  if(!doRefAnalysis_)
 	    {
@@ -276,9 +311,9 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    }
 	    
     }
-  if(iEvent.getByLabel(l1ExtraJets_,jets))
-    if((!jets.failedToGet())&&jets->size()>0)
-    for(L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
+    if(gotL1Jets)
+      if(jets->size()>0)
+	for(L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
 	  {	
 	    l1jets.push_back(i->p4());
 	    if(!doRefAnalysis_)
@@ -292,28 +327,28 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  }
 
 
-  if(iEvent.getByLabel(l1ExtraElectrons_,electrons))
-    if((!electrons.failedToGet())&&electrons->size()>0)
-    for(L1EmParticleCollection::const_iterator i = electrons->begin();i!=electrons->end();++i)
-      {
-	l1electrons.push_back(i->p4());
-	l1electronEt_->Fill(i->et());
-	l1electronEta_->Fill(i->eta());
-	l1electronPhi_->Fill(i->phi());
-	pathElectrons.push_back(i->p4());
-      }
+    if(gotL1Electrons)
+      if(electrons->size()>0)
+	for(L1EmParticleCollection::const_iterator i = electrons->begin();i!=electrons->end();++i)
+	  {
+	    l1electrons.push_back(i->p4());
+	    l1electronEt_->Fill(i->et());
+	    l1electronEta_->Fill(i->eta());
+	    l1electronPhi_->Fill(i->phi());
+	    pathElectrons.push_back(i->p4());
+	  }
 
 
-  if(iEvent.getByLabel(l1ExtraMuons_,muons))
-    if((!muons.failedToGet())&&muons->size()>0)
-    for(L1MuonParticleCollection::const_iterator i = muons->begin();i!=muons->end();++i)
-      {
-	l1muons.push_back(i->p4());
-	l1muonEt_->Fill(i->et());
-	l1muonEta_->Fill(i->eta());
-	l1muonPhi_->Fill(i->phi());
-	pathMuons.push_back(i->p4());
-      }
+    if(gotL1Muons)
+      if(muons->size()>0)
+	for(L1MuonParticleCollection::const_iterator i = muons->begin();i!=muons->end();++i)
+	  {
+	    l1muons.push_back(i->p4());
+	    l1muonEt_->Fill(i->et());
+	    l1muonEta_->Fill(i->eta());
+	    l1muonPhi_->Fill(i->phi());
+	    pathMuons.push_back(i->p4());
+	  }
 
 
 

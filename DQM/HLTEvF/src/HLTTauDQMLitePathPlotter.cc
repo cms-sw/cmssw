@@ -138,12 +138,18 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  isGoodReferenceEvent.push_back(false);
     }
 
-
-  //get The triggerEvent
-
-
   Handle<TriggerEvent> trigEv;
-  if(iEvent.getByLabel(triggerEvent_,trigEv))
+  //get The triggerEvent
+     bool gotTEV =true;
+     try {
+       iEvent.getByLabel(triggerEvent_,trigEv);
+     }
+     catch (cms::Exception& exception) {
+       gotTEV =false;
+     }
+
+
+  if(gotTEV)
     {
 
       if (trigEv.isValid()) 
