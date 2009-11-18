@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/DBInterface.h"

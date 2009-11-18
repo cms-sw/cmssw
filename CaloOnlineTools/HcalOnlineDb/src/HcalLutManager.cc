@@ -10,7 +10,7 @@
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 //#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"

@@ -10,7 +10,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 
 //OCCI include
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 namespace hcal {
 

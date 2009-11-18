@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.10 2009/11/09 14:00:54 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.11 2009/11/10 10:47:46 innocent Exp $
 //
 
 
@@ -40,7 +40,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 using namespace oracle::occi;
 

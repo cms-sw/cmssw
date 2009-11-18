@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <algorithm>
 
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"

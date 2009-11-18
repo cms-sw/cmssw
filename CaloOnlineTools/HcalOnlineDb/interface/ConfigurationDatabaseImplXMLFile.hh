@@ -7,7 +7,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseStandardXMLParser.hh"
 
 //OCCI include
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 class ConfigurationDatabaseImplXMLFile : public hcal::ConfigurationDatabaseImpl {
 public:

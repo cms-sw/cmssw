@@ -1,14 +1,14 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.18 2008/03/03 20:33:27 rofierzy Exp $
+// $Id: HcalDbOnline.cc,v 1.19 2008/03/05 10:44:31 rofierzy Exp $
 //
 #include <limits>
 #include <string>
 #include <iostream>
 #include <sstream>
 
-#include "occi.h" 
+#include "OnlineDB/Oracle/interface/Oracle.h" 
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"

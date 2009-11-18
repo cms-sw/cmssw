@@ -1,13 +1,13 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.3 2008/03/03 20:33:29 rofierzy Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.4 2009/05/09 00:50:13 elmer Exp $
 //
 #include <string>
 #include <iostream>
 #include <cstdio>
 
-#include "occi.h" 
+#include "OnlineDB/Oracle/interface/Oracle.h" 
 
 #include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
 

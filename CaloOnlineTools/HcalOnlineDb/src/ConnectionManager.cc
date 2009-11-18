@@ -1,7 +1,7 @@
 
 #include <cstring>
 
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "ctype.h"
 

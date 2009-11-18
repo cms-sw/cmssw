@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.6 2009/08/05 22:22:56 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.7 2009/10/26 09:17:55 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -12,7 +12,7 @@
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
@@ -25,7 +25,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.6 2009/08/05 22:22:56 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.7 2009/10/26 09:17:55 kukartse Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line

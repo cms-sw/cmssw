@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.9 2009/08/16 21:21:21 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.10 2009/10/26 02:55:16 kukartse Exp $
 //
 
 #include <iostream>
@@ -21,7 +21,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 using namespace std;
 using namespace oracle::occi;

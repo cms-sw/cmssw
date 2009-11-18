@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.6 2009/08/11 14:23:32 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.7 2009/08/16 21:21:21 kukartse Exp $
 //
 
 
@@ -21,7 +21,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 using namespace std;

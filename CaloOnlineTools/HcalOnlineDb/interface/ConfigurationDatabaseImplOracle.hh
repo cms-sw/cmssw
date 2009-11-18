@@ -9,7 +9,7 @@
 #include "xdata/xdata.h"
 
 //OCCI include
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "ConfigurationDatabaseStandardXMLParser.hh"
 

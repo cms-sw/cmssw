@@ -8,7 +8,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 
 using namespace std;
