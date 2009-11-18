@@ -8,7 +8,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.2 2009/10/19 11:21:33 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.3 2009/11/16 08:10:46 kalavase Exp $
   *
   */
 
@@ -51,6 +51,9 @@ class ConversionFinder {
 						     math::XYZTLorentzVector trk2_p4,
 						     int trk2_q, float trk2_d0,
 						     float bFieldAtOrigin);
-  
+
+  //returns GSF track if associated CTF track does not have fraction of shared hits greater than minFracSharedHits
+  static const reco::Track* getElectronTrack(const reco::GsfElectron& gsfElectron, const float minFracSharedHits);
+
 };
 #endif
