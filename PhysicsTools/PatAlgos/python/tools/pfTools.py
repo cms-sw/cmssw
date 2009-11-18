@@ -190,7 +190,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    process.patDefaultSequence.remove(getattr(process, 'makeLayer1METs'))
+    process.patDefaultSequence.remove(process.patMETCorrections)
 
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau'), algo='IC5'):
