@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.30 2009/11/17 22:24:32 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.31 2009/11/18 12:23:22 amraktad Exp $
 //
 
 // system include files
@@ -88,7 +88,7 @@ public:
    void goTo(FileQueue_i fi, int event);
    void goToRunEvent(Int_t,Int_t);
 
-   void enableEventFiltering(Bool_t);
+   void eventFilterEnableCallback(Bool_t);
    void filterEvents();
    void filterEventsAndReset();
 
@@ -102,7 +102,7 @@ public:
    bool isLastEvent();
    bool isFirstEvent();
 
-   void showEventFilter(const TGWindow* p);
+   void showEventFilterGUI(const TGWindow* p);
    void applyFiltersFromGUI();
 
    const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
@@ -114,7 +114,8 @@ public:
    sigc::signal<void> atEnd_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
-   sigc::signal<void, int, int> eventSelectionChanged_;
+   sigc::signal<void, int, int> eventFilterMessageChanged_;
+   sigc::signal<void, bool>updateEventFilterEnable_;
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default

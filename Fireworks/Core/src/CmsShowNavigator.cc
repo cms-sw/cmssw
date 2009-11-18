@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.49 2009/11/17 22:24:32 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.50 2009/11/18 12:23:22 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -140,13 +140,16 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
 
 //______________________________________________________________________________
 void
-CmsShowNavigator::enableEventFiltering(Bool_t x)
+CmsShowNavigator::eventFilterEnableCallback(Bool_t x)
 {
-   if (m_filtersEnabled = x)
+   if (m_filtersEnabled == x)
       return;
    
    m_filtersEnabled = x;
-   updateFileFilters();
+   if (m_filtersEnabled)
+   {
+      updateFileFilters();
+   }
 }
 
 //______________________________________________________________________________
@@ -344,7 +347,8 @@ CmsShowNavigator::updateFileFilters()
    }
 
    // update gui
-   eventSelectionChanged_.emit(getNSelectedEvents(), getNTotalEvents());
+   eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
+   updateEventFilterEnable_.emit(m_filtersEnabled);
 
    m_filtersNeedUpdate = false;
 }
@@ -512,7 +516,7 @@ CmsShowNavigator::isLastEvent()
 }
 
 void
-CmsShowNavigator::showEventFilter(const TGWindow* p)
+CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
 {
    if (m_guiFilter == 0)
    {
@@ -565,6 +569,7 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       }
       m_selectors.push_back(selector);
    }
+
 }
 
 void

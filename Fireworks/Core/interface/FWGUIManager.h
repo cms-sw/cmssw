@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.84 2009/11/16 17:26:31 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.85 2009/11/17 22:24:30 amraktad Exp $
 //
 
 // system include files
@@ -166,25 +166,27 @@ public:
 
    void processGUIEvents();
 
+   sigc::signal<void, bool> eventFilterEnable_;
+   sigc::signal<void, const TGWindow*> showEventFilterGUI_;
+
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
-   sigc::signal<void, const std::string&> changedEventFilter_;
-   sigc::signal<void, bool> changedEventFilterStatus_;
    sigc::signal<void, int, int> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
 
    sigc::signal<void> changedRunEntry_;
    sigc::signal<void> changedEventEntry_;
-   sigc::signal<void, const TGWindow*> showEventFilter_;
 
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
    void openEveBrowserForDebugging() const;
    void setDelayBetweenEvents(Float_t);
 
-   // void eventFilterChanged();       // CmsShowMainFrame -> CmsShowNavigator
-   void eventFilterStatusChanged(); // CmsShowMainFrame -> CmsShowNavigator
-   void eventSelectionChanged(int, int); // CmsShowNavigator -> CmsShowMainFrame
+   void showEventFilterGUI();
+   void toggleEventFilterEnable();
+   void eventFilterMessageChanged(int, int); // CmsShowNavigator -> CmsShowMainFrame
+   void updateEventFilterEnable(bool);
+
    void runIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);
@@ -193,7 +195,6 @@ public:
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
-   void showEventFilter();
   CmsShowMainFrame* getMainFrame(){
     return m_cmsShowMainFrame;
   }

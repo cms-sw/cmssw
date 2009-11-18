@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.166 2009/11/16 17:26:31 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.167 2009/11/17 22:24:31 amraktad Exp $
 
 //
 
@@ -197,14 +197,14 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
-      TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_runEntry,   "ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "showEventFilter()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterState, "Clicked()", "FWGUIManager", this, "eventFilterStatusChanged()");
-      // TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "eventFilterChanged()");
+
+      TQObject::Connect(m_cmsShowMainFrame->m_filterShowGUIBtn, "Clicked()", "FWGUIManager", this, "showEventFilterGUI()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Clicked()", "FWGUIManager", this, "toggleEventFilterEnable()"); 
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
-      TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowUndocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
    }
 }
@@ -1184,34 +1184,38 @@ void FWGUIManager::eventIdChanged()
 		       m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
 }
 
-void FWGUIManager::showEventFilter()
-{
-  showEventFilter_.emit(m_cmsShowMainFrame);
-}
-
-void FWGUIManager::eventFilterStatusChanged()
-{
-  changedEventFilterStatus_.emit(m_cmsShowMainFrame->m_filterState->IsOn());
-}
-
 void
 FWGUIManager::finishUpColorChange()
 {
    gEve->FullRedraw3D(kFALSE,kTRUE);
 }
+//______________________________________________________________________________
 
-void FWGUIManager::eventSelectionChanged(int sel, int total)
+void FWGUIManager::showEventFilterGUI()
 {
-   if ( sel){
-      m_cmsShowMainFrame->m_filterState->SetOn(kTRUE);
-      m_cmsShowMainFrame->m_filterEditButton->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
-   } else {
-      m_cmsShowMainFrame->m_filterState->SetOn(kFALSE);
-      m_cmsShowMainFrame->m_filterEditButton->SetText(Form("Event Filtering is OFF.  %d events are shown.", total));
-   }
+   showEventFilterGUI_.emit(m_cmsShowMainFrame);
 }
 
-//
-// static member functions
-//
+void FWGUIManager::toggleEventFilterEnable()
+{
+   bool enable = m_cmsShowMainFrame->m_filterEnableBtn->IsOn();
+   if (!enable)
+      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
 
+   eventFilterEnable_.emit(enable);
+}
+
+void FWGUIManager::eventFilterMessageChanged(int sel, int total)
+{
+   m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
+}
+
+void FWGUIManager::updateEventFilterEnable(bool enable)
+{
+   if (m_cmsShowMainFrame->m_filterEnableBtn->IsOn() != enable)
+   {
+      m_cmsShowMainFrame->m_filterEnableBtn->SetOn(enable, false);
+      if (!enable)
+         m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
+   }
+}

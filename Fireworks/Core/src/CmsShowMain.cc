@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.110 2009/11/16 21:50:26 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.111 2009/11/17 22:24:31 amraktad Exp $
 //
 
 // system include files
@@ -833,11 +833,18 @@ CmsShowMain::setupDataHandling()
 
    m_navigator->oldEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
+
+   // navigator filtering  ->
+   m_navigator->updateEventFilterEnable_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable,m_guiManager.get(),_1));
+   m_navigator->eventFilterMessageChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessageChanged,m_guiManager.get(),_1, _2));
    m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
-   m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventSelectionChanged,m_guiManager.get(),_1, _2));
+
+   // navigator fitlering <-
+   m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator,_1));
+   m_guiManager->eventFilterEnable_.connect(boost::bind(&CmsShowNavigator::eventFilterEnableCallback, m_navigator,_1));
+
 
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
@@ -861,9 +868,8 @@ CmsShowMain::setupDataHandling()
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
-   m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator,_1));
-   m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
- 
+
+
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
