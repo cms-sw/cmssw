@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.52 2009/11/18 18:40:57 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.53 2009/11/18 20:13:41 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -336,32 +336,48 @@ CmsShowNavigator::previousEvent()
 void
 CmsShowNavigator::updateFileFilters()
 {
-   std::list<FWFileEntry::Filter>::iterator it;
+   bool haveActiveFilters = false;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
-      if (m_filtersNeedUpdate) (*file)->filtersNeedUpdate();
-      (*file)->updateFilters(m_main.m_eiManager.get(), m_filterModeOR);
+      if ((*file)->hasActiveFilters())
+      {
+         haveActiveFilters = true;
+         break;
+      }
    }
 
-   // go to nearest file
-   if (!(*m_currentFile)->isEventSelected(m_currentEvent))
-   { 
-      if (!nextSelectedEvent())
-         nextSelectedEvent();
+   if (haveActiveFilters)
+   {
+      std::list<FWFileEntry::Filter>::iterator it;
+      for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+      {
+         if (m_filtersNeedUpdate) (*file)->filtersNeedUpdate();
+         (*file)->updateFilters(m_main.m_eiManager.get(), m_filterModeOR);
+      }
+
+      // go to nearest file
+      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
+      { 
+         if (!nextSelectedEvent())
+            nextSelectedEvent();
+      }
+      eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
+      m_filtersNeedUpdate = false;
+   }
+   else
+   {
+      m_filtersEnabled = false;
    }
 
    // update gui
-   eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
    updateEventFilterEnable_.emit(m_filtersEnabled);
-
-   m_filtersNeedUpdate = false;
 }
 
 //=======================================================================
 void
 CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 {
-  printf("remove filter %s \n", (*si)->m_expression.c_str());
+   // printf("remove filter %s \n", (*si)->m_expression.c_str());
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -386,7 +402,7 @@ CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 void
 CmsShowNavigator::addFilter(FWEventSelector* ref)
 {
-   printf("add filter %s\n", ref->m_expression.c_str());
+   //  printf("add filter %s\n", ref->m_expression.c_str());
 
    FWEventSelector* selector = new FWEventSelector(ref);
    m_selectors.push_back(selector);
@@ -401,7 +417,7 @@ CmsShowNavigator::addFilter(FWEventSelector* ref)
 void
 CmsShowNavigator::changeFilter(FWEventSelector* selector)
 {
-   printf("change filter %s\n", selector->m_expression.c_str());
+   // printf("change filter %s\n", selector->m_expression.c_str());
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -476,6 +492,7 @@ CmsShowNavigator::applyFiltersFromGUI()
          }
       }
    }
+   m_filtersEnabled = true;
    updateFileFilters();
    fflush(stdout);
 }
@@ -547,12 +564,26 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    {
       m_guiFilter = new FWGUIEventFilter(p);
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
+      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::finishEditFilters));
    }
    
    if (m_guiFilter->IsMapped())
+   {
       m_guiFilter->CloseWindow();
+      CmsShowNavigator::editFilters_.emit(false);
+   }
    else
+   {
       m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
+      CmsShowNavigator::editFilters_.emit(true);
+   }
+
+}
+
+void
+CmsShowNavigator::finishEditFilters()
+{
+   editFilters_.emit(false);
 }
 
 void

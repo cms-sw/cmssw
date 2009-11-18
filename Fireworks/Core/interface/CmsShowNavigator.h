@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.31 2009/11/18 12:23:22 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.32 2009/11/18 17:13:54 amraktad Exp $
 //
 
 // system include files
@@ -108,14 +108,12 @@ public:
    const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
    
    sigc::signal<void, const fwlite::Event&> newEvent_;
-   sigc::signal<void, const fwlite::Event&> oldEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
-   sigc::signal<void> atBeginning_;
-   sigc::signal<void> atEnd_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
    sigc::signal<void, int, int> eventFilterMessageChanged_;
    sigc::signal<void, bool>updateEventFilterEnable_;
+   sigc::signal<void, bool>editFilters_;
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default
@@ -126,6 +124,7 @@ private:
    void removeFilter(std::list<FWEventSelector*>::iterator);
    void addFilter(FWEventSelector*);
    void changeFilter(FWEventSelector*);
+   void finishEditFilters();
    
    void newFile(FileQueue_i);
 
