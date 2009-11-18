@@ -46,16 +46,19 @@ private:
   HLTConfigProvider hltConfig_;
   std::multimap<std::string,std::string> trgpathMmap_;
   std::vector<MyPerLumiInfo> perrunlumiinfo_;
+  //edm::LogInfo("LumiReport")log_;
+  edm::LogInfo* log_;
 };//end class
 
 // -----------------------------------------------------------------
 
-LumiCalculator::LumiCalculator(edm::ParameterSet const& iConfig){
+LumiCalculator::LumiCalculator(edm::ParameterSet const& iConfig):log_( new edm::LogInfo("LumiReport")){
 }
 
 // -----------------------------------------------------------------
 
 LumiCalculator::~LumiCalculator(){
+  delete log_; log_=0; 
 }
 
 // -----------------------------------------------------------------
@@ -84,14 +87,14 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
   //hltConfig_.dump("TableName");
   //hltConfig_.dump("Triggers");
   //hltConfig_.dump("Modules");  
-  
-  edm::LogInfo("LumiReport")<<"Run "<<run.run()<<" Trigger Table : "<<hltConfig_.tableName()<<"\n";
+  *log_<<"======Trigger Configuration Overview======\n";
+  *log_<<"Run "<<run.run()<<" Trigger Table : "<<hltConfig_.tableName()<<"\n";
   
   unsigned int totaltrg=hltConfig_.size();
   for (unsigned int t=0;t<totaltrg;++t){
     std::string hltname(hltConfig_.triggerName(t));
     std::vector<std::string> numpathmodules=hltConfig_.moduleLabels(hltname);
-    edm::LogInfo("LumiReport")<<t<<" HLT path\t"<<hltname<<"\n";
+    *log_<<t<<" HLT path\t"<<hltname<<"\n";
     std::vector<std::string>::iterator hltpathBeg=numpathmodules.begin();
     std::vector<std::string>::iterator hltpathEnd=numpathmodules.end();
     for(std::vector<std::string>::iterator numpathmodule = hltpathBeg;
@@ -100,32 +103,32 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
 	edm::ParameterSet l1GTPSet=hltConfig_.modulePSet(*numpathmodule);
 	std::string l1pathname=l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
 	if(l1pathname.find("OR")!=std::string::npos){
-	  edm::LogInfo("LumiReport")<<"    L1SeedsLogicalExpression(ORed) "<< l1pathname<< "\n";
+	  *log_<<"    L1SeedsLogicalExpression(ORed) "<< l1pathname<< "\n";
 	  std::vector<std::string> seeds=splitpathstr(l1pathname," OR ");
 	  for(std::vector<std::string>::iterator i=seeds.begin();i!=seeds.end();++i){
-	    if(i->size()!=0)  edm::LogInfo("LumiReport")<<"\t\tseed: "<<*i<<"\n";
+	    if(i->size()!=0)  *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one
 	      trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
 	  }
 	}else if (l1pathname.find("AND")!=std::string::npos){
-	  edm::LogInfo("LumiReport")<<"    L1SeedsLogicalExpression(ANDed)\t"<< l1pathname<< "\n";
+	  *log_<<"    L1SeedsLogicalExpression(ANDed)\t"<< l1pathname<< "\n";
 	  std::vector<std::string> seeds=splitpathstr(l1pathname," AND ");
 	  for(std::vector<std::string>::iterator i=seeds.begin();
 	      i!=seeds.end();++i){
-	    if(i->size()!=0) edm::LogInfo("LumiReport")<<"\t\tseed: "<<*i<<"\n";
+	    if(i->size()!=0) *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one 
 	      trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
 	  }
 	}else{
-	  edm::LogInfo("LumiReport")<<"    L1Seeds(ONE)\t"<< l1pathname<<"\n";
+	  *log_<<"    L1Seeds(ONE)\t"<< l1pathname<<"\n";
 	  trgpathMmap_.insert(std::make_pair(hltname,l1pathname));
 	}	
       }
     }
   }
-  edm::LogInfo("LumiReport")<<"================"<<std::endl;
+  *log_<<"================"<<std::endl;
 }
 
 // -----------------------------------------------------------------
@@ -141,7 +144,8 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   lumiBlock.getByLabel("lumiProducer", lumiSummary);
   l.intglumi=lumiSummary->avgInsDelLumi()*93.244;
   l.livefraction=lumiSummary->liveFrac();
-  edm::LogInfo("LumiReport")<<"Integrated Luminosity for Lumi Section "<<lumiBlock.id().luminosityBlock()<<" "<<l.intglumi<<"\n";
+  *log_<<"================Lumi Section Summary ================\n";
+  *log_<<"Section"<<lumiBlock.id().luminosityBlock()<<" : Integrated Luminosity "<<l.intglumi<<"\n";
   std::multimap<std::string,std::string>::iterator trgIt;
   std::multimap<std::string,std::string>::iterator trgBeg=trgpathMmap_.begin();
   std::multimap<std::string,std::string>::iterator trgEnd=trgpathMmap_.end();
@@ -181,7 +185,7 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
   float recorded=0.0;
   std::map< std::string,float > effectivelumiMap;
   for(lumiIt=lumiItBeg;lumiIt!=lumiItEnd;++lumiIt){//loop over LS
-    edm::LogInfo("LumiReport")<<"\tLumiSection "<<lumiIt->lsnum<<"\n";
+    //*log_<<"\tLumiSection "<<lumiIt->lsnum<<"\n";
     std::vector<MyPerTriggerInfo>::const_iterator trIt;
     std::vector<MyPerTriggerInfo>::const_iterator trItBeg=lumiIt->triggers.begin();
     std::vector<MyPerTriggerInfo>::const_iterator trItEnd=lumiIt->triggers.end();
@@ -191,9 +195,10 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
 	efftrgName=trIt->hltname+":"+trIt->l1name;
 	effectivelumiMap.insert(std::make_pair(efftrgName,0.0));
       }
-      
-      edm::LogInfo("LumiReport")<<"\t   HLT name "<<trIt->hltname<<" : HLT in "<<trIt->hltin<<" : HLT out "<<trIt->hltout<<" : HLT prescale "<<trIt->hltprescale<<"\n";
-      edm::LogInfo("LumiReport")<<"\t     L1 name "<<trIt->l1name<<" : L1 out "<<trIt->l1out<<" : L1 prescale "<<trIt->l1prescale<<"\n";
+      *log_<<"     HLT:\n";
+      *log_<<"\t name "<<trIt->hltname<<" : in "<<trIt->hltin<<" : out "<<trIt->hltout<<" : prescale "<<trIt->hltprescale<<"\n";
+      *log_<<"     L1:\n";
+      *log_<<"\t name "<<trIt->l1name<<" : out "<<trIt->l1out<<" : prescale "<<trIt->l1prescale<<"\n-------------------\n";
       float efflumi=effectivelumiMap.find(efftrgName)->second;
       efflumi += (lumiIt->intglumi*lumiIt->livefraction)/(trIt->l1prescale*trIt->hltprescale);
       effectivelumiMap.find(efftrgName)->second=efflumi;
@@ -201,15 +206,16 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
     delivered += lumiIt->intglumi;
     recorded += lumiIt->intglumi*lumiIt->livefraction;
   }
-  edm::LogInfo("LumiReport")<<"\t LHC Delivered Lumi "<<delivered<<"\n";
-  edm::LogInfo("LumiReport")<<"\t CMS Recorded Lumi "<<recorded<<"\n";
+  *log_<<"================ Run Summary ================\n";
+  *log_<<"\t LHC Delivered Lumi "<<delivered<<"\n";
+  *log_<<"\t CMS Recorded Lumi "<<recorded<<"\n";
   std::map< std::string,float >::const_iterator effLumiMapIt;
   std::map< std::string,float >::const_iterator effLumiMapItBeg=effectivelumiMap.begin();
   std::map< std::string,float >::const_iterator effLumiMapItEnd=effectivelumiMap.end();
   for(effLumiMapIt=effLumiMapItBeg;effLumiMapIt!=effLumiMapItEnd;++effLumiMapIt){
-    edm::LogInfo("LumiReport")<<"\t Effective Lumi for Trigger "<<effLumiMapIt->first<<"\t"<<effLumiMapIt->second<<"\n";
+    *log_<<"\t Effective Lumi in "<<effLumiMapIt->first<<"\t"<<effLumiMapIt->second<<"\n";
   }
-  edm::LogInfo("LumiReport")<<std::endl;
+  *log_<<std::endl;
 }
 
 
