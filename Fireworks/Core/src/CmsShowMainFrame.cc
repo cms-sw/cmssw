@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.68 2009/11/14 15:22:16 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.69 2009/11/16 17:26:31 chrjones Exp $
 //
 // hacks
 #define private public
@@ -67,7 +67,12 @@
 // constructors and destructor
 //
 CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) :
-   TGMainFrame(p, w, h)
+   TGMainFrame(p, w, h),
+   m_filterEnableBtn(),
+   m_filterShowGUIBtn(),
+   m_runEntry(0),
+   m_eventEntry(0),
+   m_delaySliderListener(0)
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
@@ -340,23 +345,20 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    // lower row
    TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
-   // m_filterEntry = new TGTextEntry(filterFrame, "");
-   // filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
-   // m_filterButton = new
    
    TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
-   m_filterState = new TGCheckButton(filterFrame,"");
-   m_filterState->SetBackgroundColor(backgroundColor);
-   m_filterState->SetTextColor(0xFFFFFF);
-   m_filterState->SetToolTipText("Enable/disable event filtering");
-   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
+   m_filterEnableBtn = new TGCheckButton(filterFrame,"");
+   m_filterEnableBtn->SetBackgroundColor(backgroundColor);
+   m_filterEnableBtn->SetTextColor(0xFFFFFF);
+   m_filterEnableBtn->SetToolTipText("Enable/disable event filtering");
+   lframe->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
    filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
 
-   m_filterEditButton = new TGTextButton(filterFrame,"Event filtering is OFF");
-   m_filterEditButton->SetBackgroundColor(backgroundColor);
-   m_filterEditButton->SetTextColor(0xFFFFFF);
-   m_filterEditButton->SetToolTipText("Edit event selection");
-   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
+   m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
+   m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
+   m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
+   m_filterShowGUIBtn->SetToolTipText("Edit event selection");
+   filterFrame->AddFrame(m_filterShowGUIBtn,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
 
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
@@ -488,6 +490,8 @@ CmsShowMainFrame::enableActions(bool enable)
 
    m_runEntry->SetEnabled(enable);
    m_eventEntry->SetEnabled(enable);
+   m_filterEnableBtn->SetEnabled(enable);
+   m_filterShowGUIBtn->SetEnabled(enable);
 }
 
 void
