@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/11/10 21:03:13 $
-  * $Revision: 1.52 $
+  * $Date: 2009/11/11 20:54:29 $
+  * $Revision: 1.53 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -95,6 +95,8 @@ private:  ///Methods, variables accessible only within class code
   bool digi_checkdigisize_;
   bool digi_checkadcsum_;
   bool digi_checkdverr_;
+
+  bool shutOffOrbitTest_;
 
   int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event

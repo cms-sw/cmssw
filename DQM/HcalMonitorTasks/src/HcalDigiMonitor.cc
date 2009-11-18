@@ -98,6 +98,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       std::cout <<std::endl;
     }
 
+  shutOffOrbitTest_ = ps.getUntrackedParameter<bool>("DigiMonitor_shutOffOrbitTest",false);
   DigiMonitor_ExpectedOrbitMessageTime_=ps.getUntrackedParameter<int>("DigiMonitor_ExpectedOrbitMessageTime",-1); // -1 means that orbit mismatches won't be checked
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("DigiMonitor_AllowedCalibTypes",AllowedCalibTypes_);
 
@@ -622,10 +623,10 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
     {
       // increment counters only for non-zero offsets?
       ++h.fibbcnoff[offset + 7];
-      if (offset != 0) 
+      if (offset != 0)
 	{
 	  ++badFibBCNOff[calcEta][iPhi-1][iDepth-1];
-	  err |= 0xF;
+	  if (shutOffOrbitTest_ == false) err |= 0xF; // not an error if test turned off
 	}
     }
   
