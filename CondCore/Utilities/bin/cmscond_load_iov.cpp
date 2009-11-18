@@ -88,7 +88,7 @@ int cond::LoadIOVUtilities::execute(){
                              cond::IOVNames::iovMappingXML() );
    
   cond::IOVService iovmanager( session );
-  std::auto_ptr<cond::IOVEditor> editor=iovmanager.newIOVEditor("");
+  std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(""));
   editor->create(parser.timetype,parser.lastTill);
   editor->bulkAppend(parser.values);
   editor->stamp(cond::userInfo(),false);
