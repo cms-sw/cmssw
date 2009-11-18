@@ -111,6 +111,18 @@ int FWFileEntry::previousSelectedEvent(int tree_entry)
 }
 
 //______________________________________________________________________________
+bool FWFileEntry::hasActiveFilters()
+{
+   for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
+   {
+      if ((*it)->m_selector->m_enabled)
+         return true;
+   }
+
+   return false;
+}
+
+//______________________________________________________________________________
 void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
 {
    if (!m_filtersNeedUpdate)
