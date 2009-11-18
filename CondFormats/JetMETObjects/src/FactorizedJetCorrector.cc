@@ -278,7 +278,7 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
     { 
       vx = fillVector(mBinTypes[i]);
       vy = fillVector(mParTypes[i]);
-      if (mLevels[i]==kL2)
+      if (mLevels[i]==kL2||mLevels[i]==kL6)
         mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
       if (mLevels[i]==kL6) scale *= 1.0 + getLepPt() / mJetPt;
