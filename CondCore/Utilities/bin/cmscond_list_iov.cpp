@@ -53,14 +53,13 @@ int cond::ListIOVUtilities::execute(){
     std::copy (alltags.begin(),
                alltags.end(),
                std::ostream_iterator<std::string>(std::cout,"\n")
-      );
+	       );
   }else{
     std::string tag = getOptionValue<std::string>("tag");
     cond::MetaData metadata_svc(session);
     std::string token;
     session.transaction().start(true);
     token=metadata_svc.getToken(tag);
-    session.transaction().commit();
     {
       bool verbose = hasOptionValue("verbose");
       bool details = hasDebug();
@@ -86,6 +85,7 @@ int cond::ListIOVUtilities::execute(){
       }
       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
     }
+    session.transaction().commit();
   }
   return 0;
 }

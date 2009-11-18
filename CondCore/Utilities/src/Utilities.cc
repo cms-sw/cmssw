@@ -87,7 +87,7 @@ int cond::Utilities::run( int argc, char** argv ){
       }
     }
     
-  }catch( cond::UtilitiesError& err ){
+  }catch( cond::Exception& err ){
     std::cout << err.what() << std::endl;
     ret = 1;
   }catch( const std::exception& exc ){

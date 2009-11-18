@@ -107,7 +107,7 @@ int cond::ExportIOVUtilities::execute(){
     transaction.start(false);
     destdb.initializeMapping( cond::IOVNames::iovMappingVersion(),
                               cond::IOVNames::iovMappingXML());
-
+    
     cond::MetaData  metadata( destdb );
     if( metadata.hasTag(destTag) ){
       cond::MetaDataEntry entry;
@@ -158,7 +158,7 @@ int cond::ExportIOVUtilities::execute(){
 
   cond::UserLogInfo a;
   a.provenance=sourceConnect+"/"+inputTag;
-  a.usertext="exportIOV V2.0;";
+  a.usertext="exportIOV V2.1;";
   if (newIOV) a.usertext+= "new tag;";
   
   sourcedb.transaction().start(true);

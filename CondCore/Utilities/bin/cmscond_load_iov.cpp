@@ -83,26 +83,22 @@ int cond::LoadIOVUtilities::execute(){
   cond::DbSession session = openDbSession("connect");
   cond::DbScopedTransaction transaction(session);
   transaction.start(false);
+
   session.initializeMapping( cond::IOVNames::iovMappingVersion(),
                              cond::IOVNames::iovMappingXML() );
-  transaction.commit();
-  
+   
   cond::IOVService iovmanager( session );
-  cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-  transaction.start(false);
+  std::auto_ptr<cond::IOVEditor> editor=iovmanager.newIOVEditor("");
   editor->create(parser.timetype,parser.lastTill);
   editor->bulkAppend(parser.values);
   editor->stamp(cond::userInfo(),false);
   iovtoken=editor->token();
-  transaction.commit();
   cond::MetaData metadata( session );
-  transaction.start(false);
   metadata.addMapping(parser.tag,iovtoken);
   transaction.commit();
   if(debug){
     std::cout<<"source iov token "<<iovtoken<<std::endl;
   }
-  delete editor;
   return 0;
 }
 
