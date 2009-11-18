@@ -44,12 +44,12 @@ class MeasureLA : public edm::ESProducer {
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;
   const edm::FileInPath fp_;
-  const unsigned maxEvents;
   const edm::VParameterSet reports, measurementPreferences, calibrations;
   std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
   int32_t methods;
   bool byModule, byLayer;
-  float localybin;
+  const float localybin;
+  const unsigned stripsperbin,maxEvents;
   Book book;
 
 };

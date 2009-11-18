@@ -20,11 +20,13 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   inputFiles( conf.getParameter<std::vector<std::string> >("InputFiles") ),
   inFileLocation( conf.getParameter<std::string>("InFileLocation")),
   fp_(conf.getParameter<edm::FileInPath>("SiStripDetInfo") ),
-  maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
   reports( conf.getParameter<edm::VParameterSet>("Reports")),
   measurementPreferences( conf.getParameter<edm::VParameterSet>("MeasurementPreferences")),
   calibrations(conf.getParameter<edm::VParameterSet>("Calibrations")),
-  methods(0), byModule(false), byLayer(false), localybin(conf.getUntrackedParameter<double>("LocalYBin",0.0))
+  methods(0), byModule(false), byLayer(false), 
+  localybin(conf.getUntrackedParameter<double>("LocalYBin",0.0)),
+  stripsperbin(conf.getUntrackedParameter<unsigned>("StripsPerBin",0)),
+  maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0))
 {
   store_methods_and_granularity( reports );
   store_methods_and_granularity( measurementPreferences );
@@ -33,7 +35,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   TChain*const chain = new TChain("la_data"); 
   BOOST_FOREACH(const std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
-  LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, maxEvents);
+  LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, stripsperbin, maxEvents);
   laff.fill(chain, book);
   laff.fit(book);
   summarize_module_muH_byLayer();

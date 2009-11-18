@@ -63,15 +63,17 @@ class LA_Filler_Fitter {
     ensembleBins_(N),ensembleLow_(low),ensembleUp_(up),
     byLayer_(true),byModule_(false),
     localYbin_(0),
+    stripsPerBin_(0),
     maxEvents_(max),
     methods_(methods)
       {};
     
-  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned max=0) : 
+  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned stripbin, unsigned max=0) : 
     ensembleSize_(0),
     ensembleBins_(0),ensembleLow_(0),ensembleUp_(0),
     byLayer_(layer),byModule_(module),
     localYbin_(localybin),
+    stripsPerBin_(stripbin),
     maxEvents_(max),
     methods_(methods)
     {};
@@ -107,6 +109,7 @@ class LA_Filler_Fitter {
   const double ensembleLow_, ensembleUp_;
   const bool byLayer_, byModule_;
   const float localYbin_;
+  const unsigned stripsPerBin_;
   const Long64_t maxEvents_;
   const int methods_;
 };

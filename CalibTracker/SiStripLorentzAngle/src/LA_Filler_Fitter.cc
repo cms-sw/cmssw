@@ -27,6 +27,7 @@ fill(TTree* tree, Book& book) {
 		      const std::vector<float>*    LEAF( tsosBdotY )
 		      const std::vector<float>*    LEAF( tsosglobalZofunitlocalY )
 		      //const std::vector<float>*    LEAF( tsoslocaly )
+		      //const std::vector<unsigned>* LEAF( clusterseedstrip )
 		      ) {
     if(maxEvents_) TTREE_FOREACH_ENTRY_total = std::min(maxEvents_,TTREE_FOREACH_ENTRY_total);
     for(unsigned i=0; i< clusterwidth->size() ; i++) {
@@ -45,12 +46,14 @@ fill(TTree* tree, Book& book) {
       const unsigned width = (*clusterwidth)[i];
       const double var = (*clustervariance)[i];
       //const float localy = (*tsoslocaly)[i];
+      //const unsigned apvstrip = (*clusterseedstrip)[i] % 128;
 
       poly<std::string> granular;
       granular += subdetLabel(detid);
       if(byLayer_)  granular *= layerLabel(detid);
       if(byModule_) granular *= moduleLabel(detid);
       //if(localYbin_) granular += (localy < 0 ? "_yM":"_yP") + boost::lexical_cast<std::string>(abs((int)(localy/localYbin_+(localy<0?-1:0))));
+      //if(stripsPerBin_) granular += "_strip"+boost::lexical_cast<std::string>((unsigned)((0.5+((apvstrip/64)?(127-apvstrip):apvstrip)/stripsPerBin_)*stripsPerBin_) );
       if(ensembleBins_) {
 	granular+= "_ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*tthetaL-ensembleLow_)/(ensembleUp_-ensembleLow_)));
 	granular+= "";
