@@ -131,6 +131,7 @@ producePileUpEvents::~producePileUpEvents()
 
 void producePileUpEvents::beginRun(edm::Run& run, edm::EventSetup const& es)
 {
+
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
@@ -153,7 +154,7 @@ producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::vector< edm::Handle< edm::HepMCProduct> > evts; 
   iEvent.getManyByType(evts);
   for ( unsigned i=0; i<evts.size(); ++i ) 
-    if ( evts[i].provenance()->moduleLabel()=="source" ) evtSource = evts[i];
+    if ( evts[i].provenance()->moduleLabel()=="generator" ) evtSource = evts[i];
   
   // Take the VtxSmeared if it exists, the source otherwise
   // (The vertex smearing is done in Famos only in the latter case)
