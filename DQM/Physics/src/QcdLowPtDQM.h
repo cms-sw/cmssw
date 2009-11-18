@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.6 2009/11/17 06:44:55 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.7 2009/11/17 16:25:25 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -188,6 +188,8 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     bool                          usePixelQ_;          //if true use pixel hit quality word
     std::vector<int>              hltTrgBits_;         //HLT trigger bit(s)
     std::vector<bool>             hltTrgDeci_;         //HLT trigger descision(s)
+    std::vector<std::string>      hltTrgUsedNames_;    //HLT used trigger name(s)
+    std::string                   hltUsedResName_;     //used HLT trigger results name
     std::vector<Pixel>            bpix1_;              //barrel pixels layer 1
     std::vector<Pixel>            bpix2_;              //barrel pixels layer 2
     std::vector<Pixel>            bpix3_;              //barrel pixels layer 3

@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.7 2009/11/17 16:25:22 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.8 2009/11/18 11:12:32 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -76,7 +76,6 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
 
   if (parameters.exists("hltTrgNames"))
     hltTrgNames_ = parameters.getUntrackedParameter<vector<string> >("hltTrgNames");
-  hltTrgNames_.insert(hltTrgNames_.begin(),"Any");
 
   if (parameters.exists("hltProcNames"))
      hltProcNames_ = parameters.getUntrackedParameter<vector<string> >("hltProcNames");
@@ -113,6 +112,13 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 {
   // Analyze the given event.
 
+  // get tracker geometry
+  ESHandle<TrackerGeometry> trackerHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+  tgeo_ = trackerHandle.product();
+  if (!tgeo_)
+    print(3,"Could not obtain pointer to TrackerGeometry");
+
   fillHltBits(iEvent);
   fillPixels(iEvent);
   trackletVertexUnbinned(iEvent, pixLayers_);
@@ -140,18 +146,10 @@ void QcdLowPtDQM::beginLuminosityBlock(const LuminosityBlock &l,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::beginRun(const Run &, const EventSetup &iSetup)
+void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
 {
-  // Begin run, get or create needed structures.
+  // Begin run, get or create needed structures.  TODO: can this be called several times in DQM???
 
-  // get tracker geometry
-  ESHandle<TrackerGeometry> trackerHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  tgeo_ = trackerHandle.product();
-  if (!tgeo_)
-    print(3,"Could not obtain pointer to TrackerGeometry");
-
-  // get trigger bits
   HLTConfigProvider hltConfig;
 
   bool isinit = false;
@@ -162,6 +160,12 @@ void QcdLowPtDQM::beginRun(const Run &, const EventSetup &iSetup)
     teststr += hltProcNames_.at(i);
     if (hltConfig.init(hltProcNames_.at(i))) {
       isinit = true;
+      hltUsedResName_ = hltResName_;
+      if (hltResName_.find(':')==string::npos)
+        hltUsedResName_ += "::";
+      else 
+        hltUsedResName_ += ":";
+      hltUsedResName_ += hltProcNames_.at(i);
       break;
     }
   }
@@ -171,12 +175,14 @@ void QcdLowPtDQM::beginRun(const Run &, const EventSetup &iSetup)
 
   // setup "Any" bit
   hltTrgBits_.clear();
-  hltTrgBits_.push_back(0);
+  hltTrgBits_.push_back(-1);
   hltTrgDeci_.clear();
   hltTrgDeci_.push_back(true);
+  hltTrgUsedNames_.clear();
+  hltTrgUsedNames_.push_back("Any");
 
-  // figure out relation of trigger name to trigger bit
-  for(size_t i=1;i<hltTrgNames_.size();++i) {
+  // figure out relation of trigger name to trigger bit and store used trigger names/bits
+  for(size_t i=0;i<hltTrgNames_.size();++i) {
     const string &n1(hltTrgNames_.at(i));
     bool found = 0;
     for(size_t j=0;j<hltConfig.size();++j) {
@@ -184,53 +190,55 @@ void QcdLowPtDQM::beginRun(const Run &, const EventSetup &iSetup)
       if(0) print(0,Form("Checking trigger name %s for %s", n2.c_str(), n1.c_str()));
       if (n2==n1) {
         hltTrgBits_.push_back(j);
+        hltTrgUsedNames_.push_back(n1);
+        hltTrgDeci_.push_back(false);
+        print(0,Form("Added trigger %d with name %s for bit %d", 
+                     hltTrgBits_.size()-1, n1.c_str(), j));
         found = 1;
         break;
       }
     }      
     if (!found) {
       CP(2) print(2,Form("Could not find trigger bit for %s", n1.c_str()));
-      hltTrgBits_.push_back(-1);
     }
-    hltTrgDeci_.push_back(false);
   }
 
   // ensure that trigger collections are of same size
-  if (hltTrgBits_.size()!=hltTrgNames_.size())
-    print(3,Form("Size of trigger bits not equal names: %d %d",
-                 hltTrgBits_.size(), hltTrgNames_.size()));
-  if (hltTrgDeci_.size()!=hltTrgNames_.size())
+  if (hltTrgBits_.size()!=hltTrgUsedNames_.size())
+    print(3,Form("Size of trigger bits not equal used names: %d %d",
+                 hltTrgBits_.size(), hltTrgUsedNames_.size()));
+  if (hltTrgDeci_.size()!=hltTrgUsedNames_.size())
     print(3,Form("Size of decision bits not equal names: %d %d",
-                 hltTrgDeci_.size(), hltTrgNames_.size()));
+                 hltTrgDeci_.size(), hltTrgUsedNames_.size()));
 
   // setup correction histograms
   if (AlphaTracklets12_) {
-    for(size_t i=0;i<hltTrgNames_.size();++i) {
+    for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
       TH3F *h2 = (TH3F*)AlphaTracklets12_->Clone(Form("NsigTracklets12-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NsigTracklets12_.push_back(h2);
       TH3F *h3 = (TH3F*)AlphaTracklets12_->Clone(Form("NbkgTracklets12-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NbkgTracklets12_.push_back(h3);
     }
   }
   if (AlphaTracklets13_) {
-    for(size_t i=0;i<hltTrgNames_.size();++i) {
+    for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
       TH3F *h2 = (TH3F*)AlphaTracklets13_->Clone(Form("NsigTracklets13-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NsigTracklets13_.push_back(h2);
       TH3F *h3 = (TH3F*)AlphaTracklets13_->Clone(Form("NbkgTracklets13-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NbkgTracklets13_.push_back(h3);
     }
   }
   if (AlphaTracklets23_) {
-    for(size_t i=0;i<hltTrgNames_.size();++i) {
+    for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
       TH3F *h2 = (TH3F*)AlphaTracklets23_->Clone(Form("NsigTracklets23-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NsigTracklets23_.push_back(h2);
       TH3F *h3 = (TH3F*)AlphaTracklets23_->Clone(Form("NbkgTracklets23-%s",
-                                                      hltTrgNames_.at(i).c_str()));
+                                                      hltTrgUsedNames_.at(i).c_str()));
       NbkgTracklets23_.push_back(h3);
     }
   }
@@ -246,9 +254,9 @@ void QcdLowPtDQM::book1D(std::vector<MonitorElement*> &mes,
 {
   // Book 1D histos.
 
-  for(size_t i=0;i<hltTrgNames_.size();++i) {
-    MonitorElement *e = theDbe_->book1D(Form("%s_%s",name.c_str(),hltTrgNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgNames_.at(i).c_str(), title.c_str()), 
+  for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    MonitorElement *e = theDbe_->book1D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2);
     TH1 *h1 = e->getTH1();
     if (sumw2)
@@ -266,9 +274,9 @@ void QcdLowPtDQM::book2D(std::vector<MonitorElement*> &mes,
 {
   // Book 2D histos.
 
-  for(size_t i=0;i<hltTrgNames_.size();++i) {
-    MonitorElement *e = theDbe_->book2D(Form("%s_%s",name.c_str(),hltTrgNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgNames_.at(i).c_str(), title.c_str()), 
+  for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    MonitorElement *e = theDbe_->book2D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2, ny, y1, y2);
     TH1 *h1 = e->getTH1();
     if (sumw2)
@@ -285,9 +293,9 @@ void QcdLowPtDQM::create1D(std::vector<TH1F*> &hs,
 {
   // Create 1D histos.
 
-  for(size_t i=0;i<hltTrgNames_.size();++i) {
-    TH1F *h1 = new TH1F(Form("%s_%s",name.c_str(),hltTrgNames_.at(i).c_str()),
-                        Form("%s: %s",hltTrgNames_.at(i).c_str(), title.c_str()), 
+  for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    TH1F *h1 = new TH1F(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
+                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                         nx, x1, x2);
     if (sumw2)
       h1->Sumw2();
@@ -304,9 +312,9 @@ void QcdLowPtDQM::create2D(std::vector<TH2F*> &hs,
 {
   // Create 2D histos.
 
-  for(size_t i=0;i<hltTrgNames_.size();++i) {
-    TH2F *h1 = new TH2F(Form("%s_%s",name.c_str(),hltTrgNames_.at(i).c_str()),
-                        Form("%s: %s",hltTrgNames_.at(i).c_str(), title.c_str()), 
+  for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    TH2F *h1 = new TH2F(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
+                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                         nx, x1, x2, ny, y1, y2);
     if (sumw2)
       h1->Sumw2();
@@ -324,13 +332,13 @@ void QcdLowPtDQM::createHistos()
     return; // histograms already booked
 
   if (1) {
-    const int Nx = hltTrgNames_.size();
+    const int Nx = hltTrgUsedNames_.size();
     const double x1 = -0.5;
     const double x2 = Nx-0.5;
     h2TrigCorr_ = theDbe_->book2D("h2TriCorr","Trigger bit x vs y;y&&!x;x&&y",Nx,x1,x2,Nx,x1,x2);
-    for(size_t i=1;i<=hltTrgNames_.size();++i) {
-      h2TrigCorr_->setBinLabel(i,hltTrgNames_.at(i-1),1);
-      h2TrigCorr_->setBinLabel(i,hltTrgNames_.at(i-1),2);
+    for(size_t i=1;i<=hltTrgUsedNames_.size();++i) {
+      h2TrigCorr_->setBinLabel(i,hltTrgUsedNames_.at(i-1),1);
+      h2TrigCorr_->setBinLabel(i,hltTrgUsedNames_.at(i-1),2);
     }
     TH1 *h = h2TrigCorr_->getTH1();
     if (h)
@@ -650,7 +658,7 @@ void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l,
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::endRun(const Run &, const EventSetup &)
 {
-  // End run, cleanup.
+  // End run, cleanup. TODO: can this be called several times in DQM???
 
   for(size_t i=0;i<NsigTracklets12_.size();++i) {
     NsigTracklets12_.at(i)->Reset();
@@ -732,15 +740,20 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
   // Fill HLT trigger bits.
 
   Handle<TriggerResults> triggerResultsHLT;
-  getProduct(hltResName_, triggerResultsHLT, iEvent);
+  getProduct(hltUsedResName_, triggerResultsHLT, iEvent);
 
-  for(size_t i=1;i<hltTrgBits_.size();++i) {
-    int tbit = hltTrgBits_.at(i-1);
+  for(size_t i=0;i<hltTrgBits_.size();++i) {
+    int tbit = hltTrgBits_.at(i);
     if (tbit<0) //ignore unknown trigger 
       continue; 
-    hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
-    if (0) print(0,Form("Decision %i for %s",
-                        (int)hltTrgDeci_.at(i), hltTrgNames_.at(i).c_str()));
+    if (tbit<triggerResultsHLT->size()) {
+      hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
+      if (0) print(0,Form("Decision %i for %s",
+                          (int)hltTrgDeci_.at(i), hltTrgUsedNames_.at(i).c_str()));
+    } else {
+      print(2,Form("Problem slot %i for bit %i for %s",
+                   i, tbit, triggerResultsHLT->size(), hltTrgUsedNames_.at(i).c_str()));
+    }
   }
 
   // fill correlation histogram
