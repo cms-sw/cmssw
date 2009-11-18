@@ -768,7 +768,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	    {
 	      hist=me->getTH2F();
 	      counter=hist->GetBinContent(0,0); // event counter
-	      if (counter>0) // scale by number of events to make rate histogram
+	      if (counter>1) // scale by number of events to make rate histogram
 		{
 		  hist->Scale(1./counter);
 		  // scale to 0-1 to always maintain consistent coloration
@@ -786,7 +786,6 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		      if (bincontent>s.thresh) // cell is bad if above threshold
 			{
 			  iphi=phi+1;
-			  //cout <<"Found bad cell!\t" <<ieta<<"\t"<<iphi<<"\t"<<d+1<<"\tbincontent = "<<bincontent<<endl;
 			  if (isHF(eta,d+1))
 			    {
 			      if (!HFpresent_) continue;
