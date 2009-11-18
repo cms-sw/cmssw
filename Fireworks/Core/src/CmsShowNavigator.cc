@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.50 2009/11/18 12:23:22 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.51 2009/11/18 17:13:56 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -76,13 +76,15 @@ CmsShowNavigator::openFile(const std::string& fileName)
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
    
-      // add selectors in new file
-      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+      if (m_filtersEnabled)
       {
-         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         {
+            newFile->filters().push_back(new FWFileEntry::Filter(*i));
+         }
+         m_filtersNeedUpdate = true;
+         updateFileFilters();
       }
-      m_filtersNeedUpdate = true;
-      updateFileFilters();
       return true;
    }
    catch (std::exception& iException) {
@@ -116,18 +118,20 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
    
       if (m_files.size() >= m_maxNumberOfFilesToChain)
          printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
-   
+
       m_files.push_back(newFile);
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
 
-      // update file filters
-      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+      if (m_filtersEnabled)
       {
-         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         {
+            newFile->filters().push_back(new FWFileEntry::Filter(*i));
+         }
+         m_filtersNeedUpdate = true;
+         updateFileFilters();
       }
-      m_filtersNeedUpdate = true;
-      updateFileFilters();
    }
    catch(std::exception& iException)
    {
@@ -148,6 +152,7 @@ CmsShowNavigator::eventFilterEnableCallback(Bool_t x)
    m_filtersEnabled = x;
    if (m_filtersEnabled)
    {
+      m_filtersNeedUpdate = true;
       updateFileFilters();
    }
 }
@@ -263,8 +268,7 @@ CmsShowNavigator::nextEvent()
       }
       else
       {
-         // first event in next file
-         FileQueue_i x =m_currentFile ; ++x;
+         FileQueue_i x = m_currentFile ; ++x;
          if (x != m_files.end())
          {  
             goTo(x, 0);
@@ -504,15 +508,34 @@ CmsShowNavigator::getNTotalEvents()
 bool
 CmsShowNavigator::isFirstEvent()
 {
-   int first =  (m_filtersEnabled) ? (*m_currentFile)->firstSelectedEvent() : 0;
+   int first =  (m_filtersEnabled) ? (*m_files.begin())->firstSelectedEvent() : 0;
    return  first == m_currentEvent;
 }
 
 bool
 CmsShowNavigator::isLastEvent()
 {
-   int last =  (m_filtersEnabled) ? (*m_currentFile)->lastSelectedEvent() : (*m_currentFile)->lastEvent();
-   return  last == m_currentEvent;
+   if (m_filtersEnabled)
+   {
+      FileQueue_i lastSelectedFile;
+      for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+      {
+         if ((*file)->hasSelectedEvents())
+            lastSelectedFile = file;
+      }
+      if (lastSelectedFile == m_currentFile)
+         return (*m_currentFile)->lastSelectedEvent() == m_currentEvent;
+   }
+   else
+   {
+      FileQueue_i lastFile = m_files.end();
+      --lastFile;
+      if (m_currentFile == lastFile)
+      {
+         return (*m_currentFile)->lastEvent() == m_currentEvent;
+      }
+   }
+   return false;
 }
 
 void
@@ -569,7 +592,6 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       }
       m_selectors.push_back(selector);
    }
-
 }
 
 void
