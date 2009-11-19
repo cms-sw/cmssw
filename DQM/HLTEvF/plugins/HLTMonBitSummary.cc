@@ -43,6 +43,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   denominatorWild_ = iConfig.getUntrackedParameter<std::string>("denominatorWild","");
   denominator_ = iConfig.getUntrackedParameter<std::string>("denominator");
   directory_ = iConfig.getUntrackedParameter<std::string>("directory","HLT/HLTMonMuon");
+  histLabel_ = iConfig.getUntrackedParameter<std::string>("histLabel","Muon");
   //label_ = iConfig.getParameter<std::string>("label");
   //  out_ = iConfig.getUntrackedParameter<std::string>("out","");
 
@@ -178,12 +179,12 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
  
     dbe_->setCurrentFolder(directory_+"Summary");
 
-    h1_ = dbe_->book1D("PassingBits_Summary","PassingBits_Summary", nBin, min, max);
-    h2_ = dbe_->book2D("PassingBits_Correlation","PassingBits_Correlation",nBin,min,max, nBin,min,max);
-    pf_ = dbe_->book1D("Efficiency_Summary","Efficiency_Summary", nBin, min, max);
+    h1_ = dbe_->book1D("PassingBits_Summary_"+histLabel_,"PassingBits_Summary_"+histLabel_, nBin, min, max);
+    h2_ = dbe_->book2D("PassingBits_Correlation_"+histLabel_,"PassingBits_Correlation_"+histLabel_,nBin,min,max, nBin,min,max);
+    pf_ = dbe_->book1D("Efficiency_Summary_"+histLabel_,"Efficiency_Summary_"+histLabel_, nBin, min, max);
     if (denominator_!="")
       //ratio_ = dbe_->book1D(std::string("Ratio_"+denominator_),std::string("Ratio_"+denominator_),nBin,min,max);
-      ratio_ = dbe_->book1D("HLTRate_wrtL1","HLTRate_wrtL1",nBin,min,max);
+      ratio_ = dbe_->book1D("HLTRate_"+histLabel_,"HLTRate_"+histLabel_,nBin,min,max);
     else 
       ratio_=0;
 
