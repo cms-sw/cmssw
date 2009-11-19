@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.32 2009/11/18 17:13:54 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.33 2009/11/18 22:46:23 amraktad Exp $
 //
 
 // system include files
@@ -112,7 +112,7 @@ public:
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
    sigc::signal<void, int, int> eventFilterMessageChanged_;
-   sigc::signal<void, bool>updateEventFilterEnable_;
+   sigc::signal<void, bool, bool>updateEventFilterEnable_;
    sigc::signal<void, bool>editFilters_;
 
 private:

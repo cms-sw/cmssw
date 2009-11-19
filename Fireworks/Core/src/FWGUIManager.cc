@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.169 2009/11/18 22:46:23 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.170 2009/11/19 11:13:07 amraktad Exp $
 
 //
 
@@ -1191,12 +1191,14 @@ FWGUIManager::finishUpColorChange()
 }
 //______________________________________________________________________________
 
-void FWGUIManager::showEventFilterGUI()
+void
+FWGUIManager::showEventFilterGUI()
 {
    showEventFilterGUI_.emit(m_cmsShowMainFrame);
 }
 
-void FWGUIManager::toggleEventFilterEnable()
+void
+FWGUIManager::toggleEventFilterEnable()
 {
    bool enable = m_cmsShowMainFrame->m_filterEnableBtn->IsOn();
    if (!enable)
@@ -1205,19 +1207,28 @@ void FWGUIManager::toggleEventFilterEnable()
    eventFilterEnable_.emit(enable);
 }
 
-void FWGUIManager::eventFilterMessageChanged(int sel, int total)
+void
+FWGUIManager::eventFilterMessageChanged(int sel, int total)
 {
    m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
 }
 
-void FWGUIManager::updateEventFilterEnable(bool enable)
+void
+FWGUIManager::updateEventFilterEnable(bool filterEnabled, bool btnEnabled)
 {   
-   m_cmsShowMainFrame->m_filterEnableBtn->SetOn(enable, false);
-   if (!enable)
+   TGCheckButton* btn =  m_cmsShowMainFrame->m_filterEnableBtn;
+
+   btn->SetEnabled(true);
+   btn->SetOn(filterEnabled, false);
+   if (!btnEnabled)
+      btn->SetEnabled(false);
+
+   if (!filterEnabled)
       m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
 }
 
-void FWGUIManager::editEventFilters(bool edit)
+void
+FWGUIManager::editEventFilters(bool edit)
 {
    m_cmsShowMainFrame->m_filterEnableBtn->SetState(edit ? kButtonDisabled : kButtonEngaged);
 }
