@@ -6,18 +6,15 @@ process = cms.Process("systAna")
 # Max events
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
-    #input = cms.untracked.int32(10)
+    #input = cms.untracked.int32(100)
 )
 
 # Printouts
-process.MessageLogger = cms.Service("MessageLogger",
-      cout = cms.untracked.PSet(
-            default = cms.untracked.PSet(
-                  limit = cms.untracked.int32(100)
-            ),
-            threshold = cms.untracked.string('INFO')
-      ),
-      destinations = cms.untracked.vstring('cout')
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.destinations = ['cout']
+process.MessageLogger.cout = cms.untracked.PSet(
+      threshold = cms.untracked.string('INFO'),
+      FwkReport = cms.untracked.PSet(reportEvery=cms.untracked.int32(100))
 )
 
 # Input files (on disk)
@@ -30,7 +27,7 @@ process.source = cms.Source("PoolSource",
 # Printout of generator information for the first event
 process.include("SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
-  maxEventsToPrint = cms.untracked.int32(1),
+  maxEventsToPrint = cms.untracked.int32(10),
   printVertex = cms.untracked.bool(False),
   src = cms.InputTag("genParticles")
 )
@@ -79,37 +76,16 @@ process.fsrWeight = cms.EDProducer("FSRWeightProducer",
 
 # Produce weights for systematics
 process.systematicsAnalyzer = cms.EDFilter("SimpleSystematicsAnalyzer",
+      SelectorPath = cms.untracked.string('systAna'),
       WeightTags = cms.untracked.VInputTag("isrWeight","fsrWeight")
 )
 
 # Main path
 process.systAna = cms.Path(
        process.printGenParticles
-      *process.selectCaloMetWMuNus
       *process.isrWeight
       *process.fsrWeight
-      *process.systematicsAnalyzer
+      *process.selectCaloMetWMuNus
 )
 
-# Optional code follows
-#
-# Save weights in the output file 
-#process.load("Configuration.EventContent.EventContent_cff")
-#process.MyEventContent = cms.PSet( 
-#      outputCommands = process.AODSIMEventContent.outputCommands
-#)
-#process.MyEventContent.outputCommands.extend(
-#      cms.untracked.vstring(
-#              'keep *_isrWeight_*_*'
-#            , 'keep *_isrWeight_*_*'
-#      )
-#)
-## Output (optionaly filtered by path)
-#process.output = cms.OutputModule("PoolOutputModule",
-#    process.MyEventContent,
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('systAna')
-#    ),
-#    fileName = cms.untracked.string('selectedEvents.root')
-#)
-#process.end = cms.EndPath(process.output)
+process.end = cms.EndPath(process.systematicsAnalyzer)

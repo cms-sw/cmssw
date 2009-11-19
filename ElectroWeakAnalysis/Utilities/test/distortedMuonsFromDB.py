@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("distortMuonsFromDB")
 
 process.maxEvents = cms.untracked.PSet(
-      #input = cms.untracked.int32(-1)
-      input = cms.untracked.int32(100)
+      input = cms.untracked.int32(-1)
+      #input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),

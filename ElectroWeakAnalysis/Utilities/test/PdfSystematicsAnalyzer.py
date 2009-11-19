@@ -30,8 +30,8 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
       PdfInfoTag = cms.untracked.InputTag("generator"),
       PdfSetNames = cms.untracked.vstring(
               "cteq65.LHgrid"
-            #, "MRST2006nnlo.LHgrid"
-            #, "MRST2007lomod.LHgrid"
+            , "MRST2006nnlo.LHgrid"
+            , "MRST2007lomod.LHgrid"
       )
 )
 
@@ -50,8 +50,8 @@ process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       SelectorPath = cms.untracked.string('pdfana'),
       PdfWeightTags = cms.untracked.VInputTag(
               "pdfWeights:cteq65"
-            #, "pdfWeights:MRST2006nnlo"
-            #, "pdfWeights:MRST2007lomod"
+            , "pdfWeights:MRST2006nnlo"
+            , "pdfWeights:MRST2007lomod"
       )
 )
 
