@@ -45,7 +45,8 @@ initIOVWriter( process,
                outputDBAuth = options.outputDBAuth,
                tagBase = options.tagBase,
                tscKey = options.tscKey )
-initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_iov_log.db')
+#initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_iov_log.db')
+initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
 process.L1CondDBIOVWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(

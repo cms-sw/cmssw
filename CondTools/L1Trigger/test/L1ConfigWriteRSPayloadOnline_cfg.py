@@ -128,7 +128,8 @@ initPayloadWriter( process,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
-initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
+#initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
+initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
 process.L1CondDBPayloadWriter.logTransactions = True
 
 if options.overwriteKeys == 0:
