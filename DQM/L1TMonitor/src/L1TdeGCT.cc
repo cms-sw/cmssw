@@ -42,7 +42,7 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
 L1TdeGCT::~L1TdeGCT() {}
 
 void 
-L1TdeGCT::beginJob(const edm::EventSetup&) {
+L1TdeGCT::beginJob(void) {
 
   if(verbose())
     std::cout << "L1TdeGCT::beginJob()  start\n" << std::flush;

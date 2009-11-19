@@ -34,7 +34,7 @@ class L1TDEMON : public edm::EDAnalyzer {
 
  protected:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(void) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

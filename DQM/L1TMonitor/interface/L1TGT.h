@@ -4,8 +4,8 @@
 /*
  * \file L1TGT.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.5 $
+ * $Date: 2008/04/25 14:57:19 $
+ * $Revision: 1.6 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -51,7 +51,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 // EndJob
 void endJob(void);

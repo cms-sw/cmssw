@@ -5,11 +5,14 @@
 /*
  * \file L1TCompare.h
  *
- * $Date: 2007/06/08 08:37:42 $
- * $Revision: 1.2 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.3 $
  * \author P. Wittich
- * $Id: L1TCompare.h,v 1.2 2007/06/08 08:37:42 wittich Exp $
+ * $Id: L1TCompare.h,v 1.3 2008/03/01 00:40:00 lat Exp $
  * $Log: L1TCompare.h,v $
+ * Revision 1.3  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.2  2007/06/08 08:37:42  wittich
  * Add ECAL TP - RCT comparisons. Lingering problems with
  * mismatches right now - still needs work.
@@ -70,7 +73,7 @@ protected:
  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
- void beginJob(const edm::EventSetup& c);
+ void beginJob(void);
 
 // EndJob
 void endJob(void);

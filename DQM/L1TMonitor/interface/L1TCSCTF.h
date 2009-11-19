@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2008/10/20 14:29:09 $
- * $Revision: 1.12 $
+ * $Date: 2009/10/29 19:15:22 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
 */
@@ -60,7 +60,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   // EndJob
   void endJob(void);

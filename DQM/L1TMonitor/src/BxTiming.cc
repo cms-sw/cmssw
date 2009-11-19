@@ -65,7 +65,7 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
 BxTiming::~BxTiming() {}
 
 void 
-BxTiming::beginJob(const edm::EventSetup&) {
+BxTiming::beginJob(void) {
 
   if(verbose())
     std::cout << "BxTiming::beginJob()  start\n" << std::flush;

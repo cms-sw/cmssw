@@ -48,7 +48,7 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
 L1TdeECAL::~L1TdeECAL() {}
 
 void 
-L1TdeECAL::beginJob(const edm::EventSetup&) {
+L1TdeECAL::beginJob(void) {
 
   if(verbose())
     std::cout << "L1TdeECAL::beginJob()  start\n";

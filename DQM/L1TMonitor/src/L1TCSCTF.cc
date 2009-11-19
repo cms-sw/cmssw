@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/10/29 19:15:22 $
- * $Revision: 1.30 $
+ * $Date: 2009/11/03 10:12:36 $
+ * $Revision: 1.31 $
  * \author J. Berryhill
  *
  */
@@ -91,7 +91,7 @@ L1TCSCTF::~L1TCSCTF()
 {
 }
 
-void L1TCSCTF::beginJob(const EventSetup& c)
+void L1TCSCTF::beginJob(void)
 {
 
   nev_ = 0;

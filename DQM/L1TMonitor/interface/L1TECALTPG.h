@@ -5,11 +5,16 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/18 20:31:19 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
+ * Revision 1.7  2008/03/18 20:31:19  berryhil
+ *
+ *
+ * update of ecal tpg dqm
+ *
  * Revision 1.6  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -76,7 +81,7 @@ protected:
   void analyze(const edm::Event & e, const edm::EventSetup & c);
 
   // BeginJob
-  void beginJob(const edm::EventSetup & c);
+  void beginJob(void);
 
   // EndJob
   void endJob(void);

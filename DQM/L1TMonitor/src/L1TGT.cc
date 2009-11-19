@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/25 14:57:19 $
+ * $Revision: 1.18 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -56,7 +56,7 @@ L1TGT::~L1TGT()
 {
 }
 
-void L1TGT::beginJob(const EventSetup& c)
+void L1TGT::beginJob(void)
 {
 
   nev_ = 0;

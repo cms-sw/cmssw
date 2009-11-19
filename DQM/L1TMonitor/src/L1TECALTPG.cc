@@ -1,13 +1,18 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2008/03/18 20:31:20 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.13  2008/03/20 19:38:25  berryhil
+ *
+ *
+ * organized message logger
+ *
  * Revision 1.12  2008/03/18 20:31:20  berryhil
  *
  *
@@ -132,7 +137,7 @@ L1TECALTPG::~L1TECALTPG()
 {
 }
 
-void L1TECALTPG::beginJob(const EventSetup & c)
+void L1TECALTPG::beginJob(void)
 {
 
   nev_ = 0;
