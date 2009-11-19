@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.1 2009/11/05 08:10:20 duggan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.2 2009/11/19 02:10:52 duggan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -124,165 +124,175 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool GotRecHits  = true;
   bool GotL3Muons  = true;
   
-  try{
-  iEvent.getByLabel("hltSiPixelClusters", clusters);
-  }
-  catch( cms::Exception& exception ) {
-    LogDebug("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-    GotClusters = false;
-  }
-
-  try{
-  iEvent.getByLabel("hltSiPixelRecHits", rechits);
-  }
-  catch( cms::Exception& exception ) {
-    LogDebug("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-    GotRecHits = false;
-  }
-
-  try{
-  iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
-  }
-  catch( cms::Exception& exception ) {
-    LogDebug("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-    GotL3Muons = false;
-  }
- 
-  //if (!clusters.failedToGet ())
-  if (GotClusters)
+  try
     {
-      int NBarrel[4] = {0,0,0,0};
-      int NEndcap[5] = {0,0,0,0,0};
-      for (size_t i = 0; i < clusters->size(); ++i){ 
-	const SiPixelCluster* clust = clusters->data(i);
-	clust->charge();
-	//// Check to see that the detID is correct for each cluster   
-	uint detID = clusters->id(i);
-	const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
-	const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
-	// get the cluster position in local coordinates (cm)
-	LocalPoint clustlp = topol->localPosition (MeasurementPoint(clust->x(),clust->y()));
-	GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
-	if(PixGeom->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
-	  int clustLay = PXBDetId::PXBDetId(detID).layer();
-	  //Eta-Phi
-	  MEContainerAllBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
-	  MEContainerAllBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
-	  MEContainerAllBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
-	  MEContainerAllBarrelZPhi[clustLay]->Fill(clustgp.z(),clustgp.phi());
-	  //Eta
-	  MEContainerAllBarrelEta[0]->Fill(clustgp.eta());
-	  MEContainerAllBarrelZ[0]->Fill(clustgp.z());
-	  MEContainerAllBarrelEta[clustLay]->Fill(clustgp.eta());
-	  MEContainerAllBarrelZ[clustLay]->Fill(clustgp.z());
-	  //Phi
-	  MEContainerAllBarrelPhi[0]->Fill(clustgp.phi());
-	  MEContainerAllBarrelPhi[clustLay]->Fill(clustgp.phi());
-	  ++NBarrel[0]; //N clusters all layers
-	  ++NBarrel[clustLay]; //N clusters all layers
-	}
-	/////Endcap Pixels ///////
-	if(PixGeom->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-          int clustDisk  = PXFDetId::PXFDetId(detID).disk();
-	  if( PXFDetId::PXFDetId(detID).side() == 2)
-	    clustDisk = clustDisk +2;//neg z disks have ID 3 and 4
-	  MEContainerAllEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
-	  MEContainerAllEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
-	  MEContainerAllEndcapPhi[0]->Fill(clustgp.phi());
-	  MEContainerAllEndcapPhi[clustDisk]->Fill(clustgp.phi());
-	  ++NEndcap[0];
-	  ++NEndcap[clustDisk];
-	}
-
-      }
-      MEContainerAllBarrelN[0]->Fill(NBarrel[0]);
-      for (int lay = 1; lay < 4; ++lay)
-	MEContainerAllBarrelN[lay]->Fill(NBarrel[lay]);
-      MEContainerAllEndcapN[0]->Fill(NEndcap[0]);
-      for (int disk = 1; disk < 5; ++disk)
-      	MEContainerAllEndcapN[disk]->Fill(NEndcap[disk]); 
-    }//if clust (!failedToGet)
-
-  bool doRecHits = false;
-
-  //if (!rechits.failedToGet () && doRecHits)
-  if (GotRecHits && doRecHits)
+      iEvent.getByLabel("hltSiPixelClusters", clusters);
+    }
+  catch( cms::Exception& exception ) 
     {
-      for (size_t i = 0; i < rechits->size(); ++i){ 
-	const SiPixelRecHit* myhit = rechits->data(i);
-	uint detID = rechits->id(i);
-	const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
-	//LogInfo("PixelHLTDQM") << "" << PixGeom->geographicalId().subdetId() << std::endl;
-	//const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
-	// get the hit position in local coordinates (cm)
-	//LocalPoint hitlp = topol->localPosition (MeasurementPoint(myhit->x(),myhit->y()));
-	if(PixGeom->geographicalId().subdetId() == 1 && myhit->hasPositionAndError()){
-	  GlobalPoint hitgp = PixGeom->surface ().toGlobal (myhit->localPosition());
-	  LogInfo("PixelHLTDQM") << " (From SiPixelRecHit) Hit Eta: " << hitgp.eta()   << " Hit Phi: " << hitgp.phi()  << std::endl;
-	}
-      }      
+      LogDebug("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+      GotClusters = false;
     }
 
-  //if (!l3mucands.failedToGet ())
-  if(GotL3Muons)
+  try
     {
-      int NBarrel[4] = {0,0,0,0};
-      int NEndcap[5] = {0,0,0,0,0};
-      for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand){
-	TrackRef l3tk = cand->get < TrackRef > ();
-	for (size_t hit = 0; hit < l3tk->recHitsSize (); hit++){
-	  if (l3tk->recHit (hit)->isValid () == true && l3tk->recHit (hit)->geographicalId ().det () == DetId::Tracker){
-	    int detID = l3tk->recHit(hit)->geographicalId().rawId();
-	    //if hit is in pixel detector say true
-	    bool IdMatch = typeid(*(l3tk->recHit(hit))) == typeid(SiPixelRecHit);
-	    if (IdMatch){
-	      const SiPixelRecHit *pixhit = dynamic_cast < const SiPixelRecHit * >(l3tk->recHit(hit).get());
-	      if((*pixhit).isValid() == true){
-		edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& pixclust = (*pixhit).cluster();
-		const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
-		const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
-		LocalPoint clustlp = topol->localPosition (MeasurementPoint(pixclust->x(),pixclust->y()));
-		GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
-		if(l3tk->recHit(hit)->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
-		  //get the cluster position in local coordinates (cm)	  
-		  int clustLay = PXBDetId::PXBDetId(detID).layer();
-		  MEContainerOnTrackBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
-		  MEContainerOnTrackBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
-		  MEContainerOnTrackBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
-		  MEContainerOnTrackBarrelZPhi[clustLay]->Fill(clustgp.z(),clustgp.phi());
-		  MEContainerOnTrackBarrelEta[0]->Fill(clustgp.eta());
-		  MEContainerOnTrackBarrelZ[0]->Fill(clustgp.z());
-		  MEContainerOnTrackBarrelEta[clustLay]->Fill(clustgp.eta());
-		  MEContainerOnTrackBarrelZ[clustLay]->Fill(clustgp.z());
-		  MEContainerOnTrackBarrelPhi[0]->Fill(clustgp.phi());
-		  MEContainerOnTrackBarrelPhi[clustLay]->Fill(clustgp.phi());
-		  ++NBarrel[0];
-		  ++NBarrel[clustLay];
-		}//subdet ==1
-		if(l3tk->recHit(hit)->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-		  int clustDisk  = PXFDetId::PXFDetId(detID).disk();
-		  if( PXFDetId::PXFDetId(detID).disk() == 2)
-		    clustDisk = clustDisk +2;
-		  MEContainerOnTrackEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
-		  MEContainerOnTrackEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
-		  MEContainerOnTrackEndcapPhi[0]->Fill(clustgp.phi());
-		  MEContainerOnTrackEndcapPhi[clustDisk]->Fill(clustgp.phi());
-		  ++NEndcap[0];
-		  ++NEndcap[clustDisk];
-		}//subdet ==2
-	      }//pixhit valid
-	    }//typeid match
-	  }//l3tk->recHit (hit)->isValid () == true
-	}//loop over RecHits
-      }//loop over l3mucands
-      MEContainerOnTrackBarrelN[0]->Fill(NBarrel[0]);
-      for (int lay = 1; lay < 4; ++lay)
-        MEContainerOnTrackBarrelN[lay]->Fill(NBarrel[lay]);
-      MEContainerOnTrackEndcapN[0]->Fill(NEndcap[0]);
-      for (int disk = 1; disk < 5; ++disk)
-	MEContainerOnTrackEndcapN[disk]->Fill(NEndcap[disk]);
+      iEvent.getByLabel("hltSiPixelRecHits", rechits);
+    }
+  catch( cms::Exception& exception ) 
+    {
+      LogDebug("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+      GotRecHits = false;
+    }
 
-    }//if l3mucands  
+  try
+    {
+      iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
+    }
+  catch( cms::Exception& exception ) 
+    {
+      LogDebug("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+      GotL3Muons = false;
+    }
+  
+  //if (!clusters.failedToGet ())
+  if (GotClusters){
+    if(!clusters.failedToGet () && clusters.isValid())
+      {
+	int NBarrel[4] = {0,0,0,0};
+	int NEndcap[5] = {0,0,0,0,0};
+	for (size_t i = 0; i < clusters->size(); ++i){ 
+	  const SiPixelCluster* clust = clusters->data(i);
+	  clust->charge();
+	  //// Check to see that the detID is correct for each cluster   
+	  uint detID = clusters->id(i);
+	  const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
+	  const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
+	  // get the cluster position in local coordinates (cm)
+	  LocalPoint clustlp = topol->localPosition (MeasurementPoint(clust->x(),clust->y()));
+	  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
+	  if(PixGeom->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
+	    int clustLay = PXBDetId::PXBDetId(detID).layer();
+	    //Eta-Phi
+	    MEContainerAllBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
+	    MEContainerAllBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
+	    MEContainerAllBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
+	    MEContainerAllBarrelZPhi[clustLay]->Fill(clustgp.z(),clustgp.phi());
+	    //Eta
+	    MEContainerAllBarrelEta[0]->Fill(clustgp.eta());
+	    MEContainerAllBarrelZ[0]->Fill(clustgp.z());
+	    MEContainerAllBarrelEta[clustLay]->Fill(clustgp.eta());
+	    MEContainerAllBarrelZ[clustLay]->Fill(clustgp.z());
+	    //Phi
+	    MEContainerAllBarrelPhi[0]->Fill(clustgp.phi());
+	    MEContainerAllBarrelPhi[clustLay]->Fill(clustgp.phi());
+	    ++NBarrel[0]; //N clusters all layers
+	    ++NBarrel[clustLay]; //N clusters all layers
+	  }
+	  /////Endcap Pixels ///////
+	  if(PixGeom->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
+	    int clustDisk  = PXFDetId::PXFDetId(detID).disk();
+	    if( PXFDetId::PXFDetId(detID).side() == 2)
+	      clustDisk = clustDisk +2;//neg z disks have ID 3 and 4
+	    MEContainerAllEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
+	    MEContainerAllEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
+	    MEContainerAllEndcapPhi[0]->Fill(clustgp.phi());
+	    MEContainerAllEndcapPhi[clustDisk]->Fill(clustgp.phi());
+	    ++NEndcap[0];
+	    ++NEndcap[clustDisk];
+	  }
+	  
+	}
+	MEContainerAllBarrelN[0]->Fill(NBarrel[0]);
+	for (int lay = 1; lay < 4; ++lay)
+	  MEContainerAllBarrelN[lay]->Fill(NBarrel[lay]);
+	MEContainerAllEndcapN[0]->Fill(NEndcap[0]);
+	for (int disk = 1; disk < 5; ++disk)
+	  MEContainerAllEndcapN[disk]->Fill(NEndcap[disk]); 
+      }//if clust (!failedToGet)
+  }
+  bool doRecHits = false;
+  
+  //if (!rechits.failedToGet () && doRecHits)
+  if (GotRecHits && doRecHits){
+    if(!rechits.failedToGet () && rechits.isValid())
+      {
+	for (size_t i = 0; i < rechits->size(); ++i){ 
+	  const SiPixelRecHit* myhit = rechits->data(i);
+	  uint detID = rechits->id(i);
+	  const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
+	  //LogInfo("PixelHLTDQM") << "" << PixGeom->geographicalId().subdetId() << std::endl;
+	  //const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
+	  // get the hit position in local coordinates (cm)
+	  //LocalPoint hitlp = topol->localPosition (MeasurementPoint(myhit->x(),myhit->y()));
+	  if(PixGeom->geographicalId().subdetId() == 1 && myhit->hasPositionAndError()){
+	    GlobalPoint hitgp = PixGeom->surface ().toGlobal (myhit->localPosition());
+	    LogInfo("PixelHLTDQM") << " (From SiPixelRecHit) Hit Eta: " << hitgp.eta()   << " Hit Phi: " << hitgp.phi()  << std::endl;
+	  }
+	}      
+      }
+  }
+  //if (!l3mucands.failedToGet ())
+  if(GotL3Muons){
+    if(!l3mucands.failedToGet () && l3mucands.isValid())
+      {
+	int NBarrel[4] = {0,0,0,0};
+	int NEndcap[5] = {0,0,0,0,0};
+	for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand){
+	  TrackRef l3tk = cand->get < TrackRef > ();
+	  for (size_t hit = 0; hit < l3tk->recHitsSize (); hit++){
+	    if (l3tk->recHit (hit)->isValid () == true && l3tk->recHit (hit)->geographicalId ().det () == DetId::Tracker){
+	      int detID = l3tk->recHit(hit)->geographicalId().rawId();
+	      //if hit is in pixel detector say true
+	      bool IdMatch = typeid(*(l3tk->recHit(hit))) == typeid(SiPixelRecHit);
+	      if (IdMatch){
+		const SiPixelRecHit *pixhit = dynamic_cast < const SiPixelRecHit * >(l3tk->recHit(hit).get());
+		if((*pixhit).isValid() == true){
+		  edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& pixclust = (*pixhit).cluster();
+		  const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
+		  const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
+		  LocalPoint clustlp = topol->localPosition (MeasurementPoint(pixclust->x(),pixclust->y()));
+		  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
+		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
+		    //get the cluster position in local coordinates (cm)	  
+		    int clustLay = PXBDetId::PXBDetId(detID).layer();
+		    MEContainerOnTrackBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
+		    MEContainerOnTrackBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
+		    MEContainerOnTrackBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
+		    MEContainerOnTrackBarrelZPhi[clustLay]->Fill(clustgp.z(),clustgp.phi());
+		    MEContainerOnTrackBarrelEta[0]->Fill(clustgp.eta());
+		    MEContainerOnTrackBarrelZ[0]->Fill(clustgp.z());
+		    MEContainerOnTrackBarrelEta[clustLay]->Fill(clustgp.eta());
+		    MEContainerOnTrackBarrelZ[clustLay]->Fill(clustgp.z());
+		    MEContainerOnTrackBarrelPhi[0]->Fill(clustgp.phi());
+		    MEContainerOnTrackBarrelPhi[clustLay]->Fill(clustgp.phi());
+		    ++NBarrel[0];
+		    ++NBarrel[clustLay];
+		  }//subdet ==1
+		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
+		    int clustDisk  = PXFDetId::PXFDetId(detID).disk();
+		    if( PXFDetId::PXFDetId(detID).disk() == 2)
+		      clustDisk = clustDisk +2;
+		    MEContainerOnTrackEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
+		    MEContainerOnTrackEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
+		    MEContainerOnTrackEndcapPhi[0]->Fill(clustgp.phi());
+		    MEContainerOnTrackEndcapPhi[clustDisk]->Fill(clustgp.phi());
+		    ++NEndcap[0];
+		    ++NEndcap[clustDisk];
+		  }//subdet ==2
+		}//pixhit valid
+	      }//typeid match
+	    }//l3tk->recHit (hit)->isValid () == true
+	  }//loop over RecHits
+	}//loop over l3mucands
+	MEContainerOnTrackBarrelN[0]->Fill(NBarrel[0]);
+	for (int lay = 1; lay < 4; ++lay)
+	  MEContainerOnTrackBarrelN[lay]->Fill(NBarrel[lay]);
+	MEContainerOnTrackEndcapN[0]->Fill(NEndcap[0]);
+	for (int disk = 1; disk < 5; ++disk)
+	  MEContainerOnTrackEndcapN[disk]->Fill(NEndcap[disk]);
+	
+      }//if l3mucands  
+  }
 }
 
 void SiPixelMuonHLT::Histo_init()
