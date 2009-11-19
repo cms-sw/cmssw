@@ -7,7 +7,7 @@ PileUpSimulatorBlock = cms.PSet(
         # to be put in the local running directory (if desired)
         inputFile = cms.untracked.string('PileUpInputFile.txt'),
         # Special files of minimum bias events (generated with 
-        # cmsRun FastSimulation/PileUpProducer/test/producePileUpEvents10TeV_cfg.py)
+        # cmsRun FastSimulation/PileUpProducer/test/producePileUpEvents7TeV_cfg.py)
         fileNames = cms.untracked.vstring(
             'MinBias7TeV_001.root', 
             'MinBias7TeV_002.root', 
