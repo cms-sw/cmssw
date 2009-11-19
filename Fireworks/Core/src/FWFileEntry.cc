@@ -7,6 +7,11 @@
 #include "TMath.h"
 
 #include "Fireworks/Core/interface/FWFileEntry.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -162,14 +167,13 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
 //_____________________________________________________________________________
 void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
 {
-      
-    // !!!! if (filterEventsWithCustomParser(file, iSelector, selection)) return;
+   if (filterEventsWithCustomParser(filter)) return;
     
-    // parse selection for known Fireworks expressions
-    std::string interpretedSelection = filter->m_selector->m_expression;
+   // parse selection for known Fireworks expressions
+   std::string interpretedSelection = filter->m_selector->m_expression;
     
    for (FWEventItemsManager::const_iterator i = eiMng->begin(),
-        end = eiMng->end(); i != end; ++i)
+           end = eiMng->end(); i != end; ++i)
    {
       if (*i == 0) continue;
       //FIXME: hack to get full branch name filled
@@ -256,24 +260,32 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
    m_filtersNeedUpdate = false;
 }
 
-/*
+//______________________________________________________________________________
+
 bool
-FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
+FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
 {
-   // get rid of white spaces
+   std::string selection(filterEntry->m_selector->m_expression);
+
    boost::regex re_spaces("\\s+");
    selection = boost::regex_replace(selection,re_spaces,"");
-   edm::EventID currentEvent = file.event()->id();
+   if (selection.find("&&") != std::string::npos &&
+       selection.find("||") != std::string::npos )
+   {
+      // Combination of && and || operators not supported.
+      return false;
+   }
+
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   fwlite::TriggerNames const* triggerNames(0);
+   edm::TriggerNames const* triggerNames(0);
    try
    {
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
-      triggerNames = &file.event()->triggerNames(*hTriggerResults);
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
+      triggerNames = &(m_event->triggerNames(*hTriggerResults));
    }
    catch(...)
    {
-      std::cout << "Warning: failed to get trigger results with process name HLT" << std::endl;
+      std::cout << "Warning: failed to get trigger results with process name HLT." << std::endl;
       return false;
    }
    
@@ -282,50 +294,55 @@ FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std:
    //  std::cout << " " << triggerNames->triggerName(i);
    //std::cout << std::endl;
    
-   // cannot interpret selection with OR and AND
-   if (selection.find("&&")!=std::string::npos &&
-       selection.find("||")!=std::string::npos )
-   {
-      return false;
-   }
-   
    bool junction_mode = true; // AND
    if (selection.find("||")!=std::string::npos)
       junction_mode = false; // OR
-   
+
    boost::regex re("\\&\\&|\\|\\|");
+
    boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
    boost::sregex_token_iterator j;
-   
+
    // filters and how they enter in the logical expression
    std::vector<std::pair<unsigned int,bool> > filters;
-   
-   while(i != j)
+
+   while (i != j)
    {
       std::string filter = *i++;
       bool flag = true;
-      if (filter[0]=='!') {
+      if (filter[0] == '!')
+      {
          flag = false;
          filter.erase(filter.begin());
       }
       unsigned int index = triggerNames->triggerIndex(filter);
-      if (index == triggerNames->size()) return false; //parsing failed
-      filters.push_back(std::pair<unsigned int,bool>(index,flag));
+      if (index == triggerNames->size()) 
+      {
+         // Trigger name not found.
+         return false;
+      }
+      filters.push_back(std::make_pair(index, flag));
    }
-   if (filters.empty()) return false;
-   
-   TEventList* list = file.lists()[iSelector];
-   list->Clear();
+   if (filters.empty())
+      return false;
+
+   if (filterEntry->m_eventList)
+      filterEntry->m_eventList->Reset();
+   else
+       filterEntry->m_eventList = new TEventList();
+   TEventList* list = filterEntry->m_eventList;
+
    
    // loop over events
+   edm::EventID currentEvent = m_event->id();
    unsigned int iEvent = 0;
-   for (file.event()->toBegin(); !file.event()->atEnd(); ++(*file.event()))
+
+   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event))
    {
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
       std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
       bool passed = hTriggerResults->accept(filter->first) == filter->second;
-      ++filter;
-      for (; filter != filters.end(); ++filter)
+      while (++filter != filters.end())
       {
          if (junction_mode)
             passed &= hTriggerResults->accept(filter->first) == filter->second;
@@ -336,7 +353,7 @@ FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std:
          list->Enter(iEvent);
       ++iEvent;
    }
-   file.event()->to(currentEvent);
+   m_event->to(currentEvent);
+
    return true;
 }
-*/

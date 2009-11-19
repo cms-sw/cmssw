@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.2 2009/11/17 22:24:31 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.3 2009/11/18 22:46:24 amraktad Exp $
 //
 
 // system include files
@@ -85,6 +85,7 @@ private:
    const FWFileEntry& operator=(const FWFileEntry&);    // stop default
    
    void runFilter(Filter* fe, FWEventItemsManager* eiMng);
+   bool filterEventsWithCustomParser(Filter* filter);
 
    std::string            m_name;
    TFile*                 m_file;
