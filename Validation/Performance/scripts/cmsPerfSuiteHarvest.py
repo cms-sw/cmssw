@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 
 import sys, os, re
 import getopt
@@ -50,15 +50,18 @@ def get_params(argv):
     #print argv
     #FIXME: this should be rewritten using getopt properly
     version = None
-    xml_dir = "cmsperfvm:/data/projects/conf/PerfSuiteDB/xml_dropbox" #Set this as default (assume change in write_xml to write to remote machines)
+    #xml_dir = "cmsperfvm:/data/projects/conf/PerfSuiteDB/xml_dropbox" #Set this as default (assume change in write_xml to write to remote machines)
+    #NB write_xml is in Validation/Performance/python/cmssw_exportdb_xml.py
+    #Setting the default to write to a local directory:
+    xml_dir="PerfSuiteDBData"
     try:                              
-        opts, args = getopt.getopt(argv[1:], "v:", ["version=", "output="])
+        opts, args = getopt.getopt(argv[1:], "v:", ["version=", "outdir="])
     except getopt.GetoptError, e:  
         print e
     for opt, arg in opts:
         if opt in ("-v", "--version"):
             version = arg
-	if opt == "--output":
+	if opt == "--outdir":
 	     xml_dir = arg
     
     """ if not get it from environment string """
@@ -298,3 +301,4 @@ if __name__ == "__main__":
     print "Writing the output to: %s " % file_name
 
     write_xml(xmldoc, output_dir, file_name) #change this function to be able to handle directories in remote machines (via tar pipes for now could always revert to rsync later).
+    #NB write_xml is in Validation/Performance/python/cmssw_exportdb_xml.py 

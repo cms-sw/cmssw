@@ -246,21 +246,24 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 	#print xml locally
 	out.write(xml)
 	out.close()
-	print "Now copying %s to remote directory %s..."%(xmlFileName,remotedir)
+	print "Now copying %s to stage directory %s..."%(xmlFileName,remotedir)
 	
 	#FIXME: Here we could decide to archive it on CASTOR on a dedicated directory
 	if ":" in remotedir: #CAVEAT: since we report the timestamp as part of the xml filename we need to be careful..
 		(host,dir)=remotedir.split(":")
 		#change to the directory to avoid tar replicating /tmp/$USER_perfsuite_xml/ directory structure remotely:
-		tarpipe_cmd='cd %s; tar cf - %s|ssh %s "cd %s;tar xf -"'%(tmp_dir,os.path.basename(xmlFileName),host,dir)
+		copy_cmd='cd %s; tar cf - %s|ssh %s "cd %s;tar xf -"'%(tmp_dir,os.path.basename(xmlFileName),host,dir)
 	else:
-		tarpipe_cmd='cd %s;tar cf - %s|(cd %s;tar xf -)'%(tmp_dir,os.path.basename(xmlFileName),remotedir)
+		if not os.path.exists(remotedir):
+			os.system("mkdir %s"%remotedir)
+		#tarpipe_cmd='cd %s;tar cf - %s|(cd %s;tar xf -)'%(tmp_dir,os.path.basename(xmlFileName),remotedir)
+		copy_cmd='cp -pR %s/%s %s'%(tmp_dir,os.path.basename(xmlFileName),remotedir) 
 	try:
-		print tarpipe_cmd
-		os.system(tarpipe_cmd)
-		print "Successfully copied XML report %s to %s"%(xmlFileName,remotedir)
+		print copy_cmd
+		os.system(copy_cmd)
+		print "Successfully copied XML report %s to stage directory %s"%(xmlFileName,remotedir)
 	except Exception,e :
-		print "Issues with copying XML report %s to the remote directory %s!\n%s"%(xmlFileName,remotedir,str(e))
-	os.system("cd -") #just in case...
+		print "Issues with copying XML report %s to stage directory %s!\n%s"%(xmlFileName,remotedir,str(e))
+	#os.system("cd -") #just in case...
 		
 	
