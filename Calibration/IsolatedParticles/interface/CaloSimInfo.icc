@@ -27,16 +27,11 @@ namespace spr{
     if (debug)
       std::cout << "Processing eECALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
-    std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, debug);
 
     // return a map of matching type and energy of SimHits
     return spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
@@ -48,16 +43,11 @@ namespace spr{
     if (debug)
       std::cout << "Processing eECALSimInfo " << ietaE+ietaW+1 << "x" << iphiN+iphiS+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
-    std::vector<DetId> vdets = spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
 
     // return a map of matching type and energy of SimHits
     return spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
@@ -69,11 +59,6 @@ namespace spr{
     if (debug)
       std::cout << "Processing eECALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
@@ -82,16 +67,16 @@ namespace spr{
 
     if (itry >= 0) {
       //vector of Ecal cells in NxN
-      std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+      std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], geo, caloTopology, debug);
       // get a map of matching type and energy of SimHits
       simInfo = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
     } else {
       int itrym = 0;
-      std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itrym], etaphi.ietaW[itrym], etaphi.iphiN[itrym], etaphi.iphiS[itrym], *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+      std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itrym], etaphi.ietaW[itrym], etaphi.iphiN[itrym], etaphi.iphiS[itrym], geo, caloTopology, debug);
       // get a map of matching type and energy of SimHits
       simInfo = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
       for (int itrys=1; itrys<etaphi.ntrys; ++itrys) {
-        vdets = spr::matrixECALIds(det, etaphi.ietaE[itrys], etaphi.ietaW[itrys], etaphi.iphiN[itrys], etaphi.iphiS[itrys], *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+        vdets = spr::matrixECALIds(det, etaphi.ietaE[itrys], etaphi.ietaW[itrys], etaphi.iphiN[itrys], etaphi.iphiS[itrys], geo, caloTopology, debug);
         // get a map of matching type and energy of SimHits
         std::map<std::string, double> simInfoX = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
         if (simInfoX["eTotal"] > simInfo["eTotal"]) {

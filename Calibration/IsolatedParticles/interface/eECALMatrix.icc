@@ -27,12 +27,7 @@ namespace spr{
   template< typename T>
   double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
-    std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, debug);
 
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
@@ -45,12 +40,7 @@ namespace spr{
   template< typename T>
   double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, bool debug) {
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
-    std::vector<DetId> vdets = spr::matrixECALIds(detId, ietaE, ietaW, iphiN, iphiS, *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(detId, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
 
     if (debug) {
       std::cout << "Inside eECALmatrix " << ietaE+ietaW+1 << "X" 
@@ -63,18 +53,13 @@ namespace spr{
   template< typename T>
   std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
 
-    const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
-
     spr::EtaPhi etaphi = spr::getEtaPhi(ieta,iphi,debug);
 
     // Get maximum of all the trials
     double energySum = 0;
     int    itrym = 0;
     for (int itry=0; itry<etaphi.ntrys; itry++) {
-      std::vector<DetId> vdets = spr::matrixECALIds(detId, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], *barrelTopo, *endcapTopo, *barrelGeom, *endcapGeom, debug);
+      std::vector<DetId> vdets = spr::matrixECALIds(detId, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], geo, caloTopology, debug);
       double energy = spr::energyECAL(vdets, hitsEB, hitsEE, debug);
       if (energy > energySum) {
 	energySum = energy;
