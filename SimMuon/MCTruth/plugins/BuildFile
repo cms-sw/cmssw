@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
-<use name=DataFormats/CSCDigi>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/CSCRecHit>
 <use name=Geometry/CSCGeometry>
