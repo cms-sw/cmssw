@@ -7,8 +7,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:RelVal_GEN-SIM-RECO.root'),
-    secondaryFileNames = cms.untracked.vstring('file:RelVal_GEN-SIM-DIGI-RAW-HLTDEBUG.root')
+    fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_3_3/RelValSingleMuPt100/GEN-SIM-RECO/MC_31X_V9-v2/0001/966611DE-FCD1-DE11-A94C-0030486792F0.root'
+    ),
+    secondaryFileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_3_3/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v2/0002/969130B8-32D2-DE11-8BA7-002618943986.root',
+    '/store/relval/CMSSW_3_3_3/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v2/0001/A690D8C8-F7D1-DE11-97E4-002354EF3BD0.root',
+    '/store/relval/CMSSW_3_3_3/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v2/0001/906ABADC-FCD1-DE11-A328-003048679076.root'
+    )
 )
 
 # MessageLogger
@@ -95,7 +101,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 # Standard Sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V9::All')
 
 # MuonAssociatorByHits
 process.load("SimMuon.MCTruth.MuonAssociatorByHits_cfi")
