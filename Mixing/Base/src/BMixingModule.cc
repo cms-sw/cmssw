@@ -191,7 +191,6 @@ namespace edm {
     vertexoffset=0;
     int i=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      std::cout << " i = " << i << std::endl;
       LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
       
       addPileups(bcr, &(**it), ++eventId_,worker,setup);
