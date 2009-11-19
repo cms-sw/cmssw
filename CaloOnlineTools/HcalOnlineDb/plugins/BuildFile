@@ -4,7 +4,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=boost>
-<use name=oracle>
+<use name=OnlineDB/Oracle>
 <use name=DataFormats/Common>
 <use name=rootrflx>
 <use name=xerces-c>
