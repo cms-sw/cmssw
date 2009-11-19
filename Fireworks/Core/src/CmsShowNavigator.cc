@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.53 2009/11/18 20:13:41 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.54 2009/11/18 22:46:23 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -361,8 +361,17 @@ CmsShowNavigator::updateFileFilters()
          if (!nextSelectedEvent())
             nextSelectedEvent();
       }
-      eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
-      m_filtersNeedUpdate = false;
+
+      int nSelected = getNSelectedEvents();
+      if (nSelected)
+      {
+         eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
+         m_filtersNeedUpdate = false;
+      }
+      else
+      {
+         m_filtersEnabled = false;
+      }
    }
    else
    {
@@ -370,7 +379,7 @@ CmsShowNavigator::updateFileFilters()
    }
 
    // update gui
-   updateEventFilterEnable_.emit(m_filtersEnabled);
+   updateEventFilterEnable_.emit(m_filtersEnabled, m_guiFilter ? !m_guiFilter->IsMapped() : true);
 }
 
 //=======================================================================
