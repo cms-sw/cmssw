@@ -70,15 +70,19 @@ bool FWFileEntry::hasSelectedEvents()
 int FWFileEntry::firstSelectedEvent()
 {
    if (m_globalEventList->GetN() > 0)
-      return m_globalEventList->GetIndex(0);
+   {
+      return m_globalEventList->GetEntry(0);
+   }
    else
+   {
       return -1;
+   }
 }
 
 int FWFileEntry::lastSelectedEvent()
 {
    if (m_globalEventList->GetN() > 0)
-      return m_globalEventList->GetIndex(m_globalEventList->GetN() - 1);
+      return m_globalEventList->GetEntry(m_globalEventList->GetN() - 1);
    else
       return -1;
 }
@@ -138,7 +142,6 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
    else
       m_globalEventList = new TEventList;
 
-   unsigned int nPassed(0);
    for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
    {
       if ((*it)->m_selector->m_enabled && (*it)->m_needsUpdate)
@@ -157,7 +160,6 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
          {
             m_globalEventList->Intersect((*it)->m_eventList);
          }
-         nPassed = m_globalEventList->GetN();
       }
    }
    
