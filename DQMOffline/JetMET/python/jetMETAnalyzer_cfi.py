@@ -36,6 +36,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #                                                                   
     DoCaloMETAnalysis            = cms.untracked.bool(True),
     DoTcMETAnalysis              = cms.untracked.bool(True),
+    DoMuCorrMETAnalysis          = cms.untracked.bool(True),
     DoPfMETAnalysis              = cms.untracked.bool(True),
     DoHTMHTAnalysis              = cms.untracked.bool(True),
 
@@ -190,7 +191,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     tcMETAnalysis = cms.PSet(
     verbose     = cms.int32(0),
-    TcMETCollectionLabel       = cms.InputTag("tcMet"),
+    METCollectionLabel       = cms.InputTag("tcMet"),
     JetCollectionLabel         = cms.InputTag("sisCone5CaloJets"),   # jets used for event cleanup
     Source = cms.string("TcMET"),
     JetIDParams = cms.PSet(
@@ -210,10 +211,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     HLT_Muon      = cms.string("HLT_Mu9"),
     HcalNoiseRBXCollection  = cms.InputTag("hcalnoise"),
     HcalNoiseSummary        = cms.InputTag("hcalnoise"),
-    HighPtTcJetThreshold = cms.double(60.),
-    LowPtTcJetThreshold  = cms.double(15.),
-    HighTcMETThreshold = cms.double(110.),
-    LowTcMETThreshold  = cms.double(30.),
+    HighPtJetThreshold = cms.double(60.),
+    LowPtJetThreshold  = cms.double(15.),
+    HighMETThreshold = cms.double(110.),
+    LowMETThreshold  = cms.double(30.),
     etThreshold = cms.double(2.),
     allHist     = cms.bool(True),
     allSelection= cms.bool(False)
@@ -260,7 +261,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     mucorrMETAnalysis = cms.PSet(
     verbose     = cms.int32(0),
-    MuCorrMETCollectionLabel         = cms.InputTag("corMetGlobalMuons"),
+    METCollectionLabel         = cms.InputTag("corMetGlobalMuons"),
     Source = cms.string("MuCorrMET"),
     HLTPathsJetMB = cms.vstring(),
     HLT_HighPtJet = cms.string("HLT_Jet50U"),
@@ -280,10 +281,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
     eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
     ),
-    HighPtMuCorrJetThreshold = cms.double(60.),
-    LowPtMuCorrJetThreshold  = cms.double(15.),
-    HighMuCorrMETThreshold = cms.double(110.),
-    LowMuCorrMETThreshold  = cms.double(30.),
+    HighPtJetThreshold = cms.double(60.),
+    LowPtJetThreshold  = cms.double(15.),
+    HighMETThreshold = cms.double(110.),
+    LowMETThreshold  = cms.double(30.),
     etThreshold = cms.double(2.),
     allHist     = cms.bool(True),
     allSelection= cms.bool(False)

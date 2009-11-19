@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/11/08 14:33:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/13 12:53:12 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -103,6 +103,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   bool theJPTJetAnalyzerFlag;
   bool theCaloMETAnalyzerFlag;
   bool theTcMETAnalyzerFlag;
+  bool theMuCorrMETAnalyzerFlag;
   bool thePfMETAnalyzerFlag;
   bool theHTMHTAnalyzerFlag;
 
@@ -124,6 +125,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   CaloMETAnalyzer   * theCaloMETHOAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
   METAnalyzer       * theTcMETAnalyzer;
+  METAnalyzer       * theMuCorrMETAnalyzer;
   PFMETAnalyzer     * thePfMETAnalyzer;
   HTMHTAnalyzer     * theHTMHTAnalyzer;
   
