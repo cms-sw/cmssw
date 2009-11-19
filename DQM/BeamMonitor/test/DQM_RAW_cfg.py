@@ -14,6 +14,11 @@ process.load('Configuration/StandardSequences/Reconstruction_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
+## pixel less tracking
+process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
+process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
+process.MeasurementTracker.pixelClusterProducer = cms.string("")
+
 ### conditions
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
@@ -39,9 +44,24 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
+process.pretracking_step = cms.Sequence(process.siPixelDigis*
+                                        process.siStripDigis*
+                                        process.trackerlocalreco*
+                                        process.offlineBeamSpot*
+                                        process.recopixelvertexing
+                                       )
 
-process.pp = cms.Path(process.RecoForDQM*process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
+process.RecoForDQM = cms.Path(process.pretracking_step+process.ckftracks)
+process.RecoForDQM_Pixelless = cms.Path(process.pretracking_step+process.ctfTracksPixelLess)
+process.BeamMonitorDQM = cms.Path(process.dqmBeamMonitor+process.dqmEnv+process.dqmSaver)
+process.BeamMonitorDQM_Pixelless = cms.Path(process.dqmBeamMonitor_pixelless+process.dqmEnv+process.dqmSaver)
+
+
+## Normal Tracking
+process.schedule = cms.Schedule(process.RecoForDQM,process.BeamMonitorDQM)
+
+## Pixelless Tracking
+#process.schedule = cms.Schedule(process.RecoForDQM_Pixelless,process.BeamMonitorDQM_Pixelless)
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = 'cmslpc08.fnal.gov'
@@ -53,9 +73,8 @@ process.dqmEnv.subSystemFolder = 'BeamMonitor'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
-# # summary
+## summary
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
     )
-
 
