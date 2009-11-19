@@ -15,7 +15,7 @@ from DQM.HLTEvF.HLTLocalRecoRPC_cff import *
 from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
 from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
 # alca
-#from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
-#from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *
+from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
+from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *
 # btag
 #from DQM.HLTEvF.hltMonBTag_cff import *
