@@ -49,27 +49,24 @@ class DTGeometryBuilderFromCondDB{
 
   private:
     DTChamber* buildChamber(const DetId& id,
-                            const std::vector<double>& par,
-                            const std::vector<double>& tran,
-                            const std::vector<double>& rot) const ;
+                            const RecoIdealGeometry& rig,
+			    size_t idt) const ;
 
     DTSuperLayer* buildSuperLayer(DTChamber* chamber,
                                   const DetId& id,
-                                  const std::vector<double>& par,
-                                  const std::vector<double>& tran,
-                                  const std::vector<double>& rot) const ;
+                                  const RecoIdealGeometry& rig,
+				  size_t idt) const ;
 
     DTLayer* buildLayer(DTSuperLayer* sl,
                         const DetId& id,
-                        const std::vector<double>& par,
-                        const std::vector<double>& tran,
-                        const std::vector<double>& rot) const ;
+                        const RecoIdealGeometry& rig,
+			size_t idt) const ;
 
 
     typedef ReferenceCountingPointer<BoundPlane> RCPPlane;
 
-    RCPPlane plane(const std::vector<double>& tran,
-                   const std::vector<double>& rot,
+    RCPPlane plane(const std::vector<double>::const_iterator tranStart,
+                   const std::vector<double>::const_iterator rotStart,
                    const Bounds& bounds) const ;
 
   protected:
