@@ -35,11 +35,9 @@ MonitorTrackResiduals.OutputMEsInRootFile = False
 MonitorTrackResiduals.Mod_On = False
 
 # TrackingMonitor ####
-# TrackingMonitor ####
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-TrackMon_gentk = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
-TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
+from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+TrackMon.FolderName          = 'Tracking/TrackParameters'
+TrackMon.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
 
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
