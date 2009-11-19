@@ -72,12 +72,12 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    
    {
       CSGAction* action = new CSGAction(this, "pickCameraCenter");
-      action->createTextButton(guiFrame);
+      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX));
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
    {
       CSGAction* action = new CSGAction(this, "switchRenderStyle");
-      action->createTextButton(guiFrame);
+      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX));
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::switchRenderStyle));   
    }
    TGCompositeFrame* p = (TGCompositeFrame*)guiFrame->GetParent();
@@ -90,19 +90,6 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
       gs->SetMainColor(kBlue);
       gs->SetMainTransparency(0);
-      gs->SetPickable(kFALSE);
-
-      TEveText* text = new TEveText(gs->GetElementTitle());
-      text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
-      text->SetFontMode(TGLFont::kPolygon);
-
-      TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
-      text->RefMainTrans().Move3LF(0, 0, 2*bb->GetDZ());
-      text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
-      Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
-      Float_t a = 0.1*bb->GetDX()/text->GetFontSize();
-      text->RefMainTrans().Scale(a, a, 1);
-      gs->AddElement(text); 
    }
 
    CmsMagField* cmsMagField = new CmsMagField;
