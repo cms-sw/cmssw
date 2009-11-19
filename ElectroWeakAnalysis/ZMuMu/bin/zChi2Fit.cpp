@@ -212,7 +212,7 @@ if (region=="barrend"){
 	  double xMin = histoZMuMu->GetXaxis()->GetXmin();
 	  double xMax = histoZMuMu->GetXaxis()->GetXmax();
 	  double deltaX =(xMax - xMin) / nBins;
-	  for(size_t i = 0; i < nBins; ++i) { 
+	  for(unsigned int i = 0; i < nBins; ++i) { 
 	    double x = xMin + (i +.5) * deltaX;
 	    if(x > fMin && x < fMax){
 	      nZMuMu += histoZMuMu->GetBinContent(i+1);
@@ -295,8 +295,8 @@ if (region=="barrend"){
 	minuit.getErrorMatrix(err);
 
 	std::cout << "error matrix:" << std::endl;
-	for(size_t i = 0; i < nPar; ++i) {
-	  for(size_t j = 0; j < nPar; ++j) {
+	for(unsigned int i = 0; i < nPar; ++i) {
+	  for(unsigned int j = 0; j < nPar; ++j) {
 	    std::cout << err(i, j) << "\t";
 	  }
 	  std::cout << std::endl;

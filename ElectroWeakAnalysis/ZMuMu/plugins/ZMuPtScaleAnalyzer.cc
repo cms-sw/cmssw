@@ -17,7 +17,7 @@ private:
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
   TH1F *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
   TH1F *hardpt, *softpt, * hardeta, *softeta;
-  size_t nAcc_,nAccPtScaleP_,nAccPtScaleN_, nAccPtScaleSmearedFlat_ , nAccPtScaleSmearedGaus_,  nBothMuHasZHasGrandMa_;
+  unsigned int nAcc_,nAccPtScaleP_,nAccPtScaleN_, nAccPtScaleSmearedFlat_ , nAccPtScaleSmearedGaus_,  nBothMuHasZHasGrandMa_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -100,7 +100,7 @@ void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
   std::vector<GenParticle> muons;
 
 
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filliScaledPng only muons coming form Z
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   

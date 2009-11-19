@@ -328,7 +328,7 @@ int main(int argc, char** argv){
   double xMin = zmm->GetXaxis()->GetXmin();
   double xMax = zmm->GetXaxis()->GetXmax();
   double deltaX =(xMax - xMin) / nBins;
-  for(size_t i = 0; i < nBins; ++i) { 
+  for(unsigned int i = 0; i < nBins; ++i) { 
     double x = xMin + (i +.5) * deltaX;
     if(x > fMin && x < fMax){
       nZMuMu += zmm->GetBinContent(i+1);

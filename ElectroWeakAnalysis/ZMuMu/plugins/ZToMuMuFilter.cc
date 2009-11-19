@@ -43,9 +43,9 @@ bool ZToMuMuFilter::filter (Event & ev, const EventSetup &) {
   ev.getByLabel(muIso1_, muIso1);
   Handle<CandDoubleAssociations> muIso2;
   ev.getByLabel(muIso2_, muIso2);
-  size_t nZ = zCands->size();
+  unsigned int nZ = zCands->size();
   if (nZ == 0) return false;
-  for(size_t i = 0; i < nZ; ++ i) {
+  for(unsigned int i = 0; i < nZ; ++ i) {
     const Candidate & zCand = (*zCands)[i];
     double zMass = zCand.mass();
     if (zMass < massMin_ || zMass > massMax_) return false;

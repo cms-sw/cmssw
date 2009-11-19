@@ -116,7 +116,7 @@ int main(int ac, char *av[]) {
       cout << yield << endl; 
       cout << mean  << endl; 
       cout << sigma1 << endl;
-      for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
 	funct::Gaussian gaus(mean, sigma1);
@@ -157,7 +157,7 @@ int main(int ac, char *av[]) {
       cout << mean2 << endl; 
       cout << sigma1 << endl; 
       cout << sigma2 << endl; 
-      for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
 	funct::Gaussian gaus1(mean, sigma1);
@@ -214,7 +214,7 @@ int main(int ac, char *av[]) {
       cout << sigma1 << endl; 
       cout << sigma2 << endl; 
       cout << sigma3 << endl; 
-      for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
 	funct::Gaussian gaus1(mean, sigma1);

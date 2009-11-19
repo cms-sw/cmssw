@@ -17,7 +17,7 @@ private:
   TH1F *hardpt, *softpt, * hardeta, *softeta;
   TH1F * h_weight_histo; 
   bool isMCatNLO_; 
-  size_t nAcc_, nBothMuHasZHasGrandMa_;
+  unsigned int nAcc_, nBothMuHasZHasGrandMa_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -113,7 +113,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
   std::vector<GenParticle> muons;
   if (!isMCatNLO_){
     // LO....
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filling only muons coming form Z
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   
@@ -127,7 +127,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
     }
   } else {
     // NLO
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   							     if (muMC.mother()->numberOfMothers()> 0 ){
 	cout << "I'm getting a muon \n" 

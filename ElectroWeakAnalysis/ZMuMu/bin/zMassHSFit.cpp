@@ -136,7 +136,7 @@ int main(int ac, char *av[]) {
       cout << f_int << endl; 
       cout << mean  << endl; 
       cout << sigma1 << endl;
-      for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassHistos[i]; 
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	funct::Gaussian gauss(mean, sigma1);
@@ -200,7 +200,7 @@ int main(int ac, char *av[]) {
       cout << f_int  << endl; 
       cout << mean  << endl; 
       cout << sigma1 << endl;
-      for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassHistos[i]; 
 	funct::Exponential expo(lambda);
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
@@ -272,7 +272,7 @@ int main(int ac, char *av[]) {
       cout << mean  << endl; 
       cout << sigma1 << endl; 
       cout << sigma2 << endl;
-      for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassHistos[i];
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	funct::Gaussian gaus1(mean, sigma1);

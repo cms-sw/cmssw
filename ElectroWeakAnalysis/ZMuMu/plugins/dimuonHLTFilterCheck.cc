@@ -180,7 +180,7 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
       } // end if at least one triggerResult accepted
   }  // end if wasRun
   if ( muonTable[0]>1) {
-    for(size_t i = 0; i < muons->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < muons->size(); ++i) { //loop on candidates
       const Candidate & muCand = (*muons)[i]; //the candidate
       CandidateBaseRef muCandRef = muons->refAt(i);
       TrackRef muStaComponentRef = muCand.get<TrackRef,reco::StandAloneMuonTag>();  // standalone part of muon
@@ -205,7 +205,7 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
   int nCat = 10;    // number of dimuon categories (0 = glb-glb, 1 = glb-trkSta, 2 = glb-sta, 3 = glb-trk, 4 = trkSta-trkSta, 5 = trkSta-sta, 6 = trkSta-trk, 7 = sta-sta, 8 = sta-trk, 9  trk-trk)
   // reset vector
   for (int i=0; i<nCat; i++) n_.push_back(0);
-  for(size_t i = 0; i < d->size(); ++i) { //loop on candidates
+  for(unsigned int i = 0; i < d->size(); ++i) { //loop on candidates
     //      const Candidate & dCand = (*d)[i]; //the candidate
     bool mu0global = false;
     bool mu0trackerSta = false;
@@ -247,7 +247,7 @@ vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView> d) {
   int nCat = 4;    // number of muon categories (0 = glb, 1 = trkSta, 2 = sta, 3 = trk)
   // reset vector
   for (int i=0; i<nCat; i++) n_.push_back(0);
-  for(size_t i = 0; i < d->size(); ++i) { //loop on candidates
+  for(unsigned int i = 0; i < d->size(); ++i) { //loop on candidates
     //      const Candidate & dCand = (*d)[i]; //the candidate
     bool muglobal = false;
     bool mutrackerSta = false;

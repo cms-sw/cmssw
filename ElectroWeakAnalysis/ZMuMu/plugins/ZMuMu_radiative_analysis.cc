@@ -142,7 +142,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   // ZMuMu
   if (zMuMu->size() > 0 ) {
     event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-     for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
+     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
      
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -299,7 +299,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   // ZMuSa
   if (zMuSa->size() > 0 ) {
     event.getByLabel(zMuSaMatchMap_, zMuSaMatchMap); 
-     for(size_t i = 0; i < zMuSa->size(); ++i) { //loop on candidates
+     for(unsigned int i = 0; i < zMuSa->size(); ++i) { //loop on candidates
      
       const Candidate & zMuSaCand = (*zMuSa)[i]; //the candidate
       CandidateBaseRef zMuSaCandRef = zMuSa->refAt(i);
@@ -429,7 +429,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   //ZMuTk  
   if (zMuTk->size() > 0 ) {
     event.getByLabel(zMuTkMatchMap_, zMuTkMatchMap); 
-    for(size_t i = 0; i < zMuTk->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuTk->size(); ++i) { //loop on candidates
       const Candidate & zMuTkCand = (*zMuTk)[i]; //the candidate
       CandidateBaseRef zMuTkCandRef = zMuTk->refAt(i);
       CandidateBaseRef dau0 = zMuTkCand.daughter(0)->masterClone();

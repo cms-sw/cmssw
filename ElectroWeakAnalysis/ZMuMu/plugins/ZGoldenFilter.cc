@@ -23,12 +23,12 @@ using namespace isodeposit;
 namespace edm { class EventSetup; }
 
 bool IsMuMatchedToHLTMu ( const reco::Candidate * dau, std::vector<reco::Particle> HLTMu , double DR, double DPtRel ) {
-  size_t dim =  HLTMu.size();
+  unsigned int dim =  HLTMu.size();
   //std::cout<< "HLT muons size== " << dim << endl; 
   //std::costd::cout << "dau  pt " << dau->pt()  << std::endl;                
-  size_t nPass=0;
+  unsigned int nPass=0;
   if (dim==0) return false;
-  for (size_t k =0; k< dim; k++ ) {
+  for (unsigned int k =0; k< dim; k++ ) {
     //std::cout << "HLT Mu " << k << " pt " << HLTMu[k].pt()  << std::endl;    
    if (  (deltaR(HLTMu[k], *dau) < DR)   && (fabs(HLTMu[k].pt() - dau->pt())/ HLTMu[k].pt()<DPtRel)){     nPass++ ;
    //      std::cout << "matched HLT Mu " << k << " pt " << HLTMu[k].pt()  << std::endl;   
@@ -39,7 +39,7 @@ bool IsMuMatchedToHLTMu ( const reco::Candidate * dau, std::vector<reco::Particl
 }
 
 bool IsMuMatchedToHLTSingleMu ( const reco::Candidate * dau, reco::Particle HLTMu , double DR, double DPtRel ) {
-  size_t nPass=0;
+  unsigned int nPass=0;
   if (  (deltaR(HLTMu, *dau) < DR)   && (fabs(HLTMu.pt() - dau->pt())/ HLTMu.pt()<DPtRel)) {
     nPass++;
     //std::cout << "HLT Mu matched" <<   " .pt= " << HLTMu.pt()  << std::endl;   
@@ -146,15 +146,15 @@ public:
     //std::cout << " dau1 pt " << dau1->pt() << std::endl;
     const trigger::TriggerObjectCollection & toc(handleTriggerEvent_->getObjects());
     
-    size_t nMuHLT =0;
+    unsigned int nMuHLT =0;
     std::vector<reco::Particle>  HLTMuMatched; 
     
-    for ( size_t ia = 0; ia < handleTriggerEvent_->sizeFilters(); ++ ia) {
+    for ( unsigned int ia = 0; ia < handleTriggerEvent_->sizeFilters(); ++ ia) {
       std::string fullname = handleTriggerEvent_->filterTag(ia).encode();
       // the name can have in it the module label as well as the process and
       // other labels - strip 'em
       std::string name;
-      size_t p = fullname.find_first_of(':');
+      unsigned int p = fullname.find_first_of(':');
       if ( p != std::string::npos) {
 	name = fullname.substr(0, p);
       }
@@ -223,7 +223,7 @@ public:
       // checking if dau0 is matched to any HLT muon....
          singleTrigFlag0 = IsMuMatchedToHLTMu ( dau0,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
          
-	for (size_t y=0; y< HLTMuMatched.size(); y++  ){
+	for (unsigned int y=0; y< HLTMuMatched.size(); y++  ){
 	  IsDau0Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau0,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ )); 
           
          } 
@@ -234,14 +234,14 @@ public:
     if(dau1 != 0 && (secondismuon ||secondisStandAlone) ){
       // checking if dau1 is matched to any HLT muon....
       singleTrigFlag1 = IsMuMatchedToHLTMu ( dau1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ ); 
-      for (size_t y=0; y< HLTMuMatched.size(); y++  ){
+      for (unsigned int y=0; y< HLTMuMatched.size(); y++  ){
 	IsDau1Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau1,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ )); 
 	
       } 
       
     }
     if ( (IsDau0Matched_.size() * IsDau1Matched_.size())!=0 ) {
-    for (size_t y=0; y< IsDau1Matched_.size(); y++ ){
+    for (unsigned int y=0; y< IsDau1Matched_.size(); y++ ){
       if ( IsDau0Matched_[y]== true && IsDau1Matched_[y]== true ){
 	std::cout<< "WARNING--> I'm matching the two muons to the same HLT muon....." << std::endl;}
     } 
