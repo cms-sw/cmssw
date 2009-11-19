@@ -48,7 +48,7 @@ src/PdfWeightProducer.cc
   given process under study.
 
 
-src/ISRWeightProducer.cc
+src/ISRWeightProducer.cc (IN PROGRESS)
 ============================
 - Writes into the data structure a product containing the event weight ("double")
   to be applied to obtain an estimate of variations due to a modification of the 
