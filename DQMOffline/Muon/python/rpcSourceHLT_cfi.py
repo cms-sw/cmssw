@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEfficiency = cms.EDFilter("RPCEfficiency",
+rpcEfficiencyHLT = cms.EDFilter("RPCEfficiency",
 
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),
@@ -25,7 +25,7 @@ rpcEfficiency = cms.EDFilter("RPCEfficiency",
     EffSaveRootFile = cms.untracked.bool(False)
 )
 
-rpcSource = cms.Sequence(rpcEfficiency)
+rpcSourceHLT = cms.Sequence(rpcEfficiencyHLT)
 
 
 
