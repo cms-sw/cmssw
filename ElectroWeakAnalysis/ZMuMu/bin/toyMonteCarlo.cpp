@@ -12,7 +12,7 @@
 #include "TF1.h"
 #include "TFile.h"
 #include "TDirectory.h"
-//std include
+#include <stdlib.h>
 #include <vector>
 #include <string>
 #include <iostream>

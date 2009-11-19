@@ -89,8 +89,8 @@ struct ZMuMuOverlap {
     for (unsigned int i = 0; i < nd1; i++) {
       flag = false;
       for (unsigned int j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
-	if (trackerTrack2[i].id()==trackerTrack1[j].id() && trackerTrack2[i].key()==trackerTrack1[j].key() ||
-	    trackerTrack2[i].id()==stAloneTrack1[j].id() && trackerTrack2[i].key()==stAloneTrack1[j].key()) {
+	if ( ((trackerTrack2[i].id()==trackerTrack1[j].id()) && (trackerTrack2[i].key()==trackerTrack1[j].key())) ||
+	     ((trackerTrack2[i].id()==stAloneTrack1[j].id()) && (trackerTrack2[i].key()==stAloneTrack1[j].key())) ) {
 	  flag = true;
 	}
       }

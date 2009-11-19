@@ -228,14 +228,14 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
     if (! mu1->isGlobalMuon() && ! mu1->isStandAloneMuon() && mu1->isTrackerMuon()) mu1tracker=true;
     
     if (mu0global && mu1global) n_[0]++;
-    if (mu0global && mu1trackerSta || mu1global && mu0trackerSta) n_[1]++;
-    if (mu0global && mu1sta || mu1global && mu0sta) n_[2]++;
-    if (mu0global && mu1tracker || mu1global && mu0tracker) n_[3]++;
+    if ( (mu0global && mu1trackerSta) || (mu1global && mu0trackerSta) ) n_[1]++;
+    if ( (mu0global && mu1sta) || (mu1global && mu0sta) ) n_[2]++;
+    if ( (mu0global && mu1tracker) || (mu1global && mu0tracker) ) n_[3]++;
     if (mu0trackerSta && mu1trackerSta) n_[4]++;
-    if (mu0trackerSta && mu1sta || mu1trackerSta && mu0sta) n_[5]++;
-    if (mu0trackerSta && mu1tracker || mu1trackerSta && mu0tracker) n_[6]++;
+    if ( (mu0trackerSta && mu1sta) || (mu1trackerSta && mu0sta) ) n_[5]++;
+    if ( (mu0trackerSta && mu1tracker) || (mu1trackerSta && mu0tracker) ) n_[6]++;
     if (mu0sta && mu1sta) n_[7]++;
-    if (mu0sta && mu1tracker || mu1sta && mu0tracker) n_[8]++;
+    if ( (mu0sta && mu1tracker) || (mu1sta && mu0tracker) ) n_[8]++;
     if (mu0tracker && mu1tracker) n_[9]++;
     
   }

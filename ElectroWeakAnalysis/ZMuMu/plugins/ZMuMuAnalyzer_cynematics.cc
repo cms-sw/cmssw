@@ -16,7 +16,7 @@
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
  * 
  *
- * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.2 2008/06/04 12:20:23 llista Exp $
+ * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.3 2009/11/19 16:55:51 fabozzi Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -619,8 +619,8 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
       for (unsigned int i = 0; i < nd1; i++) {
 	flag = false;
 	for (unsigned int j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
-	  if (trackerTrack2[i].id()==trackerTrack1[j].id() && trackerTrack2[i].key()==trackerTrack1[j].key() ||
-	      trackerTrack2[i].id()==stAloneTrack1[j].id() && trackerTrack2[i].key()==stAloneTrack1[j].key()) {
+	  if ( ((trackerTrack2[i].id()==trackerTrack1[j].id()) && (trackerTrack2[i].key()==trackerTrack1[j].key())) ||
+	       ((trackerTrack2[i].id()==stAloneTrack1[j].id()) && (trackerTrack2[i].key()==stAloneTrack1[j].key())) ) {
 	    flag = true;
 	  }
 	}
