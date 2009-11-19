@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/05 21:38:17 $
- * $Revision: 1.5 $
+ * $Date: 2009/11/19 04:27:55 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -186,13 +186,13 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
 
-  reportSummary->Reset();
-  reportSummaryMap->Reset();
-
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
+  
+  reportSummary->Reset();
+  reportSummaryMap->Reset();
   
   if (resetHistos_) {
     if (debug_) cout << "Resetting Histograms" << endl;
