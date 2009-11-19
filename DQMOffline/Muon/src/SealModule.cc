@@ -8,6 +8,9 @@
 #include "DQMOffline/Muon/src/MuonTrackResidualsTest.h"
 #include "DQMOffline/Muon/src/MuonRecoTest.h"
 #include "DQMOffline/Muon/src/MuonTestSummary.h"
+#include "DQMOffline/Muon/interface/RPCEfficiency.h"
+#include "DQMOffline/Muon/interface/RPCEfficiencySecond.h"
+
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(MuonAnalyzer);
@@ -15,4 +18,6 @@ DEFINE_ANOTHER_FWK_MODULE(MuonTrackResidualsTest);
 DEFINE_ANOTHER_FWK_MODULE(MuonRecoTest);
 DEFINE_ANOTHER_FWK_MODULE(DTSegmentsTask);
 DEFINE_ANOTHER_FWK_MODULE(MuonTestSummary);
+DEFINE_ANOTHER_FWK_MODULE(RPCEfficiency);
+DEFINE_ANOTHER_FWK_MODULE(RPCEfficiencySecond);
 
