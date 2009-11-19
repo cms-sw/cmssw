@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process.museg = cms.EDFilter("RPCEfficiency",
+rpcEfficiency = cms.EDFilter("RPCEfficiency",
 
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),
