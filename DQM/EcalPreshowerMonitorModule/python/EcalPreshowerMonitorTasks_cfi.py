@@ -8,13 +8,14 @@ from DQM.EcalPreshowerMonitorModule.ESOccupancyTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDcsInfoTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDataCertificationTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDaqInfoTask_cfi import *
+from DQM.EcalPreshowerMonitorModule.ESTrendTask_cfi import *
 
 dqmInfoES = cms.EDFilter("DQMEventInfo",
                          subSystemFolder = cms.untracked.string('EcalPreshower')
                          )
 
 #ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerOccupancyTask*ecalPreshowerPedestalTask)
-ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerIntegrityTask*ecalPreshowerOccupancyTask)
+ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerIntegrityTask*ecalPreshowerOccupancyTask*ecalPreshowerTrendTask)
 
 ecalPreshowerCertificationSequence = cms.Sequence(ecalPreshowerDcsInfoTask*ecalPreshowerDataCertificationTask*ecalPreshowerDaqInfoTask)
 
