@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2009/11/16 16:23:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/17 14:03:10 $
+ *  $Revision: 1.4 $
  *
  *  \author Andrea Bocci
  *
@@ -72,20 +72,20 @@ HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
   m_maskedTechnical(TECHNICAL_BITS_SIZE),
   m_ignoreL1Mask( config.getParameter<bool>("ignoreL1Mask") )
 {
-  uint64_t low  = config.getParameter<uint64_t>("physicsLoBits");
-  uint64_t high = config.getParameter<uint64_t>("physicsHiBits");
-  uint64_t tech = config.getParameter<uint64_t>("technicalBits");
+  unsigned long long low  = config.getParameter<unsigned long long>("physicsLoBits");
+  unsigned long long high = config.getParameter<unsigned long long>("physicsHiBits");
+  unsigned long long tech = config.getParameter<unsigned long long>("technicalBits");
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectPhysics[i]    = low  & (0x01ULL << (uint64_t) i);
-    m_maskedPhysics[i]    = low  & (0x01ULL << (uint64_t) i);
+    m_selectPhysics[i]    = low  & (0x01ULL << (unsigned long long) i);
+    m_maskedPhysics[i]    = low  & (0x01ULL << (unsigned long long) i);
   }
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectPhysics[i+64] = high & (0x01ULL << (uint64_t) i);
-    m_maskedPhysics[i+64] = high & (0x01ULL << (uint64_t) i);
+    m_selectPhysics[i+64] = high & (0x01ULL << (unsigned long long) i);
+    m_maskedPhysics[i+64] = high & (0x01ULL << (unsigned long long) i);
   }
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectTechnical[i]  = tech & (0x01ULL << (uint64_t) i);
-    m_maskedTechnical[i]  = tech & (0x01ULL << (uint64_t) i);
+    m_selectTechnical[i]  = tech & (0x01ULL << (unsigned long long) i);
+    m_maskedTechnical[i]  = tech & (0x01ULL << (unsigned long long) i);
   }
 }
 
