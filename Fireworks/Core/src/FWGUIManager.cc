@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.168 2009/11/18 17:13:56 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.169 2009/11/18 22:46:23 amraktad Exp $
 
 //
 
@@ -1211,13 +1211,10 @@ void FWGUIManager::eventFilterMessageChanged(int sel, int total)
 }
 
 void FWGUIManager::updateEventFilterEnable(bool enable)
-{
-   if (m_cmsShowMainFrame->m_filterEnableBtn->IsOn() != enable)
-   {
-      m_cmsShowMainFrame->m_filterEnableBtn->SetOn(enable, false);
-      if (!enable)
-         m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
-   }
+{   
+   m_cmsShowMainFrame->m_filterEnableBtn->SetOn(enable, false);
+   if (!enable)
+      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
 }
 
 void FWGUIManager::editEventFilters(bool edit)
