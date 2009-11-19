@@ -195,9 +195,6 @@ void FWGUIEventFilter::newEntry()
 
 bool FWGUIEventFilter::isLogicalOR()
 {
-   //return m_orBtn->GetState();
-    printf("or %d\n", m_btnGroup->GetButton(1)->GetState());
-
    return m_btnGroup->GetButton(1)->GetState();
 }
 
