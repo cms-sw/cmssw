@@ -142,20 +142,20 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	       }
 	     }
 	     
-	     if(rmsPed_>0) {
-	       ped  = CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
+	     if(rmsPedWork>0) {
+	       ped  = CLHEP::RandGauss::shoot( meanPedWork  , rmsPedWork  );
 	       while(ped<minped || ped>maxped)
-		 ped= CLHEP::RandGauss::shoot( meanPed_  , rmsPed_  );
+		 ped= CLHEP::RandGauss::shoot( meanPedWork  , rmsPedWork  );
 	     }
 	     else
-	       ped = meanPed_;
-	     if(rmsGain_>0){
-	       gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
+	       ped = meanPedWork;
+	     if(rmsGainWork>0){
+	       gain = CLHEP::RandGauss::shoot( meanGainWork , rmsGainWork );
 	       while(gain<mingain || gain>maxgain)
-		 gain = CLHEP::RandGauss::shoot( meanGain_ , rmsGain_ );
+		 gain = CLHEP::RandGauss::shoot( meanGainWork , rmsGainWork );
 	     }
 	     else
-	       gain = meanGain_;
+	       gain = meanGainWork;
 	   }
 
 // 	   if(i==mycol && j==myrow) {
