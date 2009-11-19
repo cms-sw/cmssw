@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltMonMuBits = cms.EDAnalyzer("HLTMonBitSummary",
      #directory = cms.untracked.string('HLT/HLTMonMuon/Summary/'),
      #label = cms.string('myLabel'),
+     histLabel = cms.untracked.string('Muon'),
      #out = cms.untracked.string('dqm.root'),
      HLTPaths = cms.vstring('HLT_L1Mu[^_]*$',
                             'HLT_L2Mu[^_]*$',

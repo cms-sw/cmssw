@@ -64,6 +64,7 @@ private:
   unsigned int ndenomAccept_;
 
   std::string directory_;
+  std::string histLabel_;
   //std::string label_;
 
   //MonitorElement * hEffSummary;
