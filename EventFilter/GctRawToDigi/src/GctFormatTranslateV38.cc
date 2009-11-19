@@ -893,6 +893,12 @@ void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const
   unsigned int nSamples = hdr.nSamples();
   unsigned int length = hdr.blockLength();
 
+  unsigned int samplesToUnpack = std::min(nSamples,m_numberOfGctSamplesToUnpack); // Unpack as many as asked for if they are in the raw data
+
+  unsigned int centralSample = nSamples/2;
+  unsigned int extraSamples = samplesToUnpack/2;
+  unsigned int nUnpacked = 0;
+
   // Debug assertion to prevent problems if definitions not up to date.
   assert(rctJetCrateMap().find(id) != rctJetCrateMap().end());  
   
@@ -910,41 +916,46 @@ void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const
   { 
     for (uint16_t bx=0; bx<nSamples; ++bx)
     {
-      // First figure out eta and phi
-      if (crate<9) { // negative eta
+
+      if (bx >= (centralSample-extraSamples) && bx <= (centralSample+extraSamples) && nUnpacked<samplesToUnpack){
+        nUnpacked++;
+	
+	// First figure out eta and phi
+	if (crate<9) { // negative eta
           ieta = 12-i; 
           iphi = 2*((11-crate)%9);
-      }
-      else { // positive eta
-        ieta = 9+i;
-        iphi = 2*((20-crate)%9);
-      }
-      
-      // Skip the first four regions (i.e. where i<2) which are duplicates (shared data).
-      if (i>1) { 
-        // First region is phi=0
-        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
-        ++p;
-        // Second region is phi=1
-        if (iphi>0) { iphi-=1; }
-        else { iphi = 17; }
-        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
-        ++p;
-      }
-      // Unpack the shared data if asked for debugging
-      else if (unpackSharedRegions()){
-        // First region is phi=0
-        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
-        ++p;
-        // Second region is phi=1
-        if (iphi>0) { iphi-=1; }
-        else { iphi = 17; }
-        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
-        ++p;
-        
-      } else { // Skip the shared data  
-        ++p;
-        ++p;
+	}
+	else { // positive eta
+	  ieta = 9+i;
+	  iphi = 2*((20-crate)%9);
+	}
+	
+	// Skip the first four regions (i.e. where i<2) which are duplicates (shared data).
+	if (i>1) { 
+	  // First region is phi=0
+	  colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
+	  ++p;
+	  // Second region is phi=1
+	  if (iphi>0) { iphi-=1; }
+	  else { iphi = 17; }
+	  colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
+	  ++p;
+	}
+	// Unpack the shared data if asked for debugging
+	else if (unpackSharedRegions()){
+	  // First region is phi=0
+	  colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
+	  ++p;
+	  // Second region is phi=1
+	  if (iphi>0) { iphi-=1; }
+	  else { iphi = 17; }
+	  colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
+	  ++p;
+	  
+	} else { // Skip the shared data  
+	  ++p;
+	  ++p;
+	}
       }
     }
   } 
