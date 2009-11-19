@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2009/11/10 18:31:58 $
- * $Revision: 1.1 $
+ * $Date: 2009/11/11 09:37:18 $
+ * $Revision: 1.2 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -102,8 +102,6 @@ void EETrendTask::beginRun(const Run& r, const EventSetup& c) {
   if ( ! mergeRuns_ ) this->reset();
 
   start_time_ = time(NULL);
-
-  std::cout << "start time : " << start_time_ << std::endl;
 
 }
 
@@ -246,9 +244,6 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
 			 << "\tcurrent - start time = " << diff_current_start
 			 << ", \tlast - start time = " << diff_last_start << endl;
 
-  //  std::cout << "current_time : " << current_time_ << ", diff : " << diff_current_start << std::endl;
-
-
   // --------------------------------------------------
   // Calculate time interval and bin width
   // --------------------------------------------------
@@ -358,7 +353,7 @@ void EETrendTask::shift2Right(TProfile* p, int bins){
   // by shifting n bin to the right, the number of entries are
   // reduced by the number in n bins including the overflow bin.
   double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(nBins+1-bins);
+  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
   p->SetEntries(nentries);
   
   // the last bin goes to overflow
