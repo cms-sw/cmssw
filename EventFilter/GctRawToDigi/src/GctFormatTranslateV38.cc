@@ -704,7 +704,8 @@ void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char *
 	// 32-bit pointer for getting Missing Et.
 	const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 	colls()->gctEtMiss()->push_back(L1GctEtMiss(*p32,(int)bx-(int)centralSample)); // Et Miss 
-	p32++;
+	p16++; 
+        p16++;
       }
     }
 
@@ -741,7 +742,7 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
     bool forwardFlag = (iCat == FORWARD_JETS);
 
     // Loop over the different timesamples (bunch crossings).
-    for(unsigned int bx = 0 ; bx < samplesToUnpack ; ++bx)
+    for(unsigned int bx = 0 ; bx < nSamples; ++bx)
     {
       // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct category and timesample.
       const unsigned int cand0Offset = iCat*jetCandCategoryOffset + bx*2;
