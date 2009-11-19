@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: BuildFile,v 1.9 2009/11/15 19:45:54 loizides Exp $
 
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
@@ -8,10 +8,12 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/EgammaCandidates>
 <use name=HLTrigger/HLTcore>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerTopology>
+<use name=JetMETCorrections/Objects>
 <export>
   <lib name=1>
 </export>
