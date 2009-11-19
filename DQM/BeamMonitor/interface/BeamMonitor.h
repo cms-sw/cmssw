@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/11/04 04:16:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/05 21:38:57 $
+ *  $Revision: 1.4 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -53,7 +53,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   void endRun(const edm::Run& r, const edm::EventSetup& c);
   
   // Endjob
-  void endJob();
+  void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   
  private:
   
@@ -88,6 +88,8 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_sigmaZ0_lumi;
   MonitorElement * h_trk_z0;
   MonitorElement * h_vx_vy;
+  MonitorElement * h_vx_dz;
+  MonitorElement * h_vy_dz;
 
   // Summary:
   Float_t reportSummary_;

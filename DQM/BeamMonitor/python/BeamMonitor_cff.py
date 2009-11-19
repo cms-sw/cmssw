@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
                               beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
-                              fitEveryNLumi = cms.untracked.int32(1),
-                              resetEveryNLumi = cms.untracked.int32(5),
-                              Debug = cms.untracked.bool(False),
+                              fitEveryNLumi = cms.untracked.int32(2),
+                              resetEveryNLumi = cms.untracked.int32(20),
+                              Debug = cms.untracked.bool(True),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('generalTracks'), ## ctfWithMaterialTracksP5 for CRAFT
@@ -25,15 +25,20 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                                 TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
 			        InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 				FractionOfFittedTrks = cms.untracked.double(0.9),
-                                MinimumInputTracks = cms.untracked.int32(100)
+                                MinimumInputTracks = cms.untracked.int32(100),
+				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),
                               dxMax = cms.double(1.0),
-
+                              
                               vxBin = cms.int32(100),
                               vxMin = cms.double(-.1),
                               vxMax = cms.double(.1),
+                              
+                              dzBin = cms.int32(80),
+                              dzMin = cms.double(-20),
+                              dzMax = cms.double(20),
                               
                               phiBin = cms.int32(63),
                               phiMin = cms.double(-3.15),

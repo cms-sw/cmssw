@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/04 04:16:54 $
- * $Revision: 1.4 $
+ * $Date: 2009/11/05 21:38:17 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -65,6 +65,10 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   const int    phiBin = parameters_.getParameter<int>("phiBin");
   const double phiMin  = parameters_.getParameter<double>("phiMin");
   const double phiMax  = parameters_.getParameter<double>("phiMax");
+
+  const int    dzBin = parameters_.getParameter<int>("dzBin");
+  const double dzMin  = parameters_.getParameter<double>("dzMin");
+  const double dzMax  = parameters_.getParameter<double>("dzMax");
   
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
@@ -105,6 +109,15 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",150,-30,30);
   h_trk_z0->setAxisTitle("z_{0} of input tracks (cm)",1);
+
+  h_vx_dz = dbe_->bookProfile("vx_dz","v_{x} vs. dz",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vx_dz->setAxisTitle("dz (cm)",1);
+  h_vx_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
+
+  h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vy_dz->setAxisTitle("dz (cm)",1);
+  h_vy_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
+
 
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
   reportSummary = dbe_->get(monitorName_+"EventInfo/reportSummary");
@@ -185,6 +198,8 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     if (debug_) cout << "Resetting Histograms" << endl;
     h_d0_phi0->Reset();
     h_vx_vy->Reset();
+    h_vx_dz->Reset();
+    h_vy_dz->Reset();
     h_trk_z0->Reset();
     resetHistos_ = false;
   }
@@ -200,12 +215,22 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       double vy = BSTrk->vy();
       double z0 = BSTrk->z0();
       h_vx_vy->Fill( vx, vy );
+      h_vx_dz->Fill( z0, vx );
+      h_vy_dz->Fill( z0, vy );
       h_trk_z0->Fill( z0 );
     }
   }
   nthBSTrk_ = theBSvector.size();
   if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
-  
+
+  TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
+  f1->SetLineColor(4);
+  h_d0_phi0->getTProfile()->Fit("f1","QR");
+
+  TF1 *fgaus = new TF1("fgaus","gaus",-30,30);
+  fgaus->SetLineColor(4);
+  h_trk_z0->getTH1()->Fit("fgaus","RQ");
+
   int nfits = countLumi_ / fitNLumi_;
   if (theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
@@ -269,8 +294,9 @@ void BeamMonitor::endRun(const Run& r, const EventSetup& context){
 
 }
 //--------------------------------------------------------
-void BeamMonitor::endJob(){
-
+void BeamMonitor::endJob(const LuminosityBlock& lumiSeg, 
+			 const EventSetup& iSetup){
+  endLuminosityBlock(lumiSeg, iSetup);
 }
 
 DEFINE_FWK_MODULE(BeamMonitor);
