@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.0 2009/09/26  duggan exp $
+// $Id: SiPixelMuonHLT.cc,v 1.1 2009/11/05 08:10:20 duggan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -112,14 +112,44 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const TrackerGeometry *theTrackerGeometry = TG.product ();
   const TrackerGeometry & theTracker (*theTrackerGeometry);
   Handle < RecoChargedCandidateCollection > l3mucands;
-  iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
   RecoChargedCandidateCollection::const_iterator cand;
-
   Handle <edmNew::DetSetVector<SiPixelCluster> > clusters;
-  iEvent.getByLabel("hltSiPixelClusters", clusters);
   Handle <edmNew::DetSetVector<SiPixelRecHit> > rechits;
+  //iEvent.getByLabel("hltSiPixelClusters", clusters);
+  //iEvent.getByLabel("hltSiPixelRecHits", rechits);
+  //iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
+
+  //Temporary fix because of framework bug...
+  bool GotClusters = true;
+  bool GotRecHits  = true;
+  bool GotL3Muons  = true;
+  
+  try{
+  iEvent.getByLabel("hltSiPixelClusters", clusters);
+  }
+  catch( cms::Exception& exception ) {
+    LogDebug("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotClusters = false;
+  }
+
+  try{
   iEvent.getByLabel("hltSiPixelRecHits", rechits);
-  if (!clusters.failedToGet ())
+  }
+  catch( cms::Exception& exception ) {
+    LogDebug("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotRecHits = false;
+  }
+
+  try{
+  iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
+  }
+  catch( cms::Exception& exception ) {
+    LogDebug("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotL3Muons = false;
+  }
+ 
+  //if (!clusters.failedToGet ())
+  if (GotClusters)
     {
       int NBarrel[4] = {0,0,0,0};
       int NEndcap[5] = {0,0,0,0,0};
@@ -175,7 +205,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   bool doRecHits = false;
 
-  if (!rechits.failedToGet () && doRecHits)
+  //if (!rechits.failedToGet () && doRecHits)
+  if (GotRecHits && doRecHits)
     {
       for (size_t i = 0; i < rechits->size(); ++i){ 
 	const SiPixelRecHit* myhit = rechits->data(i);
@@ -192,7 +223,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }      
     }
 
-  if (!l3mucands.failedToGet ())
+  //if (!l3mucands.failedToGet ())
+  if(GotL3Muons)
     {
       int NBarrel[4] = {0,0,0,0};
       int NEndcap[5] = {0,0,0,0,0};
