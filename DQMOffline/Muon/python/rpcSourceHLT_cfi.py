@@ -17,8 +17,12 @@ rpcEfficiencyHLT = cms.EDFilter("RPCEfficiency",
     MaxD = cms.untracked.double(80.0),
     MaxDrb4 = cms.untracked.double(150.0),
 
-    cscSegments = cms.untracked.string('cscSegments'),
-    dt4DSegments = cms.untracked.string('dt4DSegments'),
+#    cscSegments = cms.untracked.string('cscSegments'),
+#    dt4DSegments = cms.untracked.string('dt4DSegments'),
+
+    cscSegments = cms.untracked.string('hltCscSegments'),
+    dt4DSegments = cms.untracked.string('hltDt4DSegments'),
+
 
     folderPath = cms.untracked.string('HLT/HLTMonMuon/RPC/'),
 
