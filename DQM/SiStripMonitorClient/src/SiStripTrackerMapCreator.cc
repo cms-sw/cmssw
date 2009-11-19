@@ -65,6 +65,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
     setTkMapRange(map_type);
   }
   trackerMap_->printonline();
+  delete trackerMap_;
 }
 //
 // -- Create Tracker Map for Offline process
@@ -81,7 +82,8 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   setTkMapRange(map_type);
 
   trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".svg");  
-  trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".png");  
+  trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".png",4500,2400);
+  delete trackerMap_;
 }
 //
 // -- Paint Tracker Map with QTest Alarms 
@@ -163,7 +165,14 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     flag = getDetectorFlagAndComment(dqm_store, det_id, comment);
     trackerMap_->setText(det_id, comment.str());
     const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id);
-    float fval = me->getBinContent(xyval.ix, xyval.iy);
+    float fval = 0.0;
+    if ( (name.find("NumberOfOfffTrackCluster") != string::npos) || 
+         (name.find("NumberOfOnTrackCluster") != string::npos) ) {
+      if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {   
+	TProfile2D* tp = me->getTProfile2D() ;
+	fval =  tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)) * tp->GetBinContent(xyval.ix, xyval.iy);
+      }
+    } else  fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
       int rval, gval, bval;
       SiStripUtility::getDetectorStatusColor(flag, rval, gval, bval);

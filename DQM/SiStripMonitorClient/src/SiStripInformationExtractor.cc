@@ -718,6 +718,7 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
   int nDetsTotal = 0;
   ostringstream qtest_summary, lite_summary;
   
+  dqm_store->cd();
   SiStripFolderOrganizer folder_organizer;
   for (vector<string>::const_iterator isubdet = subdetVec.begin(); isubdet != subdetVec.end(); isubdet++) {
     string dname = (*isubdet);
@@ -730,7 +731,9 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
   
     int ndet    = mids.size();
     int errdet = 0;
-     
+    dqm_store->cd();
+    dqm_store->cd(dname);
+
     qtest_summary << dname.substr(dname.find("View/")+5) << " : <br/>";
     qtest_summary << "=============================="<< "<br/>";
     if (dqm_store->dirExists(bad_module_folder)) {
