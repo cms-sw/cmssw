@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.114 2009/11/18 22:46:23 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.115 2009/11/19 14:37:26 amraktad Exp $
 //
 
 // system include files
@@ -839,7 +839,6 @@ CmsShowMain::setupDataHandling()
 
    // navigator filtering  ->
    m_navigator->updateEventFilterEnable_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1, _2));
-   m_navigator->editFilters_.connect(boost::bind(&FWGUIManager::editEventFilters, m_guiManager.get(),_1));
    m_navigator->eventFilterMessageChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessageChanged,m_guiManager.get(),_1, _2));
    m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));

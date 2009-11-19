@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.54 2009/11/18 22:46:23 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.55 2009/11/19 14:36:07 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -377,9 +377,7 @@ CmsShowNavigator::updateFileFilters()
    {
       m_filtersEnabled = false;
    }
-
-   // update gui
-   updateEventFilterEnable_.emit(m_filtersEnabled, m_guiFilter ? !m_guiFilter->IsMapped() : true);
+   updateEventFilterEnableGUI();
 }
 
 //=======================================================================
@@ -573,26 +571,40 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    {
       m_guiFilter = new FWGUIEventFilter(p);
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
-      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::finishEditFilters));
+      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::updateEventFilterEnableGUI));
    }
    
    if (m_guiFilter->IsMapped())
    {
       m_guiFilter->CloseWindow();
-      CmsShowNavigator::editFilters_.emit(false);
    }
    else
    {
       m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
-      CmsShowNavigator::editFilters_.emit(true);
    }
-
+   updateEventFilterEnableGUI();
 }
 
 void
-CmsShowNavigator::finishEditFilters()
+CmsShowNavigator::updateEventFilterEnableGUI()
 {
-   editFilters_.emit(false);
+   bool haveActiveFilters = false;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      if ((*file)->hasActiveFilters())
+      {
+         haveActiveFilters = true;
+         break;
+      }
+   }
+
+   bool btnEnabled = haveActiveFilters;
+
+   //  printf("gui mapped \n", m_guiFilter->IsMapped());
+   if (m_guiFilter && m_guiFilter->isOpen()) 
+      btnEnabled = false;
+
+   updateEventFilterEnable_.emit(m_filtersEnabled, btnEnabled);
 }
 
 void

@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.33 2009/11/18 22:46:23 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.34 2009/11/19 14:37:26 amraktad Exp $
 //
 
 // system include files
@@ -113,7 +113,6 @@ public:
    sigc::signal<void> postFiltering_;
    sigc::signal<void, int, int> eventFilterMessageChanged_;
    sigc::signal<void, bool, bool>updateEventFilterEnable_;
-   sigc::signal<void, bool>editFilters_;
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default
@@ -124,7 +123,7 @@ private:
    void removeFilter(std::list<FWEventSelector*>::iterator);
    void addFilter(FWEventSelector*);
    void changeFilter(FWEventSelector*);
-   void finishEditFilters();
+   void updateEventFilterEnableGUI();
    
    void newFile(FileQueue_i);
 
