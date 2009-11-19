@@ -34,7 +34,7 @@ bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
 {
   bool result=true;
   if(x<=0 || x>20) result=false;
-  if(old_x!=1.000 && abs(x-old_x)/old_x>100.00 ) result=false; 
+  if((old_x!=1.000 && old_x!=0) && abs(x-old_x)/old_x>100.00 ) result=false; 
   return result;
 }
 
@@ -46,8 +46,11 @@ void popcon::EcalLaserHandler::getNewObjects()
   std::cout << "------- Ecal - > getNewObjects\n";
 
 
+  bool alot_of_printout=false; //usually it was True: FIXME! Put it in the PSet, please
   unsigned long long max_since= 1;
   string payloadtoken = "";
+
+  // here popcon tells us which is the last since of the last object in the offline DB
   max_since=tagInfo().lastInterval.first;
   std::cout << "max_since : "  << max_since << endl;
 
@@ -89,7 +92,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  apdpnpair_temp.p2 = apdpnpair.p2;
 	  apdpnpair_temp.p3 = apdpnpair.p3;
 	  apdpns_temp->setValue(ebdetid, apdpnpair_temp);
-	  if (hiee%1000 == 0 )std::cout <<"hiee = "<< hiee << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2  <<endl;
+	  if (alot_of_printout && hiee%500 == 0 )std::cout <<"hiee = "<< ebdetid.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<endl;
 	}
     }
   }
@@ -112,6 +115,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpnpair_temp.p2 = apdpnpair.p2;
 	    apdpnpair_temp.p3 = apdpnpair.p3;
 	    apdpns_temp->setValue(eedetidpos, apdpnpair_temp);
+	    if (alot_of_printout&& hi%500 == 0 )std::cout <<"hiee = "<< eedetidpos.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<endl;
 	    
 	  } else {
 	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
@@ -127,6 +131,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpnpair_temp.p2 = apdpnpair.p2;
 	    apdpnpair_temp.p3 = apdpnpair.p3;
 	    apdpns_temp->setValue(eedetidneg, apdpnpair_temp);
+	   
 	    
 	  } else {
 	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
@@ -152,7 +157,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     timestamp_temp.t1 = timestamp.t1;
     timestamp_temp.t2 = timestamp.t2;
     timestamp_temp.t3 = timestamp.t3;
-    
+    if(alot_of_printout)    std::cout << "    t1 = " << timestamp.t1.value()  << "    t2 = " << timestamp.t2.value() << "    t3 = " << timestamp.t3.value() << endl;
     apdpns_temp->setTime(i,timestamp_temp);
 
     if(t_min<timestamp.t3   ) t_min=timestamp.t3;
@@ -182,15 +187,13 @@ void popcon::EcalLaserHandler::getNewObjects()
   RunTag  my_runtag;
   LocationDef my_locdef;
   RunTypeDef my_rundef;
-  
-  
-  //FC:  provo a commentare qui sotto e a caricare in memoria any run type 
-  // my_locdef.setLocation(m_location);
-  // my_rundef.setRunType("LASER");
-  // my_runtag.setLocationDef(my_locdef);
-  // my_runtag.setRunTypeDef(my_rundef);
-  // my_runtag.setGeneralTag(m_gentag);
-  
+    
+
+  my_locdef.setLocation(m_location);
+  my_rundef.setRunType("COSMIC");
+  my_runtag.setLocationDef(my_locdef);
+  my_runtag.setRunTypeDef(my_rundef);
+  my_runtag.setGeneralTag(m_gentag);
   
   // here we retrieve the laser Monitoring Farm  run records
   
@@ -199,7 +202,6 @@ void popcon::EcalLaserHandler::getNewObjects()
   LMFRunList lmf_list;
   lmf_list.setLMFRunTag(lmf_tag);
   lmf_list.setRunTag(my_runtag);
-  //    mon_list=econn->fetchMonRunList(my_runtag, mon_tag);
 
   //  uint64_t t_min_val= (uint64_t)t_min.value();
   uint64_t t_min_val= (t_min.value()>>32 )*1000000;
@@ -212,6 +214,49 @@ void popcon::EcalLaserHandler::getNewObjects()
   cout <<"number of LMF runs is : "<< lmf_runs<< endl;
 
   if(lmf_runs>0){
+
+
+    // we determine the first since 
+
+    
+    LMFRunList onlineSequences ;
+    onlineSequences.setLMFRunTag(lmf_tag);
+    onlineSequences.setRunTag(my_runtag);
+    uint64_t t_min_valq= t_min_val;
+
+    onlineSequences=econn->fetchLMFRunListLastNRunsBefore(my_runtag, lmf_tag,t_min_valq,92 );
+  
+    std::vector<LMFRunIOV> onlineSeq_vec=  onlineSequences.getRuns();
+    int nOnlineSeq= onlineSeq_vec.size();
+    
+    unsigned long long the_zero_since;
+    
+    int oseq_first=onlineSeq_vec[0].getSequenceNumber();
+    unsigned long long orun_first=(unsigned long long)onlineSeq_vec[0].getRunIOV().getRunNumber();
+      
+
+
+    int n_taken=0;
+    if(nOnlineSeq>0){
+      for (int n=0; n< nOnlineSeq ; n++){ 
+	if( onlineSeq_vec[n].getSequenceNumber()==oseq_first && 
+	    onlineSeq_vec[n].getRunIOV().getRunNumber()== orun_first &&  onlineSeq_vec[n].getSequenceNumber()!=0  ){
+	  
+	  the_zero_since=onlineSeq_vec[n].getSubRunStart().microsTime();
+	  the_zero_since=the_zero_since/1000000;
+	  the_zero_since=the_zero_since << 32;
+	  n_taken=n;
+	  std::cout<<n<< " previous sequence = "<<onlineSeq_vec[n_taken].getSequenceNumber()<< "previous run="
+		   <<onlineSeq_vec[n_taken].getRunIOV().getRunNumber()<<" lmr number ="<<onlineSeq_vec[n_taken].getLMRNumber()
+		   <<"since="<<the_zero_since<<endl;
+	}
+      } 
+      std::cout<< "*** previous sequence = "<<onlineSeq_vec[n_taken].getSequenceNumber()<< "previous run="
+	       <<onlineSeq_vec[n_taken].getRunIOV().getRunNumber()<<" lmr number ="<<onlineSeq_vec[n_taken].getLMRNumber()<<endl;
+    } else {
+      the_zero_since=0;
+    }
+
     
     Time_t snc=lmf_run_vec[0].getSubRunStart().microsTime();
     Time_t snc_old=lmf_run_vec[0].getSubRunStart().microsTime();
@@ -303,7 +348,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     irun_old=0;
     for(int kr=0; kr<lmf_runs; kr++){
       
-      int i=lmf_run_vec[kr].getSequenceNumber();
+      //      int i=lmf_run_vec[kr].getSequenceNumber();
       int iseq=lmf_run_vec[kr].getSequenceNumber();
       int i_lmr=lmf_run_vec[kr].getLMRNumber();
       Tm time_lmf_subrun=lmf_run_vec[kr].getSubRunStart();
@@ -313,6 +358,7 @@ void popcon::EcalLaserHandler::getNewObjects()
       time_lmf_subrun_micro=time_lmf_subrun_micro/1000000;
       time_lmf_subrun_micro=time_lmf_subrun_micro << 32;
 
+      Time_t t_early_old= 0;
 
 
       unsigned long long irun=(unsigned long long) lmf_run_vec[kr].getRunIOV().getRunNumber();
@@ -354,6 +400,8 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 
       int ich=0;
+      int ich_bad=0;
+
       for (CIlmf p = dataset_lmf.begin(); p != dataset_lmf.end(); p++) {
 	ecid_xt = p->first;
 	rd_apdnorm = p->second;
@@ -377,15 +425,16 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=1;
 	    ich++;
-	    //    if (ich<2) std::cout<< "updating channel "<< x<<endl;
+	    if (alot_of_printout & ich<2) std::cout<< "updating channel "<< x<<endl;
 	  } else {
 	    // FC here we must decide what to do.
+	    ich_bad++;
 	    apdpnpair_temp.p1 = apdpnpair.p2;
 	    apdpnpair_temp.p2 = apdpnpair.p3;
 	    apdpnpair_temp.p3 = apdpnpair.p3;
             apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=2; // 2 means channel was bad and we propagate the old value 
-	    //std::cout<< "NOT updating channel "<< x<<endl;
+	    if (alot_of_printout & ich_bad<10) std::cout<< "NOT updating channel with APD/PN="<< x <<" "<< old_x <<endl;
 	  }
 
 	} else { 
@@ -409,6 +458,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  updated_channels[hiee+61200]=1;
 	}
       }    
+       if (alot_of_printout ) std::cout << "ich="<<ich<<" ich_bad="<<ich_bad<<endl;
 
       if(i_lmr==1 || i_lmr == last_lmr[kr] ) std::cout << "timestamp for run"<<lmf_run_vec[kr].getRunIOV().getRunNumber() <<"."<<iseq<<"/"<<last_lmr[kr] <<" LMR "<< i_lmr << " to "<<time_lmf_subrun_micro << endl; 
       const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = apdpns_temp->getTimeMap();
@@ -551,16 +601,20 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 	
 
-	std::cout <<" t_early : "<< t_early << endl;
-	std::cout <<" snc_old : "<< snc_old << endl;
-	std::cout <<" t_late= : "<< t_late << endl;
-
-
 	if(t_early<=1) t_early=2;
 
-	if(run_saved!=0) {
+	if(run_saved != 0) {
 	  t_early=snc_old; 
+	} else if(the_zero_since!=0) {
+	  // use the first time determined from omds 
+	  t_early=the_zero_since;
+	} else {
+	  t_early=2;
 	}
+
+	if(t_early==t_early_old) t_early=t_early+1; 
+
+	t_early_old=t_early;
 
 	std::cout <<" chosen : "<< t_early << endl;
 
