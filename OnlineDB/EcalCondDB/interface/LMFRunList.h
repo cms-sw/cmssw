@@ -34,6 +34,8 @@ class LMFRunList  : public IDBObject {
   void fetchLastNRuns( int max_run, int n_runs  )throw(std::runtime_error);
   void fetchRuns(uint64_t start_micro, int end_run) throw(runtime_error);
   void fetchRuns(uint64_t start_micro, int min_run, int end_run) throw(runtime_error);
+  void fetchLastNRunsBefore(uint64_t start_micro , int n_runs  ) throw(runtime_error);
+
 
  private:
   // User data for this IOV

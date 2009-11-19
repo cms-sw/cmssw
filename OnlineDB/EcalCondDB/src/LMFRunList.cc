@@ -405,6 +405,110 @@ void LMFRunList::fetchLastNRuns( int max_run, int n_runs  )
 
 }
 
+void LMFRunList::fetchLastNRunsBefore(uint64_t start_micro , int n_runs  )
+  throw(runtime_error)
+{
+
+  // fetch the last n_runs that come just before time start_micro
+
+  this->checkConnection();
+
+  DateHandler dh(m_env, m_conn);
+  
+  Tm start_time(start_micro);
+  cout << "query with start_time="<< start_time.microsTime()<<endl; 
+  cout<< " which corresponds to date: "<<start_time.str()<<endl;
+
+  m_runTag.setConnection(m_env, m_conn);
+  int tagID = m_runTag.fetchID();
+    cout <<"tag id="<< tagID << endl;
+  if (!tagID) { 
+    return ;
+  }
+  m_lmfrunTag.setConnection(m_env, m_conn);
+  int lmftagID = m_lmfrunTag.fetchID();
+    cout <<"lmf tag id="<< lmftagID << endl;
+  if (!lmftagID) { 
+    return ;
+  }
+
+  try {
+
+    int nruns=n_runs;
+    m_vec_lmfruniov.reserve(nruns);
+    
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("select run_num, run_start, run_end, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, lmf_iov_id, lmf_db_date, subrun_type from (SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id as lmf_iov_id, lmf_run_iov.db_timestamp as lmf_db_date, lmf_run_iov.subrun_type as subrun_type  FROM run_iov, lmf_run_iov "
+		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
+		 " and lmf_run_iov.tag_id=:lmftag_id "
+		 " and lmf_run_iov.subrun_start<= :time_micro "
+		 " order by lmf_run_iov.subrun_start DESC ) where rownum<= :n_runs order by subrun_start DESC " );
+    stmt->setInt(1, tagID);
+    stmt->setInt(2, lmftagID);
+    stmt->setDate(3, dh.tmToDate(start_time));
+    stmt->setInt(4, n_runs);
+
+
+    DateHandler dh(m_env, m_conn);
+    Tm runStart;
+    Tm runEnd;
+    Tm lrunStart;
+    Tm lrunEnd;
+    Tm ldbtime;
+  
+    ResultSet* rset = stmt->executeQuery();
+    int i=0;
+    while (i<nruns) {
+      rset->next();
+       int runNum = rset->getInt(1);
+       Date startDate = rset->getDate(2);
+       Date endDate = rset->getDate(3);
+       //int ltag = rset->getInt(4);
+       int lid=rset->getInt(5);
+       int subrun=rset->getInt(6);
+       Date lmfstartDate = rset->getDate(7);
+       Date lmfendDate = rset->getDate(8);
+       int liov_id=rset->getInt(9);
+       Date lmfDBDate = rset->getDate(10);
+       string lmf_type=rset->getString(11);
+
+       runStart = dh.dateToTm( startDate );
+       runEnd = dh.dateToTm( endDate );
+       lrunStart = dh.dateToTm( lmfstartDate );
+       lrunEnd = dh.dateToTm( lmfendDate );
+       ldbtime = dh.dateToTm( lmfDBDate );
+       
+       RunIOV r ;
+       r.setRunNumber(runNum);
+       r.setRunStart(runStart);
+       r.setRunEnd(runEnd);
+       r.setRunTag(m_runTag);
+       r.setID(lid);
+    
+       LMFRunIOV lr ;
+       // da correggere qui
+       lr.setRunIOV(r);
+       lr.setSubRunNumber(subrun);
+       lr.setSubRunStart(lrunStart);
+       lr.setDBInsertionTime(ldbtime);
+       lr.setSubRunEnd(lrunEnd);
+       lr.setSubRunType(lmf_type);
+       lr.setLMFRunTag(m_lmfrunTag);
+       lr.setID(liov_id);
+       m_vec_lmfruniov.push_back(lr);
+      
+      i++;
+    }
+   
+
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+  }
+
+
+}
+
 
 
 
