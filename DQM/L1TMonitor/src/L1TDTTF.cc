@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2009/08/03 21:11:22 $
- * $Revision: 1.20 $
+ * $Date: 2009/10/12 10:16:42 $
+ * $Revision: 1.21 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.21  2009/10/12 10:16:42  nuno
+ * bug fix; letting the package compile again
+ *
  * Revision 1.20  2009/08/03 21:11:22  lorenzo
  * added dttf phi and theta
  *
@@ -45,6 +48,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.21  2009/10/12 10:16:42  nuno
+ * bug fix; letting the package compile again
+ *
  * Revision 1.20  2009/08/03 21:11:22  lorenzo
  * added dttf phi and theta
  *
@@ -176,7 +182,7 @@ L1TDTTF::~L1TDTTF()
 {
 }
 
-void L1TDTTF::beginJob(const EventSetup& c)
+void L1TDTTF::beginJob(void)
 {
 
   nev_ = 0;
@@ -229,16 +235,17 @@ void L1TDTTF::beginJob(const EventSetup& c)
       dbe->setCurrentFolder(suberrfolder);
       dttpgphmap = dbe->book2D("DT_TPG_phi_map","Map of triggers per station",20,1,21,12,0,12);
       setMapPhLabel(dttpgphmap);
-      */
       
       string dttf_phi_folder = l1tsubsystemfolder+"/DTTF_PHI";
       string dttf_theta_folder = l1tsubsystemfolder+"/DTTF_THETA";
+      */
 
       string dttf_trk_folder = l1tsubsystemfolder+"/DTTF_TRACKS";
 
       char hname[40];//histo name
       char mename[40];//ME name
 
+      /*
       
 
       dbe->setCurrentFolder(dttf_phi_folder);
@@ -456,7 +463,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	}								      
       }
 
-      
+      */
       
 //DTTF Output (6 wheels)     
       
@@ -883,7 +890,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
 
 
-  
+  /*  
 ///
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
@@ -1167,7 +1174,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
     cout << "DTTPG theta ntrack " << ndttpgthtrack << endl;
   }
 ///
-
+*/
 
 
   
