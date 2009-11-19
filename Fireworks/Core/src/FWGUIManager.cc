@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.170 2009/11/19 11:13:07 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.171 2009/11/19 14:37:26 amraktad Exp $
 
 //
 
@@ -1227,8 +1227,3 @@ FWGUIManager::updateEventFilterEnable(bool filterEnabled, bool btnEnabled)
       m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
 }
 
-void
-FWGUIManager::editEventFilters(bool edit)
-{
-   m_cmsShowMainFrame->m_filterEnableBtn->SetState(edit ? kButtonDisabled : kButtonEngaged);
-}

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.87 2009/11/18 22:46:23 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.88 2009/11/19 14:37:26 amraktad Exp $
 //
 
 // system include files
@@ -186,7 +186,6 @@ public:
    void toggleEventFilterEnable();
    void eventFilterMessageChanged(int, int); // CmsShowNavigator -> CmsShowMainFrame
    void updateEventFilterEnable(bool, bool);
-   void editEventFilters(bool);
 
    void runIdChanged();
    void eventIdChanged();
