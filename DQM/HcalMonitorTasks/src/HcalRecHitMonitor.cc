@@ -211,7 +211,7 @@ void HcalRecHitMonitor::beginRun()
       h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF RecHit Time Above Threshold",int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
       h_HFOccupancy=m_dbe->book1D("HF_occupancy","HF RecHit Occupancy",1729,-0.5,1728.5);
       h_HFThreshOccupancy=m_dbe->book1D("HF_occupancy_thresh","HF RecHit Occupancy Above Threshold",1729,-0.5,1728.5);
-    } // if (rechit_Diagnostics_)
+    } // if (rechit_diagnostics_)
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitMonitor BEGINRUN -> "<<cpu_timer.cpuTime()<<endl;

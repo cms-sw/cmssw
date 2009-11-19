@@ -1194,7 +1194,9 @@ void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
 }   // void HcalDataFormatMonitor::mapChannproblem(...)
 
 void HcalDataFormatMonitor::endLuminosityBlock(void) {
+  if (LBprocessed_==true) return;  // LB already processed
   UpdateMEs();
+  LBprocessed_=true; 
   return;
 }
 

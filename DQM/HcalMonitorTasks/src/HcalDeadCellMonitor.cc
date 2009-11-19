@@ -526,16 +526,6 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	}
     }
 
-  /*
-    // Do we ever want to do fill after N events, instead of after a LS?
-  if (checkNevents_>0 && ievt_%checkNevents_==0)
-    {
-      fillNevents_problemCells();
-      fillNevents_recentdigis();
-      fillNevents_recentrechits();
-    }
-  */
-
   return;
 } // void HcalDeadCellMonitor::processEvent(...)
 
@@ -904,8 +894,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		      (deadmon_test_rechits_ && recentoccupancy_rechit[eta][phi][depth]==0  && (levt_>=deadmon_minEvents_))
 		      )
 		    {
-		      if (subdet==HcalBarrel)       
-			++NumBadHB;
+		      if (subdet==HcalBarrel)       ++NumBadHB;
 		      else if (subdet==HcalEndcap)  ++NumBadHE;
 		      else if (subdet==HcalOuter)   ++NumBadHO;
 		      else if (subdet==HcalForward) ++NumBadHF;

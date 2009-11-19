@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/18 09:59:24 $
- * $Revision: 1.149 $
+ * $Date: 2009/11/18 13:10:27 $
+ * $Revision: 1.150 $
  * \author W Fisher
  * \author J Temple
  *
@@ -552,7 +552,8 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
   if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
 
-  if (dfMon_!=NULL) dfMon_->UpdateMEs();
+  if (dfMon_!=NULL) dfMon_->UpdateMEs(); // should no longer be necessary; called through endLuminoisityBlock()
+  
   /////////////////////////////////////////////////////
   if(detDiagLas_!=NULL) detDiagLas_->fillHistos();
   /////////////////////////////////////////////////////

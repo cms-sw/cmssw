@@ -58,6 +58,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   // These two variables aren't yet in use
   beammon_checkNevents_    = ps.getUntrackedParameter<int>("BeamMonitor_checkNevents",checkNevents_);
   beammon_minErrorFlag_    = ps.getUntrackedParameter<double>("BeamMonitor_minErrorFlag",0.);
+  beammon_minEvents_       = ps.getUntrackedParameter<int>("BeamMonitor_minEvents",500);
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("BeamMonitor_AllowedCalibTypes",AllowedCalibTypes_);
   beammon_lumiqualitydir_ = ps.getUntrackedParameter<std::string>("BeamMonitor_lumiqualitydir","");
 
@@ -995,8 +996,22 @@ void HcalBeamMonitor::endLuminosityBlock()
     return;
   float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
   if (Nentries==0) return;
-  if (Online_ && Nentries<500) return; // need at least 500 events to make valid statement about hot/dead in online running?
- 
+  if (Online_ && Nentries<beammon_minEvents_) 
+
+    {
+      // not enough entries to determine status; fill everything with -1 and return
+      HFlumi_Ring1Status_vs_LS->Fill(lumiblock,-1);
+      HFlumi_Ring2Status_vs_LS->Fill(lumiblock,-1);
+      // write to output file if required
+      if (beammon_lumiqualitydir_.size()==0)
+	return;
+      // dump out lumi quality file
+      std::ofstream outStream(outfile_.str().c_str(),ios::app);
+      outStream<<lumiblock<<"\t\t-1\t\t-1\t\t-1"<<endl;
+      outStream.close();
+      return;
+    }
+
   HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
   HFlumi_total_hotcells->Fill(-1,-1,1);
 
