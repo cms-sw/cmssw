@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.5 2009/11/05 13:31:39 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.6 2009/11/07 21:34:31 rekovic Exp $
 //
 //
 
@@ -41,6 +41,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,14 +64,33 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
 
+      // EndLuminosityBlock
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
+
+     // void setupHLTMatrix(std::string name, MonitorElement* me, std::vector<std::string> & paths);
+     //void fillHLTMatrix(MonitorElement* ME, edm::Handle<edm::TriggerResults> triggerResults) {
+
 
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
 
       MonitorElement* total_;
-      MonitorElement* h_HLTPassPass_Correlation_; 
-      MonitorElement* h_HLTPassFail_Correlation_; 
+      MonitorElement* ME_HLTPassPass_; 
+      MonitorElement* ME_HLTPassFail_; 
+      MonitorElement* ME_HLTPassPass_Normalized_; 
+      MonitorElement* ME_HLTPassFail_Normalized_; 
+
+      MonitorElement* ME_HLT_Muon_PassPass_;
+      MonitorElement* ME_HLT_Muon_PassPass_Normalized;
+      MonitorElement* ME_HLT_Egamma_PassPass_;
+      MonitorElement* ME_HLT_Egamma_PassPass_Normalized;
+      MonitorElement* ME_HLT_JetMET_PassPass_;
+      MonitorElement* ME_HLT_JetMET_PassPass_Normalized;
+      MonitorElement* ME_HLT_Rest_PassPass_;
+      MonitorElement* ME_HLT_Rest_PassPass_Normalized;
+      MonitorElement* ME_HLT_Special_PassPass_;
+      MonitorElement* ME_HLT_Special_PassPass_Normalized;
 
       bool plotAll_;
       bool resetMe_;
