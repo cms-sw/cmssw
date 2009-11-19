@@ -35,6 +35,7 @@ public:
    void newEntry();
    void deleteEntry(FWGUIEventSelector*);
    void addSelector(FWEventSelector* sel);
+   bool isOpen() { return m_isOpen; }
    
 private:   
    static const TGPicture* m_icon_add;
@@ -50,5 +51,6 @@ private:
    TGCompositeFrame* m_selectionFrame;
    bool              m_origOr;
    TGButtonGroup*    m_btnGroup;
+   bool              m_isOpen;
 };
 

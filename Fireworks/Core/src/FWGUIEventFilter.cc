@@ -12,13 +12,14 @@ const TGPicture* FWGUIEventFilter::m_icon_add = 0;
 
 FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
-   m_origOr(false),
    m_applyAction(0),
    m_finishEditAction(0),
    m_validator(0),
    m_selectionFrameParent(0),
    m_selectionFrame(0),
-   m_btnGroup(false)
+   m_origOr(false),
+   m_btnGroup(false),
+   m_isOpen(false)
 {  
    SetWindowName("Event Filters");
 
@@ -87,6 +88,7 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
 
 void FWGUIEventFilter::CloseWindow()
 {
+   m_isOpen = false;
    m_selectionFrameParent->RemoveFrame(m_selectionFrame);
    m_selectionFrame = 0;
    
@@ -157,6 +159,7 @@ void FWGUIEventFilter::addSelector(FWEventSelector* sel)
 
 void FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR)
 {
+   m_isOpen = true;
    m_validator = new FWHLTValidator(*event);
 
    m_origOr = isLogicalOR;
