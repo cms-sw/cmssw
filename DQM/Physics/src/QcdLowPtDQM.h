@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.7 2009/11/17 16:25:25 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.8 2009/11/18 21:36:24 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -213,6 +213,8 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     TH3F                         *AlphaTracklets23_;   //alpha correction for tracklets 23
     const TrackerGeometry        *tgeo_;               //tracker geometry
     DQMStore                     *theDbe_;             //dqm store
+    MonitorElement               *repSumMap_;          //report summary map
+    MonitorElement               *repSummary_;         //report summary
     MonitorElement               *h2TrigCorr_;         //trigger correlation plot 
     std::vector<MonitorElement*>  hNhitsL1_;           //number of hits on layer 1
     std::vector<MonitorElement*>  hNhitsL2_;           //number of hits on layer 2

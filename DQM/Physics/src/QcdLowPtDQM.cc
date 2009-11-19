@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.8 2009/11/18 11:12:32 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.9 2009/11/18 21:36:24 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -70,6 +70,8 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters) :
   AlphaTracklets23_(0),
   tgeo_(0),
   theDbe_(0),
+  repSumMap_(0),
+  repSummary_(0),
   h2TrigCorr_(0)
 {
   // Constructor.
@@ -134,6 +136,7 @@ void QcdLowPtDQM::beginJob()
   theDbe_ = Service<DQMStore>().operator->();
   if (!theDbe_)
     print(3,"Could not obtain pointer to DQMStore");
+
   theDbe_->setCurrentFolder("Physics/QcdLowPt");
   yieldAlphaHistogram(pixLayers_);
 }
@@ -330,6 +333,14 @@ void QcdLowPtDQM::createHistos()
   
   if (hNhitsL1_.size())
     return; // histograms already booked
+
+  if (1) {
+    theDbe_->setCurrentFolder("Physics/EventInfo/");
+    repSumMap_  = theDbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
+    repSummary_ = theDbe_->bookFloat("reportSummary");
+  }
+
+  theDbe_->setCurrentFolder("Physics/QcdLowPt");
 
   if (1) {
     const int Nx = hltTrgUsedNames_.size();
@@ -574,7 +585,7 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
     TH3F *hsig = NsigTracklets.at(i);
     TH3F *hbkg = NbkgTracklets.at(i);
     TH1F *hepa = NEvsPerEta.at(i);
-
+    
     for(int etabin=1;etabin<=netabins;++etabin) {
       const double etaval   = AlphaTracklets->GetXaxis()->GetBinCenter(etabin);
       const double etawidth = AlphaTracklets->GetXaxis()->GetBinWidth(etabin);
@@ -646,6 +657,9 @@ void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l,
                                      const EventSetup &iSetup)
 {
   // Update various histograms.
+
+  repSummary_->Fill(1.);
+  repSumMap_->Fill(0.5,0.5,1.);
 
   filldNdeta(AlphaTracklets12_,NsigTracklets12_,NbkgTracklets12_,
              hEvtCountsPerEta12_,hdNdEtaRawTrkl12_,hdNdEtaSubTrkl12_,hdNdEtaTrklets12_);
@@ -743,9 +757,9 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
   getProduct(hltUsedResName_, triggerResultsHLT, iEvent);
 
   for(size_t i=0;i<hltTrgBits_.size();++i) {
-    int tbit = hltTrgBits_.at(i);
-    if (tbit<0) //ignore unknown trigger 
-      continue; 
+    if (hltTrgBits_.at(i)<0) 
+      continue; //ignore unknown trigger 
+    size_t tbit = hltTrgBits_.at(i);
     if (tbit<triggerResultsHLT->size()) {
       hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
       if (0) print(0,Form("Decision %i for %s",
