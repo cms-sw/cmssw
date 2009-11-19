@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.13 2009/11/07 21:34:31 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.14 2009/11/19 20:02:53 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1293,6 +1293,9 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     ME_HLTPassFail_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
     ME_HLTPassFail_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
+
+    ME_HLTPassPass_Normalized_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
+    ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
 
 
     // now set up all of the histos for each path
