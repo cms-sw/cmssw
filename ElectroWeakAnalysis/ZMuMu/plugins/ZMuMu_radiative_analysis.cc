@@ -167,8 +167,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  FSR_mu1 = false;
 	  
 	  //Isodeposit
-	  const pat::IsoDeposit * mu0TrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * mu1TrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * mu0TrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * mu1TrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction mu0Dir = Direction(mu0.eta(),mu0.phi());
 	  Direction mu1Dir = Direction(mu1.eta(),mu1.phi());
 	  
@@ -323,8 +323,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  FSR_mu1 = false;
 	  zmscounter++;	  
 	  //Isodeposit
-	  const pat::IsoDeposit * mu0TrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * mu1TrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * mu0TrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * mu1TrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction mu0Dir = Direction(mu0.eta(),mu0.phi());
 	  Direction mu1Dir = Direction(mu1.eta(),mu1.phi());
 	  
@@ -451,8 +451,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  cout<<"          ZmuTk cuts && matched"<<endl;
 	  zmtcounter++;
 	  //Isodeposit
-	  const pat::IsoDeposit * muTrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * tkTrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * muTrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * tkTrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction muDir = Direction(mu0.eta(),mu0.phi());
 	  Direction tkDir = Direction(mu1.eta(),mu1.phi());
 	  

@@ -200,12 +200,12 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
     const pat::Muon & mu0 = dynamic_cast<const pat::Muon &>(*dau0->masterClone());
     const pat::GenericParticle & mu1 = dynamic_cast<const pat::GenericParticle &>(*dau1->masterClone());
 
-    const pat::IsoDeposit * muTrackIso =mu0.trackerIsoDeposit();
-    const pat::IsoDeposit * tkTrackIso =mu1.trackerIsoDeposit();
-    const pat::IsoDeposit * muEcalIso =mu0.ecalIsoDeposit();
-    const pat::IsoDeposit * tkEcalIso =mu1.ecalIsoDeposit();
-    const pat::IsoDeposit * muHcalIso =mu0.hcalIsoDeposit();
-    const pat::IsoDeposit * tkHcalIso =mu1.hcalIsoDeposit();
+    const pat::IsoDeposit * muTrackIso =mu0.isoDeposit(pat::TrackIso);
+    const pat::IsoDeposit * tkTrackIso =mu1.isoDeposit(pat::TrackIso);
+    const pat::IsoDeposit * muEcalIso =mu0.isoDeposit(pat::EcalIso);
+    const pat::IsoDeposit * tkEcalIso =mu1.isoDeposit(pat::EcalIso);
+    const pat::IsoDeposit * muHcalIso =mu0.isoDeposit(pat::HcalIso);
+    const pat::IsoDeposit * tkHcalIso =mu1.isoDeposit(pat::HcalIso);
 
    
     if(mu0.pt() > pt && mu1.pt() > pt && abs(mu0.eta()) < eta && abs(mu1.eta()) < eta){

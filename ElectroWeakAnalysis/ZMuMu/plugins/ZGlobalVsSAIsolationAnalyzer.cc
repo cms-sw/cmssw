@@ -84,9 +84,9 @@ bool ZGlobalVsSAIsolationAnalyzer::isolated(const Direction & dir, const pat::Is
 void ZGlobalVsSAIsolationAnalyzer::evaluate(const reco::Candidate* dau) {
   const pat::Muon * mu = dynamic_cast<const pat::Muon *>(&*dau->masterClone());
   if(mu == 0) throw Exception(errors::InvalidReference) << "Daughter is not a muon!\n";
-  const pat::IsoDeposit * trkIsoDep = mu->trackerIsoDeposit();
-  const pat::IsoDeposit * ecalIsoDep = mu->ecalIsoDeposit();
-  const pat::IsoDeposit * hcalIsoDep = mu->hcalIsoDeposit();
+  const pat::IsoDeposit * trkIsoDep = mu->isoDeposit(pat::TrackIso);
+  const pat::IsoDeposit * ecalIsoDep = mu->isoDeposit(pat::EcalIso);
+  const pat::IsoDeposit * hcalIsoDep = mu->isoDeposit(pat::HcalIso);
   // global muon
   {
     Direction dir = Direction(mu->eta(), mu->phi());

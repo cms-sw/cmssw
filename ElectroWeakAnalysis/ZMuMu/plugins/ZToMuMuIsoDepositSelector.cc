@@ -76,9 +76,9 @@ public:
 
   template<typename T>
   double isolation(const T * t) const {
-    const pat::IsoDeposit * trkIso = t->trackerIsoDeposit();
-    const pat::IsoDeposit * ecalIso = t->ecalIsoDeposit();
-    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();   
+    const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
+    const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
+    const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
     
     Direction dir = Direction(t->eta(), t->phi());
     
