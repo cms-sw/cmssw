@@ -44,5 +44,7 @@ process.source = cms.Source("PoolSource",
     '/store/relval/CMSSW_3_2_6/RelValBeamHalo/GEN-SIM-RECO/STARTUP31X_V7-v1/0012/A23604E8-249A-DE11-8CD7-001617E30CD4.root',
     )
                             )
-
 process.p = cms.Path(process.CSCHaloData*process.EcalHaloData*process.HcalHaloData*process.GlobalHaloData*process.AnalyzeBeamHalo)
+
+#### If cosmic muons are not by default in the event, then you should run this sequence
+#process.p = cms.Path(process.ctfWithMaterialTracksP5LHCNavigation*process.muonRecoLHC*process.CSCHaloData*process.EcalHaloData*process.HcalHaloData*process.GlobalHaloData*process.AnalyzeBeamHalo)
