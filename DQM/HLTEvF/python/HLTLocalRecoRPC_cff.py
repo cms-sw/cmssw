@@ -1,16 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 # RPC DQM
-from DQM.HLTEvF.rpcSourceHLT_cfi import *
-from DQM.HLTEvF.rpcClientHLT_cfi import *
+from DQMOffline.Muon.rpcSourceHLT_cfi import *
 
-hltHighLevel = cms.EDFilter("HLTHighLevel",
+hltHighLevelRPC = cms.EDFilter("HLTHighLevel",
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     HLTPaths = cms.vstring('HLT_L1Mu[^_]*$',
-    			'HLT_L2Mu[^_]*&', 
-    			'HLT_Mu[^_]*&', 
-    			'HLT_IsoMu[^_]*&', 
-    			'HLT_DoubleMu[^_]*&', 
+    			'HLT_L2Mu[^_]*$', 
+    			'HLT_Mu[^_]*$', 
+    			'HLT_IsoMu[^_]*$', 
+    			'HLT_DoubleMu[^_]*$', 
 			),
     #HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_L1Mu', 'HLT_L1Mu20',
     #			'HLT_L2Mu9','HLT_L2Mu11',
@@ -20,5 +19,4 @@ hltHighLevel = cms.EDFilter("HLTHighLevel",
     throw = cms.bool(True)    # throw exception on unknown path names
 )
 
-hltLocalRecoDT = cms.Path(hltHighLevel*rpcClientHLT)
-
+hltLocalRecoRPC = cms.Path(hltHighLevelRPC*rpcSourceHLT)
