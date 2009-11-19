@@ -117,18 +117,16 @@ void HcalBaseMonitor::processEvent()
 
 void HcalBaseMonitor::LumiBlockUpdate(int lb)
 {
-  if (lb<=lumiblock) // protect against mis-ordered LBs.  Handle differently in the future?
-    return;
+
+  //if (Online_ && lb<=lumiblock) // protect against mis-ordered LBs.  Handle differently in the future?
+  //  return;
+
+  lumiblock=lb;
   if (lumiblock==0) // initial lumiblock call; don't fill histograms, because nothing has been determined yet
-    {
-      lumiblock=lb;
       return;
-    }
+
   if (lb>Nlumiblocks_) // don't fill plots if lumiblock is beyond range
-    {
-      lumiblock=lb;
       return;
-    }
 
   // The following function would let us 'fill in' missing lumiblock sections.  
   // I think we only want this for Online running, since offline should fill each lumi block
@@ -152,12 +150,15 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
 	}
     }
   */
-  lumiblock=lb;
   return;
 }
 
 void HcalBaseMonitor::beginLuminosityBlock(int lumisec)
 {
+  // Protect against online mis-ordering of events.  
+  // Do we want this enabled here? 
+  //if (Online_ && lumisec<lumiblock)
+  //  return;
   LumiBlockUpdate(lumisec);
   levt_=0;
   LBprocessed_=false;

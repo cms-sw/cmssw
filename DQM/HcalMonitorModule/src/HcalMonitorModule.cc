@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/18 13:10:27 $
- * $Revision: 1.150 $
+ * $Date: 2009/11/19 12:49:22 $
+ * $Revision: 1.151 $
  * \author W Fisher
  * \author J Temple
  *
@@ -17,7 +17,7 @@ using namespace edm;
 //--------------------------------------------------------
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
-  irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+  irun_=0; ilumisec=0; ievent_=0; itime_=0;
 
   meStatus_=0;  
   meFEDS_=0;
@@ -55,6 +55,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
 
+
+  // Check Online running
+  Online_                = ps.getUntrackedParameter<bool>("Online",false);
   //Emulator
   inputLabelEmulDigi_  = ps.getParameter<edm::InputTag>("emulTPLabel");
 
@@ -468,29 +471,38 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-     const edm::EventSetup& context) {
-
-  ilumisec_ = lumiSeg.luminosityBlock();
-  if(digiMon_!=0)   {  digiMon_->beginLuminosityBlock(ilumisec_);}
-  if(dfMon_!=0)     {  dfMon_->beginLuminosityBlock(ilumisec_);}
-  if(diTask_!=0)    {  diTask_->beginLuminosityBlock(ilumisec_);}
-  if(pedMon_!=0)    {  pedMon_->beginLuminosityBlock(ilumisec_);}
-  if(ledMon_!=0)    {  ledMon_->beginLuminosityBlock(ilumisec_);}
-  if(laserMon_!=0)  {  laserMon_->beginLuminosityBlock(ilumisec_);}
-  if(hotMon_!=0)    {  hotMon_->beginLuminosityBlock(ilumisec_);}
-  if(deadMon_!=0)   {  deadMon_->beginLuminosityBlock(ilumisec_);}
-  if(mtccMon_!=0)   {  mtccMon_->beginLuminosityBlock(ilumisec_);}
-  if(rhMon_!=0)     {  rhMon_->beginLuminosityBlock(ilumisec_);}
-  if (zdcMon_!=0)   {  zdcMon_->beginLuminosityBlock(ilumisec_);}
-  if (beamMon_!=0)  {  beamMon_->beginLuminosityBlock(ilumisec_);}
-  if (tpMon_!=0)    {  tpMon_->beginLuminosityBlock(ilumisec_);}
+     const edm::EventSetup& context) 
+{
+  /* Don't start a new luminosity block if it is less than the current value
+     when running online.  This avoids the problem of getting events
+     from mis-ordered lumi blocks, which screws up our lumi block 
+     monitoring.
+  */
+  if (Online_ && lumiSeg.luminosityBlock()<ilumisec)
+    return;
+  
+  // Otherwise, run normal startups
+  ilumisec = lumiSeg.luminosityBlock();
+  if(digiMon_!=0)   {  digiMon_->beginLuminosityBlock(ilumisec);}
+  if(dfMon_!=0)     {  dfMon_->beginLuminosityBlock(ilumisec);}
+  if(diTask_!=0)    {  diTask_->beginLuminosityBlock(ilumisec);}
+  if(pedMon_!=0)    {  pedMon_->beginLuminosityBlock(ilumisec);}
+  if(ledMon_!=0)    {  ledMon_->beginLuminosityBlock(ilumisec);}
+  if(laserMon_!=0)  {  laserMon_->beginLuminosityBlock(ilumisec);}
+  if(hotMon_!=0)    {  hotMon_->beginLuminosityBlock(ilumisec);}
+  if(deadMon_!=0)   {  deadMon_->beginLuminosityBlock(ilumisec);}
+  if(mtccMon_!=0)   {  mtccMon_->beginLuminosityBlock(ilumisec);}
+  if(rhMon_!=0)     {  rhMon_->beginLuminosityBlock(ilumisec);}
+  if (zdcMon_!=0)   {  zdcMon_->beginLuminosityBlock(ilumisec);}
+  if (beamMon_!=0)  {  beamMon_->beginLuminosityBlock(ilumisec);}
+  if (tpMon_!=0)    {  tpMon_->beginLuminosityBlock(ilumisec);}
 
   //////////////////////////////////////////////
-  if(detDiagPed_!=0){  detDiagPed_->beginLuminosityBlock(ilumisec_);}
-  if(detDiagLed_!=0){  detDiagLed_->beginLuminosityBlock(ilumisec_);}
-  if(detDiagLas_!=0){  detDiagLas_->beginLuminosityBlock(ilumisec_);}
-  if(detDiagNoise_!=0){  detDiagNoise_->beginLuminosityBlock(ilumisec_);}
-  if(detDiagTiming_!=0){  detDiagTiming_->beginLuminosityBlock(ilumisec_);}
+  if(detDiagPed_!=0){  detDiagPed_->beginLuminosityBlock(ilumisec);}
+  if(detDiagLed_!=0){  detDiagLed_->beginLuminosityBlock(ilumisec);}
+  if(detDiagLas_!=0){  detDiagLas_->beginLuminosityBlock(ilumisec);}
+  if(detDiagNoise_!=0){  detDiagNoise_->beginLuminosityBlock(ilumisec);}
+  if(detDiagTiming_!=0){  detDiagTiming_->beginLuminosityBlock(ilumisec);}
   /////////////////////////////////////////////
 }
 
@@ -499,6 +511,10 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					   const edm::EventSetup& context) {
   
+  // In online running, don't process events that occur before current luminosity block
+  if (Online_ && lumiSeg.luminosityBlock()<ilumisec)
+    return; 
+
   // Call these every luminosity block
   if(digiMon_!=0)   {  digiMon_->endLuminosityBlock();}
   if(dfMon_!=0)     {  dfMon_->endLuminosityBlock();}
@@ -640,6 +656,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   ievent_   = e.id().event();
   itime_    = e.time().value();
+
+  if (Online_ && e.luminosityBlock()<ilumisec)
+    return;
 
   if (debug_>1) std::cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << e.luminosityBlock() << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
@@ -1181,7 +1200,7 @@ bool HcalMonitorModule::prescale()
   bool keepEvent=false;
   
   // Keep event if prescaleLS test is met or if prescaleEvt test is met
-  if(prescaleLS_>0 && (ilumisec_%prescaleLS_)==0) keepEvent = true; // check on ls prescale; 
+  if(prescaleLS_>0 && (ilumisec%prescaleLS_)==0) keepEvent = true; // check on ls prescale; 
   if (prescaleEvt_>0 && (ievt_%prescaleEvt_)==0) keepEvent = true; // 
   
   // if any criteria wants to keep the event, do so

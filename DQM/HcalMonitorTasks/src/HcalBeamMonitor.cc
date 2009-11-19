@@ -73,7 +73,7 @@ void HcalBeamMonitor::beginRun(const edm::EventSetup& c, int run)
   if (beammon_lumiqualitydir_.size()>0)
     {
       outfile_ <<beammon_lumiqualitydir_<<"/HcalHFLumistatus_"<<irun_<<".txt";
-      std::ofstream outStream(outfile_.str().c_str(),ios::out);
+      std::ofstream outStream(outfile_.str().c_str(),ios::app);
       outStream<<"## Run "<<run<<endl;
       outStream<<"## LumiBlock\tRing1Status\tRing2Status\t GlobalStatus"<<endl;
       outStream.close();
@@ -365,7 +365,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
             }
         }
     }
-  if (fVerbosity>0) std::cout <<"<HcalBeamMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
+  if (fVerbosity>1) std::cout <<"<HcalBeamMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
   if (!processevent)
     return;
 
@@ -995,7 +995,6 @@ void HcalBeamMonitor::endLuminosityBlock()
   if (LBprocessed_==true)
     return;
   float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
-  if (Nentries==0) return;
   if (Online_ && Nentries<beammon_minEvents_) 
 
     {
@@ -1011,6 +1010,7 @@ void HcalBeamMonitor::endLuminosityBlock()
       outStream.close();
       return;
     }
+  if (Nentries==0) return;
 
   HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
   HFlumi_total_hotcells->Fill(-1,-1,1);

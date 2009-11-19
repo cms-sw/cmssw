@@ -115,7 +115,7 @@ public:
 
   /// Boolean prescale test for this event
   bool prescale();
-  
+
  private:
   void removeAllME(void);
   void writeDBfile();
@@ -147,6 +147,8 @@ public:
     //int nevt_; // counts number of events actually analyzed by HcalMonitorClient
   int nlumisecs_;
   bool saved_;
+  bool Online_;
+  unsigned int currentLumiBlock;
 
   struct{
     timeval startTV,updateTV;

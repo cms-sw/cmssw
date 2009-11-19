@@ -46,6 +46,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   if(debug_>1) std::cout << "HcalMonitorClient: constructor...." << endl;
 
+  Online_ = ps.getUntrackedParameter<bool>("Online",false);
   // timing switch 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false);  
 
@@ -411,6 +412,9 @@ void HcalMonitorClient::writeDBfile()
 //--------------------------------------------------------
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
 {
+  // don't allow 'backsliding' across lumi blocks in online running
+  if (Online_ && l.luminosityBlock()<currentLumiBlock) return;
+  currentLumiBlock = l.luminosityBlock();
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
   if( summary_client_)      summary_client_->SetLS(l.luminosityBlock());
   if( hot_client_ )         hot_client_->SetLS(l.luminosityBlock());
@@ -433,7 +437,9 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
 
 //--------------------------------------------------------
 void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
-  // then do your thing
+
+  // don't allow backsliding in online running
+  if (Online_ && l.luminosityBlock()<currentLumiBlock) return;
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
   if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...

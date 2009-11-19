@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/11/10 14:10:15 $
- * $Revision: 1.55 $
+ * $Date: 2009/11/11 20:54:34 $
+ * $Revision: 1.56 $
  * \author W. Fisher
  *
 */
@@ -176,7 +176,8 @@ public:
   
   // environment variables
   int irun_,ievent_,itime_;
-  unsigned int ilumisec_;
+  unsigned int ilumisec;
+  bool Online_;
   bool actonLS_ ;
   std::string rootFolder_;
 
