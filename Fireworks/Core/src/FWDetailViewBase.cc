@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.14 2009/10/28 10:35:18 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.15 2009/11/01 20:47:29 amraktad Exp $
 //
 
 // system include files
@@ -111,9 +111,9 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    TEveWindowFrame* wf = slot->MakeFrame();
    wf->SetShowTitleBar(kFALSE);
    TGCompositeFrame* eveFrame = wf->GetGUICompositeFrame();
-   
    guiFrame = new TGVerticalFrame(eveFrame, 10, 10, kSunkenFrame|kDoubleBorder);
-   eveFrame->AddFrame(guiFrame, new TGLayoutHints(kLHintsNormal));
+   eveFrame->AddFrame(guiFrame, new TGLayoutHints(kLHintsNormal| kLHintsExpandX));
+
    
    TGCompositeFrame* cf = new TGCompositeFrame(eveFrame);
    eveFrame->AddFrame(cf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
