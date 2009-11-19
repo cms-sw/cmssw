@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/11/04 10:54:54 $
- * $Revision: 1.229 $
+ * $Date: 2009/11/09 14:10:05 $
+ * $Revision: 1.230 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1657,7 +1657,8 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
   vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
-    if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) ) {
+    if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) 
+         && strncmp((*meitr)->getName().c_str(), "EETrend", 7) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
       } else {
