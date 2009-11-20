@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.15 2009/11/19 20:18:47 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.16 2009/11/20 14:59:24 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -122,11 +122,6 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   ME_HLTPassPass_ = NULL;
   ME_HLTPassFail_ = NULL;
   
-  ME_HLT_Muon_PassPass_ = NULL;
-  ME_HLT_Egamma_PassPass_ = NULL;
-  ME_HLT_JetMET_PassPass_ = NULL;
-  ME_HLT_Rest_PassPass_ = NULL;
-  ME_HLT_Special_PassPass_ = NULL;
 }
 
 
