@@ -224,11 +224,10 @@ my $sql = qq[ SELECT riov.run_num run,
                 JOIN run_tag rtag ON rtag.tag_id = riov.tag_id
                 JOIN location_def ldef ON ldef.def_id = rtag.location_id
                 LEFT OUTER JOIN run_dat rdat ON rdat.iov_id = riov.iov_id
-                LEFT OUTER JOIN mon_run_iov miov ON miov.run_iov_id = riov.iov_id
-                LEFT OUTER JOIN mon_run_dat mdat ON mdat.iov_id = miov.iov_id
+                JOIN mon_run_iov miov ON miov.run_iov_id = riov.iov_id
+                JOIN mon_run_dat mdat ON mdat.iov_id = miov.iov_id
                WHERE ldef.location = ?
                  AND riov.run_num = ?
-                 AND rdat.num_events != 0
             ORDER BY run];
 
 my $sth = $dbh->prepare_cached($sql);
