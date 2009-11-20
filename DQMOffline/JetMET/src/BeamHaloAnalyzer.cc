@@ -124,7 +124,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 
     // BeamHaloSummary 
     dqm->setCurrentFolder(FolderName+"/BeamHaloSummary");
-    ME["BeamHaloSummary_Id"] = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0,11);
+    ME["BeamHaloSummary_Id"] = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0.5,11.5);
     ME["BeamHaloSummary_Id"] ->setBinLabel(1,"CSC Loose");
     ME["BeamHaloSummary_Id"] ->setBinLabel(2,"CSC Tight");
     ME["BeamHaloSummary_Id"] ->setBinLabel(3,"Ecal Loose");
