@@ -321,7 +321,9 @@ void ESIntegrityClient::analyze(void) {
 	  } 
 	  
 	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	  meDIErrors_[iz][ip]->setBinContent(ix+1, iy+1, nDI_FedErr[fed_[iz][ip][ix][iy]-520]);
+
+	  if (nDI_FedErr[fed_[iz][ip][ix][iy]-520] > 0)
+	    meDIErrors_[iz][ip]->Fill(ix+1, iy+1, 1);
 	}
   
 }
