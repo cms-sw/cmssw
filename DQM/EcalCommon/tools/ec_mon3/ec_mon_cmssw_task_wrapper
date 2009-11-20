@@ -68,8 +68,25 @@ import os, sys, socket
 
 liveECAL  = 0
 
-localDAQ  = 0
-globalDAQ = 0
+EOF1
+
+my $localDAQ  = 0;
+my $globalDAQ = 0;
+
+if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
+  $localDAQ  = 1;
+  $globalDAQ = 0;
+}
+
+if ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
+  $localDAQ  = 0;
+  $globalDAQ = 1;
+}
+
+print "localDAQ  = $localDAQ\n";
+print "globalDAQ = $globalDAQ\n";
+
+print CONFIGFILE <<EOF2;
 
 ecalHostEC    = 'vmepcS2F19-25'.lower()
 
@@ -332,33 +349,7 @@ process.maxEvents = cms.untracked.PSet(
 
 if (localDAQ == 1) | (globalDAQ == 1) :
   process.source = cms.Source("NewEventStreamFileReader",
-EOF1
-
-if ( $filnam ) {
-  printf CONFIGFILE "    fileNames = cms.untracked.vstring('file:$filnam')\n";
-} elsif ( @filelist != 0 ) {
-  my $i=0;
-  printf CONFIGFILE "    fileNames = cms.untracked.vstring(";
-  printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
-  for ($i=1; $i < @filelist && $i < 255; $i++) {
-    printf CONFIGFILE ",\n";
-    printf CONFIGFILE "                                      'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
-  }
-  printf CONFIGFILE ")\n";
-} elsif ( @filelist_archived != 0 ) {
-  my $i=0;
-  printf CONFIGFILE "    fileNames = cms.untracked.vstring(";
-  printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
-  for ($i=1; $i < @filelist_archived && $i < 255; $i++) {
-    printf CONFIGFILE ",\n";
-    printf CONFIGFILE "                                      'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
-  }
-  printf CONFIGFILE ")\n";
-} else {
-  exit 1;
-}
-
-print CONFIGFILE <<EOF2;
+    fileNames = cms.untracked.vstring('file:file.dat')
   )
 
 if (liveECAL == 1) :
@@ -754,6 +745,32 @@ if (liveECAL == 1) :
   process.dqmSaver.dirName = '/data/ecalod-disk01/TestRuns/DQM-SM/root'
 
 EOF2
+
+if ( $filnam ) {
+  printf CONFIGFILE "process.source.fileNames = ['file:$filnam']\n";
+} elsif ( @filelist != 0 ) {
+  my $i=0;
+  printf CONFIGFILE "process.source.fileNames = [";
+  printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
+  for ($i=1; $i < @filelist && $i < 255; $i++) {
+    printf CONFIGFILE ",\n";
+    printf CONFIGFILE "                            ";
+    printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
+  }
+  printf CONFIGFILE "]\n";
+} elsif ( @filelist_archived != 0 ) {
+  my $i=0;
+  printf CONFIGFILE "process.source.fileNames = [";
+  printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
+  for ($i=1; $i < @filelist_archived && $i < 255; $i++) {
+    printf CONFIGFILE ",\n";
+    printf CONFIGFILE "                            ";
+    printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
+  }
+  printf CONFIGFILE "]\n";
+} else {
+  exit 1;
+}
 
 close CONFIGFILE;
 
