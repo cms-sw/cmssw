@@ -523,7 +523,7 @@ process.ecalMonitorPath = cms.Path(process.ecalDataSequence*process.ecalBarrelMo
 
 process.ecalPhysicsPath = cms.Path(process.ecalDataSequence*process.ecalPhysicsFilter*process.hltTriggerTypeFilter*process.simEcalTriggerPrimitiveDigis*process.ecalClusterSequence*process.ecalBarrelMainSequence*process.ecalBarrelPhysicsSequence*process.ecalEndcapMainSequence*process.ecalEndcapPhysicsSequence)
 
-if (localDAQ == 1):
+if (localDAQ == 1) :
   process.ecalPhysicsPath.remove(process.hltTriggerTypeFilter)
 
 if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
