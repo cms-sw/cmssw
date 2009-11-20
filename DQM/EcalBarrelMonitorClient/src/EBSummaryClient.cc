@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.198 $
+ * $Date: 2009/11/09 16:38:55 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  *
 */
@@ -1115,7 +1115,7 @@ void EBSummaryClient::analyze(void) {
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
-    TH2F* h2;
+    TH2F* h2, *h3;
     TProfile2D* h2d;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -1502,6 +1502,7 @@ void EBSummaryClient::analyze(void) {
           if ( ebtttc ) {
 
             float mean01 = 0;
+            bool hadNonZeroInterest = false;
 
             if ( httt01_[ism-1] ) {
 
@@ -1521,6 +1522,7 @@ void EBSummaryClient::analyze(void) {
 
               if ( xval != 0. ) {
                 meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
+                hadNonZeroInterest = true;
               }
 
             }
@@ -1537,21 +1539,20 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-            float xval = 6;
-            if( mean01 <= 0. ) {
-              xval = 2;
-            } else {
+            float xval = 2;
+            if( mean01 > 0. ) {
 
               h2 = ebtttc->l01_[ism-1];
+              h3 = ebtttc->l02_[ism-1];
 
-              if ( h2 ) {
+              if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ie, ip );
-                if( emulErrorVal!=0 ) xval = 0;
+                float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }
 
-              if ( xval!=0 ) xval = 1;
+              if ( xval!=0 && hadNonZeroInterest ) xval = 1;
 
             }
 

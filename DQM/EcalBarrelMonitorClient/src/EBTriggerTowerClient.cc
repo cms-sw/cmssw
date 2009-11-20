@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2009/08/27 15:31:32 $
- * $Revision: 1.120 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,6 +226,11 @@ void EBTriggerTowerClient::analyze(void) {
     me = dqmStore_->get(histo);
     l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
     mel01_[ism-1] = me;
+
+    sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulFineGrainVetoError %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    l02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l02_[ism-1] );
+    mel02_[ism-1] = me;
 
     sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulMatch %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.186 $
+ * $Date: 2009/11/09 16:38:56 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  *
 */
@@ -1636,7 +1636,7 @@ void EESummaryClient::analyze(void) {
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
 
-    TH2F* h2;
+    TH2F* h2, *h3;
     TProfile2D* h2d;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -2075,6 +2075,7 @@ void EESummaryClient::analyze(void) {
           if ( eetttc ) {
 
             float mean01 = 0;
+            bool hadNonZeroInterest = false;
 
             if ( httt01_[ism-1] ) {
 
@@ -2102,6 +2103,7 @@ void EESummaryClient::analyze(void) {
                 } else {
                   meTriggerTowerTiming_[1]->setBinContent( jx, jy, xval );
                 }
+                hadNonZeroInterest = true;
               }
 
             }
@@ -2122,21 +2124,20 @@ void EESummaryClient::analyze(void) {
 
             }
 
-            float xval = 6;
-            if( mean01 <= 0. ) {
-              xval = 2;
-            } else {
+            float xval = 2;
+            if( mean01 > 0. ) {
 
               h2 = eetttc->l01_[ism-1];
+              h3 = eetttc->l02_[ism-1];
 
-              if ( h2 ) {
+              if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ix, iy );
-                if( emulErrorVal!=0 ) xval = 0;
+                float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }
 
-              if ( xval!=0 ) xval = 1;
+              if ( xval!=0 && hadNonZeroInterest ) xval = 1;
 
             }
 

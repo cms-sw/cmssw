@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.43 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -89,8 +89,10 @@ std::vector<int> superModules_;
 DQMStore* dqmStore_;
 
 MonitorElement* mel01_[36];
+MonitorElement* mel02_[36];
 MonitorElement* meo01_[36];
 TH2F* l01_[36];
+TH2F* l02_[36];
 TH3F* o01_[36];
 
 MonitorElement* me_o01_[36];
