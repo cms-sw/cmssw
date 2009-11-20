@@ -20,9 +20,10 @@ from Vispa.Views.WidgetView import WidgetView
 
 try:
     from pxl.algorithms import *
-except Exception:
-    logging.info(__name__ + ": " + exception_traceback())
-    
+    import_autolayout_error=None
+except Exception,e:
+    import_autolayout_error=(str(e),exception_traceback())
+
 class LineDecayView(WidgetView):
     
     LABEL = "&Line Decay View"
@@ -73,10 +74,6 @@ class LineDecayView(WidgetView):
                 # event or event view
                 eventWidget = self.createLineDecayContainer(object)
                 existingWidgets += [eventWidget]
-#                if self.dataAccessor():
-#                    for childObject in self.applyFilter(self.dataAccessor().children(object)):
-#                        if self.dataAccessor().isContainer(childObject):
-#                            self.createLineDecayContainer(childObject, object)
             else:
                 # particle
                 particleWidget = ParticleWidget(self, ParticleWidget.NONE, "", "")
@@ -125,6 +122,10 @@ class LineDecayView(WidgetView):
             
     def autolayout(self):
         #logging.debug(self.__class__.__name__ +": autolayout()")
+        if import_autolayout_error!=None:
+            logging.error(__name__ + ": Could not import autolayout algorithm: "+import_autolayout_error[1])
+            QCoreApplication.instance().errorMessage("Could not import autolayout algorithm (see logfile for details):\n"+import_autolayout_error[0])
+            return
         margin = 10 * self.zoomFactor()
         x = margin
         y = margin
@@ -256,6 +257,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         self.setSelectable(True)
         
         self._selectedList = []
+        self._visibleList = []
         self._hoveredObject = None
         self.setMouseTracking(True)     # receive mouse events even if no button is pressed
         self._titleClicked = False
@@ -641,25 +643,34 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if len(self.dataObjects()) > self.NO_DECORATIONS_ABOVE_NUMBER_OF_OBJECTS:
             generalPaintMode = DecayObject.PAINT_MODE_NO_DECORATIONS
         
-        if self.dataObjectsCount() > 50:
-            painter.setRenderHint(QPainter.RenderHint())
+        #if self.dataObjectsCount() > 50:
+        #    painter.setRenderHint(QPainter.Antialiasing, False)
             
-        for object in reversed(self.dataObjects()):
-            if isinstance(object, DecayLine):
-                paintMode = generalPaintMode
-                if object in self._selectedList:
-                    paintMode |= DecayObject.PAINT_MODE_SELECTED
-                if object == self._hoveredObject:
-                    paintMode |= DecayObject.PAINT_MODE_HOVERED
-                object.paint(painter, paintMode)
-        for object in self.dataObjects():
-            if isinstance(object, DecayNode):
-                paintMode = generalPaintMode
-                if object in self._selectedList:
-                    paintMode |= DecayObject.PAINT_MODE_SELECTED
-                if object == self._hoveredObject:
-                    paintMode |= DecayObject.PAINT_MODE_HOVERED
-                object.paint(painter, paintMode)
+        #oldVisibleList = self._visibleList
+        self._visibleList = []
+        decayNodes = []
+        #painterClipRegion = painter.clipRegion()
+        painterClipRegion = self.visibleRegion()
+        for decayObject in reversed(self.dataObjects()):
+        #for decayObject in oldVisibleList + self.dataObjects():
+            if not decayObject in self._visibleList and painterClipRegion.intersects(decayObject.boundingRect()):
+                self._visibleList.append(decayObject)
+                if isinstance(decayObject, DecayLine):
+                    self.paintDecayObject(painter, decayObject)
+                if isinstance(decayObject, DecayNode):
+                    # paint nodes after lines, so that they appear above the lines
+                    decayNodes.append(decayObject)
+                    
+        for decayObject in decayNodes:
+            self.paintDecayObject(painter, decayObject)
+                
+    def paintDecayObject(self, painter, decayObject):
+        paintMode = 0x0
+        if decayObject in self._selectedList:
+            paintMode |= DecayObject.PAINT_MODE_SELECTED
+        if decayObject == self._hoveredObject:
+            paintMode |= DecayObject.PAINT_MODE_HOVERED
+        decayObject.paint(painter, paintMode)
         
     def mousePressEvent(self, event):
         if self.isTitlePoint(event.pos()):
@@ -692,7 +703,10 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if not bool(event.buttons()):
             # no button pressed -> hovering
             to_hover_object = None
-            for object in self.dataObjects():
+            if not self._visibleList:
+                self._visibleList = self.dataObjects()
+            
+            for object in self._visibleList:
                 if object.containsPoint(event.pos()):
                     if isinstance(object, DecayNode):
                         # prefere nodes over other DecayObjects (especially DecayLines)
@@ -1102,6 +1116,8 @@ class DecayLine(DecayObject):
         self._showLabel = True
         self._labelMatrix = None
         self._labelBoundingRect = None
+        self._recalculateBoundingRect = True
+        self._boundingRect = None
         
     def delete(self):
         self._startNode.removeObject(self)
@@ -1121,6 +1137,7 @@ class DecayLine(DecayObject):
         
     def setObject(self, object):
         self._pxlObject = object
+        self._recalculateBoundingRect = True
         
     def object(self):
         return self._pxlObject
@@ -1136,9 +1153,11 @@ class DecayLine(DecayObject):
     
     def setLineStyle(self, style):
         self._lineStyle = style
+        self._recalculateBoundingRect = True
         
     def setColor(self, color):
         self._color = color
+        self._recalculateBoundingRect = True
         
     def setLabel(self, label):
         self._label = label
@@ -1162,6 +1181,7 @@ class DecayLine(DecayObject):
             self._endNode.removeObject(self)
             self._endNode = newNode
             self._endNode.appendObject(self)
+        self._recalculateBoundingRect = True
         return self.nodeType(newNode)
     
     def lineWidth(self):
@@ -1261,6 +1281,27 @@ class DecayLine(DecayObject):
             
         #painter.drawRect(self.boundingRect())
     
+    # simple paint method for debugging
+#    def paint(self, painter, paintMode=0x0):
+#        if paintMode & DecayObject.PAINT_MODE_SELECTED:
+#            penColor = QColor(Qt.blue)
+#        else:
+#            penColor = self._color
+#            if paintMode & DecayObject.PAINT_MODE_HOVERED:
+#                penColor = penColor.lighter(150)
+#       
+#        painter.setPen(QPen(penColor, self.lineWidth(), Qt.SolidLine))
+#        painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+#            
+#        if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
+#            self.drawText(painter, paintMode)
+#            
+#        if self._selfContained:
+#            self._startNode.paint(painter, paintMode)
+#            self._endNode.paint(painter, paintMode)
+#            
+#        #painter.drawRect(self.boundingRect())
+    
     def drawText(self, painter, paintMode=0x0, *args):
         if not self._showLabel or not self._label:
             return
@@ -1310,6 +1351,8 @@ class DecayLine(DecayObject):
         painter.resetTransform()
         
     def boundingRect(self):
+        if not self._recalculateBoundingRect and self._boundingRect:
+            return self._boundingRect
         contains_area_size = self.CONTAINS_AREA_SIZE
         if self.extendedSize():
             contains_area_size += 4
@@ -1324,7 +1367,8 @@ class DecayLine(DecayObject):
         rect = QRect(topLeft, bottomRight)
         if self._labelBoundingRect:
             return rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
-        return rect
+        self._boundingRect = rect
+        return self._boundingRect
     
     def slope(self):
         deltaX = self._endNode.x() - self._startNode.x()
@@ -1371,10 +1415,12 @@ class DecayLine(DecayObject):
             pos = (self._startNode.position() + self._endNode.position()) * 0.5
         self._startNode.select(pos)
         self._endNode.select(pos)
+        self._recalculateBoundingRect = True
         
     def move(self, pos):
         self._startNode.move(pos)
         self._endNode.move(pos)
+        self._recalculateBoundingRect = True
 
 class ParticleWidget(VispaWidget):
     

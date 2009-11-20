@@ -1,15 +1,19 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,Qt
+from PyQt4.QtCore import SIGNAL,Qt,QCoreApplication
 from PyQt4.QtGui import QWidget
 
-from Vispa.Main.Exceptions import *
 from Vispa.Views.AbstractView import AbstractView
-from Vispa.Main.Exceptions import *
+from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
-import ROOT
-import pxl
+try:
+    import ROOT
+    import pxl.base,pxl.astro,pxl.hep
+    import_root_error=None
+except Exception,e:
+    import_root_error=(str(e),exception_traceback())
+
 from array import array
 
 class RootCanvasView(AbstractView, QWidget):
@@ -41,6 +45,10 @@ class RootCanvasView(AbstractView, QWidget):
         """ Clear the view and refill it.
         """
         logging.debug(__name__ + ": updateContent")
+        if import_root_error!=None:
+            logging.error(__name__ + ": Could not import pxl and ROOT: "+import_root_error[1])
+            QCoreApplication.instance().errorMessage("Could not import pxl and ROOT (see logfile for details):\n"+import_root_error[0])
+            return
         self._updatingFlag +=1
         operationId = self._operationId
         #if self._dataAccessor:

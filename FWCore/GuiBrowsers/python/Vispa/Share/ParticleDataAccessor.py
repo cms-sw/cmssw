@@ -13,7 +13,7 @@ class ParticleDataAccessor(object):
         Usually it is sufficient to identify python objects directly with themselves.
         Overwrite this function if this is not true for your objects. 
         """
-        return object
+        return id(object)
 
     def particleId(self, object):
         raise NotImplementedError

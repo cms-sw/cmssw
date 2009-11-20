@@ -444,7 +444,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if name != "" and not isinstance(object, typ.PSet):
             try:
                 if isinstance(object, cms.InputTag):
-                    properties += [("String", name, "\"" + str(object.value()) + "\"", None, readonly)]
+                    properties += [("String", name, str(object.dumpPython()), None, readonly)]
                 elif hasattr(object, "pythonValue"):
                     properties += [("String", name, str(object.pythonValue()), None, readonly)]
                 elif hasattr(object, "value"):

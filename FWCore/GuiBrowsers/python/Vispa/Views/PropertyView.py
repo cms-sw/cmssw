@@ -237,14 +237,8 @@ class PropertyView(QTableWidget, AbstractView):
             return True
         self._ignoreValueChangeFlag = True  # prevent infinite loop
         operationId = self._operationId
-        thread = ThreadChain(self.dataAccessor().properties, self.dataObject())
-        while thread.isRunning():
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
-        if operationId != self._operationId:
-            self._updatingFlag-=1
-            return False
-        for property in thread.returnValue():
+        # do not use threads here since this may lead to crashes
+        for property in self.dataAccessor().properties(self.dataObject()):
             if property[0] == "Category":
                 self.addCategory(property[1])
             else:
@@ -299,12 +293,13 @@ class PropertyView(QTableWidget, AbstractView):
         The DataAcessor is called to handle the property change.
         """
         if self.dataAccessor() and not self._ignoreValueChangeFlag:
+            bad=False
             if property.value() != self.dataAccessor().propertyValue(self.dataObject(), property.name()):
                 if property.value()!=None and self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value()):
-                    property.setHighlighted(False)
                     self.emit(SIGNAL('valueChanged'),property.name())
                 else:
-                    property.setHighlighted(True)
+                    bad=True
+            property.setHighlighted(bad)
 
     def removeProperty(self, bool=False):
         """ This function deletes a property.

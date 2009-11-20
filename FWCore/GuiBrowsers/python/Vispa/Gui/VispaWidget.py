@@ -1238,6 +1238,8 @@ class VispaWidget(ZoomableWidget):
 
         if self.zoom() > 30:
             painter.setRenderHint(QPainter.Antialiasing)
+        else:
+            painter.setRenderHint(QPainter.Antialiasing, False)
 
         self.paint(painter)
         ZoomableWidget.paintEvent(self, event)

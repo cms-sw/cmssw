@@ -432,7 +432,7 @@ class ConfigEditorTabController(BrowserTabController):
         logging.debug(__name__ + ": applyButtonClicked")
         if not self._toolDialog:
             self._toolDialog=ToolDialog()
-            self._toolDialog.setDataAccessor(self._toolDataAccessor)
+        self._toolDialog.setDataAccessor(self._toolDataAccessor)
         if not self._toolDialog.exec_():
             return
         if not self.toolDataAccessor().addTool(self._toolDialog.tool()):

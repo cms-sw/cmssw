@@ -13,7 +13,7 @@ from Vispa.Share.RelativeDataAccessor import RelativeDataAccessor
 from Vispa.Share.ParticleDataAccessor import ParticleDataAccessor
 from Vispa.Gui.PortConnection import LinearPortConnection
 from Vispa.Views.WidgetView import WidgetView
-from Vispa.Main.Exceptions import *
+from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.ThreadChain import ThreadChain
 
 class BoxDecayView(WidgetView):
@@ -191,6 +191,8 @@ class BoxDecayView(WidgetView):
             if isinstance(w1, ConnectableWidget):
                 w1.setShowPortNames(False)
                 for daughter in self.dataAccessor().daughterRelations(w1.object):
+                    if self.dataAccessor().isContainer(w1.object) or self.dataAccessor().isContainer(daughter):
+                        continue
                     w2 = self.widgetByObject(daughter)
                     if w2:
                         connectionWidget = self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
@@ -223,7 +225,7 @@ class BoxDecayView(WidgetView):
             self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
         else:
             otherChildren += decayTreeChildren
-        if self._sortBeforeArranging:
+        if self._sortBeforeArranging and self.arrangeUsingRelations():
             thread = ThreadChain(self._sortByRelations, otherChildren)
             while thread.isRunning():
                 if not Application.NO_PROCESS_EVENTS:
@@ -369,6 +371,39 @@ class BoxDecayView(WidgetView):
     
     def contentStartY(self):
         return 10 * self.zoomFactor()
+
+    def expandAll(self):
+        for widget in self.widgets():
+            if isinstance(widget,WidgetContainer) and widget.collapsed():
+                widget.toggleCollapse()
+
+    def collapseAll(self):
+        for widget in self.widgets():
+            if isinstance(widget,WidgetContainer) and not widget.collapsed():
+                widget.toggleCollapse()
+                print widget
+
+    def expandToDepth(self,depth):
+        for widget in self.widgets():
+            if isinstance(widget,WidgetContainer):
+                mother=widget
+                d=0
+                while isinstance(mother.parent(),WidgetContainer):
+                    mother=mother.parent()
+                    d+=1
+                if not widget.collapsed() and d>=depth or\
+                    widget.collapsed() and d<depth:
+                    widget.toggleCollapse()
+        
+    def expandObject(self,object):
+        widget=self.widgetByObject(object)
+        if isinstance(widget,WidgetContainer) and widget.collapsed():
+            widget.toggleCollapse()
+        
+    def collapseObject(self,object):
+        widget=self.widgetByObject(object)
+        if isinstance(widget,WidgetContainer) and not widget.collapsed():
+            widget.toggleCollapse()
         
 class BoxDecayContainer(WidgetContainer):
     AUTOSIZE = True
