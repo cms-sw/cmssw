@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.32 2009/11/14 11:31:13 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.33 2009/11/16 17:26:31 chrjones Exp $
 //
 
 // system include files
@@ -134,11 +134,11 @@ private:
    void stopPlaying();
    void reachedEnd();
    void reachedBeginning();
-   void setPlayAutoRewind();
-   void unsetPlayAutoRewind();
+   void setPlayLoop();
+   void unsetPlayLoop();
 
-   void setPlayAutoRewindImp();
-   void unsetPlayAutoRewindImp();
+   void setPlayLoopImp();
+   void unsetPlayLoopImp();
 
    void preFiltering();
    void postFiltering();
@@ -183,7 +183,7 @@ private:
    bool m_live;
    bool m_isPlaying;
    bool m_forward;
-   bool m_rewindMode;
+   bool m_loop;
    Float_t m_playDelay;  // delay between events in seconds
    Int_t m_lastPointerPositionX;
    Int_t m_lastPointerPositionY;

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.171 2009/11/19 14:37:26 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.172 2009/11/19 17:09:11 amraktad Exp $
 
 //
 
@@ -351,9 +351,9 @@ FWGUIManager::playEventsBackwardsAction()
 }
 
 CSGContinuousAction*
-FWGUIManager::autoRewindAction()
+FWGUIManager::loopAction()
 {
-   return m_cmsShowMainFrame->autoRewindAction();
+   return m_cmsShowMainFrame->loopAction();
 }
 
 void

@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.69 2009/11/16 17:26:31 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.70 2009/11/18 17:13:53 amraktad Exp $
 //
 // hacks
 #define private public
@@ -104,7 +104,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
    CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
    CSGContinuousAction *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
-   CSGContinuousAction *autoRewind = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
+   CSGContinuousAction *loop = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
    CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
    CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
@@ -119,7 +119,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_goToLast = goToLast;
    m_playEvents = playEvents;
    m_playEventsBack = playEventsBack;
-   m_autoRewindAction = autoRewind;
+   m_loopAction = loop;
 
    goToFirst->setToolTip("Goto first event");
    goToLast->setToolTip("Goto last event");
@@ -192,7 +192,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->createShortcut(kKey_Space, "CTRL", GetId());
    playEventsBack->createMenuEntry(viewMenu);
    playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT", GetId());
-   autoRewind->createMenuEntry(viewMenu);
+   loop->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -401,7 +401,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    nextEvent->disable();
    playEvents->disable();
    playEventsBack->disable();
-   autoRewind->disable();
+   loop->disable();
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    csArea->VSplit(200);
@@ -471,7 +471,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
    m_goToLast->enable();
    m_playEvents->enable();
    m_playEventsBack->enable();
-   m_autoRewindAction->enable();
+   m_loopAction->enable();
 }
 
 void  CmsShowMainFrame::CloseWindow()

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.28 2009/09/29 19:26:32 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.29 2009/11/18 17:13:52 amraktad Exp $
 //
 
 // system include files
@@ -79,8 +79,8 @@ public:
    CSGContinuousAction* playEventsAction() const {
       return m_playEvents;
    }
-   CSGContinuousAction* autoRewindAction() const {
-      return m_autoRewindAction;
+   CSGContinuousAction* loopAction() const {
+      return m_loopAction;
    }
    
    CSGContinuousAction* playEventsBackwardsAction() const {
@@ -114,7 +114,7 @@ private:
    CSGAction *m_playDelay;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
-   CSGContinuousAction *m_autoRewindAction;
+   CSGContinuousAction *m_loopAction;
 
    TGSlider* m_delaySlider;
    TGLabel*  m_delayLabel;
