@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.6 2009/11/08 10:32:15 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.7 2009/11/14 01:24:38 pivarski Exp $
 //
 //
 
@@ -61,6 +61,7 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       void terminate();
   
    private:
+      Alignable *getAli(Alignable *ali);
       double striperr2(const TrackingRecHit* hit);
       double radiusFit(const std::vector<const TrackingRecHit*> &evenhits, const std::vector<const TrackingRecHit*> &oddhits, double zcenter);
       void trackFit(const std::vector<const TrackingRecHit*> &hits, bool convention2pi, double zcenter, double &intercept, double &intercept_err2, double &slope, double &slope_err2);
@@ -134,6 +135,7 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       bool m_useHitWeightsInTrackFit;
       bool m_useFitWeightsInMean;
       bool m_makeHistograms;
+      bool m_combineME11;
 
       std::map<Alignable*,int> m_rotyDiff_N;
       std::map<Alignable*,double> m_rotyDiff_y;
@@ -182,6 +184,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
    , m_useHitWeightsInTrackFit(iConfig.getParameter<bool>("useHitWeightsInTrackFit"))
    , m_useFitWeightsInMean(iConfig.getParameter<bool>("useFitWeightsInMean"))
    , m_makeHistograms(iConfig.getParameter<bool>("makeHistograms"))
+   , m_combineME11(iConfig.getParameter<bool>("combineME11"))
 {
   if (m_mode == std::string("roty")) {}
   else if (m_mode == std::string("phipos")) {}
@@ -220,224 +223,227 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
    }
 
    for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
-      DetId id = (*ali)->geomDetId();
-      if (id.det() != DetId::Muon  ||  id.subdetId() != MuonSubdetId::CSC) {
-	throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "Only CSCs may be alignable" << std::endl;
-      }
+     if (*ali == getAli(*ali)) {
 
-      m_quickMap[id.rawId()] = true;
-
-      std::string selector_str;
-      std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
-      for (std::vector<bool>::const_iterator sel = selector.begin();  sel != selector.end();  ++sel) {
-	selector_str += (*sel ? std::string("1") : std::string("0"));
-      }
-
-      if (m_mode == std::string("roty")) {
-	if (selector_str != std::string("000010")) {
-	  throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"roty\" mode, all selectors must be \"000010\", not \"" << selector_str << "\"" << std::endl;
-	}
-      }
-      else if (m_mode == std::string("phipos")) {
-	if (selector_str != std::string("110001")) {
-	  throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"phipos\" mode, all selectors must be \"110001\", not \"" << selector_str << "\"" << std::endl;
-	}
-      }
-      else if (m_mode == std::string("rotz")) {
-	if (selector_str != std::string("000001")) {
-	  throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"rotz\" mode, all selectors must be \"000001\", not \"" << selector_str << "\"" << std::endl;
-	}
-      }
-
-      if (m_makeHistograms) {
-	CSCDetId cscId(id.rawId());
-	const TFileDirectory *ring = m_hist_rings[cscId.endcap() * 100 + cscId.station() * 10 + cscId.ring()];
-	
-	int nchambers = 36;
-	if (cscId.station() > 1  &&  cscId.ring() == 1) nchambers = 18;
-	int i = cscId.chamber() - 1;
-	int inext = (i + 1) % nchambers;
-
-	std::stringstream numberi, numberinext;
-	if (i+1 < 10) numberi << "0";
-	numberi << (i+1);
-	if (inext+1 < 10) numberinext << "0";
-	numberinext << (inext+1);
-
-	std::stringstream name, title;
-	name << "_ME" << (cscId.endcap() == 1 ? "p" : "m") << cscId.station() << "_" << cscId.ring() << "_" << numberi.str();
-	title << " for ME" << (cscId.endcap() == 1 ? "+" : "-") << cscId.station() << "/" << cscId.ring() << " " << (i+1);
-
-	m_hist_redChi2[*ali] = ring->make<TH1F>((std::string("redChi2") + name.str()).c_str(), (std::string("redChi2") + title.str()).c_str(), 100, 0., 10.);
-
-	std::stringstream name2, title2;
-	name2 << "_ME" << (cscId.endcap() == 1 ? "p" : "m") << cscId.station() << "_" << cscId.ring() << "_" << numberinext.str() << "_" << numberi.str();
-	title2 << " for ME" << (cscId.endcap() == 1 ? "+" : "-") << cscId.station() << "/" << cscId.ring() << " " << (inext+1) << "-" << (i+1);
-
-	m_hist_RotYDiff[*ali] = ring->make<TH1F>((std::string("RotYDiff") + name2.str()).c_str(), (std::string("RotYDiff (mrad)") + title2.str()).c_str(), 100, -60., 60.);
-	m_hist_TwistDiff[*ali] = ring->make<TH1F>((std::string("TwistDiff") + name2.str()).c_str(), (std::string("TwistDiff (mrad/m)") + title2.str()).c_str(), 100, -300., 300.);
-	m_hist_PhiPosDiff[*ali] = ring->make<TH1F>((std::string("PhiPosDiff") + name2.str()).c_str(), (std::string("PhiPosDiff (mrad)") + title2.str()).c_str(), 100, -15., 15.);
-	m_hist_RPhiPosDiff[*ali] = ring->make<TH1F>((std::string("RPhiPosDiff") + name2.str()).c_str(), (std::string("RPhiPosDiff (mm)") + title2.str()).c_str(), 100, -15., 15.);
-	m_hist_RotZDiff[*ali] = ring->make<TH1F>((std::string("RotZDiff") + name2.str()).c_str(), (std::string("RotZDiff (mrad)") + title2.str()).c_str(), 100, -30., 30.);
-
-	double length = (*ali)->surface().length();
-	m_hist_vertpos[*ali] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("radial distribution (cm)") + title2.str()).c_str(), 100, -length/2., length/2.);
-	m_hist_slopeVsY[*ali] = ring->make<TProfile>((std::string("slopeVsY") + name2.str()).c_str(), (std::string("dphi/dz slope versus R (unitless vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
-	m_hist_interceptVsY[*ali] = ring->make<TProfile>((std::string("interceptVsY") + name2.str()).c_str(), (std::string("phi-intercept versus R (mrad vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
-	m_hist_interceptVsY2[*ali] = ring->make<TProfile>((std::string("interceptVsY2") + name2.str()).c_str(), (std::string("phi-intercept versus R (mrad vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
-
-	m_hist_indiv_relativephi[*ali] = ring->make<TH1F>((std::string("indiv_relativephi") + name2.str()).c_str(), (std::string("#phi") + title2.str()).c_str(), 64, 0.165, 0.185);
-	m_hist_indiv_intercept_relativephi[*ali] = ring->make<TProfile>((std::string("indiv_intercept_relativephi") + name2.str()).c_str(), (std::string("#phi residual versus #phi") + title2.str()).c_str(), 16, 0.165, 0.185);
-
-	m_hist_beamlineAngle[*ali] = ring->make<TH1F>((std::string("beamlineAngle") + name2.str()).c_str(), (std::string("d(r#phi)/dz") + title2.str()).c_str(), 100, -1., 1.);
-
-	m_hist_redChi2[*ali]->StatOverflows(kTRUE);
-	m_hist_RotYDiff[*ali]->StatOverflows(kTRUE);
-	m_hist_TwistDiff[*ali]->StatOverflows(kTRUE);
-	m_hist_PhiPosDiff[*ali]->StatOverflows(kTRUE);
-	m_hist_RPhiPosDiff[*ali]->StatOverflows(kTRUE);
-	m_hist_RotZDiff[*ali]->StatOverflows(kTRUE);
-	m_hist_vertpos[*ali]->StatOverflows(kTRUE);
-	m_hist_indiv_relativephi[*ali]->StatOverflows(kTRUE);
-	m_hist_indiv_intercept_relativephi[*ali]->StatOverflows(kTRUE);
-	m_hist_beamlineAngle[*ali]->StatOverflows(kTRUE);
-
-      } // end if makeHistograms
-   }
-
-   if (m_makeHistograms) {
-     edm::Service<TFileService> tfileService;
-     m_overlaps_occupancy = tfileService->make<TH2F>("overlaps_occupancy", "Overlap-track occupancy", 36, 1, 37, 20, 1, 21);
-     m_overlaps_occupancy_beamline = tfileService->make<TH2F>("overlaps_occupancy_beamline", "Overlap-track occupancy (with beamline-pointing)", 36, 1, 37, 20, 1, 21);
-     m_overlaps_occupancy_quality = tfileService->make<TH2F>("overlaps_occupancy_quality", "Overlap-track occupancy (beamline and quality cuts)", 36, 1, 37, 20, 1, 21);
-     for (int i = 1;  i <= 36;  i++) {
-	std::stringstream pairname;
-	pairname << i << "-";
-	if (i+1 == 37) pairname << 1;
-	else pairname << (i+1);
-	m_overlaps_occupancy->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	m_overlaps_occupancy_beamline->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	m_overlaps_occupancy_quality->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-     }
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_XYpos_mep1 = tfileService->make<TH2F>("overlaps_XYpos_mep1", "Positions: ME+1", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep2 = tfileService->make<TH2F>("overlaps_XYpos_mep2", "Positions: ME+2", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep3 = tfileService->make<TH2F>("overlaps_XYpos_mep3", "Positions: ME+3", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep4 = tfileService->make<TH2F>("overlaps_XYpos_mep4", "Positions: ME+4", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem1 = tfileService->make<TH2F>("overlaps_XYpos_mem1", "Positions: ME-1", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem2 = tfileService->make<TH2F>("overlaps_XYpos_mem2", "Positions: ME-2", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem3 = tfileService->make<TH2F>("overlaps_XYpos_mem3", "Positions: ME-3", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem4 = tfileService->make<TH2F>("overlaps_XYpos_mem4", "Positions: ME-4", 140, -700., 700., 140, -700., 700.);
-
-     m_overlaps_RPhipos_mep1 = tfileService->make<TH2F>("overlaps_RPhipos_mep1", "Positions: ME+1", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep2 = tfileService->make<TH2F>("overlaps_RPhipos_mep2", "Positions: ME+2", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep3 = tfileService->make<TH2F>("overlaps_RPhipos_mep3", "Positions: ME+3", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep4 = tfileService->make<TH2F>("overlaps_RPhipos_mep4", "Positions: ME+4", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem1 = tfileService->make<TH2F>("overlaps_RPhipos_mem1", "Positions: ME-1", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
-   }
-
-   if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
-   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
-
-   for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
-     int index = ringiter->first;
-     int iendcap = index / 100;
-     int istation = (index % 100) / 10;
-     int iring = index % 10;
-
-     bool aligning = false;
-     CSCDetId id;
-     for (std::map<int,bool>::const_iterator epair = m_quickMap.begin();  epair != m_quickMap.end();  ++epair) {
-       id = CSCDetId(epair->first);
-       if (id.endcap() == iendcap  &&  id.station() == istation  &&  id.ring() == iring) {
-	 aligning = true;
-	 break;
+       DetId id = (*ali)->geomDetId();
+       if (id.det() != DetId::Muon  ||  id.subdetId() != MuonSubdetId::CSC) {
+	 throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "Only CSCs may be alignable" << std::endl;
        }
+
+       m_quickMap[id.rawId()] = true;
+
+       std::string selector_str;
+       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
+       for (std::vector<bool>::const_iterator sel = selector.begin();  sel != selector.end();  ++sel) {
+	 selector_str += (*sel ? std::string("1") : std::string("0"));
+       }
+
+       if (m_mode == std::string("roty")) {
+	 if (selector_str != std::string("000010")) {
+	   throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"roty\" mode, all selectors must be \"000010\", not \"" << selector_str << "\"" << std::endl;
+	 }
+       }
+       else if (m_mode == std::string("phipos")) {
+	 if (selector_str != std::string("110001")) {
+	   throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"phipos\" mode, all selectors must be \"110001\", not \"" << selector_str << "\"" << std::endl;
+	 }
+       }
+       else if (m_mode == std::string("rotz")) {
+	 if (selector_str != std::string("000001")) {
+	   throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "In \"rotz\" mode, all selectors must be \"000001\", not \"" << selector_str << "\"" << std::endl;
+	 }
+       }
+
+       if (m_makeHistograms) {
+	 CSCDetId cscId(id.rawId());
+	 const TFileDirectory *ring = m_hist_rings[cscId.endcap() * 100 + cscId.station() * 10 + cscId.ring()];
+	
+	 int nchambers = 36;
+	 if (cscId.station() > 1  &&  cscId.ring() == 1) nchambers = 18;
+	 int i = cscId.chamber() - 1;
+	 int inext = (i + 1) % nchambers;
+
+	 std::stringstream numberi, numberinext;
+	 if (i+1 < 10) numberi << "0";
+	 numberi << (i+1);
+	 if (inext+1 < 10) numberinext << "0";
+	 numberinext << (inext+1);
+
+	 std::stringstream name, title;
+	 name << "_ME" << (cscId.endcap() == 1 ? "p" : "m") << cscId.station() << "_" << cscId.ring() << "_" << numberi.str();
+	 title << " for ME" << (cscId.endcap() == 1 ? "+" : "-") << cscId.station() << "/" << cscId.ring() << " " << (i+1);
+
+	 m_hist_redChi2[*ali] = ring->make<TH1F>((std::string("redChi2") + name.str()).c_str(), (std::string("redChi2") + title.str()).c_str(), 100, 0., 10.);
+
+	 std::stringstream name2, title2;
+	 name2 << "_ME" << (cscId.endcap() == 1 ? "p" : "m") << cscId.station() << "_" << cscId.ring() << "_" << numberinext.str() << "_" << numberi.str();
+	 title2 << " for ME" << (cscId.endcap() == 1 ? "+" : "-") << cscId.station() << "/" << cscId.ring() << " " << (inext+1) << "-" << (i+1);
+
+	 m_hist_RotYDiff[*ali] = ring->make<TH1F>((std::string("RotYDiff") + name2.str()).c_str(), (std::string("RotYDiff (mrad)") + title2.str()).c_str(), 100, -60., 60.);
+	 m_hist_TwistDiff[*ali] = ring->make<TH1F>((std::string("TwistDiff") + name2.str()).c_str(), (std::string("TwistDiff (mrad/m)") + title2.str()).c_str(), 100, -300., 300.);
+	 m_hist_PhiPosDiff[*ali] = ring->make<TH1F>((std::string("PhiPosDiff") + name2.str()).c_str(), (std::string("PhiPosDiff (mrad)") + title2.str()).c_str(), 100, -15., 15.);
+	 m_hist_RPhiPosDiff[*ali] = ring->make<TH1F>((std::string("RPhiPosDiff") + name2.str()).c_str(), (std::string("RPhiPosDiff (mm)") + title2.str()).c_str(), 100, -15., 15.);
+	 m_hist_RotZDiff[*ali] = ring->make<TH1F>((std::string("RotZDiff") + name2.str()).c_str(), (std::string("RotZDiff (mrad)") + title2.str()).c_str(), 100, -30., 30.);
+
+	 double length = (*ali)->surface().length();
+	 m_hist_vertpos[*ali] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("radial distribution (cm)") + title2.str()).c_str(), 100, -length/2., length/2.);
+	 m_hist_slopeVsY[*ali] = ring->make<TProfile>((std::string("slopeVsY") + name2.str()).c_str(), (std::string("dphi/dz slope versus R (unitless vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
+	 m_hist_interceptVsY[*ali] = ring->make<TProfile>((std::string("interceptVsY") + name2.str()).c_str(), (std::string("phi-intercept versus R (mrad vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
+	 m_hist_interceptVsY2[*ali] = ring->make<TProfile>((std::string("interceptVsY2") + name2.str()).c_str(), (std::string("phi-intercept versus R (mrad vs. cm)") + title2.str()).c_str(), 10, -length/2., length/2.);
+
+	 m_hist_indiv_relativephi[*ali] = ring->make<TH1F>((std::string("indiv_relativephi") + name2.str()).c_str(), (std::string("#phi") + title2.str()).c_str(), 64, 0.165, 0.185);
+	 m_hist_indiv_intercept_relativephi[*ali] = ring->make<TProfile>((std::string("indiv_intercept_relativephi") + name2.str()).c_str(), (std::string("#phi residual versus #phi") + title2.str()).c_str(), 16, 0.165, 0.185);
+
+	 m_hist_beamlineAngle[*ali] = ring->make<TH1F>((std::string("beamlineAngle") + name2.str()).c_str(), (std::string("d(r#phi)/dz") + title2.str()).c_str(), 100, -1., 1.);
+
+	 m_hist_redChi2[*ali]->StatOverflows(kTRUE);
+	 m_hist_RotYDiff[*ali]->StatOverflows(kTRUE);
+	 m_hist_TwistDiff[*ali]->StatOverflows(kTRUE);
+	 m_hist_PhiPosDiff[*ali]->StatOverflows(kTRUE);
+	 m_hist_RPhiPosDiff[*ali]->StatOverflows(kTRUE);
+	 m_hist_RotZDiff[*ali]->StatOverflows(kTRUE);
+	 m_hist_vertpos[*ali]->StatOverflows(kTRUE);
+	 m_hist_indiv_relativephi[*ali]->StatOverflows(kTRUE);
+	 m_hist_indiv_intercept_relativephi[*ali]->StatOverflows(kTRUE);
+	 m_hist_beamlineAngle[*ali]->StatOverflows(kTRUE);
+
+       } // end if makeHistograms
      }
 
-     if (aligning) {
-       const TFileDirectory *ring = m_hist_rings[index];
+     if (m_makeHistograms) {
+       edm::Service<TFileService> tfileService;
+       m_overlaps_occupancy = tfileService->make<TH2F>("overlaps_occupancy", "Overlap-track occupancy", 36, 1, 37, 20, 1, 21);
+       m_overlaps_occupancy_beamline = tfileService->make<TH2F>("overlaps_occupancy_beamline", "Overlap-track occupancy (with beamline-pointing)", 36, 1, 37, 20, 1, 21);
+       m_overlaps_occupancy_quality = tfileService->make<TH2F>("overlaps_occupancy_quality", "Overlap-track occupancy (beamline and quality cuts)", 36, 1, 37, 20, 1, 21);
+       for (int i = 1;  i <= 36;  i++) {
+	 std::stringstream pairname;
+	 pairname << i << "-";
+	 if (i+1 == 37) pairname << 1;
+	 else pairname << (i+1);
+	 m_overlaps_occupancy->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+	 m_overlaps_occupancy_beamline->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+	 m_overlaps_occupancy_quality->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+       }
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(1, "ME-4/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(2, "ME-4/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(3, "ME-3/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(4, "ME-3/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(5, "ME-2/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(16, "ME+2/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(17, "ME+3/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(18, "ME+3/2");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(19, "ME+4/1");
+       m_overlaps_occupancy->GetYaxis()->SetBinLabel(20, "ME+4/2");
 
-       std::stringstream name2, title2;
-       name2 << "_ME" << (iendcap == 1 ? "p" : "m") << istation << "_" << iring;
-       title2 << " for ME" << (iendcap == 1 ? "+" : "-") << istation << "/" << iring;
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(1, "ME-4/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(2, "ME-4/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(3, "ME-3/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(4, "ME-3/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(5, "ME-2/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(16, "ME+2/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(17, "ME+3/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(18, "ME+3/2");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(19, "ME+4/1");
+       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(20, "ME+4/2");
 
-       Alignable *ali = m_alignableNavigator->alignableFromDetId(id).alignable();
-       double length = ali->surface().length();
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(1, "ME-4/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(2, "ME-4/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(3, "ME-3/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(4, "ME-3/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(5, "ME-2/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(16, "ME+2/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(17, "ME+3/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(18, "ME+3/2");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(19, "ME+4/1");
+       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(20, "ME+4/2");
+
+       m_overlaps_XYpos_mep1 = tfileService->make<TH2F>("overlaps_XYpos_mep1", "Positions: ME+1", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mep2 = tfileService->make<TH2F>("overlaps_XYpos_mep2", "Positions: ME+2", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mep3 = tfileService->make<TH2F>("overlaps_XYpos_mep3", "Positions: ME+3", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mep4 = tfileService->make<TH2F>("overlaps_XYpos_mep4", "Positions: ME+4", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mem1 = tfileService->make<TH2F>("overlaps_XYpos_mem1", "Positions: ME-1", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mem2 = tfileService->make<TH2F>("overlaps_XYpos_mem2", "Positions: ME-2", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mem3 = tfileService->make<TH2F>("overlaps_XYpos_mem3", "Positions: ME-3", 140, -700., 700., 140, -700., 700.);
+       m_overlaps_XYpos_mem4 = tfileService->make<TH2F>("overlaps_XYpos_mem4", "Positions: ME-4", 140, -700., 700., 140, -700., 700.);
+
+       m_overlaps_RPhipos_mep1 = tfileService->make<TH2F>("overlaps_RPhipos_mep1", "Positions: ME+1", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mep2 = tfileService->make<TH2F>("overlaps_RPhipos_mep2", "Positions: ME+2", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mep3 = tfileService->make<TH2F>("overlaps_RPhipos_mep3", "Positions: ME+3", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mep4 = tfileService->make<TH2F>("overlaps_RPhipos_mep4", "Positions: ME+4", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mem1 = tfileService->make<TH2F>("overlaps_RPhipos_mem1", "Positions: ME-1", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
+       m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
+     }
+
+     if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
+     else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
+
+     for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
+       int index = ringiter->first;
+       int iendcap = index / 100;
+       int istation = (index % 100) / 10;
+       int iring = index % 10;
+
+       bool aligning = false;
+       CSCDetId id;
+       for (std::map<int,bool>::const_iterator epair = m_quickMap.begin();  epair != m_quickMap.end();  ++epair) {
+	 id = CSCDetId(epair->first);
+	 if (id.endcap() == iendcap  &&  id.station() == istation  &&  id.ring() == iring) {
+	   aligning = true;
+	   break;
+	 }
+       }
+
+       if (aligning) {
+	 const TFileDirectory *ring = m_hist_rings[index];
+
+	 std::stringstream name2, title2;
+	 name2 << "_ME" << (iendcap == 1 ? "p" : "m") << istation << "_" << iring;
+	 title2 << " for ME" << (iendcap == 1 ? "+" : "-") << istation << "/" << iring;
+
+	 Alignable *ali = m_alignableNavigator->alignableFromDetId(id).alignable();
+	 double length = ali->surface().length();
        
-       m_hist_all_vertpos[index] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("vertpos") + title2.str()).c_str(), 100, -length/2., length/2.);
-       m_hist_all_relativephi[index] = ring->make<TH1F>((std::string("relativephi") + name2.str()).c_str(), (std::string("relativephi") + title2.str()).c_str(), 100, 0.165, 0.185);
-       m_hist_all_slope[index] = ring->make<TH1F>((std::string("slope") + name2.str()).c_str(), (std::string("slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
-       m_hist_intercept_vertpos[index] = ring->make<TProfile>((std::string("intercept_vertpos") + name2.str()).c_str(), (std::string("residual vs. radial position") + title2.str()).c_str(), 100, -length/2., length/2.);
-       m_hist_intercept_relativephi[index] = ring->make<TProfile>((std::string("intercept_relativephi") + name2.str()).c_str(), (std::string("residual vs. #phi") + title2.str()).c_str(), 100, 0.165, 0.185);
-       m_hist_intercept_slope[index] = ring->make<TProfile>((std::string("intercept_slope") + name2.str()).c_str(), (std::string("residual vs. track slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
-     }
-   }   
+	 m_hist_all_vertpos[index] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("vertpos") + title2.str()).c_str(), 100, -length/2., length/2.);
+	 m_hist_all_relativephi[index] = ring->make<TH1F>((std::string("relativephi") + name2.str()).c_str(), (std::string("relativephi") + title2.str()).c_str(), 100, 0.165, 0.185);
+	 m_hist_all_slope[index] = ring->make<TH1F>((std::string("slope") + name2.str()).c_str(), (std::string("slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
+	 m_hist_intercept_vertpos[index] = ring->make<TProfile>((std::string("intercept_vertpos") + name2.str()).c_str(), (std::string("residual vs. radial position") + title2.str()).c_str(), 100, -length/2., length/2.);
+	 m_hist_intercept_relativephi[index] = ring->make<TProfile>((std::string("intercept_relativephi") + name2.str()).c_str(), (std::string("residual vs. #phi") + title2.str()).c_str(), 100, 0.165, 0.185);
+	 m_hist_intercept_slope[index] = ring->make<TProfile>((std::string("intercept_slope") + name2.str()).c_str(), (std::string("residual vs. track slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
+       }
+     }   
+   }
 }
 
 void CSCOverlapsAlignmentAlgorithm::startNewLoop() {
@@ -659,8 +665,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       double rotyDiff, phiPosDiff, rotyDiff_err2, phiPosDiff_err2, redChi2_i, redChi2_inext, relativephi_i, slope_i;
       
       if (even_is_lesser) {
-	 chamber_i = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
-	 chamber_inext = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
+         chamber_i = getAli(m_alignableNavigator->alignableFromDetId(evenChamber).alignable());
+	 chamber_inext = getAli(m_alignableNavigator->alignableFromDetId(oddChamber).alignable());
 	 
 	 m_radius[chamber_i] = evenR0;
 	 m_radius[chamber_inext] = oddR0;
@@ -673,8 +679,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
 	 phiPosDiff = odd_phipos - even_phipos;
       }
       else {
-	 chamber_i = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
-	 chamber_inext = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
+	 chamber_i = getAli(m_alignableNavigator->alignableFromDetId(oddChamber).alignable());
+	 chamber_inext = getAli(m_alignableNavigator->alignableFromDetId(evenChamber).alignable());
 	 
 	 m_radius[chamber_i] = oddR0;
 	 m_radius[chamber_inext] = evenR0;
@@ -842,8 +848,19 @@ void CSCOverlapsAlignmentAlgorithm::terminate() {
     int station = ((epair->first) % 100) / 10;
     int ring = (epair->first) % 10;
 
+    if (m_combineME11  &&  station == 1  &&  ring == 4) continue;
     matrixSolution(endcap, station, ring);  // returns false if fails, but sets error message
   }
+}
+
+Alignable *CSCOverlapsAlignmentAlgorithm::getAli(Alignable *ali) {
+  if (!m_combineME11) return ali;
+  
+  CSCDetId cscid(ali->geomDetId().rawId());
+  if (!(cscid.station() == 1  &&  cscid.ring() == 4)) return ali;
+
+  CSCDetId me11b(cscid.endcap(), cscid.station(), 1, cscid.chamber(), cscid.layer());
+  return m_alignableNavigator->alignableFromDetId(me11b).alignable();
 }
 
 double CSCOverlapsAlignmentAlgorithm::striperr2(const TrackingRecHit* hit) {
@@ -1187,6 +1204,13 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
 
   // apply corrections
   for (int i = 0;  i < nchambers;  i++) {
+    Alignable *aa = NULL;
+    if (m_combineME11  &&  station == 1  &&  ring == 1) {
+      CSCDetId me11b(a[i]->geomDetId().rawId());
+      CSCDetId me11a(me11b.endcap(), me11b.station(), 4, me11b.chamber(), me11b.layer());
+      aa = m_alignableNavigator->alignableFromDetId(me11a).alignable();
+    }
+
     if (m_mode == std::string("roty")) {
       AlgebraicVector params(1);
       params[0] = p[i];
@@ -1198,6 +1222,12 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->setAlignmentParameters(parnew);
       m_alignmentParameterStore->applyParameters(a[i]);
       a[i]->alignmentParameters()->setValid(true);
+
+      if (aa != NULL) {
+	aa->setAlignmentParameters(parnew);
+	m_alignmentParameterStore->applyParameters(aa);
+	aa->alignmentParameters()->setValid(true);
+      }
     }
 
     else if (m_mode == std::string("phipos")) {
@@ -1217,6 +1247,12 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->setAlignmentParameters(parnew);
       m_alignmentParameterStore->applyParameters(a[i]);
       a[i]->alignmentParameters()->setValid(true);
+
+      if (aa != NULL) {
+	aa->setAlignmentParameters(parnew);
+	m_alignmentParameterStore->applyParameters(aa);
+	aa->alignmentParameters()->setValid(true);
+      }
     }
 
     else if (m_mode == std::string("rotz")) {
@@ -1230,6 +1266,12 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->setAlignmentParameters(parnew);
       m_alignmentParameterStore->applyParameters(a[i]);
       a[i]->alignmentParameters()->setValid(true);
+
+      if (aa != NULL) {
+	aa->setAlignmentParameters(parnew);
+	m_alignmentParameterStore->applyParameters(aa);
+	aa->alignmentParameters()->setValid(true);
+      }
     }
 
   } // end loop over chambers to apply corrections
