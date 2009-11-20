@@ -100,7 +100,7 @@ MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     Chi2ProbBin = cms.int32(100),
     Chi2ProbMin = cms.double(0.0),
 
-    BSFolderName = cms.string('Track/BeamSpotParameters'),
+    BSFolderName = cms.string('Muons/standAloneMuonsUpdatedAtVtx/BeamSpotParameters'),
     doBeamSpotPlots = cms.bool(False),
     X0Bin = cms.int32(100),
     X0Min = cms.double(-3.0),
