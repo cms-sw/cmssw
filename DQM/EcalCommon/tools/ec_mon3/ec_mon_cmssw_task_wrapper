@@ -83,8 +83,8 @@ if ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
   $globalDAQ = 1;
 }
 
-print "localDAQ  = $localDAQ\n";
-print "globalDAQ = $globalDAQ\n";
+print CONFIGFILE "localDAQ  = $localDAQ\n";
+print CONFIGFILE "globalDAQ = $globalDAQ\n";
 
 print CONFIGFILE <<EOF2;
 
