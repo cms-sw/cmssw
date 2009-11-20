@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.7 2009/11/14 01:24:38 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.8 2009/11/20 21:09:12 pivarski Exp $
 //
 //
 
@@ -309,139 +309,139 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
 
        } // end if makeHistograms
      }
+   }
 
-     if (m_makeHistograms) {
-       edm::Service<TFileService> tfileService;
-       m_overlaps_occupancy = tfileService->make<TH2F>("overlaps_occupancy", "Overlap-track occupancy", 36, 1, 37, 20, 1, 21);
-       m_overlaps_occupancy_beamline = tfileService->make<TH2F>("overlaps_occupancy_beamline", "Overlap-track occupancy (with beamline-pointing)", 36, 1, 37, 20, 1, 21);
-       m_overlaps_occupancy_quality = tfileService->make<TH2F>("overlaps_occupancy_quality", "Overlap-track occupancy (beamline and quality cuts)", 36, 1, 37, 20, 1, 21);
-       for (int i = 1;  i <= 36;  i++) {
-	 std::stringstream pairname;
-	 pairname << i << "-";
-	 if (i+1 == 37) pairname << 1;
-	 else pairname << (i+1);
-	 m_overlaps_occupancy->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	 m_overlaps_occupancy_beamline->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	 m_overlaps_occupancy_quality->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+   if (m_makeHistograms) {
+     edm::Service<TFileService> tfileService;
+     m_overlaps_occupancy = tfileService->make<TH2F>("overlaps_occupancy", "Overlap-track occupancy", 36, 1, 37, 20, 1, 21);
+     m_overlaps_occupancy_beamline = tfileService->make<TH2F>("overlaps_occupancy_beamline", "Overlap-track occupancy (with beamline-pointing)", 36, 1, 37, 20, 1, 21);
+     m_overlaps_occupancy_quality = tfileService->make<TH2F>("overlaps_occupancy_quality", "Overlap-track occupancy (beamline and quality cuts)", 36, 1, 37, 20, 1, 21);
+     for (int i = 1;  i <= 36;  i++) {
+       std::stringstream pairname;
+       pairname << i << "-";
+       if (i+1 == 37) pairname << 1;
+       else pairname << (i+1);
+       m_overlaps_occupancy->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+       m_overlaps_occupancy_beamline->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+       m_overlaps_occupancy_quality->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
+     }
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(1, "ME-4/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(2, "ME-4/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(3, "ME-3/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(4, "ME-3/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(5, "ME-2/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(16, "ME+2/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(17, "ME+3/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(18, "ME+3/2");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(19, "ME+4/1");
+     m_overlaps_occupancy->GetYaxis()->SetBinLabel(20, "ME+4/2");
+
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(1, "ME-4/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(2, "ME-4/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(3, "ME-3/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(4, "ME-3/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(5, "ME-2/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(16, "ME+2/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(17, "ME+3/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(18, "ME+3/2");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(19, "ME+4/1");
+     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(20, "ME+4/2");
+
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(1, "ME-4/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(2, "ME-4/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(3, "ME-3/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(4, "ME-3/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(5, "ME-2/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(16, "ME+2/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(17, "ME+3/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(18, "ME+3/2");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(19, "ME+4/1");
+     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(20, "ME+4/2");
+
+     m_overlaps_XYpos_mep1 = tfileService->make<TH2F>("overlaps_XYpos_mep1", "Positions: ME+1", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mep2 = tfileService->make<TH2F>("overlaps_XYpos_mep2", "Positions: ME+2", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mep3 = tfileService->make<TH2F>("overlaps_XYpos_mep3", "Positions: ME+3", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mep4 = tfileService->make<TH2F>("overlaps_XYpos_mep4", "Positions: ME+4", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mem1 = tfileService->make<TH2F>("overlaps_XYpos_mem1", "Positions: ME-1", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mem2 = tfileService->make<TH2F>("overlaps_XYpos_mem2", "Positions: ME-2", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mem3 = tfileService->make<TH2F>("overlaps_XYpos_mem3", "Positions: ME-3", 140, -700., 700., 140, -700., 700.);
+     m_overlaps_XYpos_mem4 = tfileService->make<TH2F>("overlaps_XYpos_mem4", "Positions: ME-4", 140, -700., 700., 140, -700., 700.);
+
+     m_overlaps_RPhipos_mep1 = tfileService->make<TH2F>("overlaps_RPhipos_mep1", "Positions: ME+1", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mep2 = tfileService->make<TH2F>("overlaps_RPhipos_mep2", "Positions: ME+2", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mep3 = tfileService->make<TH2F>("overlaps_RPhipos_mep3", "Positions: ME+3", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mep4 = tfileService->make<TH2F>("overlaps_RPhipos_mep4", "Positions: ME+4", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mem1 = tfileService->make<TH2F>("overlaps_RPhipos_mem1", "Positions: ME-1", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
+     m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
+   }
+
+   if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
+   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
+
+   for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
+     int index = ringiter->first;
+     int iendcap = index / 100;
+     int istation = (index % 100) / 10;
+     int iring = index % 10;
+     
+     bool aligning = false;
+     CSCDetId id;
+     for (std::map<int,bool>::const_iterator epair = m_quickMap.begin();  epair != m_quickMap.end();  ++epair) {
+       id = CSCDetId(epair->first);
+       if (id.endcap() == iendcap  &&  id.station() == istation  &&  id.ring() == iring) {
+	 aligning = true;
+	 break;
        }
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(1, "ME-4/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(2, "ME-4/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(3, "ME-3/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(4, "ME-3/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(5, "ME-2/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(16, "ME+2/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(17, "ME+3/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(18, "ME+3/2");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(19, "ME+4/1");
-       m_overlaps_occupancy->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(1, "ME-4/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(2, "ME-4/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(3, "ME-3/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(4, "ME-3/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(5, "ME-2/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(16, "ME+2/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(17, "ME+3/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(18, "ME+3/2");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(19, "ME+4/1");
-       m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(1, "ME-4/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(2, "ME-4/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(3, "ME-3/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(4, "ME-3/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(5, "ME-2/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(16, "ME+2/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(17, "ME+3/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(18, "ME+3/2");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(19, "ME+4/1");
-       m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-       m_overlaps_XYpos_mep1 = tfileService->make<TH2F>("overlaps_XYpos_mep1", "Positions: ME+1", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mep2 = tfileService->make<TH2F>("overlaps_XYpos_mep2", "Positions: ME+2", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mep3 = tfileService->make<TH2F>("overlaps_XYpos_mep3", "Positions: ME+3", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mep4 = tfileService->make<TH2F>("overlaps_XYpos_mep4", "Positions: ME+4", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mem1 = tfileService->make<TH2F>("overlaps_XYpos_mem1", "Positions: ME-1", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mem2 = tfileService->make<TH2F>("overlaps_XYpos_mem2", "Positions: ME-2", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mem3 = tfileService->make<TH2F>("overlaps_XYpos_mem3", "Positions: ME-3", 140, -700., 700., 140, -700., 700.);
-       m_overlaps_XYpos_mem4 = tfileService->make<TH2F>("overlaps_XYpos_mem4", "Positions: ME-4", 140, -700., 700., 140, -700., 700.);
-
-       m_overlaps_RPhipos_mep1 = tfileService->make<TH2F>("overlaps_RPhipos_mep1", "Positions: ME+1", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mep2 = tfileService->make<TH2F>("overlaps_RPhipos_mep2", "Positions: ME+2", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mep3 = tfileService->make<TH2F>("overlaps_RPhipos_mep3", "Positions: ME+3", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mep4 = tfileService->make<TH2F>("overlaps_RPhipos_mep4", "Positions: ME+4", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mem1 = tfileService->make<TH2F>("overlaps_RPhipos_mem1", "Positions: ME-1", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
-       m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
      }
 
-     if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
-     else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
-
-     for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
-       int index = ringiter->first;
-       int iendcap = index / 100;
-       int istation = (index % 100) / 10;
-       int iring = index % 10;
-
-       bool aligning = false;
-       CSCDetId id;
-       for (std::map<int,bool>::const_iterator epair = m_quickMap.begin();  epair != m_quickMap.end();  ++epair) {
-	 id = CSCDetId(epair->first);
-	 if (id.endcap() == iendcap  &&  id.station() == istation  &&  id.ring() == iring) {
-	   aligning = true;
-	   break;
-	 }
-       }
-
-       if (aligning) {
-	 const TFileDirectory *ring = m_hist_rings[index];
-
-	 std::stringstream name2, title2;
-	 name2 << "_ME" << (iendcap == 1 ? "p" : "m") << istation << "_" << iring;
-	 title2 << " for ME" << (iendcap == 1 ? "+" : "-") << istation << "/" << iring;
-
-	 Alignable *ali = m_alignableNavigator->alignableFromDetId(id).alignable();
-	 double length = ali->surface().length();
+     if (aligning) {
+       const TFileDirectory *ring = m_hist_rings[index];
        
-	 m_hist_all_vertpos[index] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("vertpos") + title2.str()).c_str(), 100, -length/2., length/2.);
-	 m_hist_all_relativephi[index] = ring->make<TH1F>((std::string("relativephi") + name2.str()).c_str(), (std::string("relativephi") + title2.str()).c_str(), 100, 0.165, 0.185);
-	 m_hist_all_slope[index] = ring->make<TH1F>((std::string("slope") + name2.str()).c_str(), (std::string("slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
-	 m_hist_intercept_vertpos[index] = ring->make<TProfile>((std::string("intercept_vertpos") + name2.str()).c_str(), (std::string("residual vs. radial position") + title2.str()).c_str(), 100, -length/2., length/2.);
-	 m_hist_intercept_relativephi[index] = ring->make<TProfile>((std::string("intercept_relativephi") + name2.str()).c_str(), (std::string("residual vs. #phi") + title2.str()).c_str(), 100, 0.165, 0.185);
-	 m_hist_intercept_slope[index] = ring->make<TProfile>((std::string("intercept_slope") + name2.str()).c_str(), (std::string("residual vs. track slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
-       }
+       std::stringstream name2, title2;
+       name2 << "_ME" << (iendcap == 1 ? "p" : "m") << istation << "_" << iring;
+       title2 << " for ME" << (iendcap == 1 ? "+" : "-") << istation << "/" << iring;
+       
+       Alignable *ali = m_alignableNavigator->alignableFromDetId(id).alignable();
+       double length = ali->surface().length();
+       
+       m_hist_all_vertpos[index] = ring->make<TH1F>((std::string("vertpos") + name2.str()).c_str(), (std::string("vertpos") + title2.str()).c_str(), 100, -length/2., length/2.);
+       m_hist_all_relativephi[index] = ring->make<TH1F>((std::string("relativephi") + name2.str()).c_str(), (std::string("relativephi") + title2.str()).c_str(), 100, 0.165, 0.185);
+       m_hist_all_slope[index] = ring->make<TH1F>((std::string("slope") + name2.str()).c_str(), (std::string("slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
+       m_hist_intercept_vertpos[index] = ring->make<TProfile>((std::string("intercept_vertpos") + name2.str()).c_str(), (std::string("residual vs. radial position") + title2.str()).c_str(), 100, -length/2., length/2.);
+       m_hist_intercept_relativephi[index] = ring->make<TProfile>((std::string("intercept_relativephi") + name2.str()).c_str(), (std::string("residual vs. #phi") + title2.str()).c_str(), 100, 0.165, 0.185);
+       m_hist_intercept_slope[index] = ring->make<TProfile>((std::string("intercept_slope") + name2.str()).c_str(), (std::string("residual vs. track slope") + title2.str()).c_str(), 100, -0.0005, 0.0005);
      }   
    }
 }
