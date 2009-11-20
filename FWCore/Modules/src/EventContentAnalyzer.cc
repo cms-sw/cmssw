@@ -2,7 +2,7 @@
 //
 // Package:    Modules
 // Class:      EventContentAnalyzer
-// 
+//
 /**
  Description: <one line class summary>
 
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,37 +46,37 @@ namespace edm {
     std::string formatClassName(std::string const& iName) {
        return std::string("(")+iName+")";
     }
-    
+
     char const* kNameValueSep = "=";
     ///convert the object information to the correct type and print it
     template<typename T>
     void doPrint(std::string const& iName, Reflex::Object const& iObject, std::string const& iIndent) {
       LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address());//<<"\n";
     }
-    
+
     template<>
     void doPrint<char>(std::string const& iName, Reflex::Object const& iObject, std::string const& iIndent) {
       LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()));//<<"\n";
     }
-    
+
     template<>
     void doPrint<unsigned char>(std::string const& iName, Reflex::Object const& iObject, std::string const& iIndent) {
       LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()));//<<"\n";
     }
-    
+
     template<>
     void doPrint<bool>(std::string const& iName, Reflex::Object const& iObject, std::string const& iIndent) {
       LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false");//<<"\n";
     }
-    
+
     typedef void(*FunctionType)(std::string const&, Reflex::Object const&, std::string const&);
     typedef std::map<std::string, FunctionType> TypeToPrintMap;
-    
+
     template<typename T>
     void addToMap(TypeToPrintMap& iMap) {
        iMap[typeid(T).name()]=doPrint<T>;
     }
-    
+
     bool printAsBuiltin(std::string const& iName,
                                Reflex::Object const& iObject,
                                std::string const& iIndent) {
@@ -99,18 +100,18 @@ namespace edm {
        }
        TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
        if(itFound == s_map.end()) {
-          
+
           return false;
        }
        itFound->second(iName, iObject, iIndent);
        return true;
     }
-    
+
     bool printAsContainer(std::string const& iName,
                           Reflex::Object const& iObject,
                           std::string const& iIndent,
                           std::string const& iIndentDelta);
-    
+
     void printObject(std::string const& iName,
                      Reflex::Object const& iObject,
                      std::string const& iIndent,
@@ -127,7 +128,7 @@ namespace edm {
              return;
           }
           return;
-           
+
           //have the code that follows print the contents of the data to which the pointer points
           objectToPrint = Reflex::Object(pointedType, iObject.Address());
           //try to convert it to its actual type (assuming the original type was a base class)
@@ -139,18 +140,18 @@ namespace edm {
        if(typeName.empty()) {
           typeName="<unknown>";
        }
-    
+
        //see if we are dealing with a typedef
        if(objectToPrint.TypeOf().IsTypedef()) {
          objectToPrint = Reflex::Object(objectToPrint.TypeOf().ToType(), objectToPrint.Address());
-       } 
+       }
        if(printAsBuiltin(printName, objectToPrint, indent)) {
           return;
        }
        if(printAsContainer(printName, objectToPrint, indent, iIndentDelta)) {
           return;
        }
-       
+
        LogAbsolute("EventContent")<<indent<<printName<<" "<<formatClassName(typeName);//<<"\n";
        indent+=iIndentDelta;
        //print all the data members
@@ -169,7 +170,7 @@ namespace edm {
           }
        }
     }
-    
+
     bool printAsContainer(std::string const& iName,
                           Reflex::Object const& iObject,
                           std::string const& iIndent,
@@ -201,7 +202,7 @@ namespace edm {
           Reflex::Type atReturnType = atMember.TypeOf().ReturnType();
           //std::cout <<"return type "<<atReturnType.Name()<<" size of "<<atReturnType.SizeOf()
           //<<" pointer? "<<atReturnType.IsPointer()<<" ref? "<<atReturnType.IsReference()<<std::endl;
-    
+
           //Return by reference must be treated differently since Reflex will not properly create
           // memory for a ref (which should just be a pointer to the object and not the object itself)
           //So we will create memory on the stack which can be used to hold a reference
@@ -251,7 +252,7 @@ namespace edm {
        }
        return false;
     }
-    
+
     void printObject(Event const& iEvent,
                      std::string const& iClassName,
                      std::string const& iModuleLabel,
@@ -268,27 +269,27 @@ namespace edm {
        GenericHandle handle(iClassName);
        iEvent.getByLabel(InputTag(iModuleLabel, iInstanceLabel, iProcessName), handle);
        std::string className = formatClassName(iClassName);
-       printObject(className, *handle, iIndent, iIndentDelta);   
+       printObject(className, *handle, iIndent, iIndentDelta);
     }
   }
-  
+
   class EventContentAnalyzer : public EDAnalyzer {
   public:
      explicit EventContentAnalyzer(ParameterSet const&);
      ~EventContentAnalyzer();
-     
+
      virtual void analyze(Event const&, EventSetup const&);
      virtual void endJob();
-  
+
      static void fillDescriptions(ConfigurationDescriptions & descriptions);
-  
+
   private:
-        
+
      // ----------member data ---------------------------
      std::string indentation_;
      std::string verboseIndentation_;
      std::vector<std::string> moduleLabels_;
-     bool        verbose_; 
+     bool        verbose_;
      std::vector<std::string> getModuleLabels_;
      bool        getData_;
      int         evno_;
@@ -309,71 +310,69 @@ namespace edm {
      //now do what ever initialization is needed
      sort_all(moduleLabels_);
   }
-  
+
   EventContentAnalyzer::~EventContentAnalyzer() {
-   
+
      // do anything here that needs to be done at destruction time
      // (e.g. close files, deallocate resources etc.)
-  
+
   }
-  
+
   //
   // member functions
   //
-  
+
   // ------------ method called to produce the data  ------------
   void
   EventContentAnalyzer::analyze(Event const& iEvent, EventSetup const& iSetup) {
      typedef std::vector<Provenance const*> Provenances;
      Provenances provenances;
-     std::string friendlyName;
-     std::string modLabel;
-     std::string instanceName;
-     std::string processName;
-     std::string key;
-  
+
      iEvent.getAllProvenance(provenances);
-     
+
      LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
-               << provenances.size() << " product" << (provenances.size()==1 ?"":"s")
+               << provenances.size() << " product" << (provenances.size() == 1 ? "" : "s")
                << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
                << std::endl;
-  
+
      std::string startIndent = indentation_+verboseIndentation_;
      for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
                                itProv != itProvEnd;
                              ++itProv) {
-         friendlyName = (*itProv)->friendlyClassName();
+         std::string const& className = (*itProv)->className();
+
+         std::string const& friendlyName = (*itProv)->friendlyClassName();
          //if(friendlyName.empty())  friendlyName = std::string("||");
-         
-         modLabel = (*itProv)->moduleLabel();
-         //if(modLabel.empty())  modLabel = std::string("||");
-         
-         instanceName = (*itProv)->productInstanceName();
-         //if(instanceName.empty())  instanceName = std::string("||");
-         
-         processName = (*itProv)->processName();
-         
-         LogAbsolute("EventContent") << indentation_ << friendlyName
-  		 << " \"" << modLabel
-  		 << "\" \"" << instanceName <<"\" \""
-                   << processName<<"\""
+
+         std::string const& modLabel = (*itProv)->moduleLabel();
+         //if(modLabel.empty()) modLabel = std::string("||");
+
+         std::string const& instanceName = (*itProv)->productInstanceName();
+         //if(instanceName.empty()) instanceName = std::string("||");
+
+         std::string const& processName = (*itProv)->processName();
+
+	 LogAbsolute("EventContent") << indentation_ << friendlyName
+           << " \"" << modLabel
+           << "\" \"" << instanceName << "\" \""
+           << processName << "\""
+           << " (productId = " << (*itProv)->productID() << ")"
            << std::endl;
-  
-         key = friendlyName
+
+         std::string key = friendlyName
   	 + std::string(" + \"") + modLabel
-  	 + std::string("\" + \"") + instanceName+"\" \""+processName+"\"";
+  	 + std::string("\" + \"") + instanceName + "\" \"" + processName + "\"";
          ++cumulates_[key];
-         
+
          if(verbose_) {
            if(moduleLabels_.empty() ||
              binary_search_all(moduleLabels_, modLabel)) {
   	   //indent one level before starting to print
   	   printObject(iEvent,
-  		       (*itProv)->className(),
-  		       (*itProv)->moduleLabel(),
-  		       (*itProv)->productInstanceName(),
-                         (*itProv)->processName(),
+  		       className,
+  		       modLabel,
+  		       instanceName,
+                       processName,
   		       startIndent,
   		       verboseIndentation_);
              continue;
@@ -382,46 +381,45 @@ namespace edm {
          if(getData_) {
            if(getModuleLabels_.empty() ||
              binary_search_all(getModuleLabels_, modLabel)) {
-             std::string const& className = (*itProv)->className();
              try {
                GenericHandle handle(className);
-             }catch(edm::Exception const&) {
-               LogAbsolute("EventContent") << startIndent << " \"" <<className << "\"" << " is an unknown type" << std::endl;
+             } catch(edm::Exception const&) {
+               LogAbsolute("EventContent") << startIndent << " \"" << className << "\"" << " is an unknown type" << std::endl;
                return;
              }
              GenericHandle handle(className);
-             iEvent.getByLabel(InputTag((*itProv)->moduleLabel(),
-                                             (*itProv)->productInstanceName(),
-                                             (*itProv)->processName()),
-                               handle);
+             iEvent.getByLabel(InputTag(modLabel,
+                                        instanceName,
+                                        processName),
+                                        handle);
            }
-         }      
+         }
      }
      //std::cout <<"Mine"<<std::endl;
      ++evno_;
   }
-  
+
   // ------------ method called at end of job -------------------
   void
   EventContentAnalyzer::endJob() {
      typedef std::map<std::string, int> nameMap;
-  
+
      LogAbsolute("EventContent") << "\nSummary for key being the concatenation of friendlyClassName, moduleLabel, productInstanceName and processName" << std::endl;
      for(nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end();
                                  it != itEnd;
                                  ++it) {
         LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
      }
-  
+
   // Test boost::lexical_cast  We don't need this right now so comment it out.
   // int k = 137;
   // std::string ktext = boost::lexical_cast<std::string>(k);
   // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
   }
-  
+
   void
   EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions & descriptions) {
-  
+
      descriptions.setComment("This plugin will print a list of all products in the event "
                              "provenance.  It also has options to print and/or get each product.");
 
@@ -439,7 +437,7 @@ namespace edm {
      defaultString = "  ";
      np = desc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
      np->setComment("This string is used to further indent lines when printing the contents of products in verbose mode.");
-  
+
      std::vector<std::string> defaultVString;
 
      np = desc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
