@@ -31,14 +31,27 @@ struct hltinfo{
 //lumisection aggreate over hltpath
 typedef std::vector< std::vector<hltinfo> > HLTResult;
 
-void printHLTResult(const HLTResult& hltresult){
+void printHLTResult(const HLTResult& hltresult,const std::string& pathname){
   size_t lumisec=0;
+  unsigned int totalin=0;
+  unsigned int totalout=0;
   for(HLTResult::const_iterator it=hltresult.begin();it!=hltresult.end();++it){
     std::cout<<"lumisec "<<lumisec<<std::endl;
     ++lumisec;
     for(std::vector<hltinfo>::const_iterator itt=it->begin();itt!=it->end();++itt){
-      std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
+      if(pathname.empty()){
+	std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
+      }else{
+	if(pathname==itt->pathname){
+	  std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
+	  totalin+=itt->hltinput;
+	  totalout+=itt->hltaccept;
+	}
+      }
     }
+  }
+  if(!pathname.empty()){
+    std::cout<<"total HLT-in "<<totalin<<" : total HLT-out "<<totalout<<std::endl;
   }
 }
 
@@ -51,7 +64,8 @@ int main(){
   std::string authName("/nfshome0/xiezhen/authentication.xml");
   //int startRun=83037;
   //int startRun=110823;
-  int startRun=108239;
+  int startRun=121620;
+  //int startRun=121677;
   int numberOfRuns=1;
   std::string tabname("HLT_SUPERVISOR_LUMISECTIONS_V2");
   std::string maptabname("HLT_SUPERVISOR_SCALAR_MAP");
@@ -148,12 +162,13 @@ int main(){
 	  // std::cout<<"=====This is the end of lumisection===="<<currentRun<<":"<<currentLumiSection<<std::endl;
 	  currentPath=0;
 	  result.push_back(allpaths);
+	  allpaths.clear();
 	}//end if it's last path in the current lumisection	 
 	++currentPath;
       }
       cursor1.close();
       delete query1;
-      printHLTResult(result);
+      printHLTResult(result,"HLT_DiJetAve15U_8E29");
     }
     //std::cout<<"commit transaction"<<std::endl;
     transaction.commit();
