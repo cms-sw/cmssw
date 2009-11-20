@@ -178,7 +178,7 @@ dbUserName = ''
 dbPassword = ''
 
 if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) :
-  try:
+  try :
     file = open('/nfshome0/ecalpro/DQM/online-DQM/.cms_tstore.conf', 'r')
     for line in file :
       if line.find('dbName') >= 0 :
@@ -257,11 +257,11 @@ if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
   )
 
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
-    subSystemFolder = cms.untracked.string('EcalBarrel')
+  subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
 process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
-    subSystemFolder = cms.untracked.string('EcalEndcap')
+  subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
 if (liveCMS == 1) :
@@ -279,17 +279,17 @@ if (playCMS == 1) :
   process.dqmSaver.referenceHandling = 'qtests'
 
 process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
-    reportThreshold = cms.untracked.string('red'),
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
-    getQualityTestsFromFile = cms.untracked.bool(True)
+  reportThreshold = cms.untracked.string('red'),
+  prescaleFactor = cms.untracked.int32(1),
+  qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
+  getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
 process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
-    reportThreshold = cms.untracked.string('red'),
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
-    getQualityTestsFromFile = cms.untracked.bool(True)
+  reportThreshold = cms.untracked.string('red'),
+  prescaleFactor = cms.untracked.int32(1),
+  qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
+  getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
 process.load("HLTrigger.special.HLTTriggerTypeFilter_cfi")
@@ -300,51 +300,51 @@ process.hltTriggerTypeFilter.SelectedTriggerType = 1
 process.load("FWCore.Modules.preScaler_cfi")
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    cosmicPrescaleFactor = cms.untracked.int32(1),
-    physicsPrescaleFactor = cms.untracked.int32(1),
-    laserPrescaleFactor = cms.untracked.int32(0),
-    ledPrescaleFactor = cms.untracked.int32(0),
-    pedestalPrescaleFactor = cms.untracked.int32(0),
-    testpulsePrescaleFactor = cms.untracked.int32(0),
-    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
+  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+  cosmicPrescaleFactor = cms.untracked.int32(1),
+  physicsPrescaleFactor = cms.untracked.int32(1),
+  laserPrescaleFactor = cms.untracked.int32(0),
+  ledPrescaleFactor = cms.untracked.int32(0),
+  pedestalPrescaleFactor = cms.untracked.int32(0),
+  testpulsePrescaleFactor = cms.untracked.int32(0),
+  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
 )
 
 process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    cosmicPrescaleFactor = cms.untracked.int32(0),
-    physicsPrescaleFactor = cms.untracked.int32(0),
-    laserPrescaleFactor = cms.untracked.int32(1),
-    ledPrescaleFactor = cms.untracked.int32(1),
-    pedestalPrescaleFactor = cms.untracked.int32(0),
-    testpulsePrescaleFactor = cms.untracked.int32(0),
-    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
+  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+  cosmicPrescaleFactor = cms.untracked.int32(0),
+  physicsPrescaleFactor = cms.untracked.int32(0),
+  laserPrescaleFactor = cms.untracked.int32(1),
+  ledPrescaleFactor = cms.untracked.int32(1),
+  pedestalPrescaleFactor = cms.untracked.int32(0),
+  testpulsePrescaleFactor = cms.untracked.int32(0),
+  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
 )
 
 process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    cosmicPrescaleFactor = cms.untracked.int32(0),
-    physicsPrescaleFactor = cms.untracked.int32(0),
-    laserPrescaleFactor = cms.untracked.int32(0),
-    ledPrescaleFactor = cms.untracked.int32(0),
-    pedestalPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(0),
-    pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
+  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+  cosmicPrescaleFactor = cms.untracked.int32(0),
+  physicsPrescaleFactor = cms.untracked.int32(0),
+  laserPrescaleFactor = cms.untracked.int32(0),
+  ledPrescaleFactor = cms.untracked.int32(0),
+  pedestalPrescaleFactor = cms.untracked.int32(1),
+  testpulsePrescaleFactor = cms.untracked.int32(0),
+  pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
 )
 
 process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    cosmicPrescaleFactor = cms.untracked.int32(0),
-    physicsPrescaleFactor = cms.untracked.int32(0),
-    laserPrescaleFactor = cms.untracked.int32(0),
-    ledPrescaleFactor = cms.untracked.int32(0),
-    pedestalPrescaleFactor = cms.untracked.int32(0),
-    testpulsePrescaleFactor = cms.untracked.int32(1),
-    pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
+  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+  cosmicPrescaleFactor = cms.untracked.int32(0),
+  physicsPrescaleFactor = cms.untracked.int32(0),
+  laserPrescaleFactor = cms.untracked.int32(0),
+  ledPrescaleFactor = cms.untracked.int32(0),
+  pedestalPrescaleFactor = cms.untracked.int32(0),
+  testpulsePrescaleFactor = cms.untracked.int32(1),
+  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 if (localDAQ == 1) | (globalDAQ == 1) :
