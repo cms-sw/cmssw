@@ -72,7 +72,7 @@ private:
 public:
 	void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
 	void endJob(void);
-	void beginJob(edm::EventSetup const&);
+	void beginJob();
 
 	explicit L1TdeCSCTF(edm::ParameterSet const& pset);
 	virtual ~L1TdeCSCTF() {}

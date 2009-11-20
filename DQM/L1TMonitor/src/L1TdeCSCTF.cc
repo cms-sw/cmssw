@@ -90,13 +90,9 @@ L1TdeCSCTF::L1TdeCSCTF(edm::ParameterSet const& pset):edm::EDAnalyzer(){
   	} // endcapItr loop
 }
 
-void L1TdeCSCTF::beginJob(edm::EventSetup const& es)
+void L1TdeCSCTF::beginJob()
 {
-	edm::ESHandle< L1MuTriggerScales > scales ;
-	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
-	edm::ESHandle< L1MuTriggerPtScale > ptScale ;
-	es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
-	ptLUT_ = new CSCTFPtLUT(ptLUTset, scales.product(), ptScale.product() );
+
 
 	/////////////////////////////
 	// DQM Directory Structure //
@@ -228,6 +224,12 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 		    << std::endl;
 		  return;
 		}
+		
+		edm::ESHandle< L1MuTriggerScales > scales ;
+		es.get< L1MuTriggerScalesRcd >().get( scales ) ;
+		edm::ESHandle< L1MuTriggerPtScale > ptScale ;
+		es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
+		ptLUT_ = new CSCTFPtLUT(ptLUTset, scales.product(), ptScale.product() );
 
 		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=LCTs.product()->begin(); csc!=LCTs.product()->end(); csc++)
 		{
