@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.115 2009/11/19 14:37:26 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.116 2009/11/19 17:03:19 amraktad Exp $
 //
 
 // system include files
@@ -169,7 +169,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_live(0),
    m_isPlaying(false),
    m_forward(true),
-   m_rewindMode(false),
+   m_loop(false),
    m_playDelay(3.f),
    m_lastPointerPositionX(-999),
    m_lastPointerPositionY(-999)
@@ -314,7 +314,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
       if (vm.count(kLoopOpt))
-         setPlayAutoRewind();
+         setPlayLoop();
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
@@ -756,38 +756,38 @@ void CmsShowMain::autoLoadNewEvent()
 {   
    stopAutoLoadTimer();
     
-   if ((m_forward && m_navigator->isLastEvent() && m_monitor.get()) ||
-       (!m_forward && m_navigator->isFirstEvent() && m_monitor.get())) 
-   { 
-      // do nothing if reached end/beginning in port mode
-      startAutoLoadTimer();
-      return;
+   bool reachedEnd = (m_forward && m_navigator->isLastEvent()) || (!m_forward && m_navigator->isFirstEvent());
+
+   if (m_loop && reachedEnd)
+   {
+      m_forward ? m_navigator->firstEvent() : m_navigator->lastEvent();
+      draw();
+   }
+   else if (!reachedEnd)
+   {
+      m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
+      draw();
    }
 
-
-   m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
-   
-   draw();
-
-   // stop loop at ends if necessary
-   if ( (m_rewindMode || m_monitor.get()) == kFALSE)
+   // stop loop in case no loop or monitor mode
+   if ( reachedEnd && (m_loop || m_monitor.get()) == kFALSE)
    { 
       if (m_forward && m_navigator->isLastEvent())
       {
          m_guiManager->enableActions();
          m_guiManager->disableNext();
-         return;
       }
 
       if ((!m_forward) && m_navigator->isFirstEvent())
       {
          m_guiManager->enableActions();
-         m_guiManager->disableNext();
-         return;
+         m_guiManager->disablePrevious();
       }
    }
-
-   startAutoLoadTimer();   
+   else
+   {
+      startAutoLoadTimer();   
+   }
 }
 
 //______________________________________________________________________________
@@ -863,8 +863,8 @@ CmsShowMain::setupDataHandling()
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-   m_guiManager->autoRewindAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayAutoRewindImp));
-   m_guiManager->autoRewindAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayAutoRewindImp));
+   m_guiManager->loopAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayLoopImp));
+   m_guiManager->loopAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayLoopImp));
 
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
@@ -1000,33 +1000,33 @@ CmsShowMain::stopPlaying()
 }
 
 void
-CmsShowMain::setPlayAutoRewind()
+CmsShowMain::setPlayLoop()
 {
-   if(!m_rewindMode) {
-      setPlayAutoRewindImp();
-      m_guiManager->autoRewindAction()->activated();
+   if(!m_loop) {
+      setPlayLoopImp();
+      m_guiManager->loopAction()->activated();
    }
 }
 
 void
-CmsShowMain::unsetPlayAutoRewind()
+CmsShowMain::unsetPlayLoop()
 {
-   if(m_rewindMode) {
-      unsetPlayAutoRewindImp();
-      m_guiManager->autoRewindAction()->stop();
+   if(m_loop) {
+      unsetPlayLoopImp();
+      m_guiManager->loopAction()->stop();
    }
 }
 
 void
-CmsShowMain::setPlayAutoRewindImp()
+CmsShowMain::setPlayLoopImp()
 {
-   m_rewindMode = true;
+   m_loop = true;
 }
 
 void
-CmsShowMain::unsetPlayAutoRewindImp()
+CmsShowMain::unsetPlayLoopImp()
 {
-   m_rewindMode = false;
+   m_loop = false;
 }
 
 void
