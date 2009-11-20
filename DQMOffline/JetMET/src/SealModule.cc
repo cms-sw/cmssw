@@ -5,6 +5,7 @@
 #include "DQMOffline/JetMET/interface/CaloTowerAnalyzer.h"
 #include "DQMOffline/JetMET/interface/ECALRecHitAnalyzer.h"
 #include "DQMOffline/JetMET/interface/HCALRecHitAnalyzer.h"
+#include "DQMOffline/JetMET/interface/BeamHaloAnalyzer.h"
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
 #include "DQMOffline/JetMET/interface/JetMETDQMOfflineClient.h"
 
@@ -13,6 +14,7 @@ DEFINE_ANOTHER_FWK_MODULE(JetMETAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CaloTowerAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(HCALRecHitAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ECALRecHitAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(BeamHaloAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(DataCertificationJetMET);
 DEFINE_ANOTHER_FWK_MODULE(JetMETDQMOfflineClient);
 
