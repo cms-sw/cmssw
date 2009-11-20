@@ -228,6 +228,7 @@ my $sql = qq[ SELECT riov.run_num run,
                 LEFT OUTER JOIN mon_run_dat mdat ON mdat.iov_id = miov.iov_id
                WHERE ldef.location = ?
                  AND riov.run_num = ?
+                 AND rdat.num_events != 0
             ORDER BY run];
 
 my $sth = $dbh->prepare_cached($sql);
