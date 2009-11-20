@@ -64,7 +64,6 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
       }
    }
 
-
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
    sprintf(histo, "reportSummaryMap");
@@ -160,7 +159,7 @@ void ESSummaryClient::analyze(void) {
 	    }
 	 }
 
-	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
+	 sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
 	 if(me){
 	    eCount = me->getBinContent(40,40);
