@@ -40,10 +40,10 @@ system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.daq_done 
 
 if ( system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper --run $runfil 2>&1") || system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper_pedestal-offset --run $runfil 2>&1") ) {
   system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_run $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_fail");
-#  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num FAIL >/tmp/notifyRCMS.log 2>&1");
+  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num FAIL >/tmp/notifyRCMS.log 2>&1");
 } else {
   system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_run $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_done");
-#  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num DONE >/tmp/notifyRCMS.log 2>&1");
+  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num DONE >/tmp/notifyRCMS.log 2>&1");
 }
 
 exit 0;
