@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.6 2009/11/07 21:34:31 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.7 2009/11/19 20:03:43 rekovic Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <iostream>
 #include <fstream>
@@ -67,30 +66,25 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       // EndLuminosityBlock
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
-     // void setupHLTMatrix(std::string name, MonitorElement* me, std::vector<std::string> & paths);
-     //void fillHLTMatrix(MonitorElement* ME, edm::Handle<edm::TriggerResults> triggerResults) {
-
+      void setupHLTMatrix(std::string name, std::vector<std::string> & paths);
+      void fillHLTMatrix(TH2F* hist);
+      void normalizeHLTMatrix();
 
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
+      edm::Handle<edm::TriggerResults> triggerResults_;
 
       MonitorElement* total_;
       MonitorElement* ME_HLTPassPass_; 
       MonitorElement* ME_HLTPassFail_; 
       MonitorElement* ME_HLTPassPass_Normalized_; 
       MonitorElement* ME_HLTPassFail_Normalized_; 
+      MonitorElement* ME_HLTPass_Normalized_Any_; 
 
-      MonitorElement* ME_HLT_Muon_PassPass_;
-      MonitorElement* ME_HLT_Muon_PassPass_Normalized;
-      MonitorElement* ME_HLT_Egamma_PassPass_;
-      MonitorElement* ME_HLT_Egamma_PassPass_Normalized;
-      MonitorElement* ME_HLT_JetMET_PassPass_;
-      MonitorElement* ME_HLT_JetMET_PassPass_Normalized;
-      MonitorElement* ME_HLT_Rest_PassPass_;
-      MonitorElement* ME_HLT_Rest_PassPass_Normalized;
-      MonitorElement* ME_HLT_Special_PassPass_;
-      MonitorElement* ME_HLT_Special_PassPass_Normalized;
+      std::vector<MonitorElement*> v_ME_HLTPassPass_;
+      std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
+      std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
 
       bool plotAll_;
       bool resetMe_;
@@ -129,6 +123,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       double sumEtMin_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+      std::vector<std::string> specialPaths_;
 
 
       std::string dirname_;

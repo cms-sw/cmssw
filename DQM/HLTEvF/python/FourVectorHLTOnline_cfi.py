@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOnline_cfi.py,v 1.4 2009/11/07 13:33:05 hdyoo Exp $
+# $Id: FourVectorHLTOnline_cfi.py,v 1.5 2009/11/07 21:31:37 rekovic Exp $
 hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     plotAll = cms.untracked.bool(False),
@@ -27,6 +27,12 @@ hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
               denompathname = cms.string("HLT_L1Mu"),
              )
             ),
+     SpecialPaths = cms.vstring(
+            'HLT_L1MuOpen',
+            'HLT_MinBias', 
+            'HLT_L1_BPTX', 
+            'HLT_MET100'
+      ),
                           
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
