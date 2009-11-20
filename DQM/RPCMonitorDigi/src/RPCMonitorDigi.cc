@@ -1,4 +1,4 @@
-/***********************************************
+ /***********************************************
  *						*
  *  implementation of RPCMonitorDigi class	*
  *						*
@@ -154,20 +154,19 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   RPCEvents -> Fill(1);
 
   /// Digis
-  map<RPCDetId, vector<int> > bxs;     
-  map<RPCDetId, int> numberOfHits;    
-  map<RPCDetId, int> numberOfDigi;
+  Handle<RPCDigiCollection> rpcdigis;
+  iEvent.getByType(rpcdigis);
+
   //RecHits
   Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByLabel("rpcRecHits", rpcHits);
- 
-  map<int,int> bxMap;
+  iEvent.getByType(rpcHits);
 
-  //Loop on rechit collection
-  RPCRecHitCollection::const_iterator collectionItr;
-  for(collectionItr=rpcHits->begin(); collectionItr!=rpcHits->end(); ++collectionItr){
-    
-    RPCDetId detId=(RPCDetId)(*collectionItr).rpcId(); 
+  map<int,int> bxMap;
+ 
+  //Loop on digi collection
+  for( RPCDigiCollection::DigiRangeIterator collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
+  
+    RPCDetId detId=(*collectionItr).first; 
     uint32_t id=detId(); 
 
     const GeomDet* gdet=rpcGeo->idToDet(detId);
@@ -178,15 +177,15 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     string nameRoll = RPCname.name();
     //string YLabel = RPCname.shortname(); // to be removed later!!!
     stringstream os;
-    
+
     //get roll number
     rpcdqm::utils prova;
     int nr = prova.detId2RollNr(detId);
     
     //get MEs corresponding to present detId  
-    map<string, MonitorElement*> meMap = meCollection[id];
+    map<string, MonitorElement*> meMap=meCollection[id]; 
     if(meMap.size()==0) continue; 
-    
+
     int region=detId.region();
     int ring;
     string ringType;
@@ -197,41 +196,42 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       ringType =  "Disk";
       ring = region*detId.station();
     }
-    
+   
     //get wheel/disk MEs
     pair<int,int> regionRing(region,ring);
     map<string, MonitorElement*> meRingMap=meWheelDisk[regionRing];
     if(meRingMap.size()==0) continue;
+
+    vector<pair <int,int> > duplicatedDigi;  
+    vector<int> bxs;     
+
+    //get the RecHits associated to the roll
+    typedef pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
+    rangeRecHits recHitCollection =  rpcHits->get(detId);
+ 
+    int numberOfDigi= 0;
+
+    RPCDigiCollection::const_iterator digiItr; 
+    //loop on digis of given roll
+    for (digiItr =(*collectionItr ).second.first;digiItr != (*collectionItr ).second.second; ++digiItr){
+      int strip= (*digiItr).strip();
+      int bx=(*digiItr).bx();
     
-    // vector<pair <int,int> > duplicatedDigi;  
-    //vector<int> bxs;     
-    
-    //Get info for digi
-    int mult = (*collectionItr).clusterSize();
-    int firstStrip = (*collectionItr).firstClusterStrip();
-    
-    //   int numberOfDigi= 0;
-    
-    //loop on digis 
-    for (int digiItr = 0; digiItr < mult; ++digiItr){
-      int strip = firstStrip + digiItr;
-      int bx=(*collectionItr).BunchX();
-      
       //remove duplicated digis
-      //     vector<pair <int,int> >::const_iterator itrDuplDigi = find(duplicatedDigi.begin(),duplicatedDigi.end(),make_pair(strip, bx));
-      //if(itrDuplDigi!=duplicatedDigi.end() && duplicatedDigi.size()!=0) continue;
+      vector<pair <int,int> >::const_iterator itrDuplDigi = find(duplicatedDigi.begin(),duplicatedDigi.end(),make_pair(strip, bx));
+      if(itrDuplDigi!=duplicatedDigi.end() && duplicatedDigi.size()!=0) continue;
     
-      //      duplicatedDigi.push_back(make_pair(strip, bx));
-      ++numberOfDigi[detId];
+      duplicatedDigi.push_back(make_pair(strip, bx));
+      ++numberOfDigi;
   
       //bunch crossing
-      vector<int>::const_iterator existingBX = find(bxs[detId].begin(),bxs[detId].end(),bx);
-      if(existingBX==bxs[detId].end())bxs[detId].push_back(bx);   
-
+      vector<int>::const_iterator existingBX = find(bxs.begin(),bxs.end(),bx);
+      if(existingBX==bxs.end())bxs.push_back(bx);
+   
       //adding new histo C.Carrillo & A. Cimmino
-      //map<int,int>::const_iterator bxItr = bxMap.find((*digiItr).bx());
-      //if (bxItr == bxMap.end()|| bxMap.size()==0 )bxMap[(*digiItr).bx()]=1;
-      //    else bxMap[(*digiItr).bx()]++;
+      map<int,int>::const_iterator bxItr = bxMap.find((*digiItr).bx());
+      if (bxItr == bxMap.end()|| bxMap.size()==0 )bxMap[(*digiItr).bx()]=1;
+      else bxMap[(*digiItr).bx()]++;
    
       //sector based histograms for dqm shifter
       os.str("");
@@ -287,140 +287,115 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	os<<"BXN_vs_strip_"<<nameRoll;
 	if(meMap[os.str()]) meMap[os.str()]->Fill(strip,bx);
       }
-    }  //end loop of digis
+    }  //end loop of digis of given roll
   
-                                
-    // Fill RecHit MEs    
-    
-    //loop RPCRecHits for given roll
-   
-    //    numbOfClusters++; 
-    //      RPCDetId detIdRecHits=it->rpcId();
-    LocalError error=collectionItr->localPositionError();//plot of errors/roll => should be gaussian	
-    LocalPoint point=collectionItr->localPosition();     //plot of coordinates/roll =>should be flat
-    GlobalPoint globalHitPoint=surface.toGlobal(point); 
-      
-    ///int mult=it->clusterSize();		  //cluster size plot => should be within 1-3	
-    //	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
-    
-    ClusterSize_for_BarrelandEndcaps -> Fill(mult);
- 
-    if(detId.region() ==  0) {
-      ClusterSize_for_Barrel -> Fill(mult);
-    } else if (detId.region() ==  -1) {
-      if(mult<=10) ClusterSize_for_EndcapNegative -> Fill(mult);
-      else ClusterSize_for_EndcapNegative -> Fill(11);	   
-    } else if (detId.region() ==  1) {
-      if(mult<=10) ClusterSize_for_EndcapPositive -> Fill(mult);
-      else ClusterSize_for_EndcapPositive -> Fill(11);
-    } 
-    
-    //Cluster Size by Wheels and sector
-    os.str("");
-    os<<"ClusterSize_"<<ringType<<"_"<<ring;
-    if(meRingMap[os.str()])
-      meRingMap[os.str()] -> Fill(mult); 
-    
-    if (dqmsuperexpert) {
-      int centralStrip=firstStrip;
-      if(mult%2) {
-	centralStrip+= mult/2;
-      }else{	
-	float x = gRandom->Uniform(2);
-	centralStrip+=(x<1)? (mult/2)-1 : (mult/2);
-      }
-      
-      os.str("");
-      os<<"ClusterSize_vs_Strip_"<<nameRoll;
-      if(meMap[os.str()])
-	for(int index=0; index<mult; ++index)
-	  meMap[os.str()]->Fill(firstStrip+index,mult);
-    }
-    
-    if(dqmexpert) {
-      os.str("");
-      os<<"ClusterSize_"<<nameRoll;
-      if(meMap[os.str()])
-	meMap[os.str()]->Fill(mult);
-    }
-
-    numberOfHits[detId]++;
-   
-   //  if(dqmexpert) {	 
-//       //    os.str("");
-//       //       os<<"NumberOfClusters_"<<nameRoll;
-//       //       if(meMap[os.str()])
-//       // 	meMap[os.str()]->Fill(numbOfClusters);
-      
-//       if(numberOfHits>5) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
-//       os.str("");
-//       os<<"RecHitCounter_"<<nameRoll;
-//       if(meMap[os.str()])
-// 	meMap[os.str()]->Fill(numberOfHits);
-//     }
-  } 
-  
-   
-  for(map<RPCDetId, int>::const_iterator d = numberOfHits.begin() ; d!=numberOfHits.end(); d++){
-   
-    RPCDetId detId = d->first;
-    RPCGeomServ RPCname(detId);
-    string nameRoll = RPCname.name();
-    stringstream os;
-    string ringType = "";
-    int ring = 0;
-    map<string, MonitorElement*> meMap = meCollection[(uint32_t)detId];
-    if(detId.region()==0){
-      NumberOfClusters_for_Barrel -> Fill(numberOfHits[detId]);
-      ringType = "Wheel";
-      ring = detId.ring();
-    }
-    else if (detId.region()==1){
-      NumberOfClusters_for_EndcapPositive -> Fill(numberOfHits[detId]);
-      ringType = "Disk";
-      ring = detId.station();
-    }
-    else if(detId.region()==-1){
-      NumberOfClusters_for_EndcapNegative -> Fill(numberOfHits[detId]);      
-      ringType = "Disk";
-      ring = -detId.station();
-    }
-
-
-  
-    
     if (dqmexpert){
-
-      if(numberOfHits[detId]>5) numberOfHits[detId]=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
-      os.str("");
-      os<<"RecHitCounter_"<<nameRoll;
-      if(meMap[os.str()])
-      meMap[os.str()]->Fill(numberOfHits[detId]);
-
       os.str("");
       os<<"BXWithData_"<<nameRoll;
-      if(meMap[os.str()]) meMap[os.str()]->Fill(bxs[detId].size());
+      if(meMap[os.str()]) meMap[os.str()]->Fill(bxs.size());
     }
  
     os.str("");
     os<<"BXWithData_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
     if(meMap[os.str()])
-      meMap[os.str()]->Fill(bxs[detId].size());
+      meMap[os.str()]->Fill(bxs.size());
 
-
-    if(numberOfDigi[detId] > 50) numberOfDigi[detId] = 50; //overflow
+    if(numberOfDigi>50) numberOfDigi=50; //overflow
     
     os.str("");
     os<<"NumberOfDigi_"<<nameRoll;
-    if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi[detId]);   
+    if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi);   
     
-    if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi[detId]);
-    else  if(detId.region()==-1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi[detId]);
-    else  if(detId.region()==1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi[detId]);
+    if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi);
+    else  if(detId.region()==-1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
+    else  if(detId.region()==1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
+                                
+    // Fill RecHit MEs   
+    if(recHitCollection.first!=recHitCollection.second ){   
+ 
+      RPCRecHitCollection::const_iterator it;
+      int numberOfHits=0;    
+      int numbOfClusters=0;
+      //loop RPCRecHits for given roll
+      for (it = recHitCollection.first; it != recHitCollection.second ; it++) {
+	numbOfClusters++; 
+ 	RPCDetId detIdRecHits=it->rpcId();
+	LocalError error=it->localPositionError();//plot of errors/roll => should be gaussian	
+	LocalPoint point=it->localPosition();     //plot of coordinates/roll =>should be flat
+	GlobalPoint globalHitPoint=surface.toGlobal(point); 
+ 
+	int mult=it->clusterSize();		  //cluster size plot => should be within 1-3	
+	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
+
+	ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+ 
+	if(detId.region() ==  0) {
+	  ClusterSize_for_Barrel -> Fill(mult);
+	} else if (detId.region() ==  -1) {
+	  if(mult<=10) ClusterSize_for_EndcapNegative -> Fill(mult);
+	  else ClusterSize_for_EndcapNegative -> Fill(11);	   
+	} else if (detId.region() ==  1) {
+	  if(mult<=10) ClusterSize_for_EndcapPositive -> Fill(mult);
+	  else ClusterSize_for_EndcapPositive -> Fill(11);
+	} 
+
+	//Cluster Size by Wheels and sector
+	os.str("");
+	os<<"ClusterSize_"<<ringType<<"_"<<ring;
+	if(meRingMap[os.str()])
+	  meRingMap[os.str()] -> Fill(mult); 
+
+	if (dqmsuperexpert) {
+	  int centralStrip=firstStrip;
+	  if(mult%2) {
+	    centralStrip+= mult/2;
+	  }else{	
+	    float x = gRandom->Uniform(2);
+	    centralStrip+=(x<1)? (mult/2)-1 : (mult/2);
+	  }
+
+	  os.str("");
+	  os<<"ClusterSize_vs_Strip_"<<nameRoll;
+	  if(meMap[os.str()])
+	    for(int index=0; index<mult; ++index)
+	      meMap[os.str()]->Fill(firstStrip+index,mult);
+       	}
+
+	if(dqmexpert) {
+	  os.str("");
+	  os<<"ClusterSize_"<<nameRoll;
+	  if(meMap[os.str()])
+	    meMap[os.str()]->Fill(mult);
+	}
+	numberOfHits++;
+      }/// end loop on RPCRecHits for given roll
+      
+      if(dqmexpert) {	 
+	os.str("");
+	os<<"NumberOfClusters_"<<nameRoll;
+	if(meMap[os.str()])
+	  meMap[os.str()]->Fill(numbOfClusters);
+	
+	if(numberOfHits>5) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
+	os.str("");
+	os<<"RecHitCounter_"<<nameRoll;
+	if(meMap[os.str()])
+	  meMap[os.str()]->Fill(numberOfHits);
+      }
+      
+      if(detId.region()==0)
+	NumberOfClusters_for_Barrel -> Fill(numbOfClusters);
+      else if (detId.region()==1)
+	NumberOfClusters_for_EndcapPositive -> Fill(numbOfClusters);
+      else if(detId.region()==-1)
+	NumberOfClusters_for_EndcapNegative -> Fill(numbOfClusters);      
+
+    }
+  }/// end loop on RPC Digi Collection
 
   //adding new histo C.Carrillo & A. Cimmino
-  //   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
-  //        myItr!=bxMap.end(); myItr++){
-  //     SameBxDigisMeBarrel_ ->Fill((*myItr).second);///must be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  for (map<int, int>::const_iterator myItr= bxMap.begin(); 
+       myItr!=bxMap.end(); myItr++){
+    SameBxDigisMeBarrel_ ->Fill((*myItr).second);///must be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   } 
 }
