@@ -42,6 +42,10 @@
   <class name="std::vector<L1RPCConeDefinition::TRingToLP>"/>
   <class name="L1TriggerKey"/>
   <class name="L1TriggerKeyList"/>
+  <class name="std::pair<std::string, std::string >"/>  
+  <class name="std::map<std::string, std::string >"/>  
+  <class name="std::pair<std::string, std::map< std::string, std::string > >"/>  
+  <class name="std::map<std::string, std::map< std::string, std::string > >"/>  
   <class name="L1RCTParameters"/>
   <class name="L1RCTChannelMask"/>
   <class name="L1CaloEcalScale"/>

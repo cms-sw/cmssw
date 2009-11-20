@@ -57,6 +57,7 @@ namespace {
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
+    std::pair< std::string, std::map< std::string, std::string > > dummy14 ;
 //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
 //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
 //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
