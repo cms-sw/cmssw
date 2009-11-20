@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.6 $
+# $Revision: 1.1 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -52,8 +52,9 @@ process.dqmoffline_step = cms.Path(process.DQMOffline)
 
 process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
 process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
-process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM)
-
+process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM*process.ALCARECODTCalibrationDQM)
+process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
+process.endjob_step = cms.Path(process.endOfProcess)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco,process.reconstruction_step,process.dqmoffline_step,pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOMuAlCalIsolatedMu,process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECODQM,process.endjob_step)
