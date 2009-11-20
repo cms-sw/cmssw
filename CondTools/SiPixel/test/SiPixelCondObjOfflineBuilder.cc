@@ -38,7 +38,8 @@ SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterS
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
       fromFile_(conf_.getParameter<bool>("fromFile")),
-      fileName_(conf_.getParameter<std::string>("fileName"))
+      fileName_(conf_.getParameter<std::string>("fileName")),
+      generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns",true))
 {
   ::putenv((char*)"CORAL_AUTH_USER=me");
   ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
@@ -184,7 +185,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
            }
 
            totalGain    += gain;
-
+	   
 	   if(!isDead && !isNoisy){
 	     SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
 	   }
@@ -197,6 +198,11 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
            if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
            {
               float averageGain      = totalGain/static_cast<float>(80);
+	      
+	      if(generateColumns_){
+	        averageGain=gain;
+	      }
+	      
               //std::cout << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
               SiPixelGainCalibration_->setDataGain( averageGain , 80, theSiPixelGainCalibration);
               totalGain = 0;
@@ -266,14 +272,12 @@ SiPixelCondObjOfflineBuilder::beginJob(const edm::EventSetup&) {
 					   <<calmap_.max_size() << " "
 					   <<calmap_.empty()<<std::endl;
     }
-  }
-
+  }  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelCondObjOfflineBuilder::endJob() {
-   
 }
 
 bool SiPixelCondObjOfflineBuilder::loadFromFile() {

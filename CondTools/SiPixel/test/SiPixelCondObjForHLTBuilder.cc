@@ -189,6 +189,11 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	      //std::cout << "Filling   Col "<<i<<" Row "<<j<<" Ped "<<totalPed<<" Gain "<<totalGain<<std::endl;
               float averagePed       = totalPed/static_cast<float>(80);
               float averageGain      = totalGain/static_cast<float>(80);
+	      
+	      if(generateColumns_){
+	        averagePed=ped;
+		averageGain=gain;
+	      }
               //only fill by column after each roc
 	      if(!isDead && !isNoisy)
                 SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
