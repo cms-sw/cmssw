@@ -413,25 +413,25 @@ void HcalMonitorClient::writeDBfile()
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
 {
   // don't allow 'backsliding' across lumi blocks in online running
-  if (Online_ && l.luminosityBlock()<currentLumiBlock) return;
-  currentLumiBlock = l.luminosityBlock();
+  if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
+  ilumisec_ = l.luminosityBlock();
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
-  if( summary_client_)      summary_client_->SetLS(l.luminosityBlock());
-  if( hot_client_ )         hot_client_->SetLS(l.luminosityBlock());
-  if( dead_client_ )        dead_client_->SetLS(l.luminosityBlock()); 
-  if( dataformat_client_ )  dataformat_client_->SetLS(l.luminosityBlock());
-  if( digi_client_ )        digi_client_->SetLS(l.luminosityBlock());
-  if( rechit_client_ )      rechit_client_->SetLS(l.luminosityBlock());
-  if( pedestal_client_ )    pedestal_client_->SetLS(l.luminosityBlock());
-  if( led_client_ )         led_client_->SetLS(l.luminosityBlock());
-  if( laser_client_ )       laser_client_->SetLS(l.luminosityBlock());
-  if( tp_client_ )          tp_client_->SetLS(l.luminosityBlock());
-  if( ct_client_ )          ct_client_->SetLS(l.luminosityBlock());
-  if( beam_client_ )        beam_client_->SetLS(l.luminosityBlock());
+  if( summary_client_)      summary_client_->SetLS(ilumisec_);
+  if( hot_client_ )         hot_client_->SetLS(ilumisec_);
+  if( dead_client_ )        dead_client_->SetLS(ilumisec_); 
+  if( dataformat_client_ )  dataformat_client_->SetLS(ilumisec_);
+  if( digi_client_ )        digi_client_->SetLS(ilumisec_);
+  if( rechit_client_ )      rechit_client_->SetLS(ilumisec_);
+  if( pedestal_client_ )    pedestal_client_->SetLS(ilumisec_);
+  if( led_client_ )         led_client_->SetLS(ilumisec_);
+  if( laser_client_ )       laser_client_->SetLS(ilumisec_);
+  if( tp_client_ )          tp_client_->SetLS(ilumisec_);
+  if( ct_client_ )          ct_client_->SetLS(ilumisec_);
+  if( beam_client_ )        beam_client_->SetLS(ilumisec_);
   /////////////////////////////////////////////////////////
-  if( detdiagped_client_ ) detdiagped_client_->SetLS(l.luminosityBlock());
-  if( detdiagled_client_ ) detdiagled_client_->SetLS(l.luminosityBlock());
-  if( detdiaglas_client_ ) detdiaglas_client_->SetLS(l.luminosityBlock());
+  if( detdiagped_client_ ) detdiagped_client_->SetLS(ilumisec_);
+  if( detdiagled_client_ ) detdiagled_client_->SetLS(ilumisec_);
+  if( detdiaglas_client_ ) detdiaglas_client_->SetLS(ilumisec_);
   /////////////////////////////////////////////////////////
 }
 
@@ -439,7 +439,7 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
 void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
   // don't allow backsliding in online running
-  if (Online_ && l.luminosityBlock()<currentLumiBlock) return;
+  if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
   if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...
@@ -459,6 +459,9 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
 
   // environment datamembers
+
+  // Don't process out-of-order lumi block information in online running
+  if (Online_ && (int)e.luminosityBlock()<ilumisec_) return;
   irun_     = e.id().run();
   ilumisec_ = e.luminosityBlock();
   ievent_   = e.id().event();

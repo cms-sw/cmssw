@@ -148,8 +148,7 @@ public:
   int nlumisecs_;
   bool saved_;
   bool Online_;
-  unsigned int currentLumiBlock;
-
+  
   struct{
     timeval startTV,updateTV;
     double startTime;
@@ -161,7 +160,8 @@ public:
   DQMStore* dbe_;  
   
   // environment variables
-  int irun_,ilumisec_,ievent_,itime_;
+  int irun_,ievent_,itime_;
+  int ilumisec_;
   int maxlumisec_, minlumisec_;
 
   time_t mytime_;
