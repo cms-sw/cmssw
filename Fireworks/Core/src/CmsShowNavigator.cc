@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.55 2009/11/19 14:36:07 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.56 2009/11/19 17:03:19 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -105,7 +105,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
          return false; //bad file
       }
    
-      unsigned int nFilesKeep = checkMaxFileSize ? m_maxNumberOfFilesToChain : 1;
+      unsigned int nFilesKeep = checkMaxFileSize ? (m_maxNumberOfFilesToChain + 1) : 1;
       // remove extra files
       while ( m_files.size() > 0 && m_files.size() >= nFilesKeep &&
               m_files.begin() != m_currentFile)
