@@ -40,7 +40,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
-
 // For the random numbers
 namespace CLHEP {
   class HepRandomEngine;
@@ -260,6 +259,14 @@ class SiPixelDigitizerAlgorithm  {
     float tanLorentzAnglePerTesla_FPix;   //FPix Lorentz angle tangent per Tesla
     float tanLorentzAnglePerTesla_BPix;   //BPix Lorentz angle tangent per Tesla
 
+    float FPix_p0;
+    float FPix_p1;
+    float FPix_p2;
+    float FPix_p3;
+    float BPix_p0;
+    float BPix_p1;
+    float BPix_p2;
+    float BPix_p3;
 
 
     //-- add_noise
@@ -376,6 +383,8 @@ class SiPixelDigitizerAlgorithm  {
     
     // the random generator
     CLHEP::RandGaussQ* theGaussianDistribution;
+
+
 };
 
 #endif

@@ -8,13 +8,21 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
         'g4SimHitsTrackerHitsPixelEndcapLowTof', 
         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     OffsetSmearing = cms.double(0.0),
-    ThresholdInElectrons_FPix = cms.double(2870.0), 
-    ThresholdInElectrons_BPix = cms.double(2870.0),
+    ThresholdInElectrons_FPix = cms.double(2480.0), 
+    ThresholdInElectrons_BPix = cms.double(2730.0),
     AddThresholdSmearing = cms.bool(True),
-    ThresholdSmearing_FPix = cms.double(200.0),
+    ThresholdSmearing_FPix = cms.double(160.0),
     ThresholdSmearing_BPix = cms.double(200.0),
     NoiseInElectrons = cms.double(175.0),
     MissCalibrate = cms.bool(True),
+    FPix_SignalResponse_p0 = cms.double(0.0043),
+    FPix_SignalResponse_p1 = cms.double(1.31),
+    FPix_SignalResponse_p2 = cms.double(93.6),
+    FPix_SignalResponse_p3 = cms.double(134.6),
+    BPix_SignalResponse_p0 = cms.double(0.0035),
+    BPix_SignalResponse_p1 = cms.double(1.23),
+    BPix_SignalResponse_p2 = cms.double(97.4),
+    BPix_SignalResponse_p3 = cms.double(126.5),
     ElectronsPerVcal = cms.double(65.5),
     ElectronsPerVcal_Offset = cms.double(-414.0),
     ElectronPerAdc = cms.double(135.0),
@@ -38,18 +46,11 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
 )
 
 
-# Threshold in electrons are the Official COSMICS pixel numbers since january 2009: D. Kotlinski
-#    ThresholdInElectrons_FPix = cms.double(2870.0) smearing = 200
-#    ThresholdInElectrons_BPix = cms.double(3700.0) smearing = 410
-
-# Threshold in electrons are the Official COLLISIONS pixel numbers since february 2009: D. Kotlinski
-#    ThresholdInElectrons_FPix = cms.double(2870.0) smearing = 200
-#    ThresholdInElectrons_BPix = cms.double(2870.0) smearing = 200
-
+# Threshold in electrons are the Official CRAFT09 numbers:
+# FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)
 
 #DEAD MODULES LIST: NEW LIST AFTER 2009 PIXEL REPAIRS
 # https://twiki.cern.ch/twiki/bin/view/CMS/SiPixelQualityHistory
-
 
 #Barrel 
 #BpI_SEC5_LYR3_LDR12F_MOD2 -- 302197784, "whole" 
@@ -68,8 +69,6 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
 #Forward 
 #BmO_DISK1_BLD9_PNL2 -- 344014340, 344014344, 344014348
 #BmI_DISK1_BLD11_PNL2 -- 344019460, 344019464, 344019468
-
-
 
 #    DeadModules = cms.VPSet(cms.PSet(Dead_detID = cms.int32(302197784), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(302195232), Module = cms.string("whole")),
