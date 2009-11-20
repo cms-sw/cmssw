@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/19 12:49:22 $
- * $Revision: 1.151 $
+ * $Date: 2009/11/19 16:59:36 $
+ * $Revision: 1.152 $
  * \author W Fisher
  * \author J Temple
  *
@@ -327,7 +327,7 @@ HcalMonitorModule::~HcalMonitorModule()
     { delete detDiagNoise_; 
     detDiagNoise_=0; 
     }
-  if(detDiagNoise_!=0) 
+  if(detDiagTiming_!=0) 
     { delete detDiagTiming_; 
     detDiagTiming_=0; 
     }
