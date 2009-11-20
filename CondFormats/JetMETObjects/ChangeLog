@@ -1,3 +1,9 @@
+2009-11-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* bugfix (!) to FactorizedJetCorrector: for the L6 (SLB)
+	correction, only scale for the presence of the lepton if the
+	corresponding flag is set!!
+
 2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* add data/L6SLB.txt
