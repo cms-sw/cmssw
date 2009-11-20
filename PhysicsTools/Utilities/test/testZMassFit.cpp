@@ -1,5 +1,6 @@
 #include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
+#include "PhysicsTools/Utilities/interface/HistoPoissonLikelihoodRatio.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
@@ -16,12 +17,14 @@
 //using namespace std;
 //using namespace boost;
 
-int main() { 
-  gROOT->SetStyle("Plain");
-  typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
-  typedef fit::HistoChiSquare<FitFunction> ChiSquared;
+typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
+typedef fit::HistoChiSquare<FitFunction> ChiSquared;
+typedef fit::HistoPoissonLikelihoodRatio<FitFunction> PoissonLR;
+
+template<typename T> 
+int main_t(const std::string tag) {
   try {
-    fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
+    fit::RootMinuitCommands<T> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
     
     const char * kYield = "Yield";
     const char * kMass = "Mass";
@@ -38,18 +41,18 @@ int main() {
     histo.FillRandom("startFun", yield);
     TCanvas canvas;
     startFun.Draw();
-    canvas.SaveAs("breitWigner.eps");
+    canvas.SaveAs((tag+"breitWigner.eps").c_str());
     histo.Draw();
-    canvas.SaveAs("breitWignerHisto.eps");
+    canvas.SaveAs((tag+"breitWignerHisto.eps").c_str());
     startFun.Draw("same");
-    canvas.SaveAs("breitWignerHistoFun.eps");
+    canvas.SaveAs((tag+"breitWignerHistoFun.eps").c_str());
     histo.Draw("e");
     startFun.Draw("same");
     
-    ChiSquared chi2(f, &histo, 80, 120);
+    T chi2(f, &histo, 80, 120);
     int fullBins = chi2.numberOfBins();
     std::cout << "N. deg. of freedom: " << fullBins << std::endl;
-    fit::RootMinuit<ChiSquared> minuit(chi2, true);
+    fit::RootMinuit<T> minuit(chi2, true);
     commands.add(minuit, yield);
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
@@ -63,11 +66,22 @@ int main() {
       }
       std::cout << std::endl;
     } 
-    root::plot<FitFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
+    root::plot<FitFunction>((tag+"breitWignerHistoFunFit.eps").c_str(), histo, f, 80, 120, yield, mass, gamma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
   }
   
+  return 0;
+}
+
+int main() { 
+  gROOT->SetStyle("Plain");
+  std::cout << "=== chi-2 fit ===" << std::endl;
+  int ret1 = main_t<ChiSquared>("chi2_");
+  if(ret1 != 0 ) return ret1;
+  std::cout << "=== poisson LR fit ===" << std::endl;
+  int ret2 = main_t<PoissonLR>("possLR_");
+  if(ret2 != 0 ) return ret2;
   return 0;
 }
