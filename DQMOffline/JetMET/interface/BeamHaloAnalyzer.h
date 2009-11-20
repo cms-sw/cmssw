@@ -188,9 +188,6 @@
 #include <memory>
 #include <iomanip>
 
-
-
-
 class BeamHaloAnalyzer: public edm::EDAnalyzer {
  public:
   explicit BeamHaloAnalyzer(const edm::ParameterSet&);
@@ -233,6 +230,7 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   edm::InputTag IT_EcalHaloData;
   edm::InputTag IT_HcalHaloData;
   edm::InputTag IT_GlobalHaloData;
+  edm::InputTag IT_BeamHaloSummary;
 
   //Output File
   std::string OutputFileName;

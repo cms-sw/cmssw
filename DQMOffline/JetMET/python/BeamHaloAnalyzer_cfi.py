@@ -26,8 +26,10 @@ AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
                                  EcalHaloDataLabel = cms.InputTag("EcalHaloData"),
                                  HcalHaloDataLabel = cms.InputTag("HcalHaloData"),
                                  GlobalHaloDataLabel = cms.InputTag("GlobalHaloData"),
+                                 BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
                                  OutputFile = cms.string(""),
                                  folderName = cms.string("JetMET/BeamHalo/")
+
 #                                 OutputFile = cms.string("BeamHaloIdDQM.root"),
 #                                 folderName = cms.string("JetMET/BeamHalo/")
                                  )
