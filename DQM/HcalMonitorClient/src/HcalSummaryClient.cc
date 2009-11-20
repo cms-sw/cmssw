@@ -1123,7 +1123,7 @@ void HcalSummaryClient::htmlStatusDump(std::string name, SubTaskSummaryStatus& t
 {
   htmlFile <<"<tr><td>"<<name<<"</td>"<<endl;
   int totalcells=0;
-  for (unsigned int i=0;i<=4;++i)
+  for (unsigned int i=0;i<4;++i)
     {
       if (i>Ncells.size()) 
 	htmlFile <<"<td> ?? </td>"<<endl;
