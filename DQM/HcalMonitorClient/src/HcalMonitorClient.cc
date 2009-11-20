@@ -413,7 +413,9 @@ void HcalMonitorClient::writeDBfile()
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
 {
   // don't allow 'backsliding' across lumi blocks in online running
-  if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
+  // This still won't prevent some lumi blocks from being evaluated multiple times.  Need to think about this.
+  //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
+  if (debug_>0) cout <<"Entered Monitor Client beginLuminosityBlock for LS = "<<l.luminosityBlock()<<endl;
   ilumisec_ = l.luminosityBlock();
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
   if( summary_client_)      summary_client_->SetLS(ilumisec_);
@@ -439,7 +441,7 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
 void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
   // don't allow backsliding in online running
-  if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
+  //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
   if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...
@@ -461,7 +463,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   // environment datamembers
 
   // Don't process out-of-order lumi block information in online running
-  if (Online_ && (int)e.luminosityBlock()<ilumisec_) return;
+  //if (Online_ && (int)e.luminosityBlock()<ilumisec_) return;
   irun_     = e.id().run();
   ilumisec_ = e.luminosityBlock();
   ievent_   = e.id().event();

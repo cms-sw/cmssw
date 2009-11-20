@@ -51,6 +51,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   HcalBaseMonitor::setup(ps,dbe);  // perform setups of base class
 
   ievt_=0; // event counter
+  
   baseFolder_ = rootFolder_ + "BeamMonitor_Hcal";
   if (fVerbosity) std::cout <<"<HcalBeamMonitor::setup> Setup in progress"<<std::endl;
 
@@ -1006,7 +1007,7 @@ void HcalBeamMonitor::endLuminosityBlock()
 	return;
       // dump out lumi quality file
       std::ofstream outStream(outfile_.str().c_str(),ios::app);
-      outStream<<lumiblock<<"\t\t-1\t\t-1\t\t-1"<<endl;
+      outStream<<lumiblock<<"\t\t-1\t\t-1\t\t-1\t"<<Nentries<<endl;
       outStream.close();
       return;
     }
@@ -1063,7 +1064,8 @@ void HcalBeamMonitor::endLuminosityBlock()
     } // loop over x
 
   // Fill fraction of bad channels found in this LS
-  double ring1status=0, ring2status=0;
+  double ring1status=0;
+  double ring2status=0;
   if (ring1totalchannels_==0)
     ring1status=0;
   else
@@ -1085,7 +1087,7 @@ void HcalBeamMonitor::endLuminosityBlock()
     return;
   // dump out lumi quality file
   std::ofstream outStream(outfile_.str().c_str(),ios::app);
-  outStream<<lumiblock<<"\t\t"<<ring1status<<"\t\t"<<ring2status<<"\t\t"<<totalstatus<<endl;
+  outStream<<lumiblock<<"\t\t"<<ring1status<<"\t\t"<<ring2status<<"\t\t"<<totalstatus<<"\t"<<Nentries<<endl;
   outStream.close();
   return;
 }
