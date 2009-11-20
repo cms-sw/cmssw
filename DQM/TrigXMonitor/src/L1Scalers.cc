@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.16 2009/08/25 21:32:49 dellaric Exp $
+// $Id: L1Scalers.cc,v 1.17 2009/11/06 18:27:19 lorenzo Exp $
 #include <iostream>
 
 
@@ -44,6 +44,8 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   bxNum_(0),
   l1scalersBx_(0),
   l1techScalersBx_(0),
+  pixFedSizeBx_(0),
+  hfEnergyMaxTowerBx_(0),
   nLumiBlock_(0),
   l1AlgoCounter_(0),
   l1TtCounter_(0),
@@ -63,7 +65,7 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
 
 
 
-void L1Scalers::beginJob(const edm::EventSetup& iSetup)
+void L1Scalers::beginJob(void)
 {
   LogDebug("Status") << "L1Scalers::beginJob()...";
 
@@ -89,6 +91,14 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
 				    "Trigger "
 				    "Bits vs Bunch Number",
 				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
+    pixFedSizeBx_ = dbe_->book2D("pixFedSize_Vs_Bx", "Size of Pixel FED data vs "
+				"Bunch Number",
+				3600, -0.5, 3599.5,
+				200, 0., 20000.);
+    hfEnergyMaxTowerBx_ = dbe_->book2D("hfEnergyMaxTower_Vs_Bx", "HF Energy Max Tower vs "
+				"Bunch Number",
+				3600, -0.5, 3599.5,
+				100, 0., 500.);
     bxNum_ = dbe_->book1D("bxNum", "Bunch number from GTFE",
 			  3600, -0.5, 3599.5);
 
@@ -121,6 +131,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
   nev_++;
   LogDebug("Status") << "L1Scalers::analyze  event " << nev_ ;
 
+  int myGTFEbx = -1;
   // get Global Trigger decision and the decision word
   // these are locally derived
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
@@ -138,6 +149,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     L1GtfeWord gtfeWord = gtRecord->gtfeWord();
     int gtfeBx = gtfeWord.bxNr();
     bxNum_->Fill(gtfeBx);
+    myGTFEbx = gtfeBx;
 
     // First, the default
     // vector of bool
@@ -208,12 +220,14 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       totalFEDsize += theRaw->FEDData(i).size() ; 
     }
     pixFedSize_->Fill(totalFEDsize);
-    
+    if( (myGTFEbx!=-1) ) pixFedSizeBx_->Fill(myGTFEbx,totalFEDsize);
+
     LogDebug("Parameter") << "Total FED size: " << totalFEDsize;
   }      
 
   // HF - stolen from HLTrigger/special
   // getting very basic uncalRH
+  double maxHFenergy = -1;
   edm::Handle<HFRecHitCollection> crudeHits;
   bool getHF = e.getByLabel(HcalRecHitCollection_, crudeHits);
   if ( ! getHF ) {
@@ -234,10 +248,11 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       if  (result != maskedList_.end()) 
 	continue; 
       hfEnergy_->Fill(hit.energy());
-       
+      if( (hit.energy()>maxHFenergy) ) maxHFenergy = hit.energy();
     }
   }
 
+  if( (maxHFenergy!=-1 && myGTFEbx!=-1) ) hfEnergyMaxTowerBx_->Fill(myGTFEbx,maxHFenergy);
   // END HACK
 
   return;

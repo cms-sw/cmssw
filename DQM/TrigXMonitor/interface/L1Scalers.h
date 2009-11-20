@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.8 2008/09/16 17:19:13 wittich Exp $
+// $Id: L1Scalers.h,v 1.9 2008/09/17 20:56:02 lorenzo Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,7 +21,7 @@ public:
   virtual ~L1Scalers() {};
   
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
    // Endjob
    void endJob(void);
@@ -58,6 +58,8 @@ private:
   // 2d versions
   MonitorElement *l1scalersBx_;
   MonitorElement *l1techScalersBx_;
+  MonitorElement *pixFedSizeBx_;
+  MonitorElement *hfEnergyMaxTowerBx_;
 
   // Int
   MonitorElement *nLumiBlock_;

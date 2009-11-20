@@ -403,7 +403,7 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TScalersSCAL::beginJob(const edm::EventSetup&)
+L1TScalersSCAL::beginJob(void)
 {
 }
 
