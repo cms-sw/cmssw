@@ -18,7 +18,6 @@ int Phi_To_iPhi(float phi)
 }
 
 
-
 BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 {
   OutputFileName = iConfig.getParameter<std::string>("OutputFile"); 
@@ -53,7 +52,7 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   IT_EcalHaloData = iConfig.getParameter<edm::InputTag>("EcalHaloDataLabel");
   IT_HcalHaloData = iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel");
   IT_GlobalHaloData = iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel");
-
+  IT_BeamHaloSummary = iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
   FolderName = iConfig.getParameter<std::string>("folderName");
 }
 
@@ -122,6 +121,21 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 72, 0.5,72.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+
+    // BeamHaloSummary 
+    dqm->setCurrentFolder(FolderName+"/BeamHaloSummary");
+    ME["BeamHaloSummary_Id"] = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0,11);
+    ME["BeamHaloSummary_Id"] ->setBinLabel(1,"CSC Loose");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(2,"CSC Tight");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(3,"Ecal Loose");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(4,"Ecal Tight");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(5,"Hcal Loose");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(6,"Hcal Tight");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(7,"Global Loose");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(8,"Global Tight");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(9,"Event Loose");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(10,"Event Tight");
+    ME["BeamHaloSummary_Id"] ->setBinLabel(11,"Nothing");
 
     // Extra
     dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
@@ -523,7 +537,33 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
 
- 
+  // Get BeamHaloSummary 
+  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
+  iEvent.getByLabel(IT_BeamHaloSummary, TheBeamHaloSummary) ;
+  
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+  if( TheSummary.CSCLooseHaloId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(1);
+  if( TheSummary.CSCTightHaloId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(2);
+  if( TheSummary.EcalLooseHaloId() )
+    ME["BeamHaloSummary_Id"] ->Fill(3);
+  if( TheSummary.EcalTightHaloId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(4);
+  if( TheSummary.HcalLooseHaloId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(5);
+  if( TheSummary.HcalTightHaloId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(6);
+  if( TheSummary.GlobalLooseHaloId()) 
+    ME["BeamHaloSummary_Id"] ->Fill(7);
+  if( TheSummary.GlobalTightHaloId() )
+    ME["BeamHaloSummary_Id"] ->Fill(8);
+  if( TheSummary.LooseId() ) 
+    ME["BeamHaloSummary_Id"] ->Fill(9);
+  if( TheSummary.TightId() )
+    ME["BeamHaloSummary_Id"] ->Fill(10);
+  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && !TheSummary.CSCLooseHaloId() && !TheSummary.GlobalLooseHaloId() )
+    ME["BeamHaloSummary_Id"] ->Fill(11);
   
 
   if( TheCaloMET.isValid() )
