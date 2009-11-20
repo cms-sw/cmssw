@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Description: Module to build BeamHaloSummary Object and put into the event
 # Date: Oct. 15, 2009
 
-halosummary = cms.EDProducer("BeamHaloSummaryProducer",
+BeamHaloSummary = cms.EDProducer("BeamHaloSummaryProducer",
                              CSCHaloDataLabel = cms.InputTag("CSCHaloData"),
                              EcalHaloDataLabel = cms.InputTag("EcalHaloData"),
                              HcalHaloDataLabel = cms.InputTag("HcalHaloData"),
