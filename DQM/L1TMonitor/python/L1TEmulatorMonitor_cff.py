@@ -19,6 +19,11 @@ from Configuration.StandardSequences.RawToDigi_Data_cff import *
 from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
 l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
 
+# temporary fix for L1 GT emulator configuration in hardware validation
+valGtDigis.RecordLength = cms.vint32(3, 5)
+valGtDigis.AlternativeNrBxBoardDaq = 0x101
+valGtDigis.AlternativeNrBxBoardEvm = 0x2
+
 #dqm
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
