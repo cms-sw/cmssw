@@ -75,11 +75,23 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
+#
 # HCALNoise module
+#
 process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
 process.hcalnoise.refillRefVectors = cms.bool(True)
 process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
 process.hcalnoise.requirePedestals = cms.bool(False)
+
+#
+# BeamHaloData producer
+#
+process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
+process.GlobalTag.globaltag ='STARTUP31X_V4::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -105,6 +117,9 @@ if allhist=="True":
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.pfMETAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.tcMETAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection = cms.bool(True)
 
 # the task - JetMET trigger
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
@@ -171,6 +186,7 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
+                     * process.BeamHaloId
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
@@ -178,6 +194,7 @@ if iscosmics=="True":
                      * process.dqmStoreStats)
 else:
   process.p = cms.Path(process.hcalnoise
+                     * process.BeamHaloId
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic
