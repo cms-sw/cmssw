@@ -202,7 +202,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){ dqm->save(OutputFileName);}
+  virtual void endRun(const edm::Run&, const edm::EventSetup&){ 
+    if (OutputFileName!="") dqm->save(OutputFileName);}
 
   edm::InputTag IT_L1MuGMTReadout;
 
