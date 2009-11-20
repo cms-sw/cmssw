@@ -29,6 +29,8 @@ REGISTER_PLUGIN(SiStripLorentzAngleSimRcd,SiStripLorentzAngle);
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 REGISTER_PLUGIN(SiStripApvGainRcd,SiStripApvGain);
+REGISTER_PLUGIN(SiStripApvGain2Rcd,SiStripApvGain);
+REGISTER_PLUGIN(SiStripApvGain3Rcd,SiStripApvGain);
 REGISTER_PLUGIN(SiStripApvGainSimRcd,SiStripApvGain);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"

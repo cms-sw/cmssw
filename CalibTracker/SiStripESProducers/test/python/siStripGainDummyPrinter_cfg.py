@@ -42,27 +42,27 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-# process.source = cms.Source("EmptySource",
-#     numberEventsInRun = cms.untracked.uint32(1),
-#     firstRun = cms.untracked.uint32(97),
-#     lastRun = cms.untracked.uint32(104)
-# )
-
 process.load("CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi")
 
+# Need to specify the Record for each ApvGain.
+# Optionally the Label associated to the tag can also be specified (default = "").
 process.siStripGainESProducer.APVGain = cms.VPSet(
    cms.PSet(
-       Label = cms.string('SiStripApvGain_test_1')
+       Record = cms.string('SiStripApvGainRcd'),
+       Label = cms.untracked.string('SiStripApvGain_test_1')
    ),
+   # cms.PSet(
+   #     Record = cms.string('SiStripApvGain2Rcd'),
+   #     Label = cms.untracked.string('SiStripApvGain_test_2')
    cms.PSet(
-       Label = cms.string('SiStripApvGain_test_2')
+       Record = cms.string('SiStripApvGain2Rcd'),
    ),
 )
 
 # process.siStripGainESProducer.APVGain[0].Label = "SiStripApvGain_test_1"
 
 # From CondCore/ESSources V09-00-06 it is possible to use a single ESSource.
-# For earlier versions the two labels must be loaded by two different PoolDBESSources.
+# For earlier versions the two tags to go in the same record must be loaded by two different PoolDBESSources.
 process.poolDBESSource = cms.ESSource(
     "PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -78,28 +78,30 @@ process.poolDBESSource = cms.ESSource(
             tag = cms.string('SiStripApvGain_test_1'),
             label = cms.untracked.string('SiStripApvGain_test_1')
         ),
-        cms.PSet(
-            record = cms.string('SiStripApvGainRcd'),
-            tag = cms.string('SiStripApvGain_test_2'),
-            label = cms.untracked.string('SiStripApvGain_test_2')
-        )
+#        cms.PSet(
+#            record = cms.string('SiStripApvGainRcd'),
+#            tag = cms.string('SiStripApvGain_test_2'),
+#            label = cms.untracked.string('SiStripApvGain_test_2')
+#        )
     )
 )
 
-# process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
-#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#    DBParameters = cms.PSet(
-#         messageLevel = cms.untracked.int32(2),
-#         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#     ),
-#     timetype = cms.untracked.string('runnumber'),
-#     connect = cms.string('sqlite_file:dbfile.db'),
-#     toGet = cms.VPSet(cms.PSet(
-#         record = cms.string('SiStripApvGainRcd'),
-#         tag = cms.string('SiStripApvGain_test_2'),
-#         label = cms.untracked.string('SiStripApvGain_test_2')
-#     ))
-# )
+process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+       messageLevel = cms.untracked.int32(2),
+       authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+   ),
+   timetype = cms.untracked.string('runnumber'),
+   connect = cms.string('sqlite_file:dbfile.db'),
+   toGet = cms.VPSet(cms.PSet(
+       record = cms.string('SiStripApvGain2Rcd'),
+       # tag = cms.string('SiStripApvGain_test_2'),
+       # label = cms.untracked.string('SiStripApvGain_test_2')
+       tag = cms.string('SiStripApvGain_Ideal_31X'),
+       # label = cms.untracked.string('')
+   ))
+)
 
 process.reader = cms.EDFilter("SiStripGainDummyPrinter")
                               

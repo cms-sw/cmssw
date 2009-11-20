@@ -5,6 +5,8 @@
 
 /*Recod associated to SiStripApvGain Object: the SimRcd is used in simulation only*/
 class SiStripApvGainRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvGainRcd> {};
+class SiStripApvGain2Rcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvGain2Rcd> {};
+class SiStripApvGain3Rcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvGain3Rcd> {};
 class SiStripApvGainSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvGainSimRcd> {};
 
 /*Record associated to SiStripBadStrip Object*/
