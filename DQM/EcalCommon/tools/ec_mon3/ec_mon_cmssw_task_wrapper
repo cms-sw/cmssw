@@ -210,6 +210,8 @@ process.ecalUncalibHit1 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUn
 import RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi
 process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi.ecalMaxSampleUncalibRecHit.clone()
 
+process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
@@ -477,7 +479,7 @@ if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
   process.dqmQTestEB.prescaleFactor = 4
   process.dqmQTestEE.prescaleFactor = 4
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalDetIdToBeRecovered*process.ecalRecHit)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.ecalBarrelMonitorClient)
 
@@ -602,6 +604,17 @@ process.ecalUncalibHit1.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalUncalibHit2.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
+process.ecalDetIdToBeRecovered.ebSrFlagCollection = 'ecalEBunpacker'
+process.ecalDetIdToBeRecovered.eeSrFlagCollection = 'ecalEBunpacker'
+process.ecalDetIdToBeRecovered.ebIntegrityGainErrors = 'ecalEBunpacker:EcalIntegrityGainErrors'
+process.ecalDetIdToBeRecovered.ebIntegrityGainSwitchErrors = 'ecalEBunpacker:EcalIntegrityGainSwitchErrors'
+process.ecalDetIdToBeRecovered.ebIntegrityChIdErrors = 'ecalEBunpacker:EcalIntegrityChIdErrors'
+process.ecalDetIdToBeRecovered.eeIntegrityGainErrors = 'ecalEBunpacker:EcalIntegrityGainErrors'
+process.ecalDetIdToBeRecovered.eeIntegrityGainSwitchErrors = 'ecalEBunpacker:EcalIntegrityGainSwitchErrors'
+process.ecalDetIdToBeRecovered.eeIntegrityChIdErrors = 'ecalEBunpacker:EcalIntegrityChIdErrors'
+process.ecalDetIdToBeRecovered.integrityTTIdErrors = 'ecalEBunpacker:EcalIntegrityTTIdErrors'
+process.ecalDetIdToBeRecovered.integrityBlockSizeErrors = 'ecalEBunpacker:EcalIntegrityBlockSizeErrors'
+
 process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
@@ -637,10 +650,13 @@ process.ecalEndcapMonitorClient.location = 'P5_Co'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Led', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
 #process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
-process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
+#process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
+process.ecalBarrelLaserTask.laserWavelengths = [ 1 ]
 
 #process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
-process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
+#process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
+process.ecalEndcapLaserTask.laserWavelengths = [ 1 ]
+
 process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 #process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
 
@@ -648,7 +664,9 @@ process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
 
 #process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
-process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
+#process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
+process.ecalEndcapMonitorClient.laserWavelengths = [ 1 ]
+
 #process.ecalEndcapMonitorClient.ledWavelengths = [ 1 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
 
