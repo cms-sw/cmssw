@@ -119,7 +119,7 @@ namespace sistrip {
   {
     return ( (internalFEDChannelNum < validChannels_) &&
              feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT) &&
-             checkStatusBits(internalFEDChannelNum) );
+             (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)) );
   }
 
   bool FEDBuffer::doChecks() const
