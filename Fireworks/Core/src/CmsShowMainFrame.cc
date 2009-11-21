@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.70 2009/11/18 17:13:53 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.71 2009/11/20 17:24:21 amraktad Exp $
 //
 // hacks
 #define private public
@@ -462,9 +462,10 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
    char title[128];
    snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
    m_lumiBlock->SetText( title );
+}
 
-   // loadEvent gets called before the special cases [at beginning, at end, etc]
-   // so we can enable all our event controls here
+void CmsShowMainFrame::enableNavigatorControls()
+{
    m_nextEvent->enable();
    m_previousEvent->enable();
    m_goToFirst->enable();

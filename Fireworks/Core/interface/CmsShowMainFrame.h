@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.29 2009/11/18 17:13:52 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.30 2009/11/20 17:24:21 amraktad Exp $
 //
 
 // system include files
@@ -65,6 +65,7 @@ public:
   virtual void CloseWindow();
 
    void loadEvent(const fwlite::Event& event);
+   void enableNavigatorControls();
    void quit();
    virtual void enableActions(bool enable = true);
    void enablePrevious(bool enable = true);
