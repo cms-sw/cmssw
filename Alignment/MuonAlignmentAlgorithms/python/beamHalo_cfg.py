@@ -7,6 +7,7 @@ iteration = int(os.environ["ALIGNMENT_ITERATION"])
 DIRNAME = os.environ["ALIGNMENT_DIRNAME"]
 mode = os.environ["ALIGNMENT_MODE"]
 params = os.environ["ALIGNMENT_PARAMS"]
+minhits = int(os.environ["ALIGNMENT_MINHITS"])
 mintracks = int(os.environ["ALIGNMENT_MINTRACKS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 
@@ -35,7 +36,7 @@ process.looper.algoConfig = cms.PSet(
     algoName = cms.string("CSCOverlapsAlignmentAlgorithm"),
     mode = cms.string(mode),
     maxHitErr = cms.double(0.2),        # exclude the last strip
-    minHitsPerChamber = cms.int32(6),   # don't accept segments that point out of the chamber
+    minHitsPerChamber = cms.int32(minhits),
     beamlineAngle = cms.double(0.25),   # don't accept segments that fail to point at the beamline
     maxRotYDiff = cms.double(0.030),
     maxRPhiDiff = cms.double(1.5),

@@ -17,6 +17,11 @@ INITIALGEOM    SQLite file containing muon geometry with tag names CSCAlignmentR
 INPUTFILES     Python file defining 'fileNames', a list of input files as strings (create with findQualityFiles.py)"""
 
 parser = optparse.OptionParser(usage)
+parser.add_option("--minhits",
+                  help="Minimum number of hits per chamber",
+                  type="int",
+                  default=6,
+                  dest="minhits")
 parser.add_option("--mintracks",
                   help="Minimum number of tracks per chamber",
                   type="int",
@@ -41,6 +46,7 @@ INPUTFILES = sys.argv[3]
 execfile(INPUTFILES)  # defines fileNames
 
 options, args = parser.parse_args(sys.argv[4:])
+minhits = options.minhits
 mintracks = options.mintracks
 sequence_conversion = {"phiy": "roty", "rphi": "phipos", "phiz": "rotz"}
 sequence = map(lambda s: sequence_conversion[s], options.sequence.split(" "))
@@ -100,6 +106,7 @@ export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_DIRNAME=%(DIRNAME)s
 export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_PARAMS=%(params)s
+export ALIGNMENT_MINHITS=%(minhits)d
 export ALIGNMENT_MINTRACKS=%(mintracks)d
 export ALIGNMENT_COMBINEME11=%(combineME11)s
 cmsRun beamHalo_cfg.py | tee %(DIRNAME)s_%(iteration)02d.log
