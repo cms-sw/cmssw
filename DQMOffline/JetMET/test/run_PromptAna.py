@@ -91,7 +91,12 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='STARTUP31X_V4::All'
+process.load("RecoMET/METProducers/BeamHaloSummary_cfi")
+process.load("RecoMET/METProducers/CSCHaloData_cfi")
+process.load("RecoMET/METProducers/EcalHaloData_cfi")
+process.load("RecoMET/METProducers/HcalHaloData_cfi")
+process.load("RecoMET/METProducers/GlobalHaloData_cfi")
+process.GlobalTag.globaltag ='STARTUP31X_V7::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -110,7 +115,7 @@ if allhist=="True":
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
   process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
 
-process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
+#process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
 
 if allhist=="True":
   process.jetMETAnalyzer.caloMETAnalysis.allSelection = cms.bool(True)
@@ -186,7 +191,12 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
-                     * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
+#                    * process.BeamHaloId
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
@@ -194,7 +204,12 @@ if iscosmics=="True":
                      * process.dqmStoreStats)
 else:
   process.p = cms.Path(process.hcalnoise
-                     * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
+#                    * process.BeamHaloId
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic

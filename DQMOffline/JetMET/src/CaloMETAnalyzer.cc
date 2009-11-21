@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 07:28:21 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/11/21 08:09:59 $
+ *  $Revision: 1.18 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -110,7 +110,7 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLossePass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 
@@ -563,15 +563,19 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
+  if (_verbose) std::cout << "HcalNoiseFilter Summary ends" << std::endl;
+
   // ==========================================================
   // Get BeamHaloSummary
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
   iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
 
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
+
+  if(!TheBeamHaloSummary.isValid()) {
+
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
   if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
       !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
@@ -580,6 +584,10 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
       !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
     bBeamHaloIDTightPass = false;
+
+  }
+
+  if (_verbose) std::cout << "BeamHaloSummary ends" << std::endl;
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements

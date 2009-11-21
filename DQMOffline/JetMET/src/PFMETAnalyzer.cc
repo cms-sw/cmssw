@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 07:28:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/21 08:09:59 $
+ *  $Revision: 1.7 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -113,7 +113,7 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLossePass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -549,10 +549,12 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
   iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
 
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
+
+  if(!TheBeamHaloSummary.isValid()) {
+
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
   if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
       !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
@@ -561,6 +563,8 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
       !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
     bBeamHaloIDTightPass = false;
+
+  }
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements

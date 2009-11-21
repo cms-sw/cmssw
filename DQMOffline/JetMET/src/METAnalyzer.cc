@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 07:28:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/21 08:09:59 $
+ *  $Revision: 1.6 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -109,7 +109,7 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLossePass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -533,10 +533,16 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
   iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
 
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+  if (!TheBeamHaloSummary.isValid()) {
+    std::cout << "BeamHaloSummary doesn't exist" << std::endl;
+  }
 
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
+
+  if(!TheBeamHaloSummary.isValid()) {
+
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
   if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
       !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
@@ -545,6 +551,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
       !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
     bBeamHaloIDTightPass = false;
+
+  }
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
