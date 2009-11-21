@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/12 17:28:34 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/21 07:28:21 $
+ *  $Revision: 1.6 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -181,6 +181,9 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,500,0,1000);
   mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",80,-TMath::Pi(),TMath::Pi());
   mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,500,0,2000);
+
+  mePfMET                = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
+  mePfSumET              = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
 
   mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
   mePfNeutralHadFraction = _dbe->book1D("METTask_PfNeutralHadFraction","METTask_PfNeutralHadFraction",50,0.,1.);
@@ -707,6 +710,9 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     mePfSumET  = _dbe->get(DirName+"/"+"METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
     mePfMETSig = _dbe->get(DirName+"/"+"METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
     mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
+
+    mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
+    mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));
 
     mePfMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_PfMETIonFeedbck");  if (mePfMETIonFeedbck && mePfMETIonFeedbck->getRootObject()) mePfMETIonFeedbck->Fill(pfMET);
     mePfMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_PfMETHPDNoise");    if (mePfMETHPDNoise   && mePfMETHPDNoise->getRootObject())   mePfMETHPDNoise->Fill(pfMET);

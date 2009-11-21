@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/12 17:28:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/21 07:28:46 $
+ *  $Revision: 1.5 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -175,6 +175,9 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfSumET;
   MonitorElement* mePfMExLS;
   MonitorElement* mePfMEyLS;
+
+  MonitorElement* mePfMET_logx;
+  MonitorElement* mePfSumET_logx;
 
   MonitorElement* mePfMETIonFeedbck;
   MonitorElement* mePfMETHPDNoise;

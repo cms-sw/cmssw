@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/19 19:57:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/21 07:28:46 $
+ *  $Revision: 1.4 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -169,6 +169,9 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* meSumET;
   MonitorElement* meMExLS;
   MonitorElement* meMEyLS;
+
+  MonitorElement* meMET_logx;
+  MonitorElement* meSumET_logx;
 
   MonitorElement* meMETIonFeedbck;
   MonitorElement* meMETHPDNoise;

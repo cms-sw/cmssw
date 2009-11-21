@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/10/19 23:51:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/21 07:28:46 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -156,6 +156,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meCaloSumET;
   MonitorElement* meCaloMExLS;
   MonitorElement* meCaloMEyLS;
+
+  MonitorElement* meCaloMET_logx;
+  MonitorElement* meCaloSumET_logx;
 
   MonitorElement* meCaloMETIonFeedbck;
   MonitorElement* meCaloMETHPDNoise;

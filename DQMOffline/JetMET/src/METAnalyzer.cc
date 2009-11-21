@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/19 19:57:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/21 07:28:21 $
+ *  $Revision: 1.5 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -177,6 +177,9 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   meMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,500,0,1000);
   meMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",80,-TMath::Pi(),TMath::Pi());
   meSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,500,0,2000);
+
+  meMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
+  meSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
 
   meNeutralEMFraction  = _dbe->book1D("METTask_NeutralEMFraction", "METTask_NeutralEMFraction" ,50,0.,1.);
   meNeutralHadFraction = _dbe->book1D("METTask_NeutralHadFraction","METTask_NeutralHadFraction",50,0.,1.);
@@ -636,6 +639,9 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     meSumET  = _dbe->get(DirName+"/"+"METTask_SumET");  if (meSumET  && meSumET->getRootObject())  meSumET->Fill(SumET);
     meMETSig = _dbe->get(DirName+"/"+"METTask_METSig"); if (meMETSig && meMETSig->getRootObject()) meMETSig->Fill(METSig);
     meEz     = _dbe->get(DirName+"/"+"METTask_Ez");     if (meEz     && meEz->getRootObject())     meEz->Fill(Ez);
+
+    meMET_logx    = _dbe->get(DirName+"/"+"METTask_MET_logx");    if (meMET_logx    && meMET_logx->getRootObject())    meMET_logx->Fill(log10(MET));
+    meSumET_logx  = _dbe->get(DirName+"/"+"METTask_SumET_logx");  if (meSumET_logx  && meSumET_logx->getRootObject())  meSumET_logx->Fill(log10(SumET));
 
     meMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (meMETIonFeedbck && meMETIonFeedbck->getRootObject()) meMETIonFeedbck->Fill(MET);
     meMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (meMETHPDNoise   && meMETHPDNoise->getRootObject())   meMETHPDNoise->Fill(MET);
