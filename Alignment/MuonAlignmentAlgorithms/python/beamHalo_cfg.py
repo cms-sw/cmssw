@@ -2,7 +2,6 @@ import os
 import FWCore.ParameterSet.Config as cms
 
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
-globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 DIRNAME = os.environ["ALIGNMENT_DIRNAME"]
@@ -21,8 +20,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+# process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.looper.doTracker = cms.untracked.bool(False)
@@ -46,20 +47,21 @@ process.looper.algoConfig = cms.PSet(
 
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonCSCChambers,%s" % params)
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string(globaltag)
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-
 process.CSCOverlapsTrackPreparation = cms.EDProducer("CSCOverlapsTrackPreparation", src = cms.InputTag("ALCARECOMuAlBeamHaloOverlaps"))
 process.Path = cms.Path(process.offlineBeamSpot * process.CSCOverlapsTrackPreparation)
 
 import CondCore.DBCommon.CondDBSetup_cfi
+process.inertGlobalPositionRcd = cms.ESSource("PoolDBESSource",
+                                              CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+                                              connect = cms.string("sqlite_file:inertGlobalPositionRcd.db"),
+                                              toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string("inertGlobalPositionRcd"))))
 process.muonAlignment = cms.ESSource("PoolDBESSource",
+                                     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
                                      connect = cms.string("sqlite_file:%s" % inputdb),
-                                     DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
-                                     toGet = cms.VPSet(cms.PSet(record = cms.string("CSCAlignmentRcd"),      tag = cms.string("CSCAlignmentRcd")),
+                                     toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"),       tag = cms.string("DTAlignmentRcd")),
+                                                       cms.PSet(record = cms.string("DTAlignmentErrorRcd"),  tag = cms.string("DTAlignmentErrorRcd")),
+                                                       cms.PSet(record = cms.string("CSCAlignmentRcd"),      tag = cms.string("CSCAlignmentRcd")),
                                                        cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))))
-process.es_prefer_muonAlignment = cms.ESPrefer("PoolDBESSource", "muonAlignment")
 process.looper.applyDbAlignment = True
 
 process.looper.saveToDB = True

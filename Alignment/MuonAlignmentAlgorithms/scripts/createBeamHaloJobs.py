@@ -17,11 +17,6 @@ INITIALGEOM    SQLite file containing muon geometry with tag names CSCAlignmentR
 INPUTFILES     Python file defining 'fileNames', a list of input files as strings (create with findQualityFiles.py)"""
 
 parser = optparse.OptionParser(usage)
-parser.add_option("--globalTag",
-                  help="GlobalTag for conditions not otherwise overridden",
-                  type="string",
-                  default="CRAFT0831X_V1::All",
-                  dest="globaltag")
 parser.add_option("--mintracks",
                   help="Minimum number of tracks per chamber",
                   type="int",
@@ -46,7 +41,6 @@ INPUTFILES = sys.argv[3]
 execfile(INPUTFILES)  # defines fileNames
 
 options, args = parser.parse_args(sys.argv[4:])
-globaltag = options.globaltag
 mintracks = options.mintracks
 sequence_conversion = {"phiy": "roty", "rphi": "phipos", "phiz": "rotz"}
 sequence = map(lambda s: sequence_conversion[s], options.sequence.split(" "))
@@ -101,7 +95,6 @@ for iteration, mode in enumerate(sequence):
 
     controller.append("""
 export ALIGNMENT_INPUTFILES='%(inputfiles)s'
-export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_DIRNAME=%(DIRNAME)s
