@@ -5,7 +5,7 @@ import string
 import os
 import sys
 
-Input_ConfigFile = "MergeJob_cfg.py"
+Input_ConfigFile = "computeGain_cfg.py"
 					# The name of your config file
 					# where you have to replace the OutputAdresse by XXX_OUTPUT_XXX
 					# and the Number of Events by XXX_NEVENTS_XXX
