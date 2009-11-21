@@ -1,1 +1,1 @@
-Loading cmsShow (version 3.4.b - beta)
+Loading cmsShow (version 3.4.c - beta)
