@@ -661,7 +661,8 @@ process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 #process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
 
 #process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
-process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
+#process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
+process.ecalBarrelMonitorClient.laserWavelengths = [ 1 ]
 
 #process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 #process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
