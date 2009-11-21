@@ -681,11 +681,11 @@ HLTOniaPixelTrackSequence = cms.Sequence( HLTDoLocalPixelSequence
 hltOniaPixelTrackSelector = cms.EDProducer("QuarkoniaTrackSelector",
     muonCandidates = cms.InputTag("hltL3MuonCandidates"),
     tracks = cms.InputTag("hltPixelTracks"),
-    MinMasses = cms.vdouble( 2.6 ),
-    MaxMasses = cms.vdouble( 3.6 ),
+    MinMasses = cms.vdouble(2, 8),
+    MaxMasses = cms.vdouble(5, 12),
     checkCharge = cms.bool(False),
     MinTrackPt = cms.double(0.),
-    MinTrackP = cms.double(3.),
+    MinTrackP = cms.double(2.5),
     MaxTrackEta = cms.double(999.)
 )
 hltOniaPixelTrackCands = cms.EDProducer( "ConcreteChargedCandidateProducer",
