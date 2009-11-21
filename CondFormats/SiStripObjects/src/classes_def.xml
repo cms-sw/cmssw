@@ -60,4 +60,5 @@
   <class name="SiStripSummary::DetRegistry"/>
   <class name="std::vector<SiStripSummary::DetRegistry>"/>
 
+  <class name="SiStripConfObject" class_version="0"/>
 </lcgdict>   

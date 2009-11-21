@@ -63,7 +63,5 @@ REGISTER_PLUGIN(SiStripClusterThresholdRcd,SiStripThreshold);
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 REGISTER_PLUGIN(SiStripSummaryRcd,SiStripSummary);
 
-
-
-
-
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+REGISTER_PLUGIN(SiStripConfObjectRcd, SiStripConfObject);

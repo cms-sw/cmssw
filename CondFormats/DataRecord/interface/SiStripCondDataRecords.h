@@ -43,5 +43,7 @@ class SiStripSummaryRcd : public edm::eventsetup::EventSetupRecordImplementation
 class SiStripThresholdRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripThresholdRcd> {};
 class SiStripClusterThresholdRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripClusterThresholdRcd> {};
 
+/*Record for the configuration object*/
+class SiStripConfObjectRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripConfObjectRcd> {};
 
 #endif

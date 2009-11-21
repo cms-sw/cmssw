@@ -53,6 +53,11 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 typedef SiStripTemplateFakeESSource< SiStripLatency, SiStripLatencyRcd, SiStripLatencyGenerator > SiStripLatencyFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripLatencyFakeESSource);
 
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripConfObjectGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripConfObject, SiStripConfObjectRcd, SiStripConfObjectGenerator > SiStripConfObjectFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripConfObjectFakeESSource);
+
 //---------- Empty Fake Source -----------//
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripTemplateEmptyFakeESSource.h"

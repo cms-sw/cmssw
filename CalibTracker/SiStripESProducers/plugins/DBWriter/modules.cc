@@ -74,6 +74,9 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyDBWriter);
 typedef DummyCondDBWriter<SiStripLatency,SiStripLatency,SiStripLatencyRcd> SiStripLatencyDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripLatencyDummyDBWriter);
 
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+typedef DummyCondDBWriter<SiStripConfObject,SiStripConfObject, SiStripConfObjectRcd> SiStripConfObjectDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripConfObjectDummyDBWriter);
 
 //---------------------------------------------------------------------------------------------------------------
 // Dummy printers
@@ -134,3 +137,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripLatency,SiStripLatencyRcd> SiStripLatencyDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripLatencyDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripConfObject,SiStripConfObjectRcd> SiStripConfObjectDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripConfObjectDummyPrinter);

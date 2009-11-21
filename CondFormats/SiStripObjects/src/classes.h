@@ -12,6 +12,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 
 namespace {
   struct dictionary {

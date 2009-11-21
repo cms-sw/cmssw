@@ -24,3 +24,5 @@ EVENTSETUP_DATA_REG(SiStripRunSummary);
 EVENTSETUP_DATA_REG(SiStripSummary);
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 EVENTSETUP_DATA_REG(SiStripThreshold);
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+EVENTSETUP_DATA_REG(SiStripConfObject);

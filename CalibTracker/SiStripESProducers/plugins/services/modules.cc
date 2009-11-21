@@ -30,3 +30,7 @@ DEFINE_ANOTHER_FWK_SERVICE(SiStripBadModuleGenerator);
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripLatencyGenerator.h"
 DEFINE_ANOTHER_FWK_SERVICE(SiStripLatencyGenerator);
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripConfObjectGenerator.h"
+DEFINE_ANOTHER_FWK_SERVICE(SiStripConfObjectGenerator);
