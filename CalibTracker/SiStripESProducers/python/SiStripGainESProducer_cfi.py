@@ -7,7 +7,8 @@ siStripGainESProducer = cms.ESProducer("SiStripGainESProducer",
     AutomaticNormalization = cms.bool(False),
     APVGain = cms.VPSet(
         cms.PSet(
-            Label = cms.string('')
+            Record = cms.string('SiStripApvGainRcd'),
+            Label = cms.untracked.string('')
         ),
     )
 )
