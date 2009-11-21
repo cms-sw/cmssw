@@ -540,31 +540,32 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // Get BeamHaloSummary 
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
   iEvent.getByLabel(IT_BeamHaloSummary, TheBeamHaloSummary) ;
-  
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-  if( TheSummary.CSCLooseHaloId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(1);
-  if( TheSummary.CSCTightHaloId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(2);
-  if( TheSummary.EcalLooseHaloId() )
-    ME["BeamHaloSummary_Id"] ->Fill(3);
-  if( TheSummary.EcalTightHaloId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(4);
-  if( TheSummary.HcalLooseHaloId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(5);
-  if( TheSummary.HcalTightHaloId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(6);
-  if( TheSummary.GlobalLooseHaloId()) 
-    ME["BeamHaloSummary_Id"] ->Fill(7);
-  if( TheSummary.GlobalTightHaloId() )
-    ME["BeamHaloSummary_Id"] ->Fill(8);
-  if( TheSummary.LooseId() ) 
-    ME["BeamHaloSummary_Id"] ->Fill(9);
-  if( TheSummary.TightId() )
-    ME["BeamHaloSummary_Id"] ->Fill(10);
-  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && !TheSummary.CSCLooseHaloId() && !TheSummary.GlobalLooseHaloId() )
-    ME["BeamHaloSummary_Id"] ->Fill(11);
-  
+  if( TheBeamHaloSummary.isValid() ) 
+    {
+      const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+      if( TheSummary.CSCLooseHaloId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(1);
+      if( TheSummary.CSCTightHaloId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(2);
+      if( TheSummary.EcalLooseHaloId() )
+	ME["BeamHaloSummary_Id"] ->Fill(3);
+      if( TheSummary.EcalTightHaloId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(4);
+      if( TheSummary.HcalLooseHaloId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(5);
+      if( TheSummary.HcalTightHaloId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(6);
+      if( TheSummary.GlobalLooseHaloId()) 
+	ME["BeamHaloSummary_Id"] ->Fill(7);
+      if( TheSummary.GlobalTightHaloId() )
+	ME["BeamHaloSummary_Id"] ->Fill(8);
+      if( TheSummary.LooseId() ) 
+	ME["BeamHaloSummary_Id"] ->Fill(9);
+      if( TheSummary.TightId() )
+	ME["BeamHaloSummary_Id"] ->Fill(10);
+      if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && !TheSummary.CSCLooseHaloId() && !TheSummary.GlobalLooseHaloId() )
+	ME["BeamHaloSummary_Id"] ->Fill(11);
+    }
 
   if( TheCaloMET.isValid() )
     {
