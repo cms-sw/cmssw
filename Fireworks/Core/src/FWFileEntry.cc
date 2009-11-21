@@ -152,13 +152,21 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       // in runFilter().
       if ((*it)->m_selector->m_enabled)
       {
-         if (globalOR || m_globalEventList->GetN() == 0)
+         if ((*it)->m_eventList->GetN())
          {
-            m_globalEventList->Add((*it)->m_eventList);
+            if (globalOR || m_globalEventList->GetN() == 0)
+            {
+               m_globalEventList->Add((*it)->m_eventList);
+            }
+            else
+            {
+               m_globalEventList->Intersect((*it)->m_eventList);
+            }
          }
-         else
+         else if (!globalOR)
          {
-            m_globalEventList->Intersect((*it)->m_eventList);
+            m_globalEventList->Reset();
+            break;
          }
       }
    }
