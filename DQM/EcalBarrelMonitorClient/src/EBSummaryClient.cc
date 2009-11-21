@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/11/09 16:38:55 $
- * $Revision: 1.199 $
+ * $Date: 2009/11/20 20:51:25 $
+ * $Revision: 1.200 $
  * \author G. Della Ricca
  *
 */
@@ -1115,7 +1115,8 @@ void EBSummaryClient::analyze(void) {
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
-    TH2F* h2, *h3;
+    TH2F* h2;
+    TH2F* h3;
     TProfile2D* h2d;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
