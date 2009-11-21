@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.8 2009/11/20 21:09:12 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.9 2009/11/20 21:47:29 pivarski Exp $
 //
 //
 
@@ -218,18 +218,20 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
    m_alignables = m_alignmentParameterStore->alignables();
    m_quickMap.clear();
 
+   if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
+   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
+
    if (alignableMuon == NULL) {
      throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "doMuon must be set to True" << std::endl;
    }
 
    for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
-     if (*ali == getAli(*ali)) {
-
-       DetId id = (*ali)->geomDetId();
-       if (id.det() != DetId::Muon  ||  id.subdetId() != MuonSubdetId::CSC) {
+      DetId id = (*ali)->geomDetId();
+      if (id.det() != DetId::Muon  ||  id.subdetId() != MuonSubdetId::CSC) {
 	 throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "Only CSCs may be alignable" << std::endl;
-       }
+      }
 
+     if (id.rawId() == getAli(*ali)->geomDetId().rawId()) {
        m_quickMap[id.rawId()] = true;
 
        std::string selector_str;
@@ -333,10 +335,18 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     if (!m_combineME11) {
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     }
+     else {
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "");
+	m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1");
+     }
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
      m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
@@ -354,10 +364,18 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     if (!m_combineME11) {
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     }
+     else {
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "");
+	m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1");
+     }
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
      m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
@@ -375,10 +393,18 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     if (!m_combineME11) {
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
+     }
+     else {
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "");
+	m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1");
+     }
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
      m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
@@ -406,9 +432,6 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
      m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
      m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
    }
-
-   if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
-   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
 
    for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
      int index = ringiter->first;
@@ -1224,9 +1247,10 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->alignmentParameters()->setValid(true);
 
       if (aa != NULL) {
-	aa->setAlignmentParameters(parnew);
-	m_alignmentParameterStore->applyParameters(aa);
-	aa->alignmentParameters()->setValid(true);
+	 AlignmentParameters *parnew2 = aa->alignmentParameters()->cloneFromSelected(params, cov);
+	 aa->setAlignmentParameters(parnew2);
+	 m_alignmentParameterStore->applyParameters(aa);
+	 aa->alignmentParameters()->setValid(true);
       }
     }
 
@@ -1249,9 +1273,10 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->alignmentParameters()->setValid(true);
 
       if (aa != NULL) {
-	aa->setAlignmentParameters(parnew);
-	m_alignmentParameterStore->applyParameters(aa);
-	aa->alignmentParameters()->setValid(true);
+	 AlignmentParameters *parnew2 = aa->alignmentParameters()->cloneFromSelected(params, cov);
+	 aa->setAlignmentParameters(parnew2);
+	 m_alignmentParameterStore->applyParameters(aa);
+	 aa->alignmentParameters()->setValid(true);
       }
     }
 
@@ -1268,9 +1293,10 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
       a[i]->alignmentParameters()->setValid(true);
 
       if (aa != NULL) {
-	aa->setAlignmentParameters(parnew);
-	m_alignmentParameterStore->applyParameters(aa);
-	aa->alignmentParameters()->setValid(true);
+	 AlignmentParameters *parnew2 = aa->alignmentParameters()->cloneFromSelected(params, cov);
+	 aa->setAlignmentParameters(parnew2);
+	 m_alignmentParameterStore->applyParameters(aa);
+	 aa->alignmentParameters()->setValid(true);
       }
     }
 

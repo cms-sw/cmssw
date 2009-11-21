@@ -36,9 +36,22 @@ parser.add_option("--mintracks",
                   type="int",
                   default=10,
                   dest="mintracks")
+parser.add_option("--sequence",
+                  help="Sequence of alignment procedures",
+                  type="string",
+                  default="phiy rphi phiz",
+                  dest="sequence")
+parser.add_option("--combineME11",
+                  help="if invoked, combine ME1/1a and ME1/1b into rigid bodies",
+                  action="store_true",
+                  dest="combineME11")
+
 options, args = parser.parse_args(sys.argv[4:])
 globaltag = options.globaltag
 mintracks = options.mintracks
+sequence_conversion = {"phiy": "roty", "rphi": "phipos", "phiz": "rotz"}
+sequence = map(lambda s: sequence_conversion[s], options.sequence.split(" "))
+combineME11 = options.combineME11
 
 os.system("rm -rf %s; mkdir %s" % (DIRNAME, DIRNAME))
 pwd = str(os.getcwdu())
@@ -75,8 +88,7 @@ cd %(pwd)s
 eval `scramv1 run -sh`
 cd %(DIRNAME)s""" % vars()]
 
-for iteration, mode in enumerate(["phipos", "phipos", "rotz", "rotz", "phipos", "phipos", "rotz", "rotz"]):
-    # enumerate(["roty", "roty", "phipos", "phipos", "rotz", "rotz", "roty", "roty", "phipos", "phipos", "rotz", "rotz"]):
+for iteration, mode in enumerate(sequence):
     iteration += 1
 
     if mode == "roty": params = "000010"
@@ -97,6 +109,7 @@ export ALIGNMENT_DIRNAME=%(DIRNAME)s
 export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_PARAMS=%(params)s
 export ALIGNMENT_MINTRACKS=%(mintracks)d
+export ALIGNMENT_COMBINEME11=%(combineME11)s
 cmsRun beamHalo_cfg.py | tee %(DIRNAME)s_%(iteration)02d.log
 export ALIGNMENT_CONVERTXML=%(DIRNAME)s_%(iteration)02d.db
 cmsRun convertToXML_cfg.py""" % vars())

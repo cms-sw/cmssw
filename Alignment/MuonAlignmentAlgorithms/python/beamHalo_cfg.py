@@ -9,6 +9,7 @@ DIRNAME = os.environ["ALIGNMENT_DIRNAME"]
 mode = os.environ["ALIGNMENT_MODE"]
 params = os.environ["ALIGNMENT_PARAMS"]
 mintracks = int(os.environ["ALIGNMENT_MINTRACKS"])
+combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 
 process = cms.Process("ALIGN")
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles))
@@ -40,6 +41,7 @@ process.looper.algoConfig = cms.PSet(
     useHitWeightsInTrackFit = cms.bool(True),
     useFitWeightsInMean = cms.bool(False),
     makeHistograms = cms.bool(True),
+    combineME11 = cms.bool(combineME11),
     )
 
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonCSCChambers,%s" % params)
