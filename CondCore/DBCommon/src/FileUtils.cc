@@ -48,6 +48,6 @@ bool cond::FileReader::read(const std::string& fileName){
   inputFile.close();
   buffer[size]=0;
   m_content += buffer;
-  delete buffer;
+  delete [] buffer;
   return true;
 }
