@@ -192,14 +192,14 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
-#                     * process.CSCHaloData
-#                     * process.EcalHaloData
-#                     * process.HcalHaloData
-#                     * process.GlobalHaloData
-#                     * process.BeamHaloSummary
                      * process.gtDigis
                      * process.l1GtRecord
-                     * process.BeamHaloId
+#                     * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
@@ -207,14 +207,14 @@ if iscosmics=="True":
                      * process.dqmStoreStats)
 else:
   process.p = cms.Path(process.hcalnoise
-#                     * process.CSCHaloData
-#                     * process.EcalHaloData
-#                     * process.HcalHaloData
-#                     * process.GlobalHaloData
-#                     * process.BeamHaloSummary
                      * process.gtDigis
-                     * process.l1GtRecord
-                     * process.BeamHaloId
+                     * process.l1GtRecord 
+#                     * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic
@@ -223,4 +223,5 @@ else:
 
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
+
 
