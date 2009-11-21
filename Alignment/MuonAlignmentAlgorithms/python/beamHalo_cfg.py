@@ -49,8 +49,9 @@ process.looper.algoConfig = cms.PSet(
 
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonCSCChambers,%s" % params)
 
+process.CSCOverlapsBeamSplashCut = cms.EDFilter("CSCOverlapsBeamSplashCut", src = cms.InputTag("cscSegments"), maxSegments = cms.int32(20))
 process.CSCOverlapsTrackPreparation = cms.EDProducer("CSCOverlapsTrackPreparation", src = cms.InputTag("ALCARECOMuAlBeamHaloOverlaps"))
-process.Path = cms.Path(process.offlineBeamSpot * process.CSCOverlapsTrackPreparation)
+process.Path = cms.Path(process.offlineBeamSpot * process.CSCOverlapsBeamSplashCut * process.CSCOverlapsTrackPreparation)
 
 import CondCore.DBCommon.CondDBSetup_cfi
 process.inertGlobalPositionRcd = cms.ESSource("PoolDBESSource",
