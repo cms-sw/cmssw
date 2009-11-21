@@ -84,6 +84,7 @@ private:
   edm::InputTag gctBitCounts_,gctRingSums_;
 
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;
+  edm::InputTag oniaPixelTag_,oniaTrackTag_;
   edm::InputTag HLTTau_;
 
   // btag OpenHLT input collections

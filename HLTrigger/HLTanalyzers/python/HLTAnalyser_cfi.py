@@ -40,6 +40,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
+    OniaPixelTag                    = cms.InputTag("hltOniaPixelTrackCands"),
+    OniaTrackTag                    = cms.InputTag("hltOniaCtfTrackCands"),
     ### egamma OpenHLT objects                             
     CandIso                         = cms.InputTag("hltL1IsoRecoEcalCandidate"),
     CandNonIso                      = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),

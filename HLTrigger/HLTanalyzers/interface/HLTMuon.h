@@ -34,6 +34,9 @@
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/Point3D.h"
+
 typedef std::vector<std::string> MyStrings;
 
 /** \class HLTMuon
@@ -55,6 +58,9 @@ public:
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 	       const edm::Handle<RecoChargedCandidateCollection> & mucands3,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+               const edm::Handle<RecoChargedCandidateCollection> & oniaPixelCands,
+               const edm::Handle<RecoChargedCandidateCollection> & oniaTrackCands,
+               const reco::BeamSpot::Point & BSPosition,
 	       TTree* tree);
 
 
@@ -67,6 +73,10 @@ private:
   float *muonl2pterr, *muonl3pterr;
   int nmuon, nmu2cand, nmu3cand;
   int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx, *muonl21idx;
+  int nOniaPixelCand, nOniaTrackCand;
+  float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
+  float *oniaTrackpt, *oniaTracketa, *oniaTrackphi, *oniaTrackdr, *oniaTrackdz, *oniaTrackNormChi2;
+  int *oniaPixelchg, *oniaTrackchg, *oniaPixelHits, *oniaTrackHits;
 	
 
   // input variables

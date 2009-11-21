@@ -80,6 +80,7 @@ process.schedule = cms.Schedule(
     process.DoHLTBTag,
     process.DoHLTAlCaECALPhiSym,
     process.DoHLTAlCaPi0Eta1E31,
-    process.DoHLTIsoTrack,
+#    process.DoHLTIsoTrack,
     process.DoHLTMinBiasPixelTracks,
+    process.DoHLT_Onia_1E31,
     process.analyzeThis )

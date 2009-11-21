@@ -57,6 +57,24 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl3pterr = new float[kMaxMuonL3];
   muonl3iso = new int[kMaxMuonL3];
   muonl32idx = new int[kMaxMuonL3];
+  const int kMaxOniaPixel = 500;
+  oniaPixelpt = new float[kMaxOniaPixel];
+  oniaPixelphi = new float[kMaxOniaPixel];
+  oniaPixeleta = new float[kMaxOniaPixel];
+  oniaPixeldr = new float[kMaxOniaPixel];
+  oniaPixeldz = new float[kMaxOniaPixel];
+  oniaPixelchg = new int[kMaxOniaPixel];
+  oniaPixelHits = new int[kMaxOniaPixel];
+  oniaPixelNormChi2 = new float[kMaxOniaPixel];
+  const int kMaxTrackPixel = 500;
+  oniaTrackpt = new float[kMaxTrackPixel];
+  oniaTrackphi = new float[kMaxTrackPixel];
+  oniaTracketa = new float[kMaxTrackPixel];
+  oniaTrackdr = new float[kMaxTrackPixel];
+  oniaTrackdz = new float[kMaxTrackPixel];
+  oniaTrackchg = new int[kMaxTrackPixel];
+  oniaTrackHits = new int[kMaxTrackPixel];
+  oniaTrackNormChi2 = new float[kMaxTrackPixel];
 
   // Muon-specific branches of the tree 
   HltTree->Branch("NrecoMuon",&nmuon,"NrecoMuon/I");
@@ -85,6 +103,24 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL3Dr",muonl3dr,"ohMuL3Dr[NohMuL3]/F");
   HltTree->Branch("ohMuL3Dz",muonl3dz,"ohMuL3Dz[NohMuL3]/F");
   HltTree->Branch("ohMuL3L2idx",muonl32idx,"ohMuL3L2idx[NohMuL3]/I");
+  HltTree->Branch("NohOniaPixel",&nOniaPixelCand,"NohOniaPixel/I");
+  HltTree->Branch("ohOniaPixelPt",oniaPixelpt,"ohOniaPixelPt[NohOniaPixel]/F");
+  HltTree->Branch("ohOniaPixelPhi",oniaPixelphi,"ohOniaPixelPhi[NohOniaPixel]/F");
+  HltTree->Branch("ohOniaPixelEta",oniaPixeleta,"ohOniaPixelEta[NohOniaPixel]/F");
+  HltTree->Branch("ohOniaPixelChg",oniaPixelchg,"ohOniaPixelChg[NohOniaPixel]/I");
+  HltTree->Branch("ohOniaPixelDr",oniaPixeldr,"ohOniaPixelDr[NohOniaPixel]/F");
+  HltTree->Branch("ohOniaPixelDz",oniaPixeldz,"ohOniaPixelDz[NohOniaPixel]/F");
+  HltTree->Branch("ohOniaPixelHits",oniaPixelHits,"ohOniaPixelHits[NohOniaPixel]/I");
+  HltTree->Branch("ohOniaPixelNormChi2",oniaPixelNormChi2,"ohOniaPixelNormChi2[NohOniaPixel]/F");
+  HltTree->Branch("NohOniaTrack",&nOniaTrackCand,"NohOniaTrack/I");
+  HltTree->Branch("ohOniaTrackPt",oniaTrackpt,"ohOniaTrackPt[NohOniaTrack]/F");
+  HltTree->Branch("ohOniaTrackPhi",oniaTrackphi,"ohOniaTrackPhi[NohOniaTrack]/F");
+  HltTree->Branch("ohOniaTrackEta",oniaTracketa,"ohOniaTrackEta[NohOniaTrack]/F");
+  HltTree->Branch("ohOniaTrackChg",oniaTrackchg,"ohOniaTrackChg[NohOniaTrack]/I");
+  HltTree->Branch("ohOniaTrackDr",oniaTrackdr,"ohOniaTrackDr[NohOniaTrack]/F");
+  HltTree->Branch("ohOniaTrackDz",oniaTrackdz,"ohOniaTrackDz[NohOniaTrack]/F");
+  HltTree->Branch("ohOniaTrackHits",oniaTrackHits,"ohOniaTrackHits[NohOniaTrack]/I");
+  HltTree->Branch("ohOniaTrackNormChi2",oniaTrackNormChi2,"ohOniaTrackNormChi2[NohOniaTrack]/F");
 
 }
 
@@ -95,6 +131,9 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 		      const edm::Handle<RecoChargedCandidateCollection> & MuCands3,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+	              const edm::Handle<RecoChargedCandidateCollection> & oniaPixelCands,
+	              const edm::Handle<RecoChargedCandidateCollection> & oniaTrackCands,
+                      const reco::BeamSpot::Point & BSPosition,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;
@@ -144,11 +183,11 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
       // Dr (transverse distance to (0,0,0))
       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
       // However, we use |dr|<200 microns at L3, which it probably too tough for LHC startup
-      muonl2dr[imu2c] = fabs(tk->d0());
+      muonl2dr[imu2c] = fabs(tk->dxy(BSPosition));
 
       // Dz (longitudinal distance to z=0 when at minimum transverse distance)
       // For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
-      muonl2dz[imu2c] = fabs(tk->dz());
+      muonl2dz[imu2c] = tk->dz(BSPosition);
 
       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -246,11 +285,11 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
 //       // Dr (transverse distance to (0,0,0))
 //       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
 //       // However, we use |dr|<300 microns at L3, which it probably too tough for LHC startup
-      muonl3dr[imu3c] = fabs(tk->d0());
+      muonl3dr[imu3c] = fabs(tk->dxy(BSPosition));
 
 //       // Dz (longitudinal distance to z=0 when at minimum transverse distance)
 //       // For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
-      muonl3dz[imu3c] = fabs(tk->dz());
+      muonl3dz[imu3c] = tk->dz(BSPosition);
 
 //       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
 //       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -286,6 +325,57 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
     }
   }
   else {nmu3cand = 0;}
+
+  // Dealing with Onia Pixel tracks
+  RecoChargedCandidateCollection myOniaPixelCands;
+  if (oniaPixelCands.isValid()) {
+    myOniaPixelCands = * oniaPixelCands;
+    std::sort(myOniaPixelCands.begin(),myOniaPixelCands.end(),PtGreater());
+    nOniaPixelCand = myOniaPixelCands.size();
+    typedef RecoChargedCandidateCollection::const_iterator cand;
+    int ic=0;
+    for (cand i=myOniaPixelCands.begin(); i!=myOniaPixelCands.end(); i++) {
+      TrackRef tk = i->get<TrackRef>();
+
+      oniaPixelpt[ic] = tk->pt();
+      oniaPixeleta[ic] = tk->eta();
+      oniaPixelphi[ic] = tk->phi();
+      oniaPixeldr[ic] = tk->dxy(BSPosition);
+      oniaPixeldz[ic] = tk->dz(BSPosition);
+      oniaPixelchg[ic] = tk->charge();
+      oniaPixelHits[ic] = tk->numberOfValidHits();
+      oniaPixelNormChi2[ic] = tk->normalizedChi2();
+
+      ic++;
+    }
+  }
+  else {nOniaPixelCand = 0;}
+
+  // Dealing with Onia Tracks
+  RecoChargedCandidateCollection myOniaTrackCands;
+  if (oniaTrackCands.isValid()) {
+    myOniaTrackCands = * oniaTrackCands;
+    std::sort(myOniaTrackCands.begin(),myOniaTrackCands.end(),PtGreater());
+    nOniaTrackCand = myOniaTrackCands.size();
+    typedef RecoChargedCandidateCollection::const_iterator cand;
+    int ic=0;
+    for (cand i=myOniaTrackCands.begin(); i!=myOniaTrackCands.end(); i++) {
+      TrackRef tk = i->get<TrackRef>();
+
+      oniaTrackpt[ic] = tk->pt();
+      oniaTracketa[ic] = tk->eta();
+      oniaTrackphi[ic] = tk->phi();
+      oniaTrackdr[ic] = tk->dxy(BSPosition);
+      oniaTrackdz[ic] = tk->dz(BSPosition);
+      oniaTrackchg[ic] = tk->charge();
+      oniaTrackHits[ic] = tk->numberOfValidHits();
+      oniaTrackNormChi2[ic] = tk->normalizedChi2();
+
+      ic++;
+    }
+  }
+  else {nOniaTrackCand = 0;}
+
 
   //////////////////////////////////////////////////////////////////////////////
 

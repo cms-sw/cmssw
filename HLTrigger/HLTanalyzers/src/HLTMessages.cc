@@ -30,6 +30,8 @@ const char * kMucands3                    = "L3 muon candidates";
 const char * kIsoMap2                     = "L2 muon isolation map";
 const char * kIsoMap3                     = "L3 muon isolation map";
 const char * kMulinks                     = "L3 muon link";
+const char * kOniaPixelCands              = "Pixel track candidates in resonance with a L3 muon";
+const char * kOniaTrackCands              = "Strip track candidates in resonance with a L3 muon";
 
 const char * kBTagJets                    = "L2 b-jet collection";
 const char * kBTagCorrectedJets           = "L2 calibrated b-jet collection";
