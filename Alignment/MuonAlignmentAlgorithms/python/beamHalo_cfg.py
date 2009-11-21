@@ -20,9 +20,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-# process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -55,6 +57,11 @@ process.inertGlobalPositionRcd = cms.ESSource("PoolDBESSource",
                                               CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
                                               connect = cms.string("sqlite_file:inertGlobalPositionRcd.db"),
                                               toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string("inertGlobalPositionRcd"))))
+process.fakeTrackerAlignment = cms.ESSource("PoolDBESSource",
+                                            CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+                                            connect = cms.string("frontier://FrontierProd/CMS_COND_31X_FROM21X"),
+                                            toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),       tag = cms.string("TrackerIdealGeometry210_mc")),
+                                                              cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),  tag = cms.string("TrackerIdealGeometryErrors210_mc"))))
 process.muonAlignment = cms.ESSource("PoolDBESSource",
                                      CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
                                      connect = cms.string("sqlite_file:%s" % inputdb),
