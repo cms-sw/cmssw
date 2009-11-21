@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.21 2009/10/06 11:26:22 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.22 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -317,8 +317,8 @@ FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 Bool_t 
 FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
 {
-   if ( iColor == kBlackIndex && !v->IsColorSetDark() ||
-        iColor == kWhiteIndex && v->IsColorSetDark() )
+  if ( (iColor == kBlackIndex && !v->IsColorSetDark()) ||
+       (iColor == kWhiteIndex && v->IsColorSetDark()) )
    { 
       v->SwitchColorSet();
       v->RequestDraw(TGLRnrCtx::kLODHigh);

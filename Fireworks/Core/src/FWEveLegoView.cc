@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.65 2009/11/10 14:36:23 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.66 2009/11/18 11:00:30 amraktad Exp $
 //
 
 // system include files
@@ -165,8 +165,8 @@ void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
    TGLViewer* v =  m_viewer->GetGLViewer();
-   if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
-        iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+   if ( (iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark()) ||
+        (iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark()) )
    {
       v->SwitchColorSet();
       m_overlay->SetScaleColorTransparency(iColor==FWColorManager::kWhiteIndex ? kGray + 3 : kWhite, 0);
