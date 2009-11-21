@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.116 2009/11/19 17:03:19 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.117 2009/11/20 17:22:33 amraktad Exp $
 //
 
 // system include files
@@ -794,6 +794,7 @@ void CmsShowMain::autoLoadNewEvent()
 
 void CmsShowMain::checkPosition()
 {
+   m_guiManager->getMainFrame()->enableNavigatorControls();
    if (m_navigator->isFirstEvent())
       m_guiManager->disablePrevious();
    if (m_navigator->isLastEvent())
@@ -838,9 +839,8 @@ CmsShowMain::setupDataHandling()
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
 
    // navigator filtering  ->
-   m_navigator->updateEventFilterEnable_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1, _2));
-   m_navigator->eventFilterMessageChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessageChanged,m_guiManager.get(),_1, _2));
-   m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
+   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1, _2));
+   m_navigator->noEventSelected_.connect(boost::bind(&CmsShowMain::noEventSelected,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
 
    // navigator fitlering <-
@@ -871,6 +871,8 @@ CmsShowMain::setupDataHandling()
 
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
 
+   // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
+   m_guiManager->updateEventFilterEnable(m_navigator->getFiltersEnabled(), true);
 
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
@@ -1030,16 +1032,38 @@ CmsShowMain::unsetPlayLoopImp()
 }
 
 void
+CmsShowMain::setFilterEnable(bool isOn)
+{
+   m_navigator->updateFiltersEnabled(isOn);
+   if (!isOn || (isOn == false && m_navigator->filtersNeedUpdate() == false))
+   {
+      checkPosition();
+      m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
+   }
+}
+
+void
+CmsShowMain::noEventSelected()
+{
+   m_guiManager->updateEventFilterEnable(false, m_navigator->canEditFiltersExternally());
+   m_navigator->updateFiltersEnabled(false);
+   m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
+   checkPosition();
+}
+
+
+void
 CmsShowMain::preFiltering()
 {
-   if (!m_isPlaying) m_guiManager->enableActions(false);
    m_guiManager->updateStatus("Filtering events");
 }
+
 void
 CmsShowMain::postFiltering()
 {
-   if (!m_isPlaying) m_guiManager->enableActions(true);
    m_guiManager->clearStatus();
+   checkPosition();
+   m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
 }
 
 void

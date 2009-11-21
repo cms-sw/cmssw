@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.33 2009/11/16 17:26:31 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.34 2009/11/20 17:24:21 amraktad Exp $
 //
 
 // system include files
@@ -140,6 +140,8 @@ private:
    void setPlayLoopImp();
    void unsetPlayLoopImp();
 
+   void setFilterEnable(bool);
+   void noEventSelected();
    void preFiltering();
    void postFiltering();
 
