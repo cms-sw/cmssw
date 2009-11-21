@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <stdlib.h>
 #include <set>
 #include "TGClient.h"
 #include "TGHtml.h"
