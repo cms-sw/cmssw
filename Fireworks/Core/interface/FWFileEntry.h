@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.3 2009/11/18 22:46:24 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.4 2009/11/19 19:11:04 amraktad Exp $
 //
 
 // system include files
@@ -48,11 +48,7 @@ public:
    
    FWFileEntry(const std::string& name);
    virtual ~FWFileEntry();
-   
-   bool hasSelectedEvents() const {
-      return m_eventTree && m_globalEventList->GetN()>0;
-   }
-   
+      
    TFile*         file()  { return m_file; }
    fwlite::Event* event() { return m_event; }
    TTree*         tree()  { return m_eventTree; }
