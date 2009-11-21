@@ -8,22 +8,13 @@ for i in range(len(copyargs)):
         copyargs[i] = "\"\""
 commandline = " ".join(copyargs)
 
-usage = """%prog DIRNAME INITIALGEOM INPUTFILES [options]
+usage = """./%prog DIRNAME INITIALGEOM INPUTFILES [options]
 
 Creates (overwrites) a directory for the jobs and creates (overwrites) submitJobs.sh with the submission sequence and dependencies.
 
 DIRNAME        directory will be named DIRNAME
 INITIALGEOM    SQLite file containing muon geometry with tag names CSCAlignmentRcd, CSCAlignmentErrorRcd
-INPUTFILES     Python file defining 'fileNames', a list of input files as strings (create with findQualityFiles.py)
-"""
-
-if len(sys.argv) < 4:
-    raise SystemError, "Too few arguments.\n\n"+usage
-
-DIRNAME = sys.argv[1]
-INITIALGEOM = sys.argv[2]
-INPUTFILES = sys.argv[3]
-execfile(INPUTFILES)  # defines fileNames
+INPUTFILES     Python file defining 'fileNames', a list of input files as strings (create with findQualityFiles.py)"""
 
 parser = optparse.OptionParser(usage)
 parser.add_option("--globalTag",
@@ -45,6 +36,14 @@ parser.add_option("--combineME11",
                   help="if invoked, combine ME1/1a and ME1/1b into rigid bodies",
                   action="store_true",
                   dest="combineME11")
+
+if len(sys.argv) < 4:
+    raise SystemError, "Too few arguments.\n\n"+parser.format_help()
+
+DIRNAME = sys.argv[1]
+INITIALGEOM = sys.argv[2]
+INPUTFILES = sys.argv[3]
+execfile(INPUTFILES)  # defines fileNames
 
 options, args = parser.parse_args(sys.argv[4:])
 globaltag = options.globaltag
