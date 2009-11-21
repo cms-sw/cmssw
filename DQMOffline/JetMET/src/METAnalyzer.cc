@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/12 17:29:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/19 19:57:23 $
+ *  $Revision: 1.4 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -59,9 +59,10 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _source                       = parameters.getParameter<std::string>("Source");
 
   // Other data collections
+  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
   HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
+  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -91,8 +92,11 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _FolderNames.push_back("Cleanup");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
-  _FolderNames.push_back("JetID");
+  _FolderNames.push_back("JetIDMinimal");
+  _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
+  _FolderNames.push_back("BeamHaloIDTightPass");
+  _FolderNames.push_back("BeamHaloIDLoosePass");
 
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
@@ -101,8 +105,11 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
     if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDLossePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -377,14 +384,14 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // MET information
   
   // **** Get the MET container  
-  edm::Handle<reco::METCollection> tcmetcoll;
-  iEvent.getByLabel(theMETCollectionLabel, tcmetcoll);
+  edm::Handle<reco::METCollection> metcoll;
+  iEvent.getByLabel(theMETCollectionLabel, metcoll);
   
-  if(!tcmetcoll.isValid()) return;
+  if(!metcoll.isValid()) return;
 
-  const METCollection *tcmetcol = tcmetcoll.product();
-  const MET *tcmet;
-  tcmet = &(tcmetcol->front());
+  const METCollection *metcol = metcoll.product();
+  const MET *met;
+  met = &(metcol->front());
     
   LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
 
@@ -414,7 +421,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // MET sanity check
 
-  //   if (_source=="MET") validateMET(*tcmet, tcCandidates);
+  //   if (_source=="MET") validateMET(*met, tcCandidates);
   
   // ==========================================================
   // JetID 
@@ -422,9 +429,22 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (_verbose) std::cout << "JetID starts" << std::endl;
   
   //
+  // --- Minimal cuts
+  //
+  bool bJetIDMinimal=true;
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+       cal!=caloJets->end(); ++cal){
+    jetID->calculate(iEvent, *cal);
+    if (cal->pt()>10.){
+      if (fabs(cal->eta())<=2.6 && 
+	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
+    }
+  }
+
+  //
   // --- Loose cuts, not  specific for now!
   //
-  bool bJetID=true;
+  bool bJetIDLoose=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){ 
     jetID->calculate(iEvent, *cal);
@@ -434,19 +454,19 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetID=false; 
-      if (jetID->fHPD()>=0.98) bJetID=false; 
-      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
+      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
+      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
+      //if (jetID->restrictedEMF()<0.01) bJetIDLoose=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetID=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetID=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetID=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
@@ -456,7 +476,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // --- Tight cuts
   //
   bool bJetIDTight=true;
-  bJetIDTight=bJetID;
+  bJetIDTight=bJetIDLoose;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -506,26 +526,48 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
   // ==========================================================
+  // Get BeamHaloSummary
+  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
+  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
+
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+
+  bool bBeamHaloIDTightPass = true;
+  bool bBeamHaloIDLoosePass = true;
+
+  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
+      !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
+    bBeamHaloIDLoosePass = false;
+
+  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
+      !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
+    bBeamHaloIDTightPass = false;
+
+  // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
   std::string DirName = "JetMET/MET/"+_source;
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
-    if (*ic=="All")                                   fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
-    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
+    if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
+                                                                fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (_allSelection) {
-    if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
-    if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
-    if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
-    if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
+    if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="JetIDMinimal" && bJetIDMinimal)                   fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="JetIDLoose"   && bJetIDLoose)                     fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *met);
     }
   }
 }
 
 // ***********************************************************
 void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName, 
-			      const reco::MET& tcmet)
+			      const reco::MET& met)
 {
 
   _dbe->setCurrentFolder(DirName);
@@ -533,19 +575,19 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool bLumiSecPlot=false;
   if (DirName.find("All")) bLumiSecPlot=true;
 
-  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",tcmet, bLumiSecPlot);
-  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",tcmet,false);
-  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",tcmet,false);
-  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",tcmet,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",tcmet,false);
-  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",tcmet,false);
-  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",tcmet,false);
+  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",met, bLumiSecPlot);
+  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",met,false);
+  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",met,false);
+  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",met,false);
+  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",met,false);
+  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",met,false);
+  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",met,false);
 }
 
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName, 
 					 std::string TriggerTypeName, 
-					 const reco::MET& tcmet, bool bLumiSecPlot)
+					 const reco::MET& met, bool bLumiSecPlot)
 {
 
   if (TriggerTypeName=="HighPtJet") {
@@ -555,10 +597,10 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     if (!selectLowPtJetEvent(iEvent)) return;
   }
   else if (TriggerTypeName=="HighMET") {
-    if (tcmet.pt()<_highMETThreshold) return;
+    if (met.pt()<_highMETThreshold) return;
   }
   else if (TriggerTypeName=="LowMET") {
-    if (tcmet.pt()<_lowMETThreshold) return;
+    if (met.pt()<_lowMETThreshold) return;
   }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
@@ -568,13 +610,13 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   }
   
 // Reconstructed MET Information
-  double tcSumET  = tcmet.sumEt();
-  double tcMETSig = tcmet.mEtSig();
-  double tcEz     = tcmet.e_longitudinal();
-  double tcMET    = tcmet.pt();
-  double tcMEx    = tcmet.px();
-  double tcMEy    = tcmet.py();
-  double tcMETPhi = tcmet.phi();
+  double SumET  = met.sumEt();
+  double METSig = met.mEtSig();
+  double Ez     = met.e_longitudinal();
+  double MET    = met.pt();
+  double MEx    = met.px();
+  double MEy    = met.py();
+  double METPhi = met.phi();
 
   //
   int myLuminosityBlock;
@@ -585,24 +627,24 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (tcMET>_etThreshold){
+  if (MET>_etThreshold){
     
-    meMEx    = _dbe->get(DirName+"/"+"METTask_MEx");    if (meMEx    && meMEx->getRootObject())    meMEx->Fill(tcMEx);
-    meMEy    = _dbe->get(DirName+"/"+"METTask_MEy");    if (meMEy    && meMEy->getRootObject())    meMEy->Fill(tcMEy);
-    meMET    = _dbe->get(DirName+"/"+"METTask_MET");    if (meMET    && meMET->getRootObject())    meMET->Fill(tcMET);
-    meMETPhi = _dbe->get(DirName+"/"+"METTask_METPhi"); if (meMETPhi && meMETPhi->getRootObject()) meMETPhi->Fill(tcMETPhi);
-    meSumET  = _dbe->get(DirName+"/"+"METTask_SumET");  if (meSumET  && meSumET->getRootObject())  meSumET->Fill(tcSumET);
-    meMETSig = _dbe->get(DirName+"/"+"METTask_METSig"); if (meMETSig && meMETSig->getRootObject()) meMETSig->Fill(tcMETSig);
-    meEz     = _dbe->get(DirName+"/"+"METTask_Ez");     if (meEz     && meEz->getRootObject())     meEz->Fill(tcEz);
+    meMEx    = _dbe->get(DirName+"/"+"METTask_MEx");    if (meMEx    && meMEx->getRootObject())    meMEx->Fill(MEx);
+    meMEy    = _dbe->get(DirName+"/"+"METTask_MEy");    if (meMEy    && meMEy->getRootObject())    meMEy->Fill(MEy);
+    meMET    = _dbe->get(DirName+"/"+"METTask_MET");    if (meMET    && meMET->getRootObject())    meMET->Fill(MET);
+    meMETPhi = _dbe->get(DirName+"/"+"METTask_METPhi"); if (meMETPhi && meMETPhi->getRootObject()) meMETPhi->Fill(METPhi);
+    meSumET  = _dbe->get(DirName+"/"+"METTask_SumET");  if (meSumET  && meSumET->getRootObject())  meSumET->Fill(SumET);
+    meMETSig = _dbe->get(DirName+"/"+"METTask_METSig"); if (meMETSig && meMETSig->getRootObject()) meMETSig->Fill(METSig);
+    meEz     = _dbe->get(DirName+"/"+"METTask_Ez");     if (meEz     && meEz->getRootObject())     meEz->Fill(Ez);
 
-    meMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (meMETIonFeedbck && meMETIonFeedbck->getRootObject()) meMETIonFeedbck->Fill(tcMET);
-    meMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (meMETHPDNoise   && meMETHPDNoise->getRootObject())   meMETHPDNoise->Fill(tcMET);
-    meMETRBXNoise   = _dbe->get(DirName+"/"+"METTask_METRBXNoise");    if (meMETRBXNoise   && meMETRBXNoise->getRootObject())   meMETRBXNoise->Fill(tcMET);
+    meMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (meMETIonFeedbck && meMETIonFeedbck->getRootObject()) meMETIonFeedbck->Fill(MET);
+    meMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (meMETHPDNoise   && meMETHPDNoise->getRootObject())   meMETHPDNoise->Fill(MET);
+    meMETRBXNoise   = _dbe->get(DirName+"/"+"METTask_METRBXNoise");    if (meMETRBXNoise   && meMETRBXNoise->getRootObject())   meMETRBXNoise->Fill(MET);
         
     if (_allhist){
       if (bLumiSecPlot){
-	meMExLS = _dbe->get(DirName+"/"+"METTask_MExLS"); if (meMExLS && meMExLS->getRootObject()) meMExLS->Fill(tcMEx,myLuminosityBlock);
-	meMEyLS = _dbe->get(DirName+"/"+"METTask_MEyLS"); if (meMEyLS && meMEyLS->getRootObject()) meMEyLS->Fill(tcMEy,myLuminosityBlock);
+	meMExLS = _dbe->get(DirName+"/"+"METTask_MExLS"); if (meMExLS && meMExLS->getRootObject()) meMExLS->Fill(MEx,myLuminosityBlock);
+	meMEyLS = _dbe->get(DirName+"/"+"METTask_MEyLS"); if (meMEyLS && meMEyLS->getRootObject()) meMEyLS->Fill(MEy,myLuminosityBlock);
       }
     } // _allhist
   } // et threshold cut

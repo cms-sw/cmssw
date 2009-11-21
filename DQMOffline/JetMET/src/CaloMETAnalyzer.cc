@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 10:14:54 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/10/19 23:51:08 $
+ *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -63,6 +63,7 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
   HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
+  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -92,8 +93,11 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _FolderNames.push_back("Cleanup");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
-  _FolderNames.push_back("JetID");
+  _FolderNames.push_back("JetIDMinimal");
+  _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
+  _FolderNames.push_back("BeamHaloIDTightPass");
+  _FolderNames.push_back("BeamHaloIDLoosePass");
 
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
@@ -102,8 +106,11 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
     if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="BeamHaloIDLossePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 
@@ -451,9 +458,22 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if (_verbose) std::cout << "JetID starts" << std::endl;
   
   //
+  // --- Minimal cuts
+  //
+  bool bJetIDMinimal=true;
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+       cal!=caloJets->end(); ++cal){
+    jetID->calculate(iEvent, *cal);
+    if (cal->pt()>10.){
+      if (fabs(cal->eta())<=2.6 && 
+	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
+    }
+  }
+
+  //
   // --- Loose cuts
   //
-  bool bJetID=true;
+  bool bJetIDLoose=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -463,19 +483,18 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetID=false; 
-      if (jetID->fHPD()>=0.98) bJetID=false; 
-      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
+      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
+      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetID=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetID=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetID=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
@@ -485,7 +504,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --- Tight cuts
   //
   bool bJetIDTight=true;
-  bJetIDTight=bJetID;
+  bJetIDTight=bJetIDLoose;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -534,19 +553,41 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
   // ==========================================================
+  // Get BeamHaloSummary
+  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
+  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
+
+  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+
+  bool bBeamHaloIDTightPass = true;
+  bool bBeamHaloIDLoosePass = true;
+
+  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
+      !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
+    bBeamHaloIDLoosePass = false;
+
+  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
+      !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
+    bBeamHaloIDTightPass = false;
+
+  // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
   std::string DirName = "JetMET/MET/"+_source;
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
-    if (*ic=="All")                                   fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
+                                                                fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="JetIDMinimal" && bJetIDMinimal)                   fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="JetIDLoose"   && bJetIDLoose)                     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     }
   }
 

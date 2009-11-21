@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/12 17:29:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/19 19:57:23 $
+ *  $Revision: 1.3 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -34,7 +34,7 @@
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-
+#include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 class METAnalyzer : public METAnalyzerBase {
@@ -98,6 +98,7 @@ class METAnalyzer : public METAnalyzerBase {
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;
+  edm::InputTag BeamHaloSummaryTag;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
