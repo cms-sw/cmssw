@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.172 2009/11/19 17:09:11 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.173 2009/11/20 17:24:21 amraktad Exp $
 
 //
 
@@ -201,7 +201,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
 
       TQObject::Connect(m_cmsShowMainFrame->m_filterShowGUIBtn, "Clicked()", "FWGUIManager", this, "showEventFilterGUI()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Clicked()", "FWGUIManager", this, "toggleEventFilterEnable()"); 
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Toggled(Bool_t)", "FWGUIManager", this, "toggleEventFilterEnable(bool)"); 
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
@@ -1198,19 +1198,9 @@ FWGUIManager::showEventFilterGUI()
 }
 
 void
-FWGUIManager::toggleEventFilterEnable()
+FWGUIManager::toggleEventFilterEnable(bool enable)
 {
-   bool enable = m_cmsShowMainFrame->m_filterEnableBtn->IsOn();
-   if (!enable)
-      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
-
    eventFilterEnable_.emit(enable);
-}
-
-void
-FWGUIManager::eventFilterMessageChanged(int sel, int total)
-{
-   m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
 }
 
 void
@@ -1222,8 +1212,10 @@ FWGUIManager::updateEventFilterEnable(bool filterEnabled, bool btnEnabled)
    btn->SetOn(filterEnabled, false);
    if (!btnEnabled)
       btn->SetEnabled(false);
-
-   if (!filterEnabled)
-      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
 }
 
+void
+FWGUIManager::setFilterButtonText(const char* txt)
+{
+   m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(txt);
+}

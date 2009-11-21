@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.89 2009/11/19 17:09:11 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.90 2009/11/20 17:24:21 amraktad Exp $
 //
 
 // system include files
@@ -183,9 +183,9 @@ public:
    void setDelayBetweenEvents(Float_t);
 
    void showEventFilterGUI();
-   void toggleEventFilterEnable();
-   void eventFilterMessageChanged(int, int); // CmsShowNavigator -> CmsShowMainFrame
+   void toggleEventFilterEnable(bool);
    void updateEventFilterEnable(bool, bool);
+   void setFilterButtonText(const char* txt);
 
    void runIdChanged();
    void eventIdChanged();
