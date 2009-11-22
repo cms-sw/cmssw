@@ -60,7 +60,8 @@ private:
   Handle< GenJetCollection    > GenJetsHandle    ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
   Handle< vector<GenParticle> > GammaHandleMC    ;
-
+ 
+  bool usegammaGen;
   
   float piG;
 

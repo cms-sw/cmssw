@@ -42,7 +42,8 @@ AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet
   genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
   chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
   chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
-  gammaGenPartCollName = pset.getUntrackedParameter<InputTag>("GammaGenPartCollectionName",std::string(""));
+   gammaGenPartCollName = pset.getUntrackedParameter<InputTag>("GammaGenPartCollectionName",std::string(""));
+   usegammaGen  = pset.getParameter<bool>("usegammaGen");
 
   piG = acos(-1.);
 
@@ -81,8 +82,9 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   e.getByLabel( chgGenPartCollName, CandHandleMC     );
   e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
   e.getByLabel( genJetCollName    , GenJetsHandle    );
+  if(usegammaGen){
   e.getByLabel( gammaGenPartCollName , GammaHandleMC );
-  
+  }
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
   
   EventKind = Evt->signal_process_id();
@@ -95,8 +97,10 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   GenPart.clear();
   ChgGenJetContainer.clear();
   GenJetContainer.clear();
-  GammaPart.clear();
-  
+  if(usegammaGen){ 
+ GammaPart.clear();
+  }
+
   MCGamma->Clear();
   ChargedJet->Clear();
   InclusiveJet->Clear();
@@ -152,7 +156,9 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
       new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
     }
   }
- 
+
+   if(usegammaGen)
+     { 
    // cout << GammaHandleMC->size() << endl; //It's a test. It work for CandHandleMC
    if(GammaHandleMC->size()){
       for (vector<GenParticle>::const_iterator it(GammaHandleMC->begin()), itEnd(GammaHandleMC->end());
@@ -169,7 +175,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
 	}
 
    }
-
+     }
   store();
 }
 
