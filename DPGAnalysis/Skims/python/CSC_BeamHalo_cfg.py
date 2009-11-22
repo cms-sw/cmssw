@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSCSkim_trial_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSC_BeamHalo_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT CSCSkim skim')
 )
 
@@ -49,6 +49,9 @@ process.cscSkim.minimumHitChambers = 1
 #### the path
 process.cscHaloSkim = cms.Path(process.cscSkim)
 
+process.options = cms.untracked.PSet(
+ wantSummary = cms.untracked.bool(True)
+)
 
 #### output 
 process.outputSkim = cms.OutputModule("PoolOutputModule",
