@@ -51,6 +51,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    sectionInstantErrSumOcc2 = 0;
    sectionInstantNorm = 0;
 
+
    // HLX Config info
    set1BelowIndex   = 0;
    set1BetweenIndex = 1;
@@ -149,7 +150,7 @@ HLXMonitor::SetupHists()
 				    "HF+ Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
 				    NBINS, XMIN, XMAX);    
       ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				    "HF+ Wedge "+wedgeNum.str()+": E_{T} Sum",                
+				    "HF+ Wedge "+wedgeNum.str()+": Transverse Energy",                
 				    NBINS, XMIN, XMAX);    
 
       dbe_->tagContents(monitorName_+"/HFPlus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -187,7 +188,7 @@ HLXMonitor::SetupHists()
 				       "HF- Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
 				       NBINS, XMIN, XMAX); 
 	 ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				       "HF- Wedge "+wedgeNum.str()+": E_{T} Sum",                
+				       "HF- Wedge "+wedgeNum.str()+": Transverse Energy",                
 				       NBINS, XMIN, XMAX); 
 
 	 dbe_->tagContents(monitorName_+"/HFMinus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -846,6 +847,15 @@ void HLXMonitor::EndRun( bool saveFile )
    std::cout << "** Here in end run **" << std::endl;
    if(ResetAtNewRun) ResetAll();
    runNumber_ = 0;
+   sectionInstantSumEt = 0;
+   sectionInstantErrSumEt = 0;
+   sectionInstantSumOcc1 = 0;
+   sectionInstantErrSumOcc1 = 0;
+   sectionInstantSumOcc2 = 0;
+   sectionInstantErrSumOcc2 = 0;
+   sectionInstantNorm = 0;
+   lsBinOld = 0;
+   lumiSectionCount = 0;
 }
 
 
@@ -856,6 +866,13 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
+   std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
+	     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
+
+   std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
+	     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
+   std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- " 
+	     << sqrt(sectionInstantErrSumEt) << std::endl;
 
    int fillBin = lumiSectionCount+1;
    if( fillBin > 128 )
@@ -874,41 +891,50 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
       fillBin = 128;
    }
 
-   RecentInstantLumiEtSum->setBinContent(fillBin,sectionInstantSumEt);
-   RecentInstantLumiEtSum->setBinError(fillBin,sqrt(sectionInstantErrSumEt));
-   RecentInstantLumiOccSet1->setBinContent(fillBin,sectionInstantSumOcc1);
-   RecentInstantLumiOccSet1->setBinError(fillBin,sqrt(sectionInstantErrSumOcc1));
-   RecentInstantLumiOccSet2->setBinContent(fillBin,sectionInstantSumOcc2);
-   RecentInstantLumiOccSet2->setBinError(fillBin,sqrt(sectionInstantErrSumOcc2));
+   RecentInstantLumiEtSum->setBinContent(fillBin,section.lumiSummary.InstantETLumi);
+   RecentInstantLumiEtSum->setBinError(fillBin,section.lumiSummary.InstantETLumiErr);
+   RecentInstantLumiOccSet1->setBinContent(fillBin,section.lumiSummary.InstantOccLumi[0]);
+   RecentInstantLumiOccSet1->setBinError(fillBin,section.lumiSummary.InstantOccLumiErr[0]);
+   RecentInstantLumiOccSet2->setBinContent(fillBin,section.lumiSummary.InstantOccLumi[1]);
+   RecentInstantLumiOccSet2->setBinError(fillBin,section.lumiSummary.InstantOccLumiErr[1]);
       
    double recentOldBinContent = RecentIntegratedLumiEtSum->getBinContent(fillBin-1);
-   double recentNewBinContent = recentOldBinContent + sectionInstantSumEt; 
+   if( fillBin == 1 ) recentOldBinContent = 0;
+   double recentNewBinContent = recentOldBinContent + section.lumiSummary.InstantETLumi; 
    RecentIntegratedLumiEtSum->setBinContent(fillBin,recentNewBinContent);
    recentOldBinContent = RecentIntegratedLumiOccSet1->getBinContent(fillBin-1);
-   recentNewBinContent = recentOldBinContent + sectionInstantSumOcc1; 
+   if( fillBin == 1 ) recentOldBinContent = 0;
+   recentNewBinContent = recentOldBinContent + section.lumiSummary.InstantOccLumi[0]; 
    RecentIntegratedLumiOccSet1->setBinContent(fillBin,recentNewBinContent);
-   recentOldBinContent = RecentIntegratedLumiOccSet2->getBinContent(fillBin-1-1);
-   recentNewBinContent = recentOldBinContent + sectionInstantSumOcc2; 
+   recentOldBinContent = RecentIntegratedLumiOccSet2->getBinContent(fillBin-1);
+   if( fillBin == 1 ) recentOldBinContent = 0;
+   recentNewBinContent = recentOldBinContent + section.lumiSummary.InstantOccLumi[0]; 
    RecentIntegratedLumiOccSet2->setBinContent(fillBin,recentNewBinContent);
 
    double recentOldBinError = RecentIntegratedLumiEtSum->getBinError(fillBin-1);
-   double recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumEt); 
+   if( fillBin == 1 ) recentOldBinError = 0;
+   double recentNewBinError = sqrt(recentOldBinError*recentOldBinError + section.lumiSummary.InstantETLumiErr*section.lumiSummary.InstantETLumiErr); 
    RecentIntegratedLumiEtSum->setBinError(fillBin,recentNewBinError);
    recentOldBinError = RecentIntegratedLumiOccSet1->getBinError(fillBin-1);
-   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumOcc1); 
+   if( fillBin == 1 ) recentOldBinError = 0;
+   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + section.lumiSummary.InstantOccLumiErr[0]*section.lumiSummary.InstantOccLumiErr[0]); 
    RecentIntegratedLumiOccSet1->setBinError(fillBin,recentNewBinError);
    recentOldBinError = RecentIntegratedLumiOccSet2->getBinError(fillBin-1);
-   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumOcc2); 
+   if( fillBin == 1 ) recentOldBinError = 0;
+   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + section.lumiSummary.InstantOccLumiErr[1]*section.lumiSummary.InstantOccLumiErr[1]); 
    RecentIntegratedLumiOccSet2->setBinError(fillBin,recentNewBinError);
+
+   std::cout << "New total " << RecentIntegratedLumiEtSum->getBinContent(fillBin) 
+	     << " +/- " << RecentIntegratedLumiEtSum->getBinError(fillBin) << std::endl;
 
    if( lsBinOld != lsBin )
    {
-      HistInstantLumiEtSum->setBinContent(lsBinOld,sectionInstantSumEt);
-      HistInstantLumiEtSum->setBinError(lsBinOld,sqrt(sectionInstantErrSumEt));
-      HistInstantLumiOccSet1->setBinContent(lsBinOld,sectionInstantSumOcc1);
-      HistInstantLumiOccSet1->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc1));
-      HistInstantLumiOccSet2->setBinContent(lsBinOld,sectionInstantSumOcc2);
-      HistInstantLumiOccSet2->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc2));
+      HistInstantLumiEtSum->setBinContent(lsBin,sectionInstantSumEt);
+      HistInstantLumiEtSum->setBinError(lsBin,sqrt(sectionInstantErrSumEt));
+      HistInstantLumiOccSet1->setBinContent(lsBin,sectionInstantSumOcc1);
+      HistInstantLumiOccSet1->setBinError(lsBin,sqrt(sectionInstantErrSumOcc1));
+      HistInstantLumiOccSet2->setBinContent(lsBin,sectionInstantSumOcc2);
+      HistInstantLumiOccSet2->setBinError(lsBin,sqrt(sectionInstantErrSumOcc2));
     
       double etDenom   = fabs(sectionInstantSumEt);
       if( etDenom < 1e-10 ) etDenom = 1e-10;
@@ -923,25 +949,31 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
       HistInstantLumiOccSet1Error->setBinContent(lsBinOld,occ1Error);
       HistInstantLumiOccSet2Error->setBinContent(lsBinOld,occ2Error);
       
-      double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld-1);
+      double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinContent = 0;
       double histNewBinContent = histOldBinContent + sectionInstantSumEt; 
-      HistIntegratedLumiEtSum->setBinContent(lsBinOld,histNewBinContent);
-      histOldBinContent = HistIntegratedLumiOccSet1->getBinContent(lsBinOld-1);
+      HistIntegratedLumiEtSum->setBinContent(lsBin,histNewBinContent);
+      histOldBinContent = HistIntegratedLumiOccSet1->getBinContent(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinContent = 0;
       histNewBinContent = histOldBinContent + sectionInstantSumOcc1; 
-      HistIntegratedLumiOccSet1->setBinContent(lsBinOld,histNewBinContent);
-      histOldBinContent = HistIntegratedLumiOccSet2->getBinContent(lsBinOld-1);
+      HistIntegratedLumiOccSet1->setBinContent(lsBin,histNewBinContent);
+      histOldBinContent = HistIntegratedLumiOccSet2->getBinContent(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinContent = 0;
       histNewBinContent = histOldBinContent + sectionInstantSumOcc2; 
-      HistIntegratedLumiOccSet2->setBinContent(lsBinOld,histNewBinContent);
+      HistIntegratedLumiOccSet2->setBinContent(lsBin,histNewBinContent);
 
-      double histOldBinError = HistIntegratedLumiEtSum->getBinError(lsBinOld-1);
+      double histOldBinError = HistIntegratedLumiEtSum->getBinError(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinError = 0;
       double histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumEt); 
-      HistIntegratedLumiEtSum->setBinError(lsBinOld,histNewBinError);
-      histOldBinError = HistIntegratedLumiOccSet1->getBinError(lsBinOld-1);
+      HistIntegratedLumiEtSum->setBinError(lsBin,histNewBinError);
+      histOldBinError = HistIntegratedLumiOccSet1->getBinError(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinError = 0;
       histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumOcc1); 
-      HistIntegratedLumiOccSet1->setBinError(lsBinOld,histNewBinError);
-      histOldBinError = HistIntegratedLumiOccSet2->getBinError(lsBinOld-1);
+      HistIntegratedLumiOccSet1->setBinError(lsBin,histNewBinError);
+      histOldBinError = HistIntegratedLumiOccSet2->getBinError(lsBinOld);
+      if( lsBinOld == 0 ) histOldBinError = 0;
       histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumOcc2); 
-      HistIntegratedLumiOccSet2->setBinError(lsBinOld,histNewBinError);
+      HistIntegratedLumiOccSet2->setBinError(lsBin,histNewBinError);
 
       sectionInstantSumEt = 0;
       sectionInstantErrSumEt = 0;
@@ -965,25 +997,25 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    dbe_->softReset(LumiInstantOccSet1);
    dbe_->softReset(LumiInstantOccSet2);
 
-   for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX )
-   {
+   for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX ){
       unsigned int utotal1= 0;
       unsigned int utotal2 = 0;
       unsigned int iWedge = HLXHFMap[iHLX];
-      if(section.occupancy[iHLX].hdr.numNibbles != 0)
-      {
-	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX )  // Don't include the last one hundred BX in the average.
-	 {
+      if(section.occupancy[iHLX].hdr.numNibbles != 0){
+
+	 // Don't include the last one hundred BX in the average.
+	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX ){
+
 	    // Normalize to number of towers
 	    unsigned int norm[2] = {0,0};
 	    norm[0] += section.occupancy[iHLX].data[set1BelowIndex   ][iBX];
 	    norm[0] += section.occupancy[iHLX].data[set1BetweenIndex ][iBX];
 	    norm[0] += section.occupancy[iHLX].data[set1AboveIndex   ][iBX];
-	    if( norm[0] == 0 ) continue;
+	    if( norm[0] == 0 ) norm[0]=1;
 	    norm[1] += section.occupancy[iHLX].data[set2BelowIndex   ][iBX];
 	    norm[1] += section.occupancy[iHLX].data[set2BetweenIndex ][iBX];
 	    norm[1] += section.occupancy[iHLX].data[set2AboveIndex   ][iBX];
-	    if( norm[1] == 0 ) continue;
+	    if( norm[1] == 0 ) norm[1]=1;
 
 	    double normEt = section.etSum[iHLX].data[iBX]/(double)(norm[0]+norm[1]);
 	    double normOccSet1Below   = (double)section.occupancy[iHLX].data[set1BelowIndex][iBX]/(double)norm[0];
@@ -993,40 +1025,11 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	    double normOccSet2Between = (double)section.occupancy[iHLX].data[set2BetweenIndex][iBX]/(double)norm[1];
 	    double normOccSet2Above   = (double)section.occupancy[iHLX].data[set2AboveIndex][iBX]/(double)norm[1];
 
-	    // Weights ... 1/dy**2
-	    double wOccSet1Below   =  1;
-	    double wOccSet1Between =  1;
-	    double wOccSet1Above   =  1;
-	    double wOccSet2Below   =  1;
-	    double wOccSet2Between =  1;
-	    double wOccSet2Above   =  1;
-
-	    if(normOccSet1Below > 0 && normOccSet1Below < 1) 
-	       wOccSet1Below   =  (double)norm[0]/normOccSet1Below*(1-normOccSet1Below);
-	    if(normOccSet1Between > 0 && normOccSet1Between < 1) 
-	       wOccSet1Between =  (double)norm[0]/normOccSet1Between*(1-normOccSet1Between);
-	    if(normOccSet1Above > 0 && normOccSet1Above < 1) 
-	       wOccSet1Above   =  (double)norm[0]/normOccSet1Above*(1-normOccSet1Above);
-	    if(normOccSet2Below > 0 && normOccSet2Below < 1) 
-	       wOccSet2Below   =  (double)norm[1]/normOccSet2Below*(1-normOccSet2Below);
-	    if(normOccSet2Between > 0 && normOccSet2Between < 1) 
-	       wOccSet2Between =  (double)norm[1]/normOccSet2Between*(1-normOccSet2Between);
-	    if(normOccSet2Above > 0 && normOccSet2Above < 1) 
-	       wOccSet2Above   =  (double)norm[1]/normOccSet2Above*(1-normOccSet2Above);
-
 	    // Averages & check sum
 	    if( iBX < NUM_BUNCHES-100 )
 	    {
 	       AvgEtSum->Fill( iWedge,normEt);
 	
-// 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below,   wOccSet1Below   );
-// 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between, wOccSet1Between );
-// 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above,   wOccSet1Above   );
-	   
-// 	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below,   wOccSet2Below   );
-// 	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between, wOccSet2Between );
-// 	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above,   wOccSet2Above   );
-
 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below   );
 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between );
 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above   );
@@ -1072,13 +1075,53 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 
 	    if(Style.compare("BX") == 0)
 	    {
-	       Set1Below[iWedge]->  Fill(iBX, normOccSet1Below   );
-	       Set1Between[iWedge]->Fill(iBX, normOccSet1Between );
-	       Set1Above[iWedge]->  Fill(iBX, normOccSet1Above   );
-	       Set2Below[iWedge]->  Fill(iBX, normOccSet2Below   );
-	       Set2Between[iWedge]->Fill(iBX, normOccSet2Between );
-	       Set2Above[iWedge]->  Fill(iBX, normOccSet2Above   );
-	       ETSum[iWedge]->      Fill(iBX, normEt);
+	       // Get the correct bin ...
+	       TH1F *Set1BelowHist = Set1Below[iWedge]->getTH1F();
+	       int iBin = Set1BelowHist->FindBin((float)iBX);
+
+	       // Adjust the old bin content to make the new, unnormalize and renormalize
+	       if( lumiSectionCount > 0 ){
+		  double oldNormOccSet1Below = (Set1Below[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet1Below += oldNormOccSet1Below;
+		  normOccSet1Below /= (double)(lumiSectionCount+1);
+		  double oldNormOccSet2Below = (Set2Below[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet2Below += oldNormOccSet2Below;
+		  normOccSet2Below /= (double)(lumiSectionCount+1);
+
+		  double oldNormOccSet1Between = (Set1Between[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet1Between += oldNormOccSet1Between;
+		  normOccSet1Between /= (double)(lumiSectionCount+1);
+		  double oldNormOccSet2Between = (Set2Between[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet2Between += oldNormOccSet2Between;
+		  normOccSet2Between /= (double)(lumiSectionCount+1);
+
+		  double oldNormOccSet1Above = (Set1Above[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet1Above += oldNormOccSet1Above;
+		  normOccSet1Above /= (double)(lumiSectionCount+1);
+		  double oldNormOccSet2Above = (Set2Above[iWedge]->getBinContent(iBin))*(double)(lumiSectionCount);
+		  normOccSet2Above += oldNormOccSet2Above;
+		  normOccSet2Above /= (double)(lumiSectionCount+1);
+		  
+		  double oldNormEt = ETSum[iWedge]->getBinContent(iBin)*(double)(lumiSectionCount);
+		  normEt += oldNormEt;
+		  normEt /= (double)(lumiSectionCount+1);
+	       }
+
+	       Set1Below[iWedge]->  setBinContent(iBin, normOccSet1Below   );
+	       Set1Between[iWedge]->setBinContent(iBin, normOccSet1Between );
+	       Set1Above[iWedge]->  setBinContent(iBin, normOccSet1Above   );
+	       Set2Below[iWedge]->  setBinContent(iBin, normOccSet2Below   );
+	       Set2Between[iWedge]->setBinContent(iBin, normOccSet2Between );
+	       Set2Above[iWedge]->  setBinContent(iBin, normOccSet2Above   );
+	       ETSum[iWedge]->      setBinContent(iBin, normEt);
+
+// 	       Set1Below[iWedge]->  Fill(iBX, normOccSet1Below   );
+// 	       Set1Between[iWedge]->Fill(iBX, normOccSet1Between );
+// 	       Set1Above[iWedge]->  Fill(iBX, normOccSet1Above   );
+// 	       Set2Below[iWedge]->  Fill(iBX, normOccSet2Below   );
+// 	       Set2Between[iWedge]->Fill(iBX, normOccSet2Between );
+// 	       Set2Above[iWedge]->  Fill(iBX, normOccSet2Above   );
+// 	       ETSum[iWedge]->      Fill(iBX, normEt);
 	    }
 	    else if(Style.compare("Dist")==0)
 	    {
@@ -1090,43 +1133,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	       Set2Above[iWedge]->  Fill( normOccSet2Above    );
 	       ETSum[iWedge]->      Fill( normEt );
 	    }
-
-
-	    LumiAvgEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
-	    LumiAvgOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
-	    LumiAvgOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
-
-	    int iBin = iBX - (int)XMIN + 1;
-	    if( iBin <= int(XMAX-XMIN) && iBin >= 1 )
-	    {
-	      LumiInstantEtSum->setBinContent(iBin, section.lumiDetail.ETLumi[iBX]);
-	      LumiInstantOccSet1->setBinContent(iBin, section.lumiDetail.OccLumi[0][iBX]);
-	      LumiInstantOccSet2->setBinContent(iBin, section.lumiDetail.OccLumi[1][iBX]);
-	      LumiInstantEtSum->setBinError(iBin, section.lumiDetail.ETLumiErr[iBX]);
-	      LumiInstantOccSet1->setBinError(iBin, section.lumiDetail.OccLumiErr[0][iBX]);
-	      LumiInstantOccSet2->setBinError(iBin, section.lumiDetail.OccLumiErr[1][iBX]);
-
-	      double oldBinContent = LumiIntegratedEtSum->getBinContent(iBin);
-	      double newBinContent = oldBinContent + section.lumiDetail.ETLumi[iBX];
-	      LumiIntegratedEtSum->setBinContent(iBin, newBinContent);
-	      oldBinContent = LumiIntegratedOccSet1->getBinContent(iBin);
-	      newBinContent = oldBinContent + section.lumiDetail.OccLumi[0][iBX];
-	      LumiIntegratedOccSet1->setBinContent(iBin, newBinContent);
-	      oldBinContent = LumiIntegratedOccSet2->getBinContent(iBin);
-	      newBinContent = oldBinContent + section.lumiDetail.OccLumi[1][iBX];
-	      LumiIntegratedOccSet2->setBinContent(iBin, newBinContent);
-
-	      double oldBinError = LumiIntegratedEtSum->getBinError(iBin);
-	      double newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.ETLumiErr[iBX]*section.lumiDetail.ETLumiErr[iBX]);
-	      LumiIntegratedEtSum->setBinError(iBin, newBinError);
-	      oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
-	      newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[0][iBX]*section.lumiDetail.OccLumiErr[0][iBX]);
-	      LumiIntegratedOccSet1->setBinError(iBin, newBinError);
-	      oldBinError = LumiIntegratedOccSet2->getBinError(iBin);
-	      newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[1][iBX]*section.lumiDetail.OccLumiErr[1][iBX]);
-	      LumiIntegratedOccSet2->setBinError(iBin, newBinError);
-	    }
-
 	 }
 
 	 // Get the number of towers per wedge per BX (assuming non-zero numbers)
@@ -1145,13 +1151,62 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 
 	 SumAllOccSet1->  Fill( iWedge, total1 );
 	 SumAllOccSet2->  Fill( iWedge, total2 );
-
       }
+   }
+
+   for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX ){
+      
+      LumiAvgEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
+      LumiAvgOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
+      LumiAvgOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
+      
+      int iBin = iBX - (int)XMIN + 1;
+      if( iBin <= int(XMAX-XMIN) && iBin >= 1 )
+      {
+// 	 cout << "Et sum " << section.lumiDetail.ETLumi[iBX] << " +/- " 
+// 	      << section.lumiDetail.ETLumiErr[iBX] << std::endl;
+// 	 cout << "Occ1 " << section.lumiDetail.OccLumi[0][iBX] << " +/- " 
+// 	      << section.lumiDetail.OccLumiErr[0][iBX] << std::endl;
+// 	 cout << "Occ2 " << section.lumiDetail.OccLumi[1][iBX] << " +/- " 
+// 	      << section.lumiDetail.OccLumiErr[1][iBX] << std::endl;
+	 LumiInstantEtSum->setBinContent(iBin, section.lumiDetail.ETLumi[iBX]);
+	 LumiInstantOccSet1->setBinContent(iBin, section.lumiDetail.OccLumi[0][iBX]);
+	 LumiInstantOccSet2->setBinContent(iBin, section.lumiDetail.OccLumi[1][iBX]);
+	 LumiInstantEtSum->setBinError(iBin, section.lumiDetail.ETLumiErr[iBX]);
+	 LumiInstantOccSet1->setBinError(iBin, section.lumiDetail.OccLumiErr[0][iBX]);
+	 LumiInstantOccSet2->setBinError(iBin, section.lumiDetail.OccLumiErr[1][iBX]);
+	 
+	 double oldBinContent = LumiIntegratedEtSum->getBinContent(iBin);
+	 if( lumiSectionCount == 0 ) oldBinContent = 0;
+	 double newBinContent = oldBinContent + section.lumiDetail.ETLumi[iBX];
+	 LumiIntegratedEtSum->setBinContent(iBin, newBinContent);
+	 oldBinContent = LumiIntegratedOccSet1->getBinContent(iBin);
+	 if( lumiSectionCount == 0 ) oldBinContent = 0;
+	 newBinContent = oldBinContent + section.lumiDetail.OccLumi[0][iBX];
+	 LumiIntegratedOccSet1->setBinContent(iBin, newBinContent);
+	 oldBinContent = LumiIntegratedOccSet2->getBinContent(iBin);
+	 if( lumiSectionCount == 0 ) oldBinContent = 0;
+	 newBinContent = oldBinContent + section.lumiDetail.OccLumi[1][iBX];
+	 LumiIntegratedOccSet2->setBinContent(iBin, newBinContent);
+
+	 double oldBinError = LumiIntegratedEtSum->getBinError(iBin);
+	 if( lumiSectionCount == 0 ) oldBinError = 0;
+	 double newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.ETLumiErr[iBX]*section.lumiDetail.ETLumiErr[iBX]);
+	 LumiIntegratedEtSum->setBinError(iBin, newBinError);
+	 oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
+	 if( lumiSectionCount == 0 ) oldBinError = 0;
+	 newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[0][iBX]*section.lumiDetail.OccLumiErr[0][iBX]);
+	 LumiIntegratedOccSet1->setBinError(iBin, newBinError);
+	 oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
+	 if( lumiSectionCount == 0 ) oldBinError = 0;
+	 newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[1][iBX]*section.lumiDetail.OccLumiErr[1][iBX]);
+	 LumiIntegratedOccSet2->setBinError(iBin, newBinError);
+      }
+      
    }
 
    // Add one to the section count (usually short sections)
    ++lumiSectionCount;
-
 }
 
 
@@ -1267,9 +1322,9 @@ void HLXMonitor::ResetAll()
       dbe_->softReset( Set1Below[iHLX] );
       dbe_->softReset( Set1Between[iHLX] );
       dbe_->softReset( Set1Above[iHLX] );
-      dbe_->softReset( Set1Below[iHLX] );
-      dbe_->softReset( Set1Between[iHLX] );
-      dbe_->softReset( Set1Above[iHLX] );
+      dbe_->softReset( Set2Below[iHLX] );
+      dbe_->softReset( Set2Between[iHLX] );
+      dbe_->softReset( Set2Above[iHLX] );
 	   
       dbe_->softReset( ETSum[iHLX] );
 	   
