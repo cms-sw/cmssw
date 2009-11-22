@@ -740,15 +740,6 @@ if (liveECAL == 1) | (liveCMS == 1) :
   process.ecalEndcapMonitorClient.updateTime = 4
   process.ecalEndcapMonitorClient.dbUpdateTime = 120
 
-process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
-process.hybridSuperClusters.step = 1
-process.hybridSuperClusters.eseed = 0.150
-
-process.multi5x5BasicClusters.IslandBarrelSeedThr = 0.150
-process.multi5x5BasicClusters.IslandEndcapSeedThr = 0.150
-
-process.multi5x5SuperClusters.seedTransverseEnergyThreshold = 0.150
-
 if (globalDAQ == 1) | (liveECAL == 1) :
   process.DQMStore.referenceFileName = '/data/ecalod-disk01/dqm-data/reference/REFERENCE.root'
 
