@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/11/19 18:15:46 $
- * $Revision: 1.231 $
+ * $Date: 2009/11/20 11:17:00 $
+ * $Revision: 1.232 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -771,6 +771,24 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   }
 
+  if ( dbUpdateTime_ > 0 ) {
+
+    this->softReset(false);
+
+    for ( int i=0; i<int(clients_.size()); i++ ) {
+      bool done = false;
+      for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+        if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+          done = true;
+          clients_[i]->analyze();
+        }
+      }
+    }
+
+    if ( summaryClient_ ) summaryClient_->analyze();
+
+  }
+
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
@@ -794,8 +812,6 @@ void EcalEndcapMonitorClient::endRun(void) {
   evtType_ = -1;
 
   subrun_ = -1;
-
-  this->softReset(false);
 
 }
 
@@ -1504,6 +1520,7 @@ void EcalEndcapMonitorClient::analyze(void) {
       forced_update_ = false;
 
       if ( dbUpdateTime_ > 0 ) {
+
         if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
                runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -1515,6 +1532,7 @@ void EcalEndcapMonitorClient::analyze(void) {
           this->softReset(true);
           last_time_db_ = current_time_;
         }
+
       }
 
     }
