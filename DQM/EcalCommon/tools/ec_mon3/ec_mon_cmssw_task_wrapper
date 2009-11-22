@@ -726,14 +726,17 @@ if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) :
   process.ecalBarrelMonitorClient.dbHostPort = dbHostPort
   process.ecalBarrelMonitorClient.dbUserName = dbUserName
   process.ecalBarrelMonitorClient.dbPassword = dbPassword
-  process.ecalBarrelMonitorClient.updateTime = 4
-  process.ecalBarrelMonitorClient.dbUpdateTime = 120
 
   process.ecalEndcapMonitorClient.dbName = dbName
   process.ecalEndcapMonitorClient.dbHostName = dbHostName
   process.ecalEndcapMonitorClient.dbHostPort = dbHostPort
   process.ecalEndcapMonitorClient.dbUserName = dbUserName
   process.ecalEndcapMonitorClient.dbPassword = dbPassword
+
+if (liveECAL == 1) | (liveCMS == 1) :
+  process.ecalBarrelMonitorClient.updateTime = 4
+  process.ecalBarrelMonitorClient.dbUpdateTime = 120
+
   process.ecalEndcapMonitorClient.updateTime = 4
   process.ecalEndcapMonitorClient.dbUpdateTime = 120
 
