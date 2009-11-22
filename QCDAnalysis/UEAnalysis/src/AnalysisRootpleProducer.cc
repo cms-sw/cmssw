@@ -321,6 +321,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   TracksJet->Clear();
   CalorimeterJet->Clear();
 
+
   if ( e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle ) )
     {
       if(RecoCaloJetsHandle->size())
@@ -341,38 +342,25 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     }
     
   
-  if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) && e.getByLabel( tracksCollName , CandHandleRECO ) )  //carico jet e tracce insieme
+if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
     {
       if(TracksJetsHandle->size())
 	{
-	  ///collezioni delle tracce
-	 for(edm::View<reco::Candidate>::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-				      it!=itEnd;++it)
-				    {
-				      TracksT.push_back(it->p4());
-				    }
-				  std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
-				  ///collezioni dei jet
 	  for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
 	      it!=itEnd;++it)
 	    {
 	      TracksJetContainer.push_back(*it);
 
-	       	      Jet::Constituents constituents( (*it).getJetConstituents() );
-	       	      cout << "get " << constituents.size() << " constituents" << endl;
-	       	      for (int iJC(0); iJC<constituents.size(); ++iJC )
-	       		{
-			  std::vector<math::XYZTLorentzVector>::const_iterator itT( TracksT.begin()), itTEnd(TracksT.end());
-			  for(int iTracks(0); itT != itTEnd; ++itT, ++iTracks)
-			    {
-			      if(constituents[iJC]->pt()==itT->Pt() && constituents[iJC]->p()==itT->P())
-				{
-				  cout<<"trovata"<<endl;
-				}
-			    }
-			}
-	  
-		      
+	      // 	      Jet::Constituents constituents( (*it).getJetConstituents() );
+	      // 	      //cout << "get " << constituents.size() << " constituents" << endl;
+	      // 	      for (int iJC(0); iJC<constituents.size(); ++iJC )
+	      // 		{
+	      // 		  //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	      // 		  if (constituents[iJC]->et()<0.5)
+	      // 		    {
+	      // 		      cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	      // 		    }
+	      // 		}
 	    }
 	  std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
 	  
@@ -380,11 +368,10 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	  for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
 	    {
 	      new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-	    
 	    }
 	}
     }
-  
+
 
   if ( e.getByLabel( tracksCollName , CandHandleRECO ) )
     {
