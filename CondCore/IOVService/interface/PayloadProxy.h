@@ -37,6 +37,9 @@ namespace cond {
 
     virtual void invalidateCache()=0;
 
+    // current cached object token
+    virtual const std::string & token() const=0;
+
     // load Element valid at time
     void loadFor(cond::Time_t time);
 
@@ -90,12 +93,17 @@ namespace cond {
     }
         
     virtual void invalidateCache() {
-      m_data.clear();
+      // don't, preserve data for future access
+      // m_data.clear();
+    }
+
+    virtual const std::string & token() const {
+      return m_data.token();
     }
 
   protected:
-    virtual bool load(pool::IDataSvc * svc, std::string const & token) {
-      return m_data.load(svc,token);
+    virtual bool load(pool::IDataSvc * svc, std::string const & itoken) {
+      return m_data.load(svc,itoken);
     }
 
   private:

@@ -26,6 +26,8 @@ namespace cond {
   void  BasePayloadProxy::make() {
     bool ok = false;
     if ( isValid()) {
+      // check if (afterall) the payload is still the same...
+      if (m_element.token()==token()) return;
       cond::DbTransaction& trans = m_element.db().transaction();
       trans.start(true);
       try {
