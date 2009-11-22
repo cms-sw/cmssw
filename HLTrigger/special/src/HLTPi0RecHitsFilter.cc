@@ -82,6 +82,9 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     clusEtaSize_ = 3; 
   }
   
+  maxNumberofSeeds_ = iConfig.getParameter<int> ("maxNumberofSeeds");
+  maxNumberofClusters_ = iConfig.getParameter<int> ("maxNumberofClusters");
+  
   //  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
   // seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
   // seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
@@ -255,10 +258,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     
   }
   
-  
-  
 
-
+  
   ParameterLogWeighted_ = iConfig.getParameter<bool> ("ParameterLogWeighted");
   ParameterX0_ = iConfig.getParameter<double> ("ParameterX0");
   ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
@@ -389,78 +390,29 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EcalChannelStatus &channelStatus = *csHandle; 
   
   
+  
+  
+  
+  //Create empty output collections to be filled and saved into the events
+  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
+  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
+  std::auto_ptr< ESRecHitCollection > selESRecHitCollection(new ESRecHitCollection );
+  vector<DetId> selectedEBDetIds;
+  vector<DetId> selectedEEDetIds; 
+  
+
   ///==============Start to process barrel part==================///
     
-  Handle<EBRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
-  if (!barrelRecHitsHandle.isValid()) {
-    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product barrel hits!" << std::endl;
-  }
-  
-  const EcalRecHitCollection *hitCollection_p = barrelRecHitsHandle.product();
-
-
-  if(debug_>=1) std::cout<<" barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
-  
-  
-  
   std::vector<EcalRecHit> seeds;
   seeds.clear();
-
+  
   vector<EBDetId> usedXtals;
   usedXtals.clear();
   
   detIdEBRecHits.clear(); //// EBDetId
   EBRecHits.clear();  /// EcalRecHit
   
-  ////make seeds. 
-  EBRecHitCollection::const_iterator itb;
-  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
-    double energy = itb->energy();
-
-    //if( energy < seleXtalMinEnergy_) continue; 
-    
-    
-    if(useRecoFlag_ ){ ///from recoFlag()
-      int flag = itb->recoFlag();
-      if( flagLevelRecHitsToUse_ ==0){ ///good 
-	if( flag != 0) continue; 
-      }
-      else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
-	if( flag !=0 && flag != 4 ) continue; 
-      }
-      else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
-	if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
-      }
-    }
-    if ( useDBStatus_){ //// from DB
-      int status =  int(channelStatus[itb->id().rawId()].getStatusCode()); 
-      if ( status > statusLevelRecHitsToUse_ ) continue; 
-    }
-    
-    
-    EBDetId det = itb->id();
-    
-    detIdEBRecHits.push_back(det);
-    EBRecHits.push_back(*itb);
-    
-    
-    if (energy > clusSeedThr_) seeds.push_back(*itb);
-    
-  }
-  
-  
-  
-  
-  
-  //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
-  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
-  vector<DetId> selectedEBDetIds;
-  vector<DetId> selectedEEDetIds; 
-    
-
-  int nClus;
+  int nClus=0;
   vector<float> eClus;
   vector<float> etClus;
   vector<float> etaClus;
@@ -472,155 +424,197 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<float> s4s9Clus;
   vector<float> s9s25Clus;
   
-  nClus=0;
+  
+  Handle<EBRecHitCollection> barrelRecHitsHandle;
 
-  // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-  sort(seeds.begin(), seeds.end(), ecalRecHitLess());
-
-  for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
-    EBDetId seed_id = itseed->id();
-    std::vector<EBDetId>::const_iterator usedIds;
-    
-    bool seedAlreadyUsed=false;
-    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
-      if(*usedIds==seed_id){
-	seedAlreadyUsed=true;
-	break; 
-      }
-    }
-
-    if(seedAlreadyUsed)continue;
-
-    std::vector<DetId> clus_v = topology_eb->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
-    std::vector<std::pair<DetId, float> > clus_used;
-    
-
-    vector<EcalRecHit> RecHitsInWindow;
-    vector<EcalRecHit> RecHitsInWindow5x5;
-    float simple_energy = 0; 
-    
-    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
-      EBDetId EBdet = *det;
-      
-      bool  HitAlreadyUsed=false;
-      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
-	if(*usedIds==*det){
-	  HitAlreadyUsed=true;
-	  break;
+  try{
+    iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
+    const EcalRecHitCollection *hitCollection_p = barrelRecHitsHandle.product();
+    if(debug_>=1) std::cout<<" barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
+    ////make seeds. 
+    EBRecHitCollection::const_iterator itb;
+    for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+      double energy = itb->energy();
+      //if( energy < seleXtalMinEnergy_) continue; 
+      if(useRecoFlag_ ){ ///from recoFlag()
+	int flag = itb->recoFlag();
+	if( flagLevelRecHitsToUse_ ==0){ ///good 
+	  if( flag != 0) continue; 
+	}
+	else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+	  if( flag !=0 && flag != 4 ) continue; 
+	}
+	else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+	  if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
 	}
       }
+      if ( useDBStatus_){ //// from DB
+	int status =  int(channelStatus[itb->id().rawId()].getStatusCode()); 
+	if ( status > statusLevelRecHitsToUse_ ) continue; 
+      }
+      EBDetId det = itb->id();
+      detIdEBRecHits.push_back(det);
+      EBRecHits.push_back(*itb);
+      if (energy > clusSeedThr_) seeds.push_back(*itb);
+    }
+    
+    if( int( seeds.size()) >= maxNumberofSeeds_  ) return false; 
+    
+    nClus=0;
+
+    // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
+    sort(seeds.begin(), seeds.end(), ecalRecHitLess());
+
+    for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
+      EBDetId seed_id = itseed->id();
+      std::vector<EBDetId>::const_iterator usedIds;
+    
+      bool seedAlreadyUsed=false;
+      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	if(*usedIds==seed_id){
+	  seedAlreadyUsed=true;
+	  break; 
+	}
+      }
+
+      if(seedAlreadyUsed)continue;
+
+      std::vector<DetId> clus_v = topology_eb->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
+      std::vector<std::pair<DetId, float> > clus_used;
+    
+
+      vector<EcalRecHit> RecHitsInWindow;
+      vector<EcalRecHit> RecHitsInWindow5x5;
+      float simple_energy = 0; 
+    
+      for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	EBDetId EBdet = *det;
+      
+	bool  HitAlreadyUsed=false;
+	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	  if(*usedIds==*det){
+	    HitAlreadyUsed=true;
+	    break;
+	  }
+	}
      
-      if(HitAlreadyUsed)continue;
+	if(HitAlreadyUsed)continue;
       
-      std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),EBdet);
-      if(itdet == detIdEBRecHits.end()) continue; 
+	std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),EBdet);
+	if(itdet == detIdEBRecHits.end()) continue; 
       
-      int nn = int(itdet - detIdEBRecHits.begin());
-      usedXtals.push_back(*det);
-      RecHitsInWindow.push_back(EBRecHits[nn]);
-      clus_used.push_back(std::pair<DetId, float>(*det, 1) );
-      simple_energy = simple_energy + EBRecHits[nn].energy();
+	int nn = int(itdet - detIdEBRecHits.begin());
+	usedXtals.push_back(*det);
+	RecHitsInWindow.push_back(EBRecHits[nn]);
+	clus_used.push_back(std::pair<DetId, float>(*det, 1) );
+	simple_energy = simple_energy + EBRecHits[nn].energy();
       
             
-    }
+      }
     
-    if(simple_energy <= 0) continue; 
-    
-    
-    math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_eb,geometry_es);
+      if(simple_energy <= 0) continue; 
     
     
-    float theta_s = 2. * atan(exp(-clus_pos.eta()));
-    float et_s = simple_energy * sin(theta_s);
+      math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_eb,geometry_es);
+    
+    
+      float theta_s = 2. * atan(exp(-clus_pos.eta()));
+      float et_s = simple_energy * sin(theta_s);
     
   
-    //Compute S4/S9 variable
-    //We are not sure to have 9 RecHits so need to check eta and phi:
+      //Compute S4/S9 variable
+      //We are not sure to have 9 RecHits so need to check eta and phi:
 
-    ///check s4s9
-    float s4s9_tmp[4];
-    for(int i=0;i<4;i++)s4s9_tmp[i]= 0;
+      ///check s4s9
+      float s4s9_tmp[4];
+      for(int i=0;i<4;i++)s4s9_tmp[i]= 0;
 
-    int seed_ieta = seed_id.ieta();
-    int seed_iphi = seed_id.iphi();
+      int seed_ieta = seed_id.ieta();
+      int seed_iphi = seed_id.iphi();
     
-    convxtalid( seed_iphi,seed_ieta);
+      convxtalid( seed_iphi,seed_ieta);
     
-    float e3x3 = 0; 
-    float e5x5 = 0; 
-    for(unsigned int j=0; j<RecHitsInWindow.size();j++){
-      EBDetId det = (EBDetId)RecHitsInWindow[j].id(); 
+      float e3x3 = 0; 
+      float e5x5 = 0; 
+      for(unsigned int j=0; j<RecHitsInWindow.size();j++){
+	EBDetId det = (EBDetId)RecHitsInWindow[j].id(); 
       
-      int ieta = det.ieta();
-      int iphi = det.iphi();
+	int ieta = det.ieta();
+	int iphi = det.iphi();
       
-      convxtalid(iphi,ieta);
+	convxtalid(iphi,ieta);
       
-      float en = RecHitsInWindow[j].energy(); 
+	float en = RecHitsInWindow[j].energy(); 
       
-      int dx = diff_neta_s(seed_ieta,ieta);
-      int dy = diff_nphi_s(seed_iphi,iphi);
+	int dx = diff_neta_s(seed_ieta,ieta);
+	int dy = diff_nphi_s(seed_iphi,iphi);
     
       
-      if(abs(dx)<=1 && abs(dy)<=1) {
-	e3x3 += en; 
-	if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
-	if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
-	if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
-	if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
+	if(abs(dx)<=1 && abs(dy)<=1) {
+	  e3x3 += en; 
+	  if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
+	  if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
+	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
+	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
+	}
       }
-    }
     
 
-    if(e3x3 <= 0) continue; 
+      if(e3x3 <= 0) continue; 
     
     
 
-    float s4s9_max = *max_element( s4s9_tmp,s4s9_tmp+4)/e3x3; 
+      float s4s9_max = *max_element( s4s9_tmp,s4s9_tmp+4)/e3x3; 
    
     
-    ///calculate e5x5
-    std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seed_id,5,5);	
-    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
-      EBDetId det = *idItr;
-      //inside collections
-      std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),det);
-      if(itdet == detIdEBRecHits.end()) continue; 
-      int nn = int(itdet - detIdEBRecHits.begin());
+      ///calculate e5x5
+      std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seed_id,5,5);	
+      for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+	EBDetId det = *idItr;
+	//inside collections
+	std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),det);
+	if(itdet == detIdEBRecHits.end()) continue; 
+	int nn = int(itdet - detIdEBRecHits.begin());
       
-      RecHitsInWindow5x5.push_back(EBRecHits[nn]);
-      e5x5 += EBRecHits[nn].energy();
+	RecHitsInWindow5x5.push_back(EBRecHits[nn]);
+	e5x5 += EBRecHits[nn].energy();
+      
+      }
+    
+    
+      if(e5x5 <= 0) continue; 
+    
+      eClus.push_back(simple_energy);
+      etClus.push_back(et_s);
+      etaClus.push_back(clus_pos.eta());
+      thetaClus.push_back(theta_s);
+      phiClus.push_back(clus_pos.phi());
+      s4s9Clus.push_back(s4s9_max);
+      s9s25Clus.push_back(e3x3/e5x5);
+      RecHitsCluster.push_back(RecHitsInWindow);
+      RecHitsCluster5x5.push_back(RecHitsInWindow5x5);
+      
+      if(debug_>=1){
+	cout<<"3x3_cluster_eb (n,nxt,e,et eta,phi,s4s9,s9s25) "<<nClus<<" "<<int(RecHitsInWindow.size())<<" "<<eClus[nClus]<<" "<<etClus[nClus]<<" "<<etaClus[nClus]<<" "<<phiClus[nClus]<<" "<<s4s9Clus[nClus]<<" "
+	    <<s9s25Clus[nClus]<<endl;
+      }
+        
+      nClus++;
+    
+      if( nClus >= maxNumberofClusters_) return false; 
+      //if (nClus == MAXCLUS) return false; 
       
     }
     
     
-    if(e5x5 <= 0) continue; 
+  }catch ( std::exception& ex ) {
+    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product barrel hits!" << std::endl;
+    //and switch off selection 
+    doSelForPi0Barrel_ = false; 
+    doSelForEtaBarrel_ = false; 
     
-    eClus.push_back(simple_energy);
-    etClus.push_back(et_s);
-    etaClus.push_back(clus_pos.eta());
-    thetaClus.push_back(theta_s);
-    phiClus.push_back(clus_pos.phi());
-    s4s9Clus.push_back(s4s9_max);
-    s9s25Clus.push_back(e3x3/e5x5);
-    RecHitsCluster.push_back(RecHitsInWindow);
-    RecHitsCluster5x5.push_back(RecHitsInWindow5x5);
-    
-    
-
-    if(debug_>=1){
-      cout<<"3x3_cluster_eb (n,nxt,e,et eta,phi,s4s9,s9s25) "<<nClus<<" "<<int(RecHitsInWindow.size())<<" "<<eClus[nClus]<<" "<<etClus[nClus]<<" "<<etaClus[nClus]<<" "<<phiClus[nClus]<<" "<<s4s9Clus[nClus]<<" "
-	  <<s9s25Clus[nClus]<<endl;
-    }
-    
-    
-
-    nClus++;
-    //if (nClus == MAXCLUS) return false; 
-
   }
   
-
   // Selection, based on Simple clustering
   //pi0 candidates
   
@@ -719,7 +713,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     
     if(debug_>=1) cout<<"npi0seleb: "<<npi0_s<<endl;
-    
     
     
     
@@ -905,88 +898,36 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ///==============Start of  Endcap ==================///
   ///get preshower rechits
+
   
   Handle<ESRecHitCollection> esRecHitsHandle;
-  iEvent.getByLabel(preshHitProducer_,esRecHitsHandle);
-  if( !esRecHitsHandle.isValid()){
-    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product esRecHit!" << std::endl;
-  }
-  const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
-  // make a map of rechits:
-  //  std::map<DetId, EcalRecHit> esrechits_map;
+  
   esrechits_map.clear();
-  EcalRecHitCollection::const_iterator iter;
-  for (iter = esRecHitsHandle->begin(); iter != esRecHitsHandle->end(); iter++) {
-    //Make the map of DetID, EcalRecHit pairs
-    esrechits_map.insert(std::make_pair(iter->id(), *iter));   
-  }
-  // The set of used DetID's for a given event:
-  //  std::set<DetId> used_strips;
   used_strips.clear();
-  std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
   
-  
-  Handle<EERecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
-  if (!endcapRecHitsHandle.isValid()) {
-    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product eeRecHit!" << std::endl;
-  }
-  
-  const EcalRecHitCollection *hitCollection_e = endcapRecHitsHandle.product();
-  if(debug_>=1) std::cout<<" endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<" "<<hitCollection_es->size()<<std::endl;
-  
-  
-  
-  detIdEERecHits.clear(); //// EEDetId
-  EERecHits.clear();  /// EcalRecHit
-
-
-  std::vector<EcalRecHit> seedsEndCap;
-  seedsEndCap.clear();
-
-  vector<EEDetId> usedXtalsEndCap;
-  usedXtalsEndCap.clear();
-  
-  
-  ////make seeds. 
-  EERecHitCollection::const_iterator ite;
-  for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
-    double energy = ite->energy();
-
-    //if( energy < seleXtalMinEnergyEndCap_) continue; 
-
-    if(  useRecoFlag_ ){ ///from recoFlag()
-      int flag = ite->recoFlag();
-      
-      if( flagLevelRecHitsToUse_ ==0){ ///good 
-	if( flag != 0) continue; 
-      }
-      else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
-	if( flag !=0 && flag != 4 ) continue; 
-      }
-      else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
-	if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
-      }
-    }
-    if( useDBStatus_) { //// from DB
-      int status =  int(channelStatus[ite->id().rawId()].getStatusCode()); 
-      if ( status > statusLevelRecHitsToUse_ ) continue; 
+  try{
+    iEvent.getByLabel(preshHitProducer_,esRecHitsHandle);
+    const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
+    // make a map of rechits:
+    //  std::map<DetId, EcalRecHit> esrechits_map;
+    if(debug_ >=1) std::cout<<" es_input_size: "<<hitCollection_es->size()<<std::endl;
+    EcalRecHitCollection::const_iterator iter;
+    for (iter = esRecHitsHandle->begin(); iter != esRecHitsHandle->end(); iter++) {
+      //Make the map of DetID, EcalRecHit pairs
+      esrechits_map.insert(std::make_pair(iter->id(), *iter));   
     }
     
     
-    EEDetId det = ite->id();
-    detIdEERecHits.push_back(det);
-    EERecHits.push_back(*ite);
-    
-    
-    if (energy > clusSeedThrEndCap_) seedsEndCap.push_back(*ite);
-    
+  }catch ( std::exception& ex ) {
+    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product esRecHit!" << std::endl;
+    ///and switch off the ES parts
+    storeRecHitES_ = false; 
   }
   
   
   
   
-  int nClusEndCap;
+  int nClusEndCap=0;
   vector<float> eClusEndCap;
   vector<float> etClusEndCap;
   vector<float> etaClusEndCap;
@@ -1003,145 +944,199 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<float> s4s9ClusEndCap;
   vector<float> s9s25ClusEndCap;
   
+  
+  detIdEERecHits.clear(); //// EEDetId
+  EERecHits.clear();  /// EcalRecHit
+  std::vector<EcalRecHit> seedsEndCap;
+  seedsEndCap.clear();
+
+  vector<EEDetId> usedXtalsEndCap;
+  usedXtalsEndCap.clear();
+  
+  Handle<EERecHitCollection> endcapRecHitsHandle;
+  try{
+    iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
+    const EcalRecHitCollection *hitCollection_e = endcapRecHitsHandle.product();
+    if(debug_>=1) std::cout<<" endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<std::endl;
+        
+    ////make seeds. 
+    EERecHitCollection::const_iterator ite;
+    for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
+      double energy = ite->energy();
+
+      //if( energy < seleXtalMinEnergyEndCap_) continue; 
+
+      if(  useRecoFlag_ ){ ///from recoFlag()
+	int flag = ite->recoFlag();
+      
+	if( flagLevelRecHitsToUse_ ==0){ ///good 
+	  if( flag != 0) continue; 
+	}
+	else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+	  if( flag !=0 && flag != 4 ) continue; 
+	}
+	else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+	  if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
+	}
+      }
+      if( useDBStatus_) { //// from DB
+	int status =  int(channelStatus[ite->id().rawId()].getStatusCode()); 
+	if ( status > statusLevelRecHitsToUse_ ) continue; 
+      }
+    
+    
+      EEDetId det = ite->id();
+      detIdEERecHits.push_back(det);
+      EERecHits.push_back(*ite);
+      if (energy > clusSeedThrEndCap_) seedsEndCap.push_back(*ite);
+      
+    }
+    
+    if( int( seedsEndCap.size()) >= maxNumberofSeeds_  ) return false; 
+
+    // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
+    nClusEndCap=0;
+    sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
+    for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
+      EEDetId seed_id = itseed->id();
+      std::vector<EEDetId>::const_iterator usedIds;
+    
+      bool seedAlreadyUsed=false;
+      for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	if(*usedIds==seed_id){
+	  seedAlreadyUsed=true;
+	  break; 
+	}
+      }
+      
+      if(seedAlreadyUsed)continue;
+
+      std::vector<DetId> clus_v = topology_ee->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
+      std::vector<std::pair<DetId, float> > clus_used;
+      
+      vector<EcalRecHit> RecHitsInWindow;
+      vector<EcalRecHit> RecHitsInWindow5x5;
+    
+      float simple_energy = 0; 
+    
+      for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	EEDetId EEdet = *det;
+      
+	bool  HitAlreadyUsed=false;
+	for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	  if(*usedIds==*det){
+	    HitAlreadyUsed=true;
+	    break;
+	  }
+	}
+     
+	if(HitAlreadyUsed)continue;
+	
+      
+	std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),EEdet);
+	if(itdet == detIdEERecHits.end()) continue; 
+      
+      
+	int nn = int(itdet - detIdEERecHits.begin());
+	usedXtalsEndCap.push_back(*det);
+	RecHitsInWindow.push_back(EERecHits[nn]);
+	clus_used.push_back(std::pair<DetId, float>(*det, 1) );
+	simple_energy = simple_energy + EERecHits[nn].energy();
+        
+      }
+    
+      if( simple_energy <= 0) continue; 
+    
+      math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_e,geometry_ee,geometry_es);
+    
+      float theta_s = 2. * atan(exp(-clus_pos.eta()));
+      float et_s = simple_energy * sin(theta_s);
+    
+      //Compute S4/S9 variable
+      //We are not sure to have 9 RecHits so need to check eta and phi:
+      float s4s9_tmp[4];
+      for(int i=0;i<4;i++) s4s9_tmp[i]= 0; 
+    
+      int ixSeed = seed_id.ix();
+      int iySeed = seed_id.iy();
+      float e3x3 = 0; 
+      float e5x5 = 0;
+      for(unsigned int j=0; j<RecHitsInWindow.size();j++){
+	EEDetId det_this = (EEDetId)RecHitsInWindow[j].id(); 
+	int dx = ixSeed - det_this.ix();
+	int dy = iySeed - det_this.iy();
+      
+	float en = RecHitsInWindow[j].energy(); 
+	if( abs(dx)<=1 && abs(dy)<=1) {
+	  e3x3 += en; 
+	  if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
+	  if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
+	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
+	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
+	}
+      }
+    
+      if(e3x3 <= 0) continue; 
+    
+    
+      std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seed_id,5,5);	
+      for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+	EEDetId det = *idItr;
+	//inside collections
+	std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),det);
+	if(itdet == detIdEERecHits.end()) continue; 
+	int nn = int(itdet - detIdEERecHits.begin());
+      
+	RecHitsInWindow5x5.push_back(EERecHits[nn]);
+	e5x5 +=  EERecHits[nn].energy();
+      
+      }
+    
+      if(e5x5 <= 0) continue; 
+      
+      
+  
+      xClusEndCap.push_back(clus_pos.x());
+      yClusEndCap.push_back(clus_pos.y());
+      zClusEndCap.push_back(clus_pos.z());
+
+      etaClusEndCap.push_back(clus_pos.eta());
+      thetaClusEndCap.push_back(theta_s);
+      phiClusEndCap.push_back(clus_pos.phi());
+      s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/e3x3);
+      s9s25ClusEndCap.push_back(e3x3/e5x5);
+      RecHitsClusterEndCap.push_back(RecHitsInWindow);
+      RecHitsCluster5x5EndCap.push_back(RecHitsInWindow5x5);
+        
+    
+      eClusEndCap.push_back(simple_energy);
+      etClusEndCap.push_back(et_s);
+        
+    
+      if(debug_>=1){
+	cout<<"3x3_cluster_ee (n,nxt,et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
+      }
+    
+      nClusEndCap++;
+      
+      if( nClusEndCap >= maxNumberofClusters_) return false; 
+      ///    if (nClusEndCap == MAXCLUS) return false;  ///now configurable as above
+    }
+    
+  }catch ( std::exception& ex ) {
+    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product eeRecHit!" << std::endl;
+    ///and switch off Endcap selections
+    doSelForEtaEndcap_ = false; 
+    doSelForPi0Endcap_ = false; 
+  }
+  
+  
   ///detid for each ee cluster, both in X and Y plane
   //  vector< vector<DetId> > esdetIDClusterEndCap;
   ///below are not necessary. 
   //vector<DetId> pi0_esdetid_stored;
   //vector<DetId> eta_esdetid_stored;
   
-  nClusEndCap=0;
-    
-  
-  
-  // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-  sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
-  
-  
-  for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
-    EEDetId seed_id = itseed->id();
-    std::vector<EEDetId>::const_iterator usedIds;
-    
-    bool seedAlreadyUsed=false;
-    for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
-      if(*usedIds==seed_id){
-	seedAlreadyUsed=true;
-	break; 
-      }
-    }
-
-    if(seedAlreadyUsed)continue;
-
-    std::vector<DetId> clus_v = topology_ee->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
-    std::vector<std::pair<DetId, float> > clus_used;
-    
-    
-
-    vector<EcalRecHit> RecHitsInWindow;
-    vector<EcalRecHit> RecHitsInWindow5x5;
-    
-    float simple_energy = 0; 
-    
-    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
-      EEDetId EEdet = *det;
-      
-      bool  HitAlreadyUsed=false;
-      for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
-	if(*usedIds==*det){
-	  HitAlreadyUsed=true;
-	  break;
-	}
-      }
-     
-      if(HitAlreadyUsed)continue;
-      
-      
-      std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),EEdet);
-      if(itdet == detIdEERecHits.end()) continue; 
-      
-      
-      int nn = int(itdet - detIdEERecHits.begin());
-      usedXtalsEndCap.push_back(*det);
-      RecHitsInWindow.push_back(EERecHits[nn]);
-      clus_used.push_back(std::pair<DetId, float>(*det, 1) );
-      simple_energy = simple_energy + EERecHits[nn].energy();
-        
-    }
-    
-    if( simple_energy <= 0) continue; 
-    
-    math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_e,geometry_ee,geometry_es);
-    
-    float theta_s = 2. * atan(exp(-clus_pos.eta()));
-    float et_s = simple_energy * sin(theta_s);
-    
-    //Compute S4/S9 variable
-    //We are not sure to have 9 RecHits so need to check eta and phi:
-    float s4s9_tmp[4];
-    for(int i=0;i<4;i++) s4s9_tmp[i]= 0; 
-    
-    int ixSeed = seed_id.ix();
-    int iySeed = seed_id.iy();
-    float e3x3 = 0; 
-    float e5x5 = 0;
-    for(unsigned int j=0; j<RecHitsInWindow.size();j++){
-      EEDetId det_this = (EEDetId)RecHitsInWindow[j].id(); 
-      int dx = ixSeed - det_this.ix();
-      int dy = iySeed - det_this.iy();
-      
-      float en = RecHitsInWindow[j].energy(); 
-      if( abs(dx)<=1 && abs(dy)<=1) {
-	e3x3 += en; 
-	if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
-	if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
-	if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
-	if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
-      }
-    }
-    
-    if(e3x3 <= 0) continue; 
-    
-    
-    std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seed_id,5,5);	
-    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
-      EEDetId det = *idItr;
-      //inside collections
-      std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),det);
-      if(itdet == detIdEERecHits.end()) continue; 
-      int nn = int(itdet - detIdEERecHits.begin());
-      
-      RecHitsInWindow5x5.push_back(EERecHits[nn]);
-      e5x5 +=  EERecHits[nn].energy();
-      
-    }
-    
-    if(e5x5 <= 0) continue; 
-    
-    
-  
-    xClusEndCap.push_back(clus_pos.x());
-    yClusEndCap.push_back(clus_pos.y());
-    zClusEndCap.push_back(clus_pos.z());
-
-    etaClusEndCap.push_back(clus_pos.eta());
-    thetaClusEndCap.push_back(theta_s);
-    phiClusEndCap.push_back(clus_pos.phi());
-    s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/e3x3);
-    s9s25ClusEndCap.push_back(e3x3/e5x5);
-    RecHitsClusterEndCap.push_back(RecHitsInWindow);
-    RecHitsCluster5x5EndCap.push_back(RecHitsInWindow5x5);
-        
-    
-    eClusEndCap.push_back(simple_energy);
-    etClusEndCap.push_back(et_s);
-        
-    
-    if(debug_>=1){
-      cout<<"3x3_cluster_ee (n,nxt,et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
-    }
-    
-    nClusEndCap++;
-    ///    if (nClusEndCap == MAXCLUS) return false; 
-  }
   
   
   
@@ -1241,7 +1236,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		cout<<"used_strips for cluster_ee: "<<ind<<" "<< etaClusEndCap[ind]<<" "<<phiClusEndCap[ind]<<" "<<int(used_strips.size())<<endl;
 	      }
 	      
-	      
 	      //now call a common function to make ES cluster
 	      ///this is to get already done before this cluster
 	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
@@ -1319,7 +1313,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } // End of the "j" loop over Simple Clusters
     } // End of the "i" loop over Simple Clusters
     
-
+    
   } ///end of selection of pi0->gg endCap
   
   
@@ -1442,7 +1436,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	  } //if cluster was not stored
 	  
-
+	  
 	} // loop jj
 	
 	
@@ -1543,9 +1537,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   ///too many rechits.
   ///  if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
-  
-  
-  
+    
 
   ////Now put into events selected rechits.
   if(doBarrel){

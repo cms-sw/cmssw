@@ -116,7 +116,10 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       std::string ESHits_;
       
       
+      int maxNumberofClusters_; 
+      int maxNumberofSeeds_; 
       
+
       
       int gammaCandEtaSize_;
       int gammaCandPhiSize_;
@@ -348,7 +351,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  
       PositionCalc posCalculator_;
  
-      static const int MAXCLUS = 2000;
-      static const int MAXPI0S = 200;
+    /*   static const int MAXCLUS = 2000; */
+/*       static const int MAXPI0S = 200; */
 
 };
