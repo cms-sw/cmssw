@@ -50,7 +50,7 @@ process.looper.algoConfig = cms.PSet(
 
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonCSCChambers,%s" % params)
 
-process.CSCOverlapsBeamSplashCut = cms.EDFilter("CSCOverlapsBeamSplashCut", src = cms.InputTag("cscSegments"), maxSegments = cms.int32(20))
+process.CSCOverlapsBeamSplashCut = cms.EDFilter("CSCOverlapsBeamSplashCut", src = cms.InputTag("cscSegments"), maxSegments = cms.int32(30))
 process.CSCOverlapsTrackPreparation = cms.EDProducer("CSCOverlapsTrackPreparation", src = cms.InputTag("ALCARECOMuAlBeamHaloOverlaps"))
 process.Path = cms.Path(process.offlineBeamSpot * process.CSCOverlapsBeamSplashCut * process.CSCOverlapsTrackPreparation)
 
