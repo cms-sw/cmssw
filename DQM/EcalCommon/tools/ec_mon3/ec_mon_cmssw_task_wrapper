@@ -371,7 +371,7 @@ if (liveCMS == 1) :
   process.load("DQM.Integration.test.inputsource_cfi")
 
 if (playCMS == 1) :
-  process.load("DQM.Integration.test.inputsource_playback_cfi")
+  process.load("DQM.Integration.test.inputsource_cfi")
 
 if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
