@@ -90,7 +90,7 @@ void L1TEventInfoClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TEventInfoClient::beginJob(const EventSetup& context){
+void L1TEventInfoClient::beginJob(void){
 
   if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
   // get backendinterface  

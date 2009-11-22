@@ -28,7 +28,7 @@ class L1TGCTClient: public edm::EDAnalyzer {
  protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);

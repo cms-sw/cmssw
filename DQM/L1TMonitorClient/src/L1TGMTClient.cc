@@ -48,7 +48,7 @@ void L1TGMTClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TGMTClient::beginJob(const EventSetup& context){
+void L1TGMTClient::beginJob(void){
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
 

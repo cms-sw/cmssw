@@ -79,7 +79,7 @@ L1THcalClient::~L1THcalClient()
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void L1THcalClient::beginJob(const edm::EventSetup&)
+void L1THcalClient::beginJob(void)
 {
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
   //  LogInfo("TriggerDQM")<<"[TriggerDQM]: Standalone = "<<stdalone;

@@ -34,7 +34,7 @@ void L1TCSCTFClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TCSCTFClient::beginJob(const EventSetup& context){
+void L1TCSCTFClient::beginJob(void){
   // get backendinterface
   dbe = Service<DQMStore>().operator->();
 
