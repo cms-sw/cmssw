@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/11/20 11:17:00 $
- * $Revision: 1.470 $
+ * $Date: 2009/11/22 19:30:23 $
+ * $Revision: 1.471 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1409,7 +1409,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
     if ( verbose_ ) {
       cout << " RUN status = \"" << status_ << "\"" << endl;
-      cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
+      cout << "   CMS run/event number = " << run_ << "/" << evt_ << endl;
       cout << "   EB run/event number = " << ecal_run << "/" << ecal_evt << endl;
       cout << "   EB location = " << location_ << endl;
       cout << "   EB run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
