@@ -31,7 +31,7 @@ public:
   };
   
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
 //   /// Endjob
 //   void endJob(void);

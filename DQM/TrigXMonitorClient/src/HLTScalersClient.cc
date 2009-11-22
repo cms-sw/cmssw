@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.10 2009/11/04 06:00:05 lorenzo Exp $
+// $Id: HLTScalersClient.cc,v 1.11 2009/11/07 03:35:05 lorenzo Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.11  2009/11/07 03:35:05  lorenzo
+// fixed binning
+//
 // Revision 1.10  2009/11/04 06:00:05  lorenzo
 // changed folders
 //
@@ -105,7 +108,7 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
 
 
 /// BeginJob
-void HLTScalersClient::beginJob(const edm::EventSetup& c)
+void HLTScalersClient::beginJob(void)
 {
   LogDebug("Status") << "beingJob" ;
   if (dbe_) {

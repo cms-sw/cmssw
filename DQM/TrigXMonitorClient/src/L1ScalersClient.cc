@@ -142,7 +142,7 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 
 
 /// BeginJob
-void L1ScalersClient::beginJob(const edm::EventSetup& c)
+void L1ScalersClient::beginJob(void)
 {
   LogDebug("Status") << "beingJob" ;
   if (dbe_) {

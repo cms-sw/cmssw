@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.3 2008/08/27 13:48:57 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.4 2009/11/04 03:45:18 lorenzo Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.4  2009/11/04 03:45:18  lorenzo
+// added folder param
+//
 // Revision 1.3  2008/08/27 13:48:57  wittich
 // re-add Don's 20 entry histograms with full bin labels
 //
@@ -46,7 +49,7 @@ public:
   };
   
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
 //   /// Endjob
 //   void endJob(void);
