@@ -17,16 +17,15 @@ process = cms.Process('testRawToDigiEmulatorData')
 #)
 
 # Number of events
-process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( -1 ) )
+process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 10000 ) )
 
 # GCT Unpacker
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
 process.l1GctHwDigis.inputLabel = cms.InputTag( "source" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( False )
-process.l1GctHwDigis.hltMode = cms.bool(True)
-process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
-process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
-process.l1GctHwDigis.unpackInternJets = cms.untracked.bool ( True )
+#process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
+#process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
+#process.l1GctHwDigis.unpackInternJets = cms.untracked.bool ( True )
 
 # GCT emulator
 process.load('L1Trigger.Configuration.L1StartupConfig_cff')
@@ -52,7 +51,7 @@ process.l1compare.COMPARE_COLLS = cms.untracked.vuint32(
 process.load('DQMServices.Core.DQM_cfg')
 process.load('DQM.L1TMonitor.L1TGCT_cfi')
 process.l1tgct.disableROOToutput = cms.untracked.bool(False)
-process.l1tgct.outputFile = cms.untracked.string('gctDqm_testAnalysis.root')
+#process.l1tgct.outputFile = cms.untracked.string('test_RawToDigi_Emulator_Data.root')
 process.l1tgct.gctCentralJetsSource = cms.InputTag("l1GctHwDigis","cenJets")
 process.l1tgct.gctNonIsoEmSource = cms.InputTag("l1GctHwDigis","nonIsoEm")
 process.l1tgct.gctForwardJetsSource = cms.InputTag("l1GctHwDigis","forJets")
@@ -63,7 +62,7 @@ process.l1tgct.gctTauJetsSource = cms.InputTag("l1GctHwDigis","tauJets")
 # RCT DQM
 process.load('DQM.L1TMonitor.L1TRCT_cfi')
 process.l1trct.disableROOToutput = cms.untracked.bool(False)
-process.l1trct.outputFile = cms.untracked.string('test_RawToDigi_Emulator_Data.root')
+#process.l1trct.outputFile = cms.untracked.string('test_RawToDigi_Emulator_Data.root')
 process.l1trct.rctSource = cms.InputTag("l1GctHwDigis","")
 
 
@@ -84,9 +83,16 @@ process.l1demongct)
 
 process.p = cms.Path(process.defaultPath)
 
+process.out = cms.OutputModule(
+    "PoolOutputModule",
+    fileName = cms.untracked.string("test_emu.root")
+    )
+
+#process.outpath=cms.EndPath(process.out)
+
 # Global Tag
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = cms.string('GR09_P_V5::All')
+process.GlobalTag.globaltag = cms.string('GR09_P_V6::All')
 
 process.source = cms.Source ( "PoolSource",
    fileNames = cms.untracked.vstring(

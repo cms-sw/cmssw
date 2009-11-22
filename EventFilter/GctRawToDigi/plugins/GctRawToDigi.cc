@@ -306,7 +306,7 @@ void GctRawToDigi::addError(const unsigned code) {
     else if (code == 4) os << "Detected unknown data block";
     else if (code == 5) os << "Block headers out of sync";
     else if (code == 5) os << "Too many blocks";
-    edm::LogError("GCT") << "Unpacking error " << code << " : " << os;
+    edm::LogError("GCT") << "Unpacking error " << code << " : " << os.str();
   }
 
   // increment error counter

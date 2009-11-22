@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 
 // Framework headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -639,6 +640,10 @@ uint32_t GctFormatTranslateV38::generateRawHeader(const uint32_t blockId,
 
 // PRIVATE METHODS
 
+// Throughout the code, bx refers to the hardware definition of time-samples
+// ie. if 5 time samples are unpacked, they are bx=0, 1, 2, 3, 4 in order
+// what is written to digi would be -2, -1, 0, +1, +2
+
 // Output EM Candidates unpacking
 void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr)
 {
@@ -655,10 +660,11 @@ void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char *
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = std::min(nSamples,m_numberOfGctSamplesToUnpack); // Unpack as many as asked for if they are in the raw data
+  unsigned int centralSample = std::ceil((double)nSamples/2.)-1;  // think this works when nSamples is even, need to check!!!
+  unsigned int firstSample = centralSample-std::ceil((double)samplesToUnpack/2.)+1;
+  unsigned int lastSample = centralSample+std::floor((double)samplesToUnpack/2.);
 
-  unsigned int centralSample = nSamples/2;
-  unsigned int extraSamples = samplesToUnpack/2;
-  unsigned int nUnpacked = 0;
+  LogDebug("GCT") << "Unpacking output EM.  Central sample=" << centralSample << " first=" << firstSample << " last=" << lastSample;
 
   for (unsigned int iso=0; iso<2; ++iso)  // loop over non-iso/iso candidate pairs
   {
@@ -669,19 +675,18 @@ void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char *
     if (isoFlag) { em = colls()->gctIsoEm(); }
     else { em = colls()->gctNonIsoEm(); }
     
-    for (unsigned int bx=0; bx<nSamples; ++bx) // loop over all time samples
+    for (unsigned int bx=firstSample; bx<=lastSample; ++bx) // loop over samples to be unpacked
     {
       // cand0Offset will give the offset on p16 to get the rank 0 candidate
       // of the correct category and timesample.
       const unsigned int cand0Offset = iso*emCandCategoryOffset + bx*2;
 
-      if (bx >= (centralSample-extraSamples) && bx <= (centralSample+extraSamples) && nUnpacked<samplesToUnpack){
-        nUnpacked++;
-        em->push_back(L1GctEmCand(p16[cand0Offset], isoFlag, id, 0, (int)bx-(int)centralSample));  // rank0 electron
-        em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset], isoFlag, id, 1, (int)bx-(int)centralSample));  // rank1 electron
-        em->push_back(L1GctEmCand(p16[cand0Offset + 1], isoFlag, id, 2, (int)bx-(int)centralSample));  // rank2 electron
-        em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset + 1], isoFlag, id, 3, (int)bx-(int)centralSample));  // rank3 electron
-      }
+      em->push_back(L1GctEmCand(p16[cand0Offset], isoFlag, id, 0, (int)bx-(int)centralSample));  // rank0 electron
+      em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset], isoFlag, id, 1, (int)bx-(int)centralSample));  // rank1 electron
+      em->push_back(L1GctEmCand(p16[cand0Offset + 1], isoFlag, id, 2, (int)bx-(int)centralSample));  // rank2 electron
+      em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset + 1], isoFlag, id, 3, (int)bx-(int)centralSample));  // rank3 electron
+
+      LogDebug("GCT") << "Unpacked a bunch of EG.  iso=" << iso << " bx=" << bx << std::endl;
     }
   }
 
@@ -689,24 +694,21 @@ void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char *
 
   // UNPACK ENERGY SUMS
 
-  nUnpacked = 0; 
-
-  for (unsigned int bx=0; bx<nSamples; ++bx) // loop over all time samples
-    {
-      if (bx >= (centralSample-extraSamples) && bx <= (centralSample+extraSamples) && nUnpacked<samplesToUnpack){
-        nUnpacked++;
-	
-	colls()->gctEtTot()->push_back(L1GctEtTotal(*p16,(int)bx-(int)centralSample));  // Et total
-	p16++;
-	colls()->gctEtHad()->push_back(L1GctEtHad(*p16,(int)bx-(int)centralSample));  // Et hadronic 
-	p16++;
-
-	// 32-bit pointer for getting Missing Et.
-	const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
-	colls()->gctEtMiss()->push_back(L1GctEtMiss(*p32,(int)bx-(int)centralSample)); // Et Miss 
-	p16++; 
-        p16++;
-      }
+  for (unsigned int bx=firstSample; bx<=lastSample; ++bx) // loop over all time samples
+    {	
+      colls()->gctEtTot()->push_back(L1GctEtTotal(*p16,(int)bx-(int)centralSample));  // Et total
+      p16++;
+      colls()->gctEtHad()->push_back(L1GctEtHad(*p16,(int)bx-(int)centralSample));  // Et hadronic 
+      p16++;
+      
+      // 32-bit pointer for getting Missing Et.
+      const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
+      colls()->gctEtMiss()->push_back(L1GctEtMiss(*p32,(int)bx-(int)centralSample)); // Et Miss 
+      p16++; 
+      p16++;
+      
+      LogDebug("GCT") << "Unpacked energy sums bx=" << bx << std::endl;
+      
     }
 
 
@@ -727,10 +729,11 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = std::min(nSamples,m_numberOfGctSamplesToUnpack); // Unpack as many as asked for if they are in the raw data
+  unsigned int centralSample = std::ceil((double)nSamples/2.)-1;  // think this works when nSamples is even, need to check!!!
+  unsigned int firstSample = centralSample-std::ceil((double)samplesToUnpack/2.)+1;
+  unsigned int lastSample = centralSample+std::floor((double)samplesToUnpack/2.);
 
-  unsigned int centralSample = nSamples/2;
-  unsigned int extraSamples = samplesToUnpack/2;
-  unsigned int nUnpacked = 0;
+  LogDebug("GCT") << "Unpacking output Jets. Samples to unpack=" << samplesToUnpack << " central=" << centralSample << " first=" << firstSample << " last=" << lastSample;
 
   // Loop over the different catagories of jets
   for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
@@ -742,23 +745,19 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
     bool forwardFlag = (iCat == FORWARD_JETS);
 
     // Loop over the different timesamples (bunch crossings).
-    for(unsigned int bx = 0 ; bx < nSamples; ++bx)
+    for(unsigned int bx = firstSample ; bx <=lastSample; ++bx)
     {
       // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct category and timesample.
       const unsigned int cand0Offset = iCat*jetCandCategoryOffset + bx*2;
 
-      if (bx >= (centralSample-extraSamples) && bx <= (centralSample+extraSamples) && nUnpacked<samplesToUnpack){
-        nUnpacked++;
-
-	// Rank 0 Jet.
-	jets->push_back(L1GctJetCand(p16[cand0Offset], tauflag, forwardFlag, id, 0, (int)bx-(int)centralSample));
-	// Rank 1 Jet.
-	jets->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset], tauflag, forwardFlag, id, 1, (int)bx-(int)centralSample));
-	// Rank 2 Jet.
-	jets->push_back(L1GctJetCand(p16[cand0Offset + 1],  tauflag, forwardFlag, id, 2, (int)bx-(int)centralSample));
-	// Rank 3 Jet.
-	jets->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, (int)bx-(int)centralSample));
-      }
+      // Rank 0 Jet.
+      jets->push_back(L1GctJetCand(p16[cand0Offset], tauflag, forwardFlag, id, 0, (int)bx-(int)centralSample));
+      // Rank 1 Jet.
+      jets->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset], tauflag, forwardFlag, id, 1, (int)bx-(int)centralSample));
+      // Rank 2 Jet.
+      jets->push_back(L1GctJetCand(p16[cand0Offset + 1],  tauflag, forwardFlag, id, 2, (int)bx-(int)centralSample));
+      // Rank 3 Jet.
+      jets->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, (int)bx-(int)centralSample));
     }
   }
 
@@ -766,25 +765,19 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
 
   // NOW UNPACK: HFBitCounts, HFRingEtSums and Missing Ht
 
-  nUnpacked = 0; 
-
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
-  for (unsigned int bx=0; bx<nSamples; ++bx) // loop over all time samples
+  for (unsigned int bx=firstSample; bx<=lastSample; ++bx) // loop over all time samples
     {
-      if (bx >= (centralSample-extraSamples) && bx <= (centralSample+extraSamples) && nUnpacked<samplesToUnpack){
-        nUnpacked++;
-
-	// Channel 0 carries both HF counts and sums
-	colls()->gctHfBitCounts()->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,(int)bx-(int)centralSample,*p32)); 
-	colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,(int)bx-(int)centralSample,*p32));
-	p32++;
-
-	// Channel 1 carries Missing HT.
-	colls()->gctHtMiss()->push_back(L1GctHtMiss(*p32, (int)bx-(int)centralSample));
-	p32++;
-      }
+      // Channel 0 carries both HF counts and sums
+      colls()->gctHfBitCounts()->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,(int)bx-(int)centralSample,*p32)); 
+      colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,(int)bx-(int)centralSample,*p32));
+      p32++;
+      
+      // Channel 1 carries Missing HT.
+      colls()->gctHtMiss()->push_back(L1GctHtMiss(*p32, (int)bx-(int)centralSample));
+      p32++;
     }
 }
 
