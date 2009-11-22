@@ -44,7 +44,36 @@ UEAnalysisRootple1500 = cms.EDProducer("AnalysisRootpleProducer",
                                        genEventScale             = cms.InputTag("generator")
 )
 
-UEAnalysis = cms.Sequence(UEAnalysisRootple*UEAnalysisRootple500*UEAnalysisRootple1500)
 
+UEAnalysisRootple700 = cms.EDProducer("AnalysisRootpleProducer",
+                                      TracksCollectionName      = cms.InputTag("goodTracks"),
+                                      RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
+                                      ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet700"),
+                                      MCEvent                   = cms.InputTag("generator"),
+                                      TracksJetCollectionName   = cms.InputTag("IC5TracksJet700"),
+                                      triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
+                                      ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
+                                      OnlyRECO                  = cms.bool(True),
+                                      GenJetCollectionName      = cms.InputTag("IC5GenJet700"),
+                                      triggerResults            = cms.InputTag("TriggerResults","","HLT"),
+                                      genEventScale             = cms.InputTag("generator") 
+)
+
+
+UEAnalysisRootple1100 = cms.EDProducer("AnalysisRootpleProducer",
+                                      TracksCollectionName      = cms.InputTag("goodTracks"),
+                                      RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
+                                      ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet700"),
+                                      MCEvent                   = cms.InputTag("generator"),
+                                      TracksJetCollectionName   = cms.InputTag("IC5TracksJet700"),
+                                      triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
+                                      ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
+                                      OnlyRECO                  = cms.bool(True),
+                                      GenJetCollectionName      = cms.InputTag("IC5GenJet700"),
+                                      triggerResults            = cms.InputTag("TriggerResults","","HLT"),
+                                      genEventScale             = cms.InputTag("generator") 
+)
+
+UEAnalysis = cms.Sequence(UEAnalysisRootple*UEAnalysisRootple500*UEAnalysisRootple1500*UEAnalysisRootple700*UEAnalysisRootple1100)
 
 
