@@ -168,6 +168,8 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        int i = (zside==1)? 0:1;
        int j = plane-1;
        
+       //cout<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip<<" "<<dataframe.sample(0).adc()<<" "<<dataframe.sample(1).adc()<<" "<<dataframe.sample(2).adc()<<endl;
+
        sum_DigiHits[i][j]++;
        
      }
