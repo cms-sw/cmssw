@@ -276,7 +276,7 @@ if (liveCMS == 1) :
 if (playCMS == 1) :
   process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-  process.load("DQM.Integration.test.environment_playback_cfi")
+  process.load("DQM.Integration.test.environment_cfi")
 
   process.dqmSaver.referenceHandling = 'qtests'
 
