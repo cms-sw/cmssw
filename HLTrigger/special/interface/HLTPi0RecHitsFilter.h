@@ -115,6 +115,8 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       std::string EndcapHits_;
       std::string ESHits_;
       
+      int maxNumberofSeeds_;
+      int maxNumberofClusters_;
       
       int maxNumberofClusters_; 
       int maxNumberofSeeds_; 

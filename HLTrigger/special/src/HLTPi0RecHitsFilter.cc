@@ -98,6 +98,21 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   nMinRecHitsSel2ndCluster_ = iConfig.getParameter<int>("nMinRecHitsSel2ndCluster");
   
   
+  if(iConfig.exists("maxNumberofSeeds")){
+    maxNumberofSeeds_ = iConfig.getParameter<int> ("maxNumberofSeeds");
+  }else{
+    maxNumberofSeeds_ = 1000;
+
+
+  }
+
+  
+  if(iConfig.exists("maxNumberofClusters")){
+    maxNumberofClusters_ = iConfig.getParameter<int> ("maxNumberofClusters");
+  }else{
+    maxNumberofClusters_ = 200;
+  }
+  
   
   doSelForPi0Barrel_ = iConfig.getParameter<bool> ("doSelForPi0Barrel");  
   if(doSelForPi0Barrel_){
@@ -412,7 +427,58 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   detIdEBRecHits.clear(); //// EBDetId
   EBRecHits.clear();  /// EcalRecHit
   
+<<<<<<< HLTPi0RecHitsFilter.cc
+  ////make seeds. 
+  EBRecHitCollection::const_iterator itb;
+  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+    double energy = itb->energy();
+
+    //if( energy < seleXtalMinEnergy_) continue; 
+    
+    
+    if(useRecoFlag_ ){ ///from recoFlag()
+      int flag = itb->recoFlag();
+      if( flagLevelRecHitsToUse_ ==0){ ///good 
+	if( flag != 0) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+	if( flag !=0 && flag != 4 ) continue; 
+      }
+      else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+	if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
+      }
+    }
+    if ( useDBStatus_){ //// from DB
+      int status =  int(channelStatus[itb->id().rawId()].getStatusCode()); 
+      if ( status > statusLevelRecHitsToUse_ ) continue; 
+    }
+    
+    
+    EBDetId det = itb->id();
+    
+    detIdEBRecHits.push_back(det);
+    EBRecHits.push_back(*itb);
+    
+    
+    if (energy > clusSeedThr_) seeds.push_back(*itb);
+    
+  }
+  
+  if( int(seeds.size()) >= maxNumberofSeeds_) return false; 
+  
+  
+  
+  //Create empty output collections
+  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
+  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
+  vector<DetId> selectedEBDetIds;
+  vector<DetId> selectedEEDetIds; 
+    
+
+  int nClus;
+=======
   int nClus=0;
+>>>>>>> 1.48
   vector<float> eClus;
   vector<float> etClus;
   vector<float> etaClus;
@@ -613,6 +679,16 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     doSelForPi0Barrel_ = false; 
     doSelForEtaBarrel_ = false; 
     
+<<<<<<< HLTPi0RecHitsFilter.cc
+
+    nClus++;
+    //if (nClus == MAXCLUS) return false; 
+
+    if( nClus >= maxNumberofClusters_) return false; 
+    
+
+=======
+>>>>>>> 1.48
   }
   
   // Selection, based on Simple clustering
@@ -924,7 +1000,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     storeRecHitES_ = false; 
   }
   
-  
+  if( int( seedsEndCap.size()) >= maxNumberofSeeds_) return false; 
   
   
   int nClusEndCap=0;
@@ -1123,11 +1199,19 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       ///    if (nClusEndCap == MAXCLUS) return false;  ///now configurable as above
     }
     
+<<<<<<< HLTPi0RecHitsFilter.cc
+    nClusEndCap++;
+    ///    if (nClusEndCap == MAXCLUS) return false; 
+    
+    if( nClusEndCap >= maxNumberofClusters_) return false; 
+    
+=======
   }catch ( std::exception& ex ) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product eeRecHit!" << std::endl;
     ///and switch off Endcap selections
     doSelForEtaEndcap_ = false; 
     doSelForPi0Endcap_ = false; 
+>>>>>>> 1.48
   }
   
   
