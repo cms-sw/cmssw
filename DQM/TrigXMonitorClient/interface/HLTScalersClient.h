@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.4 2009/11/04 03:45:18 lorenzo Exp $
+// $Id: HLTScalersClient.h,v 1.5 2009/11/22 13:32:38 puigh Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.5  2009/11/22 13:32:38  puigh
+// clean beginJob
+//
 // Revision 1.4  2009/11/04 03:45:18  lorenzo
 // added folder param
 //
@@ -76,7 +79,6 @@ private:
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
-  std::string folderName_;
 
   unsigned long int scalerCounters_[MAX_PATHS];
   MonitorElement *currentRate_;
@@ -85,6 +87,8 @@ private:
 
   MonitorElement *hltCurrentRate_[MAX_PATHS];
   bool first_;
+  std::string folderName_;
+
 };
 
 
