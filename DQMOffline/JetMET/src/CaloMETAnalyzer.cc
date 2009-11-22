@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 10:01:06 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/11/22 05:41:39 $
+ *  $Revision: 1.20 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -622,16 +622,21 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
 
-  if(!TheBeamHaloSummary.isValid()) {
+  if(TheBeamHaloSummary.isValid()) {
 
   const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
-  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
-      !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
+//   std::cout << TheSummary.EcalLooseHaloId() << " "
+// 	    << TheSummary.HcalLooseHaloId() << " "
+// 	    << TheSummary.CSCLooseHaloId()  << " "
+// 	    << TheSummary.GlobalLooseHaloId() << std::endl;
+
+  if( TheSummary.EcalLooseHaloId()  || TheSummary.HcalLooseHaloId() || 
+      TheSummary.CSCLooseHaloId()   || TheSummary.GlobalLooseHaloId() )
     bBeamHaloIDLoosePass = false;
 
-  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
-      !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
+  if( TheSummary.EcalTightHaloId()  || TheSummary.HcalTightHaloId() || 
+      TheSummary.CSCTightHaloId()   || TheSummary.GlobalTightHaloId() )
     bBeamHaloIDTightPass = false;
 
   }
