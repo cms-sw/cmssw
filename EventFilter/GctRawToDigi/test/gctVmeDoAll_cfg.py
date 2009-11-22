@@ -28,7 +28,7 @@ process.dumpRaw = cms.OutputModule ( "DumpFEDRawDataProduct",
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
 process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
-process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(1)
+process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 process.l1GctHwDigis.numberOfRctSamplesToUnpack = cms.uint32(1)
 
 # dump digis
