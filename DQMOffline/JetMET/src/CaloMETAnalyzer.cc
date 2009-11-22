@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 08:09:59 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/11/21 10:01:06 $
+ *  $Revision: 1.19 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -67,6 +67,7 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
+  _print       = parameters.getParameter<int>("printOut");
   _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
   _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
@@ -173,46 +174,81 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
  
   meNevents                = _dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
   meCaloMEx                = _dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,500,-500,500);
+  meCaloMEx->setAxisTitle("MEx [GeV]",1);
   meCaloMEy                = _dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,500,-500,500);
+  meCaloMEy->setAxisTitle("MEy [GeV]",1);
   meCaloEz                 = _dbe->book1D("METTask_CaloEz",    "METTask_CaloEz"    ,500,-500,500);
+  meCaloEz->setAxisTitle("MEz [GeV]",1);
   meCaloMETSig             = _dbe->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
+  meCaloMETSig->setAxisTitle("METSig",1);
   meCaloMET                = _dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,500,0,1000);
+  meCaloMET->setAxisTitle("MET [GeV]",1);
+  //meCaloMET->getTH1F()->SetStats(111111);
+  //meCaloMET->getTH1F()->SetOption("logy");
   meCaloMETPhi             = _dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-TMath::Pi(),TMath::Pi());
+  meCaloMETPhi->setAxisTitle("METPhi [rad]",1);
   meCaloSumET              = _dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,500,0,2000);
+  meCaloSumET->setAxisTitle("SumET [GeV]",1);
 
   meCaloMET_logx           = _dbe->book1D("METTask_CaloMET_logx",   "METTask_CaloMET_logx"   ,40,-1.,7.);
+  meCaloMET_logx->setAxisTitle("log(MET) [GeV]",1);
   meCaloSumET_logx         = _dbe->book1D("METTask_CaloSumET_logx", "METTask_CaloSumET_logx" ,40,-1.,7.);
+  meCaloSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   meCaloMETIonFeedbck      = _dbe->book1D("METTask_CaloMETIonFeedbck", "METTask_CaloMETIonFeedbck" ,500,0,1000);
+  meCaloMETIonFeedbck->setAxisTitle("MET [GeV]",1);
   meCaloMETHPDNoise        = _dbe->book1D("METTask_CaloMETHPDNoise",   "METTask_CaloMETHPDNoise"   ,500,0,1000);
+  meCaloMETHPDNoise->setAxisTitle("MET [GeV]",1);
   meCaloMETRBXNoise        = _dbe->book1D("METTask_CaloMETRBXNoise",   "METTask_CaloMETRBXNoise"   ,500,0,1000);
+  meCaloMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   meCaloMETPhi002          = _dbe->book1D("METTask_CaloMETPhi002","METTask_CaloMETPhi002",72,-TMath::Pi(),TMath::Pi());
+  meCaloMETPhi002->setAxisTitle("METPhi [rad] (MET>2 GeV)",1);
   meCaloMETPhi010          = _dbe->book1D("METTask_CaloMETPhi010","METTask_CaloMETPhi010",72,-TMath::Pi(),TMath::Pi());
+  meCaloMETPhi010->setAxisTitle("METPhi [rad] (MET>10 GeV)",1);
   meCaloMETPhi020          = _dbe->book1D("METTask_CaloMETPhi020","METTask_CaloMETPhi020",72,-TMath::Pi(),TMath::Pi());
+  meCaloMETPhi020->setAxisTitle("METPhi [rad] (MET>20 GeV)",1);
 
   if (_allhist){
     if (bLumiSecPlot){
       meCaloMExLS              = _dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",200,-200,200,50,0.,500.);
+      meCaloMExLS->setAxisTitle("MEx [GeV]",1);
+      meCaloMExLS->setAxisTitle("Lumi Section",2);
       meCaloMEyLS              = _dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",200,-200,200,50,0.,500.);
+      meCaloMEyLS->setAxisTitle("MEy [GeV]",1);
+      meCaloMEyLS->setAxisTitle("Lumi Section",2);
     }
 
     meCaloMaxEtInEmTowers    = _dbe->book1D("METTask_CaloMaxEtInEmTowers",   "METTask_CaloMaxEtInEmTowers"   ,100,0,2000);
+    meCaloMaxEtInEmTowers->setAxisTitle("Et(Max) in EM Tower [GeV]",1);
     meCaloMaxEtInHadTowers   = _dbe->book1D("METTask_CaloMaxEtInHadTowers",  "METTask_CaloMaxEtInHadTowers"  ,100,0,2000);
+    meCaloMaxEtInHadTowers->setAxisTitle("Et(Max) in Had Tower [GeV]",1);
     meCaloEtFractionHadronic = _dbe->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
+    meCaloEtFractionHadronic->setAxisTitle("Hadronic Et Fraction",1);
     meCaloEmEtFraction       = _dbe->book1D("METTask_CaloEmEtFraction",      "METTask_CaloEmEtFraction"      ,100,0,1);
+    meCaloEmEtFraction->setAxisTitle("EM Et Fraction",1);
 
     meCaloEmEtFraction002    = _dbe->book1D("METTask_CaloEmEtFraction002",   "METTask_CaloEmEtFraction002"      ,100,0,1);
+    meCaloEmEtFraction002->setAxisTitle("EM Et Fraction (MET>2 GeV)",1);
     meCaloEmEtFraction010    = _dbe->book1D("METTask_CaloEmEtFraction010",   "METTask_CaloEmEtFraction010"      ,100,0,1);
+    meCaloEmEtFraction010->setAxisTitle("EM Et Fraction (MET>10 GeV)",1);
     meCaloEmEtFraction020    = _dbe->book1D("METTask_CaloEmEtFraction020",   "METTask_CaloEmEtFraction020"      ,100,0,1);
+    meCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
 
     meCaloHadEtInHB          = _dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",100,0,2000);
+    meCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHO          = _dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",100,0,2000);
+    meCaloHadEtInHO->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHE          = _dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",100,0,2000);
+    meCaloHadEtInHE->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHF          = _dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",100,0,2000);
+    meCaloHadEtInHF->setAxisTitle("Had Et [GeV]",1);
     meCaloEmEtInHF           = _dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,100,0,2000);
+    meCaloEmEtInHF->setAxisTitle("EM Et [GeV]",1);
     meCaloEmEtInEE           = _dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,100,0,2000);
+    meCaloEmEtInEE->setAxisTitle("EM Et [GeV],1");
     meCaloEmEtInEB           = _dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,100,0,2000);
+    meCaloEmEtInEB->setAxisTitle("EM Et [GeV]",1);
   }
 
   // Look at all MonitorElements
@@ -321,6 +357,8 @@ void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 	tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+1)/double(totltime));
       }      
 
+      tCaloMETRate->SetName("METTask_CaloMETRate");
+      tCaloMETRate->SetTitle("METTask_CaloMETRate");
       meCaloMETRate      = _dbe->book1D("METTask_CaloMETRate",tCaloMETRate);
       
     }
@@ -333,6 +371,11 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			      const edm::TriggerResults& triggerResults) {
 
   if (_verbose) std::cout << "CaloMETAnalyzer analyze" << std::endl;
+
+  if (_print){
+  std::cout << " " << std::endl;
+  std::cout << "Event = " << iEvent.id().event() << std::endl;
+  }
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 
@@ -472,9 +515,15 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --- Minimal cuts
   //
   bool bJetIDMinimal=true;
+  int nj=0;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
+    if (_print && nj<=1) std::cout << "Jet pT = " << cal->pt() << " (GeV) "
+				   << " eta = " << cal->eta() << " "
+				   << " phi = " << cal->phi() << " "
+				   << " emf = " << cal->emEnergyFraction() << std::endl;
+    nj++;
     if (cal->pt()>10.){
       if (fabs(cal->eta())<=2.6 && 
 	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
@@ -664,6 +713,13 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
       std::cout << "MET"   << Met   << " METBlock" << calomet.pt()    << std::endl;
     }
   }  
+
+  if (_print){
+    std::cout << "SUMET = " << calomet.sumEt() << " (GeV) "
+	      << "MEX"   << calomet.px() << " (GeV) "
+	      << "MEY"   << calomet.py() << " (GeV) " 
+	      << "MET"   << calomet.pt() << " (GeV) " << std::endl;
+  }
 
 }
 

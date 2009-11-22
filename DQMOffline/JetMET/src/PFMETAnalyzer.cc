@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 08:09:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/21 10:01:06 $
+ *  $Revision: 1.8 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -175,30 +175,51 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
  
   meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
   mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,500,-500,500);
+  mePfMEx->setAxisTitle("MEx [GeV]",1);
   mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,500,-500,500);
+  mePfMEy->setAxisTitle("MEy [GeV]",1);
   mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
+  mePfEz->setAxisTitle("MEz [GeV]",1);
   mePfMETSig             = _dbe->book1D("METTask_PfMETSig","METTask_PfMETSig",51,0,51);
+  mePfMETSig->setAxisTitle("METSig",1);
   mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,500,0,1000);
+  mePfMET->setAxisTitle("MET [GeV]",1);
   mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",80,-TMath::Pi(),TMath::Pi());
+  mePfMETPhi->setAxisTitle("METPhi [rad]",1);
   mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,500,0,2000);
+  mePfSumET->setAxisTitle("SumET [GeV]",1);
 
-  mePfMET                = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
-  mePfSumET              = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
+  mePfMET_logx           = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
+  mePfMET_logx->setAxisTitle("log(MET) [GeV]",1);
+  mePfSumET_logx         = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
+  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
+  mePfNeutralEMFraction->setAxisTitle("Pf Neutral EM Fraction",1);
   mePfNeutralHadFraction = _dbe->book1D("METTask_PfNeutralHadFraction","METTask_PfNeutralHadFraction",50,0.,1.);
+  mePfNeutralHadFraction->setAxisTitle("Pf Neutral Had Fraction",1);
   mePfChargedEMFraction  = _dbe->book1D("METTask_PfChargedEMFraction", "METTask_PfChargedEMFraction" ,50,0.,1.);
+  mePfChargedEMFraction->setAxisTitle("Pf Charged EM Fraction",1);
   mePfChargedHadFraction = _dbe->book1D("METTask_PfChargedHadFraction","METTask_PfChargedHadFraction",50,0.,1.);
+  mePfChargedHadFraction->setAxisTitle("Pf Charged Had Fraction",1);
   mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
+  mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
 
   mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
+  mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
   mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
+  mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
   mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
+  mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
       mePfMExLS              = _dbe->book2D("METTask_PfMEx_LS","METTask_PfMEx_LS",200,-200,200,50,0.,500.);
+      mePfMExLS->setAxisTitle("MEx [GeV]",1);
+      mePfMExLS->setAxisTitle("Lumi Section",2);
       mePfMEyLS              = _dbe->book2D("METTask_PfMEy_LS","METTask_PfMEy_LS",200,-200,200,50,0.,500.);
+      mePfMEyLS->setAxisTitle("MEy [GeV]",1);
+      mePfMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
 }
@@ -297,6 +318,8 @@ void PFMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 	tPfMETRate->SetBinContent(i+1,tPfMETRate->GetBinContent(i+1)/double(totltime));
       }
 
+      tPfMETRate->SetName("METTask_PfMETRate");
+      tPfMETRate->SetTitle("METTask_PfMETRate");
       mePfMETRate      = _dbe->book1D("METTask_PfMETRate",tPfMETRate);
       
     }

@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/21 07:28:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/21 08:10:19 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -85,6 +85,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::ParameterSet parameters;
   // Switch for verbosity
   int _verbose;
+  int _print;
 
   std::string metname;
   std::string _source; // HLT? FU?

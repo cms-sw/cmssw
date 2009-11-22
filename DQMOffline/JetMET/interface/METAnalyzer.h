@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/21 07:28:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/21 08:10:19 $
+ *  $Revision: 1.5 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -152,12 +152,6 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
-
-  MonitorElement* meNeutralEMFraction;
-  MonitorElement* meNeutralHadFraction;
-  MonitorElement* meChargedEMFraction;
-  MonitorElement* meChargedHadFraction;
-  MonitorElement* meMuonFraction;
 
   MonitorElement* meNevents;
   MonitorElement* meMEx;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 08:09:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/21 10:01:06 $
+ *  $Revision: 1.7 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -169,32 +169,42 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
-  meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
+  meNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
   meMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,500,-500,500);
+  meMEx->setAxisTitle("MEx [GeV]",1);
   meMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,500,-500,500);
+  meMEy->setAxisTitle("MEy [GeV]",1);
   meEz                 = _dbe->book1D("METTask_Ez",    "METTask_Ez"    ,500,-500,500);
+  meEz->setAxisTitle("MEz [GeV]",1);
   meMETSig             = _dbe->book1D("METTask_METSig","METTask_METSig",51,0,51);
+  meMETSig->setAxisTitle("CaloMETSig",1);
   meMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,500,0,1000);
+  meMET->setAxisTitle("MET [GeV]",1);
   meMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",80,-TMath::Pi(),TMath::Pi());
+  meMETPhi->setAxisTitle("METPhi [rad]",1);
   meSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,500,0,2000);
+  meSumET->setAxisTitle("SumET [GeV]",1);
 
   meMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
+  meMET_logx->setAxisTitle("log(MET) [GeV]",1);
   meSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
-
-  meNeutralEMFraction  = _dbe->book1D("METTask_NeutralEMFraction", "METTask_NeutralEMFraction" ,50,0.,1.);
-  meNeutralHadFraction = _dbe->book1D("METTask_NeutralHadFraction","METTask_NeutralHadFraction",50,0.,1.);
-  meChargedEMFraction  = _dbe->book1D("METTask_ChargedEMFraction", "METTask_ChargedEMFraction" ,50,0.,1.);
-  meChargedHadFraction = _dbe->book1D("METTask_ChargedHadFraction","METTask_ChargedHadFraction",50,0.,1.);
-  meMuonFraction       = _dbe->book1D("METTask_MuonFraction",      "METTask_MuonFraction"      ,50,0.,1.);
+  meSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   meMETIonFeedbck      = _dbe->book1D("METTask_METIonFeedbck", "METTask_METIonFeedbck" ,500,0,1000);
+  meMETIonFeedbck->setAxisTitle("MET [GeV]",1);
   meMETHPDNoise        = _dbe->book1D("METTask_METHPDNoise",   "METTask_METHPDNoise"   ,500,0,1000);
+  meMETHPDNoise->setAxisTitle("MET [GeV]",1);
   meMETRBXNoise        = _dbe->book1D("METTask_METRBXNoise",   "METTask_METRBXNoise"   ,500,0,1000);
+  meMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
       meMExLS              = _dbe->book2D("METTask_MEx_LS","METTask_MEx_LS",200,-200,200,50,0.,500.);
+      meMExLS->setAxisTitle("MEx [GeV]",1);
+      meMExLS->setAxisTitle("Lumi Section",2);
       meMEyLS              = _dbe->book2D("METTask_MEy_LS","METTask_MEy_LS",200,-200,200,50,0.,500.);
+      meMEyLS->setAxisTitle("MEy [GeV]",1);
+      meMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
 }
@@ -293,6 +303,8 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 	tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
       }      
 
+      tMETRate->SetName("METTask_METRate");
+      tMETRate->SetTitle("METTask_METRate");
       meMETRate      = _dbe->book1D("METTask_METRate",tMETRate);
       
     }
