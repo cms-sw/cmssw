@@ -202,7 +202,7 @@ void PixelGlobalDelay25::writeXMLHeader(pos::PixelConfigKey key,
 					std::ofstream *out1stream,
 					std::ofstream *out2stream)  const
 {
-  std::stringstream s ; s << __LINE__ << "]\t[[PixelGlobalDelay25::writeASCII()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[[PixelGlobalDelay25::writeXMLHeader()]\t\t\t    " ;
   std::string mthn = s.str() ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_GlobalDelay25_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
@@ -246,8 +246,9 @@ void PixelGlobalDelay25::writeXML( std::ofstream *outstream,
 				   std::ofstream *out1stream,
 				   std::ofstream *out2stream)  const
 {
-  std::stringstream s ; s << __LINE__ << "]\t[PixelGlobalDelay25::writeASCII()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelGlobalDelay25::writeXML()]\t\t\t    " ;
   std::string mthn = s.str() ;
+
   *outstream << "  <DATA>"                                                                           << std::endl ;
   *outstream << "   <GLOBALDELAY25>0x" << hex << delay_ << dec << "</GLOBALDELAY25>"                 << std::endl ;
   *outstream << "  </DATA>"                                                                          << std::endl ;
