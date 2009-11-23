@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 # Some generic services and conditions data
-process.Timing = cms.Service("Timing")
-process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
+#process.Timing = cms.Service("Timing")
+#process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -21,7 +21,7 @@ process.source = cms.Source(
     '/store/relval/CMSSW_3_3_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V8-v2/0000/0295FB14-C4C7-DE11-834B-002618943862.root',
     ),
     )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
 process.load("RecoJets.Configuration.GenJetParticles_cff")

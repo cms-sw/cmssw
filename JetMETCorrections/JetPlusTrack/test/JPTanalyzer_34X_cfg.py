@@ -3,13 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 # Some generic services and conditions data
-process.Timing = cms.Service("Timing")
-process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
+#process.Timing = cms.Service("Timing")
+#process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
 #process.load("DQM.SiStripCommon.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP3X_V11::All')
+process.GlobalTag.globaltag = cms.string('STARTUP3X_V12::All')
 
 # Input files
 castor = cms.untracked.vstring()
@@ -34,7 +34,7 @@ local.extend( [
     'file:/data/bainbrid/jpt/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
     'file:/data/bainbrid/jpt/04383FF7-9EBD-DE11-8511-0018F3D09616.root',
     ] )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
 process.load("RecoJets.Configuration.GenJetParticles_cff")
