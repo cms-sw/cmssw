@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/22 05:41:39 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/11/22 08:25:06 $
+ *  $Revision: 1.21 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -686,7 +686,7 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
 	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
 	  if (calotower){
 	    double Tower_ET = calotower->et();
-	    if (Tower_ET>0.5) {
+	    if (Tower_ET>0.3) {
 	      
 	      double phi   = candidate->phi();
 	      double theta = candidate->theta();
