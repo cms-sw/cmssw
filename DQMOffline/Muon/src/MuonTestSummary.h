@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/10/25 17:47:50 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/11/12 17:27:45 $
+ *  $Revision: 1.12 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -60,9 +60,10 @@ protected:
   void doKinematicsTests(std::string muonType, int bin);
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
+  void ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
   void doMultiplicityTests();
-  
+		       
 private:
 
   DQMStore* dbe;
@@ -89,8 +90,10 @@ private:
   double matchesFractionDt_max;
   double matchesFractionCsc_min;
   double matchesFractionCsc_max;
-  double resSegmTrack_min;
-  double resSegmTrack_max;
+  double resSegmTrack_rms_min;
+  double resSegmTrack_rms_max;
+  double resSegmTrack_mean_min;
+  double resSegmTrack_mean_max;
   double sigmaResSegmTrackExp;
   double expPeakEcalS9_min;
   double expPeakEcalS9_max;
