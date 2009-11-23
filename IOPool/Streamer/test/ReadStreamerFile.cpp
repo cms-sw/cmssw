@@ -11,7 +11,7 @@ Disclaimer: Most of the code here is randomly written during
        Creates an Object of StreamerInputIndexFile pass it to create
        Object of StreamerInputFile,
        Using CTOR:
-              StreamerInputFile(const string& name, const string& order);
+              StreamerInputFile(string const& name, string const& order);
        Uses StreamerInputFile::next() to Loop over available Events,
        The Events are Indexed by the supplied Index.
 
@@ -60,20 +60,20 @@ Disclaimer: Most of the code here is randomly written during
 
 void useIndexPtr() {
 try{
-  // StreamerInputFile can make use of a index reference,
+  // edm::StreamerInputFile can make use of a index reference,
   // if you already have one
   //
   std::string initfilename = "teststreamfile.dat";
   std::string indexfilename = "testindexfile.ind";
 
-  StreamerInputIndexFile indexer(indexfilename);
+  edm::StreamerInputIndexFile indexer(indexfilename);
   std::cout<<"indexer: "<< std::endl;
-  StreamerInputFile streamer(initfilename, indexer);
+  edm::StreamerInputFile streamer(initfilename, indexer);
 
   // ------- events
   while(streamer.next()) {
      std::cout<<"----------EVENT-----------"<< std::endl;
-     const EventMsgView* eview = streamer.currentRecord();
+     EventMsgView const* eview = streamer.currentRecord();
      dumpEventView(eview);
   }
 
@@ -110,26 +110,26 @@ try{
 }
 
 void getIndexPtr() {
-try{
-  // StreamerInputFile Opens the Index file for you too !.
+try {
+  // edm::StreamerInputFile Opens the Index file for you too !.
   // This test shows that you can access the index as well.
   // Though may not be very useful.
 
   std::string initfilename = "teststreamfile.dat";
   std::string indexfilename = "testindexfile.ind";
-  StreamerInputFile readViaIndex(initfilename, indexfilename);
+  edm::StreamerInputFile readViaIndex(initfilename, indexfilename);
 
-  StreamerInputIndexFile* indexPtr = (StreamerInputIndexFile*)readViaIndex.index();
+  edm::StreamerInputIndexFile* indexPtr = (edm::StreamerInputIndexFile*)readViaIndex.index();
 
   // ------- event index
   for(indexRecIter it = indexPtr->begin(), itEnd = indexPtr->end(); it != itEnd; ++it) {
     std::cout<<"----------EVENT  INDEX-----------"<< std::endl;
-    const EventMsgView* iview = (*it)->getEventView();
+    EventMsgView const* iview = (*it)->getEventView();
     dumpEventIndex(iview);
     std::cout << "Offset for this event is : "
          << (*it)->getOffset() << std::endl;
     }
-}catch (cms::Exception& e){
+} catch (cms::Exception& e){
    std::cerr << "Exception caught:  "
              << e.what()
              << std::endl;
@@ -145,12 +145,12 @@ void viaIndex() {
 try{
   std::string initfilename = "teststreamfile.dat";
   std::string indexfilename = "testindexfile.ind";
-  StreamerInputFile readViaIndex(initfilename, indexfilename);
+  edm::StreamerInputFile readViaIndex(initfilename, indexfilename);
 
   // Dump events
   while(readViaIndex.next()) {
      std::cout<<"----------EVENT-----------"<< std::endl;
-     const EventMsgView* eview = readViaIndex.currentRecord();
+     EventMsgView const* eview = readViaIndex.currentRecord();
      dumpEventView(eview);
   }
 
@@ -162,7 +162,7 @@ try{
   //--------- init
   std::cout << "Trying to Read The Init message from Streamer File: "
        << initfilename << std::endl;
-  const InitMsgView* init = readViaIndex.startMessage();
+  InitMsgView const* init = readViaIndex.startMessage();
   std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
   std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
@@ -179,11 +179,11 @@ void separetly() {
 try{
   // ----------- init
   std::string initfilename = "teststreamfile.dat";
-  StreamerInputFile stream_reader (initfilename);
+  edm::StreamerInputFile stream_reader (initfilename);
 
   std::cout << "Trying to Read The Init message from Streamer File: "
        << initfilename << std::endl;
-  const InitMsgView* init = stream_reader.startMessage();
+  InitMsgView const* init = stream_reader.startMessage();
   std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
   std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
@@ -197,38 +197,38 @@ try{
      // Uncomment this block and comment next one line
      // (Single file constructor) if you need
      //  to try out Multi file constructor for index files.
-     // StreamerInputIndexFile(const std::vector<std::string>& names);
+     // edm::StreamerInputIndexFile(std::vector<std::string> const& names);
 
   std::vector<sd::string> indexfiles;
   indexfiles.push_back(indexfilename);
   indexfiles.push_back(indexfilename);
-  StreamerInputIndexFile index_reader(indexfiles);
+  edm::StreamerInputIndexFile index_reader(indexfiles);
   *****/
 
   // ------- event
 
   while(stream_reader.next()) {
      std::cout<<"----------EVENT-----------"<< std::endl;
-     const EventMsgView* eview = stream_reader.currentRecord();
+     EventMsgView const* eview = stream_reader.currentRecord();
      dumpEventView(eview);
   }
 
   //Index
   //Single file constructor
-  StreamerInputIndexFile index_reader(indexfilename);
+  edm::StreamerInputIndexFile index_reader(indexfilename);
 
-  const StartIndexRecord* startindx = index_reader.startMessage();
+  StartIndexRecord const* startindx = index_reader.startMessage();
   std::cout <<"---------------------Start Message-------------"<< std::endl;
   std::cout<<"Dump the Start Message from Index:-"<< std::endl;
   std::cout<<"Magic Number is: "<<startindx->getMagic()<< std::endl;
   std::cout<<"Reserved filed is: "<<startindx->getReserved()<< std::endl;
-  const InitMsgView* start = startindx->getInit();
+  InitMsgView const* start = startindx->getInit();
   dumpStartMsg(start);
 
   // ------- event index
   for(indexRecIter it = index_reader.begin(), itEnd = index_reader.end(); it!= itEnd; ++it) {
     std::cout<<"----------EVENT  INDEX-----------"<< std::endl;
-    const EventMsgView* iview = (*it)->getEventView();
+    EventMsgView const* iview = (*it)->getEventView();
     dumpEventIndex(iview);
     std::cout << "Offset for this event is : "
          << (*it)->getOffset() << std::endl;
@@ -248,12 +248,12 @@ try{  int evCount=0;
   streamFiles.push_back("teststreamfile0.dat");
   streamFiles.push_back("teststreamfile1.dat");
 
-  StreamerInputFile stream_reader(streamFiles);
+  edm::StreamerInputFile stream_reader(streamFiles);
 
   std::cout << "Trying to Read The Init message from Streamer File: "
        << "teststreamfile0.dat" << std::endl;
 
-  const InitMsgView* init = stream_reader.startMessage();
+  InitMsgView const* init = stream_reader.startMessage();
   std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
   std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
@@ -265,7 +265,7 @@ try{  int evCount=0;
            std::cout << "Event from next file is also avialble" << std::endl;
      }
      std::cout << "----------EVENT-----------" << std::endl;
-     const EventMsgView* eview = stream_reader.currentRecord();
+     EventMsgView const* eview = stream_reader.currentRecord();
      dumpEventView(eview);
      ++evCount;
   }
