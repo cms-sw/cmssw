@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.4 2009/11/19 19:11:04 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.5 2009/11/21 13:11:02 amraktad Exp $
 //
 
 // system include files
@@ -75,6 +75,8 @@ public:
 
    void filtersNeedUpdate() { m_filtersNeedUpdate = true; }
    void updateFilters(FWEventItemsManager* eiMng, bool isOR);
+
+   int  getTreeEntryFromEventId(int entry);
 
 private:
    FWFileEntry(const FWFileEntry&);    // stop default

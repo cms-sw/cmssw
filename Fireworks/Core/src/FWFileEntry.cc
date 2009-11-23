@@ -55,6 +55,15 @@ void FWFileEntry::closeFile()
 }
 
 //______________________________________________________________________________
+int FWFileEntry::getTreeEntryFromEventId(int entry)
+{
+   if (!m_eventTree->GetTreeIndex())
+      m_eventTree->BuildIndex("EventAuxiliary.id_.event_");
+
+   return  m_eventTree->GetEntryNumberWithIndex(entry);
+}
+
+//______________________________________________________________________________
 
 bool FWFileEntry::isEventSelected(int tree_entry)
 {

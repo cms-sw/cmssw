@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.35 2009/11/21 13:11:10 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.36 2009/11/23 14:53:45 amraktad Exp $
 //
 
 // system include files
@@ -126,6 +126,7 @@ private:
    void doPreviousEvent();
    void doNextEvent();
    void doLastEvent();
+   void goToRunEvent(int, int);
    void checkPosition();
 
    void playForward();

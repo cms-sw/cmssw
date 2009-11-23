@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.58 2009/11/21 13:11:15 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.59 2009/11/23 14:53:43 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -173,7 +173,7 @@ CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
       fwEvent->fillFileIndex();
       it = fwEvent->fileIndex_.findEventPosition(run, 0, event, true);
       if (fwEvent->fileIndex_.end() != it)
-         goTo(file, event);
+         goTo(file, (*file)->getTreeEntryFromEventId(event));
    }
 }
 

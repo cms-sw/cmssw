@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.118 2009/11/21 13:11:10 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.119 2009/11/23 14:53:45 amraktad Exp $
 //
 
 // system include files
@@ -830,6 +830,13 @@ void CmsShowMain::doLastEvent()
    draw();
 }
 
+void CmsShowMain::goToRunEvent(int run, int event)
+{
+   m_navigator->goToRunEvent(run, event);
+   checkPosition();
+   draw();
+}
+
 //==============================================================================
 
 void
@@ -859,6 +866,10 @@ CmsShowMain::setupDataHandling()
       m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doFirstEvent));
    if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
       m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doLastEvent));
+ 
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMain::goToRunEvent,this,_1,_2));
+
+
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
@@ -870,8 +881,7 @@ CmsShowMain::setupDataHandling()
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
-
+  
    // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
    m_guiManager->setFilterButtonIcon(m_navigator->getFilterState());
    m_autoLoadTimer = new SignalTimer();
