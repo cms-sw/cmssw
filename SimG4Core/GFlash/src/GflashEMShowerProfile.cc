@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.17 2009/03/31 02:04:20 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.18 2009/10/16 07:55:51 fabiocos Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -94,14 +94,14 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   // tmax, alpha, beta : parameters of gamma distribution
   G4double tmax = std::exp(tempTmax);
   G4double alpha = std::exp(tempAlpha);
-  G4double beta = (alpha - 1.0)/tmax;
+  G4double beta = std::max(0.0,(alpha - 1.0)/tmax);
  
   // spot fluctuations are added to tmax, alpha, beta
   G4double averageTmax = logY-0.858;
   G4double averageAlpha = 0.21+(0.492+2.38/Gflash::Z[jCalorimeter])*logY;
   G4double spotTmax  = averageTmax * (0.698 + .00212*Gflash::Z[jCalorimeter]);
   G4double spotAlpha = averageAlpha * (0.639 + .00334*Gflash::Z[jCalorimeter]);
-  G4double spotBeta = (spotAlpha-1.0)/spotTmax;
+  G4double spotBeta = std::max(0.0,(spotAlpha-1.0)/spotTmax);
 
 
    if(theHisto->getStoreFlag()) {
