@@ -5,24 +5,30 @@ import FWCore.ParameterSet.Config as cms
 #####             selection              #######
 ################################################
 
-ZandWCuts = cms.PSet(
+CombIsoCuts = cms.PSet(
+    IsRelativeIso = cms.untracked.bool(True),
+    IsCombinedIso = cms.untracked.bool(True),
+    IsoCut03 = cms.untracked.double(0.1),   
+#    deltaRTrk = cms.untracked.double(0.3),
+    ptThreshold = cms.untracked.double("0.0"), 
+ #   deltaRVetoTrk = cms.untracked.double("0.015"), 
+    )
 
+TrkIsoCuts = cms.PSet(
     IsRelativeIso = cms.untracked.bool(False),
     IsCombinedIso = cms.untracked.bool(False),
-    IsoCut03 = cms.untracked.double(3.0),
-    
-    deltaRTrk = cms.untracked.double(0.3),
+    IsoCut03 = cms.untracked.double(4.0),   
+#    deltaRTrk = cms.untracked.double(0.3),
     ptThreshold = cms.untracked.double("0.0"), 
-    deltaRVetoTrk = cms.untracked.double("0.015"), 
-    muonIsolations = cms.untracked.InputTag("AODMuonIsoDepositCtfTk"),
-    trkIsolations = cms.untracked.InputTag("AODTrackIsoDepositCtfTk")
+ #   deltaRVetoTrk = cms.untracked.double("0.015"), 
     )
-  
 
 
-ZandWMonitorSelection = cms.EDAnalyzer(
+
+ewkMuLumiMonitorDQM = cms.EDAnalyzer(
     "EwkMuLumiMonitorDQM",
-    ZandWCuts,
+    # isolation cuts
+    CombIsoCuts,
     # for Z/W
     muons= cms.untracked.InputTag("muons"),
     tracks=cms.untracked.InputTag("generalTracks"),
