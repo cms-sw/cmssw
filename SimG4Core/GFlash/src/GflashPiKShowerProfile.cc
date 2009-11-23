@@ -30,35 +30,11 @@ void GflashPiKShowerProfile::loadParameters()
 			 (0.8297+0.2359*tanh(-0.8*(log(einc)-4.0)))*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
       energySigmaHcal = (fTanh(einc,Gflash::hadscale[2]) +
 			 fTanh(einc,Gflash::hadscale[3])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
-      //test@@@@@@
-      if(einc<2.5) {
-	energyScale[Gflash::kESPM] *= 1.05;
-      }
-      else if(einc<3.5) {
-	energyScale[Gflash::kESPM] *= 1.15;
-      }
-      else if(einc<25) {
-	energyScale[Gflash::kESPM] *= 1.18;
-      }
-      else {
-	energyScale[Gflash::kESPM] *= 1.05;
-      }
 
       //Hcal energy dependent scale
       energyMeanHcal *= 1.+(-0.02+0.02*tanh(6.0*(energyScale[Gflash::kESPM]/einc-0.1)))*(0.5+0.5*tanh(0.025*(einc-150.0)));  
       energySigmaHcal *= (1.1-0.2*tanh(0.015*(einc-50.0)));
 
-      //test@@@@@@
-      if(einc<2.5) {
-	energyMeanHcal *= 1.5;
-      }
-      else if(einc> 3.5 && einc<25) {
-	energyMeanHcal *= 0.94;
-      }
-      else if (einc> 25 ){
-	energyMeanHcal *= 0.97;
-      }
-      
       r2 = G4RandGauss::shoot();
       energyScale[Gflash::kHB] = 
 	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc;
@@ -84,9 +60,6 @@ void GflashPiKShowerProfile::loadParameters()
     energySigmaHcal = fTanh(einc,Gflash::hadscale[5]);
     gap_corr = fTanh(einc,Gflash::hadscale[6]);
 
-    //test@@@@
-    if(einc<9) energySigmaHcal *= 1.5;
-         
     if(showerType == 2) {
       energyScale[Gflash::kHB] = 
 	exp(energyMeanHcal+1.15*energySigmaHcal*G4RandGauss::shoot())-2.0
