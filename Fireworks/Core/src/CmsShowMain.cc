@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.117 2009/11/20 17:22:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.118 2009/11/21 13:11:10 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -449,11 +451,11 @@ void CmsShowMain::openData()
    m_guiManager->clearStatus();
 }
 
-void 
+void
 CmsShowMain::openDataViaURL()
 {
    if (m_searchFiles.get() == 0) {
-      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("", 
+      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("",
                                                                                 "Open Remote Data Files",
                                                                                 m_guiManager->getMainFrame(),
                                                                                 500, 400));
@@ -743,7 +745,7 @@ void CmsShowMain::startAutoLoadTimer()
    m_autoLoadTimer->SetTime((Long_t)(m_playDelay*1000));
    m_autoLoadTimer->Reset();
    m_autoLoadTimer->TurnOn();
-   m_autoLoadTimerRunning = kTRUE;  
+   m_autoLoadTimerRunning = kTRUE;
 }
 
 void CmsShowMain::stopAutoLoadTimer()
@@ -753,9 +755,9 @@ void CmsShowMain::stopAutoLoadTimer()
 }
 
 void CmsShowMain::autoLoadNewEvent()
-{   
+{
    stopAutoLoadTimer();
-    
+
    bool reachedEnd = (m_forward && m_navigator->isLastEvent()) || (!m_forward && m_navigator->isFirstEvent());
 
    if (m_loop && reachedEnd)
@@ -771,7 +773,7 @@ void CmsShowMain::autoLoadNewEvent()
 
    // stop loop in case no loop or monitor mode
    if ( reachedEnd && (m_loop || m_monitor.get()) == kFALSE)
-   { 
+   {
       if (m_forward && m_navigator->isLastEvent())
       {
          m_guiManager->enableActions();
@@ -786,7 +788,7 @@ void CmsShowMain::autoLoadNewEvent()
    }
    else
    {
-      startAutoLoadTimer();   
+      startAutoLoadTimer();
    }
 }
 
@@ -839,14 +841,13 @@ CmsShowMain::setupDataHandling()
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
 
    // navigator filtering  ->
-   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1, _2));
-   m_navigator->noEventSelected_.connect(boost::bind(&CmsShowMain::noEventSelected,this));
+   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1));
+   m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState,this, _1));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
 
    // navigator fitlering <-
    m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator,_1));
-   m_guiManager->eventFilterEnable_.connect(boost::bind(&CmsShowNavigator::eventFilterEnableCallback, m_navigator,_1));
-
+   m_guiManager->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
@@ -872,8 +873,7 @@ CmsShowMain::setupDataHandling()
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
 
    // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
-   m_guiManager->updateEventFilterEnable(m_navigator->getFiltersEnabled(), true);
-
+   m_guiManager->setFilterButtonIcon(m_navigator->getFilterState());
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
@@ -934,7 +934,7 @@ CmsShowMain::notified(TSocket* iSocket)
    TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
    if(0!=server) {
       TSocket* connection = server->Accept();
-      if(0!=connection) {
+      if (connection) {
          m_monitor->Add(connection);
          std::stringstream s;
          s << "received connection from "<<iSocket->GetInetAddress().GetHostName();
@@ -1032,25 +1032,24 @@ CmsShowMain::unsetPlayLoopImp()
 }
 
 void
-CmsShowMain::setFilterEnable(bool isOn)
+CmsShowMain::navigatorChangedFilterState(int state)
 {
-   m_navigator->updateFiltersEnabled(isOn);
-   if (!isOn || (isOn == false && m_navigator->filtersNeedUpdate() == false))
+   m_guiManager->setFilterButtonIcon(state);
+   if (m_navigator->filterNeedUpdate() == false)
    {
-      checkPosition();
       m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
+      checkPosition();
    }
 }
 
 void
-CmsShowMain::noEventSelected()
+CmsShowMain::filterButtonClicked()
 {
-   m_guiManager->updateEventFilterEnable(false, m_navigator->canEditFiltersExternally());
-   m_navigator->updateFiltersEnabled(false);
-   m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
-   checkPosition();
+   if (m_navigator->getFilterState() == CmsShowNavigator::kWithdrawn )
+      m_guiManager->showEventFilterGUI();
+   else
+      m_navigator->toggleFilterEnable();
 }
-
 
 void
 CmsShowMain::preFiltering()

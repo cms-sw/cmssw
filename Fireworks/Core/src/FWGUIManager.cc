@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.173 2009/11/20 17:24:21 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.174 2009/11/21 13:11:15 amraktad Exp $
 
 //
 
@@ -85,11 +85,10 @@
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
-#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
@@ -116,7 +115,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			   CmsShowMain* iCmsShowMain,
+			   CmsShowMain* /*iCmsShowMain*/,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
@@ -141,7 +140,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
-   m_cmsShowMain = iCmsShowMain;
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
@@ -201,7 +199,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
 
       TQObject::Connect(m_cmsShowMainFrame->m_filterShowGUIBtn, "Clicked()", "FWGUIManager", this, "showEventFilterGUI()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Toggled(Bool_t)", "FWGUIManager", this, "toggleEventFilterEnable(bool)"); 
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Clicked()", "FWGUIManager", this, "filterButtonClicked()"); 
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
@@ -1198,24 +1196,28 @@ FWGUIManager::showEventFilterGUI()
 }
 
 void
-FWGUIManager::toggleEventFilterEnable(bool enable)
+FWGUIManager::filterButtonClicked()
 {
-   eventFilterEnable_.emit(enable);
-}
-
-void
-FWGUIManager::updateEventFilterEnable(bool filterEnabled, bool btnEnabled)
-{   
-   TGCheckButton* btn =  m_cmsShowMainFrame->m_filterEnableBtn;
-
-   btn->SetEnabled(true);
-   btn->SetOn(filterEnabled, false);
-   if (!btnEnabled)
-      btn->SetEnabled(false);
+   filterButtonClicked_.emit();
 }
 
 void
 FWGUIManager::setFilterButtonText(const char* txt)
 {
    m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(txt);
+}
+
+void
+FWGUIManager::setFilterButtonIcon(int state)
+{
+   int i = state*3;
+   m_cmsShowMainFrame->m_filterEnableBtn->setIcons(m_cmsShowMainFrame->m_filterIcons[i],
+                                                   m_cmsShowMainFrame->m_filterIcons[i+1],
+                                                   m_cmsShowMainFrame->m_filterIcons[i+2]);
+}
+
+void
+FWGUIManager::updateEventFilterEnable(bool btnEnabled)
+{
+   m_cmsShowMainFrame->m_filterEnableBtn->SetEnabled(btnEnabled);
 }

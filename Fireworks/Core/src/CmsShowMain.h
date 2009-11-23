@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.34 2009/11/20 17:24:21 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.35 2009/11/21 13:11:10 amraktad Exp $
 //
 
 // system include files
@@ -111,7 +111,6 @@ public:
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
-
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
@@ -140,8 +139,8 @@ private:
    void setPlayLoopImp();
    void unsetPlayLoopImp();
 
-   void setFilterEnable(bool);
-   void noEventSelected();
+   void navigatorChangedFilterState(int);
+   void filterButtonClicked();
    void preFiltering();
    void postFiltering();
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.90 2009/11/20 17:24:21 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.91 2009/11/21 13:11:15 amraktad Exp $
 //
 
 // system include files
@@ -166,7 +166,7 @@ public:
 
    void processGUIEvents();
 
-   sigc::signal<void, bool> eventFilterEnable_;
+   sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
 
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
@@ -183,9 +183,10 @@ public:
    void setDelayBetweenEvents(Float_t);
 
    void showEventFilterGUI();
-   void toggleEventFilterEnable(bool);
-   void updateEventFilterEnable(bool, bool);
+   void filterButtonClicked();
    void setFilterButtonText(const char* txt);
+   void setFilterButtonIcon(int);
+   void updateEventFilterEnable(bool);
 
    void runIdChanged();
    void eventIdChanged();
@@ -252,7 +253,6 @@ private:
    TGPopupMenu* m_fileMenu;
 
    CmsShowMainFrame* m_cmsShowMainFrame;
-   TGMainFrame* m_mainFrame;
    TGSplitFrame* m_splitFrame;
    std::vector<TEveWindow*> m_viewWindows;
 
@@ -283,10 +283,6 @@ private:
    // help
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
 
-  
-   CmsShowMain *m_cmsShowMain;
-  
-  
    TGTab             *m_textViewTab;
    TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;
