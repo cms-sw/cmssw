@@ -5,7 +5,7 @@ dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
                               beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               fitEveryNLumi = cms.untracked.int32(2),
                               resetEveryNLumi = cms.untracked.int32(20),
-                              Debug = cms.untracked.bool(True),
+                              Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('ctfPixelLess'),
@@ -26,7 +26,7 @@ dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
 			        InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 				FractionOfFittedTrks = cms.untracked.double(0.9),
                                 MinimumInputTracks = cms.untracked.int32(100),
-				deltaSignificanceCut = cms.untracked.double(50)
+				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),
