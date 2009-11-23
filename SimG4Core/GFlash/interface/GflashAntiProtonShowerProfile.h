@@ -13,7 +13,7 @@ public:
     GflashHadronShowerProfile (parSet) {}; 
   ~GflashAntiProtonShowerProfile () {};
 
-  void loadParameters(const G4FastTrack& fastTrack);
+  void loadParameters();
 
 };
 

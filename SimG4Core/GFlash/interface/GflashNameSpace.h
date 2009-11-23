@@ -20,13 +20,20 @@ namespace Gflash {
   CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
   //                                            EB     HB     EE     HE      HO,     HF
-  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95, 0.000, 1110.0}; // in cm
-  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 661.0, 1275.0};
+  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 317.2, 391.95, 0.000, 1110.0}; // in cm
+  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 399.1, 554.10, 661.0, 1275.0};
   const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,  382.0,  12.5};
   const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,  407.0, 140.0};
 
   const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 0.000, 3.000};
   const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 1.262, 5.000};
+
+  const G4double RFrontCrystalEB = 129.0; // rho in cm
+  const G4double ZFrontCrystalEE = 317.2; // z in cm <<---check this number
+  const G4double ROffCrystalEB = 5.2; // rho in cm
+  const G4double ZOffCrystalEE = 5.2; // z in cm <<---check this number
+  const G4double LengthCrystalEB  = 23.0;
+  const G4double LengthCrystalEE  = 22.0;
 
   //constants needed for GflashHadronShowerModel
   const G4double energyCutOff                 = 1.0*GeV;
@@ -59,7 +66,8 @@ namespace Gflash {
   const G4double MinEnergyCutOffForHO = 2.5;
 
   //additional energy scale for the Hcal sensitive detector
-  const G4double scaleSensitive = 0.167;
+  //  const G4double scaleSensitive = 0.167;
+  const G4double scaleSensitive = 0.200;
 
   // properties for different sub-detectors (calorimeters)
 

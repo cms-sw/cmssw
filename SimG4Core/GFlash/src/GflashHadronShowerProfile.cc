@@ -1,6 +1,11 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
+#include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
+#include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "FastSimulation/Event/interface/FSimTrack.h"
+
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "CLHEP/GenericFunctions/LogGamma.hh"
 #include "Randomize.hh"
@@ -19,16 +24,16 @@
 GflashHadronShowerProfile::GflashHadronShowerProfile(edm::ParameterSet parSet) : theParSet(parSet)
 {
   theBField = parSet.getParameter<double>("bField");
+  theExportToFastSim = parSet.getParameter<bool>("GflashExportToFastSim");
   theGflashHcalOuter = parSet.getParameter<bool>("GflashHcalOuter");
-
-  theShowerType   = -1;
 
   theGflashStep = new G4Step();
   theShowino = new GflashShowino();
   theGflashTouchableHandle = new G4TouchableHistory();
 
-  theHisto = GflashHistogram::instance();
+  theGflashNavigator = new G4Navigator();
 
+  theHisto = GflashHistogram::instance();
 }
 
 GflashHadronShowerProfile::~GflashHadronShowerProfile() 
@@ -37,8 +42,23 @@ GflashHadronShowerProfile::~GflashHadronShowerProfile()
   if(theShowino) delete theShowino;
 }
 
+void GflashHadronShowerProfile::initialize(const G4FastTrack& fastTrack) {
 
-void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fastTrack)
+  //initialize GflashShowino for this track
+
+  theShowino->initialize(fastTrack,theBField);
+
+  //set track and process defined step for the Gflash Step which are common
+  //for all hits (GflashStep) assinged at the shower starging point
+  theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
+
+  theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*>
+    (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+
+}
+
+void GflashHadronShowerProfile::hadronicParameterization()
 {
   // The skeleton of this method is based on the fortran code gfshow.F originally written  
   // by S. Peters and G. Grindhammer (also see NIM A290 (1990) 469-488), but longitudinal
@@ -47,20 +67,9 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   // unit convention: energy in [GeV] and length in [cm]
   // intrinsic properties of hadronic showers (lateral shower profile)
   
-  //initialize GflashShowino for this track
-  theShowino->initializeShowino(fastTrack,theBField);
-  
   // The step size of showino along the helix trajectory in cm unit
   G4double showerDepthR50 = 0.0;
   bool firstHcalHit = true;
-
-  //set track for the Gflash Step
-  theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
-
-  // navigator and time information is needed for making a fake step
-
-  theGflashNavigator = new G4Navigator();
-  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
   //initial valuses that will be changed as the shower developes
   G4double stepLengthLeft = theShowino->getStepLengthToOut();
@@ -93,12 +102,11 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     //get energy deposition for this step 
     whichCalor = Gflash::getCalorimeterNumber(theShowino->getPosition());
-
-    if(whichCalor == Gflash::kNULL) continue;
-
     heightProfile = longitudinalProfile(showerDepth,theShowino->getPathLength());
-    deltaEnergy =  heightProfile*Gflash::divisionStep*energyScale[whichCalor];    
 
+    if(whichCalor == Gflash::kNULL || heightProfile <= 0. ) continue;
+
+    deltaEnergy =  heightProfile*Gflash::divisionStep*energyScale[whichCalor];    
     theShowino->addEnergyDeposited(deltaEnergy);
 
     //apply sampling fluctuation if showino is inside the sampling calorimeter
@@ -119,55 +127,107 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     //evaluate the fluctuated median of the lateral distribution, R50
     G4double R50 = medianLateralArm(showerDepthR50,whichCalor);
 
-    for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
-   
-      // Compute global position of generated spots with taking into account magnetic field
-      // Divide deltaStep into nSpotsInStep and give a spot a global position
-      G4double incrementPath = theShowino->getPathLength() 
-	                     + (deltaStep/nSpotsInStep)*(ispot+0.5 - 0.5*nSpotsInStep);
+   //Gflash is exported to FastSim
+    if(theExportToFastSim) {
+      double currentDepth = 0.0;
+      int ecal = 0;
+      if(whichCalor==Gflash::kHB || whichCalor==Gflash::kHE) {
+        //calculate the half point of each step of the shower from the surface of the Ecal
+        currentDepth = theShowino->getDepthAtShower() + (showerDepth - 0.5*deltaStep);
+        bool setHDdepth = theHcalHitMaker->setDepth(currentDepth,true);
+        if(!setHDdepth) continue;
+	//@@@tune the scale factor for Hcal hits
+        theHcalHitMaker->setSpotEnergy(sampleSpotEnergy*1.4);
+      }
+      else {
+        ecal = 1;
+        currentDepth = theShowino->getDepthAtShower();
+        bool status = theEcalHitMaker->getPads(currentDepth,true);
+        if(!status) continue;
+	//@@@tune the scale factor for Ecal hits
+        theEcalHitMaker->setSpotEnergy(sampleSpotEnergy*1.2);
+      }
 
-      // trajectoryPoint give a spot an imaginary point along the shower development
-      GflashTrajectoryPoint trajectoryPoint;
-      theShowino->getHelix()->getGflashTrajectoryPoint(trajectoryPoint,incrementPath);
+      for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
+        // Compute global position of generated spots with taking into account magnetic field
+        // Divide deltaStep into nSpotsInStep and give a spot a global position
+        G4double incrementPath = theShowino->getPathLength()
+          + (deltaStep/nSpotsInStep)*(ispot+0.5 - 0.5*nSpotsInStep);
 
-      G4ThreeVector spotPosition = locateSpotPosition(trajectoryPoint,R50);   
+        // trajectoryPoint give a spot an imaginary point along the shower development
+        GflashTrajectoryPoint trajectoryPoint;
+        theShowino->getHelix()->getGflashTrajectoryPoint(trajectoryPoint,incrementPath);
 
-      spotPosition *= cm;
-      G4double spotEnergy = sampleSpotEnergy*GeV;
+        // Smearing in r according to f(r)= 2.*r*R50**2/(r**2+R50**2)**2
+        G4double lateralArm = R50;
 
-      //@@@ temporary hit time for each fake step - need to be implemented correctly
-      G4double timeGlobal = theShowino->getGlobalTime() + 0.0001*ispot*nanosecond;
+        G4double rnunif = G4UniformRand();
+        G4double rxPDF = std::sqrt(rnunif/(1.-rnunif));
+        G4double rShower = lateralArm*rxPDF;
 
-      // fill equivalent changes to a (fake) step associated with a spot 
+        //rShower within maxLateralArmforR50
+        rShower = std::min(Gflash::maxLateralArmforR50,rShower);
+        G4double azimuthalAngle = twopi*G4UniformRand();
 
-      theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotPosition,G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
-      updateGflashStep(spotPosition,timeGlobal);
+        bool result;
+        if(whichCalor==Gflash::kHB || whichCalor==Gflash::kHE) {
+          result = theHcalHitMaker->addHit(rShower/Gflash::intLength[Gflash::kHB],azimuthalAngle,0);
+        }
+        else {
+          result = theEcalHitMaker->addHit(rShower/Gflash::intLength[Gflash::kESPM],azimuthalAngle,0);
+        }
+      }
+      //end of the branch for FastSim
+    } 
+    else {
+      for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
+	
+	// Compute global position of generated spots with taking into account magnetic field
+	// Divide deltaStep into nSpotsInStep and give a spot a global position
+	G4double incrementPath = theShowino->getPathLength() 
+	  + (deltaStep/nSpotsInStep)*(ispot+0.5 - 0.5*nSpotsInStep);
+	
+	// trajectoryPoint give a spot an imaginary point along the shower development
+	GflashTrajectoryPoint trajectoryPoint;
+	theShowino->getHelix()->getGflashTrajectoryPoint(trajectoryPoint,incrementPath);
+	
+	G4ThreeVector spotPosition = locateSpotPosition(trajectoryPoint,R50);   
+	
+	spotPosition *= cm;
+	G4double spotEnergy = sampleSpotEnergy*GeV;
+	
+	//@@@ temporary hit time for each fake step - need to be implemented correctly
+	G4double timeGlobal = theShowino->getGlobalTime() + 0.0001*ispot*nanosecond;
+	
+	// fill equivalent changes to a (fake) step associated with a spot 
+	
+	theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotPosition,G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+	updateGflashStep(spotPosition,timeGlobal);
+	
+	// Send G4Step information to Hit/Dig if the volume is sensitive
+	
+	G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+	if( aCurrentVolume == 0 ) continue;
+	
+	G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
+	if(lv->GetRegion()->GetName() != "CaloRegion") continue;
+	
+	theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
+	
+	G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
+	
+	if( aSensitive == 0 || (std::fabs(spotPosition.getZ()/cm) > Gflash::Zmax[Gflash::kHE]) ) continue;
+	
+	G4String nameCalor = aCurrentVolume->GetName();
+	nameCalor.assign(nameCalor,0,2);
+	if(nameCalor == "HB" || nameCalor=="HE") spotEnergy *= Gflash::scaleSensitive;
 
-      // Send G4Step information to Hit/Dig if the volume is sensitive
-
-      G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-      if( aCurrentVolume == 0 ) continue;
-
-      G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
-      if(lv->GetRegion()->GetName() != "CaloRegion") continue;
-
-      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-
-      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-
-      if( aSensitive == 0 || (std::fabs(spotPosition.getZ()/cm) > Gflash::Zmax[Gflash::kHE]) ) continue;
-
-      G4String nameCalor = aCurrentVolume->GetName();
-      nameCalor.assign(nameCalor,0,2);
-      if(nameCalor == "HB" || nameCalor=="HE") spotEnergy *= Gflash::scaleSensitive;
-
-      theGflashStep->SetTotalEnergyDeposit(spotEnergy);
-      theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> 
-		    (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
-
-      aSensitive->Hit(theGflashStep);
-
-    } // end of for spot iteration
+	theGflashStep->SetTotalEnergyDeposit(spotEnergy);
+	
+	aSensitive->Hit(theGflashStep);
+	
+      } // end of for spot iteration
+    }
   } // end of while for longitudinal integration
 
   //HO parameterization
@@ -279,9 +339,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 	  if(nameCalor == "HT") spotEnergy *= Gflash::scaleSensitive;
 	  
 	  theGflashStep->SetTotalEnergyDeposit(spotEnergy);
-	  theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> 
-		        (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
-	  
+
 	  aSensitive->Hit(theGflashStep);
 	  
 	} // end of for HO spot iteration
@@ -289,15 +347,14 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     }
   }
 
-  delete theGflashNavigator;
+  //  delete theGflashNavigator;
 
 }
 
-void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
+void GflashHadronShowerProfile::loadParameters()
 {
   std::cout << "GflashHadronShowerProfile::loadParameters should be implimented for "
-	    << fastTrack.GetPrimaryTrack()->GetDefinition()->GetParticleName()
-	    << std::endl;
+            << "each particle type " << std::endl;
 }
 
 void GflashHadronShowerProfile::updateGflashStep(G4ThreeVector spotPosition, G4double timeGlobal)
@@ -340,7 +397,7 @@ G4ThreeVector GflashHadronShowerProfile::locateSpotPosition(GflashTrajectoryPoin
   //rShower within maxLateralArmforR50
   rShower = std::min(Gflash::maxLateralArmforR50,rShower);
 
-  // Uniform smearing in phi, for 66% of lateral containm.
+  // Uniform smearing in phi
   G4double azimuthalAngle = twopi*G4UniformRand(); 
 
   // actual spot position by adding a radial vector to a trajectoryPoint
@@ -356,75 +413,13 @@ G4ThreeVector GflashHadronShowerProfile::locateSpotPosition(GflashTrajectoryPoin
   }
   return position;
 }
-void GflashHadronShowerProfile::setShowerType(const G4FastTrack& fastTrack)
-{
-  // Initialization of longitudinal and lateral parameters for 
-  // hadronic showers. Simulation of the intrinsic fluctuations
-
-  // type of hadron showers subject to the shower starting point (ssp)
-  // showerType = -1 : default (invalid) 
-  // showerType =  0 : ssp before EBRY (barrel crystal) 
-  // showerType =  1 : ssp inside EBRY
-  // showerType =  2 : ssp after  EBRY before HB
-  // showerType =  3 : ssp inside HB
-  // showerType =  4 : ssp before EFRY (endcap crystal) 
-  // showerType =  5 : ssp inside EFRY 
-  // showerType =  6 : ssp after  EFRY before HE
-  // showerType =  7 : ssp inside HE
-    
-  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
-  G4LogicalVolume* lv = touch->GetVolume()->GetLogicalVolume();
-
-  std::size_t pos1  = lv->GetName().find("EBRY");
-  std::size_t pos11 = lv->GetName().find("EWAL");
-  std::size_t pos12 = lv->GetName().find("EWRA");
-  std::size_t pos2  = lv->GetName().find("EFRY");
-
-  G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
-  Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(position);
-
-  G4int showerType = -1;
-
-  //central
-  if (kCalor == Gflash::kESPM || kCalor == Gflash::kHB ) {
-
-    G4double posRho = position.getRho();
-
-    if(pos1 != std::string::npos || pos11 != std::string::npos || pos12 != std::string::npos ) {
-      showerType = 1;
-    }
-    else {
-      if(kCalor == Gflash::kESPM) {
-	showerType = 2;
-	if( posRho < 129.0 ) showerType = 0;
-      }
-      else showerType = 3;
-    }
-
-  }
-  //forward
-  else if (kCalor == Gflash::kENCA || kCalor == Gflash::kHE) {
-    if(pos2 != std::string::npos) {
-      showerType = 5;
-    }
-    else {
-      if(kCalor == Gflash::kENCA) {
-	showerType = 6;
-	if(fabs(position.getZ()) < 330.0 ) showerType = 4;
-      }
-      else showerType = 7;
-    }
-    //@@@need z-dependent correction on the mean energy reponse
-  }
-
-  theShowerType = showerType;
-}
 
 G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4double pathLength) {
 
   G4double heightProfile = 0;
   G4double transDepth = theShowino->getStepLengthToHcal();
   G4ThreeVector pos = theShowino->getPosition();
+  G4int showerType = theShowino->getShowerType();
   //  G4double einc = theShowino->getEnergy();
 
   // Energy in a delta step (dz) = (energy to deposite)*[Gamma(z+dz)-Gamma(z)]*dz
@@ -436,7 +431,7 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
   GflashTrajectoryPoint tempPoint;
   theShowino->getHelix()->getGflashTrajectoryPoint(tempPoint,pathLength);
 
-  if(theShowerType == 0 || theShowerType == 1 ) {
+  if(showerType == 0 || showerType == 1 ) {
     //@@@@change 152 to the 129+22*sin(theta) type of boundary
     if(tempPoint.getPosition().getRho() < 152.0 ) { 
       heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kESPM);
@@ -446,7 +441,7 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
     }
     else heightProfile = 0.;
   }  
-  else if(theShowerType == 4 || theShowerType == 5){
+  else if(showerType == 4 || showerType == 5){
     //@@@use new parameterization for EE/HE
     if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+23.0 ) { 
       heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kENCA);
@@ -456,14 +451,14 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
     }
     else heightProfile = 0.;
   }  
-  else if (theShowerType == 2 || theShowerType == 6 ) {
+  else if (showerType == 2 || showerType == 6 ) {
     //two gammas between crystal and Hcal
     if((showerDepth - transDepth) > 0.0) {
       heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHB);
     }
     else heightProfile = 0.;
   }
-  else if (theShowerType == 3 || theShowerType == 7 ) {
+  else if (showerType == 3 || showerType == 7 ) {
     //two gammas inside Hcal
     heightProfile = twoGammaProfile(longHcal,showerDepth,Gflash::kHB);
   }
@@ -556,12 +551,13 @@ G4int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCal
   //G4int numberOfSpots = std::max( 50, static_cast<int>(80.*std::log(einc)+50.));
 
   G4double einc = theShowino->getEnergy();
+  G4int showerType = theShowino->getShowerType();
 
   G4int numberOfSpots = 0;
   G4double nmean  = 0.0;
   G4double nsigma = 0.0;
 
-  if(theShowerType == 0 || theShowerType == 1 || theShowerType == 4 || theShowerType == 5 ) {
+  if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5 ) {
     if(kCalor == Gflash::kESPM) {
       nmean = 10000 + 5000*log(einc);
       nsigma = 1000;
@@ -571,7 +567,7 @@ G4int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCal
       nsigma =  500;
     }
   }
-  else if (theShowerType == 2 || theShowerType == 3 || theShowerType == 6 || theShowerType == 7 ) {
+  else if (showerType == 2 || showerType == 3 || showerType == 6 || showerType == 7 ) {
     if(kCalor == Gflash::kHB) {
       nmean =  5000 + 2500*log(einc);
       nsigma =  500;
@@ -632,4 +628,9 @@ G4double GflashHadronShowerProfile::twoGammaProfile(G4double *longPar, G4double 
   twoGamma  = longPar[0]* gammaProfile(exp(longPar[1]),exp(longPar[2]),depth,Gflash::radLength[kIndex])
           +(1-longPar[0])*gammaProfile(exp(longPar[3]),exp(longPar[4]),depth,Gflash::intLength[kIndex]);
   return twoGamma;
+}
+
+void GflashHadronShowerProfile::initFastSimCaloHit(EcalHitMaker *aEcalHitMaker, HcalHitMaker *aHcalHitMaker) {
+  theEcalHitMaker = aEcalHitMaker;
+  theHcalHitMaker = aHcalHitMaker;
 }

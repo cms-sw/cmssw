@@ -7,6 +7,9 @@
 //#include "G4Track.hh"
 #include "G4ThreeVector.hh"
 
+class FSimTrack;
+class RandomEngine;
+
 class GflashShowino {
 
 public:
@@ -16,9 +19,15 @@ public:
   GflashShowino();
   ~GflashShowino();
 
-  void initializeShowino(const G4FastTrack& fastTrack, G4double magneticField);
+  void initialize(const G4FastTrack& fastTrack, G4double magneticField);
+  void initialize(const FSimTrack& fastTrack, G4double magneticField, const RandomEngine* randomEngine);
+
+  void setShowerType(const G4FastTrack& fastTrack);
+  void setShowerType(const FSimTrack& fastTrack);
+
   void updateShowino(G4double deltaStep);
 
+  G4int getShowerType() { return theShowerType; }
   G4double getEnergy() { return theEnergy; }
   G4double getPathLengthAtShower() { return thePathLengthAtShower; }
   G4ThreeVector& getPositionAtShower() { return thePositionAtShower; }
@@ -31,6 +40,8 @@ public:
   G4ThreeVector& getPosition() { return thePosition; }
   G4double getEnergyDeposited() { return theEnergyDeposited ; }
 
+  G4double getDepthAtShower() { return theDepthAtShower ; }
+
   void setGlobalTime(G4double globalTime) { theGlobalTime = globalTime; }
   void setPathLength(G4double pathLength) { thePathLength = pathLength; }
   void setPosition(G4ThreeVector position) { thePosition = position; }
@@ -41,6 +52,7 @@ private:
 
 private:
   //  const G4Track* thePrimaryTrack;
+  G4int theShowerType ; 
 
   //fixed at the shower starting point
   G4double theEnergy;
@@ -55,6 +67,9 @@ private:
   G4double theGlobalTime;
   G4ThreeVector thePosition;
   G4double theEnergyDeposited;
+
+  //this data is for FastSim
+  G4double theDepthAtShower;
 };
 
 #endif

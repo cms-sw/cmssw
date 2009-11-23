@@ -92,8 +92,9 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   if(particleType == G4AntiProton::AntiProtonDefinition()) theProfile = theAntiProtonProfile;
   else if(particleType == G4Proton::ProtonDefinition()) theProfile = theProtonProfile;
 
-  theProfile->loadParameters(fastTrack);
-  theProfile->hadronicParameterization(fastTrack);
+  theProfile->initialize(fastTrack);
+  theProfile->loadParameters();
+  theProfile->hadronicParameterization();
 
 }
 
