@@ -13,7 +13,6 @@
 #include<string>
 #include<vector>
 
-
 namespace edm {
   class StreamerInputIndexFile;
   class EventSkipperByID;
