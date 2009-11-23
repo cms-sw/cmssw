@@ -6,6 +6,7 @@ process.CondDBCommon.connect = 'sqlite_file:keys.db'
 
 process.eff = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
+    DumpStat=cms.untracked.bool(True),                           
     toGet = cms.VPSet(
     cms.PSet(
     record = cms.string('ExDwarfListRcd'),

@@ -28,6 +28,15 @@ namespace cond {
    */
   class BasePayloadProxy {
   public:
+
+    struct Stats {
+      int nProxy;
+      int nMake;
+      int nLoad;
+    };
+
+    static Stats stats;
+
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::DbSession& session,
                      const std::string & token,
@@ -69,6 +78,9 @@ namespace cond {
     bool m_doThrow;
     IOVProxy m_iov;
     IOVElementProxy m_element;
+
+  private:
+
   };
 
 

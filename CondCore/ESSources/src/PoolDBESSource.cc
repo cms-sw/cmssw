@@ -205,7 +205,13 @@ PoolDBESSource::~PoolDBESSource() {
 	      <<" Refresh " << stats.nRefresh
 	      <<" Actual Refresh " << stats.nActualRefresh;
     std::cout << std::endl;
-    
+    std::cout << "Proxy Statistics" << std::endl
+	      << "proxy " BasePayloadProxy::stats.nProxy
+	      << "Make " BasePayloadProxy::stats.nMake
+	      << "Load " BasePayloadProxy::stats.nLoad;
+    std::cout << std::endl;
+
+
     ProxyMap::iterator b= m_proxies.begin();
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
