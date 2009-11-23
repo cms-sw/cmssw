@@ -23,10 +23,8 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -51,6 +49,7 @@ namespace edm {
   class DuplicateChecker;
   class ProvenanceAdaptor;
   class GroupSelectorRules;
+  class EventSkipperByID;
 
   class RootFile : private boost::noncopyable {
   public:
@@ -60,20 +59,14 @@ namespace edm {
 	     ProcessConfiguration const& processConfiguration,
 	     std::string const& logicalFileName,
 	     boost::shared_ptr<TFile> filePtr,
-	     RunNumber_t const& startAtRun,
-	     LuminosityBlockNumber_t const& startAtLumi,
-	     EventNumber_t const& startAtEvent,
+	     boost::scoped_ptr<EventSkipperByID> const& eventSkipperByID,
 	     bool skipAnyEvents,
-	     std::vector<LuminosityBlockRange> const& whichLumisToSkip,
-	     std::vector<EventRange> const& whichEventsToSkip,
 	     int remainingEvents,
 	     int remainingLumis,
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
 	     InputSource::ProcessingMode processingMode,
 	     RunNumber_t const& forcedRunNumber,
-	     std::vector<LuminosityBlockRange> const& whichLumisToProcess,
-	     std::vector<EventRange> const& whichEventsToProcess,
              bool noEventSort,
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,

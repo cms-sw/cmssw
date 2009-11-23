@@ -15,13 +15,12 @@ RootInputFileSequence: This is an InputSource
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "boost/shared_ptr.hpp"
@@ -99,21 +98,15 @@ namespace edm {
     boost::scoped_ptr<CLHEP::RandFlat> flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
+    boost::scoped_ptr<EventSkipperByID> eventSkipperByID_;
     int eventsRemainingInFile_;
-    RunNumber_t startAtRun_;
-    LuminosityBlockNumber_t startAtLumi_;
-    EventNumber_t startAtEvent_;
     RunNumber_t currentRun_;
     LuminosityBlockNumber_t currentLumi_;
     RunNumber_t skippedToRun_;
     LuminosityBlockNumber_t skippedToLumi_;
     EventNumber_t skippedToEvent_;
     FileIndex::EntryNumber_t skippedToEntry_;
-    int skipEvents_;
-    std::vector<LuminosityBlockRange> whichLumisToSkip_;
-    std::vector<LuminosityBlockRange> whichLumisToProcess_;
-    std::vector<EventRange> whichEventsToSkip_;
-    std::vector<EventRange> whichEventsToProcess_;
+    int numberOfEventsToSkip_;
     bool noEventSort_;
     bool skipBadFiles_;
     unsigned int treeCacheSize_;

@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
+#include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -52,80 +53,6 @@
 #include <list>
 
 namespace edm {
-  class RemoveIt {
-  public:
-    RemoveIt(FileIndex::Element const& firstElement,
-	    std::vector<LuminosityBlockRange> const& whichLumisToSkip,
-	    std::vector<LuminosityBlockRange> const& whichLumisToProcess,
-	    std::vector<EventRange> const& whichEventsToSkip,
-	    std::vector<EventRange> const& whichEventsToProcess) :
-	firstElement_(firstElement),
-	whichLumisToSkip_(whichLumisToSkip),
-	whichLumisToProcess_(whichLumisToProcess),
-	whichEventsToSkip_(whichEventsToSkip),
-	whichEventsToProcess_(whichEventsToProcess),
-	lumi_(),
-	event_() {}
-
-    bool operator()(FileIndex::Element& e) const;
-    bool operator()(LuminosityBlockRange const& lumiRange) const {
-      return contains(lumiRange, lumi_);
-    }
-    bool operator()(EventRange const& eventRange) const {
-      return contains(eventRange, event_);
-
-    }
-
-  private:
-    FileIndex::Element const& firstElement_;
-    std::vector<LuminosityBlockRange> const& whichLumisToSkip_;
-    std::vector<LuminosityBlockRange> const& whichLumisToProcess_;
-    std::vector<EventRange> const& whichEventsToSkip_;
-    std::vector<EventRange> const& whichEventsToProcess_;
-    mutable LuminosityBlockID lumi_;
-    mutable MinimalEventID event_;
-  };
-
-  bool
-  RemoveIt::operator()(FileIndex::Element& e) const {
-
-    if(e.run_ == 0U) e.run_ = 1U; // Correct zero run number
-    if(e.run_ < firstElement_.run_) {
-      return true;
-    }
-    if(e.lumi_ == 0U) {
-      return false;
-    }
-    if(e.run_ == firstElement_.run_) {
-      if(e.lumi_ != 0U && e.lumi_ < firstElement_.lumi_) {
-        return true;
-      }
-      if(e.lumi_ == firstElement_.lumi_) {
-        if(e.event_ != 0U && e.event_ < firstElement_.event_) {
-          return true;
-        }
-      }
-    }
-    lumi_ = LuminosityBlockID(e.run_, e.lumi_);
-    if(search_if_in_all(whichLumisToSkip_, *this)) {
-      return true;
-    }
-    if(!whichLumisToProcess_.empty() && !search_if_in_all(whichLumisToProcess_, *this)) {
-      return true;
-    }
-    if(e.event_ == 0U) {
-      return false;
-    }
-    event_ = MinimalEventID(e.run_, e.event_);
-    if(search_if_in_all(whichEventsToSkip_, *this)) {
-      return true;
-    }
-    if(!whichEventsToProcess_.empty() && !search_if_in_all(whichEventsToProcess_, *this)) {
-      return true;
-    }
-    return false;
-  }
-
   namespace {
     int
     forcedRunOffset(RunNumber_t const& forcedRunNumber, FileIndex::const_iterator inxBegin, FileIndex::const_iterator inxEnd) {
@@ -149,20 +76,14 @@ namespace edm {
 		     ProcessConfiguration const& processConfiguration,
 		     std::string const& logicalFileName,
 		     boost::shared_ptr<TFile> filePtr,
-		     RunNumber_t const& startAtRun,
-		     LuminosityBlockNumber_t const& startAtLumi,
-		     EventNumber_t const& startAtEvent,
+		     boost::scoped_ptr<EventSkipperByID> const& eventSkipperByID,
 		     bool skipAnyEvents,
-		     std::vector<LuminosityBlockRange> const& whichLumisToSkip,
-		     std::vector<EventRange> const& whichEventsToSkip,
 		     int remainingEvents,
 		     int remainingLumis,
 		     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
 		     InputSource::ProcessingMode processingMode,
 		     RunNumber_t const& forcedRunNumber,
-		     std::vector<LuminosityBlockRange> const& whichLumisToProcess,
-		     std::vector<EventRange> const& whichEventsToProcess,
                      bool noEventSort,
 		     GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
@@ -343,14 +264,13 @@ namespace edm {
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
 
-    // Remove runs, lumis, and/or events we do not wish to process.
-    size_t entries = fileIndex_.size();
-    RemoveIt removeIt(FileIndex::Element(startAtRun, startAtLumi, startAtEvent),
-			whichLumisToSkip, whichLumisToProcess,
-			whichEventsToSkip, whichEventsToProcess);
-    fileIndex_.erase(std::remove_if(fileIndex_.begin(), fileIndex_.end(), removeIt), fileIndex_.end());
-    if (entries != fileIndex_.size()) {
-      whyNotFastClonable_ += FileBlock::EventsOrLumisSelectedByID;
+    if (eventSkipperByID) {
+      size_t entries = fileIndex_.size();
+      // Remove runs, lumis, and/or events we do not wish to process by ID.
+      fileIndex_.erase(std::remove_if(fileIndex_.begin(), fileIndex_.end(), *eventSkipperByID), fileIndex_.end());
+      if (entries != fileIndex_.size()) {
+        whyNotFastClonable_ += FileBlock::EventsOrLumisSelectedByID;
+      }
     }
 
     // Remove any runs containing no lumis.
