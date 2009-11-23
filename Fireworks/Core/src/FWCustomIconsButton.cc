@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:35 EDT 2008
-// $Id: FWCustomIconsButton.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWCustomIconsButton.cc,v 1.5 2009/08/19 23:14:12 chrjones Exp $
 //
 
 // system include files
@@ -83,6 +83,19 @@ FWCustomIconsButton::swapIcons(const TGPicture*& iUpIcon,
    std::swap(iUpIcon,m_upIcon);
    std::swap(iDownIcon,m_downIcon);
    std::swap(iDisabledIcon,m_disabledIcon);
+   gVirtualX->ShapeCombineMask(GetId(), 0, 0, m_upIcon->GetMask());
+   fClient->NeedRedraw(this);
+}
+
+void
+FWCustomIconsButton::setIcons(const TGPicture* iUpIcon,
+                              const TGPicture* iDownIcon,
+                              const TGPicture* iDisabledIcon)
+{
+   m_upIcon       = iUpIcon;
+   m_downIcon     = iDownIcon;
+   m_disabledIcon = iDisabledIcon;
+
    gVirtualX->ShapeCombineMask(GetId(), 0, 0, m_upIcon->GetMask());
    fClient->NeedRedraw(this);
 }
