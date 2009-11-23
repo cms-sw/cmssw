@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -42,6 +42,13 @@ process.source = cms.Source("PoolSource",
 # Other statements
 process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
+process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 3
+process.fifthRKTrajectorySmoother.minHits = 5
+process.fifthRKTrajectoryFitter.minHits = 5
+process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 5
+process.tobtecStepLoose.minNumberLayers = 4
 
 # Path and EndPath definitions
 

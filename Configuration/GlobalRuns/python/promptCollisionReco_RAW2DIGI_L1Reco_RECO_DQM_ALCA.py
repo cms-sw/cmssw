@@ -22,12 +22,12 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -60,7 +60,17 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
 process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V4::All'
+process.GlobalTag.globaltag = 'GR09_P_V6::All'
+
+
+process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 3
+process.fifthRKTrajectorySmoother.minHits = 5
+process.fifthRKTrajectoryFitter.minHits = 5
+process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 5
+process.tobtecStepLoose.minNumberLayers = 4
+
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
