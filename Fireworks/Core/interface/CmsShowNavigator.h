@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.35 2009/11/19 17:03:19 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.36 2009/11/21 13:11:15 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,9 @@ namespace edm {
 
 class CmsShowNavigator : public FWConfigurable
 {
+public:
+   enum EFilterState { kOff, kOn, kWithdrawn };
+   
 private:
    typedef std::deque<FWFileEntry*> FQBase_t;
    typedef FQBase_t::iterator       FQBase_i;
@@ -100,22 +103,24 @@ public:
 
    void showEventFilterGUI(const TGWindow* p);
    void applyFiltersFromGUI();
-   void updateFiltersEnabled(bool);
+   void toggleFilterEnable();
+   void withdrawFilter();
+   void resumeFilter();
 
    const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();
    bool canEditFiltersExternally();
-   bool filtersNeedUpdate() const { return m_filtersNeedUpdate; }
-   bool getFiltersEnabled() { return m_filtersEnabled; }
+   bool filterNeedUpdate() const { return m_filtersNeedUpdate; }
+   int  getFilterState() { return m_filterState; }
 
    sigc::signal<void, const fwlite::Event&> newEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
-   sigc::signal<void> noEventSelected_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
-   sigc::signal<void, bool, bool> editFiltersExternally_;
+   sigc::signal<void, bool> editFiltersExternally_;
+   sigc::signal<void, int> filterStateChanged_;
   
 
 private:
@@ -139,7 +144,7 @@ private:
    FileQueue_i m_currentFile;
    int m_currentEvent;
 
-   bool m_filtersEnabled;
+   EFilterState m_filterState;
    bool m_filterModeOR;
    bool m_filtersNeedUpdate;
    
