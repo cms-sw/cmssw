@@ -6,6 +6,7 @@ process.CondDBCommon.connect = 'sqlite_file:test.db'
 
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+    process.CondDBCommon,
     DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
