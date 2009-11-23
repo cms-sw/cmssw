@@ -7,6 +7,7 @@
 #include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/Operations.h"
 #include "PhysicsTools/Utilities/interface/MultiHistoChiSquare.h"
+#include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/FunctClone.h"
@@ -53,7 +54,8 @@ int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
     typedef funct::FunctExpression Expr;
-    typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr, Expr> ChiSquared;
+    typedef fit::HistoChiSquare<funct::FunctExpression> ExprChi2;
+    typedef fit::MultiHistoChiSquare<ExprChi2, ExprChi2, ExprChi2, ExprChi2, ExprChi2> ChiSquared;
 
     double fMin, fMax;
     string ext;

@@ -7,6 +7,7 @@
 #include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/Operations.h"
 #include "PhysicsTools/Utilities/interface/MultiHistoChiSquare.h"
+#include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/FunctClone.h"
@@ -72,7 +73,8 @@ int main(int ac, char *av[]) {
 
   try {
     typedef funct::FunctExpression Expr;
-    typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
+    typedef fit::HistoChiSquare<Expr> ExprChi2;
+    typedef fit::MultiHistoChiSquare<ExprChi2, ExprChi2, ExprChi2, ExprChi2> ChiSquared;
     typedef fit::Likelihood<Sample, Expr, funct::Expression> Likelihood; 
     double fMin, fMax;
     string ext;
