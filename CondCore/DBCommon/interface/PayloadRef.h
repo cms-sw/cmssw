@@ -27,7 +27,7 @@ namespace cond {
       return old ? *m_OldData : m_data->data(); 
     }
     
-    std::string const & token() const {
+    std::string token() const {
       return old ? m_OldData.toString() : m_data.toString(); 
     }    
 
