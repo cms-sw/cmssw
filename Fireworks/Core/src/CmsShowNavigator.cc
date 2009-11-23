@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.59 2009/11/23 14:53:43 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.60 2009/11/23 19:09:31 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -581,11 +581,8 @@ CmsShowNavigator::filterStatusMessage()
 {
    if (m_filterState == kOn)
       return Form("%d events are selected from %d.", getNSelectedEvents(), getNTotalEvents());
-   else if (m_filterState == kOff)
+   else if (m_filterState)
       return "Filtering is OFF.";
-   else
-      return "Filtering is Resumed!";
-
 }
 
 bool
