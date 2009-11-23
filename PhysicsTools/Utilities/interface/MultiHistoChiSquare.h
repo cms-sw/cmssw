@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_MultiHistoChiSquare_h
 #define PhysicsTools_Utilities_MultiHistoChiSquare_h
 #include "PhysicsTools/Utilities/interface/RootMinuitResultPrinter.h"
-#include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
+#include "TMath.h"
 #include "TH1.h"
 
 namespace fit {
@@ -18,12 +18,13 @@ namespace fit {
   class MultiHistoChiSquare { 
    public:
     MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1,
-			T2 & t2, TH1 *histo2,
-			T3 & t3, TH1 *histo3,
-			T4 & t4, TH1 *histo4,
-			T5 & t5, TH1 *histo5,
-			T6 & t6, TH1 *histo6,
+    template<typename TT1, typename TT2, typename TT3, typename TT4, typename TT5, typename TT6>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1,
+			TT2 & t2, TH1 *histo2,
+			TT3 & t3, TH1 *histo3,
+			TT4 & t4, TH1 *histo4,
+			TT5 & t5, TH1 *histo5,
+			TT6 & t6, TH1 *histo6,
 			double rangeMin, double rangeMax) :
    chi1_(t1, histo1, rangeMin, rangeMax), 
    chi2_(t2, histo2, rangeMin, rangeMax), 
@@ -70,12 +71,12 @@ namespace fit {
    T6 & function6() { return chi6_.function(); }
    const T6 & function6() const { return chi6_.function(); }
   private:
-   HistoChiSquare<T1> chi1_;
-   HistoChiSquare<T2> chi2_;
-   HistoChiSquare<T3> chi3_;
-   HistoChiSquare<T4> chi4_;
-   HistoChiSquare<T5> chi5_;
-   HistoChiSquare<T6> chi6_;
+   T1 chi1_;
+   T2 chi2_;
+   T3 chi3_;
+   T4 chi4_;
+   T5 chi5_;
+   T6 chi6_;
 };
 
 
@@ -84,12 +85,13 @@ namespace fit {
   class MultiHistoChiSquare<T1, T2, T3, T4, T5,
                             helper::MultiHistoChiSquareNoArg> { 
    public:
-    MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1,
-			T2 & t2, TH1 *histo2,
-			T3 & t3, TH1 *histo3,
-			T4 & t4, TH1 *histo4,
-			T5 & t5, TH1 *histo5,
+    MultiHistoChiSquare() { } 
+    template<typename TT1, typename TT2, typename TT3, typename TT4, typename TT5>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1,
+			TT2 & t2, TH1 *histo2,
+			TT3 & t3, TH1 *histo3,
+			TT4 & t4, TH1 *histo4,
+			TT5 & t5, TH1 *histo5,
 			double rangeMin, double rangeMax) :
    chi1_(t1, histo1, rangeMin, rangeMax), 
    chi2_(t2, histo2, rangeMin, rangeMax), 
@@ -129,11 +131,11 @@ namespace fit {
    T5 & function5() { return chi5_.function(); }
    const T5 & function5() const { return chi5_.function(); }
   private:
-   HistoChiSquare<T1> chi1_;
-   HistoChiSquare<T2> chi2_;
-   HistoChiSquare<T3> chi3_;
-   HistoChiSquare<T4> chi4_;
-   HistoChiSquare<T5> chi5_;
+   T1 chi1_;
+   T2 chi2_;
+   T3 chi3_;
+   T4 chi4_;
+   T5 chi5_;
 };
 
   template<typename T1, typename T2, typename T3, typename T4>
@@ -142,10 +144,11 @@ namespace fit {
                             helper::MultiHistoChiSquareNoArg> { 
    public:
     MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1,
-			T2 & t2, TH1 *histo2,
-			T3 & t3, TH1 *histo3,
-			T4 & t4, TH1 *histo4,
+    template<typename TT1, typename TT2, typename TT3, typename TT4>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1,
+			TT2 & t2, TH1 *histo2,
+			TT3 & t3, TH1 *histo3,
+			TT4 & t4, TH1 *histo4,
 			double rangeMin, double rangeMax) :
    chi1_(t1, histo1, rangeMin, rangeMax), 
    chi2_(t2, histo2, rangeMin, rangeMax), 
@@ -180,10 +183,10 @@ namespace fit {
    T4 & function4() { return chi4_.function(); }
    const T4 & function4() const { return chi4_.function(); }
   private:
-   HistoChiSquare<T1> chi1_;
-   HistoChiSquare<T2> chi2_;
-   HistoChiSquare<T3> chi3_;
-   HistoChiSquare<T4> chi4_;
+   T1 chi1_;
+   T2 chi2_;
+   T3 chi3_;
+   T4 chi4_;
 };
 
 
@@ -193,9 +196,10 @@ namespace fit {
                                         helper::MultiHistoChiSquareNoArg> { 
    public:
     MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1,
-			T2 & t2, TH1 *histo2,
-			T3 & t3, TH1 *histo3,
+    template<typename TT1, typename TT2, typename TT3>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1,
+			TT2 & t2, TH1 *histo2,
+			TT3 & t3, TH1 *histo3,
 			double rangeMin, double rangeMax) :
    chi1_(t1, histo1, rangeMin, rangeMax), 
    chi2_(t2, histo2, rangeMin, rangeMax), 
@@ -222,9 +226,9 @@ namespace fit {
    T3 & function3() { return chi3_.function(); }
    const T3 & function3() const { return chi3_.function(); }
   private:
-   HistoChiSquare<T1> chi1_;
-   HistoChiSquare<T2> chi2_;
-   HistoChiSquare<T3> chi3_;
+   T1 chi1_;
+   T2 chi2_;
+   T3 chi3_;
 };
 
   template<typename T1, typename T2>
@@ -235,8 +239,9 @@ namespace fit {
                             helper::MultiHistoChiSquareNoArg> {
    public:
     MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1,
-			T2 & t2, TH1 *histo2, 
+    template<typename TT1, typename TT2>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1,
+			TT2 & t2, TH1 *histo2, 
 			double rangeMin, double rangeMax): 
       chi1_(t1, histo1, rangeMin, rangeMax), 
       chi2_(t2, histo2, rangeMin, rangeMax) {
@@ -254,8 +259,8 @@ namespace fit {
 	chi2_.numberOfBins();
     }
    private:
-    HistoChiSquare<T1> chi1_;
-    HistoChiSquare<T2> chi2_;
+    T1 chi1_;
+    T2 chi2_;
   };
   
   template<typename T1>
@@ -267,7 +272,8 @@ namespace fit {
 			    helper::MultiHistoChiSquareNoArg> {
    public:
     MultiHistoChiSquare() { }
-    MultiHistoChiSquare(T1 & t1, TH1 *histo1, double rangeMin, double rangeMax) 
+    template<typename TT1>
+    MultiHistoChiSquare(TT1 & t1, TH1 *histo1, double rangeMin, double rangeMax) 
       : chi1_(t1, histo1, rangeMin, rangeMax) {
     }
     double operator()() const { 
@@ -280,7 +286,7 @@ namespace fit {
       return chi1_.numberOfBins(); 
     }
    private:
-    HistoChiSquare<T1> chi1_;
+    T1 chi1_;
   };
 
  template<typename T1, typename T2, typename T3, 

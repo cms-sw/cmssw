@@ -18,7 +18,7 @@ namespace fit {
       xMax_ = histo->GetXaxis()->GetXmax();
       deltaX_ =(xMax_ - xMin_) / nBins_;
       for(size_t i = 0; i < nBins_; ++i) { 
-	cont_.push_back( histo->GetBinContent(i+1) );
+	cont_.push_back(histo->GetBinContent(i+1));
       }
     }
     double operator()() const { 
@@ -27,11 +27,11 @@ namespace fit {
 	double x = xMin_ + ( i +.5 ) * deltaX_;
 	if((x > rangeMin_)&&(x < rangeMax_)) {
 	  double nu = (*t_)(x);
-	  if(nu > 0) chi2lambda += nu - cont_[i] + cont_[i]*log(cont_[i]/nu);
+	  if(nu > 0 && cont_[i]>0) chi2lambda += nu - cont_[i] + cont_[i]*log(cont_[i]/nu);
 	}
       }
       chi2lambda *= 2;
-     return chi2lambda;
+      return chi2lambda;
     }
     void setHistos(TH1 *histo) { 
       nBins_ = histo->GetNbinsX();
