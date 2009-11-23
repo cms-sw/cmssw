@@ -310,8 +310,7 @@ void CSCEventData::checkALCTClasses() {
     theALCTHeader->setEventInformation(theDMBHeader);
     theAnodeData = new CSCAnodeData(*theALCTHeader);
     int size = theALCTHeader->sizeInWords() + theAnodeData->sizeInWords() + CSCALCTTrailer::sizeInWords();
-    int firmwareVersion = 2006;
-    theALCTTrailer = new CSCALCTTrailer(size, firmwareVersion);
+    theALCTTrailer = new CSCALCTTrailer(size, theALCTHeader->alctFirmwareVersion());
     // set data available flag
     theDMBHeader.addNALCT();
   }
