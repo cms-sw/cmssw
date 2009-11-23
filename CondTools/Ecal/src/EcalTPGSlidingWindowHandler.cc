@@ -130,6 +130,16 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
         unsigned long irun=0;
 	if(num_runs>0){
 
+	  // going to query the ecal logic id 
+	    vector<EcalLogicID> my_StripEcalLogicId_EE;
+	    my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "ECAL_readout_strip",
+						    1, 1000,
+						    1, 70,
+								      0,5,
+						    "EE_offline_stripid",123 );
+	    std::cout <<" GOT the logic ID for the EE trigger strips "<< std::endl;
+
+
 	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
@@ -207,42 +217,59 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	      
 	            // EB data
 	            if (ecid_name=="EB_VFE") {
-	              int id1=ecid_xt.getID1();
-	              int id2=ecid_xt.getID2();
-	              int id3=ecid_xt.getID3();
-	    
+	              int sm=ecid_xt.getID1();
+	              int tt=ecid_xt.getID2();
+	              int strip=ecid_xt.getID3();
+		      int tcc= sm+54;
+		      if(sm>18) tcc=sm+18 ;
 	              rd_slid = (unsigned int)rd_sli.getSliding();
-	       	  
-		      char ch[10];
-		      sprintf(ch,"%d%d%d", id1, id2, id3); 
-		
-		      std::string S="";
-		      S.insert(0,ch);
-		
-		      unsigned int stripEBId = 0;
-		      stripEBId = atoi(S.c_str());
+
+		      // simple formula to calculate the Srip EB identifier 
+		      		
+		      unsigned int stripEBId = 303176+(tt-1)*64+(strip-1)*8+(tcc-37)*8192;
 		   		
-	              sliW->setValue((unsigned int)stripEBId, (unsigned int)rd_sli.getSliding());
+	              sliW->setValue(stripEBId, (unsigned int)rd_sli.getSliding());
 	              ++icells;
+
 	      	    }
-	      	    else if (ecid_name=="EE_trigger_strip"){
+	      	    else if (ecid_name=="ECAL_readout_strip"){
 	        
 		      // EE data
-		      int id1=ecid_xt.getID1();
-	              int id2=ecid_xt.getID2();
-	              int id3=ecid_xt.getID3();	
+		      int id1=ecid_xt.getID1(); // dcc
+	              int id2=ecid_xt.getID2(); // ccu
+	              int id3=ecid_xt.getID3();	// strip
 		
 		      rd_slid = (unsigned int)rd_sli.getSliding();
 	       	
-		      char ch[10];
-		      sprintf(ch,"%d%d%d", id1, id2, id3);
-		
-		      std::string S ="";
-		      S.insert(0,ch);
-		       
-		      unsigned int stripEEId = atoi(S.c_str());		   
-		
-	              sliW->setValue(stripEEId, (unsigned int)rd_sli.getSliding());
+
+		      bool set_the_strip=false;
+		      int stripid;
+		      for (int istrip=0; istrip<my_StripEcalLogicId_EE.size(); istrip++) {
+
+			if(!set_the_strip){
+			  
+			  if(my_StripEcalLogicId_EE[istrip].getID1()==id1 
+			     && my_StripEcalLogicId_EE[istrip].getID2()==id2
+			     && my_StripEcalLogicId_EE[istrip].getID3()==id3 
+			     ){
+			    stripid =my_StripEcalLogicId_EE[istrip].getLogicID();
+			    set_the_strip=true;
+			    break;
+			  }
+			}
+			
+		      }
+		      
+		      if(set_the_strip){
+
+			sliW->setValue(stripid, (unsigned int)rd_sli.getSliding());
+
+		      } else {
+			std::cout <<" these may be the additional towers TCC/TT "
+				  << id1<<"/"<<id2<<endl;
+		      }
+	      	      
+
 	              ++icells;
 	            } 
 	          }
