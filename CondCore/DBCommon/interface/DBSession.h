@@ -1,4 +1,4 @@
-#warning DBSession is deprecated, please use DbSession
+// #warning DBSession is deprecated, please use DbSession
 #include "oldDBSession.h"
 
 
