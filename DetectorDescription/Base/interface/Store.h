@@ -73,7 +73,7 @@ namespace DDI {
    prep_type create(const name_type &, pimpl_type);
    
    // anonymous object, not stored
-   prep_type create(pimpl_type);
+/*    prep_type create(pimpl_type); */
    
    // clear all objects
    void clear();
@@ -104,17 +104,17 @@ namespace DDI {
 //  : std::pair(n,p)
 // { }
 
-template<class N, class I, class K>
-void
-Store<N,I,K>::clear()
-{
-  typename registry_type::iterator it = reg_.begin();
-  for (; it != reg_.end(); ++it) {
-    delete it->second->second;
-    delete it->second;
-  }  
-  reg_.clear();
-}
+/* template<class N, class I, class K> */
+/* void */
+/* Store<N,I,K>::clear() */
+/* { */
+/*   typename registry_type::iterator it = reg_.begin(); */
+/*   for (; it != reg_.end(); ++it) { */
+/*     delete it->second->second; */
+/*     delete it->second; */
+/*   }   */
+/*   reg_.clear(); */
+/* } */
 
  template<class N, class I, class K>
  typename Store<N,I,K>::prep_type 
@@ -164,13 +164,13 @@ Store<N,I,K>::clear()
    }
  } 
  
- template<class N, class I, class K>
- typename Store<N,I,K>::prep_type 
- Store<N,I,K>::create(typename Store<N,I,K>::pimpl_type p)
- {					  
-   if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << name_type() << " to a global store."; 
-    return new Rep_type(name_type(),p);
- }
+/*  template<class N, class I, class K> */
+/*  typename Store<N,I,K>::prep_type  */
+/*  Store<N,I,K>::create(typename Store<N,I,K>::pimpl_type p) */
+/*  {					   */
+/*    if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << name_type() << " to a global store.";  */
+/*     return new Rep_type(name_type(),p); */
+/*  } */
 
 template<class N, class I, class K>
 bool Store<N,I,K>::isDefined(const name_type & n ) const
@@ -192,12 +192,6 @@ void Store<N, I, K>::swap ( Store<N, I, K>& storeToSwap ) {
   storeToSwap.readOnly_ = readOnly_;
 }
 
-/* template<class N, class I, class K> */
-/* void Store<N, I, K>::swap ( registry_type& regtoreceive ) { */
-/*   reg_.swap(regtoreceive); */
-/* } */
-
-}
-/* } */
+} // namespace DDI
 
 #endif

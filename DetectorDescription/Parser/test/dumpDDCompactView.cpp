@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     }
 
     cpv.writeableGraph().clear();
-    cpv.clear();
+    //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
 
 

@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	std::cout << ev.geoHistory() << std::endl;
       }
     }
-    cpv.clear();
+    //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
   }
 

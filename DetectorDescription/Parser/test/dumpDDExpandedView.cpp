@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     plist.close();
     std::cout << "Traversing the tree went to " << numPhysParts << " nodes, or \"PhysicalParts\" in online db terms." << std::endl;
     cpv.writeableGraph().clear();
-    cpv.clear();
+    //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
 
   }

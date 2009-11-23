@@ -43,6 +43,7 @@ void DDpos(const DDLogicalPart & self,
 	   std::string copyno,
 	   const DDTranslation & trans,
 	   const DDRotation & rot,
+	   const DDCompactView& cpv,
 	   const DDDivision * div = NULL);
 
 void DDpos(const DDLogicalPart & self,
@@ -50,6 +51,7 @@ void DDpos(const DDLogicalPart & self,
 	   int copyno,
 	   const DDTranslation & trans,
 	   const DDRotation & rot,
+	   const DDCompactView& cpv,
 	   const DDDivision * div = NULL);
 	   
 #endif

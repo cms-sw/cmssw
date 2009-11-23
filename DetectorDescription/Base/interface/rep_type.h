@@ -28,7 +28,7 @@ namespace DDI {
    rep_type() : second(0), init_(false) {}
    rep_type(const N & n, I i) : first(n), second(i), init_(false) 
     { if (i) init_=true; }
-   virtual ~rep_type(){ delete second; }
+   virtual ~rep_type(){}// talk to Chris about this:  delete second; }
    N first;
    I second;
    bool init_;
