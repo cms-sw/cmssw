@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -108,12 +107,7 @@ static TransientTrack transientGhostTrack(const GhostTrackPrediction &pred,
 
 static double vtxErrorLong(const GlobalError &error, const GlobalVector &dir)
 {
-	AlgebraicVector dir_(3);
-	dir_[0] = dir.x();
-	dir_[1] = dir.y();
-	dir_[2] = dir.z();
-
-	return error.matrix().similarity(dir_);
+	return ROOT::Math::Similarity(conv(dir), error.matrix_new());
 }
 
 static GlobalPoint vtxMean(const GlobalPoint &p1, const GlobalError &e1,

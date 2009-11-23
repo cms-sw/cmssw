@@ -26,6 +26,8 @@ class GhostTrackPrediction {
 	typedef ROOT::Math::SVector<double, 4> Vector;
 	typedef ROOT::Math::SMatrix<double, 4, 4,
 			ROOT::Math::MatRepSym<double, 4> > Error;
+	typedef ROOT::Math::SMatrix<double, 6, 6,
+			ROOT::Math::MatRepSym<double, 6> > CartesianError;
 
 	GhostTrackPrediction() {}
 	GhostTrackPrediction(const Vector &prediction, const Error &error) :
@@ -73,6 +75,8 @@ class GhostTrackPrediction {
 	GlobalPoint position(double lambda = 0.) const
 	{ return origin() + lambda * direction(); }
 	GlobalError positionError(double lambda = 0.) const;
+
+	CartesianError cartesianError(double lambda = 0.) const;
 
 	CurvilinearTrajectoryParameters curvilinearTrajectory() const;
 	GlobalTrajectoryParameters globalTrajectory(

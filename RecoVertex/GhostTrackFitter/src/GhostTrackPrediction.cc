@@ -26,6 +26,7 @@ namespace {
 	typedef SMatrix<double, 4, 5> Matrix45;
 	typedef SMatrix<double, 5, 4> Matrix54;
 	typedef SMatrix<double, 4, 6> Matrix46;
+	typedef SMatrix<double, 6, 4> Matrix64;
 	typedef SMatrix<double, 6, 6, MatRepSym<double, 6> > Matrix6S;
 }
 
@@ -173,6 +174,27 @@ GlobalError GhostTrackPrediction::positionError(double lambda) const
 	jacobian(1, 3) = x * lambda - y * ip();
 	jacobian(2, 0) = 1.;
 	jacobian(2, 2) = lambda;
+
+	return Similarity(jacobian, covariance());
+}
+
+Matrix6S GhostTrackPrediction::cartesianError(double lambda) const
+{
+	using namespace ROOT::Math;
+
+	double x = std::cos(phi());
+	double y = std::sin(phi());
+
+	Matrix64 jacobian;
+	jacobian(0, 1) = -y;
+	jacobian(0, 3) = -y * lambda - x * ip();
+	jacobian(1, 1) = x;
+	jacobian(1, 3) = x * lambda - y * ip();
+	jacobian(2, 0) = 1.;
+	jacobian(2, 2) = lambda;
+	jacobian(3, 3) = -y;
+	jacobian(4, 3) = x;
+	jacobian(5, 2) = 1.;
 
 	return Similarity(jacobian, covariance());
 }

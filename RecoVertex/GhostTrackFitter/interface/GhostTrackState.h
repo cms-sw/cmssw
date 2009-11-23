@@ -1,8 +1,11 @@
 #ifndef RecoBTag_GhostTrackState_h
 #define RecoBTag_GhostTrackState_h
 
+#include <utility>
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -13,6 +16,8 @@ class GhostTrackPrediction;
 
 class GhostTrackState {
     public:
+	typedef std::pair<GlobalPoint, GlobalError> Vertex;
+
 	GhostTrackState(const TransientTrack &track) :
 		track_(track), weight_(1.) {}
 
@@ -20,6 +25,7 @@ class GhostTrackState {
 	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
 
 	double lambda() const { return lambda_; }
+	double lambdaError(const GhostTrackPrediction &pred) const;
 	bool isValid() const { return tsos_.isValid(); }
 
 	void reset() { tsos_ = TrajectoryStateOnSurface(); }
@@ -31,6 +37,11 @@ class GhostTrackState {
 	                      const GlobalVector &dir) const;
 	double axisDistance(const GlobalPoint &point,
 	                    const GlobalVector &dir) const;
+
+	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
+	                               bool withRecoTrackError = true) const;
+	Vertex vertexStateOnRecoTrack(const GhostTrackPrediction &pred,
+	                              bool withGhostTrackError = true) const;
 
 	double weight() const { return weight_; }
 	void setWeight(double weight) { weight_ = weight; }
