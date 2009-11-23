@@ -12,6 +12,7 @@
 #include "TGLFontManager.h"
 #include "TGPack.h"
 #include "TGeoBBox.h"
+#include "TGButtonGroup.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -32,30 +33,14 @@
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
-m_viewer(0)
+m_viewer(0),
+m_btnGroup(0)
 {
 }
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 {
     getEveWindow()->DestroyWindow();
-}
-
-void
-FWTrackHitsDetailView::pickCameraCenter()
-{
-   m_viewer->PickCameraCenter();
-}
-
-void
-FWTrackHitsDetailView::switchRenderStyle()
-{
-   if ( m_viewer->Style() == TGLRnrCtx::kWireFrame)
-      m_viewer->SetStyle(TGLRnrCtx::kOutline);
-   else
-      m_viewer->SetStyle(TGLRnrCtx::kWireFrame);
-   
-   m_viewer->RequestDraw();
 }
 
 void
@@ -69,27 +54,46 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    eveWindow->SetElementName("Track Hits Detail View");
    setEveWindow(eveWindow);
    m_viewer = (TGLEmbeddedViewer*)viewer->GetGLViewer();
-   
    {
-      CSGAction* action = new CSGAction(this, "pickCameraCenter");
-      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX));
-      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
+      CSGAction* action = new CSGAction(this, "rnrStyle");
+      m_btnGroup = new TGButtonGroup(guiFrame, "Module Draw Mode:");
+      TGRadioButton* mframe = new TGRadioButton(m_btnGroup, "Fill", TGLRnrCtx::kFill);
+      TGRadioButton* mfill  = new TGRadioButton(m_btnGroup, "Frame",  TGLRnrCtx::kWireFrame);
+      m_btnGroup->SetButton(TGLRnrCtx::kFill);
+      TQObject::Connect(mfill,  "Clicked()", "CSGAction", action, "activate()");
+      TQObject::Connect(mframe, "Clicked()", "CSGAction", action, "activate()");
+      guiFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 3, 1, 0));
+      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::switchRenderStyle));
    }
    {
-      CSGAction* action = new CSGAction(this, "switchRenderStyle");
-      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX));
-      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::switchRenderStyle));   
+      CSGAction* action = new CSGAction(this, "Pick Camera Center");
+      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
+      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
    TGCompositeFrame* p = (TGCompositeFrame*)guiFrame->GetParent();
    p->MapSubwindows();
    p->Layout();
     
-    TracksRecHitsUtil::addHits(*track, id.item(), scene);
+   TracksRecHitsUtil::addHits(*track, id.item(), scene);
    for (TEveElement::List_i i=scene->BeginChildren(); i!=scene->EndChildren(); ++i)
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
       gs->SetMainColor(kBlue);
       gs->SetMainTransparency(0);
+      gs->SetPickable(kFALSE);
+
+
+      TEveText* text = new TEveText(gs->GetElementTitle());
+      text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
+      text->SetFontMode(TGLFont::kExtrude);
+
+      TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
+      text->RefMainTrans().Move3LF(0, 0, +2*bb->GetDZ());
+      text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
+      Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
+      Float_t a = 0.2*bb->GetDX()/text->GetFontSize();
+      text->RefMainTrans().Scale(a, a, a);
+      gs->AddElement(text); 
    }
 
    CmsMagField* cmsMagField = new CmsMagField;
@@ -124,7 +128,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->UpdateScene();
    m_viewer->CurrentCamera().Reset();
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
-   m_viewer->SetStyle(TGLRnrCtx::kOutline);
+   //   m_viewer->SetStyle(TGLRnrCtx::kOutline);
    m_viewer->SetDrawCameraCenter(kTRUE);
 }
 
@@ -132,6 +136,25 @@ void
 FWTrackHitsDetailView::setBackgroundColor(Color_t col)
 {
    FWColorManager::setColorSetViewer(m_viewer, col);
+}
+
+
+void
+FWTrackHitsDetailView::pickCameraCenter()
+{
+   m_viewer->PickCameraCenter();
+}
+
+void
+FWTrackHitsDetailView::switchRenderStyle()
+{
+   if (m_btnGroup->GetButton(TGLRnrCtx::kWireFrame)->GetState())
+      m_viewer->SetStyle(TGLRnrCtx::kWireFrame);
+   else    
+      m_viewer->SetStyle(TGLRnrCtx::kFill);
+
+
+   m_viewer->RequestDraw();
 }
 
 REGISTER_FWDETAILVIEW(FWTrackHitsDetailView, Hits);

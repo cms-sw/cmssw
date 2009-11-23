@@ -3,17 +3,18 @@
 // Package:     Tracks
 // Class  :     FWTrackHitsDetailView
 
+#include "Rtypes.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Rtypes.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 class TGLEmbeddedViewer;
-class FWGUISubviewArea;
+class TGButtonGroup;
 
-class FWTrackHitsDetailView: public FWDetailView<reco::Track>, 
-                             public CSGActionSupervisor 
+class FWTrackHitsDetailView: public FWDetailView<reco::Track>,
+                             public CSGActionSupervisor
 {
 public:
    FWTrackHitsDetailView();
@@ -27,6 +28,7 @@ public:
 
 protected:
    TGLEmbeddedViewer* m_viewer;
+   TGButtonGroup*     m_btnGroup;
 
 private:
    FWTrackHitsDetailView(const FWTrackHitsDetailView&); // stop default
