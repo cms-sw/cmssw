@@ -695,21 +695,21 @@ void GctFormatTranslateV38::blockToGctEmCandsAndEnergySums(const unsigned char *
   // UNPACK ENERGY SUMS
 
   for (unsigned int bx=firstSample; bx<=lastSample; ++bx) // loop over all time samples
-    {	
-      colls()->gctEtTot()->push_back(L1GctEtTotal(*p16,(int)bx-(int)centralSample));  // Et total
-      p16++;
-      colls()->gctEtHad()->push_back(L1GctEtHad(*p16,(int)bx-(int)centralSample));  // Et hadronic 
-      p16++;
-      
-      // 32-bit pointer for getting Missing Et.
-      const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
-      colls()->gctEtMiss()->push_back(L1GctEtMiss(*p32,(int)bx-(int)centralSample)); // Et Miss 
-      p16++; 
-      p16++;
-      
-      LogDebug("GCT") << "Unpacked energy sums bx=" << bx << std::endl;
-      
+    {
+      const unsigned int offset = bx*2;
+      colls()->gctEtTot()->push_back(L1GctEtTotal(p16[offset],(int)bx-(int)centralSample));  // Et total
+      colls()->gctEtHad()->push_back(L1GctEtHad(p16[offset+1],(int)bx-(int)centralSample));  // Et hadronic 
     }
+
+  p16 += nSamples * 2;
+
+  // 32-bit pointer for getting Missing Et.
+  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
+
+  for (unsigned int bx=firstSample; bx<=lastSample; ++bx) {
+    colls()->gctEtMiss()->push_back(L1GctEtMiss(p32[bx],(int)bx-(int)centralSample)); // Et Miss 
+    LogDebug("GCT") << "Unpacked energy sums bx=" << bx << std::endl;   
+  }
 
 
 }
@@ -771,13 +771,11 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
   for (unsigned int bx=firstSample; bx<=lastSample; ++bx) // loop over all time samples
     {
       // Channel 0 carries both HF counts and sums
-      colls()->gctHfBitCounts()->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,(int)bx-(int)centralSample,*p32)); 
-      colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,(int)bx-(int)centralSample,*p32));
-      p32++;
+      colls()->gctHfBitCounts()->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,(int)bx-(int)centralSample,p32[bx])); 
+      colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,(int)bx-(int)centralSample,p32[bx]));
       
       // Channel 1 carries Missing HT.
-      colls()->gctHtMiss()->push_back(L1GctHtMiss(*p32, (int)bx-(int)centralSample));
-      p32++;
+      colls()->gctHtMiss()->push_back(L1GctHtMiss(p32[bx+1], (int)bx-(int)centralSample));
     }
 }
 
@@ -886,15 +884,9 @@ void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const
   unsigned int nSamples = hdr.nSamples();
   unsigned int length = hdr.blockLength();
 
-  unsigned int samplesToUnpack = std::min(nSamples,m_numberOfGctSamplesToUnpack); // Unpack as many as asked for if they are in the raw data
-  unsigned int centralSample = (unsigned)std::ceil((double)nSamples/2.)-1;  // think this works when nSamples is even, need to check!!!
-  unsigned int firstSample = centralSample-(unsigned)std::ceil((double)samplesToUnpack/2.)+1;
-  unsigned int lastSample = centralSample+(unsigned)(samplesToUnpack/2);
-
   // Debug assertion to prevent problems if definitions not up to date.
   assert(rctJetCrateMap().find(id) != rctJetCrateMap().end());  
   
-
   // get crate (need this to get ieta and iphi)
   unsigned int crate=rctJetCrateMap()[id];
 
@@ -907,48 +899,48 @@ void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const
   
   for (unsigned int i=0; i<length; ++i)
   { 
-    for (uint16_t bx=firstSample; bx<=lastSample; ++bx)
+    for (uint16_t bx=0; bx<nSamples; ++bx)
     {
-
       // First figure out eta and phi
       if (crate<9) { // negative eta
-	ieta = 12-i; 
-	iphi = 2*((11-crate)%9);
+          ieta = 12-i; 
+          iphi = 2*((11-crate)%9);
       }
       else { // positive eta
-	ieta = 9+i;
-	iphi = 2*((20-crate)%9);
+        ieta = 9+i;
+        iphi = 2*((20-crate)%9);
       }
       
       // Skip the first four regions (i.e. where i<2) which are duplicates (shared data).
       if (i>1) { 
-	// First region is phi=0
-	colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
-	++p;
-	// Second region is phi=1
-	if (iphi>0) { iphi-=1; }
-	else { iphi = 17; }
-	colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
-	++p;
+        // First region is phi=0
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        ++p;
+        // Second region is phi=1
+        if (iphi>0) { iphi-=1; }
+        else { iphi = 17; }
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        ++p;
       }
       // Unpack the shared data if asked for debugging
       else if (unpackSharedRegions()){
-	// First region is phi=0
-	colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
-	++p;
-	// Second region is phi=1
-	if (iphi>0) { iphi-=1; }
-	else { iphi = 17; }
-	colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, (int)bx-(int)centralSample) );
-	++p;
-	
+        // First region is phi=0
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        ++p;
+        // Second region is phi=1
+        if (iphi>0) { iphi-=1; }
+        else { iphi = 17; }
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        ++p;
+        
       } else { // Skip the shared data  
-	++p;
-	++p;
+        ++p;
+        ++p;
       }
     }
   } 
 }  
+
 
 // Fibre unpacking
 void GctFormatTranslateV38::blockToFibres(const unsigned char * d, const GctBlockHeader& hdr)
