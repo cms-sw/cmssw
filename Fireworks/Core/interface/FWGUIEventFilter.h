@@ -1,21 +1,18 @@
-#include <string>
-#include <vector>
-#include <iostream>
+#include <list>
+
+#include "TGFrame.h"
+
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWHLTValidator.h"
-#include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
-class TGVerticalFrame;
-class TGFrame;
-class TGTransientFrame;
-class TGCompositeFrame;
-class TGTextButton;
 class FWGUIEventSelector;
 class TGButtonGroup;
+class CSGAction;
+class FWCustomIconsButton;
 
 class FWGUIEventFilter: public TGTransientFrame,
-                        CSGActionSupervisor
+                               CSGActionSupervisor
 {
 public:
    FWGUIEventFilter(const TGWindow* parent);
@@ -23,34 +20,34 @@ public:
    
    void show(std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR);
    
-   CSGAction* m_applyAction;     
+   CSGAction* m_applyAction;   
+   CSGAction* m_toggleEnableAction;     
    CSGAction* m_finishEditAction; 
 
    std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
    bool isLogicalOR();
    
-   void filterOK();
-   void revert();
-   
    void newEntry();
    void deleteEntry(FWGUIEventSelector*);
    void addSelector(FWEventSelector* sel);
    bool isOpen() { return m_isOpen; }
+   void setActive(bool);
+   bool isActive() const { return m_active; }
    
 private:   
-   static const TGPicture* m_icon_add;
-   
    static const int m_entryHeight = 20;
    static const int m_width       = 500;
    static const int m_height      = 300;
    
-   std::list<FWGUIEventSelector*> m_guiSelectors;
-   FWHLTValidator*   m_validator;
-   
-   TGCompositeFrame* m_selectionFrameParent;
-   TGCompositeFrame* m_selectionFrame;
    bool              m_origOr;
-   TGButtonGroup*    m_btnGroup;
    bool              m_isOpen;
+   bool              m_active;
+   
+   std::list<FWGUIEventSelector*> m_guiSelectors;
+   FWHLTValidator*      m_validator;
+   TGCompositeFrame*    m_selectionFrameParent;
+   TGCompositeFrame*    m_selectionFrame;
+   TGButtonGroup*       m_btnGroup;   
+   FWCustomIconsButton* m_addBtn;
 };
 

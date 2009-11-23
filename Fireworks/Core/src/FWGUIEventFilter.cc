@@ -1,25 +1,28 @@
-#include "TGPicture.h"
 #include "TGLabel.h"
-#include "TGTextEntry.h"
 #include "TGButtonGroup.h"
 
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
-
-const TGPicture* FWGUIEventFilter::m_icon_add = 0;
 
 FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
    m_applyAction(0),
+   m_toggleEnableAction(0),
    m_finishEditAction(0),
+
+   m_origOr(false), 
+   m_isOpen(false),
+   m_active(true),
+
    m_validator(0),
    m_selectionFrameParent(0),
    m_selectionFrame(0),
-   m_origOr(false),
-   m_btnGroup(false),
-   m_isOpen(false)
+   m_btnGroup(0),
+   m_addBtn(0)
 {  
    SetWindowName("Event Filters");
 
@@ -47,40 +50,36 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
 
    selH->AddFrame(new TGLabel(selH, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom , 2, 0, 0, 0 ));
 
-   TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 170, 22, kFixedSize);
+   TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 162, 22, kFixedSize);
    selH->AddFrame(cfr, new TGLayoutHints(kLHintsRight));
    cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom));
 
    //-------------------- adding new selection
 
-   if (!m_icon_add)
-      m_icon_add = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign.png");
-
-   TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1, 29, 24, kFixedSize);
+   TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
    v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsRight));
-   TGPictureButton* addButton = new TGPictureButton(addBtnFrame, m_icon_add);
-   addBtnFrame->AddFrame(addButton, new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY, 0, 4, 1, 1));
-   TQObject::Connect(addButton, "Clicked()", "FWGUIEventFilter",  this, "newEntry()");
+   
+   m_addBtn = new FWCustomIconsButton(addBtnFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign.png"),
+                                                   fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-over.png"),
+                                                   fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-disabled.png"));
+   
+   addBtnFrame->AddFrame(m_addBtn, new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY, 0, 6, 4, 1));
+   TQObject::Connect(m_addBtn, "Clicked()", "FWGUIEventFilter",  this, "newEntry()");
 
    //-------------------- external actions
    m_finishEditAction = new CSGAction(this, "Finish");
 
-   TGHorizontalFrame* btnFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
-   v1->AddFrame(btnFrame, new TGLayoutHints(kLHintsExpandX|kLHintsBottom));
+   TGHorizontalFrame* btnFrame = new TGHorizontalFrame(v1, 250, 30, kFixedSize);
+   v1->AddFrame(btnFrame, new TGLayoutHints(kLHintsCenterX | kLHintsBottom , 2, 2, 2, 4));
 
-   m_applyAction = new CSGAction(this, "Apply");
-   m_applyAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2) );
-
-   TGTextButton* revert = new TGTextButton(btnFrame," Revert ");
-   btnFrame->AddFrame(revert, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
-   revert->Connect("Clicked()","FWGUIEventFilter", this, "revert()");
-
-   TGTextButton* ok = new TGTextButton(btnFrame," OK ");
-   btnFrame->AddFrame(ok, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
-   ok->Connect("Clicked()","FWGUIEventFilter", this, "filterOK()");
-
-   TGTextButton* cancel = new TGTextButton(btnFrame," Cancel ");
-   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsRight, 4, 2, 2, 2));
+   m_applyAction = new CSGAction(this, " Filter ");
+   m_applyAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 4) );
+   
+   m_toggleEnableAction = new CSGAction(this, " Toggle Filtering ");
+   m_toggleEnableAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 4) );   
+   
+   TGTextButton* cancel = new TGTextButton(btnFrame," Close ");
+   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsRight, 4, 4, 2, 4));
    cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 }
 
@@ -109,46 +108,11 @@ void FWGUIEventFilter::CloseWindow()
 }
 
 //______________________________________________________________________________
-
-void FWGUIEventFilter::revert()
-{
-   m_btnGroup->SetButton( m_origOr ? 1 : 2);
-
-   std::list<FWEventSelector*> orig;
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-   {
-      if ((*i)->origSelector())
-         orig.push_back((*i)->origSelector());
-   }
-
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-   { 
-      m_selectionFrame->RemoveFrame(*i);
-   }
-
-   FWGUIEventSelector* gs;
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-   { 
-      gs = *i;
-      delete gs;
-   }
-   m_guiSelectors.clear();
-
-
-   // add
-   for(std::list<FWEventSelector*>::iterator i = orig.begin(); i != orig.end(); ++i)
-      addSelector(*i);
-
-   MapSubwindows();
-   Layout();
-   gClient->NeedRedraw(this);
-}
-
-//______________________________________________________________________________
  
 void FWGUIEventFilter::addSelector(FWEventSelector* sel)
 {
    FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, m_validator, sel);
+   if (!m_active) es->setActive(false);
    m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
    TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
    
@@ -201,8 +165,12 @@ bool FWGUIEventFilter::isLogicalOR()
    return m_btnGroup->GetButton(1)->GetState();
 }
 
-void FWGUIEventFilter::filterOK()
+void FWGUIEventFilter::setActive(bool x)
 {
-   m_applyAction->activated();
-   CloseWindow();
+   m_active = x;
+   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+      (*i)->setActive(x);
+
+   m_btnGroup->SetState(x);
+   m_addBtn->SetEnabled(x);
 }
