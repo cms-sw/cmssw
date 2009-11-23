@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.9 2009/11/18 21:36:24 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.10 2009/11/19 22:33:14 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -340,9 +340,8 @@ void QcdLowPtDQM::createHistos()
     repSummary_ = theDbe_->bookFloat("reportSummary");
   }
 
-  theDbe_->setCurrentFolder("Physics/QcdLowPt");
-
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/");
     const int Nx = hltTrgUsedNames_.size();
     const double x1 = -0.5;
     const double x2 = Nx-0.5;
@@ -356,38 +355,43 @@ void QcdLowPtDQM::createHistos()
       h->SetStats(0);
   }
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/HitsLayer/");
     const int Nx = 30;
     const double x1 = -0.5;
     const double x2 = 149.5;
     book1D(hNhitsL1_,"hNhitsLayer1","number of hits on layer 1;#hits;#",Nx,x1,x2);
-    book1D(hNhitsL2_,"hNhitsLayer2","number of hits on layer 2;#hits;#",Nx,x1,x2);
-    book1D(hNhitsL3_,"hNhitsLayer3","number of hits on layer 3;#hits;#",Nx,x1,x2);
+    if(0) book1D(hNhitsL2_,"hNhitsLayer2","number of hits on layer 2;#hits;#",Nx,x1,x2);
+    if(0) book1D(hNhitsL3_,"hNhitsLayer3","number of hits on layer 3;#hits;#",Nx,x1,x2);
   }
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/HitsLayerZoom/");
     const int Nx = 15;
     const double x1 = -0.5;
     const double x2 = 14.5;
     book1D(hNhitsL1z_,"hNhitsLayer1Zoom","number of hits on layer 1;#hits;#",Nx,x1,x2);
-    book1D(hNhitsL2z_,"hNhitsLayer2Zoom","number of hits on layer 2;#hits;#",Nx,x1,x2);
-    book1D(hNhitsL3z_,"hNhitsLayer3Zoom","number of hits on layer 3;#hits;#",Nx,x1,x2);
+    if(0) book1D(hNhitsL2z_,"hNhitsLayer2Zoom","number of hits on layer 2;#hits;#",Nx,x1,x2);
+    if(0) book1D(hNhitsL3z_,"hNhitsLayer3Zoom","number of hits on layer 3;#hits;#",Nx,x1,x2);
   }
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/HitsLayerEta/");
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
     book1D(hdNdEtaHitsL1_,"hdNdEtaHitsLayer1","Hits on layer 1;detector #eta;#",Nx,x1,x2);
-    book1D(hdNdEtaHitsL2_,"hdNdEtaHitsLayer2","Hits on layer 2;detector #eta;#",Nx,x1,x2);
-    book1D(hdNdEtaHitsL3_,"hdNdEtaHitsLayer3","Hits on layer 3;detector #eta;#",Nx,x1,x2);
+    if(0) book1D(hdNdEtaHitsL2_,"hdNdEtaHitsLayer2","Hits on layer 2;detector #eta;#",Nx,x1,x2);
+    if(0) book1D(hdNdEtaHitsL3_,"hdNdEtaHitsLayer3","Hits on layer 3;detector #eta;#",Nx,x1,x2);
   }
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/HitsLayerPhi/");
     const int Nx = 64;
     const double x1 = -3.2;
     const double x2 = +3.2;
     book1D(hdNdPhiHitsL1_,"hdNdPhiHitsLayer1","Hits on layer 1;#phi;#",Nx,x1,x2);
-    book1D(hdNdPhiHitsL2_,"hdNdPhiHitsLayer2","Hits on layer 2;#phi;#",Nx,x1,x2);
-    book1D(hdNdPhiHitsL3_,"hdNdPhiHitsLayer3","Hits on layer 3;#phi;#",Nx,x1,x2);
+    if(0) book1D(hdNdPhiHitsL2_,"hdNdPhiHitsLayer2","Hits on layer 2;#phi;#",Nx,x1,x2);
+    if(0) book1D(hdNdPhiHitsL3_,"hdNdPhiHitsLayer3","Hits on layer 3;#phi;#",Nx,x1,x2);
   }
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletVtxZ/");
     const int Nx = 100;
     const double x1 = -25;
     const double x2 = +25;
@@ -400,6 +404,7 @@ void QcdLowPtDQM::createHistos()
   }
 
   if (1) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletEtaVtxZ/");
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
@@ -416,7 +421,8 @@ void QcdLowPtDQM::createHistos()
       book2D(hRawTrkEtaVtxZ23_,"hRawTrkEtaVtxZ23",
              "raw #eta vs z vertex from tracklets23;#eta;vz [cm]",Nx,x1,x2,Ny,y1,y2,0,0);
   }
-  if (1) {
+  if (0) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletDetaDphi/");
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
@@ -434,6 +440,7 @@ void QcdLowPtDQM::createHistos()
              "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#eta;#Delta#phi",Nx,x1,x2,Ny,y1,y2,0,0);
   }
   if (0) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletDeta/");
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
@@ -448,6 +455,7 @@ void QcdLowPtDQM::createHistos()
              "tracklet23 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0); 
   }
   if (0) {
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletDphi/");
     const int Nx = 64;
     const double x1 = -3.2;
     const double x2 = +3.2;
@@ -466,10 +474,13 @@ void QcdLowPtDQM::createHistos()
     const int Nx = xa->GetNbins();
     const double x1 = xa->GetBinLowEdge(1);
     const double x2 = xa->GetBinLowEdge(Nx+1);
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl12_,"hdNdEtaRawTracklets12",
            "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl12_,"hdNdEtaSubTracklets12",
            "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets12_,"hdNdEtaTracklets12",
            "dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
     create1D(hEvtCountsPerEta12_,"hEventCountsPerEta12_",
@@ -480,10 +491,13 @@ void QcdLowPtDQM::createHistos()
     const int Nx = xa->GetNbins();
     const double x1 = xa->GetBinLowEdge(1);
     const double x2 = xa->GetBinLowEdge(Nx+1);
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl13_,"hdNdEtaRawTracklets13",
            "raw dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl13_,"hdNdEtaSubTracklets13",
            "(1-#beta) dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets13_,"hdNdEtaTracklets13",
            "dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
     create1D(hEvtCountsPerEta13_,"hEventCountsPerEta13",
@@ -494,10 +508,13 @@ void QcdLowPtDQM::createHistos()
     const int Nx = xa->GetNbins();
     const double x1 = xa->GetBinLowEdge(1);
     const double x2 = xa->GetBinLowEdge(Nx+1);
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl23_,"hdNdEtaRawTracklets23",
            "raw dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl23_,"hdNdEtaSubTracklets23",
            "(1-#beta) dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+    theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets23_,"hdNdEtaTracklets23",
            "dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
     create1D(hEvtCountsPerEta23_,"hEventCountsPerEta23",
@@ -508,9 +525,11 @@ void QcdLowPtDQM::createHistos()
       const int Nx = 100;
       const double x1 = -25;
       const double x2 = +25;
+      theDbe_->setCurrentFolder("Physics/QcdLowPt/ClusterVtxZ/");
       book1D(hClusterVertexZ_,"hClusterVertex","z vertex from clusters12;vz [cm];#",Nx,x1,x2);
     }
     if (1) {
+      theDbe_->setCurrentFolder("Physics/QcdLowPt/ClusterSize/");
       const int Nx = 60;
       const double x1 = -3;
       const double x2 = +3;
@@ -528,6 +547,7 @@ void QcdLowPtDQM::createHistos()
                "cluster #eta vs local y size on layer 3;#eta;size",Nx,x1,x2,Ny,y1,y2,0,0);
     }
     if (1) {
+      theDbe_->setCurrentFolder("Physics/QcdLowPt/ClusterCharge/");
       const int Nx = 60;
       const double x1 = -3;
       const double x2 = +3;
