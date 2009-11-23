@@ -1,8 +1,8 @@
 //#include <iostream>
 #include "CondCore/Utilities/interface/CSVDataLineParser.h"
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/utility/confix.hpp>
-#include <boost/spirit/utility/escape_char.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_confix.hpp>
+#include <boost/spirit/include/classic_escape_char.hpp>
 using namespace boost::spirit;
 
 struct generic_actor{

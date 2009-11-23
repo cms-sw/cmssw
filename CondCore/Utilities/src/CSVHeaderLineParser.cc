@@ -1,7 +1,7 @@
 #include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/utility/lists.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_lists.hpp>
 using namespace boost::spirit;
 
 bool CSVHeaderLineParser::parse( const std::string& inputLine){

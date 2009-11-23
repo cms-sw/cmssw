@@ -39,7 +39,6 @@ namespace cond {
       }
       else {
 	// only for test
-	int status=0;
 	std::string name = className(t);
 //	std::cout << "CondCore::ClassID: Warning no Reflex type for " << name << std::endl;
 	char buff[20];

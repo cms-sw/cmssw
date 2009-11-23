@@ -1,5 +1,5 @@
 #include "CondCore/Utilities/interface/CSVBlankLineParser.h"
-#include <boost/spirit/core.hpp>
+#include <boost/spirit//include/classic_core.hpp>
 using namespace boost::spirit;
 
 bool CSVBlankLineParser::isBlank( const std::string& inputLine){
