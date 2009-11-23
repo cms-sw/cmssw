@@ -62,6 +62,9 @@ private:
   int		nevent_;
   timeval	start_;
   timeval	saved_;
+
+  int			 numKeepSavedFiles_;
+  std::list<std::string> pastSavedFiles_;
   
   MonitorElement * versCMSSW_ ;
   MonitorElement * versDataset_ ;

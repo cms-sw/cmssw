@@ -147,33 +147,59 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   }  
 }
 
+static void
+doSaveForOnline(std::list<std::string> &pastSavedFiles,
+		size_t numKeepSavedFiles,
+		DQMStore *store,
+		const std::string &filename,
+		const std::string &directory,
+		const std::string &rxpat,
+		const std::string &rewrite,
+		DQMStore::SaveReferenceTag saveref,
+		int saveRefQMin)
+{
+  store->save(filename, "" , "^(Reference/)?([^/]+)", rewrite, saveref, saveRefQMin);
+  pastSavedFiles.push_back(filename);
+  if (pastSavedFiles.size() > numKeepSavedFiles)
+  {
+    remove(pastSavedFiles.front().c_str());
+    pastSavedFiles.pop_front();
+  }
+}
+
 void
 DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrite)
 {
-   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
-   if (makeProvInfo_) makeProvInfo();
-   for (size_t i = 0, e = systems.size(); i != e; ++i) {
-     if (systems[i] != "Reference") {
-       dbe_->cd();
-       if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName")){
-         dbe_->save(fileBaseName_ + me->getStringValue() + suffix + ".root",
-	         "" , "^(Reference/)?([^/]+)", rewrite,
-	         (DQMStore::SaveReferenceTag) saveReference_,
-	         saveReferenceQMin_);
-         return;
-       }
-     }
-   }
+  if (makeProvInfo_)
+    makeProvInfo();
 
-   // if no EventInfo Folder is found, then store subsystem wise
-   for (size_t i = 0, e = systems.size(); i != e; ++i)
-     if (systems[i] != "Reference")
-         dbe_->save(fileBaseName_ + systems[i] + suffix + ".root",
-	         systems[i] , "^(Reference/)?([^/]+)", rewrite,
-	         (DQMStore::SaveReferenceTag) saveReference_,
-	         saveReferenceQMin_);
+  for (size_t i = 0, e = systems.size(); i != e; ++i)
+  {
+    if (systems[i] != "Reference")
+    {
+      dbe_->cd();
+      if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName"))
+      {
+	doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
+			fileBaseName_ + me->getStringValue() + suffix + ".root",
+			"", "^(Reference/)?([^/]+)", rewrite,
+	                (DQMStore::SaveReferenceTag) saveReference_,
+	                saveReferenceQMin_);
+        return;
+      }
+    }
+  }
 
+  // if no EventInfo Folder is found, then store subsystem wise
+  for (size_t i = 0, e = systems.size(); i != e; ++i)
+    if (systems[i] != "Reference")
+      doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
+                      fileBaseName_ + systems[i] + suffix + ".root",
+	              systems[i], "^(Reference/)?([^/]+)", rewrite,
+	              (DQMStore::SaveReferenceTag) saveReference_,
+	              saveReferenceQMin_);
 }
 
 //--------------------------------------------------------
@@ -202,7 +228,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     ievent_ (-1),
     nrun_ (0),
     nlumi_ (0),
-    nevent_ (0)
+    nevent_ (0),
+    numKeepSavedFiles_ (5)
 {
   // Determine the file saving convention, and adjust defaults accordingly.
   std::string convention = ps.getUntrackedParameter<std::string>("convention", "Offline");
@@ -308,6 +335,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
     getAnInt(ps, saveByTime_, "saveByTime");
+    getAnInt(ps, numKeepSavedFiles_, "maxSavedFilesCount");
   }
 
   if (convention_ == Online || convention_ == Offline)
@@ -346,7 +374,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     << " saving every " << saveByMinute_ << " minute(s)\n"
     << " saving every 2^n*" << saveByTime_ << " minutes \n"
     << " saving every " << saveByRun_ << " run(s)\n"
-    << " saving at job end: " << (saveAtJobEnd_ ? "yes" : "no") << "\n";
+    << " saving at job end: " << (saveAtJobEnd_ ? "yes" : "no") << "\n"
+    << " keeping at most " << numKeepSavedFiles_ << " files\n";
 }
 
 //--------------------------------------------------------
