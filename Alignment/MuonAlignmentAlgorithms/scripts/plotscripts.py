@@ -32,6 +32,15 @@ def stdev(xlist):
     n += 1.
   return sqrt(s2/n - (s/n)**2)
 
+def wmean(xlist):
+  s, w = 0., 0.
+  for x, e in xlist:
+    if e > 0.:
+      wi = 1./e**2
+      s += x*wi
+      w += wi
+  return s/w, sqrt(1./w)
+
 #############################################################
 
 tdrStyle = None
@@ -1404,6 +1413,10 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
 ######################################################################################################
 
 def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, r1text=" before", r2text=" after", which="median"):
+    tdrStyle.SetOptStat("emrou")
+    tdrStyle.SetStatW(0.40)
+    tdrStyle.SetStatFontSize(0.05)
+
     hmedianx_before = ROOT.TH1F("hmedianx_before", "", binsx, -windowx, windowx)
     hmediany_before = ROOT.TH1F("hmediany_before", "", binsy, -windowy, windowy)
     hmediandxdz_before = ROOT.TH1F("hmediandxdz_before", "", binsdxdz, -windowdxdz, windowdxdz)
@@ -1524,26 +1537,26 @@ def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilin
     hmedianx_beforecopy.Draw("same")
     hmedianx_after.Draw("axissame")
 
-    tlegend = ROOT.TLegend(0.17, 0.75, 0.45, 0.9)
+    tlegend = ROOT.TLegend(0.17, 0.75-0.05, 0.45+0.05, 0.9)
     tlegend.SetFillColor(ROOT.kWhite)
     tlegend.SetBorderSize(0)
-    tlegend.AddEntry(hmedianx_before, r1text, "f")
     tlegend.AddEntry(hmedianx_after, r2text, "f")
+    tlegend.AddEntry(hmedianx_before, r1text, "f")
     tlegend.Draw()
 
     c1.GetPad(2).cd()
-    hmediany_aftercopy.Draw()
-    hmediany_before.Draw("same")
-    hmediany_after.Draw("same")
-    hmediany_beforecopy.Draw("same")
-    hmediany_after.Draw("axissame")
-
-    c1.GetPad(3).cd()
     hmediandxdz_aftercopy.Draw()
     hmediandxdz_before.Draw("same")
     hmediandxdz_after.Draw("same")
     hmediandxdz_beforecopy.Draw("same")
     hmediandxdz_after.Draw("axissame")
+
+    c1.GetPad(3).cd()
+    hmediany_aftercopy.Draw()
+    hmediany_before.Draw("same")
+    hmediany_after.Draw("same")
+    hmediany_beforecopy.Draw("same")
+    hmediany_after.Draw("axissame")
 
     c1.GetPad(4).cd()
     hmediandydz_aftercopy.Draw()
@@ -1686,7 +1699,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
 
     if fitsine:
         f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
-        hist2d.Fit(f, "0")
+        hist2d.Fit(f, "q")
         hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
         fitsine_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
@@ -2409,9 +2422,13 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
 ##################################################################################
 
 def segdiff(tfiles, component, pair, **args):
+    tdrStyle.SetOptFit(1)
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
     tdrStyle.SetTitleFontSize(0.05)
+    tdrStyle.SetStatW(0.2)
+    tdrStyle.SetStatY(0.9)
+    tdrStyle.SetStatFontSize(0.06)
 
     if component[0:2] == "dt":
         wheel = args["wheel"]
@@ -2447,25 +2464,46 @@ def segdiff(tfiles, component, pair, **args):
     global tmpprof, tmppos, tmpneg
     tmpprof = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname).Clone()
     tmpprof.SetMarkerStyle(8)
-    # tmppos = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname).Clone()
-    # tmpneg = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname).Clone()
+    tmppos = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname).Clone()
+    tmpneg = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname).Clone()
     for tfile in tfiles[1:]:
         tmpprof.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname))
-        # tmppos.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname))
-        # tmpneg.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname))
+        tmppos.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname))
+        tmpneg.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname))
 
     for i in xrange(1, tmpprof.GetNbinsX()+1):
         if tmpprof.GetBinError(i) < 1e-5:
             tmpprof.SetBinError(i, 100.)
     tmpprof.SetAxisRange(-window, window, "Y")
 
+    f = ROOT.TF1("p1", "[0] + [1]*x", tmpprof.GetBinLowEdge(1), -tmpprof.GetBinLowEdge(1))
+    f.SetParameters((tmppos.GetMean() + tmpneg.GetMean())/2., 0.)
+
     tmpprof.SetXTitle("q/p_{T} (c/GeV)")
-    if component == "dt13_resid": tmpprof.SetYTitle("#Delta x^{local} (mm)")
-    if component == "dt13_slope": tmpprof.SetYTitle("#Delta dx/dz^{local} (mrad)")
-    if component == "dt2_resid": tmpprof.SetYTitle("#Delta y^{local} (mm)")
-    if component == "dt2_slope": tmpprof.SetYTitle("#Delta dy/dz^{local} (mrad)")
+    if component == "dt13_resid":
+        tmpprof.SetYTitle("#Deltax^{local} (mm)")
+        tmppos.SetXTitle("#Deltax^{local} (mm)")
+        tmpneg.SetXTitle("#Deltax^{local} (mm)")
+        f.SetParNames("#Deltax^{local}_{0}", "Slope")
+    if component == "dt13_slope":
+        tmpprof.SetYTitle("#Deltadx/dz^{local} (mrad)")
+        tmppos.SetXTitle("#Deltadx/dz^{local} (mrad)")
+        tmpneg.SetXTitle("#Deltadx/dz^{local} (mrad)")
+        f.SetParNames("#Deltadx/dz^{local}_{0}", "Slope")
+    if component == "dt2_resid":
+        tmpprof.SetYTitle("#Deltay^{local} (mm)")
+        tmppos.SetXTitle("#Deltay^{local} (mm)")
+        tmpneg.SetXTitle("#Deltay^{local} (mm)")
+        f.SetParNames("#Deltay^{local}_{0}", "Slope")
+    if component == "dt2_slope":
+        tmpprof.SetYTitle("#Deltady/dz^{local} (mrad)")
+        tmppos.SetXTitle("#Deltady/dz^{local} (mrad)")
+        tmpneg.SetXTitle("#Deltady/dz^{local} (mrad)")
+        f.SetParNames("#Deltady/dz^{local}_{0}", "Slope")
     tmpprof.GetXaxis().CenterTitle()
     tmpprof.GetYaxis().CenterTitle()
+    tmppos.GetXaxis().CenterTitle()
+    tmpneg.GetXaxis().CenterTitle()
     if component[0:2] == "dt":
         if int(pair) == 12: tmpprof.SetTitle("MB1 - MB2, wheel %d, sector %02d" % (int(wheel), int(sector)))
         if int(pair) == 23: tmpprof.SetTitle("MB2 - MB3, wheel %d, sector %02d" % (int(wheel), int(sector)))
@@ -2475,23 +2513,42 @@ def segdiff(tfiles, component, pair, **args):
 
     else: raise Exception
 
-    tmpprof.Fit("pol1", "q")
-    tmpprof.Draw("e1")
-    # tmppos.Draw()
-    # tmpneg.Draw()
+    tmppos.SetTitle("Positive muons")
+    tmpneg.SetTitle("Negative muons")
 
-    return phi, tmpprof.GetFunction("pol1").GetParameter(0), tmpprof.GetFunction("pol1").GetParError(0)
+    c1.Clear()
+    c1.Divide(2, 1)
+    c1.GetPad(1).cd()
+    fit1 = tmpprof.Fit("p1", "q")
+    tmpprof.Draw("e1")
+    c1.GetPad(2).cd()
+    c1.GetPad(2).Divide(1, 2)
+    c1.GetPad(2).GetPad(1).cd()
+    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", tmppos.GetMean() - tmppos.GetRMS(), tmppos.GetMean() + tmppos.GetRMS())
+    f.SetParameters(tmppos.GetEntries() * ((10. - -10.)/100.), tmppos.GetMean(), tmppos.GetRMS())
+    f.SetParNames("Constant", "Mean", "Sigma")
+    fit2 = tmppos.Fit("gausR", "qR")
+    c1.GetPad(2).GetPad(2).cd()
+    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", tmpneg.GetMean() - tmpneg.GetRMS(), tmpneg.GetMean() + tmpneg.GetRMS())
+    f.SetParameters(tmpneg.GetEntries() * ((10. - -10.)/100.), tmpneg.GetMean(), tmpneg.GetRMS())
+    f.SetParNames("Constant", "Mean", "Sigma")
+    fit3 = tmpneg.Fit("gausR", "qR")
+
+    return phi, tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0), \
+           (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., \
+           sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2., \
+           fit1, fit2, fit3
 
 def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
     tdrStyle.SetTitleFontSize(0.05)
 
-    global htemp, gtemp_12, gtemp_23, gtemp_34, tlegend
+    global htemp, gtemp_12, gtemp2_12, gtemp_23, gtemp2_23, gtemp_34, gtemp2_34, tlegend
     htemp = ROOT.TH1F("htemp", "", 1, -pi, pi)
-    gtemp_12_phi, gtemp_12_val, gtemp_12_err = [], [], []
-    gtemp_23_phi, gtemp_23_val, gtemp_23_err = [], [], []
-    gtemp_34_phi, gtemp_34_val, gtemp_34_err = [], [], []
+    gtemp_12_phi, gtemp_12_val, gtemp_12_err, gtemp_12_val2, gtemp_12_err2 = [], [], [], [], []
+    gtemp_23_phi, gtemp_23_val, gtemp_23_err, gtemp_23_val2, gtemp_23_err2 = [], [], [], [], []
+    gtemp_34_phi, gtemp_34_val, gtemp_34_err, gtemp_34_val2, gtemp_34_err2 = [], [], [], [], []
     for sector in xrange(1, 12+1):
         r1_found, r2_found, r3_found, r4_found = False, False, False, False
         for r1 in reports:
@@ -2513,54 +2570,82 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
         
         if sector not in excludesectors:
             if r1_found and r2_found and r1.status == "PASS" and r2.status == "PASS":
-                phi, val, err = segdiff(tfiles, component, 12, wheel=wheel, sector=sector)
-                gtemp_12_phi.append(phi)
-                gtemp_12_val.append(val)
-                gtemp_12_err.append(err)
+                phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 12, wheel=wheel, sector=sector)
+                if fit1 == 0 and fit2 == 0 and fit3 == 0:
+                    gtemp_12_phi.append(phi)
+                    gtemp_12_val.append(val)
+                    gtemp_12_err.append(err)
+                    gtemp_12_val2.append(val2)
+                    gtemp_12_err2.append(err2)
             if r2_found and r3_found and r2.status == "PASS" and r3.status == "PASS":
-                phi, val, err = segdiff(tfiles, component, 23, wheel=wheel, sector=sector)
-                gtemp_23_phi.append(phi)
-                gtemp_23_val.append(val)
-                gtemp_23_err.append(err)
+                phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 23, wheel=wheel, sector=sector)
+                if fit1 == 0 and fit2 == 0 and fit3 == 0:
+                    gtemp_23_phi.append(phi)
+                    gtemp_23_val.append(val)
+                    gtemp_23_err.append(err)
+                    gtemp_23_val2.append(val2)
+                    gtemp_23_err2.append(err2)
             if component[:4] == "dt13":
                 if r3_found and r4_found and r3.status == "PASS" and r4.status == "PASS":
-                    phi, val, err = segdiff(tfiles, component, 34, wheel=wheel, sector=sector)
-                    gtemp_34_phi.append(phi)
-                    gtemp_34_val.append(val)
-                    gtemp_34_err.append(err)
+                    phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 34, wheel=wheel, sector=sector)
+                    if fit1 == 0 and fit2 == 0 and fit3 == 0:
+                        gtemp_34_phi.append(phi)
+                        gtemp_34_val.append(val)
+                        gtemp_34_err.append(err)
+                        gtemp_34_val2.append(val2)
+                        gtemp_34_err2.append(err2)
 
-    gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))
-    gtemp_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err))
-    if component[:4] == "dt13":
+    if len(gtemp_12_phi) > 0:
+        gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))
+        gtemp2_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val2), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err2))
+    if len(gtemp_23_phi) > 0:
+        gtemp_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err))
+        gtemp2_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val2), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err2))
+    if len(gtemp_34_phi) > 0:
         gtemp_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val), array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err))
-    gtemp_12.SetMarkerStyle(20); gtemp_12.SetMarkerSize(1.); gtemp_12.SetMarkerColor(ROOT.kBlue);    gtemp_12.SetLineColor(ROOT.kBlue)
-    gtemp_23.SetMarkerStyle(21); gtemp_23.SetMarkerSize(1.); gtemp_23.SetMarkerColor(ROOT.kRed);     gtemp_23.SetLineColor(ROOT.kRed)
+        gtemp2_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val2), array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err2))
+
+    gtemp_12.SetMarkerStyle(20);  gtemp_12.SetMarkerSize(1.);  gtemp_12.SetMarkerColor(ROOT.kBlue);  gtemp_12.SetLineColor(ROOT.kBlue)
+    gtemp2_12.SetMarkerStyle(24); gtemp2_12.SetMarkerSize(1.); gtemp2_12.SetMarkerColor(ROOT.kBlue); gtemp2_12.SetLineColor(ROOT.kBlue)
+    gtemp_23.SetMarkerStyle(21);  gtemp_23.SetMarkerSize(1.);  gtemp_23.SetMarkerColor(ROOT.kRed);   gtemp_23.SetLineColor(ROOT.kRed)
+    gtemp2_23.SetMarkerStyle(25); gtemp2_23.SetMarkerSize(1.); gtemp2_23.SetMarkerColor(ROOT.kRed);  gtemp2_23.SetLineColor(ROOT.kRed)
     if component[:4] == "dt13":
-        gtemp_34.SetMarkerStyle(22); gtemp_34.SetMarkerSize(1.25); gtemp_34.SetMarkerColor(ROOT.kGreen+2); gtemp_34.SetLineColor(ROOT.kGreen+2)
+        gtemp_34.SetMarkerStyle(22);  gtemp_34.SetMarkerSize(1.25);  gtemp_34.SetMarkerColor(ROOT.kGreen+2);  gtemp_34.SetLineColor(ROOT.kGreen+2)
+        gtemp2_34.SetMarkerStyle(26); gtemp2_34.SetMarkerSize(1.25); gtemp2_34.SetMarkerColor(ROOT.kGreen+2); gtemp2_34.SetLineColor(ROOT.kGreen+2)
 
     if wheel == 0: htemp.SetTitle("Wheel %d" % wheel)
     else: htemp.SetTitle("Wheel %+d" % wheel)
     htemp.SetAxisRange(-window, window, "Y")
     htemp.SetXTitle("Average #phi of pair (rad)")
-    if component == "dt13_resid": htemp.SetYTitle("#Delta x^{local} (mm)")
-    if component == "dt13_slope": htemp.SetYTitle("#Delta dx/dz^{local} (mrad)")
-    if component == "dt2_resid": htemp.SetYTitle("#Delta y^{local} (mm)")
-    if component == "dt2_slope": htemp.SetYTitle("#Delta dy/dz^{local} (mrad)")
+    if component == "dt13_resid": htemp.SetYTitle("#Deltax^{local} (mm)")
+    if component == "dt13_slope": htemp.SetYTitle("#Deltadx/dz^{local} (mrad)")
+    if component == "dt2_resid": htemp.SetYTitle("#Deltay^{local} (mm)")
+    if component == "dt2_slope": htemp.SetYTitle("#Deltady/dz^{local} (mrad)")
     htemp.GetXaxis().CenterTitle()
     htemp.GetYaxis().CenterTitle()
     htemp.GetYaxis().SetTitleOffset(0.75)
 
+    c1.Clear()
     htemp.Draw()
-    gtemp_12.Draw("p")
-    gtemp_23.Draw("p")
-    if component[:4] == "dt13": gtemp_34.Draw("p")
+    if len(gtemp_12_phi) > 0:
+        gtemp_12.Draw("p")
+        gtemp2_12.Draw("p")
+    if len(gtemp_23_phi) > 0:
+        gtemp_23.Draw("p")
+        gtemp2_23.Draw("p")
+    if len(gtemp_34_phi) > 0:
+        gtemp_34.Draw("p")
+        gtemp2_34.Draw("p")
 
     tlegend = ROOT.TLegend(0.5, 0.72, 0.9, 0.92)
     tlegend.SetBorderSize(0)
     tlegend.SetFillColor(ROOT.kWhite)
-    tlegend.AddEntry(gtemp_12, "MB1 - MB2 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_12_val), stdev(gtemp_12_val)), "pl")
-    tlegend.AddEntry(gtemp_23, "MB2 - MB3 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_23_val), stdev(gtemp_23_val)), "pl")
-    if component[:4] == "dt13":
+    if len(gtemp_12_phi) > 0:
+        tlegend.AddEntry(gtemp_12, "MB1 - MB2 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_12_val), stdev(gtemp_12_val)), "pl")
+    if len(gtemp_23_phi) > 0:
+        tlegend.AddEntry(gtemp_23, "MB2 - MB3 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_23_val), stdev(gtemp_23_val)), "pl")
+    if len(gtemp_34_phi) > 0:
         tlegend.AddEntry(gtemp_34, "MB3 - MB4 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_34_val), stdev(gtemp_34_val)), "pl")
     tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
     tlegend.Draw()
+
