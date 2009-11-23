@@ -194,12 +194,16 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	    	  econn->fetchConfigDataSet(&dataset_TpgBadXT, &fe_badXt_info);
 
             	  // NB new 
-	    	  EcalTPGCrystalStatus* badXt = new EcalTPGCrystalStatus;
+
+	    	  EcalTPGCrystalStatus* badXt;
+		  badXt =  produceEcalTrgChannelStatus();
+
+
             	  typedef std::vector<FEConfigBadXTDat>::const_iterator CIfeped;
             	  EcalLogicID ecid_xt;
 	    	  FEConfigBadXTDat  rd_badXt;
             	  int icells=0;
-	
+
             	  for (CIfeped p = dataset_TpgBadXT.begin(); p != dataset_TpgBadXT.end(); p++) {
 		    rd_badXt = *p;
 		
@@ -376,3 +380,35 @@ void  popcon::EcalTPGBadXTHandler::writeFile(const char* inputFile) {
   myfile.close();
 
 }
+
+EcalTPGCrystalStatus* popcon::EcalTPGBadXTHandler::produceEcalTrgChannelStatus()
+{
+
+  EcalTPGCrystalStatus*  ical =  new EcalTPGCrystalStatus() ;
+  // barrel
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	ical->setValue( ebid, 0 );
+      }
+    }
+  }
+  // endcap
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX,iY,1)) {
+	EEDetId eedetidpos(iX,iY,1);
+	ical->setValue( eedetidpos, 0 );
+      }
+      if (EEDetId::validDetId(iX,iY,-1)) {
+	EEDetId eedetidneg(iX,iY,-1);
+	ical->setValue( eedetidneg, 0 );
+      }
+    }
+  }
+  return ical;
+}
+
