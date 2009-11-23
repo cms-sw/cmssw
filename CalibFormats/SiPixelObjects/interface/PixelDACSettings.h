@@ -23,6 +23,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 
 
 namespace pos{
@@ -76,9 +77,9 @@ namespace pos{
 
     //Generate the DAC settings
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
-	                       PixelNameTranslation* trans, bool HVon=true) const;
+	                       PixelNameTranslation* trans, PixelDetectorConfig* detconfig, bool HVon=true) const;
     void setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const;
-    void setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const;
+    void setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans, PixelDetectorConfig* detconfig) const;
 
     void writeBinary(std::string filename) const;
 
@@ -104,6 +105,8 @@ namespace pos{
   private:
 
     std::vector<PixelROCDACSettings> dacsettings_;
+
+    bool rocIsDisabled(const PixelDetectorConfig* detconfig, const PixelROCName rocname) const;
 
   };
 }

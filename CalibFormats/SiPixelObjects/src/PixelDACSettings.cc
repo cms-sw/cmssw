@@ -529,7 +529,7 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
 
 //=============================================================================================
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
-					     PixelNameTranslation* trans, bool HVon) const{
+					     PixelNameTranslation* trans, PixelDetectorConfig* detconfig, bool HVon) const{
 
   bool bufferData=true; 
 
@@ -538,6 +538,8 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
   //pixelFEC->fecDebug(1);  //FIXME someday maybe don't want to take the time
 
   for(unsigned int i=0;i<dacsettings_.size();i++){
+
+    bool disableRoc = rocIsDisabled(detconfig, dacsettings_[i].getROCName());
 
     dacsettings_[i].getDACs(dacs);
 
@@ -557,9 +559,9 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		      controlreg,
 		      bufferData);
 
-    //std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush;
-    if (!HVon)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
-    //std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl;
+    std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush; //for debugging
+    if (!HVon || disableRoc)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
+    std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl; //for debugging
     pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
     // start with no pixels on for calibration
@@ -581,7 +583,8 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 			   1,
 			   bufferData);
     }
-    if (!HVon) { //HV off
+
+    if (!HVon || disableRoc) { //HV off
       //      std::cout << "[PixelDACSettings::generateConfiguration] HV off! ROC control reg to be set to: " <<  (controlreg|0x2) <<std::endl;
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),
@@ -600,9 +603,11 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
 }
 
-void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const {
+void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans ) const {
   //the point here is to set Vcthr to 0
   //then disable the ROCs
+
+  //note -- no need to look at the detconfig here, because we're going to disable everything no matter what
 
   bool bufferData=true;
 
@@ -642,7 +647,7 @@ void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelN
   }
 }
 
-void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const {
+void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans, PixelDetectorConfig* detconfig) const {
   //the point here is to set Vcthr to the nominal values
   //then enable the ROCs
 
@@ -652,6 +657,8 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
   for(unsigned int i=0;i<dacsettings_.size();i++){ //loop over the ROCs
 
+    bool disableRoc = rocIsDisabled(detconfig, dacsettings_[i].getROCName()); //don't enable ROCs that are disabled in the detconfig
+
     dacsettings_[i].getDACs(dacs);
     int controlreg=dacsettings_[i].getControlRegister();
 
@@ -660,26 +667,28 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
     //std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]
     //	     << " ; ROC control reg to be set to: " <<  controlreg <<std::endl;
 
-    pixelFEC->progdac(theROC.mfec(),
-		      theROC.mfecchannel(),
-		      theROC.hubaddress(),
-		      theROC.portaddress(),
-		      theROC.rocid(),
-		      12, //12 == Vcthr
-		      dacs[11],
-		      bufferData);
-
-    //enable the roc (assuming controlreg was set for the roc to be enabled)
-
-     pixelFEC->progdac(theROC.mfec(),
-		      theROC.mfecchannel(),
-		      theROC.hubaddress(),
-		      theROC.portaddress(),
-		      theROC.rocid(),
-		      0xfd,
-		      controlreg,
-		      bufferData);
-
+    if (!disableRoc) {
+      pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			12, //12 == Vcthr
+			dacs[11],
+			bufferData);
+      
+      //enable the roc (assuming controlreg was set for the roc to be enabled)
+      
+      pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			0xfd,
+			controlreg,
+			bufferData);
+      
+    }
   }
 
   if (bufferData) {
@@ -688,6 +697,16 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
 }
 
+bool PixelDACSettings::rocIsDisabled(const PixelDetectorConfig* detconfig, const PixelROCName rocname) const {
+
+  const std::map<PixelROCName, PixelROCStatus> & roclist=detconfig->getROCsList();
+  const std::map<PixelROCName, PixelROCStatus>::const_iterator iroc = roclist.find(rocname);
+  assert(iroc != roclist.end());    // the roc name should always be found
+  PixelROCStatus thisROCstatus = iroc->second;
+
+  return thisROCstatus.get(PixelROCStatus::noAnalogSignal);
+
+}
 
 std::ostream& operator<<(std::ostream& s, const PixelDACSettings& dacs){
 
