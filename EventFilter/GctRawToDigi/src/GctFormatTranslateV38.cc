@@ -775,7 +775,7 @@ void GctFormatTranslateV38::blockToGctJetCandsAndCounts(const unsigned char * d,
       colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,(int)bx-(int)centralSample,p32[bx]));
       
       // Channel 1 carries Missing HT.
-      colls()->gctHtMiss()->push_back(L1GctHtMiss(p32[bx+1], (int)bx-(int)centralSample));
+      colls()->gctHtMiss()->push_back(L1GctHtMiss(p32[bx+nSamples], (int)bx-(int)centralSample));
     }
 }
 

@@ -10,7 +10,7 @@ process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(100)
 
 
 # N events
-process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 1 ) )
+process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
 
 # raw data
 process.gctRaw = cms.OutputModule( "TextToRaw",
@@ -28,7 +28,7 @@ process.dumpRaw = cms.OutputModule ( "DumpFEDRawDataProduct",
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
 process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
-process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
+process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(1)
 process.l1GctHwDigis.numberOfRctSamplesToUnpack = cms.uint32(1)
 
 # dump digis
@@ -83,7 +83,7 @@ process.l1demon.HistFile = cms.untracked.string('gctDqm.root')
 
 process.defaultPath = cms.Sequence ( process.gctRaw * process.l1GctHwDigis
 # print Raw
-                       * process.dumpRaw
+#                       * process.dumpRaw
 # print GCT digis
 #                       * process.dumpGctDigis
 # RCT DQM
