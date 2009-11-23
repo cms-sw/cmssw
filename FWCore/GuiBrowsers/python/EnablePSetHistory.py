@@ -234,9 +234,9 @@ cms.Process.dumpModifications=new_dumpModifications
 def new_dumpModificationsWithObjects(self):
     modifications = []
     for name, o in self.items_():
-        m=self.recurseDumpModifications_(name, o, False)
-        if m != "":
-            modifications += [(m,[o])]
+        for m in self.recurseDumpModifications_(name, o, False).split("\n"):
+            if m != "":
+                modifications += [(m,[o])]
     return modifications
 cms.Process.dumpModificationsWithObjects=new_dumpModificationsWithObjects
 
