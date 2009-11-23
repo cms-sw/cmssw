@@ -47,7 +47,7 @@ namespace cond {
     virtual void invalidateCache()=0;
 
     // current cached object token
-    virtual const std::string & token() const=0;
+    virtual std::string token() const=0;
 
     // load Element valid at time
     void loadFor(cond::Time_t time);
@@ -109,7 +109,7 @@ namespace cond {
       // m_data.clear();
     }
 
-    virtual const std::string & token() const {
+    virtual std::string token() const {
       return m_data.token();
     }
 
