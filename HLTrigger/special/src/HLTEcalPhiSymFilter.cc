@@ -68,9 +68,6 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // write an empty one for consistency
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
       filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
-
-  std::cout<<"ecalphisysm: input eb: "<<barrelRecHitsHandle->size()<<std::endl;
   
 
   //Select interesting EcalRecHits (barrel)
@@ -86,8 +83,6 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	phiSymEBRecHitCollection->push_back(*itb);
     }
   }
-  
-  std::cout<<"ecalphisysm: input ee: "<<endcapRecHitsHandle->size()<<std::endl;
   
   //Select interesting EcalRecHits (endcaps)
   EERecHitCollection::const_iterator ite;
