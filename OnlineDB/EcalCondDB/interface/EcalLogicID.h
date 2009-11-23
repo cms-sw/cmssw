@@ -1,4 +1,4 @@
-// $Id: EcalLogicID.h,v 1.1 2006/03/01 23:39:50 egeland Exp $
+// $Id: EcalLogicID.h,v 1.2 2007/11/19 11:12:06 fra Exp $
 
 #ifndef ECALLOGICID_HH
 #define ECALLOGICID_HH
@@ -29,10 +29,13 @@ class EcalLogicID {
   int getLogicID() const;
 
   int getID1() const;
-
   int getID2() const;
-
   int getID3() const;
+
+  inline void setID1(int x) { id1 = x; }
+  inline void setID2(int x) { id2 = x; }
+  inline void setID3(int x) { id3 = x; }
+
 
   std::string getMapsTo() const;
 
