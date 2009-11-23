@@ -206,9 +206,9 @@ PoolDBESSource::~PoolDBESSource() {
 	      <<" Actual Refresh " << stats.nActualRefresh;
     std::cout << std::endl;
     std::cout << "Proxy Statistics" << std::endl
-	      << "proxy " << BasePayloadProxy::stats.nProxy
-	      << "Make " << BasePayloadProxy::stats.nMake
-	      << "Load " << BasePayloadProxy::stats.nLoad;
+	      << "proxy " << cond::BasePayloadProxy::stats.nProxy
+	      << "Make " << cond::BasePayloadProxy::stats.nMake
+	      << "Load " << cond::BasePayloadProxy::stats.nLoad;
     std::cout << std::endl;
 
 

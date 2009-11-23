@@ -6,6 +6,7 @@ process.CondDBCommon.connect = 'sqlite_file:blob.db'
     #'oracle://devdb10/cms_xiezhen_dev'
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+    process.CondDBCommon,
     DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('mySiStripNoisesRcd'),
