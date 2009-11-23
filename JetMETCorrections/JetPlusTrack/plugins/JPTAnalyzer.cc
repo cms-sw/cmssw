@@ -134,7 +134,7 @@ JPTAnalyzer::JPTAnalyzer( const edm::ParameterSet& iConfig ) {
   // Jet+tracks energy corrections
   JetCorrectionJPT = iConfig.getParameter< std::string > ("JetCorrectionJPT");
 
-  scalar_ = iConfig.getUntrackedParameter<bool> ("ScalarCorrection",true);
+  scalar_ = iConfig.getUntrackedParameter<bool> ("UseScalarMethod",false);
   
 }
 
