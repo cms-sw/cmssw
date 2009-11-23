@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.9 2009/11/20 21:47:29 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.10 2009/11/21 02:11:34 pivarski Exp $
 //
 //
 
@@ -120,6 +120,9 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       TH2F *m_overlaps_RPhipos_mem2;
       TH2F *m_overlaps_RPhipos_mem3;
       TH2F *m_overlaps_RPhipos_mem4;
+      TH1F *m_hitsOnSegments;
+      TH1F *m_hitValid;
+      TH1F *m_hitError;
 
       std::string m_mode;
       double m_maxHitErr;
@@ -431,6 +434,10 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
      m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
      m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
      m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
+
+     m_hitsOnSegments = tfileService->make<TH1F>("hitsOnSegments", "", 16, -0.5, 15.5);
+     m_hitValid = tfileService->make<TH1F>("hitValid", "", 2, -0.5, 1.5);
+     m_hitError = tfileService->make<TH1F>("hitError", "", 100, 0., 5.);
    }
 
    for (std::map<int,TFileDirectory*>::const_iterator ringiter = m_hist_rings.begin();  ringiter != m_hist_rings.end();  ++ringiter) {
@@ -556,6 +563,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
 
 	if (last_station == 0) last_station = station;
 	if (last_station != station) {
+	  m_hitsOnSegments->Fill(current_evenhits);
+	  m_hitsOnSegments->Fill(current_oddhits);
 	  if (m_minHitsPerChamber < 0  ||  (current_evenhits >= m_minHitsPerChamber  &&  current_oddhits >= m_minHitsPerChamber)) {
 	    hits_by_station.push_back(current_station);
 	  }
@@ -564,7 +573,12 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
 	  current_oddhits = 0;
 	}
 
-	if ((*hit)->isValid()  &&  (m_maxHitErr < 0.  ||  (striperr2(&(**hit)) < m_maxHitErr*m_maxHitErr))  &&  (m_quickMap.find(chamberId.rawId()) != m_quickMap.end())) {
+	double hiterror = sqrt(striperr2(&(**hit)));
+
+	m_hitValid->Fill((*hit)->isValid());
+	m_hitError->Fill(hiterror*10.);
+
+	if ((*hit)->isValid()  &&  (m_maxHitErr < 0.  ||  (hiterror < m_maxHitErr))  &&  (m_quickMap.find(chamberId.rawId()) != m_quickMap.end())) {
 	  current_station.push_back(&(**hit));
 	  if (cscId.chamber() % 2 == 0) current_evenhits++;
 	  else current_oddhits++;
@@ -575,6 +589,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       } // end if CSC
     } // end loop over hits (collating station-by-station)
 
+    m_hitsOnSegments->Fill(current_evenhits);
+    m_hitsOnSegments->Fill(current_oddhits);
     if (m_minHitsPerChamber < 0  ||  (current_evenhits >= m_minHitsPerChamber  &&  current_oddhits >= m_minHitsPerChamber)) {
       hits_by_station.push_back(current_station);
     } // end get that last station
