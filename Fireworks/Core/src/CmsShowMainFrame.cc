@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.71 2009/11/20 17:24:21 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.72 2009/11/21 13:11:19 amraktad Exp $
 //
 // hacks
 #define private public
@@ -347,9 +347,24 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
    
    TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
-   m_filterEnableBtn = new TGCheckButton(filterFrame,"");
+
+   // filter state Off
+   m_filterIcons[0] = fClient->GetPicture("unchecked_t.xpm");
+   m_filterIcons[1] = fClient->GetPicture("unchecked_t.xpm");
+   m_filterIcons[2] = fClient->GetPicture("unchecked_dis_t.xpm");
+   
+   // filter state On
+   m_filterIcons[3] = fClient->GetPicture("checked_t.xpm");
+   m_filterIcons[4] = fClient->GetPicture("checked_t.xpm");
+   m_filterIcons[5] = fClient->GetPicture("checked_dis_t.xpm");
+   
+   // filter withdrawn
+   m_filterIcons[6] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+   m_filterIcons[7] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg-over.png");
+   m_filterIcons[8] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+   
+   m_filterEnableBtn = new FWCustomIconsButton(lframe, m_filterIcons[0], m_filterIcons[1], m_filterIcons[2]);
    m_filterEnableBtn->SetBackgroundColor(backgroundColor);
-   m_filterEnableBtn->SetTextColor(0xFFFFFF);
    m_filterEnableBtn->SetToolTipText("Enable/disable event filtering");
    lframe->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
    filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));

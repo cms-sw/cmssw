@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.30 2009/11/20 17:24:21 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.31 2009/11/21 13:11:19 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ class TGNumberEntryField;
 class TGLabel;
 class TGSlider;
 class FWIntValueListener;
+class FWCustomIconsButton;
 
 namespace fwlite {
    class Event;
@@ -89,13 +90,15 @@ public:
    }
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
-
+   
 protected:
-   TGCheckButton*       m_filterEnableBtn;
+   FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
    TGNumberEntryField*  m_runEntry;
    TGNumberEntryField*  m_eventEntry;
    FWIntValueListener*  m_delaySliderListener;
+   
+   const TGPicture*     m_filterIcons[9];
 
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
