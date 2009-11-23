@@ -6,6 +6,8 @@ copyargs = sys.argv[:]
 for i in range(len(copyargs)):
     if copyargs[i] == "":
         copyargs[i] = "\"\""
+    if copyargs[i].find(" ") != -1:
+        copyargs[i] = "\"%s\"" % copyargs[i]
 commandline = " ".join(copyargs)
 
 usage = """./%prog DIRNAME INITIALGEOM INPUTFILES [options]
