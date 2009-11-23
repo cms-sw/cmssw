@@ -47,8 +47,6 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
  // Main cuts 
   // massMin_(cfg.getUntrackedParameter<double>("MtMin", 20.)),
   //   massMax_(cfg.getUntrackedParameter<double>("MtMax", 2000.)) 
-  muIso_(cfg.getUntrackedParameter<edm::InputTag>("muonIsolations")),
-  trkIso_(cfg.getUntrackedParameter<edm::InputTag>("trkIsolations")), 
   hltPath_(cfg.getUntrackedParameter<std::string> ("hltPath")) ,
   L3FilterName_(cfg.getUntrackedParameter<std::string> ("L3FilterName")),           
   ptMuCut_(cfg.getUntrackedParameter<double>("ptMuCut")),
@@ -103,6 +101,8 @@ void EwkMuLumiMonitorDQM::init_histograms() {
 	    massNotIso_ = theDbe->book1D("Z_NOTISO_MASS",chtitle,200,0.,200.);
 	    massGlbSta_ = theDbe->book1D("Z_GLBSTA_MASS",chtitle,200,0.,200.);
 	    massGlbTrk_ = theDbe->book1D("Z_GLBTRK_MASS",chtitle,200,0.,200.);
+	    massIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_MASS",chtitle,200,0.,200.);
+	  
 
 	    snprintf(chtitle, 255, "Z high mass [GeV/c^{2}]");
             highMass2HLT_ = theDbe->book1D("Z_2HLT_HIGHMASS",chtitle,2000,0.,2000.);
@@ -110,8 +110,9 @@ void EwkMuLumiMonitorDQM::init_histograms() {
 	    highMassNotIso_ = theDbe->book1D("Z_NOTISO_HIGHMASS",chtitle,2000,0.,2000.);              
 	    highMassGlbSta_ = theDbe->book1D("Z_GLBSTA_HIGHMASS",chtitle,2000,0.,2000.);              
 	    highMassGlbTrk_ = theDbe->book1D("Z_GLBTRK_HIGHMASS",chtitle,2000,0.,2000.);              
-             
-	    snprintf(chtitle, 255, "Highest muon p_{t}[GeV/c]");
+            highMassIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS",chtitle,2000,0.,2000.);  
+ 
+	    /*	    snprintf(chtitle, 255, "Highest muon p_{t}[GeV/c]");
             highest_mupt2HLT_ = theDbe->book1D("HIGHEST_MU_PT_2HLT",chtitle,200,0.,200.);
             highest_mupt1HLT_ = theDbe->book1D("HIGHEST_MU_PT_1HLT",chtitle,200,0.,200.);
             highest_muptNotIso_ = theDbe->book1D("HIGHEST_MU_PT_NOTISO",chtitle,200,0.,200.);
@@ -124,6 +125,7 @@ void EwkMuLumiMonitorDQM::init_histograms() {
 	    lowest_muptNotIso_ = theDbe->book1D("LOWEST_MU_PT_NOTISO",chtitle,200,0.,200.);
 	    lowest_muptGlbSta_ = theDbe->book1D("LOWEST_MU_PT_GLBSTA",chtitle,200,0.,200.);
 	    lowest_muptGlbTrk_ = theDbe->book1D("LOWEST_MU_PT_GLBTRK",chtitle,200,0.,200.);
+	    */
 
 	    snprintf(chtitle, 255, "Transverse mass [GeV]" );
             TMass_ = theDbe->book1D("TMASS",chtitle,300,0.,300.);
@@ -173,7 +175,7 @@ double EwkMuLumiMonitorDQM::tkIso( const reco::Track tk,  Handle< TrackCollectio
 	}
       }
     if (isRelativeIso_) ptSum /= tk.pt();
-    return ( ptSum );
+    return ptSum;
 }
 
 
@@ -212,25 +214,20 @@ void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
 
 void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       nall++;  
-
       bool iso_sel = false;
       bool hlt_sel = false;
-
       double iso1=-1;
       double iso2=-1;
       bool isMu1Iso = false;
       bool isMu2Iso = false;
       bool singleTrigFlag1 = false;
       bool singleTrigFlag2 = false; 
-      //      bool overlap = false;
       isZGolden1HLT_=false;  
       isZGolden2HLT_=false; 
       isZGoldenNoIso_=false;
       isZGlbSta_=false;
-      isZGlbTrk_=false;
-      
+      isZGlbTrk_=false;      
       isW_=false;
-
       // Trigger
       Handle<TriggerResults> triggerResults;
       TriggerNames trigNames;
@@ -315,11 +312,11 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	  for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
 	    reco::Muon muon1 = highPtGlbMuons[i];
 	    math::XYZTLorentzVector mu1(muon1.p4());
-	    double pt1= muon1.pt();
+	    //double pt1= muon1.pt();
 	    for (unsigned int j =i+1; j <nHighPtGlbMu ; ++j ){
 	      reco::Muon muon2 = highPtGlbMuons[j];
 	      math::XYZTLorentzVector mu2(muon2.p4());
-	      double pt2= muon2.pt();
+	      //double pt2= muon2.pt();
 	      if (muon1.charge() == muon2.charge()) continue; 
 	      math::XYZTLorentzVector pair = mu1 + mu2;
 	      double mass = pair.M();
@@ -347,25 +344,29 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 		    n2hlt++; 
 		    mass2HLT_->Fill(mass);
 		    highMass2HLT_->Fill(mass);
-		    if (pt1 > pt2) {
+		    /*
+		      if (pt1 > pt2) {
 		      highest_mupt2HLT_ -> Fill (pt1);
 		      lowest_mupt2HLT_ -> Fill (pt2);
-		    } else {
+		      } else {
 		      highest_mupt2HLT_ -> Fill (pt2);
 		      lowest_mupt2HLT_ -> Fill (pt1);
-		    }  
+		      } 
+		    */  
 		  }
 		  if (isZGolden1HLT_) {
 		    n1hlt++; 
 		    mass1HLT_->Fill(mass);
 		    highMass1HLT_->Fill(mass);
-		    if (pt1 >pt2) {
+		    /*
+		      if (pt1 >pt2) {
 		      highest_mupt1HLT_ -> Fill (pt1);
 		      lowest_mupt1HLT_ -> Fill (pt2);
 		    } else {
 		      highest_mupt1HLT_ -> Fill (pt2);
 		      lowest_mupt1HLT_ -> Fill (pt1);
 		    }
+		    */
 		  } 
 		} else {
 		  // ZGlbGlb when at least one of the two muon is not isolated and at least one HLT matched, used as control sample for the isolation efficiency
@@ -373,109 +374,21 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 		  nNotIso++;
 		  massNotIso_->Fill(mass);
 		  highMassNotIso_->Fill(mass);
-		  if (pt1 > pt2) {
+		  /*
+		    if (pt1 > pt2) {
 		    highest_muptNotIso_ -> Fill (pt1);
 		    lowest_muptNotIso_ -> Fill (pt2);
-		  } else {
+		    } else {
 		    highest_muptNotIso_ -> Fill (pt2);
 		    lowest_muptNotIso_ -> Fill (pt1);
-		  }  
+		    } 
+		  */ 
               	}
 	      }
 	    }
-	    
-	    
-	  }
-
-
-	}
-	
-// if a zGlobal is not selected, look at the dimuonGlobalOneStandAlone and dimuonGlobalOneTrack...., used as a control sample for the tracking efficiency  and muon system efficiency
-	if ( !(isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_ )){
-	  for(unsigned int i =0 ; i < nHighPtGlbMu ; ++i) {
-	    reco::Muon glbMuon = highPtGlbMuons[i];
-	    math::XYZTLorentzVector mu1(glbMuon.p4());
-	    double pt1= glbMuon.pt();
-	    // checking that the global muon is hlt matched otherwise skip the event
-	    singleTrigFlag1 = IsMuMatchedToHLTMu ( glbMuon,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
-            if (!singleTrigFlag1) continue;
-	    // checking that the global muon is isolated matched otherwise skip the event
-	    iso1 = muIso ( glbMuon );
-	    isMu1Iso = (iso1 < isoCut03_);
-            if (!isMu1Iso) continue;
-	    // look at the standalone muon ....
-	    for (unsigned int j =0; j <nHighPtStaMu ; ++j ){
-	      reco::Muon staMuon = highPtStaMuons[j];
-	      math::XYZTLorentzVector mu2(staMuon.p4());
-	      double pt2= staMuon.pt();
-	      if (glbMuon.charge() == staMuon.charge()) continue; 
-	      math::XYZTLorentzVector pair = mu1 + mu2;
-	      double mass = pair.M();
-	      iso2 = muIso ( staMuon);
-	      isMu2Iso = (iso2 < isoCut03_);
-	      LogTrace("") << "\t... isolation value" << iso1 <<", isolated? " << isMu1Iso ;
-	      LogTrace("") << "\t... isolation value" << iso2 <<", isolated? " << isMu2Iso ;
-	      // requiring theat the global mu is mathed to the HLT  and both are isolated 
-	      if (isMu2Iso ) {    
-		isZGlbSta_=true;
-		nGlbSta++; 
-		massGlbSta_->Fill(mass);
-		highMassGlbSta_->Fill(mass);
-		if (pt1 > pt2) {
-		  highest_muptGlbSta_ -> Fill (pt1);
-		  lowest_muptGlbSta_ -> Fill (pt2);
-		} else {
-		  highest_muptGlbSta_ -> Fill (pt2);
-		  lowest_muptGlbSta_ -> Fill (pt1);
-		}
-	      }
-	    }
-	    // look at the tracks....
-	    Handle< TrackCollection >   tracks;     
-	    if (!ev.getByLabel(trackTag_, tracks)) {           
-	      LogError("") << ">>> track collection does not exist !!!";     
-	      return;     
-	    }
-	    
-	    ev.getByLabel(trackTag_, tracks);        
-	    
-	    Handle< CaloTowerCollection >   calotower;     
-	    if (!ev.getByLabel(caloTowerTag_, calotower)) {           
-	      LogError("") << ">>> calotower collection does not exist !!!";     
-	      return;     
-	    } 
-	    ev.getByLabel(caloTowerTag_, calotower);
-
-           for (unsigned int j=0; j<tracks->size(); j++ ){	
-	      const reco::Track & tk = tracks->at(j);
-	      if (glbMuon.charge() == tk.charge()) continue; 
-	      double pt2 = tk.pt();
-	      double eta = tk.eta();
-	      if (pt2< ptMuCut_ || fabs(eta) > etaMuCut_) continue;
-	      //assuming that the track is a mu....
-	      math::XYZTLorentzVector mu2(tk.px(),tk.py(), tk.pz(), sqrt( (tk.p() * tk.p())  + ( 0.10566 * 0.10566))) ;
-	      math::XYZTLorentzVector pair = mu1 + mu2;
-	      double mass = pair.M();
-	      // now requiring that the tracks is isolated....... 
-	      iso2 = tkIso( tk, tracks, calotower);
-	      isMu2Iso = (iso2 < isoCut03_);
-	      if (isMu2Iso ) {    
-		isZGlbTrk_=true;
-		nGlbTrk++; 
-		massGlbTrk_->Fill(mass);
-		highMassGlbTrk_->Fill(mass);
-		if (pt1 > pt2) {
-		  highest_muptGlbTrk_ -> Fill (pt1);
-		  lowest_muptGlbTrk_ -> Fill (pt2);
-		} else {
-		  highest_muptGlbTrk_ -> Fill (pt2);
-		  lowest_muptGlbTrk_ -> Fill (pt1);
-		}
-	      }
-            }
 	  }
 	}
-	// W->MuNu selection (if at least one muon has been selected)
+// W->MuNu selection (if at least one muon has been selected)
 	// looking for a W if a Z is not found.... let's think if we prefer to exclude zMuMuNotIso or zMuSta....
 	if ( !(isZGolden2HLT_ || isZGolden1HLT_ )){
 	  Handle<View<MET> > metCollection;     
@@ -484,12 +397,11 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	    return;     
 	  }     
 	  const MET& met = metCollection->at(0);   
-
 	  nW=0;
 	  for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
 	    reco::Muon muon1 = highPtGlbMuons[i];
 	    /*	    
-	      quality cut not implemented
+		   quality cut not implemented
 		Quality Cuts           double dxy = gm->dxy(beamSpotHandle->position()); 
 		Cut in 0.2           double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
 		Cut in 11           bool quality = fabs(dxy)<dxyCut_  && muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) && trackerHits>=trackerHitsCut_ && mu.isTrackerMuon() ;  
@@ -514,40 +426,124 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 		met_py -= muon1.py();
 	      }
 	    }
-           
 	    double met_et = met.pt() ; //sqrt(met_px*met_px+met_py*met_py);
 	    LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
-  
 	    double w_et = met_et+ muon1.pt();           
 	    double w_px = met_px+ muon1.px();           
 	    double w_py = met_py+muon1.py();           
 	    double massT = w_et*w_et - w_px*w_px - w_py*w_py;           
 	    massT = (massT>0) ? sqrt(massT) : 0;
-	    if (massT<mtMin_ || massT>mtMax_) continue;    // Cut in (50,200) GeV           
 	    // Acoplanarity cuts           
 	    Geom::Phi<double> deltaphi(muon1.phi()-atan2(met_py,met_px));           
 	    double acop = M_PI - fabs(deltaphi.value());  
 	    //std::cout << " is acp of W candidate less then cut: " << (acop< acopCut_) << std::endl; 
 	    if (acop > acopCut_) continue ; // Cut in 2.0    
 	    TMass_->Fill(massT);
-            isW_=true;
+            if (massT<mtMin_ || massT>mtMax_) continue;    // Cut in (50,200) GeV           
+	    // we give the number of W only in the tMass selected but we have a look at mass tails to check the QCD background 
+	    isW_=true;
             nW++;
             nTMass++;     
 	  }
-	 }
+	}
+// if a zGlobal is not selected, look at the dimuonGlobalOneStandAlone and dimuonGlobalOneTrack...., used as a control sample for the tracking efficiency  and muon system efficiency
+	if ( !(isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_ )){
+	  for(unsigned int i =0 ; i < nHighPtGlbMu ; ++i) {
+	    reco::Muon glbMuon = highPtGlbMuons[i];
+	    math::XYZTLorentzVector mu1(glbMuon.p4());
+	    //double pt1= glbMuon.pt();
+	    // checking that the global muon is hlt matched otherwise skip the event
+	    singleTrigFlag1 = IsMuMatchedToHLTMu ( glbMuon,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
+            if (!singleTrigFlag1) continue;
+	    // checking that the global muon is isolated matched otherwise skip the event
+	    iso1 = muIso ( glbMuon );
+	    isMu1Iso = (iso1 < isoCut03_);
+            if (!isMu1Iso) continue;
+	    // look at the standalone muon ....
+	    for (unsigned int j =0; j <nHighPtStaMu ; ++j ){
+	      reco::Muon staMuon = highPtStaMuons[j];
+	      math::XYZTLorentzVector mu2(staMuon.p4());
+	      //double pt2= staMuon.pt();
+	      if (glbMuon.charge() == staMuon.charge()) continue; 
+	      math::XYZTLorentzVector pair = mu1 + mu2;
+	      double mass = pair.M();
+	      iso2 = muIso ( staMuon);
+	      isMu2Iso = (iso2 < isoCut03_);
+	      LogTrace("") << "\t... isolation value" << iso1 <<", isolated? " << isMu1Iso ;
+	      LogTrace("") << "\t... isolation value" << iso2 <<", isolated? " << isMu2Iso ;
+	      // requiring theat the global mu is mathed to the HLT  and both are isolated 
+	      if (isMu2Iso ) {    
+		isZGlbSta_=true;
+		nGlbSta++; 
+		massGlbSta_->Fill(mass);
+		highMassGlbSta_->Fill(mass);
+		/*
+		  if (pt1 > pt2) {
+		  highest_muptGlbSta_ -> Fill (pt1);
+		  lowest_muptGlbSta_ -> Fill (pt2);
+		} else {
+		  highest_muptGlbSta_ -> Fill (pt2);
+		  lowest_muptGlbSta_ -> Fill (pt1);
+		}
+		*/
+	      }
+	    }
+	    // look at the tracks....
+	    Handle< TrackCollection >   tracks;     
+	    if (!ev.getByLabel(trackTag_, tracks)) {           
+	      LogError("") << ">>> track collection does not exist !!!";     
+	      return;     
+	    }
+	    ev.getByLabel(trackTag_, tracks);        
+	    Handle< CaloTowerCollection >   calotower;     
+	    if (!ev.getByLabel(caloTowerTag_, calotower)) {           
+	      LogError("") << ">>> calotower collection does not exist !!!";     
+	      return;     
+	    } 
+	    ev.getByLabel(caloTowerTag_, calotower);
+	    for (unsigned int j=0; j<tracks->size(); j++ ){	
+	      const reco::Track & tk = tracks->at(j);
+	      if (glbMuon.charge() == tk.charge()) continue; 
+	      double pt2 = tk.pt();
+	      double eta = tk.eta();
+	      if (pt2< ptMuCut_ || fabs(eta) > etaMuCut_) continue;
+	      //assuming that the track is a mu....
+	      math::XYZTLorentzVector mu2(tk.px(),tk.py(), tk.pz(), sqrt( (tk.p() * tk.p())  + ( 0.10566 * 0.10566))) ;
+	      math::XYZTLorentzVector pair = mu1 + mu2;
+	      double mass = pair.M();
+	      // now requiring that the tracks is isolated....... 
+	      iso2 = tkIso( tk, tracks, calotower);
+	      isMu2Iso = (iso2 < isoCut03_);
+	      //	      std::cout << "found a track with rel/comb iso: " << iso2 << std::endl; 
+	      if (isMu2Iso) {    
+		isZGlbTrk_=true;
+		nGlbTrk++; 
+		massGlbTrk_->Fill(mass);
+		highMassGlbTrk_->Fill(mass);
+                if (!isW_) continue;
+		massIsBothGlbTrkThanW_->Fill(mass);
+		highMassIsBothGlbTrkThanW_->Fill(mass);
+		/*
+		  if (pt1 > pt2) {
+		  highest_muptGlbTrk_ -> Fill (pt1);
+		  lowest_muptGlbTrk_ -> Fill (pt2);
+		  } else {
+		  highest_muptGlbTrk_ -> Fill (pt2);
+		  lowest_muptGlbTrk_ -> Fill (pt1);
+		} 
+		*/
+	      }
+            }
+	  }
+	}
       }
-
-     
       if ( (hlt_sel || isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_ || isZGlbSta_ || isZGlbTrk_ || isW_) ) {   
 	nsel++;  
 	LogTrace("") << ">>>> Event ACCEPTED";
       } else {
 	LogTrace("") << ">>>> Event REJECTED";
       }
-      
       return;
-      
-      
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 

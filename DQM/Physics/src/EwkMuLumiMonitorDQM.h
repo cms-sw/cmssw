@@ -49,9 +49,6 @@ private:
   edm::InputTag caloTowerTag_;
   edm::InputTag metTag_;
   bool  metIncludesMuons_;
-  edm::InputTag muIso_;
-  edm::InputTag trkIso_;
- 
 
   const std::string hltPath_;  
   const std::string L3FilterName_;    
@@ -81,30 +78,33 @@ private:
   
   MonitorElement* mass2HLT_;
   MonitorElement* highMass2HLT_;
-  MonitorElement* highest_mupt2HLT_;
-  MonitorElement* lowest_mupt2HLT_;
+  // MonitorElement* highest_mupt2HLT_;
+  //MonitorElement* lowest_mupt2HLT_;
 
   MonitorElement* mass1HLT_;
   MonitorElement* highMass1HLT_;
-  MonitorElement* highest_mupt1HLT_;
-  MonitorElement* lowest_mupt1HLT_;
+  //  MonitorElement* highest_mupt1HLT_;
+  //MonitorElement* lowest_mupt1HLT_;
 
   MonitorElement* massNotIso_;
   MonitorElement* highMassNotIso_;
-  MonitorElement* highest_muptNotIso_;
-  MonitorElement* lowest_muptNotIso_;
+  //MonitorElement* highest_muptNotIso_;
+  // MonitorElement* lowest_muptNotIso_;
 
   MonitorElement* massGlbSta_;
   MonitorElement* highMassGlbSta_;
-  MonitorElement* highest_muptGlbSta_;
-  MonitorElement* lowest_muptGlbSta_;
+  // MonitorElement* highest_muptGlbSta_;
+  //MonitorElement* lowest_muptGlbSta_;
 
   MonitorElement* massGlbTrk_;
   MonitorElement* highMassGlbTrk_;
-  MonitorElement* highest_muptGlbTrk_;
-  MonitorElement* lowest_muptGlbTrk_;
+  //  MonitorElement* highest_muptGlbTrk_;
+  //MonitorElement* lowest_muptGlbTrk_;
 
   MonitorElement* TMass_;
+
+  MonitorElement* massIsBothGlbTrkThanW_;
+  MonitorElement* highMassIsBothGlbTrkThanW_;
   
 
   unsigned int nall;
