@@ -14,6 +14,9 @@ class ZoomableScrollArea(Zoomable, QScrollArea):
 		QScrollArea.__init__(self, parent)
 		Zoomable.__init__(self)               # Call after QScrollArea constructor, required by setZoom()
 		
+		self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarValueChanged)
+		self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarValueChanged)
+		
 	def wheelEvent(self, event):
 		""" If wheelEvent occurs either zoom window (ctrl-key pressed) or scroll the area.
 		"""
@@ -67,3 +70,11 @@ class ZoomableScrollArea(Zoomable, QScrollArea):
  		""" Forward mousePressEvent.
  		"""
 	 	self.widget().mousePressEvent(event)
+	 	
+	def scrollBarValueChanged(self, value):
+		""" Forward valueChanged(int) signal from scroll bars to viewport widget.
+		
+		If the widget (see QScrollArea.widget()) has a function called "scrollBarValueChanged", it will be called.
+		"""
+		if hasattr(self.widget(), "scrollBarValueChanged"):
+			self.widget().scrollBarValueChanged(value)

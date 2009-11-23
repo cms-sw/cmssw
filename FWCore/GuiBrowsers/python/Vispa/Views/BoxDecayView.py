@@ -1,7 +1,7 @@
 import logging
 
 from PyQt4.QtCore import QCoreApplication,SIGNAL,Qt
-from PyQt4.QtGui import QPalette
+from PyQt4.QtGui import QPalette,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Gui.ConnectableWidget import ConnectableWidget
@@ -25,6 +25,7 @@ class BoxDecayView(WidgetView):
     LABEL = "&Box Decay View"
     UPDATE_EVERY = 20
     NO_SORTING_ABOVE = 10000
+    WARNING_ABOVE = 300
     
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
@@ -33,9 +34,7 @@ class BoxDecayView(WidgetView):
         self._operationId = 0
         self._boxContentScript = ""
         self._sortBeforeArranging = True
-        self._subView = None
         self._arrangeUsingRelationsFlag=True
-        self._subViews = []
         self._leftMargin = ConnectableWidget.LEFT_MARGIN
         self._topMargin = ConnectableWidget.TOP_MARGIN
         self._updateCounter=0
@@ -43,14 +42,15 @@ class BoxDecayView(WidgetView):
         self.setPalette(QPalette(Qt.black, Qt.white))
 
     def setArrangeUsingRelations(self, set):
+        if set:
+            self.WARNING_ABOVE=300
+        else:
+            self.WARNING_ABOVE=1000
         self._arrangeUsingRelationsFlag=set
     
     def arrangeUsingRelations(self):
         return self._arrangeUsingRelationsFlag
 
-    def setSubView(self, view):
-        self._subView = view
-    
     def setSortBeforeArranging(self, set):
         self._sortBeforeArranging = set
     
@@ -78,15 +78,21 @@ class BoxDecayView(WidgetView):
         """ Stop all running operations.
         """
         self._operationId += 1
-        
-    def clear(self):
-        """ Deletes all boxes in the BoxDecayView
-        """
-        #logging.debug(__name__ + ": clear")
-        WidgetView.clear(self)
-        self._subViews = []
 
-    def updateContent(self):
+    def checkNumberOfObjects(self):
+        numObjects=self.numberDataObjectChildren()
+        if self.WARNING_ABOVE>0 and numObjects>self.WARNING_ABOVE:
+            result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. ",
+                                                                       "Would you like to continue?",
+                                                                       QMessageBox.Yes | QMessageBox.YesToAll | QMessageBox.No,
+                                                                       QMessageBox.Yes)
+            if result == QMessageBox.No:
+                return False
+            if result == QMessageBox.YesToAll:
+                self.WARNING_ABOVE=-self.WARNING_ABOVE
+        return True
+        
+    def updateContent(self, overrideCheck=False):
         """ Clear the BoxDecayView and refill it.
         """
         logging.debug(__name__ + ": updateContent")
@@ -99,6 +105,10 @@ class BoxDecayView(WidgetView):
             self._updatingFlag-=1
             return True
         operationId = self._operationId
+        if not overrideCheck:
+            if not self.checkNumberOfObjects():
+                self._updatingFlag-=1
+                return False
         objects = self.applyFilter(self.dataObjects())
         if self._sortBeforeArranging and self.arrangeUsingRelations():
             thread = ThreadChain(self._sortByRelations, objects)
@@ -205,37 +215,17 @@ class BoxDecayView(WidgetView):
         All children of this object are created recursively.
         """
         #logging.debug(__name__ + ": createBoxesRecursive")
-        # Abort drawing if operationId out of date
-        if operationId != self._operationId:
-            return None
-
-        decayTreeChildren = []
-        otherChildren = []
-        for daughter in objects:
-            if not self.dataAccessor().isContainer(daughter) and isinstance(self.dataAccessor(), ParticleDataAccessor) and self.dataAccessor().particleId(daughter) != None:
-                decayTreeChildren += [daughter]
-            else:
-                otherChildren += [daughter]
-        if self._subView != None and len(decayTreeChildren) > 0:
-            subView = self._subView(widgetParent)
-            subView.setDataAccessor(self.dataAccessor())
-            subView.setDataObjects(decayTreeChildren)
-            subView.updateContent()
-            self._subViews += [subView]
-            self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
-        else:
-            otherChildren += decayTreeChildren
         if self._sortBeforeArranging and self.arrangeUsingRelations():
-            thread = ThreadChain(self._sortByRelations, otherChildren)
+            thread = ThreadChain(self._sortByRelations, objects)
             while thread.isRunning():
                 if not Application.NO_PROCESS_EVENTS:
                     QCoreApplication.instance().processEvents()
-            if operationId != self._operationId:
-                return None
-            otherChildren=thread.returnValue()
+            objects=thread.returnValue()
 
         i = 1
-        for object in otherChildren:
+        for object in objects:
+            if operationId != self._operationId:
+                return None
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
             if self._updateCounter>=self.UPDATE_EVERY:
@@ -256,8 +246,6 @@ class BoxDecayView(WidgetView):
             self.addWidget(widget, object, child_positionName)
             i += 1
             
-        if operationId != self._operationId:
-            return None
         # create Connections
         if not self.createConnections(operationId, widgetParent):
             return None
@@ -273,9 +261,6 @@ class BoxDecayView(WidgetView):
             if isinstance(widget, VispaWidget):
                 widget.noRearangeContent(False)
 
-            if operationId != self._operationId:
-                return None
-        
         for widget in widgetParent.children():
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
@@ -283,8 +268,6 @@ class BoxDecayView(WidgetView):
             # draw box
             if isinstance(widget, VispaWidget):
                 widget.show()
-        if operationId != self._operationId:
-            return None
         self.autosizeScrollArea()
         
         return True
@@ -324,48 +307,6 @@ class BoxDecayView(WidgetView):
         self.clear()
         WidgetView.closeEvent(self, event)
 
-    def onSubViewSelected(self, object):
-        """ When item is selected in SubView forward signal.
-        """
-        logging.debug(self.__class__.__name__ + ": onSubViewSelected")
-        self.emit(SIGNAL("selected"), object)
-        for sv in self._subViews:
-            if object in sv.dataObjects():
-                self._selection = "subview-" + str(self._subViews.index(sv)) + "-" + str(sv.dataObjects().index(object))
-
-    def select(self, object, offset=5):
-        """ Mark an object as selected. Also in subviews.
-        """
-        logging.debug(self.__class__.__name__ + ": select")
-        WidgetView.select(self, object, offset)
-        for sv in self._subViews:
-            if object in sv.dataObjects():
-                sv.select(object, offset)
-    
-    def selection(self):
-        """ Return the selected object. Also in subviews.
-        """
-        selection = WidgetView.selection(self)
-        for sv in self._subViews:
-            if sv.selection() != None:
-                selection = sv.selection()
-        return selection
-
-    def restoreSelection(self):
-        """ Restore selection. Also in subviews.
-        """
-        logging.debug(self.__class__.__name__ + ": restoreSelection")
-        WidgetView.restoreSelection(self)
-        if self._selection != None and self._selection.startswith("subview"):
-            split = self._selection.split("-")
-            if len(self._subViews) > int(split[1]):
-                sv = self._subViews[int(split[1])]
-                if len(sv.dataObjects()) > int(split[2]):
-                    sv.select(sv.dataObjects()[int(split[2])])
-        for sv in self._subViews:
-            if object in sv.dataObjects():
-                sv.select(object)
-                
     def contentStartX(self):
         return 10 * self.zoomFactor()
     

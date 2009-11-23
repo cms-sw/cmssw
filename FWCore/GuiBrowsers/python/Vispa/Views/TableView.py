@@ -16,7 +16,7 @@ class TableView(AbstractView, QTableWidget):
     LABEL = "&Table View"
     UPDATE_EVERY = 20
     
-    def __init__(self, parent=None, maxDepth=100):
+    def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
         AbstractView.__init__(self)
         QTableWidget.__init__(self, parent)
@@ -24,7 +24,6 @@ class TableView(AbstractView, QTableWidget):
         self._operationId = 0
         self._selection = None
         self._updatingFlag = 0
-        self._maxDepth=maxDepth
         self._columns=[]
         self._sortingFlag=False
         self._filteredColumns=[]
@@ -88,11 +87,9 @@ class TableView(AbstractView, QTableWidget):
             self._updatingFlag-=1
             return True
         operationId = self._operationId
-        objects=[]
-        for object in self.applyFilter(self.dataObjects()):
-            objects+=self._getObjects(object)
+        objects=self.allDataObjectChildren()
         properties={}
-        for object,depth in objects:
+        for object in objects:
             thread = ThreadChain(self.dataAccessor().properties, object)
             while thread.isRunning():
                 if not Application.NO_PROCESS_EVENTS:
@@ -106,7 +103,7 @@ class TableView(AbstractView, QTableWidget):
         else:
             self._columns=[]
             ranking={}
-            for object,depth in objects:
+            for object in objects:
                 for property in properties[object]:
                     if not property[1] in ranking.keys():
                         ranking[property[1]]=1
@@ -121,7 +118,7 @@ class TableView(AbstractView, QTableWidget):
             self._columns.sort(lambda x,y: cmp(-ranking[x],-ranking[y]))
         self.setColumnCount(len(self._columns))
         self.setHorizontalHeaderLabels(self._columns)
-        for object,depth in objects:
+        for object in objects:
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
             if self._updateCounter>=self.UPDATE_EVERY:
@@ -131,21 +128,14 @@ class TableView(AbstractView, QTableWidget):
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break
-            self._createItem(object,properties[object],depth)
+            self._createItem(object,properties[object])
         for i in range(len(self._columns)):
             self.resizeColumnToContents(i)
         self.setSortingEnabled(self._sortingFlag)
         self._updatingFlag-=1
         return self._operationId==operationId
 
-    def _getObjects(self, object, depth=0):
-        objects=[(object,depth)]
-        if depth < self._maxDepth:
-            for daughter in self.applyFilter(self.dataAccessor().children(object)):
-                objects+=self._getObjects(daughter,depth+1)
-        return objects
-        
-    def _createItem(self, object, properties, depth=0):
+    def _createItem(self, object, properties):
         """ Create item for an object.
         """
         row=self.rowCount()

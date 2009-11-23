@@ -29,6 +29,9 @@ for toolsFile in toolsFiles:
         tool=getattr(module,name)
         if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not tool._label in toolsDict.keys() and not tool==ConfigToolBase:
             toolsDict[tool._label]=tool
+# Show test tool
+#rom FWCore.GuiBrowsers.editorTools import ChangeSource
+#oolsDict["ChangeSource"]=ChangeSource
 
 cmsswDir="$CMSSW_BASE"
 cmsswReleaseDir="$CMSSW_RELEASE_BASE"
@@ -151,15 +154,18 @@ class ToolDataAccessor(BasicDataAccessor):
             # for UserCodeTool
             process=self.configDataAccessor().process()
             try:
+                process.disableRecording()
                 exec value
-            except Exception:
+                process.enableRecording()
+                process.resetModified()
+                process.resetModifiedObjects()
+            except Exception,e:
                 error="Error in python code (see logfile for details):\n"+str(e)
-                QCoreApplication.instance().errorMessage(error)
-                logging.debug(__name__ + ": setProperty: Error in python code: "+exception_traceback())
-                self._parameterErrors[str(id(object))+"."++name]=error
-                return False
-        if isinstance(value,str):
-            # e.g. for cms.InputTag
+                logging.warning(__name__ + ": setProperty: Error in python code: "+exception_traceback())
+                self._parameterErrors[str(id(object))+"."+name]=error
+                return error
+        elif isinstance(value,str):
+            # for e.g. cms.InputTag
             try:
                 exec "value="+value
             except:
@@ -169,19 +175,17 @@ class ToolDataAccessor(BasicDataAccessor):
                 object.setParameter(name,value)
             except Exception, e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
-                QCoreApplication.instance().errorMessage(error)
-                logging.debug(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
+                logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
-                return False
+                return error
         elif name=="comment":
             try:
                 object.setComment(value)
             except Exception, e:
                 error="Cannot set comment (see logfile for details):\n"+str(e)
-                QCoreApplication.instance().errorMessage(error)
-                logging.debug(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
+                logging.warning(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
-                return False  
+                return error  
         if str(id(object))+"."+name in self._parameterErrors.keys():
             del self._parameterErrors[str(id(object))+"."+name]
         return True

@@ -295,10 +295,14 @@ class PropertyView(QTableWidget, AbstractView):
         if self.dataAccessor() and not self._ignoreValueChangeFlag:
             bad=False
             if property.value() != self.dataAccessor().propertyValue(self.dataObject(), property.name()):
-                if property.value()!=None and self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value()):
-                    self.emit(SIGNAL('valueChanged'),property.name())
-                else:
-                    bad=True
+                if property.value()!=None:
+                    result=self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value())
+                    if result==True:
+                        self.emit(SIGNAL('valueChanged'),property.name())
+                    else:
+                        property.setToolTip(result)
+                        QCoreApplication.instance().errorMessage(result)
+                        bad=True
             property.setHighlighted(bad)
 
     def removeProperty(self, bool=False):
@@ -321,7 +325,7 @@ class PropertyView(QTableWidget, AbstractView):
         The DataAcessor is called to add the property.
         """
         type=str(self.sender()._typelist.currentText())
-        name=str(self.sender()._lineedit.text())
+        name=str(self.sender()._lineedit.text().toAscii())
         if type in ["String","File"]:
             value=""
         elif type in ["Integer","Double"]:
@@ -557,16 +561,19 @@ class TextEditWithButtonProperty(Property, QWidget):
             self.disconnect(self._lineEdit, SIGNAL('editingFinished()'), self.valueChanged)
             self.disconnect(self._textEdit, SIGNAL('editingFinished()'), self.valueChanged)
         self._lineEdit.setText(strValue)
-        self._lineEdit.setToolTip(strValue)
         self._textEdit.setText(strValue)
-        self._textEdit.setToolTip(strValue)
+        self.setToolTip(strValue)
         if not self._readOnly:
             self.connect(self._lineEdit, SIGNAL('editingFinished()'), self.valueChanged)
             self.connect(self._textEdit, SIGNAL('editingFinished()'), self.valueChanged)
         # TODO: sometimes when changing value the text edit appears to be empty when new text is shorter than old text
         #if not self._multiline:
         #    self._textEdit.setCursorPosition(self._textEdit.displayText().length())
-                
+    
+    def setToolTip(self,text):
+        self._lineEdit.setToolTip(text)
+        self._textEdit.setToolTip(text)
+
     def setMultiline(self,multi):
         """ Switch between single and multi line mode.
         """
@@ -672,9 +679,9 @@ class TextEditWithButtonProperty(Property, QWidget):
         """ Returns value of text edit.
         """
         if not self._multiline:
-            return str(self._lineEdit.text())
+            return str(self._lineEdit.text().toAscii())
         else:
-            return str(self._textEdit.toPlainText())
+            return str(self._textEdit.toPlainText().toAscii())
         return ""
     
     def value(self):
@@ -711,8 +718,7 @@ class TextEditWithButtonProperty(Property, QWidget):
         """
         if self._multiline:
             self.emit(SIGNAL('updatePropertyHeight'),self)
-        self._lineEdit.setToolTip(self.strValue())
-        self._textEdit.setToolTip(self.strValue())
+        self.setToolTip(self.strValue())
         Property.valueChanged(self)
         
     def setHighlighted(self,highlight):
@@ -755,7 +761,7 @@ class EditDialog(QDialog):
         self.edit.setFocus()
         self.edit.moveCursor(QTextCursor.End)
     def getText(self):
-        return self.edit.toPlainText()
+        return self.edit.toPlainText().toAscii()
           
 
 class StringProperty(TextEditWithButtonProperty):

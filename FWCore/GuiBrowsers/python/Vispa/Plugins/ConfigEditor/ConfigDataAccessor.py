@@ -154,8 +154,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             del imported_configs[i]
         
 # make dictionary that connects every cms-object with the file in which it is defined
-        for entry in dir(self.process()):
-            file_dict[entry] = self._filename
         for j in imported_configs.itervalues():
           setj = set(dir(j))
           for entry in setj:
@@ -319,6 +317,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if text == "" or text.find("FWCore/ParameterSet") >= 0 or text.find("/build/") >= 0:
             if self.label(object) in file_dict:
                 text = file_dict[self.label(object)]
+            else:
+                text = self._filename
         root = os.path.splitext(text)[0]
         if root != "":
             text = root + ".py"
@@ -523,10 +523,16 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def setProperty(self, object, name, value):
         """ Sets a property with given name to value.
         """
-        try:
-            exec "object." + name + "=" + value
-        except Exception:
-            return False
+        if hasattr(object, "_seq") and name=="sequence":
+            return "Modification of sequences not supported yet."
+        else: 
+            process=self.process()
+            try:
+                exec "object." + name + "=" + value
+            except Exception,e:
+                error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
+                logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
+                return error
         return True
 
     def inputEventContent(self):

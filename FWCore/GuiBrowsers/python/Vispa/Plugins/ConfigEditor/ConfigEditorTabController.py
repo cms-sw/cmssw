@@ -20,7 +20,7 @@ except Exception,e:
     import_dotexport_error=(str(e),exception_traceback())
 
 try:
-    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
+    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir, toolsDict
     from ToolDialog import ToolDialog
     import_tools_error=None
 except Exception,e:
@@ -93,21 +93,24 @@ class ConfigEditorTabController(BrowserTabController):
         select=self.tab().treeView().selection()
         if select != None:
             if self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
-                if self.dataAccessor().isContainer(select):
-                    self._thread = ThreadChain(self.dataAccessor().readConnections, [select]+self.dataAccessor().allChildren(select))
-                else:
-                    self._thread = ThreadChain(self.dataAccessor().readConnections, [select], True)
-                while self._thread.isRunning():
-                    if not Application.NO_PROCESS_EVENTS:
-                        QCoreApplication.instance().processEvents()
-                self.tab().centerView().setDataObjects(self.dataAccessor().nonSequenceChildren(select))
-                self.tab().centerView().setConnections(self._thread.returnValue())
                 self.tab().centerView().setArrangeUsingRelations(True)
+                if self.tab().centerView().checkNumberOfObjects():
+                    if self.dataAccessor().isContainer(select):
+                        self._thread = ThreadChain(self.dataAccessor().readConnections, [select]+self.dataAccessor().allChildren(select))
+                    else:
+                        self._thread = ThreadChain(self.dataAccessor().readConnections, [select], True)
+                    while self._thread.isRunning():
+                        if not Application.NO_PROCESS_EVENTS:
+                            QCoreApplication.instance().processEvents()
+                    self.tab().centerView().setConnections(self._thread.returnValue())
+                    self.tab().centerView().setDataObjects(self.dataAccessor().nonSequenceChildren(select))
+                else:
+                    self.tab().centerView().setDataObjects([])
             else:
+                self.tab().centerView().setArrangeUsingRelations(False)
                 self.tab().centerView().setDataObjects([select])
                 self.tab().centerView().setConnections({})
-                self.tab().centerView().setArrangeUsingRelations(False)
-        if self.tab().centerView().updateContent():
+        if self.tab().centerView().updateContent(True):
             if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
                     self.tab().centerView().select(select,500)
             else:
@@ -334,7 +337,7 @@ class ConfigEditorTabController(BrowserTabController):
         self.connect(self.tab().editorTableView(), SIGNAL('applyButtonClicked'), self.applyButtonClicked)
         self.connect(self.tab().editorTableView(), SIGNAL('removeButtonClicked'), self.removeButtonClicked)
         self.connect(self.tab().editorTableView(), SIGNAL('selected'), self.codeSelected)
-        self.connect(self.tab().propertyView(), SIGNAL('valueChanged'), self._updateCode)
+        self.connect(self.tab().propertyView(), SIGNAL('valueChanged'), self.valueChanged)
         self._updateCode()
 
     def toolDataAccessor(self):
@@ -362,13 +365,13 @@ class ConfigEditorTabController(BrowserTabController):
         self.tab().maximizeButton().setChecked(True)
         self.tab().verticalSplitter().setSizes([0, 1, 100])
     
-    def _updateCode(self):
+    def _updateCode(self,propertyView=True):
         logging.debug(__name__ + ": _updateCode")
         self.toolDataAccessor().updateToolList()
         self.tab().editorTableView().setDataObjects(self.toolDataAccessor().topLevelObjects())
         if self.tab().editorTableView().updateContent():
             self.tab().editorTableView().restoreSelection()
-        self.updateContent()
+        self.updateContent(False,propertyView)
 
     def importConfig(self,filename):
         logging.debug(__name__ + ": importConfig")
@@ -400,21 +403,6 @@ class ConfigEditorTabController(BrowserTabController):
         self.plugin().application().stopWorking(statusMessage)
         return True
 
-    def setModified(self, modified=True, update=True):
-        logging.debug(__name__ + ": setModified")
-        BrowserTabController.setModified(self, modified)
-        if not update:
-            return True
-        if isinstance(self.tab().propertyView().dataObject(),ConfigToolBase):
-            if self._toolDataAccessor.label(self.tab().propertyView().dataObject())=="Import":
-                filename=self.toolDataAccessor().propertyValue(self.tab().propertyView().dataObject(),"filename")
-                return self.importConfig(filename)
-            else:
-                self.toolDataAccessor().updateProcess()
-                self._updateCode()
-                self.tab().editorTableView().select(self.tab().editorTableView().dataObjects()[-1])
-        return True
-
     def updateConfigHighlight(self):
         if self.tab().editorTableView().selection() in self.toolDataAccessor().toolModules().keys():
             self.tab().centerView().highlight(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()])
@@ -430,6 +418,10 @@ class ConfigEditorTabController(BrowserTabController):
 
     def applyButtonClicked(self):
         logging.debug(__name__ + ": applyButtonClicked")
+        if len(toolsDict.keys())==0:
+            logging.error(__name__ + ": Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
+            self.plugin().application().errorMessage("Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
+            return
         if not self._toolDialog:
             self._toolDialog=ToolDialog()
         self._toolDialog.setDataAccessor(self._toolDataAccessor)
@@ -437,10 +429,10 @@ class ConfigEditorTabController(BrowserTabController):
             return
         if not self.toolDataAccessor().addTool(self._toolDialog.tool()):
             return
-        self.setModified(True,False)
+        self.setModified(True)
         self._updateCode()
         self.tab().editorTableView().select(self.tab().editorTableView().dataObjects()[-2])
-        self.codeSelected(self.tab().editorTableView().dataObjects()[-1])
+        self.codeSelected(self.tab().editorTableView().dataObjects()[-2])
             
     def removeButtonClicked(self,object):
         logging.debug(__name__ + ": removeButtonClicked")
@@ -450,7 +442,7 @@ class ConfigEditorTabController(BrowserTabController):
         if not self.toolDataAccessor().removeTool(object):
             self.plugin().application().errorMessage("Could not apply tool. See log file for details.")
             return
-        self.setModified(True,False)
+        self.setModified(True)
         self._updateCode()
         self.tab().editorTableView().select(self.tab().editorTableView().dataObjects()[-1])
         self.codeSelected(self.tab().editorTableView().dataObjects()[-1])
@@ -464,7 +456,10 @@ class ConfigEditorTabController(BrowserTabController):
         BrowserTabController.refresh(self)
 
     def updateContent(self, filtered=False, propertyView=True):
-        self.selectDataAccessor(self.tab().propertyView().dataObject())
+        if import_tools_error==None and isinstance(object,ConfigToolBase):
+            propertyView=False
+        else:
+            self.tab().propertyView().setDataAccessor(self.dataAccessor())
         BrowserTabController.updateContent(self, filtered, propertyView)
 
     def select(self, object):
@@ -485,3 +480,16 @@ class ConfigEditorTabController(BrowserTabController):
             self.tab().propertyView().updateContent()
             self.plugin().application().stopWorking(statusMessage)
         self.updateConfigHighlight()
+
+    def valueChanged(self,name):
+        if isinstance(self.tab().propertyView().dataObject(),ConfigToolBase):
+            if self._toolDataAccessor.label(self.tab().propertyView().dataObject())=="Import":
+                filename=self.toolDataAccessor().propertyValue(self.tab().propertyView().dataObject(),"filename")
+                return self.importConfig(filename)
+            else:
+                self.toolDataAccessor().updateProcess()
+                self.setModified(True)
+                self._updateCode(False)
+                self.codeSelected(self.tab().editorTableView().selection())
+        else:
+            self._updateCode()

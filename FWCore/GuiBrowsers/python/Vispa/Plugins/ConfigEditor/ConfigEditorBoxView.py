@@ -106,9 +106,9 @@ class ConfigEditorBoxView(BoxDecayView):
             widget.update()
             self._highlightedWidgets+=[widget]
 
-    def updateContent(self):
+    def updateContent(self,overrideCheck=False):
         self._highlightedWidgets=[]
-        ok=BoxDecayView.updateContent(self)
+        ok=BoxDecayView.updateContent(self,overrideCheck)
         self.highlight()
         return ok
 

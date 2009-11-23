@@ -98,3 +98,18 @@ class ObjectHolder(object):
         self.applyFilter(self.dataAccessor().children(object))
         """
         return self._filter(objects)
+
+    def allDataObjectChildren(self,objects=None):
+        if objects==None:
+            objects=self._dataObjects[:]
+        for object in objects[:]:
+            objects+=self.allDataObjectChildren(self.applyFilter(self.dataAccessor().children(object)))
+        return objects
+
+    def numberDataObjectChildren(self,objects=None):
+        if objects==None:
+            objects=self._dataObjects
+        number=len(objects)
+        for object in objects:
+            number+=self.numberDataObjectChildren(self.applyFilter(self.dataAccessor().children(object)))
+        return number

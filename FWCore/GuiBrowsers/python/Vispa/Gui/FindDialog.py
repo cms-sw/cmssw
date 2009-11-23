@@ -208,17 +208,17 @@ class FindDialog(QDialog):
         return self._findAlgorithm
         
     def label(self):
-        return str(self._findLabelLineEdit.text())
+        return str(self._findLabelLineEdit.text().toAscii())
     
     def setLabel(self,label):
         logging.debug(__name__ +': setLabel '+label)
         self._findLabelLineEdit.setText(label)
     
     def properties(self):
-        return [(str(property[1].text()),str(property[2].text())) for property in self._properties]
+        return [(str(property[1].text().toAscii()),str(property[2].text().toAscii())) for property in self._properties]
     
     def scripts(self):
-        return [str(script[1].text()) for script in self._scripts]
+        return [str(script[1].text().toAscii()) for script in self._scripts]
     
     def caseSensitive(self):
         return self._caseSensitiveCheckBox.checkState()==Qt.Checked

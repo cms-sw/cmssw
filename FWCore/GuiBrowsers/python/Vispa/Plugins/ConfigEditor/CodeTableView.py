@@ -22,10 +22,10 @@ class CodeTableView(TableView):
 
         self.connect(self, SIGNAL("itemClicked(QTableWidgetItem*)"), self.itemClicked)
 
-    def _createItem(self, object, properties, depth=0):
+    def _createItem(self, object, properties):
         """ Create item for an object.
         """
-        TableView._createItem(self, object, properties, depth)
+        TableView._createItem(self, object, properties)
         button=QToolButton()
         button.object=object
         if self.dataAccessor().label(object)=="Import":
