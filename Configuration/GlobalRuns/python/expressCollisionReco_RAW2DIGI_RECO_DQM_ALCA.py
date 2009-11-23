@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -42,13 +42,27 @@ process.source = cms.Source("PoolSource",
 # Other statements
 process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
-process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 3
-process.fifthRKTrajectorySmoother.minHits = 5
-process.fifthRKTrajectoryFitter.minHits = 5
-process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 5
-process.tobtecStepLoose.minNumberLayers = 4
+process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 2
+process.fifthCkfTrajectoryFilter.filterPset.maxLostHits = 4
+process.fifthCkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
+process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 2
+process.fifthCkfInOutTrajectoryFilter.filterPset.maxLostHits = 4
+process.fifthCkfInOutTrajectoryFilter.filterPset.maxConsecLostHits = 2
+process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 2
+process.fifthRKTrajectorySmoother.minHits = 2
+process.fifthRKTrajectoryFitter.minHits = 2
+process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 2
+process.tobtecStepLoose.minNumberLayers = 2
+process.tobtecStepLoose.maxNumberLostLayers = 2
+process.tobtecStepLoose.dz_par1 = cms.vdouble(10.5, 4.0)
+process.tobtecStepLoose.dz_par2 = cms.vdouble(10.5, 4.0)
+process.tobtecStepLoose.d0_par1 = cms.vdouble(10.5, 4.0)
+process.tobtecStepLoose.d0_par2 = cms.vdouble(10.5, 4.0)
+process.tobtecStepLoose.chi2n_par = cms.double(100.0)
+process.fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 100
+process.fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius     = 10
+process.Chi2MeasurementEstimator.MaxChi2 = 100
+
 
 # Path and EndPath definitions
 
