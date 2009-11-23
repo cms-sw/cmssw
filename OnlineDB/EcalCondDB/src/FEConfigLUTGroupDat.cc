@@ -155,7 +155,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
       ig=rset->getInt(1);
       int il=rset->getInt(2);  
       int ival=rset->getInt(3);
-      if(ig!=igold){
+      if(il==0){
 	
 	p.first = EcalLogicID( "Group_id",  ig );   // a dummy logic_id
 	dat=new FEConfigLUTGroupDat();
@@ -164,10 +164,12 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
       } else {
 	dat->setLUTValue( il, ival );
       }
+
       if(il==(nrows-1)){
+
 	p.second = *dat;
 	fillMap->insert(p);
-	delete dat;
+	 delete dat;
       }
     }
   } catch (SQLException &e) {

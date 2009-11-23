@@ -17,6 +17,7 @@ FEConfigMainInfo::FEConfigMainInfo()
   m_readStmt = NULL;
 
   m_ID=0;
+  m_version=0;
   clear();
 
 }
@@ -37,7 +38,6 @@ void FEConfigMainInfo::clear() {
   m_wei_id=0;
   m_bxt_id=0;
   m_btt_id=0;
-  m_version=0;
   m_db_time=Tm();
 
 
@@ -76,6 +76,8 @@ int FEConfigMainInfo::fetchID()
 
   DateHandler dh(m_env, m_conn);
 
+ std::cout << " tag/version " << getConfigTag() <<"/"<<getVersion() << std::endl;
+
   try {
     Statement* stmt = m_conn->createStatement();
     if(m_version !=0){
@@ -84,12 +86,14 @@ int FEConfigMainInfo::fetchID()
 		   " and version = :version " );
       stmt->setString(1, m_config_tag);
       stmt->setInt(2, m_version);
+      std::cout<<" using query with version " <<endl;
     } else {
       // always select the last inserted one with a given tag
       stmt->setSQL("SELECT conf_id from FE_CONFIG_MAIN "
 		   "WHERE tag = :1 and version= (select max(version) from FE_CONFIG_MAIN where tag=:2) " );
       stmt->setString(1, m_config_tag);
       stmt->setString(2, m_config_tag);
+      std::cout<<" using query WITHOUT version " <<endl;
     }
 
     ResultSet* rset = stmt->executeQuery();
@@ -250,10 +254,11 @@ void FEConfigMainInfo::setByID(int id)
 void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
   throw(runtime_error)
 { std::cout << " ### 1 getId from FEConfigMainInfo = " << result->getId() << std::endl;
+ std::cout << " tag/version " << result->getConfigTag() <<"/"<<result->getVersion() << std::endl;
   
   this->checkConnection();
    DateHandler dh(m_env, m_conn);
-  result->clear();
+   //   result->clear();
 
   int idid=0;
 
