@@ -147,7 +147,8 @@ int main(){
   std::string serviceName("oracle://cms_omds_lb/CMS_GT_MON");
   std::string authName("/nfshome0/xiezhen/authentication.xml");
   //int run=110823;
-  int run=110823;
+  //int run=121620;
+  int run=121998;
   //two blocks of views in schema cms_gt_mon&cms_gt
   std::string gtmonschema("CMS_GT_MON");
   std::string algoviewname("GT_MON_TRIG_ALGO_VIEW");
@@ -227,13 +228,7 @@ int main(){
     Queryalgoview->addToOrderList("algobit");
     Queryalgoview->defineOutput(qalgoOutput);
     coral::ICursor& c=Queryalgoview->execute();
-    if( !c.next() ){
-      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
-      c.close();
-      delete Queryalgoview;
-      transaction.commit();
-      return 0;
-    }
+    
     unsigned int s=0;
     BITCOUNT mybitcount_algo; 
     mybitcount_algo.reserve(128);
@@ -243,12 +238,19 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      if(s%128==0&&s!=0){
+      if(s%127==0&&s!=0){
 	countresult_algo.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
       mybitcount_algo.push_back(count);
       ++s;
+    }
+    if(s==0){
+      std::cout<<"requested run "<<run<<" doesn't exist for algocounts, do nothing"<<std::endl;
+      c.close();
+      delete Queryalgoview;
+      transaction.commit();
+      return 0;
     }
     delete Queryalgoview;
     //
@@ -271,25 +273,26 @@ int main(){
     Querytechview->addToOrderList("techbit");
     Querytechview->defineOutput(qtechOutput);
     coral::ICursor& techcursor=Queryalgoview->execute();
-    if( !techcursor.next() ){
-      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
-      techcursor.close();
-      delete Querytechview;
-      transaction.commit();
-      return 0;
-    }
+    
     s=0;
     while( techcursor.next() ){
       const coral::AttributeList& row = techcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      if(s%64==0&&s!=0){
+      if(s%63==0&&s!=0){
 	countresult_tech.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
       mybitcount_tech.push_back(count);
       ++s;
+    }
+    if(s==0){
+      std::cout<<"requested run "<<run<<" doesn't exist for techcounts, do nothing"<<std::endl;
+      techcursor.close();
+      delete Querytechview;
+      transaction.commit();
+      return 0;
     }
     delete Querytechview;
 
@@ -313,13 +316,14 @@ int main(){
     Querydeadview->addToOrderList("lsnr");
     Querydeadview->defineOutput(qdeadOutput);
     coral::ICursor& deadcursor=Querydeadview->execute();
-    if( !deadcursor.next() ){
-      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
+    /*if( !deadcursor.next() ){
+      std::cout<<"requested run "<<run<<" doesn't exist for deadcount, do nothing"<<std::endl;
       deadcursor.close();
       delete Querydeadview;
       transaction.commit();
       return 0;
     }
+    */
     s=0;
     TriggerDeadCountResult deadtimeresult;
     while( deadcursor.next() ){
@@ -329,6 +333,13 @@ int main(){
       unsigned int count=row["counts"].data<unsigned int>();
       deadtimeresult.push_back(count);
       ++s;
+    }
+    if(s==0){
+      std::cout<<"requested run "<<run<<" doesn't exist for deadcount, do nothing"<<std::endl;
+      deadcursor.close();
+      delete Querydeadview;
+      transaction.commit();
+      return 0;
     }
     delete Querydeadview;
 
@@ -345,13 +356,7 @@ int main(){
     Querytimestamp->addToOrderList("lumisegmentnr");
     Querytimestamp->defineOutput(qtimestampOutput);
     coral::ICursor& tpcursor=Querytimestamp->execute();
-    if( !tpcursor.next() ){
-      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
-      tpcursor.close();
-      delete Querytimestamp;
-      transaction.commit();
-      return 0;
-    }
+    
     s=0;
     LumiTimestampResult tpresult;
     while( tpcursor.next() ){
@@ -361,6 +366,13 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       ++s;
+    }
+    if(s==0){
+      std::cout<<"requested run "<<run<<" doesn't exist for timestamp, do nothing"<<std::endl;
+      tpcursor.close();
+      delete Querytimestamp;
+      transaction.commit();
+      return 0;
     }
     delete Querytimestamp;
     transaction.commit();
