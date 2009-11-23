@@ -8,9 +8,9 @@
 
 #include <string>
 
+namespace edm {
 
-  class StreamerInputIndexFile
-  {
+  class StreamerInputIndexFile {
   /** Class for doing Index Read Operations. */
   public:
     explicit StreamerInputIndexFile(const std::string& name);
@@ -46,8 +46,7 @@
     std::vector<boost::shared_ptr<EventIndexRecord> > indexes_;
   };
 
-
-
+}
 
 #endif
 

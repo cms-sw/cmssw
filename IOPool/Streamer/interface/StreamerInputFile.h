@@ -13,54 +13,64 @@
 #include<string>
 #include<vector>
 
-class StreamerInputIndexFile;
 
-  class StreamerInputFile
-  {
+namespace edm {
+  class StreamerInputIndexFile;
+  class EventSkipperByID;
+  class StreamerInputFile {
   public:
 
     /**Reads a Streamer file */
-    explicit StreamerInputFile(const std::string& name);
+    explicit StreamerInputFile(std::string const& name,
+      int* numberOfEventsToSkip = 0,
+      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     /** Reads a Streamer file and browse it through an index file */
     /** Index file name provided here */
-    explicit StreamerInputFile(const std::string& name, const std::string& order);
+    explicit StreamerInputFile(std::string const& name, std::string const& order,
+      int* numberOfEventsToSkip = 0,
+      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     /** Index file reference is provided */
-    explicit StreamerInputFile(const std::string& name, StreamerInputIndexFile& order);
+    explicit StreamerInputFile(std::string const& name, StreamerInputIndexFile& order,
+      int* numberOfEventsToSkip = 0,
+      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     /** Multiple Index files for Single Streamer file */
-    explicit StreamerInputFile(const std::vector<std::string>& names);
+    explicit StreamerInputFile(std::vector<std::string> const& names,
+      int* numberOfEventsToSkip = 0,
+      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     ~StreamerInputFile();
 
-    bool next() ; /** Moves the handler to next Event Record */
+    bool next(); /** Moves the handler to next Event Record */
 
-    const InitMsgView*  startMessage() const { return startMsg_.get(); }
+    InitMsgView const* startMessage() const { return startMsg_.get(); }
     /** Points to File Start Header/Message */
 
-    const EventMsgView*  currentRecord() const { return currentEvMsg_.get(); }
+    EventMsgView const* currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
 
-    const StreamerInputIndexFile* index(); /** Return pointer to current index */
+    StreamerInputIndexFile const* index(); /** Return pointer to current index */
 
-    const bool newHeader() { bool tmp=newHeader_; newHeader_=false; return tmp;}  /** Test bit if a new header is encountered */
+    bool const newHeader() { bool tmp = newHeader_; newHeader_ = false; return tmp;}  /** Test bit if a new header is encountered */
 
 
   private:
 
-    void openStreamerFile(const std::string& name);
-    IOSize readBytes(char *buf, IOSize nBytes);
+    void openStreamerFile(std::string const& name);
+    IOSize readBytes(char* buf, IOSize nBytes);
+    IOOffset skipBytes(IOSize nBytes);
 
     void readStartMessage();
-    int  readEventMessage();
+    int readEventMessage();
 
     bool openNextFile();
     /** Compares current File header with the newly opened file header
-               Returns false in case of miss match */
+               Returns false in case of mismatch */
     bool compareHeader();
 
-    void logFileAction(const char* msg);
+    void logFileAction(char const* msg);
 
     bool useIndex_;
     boost::shared_ptr<StreamerInputIndexFile> index_;
@@ -79,6 +89,10 @@ class StreamerInputIndexFile;
     std::string currentFileName_;
     bool currentFileOpen_;
 
+    boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+
+    int* numberOfEventsToSkip_;
+
     uint32 currRun_;
     uint32 currProto_;
 
@@ -88,7 +102,6 @@ class StreamerInputIndexFile;
 
     bool endOfFile_;
   };
-
-
+}
 
 #endif

@@ -34,7 +34,7 @@ namespace edm {
     static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
-    void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
+    void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent);
 
     EventPrincipal* deserializeEvent(EventMsgView const& eventView);
 
