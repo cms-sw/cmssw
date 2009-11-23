@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.65 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -413,20 +413,20 @@ void EEClusterTask::setup(void){
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
     sprintf(histo, "EECLT SC seed crystal energy");
-    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC e2");
-    meSCEne2_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC energy vs seed crystal energy");
-    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 200, 0, 1.8, 200, 0, 1.8);
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 10., 50, 0., 10.);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
     sprintf(histo, "EECLT SC energy (low scale)");
-    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC seed occupancy map EE -");
@@ -450,23 +450,23 @@ void EEClusterTask::setup(void){
     meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EECLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 78, 0., 10.);
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
     meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
 
     sprintf(histo, "EECLT SC seed crystal timing map EE -");
-    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 100, -50., 50., "s");
     meSCSeedTimingMap_[0]->setAxisTitle("jx", 1);
     meSCSeedTimingMap_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EECLT SC seed crystal timing map EE +");
-    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 100, -50., 50., "s");
     meSCSeedTimingMap_[1]->setAxisTitle("jx", 1);
     meSCSeedTimingMap_[1]->setAxisTitle("jy", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
     for(int i = 0; i < 18; i++) {
       sprintf(histo, "EECLT timing %s", Numbers::sEE(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
     }
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
 
@@ -860,7 +860,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           if(pAgc.isValid()) {
             if(seedItr->energy() / agc->getEEValue() > 16) {
 
-              float time = seedItr->time() + 5.0;
+              float time = seedItr->time();
 
               meSCSeedTimingSummary_->Fill( time );
               meSCSeedTiming_[ism-1]->Fill( time );

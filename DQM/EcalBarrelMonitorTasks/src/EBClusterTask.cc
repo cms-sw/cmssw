@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/08/23 20:59:51 $
- * $Revision: 1.77 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -308,20 +308,20 @@ void EBClusterTask::setup(void){
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
     sprintf(histo, "EBCLT SC seed crystal energy");
-    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
     sprintf(histo, "EBCLT SC e2");
-    meSCEne2_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
     sprintf(histo, "EBCLT SC energy vs seed crystal energy");
-    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 200, 0, 1.8, 200, 0, 1.8);
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 10., 50, 0., 10.);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
     sprintf(histo, "EBCLT SC energy (low scale)");
-    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0., 10.);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
     sprintf(histo, "EBCLT SC seed occupancy map");
@@ -335,18 +335,18 @@ void EBClusterTask::setup(void){
     meSCMapSingleCrystal_->setAxisTitle("jeta", 2);
 
     sprintf(histo, "EBCLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 78, 0, 10);
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
     meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
 
     sprintf(histo, "EBCLT SC seed crystal timing map");
-    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 78, 0., 10., "s");
+    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 100, -50., 50., "s");
     meSCSeedTimingMap_->setAxisTitle("jphi", 1);
     meSCSeedTimingMap_->setAxisTitle("jeta", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
     for(int i = 0; i<36; i++) {
       sprintf(histo,"EBCLT timing %s", Numbers::sEB(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, -50, 50.);
     }
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
@@ -598,6 +598,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
+    SuperClusterCollection scSel;
+
     for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); ++sCluster ) {
 
       // energy, size
@@ -667,7 +669,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	  if(sIds.size() == 1)
 	     meSCMapSingleCrystal_->Fill(xebphi,xebeta);
 
-          float time = seedItr->time() + 5.0;
+          float time = seedItr->time();
 
           edm::ESHandle<EcalADCToGeVConstant> pAgc;
           c.get<EcalADCToGeVConstantRcd>().get(pAgc);
@@ -687,6 +689,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
+
         }
         else {
           LogWarning("EBClusterTask") << "CaloTopology not valid";
@@ -696,8 +699,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
         LogWarning("EBClusterTask") << EcalRecHitCollection_ << " not available";
       }
 
-      // look for the two most energetic super clusters
       if ( nscc >= 2 ) {
+        // look for the two most energetic super clusters
         if ( sCluster->energy() > sc1_p.Energy() ) {
           sc2_p=sc1_p;
           sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
