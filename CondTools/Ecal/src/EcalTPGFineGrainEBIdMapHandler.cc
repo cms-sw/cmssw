@@ -202,8 +202,8 @@ void popcon::EcalTPGFineGrainEBIdMapHandler::getNewObjects()
 	      	    unsigned int RatioL = (unsigned int)rd_fgr.getRatioLow();
 	      	    unsigned int RatioH = (unsigned int)rd_fgr.getRatioHigh();
 	      	    unsigned int LutConfId = (unsigned int)rd_fgr.getLUTValue();
-	  
-	      	    f.setValues(ThrL,ThrH,RatioL,RatioH,LutConfId);
+		    // I have exchanged the values to see if it works
+	      	    f.setValues(RatioL,RatioH, ThrL,ThrH,LutConfId);
               	    fgrMap->setValue(rd_fgr.getFgrGroupId(),f);
 	      	    ++igroups;
 	    	  }  
