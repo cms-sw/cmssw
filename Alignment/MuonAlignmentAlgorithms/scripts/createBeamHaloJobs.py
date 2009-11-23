@@ -71,7 +71,7 @@ process.MuonGeometryDBConverter.outputXML.suppressDTLayers = True
 process.MuonGeometryDBConverter.outputXML.suppressCSCChambers = False
 process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = True
 
-process.MuonGeometryDBConverter.getAPEs = True
+process.MuonGeometryDBConverter.getAPEs = cms.bool(True)
 process.PoolDBESSource.toGet = cms.VPSet(
     cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
     cms.PSet(record = cms.string("DTAlignmentErrorRcd"), tag = cms.string("DTAlignmentErrorRcd")),
