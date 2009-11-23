@@ -57,7 +57,7 @@ writeKeyed::endJob() {
   int run=10;
   for (size_t j=0;j<7; ++j) {
     std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>(dict.size());
-    for (size_t i=0; i<dict.size(); ++i
+    for (size_t i=0; i<dict.size(); ++i)
       (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
     // outdb->writeOne(kl,new cond::GenericSummary(nums[j]),run,names);
     outdb->writeOne(kl,0,run,confiov);
