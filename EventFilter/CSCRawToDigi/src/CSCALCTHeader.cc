@@ -9,9 +9,22 @@ bool CSCALCTHeader::debug=false;
 short unsigned int CSCALCTHeader::firmwareVersion=2006; 
 
 CSCALCTHeader::CSCALCTHeader(int chamberType)
-: header2006(chamberType)
+: header2006(chamberType),
+  header2007(chamberType)
 { //constructor for digi->raw packing based on header2006 
-  memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+  if (firmwareVersion==2006)
+  {
+    memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+  }
+  else if(firmwareVersion==2007)
+  {
+    memcpy(theOriginalBuffer, &header2007, header2007.sizeInWords()*2);
+  }
+  else
+  {
+    edm::LogError("CSCALCTHeader|CSCRawToDigi")
+      <<"Empty Digis: ALCT firmware version is bad/not defined!";
+  }
 
 }
 
@@ -74,11 +87,11 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
       }
     }
 
-    alcts.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
+    theALCTs.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
     for (unsigned int i=0; i<header2007.lctBins*2; ++i) {
-      memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
-      buf += alcts[i].sizeInWords(); 
-      sizeInWords2007_ += alcts[i].sizeInWords();
+      memcpy(&theALCTs[i], buf, theALCTs[i].sizeInWords()*2);
+      buf += theALCTs[i].sizeInWords(); 
+      sizeInWords2007_ += theALCTs[i].sizeInWords();
     }
     break;
 
@@ -121,7 +134,7 @@ unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
 std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const 
 { 
   std::vector<CSCALCTDigi> result;
-  result.reserve(alcts.size());
+  result.reserve(theALCTs.size());
 
   switch (firmwareVersion) {
   case 2006:
@@ -131,9 +144,9 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
     }
   case 2007:
     {
-      for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
-	CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
-			 alcts[i].keyWire, (int)i/2, i%2+1);
+      for (unsigned int i=0; i<theALCTs.size(); ++i) {///loop over all alct words
+	CSCALCTDigi digi(theALCTs[i].valid, theALCTs[i].quality, theALCTs[i].accel, theALCTs[i].pattern,
+			 theALCTs[i].keyWire, (int)i/2, i%2+1);
 	result.push_back(digi);
       }
       break;
@@ -151,11 +164,17 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 
 void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
 {
-  if(firmwareVersion != 2006) {
-    throw cms::Exception("CSCDigi2Raw")
-      << "The ALCTDigis do not live in the ALCT header past the 2006 firmware version";
+  if(firmwareVersion == 2006) {
+      alcts2006.add(digis);
   }
-  alcts2006.add(digis);
+  else if(firmwareVersion == 2007) {
+    theALCTs.reserve(digis.size());
+    for(std::vector<CSCALCTDigi>::const_iterator digi = digis.begin();
+        digi != digis.end(); ++digi)
+    {
+      theALCTs.push_back(CSCALCT(*digi));
+    }
+  }
 }
 
 
@@ -171,8 +190,22 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
        = bitset_utilities::ushortToBitset(alcts2006.sizeInWords()*16,
                                           (unsigned short *) &alcts2006);
      result = bitset_utilities::append(header, alcts);
-
   }
+
+  else if(firmwareVersion == 2007)
+  {
+     boost::dynamic_bitset<> header
+       = bitset_utilities::ushortToBitset(header2007.sizeInWords()*16,
+                                          (unsigned short *) &header2007);
+    for (unsigned i = 0; i < theALCTs.size(); ++i)
+    {
+       boost::dynamic_bitset<> alct
+         = bitset_utilities::ushortToBitset(theALCTs[i].sizeInWords()*16,
+                                          (unsigned short *) &theALCTs[i]);
+       result = bitset_utilities::append(header, alct);
+    }
+  }
+
   return result;
 }
     
@@ -180,26 +213,32 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
 
 void CSCALCTHeader::selfTest()
 {
-  // tests packing and unpacking
-  for(int station = 1; station <= 4; ++station)
+  CSCALCTDigi alct0(true, 1, 1, 1, 10, 6, 1);
+  CSCALCTDigi alct1(true, 1, 1, 0, 11, 6, 2);
+
+  // both firmware versions
+  for(firmwareVersion = 2006; firmwareVersion <= 2007; ++firmwareVersion)
   {
-    CSCDetId detId(1, station, 1, 1, 0);
-    CSCALCTDigi alct0(true, 1, 1, 1, 10, 6, 1);
-    CSCALCTDigi alct1(true, 1, 1, 0, 11, 6, 2);
+    // tests packing and unpacking
+    for(int station = 1; station <= 4; ++station)
+    {
+      CSCDetId detId(1, station, 1, 1, 0);
 
-    std::vector<CSCALCTDigi> oldAlcts;
-    oldAlcts.push_back(alct0);
-    oldAlcts.push_back(alct1);
-    CSCALCTHeader alctHeader(detId.iChamberType());
+      std::vector<CSCALCTDigi> oldAlcts;
+      oldAlcts.push_back(alct0);
+      oldAlcts.push_back(alct1);
+      CSCALCTHeader alctHeader(detId.iChamberType());
 
-    alctHeader.add(oldAlcts);
+      alctHeader.add(oldAlcts);
 
-    std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
-    assert(alcts[0] == alct0);
-    assert(alcts[1] == alct1);
+      std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
+std::cout << alcts[0] << " " <<  alct0 << std::endl;
+std::cout << alcts[1] << " " <<  alct1 << std::endl;
+      assert(alcts[0] == alct0);
+      assert(alcts[1] == alct1);
 
-    cscClassPackerCompare(alctHeader);
-
+      cscClassPackerCompare(alctHeader);
+    }
   }
 }
 
