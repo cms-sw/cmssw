@@ -5,17 +5,17 @@ process = cms.Process("TEST")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP3X_V12::All')
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 
 process.source = cms.Source (
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/FA7139E8-97BD-DE11-A3E2-002618943935.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/BC3224A5-9ABD-DE11-A625-002354EF3BDB.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/8C578DA3-C0BD-DE11-9DEA-0017312A250B.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/7A29EA77-9DBD-DE11-A3BC-0026189438ED.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/04383FF7-9EBD-DE11-8511-0018F3D09616.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/DCAE40E8-CA78-DE11-8F20-001D09F2305C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/D099AB85-CA78-DE11-9A5E-001D09F2503C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/B2E190DF-CA78-DE11-9F35-001D09F2532F.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/90A07B7B-CA78-DE11-A4B7-001D09F26C5C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/4C5F86D1-CB78-DE11-8650-000423D6B42C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/2247873A-B378-DE11-8F5B-001D09F24664.root',
     )
     )
 
@@ -24,16 +24,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
+# IC5 only (no SC5 or AK5)
 process.p = cms.Path (
-    # IC5
-    process.ZSPJetCorrectionsIcone5 *
-    process.JetPlusTrackCorrectionsIcone5 *
-    # SC5
-    process.ZSPJetCorrectionsSisCone5 *
-    process.JetPlusTrackCorrectionsSisCone5 *
-    # AK5
-    process.ZSPJetCorrectionsAntiKt5 *
-    process.JetPlusTrackCorrectionsAntiKt5
+    process.ZSPJetCorrections *
+    process.JetPlusTrackCorrections 
     )
 
 process.o = cms.OutputModule(
