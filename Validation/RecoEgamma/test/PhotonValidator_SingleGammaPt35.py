@@ -13,7 +13,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V12::All'
+process.GlobalTag.globaltag = 'MC_3XY_V14::All'
 
 process.DQMStore = cms.Service("DQMStore");
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -32,12 +32,12 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_SingleGammaPt10.root'
-photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_SingleGammaPt35.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_SingleGammaFlatPt10_100.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_H130GGgluonfusion.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_GammaJets_Pt_80_120.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre5_QCD_Pt_80_120.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt10.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt35.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaFlatPt10_100.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_H130GGgluonfusion.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_GammaJets_Pt_80_120.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_QCD_Pt_80_120.root'
 
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -50,24 +50,22 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 
     
         
-# official RelVal 340pre5 single Photons pt=10GeV
+# official RelVal 340pre6 single Photons pt=10GeV
 
-# official RelVal 340pre5 single Photons pt=35GeV            
+# official RelVal 340pre6 single Photons pt=35GeV            
 
-    
-   '/store/relval/CMSSW_3_4_0_pre5/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V12-v1/0002/DE719CF1-F7CB-DE11-9699-001D09F24600.root',
-   '/store/relval/CMSSW_3_4_0_pre5/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V12-v1/0001/C0CADB96-A1CB-DE11-8855-001D09F295FB.root'
- 
-# official RelVal 340pre5 single Photons Flat pt 10-100GeV
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V14-v1/0002/84768123-49D7-DE11-B7DF-0026189438C2.root',
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V14-v1/0001/36EF51D7-AED6-DE11-BB77-002618943922.root'
+# official RelVal 340pre6 single Photons Flat pt 10-100GeV
 
 
         
-# official RelVal 340pre5 RelValH130GGgluonfusion
+# official RelVal 340pre6 RelValH130GGgluonfusion
  
         
-# official RelVal 340pre5 GammaJets_Pt_80_120
+# official RelVal 340pre6 GammaJets_Pt_80_120
 
-# official RelVal 340pre5 QCD_Pt_80_120
+# official RelVal 340pre6 QCD_Pt_80_120
 
  
     ),
@@ -75,24 +73,27 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     secondaryFileNames = cms.untracked.vstring(
 
-# official RelVal 340pre5 single Photons pt=10GeV    
+# official RelVal 340pre6 single Photons pt=10GeV    
 
 
 
     
-# official RelVal 340pre5 single Photons pt=35GeV
-        '/store/relval/CMSSW_3_4_0_pre5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V12-v1/0002/BA9400E8-F8CB-DE11-B97C-001D09F24763.root',
-        '/store/relval/CMSSW_3_4_0_pre5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V12-v1/0001/CE8B8604-A1CB-DE11-8EF8-001D09F2915A.root',
-        '/store/relval/CMSSW_3_4_0_pre5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V12-v1/0001/B60AB195-A1CB-DE11-AF2A-0030487C6090.root'
+# official RelVal 340pre6 single Photons pt=35GeV
 
-# official RelVal 340pre5 single Photons Flat pt 10-100GeV
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0002/B058B202-49D7-DE11-B5C4-002618943945.root',
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0001/C8764BD3-AED6-DE11-A26C-002618B27F8A.root',
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0001/228C0E60-AED6-DE11-A477-002618943922.root',
+        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0001/1C9C2ED6-AED6-DE11-8FCE-00248C0BE018.root'
+    
+
+# official RelVal 340pre6 single Photons Flat pt 10-100GeV
 
 
-# official RelVal 340pre5 RelValH130GGgluonfusion
+# official RelVal 340pre6 RelValH130GGgluonfusion
 
-# official RelVal 340pre5 GammaJets_Pt_80_120
+# official RelVal 340pre6 GammaJets_Pt_80_120
 
-# official RelVal 340pre5 QCD_Pt_80_120
+# official RelVal 340pre6 QCD_Pt_80_120
 
 
     
