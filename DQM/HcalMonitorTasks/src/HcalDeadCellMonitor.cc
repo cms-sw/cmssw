@@ -108,7 +108,11 @@ void HcalDeadCellMonitor::beginRun()
   meEVT_->Fill(ievt_);
   meTOTALEVT_ = m_dbe->bookInt("Dead Cell Total Events Processed");
   meTOTALEVT_->Fill(tevt_);
-  // 1D plots count number of bad cells vs. luminosity block
+  
+  Nevents = m_dbe->book1D("NumberOfDeadCellEvents","# of Events Seen by DeadCellMonitor",2,0,2);
+  Nevents->setBinLabel(1,"allEvents");
+  Nevents->setBinLabel(2,"lumiCheck");
+ // 1D plots count number of bad cells vs. luminosity block
   ProblemsVsLB=m_dbe->bookProfile("TotalDeadCells_HCAL_vs_LS",
 				  "Total Number of Dead Hcal Cells vs lumi section;Lumi Section;Dead Cells", 
 				  Nlumiblocks_,0.5,Nlumiblocks_+0.5,
@@ -526,6 +530,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	}
     }
 
+  Nevents->Fill(0,1);
   return;
 } // void HcalDeadCellMonitor::processEvent(...)
 
@@ -857,7 +862,9 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   unsigned int energyneverpresentHE=0;
   unsigned int energyneverpresentHO=0;
   unsigned int energyneverpresentHF=0;
-  
+
+  if (levt_>=deadmon_minEvents_)
+    Nevents->Fill(1,levt_);
 
   int etabins=0;
   int phibins=0;
