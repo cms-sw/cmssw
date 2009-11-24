@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.119 2009/11/23 14:53:45 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.120 2009/11/23 19:09:31 amraktad Exp $
 //
 
 // system include files
@@ -174,7 +174,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_loop(false),
    m_playDelay(3.f),
    m_lastPointerPositionX(-999),
-   m_lastPointerPositionY(-999)
+   m_lastPointerPositionY(-999),
+   m_liveTimeout(600000)
    //  m_configFileName(iConfigFileName)
 {
    //m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
@@ -910,7 +911,7 @@ CmsShowMain::setLiveMode()
    m_liveTimer = new SignalTimer();
    ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
 
-   m_liveTimer->SetTime(600000);
+   m_liveTimer->SetTime(m_liveTimeout);
    m_liveTimer->Reset();
    m_liveTimer->TurnOn();
 }
@@ -1078,6 +1079,8 @@ CmsShowMain::postFiltering()
 void
 CmsShowMain::checkLiveMode()
 {
+   m_liveTimer->TurnOff();
+
    if (m_isPlaying) return;
 
    Window_t rootw, childw;
@@ -1095,5 +1098,10 @@ CmsShowMain::checkLiveMode()
    }
    m_lastPointerPositionX = root_x;
    m_lastPointerPositionY = root_y;
+
+
+   m_liveTimer->SetTime((Long_t)(m_liveTimeout));
+   m_liveTimer->Reset();
+   m_liveTimer->TurnOn();
 }
 

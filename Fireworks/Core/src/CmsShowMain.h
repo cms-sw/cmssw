@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.36 2009/11/23 14:53:45 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.37 2009/11/23 19:09:31 amraktad Exp $
 //
 
 // system include files
@@ -189,6 +189,7 @@ private:
    Float_t m_playDelay;  // delay between events in seconds
    Int_t m_lastPointerPositionX;
    Int_t m_lastPointerPositionY;
+   Int_t m_liveTimeout;
 
    std::auto_ptr<TMonitor> m_monitor;
 };
