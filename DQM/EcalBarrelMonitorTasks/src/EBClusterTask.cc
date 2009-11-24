@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.78 $
+ * $Date: 2009/11/23 10:07:51 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -97,6 +97,8 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meSCMapSingleCrystal_ = 0;
   meSCSeedTimingSummary_ = 0;
   meSCSeedTimingMap_ = 0;
+  meSCSeedTimingMapProjEta_ = 0;
+  meSCSeedTimingMapProjPhi_ = 0;
   for(int i=0;i<36;++i)
      meSCSeedTiming_[i] = 0;
 
@@ -108,6 +110,15 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meInvMassZ0_ = 0;
   meInvMassHigh_ = 0;
 
+  meInvMassPi0Sel_ = 0;
+  meInvMassJPsiSel_ = 0;
+  meInvMassZ0Sel_ = 0;
+  meInvMassHighSel_ = 0;
+
+  thrSigmaIeIe_ = 999.;
+  thrClusEt_ = 1.0;
+  thrCandEt_ = 1.5;
+  
 }
 
 EBClusterTask::~EBClusterTask(){
@@ -193,6 +204,10 @@ void EBClusterTask::reset(void) {
 
   if ( meSCSeedTimingMap_ ) meSCSeedTimingMap_->Reset();
 
+  if ( meSCSeedTimingMapProjEta_ ) meSCSeedTimingMapProjEta_->Reset();
+
+  if ( meSCSeedTimingMapProjPhi_ ) meSCSeedTimingMapProjPhi_->Reset();
+
   for(int i=0;i<36;++i)
      if( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
@@ -207,6 +222,14 @@ void EBClusterTask::reset(void) {
   if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
 
   if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
+
+  if ( meInvMassPi0Sel_ ) meInvMassPi0Sel_->Reset();
+
+  if ( meInvMassJPsiSel_ ) meInvMassJPsiSel_->Reset();
+
+  if ( meInvMassZ0Sel_ ) meInvMassZ0Sel_->Reset();
+
+  if ( meInvMassHighSel_ ) meInvMassHighSel_->Reset();
 
 }
 
@@ -335,18 +358,29 @@ void EBClusterTask::setup(void){
     meSCMapSingleCrystal_->setAxisTitle("jeta", 2);
 
     sprintf(histo, "EBCLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
-    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
+    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing (clocks)", 1);
 
     sprintf(histo, "EBCLT SC seed crystal timing map");
-    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 100, -50., 50., "s");
+    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 250, 0., 10., "s");
     meSCSeedTimingMap_->setAxisTitle("jphi", 1);
     meSCSeedTimingMap_->setAxisTitle("jeta", 2);
+    meSCSeedTimingMap_->setAxisTitle("time (clocks)", 3);
+    
+    sprintf(histo, "EBCLT SC seed crystal timing projection eta");
+    meSCSeedTimingMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 250, 0., 10., "s");
+    meSCSeedTimingMapProjEta_->setAxisTitle("jeta", 1);
+    meSCSeedTimingMapProjEta_->setAxisTitle("time (clocks)", 2);
+
+    sprintf(histo, "EBCLT SC seed crystal timing projection phi");
+    meSCSeedTimingMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 250, 0., 10., "s");
+    meSCSeedTimingMapProjPhi_->setAxisTitle("jphi", 1);
+    meSCSeedTimingMapProjPhi_->setAxisTitle("time (clocks)", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
     for(int i = 0; i<36; i++) {
       sprintf(histo,"EBCLT timing %s", Numbers::sEB(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, -50, 50.);
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
     }
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
@@ -359,7 +393,7 @@ void EBClusterTask::setup(void){
     mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass Pi0");
-    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0., 0.300);
+    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass JPsi");
@@ -373,6 +407,22 @@ void EBClusterTask::setup(void){
     sprintf(histo, "EBCLT dicluster invariant mass high");
     meInvMassHigh_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EBCLT dicluster invariant mass Pi0 sel");
+    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
+    meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EBCLT dicluster invariant mass JPsi sel");
+    meInvMassJPsiSel_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
+    meInvMassJPsiSel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EBCLT dicluster invariant mass Z0 sel");
+    meInvMassZ0Sel_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
+    meInvMassZ0Sel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EBCLT dicluster invariant mass high sel");
+    meInvMassHighSel_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
+    meInvMassHighSel_->setAxisTitle("mass (GeV)", 1);
 
   }
 
@@ -466,6 +516,12 @@ void EBClusterTask::cleanup(void){
     if ( meSCSeedTimingMap_ ) dqmStore_->removeElement( meSCSeedTimingMap_->getName() );
     meSCSeedTimingMap_ = 0;
 
+    if ( meSCSeedTimingMapProjEta_ ) dqmStore_->removeElement( meSCSeedTimingMapProjEta_->getName() );
+    meSCSeedTimingMapProjEta_ = 0;
+
+    if ( meSCSeedTimingMapProjPhi_ ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_->getName() );
+    meSCSeedTimingMapProjPhi_ = 0;
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
     for(int i = 0; i < 36; i++) {
        if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
@@ -491,6 +547,18 @@ void EBClusterTask::cleanup(void){
     if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getName() );
     meInvMassHigh_ = 0;
 
+    if ( meInvMassPi0Sel_ ) dqmStore_->removeElement( meInvMassPi0Sel_->getName() );
+    meInvMassPi0Sel_ = 0;
+
+    if ( meInvMassJPsiSel_ ) dqmStore_->removeElement( meInvMassJPsiSel_->getName() );
+    meInvMassJPsiSel_ = 0;
+
+    if ( meInvMassZ0Sel_ ) dqmStore_->removeElement( meInvMassZ0Sel_->getName() );
+    meInvMassZ0Sel_ = 0;
+
+    if ( meInvMassHighSel_ ) dqmStore_->removeElement( meInvMassHighSel_->getName() );
+    meInvMassHighSel_ = 0;
+
   }
 
   init_ = false;
@@ -506,7 +574,7 @@ void EBClusterTask::endJob(void){
 }
 
 void EBClusterTask::analyze(const Event& e, const EventSetup& c){
-
+  
   bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
@@ -652,6 +720,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
           float e3x3 = EcalClusterTools::e3x3( *theSeed, ebRecHits, topology );
           float e5x5 = EcalClusterTools::e5x5( *theSeed, ebRecHits, topology );
+          std::vector<float> localCov = EcalClusterTools::localCovariances( *theSeed, ebRecHits, topology );
+          float sigmaIEtaIEta = sqrt(localCov[0]);
 
 	  meSCCrystalSiz_->Fill(sIds.size());
 	  meSCSeedEne_->Fill(eMax);
@@ -669,7 +739,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	  if(sIds.size() == 1)
 	     meSCMapSingleCrystal_->Fill(xebphi,xebeta);
 
-          float time = seedItr->time();
+          float time = seedItr->time() / 25.0 + 5.0;
 
           edm::ESHandle<EcalADCToGeVConstant> pAgc;
           c.get<EcalADCToGeVConstantRcd>().get(pAgc);
@@ -681,6 +751,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
               meSCSeedTimingSummary_->Fill( time );
               meSCSeedTiming_[ism-1]->Fill( time );
               meSCSeedTimingMap_->Fill( xebphi, xebeta, time );
+              meSCSeedTimingMapProjEta_->Fill( xebeta, time );
+              meSCSeedTimingMapProjPhi_->Fill( xebphi, time );
 
             }
           } else {
@@ -689,6 +761,11 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
+
+          // fill the selected SC collection
+          float pt = fabs( sCluster->energy()*sin(sCluster->position().theta()) );
+          
+          if ( pt > thrClusEt_ && sigmaIEtaIEta < thrSigmaIeIe_ ) scSel.push_back(*sCluster);
 
         }
         else {
@@ -703,13 +780,14 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
         // look for the two most energetic super clusters
         if ( sCluster->energy() > sc1_p.Energy() ) {
           sc2_p=sc1_p;
-          sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+          sc1_p.SetPtEtaPhiE(fabs(sCluster->energy()*sin(sCluster->position().theta())),
                              sCluster->eta(), sCluster->phi(), sCluster->energy());
         } else if ( sCluster->energy() > sc2_p.Energy() ) {
-          sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+          sc2_p.SetPtEtaPhiE(fabs(sCluster->energy()*sin(sCluster->position().theta())),
                              sCluster->eta(), sCluster->phi(), sCluster->energy());
         }
       }
+
     }
     // Get the invariant mass of the two most energetic super clusters
     if ( nscc >= 2 ) {
@@ -723,6 +801,34 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	meInvMassZ0_->Fill( mass );
       } else if ( mass > 110 ) {
 	meInvMassHigh_->Fill( mass );
+      }
+    }
+
+    for ( SuperClusterCollection::const_iterator sc1 = scSel.begin(); sc1 != scSel.end(); ++sc1 ) {
+      TLorentzVector sc1P;
+      sc1P.SetPtEtaPhiE(fabs(sc1->energy()*sin(sc1->position().theta())),
+                         sc1->eta(), sc1->phi(), sc1->energy());
+      for ( SuperClusterCollection::const_iterator sc2 = sc1+1; sc2 != scSel.end(); ++sc2 ) {
+        TLorentzVector sc2P;
+        sc2P.SetPtEtaPhiE(fabs(sc2->energy()*sin(sc2->position().theta())),
+                          sc2->eta(), sc2->phi(), sc2->energy());
+
+        TLorentzVector candP = sc1P + sc2P;
+
+        if ( candP.Pt() > thrCandEt_ ) {
+          float mass = candP.M();
+          if ( mass < 0.3 ) {
+            meInvMassPi0Sel_->Fill( mass );
+          } else if ( mass > 2.9 && mass < 3.3 ) {
+            meInvMassJPsiSel_->Fill( mass );
+          } else if ( mass > 40 && mass < 110 ) {
+            meInvMassZ0Sel_->Fill( mass );
+          } else if ( mass > 110 ) {
+            meInvMassHighSel_->Fill( mass );
+          }          
+
+        }
+
       }
     }
 

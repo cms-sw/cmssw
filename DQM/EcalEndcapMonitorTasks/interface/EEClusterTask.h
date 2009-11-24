@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2009/02/26 14:54:45 $
- * $Revision: 1.17 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
  */
@@ -90,7 +90,7 @@ MonitorElement* meSCEneLowScale_;
 MonitorElement* meSCSeedMapOcc_[2];
 MonitorElement* meSCMapSingleCrystal_[2];
 MonitorElement* meSCSeedTimingSummary_;
-MonitorElement* meSCSeedTimingMap_[2];
+MonitorElement* meSCSeedTimingMap_[2], *meSCSeedTimingMapProjR_[2], *meSCSeedTimingMapProjPhi_[2];
 MonitorElement* meSCSeedTiming_[18];
 
 MonitorElement* mes1s9_, *mes9s25_;
@@ -98,8 +98,14 @@ MonitorElement* meInvMassPi0_;
 MonitorElement* meInvMassJPsi_;
 MonitorElement* meInvMassZ0_;
 MonitorElement* meInvMassHigh_;
+MonitorElement* meInvMassPi0Sel_;
+MonitorElement* meInvMassJPsiSel_;
+MonitorElement* meInvMassZ0Sel_;
+MonitorElement* meInvMassHighSel_;
 
 bool init_;
+
+float thrSigmaIeIe_, thrClusEt_, thrCandEt_;
 
 };
 

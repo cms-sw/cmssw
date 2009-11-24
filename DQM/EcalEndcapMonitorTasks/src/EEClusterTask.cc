@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.66 $
+ * $Date: 2009/11/23 10:07:51 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -112,6 +112,11 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCSeedTimingSummary_ = 0;
   meSCSeedTimingMap_[0] = 0;
   meSCSeedTimingMap_[1] = 0;
+  meSCSeedTimingMapProjR_[0] = 0;
+  meSCSeedTimingMapProjR_[1] = 0;
+  meSCSeedTimingMapProjPhi_[0] = 0;
+  meSCSeedTimingMapProjPhi_[1] = 0;
+
   for(int i=0;i<18;++i)
     meSCSeedTiming_[i] = 0;
 
@@ -122,6 +127,15 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meInvMassJPsi_ = 0;
   meInvMassZ0_ = 0;
   meInvMassHigh_ = 0;
+
+  meInvMassPi0Sel_ = 0;
+  meInvMassJPsiSel_ = 0;
+  meInvMassZ0Sel_ = 0;
+  meInvMassHighSel_ = 0;
+
+  thrSigmaIeIe_ = 999.;
+  thrClusEt_ = 1.0;
+  thrCandEt_ = 1.5;
 
 }
 
@@ -238,6 +252,14 @@ void EEClusterTask::reset(void) {
 
   if ( meSCSeedTimingMap_[1] ) meSCSeedTimingMap_[1]->Reset();
 
+  if ( meSCSeedTimingMapProjR_[0] ) meSCSeedTimingMapProjR_[0]->Reset();
+
+  if ( meSCSeedTimingMapProjR_[1] ) meSCSeedTimingMapProjR_[1]->Reset();
+
+  if ( meSCSeedTimingMapProjPhi_[0] ) meSCSeedTimingMapProjPhi_[0]->Reset();
+
+  if ( meSCSeedTimingMapProjPhi_[1] ) meSCSeedTimingMapProjPhi_[1]->Reset();
+
   for(int i=0; i<18; ++i)
     if ( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
@@ -252,6 +274,14 @@ void EEClusterTask::reset(void) {
   if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
 
   if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
+
+  if ( meInvMassPi0Sel_ ) meInvMassPi0Sel_->Reset();
+
+  if ( meInvMassJPsiSel_ ) meInvMassJPsiSel_->Reset();
+
+  if ( meInvMassZ0Sel_ ) meInvMassZ0Sel_->Reset();
+
+  if ( meInvMassHighSel_ ) meInvMassHighSel_->Reset();
 
 }
 
@@ -450,23 +480,45 @@ void EEClusterTask::setup(void){
     meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EECLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
-    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
+    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing (clocks)", 1);
 
     sprintf(histo, "EECLT SC seed crystal timing map EE -");
-    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 100, -50., 50., "s");
+    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
     meSCSeedTimingMap_[0]->setAxisTitle("jx", 1);
     meSCSeedTimingMap_[0]->setAxisTitle("jy", 2);
+    meSCSeedTimingMap_[0]->setAxisTitle("time (clocks)", 3);
 
     sprintf(histo, "EECLT SC seed crystal timing map EE +");
-    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 100, -50., 50., "s");
+    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
     meSCSeedTimingMap_[1]->setAxisTitle("jx", 1);
     meSCSeedTimingMap_[1]->setAxisTitle("jy", 2);
+    meSCSeedTimingMap_[1]->setAxisTitle("time (clocks)", 3);
+
+    sprintf(histo, "EECLT SC seed crystal timing projection R EE -");
+    meSCSeedTimingMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
+    meSCSeedTimingMapProjR_[0]->setAxisTitle("r", 1);
+    meSCSeedTimingMapProjR_[0]->setAxisTitle("cluster size", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing projection phi EE -");
+    meSCSeedTimingMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    meSCSeedTimingMapProjPhi_[0]->setAxisTitle("phi", 1);
+    meSCSeedTimingMapProjPhi_[0]->setAxisTitle("time (clocks)", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing projection R EE +");
+    meSCSeedTimingMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
+    meSCSeedTimingMapProjR_[1]->setAxisTitle("r", 1);
+    meSCSeedTimingMapProjR_[1]->setAxisTitle("time (clocks)", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing projection phi EE +");
+    meSCSeedTimingMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    meSCSeedTimingMapProjPhi_[1]->setAxisTitle("phi", 1);
+    meSCSeedTimingMapProjPhi_[1]->setAxisTitle("time (clocks)", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
     for(int i = 0; i < 18; i++) {
       sprintf(histo, "EECLT timing %s", Numbers::sEE(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
     }
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
 
@@ -479,7 +531,7 @@ void EEClusterTask::setup(void){
     mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EECLT dicluster invariant mass Pi0");
-    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0., 0.300);
+    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EECLT dicluster invariant mass JPsi");
@@ -493,6 +545,22 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT dicluster invariant mass high");
     meInvMassHigh_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass Pi0 sel");
+    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
+    meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass JPsi sel");
+    meInvMassJPsiSel_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
+    meInvMassJPsiSel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass Z0 sel");
+    meInvMassZ0Sel_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
+    meInvMassZ0Sel_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass high sel");
+    meInvMassHighSel_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
+    meInvMassHighSel_->setAxisTitle("mass (GeV)", 1);
 
   }
 
@@ -631,6 +699,18 @@ void EEClusterTask::cleanup(void){
     if ( meSCSeedTimingMap_[1] ) dqmStore_->removeElement( meSCSeedTimingMap_[1]->getName() );
     meSCSeedTimingMap_[1] = 0;
 
+    if ( meSCSeedTimingMapProjR_[0] ) dqmStore_->removeElement( meSCSeedTimingMapProjR_[0]->getName() );
+    meSCSeedTimingMapProjR_[0] = 0;
+
+    if ( meSCSeedTimingMapProjR_[1] ) dqmStore_->removeElement( meSCSeedTimingMapProjR_[1]->getName() );
+    meSCSeedTimingMapProjR_[1] = 0;
+
+    if ( meSCSeedTimingMapProjPhi_[0] ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_[0]->getName() );
+    meSCSeedTimingMapProjPhi_[0] = 0;
+
+    if ( meSCSeedTimingMapProjPhi_[1] ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_[1]->getName() );
+    meSCSeedTimingMapProjPhi_[1] = 0;
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
     for(int i=0;i<18;++i) {
       if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
@@ -655,6 +735,18 @@ void EEClusterTask::cleanup(void){
 
     if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getName() );
     meInvMassHigh_ = 0;
+
+    if ( meInvMassPi0Sel_ ) dqmStore_->removeElement( meInvMassPi0Sel_->getName() );
+    meInvMassPi0Sel_ = 0;
+
+    if ( meInvMassJPsiSel_ ) dqmStore_->removeElement( meInvMassJPsiSel_->getName() );
+    meInvMassJPsiSel_ = 0;
+
+    if ( meInvMassZ0Sel_ ) dqmStore_->removeElement( meInvMassZ0Sel_->getName() );
+    meInvMassZ0Sel_ = 0;
+
+    if ( meInvMassHighSel_ ) dqmStore_->removeElement( meInvMassHighSel_->getName() );
+    meInvMassHighSel_ = 0;
 
   }
 
@@ -777,6 +869,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
+    SuperClusterCollection scSel;
+
     for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
 
       // energy, size
@@ -829,6 +923,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
           float e3x3 = EcalClusterTools::e3x3( *theSeed, eeRecHits, topology );
           float e5x5 = EcalClusterTools::e5x5( *theSeed, eeRecHits, topology );
+          std::vector<float> localCov = EcalClusterTools::localCovariances( *theSeed, eeRecHits, topology );
+          float sigmaIEtaIEta = sqrt(localCov[0]);
 
           meSCCrystalSiz_->Fill(sIds.size());
           meSCSeedEne_->Fill(eMax);
@@ -860,11 +956,13 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           if(pAgc.isValid()) {
             if(seedItr->energy() / agc->getEEValue() > 16) {
 
-              float time = seedItr->time();
+              float time = seedItr->time() / 25.0 + 5.0;
 
               meSCSeedTimingSummary_->Fill( time );
               meSCSeedTiming_[ism-1]->Fill( time );
               meSCSeedTimingMap_[eeSide]->Fill(xeex, xeey, time);
+              meSCSeedTimingMapProjR_[eeSide]->Fill( sqrt(xeex*xeex + xeey*xeey), time );
+              meSCSeedTimingMapProjPhi_[eeSide]->Fill( atan(xeey/xeex), time );
 
             }
           } else {
@@ -873,6 +971,12 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
+
+          // fill the selected SC collection
+          float pt = fabs( sCluster->energy()*sin(sCluster->position().theta()) );
+          
+          if ( pt > thrClusEt_ && sigmaIEtaIEta < thrSigmaIeIe_ ) scSel.push_back(*sCluster);
+
         }
         else {
           LogWarning("EEClusterTask") << "CaloTopology not valid";
@@ -905,6 +1009,34 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 	meInvMassZ0_->Fill( mass );
       } else if ( mass > 110 ) {
 	meInvMassHigh_->Fill( mass );
+      }
+    }
+
+    for ( SuperClusterCollection::const_iterator sc1 = scSel.begin(); sc1 != scSel.end(); ++sc1 ) {
+      TLorentzVector sc1P;
+      sc1P.SetPtEtaPhiE(fabs(sc1->energy()*sin(sc1->position().theta())),
+                         sc1->eta(), sc1->phi(), sc1->energy());
+      for ( SuperClusterCollection::const_iterator sc2 = sc1+1; sc2 != scSel.end(); ++sc2 ) {
+        TLorentzVector sc2P;
+        sc2P.SetPtEtaPhiE(fabs(sc2->energy()*sin(sc2->position().theta())),
+                          sc2->eta(), sc2->phi(), sc2->energy());
+
+        TLorentzVector candP = sc1P + sc2P;
+
+        if ( candP.Pt() > thrCandEt_ ) {
+          float mass = candP.M();
+          if ( mass < 0.3 ) {
+            meInvMassPi0Sel_->Fill( mass );
+          } else if ( mass > 2.9 && mass < 3.3 ) {
+            meInvMassJPsiSel_->Fill( mass );
+          } else if ( mass > 40 && mass < 110 ) {
+            meInvMassZ0Sel_->Fill( mass );
+          } else if ( mass > 110 ) {
+            meInvMassHighSel_->Fill( mass );
+          }          
+
+        }
+
       }
     }
 
