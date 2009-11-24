@@ -101,8 +101,8 @@ void DDPixBarStackLayerAlgo::execute() {
 
 
   // Set parameters for the Phi Rotated Stacks as default
-  double d1 = (ladderThick/2.0)*tan(phi_offset);
-  double d2 = (ladderThick/2.0)/cos(phi_offset);
+  double d1 = (ladderThick)*tan(phi_offset);
+  double d2 = (ladderThick)/cos(phi_offset);
   double d3 = (moduleRadius+d2);
   double d4 = ((activeWidth/2.0)-d1);
   double r_right = sqrt( d3*d3 + d4*d4 + 2*d3*d4*sin(phi_offset)) ;	// Radius of the outer edge of the active area
@@ -125,12 +125,12 @@ void DDPixBarStackLayerAlgo::execute() {
     phi_offset = 0.0;
     phi_coverage_pinn = 0.0; // Determin for each ladder when placed
     double R_Curvature = ((4*moduleRadius*moduleRadius)+(ladderWidth*ladderWidth/4))/(4*moduleRadius);	// The radius of the ends of the inner stack
-    double r2 = (R_Curvature+ladderThick/2);
-    double r1 = sqrt((R_Curvature*R_Curvature)-(ladderWidth*ladderWidth/4.0))-(ladderThick/2);
+    double r2 = (R_Curvature+ladderThick);
+    double r1 = sqrt((R_Curvature*R_Curvature)-(ladderWidth*ladderWidth/4.0))-(ladderThick);
 
     radius_offset = (r1-r2)/2.0;
-    r_vol_inner = r1-(ladderThick/2.0);
-    r_vol_outer = sqrt((ladderWidth*ladderWidth/4.0)+((r2+ladderThick/2.0)*(r2+ladderThick/2.0)));
+    r_vol_inner = r1-(ladderThick);
+    r_vol_outer = sqrt((ladderWidth*ladderWidth/4.0)+((r2+ladderThick)*(r2+ladderThick)));
     // phi_left and phi_right depend on R so they will be determined later
     // std::cout << "\nDetermining the radii, r_in="<<r_vol_inner   <<" r1="<<r1<< " R_c="<<R_Curvature<<" r2="<<r2<<" r_out="<<r_vol_outer;
   }
@@ -274,7 +274,7 @@ void DDPixBarStackLayerAlgo::execute() {
     // Running total of phi coverage
     phi_coverage_i=phi_coverage_pinn;
     if(layout) {
-	phi_coverage_i=2*atan2((activeWidth/2.0),(radius+ladderThick/2));
+	phi_coverage_i=2*atan2((activeWidth/2.0),(radius+ladderThick));
     }
 
     phi_coverage += phi_coverage_i;
