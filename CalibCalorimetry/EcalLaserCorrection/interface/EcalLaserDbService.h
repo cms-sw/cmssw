@@ -37,8 +37,6 @@ class EcalLaserDbService {
 
  private:
 
-  int getLMNumber(DetId const & xid) const;
-
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;  
