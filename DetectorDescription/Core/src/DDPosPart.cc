@@ -15,7 +15,7 @@ void DDpos(const DDLogicalPart & self,
 //   std::cout << self << " in mother " << std::endl << mother << std::endl;
 //   std::cout << "Rotation matrix " << std::endl << *(rot.rotation()) << std::endl;
   int cpno = atoi(copyno.c_str());
-  DDpos(self,mother,cpno,trans,rot, cpv, div);
+  DDpos(self,mother,cpno,trans,rot, div);
 }
 
 void DDpos(const DDLogicalPart & self,
@@ -23,10 +23,9 @@ void DDpos(const DDLogicalPart & self,
 	   int copyno,
 	   const DDTranslation & trans,
 	   const DDRotation & rot,
-	   const DDCompactView& cpv,
 	   const DDDivision * div)
 {
-//   DDCompactView cpv(true); 
+  DDCompactView cpv(true); 
   DDCompactView::graph_type & graph = cpv.writeableGraph();
 //   std::cout << "about to pos using int copy_no " << copyno << "  of  " << std::endl;
 //   std::cout << self << " in mother " << std::endl<< mother << std::endl;
