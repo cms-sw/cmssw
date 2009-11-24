@@ -8,26 +8,17 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process):
-    loadPAT(process)
+def addDefaultSUSYPAT(process, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332'):
+    loadPAT(process,JetMetCorrections)
     addJetMET(process)
-    loadPATTriggers(process)
-
-    #-- Remove MC dependence ------------------------------------------------------
-    #from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    #removeMCMatching(process, 'All')
+    loadPATTriggers(process,HLTMenu)
 
     # Full path
     process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
                                                    *process.patDefaultSequence
                                                    * process.patTrigger*process.patTriggerEvent )
 
-def loadPAT(process):
-    #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
-    from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC
-#    run33xOn31xMC(process, "ak5GenJets")
-    run33xOnReRecoMC( process, "ak5GenJets" )
-    
+def loadPAT(process,JetMetCorrections='Summer09_7TeV_ReReco332'):
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
@@ -46,17 +37,17 @@ def loadPAT(process):
     process.tauMatch.checkCharge      = False
 
     #-- Jet corrections -----------------------------------------------------------
-    process.jetCorrFactors.corrSample = 'Summer09_7TeV_ReReco332' ## 'Summer09' for 10TeV, 'Summer09_7TeV' for 7TeV no ReReco
+    process.jetCorrFactors.corrSample = JetMetCorrections ## 'Summer09' for 10TeV, 'Summer09_7TeV' for 7TeV no ReReco
     
-def loadPATTriggers(process):
+def loadPATTriggers(process,HLTMenu='HLT'):
     #-- Trigger matching ----------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
     switchOnTrigger( process )
     process.patTriggerSequence.remove( process.patTriggerMatcher )
     process.patTriggerEvent.patTriggerMatches  = ()
-    # Fix for secondary datasets: skimming based on 8E29 menu...
-    process.patTrigger.processName = "HLT8E29"
-    process.patTriggerEvent.processName = "HLT8E29"
+    # If we have to rename the default trigger menu
+    process.patTrigger.processName = HLTMenu
+    process.patTriggerEvent.processName = HLTMenu
 
 def addJetMET(process):
     #-- Extra Jet/MET collections -------------------------------------------------
@@ -192,6 +183,30 @@ def addJetMET(process):
         process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
         process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
 	
+
+def removeMCDependence( process ):
+    #-- Remove MC dependence ------------------------------------------------------
+    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
+    removeMCMatching(process, 'All')
+    
+    ## remove mc extra configs for met
+    for MetName in ( '', 'IC5', 'SC5' , 'PF', 'TC'):# , 'SC5JPT', 'SC5Track' ):
+        module = getattr(process, 'layer1METs'+MetName)        
+        module.addGenMET           = False
+        module.genMETSource        = ''
+    
+   	## remove mc extra configs for jets
+    for jetName in ( '', 'IC5', 'SC5' , 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):# , 'SC5JPT', 'SC5Track' ):
+        module = getattr(process,'allLayer1Jets'+jetName)
+        module.addGenPartonMatch   = False
+        module.embedGenPartonMatch = False
+        module.genPartonMatch      = ''
+        module.addGenJetMatch      = False
+        module.genJetMatch         = ''
+        module.getJetMCFlavour     = False
+        module.JetPartonMapSource  = ''      
+        process.patDefaultSequence.remove(getattr(process,'jetPartonMatch'+jetName))
+        process.patDefaultSequence.remove(getattr(process,'jetGenJetMatch'+jetName))
 
 def getSUSY_pattuple_outputCommands( process ):
     return [ # PAT Objects

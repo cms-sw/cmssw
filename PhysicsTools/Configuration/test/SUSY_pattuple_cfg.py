@@ -11,8 +11,8 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/SuSyAachen/Skimming/test/SUSY_pattuple_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.19 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
 
@@ -22,7 +22,7 @@ process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet(
     limit = cms.untracked.int32(-1),
     reportEvery = cms.untracked.int32(1)
     )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 #-- Input Source --------------------------------------------------------------
 process.source.fileNames = [
@@ -34,12 +34,18 @@ process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All' #GR09_P_V6 for data, MC_31X_V9 for MC
 
+#-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
+# Comment this when you run on data
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC
+run33xOnReRecoMC( process, "ak5GenJets" )
 
 ############################# START SUSYPAT specifics ####################################
-from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
-addDefaultSUSYPAT(process)
+from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, removeMCDependence, getSUSY_pattuple_outputCommands
+addDefaultSUSYPAT(process,'HLT8E29') #second parameter is the name of the HLT menu
+# Uncomment next line when you run on data
+#removeMCDependence(process)
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
