@@ -35,7 +35,7 @@ namespace cond {
       trans.start(true);
       try {
         ok = load(&m_element.db().poolCache(),m_element.token());
-	if (ok) m_token = ,m_element.token();
+	if (ok) m_token = m_element.token();
       }	catch( const pool::Exception& e) {
         if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
         ok = false;

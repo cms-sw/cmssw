@@ -41,7 +41,7 @@ namespace cond {
       pool::Ref<DataWrapper> ref(svc,itoken);
       if (ref) {
         m_data.copyShallow(ref);
-        ok = m_data.loadData();
+        ok = m_data->loadData();
       } else {
         pool::Ref<DataT> refo(svc,itoken);
         if (refo) {
