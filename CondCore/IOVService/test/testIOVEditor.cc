@@ -21,6 +21,7 @@ int main(){
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
     pooldb.open("sqlite_file:test.db");
+    std::string token;
     {
       cond::IOVEditor editor(pooldb);
       cond::DbScopedTransaction transaction(pooldb);
@@ -151,7 +152,7 @@ int main(){
       //std::cout<<"truncate. new last position "<<pos<<std::endl;
       
       
-      std::string token=editor.token();
+      token=editor.token();
       std::cout<<"iov token "<<token<<std::endl;
       transaction.commit();
     }
