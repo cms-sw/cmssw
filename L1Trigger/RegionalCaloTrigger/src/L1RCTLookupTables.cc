@@ -49,7 +49,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   float ecal;
   float hcal;
   // using channel mask to mask off ecal channels
-  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta])
+  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1])
     {
       ecal = 0;
     }
@@ -58,7 +58,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       ecal = convertEcal(ecalInput, iAbsEta, sign);
     }
   // masking off hcal for channels in channel mask
-  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta])
+  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1])
     {
       hcal = 0;
     }
