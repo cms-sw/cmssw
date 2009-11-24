@@ -40,11 +40,6 @@ struct CSCALCTHeader2007 {
     return 8;
   }
 
-  void flagAsUsed() {
-    rawBins = 16;
-    lctBins = 8;
-  }
-
   unsigned flag1                : 16;///=0xDB0A
 
   unsigned bxnL1A               : 12;
