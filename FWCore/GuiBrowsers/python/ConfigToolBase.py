@@ -52,7 +52,7 @@ class ConfigToolBase(object) :
         if Type==None:
             par.type=type(parvalue)
         else: par.type=Type
-        par.range=Range
+        par.allowedValues=allowedValues
         dict[par.name]=par        
     def getParameters(self):
         """ Return the list of the parameters of an action.
