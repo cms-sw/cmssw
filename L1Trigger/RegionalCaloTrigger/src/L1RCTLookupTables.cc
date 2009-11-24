@@ -46,38 +46,51 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   if(iAbsEta < 1 || iAbsEta > 28) 
     throw cms::Exception("Invalid Data") 
       << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecal;
-  float hcal;
+
+
+  //Pre Input bits
+  unsigned short ecalAfterMask=0;
+  unsigned short hcalAfterMask=0;
+
+
   // using channel mask to mask off ecal channels
   if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1])
     {
-      ecal = 0;
+      ecalAfterMask=0;
     }
   else
     {
-      ecal = convertEcal(ecalInput, iAbsEta, sign);
+      ecalAfterMask=ecalInput;
     }
+
+  float ecal =  convertEcal(ecalAfterMask, iAbsEta, sign);
+
+
   // masking off hcal for channels in channel mask
   if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1])
     {
-      hcal = 0;
+      hcalAfterMask=0;
     }
   else
     {
-      hcal = convertHcal(hcalInput, iAbsEta, sign);
+      hcalAfterMask=hcalInput;
     }
+
+    float hcal = convertHcal(hcalAfterMask, iAbsEta, sign);
+
+
   // couts!
   //std::cout << "LUTs: ecalInput=" << ecalInput << " ecalConverted="
   //	    << ecal << std::endl;
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
   // Saturated input towers cause tower ET pegging at the highest value
-  /*if(ecalInput == 0xFF || hcalInput == 0xFF)
+  /*if(ecalInput == 0xFF || hcal == 0xFF)
     {
       etIn7Bits = 0x7F;
       etIn9Bits = 0x1FF;
       }*/
-  /*else*/ if((ecalInput == 0 && hcalInput > 0) &&
+  /*else*/ if((ecalAfterMask == 0 && hcalAfterMask > 0) &&
   	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
   	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
   	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
@@ -91,17 +104,17 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
     }
   // Saturated input towers cause tower ET pegging at the highest value
-  if((ecalInput == 0xFF && 
+  if((ecalAfterMask == 0xFF && 
       rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] != 0. ) 
-     || (hcalInput == 0xFF &&
+     || (hcalAfterMask == 0xFF &&
 	 rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] != 0. )
      )
     {
       etIn7Bits = 0x7F; // egamma path
     }
-  if((ecalInput == 0xFF &&
+  if((ecalAfterMask == 0xFF &&
       rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] != 0. )
-     || (hcalInput == 0xFF &&
+     || (hcalAfterMask == 0xFF &&
 	 rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] != 0. ))
     {
       etIn9Bits = 0x1FF; // sums path
