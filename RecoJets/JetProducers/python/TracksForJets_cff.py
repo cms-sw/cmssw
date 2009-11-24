@@ -10,3 +10,9 @@ tracksForJets = cms.EDProducer("ConcreteChargedCandidateProducer",
     src          = cms.InputTag("generalTracks"),
     particleType = cms.string('pi+')
 )
+
+
+trackRefsForJets = cms.EDProducer("ConcreteChargedRefCandidateProducer",
+    src          = cms.InputTag("generalTracks"),
+    particleType = cms.string('pi+')
+)
