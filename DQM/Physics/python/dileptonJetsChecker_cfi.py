@@ -1,0 +1,145 @@
+import FWCore.ParameterSet.Config as cms
+
+diLeptonsCheckerDimu= cms.EDAnalyzer('DiLeptonsChecker',
+        outputFileName	  = cms.string('TopMCValidation_dimu.root'),	
+	labelMuons        = cms.InputTag('muons'),
+	labelElectrons    = cms.InputTag('gsfElectrons'),
+        labelElectronID   = cms.string('eidLoose'),
+        labelJets         = cms.InputTag('ak5CaloJets'),
+        labelMETs         = cms.InputTag('met'),
+        labelBeamSpot     = cms.InputTag('offlineBeamSpot'),
+        #labelTriggerResults = cms.InputTag('hltTriggerSummaryAOD'),
+        labelTriggerResults = cms.InputTag("TriggerResults","","HLT8E29"),
+	jetCorrector      = cms.string('L2L3JetCorrectorAK5Calo'),
+        useJES            = cms.bool(True),   
+	NofJets	  	  = cms.int32(4),
+	PtThrJets	  = cms.double(30.),
+        EtaThrJets	  = cms.double(2.4),
+        EHThrJets         = cms.double(0.0),
+	PtThrMuons	  = cms.double(20.),
+        EtaThrMuons	  = cms.double(2.5),
+	MuonVetoEM        = cms.double(4),
+	MuonVetoHad       = cms.double(6),
+        PtThrElectrons	  = cms.double(20.),
+        EtaThrElectrons	  = cms.double(2.5),
+	MuonRelIso            = cms.double(0.1),
+	MuonRelIsoTrk         = cms.double(0.9),
+	MuonRelIsoCalo        = cms.double(0.9),
+	ElectronRelIso        = cms.double(0.1),
+	ElectronRelIsoCalo    = cms.double(0.8),
+	ElectronRelIsoTrk     = cms.double(0.9),
+        MuonD0Cut         = cms.double(0.02), 
+        ElectronD0Cut     = cms.double(0.04),
+	deltaREMCut       = cms.double(0.1),
+        metCut            = cms.double(50), 
+	Chi2Cut           = cms.int32(10), 
+        NofValidHits      = cms.int32(11),
+	triggerPath       = cms.vstring('HLT_Mu9'),
+	Xsection          = cms.double(414),   #Xsection X BR if sample of specific decay
+	Luminosity        = cms.int32(100),    #pb-1
+        verbose           = cms.bool(False),   
+        lookAtDiMuonsChannel      = cms.bool(True), 
+        lookAtDiElectronsChannel  = cms.bool(False),          
+        lookAtElectronMuonChannel = cms.bool(False),
+                                     
+        includeBtagInfo           = cms.bool(False), # if true also fill the list of algos! If False the following two parameters are actually not parsed.
+        btaggingAlgoLabels        = cms.vstring(""), # for example: btaggingAlgoLabels = cms.vstring("trackCountingHighPurBJetTag","trackCountingHighEffBJetTag","simpleSecondaryVertexBJetTag")                                 
+        btaggingMatchDr           = cms.double(0.5), # match jet used for b-tagging to jet in jet collection                                  
+        saveDQMMEs                = cms.bool(True)  #Save DQM output file directly without using the framework
+)
+ 
+diLeptonsCheckerDiel= cms.EDAnalyzer('DiLeptonsChecker',
+        outputFileName	  = cms.string('TopMCValidation_diel.root'),	
+	labelMuons        = cms.InputTag('muons'),
+	labelElectrons    = cms.InputTag('gsfElectrons'),
+        labelElectronID   = cms.string('eidLoose'),
+        labelJets         = cms.InputTag('ak5CaloJets'),
+        labelMETs         = cms.InputTag('met'),
+        labelBeamSpot     = cms.InputTag('offlineBeamSpot'),
+        #labelTriggerResults = cms.InputTag('hltTriggerSummaryAOD'),
+        labelTriggerResults = cms.InputTag("TriggerResults","","HLT8E29"),
+	jetCorrector      = cms.string('L2L3JetCorrectorAK5Calo'),
+        useJES            = cms.bool(True),   
+	NofJets	  	  = cms.int32(4),
+	PtThrJets	  = cms.double(30.),
+        EtaThrJets	  = cms.double(2.4),
+        EHThrJets         = cms.double(0.0),
+	PtThrMuons	  = cms.double(20.),
+        EtaThrMuons	  = cms.double(2.5),
+	MuonVetoEM        = cms.double(4),
+	MuonVetoHad       = cms.double(6),
+        PtThrElectrons	  = cms.double(20.),
+        EtaThrElectrons	  = cms.double(2.5),
+	MuonRelIso            = cms.double(0.1),
+	MuonRelIsoTrk         = cms.double(0.9),
+	MuonRelIsoCalo        = cms.double(0.9),
+	ElectronRelIso        = cms.double(0.1),
+	ElectronRelIsoCalo    = cms.double(0.8),
+	ElectronRelIsoTrk     = cms.double(0.9),
+	deltaREMCut       = cms.double(0.1),
+        MuonD0Cut         = cms.double(0.02), 
+        ElectronD0Cut     = cms.double(0.04),
+        metCut            = cms.double(50), 
+	Chi2Cut           = cms.int32(10), 
+        NofValidHits      = cms.int32(11),
+	triggerPath       = cms.vstring('HLT_Ele15_LW_L1R'),
+	Xsection          = cms.double(414),   #Xsection X BR if sample of specific decay
+	Luminosity        = cms.int32(100),    #pb-1
+        verbose           = cms.bool(False),   
+        lookAtDiMuonsChannel      = cms.bool(False), 
+        lookAtDiElectronsChannel  = cms.bool(True),          
+        lookAtElectronMuonChannel = cms.bool(False),
+                                     
+        includeBtagInfo           = cms.bool(False), # if true also fill the list of algos! If False the following two parameters are actually not parsed.
+        btaggingAlgoLabels        = cms.vstring(""), # for example: btaggingAlgoLabels = cms.vstring("trackCountingHighPurBJetTag","trackCountingHighEffBJetTag","simpleSecondaryVertexBJetTag")                                 
+        btaggingMatchDr           = cms.double(0.5), # match jet used for b-tagging to jet in jet collection                                  
+        saveDQMMEs                = cms.bool(True)  #Save DQM output file directly without using the framework
+) 
+ 
+diLeptonsCheckerElmu= cms.EDAnalyzer('DiLeptonsChecker',
+        outputFileName	  = cms.string('TopMCValidation_elmu.root'),	
+	labelMuons        = cms.InputTag('muons'),
+	labelElectrons    = cms.InputTag('gsfElectrons'),
+        labelElectronID   = cms.string('eidLoose'),
+        labelJets         = cms.InputTag('ak5CaloJets'),
+        labelMETs         = cms.InputTag('met'),
+        labelBeamSpot     = cms.InputTag('offlineBeamSpot'),
+        #labelTriggerResults = cms.InputTag('hltTriggerSummaryAOD'),
+        labelTriggerResults = cms.InputTag("TriggerResults","","HLT8E29"),
+	jetCorrector      = cms.string('L2L3JetCorrectorAK5Calo'),
+        useJES            = cms.bool(True),   
+	NofJets	  	  = cms.int32(4),
+	PtThrJets	  = cms.double(30.),
+        EtaThrJets	  = cms.double(2.4),
+        EHThrJets         = cms.double(0.0),
+	PtThrMuons	  = cms.double(20.),
+        EtaThrMuons	  = cms.double(2.5),
+	MuonVetoEM        = cms.double(4),
+	MuonVetoHad       = cms.double(6),
+	MuonRelIso            = cms.double(0.1),
+	MuonRelIsoTrk         = cms.double(0.9),
+	MuonRelIsoCalo        = cms.double(0.9),
+	ElectronRelIso        = cms.double(0.1),
+	ElectronRelIsoCalo    = cms.double(0.8),
+	ElectronRelIsoTrk     = cms.double(0.9),
+        PtThrElectrons	  = cms.double(20.),
+        EtaThrElectrons	  = cms.double(2.5),
+        MuonD0Cut         = cms.double(0.02), 
+        ElectronD0Cut     = cms.double(0.04),
+	deltaREMCut       = cms.double(0.1),
+        metCut            = cms.double(30), 
+	Chi2Cut           = cms.int32(10), 
+        NofValidHits      = cms.int32(11),
+	triggerPath       = cms.vstring('HLT_Mu9','HLT_Ele15_LW_L1R'),
+	Xsection          = cms.double(414),   #Xsection X BR if sample of specific decay
+	Luminosity        = cms.int32(100),    #pb-1
+        verbose           = cms.bool(False),   
+        lookAtDiMuonsChannel      = cms.bool(False), 
+        lookAtDiElectronsChannel  = cms.bool(False),          
+        lookAtElectronMuonChannel = cms.bool(True),
+                                     
+        includeBtagInfo           = cms.bool(False),  # if true also fill the list of algos! If False the following two parameters are actually not parsed.
+        btaggingAlgoLabels        = cms.vstring(""), # for example: btaggingAlgoLabels = cms.vstring("trackCountingHighPurBJetTag","trackCountingHighEffBJetTag","simpleSecondaryVertexBJetTag")                                 
+        btaggingMatchDr           = cms.double(0.5), # match jet used for b-tagging to jet in jet collection                                    
+        saveDQMMEs                = cms.bool(True)  #Save DQM output file directly without using the framework
+) 
