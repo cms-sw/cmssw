@@ -54,7 +54,7 @@ cond::IOVService::newIOVIterator( const std::string& token, bool forward ){
 
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){
-  return new cond::IOVEditorImpl( m_pooldb,token);
+  return new cond::IOVEditor( m_pooldb,token);
 }
 
 

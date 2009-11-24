@@ -46,7 +46,8 @@ namespace cond {
     };
   }
 
-  void IOVElementProxy::set(IOVSequence const & v, int i) {
+  void IOVElementProxy::set(IOVSequence const & v, int ii) {
+    size_t i =ii;
     if (i==v.iovs().size()) {
       set(cond::invalidTime, cond::invalidTime,"");
       return;

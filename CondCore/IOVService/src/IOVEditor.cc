@@ -1,6 +1,6 @@
+#include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
-#include "IOVEditorImpl.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbReflex.h"
@@ -9,16 +9,22 @@
 
 namespace cond {
 
-  IOVEditorImpl::IOVEditorImpl( cond::DbSession& poolDb,
-				const std::string& token
-				):m_poolDb(poolDb),m_token(token),
-				  m_isActive(false){
+  IOVEditor::~IOVEditor(){}
+
+  IOVEditor::IOVEditor( cond::DbSession& poolDb):m_poolDb(poolDb),
+						 m_isActive(false){
+  }
+
+  IOVEditor::IOVEditor( cond::DbSession& poolDb,
+			const std::string& token
+			):m_poolDb(poolDb),m_token(token),
+			  m_isActive(false){
   }
   
-  IOVSequence & IOVEditorImpl::iov(){ return *m_iov;}
+  IOVSequence & IOVEditor::iov(){ return *m_iov;}
 
 
-  void IOVEditorImpl::debugInfo(std::ostream & co) const {
+  void IOVEditor::debugInfo(std::ostream & co) const {
     co << "IOVEditor: ";
     co << "db " << m_poolDb.connectionString();
     if(m_token.empty()) {
@@ -40,7 +46,7 @@ namespace cond {
 	 << "; last since " << m_iov->iovs().back().sinceTime();
   }
 
-  void IOVEditorImpl::reportError(std::string message) const {
+  void IOVEditor::reportError(std::string message) const {
     std::ostringstream out;
     out << "Error in ";
     debugInfo(out);
@@ -48,7 +54,7 @@ namespace cond {
     throw cond::Exception(out.str());
   }
 
-  void IOVEditorImpl::reportError(std::string message, cond::Time_t time) const {
+  void IOVEditor::reportError(std::string message, cond::Time_t time) const {
     std::ostringstream out;
     out << "Error in";
     debugInfo(out);
@@ -58,10 +64,10 @@ namespace cond {
 
 
   // create empty default sequence
-  void IOVEditorImpl::create(cond::TimeType timetype) {
+  void IOVEditor::create(cond::TimeType timetype) {
     if(!m_token.empty()){
       // problem??
-      reportError("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
+      reportError("cond::IOVEditor::create cannot create a IOV using an initialized Editor");
     }
 
     m_iov = m_poolDb.storeObject(new cond::IOVSequence(timetype),cond::IOVNames::container());
@@ -70,15 +76,15 @@ namespace cond {
 
   }
 
-  void IOVEditorImpl::create(cond::TimeType timetype,cond::Time_t lastTill) {
+  void IOVEditor::create(cond::TimeType timetype,cond::Time_t lastTill) {
 
     if(!m_token.empty()){
       // problem??
-      reportError("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
+      reportError("cond::IOVEditor::create cannot create a IOV using an initialized Editor");
     }
 
     if(!validTime(lastTill, timetype))
-      reportError("cond::IOVEditorImpl::create time not in global range",lastTill);
+      reportError("cond::IOVEditor::create time not in global range",lastTill);
 
     m_iov = m_poolDb.storeObject(new cond::IOVSequence((int)timetype,lastTill," "),cond::IOVNames::container());
     m_token=m_iov.toString();
@@ -89,10 +95,10 @@ namespace cond {
 
 
   
-  void IOVEditorImpl::init(){
+  void IOVEditor::init(){
     if(m_token.empty()){
       // problem?
-      reportError("cond::IOVEditorImpl::init cannot init w/o token change");
+      reportError("cond::IOVEditor::init cannot init w/o token change");
     }
     
     m_iov = m_poolDb.getTypedObject<cond::IOVSequence>(m_token);
@@ -102,47 +108,47 @@ namespace cond {
   
   
   
-  IOVEditorImpl::~IOVEditorImpl(){
+  IOVEditor::~IOVEditor(){
   }
   
-  Time_t IOVEditorImpl::firstSince() const {
+  Time_t IOVEditor::firstSince() const {
     return m_iov->firstSince();
   }
   
-  Time_t IOVEditorImpl::lastTill() const {
+  Time_t IOVEditor::lastTill() const {
     return m_iov->lastTill();
   }
   
-  TimeType IOVEditorImpl::timetype() const {
+  TimeType IOVEditor::timetype() const {
     return m_iov->timeType();
   }
   
   
-  bool IOVEditorImpl::validTime(cond::Time_t time, cond::TimeType timetype) const {
+  bool IOVEditor::validTime(cond::Time_t time, cond::TimeType timetype) const {
     return time>=timeTypeSpecs[timetype].beginValue && time<=timeTypeSpecs[timetype].endValue;   
     
   }
   
-  bool IOVEditorImpl::validTime(cond::Time_t time) const {
+  bool IOVEditor::validTime(cond::Time_t time) const {
     return validTime(time,timetype());
   }
   
   
   
   unsigned int
-  IOVEditorImpl::insert( cond::Time_t tillTime,
-			 const std::string& payloadToken
-			 ){
+  IOVEditor::insert( cond::Time_t tillTime,
+		     const std::string& payloadToken
+		     ){
     if(!m_isActive) this->init();
     
     if( m_iov->iovs().empty() ) 
-      reportError("cond::IOVEditorImpl::insert cannot inser into empty IOV sequence",tillTime);
+      reportError("cond::IOVEditor::insert cannot inser into empty IOV sequence",tillTime);
     
     if(!validTime(tillTime))
-      reportError("cond::IOVEditorImpl::insert time not in global range",tillTime);
+      reportError("cond::IOVEditor::insert time not in global range",tillTime);
     
     if(tillTime<=lastTill() )
-      reportError("cond::IOVEditorImpl::insert IOV not in range",tillTime);
+      reportError("cond::IOVEditor::insert IOV not in range",tillTime);
     
     cond::Time_t newSince=lastTill()+1;
     m_iov.markUpdate();
@@ -152,22 +158,22 @@ namespace cond {
   }
   
   void 
-  IOVEditorImpl::bulkAppend(std::vector< std::pair<cond::Time_t,std::string> >& values){
+  IOVEditor::bulkAppend(std::vector< std::pair<cond::Time_t,std::string> >& values){
     if (values.empty()) return;
     if(!m_isActive) this->init();
     cond::Time_t firstTime = values.front().first;
     cond::Time_t  lastTime = values.back().first;
 
     if(!validTime(firstTime))
-      reportError("cond::IOVEditorImpl::bulkInsert first time not in global range",firstTime);
+      reportError("cond::IOVEditor::bulkInsert first time not in global range",firstTime);
 
     if(!validTime(lastTime))
-      reportError("cond::IOVEditorImpl::bulkInsert last time not in global range",lastTime);
+      reportError("cond::IOVEditor::bulkInsert last time not in global range",lastTime);
 
    if(lastTime>=lastTill() ||
       ( !m_iov->iovs().empty() && firstTime<=m_iov->iovs().back().sinceTime()) 
        )    
-     reportError("cond::IOVEditorImpl::bulkInsert IOV not in range",firstTime);
+     reportError("cond::IOVEditor::bulkInsert IOV not in range",firstTime);
 
    for(std::vector< std::pair<cond::Time_t,std::string> >::const_iterator it=values.begin(); it!=values.end(); ++it){
      //     m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
@@ -177,21 +183,21 @@ namespace cond {
   }
 
   void 
-  IOVEditorImpl::bulkAppend(std::vector< cond::IOVElement >& values){
+  IOVEditor::bulkAppend(std::vector< cond::IOVElement >& values){
     if (values.empty()) return;
     if(!m_isActive) this->init();
     cond::Time_t firstTime = values.front().sinceTime();
     cond::Time_t   lastTime = values.back().sinceTime();
 
     if(!validTime(firstTime))
-      reportError("cond::IOVEditorImpl::bulkInsert first time not in global range",firstTime);
+      reportError("cond::IOVEditor::bulkInsert first time not in global range",firstTime);
 
     if(!validTime(lastTime))
-      reportError("cond::IOVEditorImpl::bulkInsert last time not in global range",lastTime);
+      reportError("cond::IOVEditor::bulkInsert last time not in global range",lastTime);
 
    if(lastTime>=lastTill() ||
       ( !m_iov->iovs().empty() && firstTime<=m_iov->iovs().back().sinceTime()) 
-      )    reportError("cond::IOVEditorImpl::bulkInsert IOV not in range",firstTime);
+      )    reportError("cond::IOVEditor::bulkInsert IOV not in range",firstTime);
 
    // m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
    m_iov.markUpdate();   
@@ -200,7 +206,7 @@ namespace cond {
   
 
   void 
-  IOVEditorImpl::stamp(std::string const & icomment, bool append) {
+  IOVEditor::stamp(std::string const & icomment, bool append) {
     if(!m_isActive) this->init();
     m_iov->stamp(icomment, append);
     m_iov.markUpdate();
@@ -208,19 +214,19 @@ namespace cond {
 
 
   void 
-  IOVEditorImpl::updateClosure( cond::Time_t newtillTime ){
-    if( m_token.empty() ) reportError("cond::IOVEditorImpl::updateClosure cannot change non-existing IOV index");
+  IOVEditor::updateClosure( cond::Time_t newtillTime ){
+    if( m_token.empty() ) reportError("cond::IOVEditor::updateClosure cannot change non-existing IOV index");
     if(!m_isActive) this->init();
     m_iov->updateLastTill(newtillTime);
     m_iov.markUpdate();
   }
   
   unsigned int 
-  IOVEditorImpl::append( cond::Time_t sinceTime,
-			 const std::string&payloadToken
-			 ){
+  IOVEditor::append( cond::Time_t sinceTime,
+		     const std::string&payloadToken
+		     ){
     if( m_token.empty() ) {
-      reportError("cond::IOVEditorImpl::appendIOV cannot append to non-existing IOV index");
+      reportError("cond::IOVEditor::appendIOV cannot append to non-existing IOV index");
     }
     
     if(!m_isActive) {
@@ -228,7 +234,7 @@ namespace cond {
     }
 
     if(!validTime(sinceTime))
-      reportError("cond::IOVEditorImpl::append time not in global range",sinceTime);
+      reportError("cond::IOVEditor::append time not in global range",sinceTime);
     
     
     if(  m_iov->iovs().size()>1 ){
@@ -250,29 +256,29 @@ namespace cond {
 
  
   unsigned int 
- IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
-			       const std::string& payloadToken
-			       ){
-    // reportError("cond::IOVEditorImpl::freeInsert not supported yet");
-
+ IOVEditor::freeInsert( cond::Time_t sinceTime ,
+			const std::string& payloadToken
+			){
+    // reportError("cond::IOVEditor::freeInsert not supported yet");
+    
     if( m_token.empty() ) {
-      reportError("cond::IOVEditorImpl::freeInsert cannot append to non-existing IOV index");
+      reportError("cond::IOVEditor::freeInsert cannot append to non-existing IOV index");
     }
     
     if(!m_isActive) {
       this->init();
     }
     
-    //   if( m_iov->iov.empty() ) reportError("cond::IOVEditorImpl::freeInsert cannot insert  to empty IOV index");
+    //   if( m_iov->iov.empty() ) reportError("cond::IOVEditor::freeInsert cannot insert  to empty IOV index");
     
 
    if(!validTime(sinceTime))
-     reportError("cond::IOVEditorImpl::freeInsert time not in global range",sinceTime);
+     reportError("cond::IOVEditor::freeInsert time not in global range",sinceTime);
 
    
    // we do not support multiple iov with identical since...
    if (m_iov->exist(sinceTime))
-     reportError("cond::IOVEditorImpl::freeInsert sinceTime already existing",sinceTime);
+     reportError("cond::IOVEditor::freeInsert sinceTime already existing",sinceTime);
 
 
 
@@ -286,8 +292,8 @@ namespace cond {
 
 
   // remove last entry
-  unsigned int IOVEditorImpl::truncate(bool withPayload) {
-    if( m_token.empty() ) reportError("cond::IOVEditorImpl::truncate cannot delete to non-existing IOV sequence");
+  unsigned int IOVEditor::truncate(bool withPayload) {
+    if( m_token.empty() ) reportError("cond::IOVEditor::truncate cannot delete to non-existing IOV sequence");
     if(!m_isActive) this->init();
     if (m_iov->piovs().empty()) return 0;
     if(withPayload){
@@ -301,8 +307,8 @@ namespace cond {
 
 
   void 
-  IOVEditorImpl::deleteEntries(bool withPayload){
-    if( m_token.empty() ) reportError("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV sequence");
+  IOVEditor::deleteEntries(bool withPayload){
+    if( m_token.empty() ) reportError("cond::IOVEditor::deleteEntries cannot delete to non-existing IOV sequence");
     if(!m_isActive) this->init();
     if(withPayload){
       std::string tokenStr;
@@ -317,8 +323,8 @@ namespace cond {
   }
 
   void 
-  IOVEditorImpl::import( const std::string& sourceIOVtoken ){
-    if( !m_token.empty() ) reportError("cond::IOVEditorImpl::import IOV sequence already exists, cannot import");
+  IOVEditor::import( const std::string& sourceIOVtoken ){
+    if( !m_token.empty() ) reportError("cond::IOVEditor::import IOV sequence already exists, cannot import");
     m_iov = m_poolDb.getTypedObject<cond::IOVSequence>(sourceIOVtoken);
     m_token=m_iov.toString();
   }

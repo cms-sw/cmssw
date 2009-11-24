@@ -12,7 +12,7 @@ namespace cond {
   void KeyList::load(std::vector<unsigned long long> const & keys) {
     m_sequence.db().transaction().start(true);
     m_data.resize(keys.size());
-    for (int i=0; i<keys.size(); i++) {
+    for (size_t i=0; i<keys.size(); ++i) {
       if (keys[i]!=0) {
         IOVSequence::const_iterator p = m_sequence.iov().find(keys[i]);
         pool::Ref<Wrapper> ref = m_sequence.db().getTypedObject<Wrapper>( (*p).wrapperToken() );
