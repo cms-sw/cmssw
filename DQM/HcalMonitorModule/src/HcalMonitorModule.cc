@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/19 16:59:36 $
- * $Revision: 1.152 $
+ * $Date: 2009/11/20 14:29:15 $
+ * $Revision: 1.153 $
  * \author W Fisher
  * \author J Temple
  *
@@ -1048,7 +1048,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Beam Monitor task
   if ((beamMon_ != NULL)  && rechitOK_)
     {
-      beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi,calibType);
+      beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi,calibType,e.bunchCrossing());
     }
   if (showTiming_)
     {

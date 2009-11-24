@@ -103,8 +103,10 @@ void HcalBeamMonitor::beginRun(const edm::EventSetup& c, int run)
 	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
 	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot)) 
 	    BadCells_[id]=HcalChannelStatus::HcalCellHot;
+
 	  else if (mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
 	    BadCells_[id]=HcalChannelStatus::HcalCellDead;
+	
 	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot) || 
 	      mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
 	    {
@@ -321,6 +323,10 @@ void HcalBeamMonitor::beginRun(const edm::EventSetup& c, int run)
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
+  HFlumi_Occupancy_per_channel_vs_BX_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs BX (RING 1)","HFlumi Occupancy per channel vs BX (RING 1);BX; -ln(empty fraction)",4000,0,4000,100,0,10000);
+  HFlumi_Occupancy_per_channel_vs_BX_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs BX (RING 2)","HFlumi Occupancy per channel vs BX (RING 2);BX; -ln(empty fraction)",4000,0,4000,100,0,10000);
+  HFlumi_ETsum_vs_BX = m_dbe->bookProfile("HFlumi_ETsum_vs_BX","HFlumi ETsum vs BX; BX; ETsum",4000,0,4000,100,0,10000);
+
   HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block;LS;ET",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->getTProfile()->SetMarkerStyle(20);
@@ -340,7 +346,8 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				   const HORecHitCollection& hoHits,
 				   const HFRecHitCollection& hfHits,
                                    const HFDigiCollection& hf,
-				   int   CalibType
+				   int   CalibType,
+				   int   bunchCrossing
 				   )
   
 { 
@@ -450,27 +457,27 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  unsigned int index;
 	  if ((HcalSubdetector)(id.subdet())==HcalBarrel)
 	    {
-	      HBtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
-	      HBtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
+	      HBtotalX+=HBHEiter->energy()*cos(PI*iphi/36.);
+	      HBtotalY+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HBtotalE+=HBHEiter->energy();
 	      
 	      index=ieta+ETA_OFFSET_HB;
 	      if (index<0 || index> HBETASIZE) continue;
-	      HB_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
-	      HB_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
+	      HB_weightedX[index]+=HBHEiter->energy()*cos(PI*iphi/36.);
+	      HB_weightedY[index]+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HB_energy[index]+=HBHEiter->energy();
 	    } // if id.subdet()==HcalBarrel
 	  
 	  else
 	    {
-	      HEtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
-	      HEtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
+	      HEtotalX+=HBHEiter->energy()*cos(PI*iphi/36.);
+	      HEtotalY+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HEtotalE+=HBHEiter->energy();
 	      
 	      index=ieta+ETA_OFFSET_HE;
 	      if (index<0 || index> HEETASIZE) continue;
-	      HE_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
-	      HE_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
+	      HE_weightedX[index]+=HBHEiter->energy()*cos(PI*iphi/36.);
+	      HE_weightedY[index]+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HE_energy[index]+=HBHEiter->energy();
 	    }
 	} // for (HBHEiter=hbheHits.begin()...
@@ -542,15 +549,15 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  ieta=id.ieta();
 	  iphi=id.iphi();
 
-	  HOtotalX+=HOiter->energy()*cos(2.*PI*iphi/72);
-	  HOtotalY+=HOiter->energy()*sin(2.*PI*iphi/72);
+	  HOtotalX+=HOiter->energy()*cos(PI*iphi/36.);
+	  HOtotalY+=HOiter->energy()*sin(PI*iphi/36.);
 	  HOtotalE+=HOiter->energy();
 
 	  unsigned int index;
 	  index=ieta+ETA_OFFSET_HO;
 	  if (index<0 || index>HOETASIZE) continue;
-	  HO_weightedX[index]+=HOiter->energy()*cos(2.*PI*iphi/72);
-	  HO_weightedY[index]+=HOiter->energy()*sin(2.*PI*iphi/72);
+	  HO_weightedX[index]+=HOiter->energy()*cos(PI*iphi/36.);
+	  HO_weightedY[index]+=HOiter->energy()*sin(PI*iphi/36.);
 	  HO_energy[index]+=HOiter->energy();
 	} // for (HOiter=hoHits.begin();...)
 	  
@@ -606,6 +613,8 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	// No, we can add it here, but we also need a call to setMaximum in the client as well.
 	HFlumi_occ_LS->getTH2F()->SetMaximum(HFlumi_occ_LS->getBinContent(0,0));
 
+	double etx=0, ety=0;
+
 	for (HFiter=hfHits.begin(); 
 	     HFiter!=hfHits.end(); 
 	     ++HFiter) 
@@ -623,7 +632,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // luminosity ring check
 	      {
 		// don't subtract away cells that have already been removed as bad
-		if (BadCells_.find(HFiter->id())==BadCells_.end())
+		if (BadCells_.find(HFiter->id())==BadCells_.end()) // bad cell not found
 		  {
 		    if ((abs(ieta)<35) && HFiter->id().depth()==1) --ZStowersRing1;
 		    else if ((abs(ieta)>34) && HFiter->id().depth()==2) -- ZStowersRing2;
@@ -648,6 +657,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      phi=HFiter->id().iphi()*0.087266;
 	    else phi=(HFiter->id().iphi()-72)*0.087266;
            
+	    
 	    if (HFiter->id().depth()==1)
 	      {
 		Etsum_eta_L->Fill(binieta,et);
@@ -689,6 +699,9 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	    if ((abs(ieta) == 33 || abs(ieta) == 34) && HFiter->id().depth() == 1)
 	      { 
+		etx+=et*cos(PI*iphi/36.);
+		ety+=et*sin(PI*iphi/36.);
+
 		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 		if (et>occThresh_)
 		  {
@@ -703,6 +716,9 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	    else if ((abs(ieta) == 35 || abs(ieta) == 36) && HFiter->id().depth() == 2)
 	      { 
+		etx+=et*cos(PI*iphi/36.);
+		ety+=et*sin(PI*iphi/36.);
+
 		HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 		if (et>occThresh_)
 		  {
@@ -737,15 +753,15 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      }  
 	    HcalDetId id(HFiter->detid().rawId());
 
-	    HFtotalX+=HFiter->energy()*cos(2.*PI*iphi/72);
-	    HFtotalY+=HFiter->energy()*sin(2.*PI*iphi/72);
+	    HFtotalX+=HFiter->energy()*cos(PI*iphi/36.);
+	    HFtotalY+=HFiter->energy()*sin(PI*iphi/36.);
 	    HFtotalE+=HFiter->energy();
 
 	    unsigned int index;
 	    index=ieta+ETA_OFFSET_HF;
 	    if (index<0 || index>HFETASIZE) continue;
-	    HF_weightedX[index]+=HFiter->energy()*cos(2.*PI*iphi/72);
-	    HF_weightedY[index]+=HFiter->energy()*sin(2.*PI*iphi/72);
+	    HF_weightedX[index]+=HFiter->energy()*cos(PI*iphi/36.);
+	    HF_weightedY[index]+=HFiter->energy()*sin(PI*iphi/36.);
 	    HF_energy[index]+=HFiter->energy();
 	    
 	  } // for (HFiter=hfHits.begin();...)
@@ -757,17 +773,18 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	// Check Ring 1
 	double logvalue=0;
-
 	if (emptytowersRing1>0 && ring1totalchannels_>0)
 	  logvalue=-1.*log(emptytowersRing1/ring1totalchannels_);
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,logvalue);
+	HFlumi_Occupancy_per_channel_vs_BX_RING1->Fill(bunchCrossing,logvalue);
 	
 	// Check Ring 2
 	logvalue=0;
 	if (emptytowersRing2>0 && ring2totalchannels_>0)
 	  logvalue=-1.*log(emptytowersRing2/ring2totalchannels_);
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,logvalue);
-
+	HFlumi_Occupancy_per_channel_vs_BX_RING2->Fill(bunchCrossing,logvalue);
+	HFlumi_ETsum_vs_BX->Fill(bunchCrossing,pow(etx*etx+ety*ety,0.5));
 	int hfeta=ETA_OFFSET_HF;
 	for (int i=-1*hfeta;i<=hfeta;++i)
 	  {
@@ -1027,7 +1044,7 @@ void HcalBeamMonitor::endLuminosityBlock()
 	{
 
 	  // Skip over channels that are flagged as bad
-	  if (x<8)
+	  if (x<=8)
 	    ieta=ietamap[x-1];
 	  else
 	    ieta=-1;
@@ -1038,7 +1055,7 @@ void HcalBeamMonitor::endLuminosityBlock()
 	  if (depth !=-1 && ieta!=1)
 	    {
 	      HcalDetId thisID(HcalForward, ieta, iphi, depth);
-	      if (BadCells_.find(thisID)==BadCells_.end())
+	      if (BadCells_.find(thisID)!=BadCells_.end())
 		continue;
 	    }
 	  double Ncellhits=HFlumi_occ_LS->getBinContent(x,y);
@@ -1078,9 +1095,16 @@ void HcalBeamMonitor::endLuminosityBlock()
   HFlumi_Ring2Status_vs_LS->Fill(lumiblock,ring2status);
 
   // Good status:  ring1 and ring2 status both > 90%
-  bool totalstatus=false;
+  int totalstatus=0;
   if (ring1status>0.9 && ring2status>0.9)
-    totalstatus=true;
+    totalstatus=1;
+  else 
+    {
+      if (ring1status<=0.9)
+	totalstatus-=2;
+      if (ring2status<=0.9)
+	totalstatus-=4;
+    }
 
   LBprocessed_=true;
   if (beammon_lumiqualitydir_.size()==0)

@@ -18,8 +18,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/11/16 18:31:48 $
-  * $Revision: 1.14 $
+  * $Date: 2009/11/19 12:49:22 $
+  * $Revision: 1.15 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -34,7 +34,8 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 		    const  HORecHitCollection& hoHits, 
 		    const  HFRecHitCollection& hfHits,
 		    const  HFDigiCollection& hf,
-		    int    CalibType
+		    int    CalibType,
+		    int    bunchCrossing
 		    );
   void reset();
   void clearME();
@@ -51,7 +52,7 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   int      beammon_checkNevents_;
   double   beammon_minErrorFlag_;
   int      beammon_minEvents_;
-
+  int      beammon_BX;
   std::map<int,MonitorElement* > HB_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HF_CenterOfEnergyRadius;
@@ -102,6 +103,9 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1;
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_BX_RING1;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_BX_RING2;
+  MonitorElement* HFlumi_ETsum_vs_BX;
   MonitorElement* HFlumi_Et_per_channel_vs_lumiblock;
 
   MonitorElement* HFlumi_occ_LS;
