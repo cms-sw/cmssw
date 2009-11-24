@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 
@@ -24,16 +25,18 @@ namespace cond {
         }
         
         void refresh() {
-          poolDb.transaction().start(true);
+	  cond::DbScopedTransaction transaction(pooldb);
+	  transaction.start(true);
           pool::Ref<cond::IOVSequence> temp = poolDb.getTypedObject<cond::IOVSequence>( m_token );
           iov.copyShallow(temp);
-	        poolDb.transaction().commit();
-	        if (!iov->iovs().empty() && !m_nolib) {
-          // load dict (change: use IOV metadata....)
-	          std::string ptok = iov->iovs().front().wrapperToken();
-	          cond::reflexTypeByToken(ptok);
+	  transaction.commit();
+	  if (!iov->iovs().empty() && !m_nolib) {
+	    // load dict (change: use IOV metadata....)
+	    std::string ptok = iov->iovs().front().wrapperToken();
+	    cond::reflexTypeByToken(ptok);
           }
         }
+
         ~IOVImpl(){
           if (m_keepOpen) poolDb.transaction().commit();
         }
