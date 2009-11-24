@@ -25,7 +25,7 @@ namespace cond {
         }
         
         void refresh() {
-	  cond::DbScopedTransaction transaction(pooldb);
+	  cond::DbScopedTransaction transaction(poolDb);
 	  transaction.start(true);
           pool::Ref<cond::IOVSequence> temp = poolDb.getTypedObject<cond::IOVSequence>( m_token );
           iov.copyShallow(temp);

@@ -64,103 +64,103 @@ int main(){
 	pos=editor.insert(25, "pay5tok");
 	std::cout<<"shall not insert payload at position "<<pos<<std::endl;
       }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
       
-    try {
-      pos=editor.append(70, "pay5tok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      try {
+	pos=editor.append(70, "pay5tok");
+	std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      editor.updateClosure(400);
+      
+      
+      // test freeInsert
+      std::cout<<"\nfreeInsert "<<std::endl;
+      pos=editor.freeInsert(5,"pay005tok");
+      std::cout<<"inserted 5 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(12,"pay012tok");
+      std::cout<<"inserted 12 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(50,"pay050tok");
+      std::cout<<"inserted 50 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(51,"pay051tok");
+      std::cout<<"inserted 51 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(52,"pay052tok");
+      std::cout<<"inserted 52 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(119,"pay119tok");
+      std::cout<<"inserted 119 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(141,"pay141tok");
+      std::cout<<"inserted 141 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(142,"pay142tok");
+      std::cout<<"inserted 142 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(399,"pay399tok");
+      std::cout<<"inserted 399 payload at position "<<pos<<std::endl;
+      pos=editor.freeInsert(521,"pay521tok");
+      std::cout<<"inserted 521 payload at position "<<pos<<std::endl;
+      try {
+	pos=editor.freeInsert(5, "payNOtok");
+	std::cout<<"shall not insert 5 payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      try {
+	pos=editor.freeInsert(10, "payNOtok");
+	std::cout<<"shall not insert 10 payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      try {
+	pos=editor.freeInsert(21, "payNOtok");
+	std::cout<<"shall not insert 21 payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      try {
+	pos=editor.freeInsert(120, "payNOtok");
+	std::cout<<"shall not insert 121 payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      try {
+	pos=editor.freeInsert(50, "payNOtok");
+	std::cout<<"shall not inser 50 payload at position "<<pos<<std::endl;
+      }
+      catch(const cond::Exception& er){
+	std::cout<<"expected error "<<er.what()<<std::endl;
+      }
+      
+      
+      
+      std::cout<<"delete entry "<<std::endl;
+      
+      
+      pos=editor.append(20100, "payNOtok");
+      std::cout<<"inserted 20100 payload at position "<<pos<<std::endl;
+      pos=editor.append(20123, "payNOtok");
+      std::cout<<"inserted 20123 payload at position "<<pos<<std::endl;
+      
+      // does not work....
+      //  pos=editor.truncate();
+      //std::cout<<"truncate. new last position "<<pos<<std::endl;
+      
+      
+      std::string token=editor.token();
+      std::cout<<"iov token "<<token<<std::endl;
+      transaction.commit();
     }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    editor.updateClosure(400);
-
     
-    // test freeInsert
-    std::cout<<"\nfreeInsert "<<std::endl;
-    pos=editor.freeInsert(5,"pay005tok");
-    std::cout<<"inserted 5 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(12,"pay012tok");
-    std::cout<<"inserted 12 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(50,"pay050tok");
-    std::cout<<"inserted 50 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(51,"pay051tok");
-    std::cout<<"inserted 51 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(52,"pay052tok");
-    std::cout<<"inserted 52 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(119,"pay119tok");
-    std::cout<<"inserted 119 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(141,"pay141tok");
-    std::cout<<"inserted 141 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(142,"pay142tok");
-    std::cout<<"inserted 142 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(399,"pay399tok");
-    std::cout<<"inserted 399 payload at position "<<pos<<std::endl;
-    pos=editor.freeInsert(521,"pay521tok");
-    std::cout<<"inserted 521 payload at position "<<pos<<std::endl;
-    try {
-      pos=editor.freeInsert(5, "payNOtok");
-      std::cout<<"shall not insert 5 payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    try {
-      pos=editor.freeInsert(10, "payNOtok");
-      std::cout<<"shall not insert 10 payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    try {
-      pos=editor.freeInsert(21, "payNOtok");
-      std::cout<<"shall not insert 21 payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    try {
-      pos=editor.freeInsert(120, "payNOtok");
-      std::cout<<"shall not insert 121 payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    try {
-      pos=editor.freeInsert(50, "payNOtok");
-      std::cout<<"shall not inser 50 payload at position "<<pos<<std::endl;
-    }
-    catch(const cond::Exception& er){
-      std::cout<<"expected error "<<er.what()<<std::endl;
-    }
-    
-
-
-    std::cout<<"delete entry "<<std::endl;
-    
-    
-    pos=editor.append(20100, "payNOtok");
-    std::cout<<"inserted 20100 payload at position "<<pos<<std::endl;
-    pos=editor.append(20123, "payNOtok");
-    std::cout<<"inserted 20123 payload at position "<<pos<<std::endl;
-    
-    // does not work....
-    //  pos=editor.truncate();
-    //std::cout<<"truncate. new last position "<<pos<<std::endl;
-     
-
-    std::string token=editor.token();
-    std::cout<<"iov token "<<token<<std::endl;
-    transaction.commit();
-  }
-
     {
       cond::IOVEditor editor(pooldb);
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
-      
+      unsigned int pos=0;  
       pooldb.transaction().start(false);
       pos=editor.truncate();
       std::cout<<"truncate. new last position "<<pos<<std::endl;
@@ -170,20 +170,21 @@ int main(){
       editor.updateClosure(900);
       transaction.commit();
     }
-
+    
     {
       cond::IOVEditor editor(pooldb);
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
+      unsigned int pos=0;
       pos=editor.append(1345, "pay1345tok");
       std::cout<<"inserted 1345 payload at position "<<pos<<std::endl;
-      editor.updateClosure(2000);
-      transaction.commit();
+       editor.updateClosure(2000);
+       transaction.commit();
     }
-
+    
 
     cond::IOVProxy iov( pooldb, token, true, false);
-    for ( cond::IOVProxy::const_iterator it =iov.begin(); it!=iov.end(); ++iov) {
+    for ( cond::IOVProxy::const_iterator it =iov.begin(); it!=iov.end(); ++it) {
       std::cout<<"payloadToken "<<it->token();
       std::cout<<", since "<<it->since();
       std::cout<<", till "<<it->till()<<std::endl;
