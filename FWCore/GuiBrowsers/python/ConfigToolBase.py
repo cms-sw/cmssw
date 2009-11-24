@@ -104,7 +104,7 @@ class ConfigToolBase(object) :
             if value!=self._parameters[name].allowedValues:
               self.parAccepted=False  
         if self.parAccepted==False:
-            raise ValueError("The input value "+'"'+str(value)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues))
+            raise ValueError("The input value "+'"'+str(value)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
     ### check about input value type        
     def typeError(self,name, bool=False):
         if bool is False:
