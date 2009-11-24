@@ -2,7 +2,7 @@ import logging
 import sys
 
 from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView
+from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
@@ -301,7 +301,7 @@ class PropertyView(QTableWidget, AbstractView):
                         self.emit(SIGNAL('valueChanged'),property.name())
                     else:
                         property.setToolTip(result)
-                        QCoreApplication.instance().errorMessage(result)
+                        QMessageBox.critical(self.parent(), 'Error', result)
                         bad=True
             property.setHighlighted(bad)
 
@@ -719,7 +719,9 @@ class TextEditWithButtonProperty(Property, QWidget):
         if self._multiline:
             self.emit(SIGNAL('updatePropertyHeight'),self)
         self.setToolTip(self.strValue())
-        Property.valueChanged(self)
+        # set property only if button is not being pressed
+        if not self.button().isVisible():
+            Property.valueChanged(self)
         
     def setHighlighted(self,highlight):
         """ Highlight the property by changing the background color of the textfield.
@@ -798,13 +800,13 @@ class StringProperty(TextEditWithButtonProperty):
             self._textEdit.setFocus()
             self._textEdit.setText(self.strValue()+"\n")
             self._textEdit.moveCursor(QTextCursor.End)
+            self.emit(SIGNAL('updatePropertyHeight'),self)
         else:
             dialog=EditDialog(self,self.strValue())
             if dialog.exec_():
                 textEdit=dialog.getText()
                 self.setValue(textEdit)
                 self.valueChanged()
-        self.emit(SIGNAL('updatePropertyHeight'),self)
 
         
 class IntegerProperty(Property,QWidget):

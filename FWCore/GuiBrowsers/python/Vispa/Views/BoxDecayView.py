@@ -84,11 +84,11 @@ class BoxDecayView(WidgetView):
         if self.WARNING_ABOVE>0 and numObjects>self.WARNING_ABOVE:
             result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. ",
                                                                        "Would you like to continue?",
-                                                                       QMessageBox.Yes | QMessageBox.YesToAll | QMessageBox.No,
-                                                                       QMessageBox.Yes)
+                                                                       QMessageBox.Yes | QMessageBox.No,
+                                                                       QMessageBox.Yes, [("Yes (remember my decision)",QMessageBox.YesRole)])
             if result == QMessageBox.No:
                 return False
-            if result == QMessageBox.YesToAll:
+            if result == 0:
                 self.WARNING_ABOVE=-self.WARNING_ABOVE
         return True
         

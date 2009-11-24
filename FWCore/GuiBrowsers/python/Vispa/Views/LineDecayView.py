@@ -42,6 +42,7 @@ class LineDecayView(WidgetView):
         self._operationId = 0
         self._editable=False
         self._noDecorationsMode=False
+        self._topLevelContainer=None
         
         self._crateDecayObjectsDecaysThreadChain = ThreadChain()
         self.connect(self._crateDecayObjectsDecaysThreadChain, SIGNAL("finishedThreadChain"), self.createDecayObjectsThreadChainFinished)
@@ -78,12 +79,12 @@ class LineDecayView(WidgetView):
         if self.WARNING_ABOVE>0 and numObjects>self.WARNING_ABOVE:
             result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. Labels will not be displayed.",
                                                                        "Would you like to continue?",
-                                                                       QMessageBox.Yes | QMessageBox.YesToAll | QMessageBox.No,
-                                                                       QMessageBox.Yes)
+                                                                       QMessageBox.Yes | QMessageBox.No,
+                                                                       QMessageBox.Yes, [("Yes (remember my decision)",QMessageBox.YesRole)])
             if result == QMessageBox.No:
                 self._updatingFlag -=1
                 return False
-            if result == QMessageBox.YesToAll:
+            if result == 0:
                 self.WARNING_ABOVE=-self.WARNING_ABOVE
         existingWidgets = []
         for object in self.applyFilter(self.dataObjects()):
@@ -93,6 +94,7 @@ class LineDecayView(WidgetView):
             if self.dataAccessor().isContainer(object):
                 # event or event view
                 eventWidget = self.createLineDecayContainer(object)
+                self._topLevelContainer=eventWidget
                 existingWidgets += [eventWidget]
             else:
                 # particle
@@ -236,8 +238,8 @@ class LineDecayView(WidgetView):
             parent=parent.parent()
         return None
 
-    def pxlEvent(self):
-        return self._pxlEvent
+    def topLevelContainer(self):
+        return self._topLevelContainer
     
     def onSelected(self, object):
         """ When item is selected in SubView forward signal.
@@ -471,6 +473,33 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if event.mimeData().hasFormat(LineDecayView.DECAY_OBJECT_MIME_TYPE):
                 event.acceptProposedAction()
         
+    def createObject(self,dropType,pos):
+        newObject = None
+        if dropType == "Node":
+            newObject = self.addDecayNode(pos)
+        elif dropType == "EventView":
+            newObject = self.createChildContainer(self.object().createEventView(), pos)
+            # connect selected signal to parent
+            parent=self
+            while hasattr(parent,"parent"):
+                if hasattr(parent,"onSelected"):
+                    self.connect(newObject, SIGNAL("selected"), parent.onSelected)
+                    break
+                parent=parent.parent()
+        else:
+            newObject = self.addParticleByType(dropType, pos)
+                
+        if newObject:
+            self.update(newObject.boundingRect())
+            if self._editable:
+                self.autosize()     # instead of full autolayout
+            self.select(newObject)
+            if self.tabController():
+                self.tabController().setModified()
+                if hasattr(self.tabController(),"updateTreeView"):
+                    self.tabController().updateTreeView()
+        return newObject
+        
     def dropEvent(self, event):
         """ Handle drop of module.
         """
@@ -481,31 +510,8 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if event.mimeData().hasFormat(LineDecayView.DECAY_OBJECT_MIME_TYPE):
             dropType = str(event.mimeData().data(LineDecayView.DECAY_OBJECT_MIME_TYPE))
             pos = event.pos() / self.zoomFactor()
-            newObject = None
-            if dropType == "Node":
-                newObject = self.addDecayNode(pos)
-            elif dropType == "EventView":
-                newObject = self.createChildContainer(self.object().createEventView(), pos)
-                # connect selected signal to parent
-                parent=self
-                while hasattr(parent,"parent"):
-                    if hasattr(parent,"onSelected"):
-                        self.connect(newObject, SIGNAL("selected"), parent.onSelected)
-                        break
-                    parent=parent.parent()
-            else:
-                newObject = self.addParticleByType(dropType, pos)
-                
-            if newObject:
+            if self.createObject(dropType, pos):
                 event.acceptProposedAction()
-                self.update(newObject.boundingRect())
-                if self._editable:
-                    self.autosize()     # instead of full autolayout
-                self.select(newObject)
-                if self.tabController():
-                    self.tabController().setModified()
-                    if hasattr(self.tabController(),"updateTreeView"):
-                        self.tabController().updateTreeView()
                     
     def addParticleByType(self, objectType=None, pos=None):
         """ This function adds a decay object to this view.
@@ -814,16 +820,18 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
     def keyPressEvent(self, event):
         """ Calls delete() method if backspace or delete key is pressed when widget has focus.
         """
+        controller=self.tabController()
         if (event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete) and self._editable:
             if self.isSelected():
                 self.delete()
             elif len(self._selectedList) > 0:
                 self.removeObject(self._selectedList[0])
             
-            if self.tabController():
-                self.tabController().setModified()
-                if hasattr(self.tabController(),"updateTreeView"):
-                    self.tabController().updateTreeView()
+            if controller:
+                controller.setModified()
+                if hasattr(controller,"updateContent"):
+                    controller.updateContent()
+                    controller.autolayout()
     
     def delete(self):
         if WidgetContainer.delete(self) and hasattr(self.parent(), "object"):
@@ -1535,15 +1543,28 @@ class ParticleWidget(VispaWidget):
             self.setColors(QColor(64, 0, 0), QColor(127, 0, 0), QColor(191, 0, 0))
         elif type == self.HIGGS:
             self.setColors(QColor(28, 63, 253), QColor(27, 118, 255), QColor(21, 169, 250))
+            
+        if hasattr(parent,"particleDoubleClicked"):
+            self.connect(self,SIGNAL("mouseDoubleClicked"),parent.particleDoubleClicked)
+        if hasattr(parent,"particleRightClicked"):
+            self.connect(self,SIGNAL("mouseRightPressed"),parent.particleRightClicked)
         
     def setMimeDataType(self, type):
         self._mimeDataType = type
+
+    def dragData(self):
+        return self._dragData
+
+    def mouseDoubleClickEvent(self, event):
+        self.emit(SIGNAL("mouseDoubleClicked"), self)
         
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self._dragStartPosition = QPoint(event.pos())   # copy, does not work without on SL 4.0
         if isinstance(self.parent(), WidgetView):
             self.parent().widgetSelected(self)
+        if event.button()==Qt.RightButton:
+            self.emit(SIGNAL("mouseRightPressed"), event.globalPos(), self)
             
     def mouseMoveEvent(self, event):
         if not (event.buttons() & Qt.LeftButton):
