@@ -74,7 +74,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       bool EcaliPhi = false;
       //Loose Id
-      if( iWedge-> Energy() > L_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && iWedge->MaxTime() > L_EcalPhiWedgeToF)
+      if( iWedge-> Energy() > L_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && iWedge->MaxTime() < L_EcalPhiWedgeToF)
 	{
 	  EcalLooseId = true;
 	  EcaliPhi = true;
@@ -87,7 +87,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	}
 
       //Tight Id
-      if( iWedge-> Energy() > T_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents && iWedge->MaxTime() > T_EcalPhiWedgeToF)
+      if( iWedge-> Energy() > T_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents && iWedge->MaxTime() < T_EcalPhiWedgeToF)
 	{
 	  EcalTightId = true;
 	  EcaliPhi = true;
@@ -139,7 +139,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       bool HcaliPhi = false;
       //Loose Id
-      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && iWedge->MaxTime() > L_HcalPhiWedgeToF)
+      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && iWedge->MaxTime() < L_HcalPhiWedgeToF)
 	{
 	  HcalLooseId = true;
 	  HcaliPhi = true;
@@ -152,7 +152,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	}
 
       //Tight Id
-      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && iWedge->MaxTime() > T_HcalPhiWedgeToF)
+      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && iWedge->MaxTime() < T_HcalPhiWedgeToF)
 	{
 	  HcalTightId = true;
 	  HcaliPhi = true;
