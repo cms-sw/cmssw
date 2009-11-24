@@ -47,8 +47,8 @@ namespace cond {
     virtual void invalidateCache()=0;
 
     // current cached object token
-    virtual std::string token() const=0;
-
+    std::string const & token() const { return m_token;}
+    
     // load Element valid at time
     void loadFor(cond::Time_t time);
 
@@ -80,6 +80,8 @@ namespace cond {
     IOVElementProxy m_element;
 
   private:
+    // current loaded payload
+    std::string  m_token;
 
   };
 
@@ -109,9 +111,6 @@ namespace cond {
       // m_data.clear();
     }
 
-    virtual std::string token() const {
-      return m_data.token();
-    }
 
   protected:
     virtual bool load(pool::IDataSvc * svc, std::string const & itoken) {
