@@ -16,13 +16,13 @@ kt6TrackJets = kt4TrackJets.clone( rParam = 0.6 )
 ca6TrackJets = ca4TrackJets.clone( rParam = 0.6 )
 
 
-recoTrackJets   =cms.Sequence(tracksForJets+
+recoTrackJets   =cms.Sequence(trackRefsForJets+
                               sisCone5TrackJets+sisCone7TrackJets+
                               kt4TrackJets+kt6TrackJets+
                               iterativeCone5TrackJets+
                               ak5TrackJets+ak7TrackJets)
 
-recoAllTrackJets=cms.Sequence(tracksForJets+
+recoAllTrackJets=cms.Sequence(trackRefsForJets+
                               sisCone5TrackJets+sisCone7TrackJets+
                               kt4TrackJets+kt6TrackJets+
                               iterativeCone5TrackJets+
