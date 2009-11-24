@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJetCorrector.cc,v 1.1 2007/10/01 10:37:20 kodolova Exp $
+// $Id: SimpleZSPJetCorrector.cc,v 1.2 2009/11/17 17:38:30 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -19,7 +19,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVec
 using namespace std;
 
 
-namespace {
+namespace zsp {
   bool debug = false;
 
   /// Parametrization itself
@@ -59,7 +59,7 @@ namespace {
     std::ifstream in( fDataFile.c_str() );
     
     //  if ( f1.isLocal() ){
-    if (debug) cout << " Start to read file "<<fDataFile<<endl;
+    if (zsp::debug) cout << " Start to read file "<<fDataFile<<endl;
     string line;
     while( std::getline( in, line)){
       if(!line.size() || line[0]=='#') continue;
@@ -68,7 +68,7 @@ namespace {
       int type;
       linestream>>par>>type;
       
-      if (debug) cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
+      if (zsp::debug) cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
       
       etavector.push_back(par);
       typevector.push_back(type);
@@ -92,16 +92,16 @@ SimpleZSPJetCorrector::SimpleZSPJetCorrector (const std::string& fDataFile)
 void SimpleZSPJetCorrector::init (const std::string& fDataFile) {
   // clean up map if not empty
   if (mParametrization) {
-    for (ZSPParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
+    for (zsp::ZSPParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
       delete it->second;
     }
     delete mParametrization;
   }
-  mParametrization = new ZSPParametersMap ();
-  JetCalibrationParameterSetZSPJet pset (fDataFile);
+  mParametrization = new zsp::ZSPParametersMap ();
+  zsp::JetCalibrationParameterSetZSPJet pset (fDataFile);
   if(pset.valid()){
     for (int ieta=0; ieta < pset.neta(); ieta++) {
-      (*mParametrization) [pset.eta(ieta)]= new ParametrizationZSPJet (pset.type(ieta), pset.parameters(ieta));
+      (*mParametrization) [pset.eta(ieta)]= new zsp::ParametrizationZSPJet (pset.type(ieta), pset.parameters(ieta));
     }
   }
   else {
@@ -112,7 +112,7 @@ void SimpleZSPJetCorrector::init (const std::string& fDataFile) {
 
 SimpleZSPJetCorrector::~SimpleZSPJetCorrector () {
   // clean up map
-  for (ZSPParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
+  for (zsp::ZSPParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
     delete it->second;
   }
   delete mParametrization;
@@ -135,10 +135,10 @@ double SimpleZSPJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, doub
   double eta=fabs (fEta);
   
   
-  if (debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
+  if (zsp::debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
   double etnew;
-  ZSPParametersMap::const_iterator ip=mParametrization->upper_bound(eta);
+  zsp::ZSPParametersMap::const_iterator ip=mParametrization->upper_bound(eta);
   if (ip==mParametrization->begin()) { 
     etnew=ip->second->value(et); 
   }
@@ -150,7 +150,7 @@ double SimpleZSPJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, doub
     etnew=et2;
   }
 	 
-  if (debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+  if (zsp::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
   
   return etnew/et;
 }
