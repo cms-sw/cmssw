@@ -53,6 +53,7 @@ class TrackerMap {
   void showPalette(bool printflag1){printflag=printflag1;}; 
   void setTitle(std::string s){title=s;};
   void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
+  void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
   void load(std::string s="tmap.svg"); 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
@@ -147,11 +148,16 @@ class TrackerMap {
     return res;
   }
   double  ydpixel(double y){
-    double res;
+    double res=0;
     double y1;
     y1 = (y-ymin)/(ymax-ymin);
-    if(nlay>30)   res= 2*ysize - (y1*2*ysize);
-    else res= ysize - (y1*ysize);
+    if(nlay>30)
+       {
+        if(nlay <34) res= 2*ysize - (y1*2*ysize);
+        if(nlay==34) res= 2.4*ysize - (y1*2.4*ysize);
+        if(nlay>34) res= 2.5*ysize - (y1*2.5*ysize);  
+        }
+    else res= xsize - (y1*xsize);
     if(!saveAsSingleLayer) res=res+iy;
     return res;
   }
@@ -205,13 +211,20 @@ void defwindow(int num_lay){
     
   }
   if(nlay<16){
-      ix=0;iy=(15-nlay)*ysize;}
+      ix=0;
+      if(nlay==15||nlay==14)iy=(15-nlay)*2*ysize; else 
+          {if(nlay>9&&nlay<13)iy=4*ysize-(int)(ysize/2.)+(12-nlay)*(int)(ysize/1.50);else iy=6*ysize+(9-nlay)*(int)(ysize*1.3);}}
   if(nlay>15&&nlay<31){
-    ix=3*xsize;iy=(nlay-16)*ysize;}
+    ix=3*xsize;
+     if(nlay==16||nlay==17)iy=(nlay-16)*2*ysize; else 
+          {if(nlay>18&&nlay<22)iy=4*ysize-(int)(ysize/2.)+(nlay-19)*(int)(ysize/1.50);else iy=6*ysize+(nlay-22)*(int)(ysize*1.3);}}
   if(nlay>30){
     if(nlay==31){ix=(int)(1.5*xsize);iy=0;}
-    if(nlay>31 && nlay%2==0){int il=(nlay-30)/2;ix=xsize;iy=il*2*ysize;}
-    if(nlay>31 && nlay%2!=0){int il=(nlay-30)/2;ix=2*xsize;iy=il*2*ysize;}
+    if(nlay==32){int il=(nlay-30)/2;ix=xsize;iy=il*2*ysize;}
+    if(nlay==33){int il=(nlay-30)/2;ix=2*xsize;iy=il*2*ysize;}
+    if(nlay==34){int il=(nlay-30)/2;ix=xsize;iy=il*(int)(2.57*ysize);}
+    if(nlay>34 && nlay%2==0){int il=(nlay-30)/2;ix=xsize;iy=il*(int)(2.5*ysize);}
+    if(nlay>34 && nlay%2!=0){int il=(nlay-30)/2;ix=2*xsize;iy=il*(int)(2.5*ysize);}
   }
  }
   
@@ -345,6 +358,7 @@ void defwindow(int num_lay){
   
   float oldz;
   bool saveAsSingleLayer;
+  bool addPixelFlag;
 };
 #endif
 
