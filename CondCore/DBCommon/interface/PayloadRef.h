@@ -27,10 +27,6 @@ namespace cond {
       return old ? *m_OldData : m_data->data(); 
     }
     
-    std::string token() const {
-      return old ? m_OldData.toString() : m_data.toString(); 
-    }    
-
     void clear() {
       m_data.clear();
       m_OldData.clear();
@@ -45,8 +41,7 @@ namespace cond {
       pool::Ref<DataWrapper> ref(svc,itoken);
       if (ref) {
         m_data.copyShallow(ref);
-        m_data->data();
-        ok= true;
+        ok = m_data.loadData();
       } else {
         pool::Ref<DataT> refo(svc,itoken);
         if (refo) {
