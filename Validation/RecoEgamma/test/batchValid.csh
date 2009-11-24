@@ -1,21 +1,21 @@
 #!/bin/csh
-setenv num ${1}
+setenv sample ${1}
 
-echo '===> num.'  $num 
+echo '===> sample.'  $sample 
 
-if ( $num == 1 ) then
+if ( $sample == SingleGammaPt10 ) then
 setenv outFileName SingleGammaPt10
-else if (  $num == 2 ) then
+else if (  $sample == SingleGammaPt35 ) then
 setenv outFileName SingleGammaPt35
-else if (  $num == 3 ) then
+else if (  $sample ==  H130GGgluonfusion ) then
 setenv outFileName H130GGgluonfusion
-else if (  $num == 4 ) then
+else if (  $sample == QCD_Pt_80_120 ) then
 setenv outFileName  QCD_Pt_80_120
 endif
 
-setenv name  PhotonValidator_cfg
+setenv confName  PhotonValidator
 
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_3_4_0_pre5/src/Validation/RecoEgamma/test
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_3_4_0_pre6/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 
@@ -23,7 +23,7 @@ setenv MYOUT ${MYWORKDIR}
 #----------------
 cd ${MYWORKDIR}
 eval `scramv1 runtime -csh`
-cp ${MYWORKDIR}/${name}_${num}.py    ${WORKDIR}/conf.py
+cp ${MYWORKDIR}/${confName}_${sample}.py    ${WORKDIR}/conf.py
 
 
 #
@@ -33,4 +33,4 @@ echo ${WORKDIR}
 cmsRun  conf.py > & ${outFileName}.log
 #---------------------------------------------------------------
  rfcp   ${outFileName}.log             ${MYOUT}/.
- rfcp   PhotonValidationRelVal340pre5_${outFileName}.root            ${MYOUT}/.
+ rfcp   PhotonValidationRelVal340pre6_${outFileName}.root            ${MYOUT}/.
