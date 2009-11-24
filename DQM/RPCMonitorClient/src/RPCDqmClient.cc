@@ -6,21 +6,19 @@
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
 //include client headers
-#include  "DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h"
-#include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"
-#include "DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h"
-#include "DQM/RPCMonitorClient/interface/RPCOccupancyTest.h"
-#include "DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h"
+#include "DQM/RPCMonitorClient/interface/RPCBxTest.h"
 
 //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-//Framework
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+//Framework
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //DQMServices
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -47,9 +45,7 @@ RPCDqmClient::RPCDqmClient(const ParameterSet& iConfig)
   prefixDir_ = parameters_.getUntrackedParameter<string>("RPCDirectory", "RPC/RecHits");
 
   //make default client list  
-  clientList_.push_back("RPCMultiplicityTest");
-  clientList_.push_back("RPCDeadChannelTest");
-  clientList_.push_back("RPCClusterSizeTest");
+  clientList_.push_back("RPCBxTest");
   clientList_= parameters_.getUntrackedParameter<std::vector<std::string> >("RPCDqmClientList",clientList_);
 
   //get all the possible RPC DQM clients 
@@ -65,15 +61,14 @@ void RPCDqmClient::beginJob(const EventSetup& iSetup){
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   
-
   //Do whatever the begin jobs of all client modules do
   for(vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
    (*it)->beginJob(dbe_);
   
 }
 
-void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
-   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
+void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
+   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Run";
   if (!enableDQMClients_) return;
 
   init_ = false;
@@ -118,18 +113,7 @@ void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
   }//end loop on all geometry and get all histos  
   
   for (vector<RPCClient*>::iterator  it= clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->endRun(r,c,myMeVect, myDetIds);
-
-  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-
-  float   rpcevents = minimumEvents_;
-  if(RPCEvents) rpcevents = RPCEvents -> getEntries();
-    
-  if(rpcevents < minimumEvents_) return;
-
-  for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->clientOperation(c);
-
+    (*it)->beginRun(r,c,myMeVect, myDetIds);
 }
 
 void RPCDqmClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -153,18 +137,28 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
  
-  if (!enableDQMClients_ ) return;
-    
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  float   rpcevents = RPCEvents -> getEntries();
+  
+  if(!init_ && rpcevents < minimumEvents_) return;
+  else if(!init_) {
+    init_=true;
+    numLumBlock_ = prescaleGlobalFactor_;
+  }else numLumBlock_++;
+   
+  if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
+  
+  
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
 }
 
 
-void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
+void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
 
  if (!enableDQMClients_) return;
    for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->beginRun(r,c);
+    (*it)->endRun(r,c);
 }
 
 
@@ -191,31 +185,11 @@ void RPCDqmClient::makeClientMap() {
   if (clientList_.size()==0) return; //if no client is selected by user, return
  
   //Fill vectors with all possible RPC DQM clients , source histos names, and tag values
-  //RPCMultiplicityTest
-  clientNames.push_back("RPCMultiplicityTest");
-  clientHisto.push_back("NumberOfDigi");
-  clientTag.push_back(rpcdqm::MULTIPLICITY);
-  clientModules.push_back( new RPCMultiplicityTest(parameters_));
-  //RPCDeadChannelTest
-  clientNames.push_back("RPCDeadChannelTest");
-  clientHisto.push_back("Occupancy");
-  clientModules.push_back( new RPCDeadChannelTest(parameters_));
+  //RPCNoisyStripTest
+  clientNames.push_back("RPCBxTest");
+  clientHisto.push_back("BXN");
   clientTag.push_back(rpcdqm::OCCUPANCY);
-  //RPCClusterSizeTest
-  clientNames.push_back("RPCClusterSizeTest");
-  clientHisto.push_back("ClusterSize");
-  clientTag.push_back(rpcdqm::CLUSTERSIZE);
-  clientModules.push_back( new RPCClusterSizeTest(parameters_));
-  //RPCOccupancyTest
-  clientNames.push_back("RPCOccupancyTest");
-  clientHisto.push_back("Occupancy");
-  clientTag.push_back(rpcdqm::OCCUPANCY);
-  clientModules.push_back( new RPCOccupancyTest(parameters_));
- //RPCNoisyStripTest
-  clientNames.push_back("RPCNoisyStripTest");
-  clientHisto.push_back("Occupancy");
-  clientTag.push_back(rpcdqm::OCCUPANCY);
-  clientModules.push_back( new RPCNoisyStripTest(parameters_));
+  clientModules.push_back( new RPCBxTest(parameters_));
 
 
   //take only user specified clients and associate its source histograms to it
