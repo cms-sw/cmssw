@@ -74,6 +74,29 @@ namespace reco
     edm::InputTag IT_HcalHaloData;
     edm::InputTag IT_GlobalHaloData;
 
+    float L_EcalPhiWedgeEnergy;
+    int L_EcalPhiWedgeConstituents;
+    float L_EcalPhiWedgeToF;
+    float L_EcalPhiWedgeConfidence;
+    float L_EcalShowerShapesRoundness;
+    float L_EcalShowerShapesAngle;
+
+    float T_EcalPhiWedgeEnergy;
+    int T_EcalPhiWedgeConstituents;
+    float T_EcalPhiWedgeToF;
+    float T_EcalPhiWedgeConfidence;
+    float T_EcalShowerShapesRoundness;
+    float T_EcalShowerShapesAngle;
+    
+    float L_HcalPhiWedgeEnergy;
+    int L_HcalPhiWedgeConstituents;
+    float L_HcalPhiWedgeToF;
+    float L_HcalPhiWedgeConfidence;
+    
+    float T_HcalPhiWedgeEnergy;
+    int T_HcalPhiWedgeConstituents;
+    float T_HcalPhiWedgeToF;
+    float T_HcalPhiWedgeConfidence;
   };
 }
 
