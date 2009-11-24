@@ -1,6 +1,8 @@
-// $Id: EventStreamSelector.cc,v 1.7 2009/10/30 19:36:18 wmtan Exp $
+// $Id: EventStreamSelector.cc,v 1.8 2009/10/30 19:41:37 wmtan Exp $
 /// @file: EventStreamSelector.cc
 
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
 #include <boost/lambda/lambda.hpp>
@@ -11,6 +13,16 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace stor;
+
+
+EventStreamSelector::EventStreamSelector( const EventStreamConfigurationInfo& configInfo ):
+_initialized( false ),
+_outputModuleId(0),
+_configInfo( configInfo )
+{
+  srand( time(0) );
+}
+
 
 void EventStreamSelector::initialize( const InitMsgView& imv )
 {
@@ -63,17 +75,25 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
 
 bool EventStreamSelector::acceptEvent( const I2OChain& ioc )
 {
-
   if( !_initialized ) return false;
+
+  if ( _configInfo.fractionToDisk() == 0 ) return false;
 
   if( ioc.outputModuleId() != _outputModuleId ) return false;
 
   std::vector<unsigned char> hlt_out;
   ioc.hltTriggerBits( hlt_out );
+  
+  if ( ! _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() ) )
+    return false;
 
-  return _eventSelector->wantAll()
-    || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() );
+  if ( _configInfo.fractionToDisk() < 1 )
+  {
+    double rand = std::rand()/static_cast<double>(RAND_MAX);
+    if ( rand > _configInfo.fractionToDisk() ) return false;
+  }
 
+  return true;
 }
 
 /// emacs configuration

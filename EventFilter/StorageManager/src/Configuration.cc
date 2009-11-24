@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.16 2009/11/05 12:47:40 mommsen Exp $
+// $Id: Configuration.cc,v 1.17 2009/11/09 15:40:41 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -509,6 +509,8 @@ namespace stor
               endPathPSet.getUntrackedParameter<int>("compression_level", 1);
             unsigned int maxEventSize =
               endPathPSet.getUntrackedParameter<int>("max_event_size", 7000000);
+            double fractionToDisk =
+              endPathPSet.getUntrackedParameter<double>("fractionToDisk", 1);
 
             EventStreamConfigurationInfo cfgInfo(streamLabel,
                                                  maxFileSizeMB,
@@ -516,7 +518,8 @@ namespace stor
                                                  requestedOMLabel,
                                                  useCompression,
                                                  compressionLevel,
-                                                 maxEventSize);
+                                                 maxEventSize,
+                                                 fractionToDisk);
             cfgInfo.setStreamId(++streamId);
             evtCfgList->push_back(cfgInfo);
           }
