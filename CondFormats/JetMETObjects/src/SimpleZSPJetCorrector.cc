@@ -2,7 +2,7 @@
 // Original Author:  Fedor Ratnikov Dec 27, 2006
 // $Id: SimpleZSPJetCorrector.cc,v 1.2 2009/11/17 17:38:30 kodolova Exp $
 //
-// MC Jet Corrector
+// ZSP Jet Corrector
 //
 #include "CondFormats/JetMETObjects/interface/SimpleZSPJetCorrector.h"
 
@@ -20,6 +20,7 @@ using namespace std;
 
 
 namespace zsp {
+
   bool debug = false;
 
   /// Parametrization itself
@@ -28,11 +29,40 @@ namespace zsp {
     ParametrizationZSPJet(int ptype, vector<double> parameters):type(ptype),p(parameters){};
     double value(double e) const {
       double enew(e);
-          double koef = 1. - p[0] + p[1]/((e+p[2])*(e+p[2]));
-	  enew=e/koef;
+      switch(type){
+      case 1:
+        {
+         if (debug) std::cout<<" Case 1 p: "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<std::endl;
+         if(p.size()>4) { 
+                          if (debug) std::cout<<" Wrong parametrization type: check the input file in CondFormats/JetMETObjects/data " <<std::endl;
+                          break;
+                        }
+   
+          double koef = 1. - p[1] + p[2]/((e+p[3])*(e+p[3]));
+          enew=e/koef;
+          break;
+        }
+      case 2:
+       { 
+         if (debug) std::cout<<" Case 2 p: "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<" "<<p[4]<<std::endl;
+         if(p.size()<5) { 
+                         if (debug) std::cout<<" Wrong parametrization type: check the input file in CondFormats/JetMETObjects/data " <<std::endl;
+                         break;
+                        }   
+         double koef = 1. - p[1]*exp(p[2]*e)-p[3]*exp(p[4]*e);  
+         enew=e/koef; 
+        break;
+      }
+       default:
+      {
+        if (debug) std::cout<<" Wrong parametrization type: check the input file in CondFormats/JetMETObjects/data: No parametrization " <<std::endl; 
+        break;
+      }
+     } // end switch {type}
       return enew;
     }
-    
+    int getNPU(){ int npu = (int)p[0]; return npu; }    
+
   private:
     int type;
     std::vector<double> p;
