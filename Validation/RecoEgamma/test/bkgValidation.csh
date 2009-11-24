@@ -21,14 +21,14 @@ setenv CMSSWver1 3_4_0
 setenv CMSSWver2 3_4_0
 setenv OLDRELEASE 340
 setenv NEWRELEASE 340
-setenv OLDPRERELEASE pre2 
-setenv NEWPRERELEASE pre5
+setenv OLDPRERELEASE pre5 
+setenv NEWPRERELEASE pre6
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
-setenv WorkDir1   /data/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 
