@@ -158,7 +158,7 @@ int main(){
     }
     
     {
-      cond::IOVEditor editor(pooldb);
+      cond::IOVEditor editor(pooldb, token);
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
       unsigned int pos=0;  
@@ -173,7 +173,7 @@ int main(){
     }
     
     {
-      cond::IOVEditor editor(pooldb);
+      cond::IOVEditor editor(pooldb,token);
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
       unsigned int pos=0;
