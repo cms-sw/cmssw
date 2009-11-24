@@ -11,9 +11,12 @@ process.load("RecoMET/METProducers/EcalHaloData_cfi")
 process.load("RecoMET/METProducers/HcalHaloData_cfi")
 process.load("RecoMET/METProducers/GlobalHaloData_cfi")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-#process.GlobalTag.globaltag ='STARTUP3X_V11::All'
+process.DQMStore = cms.Service("DQMStore")
+process.load("DQMOffline/JetMET/BeamHaloAnalyzer_cfi")
+process.AnalyzeBeamHalo.OutputFile  = cms.string("BeamHaloData.root")
+process.GlobalTag.globaltag ='STARTUP3X_V11::All'
 #process.GlobalTag.globaltag ='STARTUP31X_V7::All'
-process.GlobalTag.globaltag = 'STARTUP3XY_V9::All'
+#process.GlobalTag.globaltag = 'STARTUP3XY_V9::All'
 
 process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
 
@@ -25,12 +28,12 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
 
     # 340pre2 RelVal
-    '/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/94C6A8AC-C0BD-DE11-9B6D-003048678FD6.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/7A81B838-89BD-DE11-9A1A-0018F3D09678.root'
+    #'/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/94C6A8AC-C0BD-DE11-9B6D-003048678FD6.root',
+    #'/store/relval/CMSSW_3_4_0_pre2/RelValBeamHalo/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/7A81B838-89BD-DE11-9A1A-0018F3D09678.root'
         
 
     # 340pre5 RelVal
-    #    '/store/relval/CMSSW_3_4_0_pre5/RelValBeamHalo/GEN-SIM-RECO/STARTUP3X_V11-v1/0002/4E694747-F9CB-DE11-A1E3-001D09F25217.root',
+    '/store/relval/CMSSW_3_4_0_pre5/RelValBeamHalo/GEN-SIM-RECO/STARTUP3X_V11-v1/0002/4E694747-F9CB-DE11-A1E3-001D09F25217.root',
     #    '/store/relval/CMSSW_3_4_0_pre5/RelValBeamHalo/GEN-SIM-RECO/STARTUP3X_V11-v1/0001/083E5183-70CB-DE11-8D28-0030487A1990.root'
     
 
@@ -43,8 +46,8 @@ process.source = cms.Source("PoolSource",
     )
     )
 
-#process.p = cms.Path(process.BeamHaloId)
-process.p = cms.Path(process.CSCHaloData*process.EcalHaloData*process.HcalHaloData*process.GlobalHaloData)
+process.p = cms.Path(process.BeamHaloId*process.AnalyzeBeamHalo)
+#process.p = cms.Path(process.CSCHaloData*process.EcalHaloData*process.HcalHaloData*process.GlobalHaloData)
 #process.p = cms.Path(process.CSCHaloData*process.HcalHaloData)
 
 
