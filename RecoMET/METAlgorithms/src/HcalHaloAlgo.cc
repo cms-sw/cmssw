@@ -108,8 +108,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 		{
 		  HcalDetId id_j = HcalDetId(Hits[j]->id() );
 		  int ieta_j = id_j.ieta();
-		  if( ieta_i > ieta_j ) PlusToMinus += 1. ;
-		  else MinusToPlus += 1.;
+		  if( ieta_i > ieta_j ) PlusToMinus += TMath::Abs(ieta_i - ieta_j ) ;
+		  else MinusToPlus += TMath::Abs(ieta_i - ieta_j);
 		}
 	    }
 	  float PlusZOriginConfidence = (PlusToMinus + MinusToPlus )? PlusToMinus / ( PlusToMinus + MinusToPlus ) : -1. ;
