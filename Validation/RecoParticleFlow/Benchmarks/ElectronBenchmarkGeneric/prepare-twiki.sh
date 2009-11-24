@@ -1,7 +1,7 @@
 #!/bin/sh
 eval `scram ru -sh`
 echo $DBS_RELEASE
-for file in `../Tools/listBenchmarks.py "$DBS_RELEASE/*" -a -u | grep http `
+for file in `../Tools/listBenchmarks.py "$DBS_RELEASE/ElectronBenchmarkGeneric*" -a -u | grep http `
 do
 type=`echo $file | awk -v FS="_RelVal" '{print $2}'`
 
