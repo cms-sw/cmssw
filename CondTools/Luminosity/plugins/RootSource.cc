@@ -61,6 +61,8 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
     size_t nentries=hlxtree->GetEntries();
     std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
     size_t lumisecid=0;
+    unsigned int cmslumi=0;
+    unsigned int totaldeadtime=0;
     for(size_t i=0;i<nentries;++i){
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
@@ -83,6 +85,8 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       if(!lumiheader->bCMSLive){
 	std::cout<<"skipping non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
 	continue;
+      }else{
+	++cmslumi;
       }
       if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
 	runnumber=1;
@@ -169,9 +173,9 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       }
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
-      float deadfraction=(l1data->deadtimecount)*25E-06/93.244;
-      l->setDeadFraction(deadfraction);
-      std::cout<<"l1 deadfraction "<<deadfraction<<std::endl;
+      float deadfractionPerLS=(l1data->deadtimecount)*25*0.000001/93.244;
+      l->setDeadFraction(deadfractionPerLS*0.01);
+      std::cout<<"l1 deadfraction "<<deadfractionPerLS<<std::endl;
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }
