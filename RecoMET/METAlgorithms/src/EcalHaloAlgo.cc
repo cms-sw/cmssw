@@ -123,8 +123,8 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 		  DetId id_j = DetId(Hits[j]->id() );
 		  EBDetId EcalID_j(id_j.rawId());
 		  int ieta_j = EcalID_j.ieta();
-		  if( ieta_i > ieta_j ) PlusToMinus += 1.;
-		  else MinusToPlus += 1.;
+		  if( ieta_i > ieta_j ) PlusToMinus += TMath::Abs(ieta_j - ieta_i );
+		  else MinusToPlus += TMath::Abs(ieta_j -ieta_i) ;
 		}
 	    }
 	  
