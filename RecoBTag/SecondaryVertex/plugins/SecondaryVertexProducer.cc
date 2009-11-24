@@ -29,6 +29,10 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackVertexFinder.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -81,6 +85,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	ConstraintType			constraint;
 	double				constraintScaling;
 	edm::ParameterSet		vtxRecoPSet;
+	bool				useGhostTrack;
 	bool				withPVError;
 	double				minTrackWeight;
 	VertexFilter			vertexFilter;
@@ -117,6 +122,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	constraint(getConstraintType(params.getParameter<std::string>("constraint"))),
 	constraintScaling(1.0),
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
+	useGhostTrack(vtxRecoPSet.getParameter<std::string>("finder") == "gtvr"),
 	withPVError(params.getParameter<bool>("usePVError")),
 	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
@@ -212,7 +218,18 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		/* nothing */;
 	}
 
-	ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
+	std::auto_ptr<ConfigurableVertexReconstructor> vertexReco;
+	std::auto_ptr<GhostTrackVertexFinder> vertexRecoGT;
+	if (useGhostTrack)
+		vertexRecoGT.reset(new GhostTrackVertexFinder(
+			vtxRecoPSet.getParameter<double>("maxFitChi2"),
+			vtxRecoPSet.getParameter<double>("mergeThreshold"),
+			vtxRecoPSet.getParameter<double>("primcut"),
+			vtxRecoPSet.getParameter<double>("seccut"),
+			vtxRecoPSet.getParameter<bool>("alwaysUseGhostTrack")));
+	else
+		vertexReco.reset(
+			new ConfigurableVertexReconstructor(vtxRecoPSet));
 
 	TransientTrackMap primariesMap;
 
@@ -267,6 +284,12 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		// build transient tracks used for vertex reconstruction
 
 		std::vector<TransientTrack> fitTracks;
+		std::vector<GhostTrackState> gtStates;
+		std::auto_ptr<GhostTrackPrediction> gtPred;
+		if (useGhostTrack)
+			gtPred.reset(new GhostTrackPrediction(
+						*iterJets->ghostTrack()));
+
 		for(unsigned int i = 0; i < indices.size(); i++) {
 			typedef SecondaryVertexTagInfo::IndexedTrackData IndexedTrackData;
 
@@ -288,27 +311,53 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			TransientTrackMap::const_iterator pos =
 					primariesMap.find(
 						TrackBaseRef(trackRef));
+			TransientTrack fitTrack;
 			if (pos != primariesMap.end()) {
 				primaries.erase(pos->second);
-				fitTracks.push_back(pos->second);
+				fitTrack = pos->second;
 			} else
-				fitTracks.push_back(
-					trackBuilder->build(trackRef));
+				fitTrack = trackBuilder->build(trackRef);
+			fitTracks.push_back(fitTrack);
 
 			trackData.back().second.svStatus =
 				SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit;
+
+			if (useGhostTrack) {
+				GhostTrackState gtState(fitTrack);
+				GlobalPoint pos =
+					ipData[i].closestToGhostTrack;
+				gtState.linearize(*gtPred,
+				                  gtPred->lambda(pos));
+				gtStates.push_back(gtState);
+			}
 		}
+
+		std::auto_ptr<GhostTrack> ghostTrack;
+		if (useGhostTrack)
+			ghostTrack.reset(new GhostTrack(
+				GhostTrackPrediction(),	*gtPred, gtStates,
+				iterJets->ghostTrack()->chi2(),
+				iterJets->ghostTrack()->ndof()));
 
 		// perform actual vertex finding
 
 		std::vector<TransientVertex> fittedSVs;
 		switch(constraint) {
 		    case CONSTRAINT_NONE:
-			fittedSVs = vertexReco.vertices(fitTracks);
+			if (useGhostTrack)
+				fittedSVs = vertexRecoGT->vertices(
+						pv, *ghostTrack);
+			else
+				fittedSVs = vertexReco->vertices(fitTracks);
 			break;
 
 		    case CONSTRAINT_BEAMSPOT:
-			fittedSVs = vertexReco.vertices(fitTracks, *beamSpot);
+			if (useGhostTrack)
+				fittedSVs = vertexRecoGT->vertices(
+						pv, *beamSpot, *ghostTrack);
+			else
+				fittedSVs = vertexReco->vertices(fitTracks,
+				                                 *beamSpot);
 			break;
 
 		    case CONSTRAINT_PV_BEAMSPOT_SIZE:
@@ -334,14 +383,24 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			            beamSpot->dxdz(), beamSpot->dydz(),
 			            beamWidth, cov, BeamSpot::Unknown);
 
-			fittedSVs = vertexReco.vertices(fitTracks, bs);
+			if (useGhostTrack)
+				fittedSVs = vertexRecoGT->vertices(
+						pv, bs, *ghostTrack);
+			else
+				fittedSVs = vertexReco->vertices(fitTracks, bs);
 		    }	break;
 
 		    case CONSTRAINT_PV_PRIMARIES_IN_FIT: {
 			std::vector<TransientTrack> primaries_(
 					primaries.begin(), primaries.end());
-			fittedSVs = vertexReco.vertices(primaries_, fitTracks,
-			                                *beamSpot);
+			if (useGhostTrack)
+				fittedSVs = vertexRecoGT->vertices(
+						pv, *beamSpot, primaries_,
+						*ghostTrack);
+			else
+				fittedSVs = vertexReco->vertices(
+						primaries_, fitTracks,
+						*beamSpot);
 		    }	break;
 		}
 
@@ -358,6 +417,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// clean up now unneeded collections
 
+		gtPred.reset();
+		ghostTrack.reset();
+		gtStates.clear();
 		fitTracks.clear();
 		fittedSVs.clear();
 
