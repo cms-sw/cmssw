@@ -182,7 +182,11 @@ class JetPlusTrackCorrector : public JetCorrector {
   typedef math::PtEtaPhiMLorentzVectorD PtEtaPhiM;
   
   /// Vectorial correction method (corrected 4-momentum passed by reference)
-  double correction( const reco::Jet&, const edm::Event&, const edm::EventSetup&, P4& ) const;
+  double correction( const reco::Jet&, 
+		     const edm::RefToBase<reco::Jet>&,
+		     const edm::Event&, 
+		     const edm::EventSetup&, 
+		     P4& ) const;
   
   /// Scalar correction method
   double correction( const reco::Jet&,
@@ -395,14 +399,13 @@ class JetPlusTrackCorrector : public JetCorrector {
 
 // ---------- Inline methods ----------
 
-inline
-double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
-					 const edm::RefToBase<reco::Jet>& fJetRef,
-					 const edm::Event& event,
-					 const edm::EventSetup& setup ) const
+inline double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
+						const edm::RefToBase<reco::Jet>& fJetRef,
+						const edm::Event& event,
+						const edm::EventSetup& setup ) const
 {
   P4 not_used_for_scalar_correction;
-  return correction( fJet, event, setup, not_used_for_scalar_correction );
+  return correction( fJet, fJetRef, event, setup, not_used_for_scalar_correction );
 }
 
 inline bool JetPlusTrackCorrector::eventRequired() const { return true; }

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.h,v 1.5 2009/09/24 13:08:31 bainbrid Exp $
+// $Id: JetCorrector.h,v 1.6 2009/11/10 14:47:33 schiefer Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -8,6 +8,7 @@
 #define JetCorrector_h
 
 #include <string>
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 /// classes declaration
@@ -39,6 +40,7 @@ class JetCorrector
 
   /// Apply vectorial correction using all event information
   virtual double correction ( const reco::Jet& fJet, 
+			      const edm::RefToBase<reco::Jet>& fJetRef,
 			      const edm::Event& fEvent, 
 			      const edm::EventSetup& fSetup, 
 			      LorentzVector& corrected ) const;

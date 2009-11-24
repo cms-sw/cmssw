@@ -7,6 +7,8 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -105,8 +107,8 @@ namespace cms {
 	    } else {
 	      // Vectorial correction
 	      JetCorrector::LorentzVector corrected;
-	      double scale = mCorrectors[i]->correction (*referenceJet, fEvent,
-							 fSetup, corrected);
+	      double scale = mCorrectors[i]->correction (*referenceJet, jetRef,
+							 fEvent, fSetup, corrected);
 	      if (mVerbose)
 		std::cout<<"JetCorrectionProducer::produce-> Corrector # "
 			 <<i<<", correction factor: "<<scale<<std::endl;

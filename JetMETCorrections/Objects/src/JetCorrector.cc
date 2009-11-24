@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.cc,v 1.5 2009/09/24 13:08:28 bainbrid Exp $
+// $Id: JetCorrector.cc,v 1.6 2009/11/10 14:47:33 schiefer Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -25,6 +25,7 @@ double JetCorrector::correction (const reco::Jet& fJet,
 }
 
 double JetCorrector::correction (const reco::Jet& fJet, 
+				 const edm::RefToBase<reco::Jet>& fJetRef,
 				 const edm::Event& fEvent, 
 				 const edm::EventSetup& fSetup,
 				 LorentzVector& corrected ) const {

@@ -324,19 +324,23 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	      <<" eta = " << zspjet->eta()
 	      <<" phi = " << zspjet->phi() << endl;
 	 */
-
+	 
+	 // ZSP JetRef
+	 edm::RefToBase<reco::Jet> zspRef( edm::Ref<CaloJetCollection>( zspjets, zspjet - zspjets->begin() ) );
+	 
 	 // JPT corrections
 	 double scaleJPT = -1.;
 	 Jet::LorentzVector jetscaleJPT;
 	 if ( scalar_ ) {
-	   scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
+	   
+	   scaleJPT = correctorJPT->correction ( (*zspjet), zspRef, iEvent, iSetup );
 	   jetscaleJPT = Jet::LorentzVector( zspjet->px()*scaleJPT, 
 					     zspjet->py()*scaleJPT,
 					     zspjet->pz()*scaleJPT, 
 					     zspjet->energy()*scaleJPT );
 	 } else {
 	   JetCorrector::LorentzVector p4;
-	   scaleJPT = correctorJPT->correction( *zspjet, iEvent, iSetup, p4 );
+	   scaleJPT = correctorJPT->correction( *zspjet, zspRef, iEvent, iSetup, p4 );
 	   jetscaleJPT = Jet::LorentzVector( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
 	 }	   
 	 
