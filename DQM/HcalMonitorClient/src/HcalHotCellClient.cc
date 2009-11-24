@@ -410,8 +410,10 @@ void HcalHotCellClient::calculateProblems()
   if (totalevents==0 && hotclient_test_energy_)   totalevents = AboveEnergyThresholdCellsByDepth[0]->GetBinContent(0);
   if (totalevents==0)
     return;
+  if (Online_ && totalevents< hotclient_checkNevents_) 
+    return;
 
-  // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
+ // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
   // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
   
   for (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
@@ -752,7 +754,7 @@ ofstream htmlFile;
   if (hotclient_test_pedestal_)
     {
       htmlFile << "<h2><strong><a name=\"PED_PROBLEMS\">Pedestal Test Problems</strong></h2>"<<std::endl;
-      htmlFile <<"A cell fails this test if its ADC sum is above (pedestal + Nsigma) for  "<<hotclient_checkNevents_<<" consecutive events <br>"<<std::endl;
+      htmlFile <<"A cell fails this test if its ADC sum is above (pedestal + Nsigma) for a full luminosity section"<<endl; 
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<std::endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
       htmlFile << "cellpadding=\"10\"> " << std::endl;

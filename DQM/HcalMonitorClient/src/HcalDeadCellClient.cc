@@ -17,7 +17,7 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   deadclient_test_digis_              = ps.getUntrackedParameter<bool>("DeadCellClient_test_digis",true);
   deadclient_test_rechits_            = ps.getUntrackedParameter<bool>("DeadCellClient_test_rechits",true);
 
-  deadclient_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents",100);
+  deadclient_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents",1000);
 
   minErrorFlag_ = ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.0);
 
@@ -419,6 +419,7 @@ void HcalDeadCellClient::calculateProblems()
       // (need to do this for offline DQM combinations of output)
       totalevents=DigiPresentByDepth[d]->GetBinContent(0);
       if (totalevents==0) continue;
+      if (Online_ && totalevents < deadclient_checkNevents_) continue;
       etabins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth.depth[d]->getTH2F())->GetNbinsY();
       problemvalue=0;
