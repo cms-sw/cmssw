@@ -403,7 +403,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
   //use iovproxy to find out.
-  cond::IOVProxy iov(m_session, token, true, false);
+  cond::IOVProxy iov(m_session, record.m_iovtoken, true, false);
   result.size=iov.size();
   if (result.size>0) {
     // get last object
