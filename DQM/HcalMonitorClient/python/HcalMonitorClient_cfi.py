@@ -125,7 +125,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.DeadCellClient                         = monitor.DeadCellMonitor.value()
     client.DeadCellClient_test_digis              = monitor.DeadCellMonitor_test_digis.value()
     client.DeadCellClient_test_rechits            = monitor.DeadCellMonitor_test_rechits.value()
-    #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag.value() # want to keep these separate?
+    client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag.value() # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots.value()         
 
     # Digi 
@@ -136,7 +136,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent.value()
     client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy.value()
     client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor.value()
-    #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag.value() # want to keep these separate?
+    client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag.value() # want to keep these separate?
     client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots.value()
 
     # Pedestal Client

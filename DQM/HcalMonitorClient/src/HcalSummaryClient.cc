@@ -82,7 +82,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 		       "DeadCellMonitor_Hcal/ ProblemDeadCells",
 		       "DeadCell",
 		       ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.05));
-
+  
   if (beamMon_.onoff)
     beamMon_.Setup("BeamMonitor_Hcal/problem_beammonitor",
 		       " Problem BeamMonitor Rate",
@@ -715,7 +715,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
     }
 
   if (debug_>0) 
-    cout <<"ANALYZING SUBTASK: "<<s.summaryName<<endl;
+    std::cout <<"ANALYZING SUBTASK: "<<s.summaryName<<std::endl;
   int etabins=0;
   int ieta=-9999;
   int iphi=-9999;

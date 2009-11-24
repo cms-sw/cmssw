@@ -209,26 +209,26 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
 		continue;
 
-	      int hotcell=0;
+	      int deadcell=0;
 	      if (binval>minErrorFlag_)
-		hotcell=1;
-	      if (hotcell==1 && debug_>0)
+		deadcell=1;
+	      if (deadcell==1 && debug_>0)
 		std::cout <<"Dead Cell :  subdetector = "<<subdet<<" (eta,phi,depth) = ("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
 	      
 	      // DetID not found in quality list; add it.  (This shouldn't happen!)
 	      if (myqual.find(myid)==myqual.end())
 		{
-		  myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellDead);  // hotcell shifted to bit 6
+		  myqual[myid]=(deadcell<<HcalChannelStatus::HcalCellDead);  // deadcell shifted to bit 6
 		}
 	      else
 		{
 		  int mask=(1<<HcalChannelStatus::HcalCellDead);
-		  // hot cell found; 'or' the hot cell mask with existing ID
-		  if (hotcell==1)
+		  // dead cell found; 'or' the dead cell mask with existing ID
+		  if (deadcell==1)
 		    myqual[myid] |=mask;
 		  // cell is not found, 'and' the inverse of the mask with the existing ID.
 		  // Does this work correctly?  I think so, but need to verify.
-		  // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		  // Also, do we want to allow the client to turn off dead cell masks, or only add them?
 		  else
 		    myqual[myid] &=~mask;
 		}
