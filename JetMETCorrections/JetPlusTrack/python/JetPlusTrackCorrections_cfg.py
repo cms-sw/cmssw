@@ -34,10 +34,7 @@ process.o = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string('test.root'),
     outputCommands = cms.untracked.vstring(
-    'drop *',
-    'keep recoGenJets_*_*_*',
-    'keep recoCaloJets_*_*_*',
-    'keep *_*_*_TEST',
+    'keep *',
     )
     )
 process.e = cms.EndPath( process.o )
