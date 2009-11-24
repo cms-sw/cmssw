@@ -35,7 +35,7 @@ using namespace std;
 BeamSplash::BeamSplash(const edm::ParameterSet& iConfig)
 {
   EBRecHitCollection_ = iConfig.getParameter<edm::InputTag>("ebrechitcollection");
-  EERecHitCollection_ = iConfig.getParameter<edm::InputTag>("ebrechitcollection");
+  EERecHitCollection_ = iConfig.getParameter<edm::InputTag>("eerechitcollection");
   HBHERecHitCollection_ = iConfig.getParameter<edm::InputTag>("hbherechitcollection");
 
   EnergyCutTot = iConfig.getUntrackedParameter<double>("energycuttot");
