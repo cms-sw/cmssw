@@ -1,8 +1,8 @@
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "IOVServiceImpl.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
+##include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVRevIteratorImpl.h"
-#include "IOVEditorImpl.h"
 
 cond::IOVService::IOVService(cond::DbSession& pooldb):
   m_pooldb(pooldb),

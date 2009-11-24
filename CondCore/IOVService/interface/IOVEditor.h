@@ -80,6 +80,13 @@ namespace cond{
     /// Returns the token of the iov sequence associated with this editor
     std::string const & token() const { return m_token;}
 
+    Time_t firstSince() const;
+  
+    Time_t lastTill() const;
+  
+    TimeType timetype() const;
+ 
+
   private:
 
     void init();

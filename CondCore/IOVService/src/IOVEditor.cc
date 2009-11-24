@@ -91,10 +91,7 @@ namespace cond {
     m_isActive=true;
     
   }
-  
-
-
-  
+    
   void IOVEditor::init(){
     if(m_token.empty()){
       // problem?
@@ -106,11 +103,7 @@ namespace cond {
     
   }
   
-  
-  
-  IOVEditor::~IOVEditor(){
-  }
-  
+    
   Time_t IOVEditor::firstSince() const {
     return m_iov->firstSince();
   }
