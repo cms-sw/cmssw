@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.72 2009/11/21 13:11:19 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.73 2009/11/23 14:53:42 amraktad Exp $
 //
 // hacks
 #define private public
@@ -128,7 +128,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->setToolTip("Play events");
    playEventsBack->setToolTip("Play events backwards");
 
-   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 14);
+   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 28);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -158,7 +158,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
@@ -173,7 +173,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));  
 
    colorset->createMenuEntry(viewMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
@@ -195,7 +195,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    loop->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
    showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
@@ -204,7 +204,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
 
@@ -399,13 +399,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    //  logo
-   TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 140, 48, kFixedSize);
-
-   TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"logo-fireworks.png");
-   logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-   fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 5, 0, 0));
-
-
+   {
+      TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 50, 50, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+ "CMSlogo.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 20, 0, 0));
+   }
+   {
+      TGVerticalFrame* logoFrame = new TGVerticalFrame(menuBar, 67, 23, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "fworks-scaled.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      menuBar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 11, 3, 1));
+   }
+  
    /**************************************************************************/
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
