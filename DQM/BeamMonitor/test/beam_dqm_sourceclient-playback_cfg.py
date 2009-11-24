@@ -1,93 +1,87 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+process = cms.Process("Beam Monitor")
 
 #----------------------------
-# DQM Environment
+# Event Source
 #-----------------------------
-process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
+#process.load("DQM.Integration.test.inputsource_playback_cfi")
+process.source = cms.Source("EventStreamHttpReader",
+    sourceURL = cms.string('http://srv-c2d05-05:50082/urn:xdaq-application:lid=29'),
+    consumerPriority = cms.untracked.string('normal'),
+    max_event_size = cms.int32(7000000),
+    consumerName = cms.untracked.string('Playback Source'),
+    SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
+    max_queue_depth = cms.int32(5),
+    maxEventRequestRate = cms.untracked.double(60.0),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('*')
+    ),
+    headerRetryInterval = cms.untracked.int32(3)
+)
+
+#----------------------------
+# DQM Live Environment
+#-----------------------------
+process.load("DQM.Integration.test.environment_cfi")
+process.dqmEnv.subSystemFolder = 'BeamMonitor'
 
 #----------------------------
 # BeamMonitor
 #-----------------------------
-process.load("DQM.BeamMonitor.BeamMonitor_Cosmics_cff") # need input track collection in the event
-process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff") # need beam spot collection in the event
+process.load("DQM.BeamMonitor.BeamMonitor_cff")
+process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
+process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
 ####  SETUP TRACKING RECONSTRUCTION ####
 
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-#process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-----------------------------
 # Magnetic Field
 #-----------------------------
-#process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 
 #--------------------------
 # Calibration
 #--------------------------
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
-process.GlobalTag.globaltag = 'GR09_31X_V6H::All' # or any other appropriate
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
-# Real data raw to digi
-process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
-process.siStripDigis.ProductLabel = 'source'
-process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.InputLabel = 'source'
+## Collision Reconstruction
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-# Local and Track Reconstruction
-process.load("RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff")
-process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+## Pixelless Tracking
+process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
+process.MeasurementTracker.pixelClusterProducer = cms.string("")
 
-# offline beam spot
+# Offline Beam Spot
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 #### END OF TRACKING RECONSTRUCTION ####
 
-#----------------------------
-# Event Source
-#-----------------------------
-process.load("DQM.Integration.test.inputsource_playback_cfi")
+
+process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
+
+process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv*process.dqmSaver)
+
+process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ctfTracksPixelLess)
+
+process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnv*process.dqmSaver)
 
 
-process.tracking = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5*process.cosmictracksP5)
-process.monitor = cms.Path(process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
-
-process.DQMStore.verbose = 0
-process.DQM.collectorHost = 'srv-c2d05-18'
-process.DQM.collectorPort = 9090
-process.dqmSaver.dirName = '.'
-process.dqmSaver.producer = 'Playback'
-process.dqmSaver.convention = 'Online'
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = True
-
-# # summary
+## Summary
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+	wantSummary = cms.untracked.bool(True)
     )
 
-#process.out = cms.OutputModule("PoolOutputModule",
-#                               fileName = cms.untracked.string('test.root'),
-#			       outputCommands = cms.untracked.vstring(
-#				'drop *',
-#				'keep *_offlineBeamSpot_*_*',
-#				'keep *_ctfWithMaterialTracksP5_*_*',
-#				'keep *_cosmictrackfinderP5_*_*'
-#			       )
-#                              )
-#process.end = cms.EndPath(process.out)
+#process.p = cms.Path(process.tracking*process.monitor)
+process.p = cms.Path(process.tracking_pixelless*process.monitor_pixelless)
 
-process.schedule = cms.Schedule(process.tracking, process.monitor)
 
