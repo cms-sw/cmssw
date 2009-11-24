@@ -403,13 +403,13 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
   //use iovproxy to find out.
-  cond::IOVProxy iov( pooldb, token, true, false);
+  cond::IOVProxy iov(m_session, token, true, false);
   result.size=iov.size();
   if (result.size>0) {
     // get last object
     iov.tail(1);
     cond::IOVElementProxy last = *iov.begin();
-    result.lastInterval= { last.since(), last.till()};
+    result.lastInterval = cond::ValidityInterval(last.since(), last.till());
     result.lastPayloadToken=last.token();
   }
 }
