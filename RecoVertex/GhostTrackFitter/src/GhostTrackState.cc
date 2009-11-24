@@ -95,7 +95,13 @@ double GhostTrackState::axisDistance(const GlobalPoint &point,
 	return (tsos_.globalPosition() - point).cross(dir.unit()).mag();
 }
 
-double GhostTrackState::lambdaError(const GhostTrackPrediction &pred) const
+double GhostTrackState::axisDistance(const GhostTrackPrediction &pred) const
+{
+	return axisDistance(pred.origin(), pred.direction());
+}
+
+double GhostTrackState::lambdaError(const GhostTrackPrediction &pred,
+                                    const GlobalError &pvError) const
 {
 	if (!tsos_.isValid())
 		return -1.;
@@ -103,7 +109,8 @@ double GhostTrackState::lambdaError(const GhostTrackPrediction &pred) const
 	return std::sqrt(
 	       	ROOT::Math::Similarity(
 	       		conv(pred.direction()),
-	       		vertexStateOnGhostTrack(pred).second.matrix_new())
+	       		(vertexStateOnGhostTrack(pred).second.matrix_new() +
+			 pvError.matrix_new()))
 	        / pred.rho2());
 }
 

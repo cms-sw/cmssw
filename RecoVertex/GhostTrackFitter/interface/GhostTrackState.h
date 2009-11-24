@@ -25,7 +25,8 @@ class GhostTrackState {
 	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
 
 	double lambda() const { return lambda_; }
-	double lambdaError(const GhostTrackPrediction &pred) const;
+	double lambdaError(const GhostTrackPrediction &pred,
+	                   const GlobalError &pvError = GlobalError()) const;
 	bool isValid() const { return tsos_.isValid(); }
 
 	void reset() { tsos_ = TrajectoryStateOnSurface(); }
@@ -37,6 +38,7 @@ class GhostTrackState {
 	                      const GlobalVector &dir) const;
 	double axisDistance(const GlobalPoint &point,
 	                    const GlobalVector &dir) const;
+	double axisDistance(const GhostTrackPrediction &pred) const;
 
 	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
 	                               bool withRecoTrackError = true) const;
