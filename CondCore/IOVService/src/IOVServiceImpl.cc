@@ -4,8 +4,6 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "IOVServiceImpl.h"
-#include "IOVIteratorImpl.h"
-#include "IOVEditorImpl.h"
 #include "POOLCore/Token.h"
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
