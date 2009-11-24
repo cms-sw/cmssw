@@ -7,34 +7,66 @@
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsAnalysis.h"
 
-HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
+void dumpId (std::ostream& fOutput, DetId id)
 {
-   hiSaveFlag = ps.getUntrackedParameter<bool>("hiSaveFlag", false);
-   dumpXML = ps.getUntrackedParameter<bool>("dumpXML", true);
-   verboseflag = ps.getUntrackedParameter<bool>("verbose", false);
-   firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
-   lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
-   firsttime = true;
+  HcalText2DetIdConverter converter (id);
+  char buffer [1024];
+  sprintf (buffer, "  %15s %15s %15s %15s",
+           converter.getField1 ().c_str (), converter.getField2 ().c_str (), 
+           converter.getField3 ().c_str (),converter.getFlavor ().c_str ());
+  fOutput << buffer;
 }
 
 
+HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
+{
+   dumpfC = ps.getUntrackedParameter<bool>("savefCpeds", false);
+   dumpXML = ps.getUntrackedParameter<bool>("dumpXML", true);
+   verboseflag = ps.getUntrackedParameter<bool>("verbose", false);
+   firstTS = ps.getUntrackedParameter<int>("firstTS", 1);
+   lastTS = ps.getUntrackedParameter<int>("lastTS", 8);   
+   firsttime = true;
+}
+
 HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 {
+   if(ievt < 1000)
+   {
+      throw cms::Exception("Too few events") << "Not enough pedestal events!" << std::endl;
+      return;
+   }
+
    HcalPedestals* rawPedsItem = new HcalPedestals(true);
    HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths(true);
    HcalPedestals* rawPedsItemfc = new HcalPedestals(false);
    HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths(false);
-
+   std::ofstream logfile(logfilename.c_str());
+   char buffer [1024];
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
    std::vector<NewPedBunch>::iterator bunch_it;
    for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
    {
       if(bunch_it->usedflag){
-
-      if(verboseflag) std::cout << "Analyzing channel phi= " << bunch_it->detid.iphi() 
+      if(verboseflag) 
+        std::cout << "Analyzing channel phi = " << bunch_it->detid.iphi() 
         << " eta = " << bunch_it->detid.ieta() << " depth = " << bunch_it->detid.depth()
         << std::endl;
+
+
+      if(bunch_it->counter < 1000) 
+      {
+	std::cout << "Not enough events in channel phi = " << bunch_it->detid.iphi()
+        << " eta = " << bunch_it->detid.ieta() << " depth = " << bunch_it->detid.depth()
+        << std::endl;
+        continue;
+      }
+
+      DetId id(bunch_it->detid.rawId());
+      dumpId (logfile, id);
+      sprintf(buffer, " %8i %10X\n", bunch_it->counter, bunch_it->detid.rawId());
+      logfile << buffer;
+
       //pedestal constant is the mean
       bunch_it->cap[0] /= bunch_it->num[0][0];
       bunch_it->cap[1] /= bunch_it->num[1][1];
@@ -44,7 +76,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->capfc[1] /= bunch_it->num[1][1];
       bunch_it->capfc[2] /= bunch_it->num[2][2];
       bunch_it->capfc[3] /= bunch_it->num[3][3];
-      //widths are the covariance matrix--assumed symmetric
+      
       bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0]*bunch_it->cap[0]);
       bunch_it->sig[0][1] = (bunch_it->prod[0][1]/bunch_it->num[0][1])-(bunch_it->cap[0]*bunch_it->cap[1]);
       bunch_it->sig[0][2] = (bunch_it->prod[0][2]/bunch_it->num[0][2])-(bunch_it->cap[0]*bunch_it->cap[2]);
@@ -78,8 +110,6 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sigfc[3][1] = (bunch_it->prodfc[3][1]/bunch_it->num[3][1])-(bunch_it->capfc[3]*bunch_it->capfc[1]);
       bunch_it->sigfc[3][2] = (bunch_it->prodfc[3][2]/bunch_it->num[3][2])-(bunch_it->capfc[3]*bunch_it->capfc[2]);
       bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3]*bunch_it->capfc[3]);
-
-
 
       if(bunch_it->detid.subdet() == 1){
          for(int i = 0; i != 3; i++){
@@ -166,36 +196,34 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
     std::ofstream outStream2(widthsADCfilename.c_str());
     HcalDbASCIIIO::dumpObject (outStream2, (*rawWidthsItem) );
 
-    std::ofstream outStream3(pedsfCfilename.c_str());
-    HcalDbASCIIIO::dumpObject (outStream3, (*rawPedsItemfc) );
-    std::ofstream outStream4(widthsfCfilename.c_str());
-    HcalDbASCIIIO::dumpObject (outStream4, (*rawWidthsItemfc) );
+    if(dumpfC){
+       std::ofstream outStream3(pedsfCfilename.c_str());
+       HcalDbASCIIIO::dumpObject (outStream3, (*rawPedsItemfc) );
+       std::ofstream outStream4(widthsfCfilename.c_str());
+       HcalDbASCIIIO::dumpObject (outStream4, (*rawWidthsItemfc) );
+    }
 
     if(dumpXML){
        std::ofstream outStream5(XMLfilename.c_str());
        HcalCondXML::dumpObject (outStream5, runnum, runnum, runnum, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
     }
 
-    if(hiSaveFlag){
-       theFile->Write();
-    }else{
-       theFile->cd();
-       theFile->cd("HB");
-       HBMeans->Write();
-       HBWidths->Write();
-       theFile->cd();
-       theFile->cd("HF");
-       HFMeans->Write();
-       HFWidths->Write();
-       theFile->cd();
-       theFile->cd("HE");
-       HEMeans->Write();
-       HEWidths->Write();
-       theFile->cd();
-       theFile->cd("HO");
-       HOMeans->Write();
-       HOWidths->Write();
-    }
+    theFile->cd();
+    theFile->cd("HB");
+    HBMeans->Write();
+    HBWidths->Write();
+    theFile->cd();
+    theFile->cd("HF");
+    HFMeans->Write();
+    HFWidths->Write();
+    theFile->cd();
+    theFile->cd("HE");
+    HEMeans->Write();
+    HEWidths->Write();
+    theFile->cd();
+    theFile->cd("HO");
+    HOMeans->Write();
+    HOWidths->Write();
     theFile->cd();
     for (int n=0; n!= 4; n++) 
     {
@@ -253,7 +281,6 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
     std::cout << "ROOT file closed.\n";
 }
 
-// ------------ method called to for each event  ------------
 void
 HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
@@ -268,8 +295,9 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
 
    const HcalQIEShape* shape = conditions->getHcalShape();
 
-   if(firsttime)
+   if(firsttime) //Not using a beginJob here because I need access to emap and run number...
    {
+      ievt = 0;
       runnum = e.id().run();
       std::string runnum_string;
       std::stringstream tempstringout;
@@ -280,6 +308,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       pedsfCfilename = runnum_string + "-peds_fC.txt";
       widthsADCfilename = runnum_string + "-widths_ADC.txt";
       widthsfCfilename = runnum_string + "-widths_fC.txt";
+      logfilename = runnum_string + "-logfile.txt";
       XMLfilename = runnum_string + "-peds_ADC_complete.xml"; 
       XMLtag = "Hcal_pedestals_" + runnum_string;
 
@@ -319,11 +348,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
             a.usedflag = false;
-            string type;
-            if(chanid.subdet() == 1) type = "HB";
-            if(chanid.subdet() == 2) type = "HE";
-            if(chanid.subdet() == 3) type = "HO";
-            if(chanid.subdet() == 4) type = "HF";
+            a.counter = 0;
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -351,6 +376,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
+      bunch_it->counter++;
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
@@ -387,6 +413,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
+      bunch_it->counter++;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
@@ -423,6 +450,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
+      bunch_it->counter++;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
@@ -452,43 +480,10 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          }
       }
 
-/* Once I figure out how to unpack Calib digis they go here
-      const HFDataFrame digi = (const HFDataFrame)(*j);
-      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
-         if(bunch_it->detid.rawId() == digi.id().rawId()) break;
-      bunch_it->usedflag = true;
-      for(int ts = firstTS; ts <= lastTS; ts++)
-      {
-//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
-         bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
-         bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
-//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
-//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
-         bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
-//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
-         if((ts+1 < digi.size()) && (ts+1 < lastTS)){
-            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
-            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
-         }
-         if((ts+2 < digi.size()) && (ts+2 < lastTS)){
-            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
-            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
-         }
-         if((ts+3 < digi.size()) && (ts+3 < lastTS)){
-            bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
-            bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
-         }
-*/
-
+/* Calib pedestals forked into a separate package */
    }
-//this is the last brace
+
+   ievt++;
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(HcalPedestalsAnalysis);
