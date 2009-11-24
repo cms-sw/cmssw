@@ -64,7 +64,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  
 	  float time = hit->time();
 	  MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
-	  MaxTimeHits[iPhi] = time < MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
+	  MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
 	}
     }
   
