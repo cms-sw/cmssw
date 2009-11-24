@@ -6,11 +6,15 @@ process = cms.Process("Beam Monitor")
 # DQM Environment
 #-----------------------------
 process.load("DQM.Integration.test.environment_cfi")
+process.dqmEnv.subSystemFolder = 'BeamMonitor'
+process.dqmSaver.saveByRun = 1
+process.dqmSaver.saveAtJobEnd = True
 
 #----------------------------
 # BeamMonitor
 #-----------------------------
 process.load("DQM.BeamMonitor.BeamMonitor_cff")
+process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
 ####  SETUP TRACKING RECONSTRUCTION ####
@@ -18,8 +22,7 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-#process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-----------------------------
 # Magnetic Field
@@ -39,7 +42,11 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-# offline beam spot
+## Pixelless Tracking
+process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
+process.MeasurementTracker.pixelClusterProducer = cms.string("")
+
+# Offline Beam Spot
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 #### END OF TRACKING RECONSTRUCTION ####
@@ -53,7 +60,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(
-
     )
 )
 
@@ -61,32 +67,17 @@ process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*proces
 
 process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv*process.dqmSaver)
 
-process.DQMStore.verbose = 0
-process.DQM.collectorHost = 'srv-c2d05-18'
-process.DQM.collectorPort = 9090
-process.dqmSaver.dirName = '.'
-process.dqmSaver.producer = 'Playback'
-process.dqmSaver.convention = 'Online'
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = True
+process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ctfTracksPixelLess)
 
-# # summary
+process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnv*process.dqmSaver)
+
+
+## Summary
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
     )
 
-process.p = cms.Path(process.tracking*process.monitor)
-
-#process.out = cms.OutputModule("PoolOutputModule",
-#                               fileName = cms.untracked.string('test.root'),
-#			       outputCommands = cms.untracked.vstring(
-#				'drop *',
-#				'keep *_offlineBeamSpot_*_*',
-#				'keep *_ctfWithMaterialTracksP5_*_*',
-#				'keep *_cosmictrackfinderP5_*_*'
-#			       )
-#                              )
-#process.end = cms.EndPath(process.out)
+#process.p = cms.Path(process.tracking*process.monitor)
+process.p = cms.Path(process.tracking_pixelless*process.monitor_pixelless)
 
 
