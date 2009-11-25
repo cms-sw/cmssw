@@ -73,6 +73,9 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
+    
+    fillRunBlockList();
+    
     cout << "Real data conditions...ok"<< endl;
     /******************************/  
   
@@ -141,6 +144,43 @@ print();
   convert();  // Convert cross-sections to cm^2
   
 }
+
+void OHltConfig::fillRunBlockList()
+{
+  // Lookup runLumiblockList, format: (runnr, minLumiBlock, maxLumiBlock)
+  
+  // temporary vars
+  int itmp1;int itmp2;int itmp3;
+
+  try {
+  Setting &m = cfg.lookup("data.runLumiblockList");
+  const int nm = (const int)m.getLength();
+  //cout <<"NNNNNNNNNN: " << nm << endl;
+  for (int i=0;i<nm;i++) {
+    TString ss0 = "data.runLumiblockList.["; ss0 +=i; ss0=ss0+"].[0]";
+    Setting &tt0 = cfg.lookup(ss0.Data());
+    itmp1 = tt0;
+
+    TString ss3 = "data.runLumiblockList.["; ss3 +=i; ss3=ss3+"].[1]";
+    Setting &tt3 = cfg.lookup(ss3.Data());
+    itmp2 = tt3;
+    
+    TString ss1 = "data.runLumiblockList.["; ss1 +=i; ss1=ss1+"].[2]";
+    Setting &tt1 = cfg.lookup(ss1.Data());
+    itmp3 = tt1;
+    //cout << itmp1 << " "<< itmp2 << " "<< itmp3 << " " << endl;
+
+    vector<int> tmpItem;
+    tmpItem.push_back(itmp1);
+    tmpItem.push_back(itmp2);
+    tmpItem.push_back(itmp3);
+    runLumiblockList.push_back(tmpItem);
+  }
+  } catch (...) {
+    cout << endl << "No runLumiblock list! " << endl;
+  }
+}
+
 
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
@@ -254,6 +294,18 @@ void OHltConfig::print()
   }
   cout << "**********************************" <<  endl;
 
+
+  unsigned int nrunLumiList = runLumiblockList.size();
+  if (nrunLumiList>0) {
+    cout << endl;
+    cout << "List of (runNo, minLumiblockID, maxLumiblockID) "<<  endl;
+    cout << "**********************************" <<  endl;
+    for (unsigned int i=0;i<nrunLumiList;i++) {
+      cout<<runLumiblockList[i][0]<< ", " << runLumiblockList[i][1]<< ", "<< runLumiblockList[i][2]<<endl;
+    }
+  cout << "**********************************" <<  endl;
+  }
+  
   cout << "---------------------------------------------" <<  endl;
 }
 

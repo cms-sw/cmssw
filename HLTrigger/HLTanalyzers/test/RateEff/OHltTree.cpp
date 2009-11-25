@@ -74,6 +74,11 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     // uses complete LumiSections
     if(menu->IsRealData())
       {
+
+	if (cfg->runLumiblockList.size()>0) {
+	  if (!isInRunLumiblockList(Run,LumiBlock,cfg->runLumiblockList)) continue;
+	}
+	
 	currentLumiSection = LumiBlock;
 	if(currentLumiSection != previousLumiSection)
 	  nLumiSections++;
@@ -216,3 +221,18 @@ bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter
     return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
   }
 };
+
+bool OHltTree::isInRunLumiblockList(int run, int lumiBlock,vector < vector <int> > list) {
+
+  unsigned int nrunLumiList = list.size();
+  if (nrunLumiList>0) {
+    for (unsigned int i=0;i<nrunLumiList;i++) {
+      if (run == list[i][0] && lumiBlock >= list[i][1] && lumiBlock <= list[i][2]) {
+	return true;
+      }
+    }
+  }
+
+  //cout << "Skip event, it is not in runLumiblockList: "<<run<<" "<<lumiBlock<<endl;
+  return false;
+}

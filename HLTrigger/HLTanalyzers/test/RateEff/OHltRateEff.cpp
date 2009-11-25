@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
   Create a HLTDatasets object to record primary datasets.
   Make sure to register each sample with it as well!
   */
-  HLTDatasets   hltDatasets(omenu->GetTriggerNames(), ocfg->dsList.Data(), kFALSE);
+  HLTDatasets   hltDatasets(omenu->GetTriggerNames(), ocfg->dsList.Data(), kFALSE, "PrefixTest");
 
 
   // Prepare process files

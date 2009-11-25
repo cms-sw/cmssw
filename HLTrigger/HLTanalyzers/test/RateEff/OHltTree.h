@@ -1219,7 +1219,8 @@ private:
 
   bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
   bool prescaleResponseL1(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
-  
+  bool isInRunLumiblockList(int,int,vector < vector <int> >);
+
   int nMissingTriggerWarnings;
 
   enum e_objType {muon,electron,tau,photon,jet};

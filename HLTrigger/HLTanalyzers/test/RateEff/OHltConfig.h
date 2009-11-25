@@ -26,6 +26,7 @@ class OHltConfig {
   void OHltConfig::fillMenu(OHltMenu *omenu);
   void OHltConfig::printMenu(OHltMenu *omenu);
   void OHltConfig::convert();
+  void OHltConfig::fillRunBlockList();
 
   // Data
   Config cfg;
@@ -55,6 +56,9 @@ class OHltConfig {
   int nL1AcceptsRun;
   float lumiSectionLength;
   int prescaleNormalization;
+  vector < vector <int> > runLumiblockList; // format: (runnr, minLumiBlock, maxLumiBlock)
+
+  
   /******************************/
 
   /**** Samples & processes ****/
