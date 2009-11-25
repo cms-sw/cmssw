@@ -50,10 +50,10 @@ namespace cond {
     std::string const & token() const { return m_token;}
     
     // load Element valid at time
-    void loadFor(cond::Time_t time);
-
-    // load nth Element 
-    void loadFor(size_t n);
+    cond::ValidityInterval loadFor(cond::Time_t time);
+    
+    // load nth Element (to be used in simple iterators...)
+    cond::ValidityInterval loadFor(size_t n);
 
     // find ad return interval (does not load)
     cond::ValidityInterval setIntervalFor(cond::Time_t time);

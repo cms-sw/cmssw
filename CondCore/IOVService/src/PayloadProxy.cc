@@ -20,13 +20,15 @@ namespace cond {
 
   BasePayloadProxy::~BasePayloadProxy(){}
 
-  void BasePayloadProxy::loadFor(cond::Time_t time) {
+  cond::ValidityInterval BasePayloadProxy::loadFor(cond::Time_t time) {
     m_element = *m_iov.find(time);
     make();
+    return cond::ValidityInterval(m_element.since(),m_element.till());
   }
 
-  void  BasePayloadProxy::loadFor(size_t n) {
+  cond::ValidityInterval BasePayloadProxy::loadFor(size_t n) {
     m_element.set(m_iov.iov(),n);
+    return cond::ValidityInterval(m_element.since(),m_element.till());
   }
 
 
