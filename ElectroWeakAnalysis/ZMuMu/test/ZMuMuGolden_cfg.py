@@ -35,16 +35,59 @@ process.TFileService = cms.Service(
     fileName = cms.string("ewkZMuMuGolden.root")
 )
 
+zPlots = cms.PSet(
+    histograms = cms.VPSet(
+    cms.PSet(
+    min = cms.untracked.double(0.0),
+    max = cms.untracked.double(200.0),
+    nbins = cms.untracked.int32(200),
+    name = cms.untracked.string("zMass"),
+    description = cms.untracked.string("Z mass [GeV/c^{2}]"),
+    plotquantity = cms.untracked.string("mass")
+    ),
+    cms.PSet(
+    min = cms.untracked.double(0.0),
+    max = cms.untracked.double(200.0),
+    nbins = cms.untracked.int32(200),
+    name = cms.untracked.string("mu1Pt"),
+    description = cms.untracked.string("Highest muon p_{t} [GeV/c]"),
+    plotquantity = cms.untracked.string("max(daughter(0).pt,daughter(1).pt)")
+    ),
+    cms.PSet(
+    min = cms.untracked.double(0.0),
+    max = cms.untracked.double(200.0),
+    nbins = cms.untracked.int32(200),
+    name = cms.untracked.string("mu2Pt"),
+    description = cms.untracked.string("Lowest muon p_{t} [GeV/c]"),
+    plotquantity = cms.untracked.string("min(daughter(0).pt,daughter(1).pt)")
+    )
+    )
+)
+
+
+
+
+process.goodZToMuMuPlots = cms.EDFilter(
+    "CandViewHistoAnalyzer",
+    zPlots,
+    src = cms.InputTag("goodZToMuMuAtLeast1HLT"),
+    filter = cms.bool(False)
+)
+
+
+
+
 process.eventInfo = cms.OutputModule (
     "AsciiOutputModule"
 )
 
 process.ewkZMuMuGoldenPath = cms.Path(
-    process.ewkZMuMuGoldenSequence 
+    process.ewkZMuMuGoldenSequence *
+    process.goodZToMuMuPlots
 )
 
 
 
 process.endPath = cms.EndPath( 
-    process.eventInfo 
+   process.eventInfo 
 )

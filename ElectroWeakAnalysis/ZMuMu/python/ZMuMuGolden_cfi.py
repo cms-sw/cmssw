@@ -49,7 +49,7 @@ dimuonsHLTFilter.HLTPaths = ["HLT_Mu9"]
 
 zSelection = cms.PSet(
 ## cut already implemented, but one could add more (e.g. massMin, massMax,... change the pt or eta cut....)
-    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 20"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 60"),
     )
 
 
@@ -68,44 +68,6 @@ goodZToMuMuAtLeast1HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-zPlots = cms.PSet(
-    histograms = cms.VPSet(
-    cms.PSet(
-    min = cms.untracked.double(0.0),
-    max = cms.untracked.double(200.0),
-    nbins = cms.untracked.int32(200),
-    name = cms.untracked.string("zMass"),
-    description = cms.untracked.string("Z mass [GeV/c^{2}]"),
-    plotquantity = cms.untracked.string("mass")
-    ),
-    cms.PSet(
-    min = cms.untracked.double(0.0),
-    max = cms.untracked.double(200.0),
-    nbins = cms.untracked.int32(200),
-    name = cms.untracked.string("mu1Pt"),
-    description = cms.untracked.string("Highest muon p_{t} [GeV/c]"),
-    plotquantity = cms.untracked.string("max(daughter(0).pt,daughter(1).pt)")
-    ),
-    cms.PSet(
-    min = cms.untracked.double(0.0),
-    max = cms.untracked.double(200.0),
-    nbins = cms.untracked.int32(200),
-    name = cms.untracked.string("mu2Pt"),
-    description = cms.untracked.string("Lowest muon p_{t} [GeV/c]"),
-    plotquantity = cms.untracked.string("min(daughter(0).pt,daughter(1).pt)")
-    )
-    )
-)
-
-
-
-
-goodZToMuMuPlots = cms.EDFilter(
-    "CandViewHistoAnalyzer",
-    zPlots,
-    src = cms.InputTag("goodZToMuMuAtLeast1HLT"),
-    filter = cms.bool(False)
-)
 
 
 
@@ -114,8 +76,7 @@ ewkZMuMuGoldenSequence = cms.Sequence(
    dimuonsHLTFilter *  
    dimuonsGlobalAOD *
    dimuonsFilter *
-   goodZToMuMuAtLeast1HLT *
-   goodZToMuMuPlots    
+   goodZToMuMuAtLeast1HLT 
 )
 
 
