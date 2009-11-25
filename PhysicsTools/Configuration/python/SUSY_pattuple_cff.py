@@ -67,7 +67,8 @@ def addJetMET(process):
                      doType1MET       = True,
                      doL1Cleaning     = True,
                      doL1Counters     = True,
-                     jetIdLabel       = "ic5",
+                     doJetID          = True,
+		     jetIdLabel       = "ic5",
                      genJetCollection = cms.InputTag("iterativeCone5GenJets")
                      )
     addJetCollection(process,cms.InputTag('sisCone5CaloJets'),
@@ -78,6 +79,7 @@ def addJetMET(process):
                      doType1MET   = True,
                      doL1Cleaning = True,
                      doL1Counters = True,
+                     doJetID      = True,
                      jetIdLabel   = "sc5",
                      genJetCollection=cms.InputTag("sisCone5GenJets")
                      )
@@ -86,20 +88,22 @@ def addJetMET(process):
                      'AK5PF',
                      doJTA        = True,
                      doBTagging   = True,
-                     jetCorrLabel = None,
-                     doType1MET   = True,
+                     jetCorrLabel = ('AK5','PF'),
+                     doType1MET   = False,
                      doL1Cleaning = True,
                      doL1Counters = True,
+                     doJetID      = False,
                      genJetCollection=cms.InputTag("ak5GenJets")
                      )
     addJetCollection(process,cms.InputTag('sisCone5PFJets'),
                      'SC5PF',
                      doJTA        = True,
                      doBTagging   = True,
-                     jetCorrLabel = None,
-                     doType1MET   = True,
+                     jetCorrLabel = ('SC5','PF'),
+                     doType1MET   = False,
                      doL1Cleaning = True,
                      doL1Counters = True,
+                     doJetID      = False,
                      genJetCollection=cms.InputTag("sisCone5GenJets")
                      )
     
@@ -112,13 +116,9 @@ def addJetMET(process):
                      doType1MET   = False,
                      doL1Cleaning = True,
                      doL1Counters = True,
+                     doJetID      = False,
                      genJetCollection = cms.InputTag("ak5GenJets")
                      )
-    #Not needed in 33X since in RECO
-    # Add latest HcalNoiseSummary
-    #process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
-    #process.hcalnoise.refillRefVectors = True
-    #process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise" # This has changed in 33X
 	
     #-- Track Jets ----------------------------------------------------------------
     # Select tracks for track jets
@@ -136,7 +136,7 @@ def addJetMET(process):
                                            particleType = cms.string('pi+')
                                            )
 	
-    #add jet collections
+    #add track jet collection
     process.load('RecoJets.JetProducers.ak5TrackJets_cfi')
     process.addTrackJets = cms.Sequence(  process.trackWithVertexSelector
                                           * process.tracksForJets
@@ -149,16 +149,16 @@ def addJetMET(process):
                      doType1MET   = False,
                      doL1Cleaning = True,
                      doL1Counters = True,
+                     doJetID      = False,
                      genJetCollection = cms.InputTag("ak5GenJets")
                      )
     
     #-- Tune contents of jet collections  -----------------------------------------
-    for jetName in ( '', 'IC5', 'SC5' , 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):# , 'SC5JPT', 'SC5Track' ):
+    for jetName in ( '', 'IC5', 'SC5' , 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):
         module = getattr(process,'allLayer1Jets'+jetName)
         module.addTagInfos = False    # Remove tag infos
-        module.addJetID    = False     # Do not add JetID variables since they are in AOD
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
-
+ 
     # Add tcMET and PFMET
     from PhysicsTools.PatAlgos.tools.metTools import addTcMET, addPfMET
     addTcMET(process,'TC')
@@ -178,7 +178,7 @@ def addJetMET(process):
     process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
     # Add new jet collections to counters (MET done automatically)
-    for jets in ( 'IC5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):#, 'SC5JPT', 'SC5Track' ):
+    for jets in ( 'IC5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):
         process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
         process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
         process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
@@ -188,25 +188,6 @@ def removeMCDependence( process ):
     #-- Remove MC dependence ------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
     removeMCMatching(process, 'All')
-    
-    ## remove mc extra configs for met
-    for MetName in ( '', 'IC5', 'SC5' , 'PF', 'TC'):# , 'SC5JPT', 'SC5Track' ):
-        module = getattr(process, 'layer1METs'+MetName)        
-        module.addGenMET           = False
-        module.genMETSource        = ''
-    
-   	## remove mc extra configs for jets
-    for jetName in ( '', 'IC5', 'SC5' , 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):# , 'SC5JPT', 'SC5Track' ):
-        module = getattr(process,'allLayer1Jets'+jetName)
-        module.addGenPartonMatch   = False
-        module.embedGenPartonMatch = False
-        module.genPartonMatch      = ''
-        module.addGenJetMatch      = False
-        module.genJetMatch         = ''
-        module.getJetMCFlavour     = False
-        module.JetPartonMapSource  = ''      
-        process.patDefaultSequence.remove(getattr(process,'jetPartonMatch'+jetName))
-        process.patDefaultSequence.remove(getattr(process,'jetGenJetMatch'+jetName))
 
 def getSUSY_pattuple_outputCommands( process ):
     return [ # PAT Objects
@@ -244,5 +225,4 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
         'keep recoPFCandidates_particleFlow_*_*'
         ] 
-
 
