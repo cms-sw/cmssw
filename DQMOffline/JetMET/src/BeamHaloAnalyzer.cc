@@ -435,8 +435,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["EcalHaloData_PhiWedgeConstituents"]->Fill( iWedge->NumberOfConstituents() ) ;
 	  ME["EcalHaloData_PhiWedgeMinTime"]     ->Fill( iWedge->MinTime() );
 	  ME["EcalHaloData_PhiWedgeMaxTime"]     ->Fill( iWedge->MaxTime() );
-	  cout << "Min,Max Time       " <<  iWedge->MinTime() << "         " << iWedge->MaxTime() << endl;
-	  
 	  ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"]->Fill( iWedge->PlusZDirectionConfidence() );
 	  ME["EcalHaloData_PhiWedgeMinVsMaxTime"]->Fill(iWedge->MinTime() , iWedge->MaxTime() ) ;
 	  ME["EcalHaloData_PhiWedgeiPhi"]->Fill(iWedge->iPhi() ) ;
