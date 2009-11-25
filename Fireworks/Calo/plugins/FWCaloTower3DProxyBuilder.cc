@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.9 2009/11/05 22:07:19 dmytro Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.10 2009/11/10 20:43:55 amraktad Exp $
 //
 
 #include <math.h>
@@ -197,6 +197,8 @@ FWCaloTower3DProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       
       m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_caloData->CellSelectionChanged();
+	  m_caloData->DataChanged();
+
    }
 }
 
