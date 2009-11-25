@@ -514,7 +514,7 @@ if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
 
   process.ecalEndcapMainSequence.remove(process.ecalEndcapPedestalOnlineTask)
 
-if (localDAQ == 1) | (globalDAQ == 1) | (liveCMS == 1) | (playCMS == 1) :
+if (localDAQ == 1) | (globalDAQ == 1) :
   process.ecalBarrelMainSequence.remove(process.ecalBarrelTrendTask)
 
   process.ecalEndcapMainSequence.remove(process.ecalEndcapTrendTask)
