@@ -95,7 +95,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     meValid_ = dbe->book1D(hisID,"# Valid hits",1,0,1.);
     meValid_->setAxisTitle("# Valid hits",1);
     
-    hisID = theHistogramId->setHistoId("validX",id_);
+    /*hisID = theHistogramId->setHistoId("validX",id_);
     meValidX_ = dbe->book1D(hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidX_->setAxisTitle("# Valid hits in X",1);
     
@@ -109,14 +109,14 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     hisID = theHistogramId->setHistoId("validBeta",id_);
     meValidBeta_ = dbe->book1D(hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
-    meValidBeta_->setAxisTitle("# Valid hits in Beta",1);
+    meValidBeta_->setAxisTitle("# Valid hits in Beta",1);*/
 
     //MISSING
     hisID = theHistogramId->setHistoId("missing",id_);
     meMissing_ = dbe->book1D(hisID,"# Missing hits",1,0,1.);
     meMissing_->setAxisTitle("# Missing hits",1);
     
-    hisID = theHistogramId->setHistoId("missingX",id_);
+    /*hisID = theHistogramId->setHistoId("missingX",id_);
     meMissingX_ = dbe->book1D(hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingX_->setAxisTitle("# Missing hits in X",1);
     
@@ -130,7 +130,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     hisID = theHistogramId->setHistoId("missingBeta",id_);
     meMissingBeta_ = dbe->book1D(hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
-    meMissingBeta_->setAxisTitle("# Missing hits in Beta",1);
+    meMissingBeta_->setAxisTitle("# Missing hits in Beta",1);*/
     
     delete theHistogramId;
   }
@@ -494,10 +494,10 @@ void SiPixelHitEfficiencyModule::fill(LocalTrajectoryParameters ltp, bool isHitV
   if(isHitValid){
     if(modon){
       meValid_->Fill(0.5);
-      meValidX_->Fill(prediction_x);
+      /*meValidX_->Fill(prediction_x);
       meValidY_->Fill(prediction_y);
       meValidAlpha_->Fill(prediction_alpha);
-      meValidBeta_->Fill(prediction_beta);
+      meValidBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meValidLad_->Fill(0.5);
@@ -545,10 +545,10 @@ void SiPixelHitEfficiencyModule::fill(LocalTrajectoryParameters ltp, bool isHitV
   else {
     if(modon){
       meMissing_->Fill(0.5);
-      meMissingX_->Fill(prediction_x);
+      /*meMissingX_->Fill(prediction_x);
       meMissingY_->Fill(prediction_y);
       meMissingAlpha_->Fill(prediction_alpha);
-      meMissingBeta_->Fill(prediction_beta);
+      meMissingBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meMissingLad_->Fill(0.5);
@@ -609,7 +609,7 @@ void SiPixelHitEfficiencyModule::computeEfficiencies(bool modon, bool ladon, boo
   if(modon){
     meEfficiency_->setBinContent(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).first);
     meEfficiency_->setBinError(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).second);
-    for(int i=1;i<=meValidX_->getNbinsX();++i){
+    /*for(int i=1;i<=meValidX_->getNbinsX();++i){
       meEfficiencyX_->setBinContent(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).first);
       meEfficiencyX_->setBinError(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).second);
     }
@@ -624,7 +624,7 @@ void SiPixelHitEfficiencyModule::computeEfficiencies(bool modon, bool ladon, boo
     for(int i=1;i<=meValidBeta_->getNbinsX();++i){
       meEfficiencyBeta_->setBinContent(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).first);
       meEfficiencyBeta_->setBinError(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).second);
-    }
+    }*/
   }
   if(ladon && barrel){
     meEfficiencyLad_->setBinContent(1,(eff(meValidLad_->getBinContent(1),meMissingLad_->getBinContent(1))).first);
