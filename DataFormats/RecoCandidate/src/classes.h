@@ -6,7 +6,9 @@
 #include <boost/cstdint.hpp> 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h" 
+#include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidateFwd.h" 
 #include "DataFormats/RecoCandidate/interface/RecoStandAloneMuonCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoStandAloneMuonCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -36,12 +38,19 @@
 
 
 namespace {
+
   struct dictionary {
     reco::RecoChargedCandidateCollection v1;
     edm::Wrapper<reco::RecoChargedCandidateCollection> w1;
     edm::Ref<reco::RecoChargedCandidateCollection> r1;
     edm::RefProd<reco::RecoChargedCandidateCollection> rp1;
     edm::RefVector<reco::RecoChargedCandidateCollection> rv1;
+
+    reco::RecoChargedRefCandidateCollection vr1;
+    edm::Wrapper<reco::RecoChargedRefCandidateCollection> wr1;
+    edm::Ref<reco::RecoChargedRefCandidateCollection> rr1;
+    edm::RefProd<reco::RecoChargedRefCandidateCollection> rpr1;
+    edm::RefVector<reco::RecoChargedRefCandidateCollection> rvr1;
 
     reco::RecoEcalCandidateCollection v2;
     edm::Wrapper<reco::RecoEcalCandidateCollection> w2;
@@ -61,6 +70,8 @@ namespace {
 
     edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rb2;
+/*     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateBaseRef> rb3; */
+    edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateRef> rb4;
 
     edm::Wrapper<reco::FitResultCollection> wfr1;
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
@@ -90,6 +101,18 @@ namespace {
     edm::reftobase::RefHolder<reco::RecoChargedCandidateRef> rbc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedCandidateRefVector> rbc3;
     edm::reftobase::RefVectorHolder<reco::RecoChargedCandidateRefVector> rbc4;
+
+    edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateRef> rbcr1;
+    edm::reftobase::RefHolder<reco::RecoChargedRefCandidateRef> rbcr2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedRefCandidateRefVector> rbcr3;
+    edm::reftobase::RefVectorHolder<reco::RecoChargedRefCandidateRefVector> rbcr4;
+
+
+/*     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateBaseRef> rbcrb1; */
+/*     edm::reftobase::RefHolder<reco::RecoChargedRefCandidateBaseRef> rbcrb2; */
+/*     edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedRefCandidateBaseRefVector> rbcrb3; */
+/*     edm::reftobase::RefVectorHolder<reco::RecoChargedRefCandidateBaseRefVector> rbcrb4; */
+
           
     edm::reftobase::Holder<reco::Candidate, reco::RecoStandAloneMuonCandidateRef> rbsa1;
     edm::reftobase::RefHolder<reco::RecoStandAloneMuonCandidateRef> rbsa2;
@@ -109,6 +132,11 @@ namespace {
     edm::Wrapper<reco::IsoDepositMap> w_idvm;
     
     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > > tpaaa;
+
+    edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> > > tpaaa2;
+
+/*     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase> > > tpaaa3; */
+
 
   };
 }
