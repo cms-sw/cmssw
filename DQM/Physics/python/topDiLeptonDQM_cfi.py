@@ -5,13 +5,11 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
     moduleName     = cms.untracked.string('Physics/Top/DiLepton'),
     ### 
     TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-    hltPaths       = cms.vstring('HLT_Mu9','HLT_Mu15','HLT_IsoMu9','HLT_DoubleMu3','HLT_Ele15_SW_L1R','HLT_Ele20_SW_L1R'),
+    hltPaths       = cms.vstring('HLT_Mu3','HLT_IsoMu3','HLT_Mu5','HLT_Mu9','HLT_Mu15','HLT_IsoMu9','HLT_DoubleMu3',
+                                 'HLT_Ele15_SW_L1R','HLT_Ele20_SW_L1R'),
     ### 
-    hltPaths_mu    = cms.vstring('HLT_Mu9','HLT_Mu15','HLT_IsoMu9','HLT_DoubleMu3'),
-    hltPaths_el    = cms.vstring('HLT_Ele15_SW_L1R','HLT_Ele20_SW_L1R'),
-    ### 
-    hltPaths_sig   = cms.vstring('HLT_IsoMu9', 'HLT_Mu15', 'HLT_DoubleMu3', 'HLT_Mu9'),
-    hltPaths_trig  = cms.vstring('HLT_Mu9',    'HLT_Mu9',  'HLT_Mu9',       'HLT_Mu5'),
+    hltPaths_sig   = cms.vstring('HLT_IsoMu3', 'HLT_Mu15', 'HLT_DoubleMu3', 'HLT_Mu9'),
+    hltPaths_trig  = cms.vstring('HLT_Mu3',    'HLT_Mu9',  'HLT_Mu9',       'HLT_Mu5'),
     ### 
     muonCollection = cms.InputTag('muons'),
     muon_pT_cut    = cms.double(  3.0 ),

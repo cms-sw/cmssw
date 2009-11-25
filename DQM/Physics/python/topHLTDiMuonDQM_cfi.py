@@ -9,8 +9,8 @@ topHLTDiMuonDQM = cms.EDAnalyzer("TopHLTDiMuonDQM",
     hltPaths_L1    = cms.vstring('HLT_L1MuOpen','HLT_L1Mu','HLT_L1Mu20','HLT_L1DoubleMuOpen'),
     ### 
     hltPaths_L3    = cms.vstring('HLT_Mu3','HLT_IsoMu3','HLT_Mu5','HLT_Mu9','HLT_IsoMu9','HLT_Mu15','HLT_DoubleMu0','HLT_DoubleMu3'),
-    hltPaths_sig   = cms.vstring('HLT_IsoMu9', 'HLT_Mu15', 'HLT_DoubleMu3', 'HLT_Mu9'),
-    hltPaths_trig  = cms.vstring('HLT_Mu9',    'HLT_Mu9',  'HLT_Mu9',       'HLT_Mu5'),
+    hltPaths_sig   = cms.vstring('HLT_IsoMu3', 'HLT_Mu15', 'HLT_DoubleMu3', 'HLT_Mu9'),
+    hltPaths_trig  = cms.vstring('HLT_Mu3',    'HLT_Mu9',  'HLT_Mu9',       'HLT_Mu5'),
     ### 
     L1_Collection  = cms.untracked.InputTag('hltL1extraParticles'),
     L3_Collection  = cms.untracked.InputTag('hltL3MuonCandidates'),
