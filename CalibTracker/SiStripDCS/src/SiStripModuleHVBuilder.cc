@@ -561,3 +561,85 @@ cond::Time_t SiStripModuleHVBuilder::findMostRecentTimeStamp( std::vector<coral:
   }
   return latestDate;
 }
+
+void SiStripModuleHVBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
+				     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
+				     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
+				     const bool last )
+{
+  int first = 0;
+  // Check if it is the first
+  if( distance(resultVec.begin(), initialIt) == 0 ) {
+    first = 1;
+  }
+  // if it was going off
+  if( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() > 0 || it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() > 0 ) {
+    cout << "going off" << endl;
+    // Set the time of the current (last) iov as the time of the initial iov of the sequence
+    // replace the first iov with the last one
+    it->second = (initialIt)->second;
+    it = resultVec.erase(initialIt, it);
+
+  }
+  // if it was going on
+  else if( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() <= 0 || it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() <= 0 ) {
+    cout << "going on" << endl;
+    // replace the last minus one iov with the first one
+    // cout << "first = " << first << endl;
+    // cout << "initial->first = " << initialIt->first << ", second  = " << initialIt->second << endl;
+    if( last == true ) {
+      resultVec.erase(initialIt+first, it+1);
+      // Minus 2 because it will be incremented at the end of the loop becoming end()-1.
+      it = resultVec.end()-2;
+    }
+    else {
+      it = resultVec.erase(initialIt+first, it);
+    }
+  }
+}
+
+void SiStripModuleHVBuilder::reduction(const uint32_t deltaTmin)
+{
+  int count = 0;
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator initialIt;
+
+  int resultVecSize = modulesOff.size();
+  int resultsIndex = 0;
+
+  if( resultVecSize > 1 ) {
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator it = modulesOff.begin();
+    for( ; it != modulesOff.end()-1; ++it, ++resultsIndex ) {
+      unsigned long long time1 = it->second >> 32;
+      unsigned long long time2 = (it+1)->second >> 32;
+      unsigned long long deltaT = time2 - time1;
+      // std::cout << "deltaT = " << deltaT << std::endl;
+      // Save the initial pair
+      if( deltaT <= deltaTmin ) {
+	// If we are not in a the sequence
+	if( count == 0 ) {
+	  initialIt = it;
+	}
+	// Increase the counter in any case.
+	// cout << "count = " << count << endl;
+	++count;
+      }
+      // We do it only if the sequence is bigger than two cases
+      else if( count > 1 ) {
+	reduce(it, initialIt, modulesOff);
+	// reset all
+	// cout << "resetting" << endl;
+	count = 0;
+      }
+      else {
+	// cout << "resetting" << endl;
+	// reset all
+	count = 0;
+      }
+      // Border case
+      // cout << "resultsIndex = " << resultsIndex << ", resultVecSize-2 = " << resultVecSize-2 << endl;
+      if( resultsIndex == resultVecSize-2 && count != 0 ) {
+	reduce(it, initialIt, modulesOff, true);
+      }
+    }
+  }
+}

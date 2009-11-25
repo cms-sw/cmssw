@@ -32,13 +32,24 @@ class SiStripModuleHVBuilder
   /** Build the SiStripModuleHV object for transfer. */
   void BuildModuleHVObj();
   /** Return modules Off vector of objects. */
-  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff() {return modulesOff;}
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff(const int deltaTmin = 1) {
+    reduction(deltaTmin);
+    return modulesOff;
+  }
   /** Return statistics about payloads transferred for storage in logDB. */
   std::vector< std::vector<uint32_t> > getPayloadStats() {return payloadStats;}
   /** Store the last payload transferred to DB as starting point for creation of new object list.
       ONLY WORKS FOR STATUSCHANGE OPTION. */
   void retrieveLastSiStripDetVOff( SiStripDetVOff * lastPayload, cond::Time_t lastTimeStamp );
-  
+
+  /// Operates the reduction of the fast sequences of ramping up and down of the voltages
+  void reduce( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
+	       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
+	       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
+	       const bool last = false);
+
+  void reduction(const uint32_t deltaTmin);
+
  private:
   // typedefs
   typedef std::vector< std::pair< std::vector<uint32_t>,coral::TimeStamp> > DetIdTimeStampVector ;
