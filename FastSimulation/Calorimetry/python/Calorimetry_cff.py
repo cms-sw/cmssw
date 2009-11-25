@@ -43,12 +43,24 @@ FamosCalorimetryBlock = cms.PSet(
         ),
         UnfoldedMode = cms.untracked.bool(False),
         HCAL = cms.PSet(
-            SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower
-
+            SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower, 2 - GFLASH
             GridSize = cms.int32(7),
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
             SimOption = cms.int32(2)
         )
+    ),
+    GFlash = cms.PSet(
+      GflashExportToFastSim = cms.bool(True),
+      GflashHadronPhysics = cms.string('QGSP_BERT'),
+      GflashEMShowerModel = cms.bool(False),
+      GflashHadronShowerModel = cms.bool(True),
+      GflashHcalOuter = cms.bool(False),
+      GflashHistogram = cms.bool(False),
+      GflashHistogramName = cms.string('gflash_histogram.root'),
+      Verbosity = cms.untracked.int32(0),
+      bField = cms.double(3.8),
+      watcherOn = cms.bool(False),
+      tuning_pList = cms.vdouble()
     )
 )
 

@@ -24,7 +24,11 @@ class RandomEngine;
 class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
 class MaterialEffects;
-
+//Gflash
+class GflashHadronShowerProfile;
+class GflashPiKShowerProfile;
+class GflashProtonShowerProfile;
+class GflashAntiProtonShowerProfile;
 
 namespace edm { 
   class ParameterSet;
@@ -38,6 +42,7 @@ class CalorimetryManager{
 		     const edm::ParameterSet& fastCalo,
 		     const edm::ParameterSet& MuonECALPars,
 		     const edm::ParameterSet& MuonHCALPars,
+                     const edm::ParameterSet& fastGflash,
 		     const RandomEngine* engine);
   ~CalorimetryManager();
 
@@ -150,6 +155,10 @@ class CalorimetryManager{
   MaterialEffects* theMuonEcalEffects; // material effects for muons in ECAL
   MaterialEffects* theMuonHcalEffects; // material effects for muons in HCAL
 
-
+  //Gflash
+  GflashHadronShowerProfile *theProfile;
+  GflashPiKShowerProfile *thePiKProfile;
+  GflashProtonShowerProfile *theProtonProfile;
+  GflashAntiProtonShowerProfile *theAntiProtonProfile;
 };
 #endif
