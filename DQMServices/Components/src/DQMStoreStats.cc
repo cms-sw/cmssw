@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/09/11 15:08:01 $
- * $Revision: 1.5 $
+ * $Date: 2009/11/13 18:40:10 $
+ * $Revision: 1.6 $
  * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -209,9 +209,21 @@ int DQMStoreStats::calcstats() {
       std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
       std::cout << std::setw( 7 ) << std::right << it1->totalHistos_;
       std::cout << std::setw( 12 ) << std::right << it1->totalBins_;
-      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
+
+      // bins/histogram, need to catch nan if histos=0
+      if( it1->totalHistos_ ) {
+	std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
+      } 
+      else std::cout << std::setw( 12 ) << std::right << "-";
+
       std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
-      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
+
+      // mem/histogram, need to catch nan if histos=0
+      if( it1->totalHistos_ ) {
+	std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
+      }
+      else std::cout << std::setw( 12 ) << std::right << "-";
+
       std::cout << std::endl;
 
       // collect totals
@@ -220,6 +232,8 @@ int DQMStoreStats::calcstats() {
       nBytes      += it1->totalMemory_; 
 
     }
+
+
 
 
     overallNHistograms += nHistograms;
@@ -235,12 +249,12 @@ int DQMStoreStats::calcstats() {
     std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / nHistograms;
     std::cout << std::endl;
       
-    std::cout << "..........................................................................................." << std::endl;
+    std::cout << ".........................................................................................." << std::endl;
 
   }
 
   // determine virtual memory maximum
-  std::pair<time_t, unsigned int> maxItem;
+  std::pair<time_t, unsigned int> maxItem( 0, 0 );
   for( std::vector<std::pair<time_t, unsigned int> >::const_iterator it = memoryHistoryVector_.begin();
        it < memoryHistoryVector_.end(); ++it ) {
     if( it->second > maxItem.second ) {
@@ -275,7 +289,7 @@ int DQMStoreStats::calcstats() {
 
   }
 
-  // dump folder structure
+  // dump total
   std::cout << std::endl;
   std::cout << "------------------------------------------------------------------------------------------" << std::endl;
   std::cout << "Grand total:" << std::endl;
@@ -283,17 +297,15 @@ int DQMStoreStats::calcstats() {
   std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
   std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
   std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
-  std::cout << "Maximum total virtual memory size of job: ";
-  if( isOpenProcFileSuccessful_ ) {
+  std::cout << "Approx. maximum total virtual memory size of job: ";
+  if( isOpenProcFileSuccessful_ && memoryHistoryVector_.size() ) {
     std::cout << maxItem.second / 1000.
-	      << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)" << std::endl;
-    std::cout << "(memory history written to: " << rootOutputFileName.str() << ")" << std::endl;
+	      << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)," << std::endl;
+    std::cout << " memory history written to: " << rootOutputFileName.str() << " (" << memoryHistoryVector_.size() << " samples)" << std::endl;
   } else {
     std::cout << "(could not be determined)" << std::endl;
   }
 
-
-    
 
   std::cout << endl;
   std::cout << "===========================================================================================" << std::endl;
