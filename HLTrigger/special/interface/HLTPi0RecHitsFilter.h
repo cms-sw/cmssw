@@ -107,19 +107,14 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       
       std::string pi0ESHits_;
       std::string etaESHits_;
-      
-      
 
       ///interal use
       std::string BarrelHits_;
       std::string EndcapHits_;
       std::string ESHits_;
       
-      
-      int maxNumberofSeeds_; 
-      int maxNumberofClusters_; 
-      
-      
+      unsigned int maxNumberofSeeds_; 
+      unsigned int maxNumberofClusters_; 
       
       int gammaCandEtaSize_;
       int gammaCandPhiSize_;
@@ -132,7 +127,6 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double seleXtalMinEnergy_;
       double seleXtalMinEnergyEndCap_;
       int seleNRHMax_;
-      
 
       //// for pi0->gg barrel 
       bool doSelForPi0Barrel_; 
