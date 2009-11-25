@@ -18,6 +18,13 @@
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include <DataFormats/METReco/interface/CaloMET.h> 
+#include <DataFormats/METReco/interface/CaloMETFwd.h> 
+#include <DataFormats/METReco/interface/MET.h> 
+#include <DataFormats/METReco/interface/METFwd.h> 
+
+
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -34,6 +41,8 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
 
 
 typedef std::vector<std::string> MyStrings;
@@ -56,7 +65,12 @@ public:
 
 
 
-  void analyzeHWW2l(const CandidateView& mctruth,const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
+ // void analyzeHWW2l(const CandidateView& mctruth,const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
+  
+   void analyzeHWW2l(const CandidateView& mctruth,const CaloMETCollection&
+   caloMet, const TrackCollection& Tracks, const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
+  
+  
   void analyzeHZZ4l(const CandidateView& mctruth,const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
   void analyzeHgg(const CandidateView& mctruth,const PhotonCollection& photonHandle,TTree* tree); 
   void analyzeH2tau(const CandidateView& mctruth,TTree* tree);  
@@ -131,7 +145,9 @@ public:
  inline reco::GsfElectron electron3_() const {return Electron3;};
  inline reco::GsfElectron electron4_() const {return Electron4;};
  
-
+ inline double met_hwwdimu() const {return met_hwwdimu_ ;};
+ inline double met_hwwdiel() const {return met_hwwdiel_ ;};
+ inline double met_hwwemu()  const {return met_hwwemu_ ;};
  
 
 private:
@@ -176,6 +192,10 @@ private:
   
   double PtElFromTau, PtMuFromTau;
   double EtaElFromTau, EtaMuFromTau;
+  
+  double met_hwwdimu_;
+  double met_hwwdiel_;
+  double met_hwwemu_;
   
  /* std::vector<double> ptgen ; // etagen;
   std::vector<double> ptreco;// etareco;*/
