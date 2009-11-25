@@ -4,8 +4,8 @@
 /*
  *  DQM HLT Dimuon Test Client
  *
- *  $Date: 2009/09/25 12:58:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/12 14:13:57 $
+ *  $Revision: 1.4 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -118,10 +118,14 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   MonitorElement * EtaMuons_sig;
   MonitorElement * EtaMuons_trig;
   MonitorElement * PhiMuons;
+
   MonitorElement * DiMuonMassRC;
-  MonitorElement * DiMuonMassRC_LOG;
   MonitorElement * DiMuonMassWC;
-  MonitorElement * DiMuonMassWC_LOG;
+  MonitorElement * DiMuonMassRC_LOGX;
+  MonitorElement * DiMuonMassWC_LOGX;
+  MonitorElement * DiMuonMassRC_LOG10;
+  MonitorElement * DiMuonMassWC_LOG10;
+
   MonitorElement * DeltaEtaMuons;
   MonitorElement * DeltaPhiMuons;
   MonitorElement * MuonEfficiency_pT;

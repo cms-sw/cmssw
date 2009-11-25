@@ -55,8 +55,6 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     std::string moduleName_;
     edm::InputTag triggerResults_;
     std::vector<std::string> hltPaths_;
-    std::vector<std::string> hltPaths_mu_;
-    std::vector<std::string> hltPaths_el_;
     std::vector<std::string> hltPaths_sig_;
     std::vector<std::string> hltPaths_trig_;
 
@@ -85,7 +83,6 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * Trigs_;
     MonitorElement * TriggerEff_;
 
-    MonitorElement * Muon_Trigs_;
     MonitorElement * Nmuons_;
     MonitorElement * Nmuons_iso_;
     MonitorElement * Nmuons_charge_;
@@ -93,7 +90,6 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * eta_muons_;
     MonitorElement * phi_muons_;
 
-    MonitorElement * Elec_Trigs_;
     MonitorElement * Nelecs_;
     MonitorElement * Nelecs_iso_;
     MonitorElement * Nelecs_charge_;
@@ -113,10 +109,12 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * ElecIso_trk_;
     MonitorElement * ElecIso_CombRelIso_;
 
-    MonitorElement * dimassRC_LOG_;
-    MonitorElement * dimassWC_LOG_;
     MonitorElement * dimassRC_;
     MonitorElement * dimassWC_;
+    MonitorElement * dimassRC_LOGX_;
+    MonitorElement * dimassWC_LOGX_;
+    MonitorElement * dimassRC_LOG10_;
+    MonitorElement * dimassWC_LOG10_;
 
     MonitorElement * D_eta_muons_;
     MonitorElement * D_phi_muons_;

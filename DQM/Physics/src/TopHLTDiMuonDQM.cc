@@ -69,70 +69,59 @@ void TopHLTDiMuonDQM::beginJob(const EventSetup& context) {
 
     dbe_->setCurrentFolder(monitorName_+level_);
 
-    DiMuonMassRC = dbe_->book1D("01 - HLTDimuon_DiMuonMass_RC","Invariant Dimuon Mass (Right Charge)", 20, 0., 200.);
-    DiMuonMassRC->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
-
-    DiMuonMassRC_LOG = dbe_->book1D("02 - HLTDimuon_DiMuonMass_RC_LOG","Invariant Dimuon Mass (Right Charge)", 25, 0., 2.5);
-    DiMuonMassRC_LOG->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
-
-    Trigs = dbe_->book1D("03 - HLTDimuon_Trigs", "Fired triggers", 10, 0., 10.);
+    Trigs = dbe_->book1D("01_HLTDimuon_Trigs", "Fired triggers", 10, 0., 10.);
     Trigs->setAxisTitle("", 1);
 
-    TriggerEfficiencies = dbe_->book1D("04 - HLTDimuon_TriggerEfficiencies", "HL Trigger Efficiencies", 5, 0., 5.);
-    TriggerEfficiencies->setAxisTitle("#epsilon_{signal} = #frac{[signal] && [control]}{[control]}", 1);
+    TriggerEfficiencies = dbe_->book1D("02_HLTDimuon_TriggerEfficiencies", "HL Trigger Efficiencies", 5, 0., 5.);
+    //    TriggerEfficiencies->setAxisTitle("#epsilon_{signal} = #frac{[signal] && [control]}{[control]}", 1);
+    TriggerEfficiencies->setTitle("HL Trigger Efficiencies #epsilon_{signal} = #frac{[signal] && [control]}{[control]}");
 
-    NMuons = dbe_->book1D("05 - HLTDimuon_NMuons", "Number of muons", 20, 0., 10.);
+    NMuons = dbe_->book1D("05_HLTDimuon_NMuons", "Number of muons", 20, 0., 10.);
     NMuons->setAxisTitle("Number of muons", 1);
 
-    NMuons_iso = dbe_->book1D("06 - HLTDimuon_NMuons_Iso", "Number of isolated muons", 20, 0., 10.);
+    NMuons_iso = dbe_->book1D("06_HLTDimuon_NMuons_Iso", "Number of isolated muons", 20, 0., 10.);
     NMuons_iso->setAxisTitle("", 1);
 
-    MuonEfficiency_pT = dbe_->book1D("07 - HLTDimuon_MuonEfficiency_pT","Muon Efficiency P_{T}", 20, 0., 200.);
+    MuonEfficiency_pT = dbe_->book1D("07_HLTDimuon_MuonEfficiency_pT","Muon Efficiency P_{T}", 20, 0., 200.);
     MuonEfficiency_pT->setAxisTitle("P^{#mu}_{T}  (GeV)", 1);
 
-    MuonEfficiency_eta = dbe_->book1D("08 - HLTDimuon_MuonEfficiency_eta","Muon Efficiency  #eta", 20, -5., 5.);
+    MuonEfficiency_eta = dbe_->book1D("08_HLTDimuon_MuonEfficiency_eta","Muon Efficiency  #eta", 20, -5., 5.);
     MuonEfficiency_eta->setAxisTitle("#eta_{#mu}", 1);
 
-    DiMuonMassWC = dbe_->book1D("09 - HLTDimuon_DiMuonMass_WC","Invariant Dimuon Mass (Wrong Charge)", 20, 0., 200.);
-    DiMuonMassWC->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
-
-    DiMuonMassWC_LOG = dbe_->book1D("10 - HLTDimuon_DiMuonMass_WC_LOG","Invariant Dimuon Mass (Wrong Charge)", 25, 0., 2.5);
-    DiMuonMassWC_LOG->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
-
-    DeltaEtaMuons = dbe_->book1D("11 - HLTDimuon_DeltaEta","#Delta #eta of muon pair", 20, -5., 5.);
+    DeltaEtaMuons = dbe_->book1D("11_HLTDimuon_DeltaEta","#Delta #eta of muon pair", 20, -5., 5.);
     DeltaEtaMuons->setAxisTitle("#Delta #eta_{#mu #mu}", 1);
 
-    DeltaPhiMuons = dbe_->book1D("12 - HLTDimuon_DeltaPhi","#Delta #phi of muon pair", 20, -4., 4.);
+    DeltaPhiMuons = dbe_->book1D("12_HLTDimuon_DeltaPhi","#Delta #phi of muon pair", 20, -4., 4.);
     DeltaPhiMuons->setAxisTitle("#Delta #phi_{#mu #mu}  (rad)", 1);
 
-    NMuons_charge = dbe_->book1D("13 - HLTDimuon_NMuons_Charge", "Number of muons * Moun charge", 19, -10., 10.);
+    NMuons_charge = dbe_->book1D("13_HLTDimuon_NMuons_Charge", "Number of muons * Moun charge", 19, -10., 10.);
     NMuons_charge->setAxisTitle("N_{muons} * Q(#mu)", 1);
 
-    PhiMuons = dbe_->book1D("14 - HLTDimuon_Phi","Azimutal angle of muons", 20, -4., 4.);
+    PhiMuons = dbe_->book1D("14_HLTDimuon_Phi","Azimutal angle of muons", 20, -4., 4.);
     PhiMuons->setAxisTitle("#phi_{muon}  (rad)", 1);
 
-    PtMuons = dbe_->book1D("15 - HLTDimuon_Pt","P_T of muons", 20, 0., 200.);
+    PtMuons = dbe_->book1D("15_HLTDimuon_Pt","P_T of muons", 20, 0., 200.);
     PtMuons->setAxisTitle("P^{#mu}_{T}  (GeV)", 1);
 
-    PtMuons_sig = dbe_->book1D("16 - HLTDimuon_Pt_sig","P_T of signal triggered muons", 20, 0., 200.);
+    PtMuons_sig = dbe_->book1D("16_HLTDimuon_Pt_sig","P_T of signal triggered muons", 20, 0., 200.);
     PtMuons_sig->setAxisTitle("P^{#mu}_{T} (signal triggered)  (GeV)", 1);
 
-    PtMuons_trig = dbe_->book1D("17 - HLTDimuon_Pt_trig","P_T of control triggered muons", 20, 0., 200.);
+    PtMuons_trig = dbe_->book1D("17_HLTDimuon_Pt_trig","P_T of control triggered muons", 20, 0., 200.);
     PtMuons_trig->setAxisTitle("P^{#mu}_{T} (control triggered)  (GeV)", 1);
 
-    EtaMuons = dbe_->book1D("18 - HLTDimuon_Eta","Pseudorapidity of muons", 20, -5., 5.);
+    EtaMuons = dbe_->book1D("18_HLTDimuon_Eta","Pseudorapidity of muons", 20, -5., 5.);
     EtaMuons->setAxisTitle("#eta_{muon}", 1);
 
-    EtaMuons_sig = dbe_->book1D("19 - HLTDimuon_Eta_sig","Pseudorapidity of signal triggered muons", 20, -5., 5.);
+    EtaMuons_sig = dbe_->book1D("19_HLTDimuon_Eta_sig","Pseudorapidity of signal triggered muons", 20, -5., 5.);
     EtaMuons_sig->setAxisTitle("#eta_{muon} (signal triggered)", 1);
 
-    EtaMuons_trig = dbe_->book1D("20 - HLTDimuon_Eta_trig","Pseudorapidity of control triggered muons", 20, -5., 5.);
+    EtaMuons_trig = dbe_->book1D("20_HLTDimuon_Eta_trig","Pseudorapidity of control triggered muons", 20, -5., 5.);
     EtaMuons_trig->setAxisTitle("#eta_{muon} (control triggered)", 1);
 
-    const int nbins = 20;
+    const int nbins = 50;
 
     double logmin = 0.;
-    double logmax = 2.3;  // 10^(2.3)=~200
+    double logmax = 3.;  // 10^(3.)=1000
 
     float bins[nbins+1];
 
@@ -143,11 +132,23 @@ void TopHLTDiMuonDQM::beginJob(const EventSetup& context) {
 
     }
 
-    //    DiMuonMassRC_LOG = dbe_->book1D("HLTDimuon_DiMuonMass_RC_LOG","Invariant Dimuon Mass (Right Charge)", nbins, &bins[0]);
-    //    DiMuonMassRC_LOG->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
+    DiMuonMassRC = dbe_->book1D("03_HLTDimuon_DiMuonMass_RC","Invariant Dimuon Mass (Right Charge)", 50, 0., 200.);
+    DiMuonMassRC->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
 
-    //    DiMuonMassWC_LOG = dbe_->book1D("HLTDimuon_DiMuonMass_WC_LOG","Invariant Dimuon Mass (Wrong Charge)", nbins, &bins[0]);
-    //    DiMuonMassWC_LOG->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
+    DiMuonMassRC_LOGX = dbe_->book1D("04_HLTDimuon_DiMuonMass_RC_LOGX","Invariant Dimuon Mass (Right Charge)", nbins, &bins[0]);
+    DiMuonMassRC_LOGX->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
+
+    DiMuonMassRC_LOG10 = dbe_->book1D("21_HLTDimuon_DiMuonMass_RC_LOG10","Invariant Dimuon Mass (Right Charge)", 50, 0., 2.5);
+    DiMuonMassRC_LOG10->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
+
+    DiMuonMassWC = dbe_->book1D("09_HLTDimuon_DiMuonMass_WC","Invariant Dimuon Mass (Wrong Charge)", 50, 0., 200.);
+    DiMuonMassWC->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
+
+    DiMuonMassWC_LOGX = dbe_->book1D("10_HLTDimuon_DiMuonMass_WC_LOGX","Invariant Dimuon Mass (Wrong Charge)", nbins, &bins[0]);
+    DiMuonMassWC_LOGX->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
+
+    DiMuonMassWC_LOG10 = dbe_->book1D("22_HLTDimuon_DiMuonMass_WC_LOG10","Invariant Dimuon Mass (Wrong Charge)", 50, 0., 2.5);
+    DiMuonMassWC_LOG10->setAxisTitle("LOG_10[ Invariant #mu #mu mass (GeV) ]", 1);
 
   }
 
@@ -312,8 +313,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	if( mu1.charge()*mu2.charge() < 0. ) {
 
-	  DiMuonMassRC_LOG->Fill( log10(DilepMass) );
-	  DiMuonMassRC->Fill( DilepMass );
+	  DiMuonMassRC_LOG10->Fill( log10(DilepMass) );
+	  DiMuonMassRC->Fill(             DilepMass  );
+	  DiMuonMassRC_LOGX->Fill(        DilepMass  );
 
 	  if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
@@ -375,8 +377,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	if( mu1.charge()*mu2.charge() > 0. ) {
 
-	  DiMuonMassWC_LOG->Fill( log10(DilepMass) );
-	  DiMuonMassWC->Fill( DilepMass );
+	  DiMuonMassWC_LOG10->Fill( log10(DilepMass) );
+	  DiMuonMassWC->Fill(             DilepMass  );
+	  DiMuonMassWC_LOGX->Fill(        DilepMass  );
 
 	}
 
@@ -461,8 +464,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	if( mu1.charge()*mu2.charge() < 0. ) {
 
-	  DiMuonMassRC_LOG->Fill( log10(DilepMass) );
-	  DiMuonMassRC->Fill( DilepMass );
+	  DiMuonMassRC_LOG10->Fill( log10(DilepMass) );
+	  DiMuonMassRC->Fill(             DilepMass  );
+	  DiMuonMassRC_LOGX->Fill(        DilepMass  );
 
 	  if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
@@ -524,8 +528,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	if( mu1.charge()*mu2.charge() > 0. ) {
 
-	  DiMuonMassWC_LOG->Fill( log10(DilepMass) );
-	  DiMuonMassWC->Fill( DilepMass );
+	  DiMuonMassWC_LOG10->Fill( log10(DilepMass) );
+	  DiMuonMassWC->Fill(             DilepMass  );
+	  DiMuonMassWC_LOGX->Fill(        DilepMass  );
 
 	}
 
