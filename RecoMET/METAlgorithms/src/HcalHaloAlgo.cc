@@ -38,6 +38,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     {
       SumE[i] = 0;
       NumHits[i]= 0;
+      MinTimeHits[i] = 0.;
+      MaxTimeHits[i] = 0.;
     }
   
   for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
