@@ -13,7 +13,7 @@ HLTHiggsBits_2tau = cms.EDFilter("HLTHiggsBits",
     MCTruth = cms.InputTag("genParticles"),
     hltBitNames = cms.vstring('HLT_Mu3','HLT_Mu9','HLT_Mu15','HLT_Ele10_LW_L1R','HLT_Ele15_SW_L1R','HLT_Ele15_SW_LooseTrackIso_L1R'),
     hltBitNamesEG = cms.vstring('HLT_Ele10_LW_L1R','HLT_Ele10_LW_EleId_L1R','HLT_Ele15_SW_L1R','HLT_Ele15_SW_LooseTrackIso_L1R'),
-    hltBitNamesMu = cms.vstring('HLT_Mu3','HLT_Mu9','HLT_Mu15'),
+    hltBitNamesMu = cms.vstring('HLT_Mu3','HLT_Mu9','HLT_Mu15','HLT_IsoMu3'),
     hltBitNamesPh = cms.vstring(''),
     hltBitNamesTau = cms.vstring(''),
  
