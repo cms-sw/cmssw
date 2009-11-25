@@ -72,7 +72,7 @@ goodZToMuMuAtLeast1HLT = cms.EDFilter(
 
 
 ewkZMuMuGoldenSequence = cms.Sequence(
-    goodAODGlobalMuons *
+   goodAODGlobalMuons *
    dimuonsHLTFilter *  
    dimuonsGlobalAOD *
    dimuonsFilter *
