@@ -5,7 +5,7 @@
 #include <errno.h>  // errno
 #include <sys/wait.h> // waitpid
 
-//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../
+//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../  -I../../../
 
 /// For interactive controll
 #include <sys/select.h>
@@ -113,6 +113,14 @@ int main(int argc, char *argv[]){
 		tfEvent.unpack(event,index2)
 		<<endl;
 
+		// Skip empty events
+		bool empty = true;
+		vector<CSCSPEvent> SPs = tfEvent.SPs();
+		for(vector<CSCSPEvent>::const_iterator spPtr=SPs.begin(); spPtr!=SPs.end(); spPtr++)
+			for(unsigned int tbin=0; tbin<spPtr->header().nTBINs(); tbin++)
+				if( spPtr->record(tbin).LCTs().size() ){ empty = false; break; }
+		if( empty ) continue;
+
 		// Set the scale
 		sprintf(command,"p.cd();\n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
@@ -128,7 +136,7 @@ int main(int argc, char *argv[]){
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"TGraph _m8(1);   _m8.SetMarkerStyle(22);  _m8.SetMarkerColor(4); leg.AddEntry(&_m8,\"CSCTF track mode=8\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph _m11(1); _m11.SetMarkerStyle(22); _m11.SetMarkerColor(5); leg.AddEntry(&_m11,\"CSCTF track mode=11\",\"p\"); \n");
+		sprintf(command,"TGraph _m11(1); _m11.SetMarkerStyle(22); _m11.SetMarkerColor(7); leg.AddEntry(&_m11,\"CSCTF track mode=11\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"TGraph _m15(1); _m15.SetMarkerStyle(22); _m15.SetMarkerColor(6); leg.AddEntry(&_m15,\"CSCTF track mode=15\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
@@ -136,18 +144,16 @@ int main(int argc, char *argv[]){
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"TGraph  _csc2(1);  _csc2.SetMarkerStyle(20);  _csc2.SetMarkerColor(4); leg.AddEntry(&_csc2,\"ME2 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph  _csc3(1);  _csc3.SetMarkerStyle(20);  _csc3.SetMarkerColor(5); leg.AddEntry(&_csc3,\"ME3 LCT\",\"p\"); \n");
+		sprintf(command,"TGraph  _csc3(1);  _csc3.SetMarkerStyle(20);  _csc3.SetMarkerColor(7); leg.AddEntry(&_csc3,\"ME3 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"TGraph  _csc4(1);  _csc4.SetMarkerStyle(20);  _csc4.SetMarkerColor(6); leg.AddEntry(&_csc4,\"ME2 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"leg.Draw(); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 
-		vector<CSCSPEvent> SPs = tfEvent.SPs();
 		for(vector<CSCSPEvent>::const_iterator spPtr=SPs.begin(); spPtr!=SPs.end(); spPtr++){
 ///			cout<<" L1A="<<SPs[0].header().L1A()<<endl;
-			//int sp = distance(vector<CSCSPEvent>::const_iterator(SPs.begin()),spPtr);
-			if( spPtr->header().sector()<6 ){ //???
+			if( !spPtr->header().endcap() ){
 				sprintf(command,"p.cd();\n");
 				if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 			} else {
@@ -222,7 +228,7 @@ int main(int argc, char *argv[]){
 						double phi = lct->strip() / normPhi[mpc][csc] + offsetPhi[mpc][csc];
 
 						// now put the eta and phi on the physical scale
-						if( (spPtr->header().endcap() && mpc<4) || (!spPtr->header().endcap() && mpc>=4) ) // phi ~ strip
+						if( (!spPtr->header().endcap() && mpc<4) || (spPtr->header().endcap() && mpc>=4) ) // phi ~ strip
 							phi = fmod((phi+spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
 						else // phi ~ -strip
 							phi = fmod((spPtr->header().sector()-phi)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
@@ -231,7 +237,7 @@ int main(int argc, char *argv[]){
 						double x   = rho * cos(phi);
 						double y   = rho * sin(phi);
 
-						const int color[6] = { -1, 3, 3, 4, 5, 6 };
+						const int color[6] = { -1, 3, 3, 4, 7, 6 };
 						sprintf(command,"TGraph lct_%d_%d(1); lct_%d_%d.SetPoint(0,%f,%f); lct_%d_%d.SetMarkerStyle(20); lct_%d_%d.SetMarkerColor(%d); lct_%d_%d.Draw(\"P\"); \n",mpc,csc,mpc,csc,x,y,mpc,csc,mpc,csc,color[mpc],mpc,csc);
 						if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 					}
@@ -243,13 +249,13 @@ int main(int argc, char *argv[]){
 				for(std::vector<CSCSP_SPblock>::const_iterator trk=trks.begin(); trk!=trks.end(); trk++){
 					cout<<" mode="<<trk->mode()<<" (eta="<<trk->eta()<<",phi="<<trk->phi()<<")";
 					double eta = (2.5-0.9)*trk->eta()/32.+0.9;
-					double phi = trk->phi() + ((spPtr->header().sector() - 1)*24) + 6;
+					double phi = trk->phi()*24./32. + ((spPtr->header().sector() - 1)*24) + 6;
 					if(phi > 143) phi -= 143;
 					phi /= 144./2./3.1415927;
 					double rho2= 2.*8.2/fabs(exp(eta)-exp(-eta));
 					double x2  = rho2 * cos(phi);
 					double y2  = rho2 * sin(phi);
-					const int color[16] = { -1, 1, 1, 1, 1, 1, 3, 1, 4, 1, 1, 5, 1, 1, 1, 6 };
+					const int color[16] = { -1, 1, 1, 1, 1, 1, 3, 1, 4, 1, 1, 7, 1, 1, 1, 6 };
 					int i = distance(vector<CSCSP_SPblock>::const_iterator(trks.begin()),trk);
 					sprintf(command,"TGraph trk_%d(1); trk_%d.SetPoint(0,%f,%f); trk_%d.SetMarkerStyle(22); trk_%d.SetMarkerColor(%d); trk_%d.Draw(\"P\"); \n",i,i,x2,y2,i,i,color[trk->mode()],i);
 					if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
