@@ -125,7 +125,6 @@ int main(){
     std::cout<<"30 token "<< iovmanager.payloadToken(iovtok,30)<<std::endl;
 
     pooldb.transaction().commit();
-    delete editor;
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
@@ -173,12 +172,12 @@ int main(){
       pooldb.open("sqlite_file:mytest.db");
       // test PayloadProxy
       cond::PayloadProxy<cond::IOVElement> data(pooldb,iovtok,false);
-      print(data,3);
-      print(data,21);
-      print(data,33);
-      print(data,43);
-      print(data,21);
-      print(data,63);
+      printT(data,3);
+      printT(data,21);
+      printT(data,33);
+      printT(data,43);
+      printT(data,21);
+      printT(data,63);
       std::cout << "test refresh" << std::endl;
       // test refresh
       if (data.refresh()) std::cout << "error!, what refresh..." << std::endl;
