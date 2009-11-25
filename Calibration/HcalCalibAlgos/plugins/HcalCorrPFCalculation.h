@@ -45,6 +45,7 @@
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include <vector>
 #include <utility>
@@ -53,7 +54,10 @@
 #include <algorithm>
 #include <cmath>
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TProfile.h"
 
 class HcalCorrPFCalculation : public edm::EDAnalyzer {
  public:
@@ -68,6 +72,8 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   double dR(double eta1, double phi1, double eta2, double phi2);
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
+
+double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
   DQMStore* dbe_;
   
@@ -121,6 +127,24 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
   SteppingHelixPropagator* stepPropF;
   MagneticField *theMagField;
+  
+  TProfile *nCells, *nCellsNoise, *enHcal, *enHcalNoise;
+  TFile *rootFile;
+
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  double taECALCone_;
+  double taHCALCone_;
+
+  const CaloGeometry* geo;
+
+  Float_t xTrkEcal;
+  Float_t yTrkEcal;
+  Float_t zTrkEcal;
+
+  Float_t xTrkHcal;
+  Float_t yTrkHcal;
+  Float_t zTrkHcal;
 
 };
 

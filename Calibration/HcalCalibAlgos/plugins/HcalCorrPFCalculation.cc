@@ -1,12 +1,20 @@
-//#include "Validation/HcalCorrPF/interface/HcalCorrPFCalculation.h"
 #include "Calibration/HcalCalibAlgos/plugins/HcalCorrPFCalculation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+//#include "TROOT.h"
+//#include "TFile.h"
+//#include "TTree.h"
+//#include "TProfile.h"
+
 
 
 HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   // DQM ROOT output
+
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-  
+ 
+ /*  
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
@@ -18,8 +26,10 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   dbe_ = 0;
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
-   
-  Char_t histo[20];
+
+  */
+
+  //  Char_t histo[20];
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
   ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
@@ -32,6 +42,15 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   famos_        = conf.getUntrackedParameter<bool>("Famos", false);
   radius_       = conf.getUntrackedParameter<double>("ConeRadiusCm", 40.);
   //  std::cout << "*** famos_ = " << famos_ << std::endl; 
+
+  //AP trackdet assoc
+  edm::ParameterSet parameters = conf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  parameters_.loadParameters( parameters );
+  trackAssociator_.useDefaultPropagator();
+
+  taECALCone_=conf.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
+  taHCALCone_=conf.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
+  //AP
 
   subdet_ = 5;
   if (hcalselector_ == "noise") subdet_ = 0;
@@ -52,6 +71,7 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   imc = 1;
   if(mc_ == "no") imc = 0;
 
+  /*
   if ( dbe_ ) {
     dbe_->setCurrentFolder("HcalCorrPF");
 
@@ -78,19 +98,73 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   //======================= End of PFcorr related profiles. ===================
 
   }  //end-of if(_dbe) 
+  */
 
+}
+
+double HcalCorrPFCalculation::getDistInPlaneSimple(const GlobalPoint caloPoint,
+                            const GlobalPoint rechitPoint)
+{
+
+  // Simplified version of getDistInPlane
+  // Assume track direction is origin -> point of hcal intersection
+
+  const GlobalVector caloIntersectVector(caloPoint.x(),
+                                         caloPoint.y(),
+                                         caloPoint.z());
+
+  const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
+
+  const GlobalVector rechitVector(rechitPoint.x(),
+                                  rechitPoint.y(),
+                                  rechitPoint.z());
+
+  const GlobalVector rechitUnitVector = rechitVector.unit();
+  double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
+  double rechitdist = caloIntersectVector.mag()/dotprod;
+
+
+  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
+  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
+                                         effectiveRechitVector.y(),
+                                         effectiveRechitVector.z());
+
+
+  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
+
+  if (dotprod > 0.)
+  {
+    return distance_vector.mag();
+  }
+  else
+  {
+    return 999999.;
+  }
 }
 
 
 HcalCorrPFCalculation::~HcalCorrPFCalculation() {
 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  //  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
 
-void HcalCorrPFCalculation::endJob() { }
-
 void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
+
+  // TProfile *nCells, *nCellsNoise, *en, *enNoise;
+  //TFile *rootFile;
+
+   rootFile = new TFile(outputFile_.c_str(),"RECREATE");
+
+
+   nCells = new TProfile("nCells", "nCells", 83, -41.5, 41.5); 
+   nCellsNoise = new TProfile("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
+
+   enHcal = new TProfile("enHcal", "enHcal", 83, -41.5, 41.5); 
+   enHcalNoise = new TProfile("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
+   
+
+
   edm::ESHandle<MagneticField> bField;
   c.get<IdealMagneticFieldRecord>().get(bField);
   stepPropF  = new SteppingHelixPropagator(&*bField,alongMomentum);
@@ -99,6 +173,18 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
 
 
 }
+void HcalCorrPFCalculation::endJob() 
+{
+  nCells -> Write();
+  nCellsNoise -> Write();
+  enHcal -> Write();
+  enHcalNoise -> Write();
+
+  //  rootFile->Write();
+  rootFile->Close();
+}
+
+
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
   using namespace edm;
@@ -124,6 +210,21 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   edm::ESHandle <HcalPFCorrs> pfCorrs;
   c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
   pfRecalib = pfCorrs.product();
+
+  //AP Added for Track associator
+  edm::ESHandle<CaloGeometry> pG;
+  c.get<CaloGeometryRecord>().get(pG);
+  geo = pG.product();
+
+  parameters_.useEcal = true;
+  parameters_.useHcal = true;
+  parameters_.useCalo = false;
+  parameters_.useMuon = false;
+  parameters_.dREcal = taECALCone_;
+  parameters_.dRHcal = taHCALCone_;
+
+
+  //AP
 
   hasresp=1;
   }catch(const cms::Exception & e) {
@@ -155,6 +256,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // Cone size for serach of the hottest HCAL cell around MC
   double searchR = 1.0; 
+
 
   // Single particle samples: actual eta-phi position of cluster around
   // hottest cell
@@ -201,6 +303,129 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
     const FreeTrajectoryState *freetrajectorystate_ =
        new FreeTrajectoryState(pos, mom ,charge , &(*theMagField));
+
+    TrackDetMatchInfo info = trackAssociator_.associate(ev, c, *freetrajectorystate_ , parameters_);
+ // TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
+    
+    
+    
+    edm::Handle<HBHERecHitCollection> hbhe;
+    ev.getByType(hbhe);
+    const HBHERecHitCollection Hithbhe = *(hbhe.product());
+    /*
+    edm::Handle<HFRecHitCollection> hfcoll;
+    ev.getByType(hfcoll);
+    const HFecHitCollection Hithf = *(hfcoll.product());
+    */
+    float etahcal=info.trkGlobPosAtHcal.eta();
+    float phihcal=info.trkGlobPosAtHcal.phi();
+    
+    
+    xTrkEcal=info.trkGlobPosAtEcal.x();
+    yTrkEcal=info.trkGlobPosAtEcal.y();
+    zTrkEcal=info.trkGlobPosAtEcal.z();
+    
+    xTrkHcal=info.trkGlobPosAtHcal.x();
+    yTrkHcal=info.trkGlobPosAtHcal.y();
+    zTrkHcal=info.trkGlobPosAtHcal.z();
+    
+    GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
+    
+    
+    Float_t recal = 1.0;
+    for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      {
+	GlobalPoint pos = geo->getPosition(hhit->detid());
+	float phihit = pos.phi();
+	float etahit = pos.eta();
+	
+	int iphihitm  = (hhit->id()).iphi();
+	int ietahitm  = (hhit->id()).ieta();
+	int depthhit = (hhit->id()).depth();
+	float enehit = hhit->energy()* recal;
+	
+	if (depthhit!=1) continue;
+	
+	float dphi = fabs(phihcal - phihit); 
+	if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	float deta = fabs(etahcal - etahit); 
+	float dr = sqrt(dphi*dphi + deta*deta);
+
+	if(dr<0.6) 
+	  //if(dr<associationConeSize_) 
+	  {
+	    
+	    for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
+	      {
+		int iphihitm2  = (hhit2->id()).iphi();
+		int ietahitm2  = (hhit2->id()).ieta();
+		int depthhit2 = (hhit2->id()).depth();
+		float enehit2 = hhit2->energy() * recal;
+		
+		if (iphihitm==iphihitm2 && ietahitm==ietahitm2  && depthhit!=depthhit2)  enehit = enehit+enehit2;
+		
+	      }	  	  
+	    
+	    
+	    //cout<<"IN CONE ieta: "<<ietahitm<<"  iphi: "<<iphihitm<<" depthhit: "<<depthhit<<"  dr: "<<dr<<" energy: "<<enehit<<endl;        
+	    
+	    //Find a Hit with Maximum Energy
+	    /*
+	    if(enehit > MaxHit.hitenergy) 
+	      {
+		MaxHit.hitenergy =  enehit;
+		MaxHit.ietahitm   = (hhit->id()).ieta();
+		MaxHit.iphihitm   = (hhit->id()).iphi();
+		MaxHit.dr   = dr;
+		//MaxHit.depthhit  = (hhit->id()).depth();
+		MaxHit.depthhit  = 1;
+	      }
+	    */
+	  }
+      } //end of all HBHE hits cycle
+    
+    
+    Bool_t passCuts = kFALSE;
+    passCuts=kTRUE; 
+    // if(emEnergy < energyECALmip && MaxHit.hitenergy > 0.) passCuts = kTRUE;
+    
+    
+    for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      {
+	/*
+	int DIETA = 100;
+	if(MaxHit.ietahitm*(hhit->id()).ieta()>0)
+	  {
+	    DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+	  }
+	if(MaxHit.ietahitm*(hhit->id()).ieta()<0)
+	  {
+	    DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+	    DIETA = DIETA>0 ? DIETA-1 : DIETA+1; 
+	  }
+	
+	int DIPHI = abs(MaxHit.iphihitm - (hhit->id()).iphi());
+	DIPHI = DIPHI>36 ? 72-DIPHI : DIPHI;
+	
+	*/
+	
+      }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     if(fabs(etap)<1.7) {
        Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
@@ -253,6 +478,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
 
   }
+
 
 // MC_ieta calculation - for the PFcorr profiles
   int MC_ieta = -100;
@@ -462,10 +688,18 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     if(imc != 0) {
       if(eEcalCone<1.0||(abs(ietaMax)>16&&abs(ietaMax)<30&&eEcalCone<4.))
        {
-      meEnConeEtaProfile       ->Fill(double(MC_ieta),  HcalCone);
-      meEnConeEtaProfile_depth1->Fill(double(MC_ieta),  double(UsedCells));
-      meEnConeEtaProfileNoise       ->Fill(double(-MC_ieta),  HcalConeNoise);
-      meEnConeEtaProfile_depth1Noise->Fill(double(-MC_ieta),  double(UsedCellsNoise));
+
+	 enHcal -> Fill(MC_ieta,  HcalCone);
+	 nCells -> Fill(MC_ieta,  UsedCells);
+	 enHcalNoise -> Fill(-MC_ieta,  HcalConeNoise);
+	 nCellsNoise -> Fill(-MC_ieta,  UsedCellsNoise);
+	 
+	 /*
+	   meEnConeEtaProfile       ->Fill(double(MC_ieta),  HcalCone);
+	   meEnConeEtaProfile_depth1->Fill(double(MC_ieta),  double(UsedCells));
+	   meEnConeEtaProfileNoise       ->Fill(double(-MC_ieta),  HcalConeNoise);
+	   meEnConeEtaProfile_depth1Noise->Fill(double(-MC_ieta),  double(UsedCellsNoise));
+	 */       
        }
     }
   }
