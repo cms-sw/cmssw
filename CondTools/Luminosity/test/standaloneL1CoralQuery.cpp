@@ -238,11 +238,12 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      if(s%127==0&&s!=0){
+      unsigned int algobit=row["algobit"].data<unsigned int>();
+      mybitcount_algo.push_back(count);
+      if(algobit==127){
 	countresult_algo.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
-      mybitcount_algo.push_back(count);
       ++s;
     }
     if(s==0){
@@ -280,11 +281,12 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      if(s%63==0&&s!=0){
+      unsigned int techbit=row["techbit"].data<unsigned int>();
+      mybitcount_tech.push_back(count);
+      if(techbit==63){
 	countresult_tech.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
-      mybitcount_tech.push_back(count);
       ++s;
     }
     if(s==0){
@@ -399,16 +401,16 @@ int main(){
       throw std::runtime_error(std::string("non-existing view ")+runpresctechviewname);
     }
     //
-    //select algo_index,name from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
+    //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
     //
     std::map<unsigned int,std::string> triggernamemap;
     coral::IQuery* QueryName=gtschemaHandle.newQuery();
     QueryName->addToTableList(runalgoviewname);
     coral::AttributeList qAlgoNameOutput;
     qAlgoNameOutput.extend("algo_index",typeid(unsigned int));
-    qAlgoNameOutput.extend("name",typeid(std::string));
+    qAlgoNameOutput.extend("alias",typeid(std::string));
     QueryName->addToOutputList("algo_index");
-    QueryName->addToOutputList("name");
+    QueryName->addToOutputList("alias");
     QueryName->setCondition("runnumber =:runnumber",bindVariableList);
     QueryName->addToOrderList("algo_index");
     QueryName->defineOutput(qAlgoNameOutput);
@@ -417,7 +419,7 @@ int main(){
       const coral::AttributeList& row = algonamecursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       unsigned int algo_index=row["algo_index"].data<unsigned int>();
-      std::string algo_name=row["name"].data<std::string>();
+      std::string algo_name=row["alias"].data<std::string>();
       triggernamemap.insert(std::make_pair(algo_index,algo_name));
     }
     delete QueryName;
