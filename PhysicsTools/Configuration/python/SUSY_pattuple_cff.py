@@ -220,6 +220,9 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
         'keep recoTracks_generalTracks_*_*',
         'keep recoSuperClusters_corrected*_*_*',
+        'keep *_pfElectronTranslator_*_*',
+        'keep *_gsfElectronCores_*_*',    #Keep electron core
+        'keep *_photonCore_*_*',        #Keep electron core
         'keep recoConversions_conversions_*_*',
         'keep recoTracks_*onversions_*_*',
         'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
