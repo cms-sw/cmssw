@@ -25,6 +25,11 @@ namespace cond {
     make();
   }
 
+  void  BasePayloadProxy::loadFor(size_t n) {
+    m_element.set(m_iov.iov(),n);
+  }
+
+
   void  BasePayloadProxy::make() {
     ++stats.nMake;
     bool ok = false;

@@ -52,6 +52,9 @@ namespace cond {
     // load Element valid at time
     void loadFor(cond::Time_t time);
 
+    // load nth Element 
+    void loadFor(size_t n);
+
     // find ad return interval (does not load)
     cond::ValidityInterval setIntervalFor(cond::Time_t time);
     
