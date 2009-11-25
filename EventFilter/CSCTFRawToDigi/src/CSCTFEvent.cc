@@ -110,9 +110,9 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			}
 			// main unpacking
 			const unsigned short *spWord = (unsigned short*) &dduWord[index-spWordCount-1];
-			if( nRecords<12 )
+			if( nRecords<12 ) {
 				if( sp[nRecords++].unpack(spWord) ) coruptions |= NONSENSE;
-			else {
+			} else {
 				coruptions |= CONFIGURATION;
 				break;
 			}
