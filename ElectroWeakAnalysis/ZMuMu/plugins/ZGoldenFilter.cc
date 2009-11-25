@@ -10,16 +10,11 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+
 
 #include <string>
 using namespace std;
 using namespace reco;
-using namespace isodeposit;
 namespace edm { class EventSetup; }
 
 bool IsMuMatchedToHLTMu ( const reco::Candidate * dau, std::vector<reco::Particle> HLTMu , double DR, double DPtRel ) {
