@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2008/03/10 15:37:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/23 14:10:13 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -200,6 +200,28 @@ class HLTHiggsBits : public edm::EDAnalyzer {
       // MonitorElement *h_etatau2_trig[20];
       
       
+        MonitorElement* hlt_bitmu_hist_reco ;
+        MonitorElement* h_mu_reco;
+	
+	MonitorElement* hlt_bitel_hist_reco ;
+        MonitorElement* h_el_reco;
+	
+	MonitorElement* hlt_bitemu_hist_reco ;
+        MonitorElement* h_emu_reco;
+	
+	MonitorElement* hlt_bitph_hist_reco;
+	MonitorElement* h_ph_reco;
+	
+	MonitorElement* hlt_bittau_hist_gen;
+	MonitorElement* h_tau_gen;
+
+      
+      
+      MonitorElement *h_met_hwwdimu;
+      MonitorElement *h_met_hwwdiel;
+      MonitorElement *h_met_hwwemu;
+      
+      
      /*  MonitorElement *h_gen;
        MonitorElement *h_reco;
       
@@ -278,6 +300,8 @@ class HLTHiggsBits : public edm::EDAnalyzer {
     std::string triggerTag_;
     std::string outFile_, outputFileName;
     bool outputMEsInRootFile;
+    
+      
 
 
 };

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/03/10 15:37:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/23 14:10:13 $
+ *  $Revision: 1.2 $
  *
  *  \author Mika Huhtinen
  *
@@ -57,6 +57,7 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   triggerTag_(iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Higgs")),
   outputFileName(iConfig.getParameter<std::string>("OutputFileName")),
   outputMEsInRootFile(iConfig.getParameter<bool>("OutputMEsInRootFile"))
+ 
   
 {
 
@@ -126,6 +127,14 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      //  dbe->setCurrentFolder("HLT/Higgs");
      
      
+     if (n_channel_==2) {
+      h_met_hwwdimu = dbe->book1D("caloMET_dimu","caloMET_dimu",50,0.0,150.0);
+      h_met_hwwdiel = dbe->book1D("caloMET_diel","caloMET_diel",50,0.0,150.0);
+      h_met_hwwemu  = dbe->book1D("caloMET_emu","caloMET_emu",50,0.0,150.0);
+      
+      }
+     
+     
      if (n_channel_==1 || n_channel_==2 || n_channel_==4){  // only for WW,ZZ, 2tau
   
    h_ptmu1 = dbe->book1D("Muon1Pt","Muon1Pt",50,0.0,150.0);
@@ -138,6 +147,13 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
    h_etael1 = dbe->book1D("Electron1Eta","Electron1Eta",50,-2.5,2.5);
    h_etael2 = dbe->book1D("Electron2Eta","Electron2Eta",50,-2.5,2.5);
    
+   hlt_bitmu_hist_reco = dbe->book1D("muHLT","muHLT",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
+   h_mu_reco = dbe->book1D("MuonEvents","MuonEvents",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
+   
+   hlt_bitel_hist_reco = dbe->book1D("elHLT","elHLT",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
+   h_el_reco = dbe->book1D("ElectronEvents","ElectronEvents",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
+    
+   
    }
    
    if (n_channel_==1 || n_channel_==2){
@@ -146,6 +162,10 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
    h_ptel1_emu = dbe->book1D("Electron1Pt_EM","Electron1Pt_EM",50,0.0,150.0);
    h_etamu1_emu = dbe->book1D("Muon1Eta_EM","Muon1Eta_EM",50,-2.5,2.5);
    h_etael1_emu = dbe->book1D("Electron1Eta_EM","Electron1Eta_EM",50,-2.5,2.5);
+   
+   hlt_bitemu_hist_reco = dbe->book1D("emuHLT","emuHLT",hlt_bitnames.size(),0.5,hlt_bitnames.size()+0.5);
+   h_emu_reco = dbe->book1D("EmuEvents","EmuEvents",hlt_bitnames.size(),0.5,hlt_bitnames.size()+0.5);
+   
    
    }
  //  dbe->setCurrentFolder("HLT/Higgs/H2tau");
@@ -156,15 +176,23 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
    h_ptph2 = dbe->book1D("Photon2Pt","Photon2Pt",50,0.0,200.0);
    h_etaph1 = dbe->book1D("Photon1Eta","Photon1Eta",50,-2.5,2.5);
    h_etaph2 = dbe->book1D("Photon2Eta","Photon2Eta",50,-2.5,2.5);
+   
+   hlt_bitph_hist_reco = dbe->book1D("phHLT","phHLT",hlt_bitnamesPh.size(),0.5,hlt_bitnamesPh.size()+0.5);
+   h_ph_reco = dbe->book1D("PhotonEvents","PhotonEvents",hlt_bitnamesPh.size(),0.5,hlt_bitnamesPh.size()+0.5);
+   
     
    }
    
-  /* if (n_channel_==5){
+   if (n_channel_==5){
    
   // dbe->setCurrentFolder("HLT/Higgs/Htaunu");   
-   h_pttau1 = dbe->book1D("Tau1Pt","Tau1Pt",50,0.0,500.0);  
-   h_etatau1 = dbe->book1D("Tau1Eta","Tau1Eta",50,-5.0,5.0);
-   }*/
+  // h_pttau1 = dbe->book1D("Tau1Pt","Tau1Pt",50,0.0,500.0);  
+  // h_etatau1 = dbe->book1D("Tau1Eta","Tau1Eta",50,-5.0,5.0);
+  
+   hlt_bittau_hist_gen = dbe->book1D("tauHLT","tauHLT",hlt_bitnamesTau.size(),0.5,hlt_bitnamesTau.size()+0.5);
+   h_tau_gen = dbe->book1D("tauEvents","tauEvents",hlt_bitnamesTau.size(),0.5,hlt_bitnamesTau.size()+0.5);
+    
+   }
  
   //------------------------------------------------
   //
@@ -185,6 +213,9 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      h_ptel1_emu_trig[j] = dbe->book1D((histnameptelem).c_str(),(hlt_bitnames[j]+"ptelectron").c_str(),50,0.0,150.0); 
      h_etael1_emu_trig[j] = dbe->book1D((histnameetaelem).c_str(),(hlt_bitnames[j]+"etaelectron").c_str(),50,-2.5,2.5); 
     
+      hlt_bitemu_hist_reco -> setBinLabel(j+1,hlt_bitnames[j].c_str());
+      h_emu_reco -> setBinLabel(j+1,hlt_bitnames[j].c_str());
+   
        }
     } 
   
@@ -194,6 +225,8 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      string histnameetamu = "Muon1Eta_"+hlt_bitnamesMu[j];
      h_ptmu1_trig[j] = dbe->book1D((histnameptmu).c_str(),(hlt_bitnamesMu[j]+"ptmuon").c_str(),50,0.0,150.0); 
      h_etamu1_trig[j] = dbe->book1D((histnameetamu).c_str(),(hlt_bitnamesMu[j]+"etamuon").c_str(),50,-2.5,2.5); 
+     hlt_bitmu_hist_reco -> setBinLabel(j+1,hlt_bitnamesMu[j].c_str());
+     h_mu_reco -> setBinLabel(j+1,hlt_bitnamesMu[j].c_str());
    
   }
    for (int j=0;j<n_hlt_bits_eg;j++) { 
@@ -201,6 +234,11 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      string histnameetael = "Electron1Eta_"+hlt_bitnamesEg[j];
      h_ptel1_trig[j] = dbe->book1D((histnameptel).c_str(),(hlt_bitnamesEg[j]+"ptelectron").c_str(),50,0.0,150.0);
      h_etael1_trig[j] = dbe->book1D((histnameetael).c_str(),(hlt_bitnamesEg[j]+"etaelectron").c_str(),50,-2.5,2.5);  
+   
+     hlt_bitel_hist_reco -> setBinLabel(j+1,hlt_bitnamesEg[j].c_str());
+     h_el_reco -> setBinLabel(j+1,hlt_bitnamesEg[j].c_str());
+   
+   
     }
   
   }
@@ -212,19 +250,23 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      h_ptph1_trig[j] = dbe->book1D((histnameptph).c_str(),(hlt_bitnamesPh[j]+"ptphoton").c_str(),50,0.0,200);
      h_etaph1_trig[j] = dbe->book1D((histnameetaph).c_str(),(hlt_bitnamesPh[j]+"etaphoton").c_str(),50,-2.5,2.5);
   
+      hlt_bitph_hist_reco -> setBinLabel(j+1,hlt_bitnamesPh[j].c_str());
+      h_ph_reco -> setBinLabel(j+1,hlt_bitnamesPh[j].c_str());
+   
   }
   
   }
   
-  /*  if (n_channel_==5){
+    if (n_channel_==5){
   for (int j=0;j<n_hlt_bits_tau;j++) { 
-     string histnamepttau = "Tau1Pt_"+hlt_bitnamesTau[j];
-     string histnameetatau = "Tau1Eta_"+hlt_bitnamesTau[j];
-     h_pttau1_trig[j] = dbe->book1D((histnamepttau).c_str(),(hlt_bitnamesTau[j]+"pttau").c_str(),50,0.0,300);
-     h_etatau1_trig[j] = dbe->book1D((histnameetatau).c_str(),(hlt_bitnamesTau[j]+"etatau").c_str(),50,-5.0,5.0);
-    
+   //  string histnamepttau = "Tau1Pt_"+hlt_bitnamesTau[j];
+   //  string histnameetatau = "Tau1Eta_"+hlt_bitnamesTau[j];
+   //  h_pttau1_trig[j] = dbe->book1D((histnamepttau).c_str(),(hlt_bitnamesTau[j]+"pttau").c_str(),50,0.0,300);
+   //  h_etatau1_trig[j] = dbe->book1D((histnameetatau).c_str(),(hlt_bitnamesTau[j]+"etatau").c_str(),50,-5.0,5.0);
+      hlt_bittau_hist_gen -> setBinLabel(j+1,hlt_bitnamesTau[j].c_str());
+      h_tau_gen -> setBinLabel(j+1,hlt_bitnamesTau[j].c_str());
     }
-  }*/
+  }
   
  
  // cout << "booking OK " << endl;
@@ -257,11 +299,16 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<GsfElectronCollection> electronHandle;
   iEvent.getByLabel("gsfElectrons",electronHandle);
   
-   edm::Handle<PhotonCollection> photonHandle;
-   iEvent.getByLabel("photons", photonHandle);
+  edm::Handle<PhotonCollection> photonHandle;
+  iEvent.getByLabel("photons", photonHandle);
+  
+  edm::Handle<CaloMETCollection> caloMet;
+ // iEvent.getByLabel("met", caloMet);  // first attempt of adding met variables
+ iEvent.getByLabel("corMetGlobalMuons", caloMet);
 
-
-
+  edm::Handle<reco::TrackCollection> Tracks;
+  iEvent.getByLabel("generalTracks", Tracks);
+  
 // MC truth part
 
   string errMsg("");
@@ -275,7 +322,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (n_channel_== 1) {
     mct_analysis_.analyzeHZZ4l(*mctruth, *muonHandle, *electronHandle, HltTree);
   } else if (n_channel_ == 2) {
-    mct_analysis_.analyzeHWW2l(*mctruth, *muonHandle,*electronHandle, HltTree);
+  //  mct_analysis_.analyzeHWW2l(*mctruth, *muonHandle,*electronHandle, HltTree);
+   mct_analysis_.analyzeHWW2l(*mctruth, *caloMet, *Tracks, *muonHandle,*electronHandle, HltTree);
   } else if (n_channel_ == 3) {
     mct_analysis_.analyzeHgg(*mctruth, *photonHandle, HltTree);
   } else if (n_channel_ == 4) {
@@ -323,6 +371,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (mct_analysis_.MuonChannel_recoacc()) {  
     // trg_eff_gen_mc_mu -> Fill(4,1);
     
+    if (n_channel_==2) h_met_hwwdimu->Fill(mct_analysis_.met_hwwdimu());
+    
     if (n_channel_==4){
 	  h_ptmu1->Fill(mct_analysis_.ptMuon1());
 	  h_etamu1->Fill(mct_analysis_.etaMuon1());
@@ -350,6 +400,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (mct_analysis_.ElecChannel_recoacc()) {  
    //  trg_eff_gen_mc_elec -> Fill(4,1);
    
+    if (n_channel_==2) h_met_hwwdiel->Fill(mct_analysis_.met_hwwdiel());
+   
       if (n_channel_==4){
 	  h_ptel1->Fill(mct_analysis_.ptElectron1());
 	  h_etael1->Fill(mct_analysis_.etaElectron1());
@@ -376,6 +428,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if (mct_analysis_.ElecMuChannel_recoacc()) {  
      //  trg_eff_gen_mc_emu -> Fill(4,1);
+     
+      if (n_channel_==2) h_met_hwwemu->Fill(mct_analysis_.met_hwwemu());
      
         if (n_channel_!=4){
         muon1 = mct_analysis_.muon1_();
@@ -475,8 +529,10 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (mct_analysis_.MuonChannel_recoacc()){
     
        for (int j=0;j<n_hlt_bits_mu;j++) {
+          h_mu_reco->Fill(j+1);
        
-          if (wtrig_m[j]==1) {   
+          if (wtrig_m[j]==1) {  
+	     hlt_bitmu_hist_reco->Fill(j+1); 
 	  
 	  if (n_channel_==4){
 	    h_ptmu1_trig[j]->Fill(mct_analysis_.ptMuon1());
@@ -504,10 +560,12 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 	
 	  if (mct_analysis_.ElecChannel_recoacc()){
+	  
 	     
 	     for (int j=0;j<n_hlt_bits_eg;j++) {
-	       //  h_el_reco->Fill(j+1);
+	         h_el_reco->Fill(j+1);
                  if (wtrig_eg[j]==1) {
+		  hlt_bitel_hist_reco->Fill(j+1);
 		 
 		  if (n_channel_==4){
 	    h_ptel1_trig[j]->Fill(mct_analysis_.ptElectron1());
@@ -532,10 +590,11 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	
 	 if (mct_analysis_.ElecMuChannel_recoacc()){
-	    // h_emu_reco->Fill(1);
+	   
 	     for (int j=0;j<n_hlt_bits;j++) {
-	        // h_emu_reco->Fill(j+1);
+	         h_emu_reco->Fill(j+1);
                  if (wtrig_[j]==1) {
+		 hlt_bitemu_hist_reco->Fill(j+1); 
 		 
 		   if (n_channel_!=4){
                   h_ptel1_emu_trig[j]->Fill(electron1.pt());
@@ -557,31 +616,31 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //photons reco
       if (mct_analysis_.PhotonChannel_acc()){
-              //  h_ph->Fill(1);
+              //  h_ph_reco->Fill(1);
 	  for (int j=0;j<n_hlt_bits_ph;j++) {
-	    //  h_ph->Fill(j+1);
+	      h_ph_reco->Fill(j+1);
              if (wtrig_ph[j]==1) {  
               h_ptph1_trig[j]->Fill(photon1.pt());
 	      h_etaph1_trig[j]->Fill(photon1.eta());
-            //  hlt_bitph_hist->Fill(j+1);
+              hlt_bitph_hist_reco->Fill(j+1);
             }                
           }
       }
       
       //taus
-     /* if (mct_analysis_.TauChannel_acc()){
+      if (mct_analysis_.TauChannel_acc()){
                //  h_tau->Fill(1);
 		 
 		// ev_clasif->Fill(mct_analysis_.evtype());
 	  for (int j=0;j<n_hlt_bits_tau;j++) {
-	     // h_tau->Fill(j+1);
+	      h_tau_gen->Fill(j+1);
              if (wtrig_tau[j]==1) {  
-              h_pttau1_trig[j]->Fill(mct_analysis_.ptTau1());
-	      h_etatau1_trig[j]->Fill(mct_analysis_.etaTau1());
-           //   hlt_bittau_hist->Fill(j+1);
+           //   h_pttau1_trig[j]->Fill(mct_analysis_.ptTau1());
+	    //  h_etatau1_trig[j]->Fill(mct_analysis_.etaTau1());
+              hlt_bittau_hist_gen->Fill(j+1);
             }                
           }
-      }*/
+      }
       
   
   ////------------
