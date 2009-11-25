@@ -70,8 +70,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
     ME["EcalHaloData_PhiWedgeEnergy"]       = dqm->book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
     ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-    ME["EcalHaloData_PhiWedgeMinTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 50, -100.0, 100.0);
-    ME["EcalHaloData_PhiWedgeMaxTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 50, -100.0, 100.0);
+    ME["EcalHaloData_PhiWedgeMinTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
+    ME["EcalHaloData_PhiWedgeMaxTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
     ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 72, 0.5, 72.5) ;
     ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"] = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
     ME["EcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
@@ -137,6 +137,19 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["BeamHaloSummary_Id"] ->setBinLabel(10,"Event Tight");
     ME["BeamHaloSummary_Id"] ->setBinLabel(11,"Nothing");
 
+    ME["BeamHaloSummary_BXN"] = dqm->book2D("BeamHaloSummary_BXN", "",11, 0.5, 11.5, 4000, -0.5,3999.5);
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(1,"CSC Loose");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(2,"CSC Tight");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(3,"Ecal Loose");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(4,"Ecal Tight");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(5,"Hcal Loose");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(6,"Hcal Tight");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(7,"Global Loose");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(8,"Global Tight");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(9,"Event Loose");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(10,"Event Tight");
+    ME["BeamHaloSummary_BXN"] ->setBinLabel(11,"Nothing");
+
     // Extra
     dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
     ME["Extra_CSCActivityWithMET"]= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
@@ -150,14 +163,17 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
     ME["Extra_HcalToF"]  = dqm->book2D("HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
     ME["Extra_HcalToF_HaloId"]  = dqm->book2D("HcalToF","", 83,-41.5,41.5 , 1000, -125., 125.); 
-    ME["Extra_EcalToF"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 1000, -125., 125.); 
-    ME["Extra_EcalToF_HaloId"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 1000, -125., 125.); 
+    ME["Extra_EcalToF"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
+    ME["Extra_EcalToF_HaloId"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
+
+
   }
 }
 
 void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   EventID TheEvent = iEvent.id();
+  int BXN = iEvent.bunchCrossing() ;
   //  int TheEventNumber = TheEvent.event();
   
   //Get CSC Geometry
@@ -419,6 +435,8 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["EcalHaloData_PhiWedgeConstituents"]->Fill( iWedge->NumberOfConstituents() ) ;
 	  ME["EcalHaloData_PhiWedgeMinTime"]     ->Fill( iWedge->MinTime() );
 	  ME["EcalHaloData_PhiWedgeMaxTime"]     ->Fill( iWedge->MaxTime() );
+	  cout << "Min,Max Time       " <<  iWedge->MinTime() << "         " << iWedge->MaxTime() << endl;
+	  
 	  ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"]->Fill( iWedge->PlusZDirectionConfidence() );
 	  ME["EcalHaloData_PhiWedgeMinVsMaxTime"]->Fill(iWedge->MinTime() , iWedge->MaxTime() ) ;
 	  ME["EcalHaloData_PhiWedgeiPhi"]->Fill(iWedge->iPhi() ) ;
@@ -544,27 +562,60 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     {
       const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
       if( TheSummary.CSCLooseHaloId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(1);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(1);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 1, BXN );
+	}
       if( TheSummary.CSCTightHaloId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(2);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(2);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 2, BXN );
+	}
       if( TheSummary.EcalLooseHaloId() )
-	ME["BeamHaloSummary_Id"] ->Fill(3);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(3);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 3, BXN );
+	}
       if( TheSummary.EcalTightHaloId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(4);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(4);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 4, BXN );
+	}
       if( TheSummary.HcalLooseHaloId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(5);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(5);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 5, BXN );
+	}
       if( TheSummary.HcalTightHaloId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(6);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(6);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 6, BXN );
+	}
       if( TheSummary.GlobalLooseHaloId()) 
-	ME["BeamHaloSummary_Id"] ->Fill(7);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(7);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 7, BXN );
+	}
       if( TheSummary.GlobalTightHaloId() )
-	ME["BeamHaloSummary_Id"] ->Fill(8);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(8);	
+	  ME["BeamHaloSummary_BXN"] -> Fill( 8, BXN );
+	}
       if( TheSummary.LooseId() ) 
-	ME["BeamHaloSummary_Id"] ->Fill(9);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(9);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 9, BXN );
+	}
       if( TheSummary.TightId() )
-	ME["BeamHaloSummary_Id"] ->Fill(10);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(10);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 10, BXN );
+	}
       if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && !TheSummary.CSCLooseHaloId() && !TheSummary.GlobalLooseHaloId() )
-	ME["BeamHaloSummary_Id"] ->Fill(11);
+	{
+	  ME["BeamHaloSummary_Id"] ->Fill(11);
+	  ME["BeamHaloSummary_BXN"] -> Fill( 11, BXN );
+	}
     }
 
   if( TheCaloMET.isValid() )
