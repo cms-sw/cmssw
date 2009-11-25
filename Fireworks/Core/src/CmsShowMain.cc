@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.120 2009/11/23 19:09:31 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.121 2009/11/24 13:53:07 amraktad Exp $
 //
 
 // system include files
@@ -938,10 +938,11 @@ CmsShowMain::setupSocket(unsigned int iSocket)
    m_monitor->Add(server);
 }
 
-
+int ncount = 0;
 void
 CmsShowMain::notified(TSocket* iSocket)
 {
+   fflush(stdout);
    TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
    if(0!=server) {
       TSocket* connection = server->Accept();
@@ -962,6 +963,7 @@ CmsShowMain::notified(TSocket* iSocket)
          delete iSocket;
          return;
       }
+      printf("notify %d \n", ncount++ );
       std::string fileName(buffer);
       std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
       if(lastNonSpace != std::string::npos) {

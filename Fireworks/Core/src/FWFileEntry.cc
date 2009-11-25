@@ -28,6 +28,8 @@ FWFileEntry::~FWFileEntry()
 {
    for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)   
       delete (*i)->m_eventList;
+
+   delete m_globalEventList;
 }
 
 void FWFileEntry::openFile(){
