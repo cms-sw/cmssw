@@ -938,11 +938,10 @@ CmsShowMain::setupSocket(unsigned int iSocket)
    m_monitor->Add(server);
 }
 
-int ncount = 0;
+
 void
 CmsShowMain::notified(TSocket* iSocket)
 {
-   fflush(stdout);
    TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
    if(0!=server) {
       TSocket* connection = server->Accept();
@@ -963,7 +962,6 @@ CmsShowMain::notified(TSocket* iSocket)
          delete iSocket;
          return;
       }
-      printf("notify %d \n", ncount++ );
       std::string fileName(buffer);
       std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
       if(lastNonSpace != std::string::npos) {
