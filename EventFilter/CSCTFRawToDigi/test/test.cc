@@ -20,7 +20,7 @@ int main(int argc, char *argv[]){
 	const unsigned short *buf=0;
 
 	// Main cycle
-	while( (size = reader.read(buf)) /*&& nevents<100*/ ){
+	while( (size = reader.read(buf)) /*&& nevents<1*/ ){
 		unsigned short event[size];
 
 		// Swep out C-words
@@ -38,9 +38,9 @@ int main(int argc, char *argv[]){
 
 		CSCTFEvent tfEvent, qwe;
 		if(nevents%1000==0) cout<<"Event: "<<nevents<<endl;
-///		cout<<" Unpack: "<<
-		tfEvent.unpack(event,index2);
-///		<<endl;
+		cout<<" Unpack: "<<
+		tfEvent.unpack(event,index2)
+		<<endl;
 
 		vector<CSCSPEvent> SPs = tfEvent.SPs();
 		for(int sp=0; sp<SPs.size(); sp++){
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
 					if( track->ME4_id() ) nStations++;
 					if( track->LCTs().size() != nStations ){
 						mismatch = true;
-						cout<<" mismatch found in tbin="<<tbin<<": ("<<track->LCTs().size()<<"!="<<nStations<<")"<<ends;
+						cout<<" mismatch found in tbin="<<tbin<<": ("<<track->LCTs().size()<<"!="<<nStations<<")";
 					}
 
 					if( mismatch ){

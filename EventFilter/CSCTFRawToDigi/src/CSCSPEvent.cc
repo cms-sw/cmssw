@@ -22,6 +22,8 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 		} else {
 			for(unsigned short tbin=0, actual_tbin = (buf[7] >> 8) & 0x7; tbin<header_.nTBINs(); tbin++){
 				bzero(&(record_[tbin]),sizeof(record_[tbin]));
+				if( (buf[0]&0xF000)==0xF000 && (buf[1]&0xF000)==0xF000 && (buf[2]&0xF000)==0xF000 && (buf[3]&0xF000)==0xF000 &&
+					(buf[4]&0xF000)==0xE000 && (buf[5]&0xF000)==0xE000 && (buf[6]&0xF000)==0xE000 && (buf[7]&0xF000)==0xE000 ) continue;
 				if( tbin != actual_tbin ) continue; // Skip supressed empty tbins in the format version >=5.3
 				unpackError |= record_[tbin].unpack(buf,header_.active(),header_.suppression(),tbin);
 				actual_tbin = (buf[7] >> 8) & 0x7;
