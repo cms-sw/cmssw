@@ -281,7 +281,23 @@ int main_t(const vector<string> & v_file){
       std::cout << std::endl;
     } 
     minuit.printFitResults();
+    ofstream myfile;
+    myfile.open ("fitResult.txt", ios::out | ios::app);
+    myfile<<"\n";
+    double Y =  minuit.getParameterError("YieldZMuMu");
+    double dY = minuit.getParameterError("YieldZMuMu", Y);
+    double tk_eff =  minuit.getParameterError("EfficiencyTk");
+    double dtk_eff = minuit.getParameterError("EfficiencyTk", tk_eff);
+    double sa_eff =  minuit.getParameterError("EfficiencySa");
+    double dsa_eff = minuit.getParameterError("EfficiencySa", sa_eff);
+    double iso_eff =  minuit.getParameterError("EfficiencyIso");
+    double diso_eff = minuit.getParameterError("EfficiencyIso", iso_eff);
+    double hlt_eff =  minuit.getParameterError("EfficiencyHLT");
+    double dhlt_eff = minuit.getParameterError("EfficiencyHLT",hlt_eff);
+    myfile<< Y <<" "<< dY <<" "<< tk_eff <<" "<< dtk_eff <<" "<< sa_eff << " " << dsa_eff << " " << iso_eff <<" " << diso_eff<< " " << hlt_eff << " " << dhlt_eff << " " <<chi2()/(chi2.numberOfBins()- minuit.numberOfFreeParameters());
     
+    myfile.close();
+
     //Plot
     double s;
     s = 0;
