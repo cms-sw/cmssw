@@ -42,6 +42,22 @@ process.hcalnoise.refillRefVectors = cms.bool(True)
 process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
 process.hcalnoise.requirePedestals = cms.bool(False)
 
+#
+# BeamHaloData producer
+#
+process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("L1Trigger/Configuration/L1RawToDigi_cff")
+process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
+process.load("RecoMET/METProducers/BeamHaloSummary_cfi")
+process.load("RecoMET/METProducers/CSCHaloData_cfi")
+process.load("RecoMET/METProducers/EcalHaloData_cfi")
+process.load("RecoMET/METProducers/HcalHaloData_cfi")
+process.load("RecoMET/METProducers/GlobalHaloData_cfi")
+process.GlobalTag.globaltag ='STARTUP31X_V7::All'
+
 # the task - JetMET objects
 if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
@@ -64,6 +80,9 @@ if allhist=="True":
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.pfMETAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.tcMETAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection = cms.bool(True)
 
 # the task - JetMET trigger
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
@@ -84,8 +103,9 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 #    fileNames = cms.untracked.vstring(*inputfiles))
 
 #Load files from text
-import FWCore.Python.FileUtils as FileUtils
-readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('inputfile_BeamHaloExpress_120015.txt') )
+#import FWCore.Python.FileUtils as FileUtils
+import FWCore.Utilities.FileUtils as FileUtils
+readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('filelist_ExpressPhysics_121964.txt') )
 
 #Extend the list if needed...
 #readFiles.extend( FileUtils.loadListFromFile ('moreInfoIwant.txt') )
@@ -130,7 +150,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
     #outputCommands = cms.untracked.vstring('keep *'),
     fileName = cms.untracked.string("reco_DQM_%s.root" % jobname)
-#    fileName = cms.untracked.string("reco_DQM_test.root")
+#   fileName = cms.untracked.string("reco_DQM_test.root")
 )
 
 process.options = cms.untracked.PSet(
@@ -140,6 +160,14 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
+                     * process.gtDigis
+                     * process.l1GtRecord
+#                    * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
@@ -147,6 +175,14 @@ if iscosmics=="True":
                      * process.dqmStoreStats)
 else:
   process.p = cms.Path(process.hcalnoise
+                     * process.gtDigis
+                     * process.l1GtRecord
+#                    * process.BeamHaloId
+                     * process.CSCHaloData
+                     * process.EcalHaloData
+                     * process.HcalHaloData
+                     * process.GlobalHaloData
+                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic
