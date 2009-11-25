@@ -154,7 +154,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
   // Creating occupancy plots:
-//  sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
+  sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
   if(noiseRate_>0.) sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
@@ -231,8 +231,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
      //cout << " Updating occupancy plots" << endl;
-//    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-//    sipixelActionExecutor_->createOccupancy(bei_);
+    sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
@@ -284,8 +283,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
     //cout << " Updating occupancy plots" << endl;
-    //sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-//    sipixelActionExecutor_->createOccupancy(bei_);
+    sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
