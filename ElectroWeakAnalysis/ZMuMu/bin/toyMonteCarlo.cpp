@@ -101,9 +101,9 @@ int main(int argc, char * argv[]){
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0),MIN(60.),MAX(120.);
-  double slopeMuTk(0.035041), a0MuTk(1.97659), a1MuTk(5.88979), a2MuTk(0.0);
-  double slopeMuMuNonIso(0.0527677),a0MuMuNonIso(0.231399), a1MuMuNonIso(21.0121), a2MuMuNonIso(0.0);
+  double yield(3810.0), effTrk(.996), effSa(.987),effHlt(.913), effIso(.982),factor(1.0),MIN(60.),MAX(120.);
+  double slopeMuTk(0.02), a0MuTk(1.0), a1MuTk(0.0), a2MuTk(0.0);
+  double slopeMuMuNonIso(0.02),a0MuMuNonIso(1.0), a1MuMuNonIso(0.0), a2MuMuNonIso(0.0);
   // double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
   // double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
   // double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
@@ -208,13 +208,13 @@ int main(int argc, char * argv[]){
     Nmumu = N2HLT + N1HLT;
     
     //Define signal Histo
-    TH1F *zMuMu = new TH1F("zMass_golden","zMass",200,0,200);
-    TH1F *zMuMu2HLT = new TH1F("zMass_2hlt","zMass",200,0,200);
-    TH1F *zMuMu1HLT = new TH1F("zMass_1hlt","zMass",200,0,200);
-    TH1F *zMuMuNotIso= new TH1F("zMass_noIso","zMass",200,0,200);
-    TH1F *zMuSa = new TH1F("zMass_sa","zMass",200,0,200);
-    TH1F *zMuTk = new TH1F("zMass_tk","zMass",200,0,200);
-    pdfzmsa->SetName("zMass_safromGolden");
+    TH1F *zMuMu = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMu2HLT = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMu1HLT = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMuNotIso= new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuSa = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuTk = new TH1F("zMass","zMass",200,0,200);
+    pdfzmsa->SetName("zMass");
   
     //Fill signal Histo
    
@@ -279,13 +279,13 @@ int main(int argc, char * argv[]){
        
     
     //Define Background Histo
-    TH1F *zMuMuBkg = new TH1F("zMass_golden","zMass",200,0,200);
-    TH1F *zMuMu2HLTBkg = new TH1F("zMass_2hlt","zMass",200,0,200);
-    TH1F *zMuMu1HLTBkg = new TH1F("zMass_1hlt","zMass",200,0,200);
-    TH1F *zMuSaBkg = new TH1F("zMass_sa","zMass",200,0,200);
-    TH1F *zMuSafromGoldenBkg = new TH1F("zMass_safromGolden","zMass",200,0,200);
-    TH1F *zMuMuNotIsoBkg= new TH1F("zMass_noIso","zMass",200,0,200);
-    TH1F *zMuTkBkg = new TH1F("zMass_tk","zMass",200,0,200);
+    TH1F *zMuMuBkg = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMu2HLTBkg = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMu1HLTBkg = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuSaBkg = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuSafromGoldenBkg = new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuMuNotIsoBkg= new TH1F("zMass","zMass",200,0,200);
+    TH1F *zMuTkBkg = new TH1F("zMass","zMass",200,0,200);
     
     
     
@@ -296,7 +296,7 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
       zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(rndm));
     }
-    
+    // one need to add backgroung also for ZMuSta
     char head2[30];
     sprintf(head2,"bkg_%d",j);
     string title2 = head2 + tail;
