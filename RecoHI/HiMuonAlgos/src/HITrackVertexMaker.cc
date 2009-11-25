@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.3 2009/08/15 16:59:53 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.4 2009/09/11 15:41:05 kodolova Exp $
 //
 //
  
@@ -163,7 +163,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG_COUNT
    cout<<" Accepted for L3 propagation  "<<endl;  
 #endif
-   
+
+
+// We need to be sure that it is Primary vertex. Exchange vertex cycle to  (1). 
 
    int iv = 0;
    for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
@@ -172,6 +174,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      if (iv == 0) {theHICConst->setVertex((*ipvertex).position().z()); theFmpConst->setVertex((*ipvertex).position().z());} 
      iv++;
    } 
+
+
+// (1) theHICConst->setVertex((*ipvertex)[0].position().z(); theFmpConst->setVertex((*ipvertex)[0].position().z());
 
 //   cout << " Vertex is set to (found by pixel finder)"<<theHICConst->zvert<<endl;
    
@@ -512,7 +517,8 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     if(theFoundFts.size()<2)  return dimuon;
 
 // Look for vertex constraints
-
+// We create Beam spot with position of primary vertex
+//
     edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
     es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
 
@@ -532,6 +538,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
 
 // For trajectory refitting
+// !!! ===================================
         vector<reco::Track> firstTrack;
         vector<reco::TransientTrack> firstTransTracks;
         vector<reco::TrackRef> firstTrackRefs;
