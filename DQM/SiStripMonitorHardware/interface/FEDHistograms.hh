@@ -135,6 +135,11 @@ private:
     *feMissing_, 
     *anyFEProblems_;
 
+  MonitorElement *feTimeDiffTIB_,
+    *feTimeDiffTOB_,
+    *feTimeDiffTECB_,
+    *feTimeDiffTECF_;        
+
   //FED level histograms
   std::map<unsigned int,MonitorElement*> feOverflowDetailed_, 
     badMajorityAddressDetailed_, 
