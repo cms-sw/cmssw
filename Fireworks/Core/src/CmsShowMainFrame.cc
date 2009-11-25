@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.74 2009/11/24 21:18:14 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.75 2009/11/25 10:20:46 amraktad Exp $
 //
 // hacks
 #define private public
@@ -399,10 +399,15 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    //  logo
-   TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 92, 64, kFixedSize);
+   TGVerticalFrame* parentLogoFrame = new TGVerticalFrame(fullbar,  110, 74,  kFixedWidth);
+   parentLogoFrame->SetBackgroundColor(backgroundColor);
+
+   TGVerticalFrame* logoFrame = new TGVerticalFrame(parentLogoFrame, 92, 64, kFixedSize);
    TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMS-Fireworks.png");
    logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-   fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight , 0, 20, 8, 0));
+   parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight, 5, 10, 9, 0));
+
+   fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight));
   
    /**************************************************************************/
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
