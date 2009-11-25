@@ -139,15 +139,22 @@ int main(){
       pooldb.close();
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
+      std::cout << "head 2" << std::endl;
       iov.head(2);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 3,23,43,63" << std::endl;
+      std::cout << "find 3,23,43,63" << std::endl;
       print(*iov.find(3));
       print(*iov.find(23));
       print(*iov.find(43));
       print(*iov.find(63));
       iov.setRange(1,90);
       print(*iov.find(63));
+      iov.resetRange();
+      std::cout << "back" << std::endl;
+      print(*(iov.end()-1));
+      iov.tail(1);
+      print(*iov.begin());
+
     }
     {
       pooldb.open("sqlite_file:mytest.db");
