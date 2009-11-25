@@ -271,16 +271,16 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
     throw std::runtime_error(std::string("non-existing view ")+runpresctechviewname);
   }
   //
-  //select algo_index,name from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
+  //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
   //
   std::map<unsigned int,std::string> triggernamemap;
   coral::IQuery* QueryName=gtschemaHandle.newQuery();
   QueryName->addToTableList(runalgoviewname);
   coral::AttributeList qAlgoNameOutput;
   qAlgoNameOutput.extend("algo_index",typeid(unsigned int));
-  qAlgoNameOutput.extend("name",typeid(std::string));
+  qAlgoNameOutput.extend("alias",typeid(std::string));
   QueryName->addToOutputList("algo_index");
-  QueryName->addToOutputList("name");
+  QueryName->addToOutputList("alias");
   QueryName->setCondition("runnumber =:runnumber",bindVariableList);
   QueryName->addToOrderList("algo_index");
   QueryName->defineOutput(qAlgoNameOutput);
@@ -289,7 +289,7 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
     const coral::AttributeList& row = algonamecursor.currentRow();     
     //row.toOutputStream( std::cout ) << std::endl;
     unsigned int algo_index=row["algo_index"].data<unsigned int>();
-    std::string algo_name=row["name"].data<std::string>();
+    std::string algo_name=row["alias"].data<std::string>();
     triggernamemap.insert(std::make_pair(algo_index,algo_name));
   }
   delete QueryName;
@@ -598,14 +598,15 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
       lumi::MixedSource::TriggerCountResult_Tech techcount;
       techcount.reserve(1024);
       lumi::MixedSource::TriggerDeadCountResult deadtime;
+      //this->getTrgData(runnumber,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
       this->getTrgData(runnumber,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
       this->printTriggerNameResult(algonames,technames);
       this->printPrescaleResult(algoprescale,techprescale);
       this->printCountResult(algocount,techcount);
       this->printDeadTimeResult(deadtime);
       
-    }catch(...){
-      std::cout<<"caught exception "<<std::endl;
+    }catch(const coral::Exception& er){
+      std::cout<<"database problem "<<er.what()<<std::endl;
       delete session;
     }
     delete session;
