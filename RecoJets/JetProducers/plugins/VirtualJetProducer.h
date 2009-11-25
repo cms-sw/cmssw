@@ -38,6 +38,7 @@ protected:
       GenJet,
       CaloJet,
       PFJet,
+      TrackJet,
       LastJetType  // no real type, technical
     };
     static const char *names[];
@@ -54,6 +55,9 @@ protected:
   }
   inline bool makeGenJet(const JetType::Type &fTag) {
     return fTag == JetType::GenJet;
+  }
+  inline bool makeTrackJet(const JetType::Type &fTag) {
+    return fTag == JetType::TrackJet;
   }
   inline bool makeBasicJet(const JetType::Type &fTag) {
     return fTag == JetType::BasicJet;
@@ -136,8 +140,8 @@ protected:
   // This will write the jets to the event. 
   // The default is to write out the single jet collection in the default "produces"
   // statement. 
-  // This is a function template that can be called for the four types
-  // CaloJet, PFJet, GenJet, BasicJet. This is not suitable
+  // This is a function template that can be called for the five types
+  // CaloJet, PFJet, GenJet, TrackJet, BasicJet. This is not suitable
   // for compound jets. 
   // Note: The "output" method is virtual and can be overriden.
   // The default behavior is to call the function template "writeJets". 

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 TrackJetParameters = cms.PSet(
     src            = cms.InputTag("trackRefsForJets"),
     srcPVs         = cms.InputTag(''),
-    jetType        = cms.string('BasicJet'),
+    jetType        = cms.string('TrackJet'),
     jetPtMin       = cms.double(1.0),
     inputEMin      = cms.double(0.0),
     inputEtMin     = cms.double(0.0),

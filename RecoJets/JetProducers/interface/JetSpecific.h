@@ -6,6 +6,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,6 +49,13 @@ namespace reco {
 		    reco::GenJet::Specific* genJetSpecific);
 
   void writeSpecific(reco::GenJet  & jet,
+		     reco::Particle::LorentzVector const & p4,
+		     reco::Particle::Point const & point, 
+		     std::vector<reco::CandidatePtr> const & constituents,
+		     edm::EventSetup const & c  );
+  
+  /// Make TrackJet. Assumes constituents point to tracks, through RecoChargedCandidates.
+  void writeSpecific(reco::TrackJet  & jet,
 		     reco::Particle::LorentzVector const & p4,
 		     reco::Particle::Point const & point, 
 		     std::vector<reco::CandidatePtr> const & constituents,
