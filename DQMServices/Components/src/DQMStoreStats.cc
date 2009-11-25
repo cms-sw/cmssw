@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/11/13 18:40:10 $
- * $Revision: 1.6 $
+ * $Date: 2009/11/25 13:49:28 $
+ * $Revision: 1.7 $
  * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -125,11 +125,13 @@ int DQMStoreStats::calcstats() {
       // one-dim ME
       case MonitorElement::DQM_KIND_TH1F: currentSubfolder.AddBinsF( (*it)->getNbinsX() ); break;
       case MonitorElement::DQM_KIND_TH1S: currentSubfolder.AddBinsS( (*it)->getNbinsX() ); break;
+      case MonitorElement::DQM_KIND_TH1D: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
       case MonitorElement::DQM_KIND_TPROFILE: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
 
       // two-dim ME
       case MonitorElement::DQM_KIND_TH2F: currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
       case MonitorElement::DQM_KIND_TH2S: currentSubfolder.AddBinsS( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
+      case MonitorElement::DQM_KIND_TH2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
       case MonitorElement::DQM_KIND_TPROFILE2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
  
       // three-dim ME
