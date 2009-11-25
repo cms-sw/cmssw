@@ -37,7 +37,7 @@ class HcalHitMaker : public CaloHitMaker
   const std::map<uint32_t,float>& getHits() { return hitMap_ ;} ;
 
   /// set the depth in X0 or Lambda0 units depending on showerType
-  bool setDepth(double); 
+  bool setDepth(double,bool inCm=false); 
 
  private:
     EcalHitMaker& myGrid;
