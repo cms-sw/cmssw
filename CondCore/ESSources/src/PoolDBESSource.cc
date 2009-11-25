@@ -199,7 +199,7 @@ PoolDBESSource::~PoolDBESSource() {
   //dump info FIXME: find a more suitable place...
   if (doDump) {
     std::cout << "PoolDBESSource Statistics" << std::endl
-	      << "Records " << stats.nData
+	      << "DataProxy " << stats.nData
 	      <<" setInterval " << stats.nSet
 	      <<" Runs " << stats.nRun
 	      <<" Refresh " << stats.nRefresh
