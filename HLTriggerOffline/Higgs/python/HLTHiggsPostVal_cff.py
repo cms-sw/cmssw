@@ -47,6 +47,14 @@ hltHiggsPostHWW.efficiency     = (
     "EffVsPt_HLT_Ele15_SW_LooseTrackIso_L1R_EM                       'HLT_Ele15_SW_LooseTrackIso_L1R                  ; p_{T e};          Trigger_Efficiency'  Electron1Pt_EM_HLT_Ele15_SW_LooseTrackIso_L1R                   Electron1Pt_EM",
     "EffVsEta_HLT_Ele15_SW_LooseTrackIso_L1R_EM                      'HLT_Ele15_SW_LooseTrackIso_L1R                  ; #eta_{e};         Trigger_Efficiency'  Electron1Eta_EM_HLT_Ele15_SW_LooseTrackIso_L1R                  Electron1Eta_EM",
    
+    "Efficiencies_MuonTriggers                 'HLT efficiency wrt reco selection        ;  ;       Trigger Efficiency'      muHLT   MuonEvents",
+    
+    "Efficiencies_ElectronTriggers             'HLT efficiency wrt reco selection       ; ;         Trigger Efficiency'  elHLT   ElectronEvents",
+   
+    "TriggerEfficiencies_EmuChannel            'HLT efficiency wrt reco selection       ; ;         Trigger Efficiency'  emuHLT   EmuEvents",
+    
+
+   
    
     )
     
@@ -65,6 +73,8 @@ hltHiggsPostHgg.efficiency     = (
     "EffVsPt_HLT_DoublePhoton10_L1R                                'HLT_DoublePhoton10_L1R                           ; p_{T #gamma};        Trigger_Efficiency'  Photon1Pt_HLT_DoublePhoton10_L1R                                Photon1Pt",
     "EffVsEta_HLT_DoublePhoton10_L1R                               'HLT_DoublePhoton10_L1R                           ; #eta_{#gamma};       Trigger_Efficiency'  Photon1Eta_HLT_DoublePhoton10_L1R                               Photon1Eta",
    
+    "Efficiencies_PhotonTriggers                      'HLT efficiency wrt reco selection       ;  ;              Trigger Efficiency'  phHLT   PhotonEvents",
+    
     )
     
 hltHiggsPostHZZ = HLTHiggsPostProcessor.clone()
@@ -112,6 +122,13 @@ hltHiggsPostHZZ.efficiency     = (
     "EffVsPt_HLT_Ele15_SW_LooseTrackIso_L1R_EM                       'HLT_Ele15_SW_LooseTrackIso_L1R                  ; p_{T e};          Trigger_Efficiency'  Electron1Pt_EM_HLT_Ele15_SW_LooseTrackIso_L1R                   Electron1Pt_EM",
     "EffVsEta_HLT_Ele15_SW_LooseTrackIso_L1R_EM                      'HLT_Ele15_SW_LooseTrackIso_L1R                  ; #eta_{e};         Trigger_Efficiency'  Electron1Eta_EM_HLT_Ele15_SW_LooseTrackIso_L1R                  Electron1Eta_EM",
    
+   ######
+    "Efficiencies_MuonTriggers                 'HLT efficiency wrt reco selection        ;  ;       Trigger Efficiency'      muHLT   MuonEvents",
+    
+    "Efficiencies_ElectronTriggers             'HLT efficiency wrt reco selection       ; ;         Trigger Efficiency'  elHLT   ElectronEvents",
+   
+    "TriggerEfficiencies_EmuChannel            'HLT efficiency wrt reco selection       ; ;         Trigger Efficiency'  emuHLT   EmuEvents",
+    
     
     )
     
@@ -139,14 +156,33 @@ hltHiggsPostH2tau.efficiency     = (
    
     "EffVsPt_HLT_Ele15_SW_LooseTrackIso_L1R                       'HLT_Ele15_SW_LooseTrackIso_L1R                  ; p_{T e};          Trigger_Efficiency'  Electron1Pt_HLT_Ele15_SW_LooseTrackIso_L1R                   Electron1Pt",
     "EffVsEta_HLT_Ele15_SW_LooseTrackIso_L1R                      'HLT_Ele15_SW_LooseTrackIso_L1R                  ; #eta_{e};         Trigger_Efficiency'  Electron1Eta_HLT_Ele15_SW_LooseTrackIso_L1R                  Electron1Eta",
-   
+     
+     #####
     
+    "Efficiencies_MuonTriggers                 'HLT efficiency wrt MC selection        ;  ;       Trigger Efficiency'      muHLT   MuonEvents",
+    
+    "Efficiencies_ElectronTriggers             'HLT efficiency wrt MC selection       ; ;         Trigger Efficiency'  elHLT   ElectronEvents",
+   
+     )
+     
+     
+hltHiggsPostHtaunu = HLTHiggsPostProcessor.clone()
+
+hltHiggsPostHtaunu.subDirs        = ['HLT/Higgs/Htaunu']  
+hltHiggsPostHtaunu.efficiency     = (
+  #  "TrigEFF                      'my title; my x-label;    my y-label' pt_trig_off_mu pt_off_mu",
+    
+
+    "Efficiencies_TauTriggers                 'HLT efficiency wrt MC selection        ;  ;       Trigger Efficiency'      tauHLT   tauEvents",
+    
+   
     )
     
 HLTHiggsPostVal = cms.Sequence(
     hltHiggsPostHgg   *
     hltHiggsPostHWW *
     hltHiggsPostHZZ *
-    hltHiggsPostH2tau
+    hltHiggsPostH2tau *
+    hltHiggsPostHtaunu
 )
 
