@@ -3,9 +3,9 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/07/26 22:32:29 $
- * $Revision: 1.8 $
- * $Author: ameyer $
+ * $Date: 2009/08/25 16:04:51 $
+ * $Revision: 1.9 $
+ * $Author: dellaric $
  *
  * Description: Summing up FED entries from all subdetectors.
  *
@@ -255,6 +255,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   float sum = 0.;
 
+  vector<string>::const_iterator ent = entries.begin();
   for(vector<string>::const_iterator fat = fatal.begin(); 
                                       fat != fatal.end(); ++fat) {
 
@@ -263,40 +264,45 @@ void DQMFEDIntegrityClient::fillHistograms(void){
       reportSummaryContent[k]->Fill(-1);
       reportSummaryMap->setBinContent(1, nSubsystems-k, -1);
       k++;
+      ent++;
       continue;
     }
 
     MonitorElement * me = dbe_->get(*fat);
+    MonitorElement * meNorm = dbe_->get(*ent);
       //      cout << "Path : " << me->getFullname() << endl;
 
     int Nfatal = 0;
     int Nbins  = me->getNbinsX();
 
     if (TH1F * rootHisto = me->getTH1F()) {
+      if (TH1F * rootHistoNorm = meNorm->getTH1F()) {
 
-      int xmin   = 0;
-      int xmax   = 0;
+        int xmin   = 0;
+        int xmax   = 0;
 
-      float entry = 0.;
+        float entry = 0.;
+        float norm = 0.;
 
-      xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      if(*fat == "L1T/FEDIntegrity/FEDFatal") xmin = xmin + 800;
+        xmin = (int)rootHisto->GetXaxis()->GetXmin();
+        if(*fat == "L1T/FEDIntegrity/FEDFatal") xmin = xmin + 800;
 
-      xmax = (int)rootHisto->GetXaxis()->GetXmax();
-      if(*fat == "L1T/FEDIntegrity/FEDFatal") xmax = xmax + 800;
+        xmax = (int)rootHisto->GetXaxis()->GetXmax();
+        if(*fat == "L1T/FEDIntegrity/FEDFatal") xmax = xmax + 800;
 
-      //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
+        //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
-      for(int bin = 1; bin <= Nbins ; ++bin) {
-	int id = xmin+bin;
-	entry = rootHisto->GetBinContent(bin);
-      //      cout << "Bin content : " << entry << endl;
-	if(entry > 0.) {
-	  ++Nfatal;
-	  FedFatal->setBinContent(id, entry);
-	}
+        for(int bin = 1; bin <= Nbins ; ++bin) {
+          int id = xmin+bin;
+          entry = rootHisto->GetBinContent(bin);
+          //      cout << "Bin content : " << entry << endl;
+          if(entry > 0.) FedFatal->setBinContent(id, entry);
+          norm = rootHistoNorm->GetBinContent(bin);
+          float fatalErrorRate = (norm != 0) ? entry/norm : 0.0;
+          if(fatalErrorRate > 0.01) ++Nfatal;
+        }
+
       }
-
     }
 
     if (Nbins > 0) 
@@ -309,6 +315,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
     sum = sum + SummaryContent[k];
 
     k++;
+    ent++;
     count++;
 
   }
