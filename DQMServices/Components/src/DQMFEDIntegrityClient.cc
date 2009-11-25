@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/08/25 16:04:51 $
- * $Revision: 1.9 $
+ * $Date: 2009/11/25 13:47:21 $
+ * $Revision: 1.10 $
  * $Author: dellaric $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -299,7 +299,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
           if(entry > 0.) FedFatal->setBinContent(id, entry);
           norm = rootHistoNorm->GetBinContent(bin);
           float fatalErrorRate = (norm != 0) ? entry/norm : 0.0;
-          if(fatalErrorRate > 0.01) ++Nfatal;
+          if(fatalErrorRate > 0.00) ++Nfatal;
         }
 
       }
