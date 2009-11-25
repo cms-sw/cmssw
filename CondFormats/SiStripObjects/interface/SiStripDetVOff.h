@@ -5,6 +5,7 @@
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
+#include <string>
 
 /**
  * This class stores the information if the HV or LV of a detId were off. <br>
@@ -40,7 +41,7 @@ class SiStripDetVOff
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;
 
-  SiStripDetVOff(){};
+  SiStripDetVOff(const std::string & file = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
   ~SiStripDetVOff(){};
   SiStripDetVOff( const SiStripDetVOff & toCopy ) { toCopy.getVoff(v_Voff); }
 
@@ -66,6 +67,11 @@ class SiStripDetVOff
 
   void printDebug(std::stringstream & ss) const;
   void printSummary(std::stringstream & ss) const;
+
+  /// Returns the total number of modules with LV off
+  int getLVoffCounts() const;
+  /// Returns the total number of modules with HV off
+  int getHVoffCounts() const;
 
   /// Changes the bits in the stored value according to on/off voltages
   void setBits( uint32_t & enDetId, const int HVoff, const int LVoff );

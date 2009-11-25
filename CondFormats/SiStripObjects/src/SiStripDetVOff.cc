@@ -1,6 +1,20 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+SiStripDetVOff::SiStripDetVOff(const string & file)
+{
+  // Use the file
+  edm::FileInPath fp(file);
+  SiStripDetInfoFileReader reader(fp.fullPath());
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos  = reader.getAllData();
+  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = detInfos.begin(); it != detInfos.end(); ++it) {
+    put( it->first, 1, 1 );
+  }
+}
+
 
 void SiStripDetVOff::setBits( uint32_t & enDetId, const int HVoff, const int LVoff )
 {
@@ -106,6 +120,42 @@ void SiStripDetVOff::printDebug(std::stringstream & ss) const
     if( IsModuleLVOff(*it)) ss << "OFF" << endl;
     else ss << "ON" << endl;
   }
+}
+
+int SiStripDetVOff::getLVoffCounts() const
+{
+  SiStripDetSummary summaryLV;
+  std::vector<uint32_t> detIds;
+  getDetIds(detIds);
+  constVoffIterator it = detIds.begin();
+  for( ; it!=detIds.end(); ++it ) {
+    if( IsModuleLVOff(*it)) summaryLV.add(*it);
+  }
+  int totalCount = 0;
+  map<int, int> counts = summaryLV.getCounts();
+  map<int, int>::const_iterator mapIt = counts.begin();
+  for( ; mapIt != counts.end(); ++mapIt ) {
+    totalCount += mapIt->second;
+  }
+  return totalCount;
+}
+
+int SiStripDetVOff::getHVoffCounts() const
+{
+  SiStripDetSummary summaryHV;
+  std::vector<uint32_t> detIds;
+  getDetIds(detIds);
+  constVoffIterator it = detIds.begin();
+  for( ; it!=detIds.end(); ++it ) {
+    if( IsModuleHVOff(*it)) summaryHV.add(*it);
+  }
+  int totalCount = 0;
+  map<int, int> counts = summaryHV.getCounts();
+  map<int, int>::const_iterator mapIt = counts.begin();
+  for( ; mapIt != counts.end(); ++mapIt ) {
+    totalCount += mapIt->second;
+  }
+  return totalCount;
 }
 
 void SiStripDetVOff::printSummary(std::stringstream & ss) const
