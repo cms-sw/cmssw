@@ -12,6 +12,7 @@
  <class name="edm::Wrapper<std::deque<int> >"/>
  <class name="edm::Wrapper<std::list<int> >"/>
  <class name="edm::Wrapper<std::map<int,int> >"/>
+ <class name="edm::Wrapper<std::map<std::basic_string<char>,bool> >"/>
  <class name="edm::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > >"/>
  <class name="edm::Wrapper<std::map<unsigned int,float> >"/>
  <class name="edm::Wrapper<std::map<unsigned int,int> >"/>
