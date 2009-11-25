@@ -97,8 +97,6 @@ void FEDErrors::initialise(const unsigned int aFedID,
 	if (lId.side() == 2) lSubid = 7; //TECF
       }
       subDetId_[lFeNumber] = lSubid;
-      if (iCh==0) std::cout << fedID_ << " " << iCh << " " << lFeNumber << " " << subDetId_[lFeNumber] << std::endl;
-
     }
   }
 
