@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.75 2009/11/25 10:20:46 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.76 2009/11/25 10:50:08 amraktad Exp $
 //
 // hacks
 #define private public
@@ -158,7 +158,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
+   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
