@@ -1143,7 +1143,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     nClusEndCap++;
 
-    if( nClusEndCap >= maxNumberofClusters_) return false; 
+    if( nClusEndCap > maxNumberofClusters_) return false; 
     
     ///    if (nClusEndCap == MAXCLUS) return false; 
   }
