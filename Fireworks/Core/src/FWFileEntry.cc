@@ -26,7 +26,7 @@ FWFileEntry::FWFileEntry(const std::string& name) :
 
 FWFileEntry::~FWFileEntry()
 {
-   for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)   
+   for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
       delete (*i)->m_eventList;
 
    delete m_globalEventList;
@@ -244,7 +244,15 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
          }
       }
    }
-   
+
+   {
+      // Avoid bug in root where reseting of TEventList can lead to illegal
+      // memory access. This happens in the Draw() below.
+      // Fixed on 25.7.2009, rev 29582 -- so can be removed when 5.26 or later is used.
+      TEventList *el = (TEventList*) gDirectory->Get("fworks_filter");
+      if (el) delete el;
+   }
+
    Int_t result = m_eventTree->Draw(">>fworks_filter", interpretedSelection.c_str());
    
    if (result >= 0)
