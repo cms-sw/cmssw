@@ -288,7 +288,7 @@ namespace edm {
     edm::ParameterSetDescription desc;
 
     desc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
+    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 0U);
     desc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
     desc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
 
