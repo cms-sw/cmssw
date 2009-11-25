@@ -1624,8 +1624,10 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     if (fit){
       s->Fit("gaus");
       TF1* f1 = (TF1*) s->GetListOfFunctions()->FindObject("gaus");
-      f1->SetLineColor(2);
-      f1->SetLineWidth(1);
+      if (f1) {
+	f1->SetLineColor(2);
+	f1->SetLineWidth(1);
+      }
     }
     s->Draw();
     gPad->Update(); 
@@ -1642,8 +1644,10 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     if (fit) {
       r->Fit("gaus");
       TF1* f2 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
-      f2->SetLineColor(4);
-      f2->SetLineWidth(1);    
+      if (f2) {
+	f2->SetLineColor(4);
+	f2->SetLineWidth(1);
+      }
     }
     r->Draw();
     gPad->Update(); 
