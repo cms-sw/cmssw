@@ -2,5 +2,5 @@ import FWCore.ParameterSet.Config as cms
 
 AlCaRecoTriggerBitsRcdRead = cms.EDAnalyzer(
     "AlCaRecoTriggerBitsRcdRead",
-    pythonOutput = cms.untracked.bool(True) 
+    outputType = cms.untracked.string("twiki") # or text, python (future: html?) 
     )

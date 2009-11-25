@@ -10,20 +10,20 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 
 # the module writing to DB
 process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdRead_cfi")
-process.AlCaRecoTriggerBitsRcdRead.pythonOutput = False
- 
+# 'twiki' is default - others are text, python (future: html?)
+process.AlCaRecoTriggerBitsRcdRead.outputType = 'twiki'
 
 # No data, but have to specify run number (default is 1):
 process.source = cms.Source("EmptySource",
-                            #numberEventsInRun = cms.untracked.uint32(1),
+                            numberEventsInRun = cms.untracked.uint32(1),
                             #firstRun = cms.untracked.uint32(5)
                             )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 # Input for AlCaRecoTriggerBitsRcd,
-# either via GloblalTag:
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = "IDEAL_30X::All" # my choose non-default tag
+# either via GloblalTag (use of _cfi instead of _cff sufficient and faster):
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.GlobalTag.globaltag = "MC_3XY_V14::All" # choose your tag
 
 # ...or specify database and tag:  
 #import CondCore.DBCommon.CondDBSetup_cfi
@@ -40,5 +40,3 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdRead)
-
-
