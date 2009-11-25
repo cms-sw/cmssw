@@ -149,9 +149,9 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       o.version = version;
       o.dirname = me.data_.dirname;
       o.objname = me.data_.objname;
-      o.scalar.clear();
-      o.rawdata.clear();
-      o.qdata.clear();
+      assert(o.rawdata.empty());
+      assert(o.scalar.empty());
+      assert(o.qdata.empty());
 
       // Pack object and reference, scalar and quality data.
       switch (me.kind())
@@ -179,6 +179,9 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
 
       // Update.
       net_->updateLocalObject(o);
+      DQMNet::DataBlob().swap(o.rawdata);
+      std::string().swap(o.scalar);
+      std::string().swap(o.qdata);
       updated = true;
     }
 
