@@ -116,7 +116,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , doPVCorrection_(iConfig.getParameter<bool>         ("doPVCorrection"))
   , restrictInputs_(false)
   , maxInputs_(99999999)
-  , doPUFastjet_   (iConfig.getParameter<bool>         ("doPUFastjet"))
+  , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
+  , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
   , geo_(0)
   , maxBadEcalCells_        (iConfig.getParameter<unsigned>("maxBadEcalCells"))
@@ -171,12 +172,17 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     jetCollInstanceName_ = iConfig.getParameter<string>("jetCollInstanceName");
   }
 
-  // do UE subtraction? 
-  if ( doPUFastjet_ ) {           // accept pilup subtraction parameters
-    double ghostEtaMax = iConfig.getParameter<double> ("Ghost_EtaMax");          //default Ghost_EtaMax should be 6
-    int activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");   //default Active_Area_Repeats 5
-    double ghostArea = iConfig.getParameter<double> ("GhostArea");               //default GhostArea 0.01
-    fjActiveArea_ =  ActiveAreaSpecPtr( new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea) );
+  // do fasjet area / rho calcluation? => accept corresponding parameters
+  if ( doAreaFastjet_ || doRhoFastjet_ ) {
+    // default Ghost_EtaMax should be 5
+    double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
+    // default Active_Area_Repeats 1
+    int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
+    // default GhostArea 0.01
+    double ghostArea = iConfig.getParameter<double> ("GhostArea");
+    fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
+								   activeAreaRepeats,
+								   ghostArea));
     fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
   } 
 
@@ -199,6 +205,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
 
   // make the "produces" statements
   makeProduces( alias, jetCollInstanceName_ );
+
+  produces<double>(jetCollInstanceName_);
 }
 
 
@@ -454,43 +462,27 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     std::vector<CandidatePtr> constituents =
       getConstituents(fjConstituents);
 
-    // Get the PU subtraction
-    double px=fjJet.px();
-    double py=fjJet.py();
-    double pz=fjJet.pz();
-    double E=fjJet.E();
+    // calcuate the jet area
     double jetArea=0.0;
-    double pu=0.;
-
-    // write the jet areas
-    if ( doPUFastjet_ ) {
-      // get PU pt
-      fastjet::ClusterSequenceArea const * clusterSequenceWithArea = dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
-      double median_Pt_Per_Area = clusterSequenceWithArea->median_pt_per_unit_area_4vector( *fjRangeDef_ );
-      fastjet::PseudoJet pu_p4 = median_Pt_Per_Area * clusterSequenceWithArea->area_4vector(fjJet);
-      pu = pu_p4.E();
-      if (pu_p4.perp2() >= fjJet.perp2() || pu_p4.E() >= fjJet.E()) { // if the correction is too large, set the jet to zero
-	px = py = pz = E = 0.;
-      } 
-      else {   // otherwise do an E-scheme subtraction
-	px -= pu_p4.px();
-	py -= pu_p4.py();
-	pz -= pu_p4.pz();
-	E -= pu_p4.E();
-      }
+    if ( doAreaFastjet_ ) {
+      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
+	dynamic_cast<fastjet::ClusterSequenceArea const *>(&*fjClusterSeq_);
       jetArea = clusterSequenceWithArea->area(fjJet);
     }
     
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate
     // specific allocator. 
-    writeSpecific( jet,
-		   Particle::LorentzVector(px, py, pz, E),
-		   vertex_, 
-		   constituents, iSetup);
-
+    writeSpecific(jet,
+		  Particle::LorentzVector(fjJet.px(),
+					  fjJet.py(),
+					  fjJet.pz(),
+					  fjJet.E()),
+		  vertex_, 
+		  constituents, iSetup);
+    
     jet.setJetArea (jetArea);
-    jet.setPileup (pu);
+    jet.setPileup (0.0);
 
     // add to the list
     jets->push_back(jet);	
@@ -498,6 +490,15 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   
   // put the jets in the collection
   iEvent.put(jets);
+
+  // calculate rho (median pT per unit area, for PU&UE subtraction down the line
+  std::auto_ptr<double> rho(new double(0.0));
+  if (doRhoFastjet_) {
+    fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
+      dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
+    *rho = clusterSequenceWithArea->median_pt_per_unit_area(*fjRangeDef_);
+  }
+  iEvent.put(rho);
 }
 
 
@@ -527,19 +528,21 @@ void VirtualJetProducer::calculatePedestal( vector<fastjet::PseudoJet> const & c
   for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
 	 fjInputsEnd = coll.end();  
        input_object != fjInputsEnd; ++input_object) {
-    ieta0 = ieta( inputs_.ptrAt( input_object->user_index() ) );
+    const reco::CandidatePtr & originalTower=inputs_.ptrAt( input_object->user_index());
+    ieta0 = ieta( originalTower );
+    double Original_Et = originalTower->et();
 
     if( ieta0-ietaold != 0 )
       {
-        emean_[ieta0] = emean_[ieta0]+input_object->Et();
-        emean2[ieta0] = emean2[ieta0]+(input_object->Et())*(input_object->Et());
+        emean_[ieta0] = emean_[ieta0]+Original_Et;
+        emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
         ntowers[ieta0] = 1;
         ietaold = ieta0;
       }
     else
       {
-	emean_[ieta0] = emean_[ieta0]+input_object->Et();
-	emean2[ieta0] = emean2[ieta0]+(input_object->Et())*(input_object->Et());
+	emean_[ieta0] = emean_[ieta0]+Original_Et;
+	emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
 	ntowers[ieta0]++;
       }
   }
@@ -585,12 +588,12 @@ void VirtualJetProducer::subtractPedestal(vector<fastjet::PseudoJet> & coll)
     
     it = ieta( itow );
     ip = iphi( itow );
-    
-    double etnew = input_object->Et() - (*emean_.find(it)).second - (*esigma_.find(it)).second;
+
+    double etnew = itow->et() - (*emean_.find(it)).second - (*esigma_.find(it)).second;
     float mScale = etnew/input_object->Et(); 
     
     if(etnew < 0.) mScale = 0.;
-    
+
     math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
 				   input_object->pz()*mScale, input_object->e()*mScale);
     
@@ -692,15 +695,14 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
 	++ito)
       {
 	  
-	int it = ieta( inputs_.ptrAt( ito->user_index() ) );
-	  
-	//       offset = offset + (*emean_.find(it)).second + (*esigma_.find(it)).second;
-	// Temporarily for test       
-	  
-	double etnew = (*ito).Et() - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
+	 const reco::CandidatePtr& originalTower = inputs_.ptrAt(ito->user_index());
+
+	int it = ieta( originalTower );
+        double Original_Et = originalTower->et();
+
+	double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
 	  
 	if( etnew <0.) etnew = 0.;
-	  
 	offset = offset + etnew;
 
       }
@@ -721,11 +723,8 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
   }    
 }
 
-
-
 int VirtualJetProducer::ieta(const reco::CandidatePtr & in)
 {
-  //   std::cout<<" Start BasePilupSubtractionJetProducer::ieta "<<std::endl;
   int it = 0;
   const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
      

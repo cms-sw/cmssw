@@ -175,9 +175,11 @@ protected:
   bool                  restrictInputs_;            // restrict inputs to first "maxInputs" inputs.
   unsigned int          maxInputs_;                 // maximum number of inputs. 
 
-  // for fastjet flavor of pileup calculation
-  bool                  doPUFastjet_;               // add the pileup calculation from fastjet?
-
+  // for fastjet jet area calculation
+  bool                  doAreaFastjet_;             // calculate area w/ fastjet?
+  // for fastjet rho calculation
+  bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
+  
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   double                nSigmaPU_;                  // number of sigma for pileup

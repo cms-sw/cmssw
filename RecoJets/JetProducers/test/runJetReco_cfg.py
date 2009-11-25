@@ -45,6 +45,11 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'MC_3XY_V12::All'
 
 
+from RecoJets.JetProducers.CaloJetParameters_cfi import *
+#CaloJetParameters.doAreaFastjet = True
+from RecoJets.JetProducers.PFJetParameters_cfi import *
+#PFJetParameters.doAreaFastjet = True
+
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 process.load('RecoJets.Configuration.RecoGenJets_cff')
 process.load('RecoJets.Configuration.RecoJets_cff')
@@ -52,6 +57,11 @@ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.load('RecoJets.JetProducers.TracksForJets_cff')
 process.load('RecoJets.Configuration.RecoTrackJets_cff')
 process.load('RecoJets.Configuration.JetIDProducers_cff')
+
+#process.kt6PFJets.doRhoFastjet = True;
+#process.kt6CaloJets.doRhoFastjet = True;
+#process.kt6TrackJets.doRhoFastjet = True;
+#process.kt6GenJets.doRhoFastjet = True;
 
 process.recoJets = cms.Path(process.genParticlesForJets+process.recoGenJets+
                             process.recoJets+

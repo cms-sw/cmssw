@@ -79,7 +79,7 @@ void FastjetJetProducer::produce( edm::Event & iEvent, const edm::EventSetup & i
 void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
   // run algorithm
-  if ( !doPUFastjet_ ) {
+  if ( !doAreaFastjet_ && !doRhoFastjet_) {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
   } else {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceArea( fjInputs_, *fjJetDefinition_ , *fjActiveArea_ ) );
