@@ -28,6 +28,7 @@ namespace cond {
 
   cond::ValidityInterval BasePayloadProxy::loadFor(size_t n) {
     m_element.set(m_iov.iov(),n);
+    make();
     return cond::ValidityInterval(m_element.since(),m_element.till());
   }
 
