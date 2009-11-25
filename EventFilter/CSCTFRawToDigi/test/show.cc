@@ -5,6 +5,8 @@
 #include <errno.h>  // errno
 #include <sys/wait.h> // waitpid
 
+//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../
+
 /// For interactive controll
 #include <sys/select.h>
 int kbhit(void){
@@ -53,8 +55,6 @@ int tty_echo(bool echo){
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPRecord.cc"
 #include "IORawData/CSCCommissioning/src/FileReaderDDU.cc"
 ////////////////
-
-// /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../
 
 #include <iterator>
 int main(int argc, char *argv[]){
