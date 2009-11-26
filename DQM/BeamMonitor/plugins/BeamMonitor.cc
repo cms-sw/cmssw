@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/19 04:27:55 $
- * $Revision: 1.6 $
+ * $Date: 2009/11/19 23:47:02 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -107,7 +107,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   h_sigmaZ0_lumi->setAxisTitle("sigma z_{0}",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
   
-  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",150,-30,30);
+  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",dzBin,dzMin,dzMax);
   h_trk_z0->setAxisTitle("z_{0} of input tracks (cm)",1);
 
   h_vx_dz = dbe_->bookProfile("vx_dz","v_{x} vs. dz",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
@@ -227,9 +227,9 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   f1->SetLineColor(4);
   h_d0_phi0->getTProfile()->Fit("f1","QR");
 
-  TF1 *fgaus = new TF1("fgaus","gaus",-30,30);
+  TF1 *fgaus = new TF1("fgaus","gaus");
   fgaus->SetLineColor(4);
-  h_trk_z0->getTH1()->Fit("fgaus","RQ");
+  h_trk_z0->getTH1()->Fit("fgaus","Q");
 
   int nfits = countLumi_ / fitNLumi_;
   if (theBeamFitter->runFitter()){
@@ -264,6 +264,8 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
     h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+    h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
   }
   
   // Fill summary report
