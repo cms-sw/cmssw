@@ -615,7 +615,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     nClus++;
-    if( nClus > maxNumberofClusters_) return false; 
+    if( nClus > (int) maxNumberofClusters_) return false; 
     
   }
   
@@ -1143,7 +1143,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     nClusEndCap++;
 
-    if( nClusEndCap > maxNumberofClusters_) return false; 
+    if( nClusEndCap > (int) maxNumberofClusters_) return false; 
     
     ///    if (nClusEndCap == MAXCLUS) return false; 
   }
