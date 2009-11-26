@@ -89,7 +89,7 @@ double MET::significance() const {
 // Returns the vector of all corrections applied to the x component of the
 // missing transverse momentum, mEx
 //-----------------------------------
-std::vector<double> MET::dmEx()
+std::vector<double> MET::dmEx() const 
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
@@ -105,7 +105,7 @@ std::vector<double> MET::dmEx()
 // Returns the vector of all corrections applied to the y component of the
 // missing transverse momentum, mEy
 //-----------------------------------
-std::vector<double> MET::dmEy()
+std::vector<double> MET::dmEy() const 
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
@@ -121,7 +121,7 @@ std::vector<double> MET::dmEy()
 // Returns the vector of all corrections applied to the scalar sum of the 
 // transverse energy (over all objects)
 //-----------------------------------
-std::vector<double> MET::dsumEt()
+std::vector<double> MET::dsumEt() const 
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
@@ -150,7 +150,7 @@ TMatrixD MET::getSignificanceMatrix(void) const
 // Returns the vector of all corrections applied to the significance of the 
 // transverse energy (over all objects)
 //-----------------------------------
-std::vector<double> MET::dSignificance()
+std::vector<double> MET::dSignificance() const
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
