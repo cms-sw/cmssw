@@ -6,6 +6,7 @@
 #include <sys/wait.h> // waitpid
 
 //To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../  -I../../../
+// make sure you have the latest IORawData/CSCCommissioning first
 
 /// For interactive controll
 #include <sys/select.h>
@@ -58,6 +59,14 @@ int tty_echo(bool echo){
 
 #include <iterator>
 int main(int argc, char *argv[]){
+	// DDU File Reader
+	FileReaderDDU reader;
+	try {
+		reader.open(argv[1]);
+	} catch (...){
+		printf("Can't open file %s , errno=%d\n",argv[1],errno); exit(1);
+	}
+
 	// Starting root cint and binding its std input to the fd below:
 	__pid_t pid;
 	int  pipedescr[2] = { 3, 4 };
@@ -77,10 +86,6 @@ int main(int argc, char *argv[]){
 	if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 
 	using namespace std;
-
-	// DDU File Reader
-	FileReaderDDU reader;
-	reader.open(argv[1]);
 
 	// Event buffer
 	size_t size, nevents=0;
@@ -140,13 +145,13 @@ int main(int argc, char *argv[]){
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"TGraph _m15(1); _m15.SetMarkerStyle(22); _m15.SetMarkerColor(6); leg.AddEntry(&_m15,\"CSCTF track mode=15\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph _csc12(1); _csc12.SetMarkerStyle(20); _csc12.SetMarkerColor(3); leg.AddEntry(&_csc12,\"ME1 LCT\",\"p\"); \n");
+		sprintf(command,"TGraph _csc12(1); _csc12.SetMarkerStyle(4); _csc12.SetMarkerColor(3); leg.AddEntry(&_csc12,\"ME1 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph  _csc2(1);  _csc2.SetMarkerStyle(20);  _csc2.SetMarkerColor(4); leg.AddEntry(&_csc2,\"ME2 LCT\",\"p\"); \n");
+		sprintf(command,"TGraph  _csc2(1);  _csc2.SetMarkerStyle(4);  _csc2.SetMarkerColor(4); leg.AddEntry(&_csc2,\"ME2 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph  _csc3(1);  _csc3.SetMarkerStyle(20);  _csc3.SetMarkerColor(7); leg.AddEntry(&_csc3,\"ME3 LCT\",\"p\"); \n");
+		sprintf(command,"TGraph  _csc3(1);  _csc3.SetMarkerStyle(4);  _csc3.SetMarkerColor(7); leg.AddEntry(&_csc3,\"ME3 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
-		sprintf(command,"TGraph  _csc4(1);  _csc4.SetMarkerStyle(20);  _csc4.SetMarkerColor(6); leg.AddEntry(&_csc4,\"ME2 LCT\",\"p\"); \n");
+		sprintf(command,"TGraph  _csc4(1);  _csc4.SetMarkerStyle(4);  _csc4.SetMarkerColor(6); leg.AddEntry(&_csc4,\"ME2 LCT\",\"p\"); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 		sprintf(command,"leg.Draw(); \n");
 		if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
@@ -208,11 +213,19 @@ int main(int argc, char *argv[]){
 					};
 					const double normPhi[6][10] = {
 						{-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1},
-						{-1, 158*6., 158*6., 158*6., 158*6., 158*6., 158*6., 126*6., 126*6., 126*6.},
-						{-1, 158*6., 158*6., 158*6., 158*6., 158*6., 158*6., 126*6., 126*6., 126*6.},
-						{-1, 158*3., 158*3., 158*3., 158*6., 158*6., 158*6., 158*6., 158*6., 158*6.},
-						{-1, 158*3., 158*3., 158*3., 158*6., 158*6., 158*6., 158*6., 158*6., 158*6.},
-						{-1, 158*3., 158*3., 158*3., 158*6., 158*6., 158*6., 158*6., 158*6., 158*6.}
+						{-1, 158, 158, 158, 158, 158, 158, 126, 126, 126},
+						{-1, 158, 158, 158, 158, 158, 158, 126, 126, 126},
+						{-1, 158, 158, 158, 158, 158, 158, 158, 158, 158},
+						{-1, 158, 158, 158, 158, 158, 158, 158, 158, 158},
+						{-1, 158, 158, 158, 158, 158, 158, 158, 158, 158}
+					};
+					const double scalePhi[6][10] = {
+						{-1,    -1,    -1,   -1,     -1,    -1,    -1,    -1,    -1,    -1},
+						{-1, 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6.},
+						{-1, 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6.},
+						{-1, 1./3., 1./3., 1./3., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6.},
+						{-1, 1./3., 1./3., 1./3., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6.},
+						{-1, 1./3., 1./3., 1./3., 1./6., 1./6., 1./6., 1./6., 1./6., 1./6.}
 					};
 					const double emuZ[6][10] = {
 						{-1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1},
@@ -225,20 +238,16 @@ int main(int argc, char *argv[]){
 
 					if( mpc<6 && csc<10){
 						double eta = offsetEta[mpc][csc] - scaleEta[mpc][csc] * lct->wireGroup() / normEta[mpc][csc];
-						double phi = lct->strip() / normPhi[mpc][csc] + offsetPhi[mpc][csc];
-
-						// now put the eta and phi on the physical scale
-						if( (!spPtr->header().endcap() && mpc<4) || (spPtr->header().endcap() && mpc>=4) ) // phi ~ strip
-							phi = fmod((phi+spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
-						else // phi ~ -strip
-							phi = fmod((spPtr->header().sector()-phi)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
+						double phi = lct->strip() / normPhi[mpc][csc];
+						if( (!spPtr->header().endcap() && mpc<4) || (spPtr->header().endcap() && mpc>=4) ) phi = 1. - phi;
+						phi = fmod((phi*scalePhi[mpc][csc]+offsetPhi[mpc][csc] + spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
 
 						double rho = 2.*emuZ[mpc][csc]/fabs(exp(eta)-exp(-eta));
 						double x   = rho * cos(phi);
 						double y   = rho * sin(phi);
 
 						const int color[6] = { -1, 3, 3, 4, 7, 6 };
-						sprintf(command,"TGraph lct_%d_%d(1); lct_%d_%d.SetPoint(0,%f,%f); lct_%d_%d.SetMarkerStyle(20); lct_%d_%d.SetMarkerColor(%d); lct_%d_%d.Draw(\"P\"); \n",mpc,csc,mpc,csc,x,y,mpc,csc,mpc,csc,color[mpc],mpc,csc);
+						sprintf(command,"TGraph lct_%d_%d(1); lct_%d_%d.SetPoint(0,%f,%f); lct_%d_%d.SetMarkerStyle(4); lct_%d_%d.SetMarkerColor(%d); lct_%d_%d.Draw(\"P\"); \n",mpc,csc,mpc,csc,x,y,mpc,csc,mpc,csc,color[mpc],mpc,csc);
 						if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 					}
 				}
@@ -249,7 +258,7 @@ int main(int argc, char *argv[]){
 				for(std::vector<CSCSP_SPblock>::const_iterator trk=trks.begin(); trk!=trks.end(); trk++){
 					cout<<" mode="<<trk->mode()<<" (eta="<<trk->eta()<<",phi="<<trk->phi()<<")";
 					double eta = (2.5-0.9)*trk->eta()/32.+0.9;
-					double phi = trk->phi()*24./32. + ((spPtr->header().sector() - 1)*24) + 6;
+					double phi = trk->phi() + ((spPtr->header().sector() - 1)*24) + 6;
 					if(phi > 143) phi -= 143;
 					phi /= 144./2./3.1415927;
 					double rho2= 2.*8.2/fabs(exp(eta)-exp(-eta));
