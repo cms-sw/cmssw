@@ -938,7 +938,6 @@ CmsShowMain::setupSocket(unsigned int iSocket)
    m_monitor->Add(server);
 }
 
-
 void
 CmsShowMain::notified(TSocket* iSocket)
 {
@@ -972,7 +971,7 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      m_navigator->appendFile(fileName, !m_live);
+      m_navigator->appendFile(fileName, m_live);
       // bootstrap case: --port  and no input file
       if (m_inputFileName.empty())
       {
@@ -1065,13 +1064,16 @@ CmsShowMain::filterButtonClicked()
 void
 CmsShowMain::preFiltering()
 {
+   // called only if filter has changed
    m_guiManager->updateStatus("Filtering events");
 }
 
 void
 CmsShowMain::postFiltering()
 {
+   // called only filter is changed
    m_guiManager->clearStatus();
+   draw();
    checkPosition();
    m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
 }
