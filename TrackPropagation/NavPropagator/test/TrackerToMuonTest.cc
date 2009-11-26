@@ -28,9 +28,6 @@
 #include <map>
 using namespace std;
 
-
-typedef 
-
 class TrackerToMuonTest : public edm::EDAnalyzer {
 public:
   TrackerToMuonTest(const edm::ParameterSet& pset) {}
