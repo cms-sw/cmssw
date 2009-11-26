@@ -1504,8 +1504,8 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
     *xmlfile << "<script type=\"text/ecmascript\" xlink:href=\"layer.js\" />"<<endl;
     *xmlfile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerLayer.init()\">"<<endl;
-    if(layer<31)*xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,2.)\"  > "<<endl;
-    else *xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,1.)\"  > "<<endl;
+    if(layer<31)*xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,1.)\"  > "<<endl;
+    else *xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,0.8)\"  > "<<endl;
     *xmlfile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
     nlay=layer;
     defwindow(nlay);
