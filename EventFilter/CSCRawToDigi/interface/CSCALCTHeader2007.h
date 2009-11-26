@@ -16,10 +16,7 @@ class CSCDMBHeader;
 struct CSCALCT {
   CSCALCT();
   CSCALCT(const CSCALCTDigi & alctDigi);
-
-  short unsigned int sizeInWords() const { ///size of ALCT
-    return 1;
-  }
+  static short unsigned int sizeInWords() {return 1; }
 
   unsigned valid   : 1;
   unsigned quality : 2;
