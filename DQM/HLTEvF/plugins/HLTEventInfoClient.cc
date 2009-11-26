@@ -183,9 +183,9 @@ void HLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){
 
-  MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/Ratio_HLT_L1MuOpen");
+  MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/HLTRate_Muon");
 
-  float muonResult = 0;
+  float muonResult = -1;
 
   if(Muon_QHist){
     const QReport *Muon_QReport = Muon_QHist->getQReport("CompareHist_Shape");
