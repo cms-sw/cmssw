@@ -37,6 +37,7 @@ class CSCMakePTLUT : public edm::EDAnalyzer {
   CSCTFPtLUT* myTF;
   //bool writeLocalPhi, writeGlobalPhi, writeGlobalEta, 
   bool binary;
+  bool isBeamStart;
   int endcap, sector, station;
   edm::ParameterSet LUTparam;
 };

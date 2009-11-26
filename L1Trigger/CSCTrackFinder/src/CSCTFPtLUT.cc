@@ -47,7 +47,8 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 		       const L1MuTriggerScales* scales,
-		       const L1MuTriggerPtScale* ptScale )
+		       const L1MuTriggerPtScale* ptScale,
+		       bool isBeamStart)
   : trigger_scale( scales ),
     trigger_ptscale( ptScale ),
     ptMethods( ptScale )
@@ -73,6 +74,8 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
       readLUT();
       lut_read_in = true;
     }
+
+  isBeamStartConf = isBeamStart;
 }
 
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const
@@ -321,6 +324,22 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       if (rear_pt  < 5) rear_pt  = 5;
     }
 
+  // in order to match the pt assignement of the previous routine
+  if(isBeamStartConf && pt_method != 2) {
+    if(quality == 3 && mode == 5) {
+      
+      if (front_pt < 5) front_pt = 5;
+      if (rear_pt  < 5) rear_pt  = 5;
+    }
+
+    if(quality == 2 && mode > 7 && mode < 11) {
+      
+      if (front_pt < 5) front_pt = 5;
+      if (rear_pt  < 5) rear_pt  = 5;
+    }
+  }
+
+ 
   result.front_rank = front_pt | front_quality << 5;
   result.rear_rank  = rear_pt  | rear_quality << 5;
 
@@ -328,15 +347,15 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);
 
 
- /* if (mode == 1) { 
+  /*  if (mode == 1) { 
     std::cout << "F_pt: "      << front_pt      << std::endl;
     std::cout << "R_pt: "      << rear_pt       << std::endl;
     std::cout << "F_quality: " << front_quality << std::endl;
     std::cout << "R_quality: " << rear_quality  << std::endl;
     std::cout << "F_rank: " << std::hex << result.front_rank << std::endl;
     std::cout << "R_rank: " << std::hex << result.rear_rank  << std::endl;
-  }*/
-
+  }
+  */
   return result;
 }
 
@@ -365,6 +384,8 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
       break;
     case 5:
       quality = 1;
+      if (isBeamStartConf && eta >= 12) // eta > 2.1
+	quality = 3;
       break;
     case 6:
       if (eta>=3)
@@ -377,12 +398,18 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
       break;
     case 8:
       quality = 1;
+      if (isBeamStartConf && eta >= 12) // eta > 2.1
+	quality = 2;
       break;
     case 9:
       quality = 1;
+      if (isBeamStartConf && eta >= 12) // eta > 2.1
+	quality = 2;
       break;
     case 10:
       quality = 1;
+      if (isBeamStartConf && eta >= 12) // eta > 2.1
+	quality = 2;
       break;
     case 11:
       // single LCTs
