@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,6 +27,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -38,6 +41,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSet.h"
+
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
 //
 // class declaration
 //
@@ -58,6 +65,10 @@ class LargeEvents : public edm::EDFilter {
   edm::InputTag _collection;
   int _absthr;
   int _modthr;
+  bool _useQuality;
+  std::string _qualityLabel;
+  edm::ESHandle<SiStripQuality> _qualityHandle;
+  edm::ESWatcher<SiStripQualityRcd> _qualityWatcher;
 
 };
 
@@ -76,8 +87,9 @@ template <class T>
 LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig):
   _collection(iConfig.getParameter<edm::InputTag>("collectionName")),
   _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
-  _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold"))
-
+  _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
+  _useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
+  _qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel",""))
 {
    //now do what ever initialization is needed
 
@@ -105,6 +117,13 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   if( _useQuality) {
+     if(_qualityWatcher.check(iSetup)) {
+       iSetup.get<SiStripQualityRcd>().get(_qualityLabel,_qualityHandle);
+       LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
+     }
+   }
+
    Handle<T> digis;
    iEvent.getByLabel(_collection,digis);
 
@@ -112,10 +131,11 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int ndigitot = 0;
    for(typename T::const_iterator it = digis->begin();it!=digis->end();it++) {
 
-     if(_modthr < 0 || int(it->size()) < _modthr ) {
-       ndigitot += it->size();
+     if(!_useQuality || !_qualityHandle->IsModuleBad(it->detId()) ) {
+       if(_modthr < 0 || int(it->size()) < _modthr ) {
+	 ndigitot += it->size();
+       }
      }
-
    }
 
    if(ndigitot > _absthr) {
