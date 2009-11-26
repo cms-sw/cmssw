@@ -25,27 +25,37 @@ bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
   
   nEvents_++;
 
-  edm::Handle<DcsStatus> dcsStatus;
-  evt.getByLabel("DcsStatus", dcsStatus);
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  evt.getByLabel("scalersRawToDigi", dcsStatus);
   if (dcsStatus.isValid()) {
     if (detectorType_ == "pixel") {
-      if (dcsStatus->ready(DcsStatus::BPIX) && 
-	  dcsStatus->ready(DcsStatus::FPIX)) detectorOn_ = true;
-      else detectorOn_ = false;
+      if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 
+	  (*dcsStatus)[0].ready(DcsStatus::FPIX)) {
+	detectorOn_ = true;
+	nSelectedEvents_++;
+      } else detectorOn_ = false;
+      if ( verbose_ ) cout << " Total Events " << nEvents_ 
+			   << " Selected Events " << nSelectedEvents_ 
+			   << " DCS States : " << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) 
+			   << " FPix " << (*dcsStatus)[0].ready(DcsStatus::FPIX)
+			   << " Detector State " << detectorOn_<<  endl;           
     } else if (detectorType_ == "sistrip") {  
-      if (dcsStatus->ready(DcsStatus::TIBTID) &&
-	  dcsStatus->ready(DcsStatus::TOB) &&   
-	  dcsStatus->ready(DcsStatus::TECp) &&  
-	  dcsStatus->ready(DcsStatus::TECm)) detectorOn_ = true;     
-      else detectorOn_ = false;
+      if ((*dcsStatus)[0].ready(DcsStatus::TIBTID) &&
+	  (*dcsStatus)[0].ready(DcsStatus::TOB) &&   
+	  (*dcsStatus)[0].ready(DcsStatus::TECp) &&  
+	  (*dcsStatus)[0].ready(DcsStatus::TECm)) {
+        detectorOn_ = true;             
+	nSelectedEvents_++;
+      } else detectorOn_ = false;
+      if ( verbose_ ) cout << " Total Events " << nEvents_ 
+			   << " Selected Events " << nSelectedEvents_ 
+			   << " DCS States : " << " TEC- " << (*dcsStatus)[0].ready(DcsStatus::TECm) 
+			   << " TEC+ " << (*dcsStatus)[0].ready(DcsStatus::TECp)
+			   << " TIB/TID " << (*dcsStatus)[0].ready(DcsStatus::TIBTID) 
+			   << " TOB " << (*dcsStatus)[0].ready(DcsStatus::TOB)   
+			   << " Detector States " << detectorOn_<<  endl;      
     }
   }
-  if (detectorOn_) {
-    nSelectedEvents_++; 
-  } 
-  if ( verbose_ ) cout << " Total Events " << nEvents_ 
-                       << " Selected Events " << nSelectedEvents_ 
-                       << " Detector State " << detectorOn_<<  endl;
   return detectorOn_;
 }
 
