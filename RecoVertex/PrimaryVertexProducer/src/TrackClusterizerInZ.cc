@@ -509,9 +509,9 @@ TrackClusterizerInZ::clusterize0(const vector<reco::TransientTrack> & tracks)
 
   it++;
   for ( ; it != tks.end(); it++) {
-
     double zPrev = currentCluster.back().stateAtBeamLine().trackStateAtPCA().position().z();
     double zCurr = (*it).stateAtBeamLine().trackStateAtPCA().position().z();
+
     if ( abs(zCurr - zPrev) < zSeparation() ) {
       // close enough ? cluster together
       currentCluster.push_back(*it);
@@ -521,7 +521,7 @@ TrackClusterizerInZ::clusterize0(const vector<reco::TransientTrack> & tracks)
       clusters.push_back(currentCluster);
       currentCluster.clear();
       currentCluster.push_back(*it);
-      it++; if (it == tks.end()) break;
+      // it++; if (it == tks.end()) break;
     }
   }
 

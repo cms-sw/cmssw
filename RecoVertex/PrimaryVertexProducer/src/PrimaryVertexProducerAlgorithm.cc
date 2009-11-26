@@ -10,6 +10,7 @@
 #include <algorithm>
 
 using namespace reco;
+#define PV_EXTRA
 
 //
 // constructors and destructor
@@ -113,6 +114,10 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
   }
 
+#ifdef PV_EXTRA
+  vector<double> clusterz, selector, cputime;  double tfit=0;
+#endif
+
   // clusterize tracks in Z
   vector< vector<reco::TransientTrack> > clusters = 
     theTrackClusterizer.clusterize(seltks);
@@ -124,16 +129,16 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   for (vector< vector<reco::TransientTrack> >::const_iterator iclus
 	 = clusters.begin(); iclus != clusters.end(); iclus++) {
 
-    if(fVerbose){
-      cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" 
-	   << nclu << "  tracks" << (*iclus).size() << endl;
 
-      std::cout << "cluster tracks " << std::endl;
+    if(fVerbose){
+      cout << "PrimaryVertexProducerAlgorithm::vertices  cluster=" 
+	   << nclu << "  tracks=" << (*iclus).size() << endl;
     }
 
+    TransientVertex v;
     if( fUseBeamConstraint && validBS &&((*iclus).size()>1) ){
       if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-      TransientVertex v = theFitter->vertex(*iclus, beamSpot);
+      v = theFitter->vertex(*iclus, beamSpot);
       if (v.isValid()) pvCand.push_back(v);
 
       if (fVerbose){
@@ -151,7 +156,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     }else if((*iclus).size()>1){
       if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 
-      TransientVertex v = theFitter->vertex(*iclus); 
+      v = theFitter->vertex(*iclus); 
       if (v.isValid()) pvCand.push_back(v);
 
       if (fVerbose){
@@ -163,8 +168,23 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       cout <<  "cluster dropped" << endl;
     }
 
+#ifdef PV_EXTRA
+    cputime.push_back(tfit);
+    if(v.isValid()){
+      clusterz.push_back(v.position().z());
+      if(validBS){
+	selector.push_back(theVertexSelector(v,beamVertexState)? 1. : .0);
+      }else{
+	selector.push_back(-1);
+      }
+    }else{
+      clusterz.push_back(0);
+      selector.push_back(-2);
+    }
+#endif
 
     nclu++;
+
   }// end of cluster loop
 
 
@@ -178,7 +198,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
        ipv != pvCand.end(); ipv++) {
     if(fVerbose){
       cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
-	theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+	(validBS && theVertexSelector(*ipv,beamVertexState)) << "   z="  << ipv->position().z() << endl;
     }
     if (!validBS || theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
   }
@@ -186,6 +206,24 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   // sort vertices by pt**2  vertex (aka signal vertex tagging)
   sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
   
+
+#ifdef PV_EXTRA
+  // attach clusters as if they were vertices for test purposes
+  // first "vertex" has all selected tracks
+  GlobalError dummyError; // default constructor makes a zero matrix
+  GlobalPoint pos(beamVertexState.position().x(),beamVertexState.position().y(), beamVertexState.position().z()); 
+  pvs.push_back(TransientVertex(pos,dummyError, seltks, 0.,-1));
+
+  int iclu=0;
+  for (vector< vector<reco::TransientTrack> >::const_iterator iclus
+	 = clusters.begin(); iclus != clusters.end(); iclus++) {
+    GlobalPoint pos(selector[iclu],cputime[iclu],clusterz[iclu]); 
+    // selector: 1=accepted, 0=rejected, -1=no beamspot, -2=invalid (fit failed)
+    iclu++;
+    TransientVertex tv(pos, dummyError, *iclus, 0., -2);
+    pvs.push_back(tv);
+  }
+#endif
 
   return pvs;
   
