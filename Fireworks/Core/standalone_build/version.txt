@@ -1,1 +1,2 @@
-Loading cmsShow (version 3.4.f - beta)
+3.4.f - beta
+It works or we fix it for free!
