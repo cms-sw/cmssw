@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.16 2009/11/13 23:25:30 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.17 2009/11/14 10:56:16 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -207,6 +207,27 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   // Normalize PassPass and PassFail Matrices
   //////////////////////////////////////////////
+  vector<string> name;
+  name.push_back("Muon");
+  name.push_back("Egamma");
+  name.push_back("JetMET");
+  name.push_back("Rest");
+  name.push_back("Special");
+
+  string fullPathToME; 
+
+  for (unsigned int i=0;i<name.size();i++) {
+
+    fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+name[i]+"_PassPass";
+    v_ME_HLTPassPass_.push_back( dbe_->get(fullPathToME));
+    fullPathToME = "HLT/FourVector/PathsSummary/HLT Correlations/HLT_"+name[i]+"_PassPass_Normalized";
+    v_ME_HLTPassPass_Normalized_.push_back( dbe_->get(fullPathToME));
+    fullPathToME = "HLT/FourVector/PathsSummary/HLT Correlations/HLT_"+name[i]+"_Pass_Normalized_Any";
+    v_ME_HLTPass_Normalized_Any_.push_back( dbe_->get(fullPathToME));
+
+  }
+  normalizeHLTMatrix();
+  
 
   // Get PassPass
   TString pathToPassPassCorrelationME_ = pathsSummaryFolder_ + "HLTPassPass_Correlation";
@@ -218,6 +239,8 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   if(MEPassPass && MEPassFail) {
 
+    /*
+    */
     TH2F* MEHistPassFail = MEPassFail->getTH2F() ;
     TH2F* MEHistPassPass = MEPassPass->getTH2F() ;
 
@@ -697,5 +720,58 @@ void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
   
   }
 
+
+}
+
+void FourVectorHLTClient::normalizeHLTMatrix() {
+
+    
+  for (unsigned int i =0;i<v_ME_HLTPassPass_.size();i++) {
+
+    MonitorElement* ME_HLTPassPass_ = v_ME_HLTPassPass_[i]; 
+    MonitorElement* ME_HLTPassPass_Normalized_ = v_ME_HLTPassPass_Normalized_[i]; 
+    MonitorElement* ME_HLTPass_Normalized_Any_ = v_ME_HLTPass_Normalized_Any_[i]; 
+
+    if(!ME_HLTPassPass_ || !ME_HLTPassPass_Normalized_ || !ME_HLTPass_Normalized_Any_) return;
+
+    float passCount = 0;
+    unsigned int nBinsX = ME_HLTPassPass_->getTH2F()->GetNbinsX();
+    unsigned int nBinsY = ME_HLTPassPass_->getTH2F()->GetNbinsY();
+
+    for(unsigned int binX = 0; binX < nBinsX+1; binX++) {
+       
+      passCount = ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binX);
+
+
+      for(unsigned int binY = 0; binY < nBinsY+1; binY++) {
+
+        if(passCount != 0) {
+
+          // normalize each bin to number of passCount
+          float normalizedBinContentPassPass = (ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binY))/passCount;
+          //float normalizedBinContentPassFail = (ME_HLTPassFail_->getTH2F()->GetBinContent(binX,binY))/passCount;
+
+          ME_HLTPassPass_Normalized_->getTH2F()->SetBinContent(binX,binY,normalizedBinContentPassPass);
+          //ME_HLTPassFail_Normalized_->getTH2F()->SetBinContent(binX,binY,normalizedBinContentPassFail);
+
+          if(binX == nBinsX) {
+
+            ME_HLTPass_Normalized_Any_->getTH1F()->SetBinContent(binY,normalizedBinContentPassPass);
+
+          }
+
+        }
+        else {
+
+          ME_HLTPassPass_Normalized_->getTH2F()->SetBinContent(binX,binY,0);
+          //ME_HLTPassFail_Normalized_->getTH2F()->SetBinContent(binX,binY,0);
+
+        } // end if else
+     
+      } // end for binY
+
+    } // end for binX
+  
+  } // end for i
 
 }

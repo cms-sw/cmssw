@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.52 2009/11/13 23:25:30 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.53 2009/11/14 18:19:58 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -38,6 +38,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
+
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
      // this is the list of paths to look at.
@@ -103,6 +104,8 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   htDRMatch_  =iConfig.getUntrackedParameter<double>("htDRMatch",0.5); 
 
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
+
+  specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
   
 }
 
@@ -167,6 +170,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
    }
   }
+  triggerResults_ = triggerResults;
   TriggerNames triggerNames(*triggerResults);  
   int npath = triggerResults->size();
 
@@ -399,11 +403,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // Fill HLTPassed_Correlation Matrix bin (i,j) = (Any,Any)
   // --------------------------------------------------------
-  int anyBinNumber = h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->FindBin("Any");      
+  int anyBinNumber = ME_HLTPassPass_->getTH2F()->GetXaxis()->FindBin("Any HLT");      
   // any triger accepted
   if(triggerResults->accept()){
 
-    h_HLTPassPass_Correlation_->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+    ME_HLTPassPass_->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
 
   }
 
@@ -417,34 +421,57 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
     else btagMon = btagMuMon;
 
+    vector<string> name;
+    name.push_back("Muon");
+    name.push_back("Egamma");
+    name.push_back("JetMET");
+    name.push_back("Rest");
+    name.push_back("Special");
+    
+    string fullPathToME; 
+    
+    for (unsigned int i=0;i<name.size();i++) {
+    
+      fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+name[i]+"_PassPass";
+      MonitorElement* ME = dbe_->get(fullPathToME);
+      if(! ME) {  
+    
+        LogDebug("FourVectorHLTOnline") << " ME not valid although I gave full path" << endl;
+        continue;
+    
+      }
+      TH2F * hist = ME->getTH2F();
+      fillHLTMatrix(hist);
+    
+    }
 
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
-  
+
     // Fill HLTPassed_Correlation Matrix and HLTPassFail Matrix
     // --------------------------------------------------------
 
     if(triggerResults->accept(pathByIndex)){
   
-      int xBinNumber = h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
-      h_HLTPassPass_Correlation_->Fill(xBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
-      h_HLTPassPass_Correlation_->Fill(anyBinNumber-1,xBinNumber-1);//binNumber1 = 0 = first filter
+      int xBinNumber = ME_HLTPassPass_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
+      ME_HLTPassPass_->Fill(xBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+      ME_HLTPassPass_->Fill(anyBinNumber-1,xBinNumber-1);//binNumber1 = 0 = first filter
 
       for(PathInfoCollection::iterator y = hltPaths_.begin();
   	    y!= hltPaths_.end(); ++y ) {
   
-        int yBinNumber = h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->FindBin(y->getPath().c_str());      
+        int yBinNumber = ME_HLTPassPass_->getTH2F()->GetYaxis()->FindBin(y->getPath().c_str());      
 
         unsigned int crosspathByIndex = triggerNames.triggerIndex(y->getPath());
   
         if(triggerResults->accept(crosspathByIndex)){
   
-          h_HLTPassPass_Correlation_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
+          ME_HLTPassPass_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
   
         } // end if y path passed
   
         if(! triggerResults->accept(crosspathByIndex)){
   
-          h_HLTPassFail_Correlation_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
+          ME_HLTPassFail_->Fill(xBinNumber-1,yBinNumber-1);//binNumber1 = 0 = first filter
   
         } // end if y path did not pass
   
@@ -975,39 +1002,108 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     } // end else
 
 
+    vector<string> muonPaths;
+    vector<string> egammaPaths;
+    vector<string> jetmetPaths;
+    vector<string> restPaths;
+    // fill vectors of Muon, Egamma, JetMET, Rest, and Special paths
+    for(PathInfoCollection::iterator v = hltPaths_.begin();
+	  v!= hltPaths_.end(); ++v ) {
+
+      std::string pathName = v->getPath();
+      int objectType = v->getObjectType();
+
+      switch (objectType) {
+        case trigger::TriggerMuon :
+          muonPaths.push_back(pathName);
+          break;
+
+        case trigger::TriggerElectron :
+        case trigger::TriggerPhoton :
+          egammaPaths.push_back(pathName);
+          break;
+
+        case trigger::TriggerJet :
+        case trigger::TriggerMET :
+          jetmetPaths.push_back(pathName);
+          break;
+
+        default:
+          restPaths.push_back(pathName);
+      }
+
+    } // end for
+
+    setupHLTMatrix("Muon", muonPaths);
+
+    setupHLTMatrix("Egamma", egammaPaths);
+
+    setupHLTMatrix("JetMET", jetmetPaths);
+
+    setupHLTMatrix("Rest", restPaths);
+
+    setupHLTMatrix("Special", specialPaths_);
+
+
     // Trigger Correlation Matrix (2D histo)
     const unsigned int npaths = hltPaths_.size();
 
 
     TString pathsummary = TString("HLT/FourVector/PathsSummary");
+    TString pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations");
+
     dbe_->setCurrentFolder(pathsummary.Data());
 
     // book histograms, one bin per path
-    // add one bin for path "Any"
+    // add one bin for path "Any HLT"
     // npaths+1
-    h_HLTPassPass_Correlation_ = dbe_->book2D("HLTPassPass_Correlation",
+    ME_HLTPassPass_ = dbe_->book2D("HLTPassPass_Correlation",
                            "HLTPassPass_Correlation (x=Pass, y=Pass)",
                            npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
-    h_HLTPassFail_Correlation_ = dbe_->book2D("HLTPassFail_Correlation",
+    ME_HLTPassFail_ = dbe_->book2D("HLTPassFail_Correlation",
                            "HLTPassFail_Correlation (x=Pass, y=Fail)",
                            npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
 
+    // book histograms, one bin per path, only book, will be used by lient or in endLumiBlock
+    dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
+    ME_HLTPassPass_Normalized_ = dbe_->book2D("HLTPassPass_Normalized",
+                           "HLTPassPass (x=Pass, y=Pass) normalized to Xbin pass",
+                           npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
+    ME_HLTPassFail_Normalized_ = dbe_->book2D("HLTPassFail_Normalized",
+                           "HLTPassFail (x=Pass, y=Fail) normalized to Xbin pass",
+                           npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
+    ME_HLTPass_Normalized_Any_ = dbe_->book1D("HLTPass_Normalized_Any",
+                           "HLTPass normalized to Any HLT pass",
+                           npaths+1, -0.5, npaths+1-0.5);
+
+    v_ME_HLTPassPass_.push_back(ME_HLTPassPass_);
+    v_ME_HLTPassPass_Normalized_.push_back(ME_HLTPassPass_Normalized_);
+    v_ME_HLTPass_Normalized_Any_.push_back(ME_HLTPass_Normalized_Any_);
+
     for(unsigned int i = 0; i < npaths; i++){
 
-      h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
-      h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPassPass_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPassPass_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
-      h_HLTPassFail_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
-      h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPassFail_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPassFail_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
+      ME_HLTPassPass_Normalized_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+      ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
     }
 
     unsigned int i = npaths;
-    h_HLTPassPass_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
-    h_HLTPassPass_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
+    ME_HLTPassPass_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
+    ME_HLTPassPass_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
 
-    h_HLTPassFail_Correlation_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any");
-    h_HLTPassFail_Correlation_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any");
+    ME_HLTPassFail_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
+    ME_HLTPassFail_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
+
+    ME_HLTPassPass_Normalized_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
+    ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
+    ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
 
 
     // now set up all of the histos for each path
@@ -1415,3 +1511,90 @@ void FourVectorHLTOffline::cleanDRMatchSet(mmset& tempSet)
 
 }
 
+void FourVectorHLTOffline::setupHLTMatrix(std::string name, vector<std::string> & paths) {
+
+    paths.push_back("Any HLT");
+
+    TString pathsummary = TString("HLT/FourVector/PathsSummary");
+    TString pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations");
+
+    string h_name; 
+    string h_title; 
+
+    dbe_->setCurrentFolder(pathsummary.Data());
+    h_name= "HLT_"+name+"_PassPass";
+    h_title = "HLT_"+name+"_PassPass (x=Pass, y=Pass)";
+    MonitorElement* ME = dbe_->book2D(h_name.c_str(), h_title.c_str(),
+                           paths.size(), -0.5, paths.size()-0.5, paths.size(), -0.5, paths.size()-0.5);
+
+    dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
+    h_name= "HLT_"+name+"_PassPass_Normalized";
+    h_title = "HLT_"+name+"_PassPass (x=Pass, y=Pass) normalized to xBin=Pass";
+    MonitorElement* ME_Normalized = dbe_->book2D(h_name.c_str(), h_title.c_str(),
+                           paths.size(), -0.5, paths.size()-0.5, paths.size(), -0.5, paths.size()-0.5);
+    h_name= "HLT_"+name+"_Pass_Normalized_Any";
+    h_title = "HLT_"+name+"_Pass (x=Pass, Any=Pass) normalized to Any HLT Pass";
+    MonitorElement* ME_Normalized_Any = dbe_->book1D(h_name.c_str(), h_title.c_str(),
+                           paths.size(), -0.5, paths.size()-0.5);
+
+    for(unsigned int i = 0; i < paths.size(); i++){
+
+      ME->getTH2F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME->getTH2F()->GetYaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+
+      ME_Normalized->getTH2F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME_Normalized->getTH2F()->GetYaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME_Normalized_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+
+    }
+
+}
+
+void FourVectorHLTOffline::fillHLTMatrix(TH2F* hist) {
+
+   TriggerNames triggerNames(*triggerResults_);
+
+  // Fill HLTPassed Matrix bin (i,j) = (Any,Any)
+  // --------------------------------------------------------
+  int anyBinNumber = hist->GetXaxis()->FindBin("Any HLT");      
+  // any triger accepted
+  if(triggerResults_->accept()){
+
+    hist->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+
+  }
+
+
+  // Main loop over paths
+  // --------------------
+  for (int i=1; i< hist->GetNbinsX();i++) { 
+
+    unsigned int pathByIndex = triggerNames.triggerIndex(hist->GetXaxis()->GetBinLabel(i));
+    if(pathByIndex >= triggerResults_->size() ) continue;
+  
+    // Fill HLTPassed Matrix and HLTPassFail Matrix
+    // --------------------------------------------------------
+
+    if(triggerResults_->accept(pathByIndex)){
+  
+      hist->Fill(i-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+      hist->Fill(anyBinNumber-1,i-1);//binNumber1 = 0 = first filter
+
+      for (int j=1; j< hist->GetNbinsY();j++) {
+  
+        unsigned int crosspathByIndex = triggerNames.triggerIndex(hist->GetXaxis()->GetBinLabel(j));
+  
+        if(triggerResults_->accept(crosspathByIndex)){
+  
+          hist->Fill(i-1,j-1);//binNumber1 = 0 = first filter
+  
+        } // end if j path passed
+  
+      } // end for j 
+  
+    } // end if i passed
+
+  } // end for i
+
+
+}

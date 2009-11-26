@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.5 2009/03/27 22:19:33 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.6 2009/06/12 12:56:47 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -61,6 +61,8 @@ protected:
   /// Endjob
   void endJob();
 
+  void normalizeHLTMatrix();
+
 private:
 
   void initialize();
@@ -81,6 +83,10 @@ private:
   //TObjArray* hltPathNameColl; // duplicate of the above, more robust
   std::vector<MonitorElement*> hltMEs;
 	std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+
+  std::vector<MonitorElement*> v_ME_HLTPassPass_;
+  std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
+  std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
 
   int counterLS_;      ///counter
   int counterEvt_;     ///counter

@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.33 2009/11/04 15:20:35 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.34 2009/11/10 10:12:08 rekovic Exp $
 //
 //
 
@@ -117,6 +117,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
+      void fillHLTMatrix(TH2F* hist);
+      void setupHLTMatrix(std::string name, vector<std::string> & paths);
 
 
       // ----------member data --------------------------- 
@@ -124,8 +126,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       DQMStore * dbe_;
 
       MonitorElement* total_;
-      MonitorElement* h_HLTPassPass_Correlation_;
-      MonitorElement* h_HLTPassFail_Correlation_;
+      MonitorElement* ME_HLTPassPass_;
+      MonitorElement* ME_HLTPassPass_Normalized_;
+      MonitorElement* ME_HLTPass_Normalized_Any_;
+      MonitorElement* ME_HLTPassFail_;
+      MonitorElement* ME_HLTPassFail_Normalized_;
+
+      std::vector<MonitorElement*> v_ME_HLTPassPass_;
+      std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
+      std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
 
       bool plotAll_;
       bool resetMe_;
@@ -169,6 +178,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
 
+      std::vector<std::string> specialPaths_;
+
       std::string dirname_;
       std::string processname_;
       std::string muonRecoCollectionName_;
@@ -180,6 +191,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // data across paths
       MonitorElement* scalersSelect;
       // helper class to store the data path
+
+      edm::Handle<edm::TriggerResults> triggerResults_;
 
       class PathInfo {
 
