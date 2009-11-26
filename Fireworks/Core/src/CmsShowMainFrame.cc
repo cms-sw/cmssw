@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.76 2009/11/25 10:50:08 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.74 2009/11/24 21:18:14 amraktad Exp $
 //
 // hacks
 #define private public
@@ -128,7 +128,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->setToolTip("Play events");
    playEventsBack->setToolTip("Play events backwards");
 
-   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 18);
+   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 28);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -158,7 +158,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
@@ -173,7 +173,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));  
 
    colorset->createMenuEntry(viewMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
@@ -195,7 +195,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    loop->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
    showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
@@ -204,7 +204,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
 
@@ -399,15 +399,22 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    //  logo
-   TGVerticalFrame* parentLogoFrame = new TGVerticalFrame(fullbar,  110, 74,  kFixedWidth);
-   parentLogoFrame->SetBackgroundColor(backgroundColor);
+   {
+      TGVerticalFrame* parentLogoFrame = new TGVerticalFrame(fullbar, 70, 53, kFixedSize); 
+      parentLogoFrame->SetBackgroundColor(backgroundColor);
+      fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight| kLHintsCenterY, 0, 0, 0 ));
 
-   TGVerticalFrame* logoFrame = new TGVerticalFrame(parentLogoFrame, 92, 64, kFixedSize);
-   TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMS-Fireworks.png");
-   logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-   parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight, 5, 10, 9, 0));
-
-   fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight));
+      TGVerticalFrame* logoFrame = new TGVerticalFrame(parentLogoFrame, 53, 53, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMSRedOnBlackThick.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 17, 0, 0));
+   }
+   {
+      TGVerticalFrame* logoFrame = new TGVerticalFrame(menuBar, 61, 23, kFixedSize);
+      TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      menuBar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
+   }
   
    /**************************************************************************/
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
