@@ -128,7 +128,7 @@ class CSCALCTHeader {
   boost::dynamic_bitset<> pack();
 
   /// tests that we unpack what we packed
-  static void selfTest();  
+  static void selfTest(int firmware);  
 
  private:
   CSCALCTHeader2006 header2006;
