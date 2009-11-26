@@ -112,9 +112,9 @@ void DQMOfflineHLTEventInfoClient::initialize(){
   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+  /*
+  */
   
-
-      
 }
 
 //--------------------------------------------------------
@@ -151,6 +151,7 @@ void DQMOfflineHLTEventInfoClient::beginJob(const EventSetup& context){
   //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
 
+  //  OK HERE
 
   // reportSummaryMap
   dbe_->setCurrentFolder("HLT/EventInfo");
@@ -166,7 +167,7 @@ void DQMOfflineHLTEventInfoClient::beginJob(const EventSetup& context){
   reportSummaryMap_->setAxisTitle("", 2);
   reportSummaryMap_->setBinLabel(1,"Muon",2);
   reportSummaryMap_->setBinLabel(2,"Electron",2);
-  reportSummaryMap_->setBinLabel(2,"Electron",2);
+  reportSummaryMap_->setBinLabel(3,"Photon",2);
   reportSummaryMap_->setBinLabel(4,"JetMET",2);
   reportSummaryMap_->setBinLabel(5,"BJet",2);
   reportSummaryMap_->setBinLabel(6,"Tau",2);
@@ -184,7 +185,7 @@ void DQMOfflineHLTEventInfoClient::beginJob(const EventSetup& context){
   CertificationSummaryMap_->setAxisTitle("", 2);
   CertificationSummaryMap_->setBinLabel(1,"Muon",2);
   CertificationSummaryMap_->setBinLabel(2,"Electron",2);
-  CertificationSummaryMap_->setBinLabel(2,"Electron",2);
+  CertificationSummaryMap_->setBinLabel(3,"Photon",2);
   CertificationSummaryMap_->setBinLabel(4,"JetMET",2);
   CertificationSummaryMap_->setBinLabel(5,"BJet",2);
   CertificationSummaryMap_->setBinLabel(6,"Tau",2);
@@ -241,22 +242,38 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   }
 
 
-  if(nSubsystems) {
+  if(nSubsystems > 0) {
     reportSummary = summarySum / nSubsystems;;
+  }
+  else {
+    reportSummary = 1;
   }
 
   reportSummary_->Fill(reportSummary);
   CertificationSummary_->Fill(reportSummary);
 
+  float muonValue = 1;
+  if(HLT_Muon) muonValue = HLT_Muon->getFloatValue();
 
-  reportSummaryMap_->setBinContent(1,1,HLT_Muon->getFloatValue());//Muon
-  reportSummaryMap_->setBinContent(1,2,HLT_Electron->getFloatValue());//Electron
-  reportSummaryMap_->setBinContent(1,3,HLT_Photon->getFloatValue());//Photon
+  float electronValue = 1;
+  if(HLT_Electron) electronValue = HLT_Electron->getFloatValue();
 
-  dbe_->setCurrentFolder("HLT/EventInfo/CertificationSummaryContents");
-  CertificationSummaryMap_->setBinContent(1,1,HLT_Muon->getFloatValue());//Muon
-  CertificationSummaryMap_->setBinContent(1,2,HLT_Electron->getFloatValue());//Electron
-  CertificationSummaryMap_->setBinContent(1,3,HLT_Photon->getFloatValue());//Photon
+  float photonValue = 1;
+  if(HLT_Photon) photonValue = HLT_Photon->getFloatValue();
+
+  reportSummaryMap_->setBinContent(1,1,muonValue);//Muon
+  reportSummaryMap_->setBinContent(1,2,electronValue);//Electron
+  reportSummaryMap_->setBinContent(1,3,photonValue);//Photon
+  reportSummaryMap_->setBinContent(1,4,1);//JetMET
+  reportSummaryMap_->setBinContent(1,5,1);//BJet
+  reportSummaryMap_->setBinContent(1,6,1);//Tau
+
+  CertificationSummaryMap_->setBinContent(1,1,muonValue);//Muon
+  CertificationSummaryMap_->setBinContent(1,2,electronValue);//Electron
+  CertificationSummaryMap_->setBinContent(1,3,photonValue);//Photon
+  CertificationSummaryMap_->setBinContent(1,4,1);//JetMET
+  CertificationSummaryMap_->setBinContent(1,5,1);//BJet
+  CertificationSummaryMap_->setBinContent(1,6,1);//Tau
 }
 
 //--------------------------------------------------------
