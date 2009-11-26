@@ -1217,7 +1217,7 @@
         <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EEClusterTask/EECLT BC energy projection R EE *">
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC energy projection eta EE *">
         <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1225,7 +1225,7 @@
         <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EEClusterTask/EECLT BC ET projection R EE *">
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC ET projection eta EE *">
         <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1248,7 +1248,7 @@
         <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EEClusterTask/EECLT BC number projection R EE *">
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC number projection eta EE *">
         <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1256,7 +1256,7 @@
         <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EEClusterTask/EECLT BC size projection R EE *">
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC size projection eta EE *">
         <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
