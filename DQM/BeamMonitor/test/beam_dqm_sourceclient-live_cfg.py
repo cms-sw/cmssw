@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Beam Monitor")
+process = cms.Process("BeamMonitor")
 
 #----------------------------
 # Event Source
