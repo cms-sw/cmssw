@@ -5,10 +5,10 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               fitEveryNLumi = cms.untracked.int32(2),
                               resetEveryNLumi = cms.untracked.int32(20),
-                              Debug = cms.untracked.bool(True),
+                              Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
-        			TrackCollection = cms.untracked.InputTag('generalTracks'), ## ctfWithMaterialTracksP5 for CRAFT
+        			TrackCollection = cms.untracked.InputTag('generalTracks'),
 				IsMuonCollection = cms.untracked.bool(False),
                                 WriteAscii = cms.untracked.bool(False),
                                 AsciiFileName = cms.untracked.string('BeamFit.txt'),
@@ -28,13 +28,13 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                                 MinimumInputTracks = cms.untracked.int32(100),
 				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
-                              dxBin = cms.int32(200),
-                              dxMin = cms.double(-1.0),
-                              dxMax = cms.double(1.0),
+                              dxBin = cms.int32(400),
+                              dxMin = cms.double(-2.0),
+                              dxMax = cms.double(2.0),
                               
-                              vxBin = cms.int32(100),
-                              vxMin = cms.double(-.1),
-                              vxMax = cms.double(.1),
+                              vxBin = cms.int32(500),
+                              vxMin = cms.double(-1.0),
+                              vxMax = cms.double(1.0),
                               
                               dzBin = cms.int32(80),
                               dzMin = cms.double(-20),

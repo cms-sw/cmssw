@@ -18,27 +18,27 @@ dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
                                 MaximumEta = cms.untracked.double(2.4),
 				MaximumImpactParameter = cms.untracked.double(5),
                                 MaximumZ = cms.untracked.double(60),
-                                MinimumTotalLayers = cms.untracked.int32(8),
+                                MinimumTotalLayers = cms.untracked.int32(6),
                                 MinimumPixelLayers = cms.untracked.int32(0),
                                 MaximumNormChi2 = cms.untracked.double(5.0),
                                 TrackAlgorithm = cms.untracked.vstring(), ## ctf,rs,cosmics,iter0,iter1...; for all algos, leave it blank
                                 TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
 			        InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 				FractionOfFittedTrks = cms.untracked.double(0.9),
-                                MinimumInputTracks = cms.untracked.int32(100),
+                                MinimumInputTracks = cms.untracked.int32(80),
 				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
-                              dxBin = cms.int32(200),
-                              dxMin = cms.double(-1.0),
-                              dxMax = cms.double(1.0),
+                              dxBin = cms.int32(400),
+                              dxMin = cms.double(-2.0),
+                              dxMax = cms.double(2.0),
                               
-                              vxBin = cms.int32(100),
-                              vxMin = cms.double(-.1),
-                              vxMax = cms.double(.1),
+                              vxBin = cms.int32(500),
+                              vxMin = cms.double(-1.0),
+                              vxMax = cms.double(1.0),
                               
-                              dzBin = cms.int32(80),
-                              dzMin = cms.double(-20),
-                              dzMax = cms.double(20),
+                              dzBin = cms.int32(120),
+                              dzMin = cms.double(-60),
+                              dzMax = cms.double(60),
                               
                               phiBin = cms.int32(63),
                               phiMin = cms.double(-3.15),
