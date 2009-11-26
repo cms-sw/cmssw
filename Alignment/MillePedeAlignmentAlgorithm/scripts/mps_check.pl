@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.20 $ by $Author: parenti $
-#     $Date: 2009/09/07 14:56:39 $
+#     $Revision: 1.21 $ by $Author: parenti $
+#     $Date: 2009/10/19 14:33:12 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -43,6 +43,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $emptyDatErr = 0;
   $emptyDatOnFarm = 0;
   $cmdNotFound = 0;
+  $insuffPriv = 0;
 
   $pedeLogErrStr = "";
   $pedeLogWrnStr = "";
@@ -66,6 +67,8 @@ for ($i=0; $i<@JOBID; ++$i) {
       if (($line =~ m/ConfigFileReadError/) eq 1)  { $cfgerr = 1; }
       if (($line =~ m/0 bytes transferred/) eq 1)  { $emptyDatOnFarm = 1; }
       if (($line =~ m/command not found/) eq 1)  { $cmdNotFound = 1; }
+# AP 26.11.2009 Insufficient privileges to rfcp files
+      if (($line =~ m/stage_put: Insufficient user privileges/) eq 1)  { $insuffPriv = 1; }
 
     }
     close STDFILE;
@@ -268,6 +271,11 @@ for ($i=0; $i<@JOBID; ++$i) {
 	$remark = "cmd not found";
 	$okStatus = "FAIL";
     }
+    if ($insuffPriv eq 1) {
+        print "@JOBDIR[$i] @JOBID[$i] Insufficient privileges to rfcp files\n";
+        $remark = "Could not rfcp files";
+        $okStatus = "FAIL";
+    }
 
     if ($pedeAbend eq 1) {
 	print "@JOBDIR[$i] @JOBID[$i] Pede did not end normally\n";
@@ -291,7 +299,6 @@ for ($i=0; $i<@JOBID; ++$i) {
 	$remark = "job not ended";
 	$okStatus = "FAIL";
     }
-
 
     # print warning line to stdout
     if ($okStatus ne "OK") {
