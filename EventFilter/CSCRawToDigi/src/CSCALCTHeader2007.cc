@@ -21,6 +21,7 @@ CSCALCTHeader2007::CSCALCTHeader2007()
 {
   bzero(this,  sizeInWords()*2); ///size of 2007 header w/o variable parts = 16 bytes
   flag1 = 0xDB0A;
+  reserved1 = reserved2 = reserved3 = 0xD;
   rawBins = 16;
   lctBins = 8;
 }
@@ -30,6 +31,7 @@ CSCALCTHeader2007::CSCALCTHeader2007(int chamberType)  {
   // things that depend on chamber type
   int boardTypes[11] = {0, 2, 2, 3, 1, 6, 3, 5, 3, 5, 3};
   flag1 = 0xDB0A;
+  reserved1 = reserved2 = reserved3 = 0xD;
   boardType = boardTypes[chamberType];
   //FIXME how do BXes work?  Dump other raw data
   // shows rawBins=16lctBins=8 or rawbins=0, lctBins=1
