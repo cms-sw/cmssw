@@ -23,18 +23,43 @@
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+
+
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
+//#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTFedMask.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 using std::vector;
 
+
 #include <iostream>
 using std::cout;
 using std::endl;
-
+const int crateFED[18][5]=
+  
+    {{613, 614, 603, 702, 718},
+    {611, 612, 602, 700, 718},
+    {627, 610, 601,716,   722},
+    {625, 626, 609, 714, 722},
+    {623, 624, 608, 712, 722},
+    {621, 622, 607, 710, 720},
+    {619, 620, 606, 708, 720},
+    {617, 618, 605, 706, 720},
+    {615, 616, 604, 704, 718},
+    {631, 632, 648, 703, 719},
+    {629, 630, 647, 701, 719},
+    {645, 628, 646, 717, 723},
+    {643, 644, 654, 715, 723},
+    {641, 642, 653, 713, 723},
+    {639, 640, 652, 711, 721},
+    {637, 638, 651, 709, 721},
+    {635, 636, 650, 707, 721},
+    {633, 634, 649, 705, 719}};
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rctLookupTables(new L1RCTLookupTables),
   rct(new L1RCT(rctLookupTables)),
@@ -47,6 +72,9 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
+
+ 
+
 }
 
 L1RCTProducer::~L1RCTProducer()
@@ -75,8 +103,120 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   // list of RCT channels to mask
   edm::ESHandle<L1RCTChannelMask> channelMask;
   eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
-  const L1RCTChannelMask* c = channelMask.product();
+  const L1RCTChannelMask* cEs = channelMask.product();
   
+  L1RCTChannelMask* c = new L1RCTChannelMask();
+  // copy a constant object
+   for (int i = 0; i < 18; i++)
+     {
+       for (int j = 0; j < 2; j++)
+	 {
+	   for (int k = 0; k < 28; k++)
+	     {
+	       c->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
+	       c->hcalMask[i][j][k] =cEs->hcalMask[i][j][k] ;
+	     }
+	   for (int k = 0; k < 4; k++)
+	     {
+	       c->hfMask[i][j][k] = cEs->hfMask[i][j][k];
+	     }
+	 }
+     }
+
+
+  // adding fed mask into channel mask
+  edm::ESHandle<RunInfo> sum;
+  eventSetup.get<RunInfoRcd>().get(sum);
+  const RunInfo* summary=sum.product();
+
+
+  vector<int> caloFeds;  // pare down the feds to the intresting ones
+  // is this unneccesary?
+  const vector<int> Feds = summary->m_fed_in;
+  for(vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
+    int fedNum = *cf;
+    if(fedNum > 600 && fedNum <724) 
+      caloFeds.push_back(fedNum);
+  }
+
+  for(int  cr = 0; cr < 18; ++cr){
+    for(crateSection cs = c_min; cs <= c_max; cs = crateSection(cs +1)) {
+      bool fedFound = false;
+      for(vector<int>::iterator fv = caloFeds.begin(); fv != caloFeds.end(); ++fv) {
+	if(crateFED[cr][cs] == *fv){
+	  fedFound = true;
+	  break;
+	}
+      }
+      if(!fedFound) {
+	int eta_min, eta_max;
+	bool phi_even[2] = {false};//, phi_odd = false;
+	bool ecal;
+	
+	switch (cs) {
+	case ebEvenFed :
+	  eta_min = minBarrel;
+	  eta_max = maxBarrel;
+	  phi_even[0] = true;
+	  ecal = true;	
+	  break;
+	  
+	case ebOddFed:
+	  eta_min = minBarrel;
+	  eta_max = maxBarrel;
+	  phi_even[1] = true;
+	  ecal = true;	
+	  break;
+	  
+	case eeFed:
+	  eta_min = minEndcap;
+	  eta_max = maxEndcap;
+	  phi_even[0] = true;
+	  phi_even[1] = true;
+	  ecal = true;	
+	  break;	
+	  
+	case hbheFed:
+	  eta_min = minBarrel;
+	  eta_max = maxEndcap;
+	  phi_even[0] = true;
+	  phi_even[1] = true;
+	  ecal = false;
+	  break;
+
+	case hfFed:	
+	  eta_min = minHF;
+	  eta_max = maxHF;
+
+	  phi_even[0] = true;
+	  phi_even[1] = true;
+	  ecal = false;
+	  break;
+	default:
+	  break;
+
+	}
+	for(int ieta = eta_min; ieta <= eta_max; ++ieta){
+	  if(ieta<=28) // barrel and endcap
+	    for(int even = 0; even<=1 ; even++){	 
+	      if(phi_even[even]){
+		if(ecal)
+		  c->ecalMask[cr][even][ieta-1] = true;
+		else
+		  c->hcalMask[cr][even][ieta-1] = true;
+	      }
+	    }
+	  else
+	    for(int even = 0; even<=1 ; even++)
+	      if(phi_even[even])
+		  c->hfMask[cr][even][ieta-29] = true;
+	
+	}
+      }
+    }
+  }
+
+
   // energy scale to convert eGamma output
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
