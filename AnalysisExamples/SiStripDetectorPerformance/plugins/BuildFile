@@ -19,8 +19,6 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 
-<use name=CommonTools/SiStripZeroSuppression>
-
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 
