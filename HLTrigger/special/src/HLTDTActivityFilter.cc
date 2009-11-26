@@ -2,10 +2,10 @@
 //
 // Package:    HLTDTActivityFilter
 // Class:      HLTDTActivityFilter
-// 
+//
 /**\class HLTDTActivityFilter HLTDTActivityFilter.cc filter/HLTDTActivityFilter/src/HLTDTActivityFilter.cc
 
-Description: 
+Description:
 
 Implementation:
 <Notes on implementation>
@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.1 2009/08/21 08:11:23 bdahmes Exp $
+// $Id: HLTDTActivityFilter.cc,v 1.1 2009/11/26 16:02:14 goys Exp $
 //
 //
 
@@ -30,8 +30,8 @@ Implementation:
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 
 //
@@ -39,19 +39,19 @@ Implementation:
 //
 HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) {
 
-  inputDCC_    = iConfig.getParameter<edm::InputTag>("inputDCC") ;   
-  inputDDU_    = iConfig.getParameter<edm::InputTag>("inputDDU") ;   
-  inputDigis_  = iConfig.getParameter<edm::InputTag>("inputDigis") ;   
-  processDCC_     = iConfig.getParameter<bool>("processDCC") ;
-  processDDU_     = iConfig.getParameter<bool>("processDDU") ;
-  processDigis_   = iConfig.getParameter<bool>("processDigis") ;
-  processingMode_ = iConfig.getParameter<int>("processingMode") ;
-  minQual_        = iConfig.getParameter<int>("minQual");
-  maxStation_     = iConfig.getParameter<int>("maxStation");
-  minChambLayers_ = iConfig.getParameter<int>("minChamberLayers");
-  minBX_      = iConfig.getParameter<int>("minDDUBX");
-  maxBX_      = iConfig.getParameter<int>("maxDDUBX");
-  minActiveChambs_ = iConfig.getParameter<int>("minActiveChambs");
+  inputDCC_         = iConfig.getParameter<edm::InputTag>("inputDCC");
+  inputDDU_         = iConfig.getParameter<edm::InputTag>("inputDDU");
+  inputDigis_       = iConfig.getParameter<edm::InputTag>("inputDigis");
+  processDCC_       = iConfig.getParameter<bool>("processDCC");
+  processDDU_       = iConfig.getParameter<bool>("processDDU");
+  processDigis_     = iConfig.getParameter<bool>("processDigis");
+  processingMode_   = iConfig.getParameter<int>("processingMode");
+  minQual_          = iConfig.getParameter<int>("minQual");
+  maxStation_       = iConfig.getParameter<int>("maxStation");
+  minChambLayers_   = iConfig.getParameter<int>("minChamberLayers");
+  minBX_            = iConfig.getParameter<int>("minDDUBX");
+  maxBX_            = iConfig.getParameter<int>("maxDDUBX");
+  minActiveChambs_  = iConfig.getParameter<int>("minActiveChambs");
 
 }
 
@@ -81,12 +81,12 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
 
     int nPrimitives=0;
-    for(; iph !=iphe ; ++iph) { 
+    for(; iph !=iphe ; ++iph) {
       int qual = iph->code();
       nPrimitives += (iph->stNum()<=maxStation_ && qual>=minQual_ && qual<7);
       if (nPrimitives>=minActiveChambs_) { goodDCC=true; break; }
     }
-  } 
+  }
 
   bool goodDDU(false);
   if (processDDU_) {
@@ -111,20 +111,20 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   bool goodDigis(false);
   if (processDigis_) {
-    
+
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByLabel(inputDigis_, dtdigis);
     std::map<uint32_t,int> hitMap;
     int activeChambDigis = 0;
     DTDigiCollection::DigiRangeIterator dtLayerIdIt;
- 
+
     for (dtLayerIdIt=dtdigis->begin(); dtLayerIdIt!=dtdigis->end(); dtLayerIdIt++) {
       DTChamberId chId = ((*dtLayerIdIt).first).chamberId();
       uint32_t rawId = chId.rawId();
       int station = chId.station();
       if (station<=maxStation_) {
 	if (hitMap.find(rawId)!=hitMap.end()) {
-	  hitMap[rawId]++; 
+	  hitMap[rawId]++;
 	} else {
 	  hitMap[rawId]=1;
 	}
@@ -137,7 +137,7 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
     }
-    
+
   }
 
 
