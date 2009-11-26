@@ -151,7 +151,7 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
    if (m_globalEventList)
       m_globalEventList->Reset();
    else
-      m_globalEventList = new TEventList;
+      m_globalEventList = new FWTEventList;
 
    for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
    {
@@ -245,13 +245,9 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
       }
    }
 
-   {
-      // Avoid bug in root where reseting of TEventList can lead to illegal
-      // memory access. This happens in the Draw() below.
-      // Fixed on 25.7.2009, rev 29582 -- so can be removed when 5.26 or later is used.
-      TEventList *el = (TEventList*) gDirectory->Get("fworks_filter");
-      if (el) delete el;
-   }
+   FWTEventList *flist = (FWTEventList*) gDirectory->Get("fworks_filter");
+   if (flist == 0)
+      flist = new FWTEventList("fworks_filter");
 
    Int_t result = m_eventTree->Draw(">>fworks_filter", interpretedSelection.c_str());
    
@@ -260,9 +256,9 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
       if (filter->m_eventList)
          filter->m_eventList->Reset();
       else
-         filter->m_eventList = new TEventList;
-      TEventList *el = (TEventList*) gDirectory->Get("fworks_filter");
-      filter->m_eventList->Add(el);
+         filter->m_eventList = new FWTEventList;
+
+      filter->m_eventList->Add(flist);
       
       //  std::cout << Form("File: %s, selection: %s, number of events passed the selection: %d",
       //                 m_file->GetName(), filter->m_selector->m_expression.c_str(), el->GetN()) << std::endl;      
@@ -358,10 +354,9 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    if (filterEntry->m_eventList)
       filterEntry->m_eventList->Reset();
    else
-       filterEntry->m_eventList = new TEventList();
-   TEventList* list = filterEntry->m_eventList;
+       filterEntry->m_eventList = new FWTEventList();
+   FWTEventList* list = filterEntry->m_eventList;
 
-   
    // loop over events
    edm::EventID currentEvent = m_event->id();
    unsigned int iEvent = 0;

@@ -4,23 +4,23 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.5 2009/11/21 13:11:02 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.6 2009/11/23 19:09:31 amraktad Exp $
 //
 
 // system include files
 #include <string>
 #include <sigc++/sigc++.h>
 
-#include "TEventList.h"
 #include "TTree.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
+#include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
-class TEventList;
+class FWTEventList;
 class CSGAction;
 class CmsShowMain;
 class TFile;
@@ -35,7 +35,7 @@ class FWFileEntry {
 public:
    struct Filter
    {
-      TEventList*        m_eventList;
+      FWTEventList*        m_eventList;
       FWEventSelector*   m_selector;  // owned by navigator
       bool               m_needsUpdate;
       
@@ -52,7 +52,7 @@ public:
    TFile*         file()  { return m_file; }
    fwlite::Event* event() { return m_event; }
    TTree*         tree()  { return m_eventTree; }
-   TEventList*    globalSelection() { return m_globalEventList; }
+   FWTEventList*    globalSelection() { return m_globalEventList; }
    
    std::list<Filter*>& filters() { return m_filterEntries; }
    
@@ -93,6 +93,6 @@ private:
    bool                   m_filtersNeedUpdate; // To be set in navigator::filterChanged/Added, newFile
    
    std::list<Filter*>     m_filterEntries;
-   TEventList*            m_globalEventList;
+   FWTEventList*            m_globalEventList;
 };
 #endif
