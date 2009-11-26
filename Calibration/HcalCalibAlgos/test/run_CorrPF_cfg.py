@@ -2,11 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HcalPFCorrsCulculation")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Calibration.HcalCalibAlgos.HcalCorrPFCalculation_cfi")
-process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
+#process.load("Calibration.HcalCalibAlgos.HcalCorrPFCalculation_cfi")
+#process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(20)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 
 process.source = cms.Source("PoolSource",
@@ -18,20 +21,13 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(2000)
 )
 
-process.hcalRecoAnalyzer = cms.EDFilter("HcalCorrPFCalculation",
-    outputFile = cms.untracked.string('HcalCorrPF.root'),
-    eventype = cms.untracked.string('single'),
-    mc = cms.untracked.string('yes'),
-    sign = cms.untracked.string('*'),
-    hcalselector = cms.untracked.string('all'),
-#    RespcorrAdd = cms.untracked.bool(True),
-#    PFcorrAdd = cms.untracked.bool(True),
-    ConeRadiusCm = cms.untracked.double(30.),
-    ecalselector = cms.untracked.string('yes')
-)
+process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
+#process.hcalRecoAnalyzer.outputFile = cms.untracked.string("HcalCorrPF.root")
+#process.hcalRecoAnalyzer.ConeRadiusCm = cms.untracked.double(30.)
+
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
