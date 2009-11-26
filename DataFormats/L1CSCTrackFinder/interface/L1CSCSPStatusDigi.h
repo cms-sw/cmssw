@@ -37,8 +37,8 @@ public:
 	unsigned long  VPs (void) const throw() { return vp; }
 	unsigned short link(int link) const throw() { return link_status[link]; }
 
-	unsigned long track_counter(void){ return track_cnt; }
-	unsigned long orbit_counter(void){ return orbit_cnt; }
+	unsigned long track_counter(void) const throw() { return track_cnt; }
+	unsigned long orbit_counter(void) const throw() { return orbit_cnt; }
 
 	L1CSCSPStatusDigi(void){ bzero(this,sizeof(L1CSCSPStatusDigi)); }
 	~L1CSCSPStatusDigi(void){}
