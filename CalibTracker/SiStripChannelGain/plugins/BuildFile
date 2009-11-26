@@ -1,4 +1,3 @@
-<use name=CommonTools/ConditionDBWriter>
 <use name=DQMServices/Core>
 
 
