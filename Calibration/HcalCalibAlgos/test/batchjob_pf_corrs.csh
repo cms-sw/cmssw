@@ -15,7 +15,7 @@ cd Calibration/HcalCalibAlgos/test
 set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_4/src/Calibration/HcalCalibAlgos/data
 
 # if you want to validate your own calibration, copy it to data/ from your local place: 
-cp $respcorrdir/calibConst_IsoTrk_testCone_26.3cm.txt ../data/response_corrections.txt
+#cp $respcorrdir/calibConst_IsoTrk_testCone_26.3cm.txt ../data/response_corrections.txt
 
 cat > pfcorrs.py <<@EOF
 
@@ -23,8 +23,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HcalPFCorrsCulculation")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Calibration.HcalCalibAlgos.HcalCorrPFCalculation_cfi")
-process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
@@ -43,18 +44,10 @@ fileNames = cms.untracked.vstring(
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(True)
 )
+process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
+process.hcalRecoAnalyzer.outputFile = cms.untracked.string("HcalCorrPF_${1}.root")
+process.hcalRecoAnalyzer.ConeRadiusCm = cms.untracked.double(30.)
 
-process.hcalRecoAnalyzer = cms.EDFilter("HcalCorrPFCalculation",
-    outputFile = cms.untracked.string('HcalCorrPF_${1}.root'),
-    eventype = cms.untracked.string('single'),
-    mc = cms.untracked.string('yes'),
-    sign = cms.untracked.string('*'),
-    hcalselector = cms.untracked.string('all'),
-#    RespcorrAdd = cms.untracked.bool(True),
-#    PFcorrAdd = cms.untracked.bool(True),
-    ConeRadiusCm = cms.untracked.double(30),
-    ecalselector = cms.untracked.string('yes')
-)
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
