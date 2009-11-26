@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.61 2009/11/23 19:54:32 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.62 2009/11/23 20:07:10 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -16,7 +16,6 @@
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
-#include "TEventList.h"
 #include "TError.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
@@ -27,6 +26,7 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -41,6 +41,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_filterModeOR(true),
 
    m_filtersNeedUpdate(),
+   m_newFileOnNextEvent(false),
 
    m_maxNumberOfFilesToChain(1),
 
@@ -94,7 +95,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
 }
 
 bool
-CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
+CmsShowNavigator::appendFile(const std::string& fileName, bool live)
 {
    try
    {
@@ -104,17 +105,27 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
          delete newFile;
          return false; //bad file
       }
-
-      unsigned int nFilesKeep = checkMaxFileSize ? (m_maxNumberOfFilesToChain + 1) : 1;
-      // remove extra files
-      while ( m_files.size() > 0 && m_files.size() >= nFilesKeep &&
-              m_files.begin() != m_currentFile)
+      
+      if (live)
       {
-         FWFileEntry* file = m_files.front();
-         file->closeFile();
-         delete file;
-         m_files.pop_front();
+         m_newFileOnNextEvent = true;          
       }
+      else
+      {
+         int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
+         while (toErase > 0)
+         {
+            FileQueue_i si = m_files.begin(); si++;
+            FWFileEntry* file = *si;
+            file->closeFile();
+            delete file;
+            
+            m_files.erase(si);
+            --toErase;
+         }
+      }
+      
+      printf("file size %d \n", (int)m_files.size());
 
       if (m_files.size() >= m_maxNumberOfFilesToChain)
          printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
@@ -240,6 +251,21 @@ CmsShowNavigator::nextSelectedEvent()
 void
 CmsShowNavigator::nextEvent()
 {
+   if (m_newFileOnNextEvent)
+   {
+      while ( m_files.size() > 1 )
+      {
+         FWFileEntry* file = m_files.front();
+         m_files.pop_front();
+         file->closeFile();
+         delete file;
+      }
+      setCurrentFile(m_files.begin());
+      firstEvent();
+      m_newFileOnNextEvent = false;
+      return;
+   }
+   
    if (m_filterState == kOn)
    {
       nextSelectedEvent();
@@ -345,6 +371,7 @@ CmsShowNavigator::toggleFilterEnable()
 void
 CmsShowNavigator::withdrawFilter()
 {
+   printf("WITHDRAW \n");
    m_filterState = kWithdrawn;
    filterStateChanged_.emit(m_filterState);
 }

@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.36 2009/11/21 13:11:15 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.37 2009/11/23 14:53:43 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
    enum EFilterState { kOff, kOn, kWithdrawn };
    
 private:
-   typedef std::deque<FWFileEntry*> FQBase_t;
+   typedef std::list<FWFileEntry*> FQBase_t;
    typedef FQBase_t::iterator       FQBase_i;
 
 
@@ -77,8 +77,6 @@ public:
    void setFrom(const FWConfiguration&);
 
    Int_t realEntry(Int_t rawEntry);
-   std::pair<std::deque<FWFileEntry*>::iterator,Int_t> realEntry(Int_t run, Int_t event);
-
    bool openFile(const std::string& fileName);
    bool appendFile(const std::string& fileName, bool checkMaxFileSize);
 
@@ -147,6 +145,7 @@ private:
    EFilterState m_filterState;
    bool m_filterModeOR;
    bool m_filtersNeedUpdate;
+   bool m_newFileOnNextEvent;
    
    unsigned int m_maxNumberOfFilesToChain;
    // entry is an event index nubmer which runs from 0 to
