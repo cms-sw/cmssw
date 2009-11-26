@@ -8,7 +8,7 @@
 </QTEST>
 
 <LINK name="*Ratio_HLT_L1MuOpen">
-        <TestName activate="true">CompareHist_Shape</TestName>
+        <TestName activate="false">CompareHist_Shape</TestName>
 </LINK>
 
 </TESTSCONFIGURATION>
