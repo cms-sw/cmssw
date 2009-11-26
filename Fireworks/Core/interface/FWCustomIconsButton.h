@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:30 EDT 2008
-// $Id: FWCustomIconsButton.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWCustomIconsButton.h,v 1.4 2009/11/23 14:53:40 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,11 @@ public:
    void setIcons(const TGPicture* iUpIcon,
                  const TGPicture* iDownIcon,
                  const TGPicture* iDisabledIcon);
-   
+
+   const TGPicture* upIcon() const { return m_upIcon; }
+   const TGPicture* downIcon() const { return m_downIcon; }
+   const TGPicture* disabledIcon() const { return m_disabledIcon; }
+
 protected:
    virtual void DoRedraw();
 private:
