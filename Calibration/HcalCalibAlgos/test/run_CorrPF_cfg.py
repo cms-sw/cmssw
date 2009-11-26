@@ -6,12 +6,19 @@ process.load("Calibration.HcalCalibAlgos.HcalCorrPFCalculation_cfi")
 process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(20)
 
-process.PoolSource.fileNames = ['rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_1.root']
+
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+#'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_3.root',
+'/store/user/andrey/SinglePion_50GeV_314/SinglePion_50GeV_314/0d8aafd1bbf7b6158b7a4e52f0fb00b6/SinglePion_50GeV_314_9.root',
+
+    )
+)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 process.hcalRecoAnalyzer = cms.EDFilter("HcalCorrPFCalculation",

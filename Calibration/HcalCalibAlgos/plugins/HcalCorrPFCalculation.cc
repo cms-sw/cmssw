@@ -88,6 +88,7 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
   bool        famos_;
   double        radius_;
 
+  Bool_t doHF;
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
 
@@ -128,6 +129,7 @@ std::vector<int>    csub;
   MagneticField *theMagField;
 
   TProfile *nCells, *nCellsNoise, *enHcal, *enHcalNoise;
+  TProfile *enEcal;
   TFile *rootFile;
 
   TrackDetectorAssociator trackAssociator_;
@@ -260,6 +262,7 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
   enHcal = new TProfile("enHcal", "enHcal", 83, -41.5, 41.5); 
   enHcalNoise = new TProfile("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
   
+  enEcal = new TProfile("enEcal", "enEcal", 83, -41.5, 41.5); 
   
   
   edm::ESHandle<MagneticField> bField;
@@ -286,10 +289,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   using namespace edm;
   
-  GlobalPoint barrelMC(0,0,0);
-  GlobalPoint endcapMC(0,0,0);
-  GlobalPoint forwardMC1(0,0,0);
-  GlobalPoint forwardMC2(0,0,0);
+  //  GlobalPoint barrelMC(0,0,0);
+  //GlobalPoint endcapMC(0,0,0);
+  //GlobalPoint forwardMC1(0,0,0);
+  //GlobalPoint forwardMC2(0,0,0);
   
   //  double eta_bin[42]={0.,.087,.174,.261,.348,.435,.522,.609,.696,.783,
   //.870,.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,
@@ -330,17 +333,14 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   
   // cuts for each subdet_ector mimiking  "Scheme B"
-  //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8; 
+  //  float cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8; 
   
   // energy in HCAL
   // double eHcal        = 0.;
   // Total numbet of RecHits in HCAL, in the cone, above 1 GeV theshold
-  int nrechits       = 0;
-  int nrechitsThresh = 0;
+  //int nrechits       = 0;
+  //int nrechitsThresh = 0;
   
-  // energy in ECAL
-  double eEcalCone   = 0.;
-  int numrechitsEcal = 0;
   
   // MC info 
   double phi_MC = -999999.;  // phi of initial particle from HepMC
@@ -349,10 +349,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   bool MC = false;
   
   // HCAL energy around MC eta-phi at all depths;
-  double partR = 0.3;
+  //double partR = 0.3;
   
   // Cone size for serach of the hottest HCAL cell around MC
-  double searchR = 1.0; 
+  //double searchR = 1.0; 
   
 
   // Single particle samples: actual eta-phi position of cluster around
@@ -404,7 +404,28 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       TrackDetMatchInfo info = trackAssociator_.associate(ev, c, *freetrajectorystate_ , parameters_);
       // TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
+
+      float etahcal=info.trkGlobPosAtHcal.eta();
+      float phihcal=info.trkGlobPosAtHcal.phi();
+
+      float etaecal=info.trkGlobPosAtEcal.eta();
+      float phiecal=info.trkGlobPosAtEcal.phi();
       
+      
+      xTrkEcal=info.trkGlobPosAtEcal.x();
+      yTrkEcal=info.trkGlobPosAtEcal.y();
+      zTrkEcal=info.trkGlobPosAtEcal.z();
+      
+      xTrkHcal=info.trkGlobPosAtHcal.x();
+      yTrkHcal=info.trkGlobPosAtHcal.y();
+      zTrkHcal=info.trkGlobPosAtHcal.z();
+      
+      GlobalPoint gPointHcal(xTrkHcal,yTrkHcal,zTrkHcal);
+      
+      GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
+      
+      if (etahcal>2.6) doHF = kTRUE;
+  
       
       
       edm::Handle<HBHERecHitCollection> hbhe;
@@ -427,25 +448,15 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       
       
-      float etahcal=info.trkGlobPosAtHcal.eta();
-      float phihcal=info.trkGlobPosAtHcal.phi();
+      // energy in ECAL
+      double eEcalCone   = 0.;
+      int numrechitsEcal = 0;
       
-      
-      xTrkEcal=info.trkGlobPosAtEcal.x();
-      yTrkEcal=info.trkGlobPosAtEcal.y();
-      zTrkEcal=info.trkGlobPosAtEcal.z();
-      
-      xTrkHcal=info.trkGlobPosAtHcal.x();
-      yTrkHcal=info.trkGlobPosAtHcal.y();
-      zTrkHcal=info.trkGlobPosAtHcal.z();
-      
-      GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
-      
-      
+      //Hcal:
       float HcalCone    = 0.;
-      // float HcalConeNoise    = 0.;
+      float HcalConeNoise    = 0.;
       int UsedCells = 0;
-      //int UsedCellsNoise = 0;
+      int UsedCellsNoise = 0;
       
       float dddeta = 1000.;
       float dddphi = 1000.;
@@ -453,7 +464,31 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       int ietatrue = 1234;
       
       
+      for (EcalRecHitCollection::const_iterator ehit=Hitecal.begin(); ehit!=Hitecal.end(); ehit++)	
+	{
+	  
+	  GlobalPoint pos = geo->getPosition(ehit->detid());
+	  //double phihit = pos.phi();
+	  //double etahit = pos.eta();
+	 
+	  //double dphi = fabs(phiecal - phihit); 
+	  //if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  //double deta = fabs(etaecal - etahit); 
+	  //double dr = sqrt(dphi*dphi + deta*deta);
+
+	  // if (dr < rmin) {
+	  //  econus = econus + (*ehit).energy();
+	  //}
+
+	  float dr =  getDistInPlaneSimple(gPointEcal,pos);
+	
+	  if (dr < 10.) eEcalCone += ehit->energy();
+
+	}
+      enEcal -> Fill(etaecal, eEcalCone);
+
       Float_t recal = 1.0;
+
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
@@ -466,14 +501,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  float enehit = hhit->energy()* recal;
 	  //HcalSubdetector sd = (hhit->id()).subdet();
 	  
-	  //int iphiNoise = iphihit>36 ? iphihit-36 : iphihit+36;
-	  //HcalDetId noiseid = HcalDetId(sd, ietahit, iphiNoise, ihitdepth);
-	  
-	  //GlobalPoint posNoise = geo->getPosition(noiseid);
-	  //float eneNoise = noiseid
-	  
-	  //if (depthhit!=1) continue;
-	  
+		  
 	  //float dphi = fabs(phihcal - phihit); 
 	  //if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	  //float deta = fabs(etahcal - etahit); 
@@ -496,15 +524,31 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    dddphi=dphi;
 	  }
 	  
-	  dr =  getDistInPlaneSimple(gP,pos);
+	  dr =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(dr<26.3) 
+	  if(dr<radius_ && enehit>0.5) 
 	    
 	    {
 	      
 	      HcalCone += enehit;	    
-	      //HcalCone += enehit;	    
+	      UsedCells++;
+
 	      //cout<<"IN CONE ieta: "<<ietahitm<<"  iphi: "<<iphihitm<<" depthhit: "<<depthhit<<"  dr: "<<dr<<" energy: "<<enehit<<endl;        
+
+	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
+		{
+		  
+		  int  iphihitNoise = (hhit2->id()).iphi();
+		  int ietahitNoise = (hhit2->id()).ieta();
+		  int depthhitNoise = (hhit2->id()).depth();
+		  //float enehitNoise = hhi2
+		  iphihitNoise = iphihitNoise >36 ? iphihitNoise-36 : iphihitNoise+36;
+		  if (iphihitNoise==iphihit && ietahitNoise == ietahit && depthhitNoise == depthhit)
+		    {
+		      HcalConeNoise += hhit2->energy()*recal;
+		      UsedCellsNoise++;
+		    }
+		}
 	      
 	      //Find a Hit with Maximum Energy
 	      /*
@@ -521,15 +565,76 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  }
 	} //end of all HBHE hits cycle
       
+
+
+      if(doHF){
+	for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end(); hhit++) 
+	{
+	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  float phihit = pos.phi();
+	  float etahit = pos.eta();
+	  
+	  int iphihit  = (hhit->id()).iphi();
+	  int ietahit  = (hhit->id()).ieta();
+	  int depthhit = (hhit->id()).depth();
+	  float enehit = hhit->energy()* recal;
+	  
+	  double dphi = fabs(info.trkGlobPosAtHcal.phi() - phihit); 
+	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  double deta = fabs(info.trkGlobPosAtHcal.eta() - etahit); 
+	  double dr = sqrt(dphi*dphi + deta*deta);
+	  
+	  if (deta<dddeta) {
+	    ietatrue = ietahit;
+	    dddeta=deta;
+	  }
+	  
+	  if (dphi<dddphi) {
+	    iphitrue = iphihit;
+	    dddphi=dphi;
+	  }
+	  
+	  dr =  getDistInPlaneSimple(gPointHcal,pos);
+	  
+	  if(dr<radius_ && enehit>0.5) 
+	    
+	    {
+	      
+	      HcalCone += enehit;	    
+	      UsedCells++;
+
+
+	      for (HFRecHitCollection::const_iterator hhit2=Hithf.begin(); hhit2!=Hithf.end(); hhit2++) 
+		{
+		  
+		  int  iphihitNoise = (hhit2->id()).iphi();
+		  int ietahitNoise = (hhit2->id()).ieta();
+		  int depthhitNoise = (hhit2->id()).depth();
+		  //float enehitNoise = hhi2
+		  iphihitNoise = iphihitNoise >36 ? iphihitNoise-36 : iphihitNoise+36;
+		  if (iphihitNoise==iphihit && ietahitNoise == ietahit && depthhitNoise == depthhit)
+		    {
+		      HcalConeNoise += hhit2->energy()*recal;
+		      UsedCellsNoise++;
+		    }
+		}
+	      
+	    }
+	} //end of all HF hits cycle
+      } //end of doHF
+
+
       Bool_t passCuts = kFALSE;
-      passCuts=kTRUE; 
-      // if(emEnergy < energyECALmip && MaxHit.hitenergy > 0.) passCuts = kTRUE;
-      
-      enHcal -> Fill(ietatrue,  HcalCone);
-      //nCells -> Fill(MC_ieta,  UsedCells);
-      //enHcalNoise -> Fill(-MC_ieta,  HcalConeNoise);
-      //nCellsNoise -> Fill(-MC_ieta,  UsedCellsNoise); 
-      
+      //passCuts=kTRUE; 
+      if(eEcalCone < 0.5) passCuts = kTRUE;
+
+      if(passCuts)
+	{
+	  enHcal -> Fill(ietatrue,  HcalCone);
+	  nCells -> Fill(ietatrue,  UsedCells);
+	  enHcalNoise -> Fill(ietatrue,  HcalConeNoise);
+	  nCellsNoise -> Fill(ietatrue,  UsedCellsNoise); 
+	}
       
       
       
