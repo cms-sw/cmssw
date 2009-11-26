@@ -22,10 +22,14 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 # GlobalTrackingGeometryRecord
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/246E6DD9-B299-DD11-987C-000423D6B2D8.root')
+#    fileNames = 
+#cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/246E6DD9-B299-DD11-987C-000423D6B2D8.root')
+
+      fileNames = cms.untracked.vstring('/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/bit40or41skim.root')
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(11))
+
 
 process.cVRAnalysis = cms.EDFilter("CVRAnalysis",
     trackcoll = cms.string('generalTracks'),
