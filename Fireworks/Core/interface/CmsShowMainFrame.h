@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.31 2009/11/21 13:11:19 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.32 2009/11/23 14:53:42 amraktad Exp $
 //
 
 // system include files
@@ -90,7 +90,9 @@ public:
    }
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
-   
+
+   void showFWorksInfo();
+
 protected:
    FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
@@ -116,6 +118,7 @@ private:
    CSGAction *m_goToFirst;
    CSGAction *m_goToLast;
    CSGAction *m_playDelay;
+   CSGAction *m_fworksInfo;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
    CSGContinuousAction *m_loopAction;

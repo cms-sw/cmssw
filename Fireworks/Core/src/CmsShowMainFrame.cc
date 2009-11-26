@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.74 2009/11/24 21:18:14 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.78 2009/11/26 17:54:34 amraktad Exp $
 //
 // hacks
 #define private public
@@ -38,6 +38,7 @@
 #include <TGTextEntry.h>
 #include <TG3DLine.h>
 #include <TGSlider.h>
+#include <TGMsgBox.h>
 
 #include <TSystem.h>
 #include <TImage.h>
@@ -54,6 +55,9 @@
 
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+
+#include <fstream>
+
 //
 // constants, enums and typedefs
 //
@@ -128,10 +132,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->setToolTip("Play events");
    playEventsBack->setToolTip("Play events backwards");
 
-   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 28);
+   TGCompositeFrame *menuTopFrame = new TGCompositeFrame(this, 1, 1, kHorizontalFrame, backgroundColor);
+
+   TGMenuBar *menuBar = new TGMenuBar(menuTopFrame, this->GetWidth(), 28, kHorizontalFrame);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
@@ -215,11 +221,17 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    while ((title = (TGMenuTitle *)next()))
       title->SetTextColor(textColor);
 
-   AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
-   
+   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   AddFrame(menuTopFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+
+   // !!!! MT Line separating menu from other window components.
+   // I would even remove it and squeeze the navigation buttons up.
+   AddFrame(new TGFrame(this, 1, 1, kChildFrame, 0x503020),
+            new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
+   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0, backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
 
@@ -410,10 +422,16 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 17, 0, 0));
    }
    {
-      TGVerticalFrame* logoFrame = new TGVerticalFrame(menuBar, 61, 23, kFixedSize);
-      TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
-      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-      menuBar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
+      TGCompositeFrame *logoFrame = new TGCompositeFrame(this, 61, 23, kFixedSize | kHorizontalFrame, backgroundColor);
+      FWCustomIconsButton *infoBut =
+         new FWCustomIconsButton(logoFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-green.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"));
+      logoFrame->AddFrame(infoBut);
+      infoBut->Connect("Clicked()", "CmsShowMainFrame", this, "showFWorksInfo()");
+      //TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
+      //logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      menuTopFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
    }
   
    /**************************************************************************/
@@ -641,4 +659,22 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt
    label->SetTextColor(txtCol);
    lframe->AddFrame(label,     new TGLayoutHints(kLHintsRight | kLHintsBottom));
    p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
+}
+
+void
+CmsShowMainFrame::showFWorksInfo()
+{
+  TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/standalone_build/version.txt");
+  gSystem->ExpandPathName(infoFileName);
+
+  ifstream infoFile(infoFileName);
+  TString infoText;
+  infoText.ReadFile(infoFile);
+  infoFile.close();
+
+  // Bummer destroys TGPictore on close -- so we make it a new one.
+  new TGMsgBox(gClient->GetDefaultRoot(), this,
+               "About Fireworks", infoText,
+               new TGPicture(*((FWCustomIconsButton*)gTQSender)->disabledIcon()),
+               kMBOk);
 }
