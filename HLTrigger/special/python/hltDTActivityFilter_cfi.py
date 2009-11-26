@@ -16,5 +16,5 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
    minQual          = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH
    minDDUBX         = cms.int32( 9 ),
    maxDDUBX         = cms.int32( 14 ),
-   minActiveChamb   = cms.int32( 1 )
+   minActiveChambs  = cms.int32( 1 )
 )
