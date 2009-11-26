@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/06/24 15:26:58 $
- ** $Revision: 1.9 $
+ ** $Date: 2009/03/06 12:42:16 $
+ ** $Revision: 1.10 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -62,34 +62,34 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
 
       TProfile* effEta_;
       TProfile* effPhi_;
-
-      TH1F* h1_scE_;
-      TH1F* h1_scEt_;
+      
       TH1F* h1_scEta_;
-      TH1F* h1_scPhi_;
       TH1F* h1_deltaEtaSC_;
-      TH1F* h1_deltaPhiSC_ ;
-
-
-      TH1F* h1_e5x5_unconvBarrel_;
-      TH1F* h1_e5x5_unconvEndcap_;
-      TH1F* h1_ePho_convBarrel_;
-      TH1F* h1_ePho_convEndcap_;
-
-
-      TH1F* h1_recEoverTrueEBarrel_ ;
-      TH1F* h1_recEoverTrueEEndcap_ ;
-      TH1F* h1_recESCoverTrueEBarrel_ ;
-      TH1F* h1_recESCoverTrueEEndcap_ ;
-      TH1F* h1_deltaEta_;
-      TH1F* h1_deltaPhi_ ;
-
-
       TH1F* h1_pho_E_;
+      TH1F* h1_pho_Et_;
       TH1F* h1_pho_Eta_;
       TH1F* h1_pho_Phi_;
       TH1F* h1_pho_R9Barrel_;
       TH1F* h1_pho_R9Endcap_;
+      TH1F* h1_pho_sigmaIetaIetaBarrel_;
+      TH1F* h1_pho_sigmaIetaIetaEndcap_;
+      TH1F* h1_pho_hOverEBarrel_;
+      TH1F* h1_pho_hOverEEndcap_;
+      TH1F* h1_pho_ecalIsoBarrel_;
+      TH1F* h1_pho_ecalIsoEndcap_;
+      TH1F* h1_pho_hcalIsoBarrel_;
+      TH1F* h1_pho_hcalIsoEndcap_;
+      TH1F* h1_pho_trkIsoBarrel_;
+      TH1F* h1_pho_trkIsoEndcap_;
+
+
+
+      TH1F* h1_recEoverTrueEBarrel_ ;
+      TH1F* h1_recEoverTrueEEndcap_ ;
+      TH1F* h1_deltaEta_;
+      TH1F* h1_deltaPhi_ ;
+
+
 
 
 
