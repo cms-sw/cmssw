@@ -5,7 +5,7 @@
 //
 // Package:     Electrons
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.h,v 1.2 2009/10/08 17:40:04 amraktad Exp $
+// $Id: FWMuonDetailView.h,v 1.3 2009/10/27 19:25:03 amraktad Exp $
 //
 
 // user include files
@@ -25,7 +25,10 @@ private:
    FWMuonDetailView(const FWMuonDetailView&); // stop default
    const FWMuonDetailView& operator=(const FWMuonDetailView&); // stop default
 
-   void makeLegend(const reco::Muon *muon, const FWModelId& id, TCanvas* textCanvas);
+   double makeLegend(double x0, 
+		     double y0, 
+		     const reco::Muon *muon, 
+		     const FWModelId& id);
    void addInfo(const reco::Muon *i, TEveElementList* tList);
 
    TGLViewer*    m_viewer;

@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.18 2009/10/28 10:28:13 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.19 2009/10/31 22:38:28 chrjones Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -55,7 +55,6 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
    setEveWindow(eveWindow);
    m_viewer = viewer->GetGLViewer();
-   makeLegend(iMuon, id, canvas);
 
    double eta = iMuon->eta();
    double phi = iMuon->phi();
@@ -67,6 +66,10 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
 
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
                                    eta, phi, 10);
+   canvas->cd();
+   double y = makeLegend(0.02,0.95,iMuon,id);
+   builder.makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
+
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iMuon->isEnergyValid() ) {
       std::vector<DetId> ids;
@@ -98,19 +101,17 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    gEve->Redraw3D();
 }
 
-void
-FWMuonDetailView::makeLegend(const reco::Muon *muon,
-				 const FWModelId& id,
-				 TCanvas* textCanvas)
+double
+FWMuonDetailView::makeLegend( double x0, double y0,
+			      const reco::Muon *muon,
+			      const FWModelId& id )
 {
-   textCanvas->cd();
-
    TLatex* latex = new TLatex(0.02, 0.970, "");
    const double textsize(0.05);
    latex->SetTextSize(2*textsize);
 
-   float_t x = 0.02;
-   float   y = 0.95;
+   float_t x = x0;
+   float   y = y0;
    float fontsize = latex->GetTextSize()*0.6;
 
    latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
@@ -128,7 +129,7 @@ FWMuonDetailView::makeLegend(const reco::Muon *muon,
      latex->DrawLatex(x, y, " charge = -1");
    y -= fontsize;
 
-   if (! muon->isEnergyValid() ) return;
+   if (! muon->isEnergyValid() ) return y;
    // delta phi/eta in
    latex->DrawLatex(x, y, "ECAL energy in:");
    y -= fontsize;
@@ -140,6 +141,7 @@ FWMuonDetailView::makeLegend(const reco::Muon *muon,
    y -= fontsize;
    latex->DrawLatex(x, y,  Form(" 5x5 crystall shape = %.3f",
 				muon->calEnergy().emS25) );
+   return y;
 }
 
 void
@@ -150,29 +152,31 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
    bool barrel = fabs(i->eta())<1.5;
    if ( i->isEnergyValid() ) barrel = fabs(i->calEnergy().ecal_position.eta()) < 1.5;
 
-   TEvePointSet *direction = new TEvePointSet("muon direction");
+   Double_t x(0), y(0);
+   Double_t delta(0.01);
+   TEveStraightLineSet *direction = new TEveStraightLineSet("Direction at vertex");
+   direction->SetPickable(kTRUE);
    direction->SetTitle("Muon direction at vertex");
    direction->SetPickable(kTRUE);
-   direction->SetMarkerStyle(2);
    if (barrel) {
-      direction->SetNextPoint(i->eta(), i->phi(), 0);
-      direction->SetMarkerSize(0.01);
+     x = i->eta();
+     y = i->phi();
    }else{
-      direction->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()),
-			      310*fabs(tan(i->theta()))*sin(i->phi()),
-			      0);
-      direction->SetMarkerSize(1);
+     x = 310*fabs(tan(i->theta()))*cos(i->phi());
+     y = 310*fabs(tan(i->theta()))*sin(i->phi());
    }
-   direction->SetMarkerColor(kYellow);
+   direction->AddLine(x-delta,y-delta,0,x+delta,y+delta,0);
+   direction->AddLine(x-delta,y+delta,0,x+delta,y-delta,0);
+   direction->SetLineColor(kYellow);
+   direction->SetDepthTest(kFALSE);
    tList->AddElement(direction);
 
    if (! i->isEnergyValid() ) return;
 
    // ecal position
-   Double_t x(0), y(0);
-   TEvePointSet *ecalposition = new TEvePointSet("ecal position");
+   TEveStraightLineSet *ecalposition = new TEveStraightLineSet("ecal position");
    ecalposition->SetPickable(kTRUE);
-   ecalposition->SetTitle("Track position at ECAL surface");
+   ecalposition->SetTitle("Muon position at ECAL surface");
    if ( barrel ) {
       x = i->calEnergy().ecal_position.eta();
       y = i->calEnergy().ecal_position.phi();
@@ -180,28 +184,31 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
       x = i->calEnergy().ecal_position.x();
       y = i->calEnergy().ecal_position.y();
    }
-   ecalposition->SetNextPoint(x,y,0);
-   ecalposition->SetMarkerSize(1);
-   ecalposition->SetMarkerStyle(4);
-   ecalposition->SetMarkerColor(kRed);
+   ecalposition->AddLine(x-delta,y,0,x+delta,y,0);
+   ecalposition->AddLine(x,y-delta,0,x,y+delta,0);
+   ecalposition->AddLine(x,y,0-delta,x,y,0+delta);
+   ecalposition->SetLineColor(kRed);
+   ecalposition->SetLineWidth(2);
+   ecalposition->SetDepthTest(kFALSE);
    tList->AddElement(ecalposition);
 
    // hcal position
-   TEvePointSet *hcalposition = new TEvePointSet("hcal position");
-   hcalposition->SetTitle("Track position at HCAL surface");
+   TEveStraightLineSet *hcalposition = new TEveStraightLineSet("hcal position");
    hcalposition->SetPickable(kTRUE);
+   hcalposition->SetTitle("Muon position at HCAL surface");
    if ( barrel ) {
       x = i->calEnergy().hcal_position.eta();
       y = i->calEnergy().hcal_position.phi();
-      hcalposition->SetMarkerSize(0.01);
    } else {
       x = i->calEnergy().hcal_position.x();
       y = i->calEnergy().hcal_position.y();
-      hcalposition->SetMarkerSize(1);
    }
-   hcalposition->SetNextPoint(x, y, 0);
-   hcalposition->SetMarkerStyle(2);
-   hcalposition->SetMarkerColor(kRed);
+   hcalposition->AddLine(x-delta,y,0,x+delta,y,0);
+   hcalposition->AddLine(x,y-delta,0,x,y+delta,0);
+   hcalposition->AddLine(x,y,0-delta,x,y,0+delta);
+   hcalposition->SetLineColor(kBlue);
+   hcalposition->SetLineWidth(2);
+   hcalposition->SetDepthTest(kFALSE);
    tList->AddElement(hcalposition);
 
    // draw a line connecting the two positions
@@ -223,6 +230,7 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
 		     0);
    }
    lines->SetLineColor(kRed);
+   lines->SetDepthTest(kFALSE);
    tList->AddElement(lines);
 }
 
