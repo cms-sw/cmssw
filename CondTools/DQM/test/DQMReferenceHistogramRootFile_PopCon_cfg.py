@@ -8,7 +8,8 @@ process.MessageLogger=cms.Service("MessageLogger",
                                   )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('sqlite_file:ROOTFILE_Test.db')
+process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_31X_DQM_SUMMARY')
+process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/build/diguida/conddb')
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(1) #3 for high verbosity
 
@@ -23,10 +24,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('FileBlob'),
-                                                                     tag = cms.string('ROOTFILE_Test') 
+                                                                     tag = cms.string('DQM_Cosmics_prompt') 
                                                                      )
                                                             ),
-                                          logconnect = cms.untracked.string('sqlite_file:ROOTFILE_TestLog.db')                                     
+                                          logconnect = cms.untracked.string('oracle://cms_orcoff_prep/CMS_COND_31X_POPCONLOG')                                     
                                           )
 
 process.dqmReferenceHistogramRootFileTest = cms.EDAnalyzer("DQMReferenceHistogramRootFilePopConAnalyzer",

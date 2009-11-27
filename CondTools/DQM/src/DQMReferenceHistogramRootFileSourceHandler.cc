@@ -65,7 +65,7 @@ namespace popcon {
       }
     edm::LogInfo("DQMReferenceHistogramRootFileSourceHandler") 
       << "[DQMReferenceHistogramRootFileSourceHandler::getNewObjects] " << m_name << " getting data to be transferred "  << std::endl;
-    GeometryFile* rootFile = new GeometryFile(m_file,m_zip);
+    FileBlob* rootFile = new FileBlob(m_file,m_zip);
     /*if(!this->tagInfo().size)
       m_since=1;
     else
