@@ -129,7 +129,7 @@ class CosmicClusterAlgo
   
   // take the crystals in the current_v and build 
   // them into a BasicCluster
-  void makeCluster(const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
+  void makeCluster(const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p, DetId seedId);
 
    
  };
