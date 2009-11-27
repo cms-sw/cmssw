@@ -7,7 +7,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include <iostream>
 #include <algorithm>
@@ -96,28 +95,8 @@ int main(){
     add(41,"pay3");
     pooldb.transaction().commit();
     std::string iovtok=editor.token();
-    ///test iterator
-    // forward
-    cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
-    std::cout<<"test forward iterator "<<std::endl;
+
     pooldb.transaction().start(true);
-    std::cout << "size " << it->size()
-	      <<", Time Type " << it->timetype() << std::endl;
-    while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
-      std::cout<<", since "<<it->validity().first;
-      std::cout<<", till "<<it->validity().second<<std::endl;
-    }
-    delete it;
-    // backward
-    it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
-    std::cout<<"test reverse iterator "<<std::endl;
-    while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
-      std::cout<<", since "<<it->validity().first;
-      std::cout<<", till "<<it->validity().second<<std::endl;
-    }
-    delete it;
 
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
     std::pair<cond::Time_t, cond::Time_t> v =  iovmanager.validity(iovtok,30);
