@@ -78,6 +78,7 @@ HLT_Ele10_LW_L1R_HT200
 HLT_ZeroBias
 HLT_MinBiasHcal
 HLT_MinBiasEcal
+HLT_ZeroBiasPixel_SingleTrack
 HLT_MinBiasPixel_SingleTrack
 HLT_MinBiasPixel_DoubleTrack
 HLT_MinBiasPixel_DoubleIsoTrack5
@@ -87,6 +88,8 @@ HLT_CSCBeamHaloOverlapRing2
 HLT_CSCBeamHaloRing2or3
 HLT_BackwardBSC
 HLT_ForwardBSC
+HLT_HighMultiplicityBSC
+HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_StoppedHSCP_1E31
 HLT_IsoTrackHE_1E31

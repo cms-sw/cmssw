@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_4_0/pre6/HLT"     # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_4_0/pre6/\$TABLE" # no explicit version, take te most recent 
-TABLES="8E29 1E31 GRun HIon"           # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_3_4_0/pre8/HLT"              # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_4_0/pre8/\$TABLE"          # no explicit version, take te most recent 
+TABLES="8E29 1E31 GRun HIon"                    # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
 PACKAGE="HLTrigger/Configuration"
@@ -33,7 +33,7 @@ function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT $CONFIG $NAME GEN-HLT
+  $GETHLT --cff --mc $CONFIG $NAME
 }
 
 function getContentForCVS() {
@@ -47,7 +47,7 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT $CONFIG $NAME
+  $GETHLT --full --offline --mc $CONFIG $NAME
 }
 
 # make sure we're using *this* working area
