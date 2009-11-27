@@ -10,6 +10,10 @@ process.dqmEnv.subSystemFolder = 'BeamMonitor'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
+import DQMServices.Components.DQMEnvironment_cfi
+process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
+
 #----------------------------
 # BeamMonitor
 #-----------------------------
@@ -65,11 +69,11 @@ process.source = cms.Source("NewEventStreamFileReader",
 
 process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
 
-process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv*process.dqmSaver)
+process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ctfTracksPixelLess)
 
-process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnv*process.dqmSaver)
+process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
 
 ## Summary
@@ -78,6 +82,7 @@ process.options = cms.untracked.PSet(
     )
 
 #process.p = cms.Path(process.tracking*process.monitor)
-process.p = cms.Path(process.tracking_pixelless*process.monitor_pixelless)
+#process.p = cms.Path(process.tracking_pixelless*process.monitor_pixelless)
+process.p = cms.Path(process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
 
 
