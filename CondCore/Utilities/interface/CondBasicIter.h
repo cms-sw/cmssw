@@ -96,7 +96,7 @@ protected:
 
   bool init();
   bool forward();
-  boll make();
+  bool make();
   virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;
 
 };
