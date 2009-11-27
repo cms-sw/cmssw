@@ -36,7 +36,7 @@ public:
   ~CondIter(){}
   
   
-  void reset() { initialized=false; data.clear()}
+  void reset() { initialized=false; data.clear();}
 
   virtual void clear() {
     reset();

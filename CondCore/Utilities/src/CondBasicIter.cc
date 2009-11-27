@@ -1,8 +1,7 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
 
+CondBasicIter::CondBasicIter(){}
 CondBasicIter::~CondBasicIter(){}
-
-
 
 CondBasicIter::CondBasicIter(
 			     const std::string & NameDB,
