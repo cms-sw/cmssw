@@ -24,6 +24,7 @@ protected:
   
 private:
   bool initialized;
+  bool useCache;
   cond::PayloadRef<DataT> data;
   std::vector<cond::PayloadRef<DataT> > cache;
   size_t n;

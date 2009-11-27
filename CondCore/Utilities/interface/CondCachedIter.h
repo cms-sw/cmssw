@@ -6,9 +6,9 @@
 
 
 template <class T>
-class CondCachedIter : public CondIter<T>
-CondCachedIter() : CondIter<T>(true){}
-
+class CondCachedIter : public CondIter<T> {
+  CondCachedIter() : CondIter<T>(true){}
+  
 };
 
 #endif
