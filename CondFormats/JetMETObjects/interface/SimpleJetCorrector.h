@@ -2,7 +2,10 @@
 #define SimpleJetCorrector_h
 
 #include <string>
-#include "TFormula.h"
+#include <vector>
+
+#include <TFormula.h>
+
 
 class JetCorrectorParameters;
 

@@ -3,7 +3,6 @@
 #include "CondFormats/JetMETObjects/src/Utilities.cc"
 #include <iostream>
 #include <sstream>
-#include <vector>
 #include <cmath>
 
 //------------------------------------------------------------------------ 

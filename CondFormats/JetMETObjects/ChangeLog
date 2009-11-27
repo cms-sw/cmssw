@@ -1,3 +1,7 @@
+2009-11-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add missing includes to comply with gcc4.4 requirements
+
 2009-11-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* bugfix (!) to FactorizedJetCorrector: for the L6 (SLB)
