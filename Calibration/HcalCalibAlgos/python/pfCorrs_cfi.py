@@ -13,5 +13,8 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalCorrPFCalculation",
    TrackAssociatorParameterBlock,
     outputFile = cms.untracked.string("HcalCorrPF.root"),
     ConeRadiusCm = cms.untracked.double(30.),
+     energyECALmip = cms.double(1.0),
+#    RespcorrAdd = cms.untracked.bool(True),
+#    PFcorrAdd = cms.untracked.bool(True),
 )
 

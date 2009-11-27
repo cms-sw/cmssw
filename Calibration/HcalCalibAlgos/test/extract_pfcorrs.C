@@ -48,7 +48,8 @@ TProfile* corrs3 = new TProfile("corrs3", "PF corrs", 85,-42,42);
 TProfile* corrs4 = new TProfile("corrs4", "PF corrs", 85,-42,42);
 
 //ifstream old_pfcorrs("../data/HcalPFCorrs_v1.03_mc.txt");
-ifstream old_pfcorrs("../data/HcalPFCorrs_v2.00_mc.txt");
+//ifstream old_pfcorrs("../data/HcalPFCorrs_v2.00_mc.txt");
+ifstream old_pfcorrs("../data/response_corrections.txt");
 
 
   //FILE *new_pfcorrs = fopen("new_pfcorrs.txt", "w+"); 
@@ -76,7 +77,7 @@ for (Int_t i=0; i<=84; i++)
 if(!line.size() || line[0]=='#') 
   {
     //fprintf(new_pfcorrs, "%1s%16s%16s%16s%16s%9s%11s\n", "#", "eta", "phi", "depth", "det", "value", "DetId");   
-    new_pfcorrs<<"#         eta          phi          depth           det           value          DetId"<<endl;
+    new_pfcorrs<<"#                eta          phi          depth           det           value          DetId"<<endl;
     continue;
    }
   std::istringstream linestream(line);
@@ -154,18 +155,24 @@ cout<<detId<<endl;
 TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
   c1-> cd();
   p1 -> Draw("");
+  p1 -> SetMaximum(60.);
+  p1 -> SetXTitle("iEta");
    c1->SaveAs(imgpath+"a01.png");  
 
   p2 -> Draw("");
+  p2 -> SetXTitle("iEta");
    c1->SaveAs(imgpath+"a02.png");  
 
   p3 -> Draw("");
+  p3 -> SetXTitle("iEta");
    c1->SaveAs(imgpath+"a03.png");  
 
   p4 -> Draw("");
+  p4 -> SetXTitle("iEta");
    c1->SaveAs(imgpath+"a04.png");  
 
   p5 -> Draw("");
+  p5 -> SetXTitle("iEta");
    c1->SaveAs(imgpath+"a05.png");  
 
 

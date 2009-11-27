@@ -1,59 +1,37 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "DQMServices/Core/interface/DQMStore.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "FWCore/Framework/interface/Selector.h"
-
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
-//#include <vector>
-//#include <utility>
-//#include <ostream>
-//#include <string>
-//#include <algorithm>
-//#include <cmath>
-//#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -75,7 +53,6 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
 double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
-  //  DQMStore* dbe_;
  std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;
@@ -85,12 +62,13 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
   bool        Respcorr_;
   bool        PFcorr_;
   bool        Conecorr_;
-  bool        famos_;
   double        radius_;
+
+  double energyECALmip;
 
   Bool_t doHF;
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
-  int subdet_;
+  // int subdet_;
 
   // single/multi-particle sample (1/2)
   int etype_;
@@ -143,27 +121,25 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   Respcorr_        = conf.getUntrackedParameter<bool>("RespcorrAdd", false);
   PFcorr_        = conf.getUntrackedParameter<bool>("PFcorrAdd", false);
   Conecorr_        = conf.getUntrackedParameter<bool>("ConeCorrAdd", true);
-  //famos_        = conf.getUntrackedParameter<bool>("Famos", false);
   radius_       = conf.getUntrackedParameter<double>("ConeRadiusCm", 40.);
+  energyECALmip = conf.getParameter<double>("energyECALmip");
+
+  //famos_        = conf.getUntrackedParameter<bool>("Famos", false);
   //  std::cout << "*** famos_ = " << famos_ << std::endl; 
 
-  //AP trackdet assoc
   edm::ParameterSet parameters = conf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   parameters_.loadParameters( parameters );
   trackAssociator_.useDefaultPropagator();
 
   taECALCone_=conf.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
   taHCALCone_=conf.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
-  etype_ = 1;
-  if (eventype_ == "multi") etype_ = 2;
 
-  iz = 1;
-  if(sign_ == "-") iz = -1;
-  if(sign_ == "*") iz = 0;
+  //  etype_ = 1;
+  //if (eventype_ == "multi") etype_ = 2;
 
-  //  imc = 1;
-  //if(mc_ == "no") imc = 0;
-
+  //iz = 1;
+  //if(sign_ == "-") iz = -1;
+  //if(sign_ == "*") iz = 0;
 
 }
 
@@ -463,7 +439,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(dr<radius_ && enehit>0.5) 
+	  if(dr<radius_ && enehit>0.1) 
 	    {
 	      HcalCone += enehit;	    
 	      UsedCells++;
@@ -522,7 +498,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(dr<radius_ && enehit>0.5) 
+	  if(dr<radius_ && enehit>0.1) 
 	    {
 	      
 	      HcalCone += enehit;	    
@@ -548,7 +524,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       Bool_t passCuts = kFALSE;
       //passCuts=kTRUE; 
-      if(eEcalCone < 0.5) passCuts = kTRUE;
+      if(eEcalCone < energyECALmip) passCuts = kTRUE;
       
       if(passCuts)
 	{
