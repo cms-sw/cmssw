@@ -15,8 +15,7 @@
 
 
 cond::IOVService::IOVService(cond::DbSession& pooldb):
-  m_pooldb(pooldb),
-{}
+  m_pooldb(pooldb) {}
 
 cond::IOVService::~IOVService(){}
 
@@ -28,11 +27,11 @@ cond::IOVService::newIOVEditor( const std::string& token ){
 
 
 
-cond::IOVSequence const & cond::IOVService::iovSeq(const std::string& iovToken) const {
+cond::IOVSequence const & cond::IOVService::iovSeq(const std::string& iovToken) {
   if (m_token!=iovToken) {
     pool::Ref<cond::IOVSequence> temp = m_pooldb.getTypedObject<cond::IOVSequence>( iovToken );
     m_iov.copyShallow(temp);
-    m_token==iovToken;
+    m_token=iovToken;
   }
   return *m_iov;
 }

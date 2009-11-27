@@ -56,7 +56,7 @@ namespace cond{
                                            bool outOfOrder);
   private:
 
-    cond::IOVSequence const & iovSeq(const std::string& iovToken) const;
+    cond::IOVSequence const & iovSeq(const std::string& iovToken);
 
     cond::DbSession m_pooldb;
     std::string m_token;
