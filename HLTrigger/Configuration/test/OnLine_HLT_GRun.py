@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre8/GRun/V1 (CMSSW_3_4_0_pre6_HLT6)
+# /dev/CMSSW_3_4_0/pre8/GRun/V2 (CMSSW_3_4_0_pre6_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/GRun/V2')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2077,7 +2077,8 @@ process.hltEcalRecHitAB = cms.EDProducer( "EcalRecHitProducer",
     singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
     singleChannelRecoveryThreshold = cms.double( 8.0 ),
     triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigis','EcalTriggerPrimitives' ),
-    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 )
+    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 ),
+    laserCorrection = cms.bool( False )
 )
 process.hltTowerMakerForEcalABFit = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.09 ),
