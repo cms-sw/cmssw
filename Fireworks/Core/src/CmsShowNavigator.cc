@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.62 2009/11/23 20:07:10 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.63 2009/11/26 21:33:12 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -38,7 +38,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_currentEvent(0),
 
    m_filterState(kOff),
-   m_filterModeOR(true),
+   m_filterMode(kOr),
 
    m_filtersNeedUpdate(),
    m_newFileOnNextEvent(false),
@@ -353,25 +353,23 @@ CmsShowNavigator::toggleFilterEnable()
    {
       m_filterState = kOn;
       if (m_guiFilter)
-         m_guiFilter->setActive(true);
+         m_guiFilter->m_filterDisableAction->enable();
 
       updateFileFilters();
-      filterStateChanged_.emit(m_filterState);
    }
    else
    {
       m_filterState = kOff;
       if (m_guiFilter)
-         m_guiFilter->setActive(false);
-
-      filterStateChanged_.emit(m_filterState);
+         m_guiFilter->m_filterDisableAction->disable();
    }
+
+   filterStateChanged_.emit(m_filterState);
 }
 
 void
 CmsShowNavigator::withdrawFilter()
 {
-   printf("WITHDRAW \n");
    m_filterState = kWithdrawn;
    filterStateChanged_.emit(m_filterState);
 }
@@ -391,7 +389,7 @@ CmsShowNavigator::updateFileFilters()
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
       if (m_filtersNeedUpdate) (*file)->filtersNeedUpdate();
-      (*file)->updateFilters(m_main.m_eiManager.get(), m_filterModeOR);
+      (*file)->updateFilters(m_main.m_eiManager.get(), m_filterMode == kOr);
    }
    m_filtersNeedUpdate = false;
 
@@ -481,15 +479,23 @@ CmsShowNavigator::changeFilter(FWEventSelector* selector)
 void
 CmsShowNavigator::applyFiltersFromGUI()
 {
-   // compare changes and then call updateFileFilters
+   m_filtersNeedUpdate = false;
 
+   // check if filters are set ON
+    if (m_filterState == kOff)
+   {
+      m_filtersNeedUpdate = true;
+      m_filterState = kOn;
+      m_guiFilter->m_filterDisableAction->enable();
+      filterStateChanged_.emit(m_filterState);
+   }
+
+   // compare changes and then call updateFileFilters
    std::list<FWEventSelector*>::iterator    si = m_selectors.begin();
    std::list<FWGUIEventSelector*>::iterator gi = m_guiFilter->guiSelectors().begin();
 
-   m_filtersNeedUpdate = false;
-
-   if (m_filterModeOR != m_guiFilter->isLogicalOR()) {
-      m_filterModeOR = m_guiFilter->isLogicalOR();
+   if (m_filterMode != m_guiFilter->getFilterMode()) {
+      m_filterMode = m_guiFilter->getFilterMode();
       m_filtersNeedUpdate = true;
    }
 
@@ -539,8 +545,6 @@ CmsShowNavigator::applyFiltersFromGUI()
    if (m_filtersNeedUpdate)
       updateFileFilters();
 }
-
-
 
 //______________________________________________________________________________
 // helpers for gui state
@@ -608,8 +612,10 @@ CmsShowNavigator::filterStatusMessage()
 {
    if (m_filterState == kOn)
       return Form("%d events are selected from %d.", getNSelectedEvents(), getNTotalEvents());
-   else
+   else if (m_filterState == kOff)
       return "Filtering is OFF.";
+   else
+      return "Filtering is disabled.";
 }
 
 bool
@@ -646,7 +652,7 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    {
       m_guiFilter = new FWGUIEventFilter(p);
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
-      m_guiFilter->m_toggleEnableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
+      m_guiFilter->m_filterDisableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
       m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::editFiltersExternally));
    }
 
@@ -656,7 +662,7 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    }
    else
    {
-      m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
+      m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterMode);
       editFiltersExternally_.emit(canEditFiltersExternally());
    }
 }

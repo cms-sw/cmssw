@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.37 2009/11/23 14:53:43 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.38 2009/11/26 21:33:11 amraktad Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class CmsShowNavigator : public FWConfigurable
 {
 public:
    enum EFilterState { kOff, kOn, kWithdrawn };
+   enum EFilterMode  { kOr = 1, kAnd = 2 };
    
 private:
    typedef std::list<FWFileEntry*> FQBase_t;
@@ -143,7 +144,7 @@ private:
    int m_currentEvent;
 
    EFilterState m_filterState;
-   bool m_filterModeOR;
+   int          m_filterMode;
    bool m_filtersNeedUpdate;
    bool m_newFileOnNextEvent;
    
