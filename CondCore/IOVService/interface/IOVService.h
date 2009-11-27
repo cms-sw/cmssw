@@ -5,13 +5,9 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 namespace cond{
   class IOVServiceImpl;
-  class IOVIterator;
   class IOVEditor;
   class IOVService{
   public:
-    static const bool forwardIter=true;
-    static const bool backwardIter=!forwardIter;
-
 
     IOVService( cond::DbSession& pooldb);
 
@@ -32,11 +28,6 @@ namespace cond{
 
     void deleteAll( bool withPayload=false );
 
-    /**
-    create an iterator to on the iov selected by the token
-    user aquires the ownership of the pointer. Need explicit delete after usage
-    */
-    IOVIterator* newIOVIterator( const std::string& iovToken,  bool forward=forwardIter);
 
     /**
     create an editor to the iov selected by the token

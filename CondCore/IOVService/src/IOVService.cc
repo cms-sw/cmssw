@@ -1,8 +1,6 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "IOVServiceImpl.h"
-#include "IOVIteratorImpl.h"
-#include "IOVRevIteratorImpl.h"
 
 cond::IOVService::IOVService(cond::DbSession& pooldb):
   m_pooldb(pooldb),
@@ -43,13 +41,6 @@ void cond::IOVService::loadDicts( const std::string& iovToken) {
 void 
 cond::IOVService::deleteAll( bool withPayload ){
   m_impl->deleteAll( withPayload );
-}
-
-cond::IOVIterator* 
-cond::IOVService::newIOVIterator( const std::string& token, bool forward ){
-  return forward ?
-    (cond::IOVIterator*)new cond::IOVIteratorImpl( m_pooldb, token) :
-    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( m_pooldb, token);
 }
 
 cond::IOVEditor* 
