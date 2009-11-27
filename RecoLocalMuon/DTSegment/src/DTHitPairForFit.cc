@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/26 14:15:31 $
- * $Revision: 1.7 $
+ * $Date: 2009/06/05 14:14:20 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -58,45 +58,27 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
 pair<bool,bool> 
 DTHitPairForFit::isCompatible(const LocalPoint& posIni,
                               const LocalVector& dirIni) const {
-  
-  double errorScale = 10.; // FIXME: arbitrary but inherited from history
-  // the error scale is diminished in case both left and right hypothesis are true
-  while(errorScale >= 3.) {
-    bool leftHyp = isCompatible(posIni, dirIni, DTEnums::Left, errorScale);
-    bool rightHyp = isCompatible(posIni, dirIni, DTEnums::Right, errorScale);
-    if(leftHyp && rightHyp) {
-      errorScale--;
-      continue;
+
+
+    pair<bool,bool> ret;
+    LocalPoint segPosAtZLeft  = posIni+dirIni*(theLeftPos.z() -posIni.z())/dirIni.z();
+    LocalPoint segPosAtZRight = posIni+dirIni*(theRightPos.z()-posIni.z())/dirIni.z();
+    float dxLeft  = fabs(theLeftPos.x() - segPosAtZLeft.x());
+    float dxRight = fabs(theRightPos.x() - segPosAtZRight.x());
+    float exx = sqrt(theError.xx());
+    // if both below 3 sigma, return both
+    // if both at 10 sigma or above, return none
+    // if one is below N sigma and one above, for 10>=N>=3, match only that one, otherwise none
+    if (std::max(dxLeft, dxRight) < 3*exx) {
+        ret = make_pair(true,true);
+    } else if (std::min(dxLeft, dxRight) >= 10*exx) {
+        ret = make_pair(false,false);
     } else {
-      return make_pair(leftHyp,rightHyp);
-    }
-  }
-  // if we get to this point the trick played into the while didn't work and 
-  // both left and right hypothesis are passed to the building of the candidates
-  return make_pair(true,true);
-}
-
-bool DTHitPairForFit::isCompatible(const LocalPoint& posIni,
-                                   const LocalVector& dirIni,
-                                   DTEnums::DTCellSide code,
-				   const double errorScale) const {
-  // all is in SL frame
-  LocalPoint pos= localPosition(code);
-  LocalError err= localPositionError();
-
-  LocalPoint segPosAtZ=
-    posIni+dirIni*(pos.z()-posIni.z())/dirIni.z();
-
-  // cout << "segPosAtZ     " << segPosAtZ << endl;
-  // cout << "segPosInLayer " << pos<< endl;
-  // cout << "errInLayer (" << err.xx() << "," << 
-  //    err.xy() << "," << err.yy() << ")" << endl;
-
-  float dx=pos.x()-segPosAtZ.x();
-  // cout << "Dx " << dx << " vs " << sqrt(err.xx())*errorScale << endl;
-
-  return fabs(dx)<sqrt(err.xx())*errorScale;
-
+        float sigmasL = floorf(dxLeft/exx), sigmasR = floorf(dxRight/exx);
+        ret.first  = ( sigmasL < sigmasR );
+        ret.second = ( sigmasR < sigmasL );
+    } 
+    return ret;
 }
 
 bool DTHitPairForFit::operator<(const DTHitPairForFit& hit) const {

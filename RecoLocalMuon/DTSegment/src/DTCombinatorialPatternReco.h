@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.10 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -14,6 +14,7 @@
 
 /* Base Class Headers */
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
+#include <boost/unordered_set.hpp>
 
 /* Collaborating Class Declarations */
 namespace edm {
@@ -108,17 +109,44 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 
     edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
 
-  private:
+  public:
+    // The type must be public, as otherwise the global 'hash_value' function can't locate it
+    class TriedPattern {
+        public:
+            typedef std::vector<short unsigned int> values;
+            
+            // empty costructor
+            TriedPattern() : hash_(1) { values_.reserve(8); }
 
+            // equality operator
+            bool operator==(const TriedPattern & other) const { 
+                return (hash_ == other.hash_) &&   // cheap
+                       (values_ == other.values_); // expensive last resort
+            }
 
-    typedef std::vector<short unsigned int> TriedPattern;
-    std::vector<TriedPattern> theTriedPattern;
-    struct vectorEqualContent : std::binary_function<TriedPattern, TriedPattern, bool> {
-      bool operator()(const TriedPattern& lhs, const TriedPattern& rhs) const {
-        if (lhs.size()!=rhs.size()) return false;
-        for (unsigned int i = 0; i<lhs.size(); ++i) if (lhs[i]!=rhs[i]) return false;
-        return true;
-      }
+            /// push back value, and update the hash
+            void push_back(short unsigned int i) { 
+                boost::hash_combine(hash_,i);
+                values_.push_back(i);
+            }
+            /// return the hash: equal objects MUST have the same hash, 
+            ///  different ones should have different ones
+            size_t hash() const { return hash_; }
+
+            // some extra methods to look like a std::vector
+            typedef values::const_iterator const_iterator;
+            const_iterator begin() const { return values_.begin(); }
+            const_iterator end() const { return values_.end(); }
+            values::size_type size() const { return values_.size(); }
+        private:
+            values values_;
+            size_t hash_;
     };
+    typedef boost::unordered_set<TriedPattern> TriedPatterns;
+ private:
+
+    TriedPatterns theTriedPattern;
 };
+
+inline std::size_t hash_value(const DTCombinatorialPatternReco::TriedPattern &t) { return t.hash(); }
 #endif // DTSegment_DTCombinatorialPatternReco_h

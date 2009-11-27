@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.13 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -89,19 +89,19 @@ int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
 DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
-  AssPointCont hitCont = seg.hits();
+  const AssPointCont & hits2 = seg.theHits;
   
 //  if (nSharedHitPairs(seg)==0) return result;
 
-  for (AssPointCont::const_iterator hit=theHits.begin(); 
-       hit!=theHits.end() ; ++hit) {
-    for (AssPointCont::const_iterator hit2 = hitCont.begin();
-         hit2!=hitCont.end() ; ++hit2) {
-      if ((*(*hit).first)==(*(*hit2).first) &&
-          (*hit).second != (*hit2).second) {
-        result.insert(*hit);
-        continue;
-      }
+  AssPointCont::const_iterator hitBegin2 = hits2.begin(),   hitEnd2 = hits2.end();
+  for (AssPointCont::const_iterator hit = theHits.begin(), hitEnd  = theHits.end(); 
+       hit != hitEnd ; ++hit) {
+    for (AssPointCont::const_iterator hit2 = hitBegin2; hit2 != hitEnd2; ++hit2) { 
+        if ((*(*hit).first)==(*(*hit2).first) &&
+                (*hit).second != (*hit2).second) {
+            result.insert(*hit);
+            continue;
+        }
     }
   }
   return result;

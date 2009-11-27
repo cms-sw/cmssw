@@ -8,8 +8,8 @@
  * This class is useful for segment fitting, which is done in SL or Chamber
  * reference frame, while the DT hits live on the layer.
  *
- * $Date: 2007/03/10 16:14:43 $
- * $Revision: 1.5 $
+ * $Date: 2009/06/05 14:14:20 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -57,7 +57,7 @@ class DTHitPairForFit{
     LocalError localPositionError() const { return theError; }
 
     /// Returns the Id of the wire on which the rechit rely
-    DTWireId id() const { return theWireId; }
+    const DTWireId & id() const { return theWireId; }
 
     /// Returns the time of the corresponding digi
     float digiTime() const {return theDigiTime;}
@@ -82,10 +82,6 @@ class DTHitPairForFit{
     float theDigiTime;             // the time of the corresp. digi
 //    int theLayerNumber;             // the layer number
 
-    bool isCompatible(const LocalPoint& posIni, 
-                      const LocalVector& dirIni,
-                      DTEnums::DTCellSide code,
-		      const double errorScale) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const DTHitPairForFit& hit) ;

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.18 $
+ * $Date: 2009/06/05 14:15:46 $
+ * $Revision: 1.19 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -106,6 +106,9 @@ vector<DTSegmentCand*>
 DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
                                           const std::vector<DTHitPairForFit*>& hits){
   // clear the patterns tried
+  if (debug) {
+      cout << "theTriedPattern.size is " << theTriedPattern.size() << "\n";
+  }
   theTriedPattern.clear();
 
   typedef vector<DTHitPairForFit*> hitCont;
@@ -280,25 +283,33 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
   // check if too few associated hits or pattern already tried
   // TODO: two different if for nCompatibleHits < 3 =>printout and find ->
   // printour
-  vector<TriedPattern>::const_iterator patternFound=find(theTriedPattern.begin(),
-                                                         theTriedPattern.end(),
-                                                         tried);
-  if ( nCompatibleHits < 3 || patternFound == theTriedPattern.end()) {
-    if (debug) {
-      cout << "NOT Already tried " ;
-      copy(tried.begin(), tried.end(), ostream_iterator<int>(std::cout));
-      cout << endl;
-    }
-    theTriedPattern.push_back(tried);
+  if (nCompatibleHits < 3) {
+      if (debug) {
+          cout << "Less than 3 hits " ;
+          copy(tried.begin(), tried.end(), ostream_iterator<int>(std::cout));
+          cout << endl;
+      }
+      // No need to insert into the list of patterns, as you will never search for it.
+      //theTriedPattern.insert(tried);
   } else {
-    if (debug) {
-      cout << "Already tried " ;
-      copy((*patternFound).begin(), (*patternFound).end(), ostream_iterator<int>(std::cout));
-      cout << endl;
+      // try to insert, return bool if already there
+      bool isnew = theTriedPattern.insert(tried).second;
+      if (isnew) {
+          if (debug) {
+              cout << "NOT Already tried " ;
+              copy(tried.begin(), tried.end(), ostream_iterator<int>(std::cout));
+              cout << endl;
+          }
+      } else {
+          if (debug) {
+              cout << "Already tried " ;
+              copy(tried.begin(), tried.end(), ostream_iterator<int>(std::cout));
+              cout << endl;
 
-    }
-    // empty the result vector
-    result.clear();
+          }
+          // empty the result vector
+          result.clear();
+      }
   }
   return result;
 }
