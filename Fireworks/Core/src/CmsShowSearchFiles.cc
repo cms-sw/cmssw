@@ -38,7 +38,8 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-   {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files","t"},
+   {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
+   {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
    {"http://", "Web site known by you",0},
    {"file:","Local file [you must type full path name]",0},
    {"dcap://","dCache [FNAL]",0},
