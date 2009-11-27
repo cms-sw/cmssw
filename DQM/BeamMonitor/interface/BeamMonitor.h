@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/11/05 21:38:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/19 04:27:24 $
+ *  $Revision: 1.5 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -71,6 +71,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int countLumi_;      //counter
   int nthBSTrk_;       //
   int nFitElements_;
+  int nFits;
   double deltaSigCut_;
 
   bool resetHistos_;
