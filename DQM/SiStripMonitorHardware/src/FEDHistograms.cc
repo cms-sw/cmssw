@@ -322,23 +322,23 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   feTimeDiffTIB_ = bookHistogram("FETimeDiffTIB","FETimeDiffTIB",
 				 "(TimeLoc FE - TimeLoc APVe) for TIB/TID, when different",
-				 200,
-				 -100,100,"#Delta_{TimeLoc}(FE-APVe)");
+				 401,
+				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
   feTimeDiffTOB_ = bookHistogram("FETimeDiffTOB","FETimeDiffTOB",
 				 "(TimeLoc FE - TimeLoc APVe) for TOB, when different",
-				 200,
-				 -100,100,"#Delta_{TimeLoc}(FE-APVe)");
+				 401,
+				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
   feTimeDiffTECB_ = bookHistogram("FETimeDiffTECB","FETimeDiffTECB",
 				 "(TimeLoc FE - TimeLoc APVe) for TECB, when different",
-				 200,
-				 -100,100,"#Delta_{TimeLoc}(FE-APVe)");
+				 401,
+				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
   feTimeDiffTECF_ = bookHistogram("FETimeDiffTECF","FETimeDiffTECF",
 				 "(TimeLoc FE - TimeLoc APVe) for TECF, when different",
-				 200,
-				 -100,100,"#Delta_{TimeLoc}(FE-APVe)");
+				 401,
+				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
   nFEDErrors_ = bookHistogram("nFEDErrors",
 			      "nFEDErrors",
