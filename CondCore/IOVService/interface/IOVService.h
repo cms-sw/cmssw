@@ -3,14 +3,15 @@
 #include <string>
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondFormats/Common/interface/IOVSequence.h"
+
 namespace cond{
-  class IOVServiceImpl;
   class IOVEditor;
   class IOVService{
   public:
 
-    IOVService( cond::DbSession& pooldb);
-
+    IOVService(cond::DbSession& pooldb);
+    
     virtual ~IOVService();
 
     std::string payloadToken( const std::string& iovToken,
@@ -20,12 +21,12 @@ namespace cond{
                   cond::Time_t currenttime );
 
     std::pair<cond::Time_t, cond::Time_t>
-      validity( const std::string& iovToken, cond::Time_t currenttime );
-
+    validity( const std::string& iovToken, cond::Time_t currenttime );
+    
     std::string payloadContainerName( const std::string& iovtoken );
-
+    
     void loadDicts( const std::string& iovToken);
-
+    
     void deleteAll( bool withPayload=false );
 
 
@@ -54,8 +55,12 @@ namespace cond{
                                            cond::Time_t till,
                                            bool outOfOrder);
   private:
+
+    cond::IOVSequence const & iovSeq(const std::string& iovToken) const;
+
     cond::DbSession m_pooldb;
-    cond::IOVServiceImpl* m_impl;
+    std::string m_token;
+    pool::Ref<cond::IOVSequence> m_iov;
   };
 
 }//ns cond
