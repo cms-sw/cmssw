@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+process = cms.Process("BeamMonitor")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("DQM.BeamMonitor.BeamMonitor_MC_cff")
+process.load("DQM.BeamMonitor.BeamMonitor_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -18,6 +18,10 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
 process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
 process.MeasurementTracker.pixelClusterProducer = cms.string("")
+
+import DQMServices.Components.DQMEnvironment_cfi
+process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
 
 ### conditions
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
@@ -51,17 +55,20 @@ process.pretracking_step = cms.Sequence(process.siPixelDigis*
                                         process.recopixelvertexing
                                        )
 
-process.RecoForDQM = cms.Path(process.pretracking_step+process.ckftracks)
-process.RecoForDQM_Pixelless = cms.Path(process.pretracking_step+process.ctfTracksPixelLess)
-process.BeamMonitorDQM = cms.Path(process.dqmBeamMonitor+process.dqmEnv+process.dqmSaver)
-process.BeamMonitorDQM_Pixelless = cms.Path(process.dqmBeamMonitor_pixelless+process.dqmEnv+process.dqmSaver)
+process.RecoForDQM = cms.Sequence(process.pretracking_step+process.ckftracks)
+process.RecoForDQM_Pixelless = cms.Sequence(process.pretracking_step+process.ctfTracksPixelLess)
+process.BeamMonitorDQM = cms.Sequence(process.dqmBeamMonitor+process.dqmEnv)
+process.BeamMonitorDQM_Pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless+process.dqmEnvPixelLess)
 
 
 ## Normal Tracking
-process.schedule = cms.Schedule(process.RecoForDQM,process.BeamMonitorDQM)
+#process.p = cms.Schedule(process.RecoForDQM,process.BeamMonitorDQM,process.dqmSaver)
 
 ## Pixelless Tracking
-#process.schedule = cms.Schedule(process.RecoForDQM_Pixelless,process.BeamMonitorDQM_Pixelless)
+#process.p = cms.Schedule(process.RecoForDQM_Pixelless,process.BeamMonitorDQM_Pixelless,process.dqmSaver)
+
+## Both Tracking
+process.p = cms.Path(process.RecoForDQM*process.BeamMonitorDQM+process.RecoForDQM_Pixelless*process.BeamMonitorDQM_Pixelless+process.dqmSaver)
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = 'cmslpc08.fnal.gov'
