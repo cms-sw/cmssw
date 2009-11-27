@@ -3,7 +3,6 @@
 
 namespace {
   struct dictionary {
-    CondBasicIter dummy;
   };
 }
 

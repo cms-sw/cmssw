@@ -50,7 +50,7 @@ void CondBasicIter::setRange(unsigned int min,unsigned int max){
 }
 
 void CondBasicIter::setMin(unsigned int min){
-  iov.setRange(min,0)
+  iov.setRange(min,0);
 }
 
 void CondBasicIter::setMax(unsigned int max){
@@ -65,7 +65,7 @@ unsigned int CondBasicIter::getStartTime()  const {return (*iter).since();}
 
 unsigned int CondBasicIter::getStopTime() const {return (*iter).till();}
 
-  std::string & getToken() const  {return (*iter).token();}
+std::string & CondBasicIter::getToken() const  {return (*iter).token();}
 
 
 bool CondBasicIter::init() {
