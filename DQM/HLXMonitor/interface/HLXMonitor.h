@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.15 2009/10/29 12:40:37 neadam Exp $
+// $Id: HLXMonitor.h,v 1.16 2009/11/27 16:27:25 neadam Exp $
 //
 //
 
@@ -125,6 +125,7 @@ class HLXMonitor : public edm::EDAnalyzer
       // Sanity Check for Occupancy
       MonitorElement * SumAllOccSet1;
       MonitorElement * SumAllOccSet2;
+      MonitorElement * MissingDQMDataCheck;
 
       // History plots - fill once per LS
       MonitorElement * HistAvgEtSumHFP;
@@ -262,6 +263,7 @@ class HLXMonitor : public edm::EDAnalyzer
 
       unsigned int HLXHFMap[36];
 
+      unsigned int previousSection;
       unsigned int lumiSectionCount;
       int lsBinOld;
       double sectionInstantSumEt;

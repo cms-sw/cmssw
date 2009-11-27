@@ -43,6 +43,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    // Set the lumi section counter
    lsBinOld = 0;
+   previousSection = 0;
    lumiSectionCount = 0;
    sectionInstantSumEt = 0;
    sectionInstantErrSumEt = 0;
@@ -403,6 +404,10 @@ HLXMonitor::SetupHists()
    SumAllOccSet2 = dbe_->bookProfile("SumAllOccSet2","Occupancy Check - Set 2",NUM_HLX, 0, NUM_HLX, OccBins, OccMax, OccMin );
    SumAllOccSet2->setAxisTitle( sumXTitle, 1 );
    SumAllOccSet2->setAxisTitle( sumYTitle, 2 );
+
+   MissingDQMDataCheck   = dbe_->book1D( "MissingDQMDataCheck", "Missing Data Count",1, 0, 1);
+   MissingDQMDataCheck->setAxisTitle( "", 1 );
+   MissingDQMDataCheck->setAxisTitle( "Number Missing Nibbles", 2 );
 
    // History histograms
    dbe_->setCurrentFolder(monitorName_+"/HistoryRaw");
@@ -813,21 +818,6 @@ void HLXMonitor::beginJob(const edm::EventSetup&)
       std::cout << "Successfully connected." << std::endl; 
    }
 
-//    do
-//    {
-//       //cout << "BEGINJOB: Connecting to TCPDistributor" << endl;
-//       errorCode = HLXTCP.Connect();
-//       //cout << "ErrorCode " << errorCode << endl;
-//       if(errorCode != 1)
-//       {
-//  	if( (attemptCounter%10)==0 ){
-// 	  cout << "BeginJob: Attempting to reconnect in " << reconnTime << " seconds." << endl;
-// 	  cout << "This message will be printed once every 10 attempts." << endl;
-//  	}
-//  	++attemptCounter;
-// 	sleep(reconnTime);
-//       }
-//    } while(errorCode != 1);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -866,23 +856,32 @@ void HLXMonitor::EndRun( bool saveFile )
    sectionInstantNorm = 0;
    lsBinOld = 0;
    lumiSectionCount = 0;
+   previousSection = 0;
 }
 
 
 void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 {
+   // Check for missing data
+   if( previousSection != (section.hdr.sectionNumber-1) ){
+      double weight = (double)(section.hdr.sectionNumber-previousSection-1);
+      std::cout << "Filling missing data! " << weight << std::endl;
+      MissingDQMDataCheck->Fill(0.5,weight);
+   }
+   previousSection = section.hdr.sectionNumber;
+
    int lsBin = int(lumiSectionCount/64);
    int lsBinBX = int(lumiSectionCount/64);
    HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
-   std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
-	     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
+//    std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
+// 	     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
 
-   std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
-	     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
-   std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- " 
-	     << sqrt(sectionInstantErrSumEt) << std::endl;
+//    std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
+// 	     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
+//    std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- " 
+// 	     << sqrt(sectionInstantErrSumEt) << std::endl;
 
    int fillBin = lumiSectionCount+1;
    if( fillBin > 128 )
@@ -1370,9 +1369,11 @@ void HLXMonitor::ResetAll()
    // Sanity Check for Occupancy
    dbe_->softReset(SumAllOccSet1);
    dbe_->softReset(SumAllOccSet2);
+   dbe_->softReset(MissingDQMDataCheck);
 
    // History 
    lumiSectionCount = 0;
+   previousSection = 0;
    dbe_->softReset(HistAvgEtSumHFP);
    dbe_->softReset(HistAvgEtSumHFM);
 
