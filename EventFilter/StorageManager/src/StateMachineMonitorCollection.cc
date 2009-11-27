@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StateMachineMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
 /// @file: StateMachineMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"

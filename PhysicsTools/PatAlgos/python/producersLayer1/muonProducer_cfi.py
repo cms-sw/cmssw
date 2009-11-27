@@ -43,10 +43,22 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
     embedPFCandidate    = cms.bool(False), ## embed in AOD externally stored particle flow candidate
-
-    # define IsoDeposits to recompute isolation values on the fly in the producer.
-    # not used in the case of PF2PAT
-    isolation = cms.PSet(
+    
+    # embed IsoDeposits
+    isoDeposits = cms.PSet(
+        tracker = cms.InputTag("muIsoDepositTk"),
+        ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+        hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+        user    = cms.VInputTag(
+                     cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"), 
+                     cms.InputTag("muIsoDepositJets")
+                  ),
+    ),
+    
+    # user defined isolation variables the variables defined here will be accessible
+    # via pat::Muon::userIsolation(IsolationKeys key) with the key as defined in
+    # DataFormats/PatCandidates/interface/Isolation.h
+    userIsolation = cms.PSet(
         hcal = cms.PSet(
             src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
             deltaR = cms.double(0.3)
@@ -68,19 +80,6 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
             deltaR = cms.double(0.3)
         )
     ),
-
-    
-    # embed IsoDeposits
-    isoDeposits = cms.PSet(
-        tracker = cms.InputTag("muIsoDepositTk"),
-        ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
-        hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
-        user    = cms.VInputTag(
-                     cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"), 
-                     cms.InputTag("muIsoDepositJets")
-                  ),
-    ),
-    
 
     # mc matching
     addGenMatch   = cms.bool(True),

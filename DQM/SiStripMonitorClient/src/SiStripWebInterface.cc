@@ -39,6 +39,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   //  std::multimap<std::string, std::string> requestMap_;
   CgiReader reader(in);
   reader.read_form(requestMap_);
+  if (niter < 0) return;
   std::string requestID = get_from_multimap(requestMap_, "RequestID");
   // get the string that identifies the request:
   edm::LogInfo ("SiStripWebInterface") << "SiStripWebInterface::handleAnalyserRequest RequestID = " << requestID ;

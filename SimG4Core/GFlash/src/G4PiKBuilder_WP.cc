@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PiKBuilder_WP.cc,v 1.2 2008/02/29 23:40:56 syjun Exp $
-// GEANT4 tag $Name:  $
+// $Id: G4PiKBuilder_WP.cc,v 1.3 2009/02/04 17:05:26 syjun Exp $
+// GEANT4 tag $Name: V03-01-08 $
 //
 //---------------------------------------------------------------------------
 //
@@ -44,6 +44,8 @@
 
 #include "SimG4Core/GFlash/interface/GflashHadronWrapperProcess.h"
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 G4PiKBuilder_WP::
 G4PiKBuilder_WP(): wasActivated(false) 
@@ -92,25 +94,25 @@ Build()
   G4ProcessManager * theProcMan;
   theProcMan = G4PionPlus::PionPlus()->GetProcessManager();
   //  theProcMan->AddDiscreteProcess(thePionPlusInelastic);
-  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4PionPlusInelasticProcess" << std::endl;
+  edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4PionPlusInelasticProcess";
   theWrappedPionPlusInelastic->RegisterProcess(thePionPlusInelastic);
   theProcMan->AddDiscreteProcess(theWrappedPionPlusInelastic);
   
   theProcMan = G4PionMinus::PionMinus()->GetProcessManager();
   //  theProcMan->AddDiscreteProcess(thePionMinusInelastic);
-  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4PionMinusInelasticProcess" << std::endl;
+  edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4PionMinusInelasticProcess";
   theWrappedPionMinusInelastic->RegisterProcess(thePionMinusInelastic);
   theProcMan->AddDiscreteProcess(theWrappedPionMinusInelastic);
   
   theProcMan = G4KaonPlus::KaonPlus()->GetProcessManager();
   //  theProcMan->AddDiscreteProcess(theKaonPlusInelastic);
-  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonPlusInelasticProcess" << std::endl;
+  edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonPlusInelasticProcess";
   theWrappedKaonPlusInelastic->RegisterProcess(theKaonPlusInelastic);
   theProcMan->AddDiscreteProcess(theWrappedKaonPlusInelastic);
   
   theProcMan = G4KaonMinus::KaonMinus()->GetProcessManager();
   //  theProcMan->AddDiscreteProcess(theKaonMinusInelastic);
-  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonMinusInelasticProcess" << std::endl;
+  edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonMinusInelasticProcess";
   theWrappedKaonMinusInelastic->RegisterProcess(theKaonMinusInelastic);
   theProcMan->AddDiscreteProcess(theWrappedKaonMinusInelastic);
   

@@ -13,7 +13,7 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
+    '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0009/F651D737-75B7-DE11-BDD4-001D09F2512C.root'
      ),
      skipEvents = cms.untracked.uint32(0)                            
 )
@@ -32,7 +32,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V9::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -46,6 +46,12 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 #process.ttSemiLepEvent.maxNJets = 5
 ## change jet-parton matching algorithm
 #process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
+
+## choose which hypotheses to produce
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import addTtSemiLepHypotheses
+addTtSemiLepHypotheses(process,
+                       ["kMaxSumPtWMass", "kMVADisc"]
+                       )
 
 ## load HypothesisAnalyzer
 process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")

@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="FWDisplayEvent"/>
   <class name="FWPhysicsObjectDesc"/>
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
@@ -9,7 +8,7 @@
   <class name="FWGUIManager"/>
   <class name="CmsShowEDI"/>
   <class name="FWGUIValidatingTextEntry"/>
-  <class name="CmsShowColorPopup"/>
+  <class name="CmsShowBrightnessPopup"/>
   <class name="CmsShowModelPopup"/>
   <class name="CmsShowViewPopup"/>
   <class name="FWGUISubviewArea"/>
@@ -20,6 +19,8 @@
   <class name="FWDoubleParameter"/>
   <class name="FWBoolParameterSetter"/>
   <class name="FWBoolParameter"/>
+  <class name="FWStringParameterSetter"/>
+  <class name="FWStringParameter"/>
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
   <class name="FWConfiguration::KeyValues"/>
@@ -29,4 +30,8 @@
   <class name="FWGlimpseViewManager"/>
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
+  <class name="FWTriggerTableView"/>
+  <class name="FWGUIEventFilter"/>
+  <class name="FWGUIEventSelector"/>
+  <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
 </lcgdict>

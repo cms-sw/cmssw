@@ -381,8 +381,6 @@ namespace edm {
 	  if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
-	
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
       }
       catch(cms::Exception& e) {
         actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
@@ -396,6 +394,15 @@ namespace edm {
         } else {
  	  throw;
         }
+      }
+
+      try {
+        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
+      }
+      catch (cms::Exception& ex) {
+        throw edm::Exception(errors::EventProcessorFailure,
+                             "EventProcessingStopped", ex)
+          << "Attempt to insert TriggerResults into event failed.\n";
       }
 
       if (endpathsAreActive_) runEndPaths<T>(ep, es);

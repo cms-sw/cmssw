@@ -15,6 +15,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "boost/tokenizer.hpp"
+
 #include <stdio.h>
 
 using namespace std;
@@ -76,6 +78,7 @@ namespace evf{
       std::string path;
       std::string urn;
       std::string mname;
+      std::string query;
       try 
 	{
 	  cgicc::Cgicc cgi(in);
@@ -93,8 +96,8 @@ namespace evf{
 	  cgicc::CgiEnvironment cgie(in);
 	  if(original_referrer_ == "")
 	    original_referrer_ = cgie.getReferrer();
-	  path = cgie.getPathInfo() + "?" + cgie.getQueryString();
-	  
+	  path = cgie.getPathInfo();
+	  query = cgie.getQueryString();
 	}
       catch (const std::exception & e) 
 	{
@@ -163,8 +166,19 @@ namespace evf{
   
       *out << cgicc::form().set("method","GET").set("action", path ) 
 	   << std::endl;
-      *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname) 
-	   << std::endl;
+      boost::char_separator<char> sep("&");
+      boost::tokenizer<boost::char_separator<char> > tokens(query, sep);
+      for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+	   tok_iter != tokens.end(); ++tok_iter){
+	size_t pos = (*tok_iter).find_first_of("=");
+	if(pos != std::string::npos){
+	  std::string first  = (*tok_iter).substr(0    ,                        pos);
+	  std::string second = (*tok_iter).substr(pos+1, (*tok_iter).length()-pos-1);
+	  *out << cgicc::input().set("type","hidden").set("name",first).set("value", second) 
+	       << std::endl;
+	}
+      }
+
       *out << "Select   "						 << endl;
       *out << cgicc::select().set("name","exceptiontype")     << std::endl;
       char istring[2];

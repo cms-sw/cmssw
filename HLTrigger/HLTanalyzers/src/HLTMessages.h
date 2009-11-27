@@ -24,7 +24,7 @@ extern const char * kL1GctBitCounts;
 extern const char * kL1GctRingSums;
 extern const char * kMctruth;
 extern const char * kSimhit;
-extern const char * kGenEventInfo;
+extern const char * kGenEventScale;
 extern const char * kMucands2;
 extern const char * kMucands3;
 extern const char * kIsoMap2;
@@ -67,8 +67,5 @@ extern const char * kHFrechits;
 extern const char * kpi0EErechits; 
 extern const char * kpi0EBrechits;  
 extern const char * kIsoPixelTracksL3; 
-extern const char * kIsoPixelTracksL2;
-extern const char * kIsoPixelTrackVertices;
-extern const char * kPixelTracksL3; 
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

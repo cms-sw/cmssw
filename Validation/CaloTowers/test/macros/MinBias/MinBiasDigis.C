@@ -35,16 +35,16 @@ void CombinedDigis(TString ref_vers="220pre1",
 void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const int nHist1, const int nHist2, const int nHistTot, TString ref_vers, TString val_vers){
 
   TCanvas *myc = new TCanvas("myc","",800,600);
+  TLegend* leg = 0;
+  TPaveText* ptchi2 = 0;
+  TPaveStats *ptstats_r = 0;
+  TPaveStats *ptstats_v = 0;
   
   TH1F* ref_hist1[nHist1];
   TH1F* val_hist1[nHist1];
   
   TH2F* ref_hist2[nHist2];
   TH2F* val_hist2[nHist2];
-  
-  //Workaround for ROOT bug: gPad must first be invoked outside
-  //of "for" loop or one risks random failures
-  gPad->SetLogy(0);
   
   int i;
   int DrawSwitch;
@@ -75,8 +75,8 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
     xTitleCheck = xTitleCheck.substr(1,7);
 
     //Format pad
-    if (LogSwitch == "Log") gPad->SetLogy();
-    else                    gPad->SetLogy(0);
+    if (LogSwitch == "Log") myc->SetLogy();
+    else                    myc->SetLogy(0);
     
     //1D Histo
     if (DimSwitch == "1D"){
@@ -116,7 +116,7 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
       val_hist1[nh1]->SetLineStyle(2);  
       
       //Legend
-      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); //
       leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
@@ -141,7 +141,7 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
 	sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
 	mystream<<tempbuff;
 	
-	TPaveText* ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+	ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
 	
 	if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
 	else                 ptchi2->SetFillColor(kRed);
@@ -153,16 +153,17 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
 
       //Stat Box where required
       if (StatSwitch == "Stat" || StatSwitch == "Statrv"){
-	TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-	ptstats->SetTextColor(RefCol);
-	ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-	ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
-	TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-	ptstats->SetTextColor(ValCol);
-	val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-	ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
-	
-	ptstats->Draw();
+        ptstats_r = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+        ptstats_r->SetTextColor(RefCol);
+        ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
+        ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+        ptstats_v = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+        ptstats_v->SetTextColor(ValCol);
+        val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
+        ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
+        
+        ptstats_r->Draw();
+        ptstats_v->Draw();
       }
 
       leg->Draw();   
@@ -206,7 +207,7 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
       val_hist2[nh2]->Draw("PSAME");   
       
       //Legend
-      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
       leg->AddEntry(ref_hist2[nh2],"CMSSW_"+ref_vers,"pl");
@@ -241,6 +242,11 @@ void ProcessSubDetDigi(TFile &ref_file, TFile &val_file, ifstream &digstr, const
       myc->SaveAs(OutLabel);
       nh2++;
     }
+    if(leg) delete leg;
+    if(ptchi2) delete ptchi2;
+    if(ptstats_r) delete ptstats_r;
+    if(ptstats_v) delete ptstats_v;
   }
+  if(myc) delete myc;
   return;
 }

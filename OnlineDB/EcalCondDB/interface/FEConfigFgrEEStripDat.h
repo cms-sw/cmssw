@@ -17,10 +17,14 @@ class FEConfigFgrEEStripDat : public IDataItem {
   // User data methods
   inline std::string getTable() { return "FE_CONFIG_FGREEST_DAT"; }
 
-  inline void setLUTValue(int mean) { m_lut = mean; }
-  inline int getLUTValue() const { return m_lut; }
-  inline void setLutValue(int mean) { m_lut = mean; }
-  inline int getLutValue() const { return m_lut; }
+  inline void setThreshold(int mean) { m_thresh = mean; }
+  inline int getThreshold() const { return m_thresh; }
+  inline void setLutFg(int mean) { m_lut_fg = mean; }
+  inline int getLutFg() const { return m_lut_fg; }
+  inline void setLUTFgr(int mean) { m_lut_fg = mean; }
+  inline int getLUTFgr() const { return m_lut_fg; }
+  inline void setLutFgr(int mean) { m_lut_fg = mean; }
+  inline int getLutFgr() const { return m_lut_fg; }
 
  private:
   void prepareWrite() 
@@ -38,8 +42,8 @@ class FEConfigFgrEEStripDat : public IDataItem {
      throw(std::runtime_error);
 
   // User data
-
-  int m_lut;
+  int m_thresh;
+  int m_lut_fg;
 
 };
 

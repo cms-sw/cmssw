@@ -46,7 +46,7 @@ namespace evf
       void closeBackDoor(const std::string &);
       void clear();
       dct clm_;
-      friend class FUEventProcessor;
+      friend class FWEPWrapper;
     };
 }
 #endif

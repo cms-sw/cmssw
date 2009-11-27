@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # esmodule creating  records + corresponding empty essource
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG.txt.gz')
+    DatabaseFile = cms.untracked.string('TPG_startup.txt.gz')
 )
 
 tpparams = cms.ESSource("EmptyESSource",
@@ -67,6 +67,24 @@ tpparams10 = cms.ESSource("EmptyESSource",
 
 tpparams11 = cms.ESSource("EmptyESSource",
     recordName = cms.string('EcalTPGFineGrainTowerEERcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams12 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGPhysicsConstRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams13 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGCrystalStatusRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams14 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGTowerStatusRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )

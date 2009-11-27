@@ -8,13 +8,19 @@ from RecoLocalCalo.Configuration.ecalLocalReco_EventContentCosmics_cff import *
 RecoLocalCaloFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
         'keep *_hfreco_*_*', 
-        'keep *_horeco_*_*')
+        'keep *_horeco_*_*',
+        'keep HBHERecHitsSorted_hbherecoMB_*_*',
+        'keep HORecHitsSorted_horecoMB_*_*',
+        'keep HFRecHitsSorted_hfrecoMB_*_*')
 )
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
         'keep *_hfreco_*_*', 
-        'keep *_horeco_*_*')
+        'keep *_horeco_*_*',
+        'keep HBHERecHitsSorted_hbherecoMB_*_*',
+        'keep HORecHitsSorted_horecoMB_*_*',
+        'keep HFRecHitsSorted_hfrecoMB_*_*')
 )
 #AOD content
 RecoLocalCaloAOD = cms.PSet(

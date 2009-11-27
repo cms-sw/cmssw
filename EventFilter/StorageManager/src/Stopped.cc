@@ -1,4 +1,4 @@
-// $Id: Stopped.cc,v 1.8 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Stopped.cc,v 1.8.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: Stopped.cc
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
@@ -14,7 +14,7 @@ using namespace stor;
 
 Stopped::Stopped( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Stopped::do_entryActionWork()
@@ -27,7 +27,7 @@ void Stopped::do_entryActionWork()
 
 Stopped::~Stopped()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Stopped::do_exitActionWork()
@@ -41,9 +41,9 @@ string Stopped::do_stateName() const
   return string( "Stopped" );
 }
 
-void Stopped::do_moveToFailedState( const std::string& reason ) const
+void Stopped::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Stopped::logHaltDoneRequest( const HaltDone& request )

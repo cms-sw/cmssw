@@ -24,12 +24,12 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   uint numbTriggerTSamples_ = EEMpset.getParameter<uint>("numbTriggerTSamples");
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
-    edm::LogError("EcalRawToRecHit|Worker")<<"Unsuported number of xtal time samples : "<<numbXtalTSamples_
+    edm::LogError("IncorrectConfiguration")<<"Unsuported number of xtal time samples : "<<numbXtalTSamples_
 					   <<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
   }
   
   if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
-    edm::LogError("EcalRawToRecHit|Worker")<<"Unsuported number of trigger time samples : "<<numbTriggerTSamples_
+    edm::LogError("IncorrectConfiguration")<<"Unsuported number of trigger time samples : "<<numbTriggerTSamples_
 					   <<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
   }
   
@@ -39,7 +39,7 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   bool readResult = myMap_->makeMapFromVectors(oFl,oDl);
   
   if(!readResult){
-    edm::LogError("EcalRawToRecHit|Worker")<<"\n unable to configure EcalElectronicsMapper from vectors.";
+    edm::LogError("IncorrectConfiguration")<<"\n unable to configure EcalElectronicsMapper from vectors.";
   }
     
   unpacker_ = new DCCDataUnpacker(myMap_,

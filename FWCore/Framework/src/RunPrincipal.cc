@@ -23,18 +23,6 @@ namespace edm {
     mapper->processHistoryID() = processHistoryID();
   }
 
-  void
-  RunPrincipal::fillFrom(RunPrincipal& rp) {
-     fillRunPrincipal(rp.branchMapperPtr(), rp.store());
-     mergeAuxiliary(rp.aux());
-     for(const_iterator i = rp.begin(), iEnd = rp.end(); i != iEnd; ++i) {
-       Group& group = **i;
-       Group *g = getExistingGroup(group);
-       assert(g);
-       g->swap(group);
-     }
-  }
-
   void 
   RunPrincipal::put(
 	ConstBranchDescription const& bd,

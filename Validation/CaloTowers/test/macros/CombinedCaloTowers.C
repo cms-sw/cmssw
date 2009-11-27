@@ -50,13 +50,13 @@ void CombinedCaloTowers(TString ref_vers="210",
 void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHistTot, TString ref_vers, TString val_vers){
 
   TCanvas *myc = new TCanvas("myc","",800,600);
+  TLegend* leg = 0;
+  TPaveText* ptchi2 = 0;
+  TPaveStats *ptstats_r = 0;
+  TPaveStats *ptstats_v = 0;
   
   TH1F* ref_hist1[nHist1];
   TH1F* val_hist1[nHist1];
-
-  //Workaround for ROOT bug: gPad must first be invoked outside
-  //of "for" loop or one risks random failures
-  gPad->SetLogy(0);
   
   int i;
   int DrawSwitch;
@@ -64,7 +64,8 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
   int RefCol, ValCol;
   TString HistName;
   char xAxisTitle[200];
-  float xAxisRange, yAxisRange, xMin;
+  int nRebin;
+  float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
   TString OutLabel;
   
   int nh1 = 0;
@@ -75,14 +76,15 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     ctstr>>HistName>>DrawSwitch;
     if (DrawSwitch == 0) continue;
     
-    ctstr>>OutLabel>>xAxisRange>>yAxisRange;
+    ctstr>>OutLabel>>nRebin;
+    ctstr>>xAxisMin>>xAxisMax>>yAxisMin>>yAxisMax;
     ctstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     ctstr>>RefCol>>ValCol;
     ctstr.getline(xAxisTitle,200);
     
     //Format pad
-    if (LogSwitch == "Log") gPad->SetLogy();
-    else                    gPad->SetLogy(0);
+    if (LogSwitch == "Log") myc->SetLogy();
+    else                    myc->SetLogy(0);
     
     //Get histograms from files
     ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
@@ -92,20 +94,26 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
     //Rebin histograms -- has to be done first
-    if (Chi2Switch == "Chi2" && LogSwitch == "Log"){
-	ref_hist1[nh1]->Rebin(5);
-	val_hist1[nh1]->Rebin(5);
+    if (nRebin != 1){
+      ref_hist1[nh1]->Rebin(nRebin);
+      val_hist1[nh1]->Rebin(nRebin);
     }
 
     //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
     if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
 
-    if (xAxisRange > 0){
-      xMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
-      ref_hist1[nh1]->GetXaxis()->SetRangeUser(xMin,xAxisRange);
-    }
-    if (yAxisRange > 0) ref_hist1[nh1]->GetYaxis()->SetRangeUser(0.,yAxisRange);
-
+    //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+    //xAxis
+    if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
+    if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
+    
+    if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+    
+    //yAxis
+    if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
+    if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
+    
+    //Title
     ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
     
     //Different histo colors and styles
@@ -137,7 +145,7 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
       mystream<<tempbuff;
       
-      TPaveText* ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+      ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
       
       if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
       else                 ptchi2->SetFillColor(kRed);
@@ -154,19 +162,19 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
 
     //StatBox
     if (StatSwitch == "Stat"){
-      TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-      ptstats->SetTextColor(RefCol);
-      ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-      ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+      ptstats_r = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+      ptstats_r->SetTextColor(RefCol);
+      ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
+      ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
       
-      TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-      ptstats->SetTextColor(ValCol);
-      val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-      ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
+      ptstats_v = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+      ptstats_v->SetTextColor(ValCol);
+      val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
+      ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
     }
     
     //Create legend
-    TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+    leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
     leg->SetBorderSize(2);
     leg->SetFillStyle(1001); //
     leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
@@ -177,6 +185,12 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     myc->SaveAs(OutLabel);
     
     nh1++;
+    
+    if(leg) delete leg;
+    if(ptchi2) delete ptchi2;
+    if(ptstats_r) delete ptstats_r;
+    if(ptstats_v) delete ptstats_v;
   }
+  if(myc) delete myc;
   return;
 }

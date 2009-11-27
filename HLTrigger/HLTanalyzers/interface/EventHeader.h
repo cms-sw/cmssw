@@ -26,7 +26,6 @@ private:
   // Tree variables
 	int fRun;
 	int fEvent;
-	int fLumiBlock;
 
   // input variables
   bool _Debug;

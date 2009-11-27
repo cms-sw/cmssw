@@ -335,7 +335,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    // HE histograms
    for(int eta=-29;eta<=29;eta++) for(int phi=1;phi<=72;phi++) for(int depth=1;depth<=3;depth++){
       if(he_data[eta+42][phi-1][depth-1][0].get_statistics()>100){
-          double ave,rms,sum=0;
+          double ave=0,rms=0,sum=0;
 	  he_data[eta+42][phi-1][depth-1][0].get_average(&ave,&rms); sum+=ave; PedestalsRmsHE->Fill(rms);
 	  he_data[eta+42][phi-1][depth-1][1].get_average(&ave,&rms); sum+=ave; PedestalsRmsHE->Fill(rms);
 	  he_data[eta+42][phi-1][depth-1][2].get_average(&ave,&rms); sum+=ave; PedestalsRmsHE->Fill(rms);

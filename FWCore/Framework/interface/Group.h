@@ -25,7 +25,11 @@ namespace edm {
   class BranchMapper;
   
   struct GroupData {
-    explicit GroupData(boost::shared_ptr<ConstBranchDescription> bd) : branchDescription_(bd), pid_(), product_(), prov_() {}
+    explicit GroupData(boost::shared_ptr<ConstBranchDescription> bd) :
+       branchDescription_(bd),
+       pid_(),
+       product_(),
+       prov_() {}
     ~GroupData() {}
 
 
@@ -80,9 +84,6 @@ namespace edm {
 
     // Retrieves shared pointer to the product. 
     boost::shared_ptr<EDProduct> product() const { return groupData().product_; }
-
-    // Sets the pointer to the product
-    void setProduct(std::auto_ptr<EDProduct> prod) const;
 
     // Retrieves shared pointer to the per event(lumi)(run) provenance. 
     boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenanceSharedPtr();}
@@ -174,6 +175,10 @@ namespace edm {
 
     void swap(Group& rhs) {swap_(rhs);}
 
+  protected:
+    virtual GroupData const& groupData() const = 0;
+    virtual GroupData& groupData() = 0;
+
   private:
     virtual void swap_(Group& rhs) = 0;
     virtual bool onDemand_() const = 0;
@@ -185,8 +190,6 @@ namespace edm {
     virtual bool putOrMergeProduct_() const = 0;
     virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const = 0;
     virtual void resetStatus() = 0;
-    virtual GroupData const& groupData() const = 0;
-    virtual GroupData& groupData() = 0;
   };
 
   inline
@@ -210,19 +213,26 @@ namespace edm {
     };
     public:
       explicit InputGroup(boost::shared_ptr<ConstBranchDescription> bd) :
-	Group(), groupData_(bd), theStatus_(Uninitialized) {}
+	Group(), groupData_(bd), theStatus_(Uninitialized), productIsUnavailable_(false) {}
       virtual ~InputGroup();
       GroupStatus const& status() const {return theStatus_;}
-      // The following are is because we can add an EDProduct to the
+
+      // The following are const because we can add an EDProduct to the
       // cache after creation of the Group, without changing the meaning
       // of the Group.
       void updateStatus() const;
       void setStatus(ProductStatus const&) const;
+      // Sets the pointer to the product
+      void setProduct(std::auto_ptr<EDProduct> prod) const;
+      bool productIsUnavailable() const {return productIsUnavailable_;}
+      void setProductUnavailable() const {productIsUnavailable_ = true;}
+
     private:
       virtual void swap_(Group& rhs) {
 	InputGroup& other = dynamic_cast<InputGroup&>(rhs);
 	edm::swap(groupData_, other.groupData_);
 	std::swap(theStatus_, other.theStatus_);
+        std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
       virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
@@ -230,13 +240,14 @@ namespace edm {
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const;
-      virtual void resetStatus() {theStatus_ = Uninitialized;}
+      virtual void resetStatus() {theStatus_ = Uninitialized; productIsUnavailable_ = false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;
       virtual GroupData const& groupData() const {return groupData_;} 
       virtual GroupData& groupData() {return groupData_;} 
       GroupData groupData_;
       mutable GroupStatus theStatus_;
+      mutable bool productIsUnavailable_;
   };
 
   // Free swap function

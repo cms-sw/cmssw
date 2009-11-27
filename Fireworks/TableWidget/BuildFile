@@ -1,8 +1,4 @@
 <use name=rootinteractive>
-<use name=rootgraphics>
-<lib name=Gui>
-<lib name=Thread>
 <export>
  <lib name=FireworksTableWidget>
- <use name=rootinteractive>
 </export>

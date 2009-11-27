@@ -10,6 +10,8 @@
 
 // Famos Headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
+#include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexTypeFwd.h"
 
 #include <vector>
 
@@ -115,6 +117,9 @@ public:
   /// Return vertex with given Id 
   inline FSimVertex& vertex(int id) const;
 
+  /// Return vertex with given Id 
+  inline FSimVertexType& vertexType(int id) const;
+
   /// return "reconstructed" charged tracks index.
   int chargedTrack(int id) const;
 
@@ -124,6 +129,9 @@ public:
   /// return embedded vertex with given id
   inline const SimVertex & embdVertex(int i) const;
 
+  /// return embedded vertex type with given id
+  inline const FSimVertexType & embdVertexType(int i) const;
+
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
@@ -132,7 +140,8 @@ public:
 		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1);
+  int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1, 
+		   FSimVertexType::VertexType type = FSimVertexType::ANY);
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
@@ -166,6 +175,7 @@ public:
 
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
+  FSimVertexTypeCollection* theFSimVerticesType;
   std::vector<HepMC::GenParticle*>* theGenParticles;
 
   std::vector<unsigned>* theChargedTracks;

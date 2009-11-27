@@ -21,3 +21,8 @@ from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 #
 calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
 
+#
+# R.Ofierzynski (29.Oct.2009): add NZS sequence
+#
+from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
+calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 

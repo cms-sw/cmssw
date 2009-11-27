@@ -512,7 +512,7 @@ RecoMuonValidator::~RecoMuonValidator()
   if ( theMuonService ) delete theMuonService;
 }
 
-void RecoMuonValidator::beginRun(const EventSetup& eventSetup)
+void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 

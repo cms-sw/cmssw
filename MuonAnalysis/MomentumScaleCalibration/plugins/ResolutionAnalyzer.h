@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.6 2009/06/04 10:42:25 demattia Exp $
+// $Id: ResolutionAnalyzer.h,v 1.1 2009/01/09 12:10:45 demattia Exp $
 //
 //
 
@@ -57,7 +57,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "MuScleFitUtils.h"
 //
 // class decleration
 //

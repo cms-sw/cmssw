@@ -1,4 +1,5 @@
 #include "SimG4Core/GFlash/interface/GflashAntiProtonShowerProfile.h"
+#include "Randomize.hh"
 
 void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
 {
@@ -23,7 +24,7 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     const double correl_hadem[4] = { -7.8255e-01,  1.7976e-01, -8.8001e-01,  2.3474e+00 };
     G4double energyRho =  fTanh(einc,correl_hadem); 
 
-    r1 = theRandGauss->fire();
+    r1 = G4RandGauss::shoot();
     if(einc<25) {
       energyScale[Gflash::kESPM] = einc*(1.27*fTanh(einc,Gflash::pbar_emscale[0]) + fTanh(einc,Gflash::pbar_emscale[1])*r1);
     }
@@ -31,7 +32,7 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
       energyScale[Gflash::kESPM] = einc*(1.0*fTanh(einc,Gflash::pbar_emscale[0]) + 1.4*fTanh(einc,Gflash::pbar_emscale[1])*r1);
     }
 
-    r2 = theRandGauss->fire();
+    r2 = G4RandGauss::shoot();
     if(einc<25) {
       energyMeanHcal  = (fTanh(einc,Gflash::pbar_hadscale[0]) +
 			 fTanh(einc,Gflash::pbar_hadscale[1])*depthScale(position.getRho(),129.,22.));
@@ -57,11 +58,11 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
          
     if(showerType == 2 || showerType == 6) {
       energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*theRandGauss->fire())*(1.0- gap_corr*depthScale(position.getRho(),179.,28.));
+	exp(energyMeanHcal+energySigmaHcal*G4RandGauss::shoot())*(1.0- gap_corr*depthScale(position.getRho(),179.,28.));
     }
     else {
       energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*theRandGauss->fire());
+	exp(energyMeanHcal+energySigmaHcal*G4RandGauss::shoot());
     }
   }
 
@@ -91,7 +92,7 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   getFluctuationVector(rhoHcal,correlationVectorHcal);
 
   G4double normalZ[Gflash::NPar];
-  for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
+  for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = G4RandGauss::shoot();
   
   for(int i = 0 ; i < Gflash::NPar ; i++) {
     double correlationSum = 0.0;
@@ -127,7 +128,7 @@ void GflashAntiProtonShowerProfile::loadParameters(const G4FastTrack& fastTrack)
 
     getFluctuationVector(rhoEcal,correlationVectorEcal);
 
-    for(int i = 0 ; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
+    for(int i = 0 ; i < Gflash::NPar ; i++) normalZ[i] = G4RandGauss::shoot();
     for(int i = 0 ; i < Gflash::NPar ; i++) {
       double correlationSum = 0.0;
       for(int j = 0 ; j < i+1 ; j++) {

@@ -3,9 +3,10 @@
 #include "DQM/SiStripHistoricInfoClient/interface/HDQMInspectorConfigSiStrip.h"
 #include "DQM/SiStripHistoricInfoClient/interface/HDQMInspectorConfigTracking.h"
 
-namespace
-{
-  HDQMInspectorConfigSiStrip dummy1;
-  HDQMInspectorConfigTracking dummy2;
+namespace {
+  struct dictionary {
+    HDQMInspectorConfigSiStrip dummy1;
+    HDQMInspectorConfigTracking dummy2;
+  };
 }
 

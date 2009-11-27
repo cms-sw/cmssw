@@ -53,32 +53,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 #process.VtxSmeared.SigmaY = 0.00001
 #process.VtxSmeared.SigmaZ = 0.00001
 
-# try to fix no pcaloHit problem
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(1000.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion','CastorRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0)
-)
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression,
-    process.common_maximum_timex,
-    TrackNeutrino = cms.bool(False),
-    KillHeavy     = cms.bool(False),
-    SaveFirstLevelSecondary = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
-)
-process.g4SimHits.SteppingAction = cms.PSet(
-    process.common_maximum_timex,
-    KillBeamPipe            = cms.bool(True),
-    CriticalEnergyForVacuum = cms.double(2.0),
-    CriticalDensity         = cms.double(1e-15),
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring(),
-    Verbosity               = cms.untracked.int32(0)
-)
 
 process.Comp = cms.EDFilter("Digi2Raw2Digi",
     digiLabel1 = cms.InputTag("simHcalDigis"),
@@ -116,3 +90,4 @@ process.p = cms.Path(
  process.Comp
 )
 
+process.outpath = cms.EndPath(process.USER)

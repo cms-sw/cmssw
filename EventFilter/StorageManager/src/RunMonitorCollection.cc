@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>

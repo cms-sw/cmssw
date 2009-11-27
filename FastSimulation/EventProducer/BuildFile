@@ -16,15 +16,13 @@
 <use name=FastSimulation/PileUpProducer>
 <use name=FastSimulation/TrajectoryManager>
 <use name=FastSimulation/Utilities>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/Records>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=RecoTracker/Record>
-<use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/GeneratorProducts>
-<use name=SimDataFormats/TrackingHit>
+<use name=FastSimDataFormats/NuclearInteractions>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>

@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.cc,v 1.3 2009/07/07 11:17:08 dshpakov Exp $
+// $Id: RegistrationCollection.cc,v 1.6 2009/10/06 09:20:04 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -39,7 +39,14 @@ RegistrationCollection::addRegistrationInfo( ConsumerID cid, RegPtr ri )
     {
       RegistrationMap::iterator pos = _consumers.lower_bound(cid);
 
-      if ( pos != _consumers.end() )
+      // 05-Oct-2009, KAB - added a test of whether cid appears before
+      // pos->first in the map sort order.  Since lower_bound can return
+      // a non-end iterator even when cid is not in the map, we need to
+      // complete the test of whether cid is in the map.  (Another way to
+      // look at this is we need to implement the full test described in
+      // the efficientAddOrUpdates pattern suggested by Item 24 of
+      // 'Effective STL' by Scott Meyers.)
+      if ( pos != _consumers.end() && !(_consumers.key_comp()(cid, pos->first)) )
       {
         // The given ConsumerID already exists.
         return false;
@@ -109,9 +116,12 @@ bool RegistrationCollection::isProxy( ConsumerID cid ) const
 
   boost::mutex::scoped_lock sl( _lock );
 
-  RegistrationMap::const_iterator pos = _consumers.lower_bound(cid);
+  RegistrationMap::const_iterator pos = _consumers.find(cid);
 
-  if ( pos == _consumers.end() ) return false;
+  if ( pos == _consumers.end() )
+  {
+    return false;
+  }
 
   ConsRegPtr eventConsumer =
     boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>( pos->second );

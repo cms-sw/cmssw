@@ -6,9 +6,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=DQMServices/Core>
 <use name=root>
-<use name=SimDataFormats/GeneratorProducts>
 <use name=clhep>
-<use name=hepmc>
 <export>
    <lib name=ValidationHcalDigis>
     <use name=boost> 
@@ -18,8 +16,6 @@
     <use name=CalibFormats/HcalObjects>
     <use name=DQMServices/Core>
     <use name=root>	 
-    <use name=SimDataFormats/GeneratorProducts>
     <use name=clhep>
-    <use name=hepmc>	
 </export>
 

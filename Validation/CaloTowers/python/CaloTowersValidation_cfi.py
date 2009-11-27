@@ -31,17 +31,27 @@ DQM.collectorHost = ''
 from Configuration.StandardSequences.DigiToRaw_cff import *
 from Configuration.StandardSequences.RawToDigi_cff  import *
 
-### Special - CaloOnly ---------------------------------------------------
-ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
-ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("ecalPreshowerDigis") 
-hbhereco.digiLabel = cms.InputTag("hcalDigis")
-horeco.digiLabel   = cms.InputTag("hcalDigis")
-hfreco.digiLabel   = cms.InputTag("hcalDigis")
-ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
-ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
-ecalRecHit.recoverEBFE = cms.bool(False)
-ecalRecHit.recoverEEFE = cms.bool(False)
+### Special - CaloOnly ------------------------------------
+
+#--- comes from DigiToRaw_cff.py
+ecalPacker.Label = 'simEcalDigis'
+ecalPacker.InstanceEB = 'ebDigis'
+ecalPacker.InstanceEE = 'eeDigis'
+ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
+ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
+#
+#- hcalRawData (EventFilter/HcalRawToDigi/python/HcalDigiToRaw_cfi.py
+#                 uses simHcalDigis by default...
+
+
+#--- to force RAW->Digi
+ecalDigis.InputLabel = 'rawDataCollector'
+hcalDigis.InputLabel = 'rawDataCollector'
+ecalPreshowerDigis.sourceTag = 'rawDataCollector'
+
+#--- calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
+# RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff
+# RecoLocalCalo.Configuration.hcalLocalReco_cff
 
 
 p = cms.Path(

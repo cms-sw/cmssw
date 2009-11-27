@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.14 2009/07/09 15:48:31 futyand Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.17 2009/11/04 12:18:40 futyand Exp $
 #
 #
 #
@@ -67,10 +67,12 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 #
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*',
+    splitLevel = cms.untracked.int32(0))
 )
 FEVTHLTALLEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 #replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
 #
@@ -80,7 +82,8 @@ FEVTHLTALLEventContent = cms.PSet(
 #
 RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -95,7 +98,8 @@ AODEventContent = cms.PSet(
 RAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep  FEDRawDataCollection_rawDataCollector_*_*', 
-        'keep  FEDRawDataCollection_source_*_*')
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -104,7 +108,8 @@ RAWEventContent = cms.PSet(
 #
 #
 RAWSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -113,7 +118,8 @@ RAWSIMEventContent = cms.PSet(
 #
 RECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -131,7 +137,19 @@ AODSIMEventContent = cms.PSet(
 #
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
+)
+
+#
+#
+# FEVTDEBUG Data Tier definition
+#
+#
+FEVTDEBUGEventContent = cms.PSet(
+   outputCommands = cms.untracked.vstring('drop *',
+       'keep *_logErrorHarvester_*_*'),
+   splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -141,7 +159,8 @@ FEVTSIMEventContent = cms.PSet(
 #
 ALCARECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep edmTriggerResults_*_*_*')
+        'keep edmTriggerResults_*_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 
@@ -272,6 +291,13 @@ FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 
+FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outputCommands)
@@ -282,3 +308,6 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics_noDr
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)

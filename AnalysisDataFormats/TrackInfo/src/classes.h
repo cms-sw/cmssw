@@ -10,7 +10,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
 
     reco::TrackingStateInfo                 tsi;
     reco::TrackingRecHitInfo                tri;
@@ -41,5 +41,5 @@ namespace {
     edm::Wrapper<RecoTracktoTP> RecoTracktoTPWrapper ;
     edm::Wrapper<RecoTracktoTPCollection> RecoTracktoTPCollectionWrapper;
 
-  }
+  };
 }

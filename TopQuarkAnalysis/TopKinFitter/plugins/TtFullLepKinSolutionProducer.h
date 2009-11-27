@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.2 2009/06/08 12:53:34 dammann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.3 2009/06/24 09:23:10 snaumann Exp $
 //
 #include <memory>
 #include <string>
@@ -45,6 +45,7 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
     edm::InputTag muons_;
     edm::InputTag mets_;
 
+    std::string jetCorrLevel_;
     int maxNJets_, maxNComb_;
     bool eeChannel_, emuChannel_, mumuChannel_, searchWrongCharge_;
     double tmassbegin_, tmassend_, tmassstep_;
@@ -68,10 +69,11 @@ inline bool TtFullLepKinSolutionProducer::HasPositiveCharge(const reco::Candidat
 TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterSet & iConfig) 
 {
   // configurables
-  jets_      = iConfig.getParameter<edm::InputTag>("jets");
-  electrons_ = iConfig.getParameter<edm::InputTag>("electrons");
-  muons_     = iConfig.getParameter<edm::InputTag>("muons");
-  mets_      = iConfig.getParameter<edm::InputTag>("mets");
+  jets_        = iConfig.getParameter<edm::InputTag>("jets");
+  electrons_   = iConfig.getParameter<edm::InputTag>("electrons");
+  muons_       = iConfig.getParameter<edm::InputTag>("muons");
+  mets_        = iConfig.getParameter<edm::InputTag>("mets");
+  jetCorrLevel_= iConfig.getParameter<std::string>  ("jetCorrectionLevel");  
   maxNJets_       = iConfig.getParameter<int> ("maxNJets");
   maxNComb_       = iConfig.getParameter<int> ("maxNComb");  
   eeChannel_      = iConfig.getParameter<bool>("eeChannel"); 
@@ -230,8 +232,14 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
 
         TLorentzVector LV_l1;
         TLorentzVector LV_l2;		
-	TLorentzVector LV_b    = TLorentzVector((*jets)[ib].px()   , (*jets)[ib].py()   , (*jets)[ib].pz()   , (*jets)[ib].energy()   );
-        TLorentzVector LV_bbar = TLorentzVector((*jets)[ibbar].px(), (*jets)[ibbar].py(), (*jets)[ibbar].pz(), (*jets)[ibbar].energy());  
+	TLorentzVector LV_b    = TLorentzVector((*jets)[ib].correctedJet(jetCorrLevel_, "b").px(), 
+	                                        (*jets)[ib].correctedJet(jetCorrLevel_, "b").py(), 
+						(*jets)[ib].correctedJet(jetCorrLevel_, "b").pz(), 
+						(*jets)[ib].correctedJet(jetCorrLevel_, "b").energy() );
+        TLorentzVector LV_bbar = TLorentzVector((*jets)[ibbar].correctedJet(jetCorrLevel_, "b").px(), 
+	                                        (*jets)[ibbar].correctedJet(jetCorrLevel_, "b").py(), 
+						(*jets)[ibbar].correctedJet(jetCorrLevel_, "b").pz(), 
+						(*jets)[ibbar].correctedJet(jetCorrLevel_, "b").energy());  
 			
         double xconstraint = 0, yconstraint = 0;
 	

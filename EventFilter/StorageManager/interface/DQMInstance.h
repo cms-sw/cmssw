@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.12 2009/09/16 11:04:22 mommsen Exp $
+// $Id: DQMInstance.h,v 1.13 2009/09/17 14:29:24 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -24,8 +24,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMFolder
@@ -42,8 +42,8 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMGroup
@@ -82,8 +82,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMInstance

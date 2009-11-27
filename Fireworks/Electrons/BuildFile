@@ -1,14 +1,9 @@
 <use name=rootrflx>
 <lib name=Eve>
 <lib name=Geom>
-<use name=DataFormats/EgammaReco>
-
 <use name=Fireworks/Core>
-
-<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FireworksElectrons>
-  <use name=DataFormats/EgammaReco>
   <use name=Fireworks/Core>
   <use name=rootrflx>
 </export>

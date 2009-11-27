@@ -5,7 +5,7 @@
 
 namespace
 {
-   namespace
+   struct dictionary
    {
       reco::ElectronIDCollection c1;
       edm::Wrapper<reco::ElectronIDCollection> w1;
@@ -19,5 +19,5 @@ namespace
       reco::ElectronIDAssociationRef vr1;
       reco::ElectronIDAssociationRefProd vrp1;
       reco::ElectronIDAssociationRefVector vrv1;
-   }
+   };
 }

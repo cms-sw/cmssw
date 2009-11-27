@@ -15,7 +15,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCParticlePairFilter.h,v 1.4 2006/09/28 12:22:06 fabstoec Exp $
+// $Id: MCParticlePairFilter.h,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
 //
 //
 
@@ -57,6 +57,7 @@ class MCParticlePairFilter : public edm::EDFilter {
        std::vector<int> particleID1;
        std::vector<int> particleID2;
        std::vector<double> ptMin;
+       std::vector<double> pMin;
        std::vector<double> etaMin;  
        std::vector<double> etaMax;
        std::vector<int> status;

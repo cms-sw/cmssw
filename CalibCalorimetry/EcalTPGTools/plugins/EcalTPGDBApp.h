@@ -26,12 +26,15 @@ class EcalTPGDBApp : public EcalCondDBInterface {
   
   int  writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, string tag) ;
   int  writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
-				   const  map<EcalLogicID, FEConfigParamDat> & linparamset, int iovId, string tag) ; 
+				   const  map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, string tag) ; 
   int  writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigLUTDat> & lutdat, 
-			    int iovId, string tag) ;
+			     const  map<EcalLogicID, FEConfigLUTParamDat> & lutparamset, int iovId, string tag) ;
   int  writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeightGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigWeightDat> & lutdat, 
 			    int iovId, string tag) ;
   int  writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigFgrDat> & lutdat, 
+			    const  map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
+			    const  map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3,  
+			    const  map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
 			    int iovId, string tag) ;
   int writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, string tag) ;
   

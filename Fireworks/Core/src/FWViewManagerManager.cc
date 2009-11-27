@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.13 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWViewManagerManager.cc,v 1.14 2009/04/07 14:04:49 chrjones Exp $
 //
 
 // system include files
@@ -122,6 +122,21 @@ FWViewManagerManager::supportedTypesAndRepresentations() const
    return returnValue;
 }
 
+void
+FWViewManagerManager::eventBegin()
+{
+   for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
+         i != m_viewManagers.end(); ++i )
+      (*i)->eventBegin();
+}
+
+void
+FWViewManagerManager::eventEnd()
+{
+   for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
+         i != m_viewManagers.end(); ++i )
+      (*i)->eventEnd();
+}
 
 //
 // static member functions

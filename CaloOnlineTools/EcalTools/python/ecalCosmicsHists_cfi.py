@@ -7,7 +7,6 @@ ecalCosmicsHists = cms.EDFilter("EcalCosmicsHists",
     ecalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     barrelClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters"),
     L1GlobalReadoutRecord = cms.untracked.string('gtDigis'),
-    ecalRawDataColl_ = cms.InputTag("ecalEBunpacker"),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     TrackAssociatorParameterBlock = cms.PSet(
         TrackAssociatorParameters = cms.PSet(

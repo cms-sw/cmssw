@@ -294,7 +294,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     std::vector <int> PeakIndex;
     for (int i=1;i<int(dominoEnergy.size())-1;++i){
       if (dominoEnergy[i] > dominoEnergy[i-1]
-	  && dominoEnergy[i] > dominoEnergy[i+1]
+	  && dominoEnergy[i] >= dominoEnergy[i+1]
 	  && dominoEnergy[i] > Eseed){
 	PeakIndex.push_back(i);
       }
@@ -357,7 +357,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       for (int j=idxPeak+1;j<int(dominoEnergy.size());++j){
 	if (OwnerShip[j]==-1 && 
 	    dominoEnergy[j] > eThres
-	    && dominoEnergy[j] < dominoEnergy[j-1]){
+	    && dominoEnergy[j] <= dominoEnergy[j-1]){
 	  OwnerShip[j]= i;
 	  lump+=dominoEnergy[j];
 	}
@@ -369,7 +369,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       for (int j=idxPeak-1;j>=0;--j){
 	if (OwnerShip[j]==-1 && 
 	    dominoEnergy[j] > eThres
-	    && dominoEnergy[j] < dominoEnergy[j+1]){
+	    && dominoEnergy[j] <= dominoEnergy[j+1]){
 	  OwnerShip[j]= i;
 	  lump+=dominoEnergy[j];
 	}

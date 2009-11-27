@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockNotifier.h,v 1.4 2009/07/02 12:55:28 dshpakov Exp $
+// $Id: MockNotifier.h,v 1.6 2009/09/29 08:00:41 mommsen Exp $
 
 #ifndef MOCKNOTIFIER_H
 #define MOCKNOTIFIER_H
@@ -27,14 +27,10 @@ namespace stor
     ~MockNotifier() {}
 
     void reportNewState( const std::string& stateName ) {}
-    Logger& getLogger() { return _app->getApplicationLogger(); }
-    void tellSentinel( const std::string& level, xcept::Exception& e ) {}
 
   private:
 
     MockApplication* _app;
-
-    unsigned long instanceNumber() const { return 0; }
 
   };
 

@@ -7,8 +7,8 @@ rpcEventSummary.Tier0 = False
 
 from DQM.RPCMonitorClient.RPCDqmClient_cfi import *
 
-#from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
-rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
+from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
+
 
 qTesterRPC = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),

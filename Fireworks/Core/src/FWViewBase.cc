@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.11 2009/04/15 10:36:22 amraktad Exp $
+// $Id: FWViewBase.cc,v 1.12 2009/07/21 16:38:56 amraktad Exp $
 //
 
 // system include files
@@ -99,6 +99,11 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
+}
+
+FWViewContextMenuHandlerBase* 
+FWViewBase::contextMenuHandler() const {
+   return 0;
 }
 
 //

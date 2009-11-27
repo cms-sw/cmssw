@@ -115,6 +115,8 @@ valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
 EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
 HcalTPGCoderULUT.read_Ascii_LUTs = True
 HcalTPGCoderULUT.inputLUTs = 'L1Trigger/HardwareValidation/hwtest/globrun/HcalCRAFTPhysicsV2.dat'
+valGctDigis.preSamples = cms.uint32(0)
+valGctDigis.postSamples = cms.uint32(0)
 
 # the comparator module
 # parameters are specified in cfi

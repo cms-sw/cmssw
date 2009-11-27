@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.8 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWGlimpseViewManager.h,v 1.9 2009/04/07 14:07:28 chrjones Exp $
 
 // system include files
 #include <string>
@@ -22,7 +22,6 @@ class TGFrame;
 class FWGlimpseView;
 class FWViewBase;
 class TEveElementList;
-class TEveSelection;
 class FWSelectionManager;
 class TEveWindowSlot;
 
@@ -42,11 +41,6 @@ public:
    virtual void newItem(const FWEventItem*);
 
    FWViewBase* buildView(TEveWindowSlot* iParent);
-
-   //connect to ROOT signals
-   void selectionAdded(TEveElement*);
-   void selectionRemoved(TEveElement*);
-   void selectionCleared();
 
 protected:
    virtual void modelChangesComing();
@@ -69,7 +63,6 @@ private:
    std::vector<boost::shared_ptr<FWGlimpseView> > m_views;
    TEveElementList m_elements;
 
-   TEveSelection* m_eveSelection;
    FWSelectionManager* m_selectionManager;
 
    FWEveValueScaler m_scaler;

@@ -1,4 +1,4 @@
-// $Id: WrapperNotifier.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+// $Id: WrapperNotifier.h,v 1.9 2009/09/29 07:54:01 mommsen Exp $
 /// @file: WrapperNotifier.h 
 
 #ifndef StorageManager_WrapperNotifier_h
@@ -16,9 +16,9 @@ namespace stor
   /**
      Notifier implementation used by StorageManager
 
-     $Author: dshpakov $
-     $Revision: 1.7 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.9 $
+     $Date: 2009/09/29 07:54:01 $
   */
   class WrapperNotifier: public Notifier
   {
@@ -35,29 +35,10 @@ namespace stor
     */
     void reportNewState( const std::string& stateName );
 
-    /**
-       Access logger
-    */
-    Logger& getLogger() { return _app->getApplicationLogger(); }
-
-    /**
-       Send message to sentinel
-    */
-    void tellSentinel( const std::string& level,
-                       xcept::Exception& e )
-    {
-      _app->notifyQualified( level, e );
-    }
-
   private:
 
     xdaq2rc::RcmsStateNotifier _rcms_notifier;
     xdaq::Application* _app;
-
-    unsigned long instanceNumber() const
-    {
-      return _app->getApplicationDescriptor()->getInstance();
-    }
 
   };
 

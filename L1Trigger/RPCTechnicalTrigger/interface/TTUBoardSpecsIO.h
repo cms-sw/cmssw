@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUBoardSpecsIO.h,v 1.1 2009/06/04 11:52:58 aosorio Exp $
 #ifndef CONFIGCODE_TTUBOARDSPECSIO_H 
 #define CONFIGCODE_TTUBOARDSPECSIO_H 1
 
@@ -28,7 +28,9 @@ public:
 protected:
   
 private:
-
   
 };
+
+std::istream& operator>>(std::istream &, TTUBoardSpecsIO::TTUBoardConfig &);
+
 #endif // CONFIGCODE_TTUBOARDSPECSIO_H

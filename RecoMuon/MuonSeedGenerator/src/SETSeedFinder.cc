@@ -54,7 +54,7 @@ struct sorter{
 std::vector<SETSeedFinder::MuonRecHitContainer>
 SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
 {
-  sort(cluster.begin(), cluster.end(),sortSegRadius);
+  stable_sort(cluster.begin(), cluster.end(),sortSegRadius);
     //---- group hits in detector layers (if in same layer); the idea is that
     //---- some hits could not belong to a track simultaneously - these will be in a
     //---- group; two hits from one and the same group will not go to the same track
@@ -132,6 +132,13 @@ void SETSeedFinder::limitCombinatorics(std::vector< MuonRecHitContainer > & Muon
   if(1==nLayers){
     return ;
   }
+  // maximal number of (segment) layers would be upto ~12; see next function
+  // below is just a quick fix for a rare "overflow"
+  if(MuonRecHitContainer_perLayer.size()>15){
+    MuonRecHitContainer_perLayer.resize(1);
+    return;
+  }
+		
   std::vector <double> sizeOfLayer(nLayers);
   //std::cout<<" nLayers = "<<nLayers<<std::endl;
   double nAllCombinations = 1.;

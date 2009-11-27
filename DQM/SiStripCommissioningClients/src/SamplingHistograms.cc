@@ -16,13 +16,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-SamplingHistograms::SamplingHistograms( const edm::ParameterSet& pset,
-                                        DQMStore* bei,
-                                        const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("SamplingParameters"),
-                             bei,
-                             task ),
-    sOnCut_(3)
+SamplingHistograms::SamplingHistograms( DQMStore* bei,const sistrip::RunType& task ) 
+  : CommissioningHistograms( bei, task ),sOnCut_(3)
 {
   LogTrace(mlDqmClient_) 
        << "[SamplingHistograms::" << __func__ << "]"
@@ -37,13 +32,8 @@ SamplingHistograms::SamplingHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-SamplingHistograms::SamplingHistograms( const edm::ParameterSet& pset,
-                                        DQMOldReceiver* mui,
-                                        const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("SamplingParameters"),
-                             mui,
-                             task ),
-    sOnCut_(3)
+SamplingHistograms::SamplingHistograms( DQMOldReceiver* mui,const sistrip::RunType& task ) 
+  : CommissioningHistograms( mui, task ),sOnCut_(3)
 {
   LogTrace(mlDqmClient_) 
        << "[SamplingHistograms::" << __func__ << "]"
@@ -97,7 +87,7 @@ void SamplingHistograms::histoAnalysis( bool debug ) {
     // Perform histo analysis
     SamplingAnalysis* anal = new SamplingAnalysis( iter->first );
     anal->setSoNcut(sOnCut_);
-    SamplingAlgorithm algo( this->pset(), anal, latencyCode_ );
+    SamplingAlgorithm algo( anal, latencyCode_ );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     

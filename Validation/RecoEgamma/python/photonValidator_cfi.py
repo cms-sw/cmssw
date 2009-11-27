@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 photonValidation = cms.EDAnalyzer("PhotonValidator",
     Name = cms.untracked.string('photonValidation'),
-    OutputMEsInRootFile = cms.bool(False),
+    OutputMEsInRootFile = cms.bool(True),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
     scBarrelProducer = cms.string('correctedHybridSuperClusters'),
@@ -20,13 +20,9 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     label_tp = cms.InputTag("tpSelection"),                              
     Verbosity = cms.untracked.int32(0),
     signal =  cms.bool(True),
-    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
 #
-    minPhoEtCut = cms.double(0.),
+    minPhoEtCut = cms.double(35.0),
     convTrackMinPtCut = cms.double(1.),
-    likelihoodCut = cms.double(0.5),
-#
-    useTP =  cms.bool(True),
 #
     eBin = cms.int32(100),
     eMin = cms.double(0.0),

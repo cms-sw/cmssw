@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.25 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.33 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -44,10 +44,6 @@
 #include "TEveManager.h"
 #include "TEveWindow.h"
 #include "TEveElement.h"
-#include "TEveCalo.h"
-#include "TEveElement.h"
-#include "TEveRGBAPalette.h"
-#include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
 #include "TGLScenePad.h"
 #include "TGLFontManager.h"
@@ -59,6 +55,9 @@
 #include "TGeoArb8.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -92,6 +91,10 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
@@ -101,12 +104,13 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
    if ( TGLPerspectiveCamera* camera =
         dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
       m_cameraFOV = &(camera->fFOV);
+   m_viewer=nv;
+   gEve->AddElement(nv, gEve->GetViewers());
 
+   // scene
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
    m_scene = ns;
    nv->AddScene(ns);
-   m_viewer=nv;
-   gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
 
@@ -262,8 +266,9 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 
 void
 FWGlimpseView::setBackgroundColor(Color_t iColor) {
-   m_viewer->GetGLViewer()->SetClearColor(iColor);
+   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
 }
+
 //
 // const member functions
 //
@@ -314,6 +319,11 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osValue << *m_cameraFOV;
       iTo.addKeyValue("Glimpse FOV",FWConfiguration(osValue.str()));
    }
+}
+
+FWViewContextMenuHandlerBase* 
+FWGlimpseView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
 }
 
 void

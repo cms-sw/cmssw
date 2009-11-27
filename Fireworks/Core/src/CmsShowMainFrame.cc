@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.61 2009/08/26 18:59:19 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.67 2009/11/10 14:36:09 amraktad Exp $
 //
 // hacks
 #define private public
@@ -93,7 +93,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
-   CSGAction *showColorInsp = new CSGAction(this, cmsshow::sShowColorInsp.c_str());
+   CSGAction *showBrightnessInsp = new CSGAction(this, cmsshow::sShowBrightnessInsp.c_str());
 
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
@@ -105,8 +105,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
+   CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -130,13 +131,15 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
-
+   
    openData->createMenuEntry(fileMenu);
+   searchFiles->createMenuEntry(fileMenu);
+   searchFiles->disable();
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
-
+    
    exportImage->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
 
@@ -165,8 +168,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   showColorInsp->createMenuEntry(viewMenu);
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
+
+   colorset->createMenuEntry(viewMenu);
+   colorset->createShortcut(kKey_B, "CTRL", GetId());
+ 
+   showBrightnessInsp->createMenuEntry(viewMenu);
 
    viewMenu->AddSeparator();
 
@@ -310,7 +317,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    // text/num entries
 
    Int_t maxW =  fullbar->GetWidth() - controlFrame->GetWidth();
-   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 44, kFixedSize, backgroundColor);
+   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 48, kFixedSize, backgroundColor);
    Int_t entryHeight = 20;
 
    // upper row
@@ -325,17 +332,32 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
    makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff);
    m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger);
-   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,2,0,0));
 
    runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
 
    texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
 
    // lower row
-   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
-   makeFixedSizeLabel(filterFrame, "Filter", backgroundColor, 0xffffff);
-   m_filterEntry = new TGTextEntry(filterFrame, "");
-   filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
+   // m_filterEntry = new TGTextEntry(filterFrame, "");
+   // filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   // m_filterButton = new
+   
+   TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
+   m_filterState = new TGCheckButton(filterFrame,"");
+   m_filterState->SetBackgroundColor(backgroundColor);
+   m_filterState->SetTextColor(0xFFFFFF);
+   m_filterState->SetToolTipText("Enable/disable event filtering");
+   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
+   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
+
+   m_filterEditButton = new TGTextButton(filterFrame,"Event filtering is OFF");
+   m_filterEditButton->SetBackgroundColor(backgroundColor);
+   m_filterEditButton->SetTextColor(0xFFFFFF);
+   m_filterEditButton->SetToolTipText("Edit event selection");
+   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
+
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 
@@ -464,8 +486,8 @@ CmsShowMainFrame::enableActions(bool enable)
 {
    CSGActionSupervisor::enableActions(enable);
 
-   m_runEntry->SetEditDisabled(!enable);
-   m_eventEntry->SetEditDisabled(!enable);
+   m_runEntry->SetEnabled(enable);
+   m_eventEntry->SetEnabled(enable);
 }
 
 void

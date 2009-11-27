@@ -20,14 +20,14 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon, 
     logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGCrystalStatusRcd'),
-#        tag = cms.string('EcalTPGPedestals_craft')
-       tag = cms.string('EcalTPGCrystalStatus_TPGTrivial_config')
+        tag = cms.string('EcalTPGCrystalStatus_craft')
     ))
 )
 
@@ -37,14 +37,15 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadXTAnalyzer",
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('13'),
+     firstRun = cms.string('98273'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('ecalh4db'),
-     OnlineDBUser = cms.string('test01'),
-     OnlineDBPassword = cms.string('oratest01'),
+     OnlineDBSID = cms.string('cms_omds_lb'),
+     OnlineDBUser = cms.string('cms_ecal_conf'),
+     OnlineDBPassword = cms.string('************'),
      LocationSource = cms.string('P5'),
-     Location = cms.string('H4'),
-     GenTag = cms.string('default')
+     Location = cms.string('P5_Co'),
+     GenTag = cms.string('GLOBAL'),
+     RunType = cms.string('COSMICS')
     )                            
 )
 

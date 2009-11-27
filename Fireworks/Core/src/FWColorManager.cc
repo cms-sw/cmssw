@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.12 2009/05/28 19:01:45 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.21 2009/10/06 11:26:22 amraktad Exp $
 //
 
 // system include files
@@ -17,8 +17,10 @@
 #include <boost/shared_ptr.hpp>
 #include "TColor.h"
 #include "TROOT.h"
+#include "TGLUtil.h"
 #include "TObjArray.h"
 #include "TMath.h"
+#include "TGLViewer.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -56,50 +58,30 @@ enum {
 };
 
 static const float s_forWhite[][3] ={
-{0.82, 0.82, 0.17}, //yellow (made it a bit darker)
-{0.53, 0.00, 0.69}, //purple
-{0.98, 0.74, 0.01}, //yellowish-orange
-{0.24, 0.00, 0.64}, //purplish-blue
-{0.98, 0.60, 0.01}, //orange
-{0.01, 0.28, 1.00}, //blue
-{0.99, 0.33, 0.03}, //dark orange
-{0.01, 0.83, 0.81}, //cyan
-{1.00, 0.09, 0.00}, //red
-{0.40, 0.69, 0.20}, //green
-{0.65, 0.10, 0.29}, //burgundy
-{0.65, 0.92, 0.17}, //lime
-/*
-{1.,0.,0.}, //red
-{0.,0.,1.}, //blue
-{0.,1.,1.},  //cyan
-{0.,1.,0.}, //green
-{1.,0.,1.}, //magenta
-{1.,0.5,0.0}, //orange
-{1.,1.,0.}, //yellow
-{0.5,0.5,0.5}, //gray
-*/
-{0.99, 1.00, 0.46},
-{0.89, 0.76, 0.93},
-{0.99, 0.90, 0.64},
-{0.82, 0.76, 0.92},
-{1.00, 0.85, 0.64},
-{0.75, 0.82, 0.99},
-{1.00, 0.83, 0.76},
-{0.75, 0.98, 0.96},
-{0.99, 0.78, 0.74},
-{0.80, 0.88, 0.70},
-{0.92, 0.78, 0.82},
-{0.72, 0.96, 0.58}
-/*
-{1.,0.3,0.3},
-{0.3,0.3,1.},
-{0.3,1.,1.},
-{0.3,1.,0.3},
-{1.,0.3,1.},
-{1.,0.7,0.0},
-{1.,1.,0.3},
-{0.7,0.7,0.7}
- */
+{ 0.79, 0.79, 0.12 }, //yellow (made it a bit darker)
+{ 0.47, 0.00, 0.64 }, //purple
+{ 0.98, 0.70, 0.00 }, //yellowish-orange
+{ 0.18, 0.00, 0.59 }, //purplish-blue
+{ 0.98, 0.54, 0.00 }, //orange
+{ 0.00, 0.22, 1.00 }, //blue
+{ 0.99, 0.26, 0.01 }, //dark orange
+{ 0.00, 0.80, 0.78 }, //cyan
+{ 1.00, 0.06, 0.00 }, //red
+{ 0.33, 0.64, 0.14 }, //green
+{ 0.60, 0.06, 0.23 }, //burgundy
+{0.65, 0.92, 0.17}, //lime{ 0.99, 1.00, 0.39 },
+
+{ 0.87, 0.72, 0.92 },
+{ 0.99, 0.88, 0.59 },
+{ 0.79, 0.72, 0.90 },
+{ 1.00, 0.82, 0.59 },
+{ 0.71, 0.79, 0.99 },
+{ 1.00, 0.80, 0.72 },
+{ 0.71, 0.98, 0.95 },
+{ 0.99, 0.74, 0.70 },
+{ 0.77, 0.86, 0.65 },
+{ 0.90, 0.74, 0.79 },
+{ 0.67, 0.95, 0.52 }
 };
 
 static const float s_forBlack[][3] ={
@@ -152,15 +134,15 @@ static const float s_forBlack[][3] ={
 static const unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
 
 static const float s_geomForWhite[][3] ={
-{1.,0.5,0.5},
-{1.,0.5,0.5},
-{0.45,0.68,1.},
-{0.2,0.4,1.},
-{0.57,1.,0.26},
-{0.8, 0.8, 0.8}, // calo3d grid
-{0.8, 0.8, 0.8}, // lego grid
-{0.6, 0.6, 0.6}, // lego boundrary
-{0.4, 0.4, 0.4} // lego font
+{ 1.00, 0.44, 0.44 },
+{ 1.00, 0.44, 0.44 },
+{ 0.38, 0.63, 1.00 },
+{ 0.14, 0.33, 1.00 },
+{ 0.51, 1.00, 0.20 },
+{ 0.77, 0.77, 0.77 }, // calo3d grid
+{ 0.77, 0.77, 0.77 }, // lego grid
+{ 0.54, 0.54, 0.54 }, // lego boundrary
+{ 0.33, 0.33, 0.33 } // lego font
 };
 
 static const float s_geomForBlack[][3] ={
@@ -204,9 +186,9 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
       float blue = (*iColors)[2];
      
       // apply brightness
-      red     =  TMath::Power( red, (2.5 + gammaOff)/2.5);
-      green = TMath::Power(green, (2.5 + gammaOff)/2.5);
-      blue   = TMath::Power(blue, (2.5 + gammaOff)/2.5);
+      red     = TMath::Power(red,   (2.5 + gammaOff)/2.5);
+      green   = TMath::Power(green, (2.5 + gammaOff)/2.5);
+      blue    = TMath::Power(blue,  (2.5 + gammaOff)/2.5);
 
       c->SetRGB(red,green,blue);
    }
@@ -271,7 +253,6 @@ FWColorManager::~FWColorManager()
 
 void FWColorManager::updateColors()
 {
-
    if(backgroundColorIndex() == kBlackIndex) {
       resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
       resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
@@ -306,15 +287,21 @@ FWColorManager::defaultBrightness()
 }
 
 void 
+FWColorManager::switchBackground()
+{ 
+   setBackgroundColorIndex(isColorSetDark() ? kWhiteIndex : kBlackIndex);
+}
+
+void 
 FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
 {
    if(backgroundColorIndex()!=iIndex) {
       if(backgroundColorIndex()==kBlackIndex) {
-         m_background=kWhite;
-         m_foreground=kBlack;
+         m_background=kWhiteIndex;
+         m_foreground=kBlackIndex;
       } else {
-         m_background=kBlack;
-         m_foreground=kWhite;
+         m_background=kBlackIndex;
+         m_foreground=kWhiteIndex;
       }
       updateColors();
    }
@@ -325,6 +312,20 @@ FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 {
    m_gammaOff = -b*0.1f;
    setBackgroundColorIndex(iIndex);
+}
+
+Bool_t 
+FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
+{
+   if ( iColor == kBlackIndex && !v->IsColorSetDark() ||
+        iColor == kWhiteIndex && v->IsColorSetDark() )
+   { 
+      v->SwitchColorSet();
+      v->RequestDraw(TGLRnrCtx::kLODHigh);
+
+      return kTRUE;
+   }
+   return kFALSE;
 }
 
 //
