@@ -183,9 +183,9 @@ void HLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){
 
-  MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/HLTRate_Muon");
+  MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/Ratio_HLT_L1MuOpen");
 
-  float muonResult = -1;
+  float muonResult = 0;
 
   if(Muon_QHist){
     const QReport *Muon_QReport = Muon_QHist->getQReport("CompareHist_Shape");
@@ -194,13 +194,14 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int nSubsystems = 20;
   for (int k = 0; k < nSubsystems; k++) {
-    if(k == 1 && muonResult != -1){
-      summaryContent[k] = muonResult;
-      reportSummaryContent_[k]->Fill(muonResult);
-    }else{
+    // mask all HLT applications
+    //if(k == 1 && muonResult != -1){
+    //  summaryContent[k] = muonResult;
+    //  reportSummaryContent_[k]->Fill(muonResult);
+    //}else{
       summaryContent[k] = 1;
       reportSummaryContent_[k]->Fill(1.);
-    }
+    //}
   }
   summarySum = 0;
 
