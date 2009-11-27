@@ -14,7 +14,7 @@ CondBasicIter::CondBasicIter(
 {
 }
 
-CondBasicIter(const std::string & NameDB,
+CondBasicIter::CondBasicIter(const std::string & NameDB,
 	      const std::string & Tag,
 	      const std::string & auth
 	      ):
@@ -59,11 +59,13 @@ void CondBasicIter::setMax(unsigned int max){
 
 
 
-unsigned int CondBasicIter::getTime(){return (getStartTime()+getStopTime())/2;}
+unsigned int CondBasicIter::getTime()  const {return (getStartTime()+getStopTime())/2;}
 
-unsigned int CondBasicIter::getStartTime(){return (*iter).since();}
+unsigned int CondBasicIter::getStartTime()  const {return (*iter).since();}
 
-unsigned int CondBasicIter::getStopTime(){return (*iter).till();}
+unsigned int CondBasicIter::getStopTime() const {return (*iter).till();}
+
+  std::string & getToken() const  {return (*iter).token();}
 
 
 bool CondBasicIter::init() {

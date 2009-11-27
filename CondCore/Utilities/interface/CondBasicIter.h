@@ -7,7 +7,7 @@
 class CondBasicIter{
 
 protected:
-  cond::RDBMS rdmbs;
+  cond::RDBMS rdbms;
   cond::CondDB db;
   cond::IOVProxy iov;
   bool initialized;
@@ -76,18 +76,22 @@ protected:
   /**
      Get the mean time of the Iterval of Validity.
   */  
-  unsigned int getTime();
+  unsigned int getTime() const;
   
   /**
      Get the SINCE TIME of the Interval of Validity.
   */
-  unsigned int getStartTime();
+  unsigned int getStartTime()  const;
   
   /**
      Get the TILL TIME of the Interval of Validity.
   */
-  unsigned int getStopTime();
+  unsigned int getStopTime()  const;
   
+  /**
+     Get the token correpsonding to the Interval of Validity.
+  */
+  std::string & getToken() const;
 
 
   bool init();
