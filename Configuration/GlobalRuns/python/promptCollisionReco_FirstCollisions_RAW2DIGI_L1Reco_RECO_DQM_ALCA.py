@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -67,11 +67,12 @@ process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
 
 
-
+#####################################################################################################
 ####
 ####  Top level replaces for handling strange scenarios of early collisions
 ####
 
+## TRACKING:
 process.globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 process.pixelLessCkfTrajectoryFilter = process.ckfBaseTrajectoryFilter.clone(
     ComponentName = 'pixelLessCkfTrajectoryFilter',
@@ -84,8 +85,6 @@ process.pixelLessCkfTrajectoryBuilder = process.GroupedCkfTrajectoryBuilder.clon
 process.ckfTrackCandidatesPixelLess.TrajectoryBuilder = 'pixelLessCkfTrajectoryBuilder'
 process.globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 40
 process.globalPixelLessSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
-
-
 ## Skip events with HV off
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
@@ -141,6 +140,7 @@ process.tobtecStep = process.tobtecStepLoose.clone(
     minNumber3DLayers = 2,
     )
 
+## PV temporary fixes
 process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 10
 process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
 process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
@@ -148,8 +148,21 @@ process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = -1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
+## ECAL temporary fixes
+process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
+process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
+## HCAL temporary fixes
+process.hfreco.firstSample  = 3
+process.hfreco.samplesToAdd = 4
 
+###
+###  end of top level replacements
+###
+###############################################################################################
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
