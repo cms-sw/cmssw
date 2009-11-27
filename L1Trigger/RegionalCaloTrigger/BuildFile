@@ -17,6 +17,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/HepMCCandidate>
+<use name=CondFormats/RunInfo>
 <use name=root>
 
 <export>
