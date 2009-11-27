@@ -12,17 +12,18 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdRead_cfi")
 # 'twiki' is default - others are text, python (future: html?)
 #process.AlCaRecoTriggerBitsRcdRead.outputType = 'twiki'
-# If rawFileName empty, use message logger, otherwise add suffix according to outputType:
+# If rawFileName stays empty (default), use the message logger for output.
+# Otherwise use the file name specified, adding a suffix according to outputType:
 process.AlCaRecoTriggerBitsRcdRead.rawFileName = 'triggerBits'
 
-# No data, but might want to specify 'firstRun' to check (default is 1):
+# No data, but might want to specify the 'firstRun' to check (default is 1):
 process.source = cms.Source("EmptySource",
                             numberEventsInRun = cms.untracked.uint32(1), # do not change!
                             firstRun = cms.untracked.uint32(1)
                             )
 # With 'numberEventsInRun = 1' above,
 # this will check IOVs until run (!) number specified as 'input' here,
-# so take care not to choose a one that is not too small...:
+# so take care to choose a one that is not too small...:
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
 
 # Input for AlCaRecoTriggerBitsRcd,
