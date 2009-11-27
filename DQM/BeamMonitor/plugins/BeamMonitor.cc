@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/26 17:36:33 $
- * $Revision: 1.8 $
+ * $Date: 2009/11/27 03:15:37 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -125,7 +125,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   if (reportSummary) dbe_->removeElement(reportSummary->getName());
 
   reportSummary = dbe_->bookFloat("reportSummary");
-  if(reportSummary) reportSummary->Fill(1.);
+  if(reportSummary) reportSummary->Fill(-1.);
 
   char histo[20];
   dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
@@ -140,7 +140,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
 
   for (int i = 0; i < nFitElements_; i++) {
     summaryContent_[i] = 0.;
-    reportSummaryContents[i]->Fill(1.);
+    reportSummaryContents[i]->Fill(-1.);
   }
   
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
@@ -197,9 +197,6 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     fitted = true;
   }
 
-  reportSummary->Reset();
-  reportSummaryMap->Reset();
-  
   if (resetHistos_) {
     if (debug_) cout << "Resetting Histograms" << endl;
     h_d0_phi0->Reset();
