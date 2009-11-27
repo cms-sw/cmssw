@@ -31,6 +31,8 @@ public:
   std::vector<float> getEff(uint32_t id);
   float getTime(uint32_t id);
   std::map< int, std::vector<double> > getClsMap();
+  //  std::map<int, std::vector<double> > getClsMap(uint32_t id);
+  std::vector<double> getCls(uint32_t id);
 
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
@@ -42,6 +44,7 @@ public:
   std::map<uint32_t, std::vector<float> > _mapDetIdEff;
   std::map<RPCDetId, float> _bxmap;
   std::map< int, std::vector<double> > _clsMap;
+  std::map<uint32_t, std::vector<double> > _mapDetClsMap;
 
 };
 

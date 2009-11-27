@@ -28,7 +28,6 @@ RPCFakeCalibration::RPCFakeCalibration( const edm::ParameterSet& pset ) : RPCPer
 }
 
 RPCStripNoises * RPCFakeCalibration::makeNoise() { 
-
   RPCStripNoises * obj = new RPCStripNoises();
   
   std::map< int, std::vector<double> >::iterator itc;
@@ -44,7 +43,7 @@ RPCStripNoises * RPCFakeCalibration::makeNoise() {
     
     tipoprova.dpid = it->first;
     tipoprova.time =  theRPCCalibSetUp->getTime(it->first);
-    
+
     for(unsigned int k = 0; k < 96; ++k){
       tipoprova.noise = ((it->second))[k];
       tipoprova.eff = (theRPCCalibSetUp->getEff(it->first))[k];
@@ -52,5 +51,25 @@ RPCStripNoises * RPCFakeCalibration::makeNoise() {
     }
   }
 
+  return obj;
+}
+
+RPCClusterSize* RPCFakeCalibration::makeCls() {
+  RPCClusterSize * obj = new RPCClusterSize();
+  RPCClusterSize::ClusterSizeItem rpcClsItem;
+  
+  for(std::map<uint32_t, std::vector<double> >::iterator it 
+	= (theRPCCalibSetUp->_mapDetClsMap).begin();
+      it != (theRPCCalibSetUp->_mapDetClsMap).end(); it++){
+    
+    rpcClsItem.dpid =  it->first;
+    
+    for(unsigned int k = 0; k < 100; k++){
+      
+      
+            rpcClsItem.clusterSize = (theRPCCalibSetUp->getCls(it->first))[k];
+            (obj->v_cls).push_back(rpcClsItem);
+    }
+  }
   return obj;
 }

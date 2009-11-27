@@ -30,6 +30,7 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet& ps) {
   _mapDetIdNoise.clear();
   _mapDetIdEff.clear();
   _bxmap.clear();
+  _mapDetClsMap.clear();
 
     //------------------------ Noise Reading ----------------------------
     
@@ -99,7 +100,7 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet& ps) {
       prev_pos = ++pos;
     }
     words.push_back(buff.substr(prev_pos, pos - prev_pos));
-    
+
     for(unsigned int i = 2; i < words.size(); ++i){
       float value = atof(((words)[i]).c_str());
       veff.push_back(value);
@@ -148,6 +149,53 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet& ps) {
   }
   _infile4.close();
 
+  //---------------------- Cluster size Chamber by Chamber -------------------
+
+  edm::FileInPath fp5 = ps.getParameter<edm::FileInPath>("clsidmapfile");
+  std::ifstream _infile5(fp5.fullPath().c_str(), ios::in);
+  
+  std::vector<double> vClsDistrib ;
+  rpcdetid = 0;
+
+  while( getline(_infile5, buff, '\n') ){
+
+    words.clear();
+    vClsDistrib.clear();
+    
+    stringstream ss1;
+    ss1<<buff;
+    ss1>>rpcdetid;
+    
+    std::string::size_type pos = 0, prev_pos = 0;
+    while ( (pos = buff.find("  ",pos)) != string::npos){
+      
+      words.push_back(buff.substr(prev_pos, pos - prev_pos));
+      prev_pos = ++pos;
+    }
+    words.push_back(buff.substr(prev_pos, pos - prev_pos));
+    
+    float clusterSizeSumData(0.);
+
+    for(unsigned int i = 1; i < words.size(); ++i){
+      float value = atof(((words)[i]).c_str());
+      
+      clusterSizeSumData+=value;
+          vClsDistrib.push_back(clusterSizeSumData);
+	  if(!(i%20)){ 
+	    clusterSizeSumData=0.;
+	  }
+    }
+    if(vClsDistrib.size()!=100){
+      throw cms::Exception("DataCorrupt") 
+	<< "Exception comming from RPCCalibSetUp - cluster size - a wrong format "<< std::endl;
+    }
+    _mapDetClsMap.insert(make_pair(static_cast<uint32_t>(rpcdetid),vClsDistrib));
+    std::cout<<"_mapDetClsMap.size()\t"<<_mapDetClsMap.size()<<std::endl;
+  }
+
+  
+  _infile5.close();
+  
 }
 
 std::vector<float> RPCCalibSetUp::getNoise(uint32_t id)
@@ -193,6 +241,19 @@ std::map< int, std::vector<double> > RPCCalibSetUp::getClsMap()
       << "Exception comming from RPCCalibSetUp - cluster size - a wrong format "<< std::endl;
   }
   return _clsMap;
+}
+
+std::vector<double> RPCCalibSetUp::getCls(uint32_t id){
+  std::map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMap.find(id);
+  if(iter == _mapDetClsMap.end()){
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCCalibSetUp - no cluster size information for DetId\t"<<id<< std::endl;
+  }
+  if((iter->second).size() != 100){
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCCalibSetUp - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
+  }
+  return iter->second; 
 }
 
 RPCCalibSetUp::~RPCCalibSetUp(){}
