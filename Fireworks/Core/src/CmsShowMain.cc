@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.121 2009/11/24 13:53:07 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.124 2009/11/26 21:33:13 amraktad Exp $
 //
 
 // system include files
@@ -778,13 +778,13 @@ void CmsShowMain::autoLoadNewEvent()
       if (m_forward && m_navigator->isLastEvent())
       {
          m_guiManager->enableActions();
-         m_guiManager->disableNext();
+         checkPosition();
       }
 
       if ((!m_forward) && m_navigator->isFirstEvent())
       {
          m_guiManager->enableActions();
-         m_guiManager->disablePrevious();
+         checkPosition();
       }
    }
    else
