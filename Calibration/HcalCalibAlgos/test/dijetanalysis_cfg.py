@@ -38,7 +38,7 @@ cms.untracked.vstring(
 process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('RespCorrs'),
-        file = cms.FileInPath('Calibration/HcalCalibAlgos/test/corrections.txt')
+        file = cms.FileInPath('Calibration/HcalCalibAlgos/data/calibConst_IsoTrk_testCone_26.3cm.txt')
     )),
     appendToDataLabel = cms.string('recalibrate')
 )

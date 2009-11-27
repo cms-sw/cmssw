@@ -12,13 +12,6 @@ from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 hcalRecoAnalyzer = cms.EDAnalyzer("HcalCorrPFCalculation",
    TrackAssociatorParameterBlock,
     outputFile = cms.untracked.string("HcalCorrPF.root"),
-#    eventype = cms.untracked.string("single"),
-#    mc = cms.untracked.string("yes"),
-#    sign = cms.untracked.string("*"),
-#    hcalselector = cms.untracked.string("all"),
-#    RespcorrAdd = cms.untracked.bool(True),
-#    PFcorrAdd = cms.untracked.bool(True),
     ConeRadiusCm = cms.untracked.double(30.),
-#    ecalselector = cms.untracked.string("yes")
 )
 

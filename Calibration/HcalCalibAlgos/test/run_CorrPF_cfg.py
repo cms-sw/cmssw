@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HcalPFCorrsCulculation")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Calibration.HcalCalibAlgos.HcalCorrPFCalculation_cfi")
-#process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
