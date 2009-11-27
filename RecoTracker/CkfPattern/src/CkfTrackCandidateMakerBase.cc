@@ -48,7 +48,7 @@ namespace cms{
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
     doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
-    theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
+    theMaxNSeeds(conf.getUntrackedParameter<unsigned int>("maxNSeeds",100000)),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
