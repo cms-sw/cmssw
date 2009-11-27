@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.14 2009/10/01 16:46:57 neadam Exp $
+// $Id: HLXMonitor.h,v 1.15 2009/10/29 12:40:37 neadam Exp $
 //
 //
 
@@ -242,6 +242,7 @@ class HLXMonitor : public edm::EDAnalyzer
       bool ResetAtNewRun;
       bool SaveAtEndJob;
 
+      std::string eventInfoFolderHLX_;
       std::string eventInfoFolder_;
       std::string subSystemName_;
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+#source = cms.Source("EmptySource")
 
 # name of DQM Source program
 hlxdqmsource = cms.EDFilter("HLXMonitor",
@@ -13,13 +13,14 @@ hlxdqmsource = cms.EDFilter("HLXMonitor",
     PrimaryHLXDAQIP = cms.untracked.string('vmepcs2f17-18'),
     SecondaryHLXDAQIP = cms.untracked.string('vmepcs2f17-19'),
     subSystemName = cms.untracked.string('HLX'),
-    XMIN = cms.untracked.double(100.0),
+    NBINS = cms.untracked.uint32(288), ## 12 bunch crossings per bin
+    XMIN = cms.untracked.double(4.0),
     XMAX = cms.untracked.double(3460.0),
-    NBINS = cms.untracked.uint32(280),
     SourcePort = cms.untracked.uint32(51001),
     AquireMode = cms.untracked.uint32(0), ## 0 TCP data, 1 constant fake data
     ReconnectionTime = cms.untracked.uint32(60), ## re-try every minute
     MinLSBeforeSave = cms.untracked.uint32(6),
+    SaveAtEndJob = cms.untracked.bool(False),
 
     # History for time vs. Num events
     # Dist for Distribution of Num events

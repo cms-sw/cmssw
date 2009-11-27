@@ -37,6 +37,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    ResetAtNewRun    = iConfig.getUntrackedParameter< bool         >("NewRun_Reset","true");
    SaveAtEndJob     = iConfig.getUntrackedParameter< bool         >("SaveAtEndJob","true");
 
+   eventInfoFolderHLX_ = iConfig.getUntrackedParameter<std::string>("eventInfoFolderHLX", "EventInfoHLX") ;
    eventInfoFolder_ = iConfig.getUntrackedParameter<std::string   >("eventInfoFolder", "EventInfo") ;
    subSystemName_   = iConfig.getUntrackedParameter<std::string   >("subSystemName", "HLX") ;
 
@@ -609,7 +610,7 @@ void HLXMonitor::SetupEventInfo( )
 
    using std::string;
 
-   string currentfolder = subSystemName_ + "/" +  eventInfoFolder_;
+   string currentfolder = subSystemName_ + "/" +  eventInfoFolderHLX_;
    //cout << "currentfolder " << currentfolder << endl;
 
    dbe_->setCurrentFolder(currentfolder) ;
@@ -653,8 +654,17 @@ void HLXMonitor::SetupEventInfo( )
    cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
    dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
 
+   // Go to the standard EventInfo folder (in the case online case where this
+   // is different).
+   currentfolder = subSystemName_ + "/" +  eventInfoFolder_;
+   dbe_->setCurrentFolder(currentfolder) ;
+
    reportSummary_ = dbe_->bookFloat("reportSummary");
    reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18, 0., 18., 2, -1.5, 1.5);
+
+   currentfolder = subSystemName_ + "/" +  eventInfoFolderHLX_;
+   dbe_->setCurrentFolder(currentfolder) ;
+
    TH2F *summaryHist = reportSummaryMap_->getTH2F();
    summaryHist->GetYaxis()->SetBinLabel(1,"HF-");
    summaryHist->GetYaxis()->SetBinLabel(2,"HF+");
