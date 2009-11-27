@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/19 23:47:02 $
- * $Revision: 1.7 $
+ * $Date: 2009/11/26 17:36:33 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -41,7 +41,8 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
-
+  
+  nFits = 0;
 }
 
 
@@ -155,7 +156,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   reportSummaryMap->setBinLabel(2,"y_{0}",2);
   reportSummaryMap->setBinLabel(3,"z_{0}",2);
   for (int i = 0; i < nFitElements_; i++) {
-    reportSummaryMap->setBinContent(1,i+1,1.);
+    reportSummaryMap->setBinContent(1,i+1,-1.);
   }
 }
 
@@ -190,7 +191,12 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
-  
+  bool fitted = false;
+  if (theBSvector.size() > nthBSTrk_) {
+    nFits++;
+    fitted = true;
+  }
+
   reportSummary->Reset();
   reportSummaryMap->Reset();
   
@@ -220,7 +226,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       h_trk_z0->Fill( z0 );
     }
   }
-  nthBSTrk_ = theBSvector.size();
+  nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
   if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
@@ -231,8 +237,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   fgaus->SetLineColor(4);
   h_trk_z0->getTH1()->Fit("fgaus","Q");
 
-  int nfits = countLumi_ / fitNLumi_;
-  if (theBeamFitter->runFitter()){
+  if (fitted && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
       cout << "\n RESULTS OF DEFAULT FIT:" << endl;
@@ -269,19 +274,21 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   
   // Fill summary report
-  for (int n = 0; n < nFitElements_; n++) {
-    reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nfits );
-  }
+  if (fitted) {
+    for (int n = 0; n < nFitElements_; n++) {
+      reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits );
+    }
 
-  summarySum_ = 0;
-  for (int ii = 0; ii < nFitElements_; ii++) {
-    summarySum_ += summaryContent_[ii];
-  }
-  reportSummary_ = summarySum_ / (nFitElements_ * nfits);
-  if (reportSummary) reportSummary->Fill(reportSummary_);
+    summarySum_ = 0;
+    for (int ii = 0; ii < nFitElements_; ii++) {
+      summarySum_ += summaryContent_[ii];
+    }
+    reportSummary_ = summarySum_ / (nFitElements_ * nFits);
+    if (reportSummary) reportSummary->Fill(reportSummary_);
 
-  for ( int bi = 0; bi < nFitElements_ ; bi++) {
-    reportSummaryMap->setBinContent(1,bi+1,summaryContent_[bi] / (float)nfits);
+    for ( int bi = 0; bi < nFitElements_ ; bi++) {
+      reportSummaryMap->setBinContent(1,bi+1,summaryContent_[bi] / (float)nFits);
+    }
   }
 
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
