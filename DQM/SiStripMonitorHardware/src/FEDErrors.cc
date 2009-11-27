@@ -5,7 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 
-#include "EventFilter/SiStripRawToDigi/interface/PipeAddrToTimeLookupTable.h"
+//#include "EventFilter/SiStripRawToDigi/interface/PipeAddrToTimeLookupTable.h"
 
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
@@ -377,8 +377,8 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
     // }
 
     if (debugHeader){
-      lFeErr.TimeDifference = 
-	static_cast<uint16_t>(sistrip::FEDAddressConversion::timeLocation(static_cast<uint16_t>(debugHeader->feUnitMajorityAddress(iFE))))-static_cast<uint16_t>(sistrip::FEDAddressConversion::timeLocation(static_cast<uint16_t>(aBuffer->apveAddress())));
+      lFeErr.TimeDifference = 0;
+	//static_cast<uint16_t>(sistrip::FEDAddressConversion::timeLocation(static_cast<uint16_t>(debugHeader->feUnitMajorityAddress(iFE))))-static_cast<uint16_t>(sistrip::FEDAddressConversion::timeLocation(static_cast<uint16_t>(aBuffer->apveAddress())));
       
       //aBuffer->apveAddress(), debugHeader->feUnitMajorityAddress(iFE)
       //FEDAddressConversion::timeLocation(const uint8_t aPipelineAddress)
