@@ -24,7 +24,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    m_text1 = new FWGUIValidatingTextEntry(this, m_guiSelector->m_expression.c_str());
    m_text1->setValidator(validator);
    m_text1->ChangeOptions(0);
-   m_text1->Connect("TextChanged(char*)", "string",  &m_guiSelector->m_expression, "assign(char*)");
+   m_text1->Connect("TextChanged(char*)", "FWGUIEventSelector",  this, "expressionCallback(char*)");
    AddFrame(m_text1, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,1,1));
     
    // -------------- comment
@@ -59,30 +59,34 @@ FWGUIEventSelector::~FWGUIEventSelector()
    delete m_guiSelector;
 }
 
-
-//____________________________________________________________________________
-void FWGUIEventSelector::setActive(bool x)
-{
-   m_text1->SetEnabled(x);
-   m_text2->SetEnabled(x);
-   m_enableBtn->SetEnabled(x);
-   m_deleteBtn->SetEnabled(x);
-}
-
 //____________________________________________________________________________
 void FWGUIEventSelector::enableCallback(bool x)
 {
    m_guiSelector->m_enabled = x;
+   selectorChanged();
 }
 
 //______________________________________________________________________________
 void FWGUIEventSelector::removeSelector(FWGUIEventSelector* s)
 {
-   Emit("removeSelector(FWGUIEventSelector*)", (Long_t)this);
+   Emit("removeSelector(FWGUIEventSelector*)", (Long_t)s);
 }
 
 //______________________________________________________________________________
 void FWGUIEventSelector::deleteCallback()
 {
    removeSelector(this);
+}
+
+//______________________________________________________________________________
+void FWGUIEventSelector::expressionCallback(char* txt)
+{
+   m_guiSelector->m_expression = txt;
+   selectorChanged();
+}
+
+//______________________________________________________________________________
+void FWGUIEventSelector::selectorChanged()
+{
+  Emit("selectorChanged()");
 }

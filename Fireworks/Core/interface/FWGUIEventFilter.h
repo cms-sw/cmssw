@@ -8,6 +8,7 @@
 
 class FWGUIEventSelector;
 class TGButtonGroup;
+class TGTextButton;
 class CSGAction;
 class FWCustomIconsButton;
 
@@ -18,36 +19,38 @@ public:
    FWGUIEventFilter(const TGWindow* parent);
    virtual void CloseWindow();
    
-   void show(std::list<FWEventSelector*>* sels,  fwlite::Event* event, bool isLogicalOR);
+   void show(std::list<FWEventSelector*>* sels,  fwlite::Event* event, int filterMode);
    
    CSGAction* m_applyAction;   
-   CSGAction* m_toggleEnableAction;     
+   CSGAction* m_filterDisableAction;     
    CSGAction* m_finishEditAction; 
 
    std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
-   bool isLogicalOR();
    
    void newEntry();
-   void deleteEntry(FWGUIEventSelector*);
    void addSelector(FWEventSelector* sel);
+   void deleteEntry(FWGUIEventSelector*);
    bool isOpen() { return m_isOpen; }
-   void setActive(bool);
-   bool isActive() const { return m_active; }
+   void apply();
+   void checkApplyButton();
+   void changeFilterMode(Int_t);
+   int  getFilterMode();
    
 private:   
    static const int m_entryHeight = 20;
    static const int m_width       = 500;
    static const int m_height      = 300;
    
-   bool              m_origOr;
+   int               m_origFilterMode;
    bool              m_isOpen;
-   bool              m_active;
+   bool              m_filtersRemoved;
    
    std::list<FWGUIEventSelector*> m_guiSelectors;
    FWHLTValidator*      m_validator;
    TGCompositeFrame*    m_selectionFrameParent;
    TGCompositeFrame*    m_selectionFrame;
-   TGButtonGroup*       m_btnGroup;   
+   TGButtonGroup*       m_btnGroup;
+   TGTextButton*        m_applyBtn;
    FWCustomIconsButton* m_addBtn;
 };
 

@@ -17,12 +17,16 @@ public:
 
    void deleteCallback();
    void enableCallback(bool);
-   void removeSelector(FWGUIEventSelector*); // *SIGNAL*
+   void expressionCallback(char*);
+
    
    FWEventSelector* guiSelector()  { return m_guiSelector;  }
    FWEventSelector* origSelector() { return m_origSelector; }
    void setOrigSelector(FWEventSelector* s) { m_origSelector = s; }
-   void setActive(bool);
+
+   void removeSelector(FWGUIEventSelector*);  // *SIGNAL*
+   void selectorChanged();                    // *SIGNAL*
+
 private:
 
    FWGUIEventSelector(const FWGUIEventSelector&); // stop default
