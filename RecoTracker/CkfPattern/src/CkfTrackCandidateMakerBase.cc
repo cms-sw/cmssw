@@ -48,6 +48,7 @@ namespace cms{
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
     doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
+    theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
@@ -148,6 +149,13 @@ namespace cms{
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
     std::auto_ptr<std::vector<Trajectory> > outputT (new std::vector<Trajectory>());
+
+    if ( (*collseed).size()>theMaxNSeeds ) {
+      LogWarning("CkfTrackCandidateMakerBase")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
+      if (theTrackCandidateOutput){ e.put(output);}
+      if (theTrajectoryOutput){e.put(outputT);}
+      return;
+    }
     
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){

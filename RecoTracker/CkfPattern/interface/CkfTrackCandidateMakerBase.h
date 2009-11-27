@@ -45,6 +45,8 @@ namespace cms
     bool doSeedingRegionRebuilding;
     bool cleanTrajectoryAfterInOut;
 
+    unsigned int theMaxNSeeds;
+
     std::string theTrajectoryBuilderName;
     const TrajectoryBuilder*  theTrajectoryBuilder;
 
