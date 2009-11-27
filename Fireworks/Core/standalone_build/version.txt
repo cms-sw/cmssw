@@ -1,2 +1,2 @@
-3.4.f - beta
+3.4.g - beta
 It works or we fix it for free!
