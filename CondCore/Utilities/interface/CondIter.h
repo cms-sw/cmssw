@@ -4,12 +4,12 @@
 
 #include "CondCore/Utilities/interface/CondBasicIter.h"
 
-#include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondCore/DBCommon/interface/PayloadRef.h"
 
 #include <vector>
 
 
-template <class T>
+template <class DataT>
 class CondIter : public  CondBasicIter{
   
 protected:
@@ -46,7 +46,7 @@ public:
   /**
      Obtain the pointer to an object T. If it is the last T the method returns a null pointer.
   */ 
-  T const * next() {
+  DataT const * next() {
     bool ok=false;
     if (!initialized) {
       n=0;

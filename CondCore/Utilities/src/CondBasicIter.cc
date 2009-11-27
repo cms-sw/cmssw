@@ -28,11 +28,10 @@ void CondBasicIter::create(
 			   const std::string & User,
 			   const std::string & Pass,
 			   const std::string & nameBlob) {
-
   rdbms = cond::RDBMS(User,Pass);
   db = rdbms.getDB(NameDB);
   iov = db.iov(Tag);
-    
+  clear();
 }
 
 void CondBasicIter::create(const std::string & NameDB,
@@ -42,19 +41,23 @@ void CondBasicIter::create(const std::string & NameDB,
   rdbms = cond::RDBMS(auth);
   db = rdbms.getDB(NameDB);
   iov = db.iov(Tag);
+  clear();
 }
 
 
 void CondBasicIter::setRange(unsigned int min,unsigned int max){
   iov.setRange(min,max);
+  clear();
 }
 
 void CondBasicIter::setMin(unsigned int min){
   iov.setRange(min,0);
+  clear();
 }
 
 void CondBasicIter::setMax(unsigned int max){
   iov.setRange(1,max);
+  clear();
 }
 
 
