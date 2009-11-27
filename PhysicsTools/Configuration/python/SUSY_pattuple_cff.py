@@ -219,8 +219,15 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_offlineBeamSpot_*_*',
         'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
         'keep recoTracks_generalTracks_*_*',
+	'keep recoGsfTracks_electronGsfTracks_*_*',
+	'keep recoTracks_standAloneMuons_*_*',
+	'keep recoTracks_globalMuons_*_*',
+	'keep *_muons_*_*',
+	'keep *_gsfElectrons_*_*',
+	'keep *_softPFElectrons_*_*',
+	'keep *_eid*_*_*',
         'keep recoSuperClusters_corrected*_*_*',
-        'keep *_pfElectronTranslator_*_*',
+	'keep recoSuperClusters_pfElectronTranslator_*_*',
         'keep *_gsfElectronCores_*_*',    #Keep electron core
         'keep *_photonCore_*_*',        #Keep electron core
         'keep recoConversions_conversions_*_*',
