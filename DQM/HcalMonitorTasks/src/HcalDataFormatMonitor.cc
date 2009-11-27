@@ -701,21 +701,32 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) spigot);
     if (WholeErrorList!=0) {
-      mapHTRproblem(dcc_, spigot); //There was at least one error, this spigot.
-      if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
+      if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected -- Not data corruption!
 	DataFlowInd_[fed2offset-1][spg3offset-1]++;
-      if (((WholeErrorList>>1)&0x01)!=0)  //HammingCode Uncorrected Error
+      if (((WholeErrorList>>1)&0x01)!=0)  {//HammingCode Uncorrected Error
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+2]++;
-      if (((WholeErrorList>>2)&0x01)!=0)  //Truncated data coming into LRB
+	mapHTRproblem(dcc_, spigot); 
+      }
+      if (((WholeErrorList>>2)&0x01)!=0)  {//Truncated data coming into LRB
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
-      if (((WholeErrorList>>3)&0x01)!=0)  //FIFO Overflow
+	mapHTRproblem(dcc_, spigot); 
+      }
+      if (((WholeErrorList>>3)&0x01)!=0)  {//FIFO Overflow
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+1]++;
-      if (((WholeErrorList>>4)&0x01)!=0)  //ID (EvN Mismatch), htr payload metadeta
+	mapHTRproblem(dcc_, spigot); 
+      }
+      if (((WholeErrorList>>4)&0x01)!=0)  {//ID (EvN Mismatch), htr payload metadeta
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+1]++;
-      if (((WholeErrorList>>5)&0x01)!=0)  //STatus: hdr/data/trlr error
+	mapHTRproblem(dcc_, spigot); 
+      }
+      if (((WholeErrorList>>5)&0x01)!=0)  {//STatus: hdr/data/trlr error
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+0]++;
-      if (((WholeErrorList>>6)&0x01)!=0)  //ODD 16-bit word count from HTR
+	mapHTRproblem(dcc_, spigot); 
+      }
+      if (((WholeErrorList>>6)&0x01)!=0)  {//ODD 16-bit word count from HTR
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+0]++;
+	mapHTRproblem(dcc_, spigot); 
+      }
     }
     if (!dccHeader->getSpigotPresent((unsigned int) spigot)){
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;  //Enabled, but data not present!
