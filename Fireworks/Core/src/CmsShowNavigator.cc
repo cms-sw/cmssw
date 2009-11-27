@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.63 2009/11/26 21:33:12 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.64 2009/11/27 16:42:32 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -74,8 +74,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
 
       FWFileEntry* newFile = new FWFileEntry(fileName);
       m_files.push_back(newFile);
-      if (!m_currentFile.m_isSet)
-         setCurrentFile(m_files.begin());
+      setCurrentFile(m_files.begin());
 
       if (m_filterState != kOff)
       {
@@ -86,6 +85,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
          m_filtersNeedUpdate = true;
          updateFileFilters();
       }
+
       return true;
    }
    catch (std::exception& iException) {
@@ -125,8 +125,6 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
          }
       }
       
-      printf("file size %d \n", (int)m_files.size());
-
       if (m_files.size() >= m_maxNumberOfFilesToChain)
          printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
 
