@@ -21,7 +21,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
     ),
     Signal = cms.bool(True),
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-    digiModel = cms.string('RPCSimAverageNoiseEff')
+    digiModel = cms.string('RPCSimAverageNoiseEffCls')
 )
 
 

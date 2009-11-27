@@ -75,8 +75,12 @@ void RPCDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup){
   edm::ESHandle<RPCStripNoises> noiseRcd;
   eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
 
-  theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
+   edm::ESHandle<RPCClusterSize> clsRcd;
+   eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
 
+   theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+//    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
+  
   theDigitizer->setGeometry( pGeom );
   theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );

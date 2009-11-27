@@ -9,6 +9,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimAverage.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoise.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEff.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(RPCDigiProducer);
@@ -19,4 +20,4 @@ DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimParam,"RPCSimParam");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverage,"RPCSimAverage");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoise,"RPCSimAverageNoise");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEff,"RPCSimAverageNoiseEff");
-
+DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEffCls,"RPCSimAverageNoiseEffCls");

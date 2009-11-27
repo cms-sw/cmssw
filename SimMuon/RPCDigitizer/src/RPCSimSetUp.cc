@@ -71,12 +71,12 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   vvnoise.clear();
 
   for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
-
     if(n%96 == 0) {
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
 	_bxmap[RPCDetId(it->dpid)] = it->time;
+	
 	veff.clear();
 	vvnoise.clear();
 	vvnoise.push_back((it->noise));
@@ -101,6 +101,63 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
     n++;
   }
 }
+
+void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<RPCClusterSize::ClusterSizeItem> vClusterSize){
+
+  std::vector<RPCClusterSize::ClusterSizeItem>::iterator itCls;
+  uint32_t  detId;
+  int clsCounter(1);
+  std::vector<double> clsVect;
+
+  for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
+    clsVect.push_back(((double)(itCls->clusterSize)));
+    if((!(clsCounter%100)) && (clsCounter!=0)){
+      detId=itCls->dpid;
+      _mapDetClsMap[detId]=clsVect;
+      clsVect.clear();
+      clsCounter=0;
+    }
+    ++clsCounter;
+  }
+
+  unsigned int n = 0; 
+  uint32_t temp = 0; 
+  std::vector<float> veff, vvnoise;
+  veff.clear();
+  vvnoise.clear();
+
+  for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+    if(n%96 == 0) {
+      if(n > 0 ){
+	_mapDetIdNoise[temp]= vvnoise;
+	_mapDetIdEff[temp] = veff;
+	_bxmap[RPCDetId(it->dpid)] = it->time;
+	
+	veff.clear();
+	vvnoise.clear();
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
+      }
+      else if(n == 0 ){
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
+	_bxmap[RPCDetId(it->dpid)] = it->time;
+      }
+    } else if (n == vnoise.size()-1 ){
+      temp = it->dpid;
+      vvnoise.push_back((it->noise));
+      veff.push_back((it->eff));
+      _mapDetIdNoise[temp]= vvnoise;
+      _mapDetIdEff[temp] = veff;
+    } else {
+      temp = it->dpid;
+      vvnoise.push_back((it->noise));
+      veff.push_back((it->eff));
+    }
+    n++;
+  }
+}
+
 
 const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
 {
@@ -144,6 +201,23 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
       << "Exception comming from RPCSimSetUp - cluster size - a wrong format "<< std::endl;
   }
   return _clsMap;
+}
+
+
+//const std::map<int, std::vector<double> >& RPCSimSetUp::getClsMap(uint32_t id)
+const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)
+{
+
+  map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMap.find(id);
+  if(iter == _mapDetClsMap.end()){
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCSimSetUp - no cluster size information for DetId\t"<<id<< std::endl;
+  }
+  if((iter->second).size() != 100){
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCSimSetUp - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
+  }
+  return iter->second;
 }
 
 RPCSimSetUp::~RPCSimSetUp(){}

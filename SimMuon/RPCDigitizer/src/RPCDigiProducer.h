@@ -9,6 +9,8 @@
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
+#include "CondFormats/DataRecord/interface/RPCClusterSizeRcd.h"
 
 class RPCGeometry;
 class RPCSimSetUp;
