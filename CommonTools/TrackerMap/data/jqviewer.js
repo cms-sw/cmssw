@@ -144,41 +144,74 @@ $(document).ready(function(){
        $tmap.unbind('click mouseenter mouseleave');
        $detail = $('#detail');
        imgwidth=$tmap.width();
-       imgwidth=imgwidth-imgwidth/15.;
        imgheight=$tmap.height();
        if(first==1)imgleft=$tmap.offset().left+30; else imgleft=$tmap.offset().left;
        imgtop=$tmap.offset().top;
-       iconwidth=imgwidth/15;
-       iconheight=imgheight/4.6;
-       iconspacing=iconheight/20;
-       yoffset=imgheight/7; 
-       xoffset=imgwidth/100;
+       //alert($tmap.width()+" "+$tmap.height()+" "+$tmap.offset().left+" "+$tmap.offset().top);
+        xoffset_BAR=imgwidth/11;
+        xoffset_TIDP=  imgwidth/75;
+        xoffset_TECP= imgwidth/6.5;
+        xoffset_TIDM  = imgwidth/6.8;
+        xoffset_TECM=imgwidth -imgwidth/17;
+        xoffset_BAREND=imgwidth -imgwidth/11;
+        iconsize_TEC=(xoffset_TECM-xoffset_TECP)/9;
+        iconsize_TID=(xoffset_TIDM-xoffset_TIDP)/3;
+        yoffsetFirstRow=imgheight/6.7; 
+        iconheight_BAR=(imgheight-yoffsetFirstRow)/4;
+        iconwidth_BAR=(xoffset_BAREND-xoffset_BAR)/5;
    //alert(imgwidth+" "+ imgheight+" "+imgleft+" "+imgtop+" "+iconwidth+" "+iconheight+" ");
-     for (var xpos=imgwidth+imgleft-iconwidth+xoffset/2; xpos > imgleft-(iconwidth/2); xpos = xpos -iconwidth){
-         title='endcap -z layer|';
-         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos,imgtop+yoffset+iconheight*3+iconspacing,iconwidth,iconheight,title);
-         $layer[numl] = createIcon('images/endcapLayer.png',xpos,imgtop+yoffset+iconheight*3+iconspacing,iconwidth,iconheight);
+     for (var xpos=imgleft+xoffset_TECM; xpos > imgleft+xoffset_TECP+iconsize_TEC/2; xpos = xpos -iconsize_TEC){
+         title='TEC -z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos-iconsize_TEC,yoffsetFirstRow+imgtop+3*iconheight_BAR,iconsize_TEC,iconheight_BAR,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',xpos-iconsize_TEC,yoffsetFirstRow+imgtop+3*iconheight_BAR,iconsize_TEC,iconheight_BAR);
          numl++;
          }
-    for (var xpos=imgleft+xoffset; xpos < imgwidth+imgleft-(iconwidth/2); xpos = xpos +iconwidth){
-      title='endcap +z  layer|';
-         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos,imgtop+yoffset,iconwidth,iconheight,title);
-         $layer[numl] = createIcon('images/endcapLayer.png',xpos,imgtop+yoffset,iconwidth,iconheight);
+     for (var xpos=imgleft+xoffset_TIDM; xpos > imgleft+xoffset_TIDP+iconsize_TID/2; xpos = xpos -iconsize_TID){
+         title='TID -z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos-iconsize_TID,yoffsetFirstRow+imgtop+3*iconheight_BAR,iconsize_TID,iconheight_BAR,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',xpos-iconsize_TID,yoffsetFirstRow+imgtop+3*iconheight_BAR,iconsize_TID,iconheight_BAR);
          numl++;
          }
+       // skip pixel endcap  
+     for (var nl=0; nl<3;nl++){
+         title='PIXE -z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',imgleft,imgtop,1,1,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',imgleft,imgtop,1,1);
+         numl++;
+         }
+     for (var nl=0; nl<3;nl++){
+         title='PIXE +z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',imgleft,imgtop,1,1,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',imgleft,imgtop,1,1);
+         numl++;
+         }
+     for (var xpos=imgleft+xoffset_TIDP; xpos < imgleft+xoffset_TIDM-iconsize_TID/2; xpos = xpos +iconsize_TID){
+         title='TID +z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos,yoffsetFirstRow+imgtop,iconsize_TID,iconheight_BAR,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',xpos,yoffsetFirstRow+imgtop,iconsize_TID,iconheight_BAR);
+         numl++;
+         }
+     for (var xpos=imgleft+xoffset_TECP; xpos < imgleft+xoffset_TECM-iconsize_TEC/2; xpos = xpos +iconsize_TEC){
+         title='TEC +z layer|';
+         $layerp[numl] = createPlaceHolder('images/endcapLayer.png',xpos,yoffsetFirstRow+imgtop,iconsize_TEC,iconheight_BAR,title);
+         $layer[numl] = createIcon('images/endcapLayer.png',xpos,yoffsetFirstRow+imgtop,iconsize_TEC,iconheight_BAR);
+         numl++;
+         }
+     for (var nl=0; nl<3;nl++){
+         title='PIXB layer|';
+         $layerp[numl] = createPlaceHolder('images/barrelLayer.png',imgleft,imgtop,1,1,title);
+         $layer[numl] = createIcon('images/barrelLayer.png',imgleft,imgtop,1,1);
+         numl++;
+         }
+      for (var xpos=imgleft+xoffset_BAR; xpos <imgleft+xoffset_BAREND-iconwidth_BAR/2; xpos = xpos +iconwidth_BAR){
       title='barrel layer|';
-      $layerp[numl] = createPlaceHolder('images/barrelLayer.png',imgleft+xoffset,imgtop+yoffset+iconheight+iconheight/2,iconwidth*2,iconheight,title);
-      $layer[numl] = createIcon('images/barrelLayer.png',imgleft+xoffset,imgtop+yoffset+iconheight+iconheight/2,iconwidth*2,iconheight);
-      numl++;
-      for (var xpos=imgleft+iconwidth*2+xoffset; xpos < imgwidth+imgleft-iconwidth; xpos = xpos +iconwidth*2){
-      title='barrel layer|';
-           $layerp[numl] = createPlaceHolder('images/barrelLayer.png',xpos+xoffset,imgtop+yoffset+iconheight*2+iconspacing,iconwidth*2,iconheight,title);
-           $layer[numl] = createIcon('images/barrelLayer.png',xpos+xoffset,imgtop+yoffset+iconheight*2+iconspacing,iconwidth*2,iconheight);
+           $layerp[numl] = createPlaceHolder('images/barrelLayer.png',xpos,imgtop+yoffsetFirstRow+2*iconheight_BAR,iconwidth_BAR,iconheight_BAR,title);
+           $layer[numl] = createIcon('images/barrelLayer.png',xpos,imgtop+yoffsetFirstRow+2*iconheight_BAR,iconwidth_BAR,iconheight_BAR);
            numl++;
-           $layerp[numl] = createPlaceHolder('images/barrelLayer.png',xpos+xoffset,imgtop+yoffset+iconheight+iconspacing,iconwidth*2,iconheight,title);
-           $layer[numl] = createIcon('images/barrelLayer.png',xpos+xoffset,imgtop+yoffset+iconheight+iconspacing,iconwidth*2,iconheight);
+           $layerp[numl] = createPlaceHolder('images/barrelLayer.png',xpos,imgtop+yoffsetFirstRow+iconheight_BAR,iconwidth_BAR,iconheight_BAR,title);
+           $layer[numl] = createIcon('images/barrelLayer.png',xpos,imgtop+yoffsetFirstRow+iconheight_BAR,iconwidth_BAR,iconheight_BAR);
            numl++;
-          }
+          } 
 $('.place').click(function(e){
           var index = $('.place').index(this);
           var cornerPoint = {};
