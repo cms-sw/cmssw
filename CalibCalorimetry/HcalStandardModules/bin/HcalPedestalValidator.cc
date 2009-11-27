@@ -92,8 +92,10 @@ class Args {
 int main (int argn, char* argv []) {
 
 // CORAL required variables to be set, even if not needed
-  if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blaaah");
-  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blaaah"); 
+  const char* foo1 = "CORAL_AUTH_USER=blaaah";
+  const char* foo2 = "CORAL_AUTH_PASSWORD=blaaah";
+  if (!::getenv("CORAL_AUTH_USER")) ::putenv(const_cast<char*>(foo1));
+  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv(const_cast<char*>(foo2)); 
 
   Args args;
   args.defineParameter ("-p", "raw pedestals");

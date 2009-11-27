@@ -13,8 +13,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2008/01/22 18:59:58 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/04 01:12:53 $
+ * $Revision: 1.11 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -123,8 +123,10 @@ HcalPedestalAnalyzer::HcalPedestalAnalyzer(const edm::ParameterSet& ps){
   m_outputPedestalWidths_run = ps.getUntrackedParameter<int>("outputPedestalWidthsRun", 99999);
 
   // CORAL required variables to be set, even if not needed
-  if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blah");
-  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah"); 
+  const char* foo1 = "CORAL_AUTH_USER=blaaah";
+  const char* foo2 = "CORAL_AUTH_PASSWORD=blaaah";
+  if (!::getenv("CORAL_AUTH_USER")) ::putenv(const_cast<char*>(foo1));
+  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv(const_cast<char*>(foo2)); 
 }
 
 HcalPedestalAnalyzer::~HcalPedestalAnalyzer(){
