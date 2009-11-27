@@ -36,7 +36,7 @@ public:
   ~CondIter(){}
   
   
-  void reset() { initialized=false;}
+  void reset() { initialized=false; data.clear()}
 
   virtual void clear() {
     reset();
@@ -60,7 +60,7 @@ public:
     if (!ok) return 0;
     ok = make();
     if (!ok) return 0;
-    return  useCache ?  &(*cache[n]) : &(*data()); 
+    return  useCache ?  &(*cache[n]) : &(*data); 
 
   }
 
