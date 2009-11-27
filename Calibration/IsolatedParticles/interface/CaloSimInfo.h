@@ -74,6 +74,9 @@ namespace spr{
   template <typename T>
   double eCaloSimInfo(const edm::Event&, const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, double timeCut=150, bool debug=false);
 
+  template <typename T>
+  double eCaloSimInfo(const edm::Event&, const CaloGeometry* geo, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, double timeCut=150, bool debug=false);
+
   // Functions to study the Hits for which history cannot be traced back 
   template <typename T>
   std::vector<typename T::const_iterator> missedECALHits(const edm::Event&, CaloNavigator<DetId>& navigator, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, bool flag, bool debug=false);
