@@ -91,7 +91,7 @@ protected:
   /**
      Get the token correpsonding to the Interval of Validity.
   */
-  std::string & getToken() const;
+  std::string const & getToken() const;
 
 
   bool init();

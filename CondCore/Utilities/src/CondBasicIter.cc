@@ -65,7 +65,7 @@ unsigned int CondBasicIter::getStartTime()  const {return (*iter).since();}
 
 unsigned int CondBasicIter::getStopTime() const {return (*iter).till();}
 
-std::string & CondBasicIter::getToken() const  {return (*iter).token();}
+std::string const & CondBasicIter::getToken() const  {return (*iter).token();}
 
 
 bool CondBasicIter::init() {

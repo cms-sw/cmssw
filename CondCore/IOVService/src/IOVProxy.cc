@@ -61,7 +61,7 @@ namespace cond {
   }
 
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
-    iov(*impl.iov), elem(impl.poolDb){}
+    iov(&(*impl.iov)), elem(impl.poolDb){}
   
   IOVProxy::IOVProxy() : m_low(0), m_high(0){}
  
