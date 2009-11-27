@@ -52,6 +52,7 @@ public:
     if (!initialized) {
       n=0;
       ok =init();
+      initialized=true;
     }
     else {
       ++n;
