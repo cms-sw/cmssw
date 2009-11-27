@@ -10,7 +10,6 @@ protected:
   cond::RDBMS rdbms;
   cond::CondDB db;
   cond::IOVProxy iov;
-  bool initialized;
   cond::IOVProxy::const_iterator iter;
  
  public:
@@ -98,7 +97,7 @@ protected:
   bool forward();
   bool make();
   virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;
-
+  virtual void clear() =0;
 };
 
 
