@@ -20,12 +20,12 @@ namespace edmtest
   public:
     explicit  LumiDataAnalyzer(edm::ParameterSet const& p) 
     { 
-      std::cout<<"LumiDataAnalyzer"<<std::endl;
+      //std::cout<<"LumiDataAnalyzer"<<std::endl;
     }
     explicit  LumiDataAnalyzer(int i) 
     { std::cout<<"LumiDataAnalyzer "<<i<<std::endl; }
     virtual ~LumiDataAnalyzer() {  
-      std::cout<<"~LumiDataAnalyzer "<<std::endl;
+      //std::cout<<"~LumiDataAnalyzer "<<std::endl;
     }
     virtual void beginJob(const edm::EventSetup& context);
     virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
@@ -45,7 +45,7 @@ namespace edmtest
   }
   void
   LumiDataAnalyzer::beginJob(const edm::EventSetup& context){
-    std::cout<<"###LumiDataAnalyzer::beginJob"<<std::endl;
+    // std::cout<<"###LumiDataAnalyzer::beginJob"<<std::endl;
   }
   void
   LumiDataAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLBlock,
@@ -53,8 +53,6 @@ namespace edmtest
     std::cout<<"###LumiDataAnalyzer::beginLuminosityBlock"<<std::endl;
     using namespace edm::eventsetup;
     // Context is not used.
-    //std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    //    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
     std::cout<<"lumiblock id value "<<iLBlock.id().value()<<std::endl;
     std::cout<<"lumiblock in run "<<iLBlock.run()<<std::endl;
     std::cout<<"lumiblock number "<<iLBlock.id().luminosityBlock()<<std::endl;
@@ -67,10 +65,13 @@ namespace edmtest
     context.get<LumiSectionDataRcd>().get(pPeds);
     const lumi::LumiSectionData* myped=pPeds.product();
     std::cout<<"data pointer "<<myped<<std::endl;
+    std::cout<<"lumi average "<<myped->lumiAverage()<<std::endl;
   }
 
   void
   LumiDataAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
+    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
+    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
   }
   DEFINE_FWK_MODULE(LumiDataAnalyzer);
 }
