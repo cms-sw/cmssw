@@ -13,7 +13,6 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'STARTUP_V1::All'
 process.GlobalTag.globaltag = 'GLOBALTAG::All'
 
 
@@ -43,7 +42,7 @@ process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
-process.multiTrackValidator.minpT = cms.double(-1)
+process.multiTrackValidator.minpT = cms.double(0)
 process.multiTrackValidator.maxpT = cms.double(3)
 process.multiTrackValidator.nintpT = cms.int32(40)
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
@@ -72,7 +71,6 @@ process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis
                                   process.trackerlocalreco*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
-                                  ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                   process.multiTrackValidator)
 #redo also tracking particles
 process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
@@ -80,13 +78,11 @@ process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                   process.trackerlocalreco*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
-                                  ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                   process.multiTrackValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
-                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                    process.multiTrackValidator
                                    )
 
@@ -94,17 +90,13 @@ process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
-                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                    process.multiTrackValidator
                                    )
 
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation = cms.Sequence(##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                           process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.multiTrackValidator)
 else:
-    process.only_validation = cms.Sequence(process.cutsRecoTracks*
-                                           ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                           process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.cutsRecoTracks*process.multiTrackValidator)
     
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
     process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.multiTrackValidator)
@@ -128,7 +120,6 @@ process.customEventContent.outputCommands.append('keep *_simSiStripDigis_*_*')
 process.customEventContent.outputCommands.append('keep *_simSiPixelDigis_*_*')
 process.customEventContent.outputCommands.append('drop SiStripDigiedmDetSetVector_simSiStripDigis_*_*')
 process.customEventContent.outputCommands.append('drop PixelDigiedmDetSetVector_simSiPixelDigis_*_*')
-
 
 
 process.OUTPUT = cms.OutputModule("PoolOutputModule",

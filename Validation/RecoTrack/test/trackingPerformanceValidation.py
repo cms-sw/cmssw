@@ -11,10 +11,10 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_3_0_pre3'
+RefRelease='CMSSW_3_3_3'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_3_0_pre4'
+NewRelease='CMSSW_3_3_4'
 
 # startup and ideal sample list
 
@@ -43,10 +43,10 @@ idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100',
 
 
 # track algorithm name and quality. Can be a list.
-#Algos= ['ootb']
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-#Qualities=['']
-Qualities=['', 'highPurity']
+Algos= ['ootb']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+Qualities=['']
+#Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
