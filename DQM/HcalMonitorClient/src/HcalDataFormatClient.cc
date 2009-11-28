@@ -239,6 +239,7 @@ void HcalDataFormatClient::analyze(void){
     }
   }
 
+
   int updates = 0;
   if ( updates % 10 == 0 ) {
     if ( debug_>0 ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
@@ -268,12 +269,18 @@ void HcalDataFormatClient::getHistograms(bool getEmAll){
   sprintf(name,"DataFormatMonitor/Corruption/07 LRB Data Corruption Indicators");
   LRBDataCorruptionIndicators_ = 
     getHisto2(name, process_.c_str(), dbe_, debug_,cloneME_);
+  if (LRBDataCorruptionIndicators_)
+    LRBDataCorruptionIndicators_->SetBinContent(0,0,ievt_);
 
   sprintf(name,"DataFormatMonitor/Corruption/08 Half-HTR Data Corruption Indicators");
   HalfHTRDataCorruptionIndicators_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
+  if (HalfHTRDataCorruptionIndicators_)
+    HalfHTRDataCorruptionIndicators_->SetBinContent(0,0,ievt_);
 
   sprintf(name,"DataFormatMonitor/Data Flow/01 Data Flow Indicators");
   DataFlowInd_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
+  if (DataFlowInd_)
+    DataFlowInd_->SetBinContent(0,0,ievt_);
 
   sprintf(name,"DataFormatMonitor/Corruption/09 Channel Integrity Summarized by Spigot");
   ChannSumm_DataIntegrityCheck_  = getHisto2(name, process_, dbe_, debug_,cloneME_);
