@@ -285,8 +285,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
     edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
       : cond::toIOVSyncValue(recordValidity.second, timetype, false);
-    
-   
+       
     oInterval = edm::ValidityInterval( start, stop );
    }
 }
