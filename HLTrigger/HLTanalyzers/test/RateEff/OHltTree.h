@@ -553,6 +553,9 @@ public :
   Int_t  HLT_HcalNZS_8E29;
   Int_t  HLT_HcalPhiSym;
 
+  //CCLA Add technical bits (2009Nov28)
+  vector<int>    *L1TechnicalBits; //!
+
   // Add-ons for Circulation beam v2 (2009Nov18)
   Int_t           HLT_DTErrors;
   Int_t           HLT_HcalCalibration;
@@ -572,7 +575,8 @@ public :
   Int_t           HLT_MinBiasBSC_OR;
   Int_t           HLT_HighMultiplicityBSC;
 
-
+  //CCLA Add technical bits (2009Nov28)
+  TBranch         *b_L1TechnicalBits; //!
 
   // Add-ons for Circulation beam v2 (2009Nov18)
   TBranch        *b_HLT_DTErrors;   //!
@@ -1581,7 +1585,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet50", &L1_SingleTauJet50, &b_L1_SingleTauJet50); 
   fChain->SetBranchAddress("L1_DoubleJet30", &L1_DoubleJet30, &b_L1_DoubleJet30);   
 
-
+  fChain->SetBranchAddress("L1TechnicalTriggerBits", &L1TechnicalBits, &b_L1TechnicalBits);
 
   
   //L1's
