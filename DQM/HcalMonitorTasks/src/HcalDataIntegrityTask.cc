@@ -68,12 +68,12 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
       if (fVerbosity)
 	std::cout <<"SET TO HCAL/FEDIntegrity"<<std::endl;
 
+      m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
       meEVT_ = m_dbe->bookInt("Data Integrity Task Event Number");
       meEVT_->Fill(ievt_);
       meTOTALEVT_ = m_dbe->bookInt("Data Integrity Task Total Events Processed");
       meTOTALEVT_->Fill(tevt_);
 
-      m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
       fedEntries_ = m_dbe->book1D("FEDEntries","# entries per HCAL FED",32,700,732);
       fedFatal_ = m_dbe->book1D("FEDFatal","# fatal errors HCAL FED",32,700,732);
       fedNonFatal_ = m_dbe->book1D("FEDNonFatal","# non-fatal errors HCAL FED",32,700,732);
