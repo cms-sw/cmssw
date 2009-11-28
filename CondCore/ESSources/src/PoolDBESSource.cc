@@ -274,17 +274,19 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     
     recordValidity.first = std::max(recordValidity.first,validity.first);
     recordValidity.second = std::min(recordValidity.second,validity.second);
+ 
+   //std::cout<<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
+ 
   }      
    
   // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
     
-  if (!userTime) {
+  if ( (!userTime) && recordValidity.second!=0) {
     edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
     edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
       : cond::toIOVSyncValue(recordValidity.second, timetype, false);
     
-    //std::cout<<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
-    
+   
     oInterval = edm::ValidityInterval( start, stop );
    }
 }
@@ -313,7 +315,8 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 
 // required by the EventSetup System
 void 
-PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,const edm::ValidityInterval& iInterval) 
+PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
+			    const edm::ValidityInterval&) 
 {
   //LogDebug ("PoolDBESSource")<<"newInterval";
   invalidateProxies(iRecordType);
