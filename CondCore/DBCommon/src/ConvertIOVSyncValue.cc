@@ -13,8 +13,7 @@ namespace cond {
       {
 	edm::LuminosityBlockID l(time);
 	return edm::IOVSyncValue(edm::EventID(l.run(),  l.luminosityBlock(), 
-					      startOrStop ? 0 : edm::EventID::maxEventNumber()), 
-				 );
+					      startOrStop ? 0 : edm::EventID::maxEventNumber()));
       }
     case cond::timestamp :
       return edm::IOVSyncValue( edm::Timestamp(time));
@@ -22,7 +21,7 @@ namespace cond {
       return  edm::IOVSyncValue::invalidIOVSyncValue();
     }
   }
-
+  
   cond::Time_t fromIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
     switch (timetype) {
     case cond::runnumber :
