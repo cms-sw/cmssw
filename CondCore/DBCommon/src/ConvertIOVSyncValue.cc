@@ -12,9 +12,9 @@ namespace cond {
     case cond::lumiid :
       {
 	edm::LuminosityBlockID l(time);
-	return edm::IOVSyncValue(edm::EventID(l.run(),
+	return edm::IOVSyncValue(edm::EventID(l.run(),  l.luminosityBlock(), 
 					      startOrStop ? 0 : edm::EventID::maxEventNumber()), 
-				 l.luminosityBlock());
+				 );
       }
     case cond::timestamp :
       return edm::IOVSyncValue( edm::Timestamp(time));
@@ -49,8 +49,7 @@ namespace cond {
       {
 	// the same lumiblock
 	edm::LuminosityBlockID l(time);
-	return edm::IOVSyncValue(edm::EventID(l.run(), edm::EventID::maxEventNumber()), 
-				 l.luminosityBlock());
+	return edm::IOVSyncValue(edm::EventID(l.run(), l.luminosityBlock()), edm::EventID::maxEventNumber());
       }
     case cond::timestamp :
       // next event ?
@@ -59,25 +58,23 @@ namespace cond {
       return  edm::IOVSyncValue::invalidIOVSyncValue();
     }
   }
-
-    edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
-      switch (timetype) {
-      case cond::runnumber :
-	// last event of this run
-	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()) );
-      case cond::lumiid :
-	// the same lumiblock
-	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()),
-				 time.luminosityBlockNumber());
-      case cond::timestamp :
-	// same lumiblock
-	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()),
-				 time.luminosityBlockNumber());	
-      default:
-	return  edm::IOVSyncValue::invalidIOVSyncValue();
-      }
+  
+  edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
+    switch (timetype) {
+    case cond::runnumber :
+      // last event of this run
+      return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()) );
+    case cond::lumiid :
+      // the same lumiblock
+      return edm::IOVSyncValue(edm::EventID(time.eventID().run(), time.luminosityBlockNumber(), edm::EventID::maxEventNumber()));
+    case cond::timestamp :
+      // same lumiblock
+      return edm::IOVSyncValue(edm::EventID(time.eventID().run(), time.luminosityBlockNumber(), edm::EventID::maxEventNumber()));	
+    default:
+      return  edm::IOVSyncValue::invalidIOVSyncValue();
     }
-
+  }
+  
 }
 
 
