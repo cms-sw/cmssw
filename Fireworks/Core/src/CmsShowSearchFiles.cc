@@ -38,12 +38,13 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-   {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
-   {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
-   {"http://", "Web site known by you",0},
-   {"file:","Local file [you must type full path name]",0},
-   {"dcap://","dCache [FNAL]",0},
-   {"rfio://","Castor [CERN]",0}
+  {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
+  {"http://", "Web site known by you",0},
+  {"file:","Local file [you must type full path name]",0},
+  {"dcap://","dCache [FNAL]",0},
+  {"rfio://","Castor [CERN]",0}
+  
 };
 
 static const std::string s_httpPrefix("http:");
@@ -61,8 +62,8 @@ static const char *s_noBrowserMessage[] = {
    "<b>Welcome....</b><BR>",
    "<BR>",
    "<b>You may look at examples:</b><BR>",
-   "If you are in Europe, open example data files at CERN: http://fireworks.web.cern.ch/fireworks/<BR>",
-   "If you are in US, open example data files at UCSD: http://uaf-2.t2.ucsd.edu/fireworks/<BR>",
+   "If you are in Europe, open example data files at CERN: <a href=http://fireworks.web.cern.ch/fireworks/>http://fireworks.web.cern.ch/fireworks/</a><BR>",
+   "If you are in US, open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks/>http://uaf-2.t2.ucsd.edu/fireworks/</a><BR>",
    "<BR>"
    "<b>You also may load files with Choose Prefix </b><BR>"
    "</BODY></HTML> ",
