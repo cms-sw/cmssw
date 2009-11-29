@@ -1,20 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
-SiStripDetVOff::SiStripDetVOff(const string & file)
-{
-  // Use the file
-  edm::FileInPath fp(file);
-  SiStripDetInfoFileReader reader(fp.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos  = reader.getAllData();
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = detInfos.begin(); it != detInfos.end(); ++it) {
-    put( it->first, 1, 1 );
-  }
-}
-
 
 void SiStripDetVOff::setBits( uint32_t & enDetId, const int HVoff, const int LVoff )
 {

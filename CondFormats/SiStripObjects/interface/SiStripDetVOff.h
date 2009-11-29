@@ -41,8 +41,8 @@ class SiStripDetVOff
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;
 
-  SiStripDetVOff(const std::string & file = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-  ~SiStripDetVOff(){};
+  SiStripDetVOff() {}
+  ~SiStripDetVOff() {}
   SiStripDetVOff( const SiStripDetVOff & toCopy ) { toCopy.getVoff(v_Voff); }
 
   /// Needed by the copy constructor

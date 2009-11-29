@@ -6,7 +6,6 @@
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=rootrflx>
-<use name=CalibTracker/SiStripCommon>
 <export>
   <use name=CondFormats/Common>
   <use name=DataFormats/SiStripDetId>
