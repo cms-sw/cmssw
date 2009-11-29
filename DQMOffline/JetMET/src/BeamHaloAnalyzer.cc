@@ -115,12 +115,14 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 72, 0.5,72.5);
     ME["GlobalHaloData_MatchedHcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedHcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+    ME["GlobalHaloData_MatchedHcalPhiWedgePlusZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgePlusZDirectionConfidence","",  50, 0., 1.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMultiplicity"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeEnergy"]       = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeConstituents"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 72, 0.5,72.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+    ME["GlobalHaloData_MatchedEcalPhiWedgePlusZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgePlusZDirectionConfidence","",  50, 0., 1.0);
 
     // BeamHaloSummary 
     dqm->setCurrentFolder(FolderName+"/BeamHaloSummary");
@@ -161,11 +163,10 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 2);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 1);
     ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
-    ME["Extra_HcalToF"]  = dqm->book2D("HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
-    ME["Extra_HcalToF_HaloId"]  = dqm->book2D("HcalToF","", 83,-41.5,41.5 , 1000, -125., 125.); 
-    ME["Extra_EcalToF"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
-    ME["Extra_EcalToF_HaloId"]  = dqm->book2D("EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
-
+    ME["Extra_HcalToF"]  = dqm->book2D("Extra_HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
+    ME["Extra_HcalToF_HaloId"]  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
+    ME["Extra_EcalToF"]  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
+    ME["Extra_EcalToF_HaloId"]  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
 
   }
 }
@@ -509,6 +510,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         ->Fill( iWedge->iPhi() );
 	  ME["GlobalHaloData_MatchedHcalPhiWedgeMinTime"]      ->Fill( iWedge->MinTime() );
 	  ME["GlobalHaloData_MatchedHcalPhiWedgeMaxTime"]      ->Fill( iWedge->MaxTime() );
+	  ME["GlobalHaloData_MatchedHcalPhiWedgePlusZDirectionConfidence"] ->Fill( iWedge->PlusZDirectionConfidence() ) ;
 	  if( TheHBHERecHits.isValid() )
 	    {
 	      for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++)  
@@ -535,7 +537,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         ->Fill(iWedge->iPhi());
 	  ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      ->Fill(iWedge->MinTime());
 	  ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      ->Fill(iWedge->MaxTime());
-
+	  ME["GlobalHaloData_MatchedEcalPhiWedgePlusZDirectionConfidence"] ->Fill( iWedge->PlusZDirectionConfidence() ) ;
 	  if( TheEBRecHits.isValid() ) 
 	    {
 	      for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); iEBRecHit++ )
