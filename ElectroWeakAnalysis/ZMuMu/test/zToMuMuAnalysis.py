@@ -27,7 +27,6 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
     "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX/zmm_v2/testZMuMuSubSkim_1.root",
-
     )
 )
 
@@ -72,7 +71,7 @@ process.goodZToMuMu = cms.EDFilter(
     src = cms.InputTag("dimuonsGlobal"),
     filter = cms.bool(True) 
 )
-#ZMuMu: richiedo almeno 1 HLT trigger match.Per la shape
+#ZMuMu: requiring at least  1 HLT trigger match (for the shape)
 process.goodZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMu"),
@@ -81,7 +80,7 @@ process.goodZToMuMuAtLeast1HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-#ZMuMu: richiedo 2 HLT trigger match
+#ZMuMu: requiring  2 HLT trigger match
 process.goodZToMuMu2HLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMu"),
@@ -90,7 +89,7 @@ process.goodZToMuMu2HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-#ZMuMu: richiedo 1 HLT trigger match
+#ZMuMu: requiring 1 HLT trigger match
 process.goodZToMuMu1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMu"),
@@ -99,7 +98,7 @@ process.goodZToMuMu1HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-
+#ZMuMu:at least one muon is not isolated 
 process.nonIsolatedZToMuMu = cms.EDFilter(
     "ZToMuMuNonIsolatedIDSelector",
     zSelection,
@@ -107,7 +106,25 @@ process.nonIsolatedZToMuMu = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-#ZMuMu1notIso: richiedo almeno un trigger
+#ZMuMu:1 muon is not isolated 
+process.oneNonIsolatedZToMuMu = cms.EDFilter(
+    "ZToMuMuOneNonIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("nonIsolatedZToMuMu"),
+    filter = cms.bool(True) 
+)
+
+#ZMuMu: 2 muons are not isolated 
+process.twoNonIsolatedZToMuMu = cms.EDFilter(
+    "ZToMuMuTwoNonIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("nonIsolatedZToMuMu"),
+    filter = cms.bool(True) 
+)
+
+
+
+#ZMuMunotIso: requiring at least 1 trigger
 process.nonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("nonIsolatedZToMuMu"),
@@ -115,6 +132,26 @@ process.nonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     hltPath = cms.string("HLT_Mu9"),
     filter = cms.bool(True) 
 )
+
+#ZMuMuOnenotIso: requiring at least 1 trigger
+process.oneNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("oneNonIsolatedZToMuMu"),
+    condition =cms.string("atLeastOneMatched"),
+    hltPath = cms.string("HLT_Mu9"),
+    filter = cms.bool(True) 
+)
+
+#ZMuMuTwonotIso: requiring at least 1 trigger
+process.twoNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("twoNonIsolatedZToMuMu"),
+    condition =cms.string("atLeastOneMatched"),
+    hltPath = cms.string("HLT_Mu9"),
+    filter = cms.bool(True) 
+)
+
+
 
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
@@ -144,7 +181,7 @@ process.goodZToMuMuOneTrack = cms.EDFilter(
     filter = cms.bool(True)
 )
 
-#ZMuTk:richiedo che il muGlobal 'First' ha HLT match
+#ZMuTk:requiring that the GlobalMuon 'First' has HLT match
 process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMuOneTrack"),
@@ -160,7 +197,7 @@ process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
     filter = cms.bool(True)
 )
 
-#ZMuSta:richiedo che il muGlobal ha HLT match
+#ZMuSta:requiring that the GlobalMuon has HLT match
 process.goodZToMuMuOneStandAloneMuonFirstHLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
@@ -187,7 +224,7 @@ goodZToMuMuTemplate = cms.EDFilter(
 
 
 
-#### Plot ###
+#### Plot ####
 zPlots = cms.PSet(
     histograms = cms.VPSet(
     cms.PSet(
@@ -355,18 +392,33 @@ cms.PSet(
 
 
 
-#ZMuMu almeno 1 HLT + 2 track-iso (Shape)
+#ZMuMu at least 1 HLT + 2 track-iso (Shape)
 goodZToMuMuPlotsTemplate = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
     zPlots,
     src = cms.InputTag("goodZToMuMuAtLeast1HLT")
 )
 
-#ZMuMu almeno 1 HLT + almeno 1 NON track-iso
+#ZMuMu at least 1 HLT + at least 1 NON track-iso
 process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
 nonIsolatedZToMuMuPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 nonIsolatedZToMuMuPlots.src = cms.InputTag("nonIsolatedZToMuMuAtLeast1HLT")
 setattr(process, "nonIsolatedZToMuMuPlots", nonIsolatedZToMuMuPlots)
+
+#ZMuMu at least 1 HLT + 1 NON track-iso
+process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
+oneNonIsolatedZToMuMuPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+oneNonIsolatedZToMuMuPlots.src = cms.InputTag("oneNonIsolatedZToMuMuAtLeast1HLT")
+setattr(process, "oneNonIsolatedZToMuMuPlots", oneNonIsolatedZToMuMuPlots)
+
+#ZMuMu at least 1 HLT + 2 NON track-iso
+process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
+twoNonIsolatedZToMuMuPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+twoNonIsolatedZToMuMuPlots.src = cms.InputTag("twoNonIsolatedZToMuMuAtLeast1HLT")
+setattr(process, "twoNonIsolatedZToMuMuPlots", twoNonIsolatedZToMuMuPlots)
+
+
+
 
 etaBounds = [2.1]
 ## if you want to perform studies on different eta bins...
@@ -405,7 +457,7 @@ process.eventInfo = cms.OutputModule (
     "AsciiOutputModule"
 )
 
-#ZMuMu almeno  1 HLT + 2  track-iso
+#ZMuMu at least  1 HLT + 2  track-iso
 process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
 
 #ZMuMu 1 HLT + 2  track-iso
@@ -467,6 +519,17 @@ process.nonIsolatedZToMuMuPath = cms.Path (
     process.nonIsolatedZToMuMu +
     process.nonIsolatedZToMuMuAtLeast1HLT +
     process.nonIsolatedZToMuMuPlots
+)
+process.oneNonIsolatedZToMuMuPath = cms.Path(
+    process.oneNonIsolatedZToMuMu +
+    process.oneNonIsolatedZToMuMuAtLeast1HLT +
+    process.oneNonIsolatedZToMuMuPlots
+)
+
+process.twoNonIsolatedZToMuMuPath = cms.Path(
+    process.twoNonIsolatedZToMuMu +
+    process.twoNonIsolatedZToMuMuAtLeast1HLT +
+    process.twoNonIsolatedZToMuMuPlots 
 )
 
 addModulesFromTemplate(
