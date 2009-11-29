@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.10 2009/11/19 22:33:14 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.11 2009/11/23 09:33:47 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -345,7 +345,7 @@ void QcdLowPtDQM::createHistos()
     const int Nx = hltTrgUsedNames_.size();
     const double x1 = -0.5;
     const double x2 = Nx-0.5;
-    h2TrigCorr_ = theDbe_->book2D("h2TriCorr","Trigger bit x vs y;y&&!x;x&&y",Nx,x1,x2,Nx,x1,x2);
+    h2TrigCorr_ = theDbe_->book2D("h2TriCorr","Trigger bit x vs y (y&&!x,x&&y)",Nx,x1,x2,Nx,x1,x2);
     for(size_t i=1;i<=hltTrgUsedNames_.size();++i) {
       h2TrigCorr_->setBinLabel(i,hltTrgUsedNames_.at(i-1),1);
       h2TrigCorr_->setBinLabel(i,hltTrgUsedNames_.at(i-1),2);
