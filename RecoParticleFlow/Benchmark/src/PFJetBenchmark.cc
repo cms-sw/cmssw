@@ -294,7 +294,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double rec_NeutralEmEnergy = pfj.neutralEmEnergy();
       double rec_NeutralEnergy = rec_NeutralHadEnergy + rec_NeutralEmEnergy;
       double rec_ChargedMultiplicity = pfj.chargedMultiplicity();
-      std::vector <const PFCandidate*> constituents = pfj.getPFConstituents ();
+      std::vector <PFCandidatePtr> constituents = pfj.getPFConstituents ();
       std::vector <unsigned int> chMult(7, static_cast<unsigned int>(0)); 
       for (unsigned ic = 0; ic < constituents.size (); ++ic) {
 	if ( constituents[ic]->particleId() > 3 ) continue;

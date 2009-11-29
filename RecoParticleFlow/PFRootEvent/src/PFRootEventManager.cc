@@ -3116,7 +3116,7 @@ PFRootEventManager::printMCCalib(ofstream& out) const {
   }
   if ( deltaRMin > 0.1 ) return;
   
-  std::vector <const PFCandidate*> constituents = pfJets_[theJet].getPFConstituents ();
+  std::vector < PFCandidatePtr > constituents = pfJets_[theJet].getPFConstituents ();
   double pat_ECALEnergy = 0.;
   double pat_HCALEnergy = 0.;
   for (unsigned ic = 0; ic < constituents.size (); ++ic) {
