@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.174 2009/11/21 13:11:15 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.175 2009/11/23 14:53:45 amraktad Exp $
 
 //
 
@@ -1026,7 +1026,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // !! when position and size is clear map window
    m_cmsShowMainFrame->MapSubwindows();
    m_cmsShowMainFrame->Layout();
-   m_cmsShowMainFrame->MapWindow();
+   m_cmsShowMainFrame->MapRaised();
 
    // set from view reading area info nd view info
    float_t leftWeight =1;
