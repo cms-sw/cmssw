@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 ##################################################################
 
+# useful options
+gtDigisExist=0  # =1 use existing gtDigis on the input file, =0 extract gtDigis from the RAW data collection
+isData=1 # =1 running on real data, =1 running on MC
+
 OUTPUT_HIST='hltbits.root'
 NEVTS=1000
 
@@ -18,7 +22,8 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_3_2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V8-v2/0000/CC203608-59C8-DE11-B1E6-0018F3D096EA.root'
+    '/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v2/000/122/314/F8F49C1B-60D8-DE11-AB34-001D09F28F0C.root' # file from run 122314    
+    #'/store/relval/CMSSW_3_3_2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V8-v2/0000/CC203608-59C8-DE11-B1E6-0018F3D096EA.root' # MC TTBAR
     )
 )
 
@@ -58,8 +63,15 @@ process.DQMStore = cms.Service( "DQMStore",)
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTBitAnalyser_cfi")
-process.analyzeThis = cms.Path( process.hltbitanalysis )
+process.hltbitanalysis.hltresults = cms.InputTag( 'TriggerResults','','HLT' )
 process.hltbitanalysis.RunParameters.HistogramFile=OUTPUT_HIST
+
+if (gtDigisExist):
+    process.analyzeThis = cms.Path( process.hltbitanalysis )
+else:
+    process.analyzeThis = cms.Path(process.HLTBeginSequence + process.hltbitanalysis )
+    process.hltbitanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() )
+
 
 # pdt
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -67,3 +79,18 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # Schedule the whole thing
 process.schedule = cms.Schedule( 
     process.analyzeThis )
+
+#########################################################################################
+#
+#nc=0
+if (isData):  # replace all instances of "rawDataCollector" with "source" in InputTags
+    from FWCore.ParameterSet import Mixins
+    for module in process.__dict__.itervalues():
+        if isinstance(module, Mixins._Parameterizable):
+            for parameter in module.__dict__.itervalues():
+                if isinstance(parameter, cms.InputTag):
+                    if parameter.moduleLabel == 'rawDataCollector':
+                        parameter.moduleLabel = 'source'
+                        #print "Replacing in module: ", module
+                        #nc=nc+1
+#print "Number of replacements: ", nc
