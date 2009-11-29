@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.78 2009/11/26 17:54:34 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.79 2009/11/26 20:45:41 amraktad Exp $
 //
 // hacks
 #define private public
@@ -76,7 +76,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterShowGUIBtn(),
    m_runEntry(0),
    m_eventEntry(0),
-   m_delaySliderListener(0)
+   m_delaySliderListener(0),
+   m_fworksAbout(0)
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
@@ -426,6 +427,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       FWCustomIconsButton *infoBut =
          new FWCustomIconsButton(logoFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray.png"),
                                             fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-green.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"),
                                             fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"));
       logoFrame->AddFrame(infoBut);
       infoBut->Connect("Clicked()", "CmsShowMainFrame", this, "showFWorksInfo()");
@@ -661,20 +663,57 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt
    p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
 }
 
+class InfoFrame : public TGMainFrame {
+public:
+   InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
+   virtual ~InfoFrame() {}
+   
+   virtual void CloseWindow()
+   {
+      UnmapWindow();  
+   }
+};
+
 void
 CmsShowMainFrame::showFWorksInfo()
 {
-  TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/standalone_build/version.txt");
-  gSystem->ExpandPathName(infoFileName);
+   if (m_fworksAbout == 0)
+   {
+      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/standalone_build/version.txt");
+      gSystem->ExpandPathName(infoFileName);
+      
+      ifstream infoFile(infoFileName);
+      TString infoText;
+      infoText.ReadFile(infoFile);
+      infoFile.close();
+ 
+      const UInt_t ww = 280, hh = 180;
+      
+      m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);
+      m_fworksAbout->SetWMSizeHints(ww, hh, ww, hh, 0, 0);
+      m_fworksAbout->SetBackgroundColor(0x2f2f2f);
+      
+      TGFrame* logoFrame = new TGFrame(m_fworksAbout, 140, 48, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"logo-fireworks.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      m_fworksAbout->AddFrame(logoFrame, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 16, 0));
+      
+      TGLabel* label = new TGLabel(m_fworksAbout, infoText);
+      label->SetBackgroundColor(0x2f2f2f);
+      label->SetForegroundColor(0xffffff);
+      m_fworksAbout->AddFrame(label, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY));      
+            
+      TGTextButton* btn = new TGTextButton(m_fworksAbout, "  OK  ");
+      btn->SetBackgroundColor(0x2f2f2f);
+      btn->SetForegroundColor(0xffffff);
+      m_fworksAbout->AddFrame(btn, new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 0, 12));
+      btn->Connect("Clicked()", "TGMainFrame", m_fworksAbout, "CloseWindow()");
 
-  ifstream infoFile(infoFileName);
-  TString infoText;
-  infoText.ReadFile(infoFile);
-  infoFile.close();
-
-  // Bummer destroys TGPictore on close -- so we make it a new one.
-  new TGMsgBox(gClient->GetDefaultRoot(), this,
-               "About Fireworks", infoText,
-               new TGPicture(*((FWCustomIconsButton*)gTQSender)->disabledIcon()),
-               kMBOk);
+      m_fworksAbout->MapSubwindows();
+      m_fworksAbout->Layout();
+   }
+   
+   m_fworksAbout->MapRaised();
 }
+
+

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.32 2009/11/23 14:53:42 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.33 2009/11/26 20:45:41 amraktad Exp $
 //
 
 // system include files
@@ -122,6 +122,8 @@ private:
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
    CSGContinuousAction *m_loopAction;
+   
+   TGMainFrame* m_fworksAbout;
 
    TGSlider* m_delaySlider;
    TGLabel*  m_delayLabel;
