@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:30 EDT 2008
-// $Id: FWCustomIconsButton.h,v 1.4 2009/11/23 14:53:40 amraktad Exp $
+// $Id: FWCustomIconsButton.h,v 1.5 2009/11/26 20:45:39 amraktad Exp $
 //
 
 // system include files
@@ -31,15 +31,19 @@ class FWCustomIconsButton : public TGButton
 {
 
 public:
-   FWCustomIconsButton(const TGWindow* iParent,
+   FWCustomIconsButton(const TGWindow*  iParent,
                        const TGPicture* iUpIcon,
                        const TGPicture* iDownIcon,
-                       const TGPicture* iDisabledIcon,
+                       const TGPicture* iDisableIcon,
+                       const TGPicture* iBelowMouseIcon = 0,
                        Int_t id = -1,
                        GContext_t norm = TGButton::GetDefaultGC() (),
                        UInt_t option=0);
+   
    virtual ~FWCustomIconsButton();
 
+   virtual bool HandleCrossing(Event_t*);
+   
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -51,11 +55,13 @@ public:
 
    void setIcons(const TGPicture* iUpIcon,
                  const TGPicture* iDownIcon,
-                 const TGPicture* iDisabledIcon);
+                 const TGPicture* iDisabledIcon,
+                 const TGPicture* ibelowMouseIcon = 0);
 
    const TGPicture* upIcon() const { return m_upIcon; }
    const TGPicture* downIcon() const { return m_downIcon; }
    const TGPicture* disabledIcon() const { return m_disabledIcon; }
+   const TGPicture* bellowMouseIcon() const { return m_belowMouseIcon; }
 
 protected:
    virtual void DoRedraw();
@@ -68,7 +74,9 @@ private:
    const TGPicture* m_upIcon;
    const TGPicture* m_downIcon;
    const TGPicture* m_disabledIcon;
-
+   const TGPicture* m_belowMouseIcon;
+   
+   bool m_inside;   
 };
 
 

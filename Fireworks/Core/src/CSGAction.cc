@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.24 2009/08/27 18:54:09 amraktad Exp $
+// $Id: CSGAction.cc,v 1.25 2009/09/17 16:01:13 amraktad Exp $
 //
 
 // system include files
@@ -152,7 +152,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    GContext_t norm,
                                    UInt_t option)
 {
-   FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, id, norm, option);
+   FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, 0, id, norm, option);
    if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
