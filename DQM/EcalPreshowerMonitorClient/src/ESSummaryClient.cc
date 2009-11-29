@@ -143,17 +143,15 @@ void ESSummaryClient::analyze(void) {
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/" + histo);
 	 if (me) 
 	   for (int x=0; x<40; ++x) 
-	     for (int y=0; y<40; ++y) {
+	     for (int y=0; y<40; ++y) 
 	       nDI_FedErr[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
-	     }
 	 
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if (me)
 	   for (int x=0; x<40; ++x)
-	     for(int y=0; y<40; ++y) {
+	     for (int y=0; y<40; ++y) 
 	       DCC[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
-	     }
 	 
 	 sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
@@ -218,16 +216,14 @@ void ESSummaryClient::analyze(void) {
    
    //Return ratio of good channels
    float reportSummary = -1.0;
-   if ( nValidChannels != 0 ) {
+   if ( nValidChannels != 0 ) 
       reportSummary = 1.0 - nGlobalErrors/nValidChannels;
-   }
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
    if ( me ) me->Fill(reportSummary);
 
 }
 
 void ESSummaryClient::softReset(bool flag) {
-
 }
 
 
