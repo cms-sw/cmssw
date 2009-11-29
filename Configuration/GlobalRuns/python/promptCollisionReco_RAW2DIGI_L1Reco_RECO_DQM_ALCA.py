@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,9 +35,9 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    skipEvents = cms.untracked.uint32(278), 
+#    skipEvents = cms.untracked.uint32(278), 
 #    fileNames = cms.untracked.vstring('/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/122/270/747C6137-F0D7-DE11-BE6C-001D09F242EF.root')
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/122/314/CC89C4BC-60D8-DE11-B365-0030487D0D3A.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/bit40or41skim.root')
 )
 
 # Output definition
