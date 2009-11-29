@@ -38,9 +38,9 @@ class TrackGhostTrackState : public BasicGhostTrackState {
 	bool linearize(const GhostTrackPrediction &pred, double lambda);
 
 	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
-	                               bool withMeasurementError = true) const;
+	                               bool withMeasurementError) const;
 	Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred,
-	                                bool withGhostTrackError = true) const;
+	                                bool withGhostTrackError) const;
 
     private:
 	BasicGhostTrackState *clone() const

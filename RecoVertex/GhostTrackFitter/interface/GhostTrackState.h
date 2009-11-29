@@ -11,6 +11,8 @@
 
 #include "RecoVertex/GhostTrackFitter/interface/BasicGhostTrackState.h"
 
+class VertexState;
+
 namespace reco {
 
 class TransientTrack;
@@ -24,6 +26,8 @@ class GhostTrackState : public BasicGhostTrackState::Proxy {
 	typedef BasicGhostTrackState::Vertex Vertex;
 
 	GhostTrackState(const TransientTrack &track);
+	GhostTrackState(const GlobalPoint &pos, const CovarianceMatrix &cov);
+	GhostTrackState(const VertexState &state);
 
 	const TransientTrack &track() const;
 	const TrajectoryStateOnSurface &tsos() const;

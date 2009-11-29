@@ -41,13 +41,13 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
 	virtual CovarianceMatrix cartesianCovariance() const = 0;
 
 	double lambda() const { return lambda_; }
-	virtual bool isValid() const = 0;
+	virtual bool isValid() const { return true; }
 
-	virtual void reset() = 0;
+	virtual void reset() {}
 	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       bool initial, double lambda) = 0;
+	                       bool initial, double lambda) { return true; }
 	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       double lambda) = 0;
+	                       double lambda) { return true; }
 
 	virtual Vertex vertexStateOnGhostTrack(
 				const GhostTrackPrediction &pred,

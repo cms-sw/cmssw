@@ -8,10 +8,12 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
 #include "RecoVertex/GhostTrackFitter/interface/TrackGhostTrackState.h"
+#include "RecoVertex/GhostTrackFitter/interface/VertexGhostTrackState.h"
 
 using namespace reco;
 
@@ -35,6 +37,18 @@ GhostTrackState::GhostTrackState(const TransientTrack &track) :
 {
 }
 
+GhostTrackState::GhostTrackState(const GlobalPoint &pos,
+                                 const CovarianceMatrix &cov) :
+	Base(new VertexGhostTrackState(pos, cov))
+{
+}
+
+GhostTrackState::GhostTrackState(const VertexState &state) :
+	Base(new VertexGhostTrackState(state.position(),
+	                               state.error().matrix_new()))
+{
+}
+
 bool GhostTrackState::isTrack() const
 {
 	return dynamic_cast<const TrackGhostTrackState*>(&data()) != 0;
@@ -42,8 +56,7 @@ bool GhostTrackState::isTrack() const
 
 bool GhostTrackState::isVertex() const
 {
-//	return dynamic_cast<const VertexGhostTrackState*>(&data()) != 0;
-	return false;
+	return dynamic_cast<const VertexGhostTrackState*>(&data()) != 0;
 }
 
 static const TrackGhostTrackState *getTrack(const BasicGhostTrackState *basic)

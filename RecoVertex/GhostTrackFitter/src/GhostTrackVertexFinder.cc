@@ -164,8 +164,8 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 	GlobalPoint pca1 = pred.position(state.lambda());
 	GlobalError err1 = pred.positionError(state.lambda());
 
-	GlobalPoint pca2 = state.tsos().globalPosition();
-	GlobalError err2 = state.tsos().cartesianError().position();
+	GlobalPoint pca2 = state.globalPosition();
+	GlobalError err2 = state.cartesianError();
 
 	GlobalPoint point = vtxMean(pca1, err1, pca2, err2);
 
@@ -256,7 +256,7 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 	GlobalPoint point2 = tsos.globalPosition();
 	Vector3 dir = conv(point2 - point1);
 	Matrix3S error = vtx.error().matrix_new() +
-	                 tsos.cartesianError().position().matrix_new();
+	                 tsos.cartesianError().matrix().Sub<Matrix3S>(0, 0);
 	if (!error.Invert())
 		return 1.0e6;
 
