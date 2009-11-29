@@ -1,2 +1,3 @@
 3.4.g - beta
 It works or we fix it for free!
+fireworks-support@cern.ch
