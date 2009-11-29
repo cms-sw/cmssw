@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/DQMObjects>
-<use name=CondFormats/GeometryObjects>
+<use name=CondFormats/Common>
 <use name=CondFormats/DataRecord>
 
 <flags EDM_PLUGIN=1>
@@ -10,6 +10,6 @@
    <use name=FWCore/Framework>
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/DQMObjects>
-   <use name=CondFormats/GeometryObjects>
+   <use name=CondFormats/Common>
    <use name=CondFormats/DataRecord>   
 </export>
