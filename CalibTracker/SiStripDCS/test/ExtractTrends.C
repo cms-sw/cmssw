@@ -102,18 +102,19 @@ vector<vector<Holder> > extractFromFile( const string & fileName )
   int HVLV = 0;
   string line;
 
-  // Skip the first 15 lines
-  for( int i=0; i<15; ++i ) getline(inputFile, line);
-  if( line.find("subDet") == string::npos ) {
-    cout << "Error: please fix the number of lines to skip from file start" << endl;
-    exit(1);
-  }
-  // Skip also the next one
-  getline(inputFile, line);
+  bool start = false;
 
   string subDet = "";
   while( getline(inputFile, line) ) {
 
+    // Skip empty lines
+    if( line == "" ) continue;
+
+    if( line.find("subDet") != string::npos ) {
+      start = true;
+    }
+    // Skip the rest until you find the starting line
+    if( start == false ) continue;
 
     if( line.find("Summary") != string::npos ) {
       // Skip also the next two lines
@@ -123,7 +124,7 @@ vector<vector<Holder> > extractFromFile( const string & fileName )
     }
     else if( line.find("%MSG") != string::npos || line.find("DummyCondObjPrinter") != string::npos ) continue;
     // End the loop if the lines are finished
-    else if( HVLV == 1 && subDet == "TID" && line == "" ) break;
+    // else if( HVLV == 1 && subDet == "TID" && line == "" ) break;
 
     vector<string> tokenized(tokenize(line));
     if( !tokenized.empty() && tokenized[0] != "" ) {
