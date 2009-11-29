@@ -83,6 +83,8 @@ class SiStripModuleHVBuilder
   bool debug_;
   coral::TimeStamp tmax, tmin, tsetmin;
   std::vector<int> tmax_par, tmin_par, tset_par, tDefault;
+
+  std::string detIdListFile_;
 };
 #endif
 

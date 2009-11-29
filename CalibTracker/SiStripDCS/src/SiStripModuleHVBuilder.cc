@@ -12,6 +12,9 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/date_time.hpp"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 // constructor
 SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&) : 
   onlineDbConnectionString(pset.getUntrackedParameter<std::string>("onlineDB","")),
@@ -29,6 +32,7 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, co
   tmin_par = pset.getUntrackedParameter< std::vector<int> >("Tmin",tDefault);
   tmax_par = pset.getUntrackedParameter< std::vector<int> >("Tmax",tDefault);
   tset_par = pset.getUntrackedParameter< std::vector<int> >("TSetMin",tDefault);
+  detIdListFile_ = pset.getUntrackedParameter< std::string >("DetIdListFile", "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
   
   // initialize the coral timestamps
   // always need Tmax
@@ -300,7 +304,19 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     // decide how to initialize modV
     SiStripDetVOff *modV = 0;
     if (iovtime != saveIovTime) { // time is different, so create new object
-      if (modulesOff.empty()) {modV = new SiStripDetVOff();} // create completely new object
+      if (modulesOff.empty()) {
+        // create completely new object and set the initial state to Tracker all off
+        modV = new SiStripDetVOff();
+
+        // Use the file
+        edm::FileInPath fp(detIdListFile_);
+        SiStripDetInfoFileReader reader(fp.fullPath());
+        const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos  = reader.getAllData();
+        for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = detInfos.begin(); it != detInfos.end(); ++it) {
+          modV->put( it->first, 1, 1 );
+        }
+
+      }
       else {modV = new SiStripDetVOff( *(modulesOff.back().first) );} // start from copy of previous object
     } else {
       modV = (modulesOff.back()).first; // modify previous object
