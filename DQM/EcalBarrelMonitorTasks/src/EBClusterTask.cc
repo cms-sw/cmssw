@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/11/23 10:07:51 $
- * $Revision: 1.79 $
+ * $Date: 2009/11/24 15:59:07 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -95,12 +95,6 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meSCEneLowScale_ = 0;
   meSCSeedMapOcc_ = 0;
   meSCMapSingleCrystal_ = 0;
-  meSCSeedTimingSummary_ = 0;
-  meSCSeedTimingMap_ = 0;
-  meSCSeedTimingMapProjEta_ = 0;
-  meSCSeedTimingMapProjPhi_ = 0;
-  for(int i=0;i<36;++i)
-     meSCSeedTiming_[i] = 0;
 
   mes1s9_  = 0;
   mes9s25_  = 0;
@@ -199,17 +193,6 @@ void EBClusterTask::reset(void) {
   if ( meSCSeedMapOcc_ ) meSCSeedMapOcc_->Reset();
 
   if ( meSCMapSingleCrystal_ ) meSCMapSingleCrystal_->Reset();
-
-  if ( meSCSeedTimingSummary_ ) meSCSeedTimingSummary_->Reset();
-
-  if ( meSCSeedTimingMap_ ) meSCSeedTimingMap_->Reset();
-
-  if ( meSCSeedTimingMapProjEta_ ) meSCSeedTimingMapProjEta_->Reset();
-
-  if ( meSCSeedTimingMapProjPhi_ ) meSCSeedTimingMapProjPhi_->Reset();
-
-  for(int i=0;i<36;++i)
-     if( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
 
@@ -357,33 +340,6 @@ void EBClusterTask::setup(void){
     meSCMapSingleCrystal_->setAxisTitle("jphi", 1);
     meSCMapSingleCrystal_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBCLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing (clocks)", 1);
-
-    sprintf(histo, "EBCLT SC seed crystal timing map");
-    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 250, 0., 10., "s");
-    meSCSeedTimingMap_->setAxisTitle("jphi", 1);
-    meSCSeedTimingMap_->setAxisTitle("jeta", 2);
-    meSCSeedTimingMap_->setAxisTitle("time (clocks)", 3);
-    
-    sprintf(histo, "EBCLT SC seed crystal timing projection eta");
-    meSCSeedTimingMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 250, 0., 10., "s");
-    meSCSeedTimingMapProjEta_->setAxisTitle("jeta", 1);
-    meSCSeedTimingMapProjEta_->setAxisTitle("time (clocks)", 2);
-
-    sprintf(histo, "EBCLT SC seed crystal timing projection phi");
-    meSCSeedTimingMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 250, 0., 10., "s");
-    meSCSeedTimingMapProjPhi_->setAxisTitle("jphi", 1);
-    meSCSeedTimingMapProjPhi_->setAxisTitle("time (clocks)", 2);
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
-    for(int i = 0; i<36; i++) {
-      sprintf(histo,"EBCLT timing %s", Numbers::sEB(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    }
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
-
     sprintf(histo, "EBCLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
@@ -509,25 +465,6 @@ void EBClusterTask::cleanup(void){
 
     if ( meSCMapSingleCrystal_ ) dqmStore_->removeElement( meSCMapSingleCrystal_->getName() );
     meSCMapSingleCrystal_ = 0;
-
-    if ( meSCSeedTimingSummary_ ) dqmStore_->removeElement( meSCSeedTimingSummary_->getName() );
-    meSCSeedTimingSummary_ = 0;
-
-    if ( meSCSeedTimingMap_ ) dqmStore_->removeElement( meSCSeedTimingMap_->getName() );
-    meSCSeedTimingMap_ = 0;
-
-    if ( meSCSeedTimingMapProjEta_ ) dqmStore_->removeElement( meSCSeedTimingMapProjEta_->getName() );
-    meSCSeedTimingMapProjEta_ = 0;
-
-    if ( meSCSeedTimingMapProjPhi_ ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_->getName() );
-    meSCSeedTimingMapProjPhi_ = 0;
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
-    for(int i = 0; i < 36; i++) {
-       if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
-       meSCSeedTiming_[i] = 0;
-    }
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
@@ -730,34 +667,14 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	  meSCEneLowScale_->Fill(sCluster->energy());
 
 	  // Prepare to fill maps
-	  int ism = Numbers::iSM(seedId);
 	  int ebeta = seedId.ieta();
 	  int ebphi = seedId.iphi();
 	  float xebeta = ebeta - 0.5 * seedId.zside();
 	  float xebphi = ebphi - 0.5;
+
 	  meSCSeedMapOcc_->Fill(xebphi,xebeta);
-	  if(sIds.size() == 1)
-	     meSCMapSingleCrystal_->Fill(xebphi,xebeta);
 
-          float time = seedItr->time() / 25.0 + 5.0;
-
-          edm::ESHandle<EcalADCToGeVConstant> pAgc;
-          c.get<EcalADCToGeVConstantRcd>().get(pAgc);
-          if(pAgc.isValid()) {
-            const EcalADCToGeVConstant* agc = pAgc.product();
-
-            if(seedItr->energy() / agc->getEBValue() > 12) {
-
-              meSCSeedTimingSummary_->Fill( time );
-              meSCSeedTiming_[ism-1]->Fill( time );
-              meSCSeedTimingMap_->Fill( xebphi, xebeta, time );
-              meSCSeedTimingMapProjEta_->Fill( xebeta, time );
-              meSCSeedTimingMapProjPhi_->Fill( xebphi, time );
-
-            }
-          } else {
-            LogWarning("EBClusterTask") << "EcalADCToGeVConstant not valid";
-          }
+	  if(sIds.size() == 1) meSCMapSingleCrystal_->Fill(xebphi,xebeta);
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
