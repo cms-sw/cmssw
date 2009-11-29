@@ -41,11 +41,6 @@ namespace {
 	}
 }
 
-BasicGhostTrackState *TrackGhostTrackState::clone() const
-{
-	return new TrackGhostTrackState(*this);
-}
-
 bool TrackGhostTrackState::linearize(const GhostTrackPrediction &pred,
                                      bool initial, double lambda)
 {

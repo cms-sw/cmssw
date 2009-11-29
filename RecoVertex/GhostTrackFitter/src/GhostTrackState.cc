@@ -46,16 +46,24 @@ bool GhostTrackState::isVertex() const
 	return false;
 }
 
-const TransientTrack &GhostTrackState::track() const
+static const TrackGhostTrackState *getTrack(const BasicGhostTrackState *basic)
 {
 	const TrackGhostTrackState *track =
-			dynamic_cast<const TrackGhostTrackState*>(&data());
-
+			dynamic_cast<const TrackGhostTrackState*>(basic);
 	if (!track)
 		throw cms::Exception("InvalidOperation")
-			<< "GhostTrackState::track() called non non-track";
+			<< "track requested on non non-track GhostTrackState";
+	return track;
+}
 
-	return track->track();
+const TransientTrack &GhostTrackState::track() const
+{
+	return getTrack(&data())->track();
+}
+
+const TrajectoryStateOnSurface &GhostTrackState::tsos() const
+{
+	return getTrack(&data())->tsos();
 }
 
 double GhostTrackState::flightDistance(const GlobalPoint &point,

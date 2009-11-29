@@ -21,7 +21,18 @@ class TrackGhostTrackState : public BasicGhostTrackState {
 	TrackGhostTrackState(const TransientTrack &track) : track_(track) {}
 
 	const TransientTrack &track() const { return track_; }
+	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
 
+	bool isValid() const { return tsos_.isValid(); }
+
+	GlobalPoint globalPosition() const
+	{ return tsos_.globalPosition(); }
+	GlobalError cartesianError() const
+	{ return tsos_.cartesianError().position(); }
+	CovarianceMatrix cartesianCovariance() const
+	{ return tsos_.cartesianError().matrix().Sub<CovarianceMatrix>(0, 0); }
+
+	void reset() { tsos_ = TrajectoryStateOnSurface(); }
 	bool linearize(const GhostTrackPrediction &pred,
 	               bool initial, double lambda);
 	bool linearize(const GhostTrackPrediction &pred, double lambda);
@@ -32,9 +43,11 @@ class TrackGhostTrackState : public BasicGhostTrackState {
 	                                bool withGhostTrackError = true) const;
 
     private:
-	BasicGhostTrackState *clone() const;
+	BasicGhostTrackState *clone() const
+	{ return new TrackGhostTrackState(*this); }
 
-	TransientTrack	track_;
+	TrajectoryStateOnSurface	tsos_;
+	TransientTrack			track_;
 };
 
 }

@@ -7,6 +7,7 @@
 #include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
+#include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
@@ -29,18 +30,20 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
 	friend class CopyUsingClone<BGTS>;
 
     public:
+	typedef math::Error<3>::type CovarianceMatrix;
 	typedef std::pair<GlobalPoint, GlobalError> Vertex;
 
 	BasicGhostTrackState() : lambda_(0.), weight_(1.) {}
 	virtual ~BasicGhostTrackState() {}
 
-	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
+	virtual GlobalPoint globalPosition() const = 0;
+	virtual GlobalError cartesianError() const = 0;
+	virtual CovarianceMatrix cartesianCovariance() const = 0;
 
 	double lambda() const { return lambda_; }
-	bool isValid() const { return tsos_.isValid(); }
+	virtual bool isValid() const = 0;
 
-	void reset() { tsos_ = TrajectoryStateOnSurface(); }
-
+	virtual void reset() = 0;
 	virtual bool linearize(const GhostTrackPrediction &pred,
 	                       bool initial, double lambda) = 0;
 	virtual bool linearize(const GhostTrackPrediction &pred,
@@ -59,9 +62,8 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
     protected:
 	virtual BasicGhostTrackState *clone() const = 0;
 
-	TrajectoryStateOnSurface	tsos_;
-	double				lambda_;
-	double				weight_;
+	double	lambda_;
+	double	weight_;
 };
 
 }

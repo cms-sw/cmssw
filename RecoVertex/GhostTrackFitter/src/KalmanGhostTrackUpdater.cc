@@ -48,7 +48,7 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 {
 	using namespace ROOT::Math;
 
-	const GlobalPoint &point = state.tsos().globalPosition();
+	const GlobalPoint &point = state.globalPosition();
 
 	// precomputed values
 	double x = std::cos(pred.phi());
@@ -66,8 +66,7 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 	measToLocal(1, 1) = -x;
 
 	// measurement error on the 2d plane projection
-	measErr = Similarity(measToLocal,
-		state.tsos().cartesianError().matrix().Sub<Matrix3S>(0, 0));
+	measErr = Similarity(measToLocal, state.cartesianCovariance());
 
 	// jacobian of representation to measurement transformation
 	h(0, 0) = 1.;

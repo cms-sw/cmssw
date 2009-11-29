@@ -20,13 +20,17 @@ class GhostTrackState : public BasicGhostTrackState::Proxy {
 	typedef BasicGhostTrackState::Proxy Base;
 
     public:
+	typedef BasicGhostTrackState::CovarianceMatrix CovarianceMatrix;
 	typedef BasicGhostTrackState::Vertex Vertex;
 
 	GhostTrackState(const TransientTrack &track);
 
 	const TransientTrack &track() const;
-	const TrajectoryStateOnSurface &tsos() const
-	{ return data().tsos(); }
+	const TrajectoryStateOnSurface &tsos() const;
+
+	GlobalPoint globalPosition() const { return data().globalPosition(); }
+	GlobalError cartesianError() const { return data().cartesianError(); }
+	CovarianceMatrix cartesianCovariance() const { return data().cartesianCovariance(); }
 
 	double lambda() const { return data().lambda(); }
 	double lambdaError(const GhostTrackPrediction &pred,
