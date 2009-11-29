@@ -4,6 +4,7 @@
 #include <Math/MatrixFunctions.h>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
 
