@@ -80,6 +80,16 @@ void FEDErrors::initialise(const unsigned int aFedID,
 {
   fedID_ = aFedID;
 
+  //initialise first.  if no channel connected in one FE, subdetid =
+  //0.  in the loop on channels, if at least one channel is connected
+  //and has a valid ID, the subdet value will be changed to the right
+  //one.
+  for (unsigned int iFE = 0; 
+       iFE < sistrip::FEUNITS_PER_FED; 
+       iFE++) {
+    subDetId_[iFE] = 0;
+  }
+
   for (unsigned int iCh = 0; 
        iCh < sistrip::FEDCH_PER_FED; 
        iCh++) {
@@ -88,7 +98,7 @@ void FEDErrors::initialise(const unsigned int aFedID,
     connected_[iCh] = lConnection.isConnected();
     unsigned short lFeNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
     unsigned int lDetid = lConnection.detId();
-    subDetId_[lFeNumber] = 0;
+    
     if (lDetid && lDetid != sistrip::invalid32_ && connected_[iCh]) {
       unsigned int lSubid = DetId(lDetid).subdetId();
       // 3=TIB, 4=TID, 5=TOB, 6=TEC (TECB here)
@@ -97,6 +107,7 @@ void FEDErrors::initialise(const unsigned int aFedID,
 	if (lId.side() == 2) lSubid = 7; //TECF
       }
       subDetId_[lFeNumber] = lSubid;
+      //if (iCh%12==0) std::cout << fedID_ << " " << lFeNumber << " " << subDetId_[lFeNumber] << std::endl;
     }
   }
 
@@ -357,30 +368,38 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
     const sistrip::FEDFEHeader* header = aBuffer->feHeader();
     const sistrip::FEDFullDebugHeader* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
     // if (debugHeader) {
-    //   std::cout << "iFE = " << iFE
-    // 		<< ", aBuffer->apveAddress() = " << static_cast<unsigned int>(aBuffer->apveAddress())
-    // 		<< ", debugHeader = " << debugHeader
-    // 		<< ", header->feGood(iFE) = " << aBuffer->feGood(iFE) 
-    // 		<< ", debugHeader->feUnitMajorityAddress(iFE) " << static_cast<unsigned int>(debugHeader->feUnitMajorityAddress(iFE))
-    // 		<< std::endl
-    // 		<< "timeLoc(feUnitMajAddr) = "
-    // 		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))
-    // 		<< ", timeLoc(apveAddr) = "
-    // 		<< static_cast<uint16_t>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress())) 
-    // 		<< ", aBuffer->checkFEUnitAPVAddresses() = " 
-    // 		<< aBuffer->checkFEUnitAPVAddresses()
-    // 		<< std::endl;
-    //   std::cout << "My checks = " << std::endl
+    //   unsigned int apveTime = static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress()));
+    //   unsigned int feTime = static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)));
+    //   if ((apveTime == 200 && aBuffer->apveAddress()) || feTime == 200) {
+    // 	std::cout << "FED " << fedID_ << ", iFE = " << iFE << std::endl
+    // 		<< " -- aBuffer->apveAddress() = " << static_cast<unsigned int>(aBuffer->apveAddress())
+    // // 		<< ", debugHeader = " << debugHeader
+    // // 		<< ", header->feGood(iFE) = " << aBuffer->feGood(iFE) 
+    //  		<< ", debugHeader->feUnitMajorityAddress(iFE) " << static_cast<unsigned int>(debugHeader->feUnitMajorityAddress(iFE))
+    //  		<< std::endl
+    //  		<< " -- timeLoc(feUnitMajAddr) = "
+    //  		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))
+    //  		<< ", timeLoc(apveAddr) = "
+    //  		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress())) 
+    // // 		<< ", aBuffer->checkFEUnitAPVAddresses() = " 
+    // // 		<< aBuffer->checkFEUnitAPVAddresses()
+    //  		<< std::endl;
+    // 	std::cout << "My checks = "
     // 		<< ", feOverflows = " << lFeErr.Overflow << " " << foundOverflow
     // 		<< ", feMissing = " << lFeErr.Missing << " " << foundMissing
     // 		<< ", feBadMajAddr = " << lFeErr.BadMajorityAddress  << " " << foundBadMajority
     // 		<< std::endl;
-    //   std::cout << "aBuffer->checkFEUnitAPVAddresses() = " << aBuffer->checkFEUnitAPVAddresses() << std::endl;
-    // }
 
-    if (debugHeader){
+    // 	std::cout << "TimeDiff = " << feTime-apveTime << std::endl;
+
+    // 	//   std::cout << "aBuffer->checkFEUnitAPVAddresses() = " << aBuffer->checkFEUnitAPVAddresses() << std::endl;
+    //   }
+    // }
+      
+    if (debugHeader && aBuffer->apveAddress()){
       lFeErr.TimeDifference = //0;
 	static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))-static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress()));
+      
       //aBuffer->apveAddress(), debugHeader->feUnitMajorityAddress(iFE)
       //FEDAddressConversion::timeLocation(const uint8_t aPipelineAddress)
     }

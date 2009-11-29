@@ -189,7 +189,7 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailed_[aFedId],lFeId);
   
   if (aFeLevelErrors.TimeDifference != 0){
-    if (aFeLevelErrors.SubDetID <= 4) fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
+    if (aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4) fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
     else if (aFeLevelErrors.SubDetID == 5)fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
     else if (aFeLevelErrors.SubDetID == 6)fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
     else if (aFeLevelErrors.SubDetID == 7)fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
