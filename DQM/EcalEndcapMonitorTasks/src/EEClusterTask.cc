@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/11/24 15:59:07 $
- * $Revision: 1.68 $
+ * $Date: 2009/11/25 10:27:55 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -109,16 +109,6 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCSeedMapOcc_[1] = 0;
   meSCMapSingleCrystal_[0] = 0;
   meSCMapSingleCrystal_[1] = 0;
-  meSCSeedTimingSummary_ = 0;
-  meSCSeedTimingMap_[0] = 0;
-  meSCSeedTimingMap_[1] = 0;
-  meSCSeedTimingMapProjR_[0] = 0;
-  meSCSeedTimingMapProjR_[1] = 0;
-  meSCSeedTimingMapProjPhi_[0] = 0;
-  meSCSeedTimingMapProjPhi_[1] = 0;
-
-  for(int i=0;i<18;++i)
-    meSCSeedTiming_[i] = 0;
 
   mes1s9_ = 0;
   mes9s25_ = 0;
@@ -245,23 +235,6 @@ void EEClusterTask::reset(void) {
   if ( meSCMapSingleCrystal_[0] ) meSCMapSingleCrystal_[0]->Reset();
 
   if ( meSCMapSingleCrystal_[1] ) meSCMapSingleCrystal_[1]->Reset();
-
-  if ( meSCSeedTimingSummary_ ) meSCSeedTimingSummary_->Reset();
-
-  if ( meSCSeedTimingMap_[0] ) meSCSeedTimingMap_[0]->Reset();
-
-  if ( meSCSeedTimingMap_[1] ) meSCSeedTimingMap_[1]->Reset();
-
-  if ( meSCSeedTimingMapProjR_[0] ) meSCSeedTimingMapProjR_[0]->Reset();
-
-  if ( meSCSeedTimingMapProjR_[1] ) meSCSeedTimingMapProjR_[1]->Reset();
-
-  if ( meSCSeedTimingMapProjPhi_[0] ) meSCSeedTimingMapProjPhi_[0]->Reset();
-
-  if ( meSCSeedTimingMapProjPhi_[1] ) meSCSeedTimingMapProjPhi_[1]->Reset();
-
-  for(int i=0; i<18; ++i)
-    if ( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
 
@@ -479,49 +452,6 @@ void EEClusterTask::setup(void){
     meSCMapSingleCrystal_[1]->setAxisTitle("jx", 1);
     meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EECLT SC seed crystal timing");
-    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing (clocks)", 1);
-
-    sprintf(histo, "EECLT SC seed crystal timing map EE -");
-    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
-    meSCSeedTimingMap_[0]->setAxisTitle("jx", 1);
-    meSCSeedTimingMap_[0]->setAxisTitle("jy", 2);
-    meSCSeedTimingMap_[0]->setAxisTitle("time (clocks)", 3);
-
-    sprintf(histo, "EECLT SC seed crystal timing map EE +");
-    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
-    meSCSeedTimingMap_[1]->setAxisTitle("jx", 1);
-    meSCSeedTimingMap_[1]->setAxisTitle("jy", 2);
-    meSCSeedTimingMap_[1]->setAxisTitle("time (clocks)", 3);
-
-    sprintf(histo, "EECLT SC seed crystal timing projection R EE -");
-    meSCSeedTimingMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
-    meSCSeedTimingMapProjR_[0]->setAxisTitle("eta", 1);
-    meSCSeedTimingMapProjR_[0]->setAxisTitle("cluster size", 2);
-
-    sprintf(histo, "EECLT SC seed crystal timing projection phi EE -");
-    meSCSeedTimingMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
-    meSCSeedTimingMapProjPhi_[0]->setAxisTitle("phi", 1);
-    meSCSeedTimingMapProjPhi_[0]->setAxisTitle("time (clocks)", 2);
-
-    sprintf(histo, "EECLT SC seed crystal timing projection R EE +");
-    meSCSeedTimingMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
-    meSCSeedTimingMapProjR_[1]->setAxisTitle("eta", 1);
-    meSCSeedTimingMapProjR_[1]->setAxisTitle("time (clocks)", 2);
-
-    sprintf(histo, "EECLT SC seed crystal timing projection phi EE +");
-    meSCSeedTimingMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
-    meSCSeedTimingMapProjPhi_[1]->setAxisTitle("phi", 1);
-    meSCSeedTimingMapProjPhi_[1]->setAxisTitle("time (clocks)", 2);
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
-    for(int i = 0; i < 18; i++) {
-      sprintf(histo, "EECLT timing %s", Numbers::sEE(i+1).c_str());
-      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    }
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
-
     sprintf(histo, "EECLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
@@ -689,34 +619,6 @@ void EEClusterTask::cleanup(void){
 
     if ( meSCMapSingleCrystal_[1] ) dqmStore_->removeElement( meSCMapSingleCrystal_[1]->getName() );
     meSCMapSingleCrystal_[1] = 0;
-
-    if ( meSCSeedTimingSummary_ ) dqmStore_->removeElement( meSCSeedTimingSummary_->getName() );
-    meSCSeedTimingSummary_ = 0;
-
-    if ( meSCSeedTimingMap_[0] ) dqmStore_->removeElement( meSCSeedTimingMap_[0]->getName() );
-    meSCSeedTimingMap_[0] = 0;
-
-    if ( meSCSeedTimingMap_[1] ) dqmStore_->removeElement( meSCSeedTimingMap_[1]->getName() );
-    meSCSeedTimingMap_[1] = 0;
-
-    if ( meSCSeedTimingMapProjR_[0] ) dqmStore_->removeElement( meSCSeedTimingMapProjR_[0]->getName() );
-    meSCSeedTimingMapProjR_[0] = 0;
-
-    if ( meSCSeedTimingMapProjR_[1] ) dqmStore_->removeElement( meSCSeedTimingMapProjR_[1]->getName() );
-    meSCSeedTimingMapProjR_[1] = 0;
-
-    if ( meSCSeedTimingMapProjPhi_[0] ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_[0]->getName() );
-    meSCSeedTimingMapProjPhi_[0] = 0;
-
-    if ( meSCSeedTimingMapProjPhi_[1] ) dqmStore_->removeElement( meSCSeedTimingMapProjPhi_[1]->getName() );
-    meSCSeedTimingMapProjPhi_[1] = 0;
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
-    for(int i=0;i<18;++i) {
-      if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
-      meSCSeedTiming_[i] = 0;
-    }
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
 
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
@@ -946,28 +848,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
           meSCSeedMapOcc_[eeSide]->Fill(xeex, xeey);
 
-          if(sIds.size() == 1)
-            meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
-
-          edm::ESHandle<EcalADCToGeVConstant> pAgc;
-          c.get<EcalADCToGeVConstantRcd>().get(pAgc);
-          const EcalADCToGeVConstant* agc = pAgc.product();
-
-          if(pAgc.isValid()) {
-            if(seedItr->energy() / agc->getEEValue() > 16) {
-
-              float time = seedItr->time() / 25.0 + 5.0;
-
-              meSCSeedTimingSummary_->Fill( time );
-              meSCSeedTiming_[ism-1]->Fill( time );
-              meSCSeedTimingMap_[eeSide]->Fill(xeex, xeey, time);
-              meSCSeedTimingMapProjR_[eeSide]->Fill( sqrt(xeex*xeex + xeey*xeey), time );
-              meSCSeedTimingMapProjPhi_[eeSide]->Fill( atan(xeey/xeex), time );
-
-            }
-          } else {
-            LogWarning("EEClusterTask") << "EcalADCToGeVConstant not valid";
-          }
+          if(sIds.size() == 1) meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
