@@ -121,7 +121,7 @@ vector<vector<Holder> > extractFromFile( const string & fileName )
       getline(inputFile, line);
       ++HVLV;
     }
-
+    else if( line.find("%MSG") != string::npos || line.find("DummyCondObjPrinter") != string::npos ) continue;
     // End the loop if the lines are finished
     else if( HVLV == 1 && subDet == "TID" && line == "" ) break;
 
