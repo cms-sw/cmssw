@@ -41,25 +41,15 @@ BasicGhostTrackState::Vertex VertexGhostTrackState::vertexStateOnGhostTrack(
 	GlobalPoint origin = pred.origin();
 	GlobalVector direction = pred.direction();
 
-#if 0
 	double rho2 = pred.rho2();
 	double rho = std::sqrt(rho2);
-	double lambda = (tsos_.globalPosition() - origin) * direction / rho2;
+	double lambda = (position_ - origin) * direction / rho2;
 	GlobalPoint pos = origin + lambda * direction;
 
-	GlobalVector momentum = tsos_.globalMomentum();
-	double mom = momentum.mag();
-
 	Vector3 b = conv(direction) / rho;
-	Vector3 d = conv(momentum) / mom;
-	double l = Dot(b, d);
-	double g = 1. / (1. - sqr(l));
+	Vector3 ca = conv(position_ - pos);
 
-	Vector3 ca = conv(pos - tsos_.globalPosition());
-	Vector3 bd = b - l * d;
-	b *= g;
-
-	Matrix33 pA = TensorProd(b, bd);
+	Matrix33 pA = TensorProd(b, b);
 	Matrix33 pB = TensorProd(b, ca);
 
 	Matrix36 jacobian;
@@ -67,16 +57,10 @@ BasicGhostTrackState::Vertex VertexGhostTrackState::vertexStateOnGhostTrack(
 	jacobian.Place_at(pB / rho, 0, 3);
 	Matrix3S error = Similarity(jacobian, pred.cartesianError(lambda));
 
-	if (withMeasurementError) {
-		jacobian.Place_at(pA, 0, 0);
-		jacobian.Place_at(-pB / mom, 0, 3);
-		error += Similarity(jacobian, tsos_.cartesianError().matrix());
-	}
+	if (withMeasurementError)
+		error += Similarity(pA, covariance_);
 
 	return Vertex(pos, error);
-#else	
-	return Vertex();
-#endif
 }
 
 BasicGhostTrackState::Vertex VertexGhostTrackState::vertexStateOnMeasurement(
