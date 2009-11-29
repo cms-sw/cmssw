@@ -48,7 +48,7 @@ namespace cond {
       {
 	// the same lumiblock
 	edm::LuminosityBlockID l(time);
-	return edm::IOVSyncValue(edm::EventID(l.run(), l.luminosityBlock()), edm::EventID::maxEventNumber());
+	return edm::IOVSyncValue(edm::EventID(l.run(), l.luminosityBlock(), edm::EventID::maxEventNumber()));
       }
     case cond::timestamp :
       // next event ?
