@@ -235,7 +235,7 @@ FreeTrajectoryState GhostTrackPrediction::fts(
 				const MagneticField *fieldProvider) const
 {
 	return FreeTrajectoryState(globalTrajectory(fieldProvider),
-	                                            curvilinearError());
+	                           curvilinearError());
 }
 
 Track GhostTrackPrediction::track(double ndof, double chi2) const
