@@ -1,5 +1,4 @@
 <use name=FWCore/Utilities>
-<use name=CommonTools/Utils>
 <use name=Utilities/General>
 <use name=rootrflx>
 <use name=rootminuit>
@@ -10,13 +9,4 @@
 <!-- <flags CXXFLAGS="-DBOOST_SPIRIT_DEBUG -DBOOST_SPIRIT_DEBUG_OUT=std::cerr"> -->
 <export>
   <lib name=PhysicsToolsUtilities>
-  <use name=FWCore/Utilities>
-  <use name=CommonTools/Utils>
-  <use name=Utilities/General>
-  <use name=rootrflx>
-  <use name=rootminuit>
-  <use name=rootminuit2>
-  <use name=rootgraphics>
-  <use name=boost>
-  <use name=DataFormats/Math>
 </export>
