@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/26 06:08:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/05 17:07:51 $
+ *  $Revision: 1.8 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -145,24 +145,24 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   if (conf_.getParameter<bool>("doSeedParameterHistos")) {
  
+    iEvent.getByLabel(seedProducer, seedCollection);
+    //    if (!seedCollection.isValid()) return;  
+    iEvent.getByLabel(tcProducer, theTCCollection ); 
+    //    if (!theTCCollection.isValid()) return;
+  }  
 
-  iEvent.getByLabel(seedProducer, seedCollection);
-  if (!seedCollection.isValid()) return;  
-  iEvent.getByLabel(tcProducer, theTCCollection ); 
-  if (!theTCCollection.isValid()) return;
-}  
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
   
  
   NumberOfTracks->Fill(trackCollection->size());
-  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
-
-  NumberOfSeeds->Fill(seedCollection->size());
-
-  NumberOfTrackCandidates->Fill(theTCCollection->size());
-}      
+  if (conf_.getParameter<bool>("doSeedParameterHistos") && (theTCCollection.isValid()) ) {
+    
+    NumberOfSeeds->Fill(seedCollection->size());
+    
+    NumberOfTrackCandidates->Fill(theTCCollection->size());
+  }      
   TrajectoryStateTransform tsTransform;
   TSCBLBuilderNoMaterial tscblBuilder;
 
@@ -184,7 +184,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   NumberOfMeanRecHitsPerTrack->Fill(meanrechits);
   NumberOfMeanLayersPerTrack->Fill(meanlayers);
 
-  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+  if (conf_.getParameter<bool>("doSeedParameterHistos") && seedCollection.isValid()) {
     iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
     for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
       edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
