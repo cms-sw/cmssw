@@ -7,9 +7,15 @@ from HLTrigger.Configuration.HLT_FULL_cff import *
 
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
-    HLTRecoJetMETSequence + 
-    HLTDoHTRecoSequence)
-
+    HLTRecoJetMETSequence +
+    HLTDoJet30HTRecoSequence
+    #HLTDoHTRecoSequence
+)
+DoHLTJetsU = cms.Path(HLTBeginSequence +
+    HLTRecoJetSequenceU +
+    hltMet +
+    HLTDoJet15UHTRecoSequence
+)
 # create the muon HLT reco path
 DoHltMuon = cms.Path(
     HLTBeginSequence +
