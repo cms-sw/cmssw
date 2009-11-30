@@ -133,37 +133,37 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     hits.swap(showerLibrary->getHits(aStep, ok));    
   }
  
+  entrancePoint = preStepPoint->GetPosition();
   for (unsigned int i=0; i<hits.size(); i++) {
-      G4ThreeVector hitPoint = hits[i].position;
-      G4ThreeVector hitEntry = hits[i].entryLocal;
-      double time            = hits[i].time;
-      unsigned int unitID    = hits[i].detID;
-      double eHAD       = hits[i].DeHad;
-      double eEM        = hits[i].DeEM;
-      currentID.setID(unitID, time, primaryID);
+    posGlobal           = hits[i].position;
+    entranceLocal       = hits[i].entryLocal;
+    double time         = hits[i].time;
+    unsigned int unitID = hits[i].detID;
+    edepositHAD         = hits[i].DeHad;
+    edepositEM          = hits[i].DeEM;
+    currentID.setID(unitID, time, primaryID);
       
-      // check if it is in the same unit and timeslice as the previous on    
-      if (currentID == previousID) {
-	updateHit(currentHit);	
-      } else {
-	currentHit = createNewHit();
-      }
+    // check if it is in the same unit and timeslice as the previous on    
+    if (currentID == previousID) {
+      updateHit(currentHit);	
+    } else {
+      currentHit = createNewHit();
+    }
       
-      currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
-      currentHit->setEM(eEM);
-      currentHit->setHadr(eHAD);
-      currentHit->setIncidentEnergy(etrack);
-      currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
+    //  currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
+    //  currentHit->setEM(eEM);
+    //   currentHit->setHadr(eHAD);
+    currentHit->setIncidentEnergy(etrack);
+    //  currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
       
-      /** std::cout<<"Final Hit number:"<<i<<"-->"
-	       <<"New HitID: "<<currentHit->getUnitID()
-	       <<" New Hit trackID: "<<currentHit->getTrackID()
-	       <<" New EM Energy: "<<currentHit->getEM()/GeV
-	       <<" New HAD Energy: "<<currentHit->getHadr()/GeV
-	       <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
-	       <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
-	       <<" New HitPosition: "<<hitPoint<<std::endl;
-      **/
+    LogDebug("ForwardSim") << "ZdcSD: Final Hit number:"<<i<<"-->"
+			   <<"New HitID: "<<currentHit->getUnitID()
+			   <<" New Hit trackID: "<<currentHit->getTrackID()
+			   <<" New EM Energy: "<<currentHit->getEM()/GeV
+			   <<" New HAD Energy: "<<currentHit->getHadr()/GeV
+			   <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
+			   <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
+			   <<" New HitPosition: "<<posGlobal;
   }
   
   //Now kill the current track
@@ -185,8 +185,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
   if (aStep == NULL) {
     LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
     return 0;
-  }
-  else {
+  } else {
     // preStepPoint information
     G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
@@ -307,18 +306,15 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       // if (d > (r+a))
       if (DelFibPart > (thFullReflRad + thcher) ) {
         variant = 0.; d_qz = 0.;
-      }
-      else {
+      } else {
         // if ((DelFibPart + thcher) < thFullReflRad )  [(d+r) < a]
 	if ((th + thcher) < (thFibDirRad+thFullReflRad) && (th - thcher) > (thFibDirRad-thFullReflRad) ) {
 	  variant = 1.; d_qz = 1.;
-	}
-	else {
+	} else {
           // if ((thcher - DelFibPart ) > thFullReflRad )  [(r-d) > a]
 	  if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher) ) {
             variant = 2.; d_qz = 0.;
-	  }
-          else {
+	  } else {
             // if ((thcher + DelFibPart ) > thFullReflRad && thcher < (DelFibPart+thFullReflRad) ) {  [(r+d) > a && (r-d) < a)]
             variant = 3.; // d_qz is calculated below
 
@@ -395,8 +391,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       // << "," << rad
       // << "," << mat
 
-    }
-    else {
+    } else {
       // determine failure mode: beta, charge, and/or nameVolume
       status = 0;
       if (beta <= bThreshold)
