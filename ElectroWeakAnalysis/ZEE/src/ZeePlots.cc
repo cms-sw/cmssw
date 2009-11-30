@@ -170,18 +170,18 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   h_e_PHI->Fill(e1.Phi()); h_e_PHI->Fill(e2.Phi()); 
 
    if(fabs(myElec1->eta())<1.479){
-      h_EB_trkiso->Fill( myElec1->trackIso() );
-      h_EB_ecaliso->Fill( myElec1->ecalIso() );
-      h_EB_hcaliso->Fill( myElec1->hcalIso() );
+      h_EB_trkiso->Fill( myElec1->userIsolation(pat::TrackIso) );
+      h_EB_ecaliso->Fill( myElec1->userIsolation(pat::EcalIso) );
+      h_EB_hcaliso->Fill( myElec1->userIsolation(pat::HcalIso) );
       h_EB_sIetaIeta->Fill( myElec1->scSigmaIEtaIEta() );
       h_EB_dphi->Fill( myElec1->deltaPhiSuperClusterTrackAtVtx() );
       h_EB_deta->Fill( myElec1->deltaEtaSuperClusterTrackAtVtx() );
       h_EB_HoE->Fill( myElec1->hadronicOverEm() );
     }
     else{
-      h_EE_trkiso->Fill( myElec1->trackIso() );
-      h_EE_ecaliso->Fill( myElec1->ecalIso() );
-      h_EE_hcaliso->Fill( myElec1->hcalIso() );
+      h_EE_trkiso->Fill( myElec1->userIsolation(pat::TrackIso) );
+      h_EE_ecaliso->Fill( myElec1->userIsolation(pat::EcalIso) );
+      h_EE_hcaliso->Fill( myElec1->userIsolation(pat::HcalIso) );
       h_EE_sIetaIeta->Fill( myElec1->scSigmaIEtaIEta() );
       h_EE_dphi->Fill( myElec1->deltaPhiSuperClusterTrackAtVtx() );
       h_EE_deta->Fill( myElec1->deltaEtaSuperClusterTrackAtVtx() );
@@ -190,18 +190,18 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
 
  if(fabs(myElec2->eta())<1.479){
-      h_EB_trkiso->Fill( myElec2->trackIso() );
-      h_EB_ecaliso->Fill( myElec2->ecalIso() );
-      h_EB_hcaliso->Fill( myElec2->hcalIso() );
+      h_EB_trkiso->Fill( myElec2->userIsolation(pat::TrackIso) );
+      h_EB_ecaliso->Fill( myElec2->userIsolation(pat::EcalIso) );
+      h_EB_hcaliso->Fill( myElec2->userIsolation(pat::HcalIso) );
       h_EB_sIetaIeta->Fill( myElec2->scSigmaIEtaIEta() );
       h_EB_dphi->Fill( myElec2->deltaPhiSuperClusterTrackAtVtx() );
       h_EB_deta->Fill( myElec2->deltaEtaSuperClusterTrackAtVtx() );
       h_EB_HoE->Fill( myElec2->hadronicOverEm() );
     }
     else{
-      h_EE_trkiso->Fill( myElec2->trackIso() );
-      h_EE_ecaliso->Fill( myElec2->ecalIso() );
-      h_EE_hcaliso->Fill( myElec2->hcalIso() );
+      h_EE_trkiso->Fill( myElec2->userIsolation(pat::TrackIso) );
+      h_EE_ecaliso->Fill( myElec2->userIsolation(pat::EcalIso) );
+      h_EE_hcaliso->Fill( myElec2->userIsolation(pat::HcalIso) );
       h_EE_sIetaIeta->Fill( myElec2->scSigmaIEtaIEta() );
       h_EE_dphi->Fill( myElec2->deltaPhiSuperClusterTrackAtVtx() );
       h_EE_deta->Fill( myElec2->deltaEtaSuperClusterTrackAtVtx() );
@@ -282,9 +282,9 @@ bool ZeePlots::CheckCutInv(const pat::Electron *ele, int i) {
 }
 ////////////////////////////////////////////////////////////////////////
 double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
-  if (i==0) return ele->trackIso();
-  else if (i==1) return ele->ecalIso();
-  else if (i==2) return ele->hcalIso();
+  if (i==0) return ele->userIsolation(pat::TrackIso);
+  else if (i==1) return ele->userIsolation(pat::EcalIso);
+  else if (i==2) return ele->userIsolation(pat::HcalIso);
   else if (i==3) return ele->scSigmaIEtaIEta();
   else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
