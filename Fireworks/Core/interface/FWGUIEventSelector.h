@@ -3,6 +3,8 @@
 
 #include "TGFrame.h"
 
+class TGLabel;
+
 class FWEventSelector;
 class FWHLTValidator;
 class FWCustomIconsButton;
@@ -18,6 +20,7 @@ public:
    void deleteCallback();
    void enableCallback(bool);
    void expressionCallback(char*);
+   void updateNEvents();
 
    
    FWEventSelector* guiSelector()  { return m_guiSelector;  }
@@ -39,6 +42,7 @@ private:
    FWGUIValidatingTextEntry* m_text2;
    TGCheckButton*            m_enableBtn;
    FWCustomIconsButton*      m_deleteBtn;
+   TGLabel*                  m_nEvents;
    
    ClassDef(FWGUIEventSelector, 0); // Manager for EVE windows.
 };

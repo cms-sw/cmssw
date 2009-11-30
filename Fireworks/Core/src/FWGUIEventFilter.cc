@@ -35,8 +35,8 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
    v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 1, 1, 1, 1));
 
-   m_btnGroup = new TGButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:");
-   new TGRadioButton(m_btnGroup, "OR");
+   m_btnGroup = new TGHButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:");
+   new TGRadioButton(m_btnGroup, "OR      ");
    new TGRadioButton(m_btnGroup, "AND");
    TQObject::Connect(m_btnGroup, "Clicked(Int_t)", "FWGUIEventFilter", this, "changeFilterMode(Int_t)");
 
@@ -51,11 +51,21 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGHorizontalFrame* selH = new TGHorizontalFrame(m_selectionFrameParent);
    m_selectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
 
-   selH->AddFrame(new TGLabel(selH, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom , 2, 0, 0, 0 ));
-
-   TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 162, 22, kFixedSize);
-   selH->AddFrame(cfr, new TGLayoutHints(kLHintsRight));
-   cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom));
+   {
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 292, 22, kFixedSize);
+      selH->AddFrame(cfr);
+      cfr->AddFrame(new TGLabel(cfr, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+   }
+   {
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 122, 22, kFixedSize);
+      selH->AddFrame(cfr);
+      cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+   }
+   {
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 39, 22, kFixedSize);
+      selH->AddFrame(cfr);
+      cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+   }
 
    //-------------------- adding new selection
 
@@ -164,6 +174,7 @@ FWGUIEventFilter::apply()
    m_origFilterMode = getFilterMode();
    m_filtersRemoved = false;
    m_applyBtn->SetForegroundColor( 0x000000);
+   fClient->NeedRedraw( this);
 
 }
 
@@ -232,7 +243,7 @@ FWGUIEventFilter::checkApplyButton()
       }
    }
 
-   m_applyBtn->SetForegroundColor(changed ? 0xff0000 : 0x000000);
+   m_applyBtn->SetForegroundColor(changed ? 0x00ff00 : 0x000000);
    gClient->NeedRedraw( m_applyBtn);
 }
 

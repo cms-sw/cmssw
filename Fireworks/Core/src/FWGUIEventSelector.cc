@@ -1,3 +1,5 @@
+#include "TGLabel.h"
+
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWHLTValidator.h"
@@ -13,7 +15,8 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    m_text1(0),
    m_text2(0),
    m_enableBtn(0),
-   m_deleteBtn(0)
+   m_deleteBtn(0),
+   m_nEvents(0)
 {
    m_origSelector = sel;
    m_guiSelector = new FWEventSelector();
@@ -37,6 +40,14 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    m_text2->Connect("TextChanged(char*)", "string", &m_guiSelector->m_description, "assign(char*)");
    cfr->AddFrame(m_text2, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,1,1));
   
+   // ---------------- selection info
+
+   TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 40, 22, kFixedSize);
+   AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
+   const char* txtInfo  =  Form("%3d",  m_origSelector ? m_origSelector->m_selected : -1);
+   m_nEvents = new TGLabel(labFrame, txtInfo);
+   labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom));
+
    // ---------------- enable
 
    m_enableBtn = new TGCheckButton(this,"");
@@ -89,4 +100,11 @@ void FWGUIEventSelector::expressionCallback(char* txt)
 void FWGUIEventSelector::selectorChanged()
 {
   Emit("selectorChanged()");
+}
+
+//______________________________________________________________________________
+void FWGUIEventSelector::updateNEvents()
+{
+   const char* txtInfo  =  Form("%3d",  m_origSelector ? m_origSelector->m_selected : -1);
+   m_nEvents->SetText(txtInfo);
 }

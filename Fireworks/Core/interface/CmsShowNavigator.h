@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.39 2009/11/27 16:42:32 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.40 2009/11/30 10:12:46 amraktad Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ private:
 
    void setCurrentFile(FileQueue_i);
    void updateFileFilters();
+   void updateSelectorsInfo();
 
    void removeFilter(std::list<FWEventSelector*>::iterator);
    void addFilter(FWEventSelector*);

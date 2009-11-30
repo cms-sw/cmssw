@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.65 2009/11/27 18:08:01 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.66 2009/11/30 10:12:46 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -399,6 +399,7 @@ CmsShowNavigator::updateFileFilters()
       if (m_filtersNeedUpdate) (*file)->filtersNeedUpdate();
       (*file)->updateFilters(m_main.m_eiManager.get(), m_filterMode == kOr);
    }
+   updateSelectorsInfo();
    m_filtersNeedUpdate = false;
 
    // go to nearest file
@@ -591,6 +592,38 @@ CmsShowNavigator::isLastEvent()
 }
 
 //______________________________________________________________________________
+void
+CmsShowNavigator::updateSelectorsInfo()
+{
+ 
+   // reset
+   std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin();
+   while ( sel != m_selectors.end())
+   {
+      (*sel)->m_selected = 0;
+      ++sel;
+   }
+
+   // loop file filters
+   std::list<FWFileEntry::Filter*>::iterator i;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      std::list<FWFileEntry::Filter*>& filters = (*file)->filters();
+      for (i = filters.begin(); i != filters.end(); ++i)
+      {
+         (*i)->m_selector->m_selected += (*i)->m_eventList->GetN();
+      }
+   }
+   if (m_guiFilter) 
+   {
+      std::list<FWGUIEventSelector*>::const_iterator gs = m_guiFilter->guiSelectors().begin();
+      while ( gs !=  m_guiFilter->guiSelectors().end())
+      {
+         (*gs)->updateNEvents();
+         ++gs;
+      }
+   }
+}
 
 int
 CmsShowNavigator::getNSelectedEvents()
