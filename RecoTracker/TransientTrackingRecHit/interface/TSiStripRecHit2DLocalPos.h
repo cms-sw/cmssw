@@ -95,20 +95,26 @@ private:
       if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
 	theHitData = SiStripRecHit2D(*rh);
       else{
-      const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
-      LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
-      if (gdu){
-	if (rh->cluster().isNonnull()){
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-	  theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster());
-	}else{
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	  theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster_regional());
+	if (computeCoarseLocalPosition && !cpe){
+	  edm::LogError("TSiStripRecHit2DLocalPos")<<" trying to compute coarse local position but CPE is not provided. Not computing local position from disk for the transient tracking rechit.";
+	  theHitData = SiStripRecHit2D(*rh);
 	}
-      }else{
-	edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
-	theHitData = SiStripRecHit2D(*rh);
-      }
+	else{
+	  const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
+	  LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
+	  if (gdu){
+	    if (rh->cluster().isNonnull()){
+	      StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
+	      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster());
+	    }else{
+	      StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
+	      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster_regional());
+	    }
+	  }else{
+	    edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
+	    theHitData = SiStripRecHit2D(*rh);
+	  }
+	}
       }
     }
 
