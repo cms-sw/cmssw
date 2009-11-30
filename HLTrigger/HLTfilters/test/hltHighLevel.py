@@ -6,6 +6,12 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32(1), # every!
+    limit = cms.untracked.int32(-1)       # no limit!
+    )
+process.MessageLogger.cerr.FwkReport.reportEvery = 10 # only report every 10th event start
+process.MessageLogger.cerr_stats.threshold = 'INFO' # also info in statistics
 
 # read back the trigger decisions
 process.source = cms.Source('PoolSource',
@@ -158,6 +164,7 @@ process.end_all_filter   = cms.Path( process.filter_1 + process.filter_2 + proce
 
 process.end_wrong_name    = cms.Path( process.filter_wrong_name )
 process.end_wrong_pattern = cms.Path( process.filter_wrong_pattern )
+process.end_not_wrong_pattern = cms.Path( ~process.filter_wrong_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
