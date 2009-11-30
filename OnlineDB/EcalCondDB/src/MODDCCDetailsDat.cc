@@ -45,10 +45,12 @@ void MODDCCDetailsDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (iov_id, logic_id, "
-			"operationMode) "
-			"VALUES (:iov_id, :logic_id, "
-			":1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 ) ");
+    m_writeStmt->setSQL(" INSERT INTO "+getTable()+" (iov_id, logic_id, "
+			" qpll_error, optical_link, data_timeout, dcc_header, event_number, bx_number, "
+                        " even_parity, odd_parity, block_size, almost_full_fifo, full_fifo, "
+                        " forced_full_supp ) "
+			" VALUES (:iov_id, :logic_id, "
+			" :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 ) ");
   } catch (SQLException &e) {
     throw(runtime_error("MODDCCDetailsDat::prepareWrite():  "+e.getMessage()));
   }
