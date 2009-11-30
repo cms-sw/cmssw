@@ -12,6 +12,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/JetReco/interface/GenericJetCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
@@ -79,6 +80,16 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
     JetTrackMatch<PFJetCollection> jtm5;
 
+    TrackJetCollection o6;
+    TrackJetRef r6;
+    TrackJetRefVector rr6;
+    TrackJetRefProd rrr6;
+    edm::Wrapper<TrackJetCollection> w6;
+    edm::Wrapper<TrackJetRefVector> wrv6;
+    edm::reftobase::Holder<reco::Candidate, reco::TrackJetRef> rtb6;
+    JetTrackMatch<TrackJetCollection> jtm6;
+
+
     edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
 
     edm::Wrapper<JetFloatAssociation::Container>  jf_c_w;
@@ -121,10 +132,12 @@ namespace {
     edm::reftobase::Holder<reco::Jet, reco::GenJetRef> hgj;
     edm::reftobase::Holder<reco::Jet, reco::PFJetRef> hpfj;
     edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
+    edm::reftobase::Holder<reco::Jet, reco::TrackJetRef> htj;
     edm::reftobase::RefHolder<reco::CaloJetRef> rhcj;
     edm::reftobase::RefHolder<reco::GenJetRef> rhgj;
     edm::reftobase::RefHolder<reco::PFJetRef> rhpfj;
     edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
+    edm::reftobase::RefHolder<reco::TrackJetRef> rhtj;
     edm::RefToBaseVector<reco::Jet> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<reco::Jet> > jrtbv_w;
     edm::reftobase::BaseVectorHolder<reco::Jet> * bvhj_p;    // pointer since it's pure virtual
@@ -144,6 +157,12 @@ namespace {
 
     edm::Ptr<reco::GenJet> ptrgj;
     edm::PtrVector<reco::GenJet> ptrvgj;
+
+    edm::Ptr<reco::TrackJet> ptrtj;
+    edm::PtrVector<reco::TrackJet> ptrvtj;
+    edm::Ptr<reco::Track> ptrt;
+    std::vector<edm::Ptr<reco::Track> > vptrt;
+
 
     edm::Ptr<reco::JetID> ptrjid;
     edm::PtrVector<reco::JetID> ptrvjid;
