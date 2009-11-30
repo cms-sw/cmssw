@@ -96,9 +96,10 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
     ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
     ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-    ME["CSCHaloData_HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_HaloTriggersMEPlus", "", 10, -0.5, 9.5);
-    ME["CSCHaloData_HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
-    ME["CSCHaloData_HaloTriggers"]  = dqm->book1D("CSCHaloData_HaloTriggers", "", 10, -0.5, 9.5);
+    ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
+    ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
+    ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
+    ME["CSCHaloData_HLHaloTriggers"]  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
     ME["CSCHaloData_CaloPointingHaloTrackMultiplicity"] = dqm->book1D("CSCHaloData_CaloPointingHaloTrackMultiplicity","", 10, -0.5, 9.5 );
 
     // GlobalHaloData
@@ -415,9 +416,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill( TMath::Sqrt( i->x()*i->x() + i->y()*i->y() ));
 	  ME["CSCHaloData_InnerMostTrackHitiPhi"]  ->Fill( Phi_To_iPhi( i->phi())); 
 	}                          
-      ME["CSCHaloData_HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(1) );
-      ME["CSCHaloData_HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(-1));
-      ME["CSCHaloData_HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers());
+      ME["CSCHaloData_L1HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(1) );
+      ME["CSCHaloData_L1HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(-1));
+      ME["CSCHaloData_L1HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers());
+      ME["CSCHaloData_HLHaloTriggers"]  -> Fill ( CSCData.CSCHaloHLTAccept());
       ME["CSCHaloData_TrackMultiplicityMEPlus"] ->Fill ( CSCData.NumberOfHaloTracks(1) );
       ME["CSCHaloData_TrackMultiplicityMEMinus"] ->Fill ( CSCData.NumberOfHaloTracks(-1) );
       ME["CSCHaloData_TrackMultiplicity"]->Fill( CSCData.GetTracks().size() );
