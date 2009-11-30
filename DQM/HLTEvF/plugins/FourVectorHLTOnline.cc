@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.16 2009/11/20 14:59:24 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.17 2009/11/20 15:05:27 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1292,10 +1292,15 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     ME_HLTPass_Normalized_Any_ = dbe_->book1D("HLTPass_Normalized_Any",
                            "HLTPass normalized to Any HLT pass",
                            npaths+1, -0.5, npaths+1-0.5);
+    dbe_->setCurrentFolder(pathsummary.Data());
+    ME_HLTPass_Any_ = dbe_->book1D("HLTPass_Any",
+                           "HLTPass",
+                           npaths+1, -0.5, npaths+1-0.5);
 
     v_ME_HLTPassPass_.push_back(ME_HLTPassPass_);
     v_ME_HLTPassPass_Normalized_.push_back(ME_HLTPassPass_Normalized_);
     v_ME_HLTPass_Normalized_Any_.push_back(ME_HLTPass_Normalized_Any_);
+    v_ME_HLTPass_Any_.push_back(ME_HLTPass_Any_);
 
     for(unsigned int i = 0; i < npaths; i++){
 
@@ -1309,6 +1314,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
       ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
       ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+      ME_HLTPass_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
     }
 
     unsigned int i = npaths;
@@ -1321,6 +1327,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     ME_HLTPassPass_Normalized_->getTH2F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
     ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
     ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
+    ME_HLTPass_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
 
 
     // now set up all of the histos for each path
@@ -1580,8 +1587,9 @@ void FourVectorHLTOnline::normalizeHLTMatrix() {
     MonitorElement* ME_HLTPassPass_ = v_ME_HLTPassPass_[i]; 
     MonitorElement* ME_HLTPassPass_Normalized_ = v_ME_HLTPassPass_Normalized_[i]; 
     MonitorElement* ME_HLTPass_Normalized_Any_ = v_ME_HLTPass_Normalized_Any_[i]; 
+    MonitorElement* ME_HLTPass_Any_ = v_ME_HLTPass_Any_[i]; 
 
-    if(!ME_HLTPassPass_ || !ME_HLTPassPass_Normalized_ || !ME_HLTPass_Normalized_Any_) return;
+    if(!ME_HLTPassPass_ || !ME_HLTPassPass_Normalized_ || !ME_HLTPass_Normalized_Any_ || !ME_HLTPass_Any_) return;
 
     float passCount = 0;
     unsigned int nBinsX = ME_HLTPassPass_->getTH2F()->GetNbinsX();
@@ -1597,6 +1605,7 @@ void FourVectorHLTOnline::normalizeHLTMatrix() {
         if(passCount != 0) {
 
           // normalize each bin to number of passCount
+          float binContentPassPass = (ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binY));
           float normalizedBinContentPassPass = (ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binY))/passCount;
           float normalizedBinContentPassFail = (ME_HLTPassFail_->getTH2F()->GetBinContent(binX,binY))/passCount;
 
@@ -1606,6 +1615,7 @@ void FourVectorHLTOnline::normalizeHLTMatrix() {
           if(binX == nBinsX) {
 
             ME_HLTPass_Normalized_Any_->getTH1F()->SetBinContent(binY,normalizedBinContentPassPass);
+            ME_HLTPass_Any_->getTH1F()->SetBinContent(binY,binContentPassPass);
 
           }
 
@@ -1647,9 +1657,16 @@ void FourVectorHLTOnline::setupHLTMatrix(std::string name, vector<std::string> &
     h_title = "HLT_"+name+"_PassPass (x=Pass, y=Pass) normalized to xBin=Pass";
     MonitorElement* ME_Normalized = dbe_->book2D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5, paths.size(), -0.5, paths.size()-0.5);
+
     h_name= "HLT_"+name+"_Pass_Normalized_Any";
     h_title = "HLT_"+name+"_Pass (x=Pass, Any=Pass) normalized to Any HLT Pass";
     MonitorElement* ME_Normalized_Any = dbe_->book1D(h_name.c_str(), h_title.c_str(),
+                           paths.size(), -0.5, paths.size()-0.5);
+
+    dbe_->setCurrentFolder(pathsummary.Data());
+    h_name= "HLT_"+name+"_Pass_Any";
+    h_title = "HLT_"+name+"_Pass (x=Pass, Any=Pass) ";
+    MonitorElement* ME_Any = dbe_->book1D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5);
 
     for(unsigned int i = 0; i < paths.size(); i++){
@@ -1660,6 +1677,7 @@ void FourVectorHLTOnline::setupHLTMatrix(std::string name, vector<std::string> &
       ME_Normalized->getTH2F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Normalized->getTH2F()->GetYaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Normalized_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
 
     }
 
@@ -1667,6 +1685,7 @@ void FourVectorHLTOnline::setupHLTMatrix(std::string name, vector<std::string> &
     v_ME_HLTPassPass_.push_back(ME);
     v_ME_HLTPassPass_Normalized_.push_back(ME_Normalized);
     v_ME_HLTPass_Normalized_Any_.push_back(ME_Normalized_Any);
+    v_ME_HLTPass_Any_.push_back(ME_Any);
 
 }
 
