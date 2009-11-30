@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.66 2009/11/18 11:00:30 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.67 2009/11/21 22:25:04 chrjones Exp $
 //
 
 // system include files
@@ -125,6 +125,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetScaleColorTransparency(kWhite, 0);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         // ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
          eh->SetLego(m_lego);
       }
    }
@@ -194,6 +195,10 @@ FWEveLegoView::setCameras()
       *m_orthoCameraMatrixRef = *m_orthoCameraMatrix;
       *m_orthoCameraZoomRef = m_orthoCameraZoom;
    }
+   if (!m_topView && m_embeddedViewer) {
+       m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   }
+
    m_cameraSet = true;
 }
 
