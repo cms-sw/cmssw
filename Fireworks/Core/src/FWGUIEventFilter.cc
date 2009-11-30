@@ -35,12 +35,16 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
    v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 1, 1, 1, 1));
 
-   m_btnGroup = new TGHButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:");
-   new TGRadioButton(m_btnGroup, "OR      ");
+   m_btnGroup = new TGButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:",
+                                  kHorizontalFrame | kFixedHeight);
+   m_btnGroup->Resize(1, 38);
+   new TGRadioButton(m_btnGroup, "OR");
    new TGRadioButton(m_btnGroup, "AND");
+   m_btnGroup->SetLayoutHints(new TGLayoutHints(kLHintsLeft, 0, 16, 1, 0), 0);
+   
    TQObject::Connect(m_btnGroup, "Clicked(Int_t)", "FWGUIEventFilter", this, "changeFilterMode(Int_t)");
 
-   headerFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 3, 0, 0));
+   headerFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterY | kLHintsExpandX, 2, 3, 0, 0));
 
    //-------------------- selection header
 
@@ -173,7 +177,7 @@ FWGUIEventFilter::apply()
 
    m_origFilterMode = getFilterMode();
    m_filtersRemoved = false;
-   m_applyBtn->SetForegroundColor( 0x000000);
+   m_applyBtn->SetForegroundColor(0x000000);
    fClient->NeedRedraw( this);
 
 }
@@ -243,7 +247,7 @@ FWGUIEventFilter::checkApplyButton()
       }
    }
 
-   m_applyBtn->SetForegroundColor(changed ? 0x00ff00 : 0x000000);
+   m_applyBtn->SetForegroundColor(changed ? 0x40FF80 : 0x000000);
    gClient->NeedRedraw( m_applyBtn);
 }
 
