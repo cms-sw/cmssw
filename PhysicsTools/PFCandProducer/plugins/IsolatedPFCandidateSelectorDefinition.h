@@ -51,8 +51,8 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 	
 	double val = isoMap[candidate];
 	double cut = isolationCuts_[iMap];
+	if(isRelative_ && candidate->pt()!=0.0) val/=candidate->pt();
 	isoSum+=val;
-	if(isRelative_) val/=candidate->pt();
         //std::cout << "val " << iMap << " = " << val << std::endl;
 
 	if ( !isCombined_ && val>cut ) {
