@@ -32,7 +32,6 @@ HLT_DoubleMu3
 HLT_L1DoubleMuOpen
 HLT_IsoMu3
 HLT_L1SingleEG2
-HLT_L1SingleEG2_NoBPTX
 HLT_L1SingleEG5
 HLT_L1SingleEG5_NoBPTX
 HLT_L1SingleEG8
@@ -100,7 +99,6 @@ HLT_HcalCalibration
 HLT_Random
 HLT_Random5Hz
 HLT_Physics
-HLT_PhysicsES
 HLT_HFThreshold3
 HLT_HFThreshold10
 HLT_GlobalRunHPDNoise
@@ -117,6 +115,7 @@ HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
 HLT_EgammaSuperClusterOnly_L1R
 HLT_LogMonitor
+HLT_PhysicsDeclared
 XXX_DontNotifyT0
 HLTriggerFinalPath
 HLTAnalyzerEndpath

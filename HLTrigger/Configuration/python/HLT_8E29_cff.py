@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre8/8E29/V2 (CMSSW_3_4_0_pre6_HLT7)
+# /dev/CMSSW_3_4_0/pre8/8E29/V6 (CMSSW_3_4_0_pre6_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/8E29/V2')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/8E29/V6')
 )
 
 
@@ -1039,7 +1039,7 @@ hltHfreco = cms.EDProducer( "HcalSimpleReconstructor",
     dropZSmarkedPassed = cms.bool( True ),
     Subdetector = cms.string( "HF" ),
     firstSample = cms.int32( 3 ),
-    samplesToAdd = cms.int32( 1 ),
+    samplesToAdd = cms.int32( 4 ),
     correctForTimeslew = cms.bool( False ),
     correctForPhaseContainment = cms.bool( False ),
     correctionPhaseNS = cms.double( 0.0 )
@@ -1296,6 +1296,7 @@ hltMet = cms.EDProducer( "METProducer",
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.3 ),
     noHF = cms.bool( False ),
+    calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
@@ -1355,6 +1356,7 @@ hltJet15UHt = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 30.0 ),
     noHF = cms.bool( False ),
+    calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
@@ -1981,7 +1983,7 @@ hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     payloadType = cms.string( "HLT" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),
-    ClusterThreshold = cms.double( 3000.0 ),
+    ClusterThreshold = cms.double( 4000.0 ),
     VCaltoElectronGain = cms.int32( 65 ),
     VCaltoElectronOffset = cms.int32( -414 ),
     MissCalibrate = cms.untracked.bool( True ),
