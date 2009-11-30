@@ -159,7 +159,7 @@ public:
 
 
 
-      for (int j=0; j<channels.size(); j++) {
+      for (int j=0; j<(int)channels.size(); j++) {
 
 	MonPedestalsDat ped;
       
@@ -185,7 +185,7 @@ public:
 
     map<EcalLogicID, MonPedestalsDat> dataset_bar;
 
-      for (int j=0; j<channels_barrel.size(); j++) {
+      for (int j=0; j<(int)channels_barrel.size(); j++) {
       
 	// Set the data
 	MonPedestalsDat ped;

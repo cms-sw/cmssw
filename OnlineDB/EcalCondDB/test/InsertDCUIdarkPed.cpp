@@ -90,7 +90,7 @@ public:
 
     float temp_vec[61200];
     int ih4_vec[61200];
-    int sm,ih4;
+    int ih4;
     float temp;
 
     for(int ic=0; ic<61200; ic++){
@@ -156,7 +156,7 @@ public:
 
 
     map<EcalLogicID, DCUIDarkPedDat> dataset;
-    int count=0;
+
     
     for (int c=0; c<61200; c++){
       // the channels are turned in phi and eta 

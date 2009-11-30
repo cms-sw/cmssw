@@ -299,7 +299,7 @@ inline std::string to_string( char value[])
 	      float apd = 1500.+x;
 	      float apd_rms = 15.5+x;
 	      float apdpn_rms = 0.1+x;
-	      float pn = 800.+x;
+	    
 
 	      EcalLogicID ecid_prim = ecid_vec[(sm_num-1)*1700+side*800+ixt -1]; 
 	      // Set the data
@@ -483,25 +483,21 @@ int main (int argc, char* argv[])
   string sid;
   string user;
   string pass;
-  string sport;
   string smin_run;
   string sn_run;
 
-  if (argc != 8) {
+  if (argc != 6) {
     cout << "Usage:" << endl;
-    cout << "  " << argv[0] << " <host> <SID> <user> <pass> <port> <min_run> <n_run>" << endl;
+    cout << "  " << argv[0] << " <SID> <user> <pass> <min_run> <n_run>" << endl;
     exit(-1);
   }
 
-  host = argv[1];
-  sid = argv[2];
-  user = argv[3];
-  pass = argv[4];
-  sport = argv[5];
-  int port=atoi(sport.c_str());
-  smin_run = argv[6];
+  sid = argv[1];
+  user = argv[2];
+  pass = argv[3];
+  smin_run = argv[4];
   int min_run=atoi(smin_run.c_str());
-  sn_run = argv[7];
+  sn_run = argv[5];
   int n_run=atoi(sn_run.c_str())+min_run;
 
   try {
