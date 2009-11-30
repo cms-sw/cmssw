@@ -5,8 +5,10 @@
 <use name=CondFormats/DataRecord>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
+   <use name=CalibCalorimetry/CaloTPG>
 <use name=CondTools/L1Trigger>
 <use name=Geometry/EcalMapping>
+<use name=Geometry/HcalTowerAlgo>
 
 <flags EDM_PLUGIN=1>
 
@@ -19,5 +21,7 @@
    <use name=CondFormats/DataRecord>
    <use name=CalibFormats/CaloTPG>
    <use name=CalibCalorimetry/EcalTPGTools>
+   <use name=CalibCalorimetry/CaloTPG>
    <use name=Geometry/EcalMapping>
+<use name=Geometry/HcalTowerAlgo>
 </export>
