@@ -794,6 +794,11 @@ if __name__=="__main__":
             def testRaise():
                 s1.something = 1
             self.assertRaises(AttributeError,testRaise)
+            def testRaise2():
+                s2 = Sequence(m1*None)
+            self.assertRaises(TypeError,testRaise2)
+
+
                         
     unittest.main()
                           
