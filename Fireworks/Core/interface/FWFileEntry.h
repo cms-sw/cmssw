@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.6 2009/11/23 19:09:31 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.7 2009/11/26 21:33:12 amraktad Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ class FWFileEntry {
 public:
    struct Filter
    {
-      FWTEventList*        m_eventList;
+      FWTEventList*      m_eventList;
       FWEventSelector*   m_selector;  // owned by navigator
       bool               m_needsUpdate;
       
