@@ -768,10 +768,10 @@ CompHist::writeOutput(CompHist::RootOutput option)
 	histFile << (TH1F*)((sampleList_.back())[idx])->GetName() << "\n";
 	switch( option ){
 	case kFirstOnly:
-	  (TH1F*)((*sampleList_.begin())[idx])->Write();
+	  ((TH1F*)((*sampleList_.begin())[idx]))->Write();
 	  break;
 	case kLastOnly:
-	  (TH1F*)((sampleList_.back())[idx])->Write();
+	  ((TH1F*)((sampleList_.back())[idx]))->Write();
 	  break;
 	default:
 	  cerr << "WARNING:" 
