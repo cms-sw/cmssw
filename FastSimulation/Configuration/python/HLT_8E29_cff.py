@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_4_0/pre8/8E29/V2 (CMSSW_3_4_0_pre6_HLT7)
+# /dev/CMSSW_3_4_0/pre8/8E29/V6 (CMSSW_3_4_0_pre6_HLT8)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/8E29/V2')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/8E29/V6')
 )
 
 
@@ -836,6 +836,7 @@ hltMet = cms.EDProducer( "METProducer",
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.3 ),
     noHF = cms.bool( False ),
+    calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
@@ -895,6 +896,7 @@ hltJet15UHt = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 30.0 ),
     noHF = cms.bool( False ),
+    calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
