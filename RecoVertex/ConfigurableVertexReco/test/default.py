@@ -19,6 +19,9 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 # GlobalTrackingGeometryRecord
 
+process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
+TFileService.fileName = cms.string('vertices.root')
+
 process.source = cms.Source("PoolSource",
 #    fileNames = 
 #cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/246E6DD9-B299-DD11-987C-000423D6B2D8.root')

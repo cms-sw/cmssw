@@ -9,7 +9,10 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/ConfigurableVertexReco/test/CVRTest.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <iostream>
+#include "TNtuple.h"
 
 using namespace std;
 using namespace reco;
@@ -72,6 +75,10 @@ CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
   vrec_ = new ConfigurableVertexReconstructor ( vtxconfig );
   cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
+
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TNtuple>("Vertex","Vertex","x:y:z");
+
 }
 
 CVRTest::~CVRTest() {
@@ -87,12 +94,16 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
     const reco::Vertex & vtx = *(retColl->begin());
     cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y()
          << ", " << vtx.z() << endl;
+   
+    tree_ -> Fill(vtx.x(),vtx.y(),vtx.z());
+
   }
 }
 
 void CVRTest::analyze( const edm::Event & iEvent,
                        const edm::EventSetup & iSetup )
 {
+
   int evt=iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
   edm::ESHandle<MagneticField> magneticField;

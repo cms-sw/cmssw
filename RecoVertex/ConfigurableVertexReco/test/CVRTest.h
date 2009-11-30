@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 
+class TNtuple;
+
 class CVRTest : public edm::EDAnalyzer {
   /**
    *  Class that glues the combined btagging algorithm to the framework
@@ -23,6 +25,7 @@ class CVRTest : public edm::EDAnalyzer {
       std::string trackcoll_;
       std::string vertexcoll_;
       std::string beamspot_;
+      TNtuple * tree_;	
 
 };
 
