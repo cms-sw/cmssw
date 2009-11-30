@@ -1,6 +1,4 @@
 <use name=DQMServices/Core>
-
-
 <use name=CalibTracker/SiStripCommon>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
