@@ -7,26 +7,27 @@ use File::Basename;
 use strict;
 
 # parse any command-line switches
-use vars qw($opt_b $opt_f $opt_h $opt_i $opt_p $opt_r $opt_s);
-my $optionSuccess = getopts("bfhiprs");
+use vars qw($opt_b $opt_d $opt_f $opt_h $opt_i $opt_p $opt_r $opt_s);
+my $optionSuccess = getopts("bdfhiprs");
 
 # if the option parsing failed or the user requested help or there are
 # command-line arguments other than switches, print out a usage message
 if (! $optionSuccess || $opt_h || @ARGV)
 {
-  print "Usage:  applyDevelopmentPatches [-h] [-b] [-f] [-i] [-p] [-r] [-s]\n";
+  print "Usage:  applyDevelopmentPatches [-h] [-b] [-d] [-f] [-i] [-p] [-r] [-s]\n";
   print " where  -h : display usage Help (this message)\n";
   print "        -b : patch the EventFilter/AutoBU code\n";
+  print "        -d : patch the IORawData/DaqSource code\n";
   print "        -f : patch the EventFilter/Processor code\n";
   print "        -i : patch the IOPool/Streamer code\n";
   print "        -p : patch the FWCore/Modules/Prescaler code\n";
   print "        -r : patch the EventFilter/ResourceBroker code\n";
   print "        -s : patch the EventFilter/StorageManager code\n";
-  print " If no switches are specified, -b, -f, and -r are assumed.\n";
+  print " If no switches are specified, -b and -f are assumed.\n";
   exit;
 }
 
-my $doDefaults = (!$opt_b && !$opt_f && !$opt_i && !$opt_p && !$opt_r && !$opt_s);
+my $doDefaults = (!$opt_b && !$opt_d && !$opt_f && !$opt_i && !$opt_p && !$opt_r && !$opt_s);
 
 # *****************************************************************
 # Modify the AutoBU code to pause between events and provide debug
@@ -568,7 +569,7 @@ if (defined($opt_p)) {
 # Modify the ResourceBroker code to fix the race condition in the
 # tests for duplication discard messages from the StorageManager.
 # *****************************************************************
-if ($doDefaults || defined($opt_r)) {
+if (defined($opt_r)) {
 
   my $inputFile = "EventFilter/ResourceBroker/src/FUResourceTable.cc";
   my $outputFile = "${inputFile}.modified";
@@ -649,6 +650,8 @@ if ($doDefaults || defined($opt_r)) {
 # Modify the FUEventProcessor to call the asynchronous
 # stop method of the EventProcessor so that we can gracefully
 # shut down FU event consumer processes.
+# Also, protect against a null prescale service so that we
+# can use the SpotLight web page.
 # ************************************************************
 if ($doDefaults || defined($opt_f)) {
 
@@ -658,16 +661,31 @@ if ($doDefaults || defined($opt_f)) {
   open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
   open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
 
+  my $insideSpotlightCode = 0;
   while (my $line = <FILEIN>) {
     chomp $line;
 
-    # fix the sending of the INIT message
+    # modify the stop call that is used
     if ($line =~ m/(\s*).*evtProcessor\_\-\>waitTillDoneAsync\(/) {
       my $spaces = $1;
       my $newLine = $line;
       $newLine =~ s/waitTillDoneAsync/stopAsync/;
       $line = $spaces . "// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
         "\n" . $spaces . "//" . $line . "\n" . $newLine;
+    }
+
+    # protect against a null prescale service
+    if ($insideSpotlightCode &&
+        $line =~ m/(\s*)(if\s*\(\s*psid\s*\!\=\s*0)(\s*\).*)/) {
+      $line = $1 . "// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
+        "\n" . $1 . $2 . " && prescaleSvc_ != 0" . $3;
+    }
+    if ($insideSpotlightCode &&
+        $line =~ m/\S+\s+FUEventProcessor\:\:/) {
+      $insideSpotlightCode = 0;
+    }
+    if ($line =~ m/void\s+FUEventProcessor\:\:spotlightWebPage/) {
+      $insideSpotlightCode = 1;
     }
 
     # write the input line to the output file
@@ -685,6 +703,86 @@ if ($doDefaults || defined($opt_f)) {
   print STDOUT " Modification made to ${inputFile}:\n";
   print STDOUT "============================================================\n";
   my $result=`diff $inputFile ${inputFile}.orig`;
+  print STDOUT "$result";
+
+}
+
+# ***********************************************************************
+# Force lumi block numbers created in the DaqSource to increase smoothly.
+# ***********************************************************************
+if (defined($opt_d)) {
+
+  my $inputFile = "IORawData/DaqSource/plugins/DaqSource.h";
+  my $outputFile = "${inputFile}.modified";
+
+  open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
+  open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
+
+  while (my $line = <FILEIN>) {
+    chomp $line;
+
+    # add an attribute to hold the first event number
+    if ($line =~ m/(\s*)bool\s+fakeLSid\_\;/) {
+      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
+        "\n" . $1 . "unsigned int    firstEventNumber_;\n" . $line;
+    }
+
+    # write the input line to the output file
+    print FILEOUT "$line\n";
+  }
+
+  close FILEIN;
+  close FILEOUT;
+
+  rename $inputFile, "${inputFile}.orig";
+  rename $outputFile, $inputFile;
+
+  print STDOUT "\n";
+  print STDOUT "============================================================\n";
+  print STDOUT " Modification made to ${inputFile}:\n";
+  print STDOUT "============================================================\n";
+  my $result=`diff $inputFile ${inputFile}.orig`;
+  print STDOUT "$result";
+
+  $inputFile = "IORawData/DaqSource/plugins/DaqSource.cc";
+  $outputFile = "${inputFile}.modified";
+
+  open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
+  open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
+
+  while (my $line = <FILEIN>) {
+    chomp $line;
+
+    # initialize the first event number
+    if ($line =~ m/(\s*)produces\<FEDRawDataCollection\>\(\)\;/) {
+      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
+        "\n" . $1 . "firstEventNumber_ = 0xdeadbeef;\n" . $line;
+    }
+
+    # modify the lumi block calculation
+    if ($line =~ m/(\s*)if\(fakeLSid\_ \&\& luminosityBlockNumber\_ \!\= \(\(eventId\.event\(\)\s*\-\s*1\)\/lumiSegmentSizeInEvents\_ \+ 1\)\) \{/) {
+      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
+        "\n" . $1 . "if (firstEventNumber_ == 0xdeadbeef) {" .
+          "\n" . $1 . "  firstEventNumber_ = eventId.event();" .
+            "\n" . $1 . "}" .
+              "\n" . $1 . "if(fakeLSid_ && (luminosityBlockNumber_ < ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1) || eventId.event() == firstEventNumber_)) {";
+    }
+
+    # write the input line to the output file
+    print FILEOUT "$line\n";
+  }
+
+  close FILEIN;
+  close FILEOUT;
+
+  rename $inputFile, "${inputFile}.orig";
+  rename $outputFile, $inputFile;
+
+  print STDOUT "\n";
+  print STDOUT "============================================================\n";
+  print STDOUT " Modification made to ${inputFile}:\n";
+  print STDOUT "============================================================\n";
+  $result=`diff $inputFile ${inputFile}.orig`;
   print STDOUT "$result";
 
 }
