@@ -55,7 +55,7 @@ int getXbins(const TH1 * h, const double & xMin, const double & xMax)
 /// Helper function to draw mass and mass probability histograms
 void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, const int ires, const int rebin = 1)
 {
-  TH1F * mass = mass = (TH1F*)h.mass->Clone();
+  TH1F * mass = (TH1F*)h.mass->Clone();
   TProfile * massProb = 0;
   mass->Rebin(rebin);
   // Use massProb for the Z and fineMass for the other resonances
