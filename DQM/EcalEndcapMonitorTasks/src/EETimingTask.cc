@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/11/29 23:27:10 $
- * $Revision: 1.43 $
+ * $Date: 2009/11/30 13:14:07 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -120,7 +120,7 @@ void EETimingTask::setup(void){
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETMT timing 1D %s", Numbers::sEE(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 250, 0., 10.);
+      meTime_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
       meTime_[i]->setAxisTitle("jitter (clocks)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
@@ -138,47 +138,47 @@ void EETimingTask::setup(void){
     }
 
     sprintf(histo, "EETMT timing 1D summary EE -");
-    meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 250, 0., 10.);
+    meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
     meTimeSummary1D_[0]->setAxisTitle("jitter (clocks)", 1);
 
     sprintf(histo, "EETMT timing 1D summary EE +");
-    meTimeSummary1D_[1] = dqmStore_->book1D(histo, histo, 250, 0., 10.);
+    meTimeSummary1D_[1] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
     meTimeSummary1D_[1]->setAxisTitle("jitter (clocks)", 1);
 
     sprintf(histo, "EETMT timing map EE -");
-    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
+    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 0., 10., "s");
     meTimeSummaryMap_[0]->setAxisTitle("jx", 1);
     meTimeSummaryMap_[0]->setAxisTitle("jy", 2);
     meTimeSummaryMap_[0]->setAxisTitle("jitter (clocks)", 3);
 
     sprintf(histo, "EETMT timing map EE +");
-    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 250, 0., 10., "s");
+    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 0., 10., "s");
     meTimeSummaryMap_[1]->setAxisTitle("jx", 1);
     meTimeSummaryMap_[1]->setAxisTitle("jy", 2);
     meTimeSummaryMap_[1]->setAxisTitle("jitter (clocks)", 3);
     
     sprintf(histo, "EETMT timing projection R EE -");
-    meTimeSummaryMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 250, 0., 10., "s");
+    meTimeSummaryMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, 0., 10., "s");
     meTimeSummaryMapProjR_[0]->setAxisTitle("R", 1);
     meTimeSummaryMapProjR_[0]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing projection R EE +");
-    meTimeSummaryMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 250, 0., 10., "s");
+    meTimeSummaryMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, 0., 10., "s");
     meTimeSummaryMapProjR_[1]->setAxisTitle("R", 1);
     meTimeSummaryMapProjR_[1]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE -");
-    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 250, 0., 10., "s");
+    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, 0., 10., "s");
     meTimeSummaryMapProjPhi_[0]->setAxisTitle("phi", 1);
     meTimeSummaryMapProjPhi_[0]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE +");
-    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 250, 0., 10., "s");
+    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, 0., 10., "s");
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("phi", 1);
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing EE+ - EE-");
-    meTimeDelta_ = dqmStore_->book1D(histo, histo, 500, -10., 10.);
+    meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -10., 10.);
     meTimeDelta_->setAxisTitle("jitter (clocks)", 1);
 
   }
