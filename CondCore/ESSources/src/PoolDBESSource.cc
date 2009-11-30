@@ -333,7 +333,7 @@ PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
  
  if (!roottag.empty()) {
    if (coraldb.empty) 
-     throw cond::Exception(std::string("ESSource: requested global tag ")+rottag+" but not connection string given");
+     throw cond::Exception(std::string("ESSource: requested global tag ")+roottag+" but not connection string given");
    cond::DbSession session = m_connection.createSession();
    session.open( coraldb );
    cond::DbScopedTransaction transaction(session);
