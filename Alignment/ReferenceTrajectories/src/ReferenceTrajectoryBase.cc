@@ -12,7 +12,9 @@ ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int
     theTrajectoryPositionCov(nMeasPerHit * nHits, 0),
     theParameters(nPar), 
     theParameterCov(nPar, 0),
-    theDerivatives(nMeasPerHit * nHits + nMsMeas, nPar + nMsPar, 0)
+    theDerivatives(nMeasPerHit * nHits + nMsMeas, nPar + nMsPar, 0),
+    theInnerTrajectoryToCurvilinear( 5, 5, 0 ),
+    theInnerLocalToTrajectory( 5, 5, 0 )    
 {
   theTsosVec.reserve(nHits);
   theRecHits.reserve(nHits);

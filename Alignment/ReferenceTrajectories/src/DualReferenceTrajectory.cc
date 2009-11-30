@@ -70,7 +70,6 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
   theRecHits.insert( theRecHits.end(), ++bwdRecHits.begin(), bwdRecHits.end() );
 
   theParameters = extractParameters( refTsos );
-  theGlobalPars = fwdTraj->globalPars();
   
   unsigned int nParam   = theNumberOfPars;
   unsigned int nFwdMeas = fwdTraj->numberOfHitMeas();
