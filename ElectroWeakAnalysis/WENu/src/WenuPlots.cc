@@ -168,13 +168,13 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double metPhi = myMet->phi();
   double mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
 
-  double trackIso = myElec->trackIso();
-  //double ecaliso = myElec->ecalIso();
-  //double hcaliso = myElec->hcalIso();
-  //double sihih = myElec->scSigmaIEtaIEta();
-  //double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
-  //double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
-  //double HoE = myElec->hadronicOverEm();
+  double trackIso = myElec->userIsolation(pat::TrackIso);
+  double ecalIso = myElec->userIsolation(pat::EcalIso);
+  double hcalIso = myElec->userIsolation(pat::HcalIso);
+  double sihih = myElec->scSigmaIEtaIEta();
+  double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
+  double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
+  double HoE = myElec->hadronicOverEm();
 
 
 
@@ -220,29 +220,30 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     h_met_EB->Fill(met);
     h_mt_EB->Fill(mt);
 
-    h_EB_trkiso->Fill( myElec->trackIso() );
-    h_EB_ecaliso->Fill( myElec->ecalIso() );
-    h_EB_hcaliso->Fill( myElec->hcalIso() );
-    h_EB_sIetaIeta->Fill( myElec->scSigmaIEtaIEta() );
-    h_EB_dphi->Fill( myElec->deltaPhiSuperClusterTrackAtVtx() );
-    h_EB_deta->Fill( myElec->deltaEtaSuperClusterTrackAtVtx() );
-    h_EB_HoE->Fill( myElec->hadronicOverEm() );
+    h_EB_trkiso->Fill( trackIso );
+    h_EB_ecaliso->Fill( ecalIso );
+    h_EB_hcaliso->Fill( hcalIso );
+    h_EB_sIetaIeta->Fill( sihih );
+    h_EB_dphi->Fill( dphi );
+    h_EB_deta->Fill( deta );
+    h_EB_HoE->Fill( HoE );
 
   }
   if(fabs(scEta)>1.479){
     h_met_EE->Fill(met);
     h_mt_EE->Fill(mt);
 
-    h_EE_trkiso->Fill( myElec->trackIso() );
-    h_EE_ecaliso->Fill( myElec->ecalIso() );
-    h_EE_hcaliso->Fill( myElec->hcalIso() );
-    h_EE_sIetaIeta->Fill( myElec->scSigmaIEtaIEta() );
-    h_EE_dphi->Fill( myElec->deltaPhiSuperClusterTrackAtVtx() );
-    h_EE_deta->Fill( myElec->deltaEtaSuperClusterTrackAtVtx() );
-    h_EE_HoE->Fill( myElec->hadronicOverEm() );
+    h_EE_trkiso->Fill( trackIso );
+    h_EE_ecaliso->Fill( ecalIso );
+    h_EE_hcaliso->Fill( hcalIso );
+    h_EE_sIetaIeta->Fill( sihih );
+    h_EE_dphi->Fill( dphi );
+    h_EE_deta->Fill( deta );
+    h_EE_HoE->Fill( HoE );
 
   }
-
+  // uncomment for debugging purposes
+  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() << std::endl;
 
   h_scEt->Fill(scEt);
   h_scEta->Fill(scEta);
@@ -315,9 +316,9 @@ bool WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
 }
 ////////////////////////////////////////////////////////////////////////
 double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
-  if (i==0) return ele->trackIso();
-  else if (i==1) return ele->ecalIso();
-  else if (i==2) return ele->hcalIso();
+  if (i==0) return ele->userIsolation(pat::TrackIso);
+  else if (i==1) return ele->userIsolation(pat::EcalIso);
+  else if (i==2) return ele->userIsolation(pat::HcalIso);
   else if (i==3) return ele->scSigmaIEtaIEta();
   else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
@@ -333,7 +334,7 @@ void
 WenuPlots::beginJob(const edm::EventSetup&)
 {
   //std::cout << "In beginJob()" << std::endl;
-  //Double_t Pi = TMath::Pi();
+  Double_t Pi = TMath::Pi();
   //  TString histo_file = outputFile_;
   //  histofile = new TFile( histo_file,"RECREATE");
 
