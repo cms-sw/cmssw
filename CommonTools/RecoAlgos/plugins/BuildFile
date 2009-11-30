@@ -10,12 +10,10 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/HcalRecHit>
   <use name=SimDataFormats/TrackingAnalysis>
-  <use name=CommonTools/CandAlgos>
+  <use name=TrackingTools/PatternTools>
+  <use name=CommonTools/Utils>
   <use name=CommonTools/RecoAlgos>
-  <use name=CommonTools/UtilAlgos>
   <use name=MagneticField/Records>
-  <use name=RecoVertex/KalmanVertexFit>
-  <use name=RecoVertex/GaussianSumVertexFit>
   <use name=Geometry/Records>
   <use name=Geometry/TrackerGeometryBuilder>
 </library>

@@ -1,7 +1,4 @@
-<use name=CommonTools/Utils>
 <use name=DataFormats/Candidate>
 <export>
   <lib name=CommonToolsCandUtils>
-  <use name=CommonTools/Utils>
-  <use name=DataFormats/Candidate>
 </export>
