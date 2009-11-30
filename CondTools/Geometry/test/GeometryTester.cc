@@ -266,19 +266,19 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::cout<<""<<std::endl;
     uint32_t cscsize = myIdcsc.size();
     for(uint32_t i=0; i<cscsize;i++){
-      std::vector<double> trcsc(cscgeo->translation(i));
+      std::vector<double> trcsc(cscgeo->tranStart(i), cscgeo->tranEnd(i));
       for(uint32_t j=0; j<trcsc.size();j++){
         std::cout<<trcsc[j];
       }
       std::cout<<""<<std::endl;
     
-      std::vector<double> rotcsc(cscgeo->rotation(i));
+      std::vector<double> rotcsc(cscgeo->rotStart(i), cscgeo->rotEnd(i));
       for(uint32_t j=0; j<rotcsc.size();j++){
         std::cout<<rotcsc[j];
       }
       std::cout<<""<<std::endl;
 
-      std::vector<double> shapecsc(cscgeo->shapePars(i));
+      std::vector<double> shapecsc(cscgeo->shapeStart(i), cscgeo->shapeEnd(i));
       for(uint32_t j=0; j<shapecsc.size();j++){
         std::cout<<shapecsc[j];
       }
@@ -299,19 +299,19 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::cout<<""<<std::endl;
     uint32_t dtsize = myIddt.size();
     for(uint32_t i=0; i<dtsize;i++){
-      std::vector<double> trdt(dtgeo->translation(i));
+      std::vector<double> trdt(dtgeo->tranStart(i), dtgeo->tranEnd(i));
       for(uint32_t j=0; j<trdt.size();j++){
         std::cout<<trdt[j];
       }
       std::cout<<""<<std::endl;
     
-      std::vector<double> rotdt(dtgeo->rotation(i));
+      std::vector<double> rotdt(dtgeo->rotStart(i), dtgeo->rotEnd(i));
       for(uint32_t j=0; j<rotdt.size();j++){
         std::cout<<rotdt[j];
       }
       std::cout<<""<<std::endl;
 
-      std::vector<double> shapedt(dtgeo->shapePars(i));
+      std::vector<double> shapedt(dtgeo->shapeStart(i), dtgeo->shapeEnd(i));
       for(uint32_t j=0; j<shapedt.size();j++){
         std::cout<<shapedt[j];
       }
@@ -332,25 +332,25 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::cout<<""<<std::endl;
     uint32_t rpcsize = myIdrpc.size();
     for(uint32_t i=0; i<rpcsize;i++){
-      std::vector<double> trrpc(rpcgeo->translation(i));
+      std::vector<double> trrpc(rpcgeo->tranStart(i), rpcgeo->tranEnd(i));
       for(uint32_t j=0; j<trrpc.size();j++){
         std::cout<<trrpc[j];
       }
       std::cout<<""<<std::endl;
   
-      std::vector<double> rotrpc(rpcgeo->rotation(i));
+      std::vector<double> rotrpc(rpcgeo->rotStart(i), rpcgeo->rotEnd(i));
       for(uint32_t j=0; j<rotrpc.size();j++){
         std::cout<<rotrpc[j];
       }
       std::cout<<""<<std::endl;
       
-      std::vector<double> shaperpc(rpcgeo->shapePars(i));
+      std::vector<double> shaperpc(rpcgeo->shapeStart(i), rpcgeo->shapeEnd(i));
       for(uint32_t j=0; j<shaperpc.size();j++){
         std::cout<<shaperpc[j];
       }
       std::cout<<""<<std::endl;
       
-      std::vector<std::string> strrpc(rpcgeo->strParams(i));
+      std::vector<std::string> strrpc(rpcgeo->strStart(i), rpcgeo->strEnd(i));
       for(uint32_t j=0; j<strrpc.size();j++){
         std::cout<<strrpc[j];
       }
