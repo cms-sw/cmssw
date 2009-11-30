@@ -43,7 +43,7 @@ class ESCondObjectContainer {
                 inline
                 const_iterator find( uint32_t rawId ) const {
                         DetId id(rawId);
-			const_iterator dummy;
+
                         switch (id.subdetId()) {
                                 case EcalPreshower :
                                         { 
@@ -55,7 +55,7 @@ class ESCondObjectContainer {
                                         break;
                                 default:
                                         // FIXME (add throw)
-				  return dummy;
+				  return es_.end();
                         }
                 }
 
