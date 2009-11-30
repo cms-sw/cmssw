@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.11 2009/11/23 09:33:47 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.12 2009/11/29 10:19:06 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -125,7 +125,7 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
   fillPixels(iEvent);
   trackletVertexUnbinned(iEvent, pixLayers_);
   fillTracklets(iEvent, pixLayers_);
-  fillPixelClusterInfos(iEvent, pixLayers_);
+  fillPixelClusterInfos(iEvent, clusLayers_);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -948,7 +948,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const double vz,
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which) 
 {
-  // Fill pixel hit collections.
+  // Fill tracklet collections.
 
   if (which>=12) {
     fillTracklets(btracklets12_,bpix1_,bpix2_,trackletV12_); 
