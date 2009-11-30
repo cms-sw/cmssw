@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("cvrtest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 # process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 # process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
@@ -17,10 +17,12 @@ process.GlobalTag.globaltag = cms.string('GR09_P_V6::All')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
 # GlobalTrackingGeometryRecord
 
-process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
-TFileService.fileName = cms.string('vertices.root')
+process.TFileService = cms.Service("TFileService", fileName = cms.string("vertices.root"))
+
+# TFileService.fileName = cms.string('vertices.root')
 
 process.source = cms.Source("PoolSource",
 #    fileNames = 
