@@ -59,11 +59,13 @@ namespace cms
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
+    calculateSignificance = false ; 
 
-    if(      METtype == "CaloMET" ) 
+    if( METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
 	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+	calculateSignificance = iConfig.getParameter<bool>("calculateSignificance");
       }
     else if( METtype == "GenMET" )  
       {
@@ -71,7 +73,10 @@ namespace cms
 	produces<GenMETCollection>().setBranchAlias(alias.c_str());
       }
     else if( METtype == "PFMET" )
-      produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
+      {
+	produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
+	calculateSignificance = iConfig.getParameter<bool>("calculateSignificance");
+      }
     else if (METtype == "TCMET" )
       {
 	produces<METCollection>().setBranchAlias(alias.c_str());
@@ -138,13 +143,15 @@ namespace cms
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
-      SignCaloSpecificAlgo signcalospecalgo;
-      metsig::SignAlgoResolutions resolutions(conf_);
-
-      signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
-      calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
-      calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
-
+      if( calculateSignificance ) 
+	{
+	  SignCaloSpecificAlgo signcalospecalgo;
+	  metsig::SignAlgoResolutions resolutions(conf_);
+	  
+	  signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
+	  calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
+	  calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
+	}
       //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
       calometcoll.reset(new CaloMETCollection);
@@ -168,10 +175,14 @@ namespace cms
 	PFSpecificAlgo pf;
 	std::auto_ptr<PFMETCollection> pfmetcoll;
 	pfmetcoll.reset (new PFMETCollection);
-	// add resolutions and calculate significance
-	metsig::SignAlgoResolutions resolutions(conf_);
-	pf.runSignificance(resolutions);
 	
+	// add resolutions and calculate significance
+	if( calculateSignificance )
+	  {
+	    metsig::SignAlgoResolutions resolutions(conf_);
+	    pf.runSignificance(resolutions);
+	  }
+
 	pfmetcoll->push_back( pf.addInfo(input, output) );
 	
 	event.put( pfmetcoll );
