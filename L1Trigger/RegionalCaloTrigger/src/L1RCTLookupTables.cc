@@ -54,7 +54,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 
 
   // using channel mask to mask off ecal channels
-  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1])
+  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1] ||
+      (rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] == 0.&&
+       rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0.))       
     {
       ecalAfterMask=0;
     }
@@ -67,7 +69,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 
 
   // masking off hcal for channels in channel mask
-  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1])
+  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1] ||
+      (rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] == 0.&&
+       rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0.))       
     {
       hcalAfterMask=0;
     }

@@ -1,48 +1,16 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-
-// default scales
-#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
-#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
-#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-
-// debug scales
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-
-
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
-//#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTFedMask.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 using std::vector;
-
-
 #include <iostream>
+
+
+
 using std::cout;
 using std::endl;
-const int crateFED[18][5]=
-  
-    {{613, 614, 603, 702, 718},
+const int L1RCTProducer::crateFED[18][5]=
+      {{613, 614, 603, 702, 718},
     {611, 612, 602, 700, 718},
     {627, 610, 601,716,   722},
     {625, 626, 609, 714, 722},
@@ -60,6 +28,9 @@ const int crateFED[18][5]=
     {637, 638, 651, 709, 721},
     {635, 636, 650, 707, 721},
     {633, 634, 649, 705, 719}};
+
+
+
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rctLookupTables(new L1RCTLookupTables),
   rct(new L1RCT(rctLookupTables)),
@@ -68,7 +39,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   ecalDigis(conf.getParameter<std::vector<edm::InputTag> >("ecalDigis")),
   hcalDigis(conf.getParameter<std::vector<edm::InputTag> >("hcalDigis")),
   bunchCrossings(conf.getParameter<std::vector<int> >("BunchCrossings")),
-  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales"))
+  fedUpdatedMask(0)
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
@@ -81,20 +52,19 @@ L1RCTProducer::~L1RCTProducer()
 {
   if(rct != 0) delete rct;
   if(rctLookupTables != 0) delete rctLookupTables;
+  if(fedUpdatedMask != 0) delete fedUpdatedMask;
 }
 
 void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
 {
 }
 
-void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
+void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 {
-
   // Refresh configuration information every event
   // Hopefully, this does not take too much time
   // There should be a call back function in future to
   // handle changes in configuration
-
   // parameters to configure RCT (thresholds, etc)
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
@@ -105,7 +75,13 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
   const L1RCTChannelMask* cEs = channelMask.product();
   
-  L1RCTChannelMask* c = new L1RCTChannelMask();
+  //Update the channel mask according to the FED VECTOR
+  //This is the beginning of run. We delete the old
+  //create the new and set it in the LUTs
+
+  if(fedUpdatedMask!=0) delete fedUpdatedMask;
+
+  fedUpdatedMask = new L1RCTChannelMask();
   // copy a constant object
    for (int i = 0; i < 18; i++)
      {
@@ -113,12 +89,12 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	 {
 	   for (int k = 0; k < 28; k++)
 	     {
-	       c->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
-	       c->hcalMask[i][j][k] =cEs->hcalMask[i][j][k] ;
+	       fedUpdatedMask->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
+	       fedUpdatedMask->hcalMask[i][j][k] =cEs->hcalMask[i][j][k] ;
 	     }
 	   for (int k = 0; k < 4; k++)
 	     {
-	       c->hfMask[i][j][k] = cEs->hfMask[i][j][k];
+	       fedUpdatedMask->hfMask[i][j][k] = cEs->hfMask[i][j][k];
 	     }
 	 }
      }
@@ -132,6 +108,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   vector<int> caloFeds;  // pare down the feds to the intresting ones
   // is this unneccesary?
+  // Mike B : This will decrease the find speed so better do it
   const vector<int> Feds = summary->m_fed_in;
   for(vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
     int fedNum = *cf;
@@ -140,18 +117,28 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   }
 
   for(int  cr = 0; cr < 18; ++cr){
+
     for(crateSection cs = c_min; cs <= c_max; cs = crateSection(cs +1)) {
       bool fedFound = false;
-      for(vector<int>::iterator fv = caloFeds.begin(); fv != caloFeds.end(); ++fv) {
-	if(crateFED[cr][cs] == *fv){
-	  fedFound = true;
-	  break;
-	}
-      }
+
+
+//       for(vector<int>::iterator fv = caloFeds.begin(); fv != caloFeds.end(); ++fv) {
+// 	if(crateFED[cr][cs] == *fv){
+// 	  fedFound = true;
+// 	  break;
+// 	}
+//       }
+
+      //Try to find the FED
+      vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
+      if(fv!=caloFeds.end())
+	fedFound = true;
+
       if(!fedFound) {
-	int eta_min, eta_max;
+	int eta_min=0;
+	int eta_max=0;
 	bool phi_even[2] = {false};//, phi_odd = false;
-	bool ecal;
+	bool ecal=false;
 	
 	switch (cs) {
 	case ebEvenFed :
@@ -201,15 +188,15 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	    for(int even = 0; even<=1 ; even++){	 
 	      if(phi_even[even]){
 		if(ecal)
-		  c->ecalMask[cr][even][ieta-1] = true;
+		  fedUpdatedMask->ecalMask[cr][even][ieta-1] = true;
 		else
-		  c->hcalMask[cr][even][ieta-1] = true;
+		  fedUpdatedMask->hcalMask[cr][even][ieta-1] = true;
 	      }
 	    }
 	  else
 	    for(int even = 0; even<=1 ; even++)
 	      if(phi_even[even])
-		  c->hfMask[cr][even][ieta-29] = true;
+		  fedUpdatedMask->hfMask[cr][even][ieta-29] = true;
 	
 	}
       }
@@ -222,109 +209,15 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
 
+
   rctLookupTables->setRCTParameters(r);
-  rctLookupTables->setChannelMask(c);
+  rctLookupTables->setChannelMask(fedUpdatedMask);
   rctLookupTables->setL1CaloEtScale(s);
-
-  // use these dummies to get the delete right when using old-style
-  // scales to create set of L1CaloXcalScales
-  L1CaloEcalScale* dummyE(0);
-  L1CaloHcalScale* dummyH(0);
-
-  //Really wanted to drop that too but 
-  //I thought it might be OK to leave it for a while more
- 
-  if (useDebugTpgScales) // generate new-style scales from tpg scales
-    {
-      // old version of hcal energy scale to convert input
-      edm::ESHandle<CaloTPGTranscoder> transcoder;
-      eventSetup.get<CaloTPGRecord>().get(transcoder);
-      const CaloTPGTranscoder* h_tpg = transcoder.product();
-
-      // old version of ecal energy scale to convert input
-      EcalTPGScale* e_tpg = new EcalTPGScale();
-      e_tpg->setEventSetup(eventSetup);
-
-      L1CaloEcalScale* ecalScale = new L1CaloEcalScale();
-      L1CaloHcalScale* hcalScale = new L1CaloHcalScale();
-
-      // generate L1CaloXcalScales from old-style scales (thanks, werner!)
-      // ECAL
-
-      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
-	for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
-	  {
-	    EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
-	    double etGeVPos =
-	      e_tpg->getTPGInGeV
-	      ( irank, EcalTrigTowerDetId(1, // +ve eta
-					  subdet,
-					  ieta,
-					  1 )); // dummy phi value
-	    ecalScale->setBin( irank, ieta, 1, etGeVPos ) ;
-	  }
-      
-      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
-	for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
-	  {
-	    EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
-	    double etGeVNeg =
-	      e_tpg->getTPGInGeV
-	      ( irank,
-		EcalTrigTowerDetId(-1, // -ve eta
-				   subdet,
-				   ieta,
-				   2 )); // dummy phi value
-	    ecalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
-	  }
-      
-      //HCAL -  positive eta
-      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
-	for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
-	  {
-	    double etGeVPos = h_tpg->hcaletValue( ieta, irank ) ;
-	    hcalScale->setBin( irank, ieta, 1, etGeVPos ) ;
-	  }
-
-      //HCAL - negative eta
-      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
-	for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
-	  {
-	    double etGeVNeg = h_tpg->hcaletValue( -ieta, irank ) ;
-	    hcalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
-	    
-	  }
-
-      // set the input scales
-      rctLookupTables->setEcalScale(ecalScale);
-      rctLookupTables->setHcalScale(hcalScale);
-
-      dummyE = ecalScale;
-      dummyH = hcalScale;
-
-      delete e_tpg;
-      delete h_tpg; 
-    }
-  else
-    {
-
-      // get energy scale to convert input from ECAL
-      edm::ESHandle<L1CaloEcalScale> ecalScale;
-      eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-      const L1CaloEcalScale* e = ecalScale.product();
-      
-      // get energy scale to convert input from HCAL
-      edm::ESHandle<L1CaloHcalScale> hcalScale;
-      eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-      const L1CaloHcalScale* h = hcalScale.product();
-
-      // set scales
-      rctLookupTables->setEcalScale(e);
-      rctLookupTables->setHcalScale(h);
-
-    }
+}
 
 
+void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
+{
 
 
   std::auto_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
@@ -392,8 +285,5 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   //putting stuff back into event
   event.put(rctEmCands);
   event.put(rctRegions);
-
-  if (dummyE != 0) delete dummyE;
-  if (dummyH != 0) delete dummyH;
   
 }
