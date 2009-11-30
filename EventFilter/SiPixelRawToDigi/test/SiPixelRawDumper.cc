@@ -22,7 +22,9 @@
 #include <iostream>
 using namespace std;
 
-const bool errorsOnly = false;
+const bool printErrors = true;
+const bool printData = true;
+const bool printHeaders = false;
 
 // Include the helper decoding class
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +45,7 @@ int MyDecode::header(unsigned long long word64) {
   unsigned int bx_id=(word64>>20)&0xfff;
   cout<<" Header "<<" for FED "
       <<fed_id<<" event "<<event_id<<" bx "<<bx_id<<endl;
-  return 0;
+  return event_id;
 }
 //
 int MyDecode::trailer(unsigned long long word64) {
@@ -53,7 +55,7 @@ int MyDecode::trailer(unsigned long long word64) {
   int slinkError  = int( (word64&0xf00)>>8);
   cout<<" Trailer "<<" len "<<slinkLength
       <<" tts "<<tts<<" error "<<slinkError<<" crc "<<hex<<crc<<dec<<endl;
-  return 0;
+  return slinkLength;
 }
 //
 // Decode error FIFO
@@ -150,8 +152,8 @@ int MyDecode::error(int word) {
 ///////////////////////////////////////////////////////////////////////////
 int MyDecode::data(int word) {
   const bool CHECK_PIXELS = true;
-  bool PRINT_PIXELS = true;
-  if(errorsOnly) PRINT_PIXELS = false;
+  //const bool PRINT_PIXELS = printData;
+  const bool PRINT_PIXELS = true;
 
   const int ROCMAX = 24;
   const unsigned int plsmsk = 0xff;   // pulse height
@@ -206,21 +208,21 @@ public:
   /// dtor
   virtual ~SiPixelRawDumper() {}
 
-  virtual void beginJob( const edm::EventSetup& ) {}
+  void beginJob( const edm::EventSetup& ) {countEvents=0;}
 
-  /// dummy end of job 
-  virtual void endJob() {}
+  // end of job 
+  void endJob() {cout<<" Total events " <<countEvents<<endl;}
 
   /// get data, convert to digis attach againe to Event
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
   edm::ParameterSet theConfig;
+  int countEvents;
 };
 
 void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es) 
 {
-  bool printHeaders = true;
 
   edm::Handle<FEDRawDataCollection> buffers;
   static std::string label = theConfig.getUntrackedParameter<std::string>("InputLabel","source");
@@ -238,6 +240,9 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   typedef uint32_t Word32;
   typedef uint64_t Word64;
   int status=0;
+
+  countEvents++;
+  if(printHeaders) cout<<" Event = "<<countEvents<<endl;
 
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
@@ -257,6 +262,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
     if(printHeaders) status = MyDecode::header(*header);
+    //if(fedId = fedIds.first) 
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
     //cout<<hex<<*trailer<<dec<<endl;
