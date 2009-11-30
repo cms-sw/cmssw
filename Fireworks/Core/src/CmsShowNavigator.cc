@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.64 2009/11/27 16:42:32 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.65 2009/11/27 18:08:01 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -123,11 +123,11 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
             m_files.erase(si);
             --toErase;
          }
+
+         if (m_files.size() >= m_maxNumberOfFilesToChain)
+            printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
       }
       
-      if (m_files.size() >= m_maxNumberOfFilesToChain)
-         printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
-
       m_files.push_back(newFile);
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
@@ -247,20 +247,30 @@ CmsShowNavigator::nextSelectedEvent()
 //______________________________________________________________________________
 
 void
+CmsShowNavigator::setLiveFileOnNextEvent()
+{ 
+   while ( m_files.size() > 1 )
+   {
+      FWFileEntry* file = m_files.front();
+      m_files.pop_front();
+      file->closeFile();
+      delete file;
+   }
+   setCurrentFile(m_files.begin());
+   if (m_filterState == kOn) updateFileFilters();
+   firstEvent();
+   m_newFileOnNextEvent = false;
+   return;
+}
+
+//______________________________________________________________________________
+
+void
 CmsShowNavigator::nextEvent()
 {
    if (m_newFileOnNextEvent)
    {
-      while ( m_files.size() > 1 )
-      {
-         FWFileEntry* file = m_files.front();
-         m_files.pop_front();
-         file->closeFile();
-         delete file;
-      }
-      setCurrentFile(m_files.begin());
-      firstEvent();
-      m_newFileOnNextEvent = false;
+      setLiveFileOnNextEvent();
       return;
    }
    
