@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.68 2009/11/30 13:26:28 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.69 2009/11/30 17:58:12 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -82,7 +82,6 @@ CmsShowNavigator::openFile(const std::string& fileName)
          {
             newFile->filters().push_back(new FWFileEntry::Filter(*i));
          }
-         m_filtersNeedUpdate = true;
          updateFileFilters();
       }
 
@@ -135,7 +134,6 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
          {
             newFile->filters().push_back(new FWFileEntry::Filter(*i));
          }
-         m_filtersNeedUpdate = true;
          updateFileFilters();
       }
    }   
@@ -149,6 +147,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
 }
 
 //______________________________________________________________________________
+
 void CmsShowNavigator::setCurrentFile(FileQueue_i fi)
 {
    m_currentFile = fi;
@@ -240,7 +239,6 @@ CmsShowNavigator::nextSelectedEvent()
 
    return false;
 }
-
 
 //______________________________________________________________________________
 
