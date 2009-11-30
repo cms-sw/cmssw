@@ -175,8 +175,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DigiMonitor_minDigiSize                        = cms.untracked.int32(10),
                            DigiMonitor_maxDigiSize                        = cms.untracked.int32(10),
                            # ADC counts must be above the threshold values below for appropriate histograms to be filled
-                           DigiMonitor_shapeThresh                        = cms.untracked.int32(-1),
-                           DigiMonitor_ADCsumThresh                       = cms.untracked.int32(-1),
+                           DigiMonitor_shapeThresh                        = cms.untracked.int32(20),
+                           DigiMonitor_ADCsumThresh                       = cms.untracked.int32(20),
                            DigiMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), 
                            DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
                            DigiMonitor_ExpectedOrbitMessageTime           = cms.untracked.int32(-1),
@@ -197,7 +197,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            # BEAM MONITOR
                            BeamMonitor                                    = cms.untracked.bool(True),
                            BeamMonitor_checkNevents                       = cms.untracked.int32(1000),
-                           BeamMonitor_minErrorFlag                       = cms.untracked.double(0.),
+                           BeamMonitor_minErrorFlag                       = cms.untracked.double(0.20),
                            BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
                            BeamMonitor_lumiprescale                       = cms.untracked.int32(1), # set number of bins in Lumi-section plots -- divide Nlumiblocks by this prescale
                            BeamMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
