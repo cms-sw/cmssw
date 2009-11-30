@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.63 $
+ * $Date: 2009/11/09 10:19:49 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -24,6 +24,7 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -105,7 +106,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   meEEPedestalDigiOccupancy_[0] = 0;
   meEEPedestalDigiOccupancy_[1] = 0;
 
-  recHitEnergyMin_ = 0.150; // GeV
+  recHitEnergyMin_ = 0.500; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
@@ -728,7 +729,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
         }
 
-        if ( rechitItr->energy() > recHitEnergyMin_ ) {
+        if ( rechitItr->energy() > recHitEnergyMin_ && rechitItr->recoFlag() == EcalRecHit::kGood ) {
           
           if ( ism >= 1 && ism <= 9 ) {
             if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );

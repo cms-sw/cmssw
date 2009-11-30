@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.78 $
+ * $Date: 2009/11/09 10:19:49 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -24,6 +24,7 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -82,7 +83,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   meEBLaserDigiOccupancy_ = 0;
   meEBPedestalDigiOccupancy_ = 0;
 
-  recHitEnergyMin_ = 0.150; // GeV
+  recHitEnergyMin_ = 0.300; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
@@ -513,7 +514,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
         
-        if ( rechitItr->energy() > recHitEnergyMin_ ) {
+        if ( rechitItr->energy() > recHitEnergyMin_ && rechitItr->recoFlag() == EcalRecHit::kGood ) {
           
           if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
