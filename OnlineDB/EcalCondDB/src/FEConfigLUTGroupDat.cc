@@ -142,7 +142,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
 
-    FEConfigLUTGroupDat* dat;
+    FEConfigLUTGroupDat* dat(0);
     std::pair< EcalLogicID, FEConfigLUTGroupDat > p;
 
 
