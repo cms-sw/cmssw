@@ -94,7 +94,7 @@ process.electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection = cms.InputT
 #
 #
 process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
-process.allLayer1Electrons.isolation = cms.PSet(
+process.allLayer1Electrons.userIsolation = cms.PSet(
     tracker = cms.PSet(
       src = cms.InputTag("electronTrackIsolationScone"),
     ),
