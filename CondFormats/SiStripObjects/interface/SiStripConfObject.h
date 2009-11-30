@@ -16,7 +16,10 @@ using namespace std;
  * Simple class used to store configuration values. <br>
  * It stores a vector<string> and a vector<int> containing the name and value of the parameter. <br>
  * The put and get methods are provied to store and access the parameters. <br>
- * The printSummary and printDebug method return both the full list of parameters.
+ * The printSummary and printDebug method return both the full list of parameters. <br>
+ * The vectors with names and parameters are public. <br>
+ * WARNING: the get method assumes that the elements in the two vectors correspond (vector<string>[i] <-> vector<int>[i]).
+ * This is the case if the values are input with the put method.
  */
 
 class SiStripConfObject
@@ -32,9 +35,8 @@ class SiStripConfObject
   /// Prints the full list of all ranges and corresponding values of latency and mode
   void printDebug(std::stringstream & ss) const;
 
- protected:
-  vector<string> names_;
-  vector<int> values_;
+  vector<string> names;
+  vector<int> values;
 };
 
 #endif
