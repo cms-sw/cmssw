@@ -48,6 +48,15 @@ class _Sequenceable(object):
     def findHardDependencies(self, sequenceName, dependencyDict):
         pass
 
+def _checkIfSequenceable(caller, v):
+    if not isinstance(v,_Sequenceable):
+        typename = format_typename(caller)
+        msg = format_outerframe(2)
+        msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
+        msg +=format_typename(v)
+        msg +="\nPlease remove the problematic object from the argument list"
+        raise TypeError(msg)
+
 class _SequenceLeaf(_Sequenceable):
     def __init__(self):
         pass
@@ -64,7 +73,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
             msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
-        self._checkIfSequenceable(arg[0])
+        _checkIfSequenceable(self, arg[0])
         self._seq = arg[0]
         self._isModified = False
     def isFrozen(self):
@@ -74,21 +83,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
-        self._checkIfSequenceable(rhs)
+        _checkIfSequenceable(self, rhs)
         self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
-        self._checkIfSequenceable(rhs)
+        _checkIfSequenceable(self, rhs)
         self._seq = _SequenceOpFollows(self._seq,rhs)
         return self
-    def _checkIfSequenceable(self,v):
-        if not isinstance(v,_Sequenceable):
-            typename = format_typename(self)
-            msg = format_outerframe(2)
-            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
-            msg +=format_typename(v)
-            msg +="\nPlease remove the problematic object from the argument list"
-            raise TypeError(msg)
     def __str__(self):
         return str(self._seq)
     def dumpConfig(self, options):
@@ -187,6 +188,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
 class _SequenceOperator(_Sequenceable):
     """Used in the expression tree for a sequence"""
     def __init__(self, left, right):
+        _checkIfSequenceable(self,left)
+        _checkIfSequenceable(self,right)
         self._left = left
         self._right = right
     def __str__(self):
