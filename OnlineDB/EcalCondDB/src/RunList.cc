@@ -323,7 +323,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
     while (i<nruns) {
       rset->next();
       int iovID = rset->getInt(1);
-       int tagID = rset->getInt(2);
+      //       int tagID = rset->getInt(2);
        int runNum = rset->getInt(3);
        Date startDate = rset->getDate(4);
        Date endDate = rset->getDate(5);

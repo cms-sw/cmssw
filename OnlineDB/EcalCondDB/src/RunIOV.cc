@@ -249,7 +249,7 @@ int RunIOV::updateEndTimeDB()
 
 
   m_runTag.setConnection(m_env, m_conn);
-  int tagID = m_runTag.writeDB();
+  //  int tagID = m_runTag.writeDB();
   
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);
@@ -338,8 +338,8 @@ int RunIOV::updateStartTimeDB()
   }
 
 
-  m_runTag.setConnection(m_env, m_conn);
-  int tagID = m_runTag.writeDB();
+  //  m_runTag.setConnection(m_env, m_conn);
+  // int tagID = m_runTag.writeDB();
   
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);

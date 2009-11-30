@@ -214,11 +214,10 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 
 	dataitem = &(p->second);
 	// dataIface.writeDB( channel, dataitem, iov);
+	// to be corrected 
 
-	// correggere 
-
-		int x;
-		//=dataitem->getWord();
+	int x=0;
+	//=dataitem->getWord();
 
 	xx[count]=x;
 
