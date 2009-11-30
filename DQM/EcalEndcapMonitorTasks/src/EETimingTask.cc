@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.42 $
+ * $Date: 2009/11/29 23:27:10 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -322,7 +322,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
 
-      meTimeMap = meTime_[ism-1];
+      meTime = meTime_[ism-1];
       meTimeMap = meTimeMap_[ism-1];
       meTimeAmpli = meTimeAmpli_[ism-1];
 
