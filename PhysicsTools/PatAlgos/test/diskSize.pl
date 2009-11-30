@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/usr/bin/env perl
 
 ## Tool to dig out information about the event size in PAT
 ## 
@@ -79,7 +79,14 @@ open $MACRO, "> $macrofile";
 print $MACRO "void $macroname() {\n";
 foreach my $coll (sort(keys(%arrays))) {
     print $MACRO "   Events->Draw(\"$coll.\@obj.size()>>htmp\");\n";
-    print $MACRO "   std::cout << \"SIZE\t$coll\\t\" << (htmp->GetMean()*htmp->GetEntries()) << std::endl;\n";
+    print $MACRO "   if ( Events->GetSelectedRows()>0) {\n";
+    print $MACRO "      std::cout << \"SIZE\t$coll\\t\" << (htmp->GetMean()*htmp->GetEntries()) << std::endl;\n";
+    print $MACRO "      htmp->Delete();\n";
+    print $MACRO "   } else {\n";
+    print $MACRO "     Events->Draw(\"$coll.obj.\@obj.size()>>htmp\");\n";
+    print $MACRO "     if ( Events->GetSelectedRows()>0) std::cout << \"SIZE\t$coll\\t\" << (htmp->GetMean()*htmp->GetEntries()) << std::endl;\n";
+    print $MACRO "     else std::cout << \"SIZE\t$coll\\t\" << 0 << std::endl;\n";
+    print $MACRO "   }\n";
 }
 print $MACRO "   std::cout << \"PROVENANCE\t\" << (EventMetaData->GetZipBytes()+EventHistory->GetZipBytes()) << std::endl;\n";
 print $MACRO "}\n";
