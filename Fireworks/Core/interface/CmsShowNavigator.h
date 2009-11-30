@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.40 2009/11/30 10:12:46 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.41 2009/11/30 12:37:33 amraktad Exp $
 //
 
 // system include files
@@ -105,7 +105,6 @@ public:
    void toggleFilterEnable();
    void withdrawFilter();
    void resumeFilter();
-   void setLiveFileOnNextEvent();
 
    const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
    const char* filterStatusMessage();
