@@ -13,7 +13,7 @@ int SiStripConfObject::get( const string & name )
 {
   vector<string>::iterator it = find(names.begin(), names.end(), name);
   if( it == names.end() ) {
-    edm::LogError("SiStripConfObject::get") << "Error: no parameter associated to " << name << "returning -1" << endl;
+    edm::LogError("SiStripConfObject::get") << "Error: no parameter associated to " << name << " returning -1" << endl;
     return( -1 );
   }
   return values[distance( names.begin(), it )];
