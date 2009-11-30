@@ -114,6 +114,23 @@ SecondaryVertexProducer::getConstraintType(const std::string &name)
 			<< std::endl;
 }
 
+static GhostTrackVertexFinder::FitType
+getGhostTrackFitType(const std::string &name)
+{
+	if (name == "AlwaysWithGhostTrack")
+		return GhostTrackVertexFinder::kAlwaysWithGhostTrack;
+	else if (name == "SingleTracksWithGhostTrack")
+		return GhostTrackVertexFinder::kSingleTracksWithGhostTrack;
+	else if (name == "RefitGhostTrackWithVertices")
+		return GhostTrackVertexFinder::kRefitGhostTrackWithVertices;
+	else
+		throw cms::Exception("InvalidArgument")
+			<< "SecondaryVertexProducer: ``fitType'' "
+			   "parameter value \"" << name << "\" for "
+			   "GhostTrackVertexFinder settings not "
+			   "understood." << std::endl;
+}
+
 SecondaryVertexProducer::SecondaryVertexProducer(
 					const edm::ParameterSet &params) :
 	trackIPTagInfoLabel(params.getParameter<edm::InputTag>("trackIPTagInfos")),
@@ -226,7 +243,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			vtxRecoPSet.getParameter<double>("mergeThreshold"),
 			vtxRecoPSet.getParameter<double>("primcut"),
 			vtxRecoPSet.getParameter<double>("seccut"),
-			vtxRecoPSet.getParameter<bool>("alwaysUseGhostTrack")));
+			getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType"))));
 	else
 		vertexReco.reset(
 			new ConfigurableVertexReconstructor(vtxRecoPSet));

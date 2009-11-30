@@ -7,6 +7,6 @@ ghostTrackVertexRecoBlock = cms.PSet(
 		mergeThreshold = cms.double(2.7),
 		primcut = cms.double(1.8),
 		seccut = cms.double(5.0),
-		alwaysUseGhostTrack = cms.bool(False)
+		fitType = cms.string("SingleTracksWithGhostTrack")
 	)
 )
