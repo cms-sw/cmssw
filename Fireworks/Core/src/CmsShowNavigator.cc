@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.66 2009/11/30 10:12:46 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.67 2009/11/30 12:37:33 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -611,7 +611,10 @@ CmsShowNavigator::updateSelectorsInfo()
       std::list<FWFileEntry::Filter*>& filters = (*file)->filters();
       for (i = filters.begin(); i != filters.end(); ++i)
       {
-         (*i)->m_selector->m_selected += (*i)->m_eventList->GetN();
+         if ((*i)->m_eventList)
+         {
+            (*i)->m_selector->m_selected += (*i)->m_eventList->GetN();
+         }
       }
    }
    if (m_guiFilter) 
