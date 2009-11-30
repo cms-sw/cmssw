@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/08/25 16:04:51 $
- * $Revision: 1.9 $
+ * $Date: 2009/11/30 07:10:08 $
+ * $Revision: 1.13 $
  * $Author: dellaric $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -303,7 +303,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
       }
     }
 
-    if (Nbins > 0) SummaryContent[k] = 1.0 - entry/norm;
+    if (norm > 0) SummaryContent[k] = 1.0 - entry/norm;
     //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
     if (SummaryContent[k] < 1. && SummaryContent[k] >=0.95) 
