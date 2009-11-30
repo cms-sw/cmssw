@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.5 $"),
+    version = cms.untracked.string("$Revision: 1.6 $"),
     name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
@@ -66,7 +66,8 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+#process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
@@ -84,7 +85,7 @@ process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis"
 
 #- Output module
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre7.root"),
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_3_0.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",
