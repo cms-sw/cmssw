@@ -202,5 +202,28 @@ int main()
   cout << endl;
   check(latencies, modes, detIdAndApvs, latency2);
 
+  // Checking the method to retrieve all the unique (latencies,modes) pairs
+  // Create a latency object with three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)
+  cout << "Checking the method to retrieve all the unique combinations of latency and mode" << endl;
+  SiStripLatency latency3;
+  latency3.put(1, 0, 14, 37);
+  latency3.put(2, 0, 14, 37);
+  latency3.put(3, 0, 15, 37);
+  latency3.put(4, 0, 15, 47);
+  cout << "Stored three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)" << endl;
+
+  vector<SiStripLatency::Latency> uniqueLatenciesAndModes(latency3.allUniqueLatencyAndModes());
+  vector<SiStripLatency::Latency>::const_iterator it = uniqueLatenciesAndModes.begin();
+  cout << "Reading back what is returned by the allUniqueLatencyAndModes method" << endl;
+  for( ; it != uniqueLatenciesAndModes.end(); ++it ) {
+    cout << "latency = " << int(it->latency) << ", mode = " << int(it->mode) << endl;
+  }
+  if( uniqueLatenciesAndModes.size() == 3 ) {
+    cout << "Test passed" << endl;
+  }
+  else {
+    cout << "ERROR: test not passed" << endl;
+  }
+
   return 0;
 }
