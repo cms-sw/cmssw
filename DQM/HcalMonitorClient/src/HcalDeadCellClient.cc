@@ -433,6 +433,9 @@ void HcalDeadCellClient::calculateProblems()
 
 	      // Never-present histogram is a boolean, with underflow bin = 1 (for each instance)
 	      // Offline DQM adds up never-present histograms from multiple outputs
+	      // For now, we want offline DQM to show LS-based 'occupancies', rather than simple boolean on/off
+	      // May change in the future?
+
 	      // If cell is never-present in all runs, then problemvalue = event
 	      if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0) 
 		problemvalue=totalevents;
@@ -441,6 +444,8 @@ void HcalDeadCellClient::calculateProblems()
 		{
 		  if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0)
 		    problemvalue=totalevents;
+		  else if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)>1)
+		    RecHitsPresentByDepth[d]->SetBinContent(eta+1,phi+1,1);
 		}
 	      else
 		{
