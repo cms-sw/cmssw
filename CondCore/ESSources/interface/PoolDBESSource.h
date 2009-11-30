@@ -82,7 +82,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 
  private:
 
-   void fillTagCollectionFromDB( cond::DbSession& coraldb,
+   void fillTagCollectionFromDB( const std::string & coraldb,
 				const std::string& roottag,
 				std::map<std::string,cond::TagMetadata>& 
 				 replacement);

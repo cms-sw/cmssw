@@ -15,6 +15,8 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
 
 // #include "FWCore/Framework/interface/DataProxy.h"
@@ -92,31 +94,26 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)),
   doDump(iConfig.getUntrackedParameter<bool>("DumpStat",false))
 {
-   Stats s = {0,0,0,0,0};
-   stats=s;	
+  Stats s = {0,0,0,0,0};
+  stats=s;	
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
-
-
-  std::string userconnect;
-  userconnect=iConfig.getParameter<std::string>("connect");
+  
+  // default connection string
+  // inproduction used for the global tag
+  std::string userconnect= iConfig.getParameter<std::string>("connect");
+  
+  // connection configuration
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
   m_connection.configuration().setParameters( connectionPset );
   m_connection.configure();
   
-  cond::DbSession session = m_connection.createSession();
-  std::string blobstreamerName("");
+  std::string blobstreamerName;
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
     blobstreamerName.insert(0,"COND/Services/");
-    session.setBlobStreamingService(blobstreamerName);
-  }
-  if(!userconnect.empty())
-    session.open( userconnect );
-  
-  std::string globaltag;
-  if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
+  }  
 
   // load additional record/tag info it will overwrite the global tag
   std::map<std::string,cond::TagMetadata> replacement;
@@ -134,13 +131,13 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
     }
   }
-
+  
   // get the global tag, merge with "replacement" store in "tagCollection"
-  session.transaction().start(true);
-  fillTagCollectionFromDB(session, globaltag,replacement);
-  session.transaction().commit();
-
-
+  std::string globaltag;
+  if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
+  fillTagCollectionFromDB(userconnect, globaltag,replacement);
+  
+  
   TagCollection::iterator it;
   TagCollection::iterator itBeg=m_tagCollection.begin();
   TagCollection::iterator itEnd=m_tagCollection.end();
@@ -153,12 +150,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 
     //open db get tag info (i.e. the IOV token...)
     cond::DbSession nsess = m_connection.createSession();
+    if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
     nsess.open( it->pfn);
     cond::MetaData metadata(nsess);
-    nsess.transaction().start(true);
+    cond::DbScopedTransaction transaction(nsess);
+    transaction.start(true);
     cond::MetaDataEntry result;
     metadata.getEntryByTag(it->tag,result);
-    nsess.transaction().commit();
+    transaction.commit();
 
     /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
      * construct proxy
@@ -324,14 +323,24 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 
 // fills tagcollection merging with replacement
 void 
-PoolDBESSource::fillTagCollectionFromDB( cond::DbSession& coraldb, 
-					 const std::string& roottag,
+PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
+					 const std::string & roottag,
 					 std::map<std::string,cond::TagMetadata>& replacement){
   //  std::cout<<"fillTagCollectionFromDB"<<std::endl;
+
+
   std::set< cond::TagMetadata > tagcoll;
-  if (!roottag.empty()) {
-    cond::TagCollectionRetriever tagRetriever( coraldb );
-    tagRetriever.getTagCollection(roottag,tagcoll);
+ 
+ if (!roottag.empty()) {
+   if (coraldb.empty) 
+     throw cond::Exception(std::string("ESSource: requested global tag ")+rottag+" but not connection string given");
+   cond::DbSession session = m_connection.createSession();
+   session.open( coraldb );
+   cond::DbScopedTransaction transaction(session);
+   transaction.start(true);
+   cond::TagCollectionRetriever tagRetriever( session );
+   tagRetriever.getTagCollection(roottag,tagcoll);
+   transaction.commit();
   } 
 
   std::set<cond::TagMetadata>::iterator it;
