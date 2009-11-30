@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.50 2009/10/12 17:54:05 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.51 2009/10/31 22:37:35 chrjones Exp $
 //
 
 #include <stdio.h>
@@ -124,7 +124,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
    m_mainFrame->MapSubwindows();
    m_mainFrame->Layout();
-   m_mainFrame->MapWindow();
+   m_mainFrame->MapRaised();
 
    colorsChanged();
 }
