@@ -263,18 +263,15 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     meName.str("");
     meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_EndcapNegative"; 
     enq = dbe_ -> get(meName.str());
-    if(enq) cout<<"enq OK"<<endl;
-
+    
     meName.str("");
     meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_EndcapPositive"; 
     epq = dbe_ -> get(meName.str());
-    if (epq) cout<<"epq OK"<<endl;
+    
     meName.str("");
     meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Barrel"; 
     bq  = dbe_ -> get(meName.str());
-    if(bq) cout<<"gooooood"<<endl;
-    else cout<<"baddd"<<endl;
-
+    
     for (int i=-2; i<3; i++) {    
       
       meName.str("");
@@ -436,7 +433,6 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	    dead=0;
 	    
 	    if (meDEAD) dead = meDEAD->getBinContent(x,y);
-	    else cout<<"not found ME"<<endl;
 	    
 	    if(dead>=0.8) { 
 	      RCQ -> setBinContent(x,y,6); 
@@ -505,7 +501,6 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     mme.str("");
     mme<<"RPC/RecHits/SummaryHistograms/RPC_System_Quality_Overview"; 
     rpcperc = dbe_->get(mme.str());
-    if (rpcperc) cout<< "percentage OK"<<endl;
     
     float totperc=0;
     int b_ch = 0;
@@ -517,23 +512,20 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     en_ch = enq -> getEntries();
     ep_ch = epq -> getEntries();
     
-    cout<<"chambers in barrel "<<b_ch<<endl;
-    
+        
     for(int i=1; i<8; i++) {
       
            
       perc = ((bq->getBinContent(i)) * 100)/b_ch;
-      cout<< "percentage "<<perc<<endl;
-      // totperc += perc; 
       rpcperc -> setBinContent(i, 2, perc);
-
+      
       perc = ((enq->getBinContent(i)) * 100)/en_ch;
       rpcperc -> setBinContent(i, 3, perc);
 
       perc = ((epq->getBinContent(i)) * 100)/ep_ch;
       rpcperc -> setBinContent(i, 1, perc);
     }
-    cout<<"total percentage "<< totperc<<endl;
+    
     
   } //loop by LimiBloks
 }
