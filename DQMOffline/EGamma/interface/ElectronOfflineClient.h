@@ -14,6 +14,8 @@ class ElectronOfflineClient : public ElectronDqmAnalyzerBase
 
   private:
 
+    int Selection_ ;
+
  } ;
 
 #endif

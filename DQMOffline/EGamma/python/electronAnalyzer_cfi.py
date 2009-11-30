@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
 
     Verbosity = cms.untracked.int32(0),
-    FinalStep = cms.string("AtLumiEnd"),
+    FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
     ElectronCollection = cms.InputTag("gsfElectrons"),
@@ -27,7 +27,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     ProbeEtCut = cms.bool(False),
     ProbeCheckClass = cms.bool(False),                                        
 
-    MinEt = cms.double(15.),
+    MinEt = cms.double(0.),
     MinPt = cms.double(0.),
     MaxAbsEta = cms.double(2.5),
     SelectEb = cms.bool(False),

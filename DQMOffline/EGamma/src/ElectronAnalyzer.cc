@@ -143,7 +143,16 @@ ElectronAnalyzer::~ElectronAnalyzer()
 
 void ElectronAnalyzer::book()
  {
-  setStoreFolder("Egamma/ElectronAnalyzer") ;
+  if (Selection_==0) { setStoreFolder("Egamma/ElectronAnalyzer/AllElectrons") ; }
+  else if (Selection_==1) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEt") ; }
+  else if (Selection_==2) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEtIso") ; }
+  else if (Selection_==3) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEtIsoElID") ; }
+  else if (Selection_==4) { setStoreFolder("Egamma/ElectronAnalyzer/TagAndProbe") ; }
+  else
+   {
+    edm::LogError("ElectronAnalyzer::book")<<"Unknown selection strategy "<<Selection_ ;
+    setStoreFolder("Egamma/ElectronAnalyzer") ;
+   }
 
   nEvents_ = 0 ;
   nAfterTrigger_ = 0 ;
@@ -220,12 +229,10 @@ void ElectronAnalyzer::book()
   histSclSigEtaEta_ = bookH1("h_scl_sigetaeta","ele supercluster sigma eta eta",100,0.,0.05);
 
   // electron track
-//  h_ele_foundHits      = dbe_->book1D( "h_ele_foundHits",      "ele track # found hits",      nbinfhits,0.,fhitsmax);
-//  h_ele_chi2           = dbe_->book1D( "h_ele_chi2",           "ele track #chi^{2}/ndf",         100,0.,15.);
-  h_ele_ambiguousTracks = bookH1("h_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.);
-  h_ele_ambiguousTracksVsEta = bookH2("h_ele_ambiguousTracksVsEta","ele # ambiguous tracks  vs eta",  nbineta2D,etamin,etamax,5,0.,5.);
-  h_ele_ambiguousTracksVsPhi = bookH2("h_ele_ambiguousTracksVsPhi","ele # ambiguous tracks  vs phi",  nbinphi2D,phimin,phimax,5,0.,5.);
-  h_ele_ambiguousTracksVsPt = bookH2("h_ele_ambiguousTracksVsPt","ele # ambiguous tracks vs pt",  nbinpt2D,0.,ptmax,5,0.,5.);
+//  h_ele_ambiguousTracks = bookH1("h_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.);
+//  h_ele_ambiguousTracksVsEta = bookH2("h_ele_ambiguousTracksVsEta","ele # ambiguous tracks  vs eta",  nbineta2D,etamin,etamax,5,0.,5.);
+//  h_ele_ambiguousTracksVsPhi = bookH2("h_ele_ambiguousTracksVsPhi","ele # ambiguous tracks  vs phi",  nbinphi2D,phimin,phimax,5,0.,5.);
+//  h_ele_ambiguousTracksVsPt = bookH2("h_ele_ambiguousTracksVsPt","ele # ambiguous tracks vs pt",  nbinpt2D,0.,ptmax,5,0.,5.);
   h_ele_foundHits = bookH1("h_ele_foundHits","ele track # found hits",nbinfhits,0.,fhitsmax,"N_{hits}");
   h_ele_foundHitsVsEta = bookH2("h_ele_foundHitsVsEta","ele track # found hits vs eta",  nbineta2D,etamin,etamax,nbinfhits,0.,fhitsmax);
   h_ele_foundHitsVsPhi = bookH2("h_ele_foundHitsVsPhi","ele track # found hits vs phi",  nbinphi2D,phimin,phimax,nbinfhits,0.,fhitsmax);
@@ -235,48 +242,57 @@ void ElectronAnalyzer::book()
   h_ele_lostHitsVsPhi = bookH2("h_ele_lostHitsVsPhi","ele track # lost hits vs eta",nbinphi2D,phimin,phimax,nbinlhits,0.,lhitsmax);
   h_ele_lostHitsVsPt = bookH2("h_ele_lostHitsVsPt","ele track # lost hits vs eta",nbinpt2D,0.,ptmax,nbinlhits,0.,lhitsmax);
   h_ele_chi2 = bookH1("h_ele_chi2","ele track #chi^{2}",100,0.,15.,"#Chi^{2}");
-  h_ele_chi2VsEta = bookH2("h_ele_chi2VsEta","ele track #chi^{2} vs eta",  nbineta2D,etamin,etamax,50,0.,15.);
-  h_ele_chi2VsPhi = bookH2("h_ele_chi2VsPhi","ele track #chi^{2} vs phi",  nbinphi2D,phimin,phimax,50,0.,15.);
-  h_ele_chi2VsPt = bookH2("h_ele_chi2VsPt","ele track #chi^{2} vs pt",  nbinpt2D,0.,ptmax,50,0.,15.);
-
-  // OBSOLETE ?
-//  h_ele_PoPmatchingObject_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-//  h_ele_PoPmatchingObject_barrel_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-//  h_ele_PoPmatchingObject_endcaps_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-//  h_ele_PtoPtmatchingObject_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-//  h_ele_PtoPtmatchingObject_barrel_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-//  h_ele_PtoPtmatchingObject_endcaps_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-//  h_ele_EtaMnEtamatchingObject_matched->GetXaxis()-> SetTitle("#eta_{rec} - #eta_{SC}");
-//  h_ele_PhiMnPhimatchingObject_matched->GetXaxis()-> SetTitle("#phi_{rec} - #phi_{SC} (rad)");
-//  h_ele_EtaMnEtamatchingObject_matched->GetXaxis()-> SetTitle("#eta_{rec} - #eta_{SC}");
-//  h_ele_PhiMnPhimatchingObject_matched->GetXaxis()-> SetTitle("#phi_{rec} - #phi_{SC} (rad)");
+  h_ele_chi2VsEta = bookH2("h_ele_chi2VsEta","ele track #chi^{2} vs eta",nbineta2D,etamin,etamax,50,0.,15.);
+  h_ele_chi2VsPhi = bookH2("h_ele_chi2VsPhi","ele track #chi^{2} vs phi",nbinphi2D,phimin,phimax,50,0.,15.);
+  h_ele_chi2VsPt = bookH2("h_ele_chi2VsPt","ele track #chi^{2} vs pt",nbinpt2D,0.,ptmax,50,0.,15.);
 
   // electron matching and ID
-//  // matched electrons, matching
-//  h_ele_EoP            = dbe_->book1D( "h_ele_EoP",            "ele E_{sc}/P_{vertex}" ,        nbineop,0.,eopmax);
-//  h_ele_EoPout         = dbe_->book1D( "h_ele_EoPout",         "ele E_{seed}/P_{out}",           nbineop,0.,eopmax);
-//  h_ele_dEtaSc_propVtx = dbe_->book1D( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr},prop from vertex",      nbindetamatch,detamatchmin,detamatchmax);
-//  h_ele_dPhiSc_propVtx = dbe_->book1D( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr},prop from vertex",      nbindphimatch,dphimatchmin,dphimatchmax);
-//  h_ele_dPhiCl_propOut = dbe_->book1D( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr},prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
-//  h_ele_HoE = dbe_->book1D("h_ele_HoE", "ele H/E", 55,-0.05,0.5) ;
-  h_ele_EoP = bookH1( "h_ele_EoP","ele E/P_{vertex}",nbineop,0.,eopmax,"E/P_{vertex}");
-  h_ele_EoPout = bookH1( "h_ele_EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
+  h_ele_Eop = bookH1( "h_ele_Eop","ele E/P_{vertex}",nbineop,0.,eopmax,"E/P_{vertex}");
+  h_ele_EopVsEta = bookH2("h_ele_EopVsEta","ele E/P_{vertex} vs eta",nbineta2D,etamin,etamax,nbineop,0.,eopmax,"E/P_{vertex}");
+  h_ele_EopVsPhi = bookH2("h_ele_EopVsPhi","ele E/P_{vertex} vs phi",nbinphi2D,phimin,phimax,nbineop,0.,eopmax,"E/P_{vertex}");
+  h_ele_EopVsPt = bookH2("h_ele_EopVsPt","ele E/P_{vertex} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"E/P_{vertex}");
+  //h_ele_EoPout = bookH1( "h_ele_EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
   h_ele_EeleOPout = bookH1( "h_ele_EeleOPout","ele E_{ele}/P_{out}",nbineop,0.,eopmax,"E_{ele}/P_{out}");
+  h_ele_EeleOPoutVsEta = bookH2("h_ele_EeleOPoutVsEta","ele E_{ele}/P_{out} vs eta",nbineta2D,etamin,etamax,nbineop,0.,eopmax,"E_{ele}/P_{out}");
+  h_ele_EeleOPoutVsPhi = bookH2("h_ele_EeleOPoutVsPhi","ele E_{ele}/P_{out} vs phi",nbinphi2D,phimin,phimax,nbineop,0.,eopmax,"E_{ele}/P_{out}");
+  h_ele_EeleOPoutVsPt = bookH2("h_ele_EeleOPoutVsPt","ele E_{ele}/P_{out} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"E_{ele}/P_{out}");
   h_ele_dEtaSc_propVtx = bookH1( "h_ele_dEtaSc_propVtx","ele #eta_{sc} - #eta_{tr}, prop from vertex",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h_ele_dEtaSc_propVtxVsEta = bookH2("h_ele_dEtaSc_propVtxVsEta","ele #eta_{sc} - #eta_{tr}, prop from vertex vs eta",nbineta2D,etamin,etamax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h_ele_dEtaSc_propVtxVsPhi = bookH2("h_ele_dEtaSc_propVtxVsPhi","ele #eta_{sc} - #eta_{tr}, prop from vertex vs phi",nbinphi2D,phimin,phimax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h_ele_dEtaSc_propVtxVsPt = bookH2("h_ele_dEtaSc_propVtxVsPt","ele #eta_{sc} - #eta_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
   h_ele_dPhiSc_propVtx = bookH1( "h_ele_dPhiSc_propVtx","ele #phi_{sc} - #phi_{tr}, prop from vertex",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
-  h_ele_dEtaCl_propOut = bookH1( "h_ele_dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
-  h_ele_dPhiCl_propOut = bookH1( "h_ele_dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
+  h_ele_dPhiSc_propVtxVsEta = bookH2("h_ele_dPhiSc_propVtxVsEta","ele #phi_{sc} - #phi_{tr}, prop from vertex vs eta",nbineta2D,etamin,etamax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  h_ele_dPhiSc_propVtxVsPhi = bookH2("h_ele_dPhiSc_propVtxVsPhi","ele #phi_{sc} - #phi_{tr}, prop from vertex vs phi",nbinphi2D,phimin,phimax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  h_ele_dPhiSc_propVtxVsPt = bookH2("h_ele_dPhiSc_propVtxVsPt","ele #phi_{sc} - #phi_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  //h_ele_dEtaCl_propOut = bookH1( "h_ele_dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
+  //h_ele_dPhiCl_propOut = bookH1( "h_ele_dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
   h_ele_dEtaEleCl_propOut = bookH1( "h_ele_dEtaEleCl_propOut","ele #eta_{EleCl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h_ele_dEtaEleCl_propOutVsEta = bookH2("h_ele_dEtaEleCl_propOutVsEta","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs eta",nbineta2D,etamin,etamax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h_ele_dEtaEleCl_propOutVsPhi = bookH2("h_ele_dEtaEleCl_propOutVsPhi","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs phi",nbinphi2D,phimin,phimax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h_ele_dEtaEleCl_propOutVsPt = bookH2("h_ele_dEtaEleCl_propOutVsPt","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
   h_ele_dPhiEleCl_propOut = bookH1( "h_ele_dPhiEleCl_propOut","ele #phi_{EleCl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
-  h_ele_HoE = bookH1("h_ele_HoE","ele hadronic energy / em energy", nbinhoe, hoemin, hoemax,"H/E") ;
-  h_ele_outerP = bookH1( "h_ele_outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
-  h_ele_outerP_mode = bookH1( "h_ele_outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
-  h_ele_outerPt = bookH1( "h_ele_outerPt","ele track outer p_{T}, mean",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
+  h_ele_dPhiEleCl_propOutVsEta = bookH2("h_ele_dPhiEleCl_propOutVsEta","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs eta",nbineta2D,etamin,etamax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h_ele_dPhiEleCl_propOutVsPhi = bookH2("h_ele_dPhiEleCl_propOutVsPhi","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs phi",nbinphi2D,phimin,phimax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h_ele_dPhiEleCl_propOutVsPt = bookH2("h_ele_dPhiEleCl_propOutVsPt","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h_ele_Hoe = bookH1("h_ele_Hoe","ele hadronic energy / em energy", nbinhoe, hoemin, hoemax,"H/E") ;
+  h_ele_HoeVsEta = bookH2("h_ele_HoeVsEta","ele hadronic energy / em energy vs eta",nbineta2D,etamin,etamax,nbinhoe,hoemin,hoemax,"H/E") ;
+  h_ele_HoeVsPhi = bookH2("h_ele_HoeVsPhi","ele hadronic energy / em energy vs phi",nbinphi2D,phimin,phimax,nbinhoe,hoemin,hoemax,"H/E") ;
+  h_ele_HoeVsPt = bookH2("h_ele_HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"H/E") ;
+//  h_ele_outerP = bookH1( "h_ele_outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
+//  h_ele_outerP_mode = bookH1( "h_ele_outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
+  h_ele_innerPt_mean = bookH1( "h_ele_innerPt_mean","ele track inner p_{T}, mean",nbinpt,0.,ptmax,"P_{T in} (GeV/c)");
+  h_ele_outerPt_mean = bookH1( "h_ele_outerPt_mean","ele track outer p_{T}, mean",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
   h_ele_outerPt_mode = bookH1( "h_ele_outerPt_mode","ele track outer p_{T}, mode",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
+
 
 //  h_ele_PinMnPout_mode      = dbe_->book1D( "h_ele_PinMnPout_mode","ele track inner p - outer p, mode"   ,nbinp,0.,100.);
   h_ele_PinMnPout = bookH1( "h_ele_PinMnPout","ele track inner p - outer p, mean" ,nbinp,0.,200.,"P_{vertex} - P_{out} (GeV/c)");
   h_ele_PinMnPout_mode = bookH1( "h_ele_PinMnPout_mode","ele track inner p - outer p, mode",nbinp,0.,100.,"P_{vertex} - P_{out}, mode (GeV/c)");
+
+  h_ele_fbrem = bookH1("h_ele_fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+  h_ele_fbremVsEta = bookH2("h_ele_fbremVsEta","ele brem fraction vs eta",nbineta2D,etamin,etamax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+  h_ele_fbremVsPhi = bookH2("h_ele_fbremVsPhi","ele brem fraction vs phi",nbinphi2D,phimin,phimax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+  h_ele_fbremVsPt = bookH2("h_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
 
   h_ele_mva = bookH1( "h_ele_mva","ele identification mva",100,-1.,1.);
   h_ele_provenance = bookH1( "h_ele_provenance","ele provenance",5,-2.,3.);
@@ -293,6 +309,7 @@ void ElectronAnalyzer::book()
 
   // T&P
   h_ele_mee_os = bookH1("h_ele_mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee = bookH1("h_ele_mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
 
   //===========================
   // histos for matched objects
@@ -305,12 +322,12 @@ void ElectronAnalyzer::book()
   h_matchedObject_Z = bookH1withSumw2("h_matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25);
 
   // classes
-  h_matchedEle_classes = bookH1( "h_matchedEle_classes", "ele electron classes",      150,0.0,150.);
+  h_ele_classes = bookH1( "h_ele_classes", "ele electron classes",      150,0.0,150.);
   h_matchedEle_eta = bookH1( "h_matchedEle_eta", "ele electron eta",  nbineta/2,0.0,etamax);
   h_matchedEle_eta_golden = bookH1( "h_matchedEle_eta_golden", "ele electron eta golden",  nbineta/2,0.0,etamax);
-  h_matchedEle_eta_bbrem = bookH1( "h_matchedEle_eta_bbrem", "ele electron eta bbrem",  nbineta/2,0.0,etamax);
-  h_matchedEle_eta_narrow = bookH1( "h_matchedEle_eta_narrow", "ele electron eta narrow",  nbineta/2,0.0,etamax);
   h_matchedEle_eta_shower = bookH1( "h_matchedEle_eta_shower", "ele electron eta showering",  nbineta/2,0.0,etamax);
+  //h_matchedEle_eta_bbrem = bookH1( "h_matchedEle_eta_bbrem", "ele electron eta bbrem",  nbineta/2,0.0,etamax);
+  //h_matchedEle_eta_narrow = bookH1( "h_matchedEle_eta_narrow", "ele electron eta narrow",  nbineta/2,0.0,etamax);
 
  }
 
@@ -384,10 +401,10 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     histSclSigEtaEta_->Fill(gsfIter->scSigmaEtaEta());
 
     // track related distributions
-    h_ele_ambiguousTracks->Fill( gsfIter->ambiguousGsfTracksSize() );
-    h_ele_ambiguousTracksVsEta->Fill( gsfIter->eta(), gsfIter->ambiguousGsfTracksSize() );
-    h_ele_ambiguousTracksVsPhi->Fill( gsfIter->phi(), gsfIter->ambiguousGsfTracksSize() );
-    h_ele_ambiguousTracksVsPt->Fill( gsfIter->pt(), gsfIter->ambiguousGsfTracksSize() );
+//    h_ele_ambiguousTracks->Fill( gsfIter->ambiguousGsfTracksSize() );
+//    h_ele_ambiguousTracksVsEta->Fill( gsfIter->eta(), gsfIter->ambiguousGsfTracksSize() );
+//    h_ele_ambiguousTracksVsPhi->Fill( gsfIter->phi(), gsfIter->ambiguousGsfTracksSize() );
+//    h_ele_ambiguousTracksVsPt->Fill( gsfIter->pt(), gsfIter->ambiguousGsfTracksSize() );
     if (!readAOD_)
      { // track extra does not exist in AOD
       h_ele_foundHits->Fill( gsfIter->gsfTrack()->numberOfValidHits() );
@@ -408,39 +425,50 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     if (!readAOD_)
      { // track extra does not exist in AOD
       h_ele_PinMnPout->Fill( gsfIter->gsfTrack()->innerMomentum().R() - gsfIter->gsfTrack()->outerMomentum().R() );
-      h_ele_outerP->Fill( gsfIter->gsfTrack()->outerMomentum().R() );
-      h_ele_outerPt->Fill( gsfIter->gsfTrack()->outerMomentum().Rho() );
+      //h_ele_outerP->Fill( gsfIter->gsfTrack()->outerMomentum().R() );
+      h_ele_innerPt_mean->Fill( gsfIter->gsfTrack()->innerMomentum().Rho() );
+      h_ele_outerPt_mean->Fill( gsfIter->gsfTrack()->outerMomentum().Rho() );
      }
 
     // from electron interface, hence using mode
     h_ele_PinMnPout_mode->Fill( gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
-    h_ele_outerP_mode->Fill( gsfIter->trackMomentumOut().R() );
+    //h_ele_outerP_mode->Fill( gsfIter->trackMomentumOut().R() );
     h_ele_outerPt_mode->Fill( gsfIter->trackMomentumOut().Rho() );
 
-    //    if (!readAOD_)
-    //     { // track extra does not exist in AOD
-    //      edm::RefToBase<TrajectorySeed> seed = gsfIter->gsfTrack()->extra()->seedRef();
-    //      ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-    //      h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
-    //      h_ele_seed_dphi2VsEta_-> Fill(gsfIter->eta(), elseed->dPhi2());
-    //      h_ele_seed_dphi2VsPt_-> Fill(gsfIter->pt(), elseed->dPhi2()) ;
-    //      h_ele_seed_drz2_-> Fill(elseed->dRz2());
-    //      h_ele_seed_drz2VsEta_-> Fill(gsfIter->eta(), elseed->dRz2());
-    //      h_ele_seed_drz2VsPt_-> Fill(gsfIter->pt(), elseed->dRz2());
-    //      h_ele_seed_subdet2_-> Fill(elseed->subDet2());
-    //     }
-
     // match distributions
-    h_ele_EoP->Fill( gsfIter->eSuperClusterOverP() );
-    h_ele_EoPout->Fill( gsfIter->eSeedClusterOverPout() );
+    h_ele_Eop->Fill( gsfIter->eSuperClusterOverP() );
+    h_ele_EopVsEta->Fill( gsfIter->eta(), gsfIter->eSuperClusterOverP() );
+    h_ele_EopVsPhi->Fill( gsfIter->phi(), gsfIter->eSuperClusterOverP() );
+    h_ele_EopVsPt->Fill( gsfIter->pt(), gsfIter->eSuperClusterOverP() );
     h_ele_EeleOPout->Fill( gsfIter->eEleClusterOverPout() );
+    h_ele_EeleOPoutVsEta->Fill( gsfIter->eta(), gsfIter->eEleClusterOverPout() );
+    h_ele_EeleOPoutVsPhi->Fill( gsfIter->phi(), gsfIter->eEleClusterOverPout() );
+    h_ele_EeleOPoutVsPt->Fill( gsfIter->pt(), gsfIter->eEleClusterOverPout() );
     h_ele_dEtaSc_propVtx->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dEtaSc_propVtxVsEta->Fill(gsfIter->eta(), gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dEtaSc_propVtxVsPhi->Fill(gsfIter->phi(), gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dEtaSc_propVtxVsPt->Fill(gsfIter->pt(), gsfIter->deltaEtaSuperClusterTrackAtVtx());
     h_ele_dPhiSc_propVtx->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
-    h_ele_dEtaCl_propOut->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
-    h_ele_dPhiCl_propOut->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
+    h_ele_dPhiSc_propVtxVsEta->Fill(gsfIter->eta(), gsfIter->deltaPhiSuperClusterTrackAtVtx());
+    h_ele_dPhiSc_propVtxVsPhi->Fill(gsfIter->phi(), gsfIter->deltaPhiSuperClusterTrackAtVtx());
+    h_ele_dPhiSc_propVtxVsPt->Fill(gsfIter->pt(), gsfIter->deltaPhiSuperClusterTrackAtVtx());
     h_ele_dEtaEleCl_propOut->Fill(gsfIter->deltaEtaEleClusterTrackAtCalo());
+    h_ele_dEtaEleCl_propOutVsEta->Fill(gsfIter->eta(), gsfIter->deltaEtaEleClusterTrackAtCalo());
+    h_ele_dEtaEleCl_propOutVsPhi->Fill(gsfIter->phi(), gsfIter->deltaEtaEleClusterTrackAtCalo());
+    h_ele_dEtaEleCl_propOutVsPt->Fill(gsfIter->pt(), gsfIter->deltaEtaEleClusterTrackAtCalo());
     h_ele_dPhiEleCl_propOut->Fill(gsfIter->deltaPhiEleClusterTrackAtCalo());
-    h_ele_HoE->Fill(gsfIter->hadronicOverEm());
+    h_ele_dPhiEleCl_propOutVsEta->Fill(gsfIter->eta(), gsfIter->deltaPhiEleClusterTrackAtCalo());
+    h_ele_dPhiEleCl_propOutVsPhi->Fill(gsfIter->phi(), gsfIter->deltaPhiEleClusterTrackAtCalo());
+    h_ele_dPhiEleCl_propOutVsPt->Fill(gsfIter->pt(), gsfIter->deltaPhiEleClusterTrackAtCalo());
+    h_ele_Hoe->Fill(gsfIter->hadronicOverEm());
+    h_ele_HoeVsEta->Fill(gsfIter->eta(), gsfIter->hadronicOverEm());
+    h_ele_HoeVsPhi->Fill(gsfIter->phi(), gsfIter->hadronicOverEm());
+    h_ele_HoeVsPt->Fill(gsfIter->pt(), gsfIter->hadronicOverEm());
+
+    h_ele_fbrem->Fill(gsfIter->fbrem()) ;
+    h_ele_fbremVsEta->Fill(gsfIter->eta(),gsfIter->fbrem()) ;
+    h_ele_fbremVsPhi->Fill(gsfIter->phi(),gsfIter->fbrem()) ;
+    h_ele_fbremVsPt->Fill(gsfIter->pt(),gsfIter->fbrem()) ;
 
     h_ele_mva->Fill(gsfIter->mva()) ;
 
@@ -507,7 +535,9 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
            gsfIter2++ )
          {
           float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-          h_ele_mee_os->Fill(invMass) ;
+          h_ele_mee->Fill(invMass) ;
+          if (((gsfIter->charge())*(gsfIter2->charge()))<0.)
+           { h_ele_mee_os->Fill(invMass) ; }
          }
 
         double vertexTIP =
@@ -569,6 +599,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
              gsfIter2++ )
            {
             float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
+            h_ele_mee->Fill(invMass) ;
 
             if (TPchecksign_ && (((gsfIter->charge())*(gsfIter2->charge()))>=0.)) break ;
 
@@ -618,12 +649,12 @@ void ElectronAnalyzer::fillMatchedHistos
 
   //classes
   int eleClass = electron.classification() ;
-  h_matchedEle_classes->Fill(eleClass) ;
+  h_ele_classes->Fill(eleClass) ;
   h_matchedEle_eta->Fill(fabs(electron.eta()));
   if (electron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(electron.eta()));
-  if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
-  if (electron.classification() == GsfElectron::NARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
   if (electron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(electron.eta()));
+  //if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
+  //if (electron.classification() == GsfElectron::NARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
  }
 
 bool ElectronAnalyzer::trigger( const edm::Event & e )

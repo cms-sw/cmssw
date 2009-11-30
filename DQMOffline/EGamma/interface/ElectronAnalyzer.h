@@ -195,24 +195,50 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h_ele_chi2VsPt ;
 
     // electron matching and ID
-    MonitorElement * h_ele_EoP ;
-    MonitorElement * h_ele_EoPout ;
+    //MonitorElement * h_ele_EoPout ;
+    //MonitorElement * h_ele_dEtaCl_propOut ;
+    //MonitorElement * h_ele_dPhiCl_propOut ;
+    MonitorElement * h_ele_Eop ;
+    MonitorElement * h_ele_EopVsEta ;
+    MonitorElement * h_ele_EopVsPhi ;
+    MonitorElement * h_ele_EopVsPt ;
     MonitorElement * h_ele_EeleOPout ;
+    MonitorElement * h_ele_EeleOPoutVsEta ;
+    MonitorElement * h_ele_EeleOPoutVsPhi ;
+    MonitorElement * h_ele_EeleOPoutVsPt ;
     MonitorElement * h_ele_dEtaSc_propVtx ;
+    MonitorElement * h_ele_dEtaSc_propVtxVsEta ;
+    MonitorElement * h_ele_dEtaSc_propVtxVsPhi ;
+    MonitorElement * h_ele_dEtaSc_propVtxVsPt ;
     MonitorElement * h_ele_dPhiSc_propVtx ;
-    MonitorElement * h_ele_dEtaCl_propOut ;
-    MonitorElement * h_ele_dPhiCl_propOut ;
+    MonitorElement * h_ele_dPhiSc_propVtxVsEta ;
+    MonitorElement * h_ele_dPhiSc_propVtxVsPhi ;
+    MonitorElement * h_ele_dPhiSc_propVtxVsPt ;
     MonitorElement * h_ele_dEtaEleCl_propOut ;
+    MonitorElement * h_ele_dEtaEleCl_propOutVsEta ;
+    MonitorElement * h_ele_dEtaEleCl_propOutVsPhi ;
+    MonitorElement * h_ele_dEtaEleCl_propOutVsPt ;
     MonitorElement * h_ele_dPhiEleCl_propOut ;
-    MonitorElement * h_ele_HoE ;
-    MonitorElement * h_ele_outerP ;
-    MonitorElement * h_ele_outerP_mode ;
-    MonitorElement * h_ele_outerPt ;
+    MonitorElement * h_ele_dPhiEleCl_propOutVsEta ;
+    MonitorElement * h_ele_dPhiEleCl_propOutVsPhi ;
+    MonitorElement * h_ele_dPhiEleCl_propOutVsPt ;
+    MonitorElement * h_ele_Hoe ;
+    MonitorElement * h_ele_HoeVsEta ;
+    MonitorElement * h_ele_HoeVsPhi ;
+    MonitorElement * h_ele_HoeVsPt ;
+    //MonitorElement * h_ele_outerP ;
+    //MonitorElement * h_ele_outerP_mode ;
+    MonitorElement * h_ele_innerPt_mean ;
+    MonitorElement * h_ele_outerPt_mean ;
     MonitorElement * h_ele_outerPt_mode ;
 
     MonitorElement * h_ele_PinMnPout ;
     MonitorElement * h_ele_PinMnPout_mode ;
 
+    MonitorElement * h_ele_fbrem ;
+    MonitorElement * h_ele_fbremVsEta ;
+    MonitorElement * h_ele_fbremVsPhi ;
+    MonitorElement * h_ele_fbremVsPt ;
 
     MonitorElement * h_ele_mva ;
     MonitorElement * h_ele_provenance ;
@@ -226,7 +252,8 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h_ele_hcalDepth1TowerSumEt_dr04 ;
     MonitorElement * h_ele_hcalDepth2TowerSumEt_dr04 ;
 
-    MonitorElement * h_ele_mee_os;
+    MonitorElement * h_ele_mee ;
+    MonitorElement * h_ele_mee_os ;
 
     // histos for matched objects
 
@@ -236,12 +263,12 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h_matchedObject_Phi ;
     MonitorElement * h_matchedObject_Z ;
 
-    MonitorElement * h_matchedEle_classes ;
+    MonitorElement * h_ele_classes ;
     MonitorElement * h_matchedEle_eta ;
     MonitorElement * h_matchedEle_eta_golden ;
-    MonitorElement * h_matchedEle_eta_bbrem ;
-    MonitorElement * h_matchedEle_eta_narrow ;
     MonitorElement * h_matchedEle_eta_shower ;
+    //MonitorElement * h_matchedEle_eta_bbrem ;
+    //MonitorElement * h_matchedEle_eta_narrow ;
 
  } ;
 

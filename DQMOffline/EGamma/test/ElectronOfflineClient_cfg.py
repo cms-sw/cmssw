@@ -14,11 +14,15 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptySource")
 
-process.load("DQMOffline.EGamma.electronOfflineClient_cfi")
-process.dqmElectronOfflineClient.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronOfflineClient.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-process.dqmElectronOfflineClient.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+process.load("DQMOffline.EGamma.electronClientSequence_cff")
+process.dqmElectronOfflineClient0.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+process.dqmElectronOfflineClient0.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronOfflineClient1.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronOfflineClient2.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronOfflineClient3.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronOfflineClient4.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronOfflineClient4.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
-process.p = cms.Path(process.dqmElectronOfflineClient*process.dqmStoreStats)
+process.p = cms.Path(process.electronClientSequence*process.dqmStoreStats)
 
 

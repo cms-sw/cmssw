@@ -82,17 +82,20 @@ MonitorElement * ElectronDqmAnalyzerBase::get( const std::string & name )
   return me ;
  }
 
+void ElectronDqmAnalyzerBase::remove( const std::string & name )
+ { store_->removeElement(name) ; }
+
 MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
  ( const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title, bool print )
- { return bookH1andDivide(name,get(num),get(denom),titleX,titleY,title,print) ;  }
+   const std::string & title )
+ { return bookH1andDivide(name,get(num),get(denom),titleX,titleY,title) ;  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
  ( const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title, bool print )
- { return bookH2andDivide(name,get(num),get(denom),titleX,titleY,title,print) ; }
+   const std::string & title )
+ { return bookH2andDivide(name,get(num),get(denom),titleX,titleY,title) ; }
 
 MonitorElement * ElectronDqmAnalyzerBase::cloneH1
  ( const std::string & clone, const std::string & original,

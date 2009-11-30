@@ -34,6 +34,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     int verbosity() { return verbosity_ ; }
     void setStoreFolder( const std::string & path ) ;
     MonitorElement * get( const std::string & name ) ;
+    void remove( const std::string & name ) ;
 
     MonitorElement * bookH1
      ( const std::string & name, const std::string & title,
@@ -66,12 +67,12 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     MonitorElement * bookH1andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", bool print =false ) ;
+       const std::string & title ="" ) ;
 
     MonitorElement * bookH2andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", bool print =false ) ;
+       const std::string & title ="" ) ;
 
     MonitorElement * cloneH1
     ( const std::string & name, MonitorElement * original,
