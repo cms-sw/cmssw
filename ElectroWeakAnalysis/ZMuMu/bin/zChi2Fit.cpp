@@ -164,6 +164,9 @@ int main_t(const vector<string> & v_file){
     const char * kB0 = "B0"; 
     const char * kB1 = "B1"; 
     const char * kB2 = "B2"; 
+    const char * kC0 = "C0"; 
+    const char * kC1 = "C1"; 
+    const char * kC2 = "C2"; 
     
     funct::Parameter yieldZMuMu(kYieldZMuMu, commands.par(kYieldZMuMu));
     funct::Parameter effTk(kEfficiencyTk, commands.par(kEfficiencyTk)); 
@@ -182,6 +185,9 @@ int main_t(const vector<string> & v_file){
     funct::Parameter b0(kB0, commands.par(kB0));
     funct::Parameter b1(kB1, commands.par(kB1));
     funct::Parameter b2(kB2, commands.par(kB2));
+    funct::Parameter c0(kC0, commands.par(kC0));
+    funct::Parameter c1(kC1, commands.par(kC1));
+    funct::Parameter c2(kC2, commands.par(kC2));
     funct::Constant cFMin(fMin), cFMax(fMax);
     
     // count ZMuMu Yield
@@ -235,7 +241,10 @@ int main_t(const vector<string> & v_file){
     Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
     Expr zMuMuNoIso = rebinMuMuNoIsoConst * (zMuMuNoIsoEffTerm * yieldZMuMu * zPdfMuMuNonIso + zMuMuNoIsoBkg);
     
-    Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * zPdfMuSa); // + (yieldBkgZMuSa * funct::Exponential(beta) )); 
+
+    Expr zMuSaBkg = yieldBkgZMuSa * funct::Exponential(beta)* funct::Polynomial<2>(c0, c1, c2);
+    Expr zMuSaBkgScaled = rebinMuSaConst * zMuSaBkg;
+    Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * zPdfMuSa  + zMuSaBkg );
     
     TH1D histoZCount1HLT("histoZCount1HLT", "", 1, fMin, fMax);
     histoZCount1HLT.Fill(100, nZMuMu1HLT);
@@ -268,8 +277,11 @@ int main_t(const vector<string> & v_file){
     commands.add(minuit, b0);
     commands.add(minuit, b1);
     commands.add(minuit, b2);
+    commands.add(minuit, c0);
+    commands.add(minuit, c1);
+    commands.add(minuit, c2);
     commands.run(minuit);
-    const unsigned int nPar = 17;//WARNIG: this must be updated manually for now
+    const unsigned int nPar = 20;//WARNIG: this must be updated manually for now
     ROOT::Math::SMatrix<double, nPar, nPar, ROOT::Math::MatRepSym<double, nPar> > err;
     minuit.getErrorMatrix(err);
     
@@ -340,12 +352,38 @@ int main_t(const vector<string> & v_file){
 		     "Events");
     
     
-    string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
+    string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_X_" + plot_string;
     root::plot<Expr>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
 		     effTk, effSa, effIso, effHLT, yieldZMuMu,
+		     yieldBkgZMuMuNotIso, alpha, b0, b1, b2,
 		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
 		     "Events");	
+    ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
+    TF1 funZMuMuNoIso = root::tf1_t<sig_tag, Expr>("ZMuMuNoIsoFunction", zMuMuNoIso, fMin, fMax, 
+					      effTk, effSa, effIso, effHLT, yieldZMuMu, 
+					      yieldBkgZMuMuNotIso, lambda, a0, a1, a2);
+    funZMuMuNoIso.SetLineColor(kRed);
+    funZMuMuNoIso.SetLineWidth(2);
+    funZMuMuNoIso.SetLineStyle(kDashed);
+    funZMuMuNoIso.SetNpx(10000);
+    TF1 funZMuMuNoIsoBkg = root::tf1_t<bkg_tag, Expr>("ZMuMuNoIsoBack", zMuMuNoIsoBkgScaled, fMin, fMax, 
+						 yieldBkgZMuMuNotIso, alpha, b0, b1, b2);
+    funZMuMuNoIsoBkg.SetLineColor(kGreen);
+    funZMuMuNoIsoBkg.SetLineWidth(2);
+    funZMuMuNoIsoBkg.SetLineStyle(kDashed);
+    funZMuMuNoIsoBkg.SetNpx(10000);
+    histoZMuMuNoIso->SetTitle("Z -> #mu + (unmatched) track mass");
+    histoZMuMuNoIso->SetXTitle("#mu +  #mu invariant mass (GeV/c^{2})");
+    histoZMuMuNoIso->SetYTitle("Events");
+    TCanvas *canvas = new TCanvas("canvas");
+    histoZMuMuNoIso->Draw("e");
+    funZMuMuNoIsoBkg.Draw("same");
+    funZMuMuNoIso.Draw("same");
+    canvas->SaveAs(ZMuMuNoIsoPlot.c_str());
+    canvas->SetLogy();
+    string logZMuMuNoIsoPlot = "log_" + ZMuMuNoIsoPlot;
+    canvas->SaveAs(logZMuMuNoIsoPlot.c_str());
     
     string ZMuTkPlot = "ZMuTkFit_X_" + plot_string;
     root::plot<Expr>(ZMuTkPlot.c_str(), *histoZMuTk, zMuTk, fMin, fMax,
@@ -371,22 +409,50 @@ int main_t(const vector<string> & v_file){
     histoZMuTk->SetTitle("Z -> #mu + (unmatched) track mass");
     histoZMuTk->SetXTitle("#mu + (unmatched) track invariant mass (GeV/c^{2})");
     histoZMuTk->SetYTitle("Events");
-    TCanvas *canvas = new TCanvas("canvas");
+    TCanvas *canvas_ = new TCanvas("canvas_");
     histoZMuTk->Draw("e");
     funZMuTkBkg.Draw("same");
     funZMuTk.Draw("same");
-    canvas->SaveAs(ZMuTkPlot.c_str());
-    canvas->SetLogy();
+    canvas_->SaveAs(ZMuTkPlot.c_str());
+    canvas_->SetLogy();
     string logZMuTkPlot = "log_" + ZMuTkPlot;
-    canvas->SaveAs(logZMuTkPlot.c_str());
-    string ZMuSaPlot = "ZMuSaFit_" + plot_string;
+    canvas_->SaveAs(logZMuTkPlot.c_str());
+
+    string ZMuSaPlot = "ZMuSaFit_X_" + plot_string;
     root::plot<Expr>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
-		     effSa, effTk, effIso,
-		     yieldZMuMu, yieldBkgZMuSa, 
-		     kRed, 2, kDashed, 10000, 
+		     effSa, effTk, effIso, yieldZMuMu, 
+		     yieldBkgZMuSa, beta, c0, c1, c2 ,
+		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu + (unmatched) standalone mass", 
 		     "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
 		     "Events");
+    ZMuSaPlot = "ZMuSaFit_" + plot_string;
+    TF1 funZMuSa = root::tf1_t<sig_tag, Expr>("ZMuSaFunction", zMuSa, fMin, fMax, 
+					      effTk, effSa, effIso, effHLT, yieldZMuMu, 
+					      yieldBkgZMuSa, beta, c0, c1, c2);
+    funZMuSa.SetLineColor(kRed);
+    funZMuSa.SetLineWidth(2);
+    funZMuSa.SetLineStyle(kDashed);
+    funZMuSa.SetNpx(10000);
+    TF1 funZMuSaBkg = root::tf1_t<bkg_tag, Expr>("ZMuSaBack", zMuSaBkgScaled, fMin, fMax, 
+						 yieldBkgZMuSa, beta, c0, c1, c2);
+    funZMuSaBkg.SetLineColor(kGreen);
+    funZMuSaBkg.SetLineWidth(2);
+    funZMuSaBkg.SetLineStyle(kDashed);
+    funZMuSaBkg.SetNpx(10000);
+    histoZMuSa->SetTitle("Z -> #mu + (unmatched) standalone mass");
+    histoZMuSa->SetXTitle("#mu + (unmatched) standalone invariant mass (GeV/c^{2})");
+    histoZMuSa->SetYTitle("Events");
+    TCanvas *canvas__ = new TCanvas("canvas__");
+    histoZMuSa->Draw("e");
+    funZMuSaBkg.Draw("same");
+    funZMuSa.Draw("same");
+    canvas__->SaveAs(ZMuSaPlot.c_str());
+    canvas__->SetLogy();
+    string logZMuSaPlot = "log_" + ZMuSaPlot;
+    canvas__->SaveAs(logZMuSaPlot.c_str());
+
+
   }
   return 0;
 }
