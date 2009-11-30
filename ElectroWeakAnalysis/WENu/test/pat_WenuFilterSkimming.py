@@ -15,9 +15,10 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
     'file:zee_Summer09-MC_31X_V3_AODSIM_v1_AODSIM.root'
+#    'file:/tmp/rompotis/wenu_GS_EGM1ELE15_v3_1.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
 
 ## Load additional processes
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -55,21 +56,17 @@ process.electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection = cms.InputT
 process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection = cms.InputTag("")
 process.electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection = cms.InputTag("")
 process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
-process.allLayer1Electrons.isolationValues = cms.PSet(
-    tracker =  cms.InputTag("electronTrackIsolationScone"),
-    ecal =  cms.InputTag("electronEcalRecHitIsolationLcone"),
-    hcal =  cms.InputTag("electronHcalTowerIsolationLcone"),
-    )
+
 process.allLayer1Electrons.isoDeposits = cms.PSet()
 process.allLayer1Electrons.userIsolation = cms.PSet(
        tracker = cms.PSet(
-            src = cms.InputTag("electronTrackIsolationLcone"),
+            src = cms.InputTag("electronTrackIsolationScone"),
         ),
         ecal = cms.PSet(
-            src = cms.InputTag("electronEcalRecHitIsolationScone"),
+            src = cms.InputTag("electronEcalRecHitIsolationLcone"),
         ),
         hcal = cms.PSet(
-            src = cms.InputTag("electronHcalTowerIsolationScone"),
+            src = cms.InputTag("electronHcalTowerIsolationLcone"),
         ),
         user = cms.VPSet(),
 
