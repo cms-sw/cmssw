@@ -77,7 +77,7 @@ CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
   cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
 
   edm::Service<TFileService> fs;
-  tree_ = fs->make<TNtuple>("Vertex","Vertex","x:y:z");
+  tree_ = fs->make<TNtuple>("Vertex","Vertex","x:y:z:n");
 
 }
 
@@ -95,7 +95,7 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
     cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y()
          << ", " << vtx.z() << endl;
    
-    tree_ -> Fill(vtx.x(),vtx.y(),vtx.z());
+//    tree_ -> Fill(vtx.x(),vtx.y(),vtx.z());
 
   }
 }
@@ -126,7 +126,12 @@ void CVRTest::analyze( const edm::Event & iEvent,
   cout << "[CVRTest] fit w/o beamspot constraint" << endl;
   vector < TransientVertex > vtces = vrec_->vertices ( ttks );
   printVertices ( vtces );
-
+  
+  if (vtces.size() >0) 
+	{
+	   for (int i=0; i!=vtces.size(); ++i)
+		tree_ -> Fill(vtces[i].position().x(),vtces[i].position().y(),vtces[i].position().z(),i);
+	}
   // cout << "[CVRTest] fit w beamspot constraint" << endl;
   // vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
   // printVertices ( bvtces );

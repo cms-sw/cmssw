@@ -20,7 +20,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
 # GlobalTrackingGeometryRecord
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("vertices.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("vertices2.root"))
 
 # TFileService.fileName = cms.string('vertices.root')
 
