@@ -43,6 +43,12 @@ GhostTrackState::GhostTrackState(const GlobalPoint &pos,
 {
 }
 
+GhostTrackState::GhostTrackState(const GlobalPoint &pos,
+                                 const GlobalError &error) :
+	Base(new VertexGhostTrackState(pos, error.matrix_new()))
+{
+}
+
 GhostTrackState::GhostTrackState(const VertexState &state) :
 	Base(new VertexGhostTrackState(state.position(),
 	                               state.error().matrix_new()))

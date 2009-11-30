@@ -48,7 +48,7 @@ KalmanState::KalmanState(const GhostTrackPrediction &pred,
 {
 	using namespace ROOT::Math;
 
-	const GlobalPoint &point = state.globalPosition();
+	GlobalPoint point = state.globalPosition();
 
 	// precomputed values
 	double x = std::cos(pred.phi());
@@ -112,7 +112,7 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 
 	// filtered residuals
 	Matrix22 tmp22 = SMatrixIdentity();
-	tmp22 = (tmp22 - kalmanState.h * gain);
+	tmp22 = tmp22 - kalmanState.h * gain;
 	Vector2 filtRes = tmp22 * kalmanState.residual;
 	tmp22 *= kalmanState.measErr;
 	Matrix2S filtResErr(tmp22.LowerBlock());

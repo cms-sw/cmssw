@@ -27,6 +27,7 @@ class GhostTrackState : public BasicGhostTrackState::Proxy {
 
 	GhostTrackState(const TransientTrack &track);
 	GhostTrackState(const GlobalPoint &pos, const CovarianceMatrix &cov);
+	GhostTrackState(const GlobalPoint &pos, const GlobalError &error);
 	GhostTrackState(const VertexState &state);
 
 	const TransientTrack &track() const;

@@ -45,9 +45,11 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
 
 	virtual void reset() {}
 	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       bool initial, double lambda) { return true; }
+	                       bool initial, double lambda)
+	{ lambda_ = lambda; return true; }
 	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       double lambda) { return true; }
+	                       double lambda)
+	{ lambda_ = lambda; return true; }
 
 	virtual Vertex vertexStateOnGhostTrack(
 				const GhostTrackPrediction &pred,
