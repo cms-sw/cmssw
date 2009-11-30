@@ -14,7 +14,7 @@ ckfTrackCandidates = cms.EDFilter("CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool(True),
 #    SeedProducer = cms.string('globalMixedSeeds'),
 #    SeedLabel = cms.string(''),
-    maxNSeeds = cms.untracked.uint32(100000),
+    maxNSeeds = cms.uint32(100000),
 # SeedProducer:SeedLabel descoped to src
     src = cms.InputTag('globalMixedSeeds'),                                  
     NavigationSchool = cms.string('SimpleNavigationSchool'),
