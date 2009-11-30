@@ -123,19 +123,20 @@ void CVRTest::analyze( const edm::Event & iEvent,
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
 
-  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
-  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
-  printVertices ( vtces );
+//  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
+//  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
+//  printVertices ( vtces );
   
-  if (vtces.size() >0) 
+cout << "[CVRTest] fit w beamspot constraint" << endl;
+vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
+printVertices ( bvtces );
+
+  if (bvtces.size() >0) 
 	{
-	   for (int i=0; i!=vtces.size(); ++i)
-		tree_ -> Fill(i, 0, vtces[i].position().x(), vtces[i].position().y(), vtces[i].position().z(),
-			vtces[i].normalisedChiSquared(), vtces[i].degreesOfFreedom(), vtces[i].originalTracks().size());
+	   for (int i=0; i!=bvtces.size(); ++i)
+		tree_ -> Fill(i, 0, bvtces[i].position().x(), bvtces[i].position().y(), bvtces[i].position().z(),
+			bvtces[i].normalisedChiSquared(), bvtces[i].degreesOfFreedom(), bvtces[i].originalTracks().size());
 	}
-  // cout << "[CVRTest] fit w beamspot constraint" << endl;
-  // vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
-  // printVertices ( bvtces );
 }
 
 //define this as a plug-in
