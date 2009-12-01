@@ -104,7 +104,8 @@ int main(int argc, char * argv[]){
   double yield(3810.0), effTrk(.996), effSa(.987),effHlt(.913), effIso(.982),factor(1.0),MIN(60.),MAX(120.);
   double slopeMuTk(0.02), a0MuTk(1.0), a1MuTk(0.0), a2MuTk(0.0);
   double slopeMuMuNonIso(0.02),a0MuMuNonIso(1.0), a1MuMuNonIso(0.0), a2MuMuNonIso(0.0);
-  // double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
+  double slopeMuSa(0.02), a0MuSa(1.0), a1MuSa(0.0), a2MuSa(0.0);  
+// double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
   // double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
   // double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
   // BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
@@ -156,6 +157,7 @@ int main(int argc, char * argv[]){
   }
   BkgShape zMuTkBkgPdf(MIN, MAX, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(MIN, MAX, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+  BkgShape zMuSaBkgPdf(MIN, MAX, slopeMuSa, a0MuSa, a1MuSa, a2MuSa);
   MuTag mu1,mu2;
   rndm->SetSeed(seed);
   int count = 0; 
@@ -165,11 +167,13 @@ int main(int argc, char * argv[]){
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
   double IntegralzmumuNoIsobkg =factor * ( zMuMuNonIsoBkgPdf.integral());
   double Integralzmutkbkg =factor * (zMuTkBkgPdf.integral());
+  double Integralzmusabkg =factor * (zMuSaBkgPdf.integral());
 
   for(int j = 1; j <=expt; ++j){//loop on number of experiments  
     int N0 = rndm->Poisson(yield);
     int nMuTkBkg = rndm->Poisson(Integralzmutkbkg);
     int nMuMuNonIsoBkg = rndm->Poisson(IntegralzmumuNoIsobkg);
+    int nMuSaBkg = rndm->Poisson(Integralzmusabkg);
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
@@ -296,7 +300,9 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
       zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(rndm));
     }
-    // one need to add backgroung also for ZMuSta
+    for(int i = 0; i < nMuSaBkg; ++i) {
+      zMuSaBkg->Fill(zMuSaBkgPdf.rndm(rndm));
+    }
     char head2[30];
     sprintf(head2,"bkg_%d",j);
     string title2 = head2 + tail;
