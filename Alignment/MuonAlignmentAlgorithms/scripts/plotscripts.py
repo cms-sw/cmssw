@@ -1954,6 +1954,11 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     if not twobin:
         Pos = ""; Neg = ""
 
+    global chamber_x_trackx, chamber_x_trackx_fit, chamber_y_trackx, chamber_y_trackx_fit, chamber_dxdz_trackx, chamber_dxdz_trackx_fit, chamber_dydz_trackx, chamber_dydz_trackx_fit, chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2
+    global chamber_x_tracky, chamber_x_tracky_fit, chamber_y_tracky, chamber_y_tracky_fit, chamber_dxdz_tracky, chamber_dxdz_tracky_fit, chamber_dydz_tracky, chamber_dydz_tracky_fit, chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2
+    global chamber_x_trackdxdz, chamber_x_trackdxdz_fit, chamber_y_trackdxdz, chamber_y_trackdxdz_fit, chamber_dxdz_trackdxdz, chamber_dxdz_trackdxdz_fit, chamber_dydz_trackdxdz, chamber_dydz_trackdxdz_fit, chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2
+    global chamber_x_trackdydz, chamber_x_trackdydz_fit, chamber_y_trackdydz, chamber_y_trackdydz_fit, chamber_dxdz_trackdydz, chamber_dxdz_trackdydz_fit, chamber_dydz_trackdydz, chamber_dydz_trackdydz_fit, chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2
+
     chamber_x_trackx = tfile.Get("%s/%s%s_x_trackx" % (plotDirectory, name, Pos))
     chamber_x_trackx_fit = tfile.Get("%s/%s%s_x_trackx_fitline" % (plotDirectory, name, Pos))
     chamber_y_trackx = tfile.Get("%s/%s%s_y_trackx" % (plotDirectory, name, Pos))
