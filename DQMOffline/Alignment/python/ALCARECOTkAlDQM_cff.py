@@ -12,6 +12,7 @@ ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
+    MeasurementState = "default",
 # Margins and settings
     TkSizeBin = 6,
     TkSizeMin = -0.5,
