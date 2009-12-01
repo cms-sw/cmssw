@@ -16,7 +16,6 @@
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 namespace cond{
-  class CoralTransaction;
   class TagCollectionRetriever{
   public:
     /// constructor

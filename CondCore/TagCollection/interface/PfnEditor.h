@@ -1,7 +1,5 @@
 #ifndef CondCore_TagCollection_PfnEditor
 #define CondCore_TagCollection_PfnEditor
-#endif // CondCore_TagCollection_PfnEditor
-
 
 
 #include <string>
@@ -18,7 +16,7 @@ namespace cond{
       off(prefix.empty() && postfix.empty())
     {}
     
-
+    
     std::string operator(std::string const & pfn) {
       if (off) return pfn;
       size_t pos=std::string::npos;
@@ -36,3 +34,5 @@ namespace cond{
 
 
 }
+#endif // CondCore_TagCollection_PfnEditor
+
