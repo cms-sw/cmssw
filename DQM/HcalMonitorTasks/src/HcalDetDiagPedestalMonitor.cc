@@ -578,7 +578,7 @@ TFile *f;
       }
       f->Close();
       IsReference=true;
-   }
+   }//if (UseDB==false)
 } 
 
 void HcalDetDiagPedestalMonitor::CheckStatus(){

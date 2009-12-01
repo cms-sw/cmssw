@@ -689,7 +689,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       return err;
     }
 
-  // require minimum ADC count for occupancy
+  // require minimum ADC count for occupancy; this doesn't do anything?
   if(ADCcount>occThresh_) occ=true; 
   if (ADCcount<199)
     ++h.adcsum[ADCcount];
