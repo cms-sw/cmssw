@@ -141,7 +141,7 @@ void CastorLEDMonitor::reset(){
 
 void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, const CastorDbService& cond){
 
- if (ievt_%1000==0) // do this task each 1000 events
+ if (ievt_%1000==0 && ievt_<1000000 ) // do this task each 1000 events until 1M events
  {
 
   meEVT_->Fill(ievt_);

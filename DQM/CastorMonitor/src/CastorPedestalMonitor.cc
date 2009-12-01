@@ -150,8 +150,8 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
   */
       
       
-      ////---- fill ALL Pedestal Values each 1000 events
-      if(ievt_ %1000 == 0)
+      ////---- fill ALL Pedestal Values each 1000 events until 1M events
+      if(ievt_ %1000 == 0 && ievt_<1000000)
       { 
       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
