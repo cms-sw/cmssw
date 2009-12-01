@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/11/19 14:36:24 $
- * $Revision: 1.32 $
+ * $Date: 2009/12/01 09:13:44 $
+ * $Revision: 1.33 $
  * \author J. Berryhill
  *
  */
@@ -253,7 +253,9 @@ void L1TCSCTF::beginJob(void)
   } 
 
   csctfHaloL1ABXN  = dbe->book1D("csctfHaloL1ABXN" ,"L1A BXN (HALO)", 3564,0,3564);
+  csctfHaloL1ABXN->setAxisTitle("L1A (BX)",1);
   csctfCoincL1ABXN = dbe->book1D("csctfCoincL1ABXN","L1A BXN (COINCIDENCE)", 3564,0,3564);
+  csctfCoincL1ABXN->setAxisTitle("L1A (BX)",1);
   //GP_end
 
 
@@ -342,13 +344,14 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	}
     } // end of GMT block
 
+  L1ABXN = -999;
   if( statusProducer.label() != "null" )
     {
       edm::Handle<L1CSCStatusDigiCollection> status;
       e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
       bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
       int nStat = 0;
-      L1ABXN = -999;
+ 
       for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin(); stat!=status->second.end(); stat++)
 	{
 	  se |= stat->SEs()&0xFFF;
