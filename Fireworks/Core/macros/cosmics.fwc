@@ -292,7 +292,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("MET");
+  topaaa.addValue("recoMET");
   topaa.addKeyValue("purpose", topaaa);
 }
   topa.addKeyValue("MET", topaa);
