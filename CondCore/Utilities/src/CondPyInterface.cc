@@ -239,12 +239,14 @@ namespace cond {
   }
   
   GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
-				      std::string const & gname) const {
+				      std::string const & gname,
+				      std::string const & prefix, 
+				      std::string const & postfix) const {
     DbSession session = connection->createSession();
     session.open( connstr );
     cond::DbScopedTransaction tr(session);
     tr.start(true);
-    TagCollectionRetriever gtr(session);
+    TagCollectionRetriever gtr(session, prefix,postfix);
     const_cast<GlobalTag&>(m_globalTag).clear();
     gtr.getTagCollection(gname,const_cast<GlobalTag&>(m_globalTag));
     tr.commit();
