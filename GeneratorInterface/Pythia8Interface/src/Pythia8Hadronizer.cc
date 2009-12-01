@@ -269,6 +269,10 @@ void Pythia8Hadronizer::finalizeEvent()
 
 	event()->weights().push_back(pythia->info.weight());
 
+   // now create the GenEventInfo product from the GenEvent and fill
+   // the missing pieces
+    eventInfo().reset( new GenEventInfoProduct( event().get() ) );
+
 	//******** Verbosity ********
 
 	if (maxEventsToPrint > 0 &&
