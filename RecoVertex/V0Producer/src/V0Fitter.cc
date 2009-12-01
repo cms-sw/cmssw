@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.39 2009/06/09 23:28:49 drell Exp $
+// $Id: V0Fitter.cc,v 1.40 2009/10/09 13:02:54 llista Exp $
 //
 //
 
@@ -248,7 +248,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // Measure distance between tracks at their closest approach
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
-      //cout << cApp.status() << endl;
+      if( !cApp.status() ) continue;
       float dca = fabs( cApp.distance() );
       GlobalPoint cxPt = cApp.crossingPoint();
 
