@@ -22,7 +22,7 @@ namespace cond{
       size_t pos=std::string::npos;
       if (!prefix.empty()) pos = pfn.rfind('/');
       return prefix + ( (pos == std::string::npos) ? pfn :
-			pfn.substr(pos+1);
+			pfn.substr(pos+1)
 			) + postfix;
     }
 

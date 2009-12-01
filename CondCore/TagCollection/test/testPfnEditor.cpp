@@ -33,7 +33,7 @@ int main() {
 
   {
     cond::PfnEditor ed(pre2,"");
-    if (ed(pfn)!=pre2+de) 
+    if (ed(pfn)!=pre2+det) 
       error("error changin pre and null post");
   }
 
