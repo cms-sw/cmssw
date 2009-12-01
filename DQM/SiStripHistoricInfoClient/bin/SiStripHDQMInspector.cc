@@ -29,7 +29,7 @@ string multiItems(const vector<string> & subDetectors, const string & item)
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
  * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
  */
-void runTrackingInspector( const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
+void runTrackingInspector( const string &dbName, const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
 {
   // IMPORTANT SETTINGS:
   string condition = "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 436207616@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 402653184@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 469762048@Summary_TotalNumberOfClusters_OffTrack@entries > 10000";
@@ -50,7 +50,8 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   DQMHistoryCreateTrend makeTrend(&siStripConfig);
 
   // Database and output configuration
-  makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
+  // makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
@@ -125,30 +126,30 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   makeTrend.closeFile();
 }
 
-void SiStripHDQMInspector( const string & tagName, const string & password, const int start, const int end )
+void SiStripHDQMInspector( const string & dbName, const string & tagName, const string & password, const int start, const int end )
 {
-  runTrackingInspector(tagName, password, start, end, 0);
+  runTrackingInspector(dbName, tagName, password, start, end, 0);
 }
 
-void SiStripHDQMInspector( const string & tagName, const string & password, const int nRuns )
+void SiStripHDQMInspector( const string & dbName, const string & tagName, const string & password, const int nRuns )
 {
-  runTrackingInspector(tagName, password, 0, 0, nRuns);
+  runTrackingInspector(dbName, tagName, password, 0, 0, nRuns);
 }
 
 int main (int argc, char* argv[])
 {
-  if (argc != 4 && argc != 5) {
-    std::cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
+  if (argc != 5 && argc != 6) {
+    std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
-  if (argc == 4) {
-    std::cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << std::endl;
-    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
-  } else if(argc == 5) {
-    std::cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << std::endl;
-    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
+  if (argc == 5) {
+    std::cout << "Creating trends for NRuns = " << argv[4] << " for tag: " << argv[2] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], argv[3], atoi(argv[4]) );
+  } else if(argc == 6) {
+    std::cout << "Creating trends for range:  " << argv[4] << " " << argv[5] << " for tag: " << argv[2] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]) );
   }
 
   return 0;

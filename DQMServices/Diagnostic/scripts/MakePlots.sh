@@ -1,21 +1,22 @@
 #!/bin/sh
 
 ExeName=$1
-TagName=$2
-Password=$3
-RunStart=$4
-RunEnd=$5
+Database=$2
+TagName=$3
+Password=$4
+RunStart=$5
+RunEnd=$6
 
 PlotDir="CurrentPlots"
 
 rm -rf $PlotDir
 
-if [ $5 ]; then
+if [ $6 ]; then
     echo "RUNNING: $ExeName $TagName $Password $RunStart $RunEnd"
-    $ExeName $TagName $Password $RunStart $RunEnd
+    $ExeName $Database $TagName $Password $RunStart $RunEnd
 else
     echo "RUNNING: $ExeName $TagName $Password $RunStart"
-    $ExeName $TagName $Password $RunStart
+    $ExeName $Database $TagName $Password $RunStart
 fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir
