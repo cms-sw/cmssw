@@ -43,20 +43,14 @@ class ESCondObjectContainer {
                 inline
                 const_iterator find( uint32_t rawId ) const {
                         DetId id(rawId);
-
-                        switch (id.subdetId()) {
-                                case EcalPreshower :
-                                        { 
-                                                const_iterator it = es_.find(rawId);
-                                                if ( it != es_.end() ) {
-                                                        return it;
-                                                }
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-				  return es_.end();
-                        }
+			const_iterator it = es_.end();
+			if(id.subdetId()== EcalPreshower) {
+			  it = es_.find(rawId);
+			  if ( it != es_.end() ) {
+			    return it;
+			  }
+			} 
+			return it;
                 }
 
                 inline
