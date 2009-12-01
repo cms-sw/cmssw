@@ -31,21 +31,47 @@
 #include <memory>
 #include <iostream>
 #include <boost/filesystem/operations.hpp>
+#include <boost/regex.hpp>
 #include "TFile.h"
 #include "TTree.h"
 
-lumi::MixedSource::MixedSource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){
-  m_filename=pset.getParameter<std::string>("lumiFileName");
-  m_trgdb=pset.getParameter<std::string>("triggerDB");
-  m_source=TFile::Open(m_filename.c_str(),"READ");
-  m_authpath=pset.getParameter<std::string>("authPath");
-  //m_source->GetListOfKeys()->Print();
-  std::string::size_type idx,pos;
-  idx=m_filename.rfind("_");
-  pos=m_filename.rfind(".");
-  if( idx == std::string::npos ){
+lumi::MixedSource::MixedSource(const edm::ParameterSet& pset):LumiRetrieverBase(pset),m_filename(""),m_lumiversion("-1"){
+  m_mode=pset.getUntrackedParameter<std::string>("runmode","truerun");
+  std::cout<<"mode "<<m_mode<<std::endl;
+  if(m_mode=="truerun"||m_mode=="dryrun"){
+    if(!pset.exists("lumiFileName")){
+      throw std::runtime_error(std::string("parameter lumiFileName is required for truerun and dryrun mode"));
+    }
   }
-  m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
+  if(pset.exists("lumiFileName")){
+    m_filename=pset.getParameter<std::string>("lumiFileName");
+    std::cout<<"m_filename "<<m_filename<<std::endl;
+    boost::regex re("_");
+    boost::sregex_token_iterator p(m_filename.begin(),m_filename.end(),re,-1);
+    boost::sregex_token_iterator end;
+    std::vector<std::string> vecstrResult;
+    while(p!=end){
+      vecstrResult.push_back(*p++);
+    }
+    std::string runstr=*(vecstrResult.end()-3);
+    std::cout<<"runstr "<<runstr<<std::endl;
+    std::istringstream myStream(runstr);
+    if(!myStream>>m_run) throw std::runtime_error(std::string("conversion error"));
+    std::cout<<"runnumber "<<m_run<<std::endl;
+    std::string::size_type idx,pos;
+    idx=m_filename.rfind("_");
+    pos=m_filename.rfind(".");
+    m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
+    m_source=TFile::Open(m_filename.c_str(),"READ");
+  }else{
+    m_run=pset.getUntrackedParameter<unsigned int>("runnumber",1);
+    std::cout<<"runnumber "<<m_run<<std::endl;
+  }
+  std::cout<<1<<std::endl;
+  m_trgdb=pset.getParameter<std::string>("triggerDB");
+  std::cout<<m_trgdb<<std::endl;
+  m_authpath=pset.getParameter<std::string>("authPath");
+  std::cout<<m_authpath<<std::endl;
 }
 void 
 lumi::MixedSource::initDB() {
@@ -61,6 +87,49 @@ lumi::MixedSource::initDB() {
    m_dbservice->configuration().disablePoolAutomaticCleanUp();
    m_dbservice->configuration().setConnectionTimeOut(0);
    coral::MessageStream::setMsgVerbosity(coral::Error);
+}
+void
+lumi::MixedSource::getLumiData(const std::string& filename,
+			       lumi::MixedSource::LumiResult& lumiresult
+			       ){ 
+  unsigned int runnumber=0;
+  TTree *hlxtree = (TTree*)m_source->Get("HLXData");
+  if(!hlxtree){
+    throw std::runtime_error(std::string("non-existing HLXData "));
+  }
+  //hlxtree->Print();
+  std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
+  HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
+  HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
+  //HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
+  
+  hlxtree->SetBranchAddress("Header.",&lumiheader);
+  hlxtree->SetBranchAddress("Summary.",&lumisummary);
+  //hlxtree->SetBranchAddress("Detail.",&lumidetail);
+
+  size_t nentries=hlxtree->GetEntries();
+  size_t ncmslumi=0;
+  //unsigned int totaldeadtime=0;
+  //std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
+  //size_t lumisecid=0;
+  //unsigned int lumilumisecid=0;
+  runnumber=lumiheader->runNumber;
+  for(size_t i=0;i<nentries;++i){
+    hlxtree->GetEntry(i);
+    if(!lumiheader->bCMSLive){
+      std::cout<<"non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
+      continue;
+    }else{
+      ++ncmslumi;
+    }
+    lumi::MixedSource::PerLumiData h;
+    runnumber=lumiheader->runNumber;
+    if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
+    h.lsnr=lumiheader->sectionNumber;
+    h.startorbit=lumiheader->startOrbit;
+    h.lumiavg=lumisummary->InstantLumi;
+    lumiresult.push_back(h);
+  }
 }
 void
 lumi::MixedSource::getTrgData(unsigned int runnumber,
@@ -88,6 +157,7 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
   std::string runalgoviewname("GT_RUN_ALGO_VIEW");
   std::string runprescalgoviewname("GT_RUN_PRESC_ALGO_VIEW");
   std::string runpresctechviewname("GT_RUN_PRESC_TECH_VIEW");
+  coral::ITransaction& transaction=session->transaction();
   //uncomment if you want to see all the visible views
   /**
      transaction.start(true); //true means readonly transaction
@@ -110,7 +180,6 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
      Part I
      query tables in schema cms_gt_mon
   **/
-  coral::ITransaction& transaction=session->transaction();
   transaction.start(true);
   coral::ISchema& gtmonschemaHandle=session->schema(gtmonschema);
   
@@ -160,7 +229,6 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
     }
     ++s;
   }
-  //std::cout<<"algocount size "<<algocount.size()<<std::endl;
   if(s==0){
     std::cout<<"requested run "<<runnumber<<" doesn't exist for algocounts, do nothing"<<std::endl;
     c.close();
@@ -187,7 +255,7 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
   Querytechview->addToOrderList("lsnr");
   Querytechview->addToOrderList("techbit");
   Querytechview->defineOutput(qtechOutput);
-  coral::ICursor& techcursor=Queryalgoview->execute();
+  coral::ICursor& techcursor=Querytechview->execute();
   
   s=0;
   while( techcursor.next() ){
@@ -503,116 +571,65 @@ lumi::MixedSource::printPrescaleResult(
     ++bitidx;    
   }
 }
+void 
+lumi::MixedSource::printLumiResult(
+		const lumi::MixedSource::LumiResult& lumiresult){
+  std::cout<<"===Lumi mesurement==="<<lumiresult.size()<<std::endl;
+  size_t lumisec=0;
+  for(lumi::MixedSource::LumiResult::const_iterator it=lumiresult.begin();
+      it!=lumiresult.end();++it){
+    std::cout<<"\t lumisec: "<<lumisec<<" : lumilumisec : "<<it->lsnr<<" : avg : "<<it->lumiavg<<" : startorbit : "<<it->startorbit<<std::endl;
+    ++lumisec;
+  }
+}
 const std::string
 lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result , bool allowForceFirstSince ){
-  //m_source->ls();
-  TTree *hlxtree = (TTree*)m_source->Get("HLXData");
-  this->initDB();
-  unsigned int runnumber=0;
-  if(hlxtree){
-    //hlxtree->Print();
-    std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
-    HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
-    HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
-    HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
-    hlxtree->SetBranchAddress("Header.",&lumiheader);
-    hlxtree->SetBranchAddress("Summary.",&lumisummary);
-    hlxtree->SetBranchAddress("Detail.",&lumidetail);
-
-    size_t nentries=hlxtree->GetEntries();
-    size_t ncmslumi=0;
-    unsigned int totaldeadtime=0;
-    //std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
-    size_t lumisecid=0;
-    unsigned int lumilumisecid=0;
-    for(size_t i=0;i<nentries;++i){
-      hlxtree->GetEntry(i);
-      /*if(i==0){
-	std::cout<<"Time stamp : "<<lumiheader->timestamp<<"\n";
-	std::cout<<"Time stamp micro : "<<lumiheader->timestamp_micros<<"\n";
-	std::cout<<"Run number : "<<lumiheader->runNumber<<"\n";
-	std::cout<<"Section number : "<<lumiheader->sectionNumber<<"\n";
-	std::cout<<"startOrbit : "<<lumiheader->startOrbit<<"\n";
-	std::cout<<"numOrbit : "<<lumiheader->numOrbits<<"\n";
-	std::cout<<"numBunches : "<<lumiheader->numBunches<<"\n";
-	std::cout<<"numHLXs : "<<lumiheader->numHLXs<<"\n";
-	std::cout<<"CMS Live : "<<lumiheader->bCMSLive<<"\n";
-	std::cout<<"OC0 : "<<lumiheader->bOC0<<std::endl;
-      }
-      */
-      // if not cms daq LS, skip
-      if(!lumiheader->bCMSLive){
-	std::cout<<"skipping non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
-	continue;
-      }
-      ++ncmslumi;
-      ++lumisecid;
-      if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
-	runnumber=1;
-      }else{
-	runnumber=lumiheader->runNumber;
-      }
-      lumilumisecid=lumiheader->sectionNumber;
-      edm::LuminosityBlockID lu(runnumber,lumisecid);
-      cond::Time_t current=(cond::Time_t)(lu.value());
-      lumi::LumiSectionData* l=new lumi::LumiSectionData;
-      l->setLumiVersion(m_lumiversion);
-      l->setStartOrbit((unsigned long long)lumiheader->startOrbit);
-      l->setLumiAverage(lumisummary->InstantLumi);
-      std::cout<<"lumisec "<<lumisecid<<" : lumilumisec "<<lumilumisecid<<" : inst lumi "<<lumisummary->InstantLumi<<std::endl;
-      l->setLumiError(lumisummary->InstantLumiErr);      
-      l->setLumiQuality(lumisummary->InstantLumiQlty);
-            
-      std::vector<lumi::BunchCrossingInfo> bxinfoET;
-      bxinfoET.reserve(3564);
-      for(size_t i=0;i<3564;++i){
-	bxinfoET.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->ETLumi[i],lumidetail->ETLumiErr[i],lumidetail->ETLumiQlty[i]));
-      }
-      l->setBunchCrossingData(bxinfoET,lumi::ET);
-      
-      std::vector<lumi::BunchCrossingInfo> bxinfoOCC1;
-      std::vector<lumi::BunchCrossingInfo> bxinfoOCC2;
-      bxinfoOCC1.reserve(3564);
-      bxinfoOCC2.reserve(3564);
-      for(size_t i=0;i<3564;++i){
-	bxinfoOCC1.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[0][i],lumidetail->OccLumiErr[0][i],lumidetail->OccLumiQlty[0][i]));
-	bxinfoOCC2.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[1][i],lumidetail->OccLumiErr[1][i],lumidetail->OccLumiQlty[1][i]));
-      }
-      l->setBunchCrossingData(bxinfoET,lumi::ET);
-      l->setBunchCrossingData(bxinfoOCC1,lumi::OCCD1);
-      l->setBunchCrossingData(bxinfoOCC2,lumi::OCCD2);
-    }
+  std::cout<<"MixedSource fill "<<std::endl;
+  lumi::MixedSource::TriggerNameResult_Algo algonames;
+  algonames.reserve(128);
+  lumi::MixedSource::TriggerNameResult_Tech technames;
+  technames.reserve(64);
+  lumi::MixedSource::PrescaleResult_Algo algoprescale;
+  algoprescale.reserve(128);
+  lumi::MixedSource::PrescaleResult_Tech techprescale;
+  techprescale.reserve(64);
+  lumi::MixedSource::TriggerCountResult_Algo algocount;
+  algocount.reserve(1024);
+  lumi::MixedSource::TriggerCountResult_Tech techcount;
+  techcount.reserve(1024);
+  lumi::MixedSource::TriggerDeadCountResult deadtime;
+  deadtime.reserve(400);
+  lumi::MixedSource::TriggerDeadCountResult lumiresult;
+  lumiresult.reserve(400);
+  if(m_mode=="trgdryrun"){
     //=====query trigger db=====
+    this->initDB();
     coral::ISessionProxy* session=m_dbservice->connect(m_trgdb, coral::ReadOnly);
     try{
-      lumi::MixedSource::TriggerNameResult_Algo algonames;
-      algonames.reserve(128);
-      lumi::MixedSource::TriggerNameResult_Tech technames;
-      technames.reserve(64);
-      lumi::MixedSource::PrescaleResult_Algo algoprescale;
-      algoprescale.reserve(128);
-      lumi::MixedSource::PrescaleResult_Tech techprescale;
-      techprescale.reserve(64);
-      lumi::MixedSource::TriggerCountResult_Algo algocount;
-      algocount.reserve(1024);
-      lumi::MixedSource::TriggerCountResult_Tech techcount;
-      techcount.reserve(1024);
-      lumi::MixedSource::TriggerDeadCountResult deadtime;
-      //this->getTrgData(runnumber,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
-      this->getTrgData(runnumber,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
-      this->printTriggerNameResult(algonames,technames);
-      this->printPrescaleResult(algoprescale,techprescale);
-      this->printCountResult(algocount,techcount);
-      this->printDeadTimeResult(deadtime);
-      
+      this->getTrgData(m_run,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
     }catch(const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
       delete session;
     }
     delete session;
-    std::cout<<"total cms lumi "<<ncmslumi<<std::endl;
+    //this->printTriggerNameResult(algonames,technames);
+    //this->printPrescaleResult(algoprescale,techprescale);
+    //this->printCountResult(algocount,techcount);
+    this->printDeadTimeResult(deadtime);
+    //std::cout<<"total cms lumi "<<ncmslumi<<std::endl;
+    return "trgdryrun";
+  }else if(m_mode=="lumidryrun"){
+    lumi::MixedSource::LumiResult lumiresult;
+    this->getLumiData(m_filename,lumiresult);
+    this->printLumiResult(lumiresult);
+    return "lumidryrun";
+  }else if(m_mode=="dryrun"){
+    
+    return std::string("mixedsource dryrunmode")+m_filename+";"+m_lumiversion;
+  }else if(m_mode=="truerun"){
+    return std::string("mixedsource;")+m_filename+";"+m_lumiversion;
   }
-  return std::string("mixedsource;")+m_filename+";"+m_lumiversion;
+  return "";
 }
 
 DEFINE_EDM_PLUGIN(lumi::LumiRetrieverFactory,lumi::MixedSource,"mixedsource");

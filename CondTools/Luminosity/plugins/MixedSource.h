@@ -32,6 +32,12 @@ namespace lumi{
     typedef std::vector<unsigned int> BITCOUNT;
     typedef std::vector<BITCOUNT> TriggerCountResult_Algo;
     typedef std::vector<BITCOUNT> TriggerCountResult_Tech;
+    struct PerLumiData{
+      unsigned int lsnr;
+      unsigned int startorbit;
+      float lumiavg;
+    };
+    typedef std::vector<PerLumiData> LumiResult;
     void initDB();
     void getTrgData(unsigned int runnumber,
 		    coral::ISessionProxy* session,
@@ -43,18 +49,22 @@ namespace lumi{
 		    TriggerCountResult_Tech& techcount,
 		    TriggerDeadCountResult& deadtime
 		    );
+    void getLumiData(const std::string& filename,
+		     LumiResult& lumiresult);
     std::string int2str(int t);
     void printCountResult(const TriggerCountResult_Algo& algo,const TriggerCountResult_Tech& tech);
     void printDeadTimeResult(const TriggerDeadCountResult& result);
     void printTriggerNameResult(const TriggerNameResult_Algo& algonames,const TriggerNameResult_Tech& technames);
     void printPrescaleResult(const PrescaleResult_Algo& algo,const PrescaleResult_Tech& tech);
-    
+    void printLumiResult(const LumiResult& lumiresult);
   private:
     std::string m_filename;
     TFile* m_source;
     std::string m_authpath;
     std::string m_lumiversion;
     std::string m_trgdb;
+    std::string m_mode;
+    unsigned int m_run;
     coral::ConnectionService* m_dbservice;
   };
 }//ns lumi
