@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.175 2009/11/23 14:53:45 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.176 2009/11/29 15:52:53 amraktad Exp $
 
 //
 
@@ -32,6 +32,7 @@
 #include "TGTab.h"
 #include "TG3DLine.h"
 #include "TGListTree.h"
+#include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TBrowser.h"
 #include "TGMenu.h"
@@ -41,6 +42,7 @@
 #include "TEveWindow.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
+#include "TEveViewer.h"
 #include "TGFileDialog.h"
 #include "TGSlider.h"
 #include "TColor.h"
@@ -323,6 +325,14 @@ FWGUIManager::fileChanged(const TFile* iFile)
 void
 FWGUIManager::loadEvent(const fwlite::Event& event) {
    // To be replaced when we can get index from fwlite::Event
+   
+   TEveViewerList* viewers = gEve->GetViewers();
+   for (TEveElement::List_i i=viewers->BeginChildren(); i!= viewers->EndChildren(); ++i)
+   {
+      TEveViewer* ev = dynamic_cast<TEveViewer*>(*i);
+      ev->GetGLViewer()->DeleteOverlayAnnotations();
+   }
+   
    m_cmsShowMainFrame->loadEvent(event);
    m_presentEvent=&event;
    if(m_dataAdder) {
