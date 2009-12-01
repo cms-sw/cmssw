@@ -21,9 +21,9 @@ namespace cond{
       if (off) return pfn;
       size_t pos=std::string::npos;
       if (!prefix.empty()) pos = pfn.rfind('/');
-      return ( (pos == std::string::npos) ? (prefix+pfn) :
-	       pfn.replace(0,pos,prefix)
-	       ) + postfix;
+      return prefix + ( (pos == std::string::npos) ? pfn :
+			pfn.substr(pos+1);
+			) + postfix;
     }
 
   private:

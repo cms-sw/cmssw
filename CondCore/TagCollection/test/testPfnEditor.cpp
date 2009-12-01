@@ -4,7 +4,7 @@
 
 int err = 0;
 
-void error(char * m) {
+void error(char const * m) {
   ++err;
   std::cerr << m << std::endl;
 }
