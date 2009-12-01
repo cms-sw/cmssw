@@ -1565,7 +1565,7 @@ def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilin
     hmediandydz_beforecopy.Draw("same")
     hmediandydz_after.Draw("axissame")
 
-    return hmedianx_before, hmediany_before, hmediandxdz_before, hmediandydz_before, hmedianx_after, hmediany_after, hmediandxdz_after, hmediandydz_after, tlegend
+    return hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
 
 ######################################################################################################
 
@@ -2534,10 +2534,11 @@ def segdiff(tfiles, component, pair, **args):
     f.SetParNames("Constant", "Mean", "Sigma")
     fit3 = tmpneg.Fit("gausR", "qR")
 
-    return phi, tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0), \
-           (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., \
-           sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2., \
-           fit1, fit2, fit3
+    fitresult1 = None, None
+    if fit1 == 0: fitresult1 = tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0)
+    fitresult2 = None, None
+    if fit2 == 0 and fit3 == 0: fitresult2 = (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2.
+    return phi, fitresult1[0], fitresult1[1], fitresult2[0], fitresult2[1], fit1, fit2, fit3
 
 def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()):
     tdrStyle.SetOptTitle(1)
