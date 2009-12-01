@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.5 2009/09/23 13:04:45 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -20,8 +20,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/09/23 13:04:45 $
+   * $Revision: 1.6 $
+   * $Date: 2009/12/01 13:58:08 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -37,7 +37,7 @@ namespace stor
     EventConsumerRegistrationInfo( const unsigned int& maxConnectRetries,
                                    const unsigned int& connectRetryInterval,// seconds
                                    const std::string& consumerName,
-                                   const std::string& newSelEvents,
+                                   const std::string& triggerSelection,
                                    const FilterList& selEvents,
                                    const std::string& outputModuleLabel,
                                    const size_t& queueSize,
@@ -50,7 +50,7 @@ namespace stor
     // Accessors:
     unsigned int maxConnectRetries() const { return _maxConnectRetries; }
     unsigned int connectRetryInterval() const { return _connectRetryInterval; }
-    const std::string& newSelEvents() const { return _newSelEvents; }
+    const std::string& triggerSelection() const { return _triggerSelection; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     bool isProxyServer() const { return _isProxy; }
@@ -80,7 +80,7 @@ namespace stor
 
     unsigned int _maxConnectRetries;
     unsigned int _connectRetryInterval;
-    std::string _newSelEvents;
+    std::string _triggerSelection;
     FilterList _selEvents;
     std::string _outputModuleLabel;
     bool _isProxy;

@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.h,v 1.5 2009/11/24 16:38:24 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.h
 
 #ifndef StorageManager_EventStreamConfigurationInfo_h
@@ -19,8 +19,8 @@ namespace stor
      Configuration information for the event stream
 
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2009/11/24 16:38:24 $
+     $Revision: 1.6 $
+     $Date: 2009/12/01 13:58:08 $
   */
 
   class EventStreamConfigurationInfo
@@ -33,7 +33,7 @@ namespace stor
     // Constructor:
     EventStreamConfigurationInfo( const std::string& streamLabel,
                                   const int maxFileSizeMB,
-                                  const std::string& newSelEvents,
+                                  const std::string& triggerSelection,
                                   const FilterList& selEvents,
                                   const std::string& outputModuleLabel,
                                   bool useCompression,
@@ -42,7 +42,7 @@ namespace stor
                                   double fractionToDisk ):
       _streamLabel( streamLabel ),
       _maxFileSizeMB( maxFileSizeMB ),
-      _newSelEvents( newSelEvents ),
+      _triggerSelection( triggerSelection ),
       _selEvents( selEvents ),
       _outputModuleLabel( outputModuleLabel ),
       _useCompression( useCompression ),
@@ -58,7 +58,7 @@ namespace stor
     // Accessors:
     const std::string& streamLabel() const { return _streamLabel; }
     const int maxFileSizeMB() const { return _maxFileSizeMB; }
-    const std::string& newSelEvents() const { return _newSelEvents; }
+    const std::string& triggerSelection() const { return _triggerSelection; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     bool useCompression() const { return _useCompression; }
@@ -78,7 +78,7 @@ namespace stor
 
     std::string _streamLabel;
     int _maxFileSizeMB;
-    std::string _newSelEvents;
+    std::string _triggerSelection;
     FilterList _selEvents;
     std::string _outputModuleLabel;
     bool _useCompression;

@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.h,v 1.1 2009/12/01 13:58:08 mommsen Exp $
+// $Id: TriggerSelector.h,v 1.2 2009/12/01 16:18:18 smorovic Exp $
 /// @file: TriggerSelector.h 
 
 #ifndef EventFilter_StorageManager_TriggerSelector_h
@@ -21,9 +21,9 @@ namespace stor
   /**
    * Event selector allowing for and/not combination of triggers/paths
    *
-   * $Author: mommsen $
-   * $Revision: 1.1 $
-   * $Date: 2009/12/01 13:58:08 $
+   * $Author: smorovic $
+   * $Revision: 1.2 $
+   * $Date: 2009/12/01 16:18:18 $
    */
 
   class TriggerSelector
@@ -52,7 +52,7 @@ namespace stor
 	return masterElement_->returnStatus(trStatus);
       }
 
-      static  std::string makeXMLString(std::string const& input);
+      static std::string makeXMLString(std::string const& input);
 
       static std::vector<std::string>
 	getEventSelectionVString(edm::ParameterSet const& pset);
