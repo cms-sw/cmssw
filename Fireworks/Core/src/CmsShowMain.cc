@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.124 2009/11/26 21:33:13 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.125 2009/11/27 17:41:00 amraktad Exp $
 //
 
 // system include files
@@ -911,6 +911,17 @@ CmsShowMain::setLiveMode()
    m_liveTimer = new SignalTimer();
    ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
 
+
+   Window_t rootw, childw;
+   Int_t root_x, root_y, win_x, win_y;
+   UInt_t mask;
+   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
+                           rootw, childw,
+                           root_x, root_y,
+                           win_x, win_y,
+                           mask);
+
+
    m_liveTimer->SetTime(m_liveTimeout);
    m_liveTimer->Reset();
    m_liveTimer->TurnOn();
@@ -1083,8 +1094,6 @@ CmsShowMain::checkLiveMode()
 {
    m_liveTimer->TurnOff();
 
-   if (m_isPlaying) return;
-
    Window_t rootw, childw;
    Int_t root_x, root_y, win_x, win_y;
    UInt_t mask;
@@ -1093,11 +1102,15 @@ CmsShowMain::checkLiveMode()
                            root_x, root_y,
                            win_x, win_y,
                            mask);
-   if ( m_lastPointerPositionX == root_x &&
+
+
+   if ( !m_isPlaying &&
+        m_lastPointerPositionX == root_x && 
         m_lastPointerPositionY == root_y )
    {
       m_guiManager->playEventsAction()->switchMode();
    }
+
    m_lastPointerPositionX = root_x;
    m_lastPointerPositionY = root_y;
 
