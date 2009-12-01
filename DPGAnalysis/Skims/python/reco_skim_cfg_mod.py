@@ -95,8 +95,9 @@ process.source = cms.Source("EventStreamHttpReader",
 # THIS SHOULD BE THE CORRECT FOR OFFLINE ACCESSING THE REVERSE PROXY
 #   sourceURL = cms.string('http://cmsdaq0.cern.ch/event-server/urn:xdaq-application:lid=30'),
 
-# special tunnle configuration, need to setup an external tunnel
-   sourceURL = cms.string('http://localhost:22100/urn:xdaq-application:lid=30'),
+# special tunnel configuration, need to setup an external tunnel
+#   sourceURL = cms.string('http://localhost:22100/urn:xdaq-application:lid=30'),
+   source = SOURCE,
    consumerName = cms.untracked.string('Event Display'),
 
 # direct storage manager
