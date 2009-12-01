@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.7 2009/10/30 19:36:18 wmtan Exp $
+// $Id: EventConsumerSelector.cc,v 1.8 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -22,7 +22,7 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
   _outputModuleId = imv.outputModuleId();
 
   edm::ParameterSet pset;
-  pset.addParameter<std::string>( "TriggerSelector", _configInfo.newSelEvents() );
+  pset.addParameter<std::string>( "TriggerSelector", _configInfo.triggerSelection() );
   pset.addParameter<Strings>( "SelectEvents", _configInfo.selEvents() );
 
   Strings tnames;

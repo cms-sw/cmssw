@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.5 2009/09/23 13:08:23 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.6 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -18,7 +18,7 @@ namespace stor
   ( const unsigned int& maxConnectRetries,
     const unsigned int& connectRetryInterval, // seconds
     const string& consumerName,
-    const std::string& newSelEvents,
+    const std::string& triggerSelection,
     const FilterList& selEvents,
     const string& outputModuleLabel,
     const size_t& queueSize,
@@ -28,7 +28,7 @@ namespace stor
     _common( consumerName, queueSize, queuePolicy, secondsToStale ),
     _maxConnectRetries( maxConnectRetries ),
     _connectRetryInterval( connectRetryInterval ),
-    _newSelEvents( newSelEvents ),
+    _triggerSelection( triggerSelection ),
     _selEvents( selEvents ),
     _outputModuleLabel( outputModuleLabel ),
     _stale( false ),
@@ -116,11 +116,12 @@ namespace stor
        << _connectRetryInterval
        << "\n HLT output: " << _outputModuleLabel
        << "\n Event filters:\n";
-/*
-   if (_newSelEvents.size()) {
-      os << std::endl << _newSelEvents;
-   }
-   else */
+    /*
+    if (_triggerSelection.size()) {
+      os << std::endl << _triggerSelection;
+    }
+    else 
+    */
     copy(_selEvents.begin(), 
          _selEvents.end(),
          ostream_iterator<FilterList::value_type>(os, "\n"));

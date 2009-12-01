@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.38 2009/09/24 09:54:27 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.39 2009/12/01 13:58:08 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -354,7 +354,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         // Filter list:
         std::string fl_str;
         const EventConsumerRegistrationInfo::FilterList fl = (*it)->selEvents();
-        std::string fl_str_tmp = (*it)->newSelEvents();
+        std::string fl_str_tmp = (*it)->triggerSelection();
 
         if (!fl_str_tmp.empty()) fl_str = fl_str_tmp;
         else 

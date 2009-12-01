@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.cc,v 1.5 2009/11/24 16:39:15 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.cc,v 1.6 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -30,8 +30,8 @@ stor::operator << ( ostream& os,
     }
 
   os << " Event filters:";
-  if (ci.newSelEvents().size()) {
-        os << endl << ci.newSelEvents();
+  if (ci.triggerSelection().size()) {
+        os << endl << ci.triggerSelection();
   }
   else
   for( unsigned int i = 0; i < ci.selEvents().size(); ++i )
