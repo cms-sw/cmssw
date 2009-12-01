@@ -47,6 +47,13 @@
 #include "DataFormats/ParticleFlowReco/interface/CaloBox.h"
 #include "DataFormats/ParticleFlowReco/interface/ParticleFiltrationDecision.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeedFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
 #include <map>
 
 namespace {
@@ -150,6 +157,30 @@ namespace {
     pftools::ParticleFiltrationDecisionCollection pfdColl;
     edm::Wrapper<pftools::ParticleFiltrationDecisionCollection> pfdCollWrapper;
     edm::Wrapper<pftools::ParticleFiltrationDecision> pfdWrapper;
+
+    /* For nuclear interactions / displaced vertex finder */
+    std::map<unsigned int,reco::PFDisplacedVertexCandidate::VertexLink> dummy1000;
+    reco::PFDisplacedVertexCandidate::VertexLink dummy1001;
+    reco::PFDisplacedVertexCandidate::DistMap dummy1002;
+    reco::PFDisplacedVertexCandidate dummy1003;
+
+    std::vector<reco::PFDisplacedVertexCandidate> dummy1004;
+    edm::Wrapper<std::vector<reco::PFDisplacedVertexCandidate> > dummy1005;
+    edm::Ref< std::vector<reco::PFDisplacedVertexCandidate>, reco::PFDisplacedVertexCandidate, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertexCandidate>,reco::PFDisplacedVertexCandidate> > dummy1006;
+
+
+   
+    reco::PFDisplacedVertex dummy1007;
+
+    std::vector<reco::PFDisplacedVertex> dummy1008;
+    edm::Wrapper<std::vector<reco::PFDisplacedVertex> > dummy1009;
+    edm::Ref< std::vector<reco::PFDisplacedVertex>, reco::PFDisplacedVertex, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertex>,reco::PFDisplacedVertex> > dummy1010;
+
+    std::vector<reco::PFDisplacedVertex::VertexTrackType> dummy1011;
+
+    std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > > dummy1012;
+
+    std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > dummy1013;
 
   };
 }

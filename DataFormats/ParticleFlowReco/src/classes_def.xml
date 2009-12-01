@@ -155,6 +155,29 @@
   <class name="edm::Wrapper<pftools::ParticleFiltrationDecision>"/>
 
 
+  <class name="std::map<unsigned int,reco::PFDisplacedVertexCandidate::VertexLink>"/>
+  <class name="reco::PFDisplacedVertexCandidate::VertexLink"/>
+  <class name="reco::PFDisplacedVertexCandidate::DistMap"/>
+  <class name="reco::PFDisplacedVertexCandidate"/>
+
+  <class name="std::vector<reco::PFDisplacedVertexCandidate>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertexCandidate> >"/>
+  <class name="edm::Ref< std::vector<reco::PFDisplacedVertexCandidate>, reco::PFDisplacedVertexCandidate, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertexCandidate>,reco::PFDisplacedVertexCandidate> >"/>
+
+  <class name="reco::PFDisplacedVertex"/>
+
+  <class name="std::vector<reco::PFDisplacedVertex>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertex> >"/>
+  <class name="edm::Ref< std::vector<reco::PFDisplacedVertex>, reco::PFDisplacedVertex, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertex>,reco::PFDisplacedVertex> >"/>
+
+  <class name="std::vector<reco::PFDisplacedVertex::VertexTrackType>"/>
+
+  <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > > "/>
+
+  <class name="std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> >"/>
+
+
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
