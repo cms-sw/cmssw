@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2009/05/27 09:37:51 $
- ** $Revision: 1.20 $
+ ** $Date: 2009/11/26 19:36:59 $
+ ** $Revision: 1.21 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -155,7 +155,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
  // get the  calo topology  from the event setup:
   edm::ESHandle<CaloTopology> pTopology;
   es.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloTopology *topology = theCaloTopo_.product();
+
 
 
   // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
@@ -253,8 +253,6 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	float ecalIso = matchingPho.ecalRecHitSumEtConeDR04();
 	float hcalIso = matchingPho.hcalTowerSumEtConeDR04();
 	float trkIso =  matchingPho.trkSumPtSolidConeDR04();
-	float nIsoTrk   =  matchingPho.nTrkSolidConeDR04();
-	
 
 
 	h1_pho_E_->Fill( photonE  );
