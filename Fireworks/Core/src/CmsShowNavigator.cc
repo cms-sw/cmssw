@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.69 2009/11/30 17:58:12 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.70 2009/11/30 19:06:18 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -76,14 +76,12 @@ CmsShowNavigator::openFile(const std::string& fileName)
       m_files.push_back(newFile);
       setCurrentFile(m_files.begin());
 
+      // set filters
+      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+
       if (m_filterState != kOff)
-      {
-         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
-         {
-            newFile->filters().push_back(new FWFileEntry::Filter(*i));
-         }
          updateFileFilters();
-      }
 
       return true;
    }
@@ -128,14 +126,13 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
 
-      if (m_filterState != kOff)
-      {
-         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
-         {
-            newFile->filters().push_back(new FWFileEntry::Filter(*i));
-         }
+      // set filters
+      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+
+      if (m_filterState != kOff)     
          updateFileFilters();
-      }
+
    }   
    catch(std::exception& iException)
    {
