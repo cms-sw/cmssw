@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.37 2009/09/23 15:59:48 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.38 2009/09/24 09:54:27 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -354,15 +354,19 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         // Filter list:
         std::string fl_str;
         const EventConsumerRegistrationInfo::FilterList fl = (*it)->selEvents();
-        for( EventConsumerRegistrationInfo::FilterList::const_iterator lit = fl.begin();
-             lit != fl.end(); ++lit )
-          {
-            if( lit != fl.begin() )
-              {
-                fl_str += "&nbsp;&nbsp;";
-              }
-            fl_str += *lit;
-          }
+        std::string fl_str_tmp = (*it)->newSelEvents();
+
+        if (!fl_str_tmp.empty()) fl_str = fl_str_tmp;
+        else 
+          for( EventConsumerRegistrationInfo::FilterList::const_iterator lit = fl.begin();
+               lit != fl.end(); ++lit )
+            {
+              if( lit != fl.begin() )
+                {
+                  fl_str += "&nbsp;&nbsp;";
+                }
+              fl_str += *lit;
+            }
         XHTMLMaker::Node* cs_td_filters = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_filters, fl_str );
 

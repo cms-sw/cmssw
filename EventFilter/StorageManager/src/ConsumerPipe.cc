@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.21 2008/05/04 12:37:34 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.22 2008/08/06 15:52:09 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -38,6 +38,7 @@ const double ConsumerPipe::MAX_ACCEPT_INTERVAL = 86400.0;  // seconds in 1 day
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
+                           std::string triggerSelectionNew,
                            Strings triggerSelection, double rateRequest,
                            std::string hltOutputSelection,
                            std::string hostName, int queueSize):
@@ -45,6 +46,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   events_(0),
+  triggerSelectionNew_(triggerSelectionNew),
   triggerSelection_(triggerSelection),
   rateRequest_(rateRequest),
   hltOutputSelection_(hltOutputSelection),
@@ -159,8 +161,10 @@ void ConsumerPipe::initializeSelection(Strings const& fullTriggerList,
   hltOutputModuleId_ = outputModuleId;
 
   // create our event selector
-  eventSelector_.reset(new EventSelector(triggerSelection_,
-					 fullTriggerList));
+  edm::ParameterSet pSet_;
+  pSet_.addParameter<std::string>("TriggerSelector",triggerSelectionNew_);
+  pSet_.addParameter<Strings>("SelectEvents",triggerSelection_);
+  eventSelector_.reset(new TriggerSelector(pSet_, fullTriggerList));
   // indicate that initialization is complete
   initializationDone = true;
 
@@ -459,9 +463,14 @@ void ConsumerPipe::clearQueue()
   eventQueue_.clear();
 }
 
-std::vector<std::string> ConsumerPipe::getTriggerRequest() const
+Strings ConsumerPipe::getTriggerRequest() const
 {
   return triggerSelection_;
+}
+
+std::string ConsumerPipe::getTriggerRequestNew() const
+{
+  return triggerSelectionNew_;
 }
 
 void ConsumerPipe::setRegistryWarning(std::string const& message)

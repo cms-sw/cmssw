@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.6 2009/10/13 15:08:34 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.7 2009/10/30 19:36:18 wmtan Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -22,6 +22,7 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
   _outputModuleId = imv.outputModuleId();
 
   edm::ParameterSet pset;
+  pset.addParameter<std::string>( "TriggerSelector", _configInfo.newSelEvents() );
   pset.addParameter<Strings>( "SelectEvents", _configInfo.selEvents() );
 
   Strings tnames;
@@ -37,7 +38,7 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
   std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);
   try
   {
-    _eventSelector.reset( new edm::EventSelector( pset, tnames ) );
+    _eventSelector.reset( new TriggerSelector( pset, tnames ) );
   }
   catch ( edm::Exception& e )
   {

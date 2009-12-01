@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.4 2009/09/16 09:53:23 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.5 2009/09/23 13:04:45 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
    * Holds the registration information from a event consumer.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/16 09:53:23 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/23 13:04:45 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -35,13 +35,14 @@ namespace stor
      * Constructs an instance with the specified registration information.
      */
     EventConsumerRegistrationInfo( const unsigned int& maxConnectRetries,
-				   const unsigned int& connectRetryInterval,// seconds
-				   const std::string& consumerName,
-				   const FilterList& selEvents,
-				   const std::string& outputModuleLabel,
+                                   const unsigned int& connectRetryInterval,// seconds
+                                   const std::string& consumerName,
+                                   const std::string& newSelEvents,
+                                   const FilterList& selEvents,
+                                   const std::string& outputModuleLabel,
                                    const size_t& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
-				   const utils::duration_t& secondsToStale,
+                                   const utils::duration_t& secondsToStale,
                                    const std::string& remoteHost );
 
     ~EventConsumerRegistrationInfo();
@@ -49,6 +50,7 @@ namespace stor
     // Accessors:
     unsigned int maxConnectRetries() const { return _maxConnectRetries; }
     unsigned int connectRetryInterval() const { return _connectRetryInterval; }
+    const std::string& newSelEvents() const { return _newSelEvents; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     bool isProxyServer() const { return _isProxy; }
@@ -78,6 +80,7 @@ namespace stor
 
     unsigned int _maxConnectRetries;
     unsigned int _connectRetryInterval;
+    std::string _newSelEvents;
     FilterList _selEvents;
     std::string _outputModuleLabel;
     bool _isProxy;

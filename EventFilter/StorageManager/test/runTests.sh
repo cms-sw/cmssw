@@ -21,6 +21,7 @@ tests="\
  QueueID_t\
  ResourceMonitorCollection_t \
  Sleep_t \
+ TriggerSelector_t \
  state_machine_t\
  workloop_t\
  xhtmlmaker_t"

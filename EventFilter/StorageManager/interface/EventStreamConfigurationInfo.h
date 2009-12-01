@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.h,v 1.4 2009/09/11 21:07:06 elmer Exp $
+// $Id: EventStreamConfigurationInfo.h,v 1.5 2009/11/24 16:38:24 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.h
 
 #ifndef StorageManager_EventStreamConfigurationInfo_h
@@ -18,9 +18,9 @@ namespace stor
   /**
      Configuration information for the event stream
 
-     $Author: elmer $
-     $Revision: 1.4 $
-     $Date: 2009/09/11 21:07:06 $
+     $Author: mommsen $
+     $Revision: 1.5 $
+     $Date: 2009/11/24 16:38:24 $
   */
 
   class EventStreamConfigurationInfo
@@ -32,15 +32,17 @@ namespace stor
 
     // Constructor:
     EventStreamConfigurationInfo( const std::string& streamLabel,
-				  const int maxFileSizeMB,
-				  const FilterList& selEvents,
-				  const std::string& outputModuleLabel,
-				  bool useCompression,
-				  unsigned int compressionLevel,
+                                  const int maxFileSizeMB,
+                                  const std::string& newSelEvents,
+                                  const FilterList& selEvents,
+                                  const std::string& outputModuleLabel,
+                                  bool useCompression,
+                                  unsigned int compressionLevel,
                                   unsigned int maxEventSize,
                                   double fractionToDisk ):
       _streamLabel( streamLabel ),
       _maxFileSizeMB( maxFileSizeMB ),
+      _newSelEvents( newSelEvents ),
       _selEvents( selEvents ),
       _outputModuleLabel( outputModuleLabel ),
       _useCompression( useCompression ),
@@ -56,6 +58,7 @@ namespace stor
     // Accessors:
     const std::string& streamLabel() const { return _streamLabel; }
     const int maxFileSizeMB() const { return _maxFileSizeMB; }
+    const std::string& newSelEvents() const { return _newSelEvents; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     bool useCompression() const { return _useCompression; }
@@ -75,6 +78,7 @@ namespace stor
 
     std::string _streamLabel;
     int _maxFileSizeMB;
+    std::string _newSelEvents;
     FilterList _selEvents;
     std::string _outputModuleLabel;
     bool _useCompression;

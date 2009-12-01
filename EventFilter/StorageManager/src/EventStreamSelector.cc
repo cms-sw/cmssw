@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.cc,v 1.8 2009/10/30 19:41:37 wmtan Exp $
+// $Id: EventStreamSelector.cc,v 1.9 2009/11/24 16:39:15 mommsen Exp $
 /// @file: EventStreamSelector.cc
 
 #include <cstdlib>
@@ -34,6 +34,7 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
   _outputModuleId = imv.outputModuleId();
 
   edm::ParameterSet pset;
+  pset.addParameter<std::string>( "TriggerSelector", _configInfo.newSelEvents() );
   pset.addParameter<Strings>( "SelectEvents", _configInfo.selEvents() );
 
   Strings tnames;
@@ -48,7 +49,7 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
   std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);
   try
   {
-    _eventSelector.reset( new edm::EventSelector( pset, tnames ) );
+    _eventSelector.reset( new TriggerSelector( pset, tnames ) );
   }
   catch ( edm::Exception& e )
   {
