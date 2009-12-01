@@ -42,7 +42,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(1)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",

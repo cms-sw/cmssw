@@ -34,6 +34,7 @@
 // March, 2009: changed DB access to *SimRcd objects (to de-couple the DB objects from reco chain) (F. Blekman) 
 // May, 2009: Pixel charge VCAL smearing. (V. Cuplov)
 // November, 2009: new parameterization of the pixel response. (V. Cuplov)
+// December, 2009: Fix issue with different compilers.
 
 #include <vector>
 #include <iostream>
@@ -1577,13 +1578,15 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   uint32_t detid = detID;
   
   std::vector<SiPixelQuality::disabledModuleType>disabledModules = SiPixelBadModule_->getBadComponentList();
+
+  SiPixelQuality::disabledModuleType badmodule;
+
   for (size_t id=0;id<disabledModules.size();id++)
     {
-      SiPixelQuality::disabledModuleType badmodule = disabledModules[id];
-      
-      if(detid==badmodule.DetID){
+      if(detid==disabledModules[id].DetID){
 	isbad=true;
-	//	std::cout << "Dead module from DB is: " << detid << std::endl;
+        badmodule = disabledModules[id];
+	//	std::cout << "Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
 	break;
       }
     }
@@ -1591,8 +1594,8 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!isbad)
     return;
   
-  SiPixelQuality::disabledModuleType badmodule;
-  
+  //std::cout << "2nd round: Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
+
   if(badmodule.errorType == 0){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
       i->second.set(0.); // reset amplitude
@@ -1610,5 +1613,6 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
     if( badmodule.errorType == 2 && ip.first<=79){
       i->second.set(0.);
     }
-  } 
-} 
+  }
+
+}

@@ -40,6 +40,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
+
 // For the random numbers
 namespace CLHEP {
   class HepRandomEngine;
@@ -72,7 +73,7 @@ class SiPixelDigitizerAlgorithm  {
   //Accessing Dead pixel modules from DB:
   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
 
-
+ const SiPixelFedCabling * map_;
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters DeadModules;
