@@ -50,7 +50,7 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
   
     ////---- book the following histograms 
-    string type = "Castor All Pedestal Values - for first 1000 events";
+    string type = "Castor All Pedestal Values";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,50,0,50);
     
     type = "Castor Pedestal Mean Reference Values - from CondDB";
@@ -91,9 +91,7 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
 {
   
  
-  ievt_++;
   meEVT_->Fill(ievt_);
- 
   
   //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
 
@@ -152,8 +150,8 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
   */
       
       
-      ////---- fill ALL Pedestal Values for first 2000 events
-      if(ievt_ <1000)
+      ////---- fill ALL Pedestal Values each 1000 events
+      if(ievt_ %1000 == 0)
       { 
       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
@@ -173,6 +171,8 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
    catch (...) {
     if(fVerbosity>0) cout << "CastorPedestalMonitor::processEvent  No Castor Digis." << endl;
   }
+
+  ievt_++;
 
   return;
 }

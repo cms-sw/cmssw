@@ -141,9 +141,7 @@ void CastorLEDMonitor::reset(){
 
 void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, const CastorDbService& cond){
 
-  ievt_++;
-
- if (ievt_<1000) // do this task for first 1000 events
+ if (ievt_%1000==0) // do this task each 1000 events
  {
 
   meEVT_->Fill(ievt_);
@@ -200,7 +198,9 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
     if(fVerbosity > 0) cout << "CastorLEDMonitor::processEvent  NO Castor Digis." << endl;
   }
  }  
- 
+
+  ievt_++;
+  
   return;
 }
 
