@@ -19,11 +19,11 @@
 #include "PatPhotonSimpleAnalyzer.h"
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/UtilAlgos/interface/Merger.h"
+#include "CommonTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+//#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+//#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
 DEFINE_FWK_MODULE( EgammaSuperClusterMerger );

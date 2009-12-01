@@ -31,10 +31,10 @@ def search():
     agent   = "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)"
     ctypes  = "text/plain"
     headers = { 'User-Agent':agent, 'Accept':ctypes}
-    params  = {'dbsInst':'cms_dbs_prod_global',
-               'html':0,'caseSensitive':'on','_idx':0,'pagerStep':-1,
-               'userInput':final_input,
-               'xml':0,'details':0,'cff':0,'method':'dbsapi'}
+    params  = { 'dbsInst':'cms_dbs_prod_global',
+                'html':0,'caseSensitive':'on','_idx':0,'pagerStep':-1,
+                'userInput':final_input,
+                'xml':0,'details':0,'cff':0,'method':'dbsapi'}
     data    = urllib.urlencode(params,doseq=True)
     req     = urllib2.Request(url, data, headers)
     data    = ""
