@@ -235,8 +235,6 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
        result = bitset_utilities::append(result, alct);
     }
   }
-  bitset_utilities::printWords(result);
-  
   return result;
 }
     
