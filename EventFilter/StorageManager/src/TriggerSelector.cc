@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.2 2009/12/01 14:04:36 mommsen Exp $
+// $Id: TriggerSelector.cc,v 1.3 2009/12/01 16:18:18 smorovic Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <boost/regex.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -71,14 +72,23 @@ namespace stor
                         Strings const& triggernames)
   {
     //debug_ = true;
-    expression_ = expression;
-    if (expression_.size()==0)
+    if (expression.size()==0)
     {
       accept_all_ = true;
       return;
     }
-    if (expression_.size()==1 && expression_.at(0)=='*') accept_all_=true;
+    if (expression.size()==1 && expression.at(0)=='*') accept_all_=true;
     else accept_all_=false;
+
+    //replace all possible alternate operators (.AND. and .OR.)
+    {
+      using namespace boost;
+      std::string temp;
+      temp = regex_replace( expression , regex(".AND."), "&&");
+      expression_ = regex_replace( temp, regex(".and."), "&&");
+      temp = regex_replace( expression_, regex(".OR."), "||"); 
+      expression_ = regex_replace( temp, regex(".or."), "||");
+    }
 
     //build decision tree
     masterElement_.reset( new TreeElement(expression_,triggernames));
@@ -347,7 +357,8 @@ namespace stor
     return input;
   } 
 
-  std::string TriggerSelector::makeXMLString(std::string const& input) {
+  std::string TriggerSelector::makeXMLString(std::string const& input)
+  {
     std::string output;
     if (!input.empty()) {
       for (size_t pos=0;pos<input.size();pos++) {
@@ -358,6 +369,7 @@ namespace stor
     }
     return output;
   }
+
 
   bool TriggerSelector::TreeElement::returnStatus(edm::HLTGlobalStatus const& trStatus) const 
   {
