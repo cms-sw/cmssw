@@ -14,12 +14,16 @@
 #include <set>
 #include <string>
 #include "CondCore/DBCommon/interface/TagMetadata.h"
+#include "CondCore/TagCollection/interface/PfnEditor.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 namespace cond{
   class TagCollectionRetriever{
   public:
     /// constructor
     explicit TagCollectionRetriever( cond::DbSession& coraldb );
+    explicit TagCollectionRetriever( cond::DbSession& coraldb, 
+				     std::string const & prefix, 
+				     std::string const & postfix);
     /// destructor
     ~TagCollectionRetriever();
     /**
@@ -31,6 +35,8 @@ namespace cond{
     /// parse global tag string returns result in pair <treename,nodename>
     std::pair<std::string,std::string> parseglobaltag(const std::string& globaltag);
     cond::DbSession m_coraldb;
+    PfnEditor pfnEditor;
+    
   };
 }//ns cond
 #endif

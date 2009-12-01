@@ -9,6 +9,7 @@ namespace cond{
   // edit the pfn accordind to rules given in its constructor
   class PfnEditor {
   public:
+    PfnEditor() : off(true){}
     PfnEditor(std::string const & ipre, 
 	      std::string const & ipos) : 
       prefix(ipre), 

@@ -17,8 +17,19 @@
 #include "CondCore/TagCollection/interface/Exception.h"
 
 //#include <iostream>
-cond::TagCollectionRetriever::TagCollectionRetriever( cond::DbSession& coraldb ):m_coraldb(coraldb){
-}
+cond::TagCollectionRetriever::TagCollectionRetriever( cond::DbSession& coraldb ):
+  m_coraldb(coraldb)
+{}
+
+
+cond::TagCollectionRetriever::TagCollectionRetriever( cond::DbSession& coraldb, 
+						      std::string const & prefix, 
+						      std::string const & postfix) :
+  m_coraldb(coraldb), pfnEditor(prefix,postfix)
+{}
+
+ 
+
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 
 void 
@@ -96,7 +107,7 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
       cond::TagMetadata tagmetadata;
       std::string tagname=row["tagname"].data<std::string>();
       tagmetadata.tag=tagname;
-      tagmetadata.pfn=row["pfn"].data<std::string>();
+      tagmetadata.pfn=pfnEditor(row["pfn"].data<std::string>());
       tagmetadata.recordname=row["recordname"].data<std::string>();
       tagmetadata.objectname=row["objectname"].data<std::string>();
       tagmetadata.labelname=row["labelname"].data<std::string>();
