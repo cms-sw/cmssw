@@ -781,16 +781,16 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   double chan_pxf = 0.0;
   unsigned int psi_pxbN=0, psi_pxb_strx12N=0, psi_pxb_strx34N=0, psi_pxfN=0;
   for (int i=0;i<16;i++){
-  chan_per_psiB[i] = thepixROCRowsB[i]*thepixROCColsB[i];
-  chan_per_psiD[i] = thepixROCRowsD[i]*thepixROCColsD[i];
+  chan_per_psiB[i] = (unsigned int)(thepixROCRowsB[i]*thepixROCColsB[i]);
+  chan_per_psiD[i] = (unsigned int)(thepixROCRowsD[i]*thepixROCColsD[i]);
   chan_pxb    += psi_pxb[i]       *chan_per_psiB[i]; 
   chan_strx12 += psi_pxb_strx12[i]*chan_per_psiB[i];
   chan_strx34 += psi_pxb_strx34[i]*chan_per_psiB[i];
   chan_pxf    += psi_pxf[i]       *chan_per_psiD[i];
-  psi_pxbN       += psi_pxb[i];
-  psi_pxb_strx12N+= psi_pxb_strx12[i];
-  psi_pxb_strx34N+= psi_pxb_strx34[i];
-  psi_pxfN       += psi_pxf[i];
+  psi_pxbN       += (unsigned int)psi_pxb[i];
+  psi_pxb_strx12N+= (unsigned int)psi_pxb_strx12[i];
+  psi_pxb_strx34N+= (unsigned int)psi_pxb_strx34[i];
+  psi_pxfN       += (unsigned int)psi_pxf[i];
   }
 
   // Strip
