@@ -88,12 +88,22 @@ void HcalRecHitMonitor::beginRun()
 
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info");
   SetupEtaPhiHists(OccupancyByDepth,"RecHit Occupancy","");;
+  
+  h_HFtimedifference = m_dbe->book1D("HFweightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",250,-250,250);
+  h_HEtimedifference = m_dbe->book1D("HEweightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",250,-250,250);
+  h_HFrawtimedifference = m_dbe->book1D("HFtimeDifference","Average Time difference between HF+ and HF-",250,-250,250);
+  h_HErawtimedifference = m_dbe->book1D("HEtimeDifference","Average Time difference between HE+ and HE-",250,-250,250);
 
+  h_HFenergydifference = m_dbe->book1D("HFenergyDifference","Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",200,-1,1);
+  h_HEenergydifference = m_dbe->book1D("HEenergyDifference","Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",200,-1,1);
+  h_HFrawenergydifference = m_dbe->book1D("HFaverageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-50,100);
+  h_HErawenergydifference = m_dbe->book1D("HEaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
+  
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
   SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
   SetupEtaPhiHists(SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
   SetupEtaPhiHists(SumTimeByDepth,"RecHit Summed Time","nS");
-  
+
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
   SetupEtaPhiHists(OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
   
@@ -335,6 +345,11 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   double  hbenergythresh=0;
   double  heenergythresh=0;
 
+  double en_HFP=0, en_HFM=0, en_HEP=0, en_HEM=0;
+  double time_HFP=0, time_HFM=0, time_HEP=0, time_HEM=0;
+  double rawtime_HFP=0, rawtime_HFM=0, rawtime_HEP=0, rawtime_HEM=0;
+  int hepocc=0, hemocc=0, hfpocc=0, hfmocc=0;
+
   for (unsigned int i=0;i<4;++i)
     {
       OccupancyByDepth.depth[i]->update();
@@ -427,6 +442,20 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  HEpresent_=true;
 	  if (!checkHE_) continue;
 	  
+	  if (ieta>0)
+	    {
+	      en_HEP+=en;
+	      time_HEP+=ti*en;
+	      rawtime_HEP+=ti;
+	      hepocc++;
+	    }
+	  else
+	    {
+	      en_HEM+=en;
+	      time_HEM+=ti*en;
+	      rawtime_HEM+=ti;
+	      hemocc++;
+	    }
 
 	  //Looping over HE searching for flags --- cris
 	  for (int f=0;f<32;f++)
@@ -478,6 +507,23 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
+  if (hepocc >0 && hemocc>0)
+    {
+      h_HErawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
+      h_HErawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
+    }
+  // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+  else if (hepocc>0)
+    h_HErawtimedifference->Fill(10000);
+  else if (hemocc>0)
+    h_HErawtimedifference->Fill(-10000);
+
+  if (en_HEP !=0 && en_HEM != 0)
+    {
+      h_HEtimedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
+      h_HEenergydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
+    }
+  
   if (rechit_makeDiagnostics_)
     {
       ++HB_occupancy_[hbocc];
@@ -584,6 +630,21 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int depth = id.depth();
          int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
+	 if (ieta>0)
+	    {
+	      en_HFP+=en;
+	      time_HFP+=ti*en;
+	      rawtime_HFP+=ti;
+	      hfpocc++;
+	    }
+	  else
+	    {
+	      en_HFM+=en;
+	      time_HFM+=ti*en;
+	      rawtime_HFM+=ti;
+	      hfmocc++;
+	    }
+
 
 	 //Looping over HF searching for flags --- cris
 	 for (int f=0;f<32;f++)
@@ -631,6 +692,25 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	       } // if (en>=HFenergyThreshold_)
 	   } // if (rechit_makeDiagnostics_)
        } // loop over all HF hits
+     
+
+     if (hfpocc >0 && hfmocc>0)
+       {
+	 h_HFrawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
+	 h_HFrawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
+       }
+     // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+     else if (hfpocc>0)
+       h_HFrawtimedifference->Fill(10000);
+     else if (hfmocc>0)
+       h_HFrawtimedifference->Fill(-10000);
+     
+     if (en_HFP !=0 && en_HFM != 0)
+       {
+	 h_HFtimedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
+	 h_HFenergydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
+       }
+
      if (rechit_makeDiagnostics_)
        {
 	 ++HF_occupancy_[hfocc];
@@ -837,7 +917,7 @@ void HcalRecHitMonitor::fill_Nevents(void)
   //zeroCounters();
 
   if (fVerbosity>0)
-    std::cout <<"<HcalRecHitMonitor::fill_Nevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
+    std::cout <<"<HcalRecHitMonitor::fill_Nevents> FILLED REC HIT CELL PLOTS"<<endl;
     
   if (showTiming)
     {
