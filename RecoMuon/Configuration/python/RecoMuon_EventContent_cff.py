@@ -60,6 +60,7 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_standAloneSETMuons_*_*',
                                            'keep recoTracks_globalSETMuons_*_*',
                                            'keep recoTrackExtras_globalSETMuons_*_*',
+                                           'keep TrackingRecHitsOwned_globalSETMuons_*_*',
                                            'keep recoMuons_muonsWithSET_*_*')
 )
 # Full Event content 
