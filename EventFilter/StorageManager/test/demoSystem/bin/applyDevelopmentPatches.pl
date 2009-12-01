@@ -76,7 +76,7 @@ if ($doDefaults || defined($opt_b)) {
     }
 
     # add an event number reset to the enabling() method
-    if ($threeLineWindow =~ m/bool\s+BU\:\:enabling\(.+\)\s*\{\s*$/s) {
+    if ($threeLineWindow =~ m/bool\s+BU::enabling\(.+\)\s*\{\s*$/s) {
       $line .= "\n  // TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT " .
         "SYSTEM\n  evtNumber_ = 0;";
     }
@@ -87,7 +87,7 @@ if ($doDefaults || defined($opt_b)) {
       $commentOutFlag += 1;
     }
     if (! $commentOutFlag &&
-        $line =~ m/^(\s*)(if\s*\(\s*0\s*\!\=\s*PlaybackRawDataProvider\:\:instance\(\)\s*&&\s*)/) {
+        $line =~ m/^(\s*)(if\s*\(\s*0\s*\!\=\s*PlaybackRawDataProvider::instance\(\)\s*&&\s*)/) {
       $commentOutFlag += 1;
     }
     if ($commentOutFlag) {
@@ -145,7 +145,7 @@ if ($doDefaults || defined($opt_b)) {
     }
 
     # add the buffer size to the buffer overflow error message
-    if ($line =~ m/(\s*)cout\<\<\"BUEvent\:\:writeFed\(\) ERROR\: buffer overflow\.\"\<\<endl\;/) {
+    if ($line =~ m/(\s*)cout\<\<\"BUEvent::writeFed\(\) ERROR: buffer overflow\.\"\<\<endl\;/) {
       $line = $1 . "// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
         "\n" . $1 . "cout<<\"BUEvent::writeFed() ERROR: buffer overflow. (buffer size = \"<<bufferSize_<<\")\"<<endl;";
     }
@@ -523,7 +523,7 @@ if (defined($opt_p)) {
         "$1}";
     }
 
-    if ($line =~ m/(\s*)return\s+count\_\%n\_\s*\=\=0\s*\?\s*true\s*\:\s*false\;/) {
+    if ($line =~ m/(\s*)return\s+count\_\%n\_\s*\=\=0\s*\?\s*true\s*:\s*false\;/) {
       $line = "$1// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
         "\n$1int randNum = (*generator_)();" .
         "\n$1// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
@@ -652,8 +652,57 @@ if (defined($opt_r)) {
 # shut down FU event consumer processes.
 # Also, protect against a null prescale service so that we
 # can use the SpotLight web page.
+# Also, add support for skipping attaches to the DQM shared
+# memory.
+# Also, add support for calling "declareRunNumber" when needed.
 # ************************************************************
 if ($doDefaults || defined($opt_f)) {
+
+  my $inputFile = "EventFilter/Processor/interface/FUEventProcessor.h";
+  my $outputFile = "${inputFile}.modified";
+
+  # the header filed moved at some point, so try the "interface" directory
+  # first then the "src" directory
+  open FILEIN, $inputFile or $inputFile = "EventFilter/Processor/src/FUEventProcessor.h";
+
+  open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
+  open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
+
+  my $declaringClass = 0;
+  while (my $line = <FILEIN>) {
+    chomp $line;
+
+    # add the configuration parameters that will be used to control
+    # the new behavior
+    if ($declaringClass && $line =~ m/(\s*)};/) {
+      $declaringClass = 0;
+      $line = $1 . "  xdata::Boolean                   ignoreDQMAttachErrors_;\n" .
+        $1 . "  xdata::Boolean                   declareRunNumberIfInvalid_;\n" .
+        $1 . "  xdata::Boolean                   useAsynchronousStop_;\n" .
+        $line;
+    }
+    if ($line =~ m/class\s+FUEventProcessor/) {
+      $declaringClass = 1;
+    }
+
+    # write the input line to the output file
+    print FILEOUT "$line\n";
+  }
+
+  close FILEIN;
+  close FILEOUT;
+
+  rename $inputFile, "${inputFile}.orig";
+  rename $outputFile, $inputFile;
+
+  print STDOUT "\n";
+  print STDOUT "============================================================\n";
+  print STDOUT " Modification made to ${inputFile}:\n";
+  print STDOUT "============================================================\n";
+  my $result=`diff $inputFile ${inputFile}.orig`;
+  print STDOUT "$result";
+
+  # ***************************************************************
 
   my $inputFile = "EventFilter/Processor/src/FUEventProcessor.cc";
   my $outputFile = "${inputFile}.modified";
@@ -661,30 +710,74 @@ if ($doDefaults || defined($opt_f)) {
   open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
   open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
 
+  my $declaringConstructor = 0;
   my $insideSpotlightCode = 0;
+  my $fourLineWindow = "";
   while (my $line = <FILEIN>) {
     chomp $line;
 
+    # update the multi-line "window" with this new line
+    if ($fourLineWindow =~ m/(.*)\n(.*)\n(.*)\n(.*)/) {
+      $fourLineWindow = $2 . "\n" . $3 . "\n" . $4;
+    }
+    $fourLineWindow .= "\n" . $line;
+
+    # add initialization to the constructor
+    if ($declaringConstructor && $line =~ m/\{/) {
+      $declaringConstructor = 0;
+      $line = "  , ignoreDQMAttachErrors_(false)\n" .
+        "  , declareRunNumberIfInvalid_(false)\n" .
+        "  , useAsynchronousStop_(false)\n" .
+        $line;
+    }
+    if ($line =~ m/FUEventProcessor::FUEventProcessor.+ApplicationStub/) {
+      $declaringConstructor = 1;
+    }
+
+    # attach the cfg params to the infospace
+    if ($line =~ m/(\s*)ispace\s*-\>\s*fireItemAvailable\s*\(\s*\"foundRcmsStateListener\"/) {
+      $line .= "\n" . $1 . "ispace->fireItemAvailable(\"ignoreDQMAttachErrors\",&ignoreDQMAttachErrors_);" .
+        "\n" . $1 . "ispace->fireItemAvailable(\"declareRunNumberIfInvalid\",&declareRunNumberIfInvalid_);" .
+        "\n" . $1 . "ispace->fireItemAvailable(\"useAsynchronousStop\",&useAsynchronousStop_);";
+    }
+
+    # ignore DQM shared memory attach errors
+    if ($fourLineWindow =~ m/FUEventProcessor.+Dqm.+Shm.+string\s+errmsg/s &&
+        $line =~ m/(\s*)bool\s+success\s*=\s*false/) {
+      $line .= "\n" . $1 . "if (ignoreDQMAttachErrors_) success = true;"
+    }
+
+    # modify the run number setter method that is used
+    if ($fourLineWindow =~ m/evtProcessor_\s*-\>\s*clearCounters.+if\s*\(\s*isRunNumberSetter/s &&
+        $line =~ m/(\s*)evtProcessor_\s*-\>\s*setRunNumber/) {
+      $line = $1 . "if (runNumber_.value_ > 0 || !declareRunNumberIfInvalid_) {\n" .
+        "  " . $line . "\n" .
+        $1 . "}\n" .
+        $1 . "else {\n" .
+        $1 . "  evtProcessor_->declareRunNumber(runNumber_.value_);\n" .
+        $1 . "}\n";
+    }
+
     # modify the stop call that is used
     if ($line =~ m/(\s*).*evtProcessor\_\-\>waitTillDoneAsync\(/) {
-      my $spaces = $1;
-      my $newLine = $line;
-      $newLine =~ s/waitTillDoneAsync/stopAsync/;
-      $line = $spaces . "// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
-        "\n" . $spaces . "//" . $line . "\n" . $newLine;
+      $line = $1 . "if (!useAsynchronousStop_) {\n" .
+        "  " . $line . "\n" .
+        $1 . "}\n" .
+        $1 . "else {\n" .
+        $1 . "  rc = evtProcessor_->stopAsync(timeoutOnStop_.value_);\n" .
+        $1 . "}\n";
     }
 
     # protect against a null prescale service
     if ($insideSpotlightCode &&
         $line =~ m/(\s*)(if\s*\(\s*psid\s*\!\=\s*0)(\s*\).*)/) {
-      $line = $1 . "// TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM" .
-        "\n" . $1 . $2 . " && prescaleSvc_ != 0" . $3;
+      $line = $1 . $2 . " && prescaleSvc_ != 0" . $3;
     }
     if ($insideSpotlightCode &&
-        $line =~ m/\S+\s+FUEventProcessor\:\:/) {
+        $line =~ m/\S+\s+FUEventProcessor::/) {
       $insideSpotlightCode = 0;
     }
-    if ($line =~ m/void\s+FUEventProcessor\:\:spotlightWebPage/) {
+    if ($line =~ m/void\s+FUEventProcessor::spotlightWebPage/) {
       $insideSpotlightCode = 1;
     }
 
