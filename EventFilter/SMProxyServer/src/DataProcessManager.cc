@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.20 2009/05/22 17:56:38 biery Exp $
+// $Id: DataProcessManager.cc,v 1.21 2009/08/18 09:45:41 mommsen Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -188,6 +188,7 @@ namespace stor
     ps.addUntrackedParameter<std::string>("SelectHLTOutput", hltOutputModule_);
     ps.addParameter<Strings>("TrackedEventSelection", eventSelection_);
 
+    ps.addParameter<std::string>("TriggerSelector",eventSelectionNew_);
     // TODO fixme: only request event types that are requested by connected consumers?
     consumerPSetString_ = ps.toString();
   }

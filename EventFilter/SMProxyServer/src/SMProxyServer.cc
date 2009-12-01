@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.32 2009/08/18 09:45:41 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.33 2009/08/18 10:26:45 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -68,6 +68,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   progressMarker_("Idle")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making SMProxyServer");
+
 
   ah_   = new edm::AssertHandler();
   fsm_.initialize<SMProxyServer>(this);
@@ -148,8 +149,12 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
   esSelectedEventSelection_.clear();
   ispace->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
+  TriggerSelector_ = xdata::String::String();
+  ispace->fireItemAvailable("TriggerSelector",&TriggerSelector_);
   allowMissingSM_ = false;
   ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
+  dropOldLumisectionEvents_ = false;
+  ispace->fireItemAvailable("dropOldLumisectionEvents",&dropOldLumisectionEvents_);
 
   // for performance measurements
   ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
@@ -1204,12 +1209,18 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
       requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
                                                          std::string());
 
+    edm::ParameterSet tmpPSet3;
+    std::string tTS_ = std::string();
+    try { tTS_ = requestParamSet.getParameter<std::string>("TriggerSelector"); } catch(...) {}
+
     // create the local consumer interface and add it to the event server
+
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               selectionRequest, maxEventRequestRate,
+				tTS_, selectionRequest,
+                               maxEventRequestRate,
                                hltOMLabel,
                                consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
@@ -1518,6 +1529,9 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         {
             *out << "    <br/>" << std::endl;
             *out << "    Selected Event Selection is";
+
+	    if (!TriggerSelector_.toString().empty()) *out << " " << TriggerSelector_.toString();
+	    else
             for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
                 *out << " " << esSelectedEventSelection_[i].toString();
             *out << "." << std::endl;
@@ -2083,14 +2097,21 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
                      << "</td>" << std::endl;
               }
             }
+	    Strings tESSet  = consPtr->getTriggerSelection();
+	    std::string tTSSet = consPtr->getTriggerSelectionNew();
 
-            *out << "  <td align=\"center\">"
-                 << InitMsgCollection::stringsToText(consPtr->getTriggerSelection(), 5)
-                 << "</td>" << std::endl;
-
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
+	    if (!tTSSet.empty()) 
+		    *out << "  <td align=\"center\">"
+			    << tTSSet
+			    << "</td>" << std::endl;
+	    else {
+		    *out << "  <td align=\"center\">"
+			    << InitMsgCollection::stringsToText(tESSet, 5)
+			    << "</td>" << std::endl;
+	    }
+	    *out << "</tr>" << std::endl;
+	  }
+	  *out << "</table>" << std::endl;
 
           // ************************************************************
           // * Recent results for queued events
@@ -2800,16 +2821,35 @@ void SMProxyServer::receiveEventWebPage(xgi::Input *in, xgi::Output *out)
       auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
       in->read(&(*bufPtr)[0], contentLength);
       EventMsgView eventView(&(*bufPtr)[0]);
-      boost::shared_ptr<EventServer> eventServer;
-      if (dpm_.get() != NULL)
-      {
-        eventServer = dpm_->getEventServer();
-        if(eventServer.get() != NULL) {
-          eventServer->processEvent(eventView);
-        }
-      }
-      ++receivedEvents_;
-      addMeasurement(contentLength);
+
+     if (dropOldLumisectionEvents_) {
+    
+	uint32 lumi = eventView.lumi();
+	if (lumi<currentLumiSection_) {
+		//drop event and bail out
+		++receivedEvents_;
+		addMeasurement(contentLength);
+		int len = 0;
+		out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+		out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+		out->write((char*) &mybuffer_[0],len);
+		return;
+	}
+	else if (lumi>currentLumiSection_) {
+		currentLumiSection_=lumi;
+	}
+     }
+
+     boost::shared_ptr<EventServer> eventServer;
+     if (dpm_.get() != NULL)
+     {
+	     eventServer = dpm_->getEventServer();
+	     if(eventServer.get() != NULL) {
+		     eventServer->processEvent(eventView);
+	     }
+     }
+     ++receivedEvents_;
+     addMeasurement(contentLength);
     }
 
     // do we have to send a response? Will the SM hang/timeout if not?
@@ -2956,7 +2996,9 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
   is->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
+  is->fireItemAvailable("TriggerSelector",&TriggerSelector_);
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
+  is->fireItemAvailable("dropOldLumisectionEvents",       &dropOldLumisectionEvents_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
@@ -3004,7 +3046,9 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("consumerQueueSize",    this);
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
   is->addItemRetrieveListener("esSelectedEventSelection",this);
+  is->addItemRetrieveListener("TriggerSelector",this);
   is->addItemRetrieveListener("allowMissingSM",       this);
+  is->addItemRetrieveListener("dropOldLumisectionEvents",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
@@ -3093,6 +3137,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
           tmpVector[i] = static_cast<std::string>(esSelectedEventSelection_[i]);
       dpm_->setEventSelection(tmpVector);
+      dpm_->setEventSelection(TriggerSelector_.toString());
       dpm_->setAllowMissingSM(allowMissingSM_);
       
       boost::shared_ptr<EventServer>
@@ -3186,6 +3231,9 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     sentDQMEvents_   = 0;
     receivedEvents_ = 0;
     receivedDQMEvents_ = 0;
+    currentLumiSection_ = 0;
+
+    //if (!TriggerSelector_.toString().empty()) std::cout << "Using Trigger Selection: " << TriggerSelector_.toString() << std::endl;
     // need this to register, get header and if we pull (poll) for events
     dpm_->start();
 

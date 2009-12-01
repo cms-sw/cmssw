@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.15 2009/05/22 16:01:05 biery Exp $
+   $Id: SMProxyServer.h,v 1.16 2009/08/18 09:45:41 mommsen Exp $
 */
 
 #include <string>
@@ -140,6 +140,8 @@ namespace stor {
     xdata::UnsignedInteger32 receivedEvents_;
     xdata::UnsignedInteger32 receivedDQMEvents_;
 
+    xdata::UnsignedInteger32 currentLumiSection_;
+
     // for Event Server
     std::vector<unsigned char> mybuffer_;
     xdata::Vector<xdata::String> smRegList_; // StorageManagers to subscribe to
@@ -160,7 +162,9 @@ namespace stor {
     xdata::Integer DQMconsumerQueueSize_;
     xdata::String esSelectedHLTOutputModule_;
     xdata::Vector<xdata::String> esSelectedEventSelection_;
+    xdata::String TriggerSelector_;
     xdata::Boolean allowMissingSM_;
+    xdata::Boolean dropOldLumisectionEvents_;
 
     std::map< std::string, bool > smsenders_;
     xdata::UnsignedInteger32 connectedSMs_;
