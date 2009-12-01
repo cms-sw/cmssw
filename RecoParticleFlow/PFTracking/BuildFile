@@ -8,6 +8,12 @@
 <use name="DataFormats/TrackerRecHit2D">
 <use name="DataFormats/TrackingRecHit">
 <use name="DataFormats/TrajectorySeed">
+<use name="DataFormats/SiPixelDetId">
+<use name="DataFormats/SiStripDetId">
+<use name="Geometry/CommonDetUnit">
+<use name="Geometry/TrackerGeometryBuilder">
+<use name="Geometry/Records">
+<use name="Utilities/General">
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
 <use name="FWCore/ParameterSet">
@@ -16,6 +22,10 @@
 <use name="TrackingTools/GsfTools">
 <use name="TrackingTools/PatternTools">
 <use name="TrackingTools/TrajectoryState">
+<use name="TrackingTools/TransientTrack">
+<use name="TrackingTools/TrajectoryParametrization">
+<use name="RecoVertex/VertexPrimitives">
+<use name="RecoVertex/AdaptiveVertexFit">
 <use name="rootcore">
 <export>
   <use name="DataFormats/EgammaCandidates">
@@ -36,6 +46,9 @@
   <use name="TrackingTools/GsfTools">
   <use name="TrackingTools/PatternTools">
   <use name="TrackingTools/TrajectoryState">
+  <use name="RecoVertex/VertexPrimitives">
+  <use name="Geometry/CommonDetUnit">
+  <use name="Geometry/TrackerGeometryBuilder">
   <use name="rootcore">
   <lib name="RecoParticleFlowPFTracking">
 </export>

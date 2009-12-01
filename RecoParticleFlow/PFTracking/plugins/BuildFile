@@ -1,4 +1,4 @@
-<library name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionsProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, modules.cc">
+<library name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionsProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, PFDisplacedVertexCandidateProducer.cc, PFDisplacedVertexProducer.cc, modules.cc">
  <use name="DataFormats/Common">
  <use name="DataFormats/EgammaCandidates">
  <use name="DataFormats/EgammaReco">
