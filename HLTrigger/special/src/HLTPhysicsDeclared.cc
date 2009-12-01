@@ -25,6 +25,7 @@ public:
 private:
   virtual bool filter( edm::Event &, const edm::EventSetup & );
 
+  bool          m_invert;
   edm::InputTag m_gtDigis;
   
 };
@@ -45,6 +46,7 @@ private:
 using namespace edm;
 
 HLTPhysicsDeclared::HLTPhysicsDeclared(const edm::ParameterSet & config) :
+  m_invert(  config.getParameter<bool>("invert") ),
   m_gtDigis( config.getParameter<edm::InputTag>("L1GtReadoutRecordTag") )
 {
 }
@@ -55,6 +57,10 @@ HLTPhysicsDeclared::~HLTPhysicsDeclared()
 
 bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & setup)
 {
+  // always accept MC
+  if (not event.isRealData())
+    return true;
+
   bool accept = false;
 
   edm::Handle<L1GlobalTriggerReadoutRecord> h_gtDigis;
@@ -64,6 +70,8 @@ bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & set
     L1GtFdlWord fdlWord = h_gtDigis->gtFdlWord();
     if (fdlWord.physicsDeclared() == 1) 
       accept = true;
+    if (invert)
+      accept = not accept;
   }
 
   return accept;
