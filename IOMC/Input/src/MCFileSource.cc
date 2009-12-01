@@ -1,11 +1,11 @@
-// $Id: MCFileSource.cc,v 1.14 2008/12/17 15:49:56 saout Exp $
+// $Id: MCFileSource.cc,v 1.9.2.1 2009/01/09 10:34:32 saout Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2008/12/17 15:49:56 $
-*  $Revision: 1.14 $
+*  $Date: 2009/01/09 10:34:32 $
+*  $Revision: 1.9.2.1 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -22,14 +22,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
-
 using namespace edm;
 using namespace std;
 
 
 //-------------------------------------------------------------------------
 MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription const& desc) :
-  ExternalInputSource(pset, desc, false),
+  ExternalInputSource(pset, desc),
   reader_(HepMCFileReader::instance()), evt_(0)
 {
   edm::LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
@@ -38,17 +37,8 @@ MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription con
   if (fileName.find("file:") == 0){
     fileName.erase(0,5);
   }  
-  std::string mode = pset.getUntrackedParameter<std::string>("mode");
-  if (mode == "Ascii")
-    mode_ = HepMCFileReader::MODE_ASCII;
-  else if (mode == "ExtendedAscii")
-    mode_ = HepMCFileReader::MODE_EXTASCII;
-  else if (mode == "GenEvent")
-    mode_ = HepMCFileReader::MODE_GENEVENT;
-  else
-    throw cms::Exception("IOMCFileSource")
-             << "Unknown HepMC file mode " << mode << std::endl;
-  reader_->initialize(fileName, mode_);
+  
+  reader_->initialize(fileName);  
   produces<HepMCProduct>();
 }
 

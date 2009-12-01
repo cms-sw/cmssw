@@ -34,10 +34,8 @@ class HepMCFileReader {
   HepMCFileReader();
   
   public: 
-  enum FileMode { MODE_ASCII, MODE_EXTASCII, MODE_GENEVENT };
-
   virtual ~HepMCFileReader(); 
-  virtual void initialize(const std::string &filename, FileMode mode);
+  virtual void initialize(const std::string &filename);  
   inline bool isInitialized() const;
 
   virtual bool setEvent(int event);
