@@ -30,9 +30,9 @@ class SiStripConfObject
   bool put( const string & name, const int & value );
   int get( const string & name );
 
-  /// Prints the number of ranges as well as the value of singleLatency and singleMode
+  /// Prints the full list of parameters
   void printSummary(std::stringstream & ss) const;
-  /// Prints the full list of all ranges and corresponding values of latency and mode
+  /// Prints the full list of parameters
   void printDebug(std::stringstream & ss) const;
 
   vector<string> names;
