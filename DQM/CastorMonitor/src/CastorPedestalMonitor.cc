@@ -50,13 +50,13 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
   
     ////---- book the following histograms 
-    string type = "Castor All Pedestal Values";
+    string type = "Castor All Pedestal Values - for first 1000 events";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,50,0,50);
     
-    type = "Castor Pedestal Mean Reference Values";
+    type = "Castor Pedestal Mean Reference Values - from CondDB";
     castHists.PEDESTAL_REFS = m_dbe->book1D(type,type,50,0,3); 
     
-    type = "Castor Pedestal RMS Reference Values";
+    type = "Castor Pedestal RMS Reference Values - from CondDB";
     castHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3); 
 
     ///// castHists.PEDRMS  =  m_dbe->book1D("Castor Pedestal RMS Values","Castor Pedestal RMS Values",100,0,3);
@@ -151,7 +151,10 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
      }
   */
       
-      ////---- fill ALL Pedestal Values 
+      
+      ////---- fill ALL Pedestal Values for first 2000 events
+      if(ievt_ <1000)
+      { 
       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
 	else pedVals_.push_back(digi.sample(i).adc());
@@ -159,6 +162,8 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
 	capID_.push_back(digi.sample(i).capid());
 	castHists.ALLPEDS->Fill(pedVals_[i]);
       }
+      
+     }
 
       ////---- do histograms for every channel
       if(doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);

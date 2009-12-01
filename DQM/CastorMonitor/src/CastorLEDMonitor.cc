@@ -140,8 +140,14 @@ void CastorLEDMonitor::reset(){
 //==========================================================//
 
 void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, const CastorDbService& cond){
+
   ievt_++;
+
+ if (ievt_<1000) // do this task for first 1000 events
+ {
+
   meEVT_->Fill(ievt_);
+
 
   if(!m_dbe){ 
     if(fVerbosity>0) cout<<"CastorLEDMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
@@ -193,7 +199,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
   } catch (...) {
     if(fVerbosity > 0) cout << "CastorLEDMonitor::processEvent  NO Castor Digis." << endl;
   }
-  
+ }  
  
   return;
 }

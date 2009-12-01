@@ -43,23 +43,25 @@ void CastorRecHitsValidation::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
  cout << "CastorRecHitsValidation::setup (start)" << endl;
 
+ ievt_=0;
+
  
  if ( m_dbe !=NULL ) {  
    m_dbe->setCurrentFolder(baseFolder_);
 
     //*************** rec hits ***************************   
-histo = "CastorRecHits in modules";
+histo = "Number of CastorRecHits in modules - 1GeV cut on RecHitEnergy";
     meCastorRecHitsModule_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 14, 0.5, 14.5);
-histo = "CastorRecHits Energy in modules";
+histo = "CastorRecHits Energy in modules - 1GeV cut on RecHitEnergy";
     meCastorRecHitsEmodule_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 14, 0.5, 14.5);
-histo = "CastorRecHits in sectors";
+histo = "Number of CastorRecHits in sectors - 1GeV cut on RecHitEnergy ";
     meCastorRecHitsSector_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 16, 0.5, 16.5);
-histo = "CastorRecHits Energy in sectors";
+histo = "CastorRecHits Energy in sectors - 1GeV cut on RecHitEnergy";
     meCastorRecHitsEsector_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 16, 0.5, 16.5);
-histo = "CastorRecHits Energy";
+histo = "CastorRecHits Energy - 1GeV cut on RecHitEnergy";
     meCastorRecHitsEnergy_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 100, 0., 100.);
-histo = "CastorRecHits Total Energy";
-    meCastorRecHitsTotalEnergy_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 100, 0., 100.);
+//histo = "CastorRecHits Total Energy";
+//    meCastorRecHitsTotalEnergy_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 100, 0., 100.);
 
 //histo = "CastorRecHits X cell position";
 //    meCastorRecHitsX_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 1000, -150., 150.);
@@ -77,8 +79,12 @@ histo = "CastorRecHits Total Energy";
 //   meCastorRecHitsPhi_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 31, -3.14, 3.14);
 //histo = "CastorRecHits X cell position (from calo)";
 // meCastorRecHitsGlobalX_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 500, -150., 150.);
-histo = "CastorRecHits occupancy";
+
+histo = "CastorRecHits occupancy - sector vs module";
     meCastorRecHitsOccupancy_ = m_dbe->book2D(histo.c_str(), histo.c_str(), 16, 0.5, 16.5, 14, 0.5, 14.5);
+    TH2F* CastorRecHitsOccupancy_ =meCastorRecHitsOccupancy_->getTH2F();
+    CastorRecHitsOccupancy_->GetXaxis()->SetTitle("sector");
+    CastorRecHitsOccupancy_->GetYaxis()->SetTitle("module");
 
 }
    
@@ -94,11 +100,12 @@ return;
 
 void CastorRecHitsValidation::processEvent(const CastorRecHitCollection& castorHits){
  
+  ievt_++;
   int module = -1;
   int sector = -1;
   double energy = 0.;
   //double simhitEnergy = 0.;
-  double total_energy = 0.;
+  //double total_energy = 0.;
 
 //get the geometry record 
 //edm::ESHandle<CaloGeometry> calo;
@@ -138,7 +145,7 @@ sector = castorid.sector();
 
 
 energy = rh->energy();
-total_energy += rh->energy(); // not really correct...
+//total_energy += rh->energy(); // not really correct...
 
 // -------
 // this is for a check... get one sector, EM  
@@ -160,14 +167,19 @@ meCastorRecHitsXYsector1_->Fill(x1*10, y1*10);
 */
 //------
 
+if (energy > 1.0){ //consider only those hits whose energy is above 1 GeV
  //fill histograms
 meCastorRecHitsModule_->Fill(module);
 meCastorRecHitsEmodule_->Fill(module, energy);
 meCastorRecHitsSector_->Fill(sector);
 meCastorRecHitsEsector_->Fill(sector, energy);
-meCastorRecHitsOccupancy_->Fill(sector, module);
 meCastorRecHitsEnergy_->Fill(energy);
-meCastorRecHitsTotalEnergy_->Fill(total_energy);
+//meCastorRecHitsTotalEnergy_->Fill(total_energy);
+}
+
+if(ievt_%100==0) 
+  meCastorRecHitsOccupancy_->Fill(sector, module);
+
 // X,Y,Z dimensions in mm
 //meCastorRecHitsX_->Fill(x*10);
 //meCastorRecHitsY_->Fill(y*10);

@@ -42,6 +42,8 @@ public:
 
 private:
 
+
+int ievt_;
 std::string histo;
 
 MonitorElement* meCastorRecHitsEnergy_;

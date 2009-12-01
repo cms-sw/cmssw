@@ -169,6 +169,8 @@ public:
   MonitorElement* meTrigger_;
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
+  ////--- define ReportSummaryMap
+  MonitorElement* reportSummaryMap_;
   
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;
