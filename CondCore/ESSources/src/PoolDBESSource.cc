@@ -104,6 +104,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   // inproduction used for the global tag
   std::string userconnect= iConfig.getParameter<std::string>("connect");
   
+
   // connection configuration
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
   m_connection.configuration().setParameters( connectionPset );
@@ -135,7 +136,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   // get the global tag, merge with "replacement" store in "tagCollection"
   std::string globaltag;
   if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
-  fillTagCollectionFromDB(userconnect, globaltag,replacement);
+  
+  fillTagCollectionFromDB(userconnect,
+			  iConfig.getUntrackedParameter<std::string>("pfnPrefix",""),
+			  iConfig.getUntrackedParameter<std::string>("pfnPostFix",""),
+			  globaltag,
+			  replacement);
   
   
   TagCollection::iterator it;
@@ -324,6 +330,8 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 // fills tagcollection merging with replacement
 void 
 PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
+					 const std::string & prefix,
+					 const std::string & postfix,
 					 const std::string & roottag,
 					 std::map<std::string,cond::TagMetadata>& replacement){
   //  std::cout<<"fillTagCollectionFromDB"<<std::endl;
@@ -338,7 +346,7 @@ PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
    session.open( coraldb );
    cond::DbScopedTransaction transaction(session);
    transaction.start(true);
-   cond::TagCollectionRetriever tagRetriever( session );
+   cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
    tagRetriever.getTagCollection(roottag,tagcoll);
    transaction.commit();
   } 
