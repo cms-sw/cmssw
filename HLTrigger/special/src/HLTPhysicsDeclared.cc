@@ -70,7 +70,7 @@ bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & set
     L1GtFdlWord fdlWord = h_gtDigis->gtFdlWord();
     if (fdlWord.physicsDeclared() == 1) 
       accept = true;
-    if (invert)
+    if (m_invert)
       accept = not accept;
   }
 
