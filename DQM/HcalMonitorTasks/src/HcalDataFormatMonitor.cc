@@ -89,7 +89,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   firstFED_ = FEDNumbering::MINHCALFEDID;
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) 
     {
-      if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
+      if(fVerbosity>1) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
       fedUnpackList_.push_back(i);
     }
 
@@ -611,6 +611,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   }
   if (CDFProbThisDCC) {
     //Set the problem flag for the ieta, iphi of any channel in this DCC
+    if (fVerbosity>0) cout <<"CDFProbThisDCC"<<endl;
     mapDCCproblem(dcc_);
   }
 
@@ -623,6 +624,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     CRC_err = ((dccHeader->getSpigotSummary(i) >> 10) & 0x00000001);
     if (CRC_err) {
       //Set the problem flag for the ieta, iphi of any channel in this DCC
+      if (fVerbosity>0) cout <<"HTR Problem: CRC_err"<<endl;
       mapHTRproblem(dcc_, i);  
     }
   }
@@ -643,12 +645,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   } // then check against it.
   if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) {
     meDCCEventFormatError_->Fill(dccid,1);
+    if (fVerbosity>0) cout <<"DCC Error Type 1"<<endl;
     mapDCCproblem(dcc_);
   }
   /* 2 */ //Check for ones where there should always be zeros
   if (false) //dccHeader->getByte1Zeroes() || dccHeader->getByte3Zeroes() || dccHeader->getByte567Zeroes()) 
   {
     meDCCEventFormatError_->Fill(dccid,2);
+    if (fVerbosity>0) cout <<"DCC Error Type 2"<<endl;
     mapDCCproblem(dcc_);
   }
   /* 3 */ //Check that there are zeros following the HTR Status words.
@@ -657,6 +661,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
 	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)))  != 0){
     meDCCEventFormatError_->Fill(dccid,3);
+  if (fVerbosity>0) cout <<"DCC Error Type 3"<<endl;
     mapDCCproblem(dcc_);
   }
   /* 4 */ //Check that there are zeros following the HTR Payloads, if needed.
@@ -669,6 +674,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
     if ((*lastDataWord>>32) != 0x00000000){
       meDCCEventFormatError_->Fill(dccid, 4);
+      if (fVerbosity>0) cout <<"DCC Error Type 4"<<endl;
       mapDCCproblem(dcc_);
     }
   }
@@ -684,8 +690,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (TTS_state & 0x8) /*RDY*/ 
     ;
   if (TTS_state & 0x2) /*SYN*/ 
-    mapDCCproblem(dcc_);          // DCC lost data
-
+    {
+      if (fVerbosity>0) cout <<"TTS_state Error:sync"<<endl;
+      mapDCCproblem(dcc_);          // DCC lost data
+    }
   //Histogram per-Spigot bits from the DCC Header
   int WholeErrorList=0; 
   for(int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
@@ -730,6 +738,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
     if (!dccHeader->getSpigotPresent((unsigned int) spigot)){
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;  //Enabled, but data not present!
+      if (fVerbosity>0) cout <<"HTR Problem: Spigot Not Present"<<endl;
       mapHTRproblem(dcc_, spigot);
     } else {
       //?////I got the wrong sign on getBxMismatchWithDCC; 
@@ -738,6 +747,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       //?//if (!dccHeader->getSpigotValid((unsigned int) spigot)      ) ;//actually "EvN match" 
       if ( dccHeader->getSpigotDataTruncated((unsigned int) spigot)) {
      	LRBDataCorruptionIndicators_[fed3offset-1][spg3offset+0]++;  // EventBuilder truncated babbling LRB
+	if (fVerbosity>0) cout <<"HTR Problem: Spigot Data Truncated"<<endl;
 	mapHTRproblem(dcc_, spigot);
       }
       if ( dccHeader->getSpigotCRCError((unsigned int) spigot)) {
@@ -747,6 +757,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     } //else spigot marked "Present"
     if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)4) {
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;  //Lost HTR Data for sure.
+      if (fVerbosity>0) cout <<"HTR Problem: Spigot Data Length too small"<<endl;
       mapHTRproblem(dcc_, spigot);
     }    
   }
@@ -770,6 +781,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
+      if (fVerbosity>0) cout <<"HTR Problem: HTR check fails"<<endl;
       mapHTRproblem(dcc_,spigot);
     }
 
@@ -784,6 +796,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	     (HTRwdcount != 12 + NTP + NDAQ) ||
 	     (HTRwdcount != 20 + NTP + NDAQ)    )) {
       ++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+0];
+      if (fVerbosity>0) cout <<"HTR Problem: NTP+NDAQ size consistency check fails"<<endl;
       mapHTRproblem(dcc_,spigot);
       //incompatible Sizes declared. Skip it.
       continue; }
@@ -791,7 +804,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (EE) { 
       if (HTRwdcount != 8) {	//incompatible Sizes declared. Skip it.
 	++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+1];
-      mapHTRproblem(dcc_,spigot);
+	if (fVerbosity>0) cout <<"HTR Problem: HTRwdcount !=8"<<endl;	
+	mapHTRproblem(dcc_,spigot);
       }
       DataFlowInd_[fed2offset+0][spg3offset+0]++;
       continue;}
@@ -815,11 +829,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	  (htrBCN  == (unsigned int) dccBCN) )  
 	!= (dccHeader->getBxMismatchWithDCC(spigot))  ){
       meDCCEventFormatError_->Fill(dccid,5);
+      if (fVerbosity>0) cout <<"Orbit or BCN  HTR/DCC mismatch"<<endl;
       mapDCCproblem(dcc_);
     }
     if ( (htrEvtN == dccEvtNum) != 
 	 dccHeader->getSpigotValid(spigot) ) {
       meDCCEventFormatError_->Fill(dccid,5);
+      if (fVerbosity>0) cout <<"DCC invalid spigot"<<endl;
       mapDCCproblem(dcc_);
     }
     int cratenum = htr.readoutVMECrateId();
@@ -893,6 +909,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (  (((dccHeader->getSpigotSummary( spigot))>>24)&0x00FF)
 	  != (errWord&0x00FF) ){
       meDCCEventFormatError_->Fill(dccid,6);//Low 8 bits miscopied into DCCHeader
+      if (fVerbosity>0) cout <<"DCC spigot summary error or HTR error word"<<endl;
       mapDCCproblem(dcc_);                  //What other problems may lurk? Spooky.
     }
     if(tmpErr!=NULL){
@@ -906,27 +923,34 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	  switch (i) {
 	  case (14): //CT
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;
+	    if (fVerbosity>0) cout <<"HTR Problem: Case 14"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case (13): //HM
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;
+	    if (fVerbosity>0) cout <<"HTR Problem: Case 13"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case (12): //TM
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+0]++;
+	    if (fVerbosity>0) cout <<"HTR Problem: Case 12"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case ( 8): //BE
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+2]++;
+	    if (fVerbosity>0) cout <<"HTR Problem: Case 8"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case (15): //b15
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+1]++;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case ( 7): //CK
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+0]++;
+	    if (fVerbosity>0) cout <<"HTR Problem: Case 7"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
 	  case ( 5): //LW
 	    HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
 	    //Sometimes set spuriously at startup, per-fiber, .: Leniency: 8
-	    if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) {
-	      mapHTRproblem(dcc_,spigot); break; }
+	    if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) { 
+	      if (fVerbosity>0) cout <<"HTR Problem: Case 5"<<endl;
+	      mapHTRproblem(dcc_,spigot); break; 
+	    }
 	  case ( 3): //L1 (previous L1A violated trigger rules)
 	    DataFlowInd_[fed2offset+1][spg3offset+0]++; break;
 	  case ( 1): //BZ
@@ -985,10 +1009,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	if (samplecounter !=-1) { //Wrap up the previous channel if there is one
 	  //Check the previous digi for number of timeslices
 	  if ((samplecounter != NTS) &&
-	      (samplecounter != 1)             ) { //Wrong DigiSize
-	    ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
-	    ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
-	    mapChannproblem(dcc_,spigot,htrchan); } } 	
+	      (samplecounter != 1)             ) 
+	    { //Wrong DigiSize
+	      ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
+	      ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
+	      if (fVerbosity) cout <<"mapChannelProblem:  Wrong Digi Size"<<endl;
+	      mapChannproblem(dcc_,spigot,htrchan); 
+	    } 
+	} 	
 	//set up for this new channel
 	lastcapid=qie_work->capid();
 	samplecounter=1;} // fi (qie_work->fiberAndChan() != lastfibchan)
@@ -998,6 +1026,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	if (qie_work->capid() != hope){
 	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+0];
 	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+0];
+	  if (fVerbosity) cout <<"mapChannelProblem:  Wrong Cap ID"<<endl;
 	  mapChannproblem(dcc_,spigot,htrchan); }
 	lastcapid=qie_work->capid();
 	samplecounter++;}
@@ -1008,8 +1037,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       if (qie_work->er()) {      // FEE - Front End Error
 	++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+1];
 	++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+1]; 
+	if (fVerbosity) cout <<"mapChannelProblem:  FE Error"<<endl;	
 	mapChannproblem(dcc_,spigot,htrchan); }
-    } // end loop over all timesamples in this spigot
+    } // for (qie_work = qie_begin;...)  end loop over all timesamples in this spigot
     //Wrap up the last channel
     //Check the last digi for number of timeslices
     if ((samplecounter != NTS) &&
@@ -1017,6 +1047,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	(samplecounter !=-1)             ) { //Wrong DigiSize (unexpected num. timesamples)
       ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
       ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
+      if (fVerbosity) cout <<"mapChannelProblem:  Wrong Digi Size (last digi)"<<endl;
       mapChannproblem(dcc_,spigot,htrchan); 
     } 
     unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
@@ -1155,6 +1186,9 @@ void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4)
       problemfound[myeta][myphi-1][mydepth-1] = true;
+    if (fVerbosity>0)
+      if (problemfound[myeta][myphi-1][mydepth-1])
+	cout<<" mapDCCproblem error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
   }
 }
 void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
@@ -1179,6 +1213,10 @@ void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4)
       problemfound[myeta][myphi-1][mydepth-1] = true;
+    if (fVerbosity>0)
+      if (problemfound[myeta][myphi-1][mydepth-1])
+	cout<<" mapHTRproblem error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
+    
   }
 }   // void HcalDataFormatMonitor::mapHTRproblem(...)
 
@@ -1202,6 +1240,10 @@ void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
       (myphi-1)>=0 && (myphi-1)<72 &&
       (mydepth-1)>=0 && (mydepth-1)<4)
     problemfound[myeta][myphi-1][mydepth-1] = true;
+
+  if (fVerbosity>0)
+    if (problemfound[myeta][myphi-1][mydepth-1])
+      cout<<" mapChannproblem error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
 }   // void HcalDataFormatMonitor::mapChannproblem(...)
 
 void HcalDataFormatMonitor::endLuminosityBlock(void) {
@@ -1262,6 +1304,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	      // Offset true ieta for HF plotting
 	      if (isHF(eta,depth+1)) 
 		filleta<0 ? filleta-- : filleta++;
+	      cout <<"probcnt = "<<probcnt<<"  ieta = "<<filleta<<"  iphi = "<<phi+1<<"  depth = "<<depth+1<<endl;
 	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probcnt);
 		ProblemCells->Fill(filleta,phi+1,probcnt); 
 	    }
