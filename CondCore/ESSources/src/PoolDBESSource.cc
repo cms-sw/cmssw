@@ -139,7 +139,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   
   fillTagCollectionFromDB(userconnect,
 			  iConfig.getUntrackedParameter<std::string>("pfnPrefix",""),
-			  iConfig.getUntrackedParameter<std::string>("pfnPostFix",""),
+			  iConfig.getUntrackedParameter<std::string>("pfnPostfix",""),
 			  globaltag,
 			  replacement);
   
