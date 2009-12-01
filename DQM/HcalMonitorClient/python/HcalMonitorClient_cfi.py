@@ -84,6 +84,11 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           RecHitClient_checkNevents                     = cms.untracked.int32(500),
                           RecHitClient_minErrorFlag                     = cms.untracked.double(0.00),
                           RecHitClient_makeDiagnosticPlots              = cms.untracked.bool(False),
+
+                          ########################################################################
+                          # Noise Client
+                          NoiseClient                                  = cms.untracked.bool(True),
+                          ########################################################################
                           
                           # CaloTowerClient
                           CaloTowerClient           = cms.untracked.bool(False),
@@ -153,6 +158,10 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag.value()
     client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots.value()
 
+    #########################################################################
+    # Noise Client
+    client.NoiseClient                           = monitor.DetDiagNoiseMonitor
+    #########################################################################
 
     client.DataFormatClient  = monitor.DataFormatMonitor.value()
     client.LEDClient         = monitor.LEDMonitor.value()
@@ -191,6 +200,11 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t CheckNevents  = ",   client.RecHitClient_checkNevents
         print "\t\t MinErrorFlag  = ",   client.RecHitClient_minErrorFlag
         print "\t\t make diagnostics? ", client.RecHitClient_makeDiagnosticPlots
+
+    #########################################################################
+        print "Noise Client      = ",   client.NoiseClient
+    #########################################################################
+
         print "Beam Client      = ",     client.BeamClient
         print "\t\t CheckNevents  = ",   client.BeamClient_checkNevents
         print "\t\t MinErrorFlag  = ",   client.BeamClient_minErrorFlag

@@ -29,6 +29,11 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   summary_client_ = 0;
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
+
+// #########################################################
+  noise_client_ = 0;
+// #########################################################
+
   led_client_ = 0; laser_client_ = 0; hot_client_ = 0; dead_client_=0;
   tp_client_=0;
   ct_client_=0;
@@ -121,6 +126,15 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     rechit_client_       = new HcalRecHitClient();
     rechit_client_->init(ps, dbe_,"RecHitClient");
 }
+
+// #########################################################
+  if( ps.getUntrackedParameter<bool>("NoiseClient", false) ){
+    if(debug_>0)   std::cout << "===>DQM Noise Client is ON" << endl;
+    noise_client_       = new HcalDetDiagNoiseMonitorClient();
+    noise_client_->init(ps, dbe_,"NoiseClient");
+  }
+// #########################################################
+
   if( ps.getUntrackedParameter<bool>("ReferencePedestalClient", false) ){
     if(debug_>0)   std::cout << "===>DQM Pedestal Client is ON" << endl;
     pedestal_client_     = new HcalPedestalClient();
@@ -220,6 +234,11 @@ void HcalMonitorClient::resetAllME() {
   if( dataformat_client_ ) dataformat_client_->resetAllME();
   if( digi_client_ )       digi_client_->resetAllME();
   if( rechit_client_ )     rechit_client_->resetAllME();
+
+// #########################################################
+  if( noise_client_ )     noise_client_->resetAllME();
+// #########################################################
+
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
   if( laser_client_ )      laser_client_->resetAllME();
@@ -250,6 +269,11 @@ void HcalMonitorClient::beginJob(){
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
   if( rechit_client_ )     rechit_client_->beginJob();
+
+// #########################################################
+  if( noise_client_ )     noise_client_->beginJob();
+// #########################################################
+
   if( pedestal_client_ )   pedestal_client_->beginJob();
   if( led_client_ )        led_client_->beginJob();
   if( laser_client_ )      laser_client_->beginJob();
@@ -276,6 +300,11 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( dataformat_client_ ) dataformat_client_->beginRun();
   if( digi_client_ )       digi_client_->beginRun();
   if( rechit_client_ )     rechit_client_->beginRun();
+
+// #########################################################
+  if( noise_client_ )     noise_client_->beginRun();
+// #########################################################
+
   if( pedestal_client_ )   pedestal_client_->beginRun(c);
   if( led_client_ )        led_client_->beginRun(c);
   if( laser_client_ )      laser_client_->beginRun(c);
@@ -308,6 +337,11 @@ void HcalMonitorClient::endJob(void) {
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
+
+// #########################################################
+  if( noise_client_ )         noise_client_->endJob();
+// #########################################################
+
   if( dead_client_ )           dead_client_->endJob();
   if( hot_client_ )            hot_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
@@ -345,6 +379,11 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( dataformat_client_ )  dataformat_client_->endRun();
   if( digi_client_ )        digi_client_->endRun();
   if( rechit_client_ )      rechit_client_->endRun();
+
+// #########################################################
+  if( noise_client_ )      noise_client_->endRun();
+// #########################################################
+
   if( pedestal_client_ )    pedestal_client_->endRun();
   if( led_client_ )         led_client_->endRun();
   if( laser_client_ )       laser_client_->endRun();
@@ -424,6 +463,11 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
   if( dataformat_client_ )  dataformat_client_->SetLS(ilumisec_);
   if( digi_client_ )        digi_client_->SetLS(ilumisec_);
   if( rechit_client_ )      rechit_client_->SetLS(ilumisec_);
+
+// #########################################################
+  if( noise_client_ )      noise_client_->SetLS(l.luminosityBlock());
+// #########################################################
+
   if( pedestal_client_ )    pedestal_client_->SetLS(ilumisec_);
   if( led_client_ )         led_client_->SetLS(ilumisec_);
   if( laser_client_ )       laser_client_->SetLS(ilumisec_);
@@ -532,6 +576,16 @@ void HcalMonitorClient::analyze(){
       cpu_timer.reset(); cpu_timer.start(); 
     } 
 
+// #########################################################
+  if( noise_client_ )     noise_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (noise_client_) std::cout <<"TIMER:: RECHIT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+// #########################################################
+
   if( pedestal_client_ )   pedestal_client_->analyze();      
   if (showTiming_) 
     { 
@@ -621,7 +675,12 @@ void HcalMonitorClient::createTests(void){
 
   if( dataformat_client_ ) dataformat_client_->createTests(); 
   if( digi_client_ )       digi_client_->createTests(); 
-  if( rechit_client_ )     rechit_client_->createTests(); 
+  if( rechit_client_ )     rechit_client_->createTests();
+
+// #########################################################
+  if( noise_client_ )     noise_client_->createTests(); 
+// #########################################################
+ 
   if( pedestal_client_ )   pedestal_client_->createTests(); 
   if( led_client_ )        led_client_->createTests(); 
   if( laser_client_ )      laser_client_->createTests(); 
@@ -655,6 +714,11 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( laser_client_ ) laser_client_->report();
   if( pedestal_client_ ) pedestal_client_->report();
   if( rechit_client_ ) rechit_client_->report();
+
+// #########################################################
+  if( noise_client_ ) noise_client_->report();
+// #########################################################
+
   if( hot_client_ ) hot_client_->report();
   if( dead_client_ ) dead_client_->report();
   if( tp_client_ ) tp_client_->report();
@@ -686,6 +750,11 @@ void HcalMonitorClient::errorSummary(){
   if( pedestal_client_ )   pedestal_client_->getTestResults(nTests,errE,errW,errO);
   if( digi_client_ )       digi_client_->getTestResults(nTests,errE,errW,errO);
   if( rechit_client_ )     rechit_client_->getTestResults(nTests,errE,errW,errO);
+
+// #########################################################
+  if( noise_client_ )     noise_client_->getTestResults(nTests,errE,errW,errO);
+// #########################################################
+
   if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
   if( ct_client_ )         ct_client_->getTestResults(nTests,errE,errW,errO);
   if( beam_client_ )       beam_client_->getTestResults(nTests,errE,errW,errO);
@@ -795,6 +864,21 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</tr></table>" << endl;
   }
+
+// #########################################################
+  if( noise_client_ ) {
+    htmlName = "HcalDetDiagNoiseMonitorClient.html";
+    noise_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Noise Monitor</a></td>" << endl;
+    if(noise_client_->hasErrors_Temp()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else if(noise_client_->hasWarnings_Temp()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(noise_client_->hasOther_Temp()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</tr></table>" << endl;
+  }
+// #########################################################
+
   if( ct_client_ ) {
     htmlName = "HcalCaloTowerClient.html";
     ct_client_->htmlOutput(irun_, htmlDir, htmlName);

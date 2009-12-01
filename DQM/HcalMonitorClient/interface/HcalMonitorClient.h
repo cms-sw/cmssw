@@ -23,6 +23,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
+
+// ############################################################
+#include <DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h>
+// ############################################################
+
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLaserClient.h>
@@ -182,6 +187,11 @@ public:
   HcalDataFormatClient*      dataformat_client_;
   HcalDigiClient*            digi_client_;
   HcalRecHitClient*          rechit_client_;
+
+// ############################################################
+  HcalDetDiagNoiseMonitorClient*          noise_client_;
+// ############################################################
+
   HcalPedestalClient*        pedestal_client_;
   HcalLEDClient*             led_client_;
   HcalLaserClient*           laser_client_;

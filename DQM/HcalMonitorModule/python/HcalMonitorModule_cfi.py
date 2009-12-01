@@ -290,6 +290,24 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DumpEtaHigh = cms.untracked.int32(10),
                            DumpThreshold = cms.untracked.double(500.0),
                            # --------------------------------------------------------------- #
+
+                           HLTriggerResults                    = cms.untracked.InputTag("TriggerResults","","HLT"),
+                           MetSource                           = cms.untracked.InputTag("met"),
+                           JetSource                           = cms.untracked.InputTag("iterativeCone5CaloJets"),
+                           TrackSource                         = cms.untracked.InputTag("generalTracks"),
+                           rbxCollName                         = cms.untracked.string('hcalnoise'),
+                           TriggerRequirement                  = cms.untracked.string("HLT_MET100"),
+		           UseMetCutInsteadOfTrigger	       = cms.untracked.bool(True),
+		           MetCut			       = cms.untracked.double(0.0),
+                           JetMinEt                            = cms.untracked.double(20.0),
+                           JetMaxEta                           = cms.untracked.double(2.0),
+                           ConstituentsToJetMatchingDeltaR     = cms.untracked.double(0.5),
+                           TrackMaxIp                          = cms.untracked.double(0.1),
+                           TrackMinThreshold                   = cms.untracked.double(1.0),
+                           MinJetChargeFraction                = cms.untracked.double(0.05),
+                           MaxJetHadronicEnergyFraction        = cms.untracked.double(0.98),
+                           caloTowerCollName		       = cms.InputTag("towerMaker"),
+
                            )
 
 

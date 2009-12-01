@@ -23,10 +23,51 @@ using namespace std;
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
+// #########################################################################################
+
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+// #########################################################################################
+
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2009/07/01 06:09:21 $
-  * $Revision: 1.1.2.6 $
+  * $Date: 2009/08/06 10:14:30 $
+  * $Revision: 1.1 $
   * \author D. Vishnevskiy
   */
 
@@ -177,6 +218,91 @@ private:
   
   HcalDetDiagNoiseRMSummary RBXSummary;
   HcalDetDiagNoiseRMSummary RBXCurrentSummary;
+
+// #########################################################################################
+
+  MonitorElement *Met_AllEvents;
+  MonitorElement *Mephi_AllEvents;
+  MonitorElement *Mex_AllEvents;
+  MonitorElement *Mey_AllEvents;
+  MonitorElement *SumEt_AllEvents;
+  MonitorElement *Met_passingTrigger;
+  MonitorElement *Mephi_passingTrigger;
+  MonitorElement *Mex_passingTrigger;
+  MonitorElement *Mey_passingTrigger;
+  MonitorElement *SumEt_passingTrigger;
+  MonitorElement *CorrectedMet_passingTrigger;
+  MonitorElement *CorrectedMephi_passingTrigger;
+  MonitorElement *CorrectedMex_passingTrigger;
+  MonitorElement *CorrectedMey_passingTrigger;
+  MonitorElement *CorrectedSumEt_passingTrigger;
+  MonitorElement *HCALFraction_passingTrigger;
+  MonitorElement *chargeFraction_passingTrigger;
+  MonitorElement *JetEt_passingTrigger;
+  MonitorElement *JetEta_passingTrigger;
+  MonitorElement *JetPhi_passingTrigger;
+  MonitorElement *JetEt_passingTrigger_TaggedAnomalous;
+  MonitorElement *JetEta_passingTrigger_TaggedAnomalous;
+  MonitorElement *JetPhi_passingTrigger_TaggedAnomalous;
+  MonitorElement *Met_passingTrigger_HcalNoiseCategory;
+  MonitorElement *Mephi_passingTrigger_HcalNoiseCategory;
+  MonitorElement *Mex_passingTrigger_HcalNoiseCategory;
+  MonitorElement *Mey_passingTrigger_HcalNoiseCategory;
+  MonitorElement *SumEt_passingTrigger_HcalNoiseCategory;
+  MonitorElement *Met_passingTrigger_PhysicsCategory;
+  MonitorElement *Mephi_passingTrigger_PhysicsCategory;
+  MonitorElement *Mex_passingTrigger_PhysicsCategory;
+  MonitorElement *Mey_passingTrigger_PhysicsCategory;
+  MonitorElement *SumEt_passingTrigger_PhysicsCategory;
+  MonitorElement *HCALFractionVSchargeFraction_passingTrigger;
+  MonitorElement *RBXMaxZeros_passingTrigger_HcalNoiseCategory;
+  MonitorElement *RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory;
+  MonitorElement *RBXHitsHighest_passingTrigger_HcalNoiseCategory;
+  MonitorElement *HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory;
+  MonitorElement *HPDHitsHighest_passingTrigger_HcalNoiseCategory;
+  MonitorElement *RBXMaxZeros_passingTrigger_PhysicsCategory;
+  MonitorElement *RBXHitsHighest_passingTrigger_PhysicsCategory;
+  MonitorElement *RBXE2tsOverE10ts_passingTrigger_PhysicsCategory;
+  MonitorElement *HPDHitsHighest_passingTrigger_PhysicsCategory;
+  MonitorElement *HPDE2tsOverE10ts_passingTrigger_PhysicsCategory;
+  MonitorElement *NLumiSections;
+
+  edm::TriggerNames triggerNames_;
+  edm::InputTag hlTriggerResults_;
+  edm::InputTag MetSource_;
+  edm::InputTag JetSource_;
+  edm::InputTag TrackSource_;
+  std::string rbxCollName_;
+  string TriggerRequirement_;
+  bool UseMetCutInsteadOfTrigger_;
+  double MetCut_;
+  double JetMinEt_;
+  double JetMaxEta_;
+  double ConstituentsToJetMatchingDeltaR_;
+  double TrackMaxIp_;
+  double TrackMinThreshold_;
+  double MinJetChargeFraction_;
+  double MaxJetHadronicEnergyFraction_;
+
+  edm::InputTag caloTowerCollName_;
+
+  std::vector<unsigned int> lumi;
+  std::vector<CaloJet> HcalNoisyJetContainer;
+
+  int numRBXhits;
+  double rbxenergy;
+  double hpdEnergyHighest;
+  double nHitsHighest;
+  double totale2ts;
+  double totale10ts;
+  int numHPDhits;
+  double e2ts;
+  double e10ts;
+  bool isRBXNoisy;
+  bool isHPDNoisy;
+
+// #########################################################################################
+
 };
 
 #endif

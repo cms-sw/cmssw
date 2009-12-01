@@ -14,6 +14,20 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1GlobalMuonTrigger>
 
+<use name=DataFormats/Math>
+<use name=DataFormats/Common>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
+<use name=DataFormats/Candidate>
+<use name=L1Trigger/RegionalCaloTrigger>
+<use name=DataFormats/L1CaloTrigger>
+<use name=DataFormats/EcalDigi>
+<use name=HLTrigger/HLTanalyzers>
+<use name=DataFormats/METReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=RecoMET/METAlgorithms>
+
 <export>
   <lib name=DQMHcalMonitorTasks>
   <use name=DataFormats/HcalDigi>
@@ -26,4 +40,20 @@
   <use name=FWCore/MessageLogger>
   <use name=DQMServices/Core>
   <use name=rootmath>
+
+<use name=DataFormats/Math>
+<use name=DataFormats/Common>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
+<use name=DataFormats/Candidate>
+<use name=L1Trigger/RegionalCaloTrigger>
+<use name=DataFormats/L1CaloTrigger>
+<use name=DataFormats/EcalDigi>
+<use name=HLTrigger/HLTanalyzers>
+<use name=DataFormats/METReco>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=RecoMET/METAlgorithms>
+
 </export>

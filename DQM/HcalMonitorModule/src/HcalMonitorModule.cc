@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/20 14:29:15 $
- * $Revision: 1.153 $
+ * $Date: 2009/11/24 09:45:19 $
+ * $Revision: 1.154 $
  * \author W Fisher
  * \author J Temple
  *
@@ -752,7 +752,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ;
   } // calibType assignment loop
 
-
   // skip this event if we're prescaling...
   ++ievt_;
   if(prescaleEvt_>0 && prescale()) return;
@@ -781,6 +780,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       digiOK_=false;
       LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" hf_digi not available";
     }
+
   if (digiOK_&&!hf_digi.isValid()) {
     digiOK_=false;
   }

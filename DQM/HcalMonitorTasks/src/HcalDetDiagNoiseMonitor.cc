@@ -37,6 +37,13 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor() {
   ievt_=0;
   run_number=-1;
   NoisyEvents=0;
+
+// ####################################
+
+  lumi.clear();
+
+// ####################################
+
 }
 
 HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor(){}
@@ -67,6 +74,27 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
   inputLabelDigi_       = ps.getParameter<edm::InputTag>         ("digiLabel");
+
+// ###################################################################################################################
+
+  hlTriggerResults_				= ps.getUntrackedParameter<edm::InputTag>("HLTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  MetSource_					= ps.getUntrackedParameter<edm::InputTag>("MetSource",edm::InputTag("met"));
+  JetSource_          				= ps.getUntrackedParameter<edm::InputTag>("JetSource",edm::InputTag("iterativeCone5CaloJets"));
+  TrackSource_          			= ps.getUntrackedParameter<edm::InputTag>("TrackSource",edm::InputTag("generalTracks"));
+  rbxCollName_    				= ps.getUntrackedParameter<std::string>("rbxCollName","hcalnoise");
+  TriggerRequirement_ 				= ps.getUntrackedParameter<string>("TriggerRequirement","HLT_MET100");
+  UseMetCutInsteadOfTrigger_			= ps.getUntrackedParameter<bool>("UseMetCutInsteadOfTrigger",true);
+  MetCut_					= ps.getUntrackedParameter<double>("MetCut",0.0);
+  JetMinEt_ 					= ps.getUntrackedParameter<double>("JetMinEt",20.0);
+  JetMaxEta_ 					= ps.getUntrackedParameter<double>("JetMaxEta",2.0);
+  ConstituentsToJetMatchingDeltaR_ 		= ps.getUntrackedParameter<double>("ConstituentsToJetMatchingDeltaR",0.5);
+  TrackMaxIp_ 					= ps.getUntrackedParameter<double>("TrackMaxIp",0.1);
+  TrackMinThreshold_ 				= ps.getUntrackedParameter<double>("TrackMinThreshold",1.0);
+  MinJetChargeFraction_ 			= ps.getUntrackedParameter<double>("MinJetChargeFraction",0.05);
+  MaxJetHadronicEnergyFraction_ 		= ps.getUntrackedParameter<double>("MaxJetHadronicEnergyFraction",0.98);
+  caloTowerCollName_				= ps.getParameter<edm::InputTag>("caloTowerCollName");
+
+// ###################################################################################################################
 
   if (showTiming)
     {
@@ -129,6 +157,159 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
         HO_RBXmapSpikeAmp->setBinLabel(i+1,HO_RBX[i],2);
         HO_RBXmapSpikeCnt->setBinLabel(i+1,HO_RBX[i],2);
      }
+
+// ###################################################################################################################
+
+     if(!Online_) {
+
+       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring");
+       title="MET (GeV) All Events";
+       name="MET_All_Events";				Met_AllEvents        = m_dbe->book1D(name,name,200,0,2000);
+       Met_AllEvents->setAxisTitle(title);
+       title="MET #phi All Events";
+       name="METphi_All_Events";				Mephi_AllEvents        = m_dbe->book1D(name,name,70,-3.5,3.5);
+       Mephi_AllEvents->setAxisTitle(title);
+       title="MEx (GeV) All Events";
+       name="MEx_All_Events";				Mex_AllEvents        = m_dbe->book1D(name,name,200,-1000,1000);
+       Mex_AllEvents->setAxisTitle(title);
+       title="MEy (GeV) All Events";
+       name="MEy_All_Events";				Mey_AllEvents        = m_dbe->book1D(name,name,200,-1000,1000);
+       Mey_AllEvents->setAxisTitle(title);
+       title="SumET (GeV) All Events";
+       name="SumEt_All_Events";				SumEt_AllEvents        = m_dbe->book1D(name,name,200,0,2000);
+       SumEt_AllEvents->setAxisTitle(title);
+       title="Number of LumiSections";
+       name="NLumiSections";				NLumiSections        = m_dbe->book1D(name,name,1,0,1);
+       NLumiSections->setAxisTitle(title);
+
+       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring");
+       title="MET (GeV) passing selections";
+       name="MET_pass_selections";			Met_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
+       Met_passingTrigger->setAxisTitle(title);
+       title="MET #phi passing selections";
+       name="METphi_pass_selections";			Mephi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       Mephi_passingTrigger->setAxisTitle(title);
+       title="MEx (GeV) passing selections";
+       name="MEx_pass_selections";			Mex_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mex_passingTrigger->setAxisTitle(title);
+       title="MEy (GeV) passing selections";
+       name="MEy_pass_selections";			Mey_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mey_passingTrigger->setAxisTitle(title);
+       title="SumET (GeV) passing selections";
+       name="SumEt_pass_selections";			SumEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
+       SumEt_passingTrigger->setAxisTitle(title);
+       title="MET (GeV) corrected for noise";
+       name="MET_pass_selections_correctfornoise";	CorrectedMet_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
+       CorrectedMet_passingTrigger->setAxisTitle(title);
+       title="MET #phi corrected for noise";
+       name="METphi_pass_selections_correctfornoise";	CorrectedMephi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       CorrectedMephi_passingTrigger->setAxisTitle(title);
+       title="MEx (GeV) corrected for noise";
+       name="MEx_pass_selections_correctfornoise";	CorrectedMex_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
+       CorrectedMex_passingTrigger->setAxisTitle(title);
+       title="MEy (GeV) corrected for noise";
+       name="MEy_pass_selections_correctfornoise";	CorrectedMey_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
+       CorrectedMey_passingTrigger->setAxisTitle(title);
+       title="SumET (GeV) corrected for noise";
+       name="SumEt_pass_selections_correctfornoise";	CorrectedSumEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
+       CorrectedSumEt_passingTrigger->setAxisTitle(title);
+       title="Jet Hadronic Energy Fraction - passing selections";
+       name="Jets_passing_selections_HadF";		HCALFraction_passingTrigger   = m_dbe->book1D(name,name,55,0,1.1);
+       HCALFraction_passingTrigger->setAxisTitle(title);
+       title="Jet Charge Fraction - passing selections";
+       name="Jets_passing_selections_CHF";		chargeFraction_passingTrigger   = m_dbe->book1D(name,name,30,0,1.5);
+       chargeFraction_passingTrigger->setAxisTitle(title);
+       title="Jet E_{T} (GeV) - passing selections";
+       name="Jets_Et_passing_selections";		JetEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
+       JetEt_passingTrigger->setAxisTitle(title);
+       title="Jet #eta - passing selections";
+       name="Jets_Eta_passing_selections";		JetEta_passingTrigger   = m_dbe->book1D(name,name,100,-5,5);
+       JetEta_passingTrigger->setAxisTitle(title);
+       title="Jet #phi - passing selections";
+       name="Jets_Phi_passing_selections";		JetPhi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       JetPhi_passingTrigger->setAxisTitle(title);
+       title="Jet HadF vs CHF - passing selections";
+       name="Jets_passing_selections_HadF_vs_CHF"; 	HCALFractionVSchargeFraction_passingTrigger   = m_dbe->book2D(name,name,55,0,1.1,30,0,1.5);
+       HCALFractionVSchargeFraction_passingTrigger->setAxisTitle("HadF",1);
+       HCALFractionVSchargeFraction_passingTrigger->setAxisTitle("CHF",2);
+
+       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring"+"/HcalNoiseCategory");
+       title="'Noise' Jets E_{T} (GeV)";
+       name="Noise_Jets_Et_passing_selections";		JetEt_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,200,0,2000);
+       JetEt_passingTrigger_TaggedAnomalous->setAxisTitle(title);
+       title="'Noise' Jets #eta";
+       name="Noise_Jets_Eta_passing_selections";		JetEta_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,100,-5,5);
+       JetEta_passingTrigger_TaggedAnomalous->setAxisTitle(title);
+       title="'Noise' Jets #phi";
+       name="Noise_Jets_Phi_passing_selections";		JetPhi_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       JetPhi_passingTrigger_TaggedAnomalous->setAxisTitle(title);
+       title="MET (GeV) passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_MET_pass_selections";		Met_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,0,2000);
+       Met_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="MET #phi passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_METphi_pass_selections";		Mephi_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       Mephi_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="MEx (GeV) passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_MEx_pass_selections";		Mex_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mex_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="MEy (GeV) passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_MEy_pass_selections";		Mey_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mey_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="SumET (GeV) passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_SumEt_pass_selections";		SumEt_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,0,2000);
+       SumEt_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="RBX Max Zeros - passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_RBX_Max_Zeros_pass_selections";	RBXMaxZeros_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,30,0,30);
+       RBXMaxZeros_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="RBX E(2ts)/E(10ts) - passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_RBX_E2tsOverE10ts_pass_selections";	RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,50,0,2);
+       RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="RBX N RecHits - passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_RBX_Nhits_pass_selections";	RBXHitsHighest_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,80,0,80);
+       RBXHitsHighest_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="HPD E(2ts)/E(10ts) - passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_HPD_E2tsOverE10ts_pass_selections";	HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,50,0,2);
+       HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+       title="HPD N RecHits - passing selections & Categorized as 'Hcal Noise'";
+       name="Hcal_Noise_HPD_Nhits_pass_selections";	HPDHitsHighest_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,30,0,30);
+       HPDHitsHighest_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
+
+       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring"+"/PhysicsCategory");
+       title="MET (GeV) passing selections & Categorized as 'Physics'";
+       name="Physics_MET_pass_selections";		Met_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,0,2000);
+       Met_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="MET #phi passing selections & Categorized as 'Physics'";
+       name="Physics_METphi_pass_selections";           Mephi_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,70,-3.5,3.5);
+       Mephi_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="MEx (GeV) passing selections & Categorized as 'Physics'";
+       name="Physics_MEx_pass_selections";           Mex_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mex_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="MEy (GeV) passing selections & Categorized as 'Physics'";
+       name="Physics_MEy_pass_selections";           Mey_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,-1000,1000);
+       Mey_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="SumET (GeV) passing selections & Categorized as 'Physics'";
+       name="Physics_SumEt_pass_selections";         SumEt_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,0,2000);
+       SumEt_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="RBX Max Zeros - passing selections & Categorized as 'Physics'";
+       name="Physics_RBX_Max_Zeros_pass_selections";   RBXMaxZeros_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,30,0,30);
+       RBXMaxZeros_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="RBX E(2ts)/E(10ts) - passing selections & Categorized as 'Physics'";
+       name="Physics_RBX_E2tsOverE10ts_pass_selections";       RBXE2tsOverE10ts_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,50,0,2);
+       RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="RBX N RecHits - passing selections & Categorized as 'Physics'";
+       name="Physics_RBX_Nhits_pass_selections";       RBXHitsHighest_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,80,0,80);
+       RBXHitsHighest_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="HPD E(2ts)/E(10ts) - passing selections & Categorized as 'Physics'";
+       name="Physics_HPD_E2tsOverE10ts_pass_selections";       HPDE2tsOverE10ts_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,50,0,2);
+       HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->setAxisTitle(title);
+       title="HPD N RecHits - passing selections & Categorized as 'Physics'";
+       name="Physics_HPD_Nhits_pass_selections";       HPDHitsHighest_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,30,0,30);
+       HPDHitsHighest_passingTrigger_PhysicsCategory->setAxisTitle(title);
+
+     }
+
+// ###################################################################################################################
+
   } 
   ReferenceRun="UNKNOWN";
   IsReference=false;
@@ -259,8 +440,270 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
    }
    
    UpdateHistos();
+
+// ###################################################################################################################
+
+   if(!Online_) {
+
+     // met collection
+     edm::Handle<CaloMETCollection> metHandle;
+     iEvent.getByLabel(MetSource_, metHandle);
+     const CaloMETCollection *metCol = metHandle.product();
+     const CaloMET met = metCol->front();
+
+     // Fill a histogram with the met for all events
+     Met_AllEvents->Fill(met.pt());
+     Mephi_AllEvents->Fill(met.phi());
+     Mex_AllEvents->Fill(met.px());
+     Mey_AllEvents->Fill(met.py());
+     SumEt_AllEvents->Fill(met.sumEt());
+
+     bool found = false;
+     for(unsigned int i=0; i!=lumi.size(); ++i) { if(lumi.at(i) == iEvent.luminosityBlock()) {found = true; break;} }
+     if(!found) {lumi.push_back(iEvent.luminosityBlock()); NLumiSections->Fill(0.5);}
+
+     bool passedTrigger = false;
+     if(!UseMetCutInsteadOfTrigger_) {
+       // trigger results
+       edm::Handle<edm::TriggerResults> hltTriggerResultHandle;
+       iEvent.getByLabel(hlTriggerResults_, hltTriggerResultHandle);
+       // Require a valid handle
+       if(!hltTriggerResultHandle.isValid()) { std::cout << "invalid handle for HLT TriggerResults" << std::endl; }
+       else {
+         // # of triggers
+         int ntrigs = hltTriggerResultHandle->size();
+/*
+         if (ntrigs==0) {std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
+         else {std::cout << "%HLTInfo --  Number of HLT Triggers: " << ntrigs << std::endl;}
+*/
+         triggerNames_.init(* hltTriggerResultHandle);
+         for (int itrig = 0; itrig != ntrigs; ++itrig){
+           // obtain the trigger name
+           string trigName = triggerNames_.triggerName(itrig);
+           // did the trigger fire?
+           bool accept = hltTriggerResultHandle->accept(itrig);
+/*
+           std::cout << "%HLTInfo --  HLTTrigger(" << itrig << "): " << trigName << " = " << accept << std::endl;
+*/
+           if((trigName == TriggerRequirement_) && (accept)) {passedTrigger = true;}
+         }
+       }
+     }
+
+     // fill histograms for events that passed the user defined criteria (HLT_MET100 or Met>X for noise studies)
+     if( ((passedTrigger) && (!UseMetCutInsteadOfTrigger_)) || ((UseMetCutInsteadOfTrigger_) && (met.pt() >= MetCut_)) ) {
+
+       // jet collection
+       Handle<CaloJetCollection> calojetHandle;
+       iEvent.getByLabel(JetSource_, calojetHandle);
+       // track collection
+       Handle<TrackCollection> trackHandle;
+       iEvent.getByLabel(TrackSource_, trackHandle);
+       // HcalNoise RBX collection
+       Handle<HcalNoiseRBXCollection> rbxnoisehandle;
+       iEvent.getByLabel(rbxCollName_, rbxnoisehandle);
+       // CaloTower collection
+       edm::Handle<CaloTowerCollection> towerhandle;
+       iEvent.getByLabel(caloTowerCollName_, towerhandle);
+
+       Met_passingTrigger->Fill(met.pt());
+       Mephi_passingTrigger->Fill(met.phi());
+       Mex_passingTrigger->Fill(met.px());
+       Mey_passingTrigger->Fill(met.py());
+       SumEt_passingTrigger->Fill(met.sumEt());
+       bool isAnomalous_BasedOnHCALFraction = false;
+       bool isAnomalous_BasedOnCF = false;
+       double deltapx = 0;
+       double deltapy = 0;
+       double deltaet = 0;
+       HcalNoisyJetContainer.clear();
+       for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
+         if( (calojetIter->et() > JetMinEt_) && (fabs(calojetIter->eta()) < JetMaxEta_) ) {
+           math::XYZTLorentzVector result (0,0,0,0);
+           for(TrackCollection::const_iterator trackIter = trackHandle->begin(); trackIter != trackHandle->end(); ++trackIter) {
+             double dR = deltaR2((*trackIter).eta(),(*trackIter).phi(),(*calojetIter).eta(),(*calojetIter).phi());
+             if(sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) {
+               if( (fabs(trackIter->d0()) <= TrackMaxIp_) && (trackIter->pt() >= TrackMinThreshold_) ) {
+                 result += math::XYZTLorentzVector (trackIter->px(), trackIter->py(), trackIter->pz(), trackIter->p());
+               }
+             }
+           }
+           HCALFraction_passingTrigger->Fill(calojetIter->energyFractionHadronic());
+           chargeFraction_passingTrigger->Fill(result.pt() / calojetIter->pt());
+           HCALFractionVSchargeFraction_passingTrigger->Fill(calojetIter->energyFractionHadronic(), result.pt() / calojetIter->pt());
+           JetEt_passingTrigger->Fill(calojetIter->et());
+           JetEta_passingTrigger->Fill(calojetIter->eta());
+           JetPhi_passingTrigger->Fill(calojetIter->phi());
+           if((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) {isAnomalous_BasedOnCF = true;}
+           if(calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) {isAnomalous_BasedOnHCALFraction = true;}
+           if( ((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) && (calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) ) {
+             JetEt_passingTrigger_TaggedAnomalous->Fill(calojetIter->et());
+             JetEta_passingTrigger_TaggedAnomalous->Fill(calojetIter->eta());
+             JetPhi_passingTrigger_TaggedAnomalous->Fill(calojetIter->phi());
+             deltapx = deltapx + calojetIter->px();
+             deltapy = deltapy + calojetIter->py();
+             deltaet = deltaet + calojetIter->et();
+             if(calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) { HcalNoisyJetContainer.push_back(*calojetIter); }
+           }
+         }
+       }
+       CaloTowerCollection::const_iterator ihighesttower;
+       HcalNoiseRBXArray thearray;
+       double HighestEnergyTower = 0;
+       bool foundTowerMatch = false;
+       for(std::vector<CaloJet>::iterator itjet = HcalNoisyJetContainer.begin(); itjet != HcalNoisyJetContainer.end(); ++itjet) {
+         for(CaloTowerCollection::const_iterator itower = towerhandle->begin(); itower!=towerhandle->end(); ++itower) {
+           double dR = deltaR2((*itower).eta(),(*itower).phi(),(*itjet).eta(),(*itjet).phi());
+           if((sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) && ((*itower).energy() > HighestEnergyTower)) {
+             HighestEnergyTower = (*itower).energy();
+             ihighesttower = itower;
+             foundTowerMatch = true;
+           }
+         }
+       }
+       std::vector<std::vector<HcalNoiseHPD>::iterator> hpditervec;
+       hpditervec.clear();
+       std::vector<int> nid;
+       nid.clear();
+       std::vector<int> nidd;
+       nidd.clear();
+       if(foundTowerMatch) {
+         const CaloTower& twr=(*ihighesttower); 
+         thearray.findHPD(twr, hpditervec);
+         for(std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator itofit=hpditervec.begin();itofit!=hpditervec.end(); ++itofit) {nid.push_back((*itofit)->idnumber());}
+         if(nid.size() > 0) {
+           double HighestEnergyMatch = 0;
+           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+             HcalNoiseRBX rbx = (*rit);
+             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+               HcalNoiseHPD hpd=(*hit);
+               for(int iii=0; iii < (int)(nid.size()); iii++) {
+                 if((nid.at(iii) == (int)(hpd.idnumber())) && (hpd.recHitEnergy(1.0) > HighestEnergyMatch)) {
+                   HighestEnergyMatch = hpd.recHitEnergy(1.0);
+                   nidd.clear();
+                   nidd.push_back(hpd.idnumber());
+                 }
+               }
+             }
+           }
+         }
+       }
+       if( (isAnomalous_BasedOnCF) ) {
+         if(!isAnomalous_BasedOnHCALFraction) {
+           Met_passingTrigger_PhysicsCategory->Fill(met.pt());
+           Mephi_passingTrigger_PhysicsCategory->Fill(met.phi());
+           Mex_passingTrigger_PhysicsCategory->Fill(met.px());
+           Mey_passingTrigger_PhysicsCategory->Fill(met.py());
+           SumEt_passingTrigger_PhysicsCategory->Fill(met.sumEt());
+           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+             HcalNoiseRBX rbx = (*rit);
+             numRBXhits = rbx.numRecHits(1.0);
+             rbxenergy = rbx.recHitEnergy(1.0);
+             hpdEnergyHighest = 0.;
+             nHitsHighest = 0.;
+             totale2ts=rbx.allChargeHighest2TS();
+             totale10ts=rbx.allChargeTotal();
+             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+               HcalNoiseHPD hpd=(*hit);
+               if ( hpd.recHitEnergy(1.0) > hpdEnergyHighest ) {
+                 hpdEnergyHighest = hpd.recHitEnergy(1.0);
+                 nHitsHighest     = hpd.numRecHits(1.0);
+                 e2ts=hpd.bigChargeHighest2TS();
+                 e10ts=hpd.bigChargeTotal();
+               }
+             }
+             RBXMaxZeros_passingTrigger_PhysicsCategory->Fill(rbx.maxZeros());
+             RBXHitsHighest_passingTrigger_PhysicsCategory->Fill(numRBXhits);
+             RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+             HPDHitsHighest_passingTrigger_PhysicsCategory->Fill(nHitsHighest);
+             HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+           }
+         }
+         if(isAnomalous_BasedOnHCALFraction) {
+           Met_passingTrigger_HcalNoiseCategory->Fill(met.pt());
+           Mephi_passingTrigger_HcalNoiseCategory->Fill(met.phi());
+           Mex_passingTrigger_HcalNoiseCategory->Fill(met.px());
+           Mey_passingTrigger_HcalNoiseCategory->Fill(met.py());
+           SumEt_passingTrigger_HcalNoiseCategory->Fill(met.sumEt());
+           if(nidd.size() > 0) {
+             for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+               HcalNoiseRBX rbx = (*rit);
+               numRBXhits = rbx.numRecHits(1.0);
+               totale2ts=rbx.allChargeHighest2TS();
+               totale10ts=rbx.allChargeTotal();
+               bool isNoisyRBX = false;
+               std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+               for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+                 HcalNoiseHPD hpd=(*hit);
+                 if((int)(hpd.idnumber()) == nidd.at(0)) {
+                   isNoisyRBX = true;
+                   nHitsHighest     = hpd.numRecHits(1.0);
+                   e2ts=hpd.bigChargeHighest2TS();
+                   e10ts=hpd.bigChargeTotal();
+                 }
+               }
+               if(isNoisyRBX) {
+                 RBXMaxZeros_passingTrigger_HcalNoiseCategory->Fill(rbx.maxZeros());
+                 RBXHitsHighest_passingTrigger_HcalNoiseCategory->Fill(numRBXhits);
+                 RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+                 HPDHitsHighest_passingTrigger_HcalNoiseCategory->Fill(nHitsHighest);
+                 HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory->Fill(e10ts ? e2ts/e10ts : -999);
+               }
+             }
+           }
+         }
+       } else {
+         Met_passingTrigger_PhysicsCategory->Fill(met.pt());
+         Mephi_passingTrigger_PhysicsCategory->Fill(met.phi());
+         Mex_passingTrigger_PhysicsCategory->Fill(met.px());
+         Mey_passingTrigger_PhysicsCategory->Fill(met.py());
+         SumEt_passingTrigger_PhysicsCategory->Fill(met.sumEt());
+         for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+           HcalNoiseRBX rbx = (*rit);
+           numRBXhits = rbx.numRecHits(1.0);
+           rbxenergy = rbx.recHitEnergy(1.0);
+           hpdEnergyHighest = 0.;
+           nHitsHighest = 0.;
+           totale2ts=rbx.allChargeHighest2TS();
+           totale10ts=rbx.allChargeTotal();
+           std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+           for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+             HcalNoiseHPD hpd=(*hit);
+             if ( hpd.recHitEnergy(1.0) > hpdEnergyHighest ) {
+               hpdEnergyHighest = hpd.recHitEnergy(1.0);
+               nHitsHighest     = hpd.numRecHits(1.0);
+               e2ts=hpd.bigChargeHighest2TS();
+               e10ts=hpd.bigChargeTotal();
+             }
+           }
+           RBXMaxZeros_passingTrigger_PhysicsCategory->Fill(rbx.maxZeros());
+           RBXHitsHighest_passingTrigger_PhysicsCategory->Fill(numRBXhits);
+           RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+           HPDHitsHighest_passingTrigger_PhysicsCategory->Fill(nHitsHighest);
+           HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+         }
+       }
+       double correctedMEx = met.px() + deltapx;
+       double correctedMEy = met.py() + deltapy;
+       double correctedMEphi = (correctedMEx==0 && correctedMEy==0) ? 0 : atan2(correctedMEy,correctedMEx);
+       double correctedMET = sqrt((correctedMEx * correctedMEx) + (correctedMEy * correctedMEy));
+       double correctedSumET = met.sumEt() - deltaet;
+       CorrectedMet_passingTrigger->Fill(correctedMET);
+       CorrectedMephi_passingTrigger->Fill(correctedMEphi);
+       CorrectedMex_passingTrigger->Fill(correctedMEx);
+       CorrectedMey_passingTrigger->Fill(correctedMEy);
+       CorrectedSumEt_passingTrigger->Fill(correctedSumET);
+     }
+
+   } //if (!Online_)
+
+// ###################################################################################################################
        
-   if((ievt_%100)==0 && fVerbosity) printf("%i\t%i\n",ievt_,NoisyEvents);
+   if((ievt_%100)==0 && fVerbosity)
+     std::cout <<ievt_<<"\t"<<NoisyEvents<<std::endl;
+
    if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDetDiagNoiseMonitor PROCESSEVENT -> "<<cpu_timer.cpuTime()<<std::endl;
