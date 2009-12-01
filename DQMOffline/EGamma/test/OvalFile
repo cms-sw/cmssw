@@ -37,13 +37,22 @@ Tests with same datasets as release validation
   <!--var name="DBS_RELEASE" value="LOCAL"-->
   <!--var name="DBS_COND" value=""-->
 
+  <var name="PUB_INPUT_FOLDER" value="DQMData/Egamma/ElectronAnalyzer/">
+  <var name="PUB_TITLE" value="DQMOffline Electron Histograms for ${TEST_RELEASE}">
+  <var name="PUB_COMMENT" value="">
+  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/340pre5/Electrons/DqmOffline">
+  
   <environment name="Pt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.Pt35.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${TEST_HISTOS_FILE}">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
+    <var name="PUB_TITLE" value="${PUB_TITLE} and ${DBS_SAMPLE}">
+    <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="QcdPt80Pt120">
@@ -52,7 +61,7 @@ Tests with same datasets as release validation
     <var name="TEST_HISTOS_FILE" value="cmsRun.QcdPt80Pt120.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <executable name="root" args="-b -l -q eleListHistos.C">
   </environment>
   
   <environment name="Pt10">
@@ -61,7 +70,7 @@ Tests with same datasets as release validation
     <var name="TEST_HISTOS_FILE" value="cmsRun.Pt10.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <executable name="root" args="-b -l -q eleListHistos.C">
   </environment>
   
   <environment name="TTbar">
@@ -70,7 +79,7 @@ Tests with same datasets as release validation
     <var name="TEST_HISTOS_FILE" value="cmsRun.TTbar.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <executable name="root" args="-b -l -q eleListHistos.C">
   </environment>
   
   <environment name="ZEEIdeal">
@@ -80,7 +89,7 @@ Tests with same datasets as release validation
     <var name="TEST_HISTOS_FILE" value="cmsRun.ZEEIdeal.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <executable name="root" args="-b -l -n -q eleListHistos.C">
   </environment>
   
   <environment name="ZEEStartup">
@@ -92,7 +101,7 @@ Tests with same datasets as release validation
     <var name="TEST_HISTOS_FILE" value="cmsRun.ZEEStartup.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <executable name="root" args="-b -l -q cmsListHistos.C">
+    <executable name="root" args="-b -l -q eleListHistos.C">
   </environment>
   
 </environment>

@@ -1,15 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.EGamma.electronOfflineClient_cfi import *
-dqmElectronOfflineClient0 = dqmElectronOfflineClient.clone() ;
-dqmElectronOfflineClient0.Selection = 0 ;
-dqmElectronOfflineClient1 = dqmElectronOfflineClient.clone() ;
-dqmElectronOfflineClient1.Selection = 1 ;
-dqmElectronOfflineClient2 = dqmElectronOfflineClient.clone() ;
-dqmElectronOfflineClient2.Selection = 2 ;
-dqmElectronOfflineClient3 = dqmElectronOfflineClient.clone() ;
-dqmElectronOfflineClient3.Selection = 3 ;
-dqmElectronOfflineClient4 = dqmElectronOfflineClient.clone() ;
-dqmElectronOfflineClient4.Selection = 4 ;
+dqmElectronClientAllElectrons = dqmElectronOfflineClient.clone() ;
+dqmElectronClientAllElectrons.Selection = 0 ;
+dqmElectronClientSelectionEt = dqmElectronOfflineClient.clone() ;
+dqmElectronClientSelectionEt.Selection = 1 ;
+dqmElectronClientSelectionEtIso = dqmElectronOfflineClient.clone() ;
+dqmElectronClientSelectionEtIso.Selection = 2 ;
+dqmElectronClientSelectionEtIsoElID = dqmElectronOfflineClient.clone() ;
+dqmElectronClientSelectionEtIsoElID.Selection = 3 ;
+dqmElectronClientTagAndProbe = dqmElectronOfflineClient.clone() ;
+dqmElectronClientTagAndProbe.Selection = 4 ;
 
-electronClientSequence = cms.Sequence(dqmElectronOfflineClient0*dqmElectronOfflineClient1*dqmElectronOfflineClient2*dqmElectronOfflineClient3*dqmElectronOfflineClient4)
+electronClientSequence = cms.Sequence(
+   dqmElectronClientAllElectrons
+ * dqmElectronClientSelectionEt
+ * dqmElectronClientSelectionEtIso
+ * dqmElectronClientSelectionEtIsoElID
+ * dqmElectronClientTagAndProbe
+)
