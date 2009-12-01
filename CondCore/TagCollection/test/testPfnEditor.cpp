@@ -12,7 +12,7 @@ void error(char const * m) {
 int main() {
   
   std::string det("STRIP");
-  
+  std::string cond("CMS_COND_31X_");
   std::string pfn("oracle://cmsarc_lb/CMS_COND_31X_STRIP");
   std::string pre1("oracle://cmsarc_lb/");
   std::string pre2("oracle://cmsprod/");
@@ -33,19 +33,19 @@ int main() {
 
   {
     cond::PfnEditor ed(pre2,"");
-    if (ed(pfn)!=pre2+det) 
-      error("error changin pre and null post");
+    if (ed(pfn)!=pre2+cond+det) 
+      error("error changing pre and null post");
   }
 
   {
     cond::PfnEditor ed(pre2,post);
-    if (ed(pfn)!=pre2+det+post) 
+    if (ed(pfn)!=pre2+cond+det+post) 
       error("error changing pre and post");
   }
 
   {
-    cond::PfnEditor ed(pre1,post);
-    if (ed(det)!=pre1+det+post) 
+    cond::PfnEditor ed(pre1+cond,post);
+    if (ed(det)!=pre1+cond+det+post) 
       error("error adding pre and post");
   }
 
