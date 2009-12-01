@@ -21,9 +21,9 @@ namespace cond{
   public:
     /// constructor
     explicit TagCollectionRetriever( cond::DbSession& coraldb );
-    explicit TagCollectionRetriever( cond::DbSession& coraldb, 
-				     std::string const & prefix, 
-				     std::string const & postfix);
+    TagCollectionRetriever( cond::DbSession& coraldb, 
+			    std::string const & prefix, 
+			    std::string const & postfix);
     /// destructor
     ~TagCollectionRetriever();
     /**
