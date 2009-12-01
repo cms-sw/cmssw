@@ -4,7 +4,13 @@ process = cms.Process("TEST")
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
+process.GlobalTag.globaltag = 'CRAFT09_R_V9::All'
+#'GR09_P_V6::All'
+#'MC_31X_V9::All'
+#'GR09_31X_V5P::All'
+process.GlobalTag.DumpStat =  True
+process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
+process.GlobalTag.pfnPostfix = "_0911"
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(3),
