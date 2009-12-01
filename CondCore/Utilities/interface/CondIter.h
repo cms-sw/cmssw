@@ -38,6 +38,8 @@ public:
   
   void reset() { initialized=false; data.clear();}
 
+  void rewind() { reset();}
+
   virtual void clear() {
     reset();
     cache.clear();
