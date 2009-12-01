@@ -70,8 +70,15 @@ private:
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
+  int thresholdLS_;    ///units of lumi sections
   int prescaleEvt_;    ///prescale on number of events
   int nChannels;
+
+  double GCT_NonIsoEm_threshold_;
+  double GCT_IsoEm_threshold_;
+  double GCT_TauJets_threshold_;
+  double GCT_AllJets_threshold_;
+  double GMT_Muons_threshold_;
 
   enum DataValue { data_empty, data_all, data_gt, data_muons, 
 		   data_jets, data_taujets, data_isoem, 
