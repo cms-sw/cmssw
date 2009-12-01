@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/20 15:01:34 $
-//   $Revision: 1.34 $
+//   $Date: 2009/10/16 13:10:47 $
+//   $Revision: 1.35 $
 //
 //   Modifications:
 //
@@ -1860,7 +1860,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6], titl[50];
+  char pagenum[7], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -1933,7 +1933,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6], titl[50];
+  char pagenum[7], titl[50];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2101,7 +2101,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6], titl[50];
+  char pagenum[7], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2197,7 +2197,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6];
+  char pagenum[7];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2269,7 +2269,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6];
+  char pagenum[7];
   TPaveLabel *title;
   Int_t nbins;
 
@@ -2606,7 +2606,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6];
+  char pagenum[7];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2841,7 +2841,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-			 "#phi_rec-#phi_sim (mrad), endcap2");
+  			 "#phi_rec-#phi_sim (mrad), endcap2");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
@@ -2982,7 +2982,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[6];
+  char pagenum[7];
   TPaveLabel *title;
   char histtitle[60];
   
