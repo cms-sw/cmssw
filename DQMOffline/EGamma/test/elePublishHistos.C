@@ -19,11 +19,53 @@ int elePublishHistos()
   TString pub_title = gSystem->Getenv("PUB_TITLE") ;
   TString pub_comment = gSystem->Getenv("PUB_COMMENT") ;
   
-  // prepare unix output directories
-  if (gSystem->mkdir(pub_output_dir,kTRUE)<0)
+  // prepare unix output directory
+  pub_output_dir = gSystem->ExpandPathName(pub_output_dir.Data()) ;
+  if (gSystem->AccessPathName(pub_output_dir.Data())==kFALSE)
+   { std::cout<<"Output directory is "<<pub_output_dir<<std::endl ; }
+  else if (gSystem->mkdir(pub_output_dir,kTRUE)<0)
    { std::cerr<<"Failed to create "<<pub_output_dir<<std::endl ; exit(1) ; }
   else
-   { std::cout<<"Outputdir: "<<pub_output_dir<<std::endl ; }
+   { std::cout<<"Creating "<<pub_output_dir<<std::endl ; }
+  
+  // open input file
+  if (gSystem->CopyFile(pub_input_file.Data(),(pub_output_dir+"/"+pub_input_file).Data(),kTRUE)<0)
+   { std::cerr<<"Failed to copy "<<pub_input_file<<std::endl ; exit(2) ; }
+  else
+   { std::cout<<"Input file is "<<pub_input_file<<std::endl ; }
+  TFile * file = TFile::Open(pub_input_file) ;
+  if (file!=0)
+   {
+    std::cout<<"Opening "<<pub_input_file<<std::endl ;
+    if (file->cd(pub_input_folder)!=kTRUE)
+     { std::cerr<<"Do not find "<<pub_input_folder<<std::endl ; exit(4) ; }
+    else
+     { std::cout<<"Input folder is "<<pub_input_folder<<std::endl ; }
+   }
+  else
+   { std::cerr<<"Failed to open "<<pub_input_file<<std::endl ; exit(3) ; }
+  
+
+  // web page header
+  std::ofstream web_page((pub_output_dir+"/index.html").Data()) ;
+  web_page
+    <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n"
+    <<"<html>\n"
+    <<"<head>\n"
+    <<"<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n"
+    <<"<title>"<<pub_title<<"</title>\n"
+    <<"</head>\n"
+    <<"<h1><a href=\"../\">"<<pub_title<<"</a></h1>\n" ;
+  web_page<<"<p>"<<pub_comment ;
+  web_page
+    <<" They were made using configurations "
+    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/DQMOffline/EGamma/test/ElectronAnalyzer_cfg.py\">"
+    <<"DQMOffline/EGamma/test/ElectronAnalyzer_cfg.py</a> and "
+    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/DQMOffline/EGamma/test/ElectronOfflineClient_cfg.py\">"
+    <<"DQMOffline/EGamma/test/ElectronOfflineClient_cfg.py</a>." ;
+  web_page
+    <<" One can download the full <a href=\""<<pub_input_file<<"\"> histograms file</a>." ;
+  web_page<<"</p>\n" ;
 
   // style
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron dqm offline");
@@ -65,260 +107,131 @@ int elePublishHistos()
   eleStyle->cd();
   gROOT->ForceStyle();
   
-  // web page header
-  std::ofstream web_page((pub_output_dir+"/index.html").Data()) ;
+  // variables for the next loops
+  int cat_num ;
+  TList * keys1, * keys2 ;
+  TKey * key1, * key2 ;
+  TObject * obj1, * obj2 ;
+  TDirectory * dir ;
+  TH1 * histo ;
+  TString short_histo_name, anchor_name ;
+  file->cd(pub_input_folder) ;
+  keys1 = gDirectory->GetListOfKeys() ;
+  TIter * nextKey1, * nextKey2 ;
+  
+  // top table
+  std::cout<<"Writing top table"<<std::endl ;
   web_page
-    <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n"
-    <<"<html>\n"
-    <<"<head>\n"
-    <<"<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n"
-    <<"<title>"<<pub_title<<"</title>\n"
-    <<"</head>\n"
-    <<"<h1><a href=\"../\">"<<pub_title<<"</h1>\n" ;
-  web_page<<"<p>"<<pub_comment ;
-  web_page
-    <<" Plots below were made using configuration "
-    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/DQMOffline/EGamma/test/ElectronAnalyzer_cfg.py\">"
-    <<"DQMOffline/EGamma/test/ElectronAnalyzer_cfg.py</a> and "
-    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/DQMOffline/EGamma/test/ElectronOfflineClient_cfg.py\">"
-    <<"DQMOffline/EGamma/test/ElectronOfflineClient_cfg.py</a>." ;
-  web_page<<"</p>\n" ;
-
-  web_page<<"\n</html>"<<std::endl ;
-  web_page.close() ;
-  exit(0) ;
-
-TString val_new_file_url ;
-TString file_new_dir = internal_path  ;
-TFile * file_new = 0 ;
-if ( val_new_file_name != "" )
- {
-  file_new = TFile::Open(val_new_file_name) ;
-  if (file_new!=0)
+    <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
+    <<"<tr valign=\"top\">\n" ;
+  cat_num = 0 ;
+  file->cd(pub_input_folder) ;
+  keys1 = gDirectory->GetListOfKeys() ;
+  nextKey1 = new TIter(keys1) ;
+  while (key1 = (TKey *)(*nextKey1)())
    {
-    std::cout<<"open "<<val_new_file_name<<std::endl ;
-    if (val_new_file_name.BeginsWith(val_web)==kTRUE)
-     {
-      val_new_file_url = val_new_file_name ;
-      val_new_file_url.Remove(0,val_web.Length()) ;
-      val_new_file_url.Prepend(val_web_url) ;
-     }
-    if (file_new->cd(internal_path)!=kTRUE)
-     {
-      std::cerr<<"Failed move to: "<<internal_path<<std::endl ;
-      file_new_dir = "" ;
-     }
+    obj1 = key1->ReadObj() ;
+    if (obj1->IsA()->InheritsFrom("TDirectory")==kFALSE)
+     { std::cout<<"Ignoring object "<<obj1->GetName()<<std::endl ; continue ; }
     else
+     { std::cout<<"Processing folder "<<obj1->GetName()<<std::endl ; }
+    dir = (TDirectory *)obj1 ;
+    web_page<<"<td width=\"20%\"><b>"<<dir->GetName()<<"</b><br><br>\n" ;
+    keys2 = dir->GetListOfKeys() ;
+    nextKey2 = new TIter(keys2) ;
+    while (key2 = (TKey *)(*nextKey2)())
      {
-      std::cerr<<"cd "<<internal_path<<std::endl ;
-      file_new->cd() ;
+      obj2 = key2->ReadObj() ;
+      if (obj2->IsA()->InheritsFrom("TH1")==kFALSE)
+       { std::cout<<"Ignoring object "<<obj2->GetName()<<std::endl ; continue ; }
+      short_histo_name = obj2->GetName() ;
+      short_histo_name.Remove(0,2) ;
+      anchor_name = dir->GetName() ;
+      anchor_name += "_" ;
+      anchor_name += short_histo_name ;
+      web_page<<"<a href=\"#"<<anchor_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
      }
-   }
-  else
-   { std::cerr<<"Failed to open: "<<val_new_file_name<<std::endl ; }
- }
-
-TCanvas * canvas ;
-TH1 * histo_ref, * histo_new ;
-
-
-std::string histo_path, canvas_name ;
-TString histo_name, gif_name, gif_path, short_histo_name, num_ref, denom_ref ;
-int scaled, log, err ;
-int divide;
-std::string num, denom, cat ;
-int eol ; // end of line
-int eoc ; // enf of category
-
-std::ifstream histo_file1(histos_path.c_str()) ;
-web_page
-  <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
-  <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
-int cat_num = 0 ;
-
-cat = "" ;
-do
- {
-  std::getline(histo_file1,cat) ;
- } while (cat.empty()) ;
-
-web_page<<"<b>"<<cat<<"</b><br><br>" ;
-
-while (histo_file1>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
- {
-  histo_name = histo_path ;
-  Ssiz_t pos = histo_name.Last('/') ;
-  if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
-  short_histo_name = histo_name ;
-  short_histo_name.Remove(0,2) ;
-  web_page<<"<a href=\"#"<<short_histo_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
-  if (eoc)
-   {
+    web_page<<"<br></td>\n" ;
     cat_num++ ;
     if ((cat_num%5)==0)
-     { web_page<<"<br></td></tr>\n<tr valign=\"top\"><td width=\"20%\">" ; }
-    else
-     { web_page<<"<br></td><td width=\"20%\">\n" ; }
-    cat = "" ;
-    do
-     {
-      std::getline(histo_file1,cat) ;
-     } while (cat.empty()) ;
-    web_page<<"<b>"<<cat<<"</b><br><br>" ;
+     { web_page<<"</tr>\n<tr valign=\"top\">" ; }
    }
- }
-web_page<<"<br></td></tr></table>\n" ;
-histo_file1.close() ;
+  web_page<<"</tr></table>\n" ;
 
-web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td>\n" ;
-std::ifstream histo_file2(histos_path.c_str()) ;
-
-cat = "" ;
-do
- {
-  std::getline(histo_file2,cat) ;
- } while (cat.empty()) ;
-
-while (histo_file2>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
- {
-  histo_name = histo_path ;
-  Ssiz_t pos = histo_name.Last('/') ;
-  if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
-  short_histo_name = histo_name ;
-  short_histo_name.Remove(0,2) ;
-  
-  gif_name = "gifs/" ;
-  gif_name += histo_name ;
-  gif_name += ".gif" ;
-  gif_path = val_web_path ;
-  gif_path += "/" ;
-  gif_path += gif_name ;
-  canvas_name = std::string("c")+histo_name.Data() ;
-  canvas = new TCanvas(canvas_name.c_str()) ;
-  canvas->SetFillColor(10) ;
-  
-  web_page<<"<a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
-
-  if ( file_ref != 0 )
-   {
-    if (file_ref_dir.IsNull()) histo_ref = (TH1 *)file_ref->Get(histo_name) ;
-    else histo_ref = (TH1 *)file_ref->Get(file_ref_dir+histo_path.c_str()) ;
-	
-    if (histo_ref!=0)
-     {
-      histo_ref->SetLineColor(4) ;
-      histo_ref->SetLineWidth(3) ;
-      if (divide==0)
-       { histo_ref->Draw("hist") ; }
-      else
-       {
-  	    num_ref = num ;
-  		  denom_ref = denom ;
-  	    if (file_ref_dir.IsNull())
-  	     {
-    		  pos = num_ref.Last('/') ;
-    		  if (pos!=kNPOS) num_ref.Remove(0,pos+1) ;
-    		  pos = denom_ref.Last('/') ;
-    		  if (pos!=kNPOS) denom_ref.Remove(0,pos+1) ;
-    		 }
-		 
-        // special for efficiencies
-        TH1F *h_num = (TH1F *)file_ref->Get(file_ref_dir+num_ref) ;
-        TH1F *h_res = (TH1F*)h_num->Clone("res");
-        //h_res->Reset();
-        TH1F *h_denom = (TH1F *)file_ref->Get(file_ref_dir+denom_ref) ;
-        std::cout << "DIVIDING OLD "<< num_ref << " by " << denom_ref << std::endl;
-        h_res->Divide(h_num,h_denom,1,1,"b");
-        h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
-        h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
-        h_res->SetLineColor(4) ;
-        h_res->SetLineWidth(3) ;
-        h_res ->Draw("hist") ;
-       }
-     }
-    else
-     {
-      web_page<<"No <b>"<<histo_path<<"</b> for "<<val_ref_release<<".<br>" ;
-     }
-   }
-
+  // histograms
+  std::cout<<"Plotting histograms"<<std::endl ;
   gErrorIgnoreLevel = kWarning ;
-
-  histo_new = (TH1 *)file_new->Get(file_new_dir+histo_path.c_str()) ;
-  if (histo_new!=0)
+  web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td>\n" ;
+  TCanvas * canvas ;
+  TString left_histo_name, histo_name, gif_name, gif_path, canvas_name ;
+  cat_num = 0 ;
+  file->cd(pub_input_folder) ;
+  keys1 = gDirectory->GetListOfKeys() ;
+  nextKey1 = new TIter(keys1) ;
+  while (key1 = (TKey *)(*nextKey1)())
    {
-    if (log==1) canvas->SetLogy(1);
-    histo_new->SetLineColor(2) ;
-    histo_new->SetMarkerColor(2) ;
-    histo_new->SetLineWidth(3) ;
-    if ((scaled==1)&&(file_ref!=0)&&(histo_ref!=0)&&(histo_new->GetEntries()!=0))
-     { histo_new->Scale(histo_ref->GetEntries()/histo_new->GetEntries()) ; }
-    if (divide==0)
+    obj1 = key1->ReadObj() ;
+    if (obj1->IsA()->InheritsFrom("TDirectory")==kFALSE)
+     { continue ; }
+    dir = (TDirectory *)obj1 ;
+    keys2 = dir->GetListOfKeys() ;
+    nextKey2 = new TIter(keys2) ;
+    while (key2 = (TKey *)(*nextKey2)())
      {
-      if (err==1)
+      obj2 = key2->ReadObj() ;
+      if (obj2->IsA()->InheritsFrom("TH1")==kFALSE)
+       { std::cout<<"Ignoring object "<<obj2->GetName()<<std::endl ; continue ; }
+      histo = (TH1 *)obj2 ;
+      
+      std::cout
+        <<dir->GetName()<<"/"<<histo->GetName()<<";"<<key2->GetCycle()
+        <<" has "<<histo->GetEntries()<<" entries"
+        <<" (~"<<histo->GetEffectiveEntries()<<")"
+        <<" of mean value "<<histo->GetMean()
+        <<std::endl ;
+      
+      histo_name = histo->GetName() ;
+      if (left_histo_name.IsNull()==kFALSE)
        {
-        if (histo_ref!=0) histo_new->Draw("same E1 P") ;
-        else histo_new->Draw("E1 P") ;
+        if (histo_name.Index(left_histo_name)==0)
+         { web_page<<"</td><td>" ; }
+        else
+         {
+          left_histo_name = histo_name ;
+          web_page<<"</td></tr>\n<tr valign=\"top\"><td>" ;
+         }
        }
       else
-       {
-        if (histo_ref!=0) histo_new->Draw("same hist") ;
-        else histo_new->Draw("hist") ;
-       }
+       { left_histo_name = histo_name ; }
+       
+      short_histo_name = histo_name ;
+      short_histo_name.Remove(0,2) ;
+      anchor_name = dir->GetName() ;
+      anchor_name += "_" ;
+      anchor_name += short_histo_name ;
+      gif_name = anchor_name+".gif" ;
+      gif_path = pub_output_dir+"/"+gif_name ;
+      canvas_name = "c_" ;
+      canvas_name += anchor_name ;
+      canvas = new TCanvas(canvas_name) ;
+      canvas->SetFillColor(10) ;
+        
+      histo->SetLineColor(2) ;
+      histo->SetMarkerColor(2) ;
+      histo->SetLineWidth(3) ;
+      histo->Draw("E1 P") ;
+      canvas->SaveAs(gif_path.Data()) ;
+    
+      web_page
+        <<"<a id=\""<<anchor_name<<"\" name=\""<<anchor_name<<"\"></a>"
+        <<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>\n" ;
      }
-    else
-     {
-      // special for efficiencies
-      TH1F *h_num = (TH1 *)file_new->Get(file_new_dir+num.c_str()) ;
-      TH1F *h_res = (TH1F*)h_num->Clone("res");
-      TH1F *h_denom = (TH1 *)file_new->Get(file_new_dir+denom.c_str()) ;
-      std::cout << "DIVIDING NEW "<< num.c_str() << " by " << denom.c_str() << std::endl;
-      h_res->Divide(h_num,h_denom,1,1,"b");
-      h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
-      h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
-      h_res->SetLineColor(2) ;
-      h_res->SetMarkerColor(2) ;
-      h_res->SetLineWidth(3) ;
-      if (err==1) h_res ->Draw("same E1 P") ;
-      else  h_res ->Draw("same hist") ;
-     }
-    std::cout<<histo_name
-      <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-      <<" of mean value "<<histo_new->GetMean()
-      <<std::endl ;
-    canvas->SaveAs(gif_path.Data()) ;
-	web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>" ;
    }
-  else if ((file_ref!=0)&&(histo_ref!=0))
-   {
-    std::cout<<histo_path<<" NOT FOUND"<<std::endl ;
-    web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
-    canvas->SaveAs(gif_path.Data()) ;
-	web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>" ;
-   }
-  else
-   {
-    web_page<<"No <b>"<<histo_path<<"</b> for "<<val_new_release<<".<br>" ;
-   }
-  if (eol)
-   { web_page<<"</td></tr>\n<tr valign=\"top\"><td>" ; }
-  else
-   { web_page<<"</td><td>" ; }
-  if (eoc)
-   {
-	cat = "" ;
-    do
-     {
-      std::getline(histo_file2,cat) ;
-     } while (cat.empty()) ;
-   }
+  web_page<<"</td></tr></table>\n" ;
+  
+  // the end
+  web_page<<"\n</html>"<<std::endl ;
+  web_page.close() ;
+  std::cout<<"Histos written to "<<pub_output_dir<<std::endl ;
+  return 0 ;
  }
-histo_file2.close() ;
-web_page<<"</td></tr></table>\n" ;
-
-// cumulated efficiencies
-
-web_page<<"\n</html>"<<std::endl ;
-web_page.close() ;
-
-}

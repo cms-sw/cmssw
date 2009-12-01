@@ -16,11 +16,11 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),se
 process.source.fileNames.extend(dbs_discovery.search())
 
 process.load("DQMOffline.EGamma.electronAnalyzerSequence_cff")
-process.dqmElectronAnalysis0.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysis1.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysis2.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysis3.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysis4.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysis4.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+process.dqmElectronAnalysisAllElectrons.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronAnalysisSelectionEt.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronAnalysisSelectionEtIso.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronAnalysisSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronAnalysisTagAndProbe.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronAnalysisTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.p = cms.Path(process.electronAnalyzerSequence*process.dqmStoreStats)
