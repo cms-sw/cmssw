@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/11/03 10:12:36 $
- * $Revision: 1.31 $
+ * $Date: 2009/11/19 14:36:24 $
+ * $Revision: 1.32 $
  * \author J. Berryhill
  *
  */
@@ -89,6 +89,9 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
 L1TCSCTF::~L1TCSCTF()
 {
+
+  for(int i=0; i<5; i++) 
+    delete srLUTs_[i]; //free the array of pointers
 }
 
 void L1TCSCTF::beginJob(void)
@@ -248,6 +251,9 @@ void L1TCSCTF::beginJob(void)
     DTstubsTimeTrackMenTimeArrival[i]->setBinLabel(2,"sub2",2);
 
   } 
+
+  csctfHaloL1ABXN  = dbe->book1D("csctfHaloL1ABXN" ,"L1A BXN (HALO)", 3564,0,3564);
+  csctfCoincL1ABXN = dbe->book1D("csctfCoincL1ABXN","L1A BXN (COINCIDENCE)", 3564,0,3564);
   //GP_end
 
 
@@ -341,6 +347,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
       edm::Handle<L1CSCStatusDigiCollection> status;
       e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
       bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
+      int nStat = 0;
+      L1ABXN = -999;
       for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin(); stat!=status->second.end(); stat++)
 	{
 	  se |= stat->SEs()&0xFFF;
@@ -348,7 +356,17 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	  bx |= stat->BXs()&0xFFF;
 	  af |= stat->AFs()&0xFFF;
 	  fmm|= stat->FMM()!=8;
+
+	  //GP_start
+	  if(stat->VPs() != 0) {
+	    L1ABXN += stat->BXN();
+	    nStat++;
+	  }
+	  //GP_end
      	}
+
+      // GP: compute the average
+      L1ABXN /= nStat;
      
       if(integrity) csctferrors->Fill(0.5);
       if(se)        csctferrors->Fill(1.5);
@@ -489,6 +507,10 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 			
 	  if( trigMode == 15 )
 	    {
+	      //GP_start
+	      csctfHaloL1ABXN->Fill(L1ABXN);
+	      //GP_end
+
 	      double haloVals[4][4];
 	      for( int i = 0; i < 4; i++)
 		{
@@ -569,6 +591,13 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	  cscTrackStubNumbers->Fill(cscTrackStub);
 				
 	  //JAG_END
+
+	  //GP_start: only coincidence
+	  if( trigMode > 0 && trigMode !=15 && trigMode != 11 )
+	    csctfCoincL1ABXN->Fill(L1ABXN);
+	  //GP_end
+
+
 	}
     }
   csctfntrack->Fill(NumCSCTfTracksRep);

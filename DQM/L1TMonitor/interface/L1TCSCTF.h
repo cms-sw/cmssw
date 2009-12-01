@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2009/10/29 19:15:22 $
- * $Revision: 1.13 $
+ * $Date: 2009/11/19 14:30:24 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
 */
@@ -99,6 +99,10 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
   int BxInEvent_; //bx of the CSC muon candidate
   bool isCSCcand_;//does GMT readout window have a CSC cand?
+
+  MonitorElement* csctfHaloL1ABXN;
+  MonitorElement* csctfCoincL1ABXN;
+  int L1ABXN;
   // GP_end
 
   int nev_; // Number of events processed
