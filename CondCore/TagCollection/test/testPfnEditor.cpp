@@ -17,35 +17,35 @@ int main() {
   std::string pre1("oracle://cmsarc_lb/");
   std::string pre2("oracle://cmsprod/");
   
-  std::post("_0911");
+  std::string post("_0911");
   
   {
     cond::PfnEditor ed("","");
-    if (ed.pfn(pfn)!=pfn) 
+    if (ed(pfn)!=pfn) 
       error("error adding null pre and null post");
   }
 
   {
     cond::PfnEditor ed("",post);
-    if (ed.pfn(pfn)!=pfn+post) 
+    if (ed(pfn)!=pfn+post) 
       error("error adding null pre and post");
   }
 
   {
     cond::PfnEditor ed(pre2,"");
-    if (ed.pfn(pfn)!=pre2+de) 
+    if (ed(pfn)!=pre2+de) 
       error("error changin pre and null post");
   }
 
   {
     cond::PfnEditor ed(pre2,post);
-    if (ed.pfn(pfn)!=pre2+det+post) 
+    if (ed(pfn)!=pre2+det+post) 
       error("error changing pre and post");
   }
 
   {
     cond::PfnEditor ed(pre1,post);
-    if (ed.pfn(det)!=pre1+det+post) 
+    if (ed(det)!=pre1+det+post) 
       error("error adding pre and post");
   }
 

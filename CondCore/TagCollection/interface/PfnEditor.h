@@ -17,7 +17,7 @@ namespace cond{
     {}
     
     
-    std::string operator(std::string const & pfn) {
+    std::string operator()(std::string const & pfn) {
       if (off) return pfn;
       size_t pos=std::string::npos;
       if (!prefix.empty()) pos = pfn.rfind('/');
