@@ -19,6 +19,15 @@ process.source = cms.Source("EventStreamHttpReader",
     ),
     headerRetryInterval = cms.untracked.int32(3)
 )
+process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBia*','HLT_L1*'))
+
+#--------------------------
+# Filters
+#--------------------------
+# HLT Filter
+process.load("HLTrigger.special.HLTTriggerTypeFilter_cfi")
+# 0=random, 1=physics, 2=calibration, 3=technical
+process.hltTriggerTypeFilter.SelectedTriggerType = 1
 
 #----------------------------
 # DQM Live Environment
@@ -70,22 +79,15 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 #### END OF TRACKING RECONSTRUCTION ####
 
-
+#--------------------------
+# Scheduling
+#--------------------------
 process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
-
 process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
-
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ctfTracksPixelLess)
-
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
-
-## Summary
-process.options = cms.untracked.PSet(
-	wantSummary = cms.untracked.bool(True)
-    )
-
-#process.p = cms.Path(process.tracking*process.monitor)
-#process.p = cms.Path(process.tracking_pixelless*process.monitor_pixelless)
-process.p = cms.Path(process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
+#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor)
+#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking_pixelless*process.monitor_pixelless)
+process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
 
