@@ -72,43 +72,13 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
     float deltay = muCorrData.corrY();      
     
         
-    //new
     LorentzVector mup4;
     if (flag == 0) //this muon is not used to correct the MET
       continue;
-    if (flag == 1) {
-      if( !mu->isGlobalMuon()) {//correct using global Mu
-	edm::LogError("MuonMETAlgo") << "This is not a global muon, but is flagged as one " 
-					<< "by the MET ValueMap. Not correcting for this muon!!" 
-					<< "Check your collection!!!" << endl;
-	continue;
-      }
-      mup4 = LorentzVector(mu->globalTrack()->px(), mu->globalTrack()->py(),
-			   mu->globalTrack()->pz(), mu->globalTrack()->p());
-    }
-    if( flag == 2) {
-      if( ! mu->isTrackerMuon()) {
-	edm::LogError("MuonMET") << "This is not a tracker muon, but is flagged as one " 
-	     << "by the MET ValueMap. Not correcting for this muon!!" 
-	     << "Check your collection!!!" << endl;
-	continue;
-      }
-      mup4 = LorentzVector(mu->innerTrack()->px(), mu->innerTrack()->py(),
-			   mu->innerTrack()->pz(), mu->innerTrack()->p());
-    }
-    if( flag == 3) {
-      edm::LogVerbatim("MuonMET") << "Are you sure you want to correct using the StandAlone fit??" << endl;
-      if(!mu->isStandAloneMuon()) {
-	edm::LogError("MuonMET") << "This is not a standAlone muon, but is flagged as one " 
-	     << "by the MET ValueMap. Not correcting for this muon!!" 
-	     << "Check your collection!!!" << endl;
-	continue;
-      }
-      mup4 = LorentzVector(mu->standAloneMuon()->px(), mu->standAloneMuon()->py(),
-			   mu->standAloneMuon()->pz(), mu->standAloneMuon()->p());
-    }
+
+    //if we're here, then the muon should be used to correct the MET using the default fit
+    mup4 = mu->p4();
     
-  
     sumMuPx    += mup4.px();
     sumMuPy    += mup4.py();
     sumMuDepEx += deltax;
