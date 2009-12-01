@@ -72,7 +72,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('32 OR 33 OR 40 OR
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -97,7 +97,7 @@ process.source = cms.Source("EventStreamHttpReader",
 
 # special tunnel configuration, need to setup an external tunnel
 #   sourceURL = cms.string('http://localhost:22100/urn:xdaq-application:lid=30'),
-   source = SOURCE,
+   sourceURL = SOURCE,
    consumerName = cms.untracked.string('Event Display'),
 
 # direct storage manager
