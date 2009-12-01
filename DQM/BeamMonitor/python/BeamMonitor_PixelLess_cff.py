@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor_PixelLess'),
                               beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
-                              fitEveryNLumi = cms.untracked.int32(2),
-                              resetEveryNLumi = cms.untracked.int32(20),
-                              Debug = cms.untracked.bool(False),
+                              fitEveryNLumi = cms.untracked.int32(-1),
+                              resetEveryNLumi = cms.untracked.int32(-1),
+                              Debug = cms.untracked.bool(True),
                               BeamFitter = cms.PSet(
-        			Debug = cms.untracked.bool(False),
+        			Debug = cms.untracked.bool(True),
         			TrackCollection = cms.untracked.InputTag('ctfPixelLess'),
 				IsMuonCollection = cms.untracked.bool(False),
                                 WriteAscii = cms.untracked.bool(False),
