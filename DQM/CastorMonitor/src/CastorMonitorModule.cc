@@ -153,6 +153,25 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
   if(fVerbosity>0) cout << "CastorMonitorModule::beginJob (start)" << endl;
 
   if ( dbe_ != NULL ){
+  
+     ////---- create ReportSummary Map (put it here for the time being 
+    dbe_->setCurrentFolder(rootFolder_+"/EventInfo/");
+    reportSummaryMap_=dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,1,0,1);
+    //reportSummaryMap_=dbe_->book1D("reportSummaryMap","reportSummaryMap",3,0,3);
+    //reportSummaryMap_->setBinLabel(1,"RawData");  
+    //reportSummaryMap_->setBinLabel(2,"CastorDigi");
+    //reportSummaryMap_->setBinLabel(3,"CastorRecHits");
+    TH2F* myReportSummary=reportSummaryMap_->getTH2F();
+    myReportSummary->GetXaxis()->SetBinLabel(1,"RawData");
+    myReportSummary->GetXaxis()->SetBinLabel(2,"CastorDigi");
+    myReportSummary->GetXaxis()->SetBinLabel(3,"CastorRecHits");
+    myReportSummary->GetYaxis()->SetBinLabel(1,"Status");
+    myReportSummary->SetBinContent(1,1,-1);
+    myReportSummary->SetBinContent(2,1,-1);
+    myReportSummary->SetBinContent(3,1,-1);
+    myReportSummary->SetOption("textcolz");
+
+
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
@@ -166,8 +185,7 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
     meRunType_->Fill(-1);
     meEvtMask_->Fill(-1);
     ////---- should fill with 0 to start
-    meCASTOR_->Fill(0);
-    
+    meCASTOR_->Fill(0); 
     }
   else{
   if(fVerbosity>0) cout << "CastorMonitorModule::beginJob - NO DQMStore service" << endl; 
@@ -500,6 +518,18 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   }
 
 
+  //---------- fill reportSummaryMap every 100 events
+ if(ievt_%100 == 0) {
+   cout << "    RAW Data   ==> " << rawOK_<< endl;
+   cout << "    Digis      ==> " << digiOK_<< endl;
+   cout << "    RecHits    ==> " << rechitOK_<< endl;
+
+  TH2F* myReportSummary_=reportSummaryMap_->getTH2F();
+  myReportSummary_->SetBinContent(1,1,int(rawOK_));
+  myReportSummary_->SetBinContent(2,1,int(digiOK_));
+  myReportSummary_->SetBinContent(3,1,int(rechitOK_));
+ }
+
   //------------------------------------------------------------//
   //---------------- Run the configured tasks ------------------//
   //-------------- protect against missing products -----------//
@@ -558,14 +588,6 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
 
   if(fVerbosity>0 && ievt_%100 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
-
- // if(fVerbosity>0)
- //   {
- //     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
-      // cout << "    RAW Data   ==> " << rawOK_<< endl;
-      // cout << "    Digis      ==> " << digiOK_<< endl;
-      // cout << "    RecHits    ==> " << rechitOK_<< endl;
-//    }
   
   return;
 }
