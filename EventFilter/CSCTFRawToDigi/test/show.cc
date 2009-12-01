@@ -5,7 +5,7 @@
 #include <errno.h>  // errno
 #include <sys/wait.h> // waitpid
 
-//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../  -I../../../
+//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../
 // make sure you have the latest IORawData/CSCCommissioning first
 
 /// For interactive controll
@@ -237,10 +237,17 @@ int main(int argc, char *argv[]){
 					};
 
 					if( mpc<6 && csc<10){
-						double eta = offsetEta[mpc][csc] - scaleEta[mpc][csc] * lct->wireGroup() / normEta[mpc][csc];
-						double phi = lct->strip() / normPhi[mpc][csc];
-						if( (!spPtr->header().endcap() && mpc<4) || (spPtr->header().endcap() && mpc>=4) ) phi = 1. - phi;
-						phi = fmod((phi*scalePhi[mpc][csc]+offsetPhi[mpc][csc] + spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
+						double eta, phi;
+						if( mpc<3 && csc<=3 && lct->strip()>=128 ){
+							eta = 2.4 - lct->wireGroup()/48.* 0.3; // very approximate eta coordinate!!!
+							phi = (lct->strip()-128)/32./6. + 1./6. + (mpc-1)*1./2.;
+							phi = fmod((phi + spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
+						} else {
+							eta = offsetEta[mpc][csc] - scaleEta[mpc][csc] * lct->wireGroup() / normEta[mpc][csc];
+							phi = lct->strip() / normPhi[mpc][csc];
+							if( (!spPtr->header().endcap() && mpc<4) || (spPtr->header().endcap() && mpc>=4) ) phi = 1. - phi;
+							phi = fmod((phi*scalePhi[mpc][csc]+offsetPhi[mpc][csc] + spPtr->header().sector()-1.)/6.*2*3.1415927 + 3.1415927/12.,2*3.1415927);
+						}
 
 						double rho = 2.*emuZ[mpc][csc]/fabs(exp(eta)-exp(-eta));
 						double x   = rho * cos(phi);
