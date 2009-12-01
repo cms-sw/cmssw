@@ -49,8 +49,6 @@ class MuonMETValueMapProducer : public edm::EDProducer {
       double maxNormChi2_;
       double maxd0_;
       int minnHits_;
-      double qOverPErr_;
-      double delPtOverPt_;
       TrackDetectorAssociator   trackAssociator_;
       TrackAssociatorParameters trackAssociatorParameters_;
   };
