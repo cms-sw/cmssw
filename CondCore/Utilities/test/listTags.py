@@ -14,7 +14,7 @@ gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
 gName = "GR09_31X_V5P::All"
 rdbms.setLogger(logName)
 globalTag = rdbms.globalTag(gdbName,gName,"","")
-# globalTag = rdbms.globalTag(gdbName,gName,"oracle://cms_orcoff_prod","")
+# globalTag = rdbms.globalTag(gdbName,gName,"oracle://cms_orcoff_prod/","")
 #globalTag = rdbms.globalTag(gdbName,gName,"frontier://FrontierArc/","_0911")
 
 for tag in globalTag.elements:
