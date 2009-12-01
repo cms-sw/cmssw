@@ -41,13 +41,13 @@ ifeq ($(shell uname), Linux)
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
-      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
 		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
 		-lboost_iostreams-xgcc40-mt-1_38 -lboost_program_options-xgcc40-mt-1_38 \
-		-lboost_regex-xgcc40-mt-1_38 -lsigc-2.0.0 -L./ -l$(LibCore)
+		-lboost_regex-xgcc40-mt-1_38 -lsigc-2.0.0 -L./ -L/usr/X11R6/lib -lGL -lGLU -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib -l$(LibCore)
    endif
 endif
 

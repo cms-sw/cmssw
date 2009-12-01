@@ -17,5 +17,6 @@ else
       ProjectIncludes +=  external/inc/clhep/1.9.4.2/include
       ProjectIncludes += external/inc/gsl/1.10/include external/inc/hepmc/2.03.06/include
       ProjectIncludes += external/inc/sigcpp/2.0.17/include/sigc++-2.0
+      ProjectIncludes += /usr/X11R6/include
    endif     
 endif
