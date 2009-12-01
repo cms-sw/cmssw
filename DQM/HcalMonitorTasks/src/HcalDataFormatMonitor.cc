@@ -1304,7 +1304,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	      // Offset true ieta for HF plotting
 	      if (isHF(eta,depth+1)) 
 		filleta<0 ? filleta-- : filleta++;
-	      cout <<"probcnt = "<<probcnt<<"  ieta = "<<filleta<<"  iphi = "<<phi+1<<"  depth = "<<depth+1<<endl;
+	      if (fVerbosity>0) cout <<"probcnt = "<<probcnt<<"  ieta = "<<filleta<<"  iphi = "<<phi+1<<"  depth = "<<depth+1<<endl;
 	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probcnt);
 		ProblemCells->Fill(filleta,phi+1,probcnt); 
 	    }
