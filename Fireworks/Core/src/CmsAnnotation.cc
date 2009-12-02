@@ -96,10 +96,14 @@ void CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D, ttid);
-   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+   // env color
+   UChar_t* fg =  rnrCtx.ColorSet().Foreground().Arr();
+   GLfloat col[4] = { fg[0]/256.0, fg[1]/256.0, fg[2]/256.0, fg[3]/256.0};
+   glTexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, col);
 
    glPushName(kMove);
-   glColor4f(1,1,1,1);
+   TGLUtil::Color(rnrCtx.ColorSet().Background().GetColorIndex());
    glBegin(GL_QUADS);
    Float_t z =  0.9;
    Float_t a = fSize * vp.Width();
