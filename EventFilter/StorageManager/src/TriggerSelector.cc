@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.3 2009/12/01 16:18:18 smorovic Exp $
+// $Id: TriggerSelector.cc,v 1.4 2009/12/01 17:40:41 smorovic Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iostream>
 #include <boost/regex.hpp>
 #include <algorithm>
 #include <cassert>
