@@ -9,12 +9,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.81 2009/12/02 17:06:36 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.82 2009/12/02 18:21:04 amraktad Exp $
 //
 // hacks
-#define private public
+// #define private public
 #include "DataFormats/FWLite/interface/Event.h"
-#undef private
+// #undef private
 
 // system include files
 #include <sigc++/sigc++.h>
@@ -507,7 +507,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
 
    m_timeText->SetText( fw::getLocalTime( event ).c_str() );
    char title[128];
-   snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
+   snprintf(title,128,"Lumi block id: %d", event.eventAuxiliary().luminosityBlock());
    m_lumiBlock->SetText( title );
 }
 
