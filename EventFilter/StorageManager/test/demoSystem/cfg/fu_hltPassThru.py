@@ -21,7 +21,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("DaqSource",
                             readerPluginName = cms.untracked.string('FUShmReader'),
-                            evtsPerLS = cms.untracked.uint32(2000)
+                            evtsPerLS = cms.untracked.uint32(200),
+                            calculateFakeLumiSection = cms.untracked.bool(True)
                             )
 
 process.pre1 = cms.EDFilter("Prescaler",

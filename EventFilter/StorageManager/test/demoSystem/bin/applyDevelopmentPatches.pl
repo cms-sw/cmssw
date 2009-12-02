@@ -870,10 +870,11 @@ if (defined($opt_d)) {
   while (my $line = <FILEIN>) {
     chomp $line;
 
-    # add an attribute to hold the first event number
+    # add attributes for smoothly increasing the lumi block number
     if ($line =~ m/(\s*)bool\s+fakeLSid\_\;/) {
-      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
-        "\n" . $1 . "unsigned int    firstEventNumber_;\n" . $line;
+      $line .= "\n" . $1 . "unsigned long   fakeEvId_;" .
+        "\n" . $1 . "bool            calculateFakeLumiSection_;" .
+        "\n" . $1 . "bool            firstEvent_;";
     }
 
     # write the input line to the output file
@@ -893,6 +894,8 @@ if (defined($opt_d)) {
   my $result=`diff $inputFile ${inputFile}.orig`;
   print STDOUT "$result";
 
+  # ***************************************************************
+
   $inputFile = "IORawData/DaqSource/plugins/DaqSource.cc";
   $outputFile = "${inputFile}.modified";
 
@@ -902,19 +905,57 @@ if (defined($opt_d)) {
   while (my $line = <FILEIN>) {
     chomp $line;
 
-    # initialize the first event number
-    if ($line =~ m/(\s*)produces\<FEDRawDataCollection\>\(\)\;/) {
-      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
-        "\n" . $1 . "firstEventNumber_ = 0xdeadbeef;\n" . $line;
+    # initialize the configuration parameter(s)
+    if ($line =~ m/(\s*),\s*fakeLSid_\s*\(\s*lumiSegmentSizeInEvents_/) {
+      $line .= "\n" . $1 .
+        ", calculateFakeLumiSection_(pset.getUntrackedParameter<bool>(\"calculateFakeLumiSection\",false))";
     }
 
-    # modify the lumi block calculation
+    # initialize the first event number, etc.
+    if ($line =~ m/(\s*)produces\<FEDRawDataCollection\>\(\)\;/) {
+      $line = "\n" . $1 . "firstEvent_ = true;" .
+        "\n" . $1 . "fakeEvId_ = 0;\n\n" . $line;
+    }
+
+    # modify the fake lumi block calculation
     if ($line =~ m/(\s*)if\(fakeLSid\_ \&\& luminosityBlockNumber\_ \!\= \(\(eventId\.event\(\)\s*\-\s*1\)\/lumiSegmentSizeInEvents\_ \+ 1\)\) \{/) {
-      $line = $1 . "// TEMPORARY HACK FOR THE STORAGE MANAGER DEVELOPMENT SYSTEM" .
-        "\n" . $1 . "if (firstEventNumber_ == 0xdeadbeef) {" .
-          "\n" . $1 . "  firstEventNumber_ = eventId.event();" .
-            "\n" . $1 . "}" .
-              "\n" . $1 . "if(fakeLSid_ && (luminosityBlockNumber_ < ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1) || eventId.event() == firstEventNumber_)) {";
+      my $indent = $1;
+
+      # read in the existing code block
+      my @existingCodeLines;
+      while (my $tmpLine = <FILEIN>) {
+        chomp $tmpLine;
+        if ($tmpLine =~ m/\}/) {last;}
+        $tmpLine =~ s/\t/        /g;
+        push @existingCodeLines, $tmpLine;
+      }
+
+      # handle the non-calculateFakeLumiSection case
+      my $modifiedIf = $line;
+      $modifiedIf =~ s/fakeLSid_\s*\&\&\s*//;
+      my $part2 = "    " . $modifiedIf;
+      for my $text (@existingCodeLines) {
+        $part2 .= "\n  " . $text;
+      }
+
+      # handle the calculateFakeLumiSection case
+      my $part1 = $part2;
+      $part1 =~ s/\!\=/\</;
+      $part1 =~ s/eventId.event\(\)/fakeEvId_/g;
+      $part1 =~ s/\)\s*\{/ || firstEvent_) {\n${indent}      firstEvent_ = false;/;
+
+      # put it all together
+      $line =~ s/(.*fakeLSid_).*(\)\s*\{\s*)/$1$2/;
+      $line .= "\n" . $indent . "  if(calculateFakeLumiSection_) {";
+      $line .= "\n" . $indent . "    ++fakeEvId_;";
+      $line .= "\n" . $part1;
+      $line .= "\n" . $indent . "    }";
+      $line .= "\n" . $indent . "  }";
+      $line .= "\n" . $indent . "  else {";
+      $line .= "\n" . $part2;
+      $line .= "\n" . $indent . "    }";
+      $line .= "\n" . $indent . "  }";
+      $line .= "\n" . $indent . "}";
     }
 
     # write the input line to the output file
