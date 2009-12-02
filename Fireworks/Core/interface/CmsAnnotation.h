@@ -11,7 +11,7 @@ private:
 
 public:
    CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy);
-   virtual ~CmsAnnotation() {}
+   virtual ~CmsAnnotation();
 
    // ---------- member, functions -------------------------
    virtual void   Render(TGLRnrCtx& rnrCtx);
