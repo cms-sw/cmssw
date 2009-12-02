@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.80 2009/11/29 15:59:09 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.81 2009/12/02 17:06:36 amraktad Exp $
 //
 // hacks
 #define private public
@@ -681,7 +681,7 @@ CmsShowMainFrame::showFWorksInfo()
 {
    if (m_fworksAbout == 0)
    {
-      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/standalone_build/version.txt");
+      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
       gSystem->ExpandPathName(infoFileName);
       
       ifstream infoFile(infoFileName);
