@@ -16,8 +16,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/11/16 18:31:48 $
-  * $Revision: 1.36 $
+  * $Date: 2009/12/01 09:00:45 $
+  * $Revision: 1.37 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -166,6 +166,9 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HOflagcounter;
   MonitorElement* h_HFflagcounter;
   
+  
+  double collisionHFthresh_;
+  double collisionHEthresh_;
   MonitorElement* h_HFtimedifference;
   MonitorElement* h_HFenergydifference;
   MonitorElement* h_HEtimedifference;

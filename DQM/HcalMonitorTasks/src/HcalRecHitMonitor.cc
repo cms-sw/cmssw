@@ -59,6 +59,9 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",            -999);
   ZDCenergyThreshold_    = ps.getUntrackedParameter<double>("RecHitMonitor_ZDC_energyThreshold",           -999);
 
+  collisionHFthresh_ = ps.getUntrackedParameter<double>("RecHitMonitor_collisionHFthresh",3);
+  collisionHEthresh_ = ps.getUntrackedParameter<double>("RecHitMonitor_collisionHEthresh",3);
+
   // Set allowed types of events for running through rechitmon
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("RecHitMonitor_AllowedCalibTypes",AllowedCalibTypes_);
 
@@ -442,14 +445,14 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  HEpresent_=true;
 	  if (!checkHE_) continue;
 	  
-	  if (ieta>0)
+	  if (en>collisionHEthresh_ && ieta>0)
 	    {
 	      en_HEP+=en;
 	      time_HEP+=ti*en;
 	      rawtime_HEP+=ti;
 	      hepocc++;
 	    }
-	  else
+	  else if (en>collisionHEthresh_ && ieta<0)
 	    {
 	      en_HEM+=en;
 	      time_HEM+=ti*en;
@@ -630,19 +633,19 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int depth = id.depth();
          int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
-	 if (ieta>0)
+	 if (en>collisionHFthresh_ && ieta>0)
 	    {
 	      en_HFP+=en;
 	      time_HFP+=ti*en;
 	      rawtime_HFP+=ti;
 	      hfpocc++;
 	    }
-	  else
-	    {
-	      en_HFM+=en;
-	      time_HFM+=ti*en;
-	      rawtime_HFM+=ti;
-	      hfmocc++;
+	 else if (en>collisionHFthresh_ && ieta<0)
+	   {
+	     en_HFM+=en;
+	     time_HFM+=ti*en;
+	     rawtime_HFM+=ti;
+	     hfmocc++;
 	    }
 
 
