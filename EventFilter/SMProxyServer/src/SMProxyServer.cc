@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.33 2009/08/18 10:26:45 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.34 2009/12/01 14:25:25 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -3067,10 +3067,12 @@ void SMProxyServer::actionPerformed(xdata::Event& e)
     if      (item == "connectedSMs")
       connectedSMs_   = smsenders_.size();
     else if (item == "storedVolume")
+    {
       if (dpm_.get() != NULL)
         storedVolume_   = dpm_->totalvolumemb();
       else
         storedVolume_   = 0;
+    }
     //else if (item == "progressMarker")
     //  progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
