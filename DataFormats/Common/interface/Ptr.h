@@ -192,17 +192,9 @@ namespace edm {
         void const* ad = 0;
         EDProduct const* prod = productGetter()->getIt(core_.id());
         if(prod == 0) {
-            Exception e(errors::ProductNotFound);
-            e << "A request to resolve an edm::Ptr to a product containing items of type: "
-              << typeid(T).name()
-              << " with ProductID " << core_.id()
-              << "\ncan not be satisfied because the product cannot be found."
-              << "\nProbably the branch containing the product is not stored in the input file.\n";
-            e.raise();
+	  core_.productNotFoundException(typeid(T).name());
         }
-        prod->setPtr(typeid(T),
-                     key_,
-                     ad);
+        prod->setPtr(typeid(T), key_, ad);
         core_.setProductPtr(ad);
       }
     }
