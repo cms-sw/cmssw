@@ -94,7 +94,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       
        
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndRPCEvents_Wheel"<<w;
+      histoName<<"OccupancyNormByGeoAndEvents_Wheel"<<w;
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -107,7 +107,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
    
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<w;   
+      histoName<<"OccupancyNormByGeoAndEvents_Distribution_Wheel"<<w;   
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -145,7 +145,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndRPCEvents_Disk"<<w;
+    histoName<<"OccupancyNormByGeoAndEvents_Disk"<<w;
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -158,7 +158,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     rpcUtils.labelYAxisRing( NormOccupDisk[w+offset],numberOfRings_);
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;  
+    histoName<<"OccupancyNormByGeoAndEvents_Distribution_Disk"<<w;  
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -204,8 +204,8 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
    if(nLumiSegs%prescaleFactor_ != 0) return;
  
 
-   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-   rpcevents_ = RPCEvents -> getEntries(); 
+   MonitorElement * Events = dbe_->get(globalFolder_ +"/RPCEvents");  
+   rpcevents_ = Events -> getEntries(); 
 
    Barrel_OccBySt = dbe_ -> get("RPC/RecHits/SummaryHistograms/Barrel_OccupancyByStations_Normalized");
    EndCap_OccByRng = dbe_ -> get("RPC/RecHits/SummaryHistograms/EndCap_OccupancyByRings_Normalized");
@@ -307,7 +307,7 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
     if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
 
-    
+    cout<<detId.region()<<endl;
     if(detId.region()==0) {
       if(detId.station()==1 )Barrel_OccBySt -> Fill(1, normoccup);
       if(detId.station()==2 )Barrel_OccBySt -> Fill(2, normoccup);
@@ -315,6 +315,14 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
       if(detId.station()==4 )Barrel_OccBySt -> Fill(4, normoccup);
       
       }
+    else if(detId.region()==1) {
+      if(detId.ring()==3) EndCap_OccByRng -> Fill(1, normoccup);
+      else EndCap_OccByRng -> Fill(2, normoccup);
+    }
+    else {
+      if(detId.ring()==3) EndCap_OccByRng -> Fill(4, normoccup);
+      else EndCap_OccByRng -> Fill(3, normoccup);
+    }
 
 
 }
