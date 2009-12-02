@@ -64,7 +64,7 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 {
   const bool result ( (prescaleFactor_==0) ? 
   //		      false : (eventCount_%prescaleFactor_==0) );
-		      false : (iEvent.event().id()%prescaleFactor_==0) );
+		      false : (iEvent.id().event()%prescaleFactor_==0) );
   ++eventCount_;
   if (result) ++acceptCount_;
   return result;
