@@ -19,15 +19,14 @@ namespace edm {
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-    state_(edm::hlt::Ready),
+    state_(hlt::Ready),
     bitpos_(bitpos),
     name_(path_name),
     trptr_(trptr),
     actReg_(areg),
     act_table_(&actions),
     workers_(workers),
-    isEndPath_(isEndPath)
-  {
+    isEndPath_(isEndPath) {
   }
   
   bool
@@ -52,9 +51,16 @@ namespace edm {
       }
       default: {
 	  if (isEvent) ++timesExcept_;
-	  state_ = edm::hlt::Exception;
+	  state_ = hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
-          throw edm::Exception(errors::ScheduleExecutionFailure,
+	  if (action == actions::Rethrow) {
+	    std::string pNF = Exception::codeToString(errors::ProductNotFound);
+            if (e.category() == pNF) {
+              e << "If you wish to continue processing events after a " << pNF << " exception,\n" <<
+	      "add \"SkipEvent = cms.untracked.vstring('ProductNotFound')\" to the \"options\" PSet in the configuration.\n";
+            }
+	  }
+          throw Exception(errors::ScheduleExecutionFailure,
               "ProcessingStopped", e)
               << "Exception going through path " << name_ << "\n";
       }
@@ -68,7 +74,7 @@ namespace edm {
     LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
     if (isEvent) ++timesExcept_;
-    state_ = edm::hlt::Exception;
+    state_ = hlt::Exception;
     recordStatus(nwrwue, isEvent);
   }
 
@@ -83,10 +89,10 @@ namespace edm {
   Path::updateCounters(bool success, bool isEvent) {
     if (success) {
       if (isEvent) ++timesPassed_;
-      state_ = edm::hlt::Pass;
+      state_ = hlt::Pass;
     } else {
       if(isEvent) ++timesFailed_;
-      state_ = edm::hlt::Fail;
+      state_ = hlt::Fail;
     }
   }
 
