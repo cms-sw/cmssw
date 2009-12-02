@@ -7,27 +7,35 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### Standard Configurations
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/Reconstruction_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
  
+
+## Fitter-smoother: loosen outlier rejection as for first data-taking with LHC "collisions"
+process.KFFittingSmootherWithOutliersRejectionAndRK.BreakTrajWith2ConsecutiveMissing = False
+process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut = 1000
+
+
 
 ### Conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_V5::All"
+#process.GlobalTag.globaltag = "IDEAL_V5::All"
+process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
 ### Track refitter specific stuff
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff") #the correct one
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff") #the one for backward compatibility
 
 
-process.maxEvents = cms.untracked.PSet(     input = cms.untracked.int32(300)     
+process.maxEvents = cms.untracked.PSet(     input = cms.untracked.int32(-1)     
 )
 
 process.source = cms.Source("PoolSource",
 ### tracks from collisions                            
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_2_1_10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/1E04FC31-F99A-DD11-94EE-0018F3D096DE.root')
+'rfio:/castor/cern.ch/user/c/chiochia/09_beam_commissioning/BSCskim_123151_Express.root') 
+#'/store/relval/CMSSW_2_1_10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/1E04FC31-F99A-DD11-94EE-0018F3D096DE.root')
 
 ### tracks from cosmics                            
 #    fileNames = cms.untracked.vstring(
