@@ -229,7 +229,7 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
                fMouseX = event->fX;
                fMouseY = event->fY;
                Float_t size = fSize + TMath::Min(diffX, diffY);
-               fSize = TMath::Max(size, 0.02f); // lock below min
+               fSize = TMath::Max(size, 0.08f); // lock below min
 
             }
          }
