@@ -56,7 +56,7 @@ namespace edm
     EventID const& id() const {return id_;}
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
-    LuminosityBlockNumber_t const luminosityBlock() const {return id_.luminosityBlock();}
+    LuminosityBlockNumber_t const luminosityBlock() const {return id_.luminosityBlock() != 0U ? id_.luminosityBlock() : luminosityBlock_;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
