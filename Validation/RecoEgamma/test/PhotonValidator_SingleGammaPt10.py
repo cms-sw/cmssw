@@ -13,7 +13,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V14::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 
 process.DQMStore = cms.Service("DQMStore");
@@ -33,12 +33,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt10.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt35.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaFlatPt10_100.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_H130GGgluonfusion.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_GammaJets_Pt_80_120.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_QCD_Pt_80_120.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal335_SingleGammaPt10.root'
 
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -51,49 +46,20 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 
     
         
-# official RelVal 340pre6 single Photons pt=10GeV
+# official RelVal 335 single Photons pt=10GeV
+
+        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt10/GEN-SIM-RECO/MC_31X_V9-v1/0008/F6BE095E-12DC-DE11-9566-0018F3D0969C.root',
+        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt10/GEN-SIM-RECO/MC_31X_V9-v1/0007/F00BA778-CDDB-DE11-805F-001A92810ADE.root'
         
-        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0002/74AF5CC5-48D7-DE11-B96A-002618943858.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0001/523EF2D8-ABD6-DE11-856F-003048678B8E.root' 
-   
-# official RelVal 340pre6 single Photons pt=35GeV            
-
-
-
-# official RelVal 340pre6 single Photons Flat pt 10-100GeV
-
-
-        
-# official RelVal 340pre6 RelValH130GGgluonfusion
- 
-        
-# official RelVal 340pre6 GammaJets_Pt_80_120
-
-# official RelVal 340pre6 QCD_Pt_80_120
-
- 
-    ),
+        ),
                             
                             
     secondaryFileNames = cms.untracked.vstring(
 
-# official RelVal 340pre6 single Photons pt=10GeV    
-        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0002/266B35C7-1ED7-DE11-9750-0018F3D09688.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0001/F6986DD7-ABD6-DE11-BD07-003048678F8C.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0001/081733D7-ABD6-DE11-9AE0-003048678A7E.root'
-    
-# official RelVal 340pre6 single Photons pt=35GeV
-        
-
-# official RelVal 340pre6 single Photons Flat pt 10-100GeV
-
-
-# official RelVal 340pre6 RelValH130GGgluonfusion
-
-
-# official RelVal 340pre6 GammaJets_Pt_80_120
-
-# official RelVal 340pre6 QCD_Pt_80_120
+# official RelVal 335 single Photons pt=10GeV    
+        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/F4B33A75-CDDB-DE11-91A2-0018F3D095F0.root',
+        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/780327D3-D7DB-DE11-9070-003048678C9A.root',
+        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/7284CC76-CDDB-DE11-8985-001A92971B3C.root'
 
     
     )
@@ -101,12 +67,6 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 
 
 photonPostprocessing.rBin = 48
-
-## For single gamma fla pt =10-150
-#photonValidation.eMax  = 300
-#photonValidation.etMax = 300
-#photonValidation.etScale = 0.10
-
 
 ## For single gamma pt =10
 photonValidation.eMax  = 100
@@ -116,25 +76,6 @@ photonPostprocessing.eMax  = 100
 photonPostprocessing.etMax = 50
 
 
-## For single gamma pt = 35
-#photonValidation.eMax  = 300
-#photonValidation.etMax = 50
-#photonValidation.etScale = 0.20
-#photonValidation.dCotCutOn = False
-#photonValidation.dCotCutValue = 0.15
-#photonValidation.likelihoodCut = 0.90
-
-
-
-
-## For gam Jet and higgs
-#photonValidation.eMax  = 500
-#photonValidation.etMax = 500
-#photonPostprocessing.eMax  = 500
-#photonPostprocessing.etMax = 500
-
-
-
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
@@ -142,9 +83,8 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 
-#process.p1 = cms.Path(process.photonValidation)
+
 process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
-#process.p1 = cms.Path(process.mix*process.trackingParticles*process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
 

@@ -13,7 +13,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V14::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 process.DQMStore = cms.Service("DQMStore");
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -32,12 +32,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt10.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaPt35.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_SingleGammaFlatPt10_100.root'
-photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_H130GGgluonfusion.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_GammaJets_Pt_80_120.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal340pre6_QCD_Pt_80_120.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal335_H130GGgluonfusion.root'
 
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -47,66 +42,33 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
+# official RelVal 335 RelValH130GGgluonfusion
 
-    
-        
-# official RelVal 340pre6 single Photons pt=10GeV
-
-# official RelVal 340pre6 single Photons pt=35GeV            
-
-
-# official RelVal 340pre6 single Photons Flat pt 10-100GeV
-
-
-        
-# official RelVal 340pre6 RelValH130GGgluonfusion
-
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0002/1872ADF9-48D7-DE11-8939-002354EF3BCE.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0001/F8C4B01B-BAD6-DE11-AAFA-00261894389D.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0001/EC09B8FD-BAD6-DE11-8A70-003048678BAE.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0001/7A30CB11-BCD6-DE11-8D36-002618943856.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0001/426788E5-B8D6-DE11-99B0-0026189438E0.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V14-v1/0001/2E91FA6B-B9D6-DE11-843E-0030486792BA.root'
-# official RelVal 340pre6 GammaJets_Pt_80_120
-
-# official RelVal 340pre6 QCD_Pt_80_120
-
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V8D-v1/0008/1EAC9092-F1DB-DE11-86FB-001A92810AB2.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V8D-v1/0007/D0C8E5F9-D9DB-DE11-9EDB-0018F3D096BC.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V8D-v1/0007/B4E60575-D8DB-DE11-B09A-002618943862.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V8D-v1/0007/7A214210-D8DB-DE11-AF12-002354EF3BDB.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-RECO/STARTUP3X_V8D-v1/0007/44320D0A-D9DB-DE11-9B3A-0026189438B5.root'                          
+                            
+  
  
     ),
-                            
-                            
     secondaryFileNames = cms.untracked.vstring(
 
-# official RelVal 340pre6 single Photons pt=10GeV    
-
-    
-# official RelVal 340pre6 single Photons pt=35GeV
-
-# official RelVal 340pre6 single Photons Flat pt 10-100GeV
-
-
-# official RelVal 340pre6 RelValH130GGgluonfusion
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0002/3EF28EFE-48D7-DE11-92A8-00261894393F.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/F460FA6C-B9D6-DE11-AC67-00248C0BE018.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/D4BE5FFF-BAD6-DE11-9483-00304867916E.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/B8F95DE4-B8D6-DE11-8D53-0030486792BA.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/ACA076FC-BAD6-DE11-ABE7-003048678C3A.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/98454BE4-B8D6-DE11-AA3C-0026189438EF.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/90E11011-BAD6-DE11-B0F0-003048D3C010.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/84CC1A6A-B9D6-DE11-9DB5-003048678B7E.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/6C8907E3-B8D6-DE11-BBAE-00261894398B.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/68CEFE84-BBD6-DE11-8674-003048678AC0.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/405C426A-B9D6-DE11-B66B-0026189437F0.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/3CEC0A6B-B9D6-DE11-A643-003048678F78.root',
-        '/store/relval/CMSSW_3_4_0_pre6/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0001/22CBC580-BAD6-DE11-BB6A-003048678BE6.root'
-
-
-
-
-        
-# official RelVal 340pre6 GammaJets_Pt_80_120
-
-# official RelVal 340pre6 QCD_Pt_80_120
+# official RelVal 335 RelValH130GGgluonfusion
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0008/4C55C132-12DC-DE11-A36B-001A928116E0.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/F6B5520C-D9DB-DE11-BAE6-0018F3D09670.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/C0615DF4-D9DB-DE11-8175-002618943915.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/9C3C0277-D8DB-DE11-83B1-0026189438DE.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/88E4F076-D8DB-DE11-9379-002618943966.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/74215314-D8DB-DE11-93B5-0018F3D09682.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/6C136E0F-D8DB-DE11-A2D9-002618943956.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/62C49F13-D8DB-DE11-A981-001A92810AEC.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/60A89AF8-D9DB-DE11-A4CC-001A92810A9A.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/2A0FB978-D8DB-DE11-9AB5-003048679012.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/1CFC3B47-DADB-DE11-8DAE-002618943899.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/0AAEE508-D9DB-DE11-B7CF-003048679168.root',
+        '/store/relval/CMSSW_3_3_5/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8D-v1/0007/02F90475-D8DB-DE11-891B-003048678BF4.root'
 
     
     )
@@ -114,32 +76,6 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 
 
 photonPostprocessing.rBin = 48
-
-## For single gamma fla pt =10-150
-#photonValidation.eMax  = 300
-#photonValidation.etMax = 300
-#photonValidation.etScale = 0.10
-
-
-## For single gamma pt =10
-#photonValidation.eMax  = 100
-#photonValidation.etMax = 50
-#photonValidation.etScale = 0.20
-#photonPostprocessing.eMax  = 100
-#photonPostprocessing.etMax = 50
-
-
-## For single gamma pt = 35
-#photonValidation.eMax  = 300
-#photonValidation.etMax = 50
-#photonValidation.etScale = 0.20
-#photonValidation.dCotCutOn = False
-#photonValidation.dCotCutValue = 0.15
-#photonValidation.likelihoodCut = 0.90
-
-
-
-
 ## For gam Jet and higgs
 photonValidation.eMax  = 500
 photonValidation.etMax = 500
@@ -154,11 +90,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-
-#process.p1 = cms.Path(process.photonValidation)
 process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
-#process.p1 = cms.Path(process.mix*process.trackingParticles*process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
-
-
-
