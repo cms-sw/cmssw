@@ -6,6 +6,8 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+//Geometry
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 using namespace edm;
 using namespace std;
@@ -15,6 +17,7 @@ RPCOccupancyTest::RPCOccupancyTest(const ParameterSet& ps ){
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCOccupancyTest::~RPCOccupancyTest(){
@@ -26,8 +29,8 @@ void RPCOccupancyTest::beginJob(DQMStore * dbe){
  dbe_=dbe;
 }
 
-void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
- LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: End run";
+void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+ LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin run";
  
  
  MonitorElement* me;
@@ -38,6 +41,32 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
 
  int limit = numberOfDisks_;
  if(numberOfDisks_ < 2) limit = 2;
+
+ histoName.str("");
+ histoName<<"Barrel_OccupancyByStations_Normalized";
+ me = dbe_->get( globalFolder_+"/"+ histoName.str());
+ if ( 0!=me  ) {
+   dbe_->removeElement(me->getName());
+ }
+ Barrel_OccBySt = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
+ Barrel_OccBySt -> setBinLabel(1, "St1", 1);
+ Barrel_OccBySt -> setBinLabel(2, "St2", 1);
+ Barrel_OccBySt -> setBinLabel(3, "St3", 1);
+ Barrel_OccBySt -> setBinLabel(4, "St4", 1);
+ 
+ 
+ histoName.str("");
+ histoName<<"EndCap_OccupancyByRings_Normalized";
+ me = dbe_->get( globalFolder_+"/"+ histoName.str());
+ if ( 0!=me  ) {
+   dbe_->removeElement(me->getName());
+ }
+ EndCap_OccByRng = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
+ EndCap_OccByRng -> setBinLabel(1, "E+/R3", 1);
+ EndCap_OccByRng -> setBinLabel(2, "E+/R2", 1);
+ EndCap_OccByRng -> setBinLabel(3, "E-/R2", 1);
+ EndCap_OccByRng -> setBinLabel(4, "E-/R3", 1);
+
   
   for (int w = -1 *limit; w<=limit; w++ ){//loop on wheels and disks
     if (w>-3 && w<3){//Barrel
@@ -93,17 +122,17 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
     if (w>0) offset --; //used to skip case equale to zero
     
     histoName.str("");
-    histoName<<"AsymmetryLeftRight_Roll_vs_Sector_Disk"<<w;
+    histoName<<"AsymmetryLeftRight_Ring_vs_Segment_Disk"<<w;
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
       dbe_->removeElement(me->getName());
     }
       
-    AsyMeDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
+    AsyMeDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     
-    rpcUtils.labelXAxisSector(AsyMeDisk[w+offset]);
-    rpcUtils.labelYAxisRoll(AsyMeDisk[w+offset], 1, w);
+    rpcUtils.labelXAxisSegment(AsyMeDisk[w+offset]);
+    rpcUtils.labelYAxisRing(AsyMeDisk[w+offset], numberOfRings_);
     
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Distribution_Disk"<<w;      
@@ -123,10 +152,10 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
       dbe_->removeElement(me->getName());
     }
     
-    NormOccupDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
+    NormOccupDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     
-    rpcUtils.labelXAxisSector(  NormOccupDisk[w+offset]);
-    rpcUtils.labelYAxisRoll( NormOccupDisk[w+offset], 1, w);
+    rpcUtils.labelXAxisSegment(NormOccupDisk[w+offset]);
+    rpcUtils.labelYAxisRing( NormOccupDisk[w+offset],numberOfRings_);
     
     histoName.str("");
     histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;  
@@ -165,14 +194,22 @@ void RPCOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 
 void RPCOccupancyTest::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
+  LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: End of LS transition, performing DQM client operation";
 
-void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
-  LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
+  // counts number of lumiSegs 
+  int  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  //check some statements and prescale Factor
+   if(nLumiSegs%prescaleFactor_ != 0) return;
+ 
 
    MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
    rpcevents_ = RPCEvents -> getEntries(); 
 
+   Barrel_OccBySt = dbe_ -> get("RPC/RecHits/SummaryHistograms/Barrel_OccupancyByStations_Normalized");
+   EndCap_OccByRng = dbe_ -> get("RPC/RecHits/SummaryHistograms/EndCap_OccupancyByRings_Normalized");
+  
    //Clear distributions
 
    //Clear Distributions
@@ -196,7 +233,7 @@ void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
 }
 
 void RPCOccupancyTest::endJob(void) {}
-void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c) {}
+void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c) {}
 
 
 void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
@@ -216,28 +253,37 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
     }else{
 
-      if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
+      if( -detId.station() +  numberOfDisks_ >= 0 ){
 	
 	if(detId.region()<0){
-	  AsyMe= AsyMeDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  AsyMeD= AsyMeDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  NormOccup=NormOccupDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  NormOccupD=NormOccupDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	  AsyMe= AsyMeDisk[-detId.station()  + numberOfDisks_];
+	  AsyMeD= AsyMeDDisk[-detId.station() + numberOfDisks_];
+	  NormOccup=NormOccupDisk[-detId.station() + numberOfDisks_];
+	  NormOccupD=NormOccupDDisk[-detId.station() + numberOfDisks_];
 	}else{
-	  AsyMe= AsyMeDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	  AsyMeD= AsyMeDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	  NormOccup=NormOccupDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	  NormOccupD=NormOccupDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	  AsyMe= AsyMeDisk[detId.station() + numberOfDisks_-1];
+	  AsyMeD= AsyMeDDisk[detId.station() + numberOfDisks_-1];
+	  NormOccup=NormOccupDisk[detId.station() + numberOfDisks_-1];
+	  NormOccupD=NormOccupDDisk[detId.station() + numberOfDisks_-1];
 	}
       }
 
 
     }
 
-    rpcdqm::utils prova;	  
-    int nr = prova.detId2RollNr(detId);
-
-                                              
+ 
+    int xBin,yBin;
+    if(detId.region()==0){//Barrel
+      xBin= detId.sector();
+      rpcdqm::utils rollNumber;
+      yBin = rollNumber.detId2RollNr(detId);
+    }else{//Endcap
+      //get segment number
+      RPCGeomServ RPCServ(detId);
+      xBin = RPCServ.segment();
+      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+    }
+    
 	
     int stripInRoll=myMe->getNbinsX();
     float FOccupancy=0;
@@ -251,15 +297,26 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 	    
     float asym =  fabs((FOccupancy - BOccupancy )/totEnt);
     
-    if(AsyMe)  AsyMe->setBinContent(detId.sector(),nr,asym );
+    if(AsyMe)  AsyMe->setBinContent(xBin,yBin,asym );
 
     if(AsyMeD) AsyMeD->Fill(asym);
 	
     float normoccup = 0;
     if(stripInRoll*rpcevents_ !=0)
       normoccup = totEnt/(stripInRoll*rpcevents_)*10;
-    if(NormOccup)  NormOccup->setBinContent(detId.sector(),nr, normoccup);
+    if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
+
+    
+    if(detId.region()==0) {
+      if(detId.station()==1 )Barrel_OccBySt -> Fill(1, normoccup);
+      if(detId.station()==2 )Barrel_OccBySt -> Fill(2, normoccup);
+      if(detId.station()==3 )Barrel_OccBySt -> Fill(3, normoccup);
+      if(detId.station()==4 )Barrel_OccBySt -> Fill(4, normoccup);
+      
+      }
+
+
 }
 
 
