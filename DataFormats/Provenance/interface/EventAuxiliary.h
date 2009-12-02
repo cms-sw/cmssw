@@ -30,6 +30,7 @@ namespace edm
 	id_(),
         processGUID_(),
 	time_(),
+	luminosityBlock_(0U),
 	isRealData_(false), 
 	experimentType_(Undefined),
 	bunchCrossing_(invalidBunchXing),
@@ -43,12 +44,12 @@ namespace edm
 	id_(theId),
         processGUID_(theProcessGUID),
 	time_(theTime),
+	luminosityBlock_(0U),
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
 	orbitNumber_(orbitNum),
-	storeNumber_(storeNumber),
-	dummy_(0) {}
+	storeNumber_(storeNumber) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
@@ -73,6 +74,8 @@ namespace edm
     std::string processGUID_;
     // Time from DAQ
     Timestamp time_;
+    // Associated Luminosity Block identifier (obsolete. for backward compatibility only)
+    LuminosityBlockNumber_t luminosityBlock_;
     // Is this real data (i.e. not simulated)
     bool isRealData_;
     // Something descriptive of the source of the data
@@ -83,8 +86,6 @@ namespace edm
     int orbitNumber_;
     //  The LHC store number
     int storeNumber_;
-    //  A transient dummy
-    int dummy_; //! transient
   };
 
   bool

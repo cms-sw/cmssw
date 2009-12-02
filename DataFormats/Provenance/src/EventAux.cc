@@ -10,5 +10,6 @@ namespace edm {
     to.processHistoryID_ = from.processHistoryID_;
     to.id_ = from.id_;
     to.time_ = from.time_;
+    to.luminosityBlock_ = from.luminosityBlockID_;
   }
 }
