@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/11/19 04:27:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/27 03:15:51 $
+ *  $Revision: 1.6 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -60,6 +60,8 @@ class BeamMonitor : public edm::EDAnalyzer {
   edm::ParameterSet parameters_;
   std::string monitorName_;
   std::string bsSrc_; // beam spot
+  edm::InputTag tracksLabel_;
+  
   int fitNLumi_;
   int resetFitNLumi_;
   bool debug_;
@@ -78,7 +80,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;
-  reco::BeamSpot theBS;
+  reco::BeamSpot refBS;
   
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
@@ -91,6 +93,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_vx_vy;
   MonitorElement * h_vx_dz;
   MonitorElement * h_vy_dz;
+  MonitorElement * h_trkPt;
+  MonitorElement * h_trkVz;
+  MonitorElement * fitResults;
 
   // Summary:
   Float_t reportSummary_;
