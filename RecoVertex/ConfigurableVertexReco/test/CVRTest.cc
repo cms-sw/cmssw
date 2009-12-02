@@ -13,6 +13,7 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <iostream>
 #include "TNtuple.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 using namespace std;
 using namespace reco;
@@ -85,6 +86,36 @@ CVRTest::~CVRTest() {
   if ( vrec_ ) delete vrec_;
 }
 
+// Preliminary function to move tracks. ChT
+
+reco::TransientTrack CVRTest::TrackMove ( const reco::TransientTrack& track, const float& dx, const 
+	float& dy, const float& dz )
+{
+
+	edm::ESHandle<TransientTrackFromFTSFactory> ftsbuilder;
+
+// Get position from original TransientTrack, then create new GlobalPoint with shifted position.
+
+	move_pos = new GlobalPoint(track.initialFreeState().position().x() + dx,
+		track.initialFreeState().position().y() + dy, track.initialFreeState().position().z() + dz);
+
+// Create GTP with shifted position, other data from original TransientTrack.
+
+	move_param = new GlobalTrajectoryParameters(*move_pos, track.initialFreeState().momentum(), track.charge(), 
+		track.field() );
+
+// Likewise, Create FTS. 
+
+	move_traj = new FreeTrajectoryState(*move_param, track.initialFreeState().cartesianError(), 
+		track.initialFreeState().curvilinearError() );
+
+// Finally, create TransientTrack via TransientTrackFromFTSFactory.
+
+	reco::TransientTrack move_track = ftsbuilder->build(*move_traj);
+
+	return move_track;
+}
+
 void CVRTest::discussPrimary( const edm::Event& iEvent ) const
 {
   edm::Handle<reco::VertexCollection> retColl;
@@ -94,9 +125,6 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
     const reco::Vertex & vtx = *(retColl->begin());
     cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y()
          << ", " << vtx.z() << endl;
-   
-//    tree_ -> Fill(vtx.x(),vtx.y(),vtx.z());
-
   }
 }
 
@@ -122,18 +150,32 @@ void CVRTest::analyze( const edm::Event & iEvent,
   vector<reco::TransientTrack> ttks;
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
+  
+  // Test for TrackMove. ChT
 
+//  cout << "X-Value, first track: " << ttks[0].initialFreeState().position().x() << endl ;
+
+  TransientTrack new_track = TrackMove(ttks[0],1,0,0);
+
+/*  for ( unsigned int iTrack=0; iTrack!=ttks.size(); ++iTrack)
+	{
+	  TrackMove( ttks[iTrack] );
+	}   
+*/
 //  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
 //  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
 //  printVertices ( vtces );
   
 cout << "[CVRTest] fit w beamspot constraint" << endl;
 vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
+// For TrackMove Test:
+//vector < TransientVertex > bvtces = vrec_->vertices (new_track, *bs);
 printVertices ( bvtces );
+//cout << "TrackMove performed. New X-Value, first track: " << bvtces[0].position().x() << endl;
 
   if (bvtces.size() >0) 
 	{
-	   for (int i=0; i!=bvtces.size(); ++i)
+	   for (unsigned int i=0; i!=bvtces.size(); ++i)
 		tree_ -> Fill(i, 0, bvtces[i].position().x(), bvtces[i].position().y(), bvtces[i].position().z(),
 			bvtces[i].normalisedChiSquared(), bvtces[i].degreesOfFreedom(), bvtces[i].originalTracks().size());
 	}
