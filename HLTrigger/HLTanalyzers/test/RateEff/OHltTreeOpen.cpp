@@ -15,9 +15,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // Check OpenHLT L1 bits for L1 rates
 
   if (menu->GetTriggerName(it).CompareTo("OpenL1_ZeroBias") == 0) {     
-    if(map_BitOfStandardHLTPath.find("OpenL1_ZeroBias")->second == 1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
-    } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenL1_EG5_HTT100") == 0) { 
     if(map_BitOfStandardHLTPath.find("OpenL1_EG5_HTT100")->second == 1) {   

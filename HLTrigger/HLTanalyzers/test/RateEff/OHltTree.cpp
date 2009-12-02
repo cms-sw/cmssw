@@ -67,9 +67,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (jentry%cfg->nPrintStatusEvery == 0)
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
-    if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
-    if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
-
     // When running on real data, keep track of how many LumiSections have been 
     // used. Note: this assumes LumiSections are contiguous, and that the user 
     // uses complete LumiSections
@@ -92,7 +89,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //ccla example to extact technical bits
     if (b_L1TechnicalBits){
       //cout << "Size: " << L1TechnicalBits->size() << endl;
-      bool techTrigger0 = (bool) L1TechnicalBits->at(0);
+      bool techTrigger0;
+      techTrigger0 = (bool) L1TechnicalBits->at(0);
       //cout << "techTrigger0: " << techTrigger0 << endl;
     }
 
@@ -108,7 +106,17 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //SetMapL1BitOfStandardHLTPath(menu);
     SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,(int)jentry);
     SetL1MuonQuality();
-	  
+
+
+    // Apply prefilter based on bits
+    if (!passPreFilterLogicParser(cfg->preFilterLogicString,(int)jentry)) {
+      //cout<<"Event rejected due to prefilter!!!"<<endl;
+      continue;
+    }
+
+    if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
+    if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
+
     //////////////////////////////////////////////////////////////////
     // Get Denominator (normalization and acc. definition) for efficiency evaluation
     //////////////////////////////////////////////////////////////////

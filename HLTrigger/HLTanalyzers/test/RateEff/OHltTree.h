@@ -34,6 +34,7 @@ public :
 
   // logic parser for m_l1SeedsLogicalExpression
   std::vector<L1GtLogicParser*> m_l1AlgoLogicParser;
+  L1GtLogicParser* m_preFilterLogicParser;
   void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression);
 
   // Declaration of leaf types
@@ -1153,6 +1154,7 @@ public :
   inline void RemoveEGOverlaps();
   inline void SetL1MuonQuality();
   inline void SetOpenL1Bits();
+  bool passPreFilterLogicParser(TString, int);
 
   void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID
 						,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4
@@ -2436,6 +2438,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
       }
       
       bool seedsResult = (m_l1AlgoLogicParser[i])->expressionResult();
+      //std::cout << "Expression result: " << seedsResult << std::endl;
      
       if (seedsResult)
 	map_L1BitOfStandardHLTPath[st] = 1;
@@ -2443,6 +2446,43 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 	map_L1BitOfStandardHLTPath[st] = 0;
     }
   }
+  
+}
+
+bool OHltTree::passPreFilterLogicParser(TString str, int nentry) {
+
+  if (str == "") return true;
+  
+  if (nentry == 0) { // do this only for first event - speed up code!
+    m_preFilterLogicParser = new L1GtLogicParser((std::string)str);
+  }
+
+  //cout<<  map_BitOfStandardHLTPath["HLT_Activity_L1A"]<<endl;
+  
+  //std::cout << "Token string: " << (std::string)str << std::endl;
+  
+  std::vector<L1GtLogicParser::OperandToken>& prefOpTokenVector =
+    m_preFilterLogicParser->operandTokenVector();
+  
+  //std::cout << "Token size: " << prefOpTokenVector.size() << std::endl;
+  for (size_t k = 0; k < prefOpTokenVector.size(); ++k) {
+    bool iResult = false;
+    //std::cout << "Token name: " << (prefOpTokenVector[k]).tokenName << std::endl;
+    if (map_BitOfStandardHLTPath.find((prefOpTokenVector[k]).tokenName)->second==1)
+      iResult = true;
+    else
+      iResult = false;
+    //std::cout << "Token result: " << iResult << std::endl;
+    
+    (prefOpTokenVector[k]).tokenResult = iResult;
+  }
+  bool expResult = m_preFilterLogicParser->expressionResult();
+  //bool expResult = true;
+  
+  if (expResult)
+    return true;
+  else
+    return false;
   
 }
 

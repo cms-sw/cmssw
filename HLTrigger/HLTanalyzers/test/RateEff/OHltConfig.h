@@ -27,6 +27,7 @@ class OHltConfig {
   void OHltConfig::printMenu(OHltMenu *omenu);
   void OHltConfig::convert();
   void OHltConfig::fillRunBlockList();
+  void OHltConfig::getPreFilter();
 
   // Data
   Config cfg;
@@ -89,5 +90,6 @@ class OHltConfig {
   bool selectBranchMC;
 
   /**********************************/
+  TString preFilterLogicString;
 };
 #endif

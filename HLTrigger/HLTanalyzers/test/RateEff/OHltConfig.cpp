@@ -12,6 +12,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   isRealData= false;
   menuTag = "";
   alcaCondition = "";
+  preFilterLogicString = "";
   versionTag = "";
   doPrintAll = true;
   doDeterministicPrescale = false;
@@ -74,6 +75,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
     
+    getPreFilter();
     fillRunBlockList();
     
     cout << "Real data conditions...ok"<< endl;
@@ -131,7 +133,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     /**********************************/
 
     
-print();
+    print();
     fillMenu(omenu);   
     printMenu(omenu);   
 
@@ -145,6 +147,22 @@ print();
   
 }
 
+void OHltConfig::getPreFilter()
+{
+  // Lookup in prefilter in LogicParser String format
+  
+  // temporary vars
+  const char* stmp;
+  try {
+    if (cfg.lookupValue("menu.preFilterByBits",stmp))
+      preFilterLogicString = TString(stmp);
+
+  } catch (...) {
+    cout << endl << "No PreFilter String found! " << endl;
+  }
+}
+
+
 void OHltConfig::fillRunBlockList()
 {
   // Lookup runLumiblockList, format: (runnr, minLumiBlock, maxLumiBlock)
@@ -153,29 +171,27 @@ void OHltConfig::fillRunBlockList()
   int itmp1;int itmp2;int itmp3;
 
   try {
-  Setting &m = cfg.lookup("data.runLumiblockList");
-  const int nm = (const int)m.getLength();
-  //cout <<"NNNNNNNNNN: " << nm << endl;
-  for (int i=0;i<nm;i++) {
-    TString ss0 = "data.runLumiblockList.["; ss0 +=i; ss0=ss0+"].[0]";
-    Setting &tt0 = cfg.lookup(ss0.Data());
-    itmp1 = tt0;
-
-    TString ss3 = "data.runLumiblockList.["; ss3 +=i; ss3=ss3+"].[1]";
-    Setting &tt3 = cfg.lookup(ss3.Data());
-    itmp2 = tt3;
-    
-    TString ss1 = "data.runLumiblockList.["; ss1 +=i; ss1=ss1+"].[2]";
-    Setting &tt1 = cfg.lookup(ss1.Data());
-    itmp3 = tt1;
-    //cout << itmp1 << " "<< itmp2 << " "<< itmp3 << " " << endl;
-
-    vector<int> tmpItem;
-    tmpItem.push_back(itmp1);
-    tmpItem.push_back(itmp2);
-    tmpItem.push_back(itmp3);
-    runLumiblockList.push_back(tmpItem);
-  }
+    Setting &m = cfg.lookup("data.runLumiblockList");
+    const int nm = (const int)m.getLength();
+    for (int i=0;i<nm;i++) {
+      TString ss0 = "data.runLumiblockList.["; ss0 +=i; ss0=ss0+"].[0]";
+      Setting &tt0 = cfg.lookup(ss0.Data());
+      itmp1 = tt0;
+      
+      TString ss3 = "data.runLumiblockList.["; ss3 +=i; ss3=ss3+"].[1]";
+      Setting &tt3 = cfg.lookup(ss3.Data());
+      itmp2 = tt3;
+      
+      TString ss1 = "data.runLumiblockList.["; ss1 +=i; ss1=ss1+"].[2]";
+      Setting &tt1 = cfg.lookup(ss1.Data());
+      itmp3 = tt1;
+      
+      vector<int> tmpItem;
+      tmpItem.push_back(itmp1);
+      tmpItem.push_back(itmp2);
+      tmpItem.push_back(itmp3);
+      runLumiblockList.push_back(tmpItem);
+    }
   } catch (...) {
     cout << endl << "No runLumiblock list! " << endl;
   }
@@ -264,6 +280,7 @@ void OHltConfig::print()
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
   cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
+  cout << "preFilterLogicString: " << preFilterLogicString << endl;
   cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;
   cout << "bunchCrossingTime: " << bunchCrossingTime << endl;
