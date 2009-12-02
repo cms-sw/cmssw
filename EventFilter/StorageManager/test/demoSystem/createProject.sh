@@ -73,6 +73,14 @@ cvs co -r $tagName IORawData/DaqSource
 #cvs co -r $tagName FWCore/Framework
 #cvs co -r $tagName FWCore/Modules
 
+# special versions
+if [ "$tagName" == "CMSSW_3_3_0" || "$tagName" == "CMSSW_3_3_5" ]
+then
+  cvs update -dAR EventFilter/StorageManager
+  cvs update -dAR EventFilter/SMProxyServer
+  cvs co -r V03-13-02 DQMServices/Core
+fi
+
 # 27-Mar-2009 - using the SM refdev01 "work" branch with 3_0_0_pre9
 if [ "$tagName" == "CMSSW_3_0_0_pre9" ]
 then
