@@ -1,6 +1,6 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
@@ -43,9 +43,10 @@ int cond::ListIOVUtilities::execute(){
   if( listAll ){
     cond::MetaData metadata_svc(session);
     std::vector<std::string> alltags;
-    session.transaction().start(true);
+    cond::DbScopedTransaction transaction(session);
+    transaction.start(true);
     metadata_svc.listAllTags(alltags);
-    session.transaction().commit();
+    transaction.commit();
     std::copy (alltags.begin(),
                alltags.end(),
                std::ostream_iterator<std::string>(std::cout,"\n")
@@ -54,7 +55,8 @@ int cond::ListIOVUtilities::execute(){
     std::string tag = getOptionValue<std::string>("tag");
     cond::MetaData metadata_svc(session);
     std::string token;
-    session.transaction().start(true);
+    cond::DbScopedTransaction transaction(session);
+    transaction.start(true);
     token=metadata_svc.getToken(tag);
     {
       bool verbose = hasOptionValue("verbose");
@@ -81,7 +83,7 @@ int cond::ListIOVUtilities::execute(){
       }
       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
     }
-    session.transaction().commit();
+    transaction.commit();
   }
   return 0;
 }
