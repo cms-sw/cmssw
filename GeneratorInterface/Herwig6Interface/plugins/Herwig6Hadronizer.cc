@@ -256,6 +256,26 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 			info << "   JIMMY trying to generate multiple interactions.\n";
 	}
 
+
+	// set the IPROC already here... needed for VB pairs
+
+	bool iprocFound=false;
+	
+	for(gen::ParameterCollector::const_iterator line = parameters.begin();
+	    line != parameters.end(); ++line) {
+	  if(!strcmp((line->substr(0,5)).c_str(),"IPROC")) {
+	    if (!give(*line))
+	      throw edm::Exception(edm::errors::Configuration)
+		<< "Herwig 6 did not accept the following: \""
+		<< *line << "\"." << std::endl;
+	    else iprocFound=true;
+	  }
+	}
+	
+	if (!iprocFound)
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "You have to define the process with IPROC."  << std::endl;
+
 	// initialize other common blocks ...
 	call(hwigin);
 	hwevnt.MAXER = 100000000;	// O(inf)
