@@ -26,6 +26,7 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 
+
 // PRODUCER CLASS DEFINITION -------------------------------------
 class Type1PFMET : public edm::EDProducer 
 {
@@ -41,13 +42,13 @@ class Type1PFMET : public edm::EDProducer
   double jetPTthreshold;
   double jetEMfracLimit;
   double jetMufracLimit;
-  void run(const METCollection& uncorMET, 
+  void run(const reco::METCollection& uncorMET, 
 	   const JetCorrector& corrector,
-	   const PFJetCollection& uncorJet,
+	   const reco::PFJetCollection& uncorJet,
 	   double jetPTthreshold,
 	   double jetEMfracLimit,
 	   double jetMufracLimit,
-	   METCollection* corMET);
+	   reco::METCollection* corMET);
 };
 
 #endif
