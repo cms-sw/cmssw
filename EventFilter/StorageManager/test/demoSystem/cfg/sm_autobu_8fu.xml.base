@@ -16,6 +16,9 @@
 
     <!-- Playback Builder Unit -->
     <xc:Application class="evf::BU" id="24" instance="0" network="tcp1">
+      <properties xmlns="urn:xdaq-application:evf::BU" xsi:type="soapenc:Struct">
+        <throttlingSleepUs xsi:type="xsd:unsignedInt">50000</throttlingSleepUs>
+      </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterAutoBU.so</xc:Module>
 

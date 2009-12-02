@@ -7,17 +7,18 @@ use File::Basename;
 use strict;
 
 # parse any command-line switches
-use vars qw($opt_b $opt_d $opt_f $opt_h $opt_i $opt_p $opt_r $opt_s);
-my $optionSuccess = getopts("bdfhiprs");
+use vars qw($opt_b $opt_d $opt_e $opt_f $opt_h $opt_i $opt_p $opt_r $opt_s);
+my $optionSuccess = getopts("bdefhiprs");
 
 # if the option parsing failed or the user requested help or there are
 # command-line arguments other than switches, print out a usage message
 if (! $optionSuccess || $opt_h || @ARGV)
 {
-  print "Usage:  applyDevelopmentPatches [-h] [-b] [-d] [-f] [-i] [-p] [-r] [-s]\n";
+  print "Usage:  applyDevelopmentPatches [-h] [-b] [-d] [-e] [-f] [-i] [-p] [-r] [-s]\n";
   print " where  -h : display usage Help (this message)\n";
-  print "        -b : patch the EventFilter/AutoBU code\n";
+  print "        -b : patch the EventFilter/AutoBU/BU code\n";
   print "        -d : patch the IORawData/DaqSource code\n";
+  print "        -e : patch the EventFilter/AutoBU/BUEvent code\n";
   print "        -f : patch the EventFilter/Processor code\n";
   print "        -i : patch the IOPool/Streamer code\n";
   print "        -p : patch the FWCore/Modules/Prescaler code\n";
@@ -27,14 +28,57 @@ if (! $optionSuccess || $opt_h || @ARGV)
   exit;
 }
 
-my $doDefaults = (!$opt_b && !$opt_d && !$opt_f && !$opt_i && !$opt_p && !$opt_r && !$opt_s);
+my $doDefaults = (!$opt_b && !$opt_d && !$opt_e && !$opt_f && !$opt_i && !$opt_p && !$opt_r && !$opt_s);
 
 # *****************************************************************
-# Modify the AutoBU code to pause between events and provide debug
-# information on buffer sizes.  Also, reset the event number to
-# zero at beginRun and drain events at endRun.
+# Modify the AutoBU code to support a sleep between events.
+# Also, reset the event number to zero at beginRun and
+# drain events at endRun.
 # *****************************************************************
 if ($doDefaults || defined($opt_b)) {
+
+  my $inputFile = "EventFilter/AutoBU/interface/BU.h";
+  my $outputFile = "${inputFile}.modified";
+
+  open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
+  open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
+
+  my $threeLineWindow = "";
+  while (my $line = <FILEIN>) {
+    chomp $line;
+
+    # update the multi-line "window" with this new line
+    if ($threeLineWindow =~ m/(.*)\n(.*)\n(.*)/) {
+      $threeLineWindow = $2 . "\n" . $3;
+    }
+    $threeLineWindow .= "\n" . $line;
+
+    # add attributes for readout throttling
+    if ($threeLineWindow =~ m/memory\s+pool\s+for\s+i20\s+communication.+toolbox::mem::Pool.+i2oPool_/s &&
+        $line =~ m/^\s*$/) {
+      $line .= "\n    // readout throttling for playback\n" .
+        "    xdata::UnsignedInteger32 throttlingSleepUs_;\n" .
+        "    unsigned int sleepUsec_;\n";
+    }
+
+    # write the input line to the output file
+    print FILEOUT "$line\n";
+  }
+
+  close FILEIN;
+  close FILEOUT;
+
+  rename $inputFile, "${inputFile}.orig";
+  rename $outputFile, $inputFile;
+
+  print STDOUT "\n";
+  print STDOUT "============================================================\n";
+  print STDOUT " Modification made to ${inputFile}:\n";
+  print STDOUT "============================================================\n";
+  my $result=`diff $inputFile ${inputFile}.orig`;
+  print STDOUT "$result";
+
+  # ***************************************************************
 
   my $inputFile = "EventFilter/AutoBU/src/BU.cc";
   my $outputFile = "${inputFile}.modified";
@@ -53,15 +97,21 @@ if ($doDefaults || defined($opt_b)) {
       $threeLineWindow = $2 . "\n" . $3;
     }
     $threeLineWindow .= "\n" . $line;
-    #print STDOUT "========================================\n";
-    #print STDOUT "$threeLineWindow\n";
+
+    # initialize the sleep time attributes
+    if ($line =~ m/(\s*),\s*i2oPool_\s*\(\s*0\s*\)/) {
+      $line .= "\n" . $1 . ", throttlingSleepUs_(0)";
+    }
+    if ($threeLineWindow =~ m/(\s*)string\s+msg.+configuring\s+FAILED.*fsm_.fireFailed.*}/s) {
+      $line .= "\n\n" . $1 . "sleepUsec_ = throttlingSleepUs_;";
+    }
+    if ($line =~ m/(\s*)gui_\s*-\>\s*addStandardParam\s*\(\s*\"foundRcmsStateListener\"/) {
+      $line .= "\n" . $1 . "gui_->addStandardParam(\"throttlingSleepUs\", &throttlingSleepUs_);";
+    }
 
     # add a sleep statement to the generateEvent method
     if ($threeLineWindow =~ m/\s*bool\s+BU::generateEvent\(BUEvent\* \w+\)\s+{\s*$/s) {
-      $line .= "\n  // TEMPORARY HACK FOR A STORAGE MANAGER DEVELOPMENT SYSTEM";
-      $line .= "\n  //sleep((unsigned int)1);";
-      $line .= "\n  usleep((unsigned int) 48000);";
-      #print STDOUT "$threeLineWindow\n";
+      $line .= "\n  if (sleepUsec_) usleep(sleepUsec_);";
     }
 
     # limit the number of FEDs created in Random mode
@@ -127,7 +177,13 @@ if ($doDefaults || defined($opt_b)) {
   my $result=`diff $inputFile ${inputFile}.orig`;
   print STDOUT "$result";
 
-  # ***************************************************************
+}
+
+# *****************************************************************
+# Modify the AutoBU code to provide debug information
+# on buffer sizes.
+# *****************************************************************
+if (defined($opt_e)) {
 
   my $inputFile = "EventFilter/AutoBU/src/BUEvent.cc";
   my $outputFile = "${inputFile}.modified";
