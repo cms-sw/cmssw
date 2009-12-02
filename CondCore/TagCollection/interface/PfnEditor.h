@@ -9,23 +9,11 @@ namespace cond{
   // edit the pfn accordind to rules given in its constructor
   class PfnEditor {
   public:
-    PfnEditor() : off(true){}
+    PfnEditor() : off(true);
     PfnEditor(std::string const & ipre, 
-	      std::string const & ipos) : 
-      prefix(ipre), 
-      postfix(ipos),
-      off(prefix.empty() && postfix.empty())
-    {}
+	      std::string const & ipos);
     
-    
-    std::string operator()(std::string const & pfn) {
-      if (off) return pfn;
-      size_t pos=std::string::npos;
-      if (!prefix.empty()) pos = pfn.rfind('/');
-      return prefix + ( (pos == std::string::npos) ? pfn :
-			pfn.substr(pos+1)
-			) + postfix;
-    }
+    std::string operator()(std::string const & pfn);
 
   private:
     std::string prefix;
