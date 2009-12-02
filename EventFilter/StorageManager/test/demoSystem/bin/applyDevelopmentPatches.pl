@@ -714,12 +714,16 @@ if (defined($opt_r)) {
 # ************************************************************
 if ($doDefaults || defined($opt_f)) {
 
-  my $inputFile = "EventFilter/Processor/interface/FUEventProcessor.h";
+  my $inputFile;
+  if (-e "EventFilter/Processor/interface" &&
+      -e "EventFilter/Processor/interface/FUEventProcessor.h") {
+    $inputFile = "EventFilter/Processor/interface/FUEventProcessor.h";
+  }
+  else {
+    $inputFile = "EventFilter/Processor/src/FUEventProcessor.h";
+  }
   my $outputFile = "${inputFile}.modified";
-
-  # the header filed moved at some point, so try the "interface" directory
-  # first then the "src" directory
-  open FILEIN, $inputFile or $inputFile = "EventFilter/Processor/src/FUEventProcessor.h";
+  print STDOUT "$inputFile $outputFile\n";
 
   open FILEIN, $inputFile or die "Unable to open input file $inputFile\n.";
   open FILEOUT, ">$outputFile" or die "Unable to open output file $outputFile\n";
