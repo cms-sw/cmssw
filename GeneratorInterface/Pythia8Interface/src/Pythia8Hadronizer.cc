@@ -229,6 +229,10 @@ bool Pythia8Hadronizer::hadronize()
     if (!pythia->next())
         return false;
 
+    // update LHE matching statistics
+    //
+    lheEvent()->count( lhef::LHERunInfo::kAccepted );
+
     event().reset(new HepMC::GenEvent);
     toHepMC.fill_next_event(*pythiaEvent, event().get());
 
@@ -269,8 +273,8 @@ void Pythia8Hadronizer::finalizeEvent()
 
 	event()->weights().push_back(pythia->info.weight());
 
-   // now create the GenEventInfo product from the GenEvent and fill
-   // the missing pieces
+    // now create the GenEventInfo product from the GenEvent and fill
+    // the missing pieces
     eventInfo().reset( new GenEventInfoProduct( event().get() ) );
 
 	//******** Verbosity ********
