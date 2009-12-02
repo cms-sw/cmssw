@@ -75,7 +75,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
-#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor)
+process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor)
 #process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking_pixelless*process.monitor_pixelless)
-process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
+#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
 
