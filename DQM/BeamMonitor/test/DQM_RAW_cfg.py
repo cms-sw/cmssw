@@ -22,7 +22,6 @@ process.MeasurementTracker.pixelClusterProducer = cms.string("")
 import DQMServices.Components.DQMEnvironment_cfi
 process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
-
 ### conditions
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
@@ -51,27 +50,27 @@ process.source = cms.Source("PoolSource",
 process.pretracking_step = cms.Sequence(process.siPixelDigis*
                                         process.siStripDigis*
                                         process.trackerlocalreco*
-                                        process.offlineBeamSpot*
-                                        process.recopixelvertexing
+                                        process.offlineBeamSpot
                                        )
 
-process.RecoForDQM = cms.Sequence(process.pretracking_step+process.ckftracks)
+process.RecoForDQM = cms.Sequence(process.pretracking_step*process.recopixelvertexing*process.ckftracks)
 process.RecoForDQM_Pixelless = cms.Sequence(process.pretracking_step+process.ctfTracksPixelLess)
+process.RecoForDQM_ALL = cms.Sequence(process.pretracking_step+process.ckftracks+process.ctfTracksPixelLess)
 process.BeamMonitorDQM = cms.Sequence(process.dqmBeamMonitor+process.dqmEnv)
 process.BeamMonitorDQM_Pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless+process.dqmEnvPixelLess)
 
-
 ## Normal Tracking
-#process.p = cms.Schedule(process.RecoForDQM,process.BeamMonitorDQM,process.dqmSaver)
+#process.p = cms.Path(process.RecoForDQM*process.BeamMonitorDQM*process.dqmSaver)
 
 ## Pixelless Tracking
-#process.p = cms.Schedule(process.RecoForDQM_Pixelless,process.BeamMonitorDQM_Pixelless,process.dqmSaver)
+process.p = cms.Path(process.RecoForDQM_Pixelless*process.BeamMonitorDQM_Pixelless*process.dqmSaver)
 
 ## Both Tracking
-process.p = cms.Path(process.RecoForDQM*process.BeamMonitorDQM+process.RecoForDQM_Pixelless*process.BeamMonitorDQM_Pixelless+process.dqmSaver)
+#process.p = cms.Path(process.RecoForDQM*process.BeamMonitorDQM+process.RecoForDQM_Pixelless*process.BeamMonitorDQM_Pixelless+process.dqmSaver)
+#process.p = cms.Path(process.RecoForDQM_ALL*process.BeamMonitorDQM+process.BeamMonitorDQM_Pixelless+process.dqmSaver)
 
 process.DQMStore.verbose = 0
-process.DQM.collectorHost = 'cmslpc08.fnal.gov'
+process.DQM.collectorHost = 'cmslpc01.fnal.gov'
 process.DQM.collectorPort = 9190
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'
