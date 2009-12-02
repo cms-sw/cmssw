@@ -16,8 +16,7 @@
 #include <vector>
 #include "DataFormats/METReco/interface/METFwd.h" 
 
-using namespace reco;
-using namespace std;
+#warning "This header file is obsolete.  Please use METFwd.h instead"
 
 namespace reco
 {
