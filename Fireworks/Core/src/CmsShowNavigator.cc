@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.70 2009/11/30 19:06:18 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.71 2009/12/01 10:48:40 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -245,7 +245,11 @@ CmsShowNavigator::nextEvent()
    if (m_newFileOnNextEvent)
    {
       FileQueue_i last = m_files.end(); --last;
-      goTo(last,  (*last)->firstSelectedEvent());
+      if (m_filterState == kOn)
+         goTo(last,  (*last)->firstSelectedEvent());
+      else
+         goTo(last,  0);
+
       m_newFileOnNextEvent = false;
       return;
    }
