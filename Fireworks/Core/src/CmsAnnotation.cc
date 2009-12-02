@@ -224,13 +224,13 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
             }
             else
             {
-               Float_t diffX = (Float_t)(event->fX - fMouseX) / vp.Width();
-               Float_t diffY = (Float_t)(event->fY - fMouseY) / vp.Height();
                fMouseX = event->fX;
                fMouseY = event->fY;
-               Float_t size = fSize + TMath::Min(diffX, diffY);
-               fSize = TMath::Max(size, 0.08f); // lock below min
-
+               Float_t dX = (Float_t)(fMouseX) / vp.Width() - fPosX;
+               Float_t dY = 1.0f - (Float_t)(fMouseY) / vp.Height() + fPosY + 0.5f*fSize;
+               fSize = TMath::Min(dX, dY);
+               fSize = TMath::Max(fSize, 0.05f); // lock above min
+               fSize = TMath::Min(fSize, 0.50f); // lock below max
             }
          }
          return kTRUE;
