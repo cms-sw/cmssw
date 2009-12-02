@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre8/1E31/V6 (CMSSW_3_4_0_pre6_HLT8)
+# /dev/CMSSW_3_4_0/pre8/1E31/V7 (CMSSW_3_4_0_pre6_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/1E31/V6')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/1E31/V7')
 )
 
 
@@ -955,9 +955,9 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 ),
-    physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x0 ),
-    technicalBits = cms.uint64( 0x7f )
+    physicsLoBits = cms.uint64( 0x0 ),
+    physicsHiBits = cms.uint64( 0x40000 ),
+    technicalBits = cms.uint64( 0x0 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
@@ -6557,9 +6557,9 @@ hltEle10LWL1RHT200 = cms.EDFilter( "HLTGlobalSumsMET",
 hltL1sZeroBias = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 5 ),
-    L1TechTriggerSeeding = cms.bool( False ),
+    L1TechTriggerSeeding = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1SeedsLogicalExpression = cms.string( "4" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -6595,7 +6595,7 @@ hltL1sL1BPTX = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "0 OR 1 OR 2 OR 3" ),
+    L1SeedsLogicalExpression = cms.string( "3" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
