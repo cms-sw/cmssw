@@ -12,7 +12,7 @@ namespace cond{
   {}
   
   
-  std::string PfnEditor::operator()(std::string const & pfn) {
+  std::string PfnEditor::operator()(std::string const & pfn) const {
     if (off) return pfn;
     // FIXME ad-hoc
     if (pfn.find("FrontierInt")!=std::string::npos)  return pfn;
