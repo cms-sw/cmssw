@@ -31,6 +31,7 @@ using namespace std;
 PhysDecl::PhysDecl(const edm::ParameterSet& iConfig)
 {
   applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
+  debugOn     = iConfig.getUntrackedParameter<bool>("debugOn",false);
 }
 
 PhysDecl::~PhysDecl()
@@ -48,17 +49,19 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
  
   L1GtFdlWord fdlWord = gtrr->gtFdlWord();
-  //  cout << "phys decl. bit=" << fdlWord.physicsDeclared() << endl;
+  //   cout << "phys decl. bit=" << fdlWord.physicsDeclared() << endl;
   if (fdlWord.physicsDeclared() ==1) accepted=true;
 
-  /*
-  int ievt = iEvent.id().event();
-  int irun = iEvent.id().run();
-  int ils = iEvent.luminosityBlock();
-  int bx = iEvent.bunchCrossing();
-  */
-  
 
+  if (debugOn) {
+    int ievt = iEvent.id().event();
+    int irun = iEvent.id().run();
+    int ils = iEvent.luminosityBlock();
+    int bx = iEvent.bunchCrossing();
+    
+    cout << " Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Accepted " << accepted << endl;
+  }
+ 
   if (applyfilter)
     return accepted;
   else

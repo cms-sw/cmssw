@@ -39,7 +39,7 @@ private:
   virtual bool filter ( edm::Event &, const edm::EventSetup & );
   
   bool applyfilter;
-
+  bool debugOn;
   
 };
 
