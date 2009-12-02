@@ -26,9 +26,6 @@ namespace reco {
   class PFBlockElement {
   public:
     
-    /// number of element types
-    static const unsigned nTypes_;
-
     /// possible types for the element
     /// do not modify this enum if you don't know what you're doing!!!
     enum Type { 
