@@ -397,7 +397,8 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			}
 
 			BeamSpot bs(pv.position(), sigmaZ,
-			            beamSpot->dxdz(), beamSpot->dydz(),
+			            beamSpot.isValid() ? beamSpot->dxdz() : 0.,
+			            beamSpot.isValid() ? beamSpot->dydz() : 0.,
 			            beamWidth, cov, BeamSpot::Unknown);
 
 			if (useGhostTrack)
