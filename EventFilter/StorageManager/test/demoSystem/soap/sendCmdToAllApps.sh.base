@@ -62,7 +62,7 @@ for appcount in $sequence ; do
 
         # Special delays
         if [[ $appcount == 15 && $command == "Enable" ]] ; then sleep 15 ; fi
-        if  [[ $isPlayback -gt 0 && $appcount == 3 && $command == "Enable" ]] ; then sleep 5 ; fi
+        if  [[ $isPlayback -gt 0 && $appcount == 3 && $command == "Enable" ]] ; then sleep 10 ; fi
 
         ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 $command
         echo ""
