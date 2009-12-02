@@ -67,7 +67,7 @@ void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
    
     castHists.shapePED =  m_dbe->book1D("Castor Ped Subtracted Pulse Shape","Castor Ped Subtracted Pulse Shape",10,-0.5,9.5);
     castHists.shapeALL =  m_dbe->book1D("Castor Average Pulse Shape","Castor Average Pulse Shape",10,-0.5,9.5);
-    castHists.energyALL =  m_dbe->book1D("Castor Average Pulse Energy","Castor Average Pulse Energy",500,0,5000);
+    castHists.energyALL =  m_dbe->book1D("Castor Average Pulse Energy","Castor Average Pulse Energy",500,0,500);
     castHists.timeALL =  m_dbe->book1D("Castor Average Pulse Time","Castor Average Pulse Time",200,-1,10);
     castHists.rms_shape =  m_dbe->book1D("Castor LED Shape RMS Values","Castor LED Shape RMS Values",100,0,5);
     castHists.mean_shape =  m_dbe->book1D("Castor LED Shape Mean Values","Castor LED Shape Mean Values",100,-0.5,9.5);
@@ -141,8 +141,6 @@ void CastorLEDMonitor::reset(){
 
 void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, const CastorDbService& cond){
 
- if (ievt_%1000==0 && ievt_<1000000 ) // do this task each 1000 events until 1M events
- {
 
   meEVT_->Fill(ievt_);
 
@@ -183,21 +181,23 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
       castHists.energyALL->Fill(energy);
       if(bs!=0) castHists.timeALL->Fill(ts/bs);
 
-      for (int i=0; i<digi.size(); i++) {
+     if(ievt_%100 == 0 ){
+       for (int i=0; i<digi.size(); i++) {
 	float tmp =0;
         int j=digi.sample(i).adc();
         tmp = (LedMonAdc2fc[j]+0.5);
         castHists.shapeALL->Fill(i,tmp);
         castHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
+       }
       }
-
-      if(doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
+      //do per channel histograms once for each 1000 events until 1M events
+      if(ievt_%1000 == 0 && ievt_<1000000 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } catch (...) {
     if(fVerbosity > 0) cout << "CastorLEDMonitor::processEvent  NO Castor Digis." << endl;
   }
- }  
+ 
 
   ievt_++;
   
@@ -284,7 +284,7 @@ void CastorLEDMonitor::perChanHists(const HcalCastorDetId DetID, float* vals,
 
 
     sprintf(name,"Castor LED Energy zside=%d  module=%d  sector=%d",DetID.zside(),DetID.module(),DetID.sector());      
-    MonitorElement* insert3 =  m_dbe->book1D(name,name,250,0,5000);
+    MonitorElement* insert3 =  m_dbe->book1D(name,name,500,0,500);
     insert3->Fill(energy); 
     tEnergy[DetID] = insert3;	
     

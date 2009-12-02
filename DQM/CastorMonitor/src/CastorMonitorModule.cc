@@ -155,12 +155,8 @@ void CastorMonitorModule::beginJob(const edm::EventSetup& c){
   if ( dbe_ != NULL ){
   
      ////---- create ReportSummary Map (put it here for the time being 
-    dbe_->setCurrentFolder(rootFolder_+"/EventInfo/");
+    dbe_->setCurrentFolder(rootFolder_+"EventInfo");
     reportSummaryMap_=dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,1,0,1);
-    //reportSummaryMap_=dbe_->book1D("reportSummaryMap","reportSummaryMap",3,0,3);
-    //reportSummaryMap_->setBinLabel(1,"RawData");  
-    //reportSummaryMap_->setBinLabel(2,"CastorDigi");
-    //reportSummaryMap_->setBinLabel(3,"CastorRecHits");
     TH2F* myReportSummary=reportSummaryMap_->getTH2F();
     myReportSummary->GetXaxis()->SetBinLabel(1,"RawData");
     myReportSummary->GetXaxis()->SetBinLabel(2,"CastorDigi");

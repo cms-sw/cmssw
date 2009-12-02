@@ -176,8 +176,7 @@ meCastorRecHitsEsector_->Fill(sector, energy);
 meCastorRecHitsEnergy_->Fill(energy);
 //meCastorRecHitsTotalEnergy_->Fill(total_energy);
 }
-
-if(ievt_%100==0) 
+if(ievt_%10==0) 
   meCastorRecHitsOccupancy_->Fill(sector, module);
 
 // X,Y,Z dimensions in mm

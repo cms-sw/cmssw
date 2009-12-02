@@ -51,7 +51,7 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     ////---- book MonitorElements
     meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
     castorHists.meRECHIT_E_all = m_dbe->book1D("CastorRecHit Energies - 1GeV cut on RecHitEnergy","CastorRecHit Energies - 1GeV cut on RecHitEnergy",150,0,150);
-    castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times - 1GeV cut on RecHitEnergy","CastorRecHit Times - 1GeV cut on RecHitEnergy",300,-100,200);     
+    castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times - 1GeV cut on RecHitEnergy","CastorRecHit Times - 1GeV cut on RecHitEnergy",200,-100,100);     
     castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel - 1GeV cut on RecHitEnergy","CastorRecHit Energy in each channel - 1GeV cut on RecHitEnergy",224,0,224);
     
     
@@ -94,7 +94,7 @@ namespace CastorRecHitPerChan{
        if(dbe){
 	 char name[1024];
 	 sprintf(name,"CastorRecHit Energy zside=%d module=%d sector=%d", rhit.id().zside(), rhit.id().module(), rhit.id().sector());
-         toolE[rhit.id()] =  dbe->book1D(name,name,200,-10,20); 
+         toolE[rhit.id()] =  dbe->book1D(name,name,30,-10,20); 
 	 toolE[rhit.id()]->Fill(rhit.energy());
       }
     }
@@ -109,7 +109,7 @@ namespace CastorRecHitPerChan{
       if(dbe){
 	char name[1024];
 	sprintf(name,"CastorRecHit Time zside=%d module=%d sector=%d", rhit.id().zside(), rhit.id().module(), rhit.id().sector());
-	toolT[rhit.id()] =  dbe->book1D(name,name,300,-100,200); 
+	toolT[rhit.id()] =  dbe->book1D(name,name,200,-100,100); 
 	toolT[rhit.id()]->Fill(rhit.time());
       }
     }
@@ -126,7 +126,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
 
  //cout << "==>CastorRecHitMonitor::processEvent !!!" << endl;
 
-  ievt_++;  meEVT_->Fill(ievt_);
+  meEVT_->Fill(ievt_);
 
   if(!m_dbe) { 
     if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
@@ -165,8 +165,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       castorHists.meRECHIT_MAP_CHAN_E->Fill(channel,energy);
       }
 
-      ////---- do histograms per channel     
-      if(doPerChannel_) 
+      ////---- do histograms per channel each 1000 events until 1M events    
+      if(ievt_%1000 == 0 && ievt_<1000000 doPerChannel_) 
          CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
       }
 	
@@ -174,11 +174,12 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   }
   catch (...) { if(fVerbosity>0) cout<<"CastorRecHitMonitor::Error in processEvent !!!"<<endl; }
 
-  if (showTiming)
-    { 
+  if (showTiming){ 
       cpu_timer.stop(); cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << endl; 
       cpu_timer.reset(); cpu_timer.start();  
-    }
+   }
+
+  ievt_++; 
 
   return;
 }
