@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.1 2009/11/26 16:02:14 goys Exp $
+// $Id: HLTDTActivityFilter.cc,v 1.2 2009/11/26 17:02:58 fwyzard Exp $
 //
 //
 
@@ -147,7 +147,3 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   return result;
 
 }
-
-// define as a framework module
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTDTActivityFilter);
