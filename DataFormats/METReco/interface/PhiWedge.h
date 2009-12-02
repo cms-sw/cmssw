@@ -44,12 +44,14 @@ namespace reco{
     // Get halo direction confidence based on time ordering of the rechits ( must be within range of -1 to + 1 )
     // Direction is calculated by counting the number of pair-wise time-ascending rechits from -Z to +Z and then normalizing this count by number of pair-wise combinations
     // If all pair-wise combinations are consistent with a common z-direction, then this value will be plus or minus 1 exactly.  Otherwise it will be somewhere in between.
+    float ZDirectionConfidence() const { return (1. - PlusZOriginConfidence_)*2. -1. ;}
     float PlusZDirectionConfidence() const { return 1.-PlusZOriginConfidence_;}
     float MinusZDirectionConfidence() const { return PlusZOriginConfidence_ ;}
+    
     // Get halo origin confidence based on time ordering of the rechits
     float PlusZOriginConfidence() const { return PlusZOriginConfidence_ ;} 
     float MinusZOriginConfidence() const { return 1.- PlusZOriginConfidence_;}
-
+    
     // To be filled later or removed
     int OverlappingCSCTracks() const {return OverlappingCSCTracks_;}
     int OverlappingCSCSegments()const {return OverlappingCSCSegments_;}
