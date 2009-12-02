@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/27 03:15:37 $
- * $Revision: 1.9 $
+ * $Date: 2009/11/27 04:11:28 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -11,6 +11,10 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <numeric>
@@ -34,6 +38,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
+  tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -74,52 +79,70 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
   
-  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of input tracks vs lumi",20,0.5,10.5);
+  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi",20,0.5,10.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
   h_nTrk_lumi->setAxisTitle("Num of Tracks",2);
   
-  h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Input Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
+  h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
   
-  h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of input tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
+  h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)",2);
   
-  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",10,0,10);
+  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",40,0,40);
   h_x0_lumi->setAxisTitle("Lumisection",1);
   h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
   h_x0_lumi->getTH1()->SetOption("E1");
   
-  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",10,0,10);
+  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",40,0,40);
   h_y0_lumi->setAxisTitle("Lumisection",1);
   h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
   h_y0_lumi->getTH1()->SetOption("E1");
   
-  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",10,0,10);
+  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",40,0,40);
   h_z0_lumi->setAxisTitle("Lumisection",1);
   h_z0_lumi->setAxisTitle("z_{0} (cm)",2);
   h_z0_lumi->getTH1()->SetOption("E1");
   
-  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z of beam spot vs lumi (Fit)",10,0,10);
+  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0,40);
   h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
   h_sigmaZ0_lumi->setAxisTitle("sigma z_{0}",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
   
-  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of input tracks",dzBin,dzMin,dzMax);
-  h_trk_z0->setAxisTitle("z_{0} of input tracks (cm)",1);
+  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
+  h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
 
-  h_vx_dz = dbe_->bookProfile("vx_dz","v_{x} vs. dz",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vx_dz = dbe_->bookProfile("vx_dz","v_{x} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vx_dz->setAxisTitle("dz (cm)",1);
   h_vx_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
 
-  h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vy_dz->setAxisTitle("dz (cm)",1);
   h_vy_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
 
+  // Histograms of all reco tracks (without cuts):
+  h_trkPt=dbe_->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
+  h_trkPt->setAxisTitle("p_{T} (GeV/c)",1);
 
+  h_trkVz=dbe_->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin,dzMin,dzMax);
+  h_trkVz->setAxisTitle("V_{Z} (cm)",1);
+
+  // Results of previous good fit:
+  fitResults=dbe_->book2D("fitResults","Results of previous good fit",4,0,4,2,0,2);
+  fitResults->setAxisTitle("Fitted Beam Spot",1);
+  fitResults->setBinLabel(1,"x_{0}",1);
+  fitResults->setBinLabel(2,"y_{0}",1);
+  fitResults->setBinLabel(3,"z_{0}",1);
+  fitResults->setBinLabel(4,"#sigma_{Z0}",1);
+  fitResults->setBinLabel(1,"Mean",2);
+  fitResults->setBinLabel(2,"Error",2);
+  fitResults->getTH1()->SetOption("text");
+
+  // Summary plots:
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
   reportSummary = dbe_->get(monitorName_+"EventInfo/reportSummary");
   if (reportSummary) dbe_->removeElement(reportSummary->getName());
@@ -179,7 +202,18 @@ void BeamMonitor::analyze(const Event& iEvent,
   theBeamFitter->readEvent(iEvent);
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
-  theBS = *recoBeamSpotHandle;
+  refBS = *recoBeamSpotHandle;
+  
+  //if (countEvt_%10!=0) return;
+
+  Handle<reco::TrackCollection> TrackCollection;
+  iEvent.getByLabel(tracksLabel_, TrackCollection);
+  const reco::TrackCollection *tracks = TrackCollection.product();
+  for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	track != tracks->end(); ++track ) {    
+    h_trkPt->Fill(track->pt());
+    h_trkVz->Fill(track->vz());
+  }
 }
 
 
@@ -207,7 +241,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     resetHistos_ = false;
   }
   
-  if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of input tracks" << endl;
+  if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
   int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
        BSTrk != theBSvector.end();
@@ -224,7 +258,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
-  if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+  if (debug_ && fitted) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
   f1->SetLineColor(4);
@@ -246,13 +280,23 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
     h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
 
-    if (fabs(theBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) {
+    fitResults->Reset();
+    fitResults->setBinContent(1,1,bs.x0());
+    fitResults->setBinContent(2,1,bs.y0());
+    fitResults->setBinContent(3,1,bs.z0());
+    fitResults->setBinContent(4,1,bs.sigmaZ());
+    fitResults->setBinContent(1,2,bs.x0Error());
+    fitResults->setBinContent(2,2,bs.y0Error());
+    fitResults->setBinContent(3,2,bs.z0Error());
+    fitResults->setBinContent(4,2,bs.sigmaZ0Error());
+
+    if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) {
       summaryContent_[0] += 1.;
     }
-    if (fabs(theBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) {
+    if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) {
       summaryContent_[1] += 1.;
     }
-    if (fabs(theBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) {
+    if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) {
       summaryContent_[2] += 1.;
     }
   }
