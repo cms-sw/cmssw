@@ -147,3 +147,7 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   return result;
 
 }
+
+// define as a framework module
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTDTActivityFilter);
