@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.71 2009/12/01 10:48:40 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.72 2009/12/02 11:50:53 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -92,7 +92,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
 }
 
 bool
-CmsShowNavigator::appendFile(const std::string& fileName, bool live)
+CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSize, bool live)
 {
    try
    {
@@ -106,21 +106,23 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool live)
       if (live)
          m_newFileOnNextEvent = true;          
 
-      int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
-      while (toErase > 0)
+      if (checkFileQueueSize)
       {
-         FileQueue_i si = m_files.begin(); si++;
-         FWFileEntry* file = *si;
-         file->closeFile();
-         delete file;
+         int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
+         while (toErase > 0)
+         {
+            FileQueue_i si = m_files.begin(); si++;
+            FWFileEntry* file = *si;
+            file->closeFile();
+            delete file;
             
-         m_files.erase(si);
-         --toErase;
+            m_files.erase(si);
+            --toErase;
+         }
+
+         if (m_files.size() >= m_maxNumberOfFilesToChain)
+            printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
       }
-
-      if (m_files.size() >= m_maxNumberOfFilesToChain)
-         printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
-
       
       m_files.push_back(newFile);
       if (!m_currentFile.m_isSet)
@@ -246,9 +248,9 @@ CmsShowNavigator::nextEvent()
    {
       FileQueue_i last = m_files.end(); --last;
       if (m_filterState == kOn)
-         goTo(last,  (*last)->firstSelectedEvent());
+         goTo(last, (*last)->firstSelectedEvent());
       else
-         goTo(last,  0);
+         goTo(last, 0);
 
       m_newFileOnNextEvent = false;
       return;

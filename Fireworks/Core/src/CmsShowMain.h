@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.37 2009/11/23 19:09:31 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.38 2009/11/24 13:53:07 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ public:
    void resetInitialization();
    void draw();
    void openData();
+   void appendData();
    void openDataViaURL();
    void quit();
    void doExit();
@@ -155,28 +156,30 @@ private:
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
-   std::auto_ptr<FWModelChangeManager> m_changeManager;
-   std::auto_ptr<FWColorManager> m_colorManager;
-   std::auto_ptr<FWSelectionManager> m_selectionManager;
-   std::auto_ptr<FWEventItemsManager> m_eiManager;
-   std::auto_ptr<FWViewManagerManager> m_viewManager;
-   std::auto_ptr<FWGUIManager> m_guiManager;
-   std::auto_ptr<fireworks::Context> m_context;
+   std::auto_ptr<FWModelChangeManager>   m_changeManager;
+   std::auto_ptr<FWColorManager>         m_colorManager;
+   std::auto_ptr<FWSelectionManager>     m_selectionManager;
+   std::auto_ptr<FWEventItemsManager>    m_eiManager;
+   std::auto_ptr<FWViewManagerManager>   m_viewManager;
+   std::auto_ptr<FWGUIManager>           m_guiManager;
+   std::auto_ptr<fireworks::Context>     m_context;
 
    CmsShowNavigator* m_navigator;
 
-   DetIdToMatrix m_detIdToGeo;
-   std::string m_inputFileName;
-   std::string m_configFileName;
-   std::string m_geomFileName;
-   static bool m_autoField;                    // data derived magnetif field state
+   DetIdToMatrix            m_detIdToGeo;
+   std::vector<std::string> m_inputFiles;
+   bool                     m_loadedAnyInputFile;
+   std::string              m_configFileName;
+   std::string              m_geomFileName;
+
+   static bool   m_autoField;                  // data derived magnetif field state
    static double m_magneticField;
-   static int m_numberOfFieldEstimates;
-   static int m_numberOfFieldIsOnEstimates;
+   static int    m_numberOfFieldEstimates;
+   static int    m_numberOfFieldIsOnEstimates;
    static double m_caloScale;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
-   std::auto_ptr<CmsShowSearchFiles> m_searchFiles;
+   std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;
 
    TTimer* m_autoLoadTimer;
    Bool_t  m_autoLoadTimerRunning;

@@ -6,6 +6,7 @@ const std::string cmsshow::sAddRhoPhi = "Rho Phi";
 const std::string cmsshow::sAddRhoZ = "Rho Z";
 const std::string cmsshow::sAddLego = "Lego";
 const std::string cmsshow::sOpenData = "Open Local Data File";
+const std::string cmsshow::sAppendData = "Append Local Data File";
 const std::string cmsshow::sLoadConfig = "Load Configuration";
 const std::string cmsshow::sSaveConfig = "Save Configuration";
 const std::string cmsshow::sSaveConfigAs = "Save Configuration As";

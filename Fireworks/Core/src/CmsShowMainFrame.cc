@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.79 2009/11/26 20:45:41 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.80 2009/11/29 15:59:09 amraktad Exp $
 //
 // hacks
 #define private public
@@ -84,6 +84,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    m_manager = m;
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
+   CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    loadConfig->disable();
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
@@ -145,6 +146,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    fileMenu->AddSeparator();
    
    openData->createMenuEntry(fileMenu);
+   appendData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
    //searchFiles->disable();
    loadConfig->createMenuEntry(fileMenu);

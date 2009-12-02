@@ -7,6 +7,7 @@ namespace cmsshow {
    extern const std::string sAddRhoZ;
    extern const std::string sAddLego;
    extern const std::string sOpenData;
+   extern const std::string sAppendData;
    extern const std::string sLoadConfig;
    extern const std::string sSaveConfig;
    extern const std::string sSaveConfigAs;

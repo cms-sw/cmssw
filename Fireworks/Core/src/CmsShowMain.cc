@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.125 2009/11/27 17:41:00 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.126 2009/12/01 09:36:01 amraktad Exp $
 //
 
 // system include files
@@ -124,25 +124,25 @@ void CmsShowMain::resetFieldEstimate()
 //
 // constructors and destructor
 //
-static const char* const kInputFileOpt ="input-file";
-static const char* const kInputFileCommandOpt ="input-file,i";
-static const char* const kConfigFileOpt = "config-file";
+static const char* const kInputFileOpt         = "input-file";
+static const char* const kInputFileCommandOpt  = "input-file,i";
+static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
-static const char* const kGeomFileOpt = "geom-file";
-static const char* const kGeomFileCommandOpt = "geom-file,g";
-static const char* const kNoConfigFileOpt = "noconfig";
+static const char* const kGeomFileOpt          = "geom-file";
+static const char* const kGeomFileCommandOpt   = "geom-file,g";
+static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
-static const char* const kPlayOpt = "play";
-static const char* const kPlayCommandOpt = "play,p";
-static const char* const kLoopOpt = "loop";
-static const char* const kLoopCommandOpt = "loop";
-static const char* const kDebugOpt = "debug";
+static const char* const kPlayOpt         = "play";
+static const char* const kPlayCommandOpt  = "play,p";
+static const char* const kLoopOpt         = "loop";
+static const char* const kLoopCommandOpt  = "loop";
+static const char* const kDebugOpt        = "debug";
 static const char* const kDebugCommandOpt = "debug,d";
-static const char* const kEveOpt = "eve";
-static const char* const kEveCommandOpt = "eve";
-static const char* const kAdvancedRenderOpt = "shine";
+static const char* const kEveOpt          = "eve";
+static const char* const kEveCommandOpt   = "eve";
+static const char* const kAdvancedRenderOpt        = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
-static const char* const kHelpOpt = "help";
+static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 // static const char* const kSoftOpt = "soft";
 static const char* const kSoftCommandOpt = "soft";
@@ -150,7 +150,7 @@ static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "root";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
-static const char* const kLiveCommandOpt = "live";
+static const char* const kLiveCommandOpt  = "live";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -165,6 +165,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                     m_eiManager.get(),
                                     m_colorManager.get())),
    m_navigator(new CmsShowNavigator(*this)),
+
+   m_loadedAnyInputFile(false),
+
    m_autoLoadTimer(0),
    m_autoLoadTimerRunning(kFALSE),
    m_liveTimer(0),
@@ -187,7 +190,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
-         (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
+         (kInputFileCommandOpt,  po::value< std::vector<std::string> >(),   "Input root file")
          (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
          (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
          (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
@@ -230,13 +233,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       // input file
       if (vm.count(kInputFileOpt)) {
-         m_inputFileName = vm[kInputFileOpt].as<std::string>();
+         m_inputFiles = vm[kInputFileOpt].as< std::vector<std::string> >();
       }
 
-      if (!m_inputFileName.size())
+      if (!m_inputFiles.size())
          std::cout << "No data file given." << std::endl;
+      else if (m_inputFiles.size() == 1)
+         std::cout << "Input: " << m_inputFiles.front() << std::endl;
       else
-         std::cout << "Input: " << m_inputFileName.c_str() << std::endl;
+         std::cout << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
 
       // configuration file
       if (vm.count(kConfigFileOpt)) {
@@ -446,6 +451,28 @@ void CmsShowMain::openData()
    if (fi.fFilename) {
       m_navigator->openFile(fi.fFilename);
       m_navigator->firstEvent();
+      checkPosition();
+      draw();
+   }
+   m_guiManager->clearStatus();
+}
+
+void CmsShowMain::appendData()
+{
+   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   TGFileInfo fi;
+   fi.fFileTypes = kRootType;
+   /* this is how things used to be done:
+      fi.fIniDir = ".";
+      this is bad because the destructor calls delete[] on fIniDir.
+    */
+   fi.fIniDir = new char[10];
+   strcpy(fi.fIniDir, ".");
+   new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
+   m_guiManager->updateStatus("loading file ...");
+   if (fi.fFilename) {
+      int old_size = 
+      m_navigator->appendFile(fi.fFilename, false, false);
       checkPosition();
       draw();
    }
@@ -857,8 +884,9 @@ CmsShowMain::setupDataHandling()
    m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator,_1));
    m_guiManager->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
-   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
+   if (m_guiManager->getAction(cmsshow::sOpenData)    != 0) m_guiManager->getAction(cmsshow::sOpenData)   ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+   if (m_guiManager->getAction(cmsshow::sAppendData)  != 0) m_guiManager->getAction(cmsshow::sAppendData) ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
+   if (m_guiManager->getAction(cmsshow::sSearchFiles) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
@@ -888,18 +916,32 @@ CmsShowMain::setupDataHandling()
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
-   if(m_inputFileName.size()) {
-      m_guiManager->updateStatus("loading data file...");
-      if (!m_navigator->openFile(m_inputFileName) ) {
-         m_guiManager->updateStatus("failed to load data file");
-         openData();
-      } else {
-         m_navigator->firstEvent();
-         checkPosition();
-         draw();
+   for (int ii = 0; ii < m_inputFiles.size(); ++ii)
+   {
+      const std::string& fname = m_inputFiles[ii];
+      if (fname.size())
+      {
+         m_guiManager->updateStatus("loading data file ...");
+         if (!m_navigator->appendFile(fname, false, false))
+         {
+            m_guiManager->updateStatus("failed to load data file");
+            openData();
+         }
+         else
+         {
+            m_loadedAnyInputFile = true;
+         }
       }
    }
-   else if (m_monitor.get() != 0) {
+
+   if (m_loadedAnyInputFile)
+   {
+      m_navigator->firstEvent();
+      checkPosition();
+      draw();
+   }
+   else if (m_monitor.get() != 0)
+   {
       openData();
    }
 }
@@ -953,18 +995,23 @@ void
 CmsShowMain::notified(TSocket* iSocket)
 {
    TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
-   if(0!=server) {
+   if (server)
+   {
       TSocket* connection = server->Accept();
-      if (connection) {
+      if (connection)
+      {
          m_monitor->Add(connection);
          std::stringstream s;
          s << "received connection from "<<iSocket->GetInetAddress().GetHostName();
          m_guiManager->updateStatus(s.str().c_str());
       }
-   } else {
+   }
+   else
+   {
       char buffer[4096];
       memset(buffer,0,sizeof(buffer));
-      if( iSocket->RecvRaw(buffer, sizeof(buffer)) <= 0) {
+      if (iSocket->RecvRaw(buffer, sizeof(buffer)) <= 0)
+      {
          m_monitor->Remove(iSocket);
          //std::stringstream s;
          //s << "closing connection to "<<iSocket->GetInetAddress().GetHostName();
@@ -974,7 +1021,8 @@ CmsShowMain::notified(TSocket* iSocket)
       }
       std::string fileName(buffer);
       std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
-      if(lastNonSpace != std::string::npos) {
+      if(lastNonSpace != std::string::npos)
+      {
          fileName.erase(lastNonSpace+1);
       }
 
@@ -982,13 +1030,14 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      m_navigator->appendFile(fileName, m_live);
+      m_navigator->appendFile(fileName, true, m_live);
       // bootstrap case: --port  and no input file
-      if (m_inputFileName.empty())
+      if (!m_loadedAnyInputFile)
       {
          m_navigator->firstEvent();
+         m_loadedAnyInputFile = true;
       }
-      m_inputFileName = fileName;
+
       std::stringstream sr;
       sr <<"New file registered '"<<fileName<<"'";
       m_guiManager->updateStatus(sr.str().c_str());

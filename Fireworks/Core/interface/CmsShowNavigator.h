@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.41 2009/11/30 12:37:33 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.42 2009/11/30 17:58:10 amraktad Exp $
 //
 
 // system include files
@@ -78,8 +78,8 @@ public:
    void setFrom(const FWConfiguration&);
 
    Int_t realEntry(Int_t rawEntry);
-   bool openFile(const std::string& fileName);
-   bool appendFile(const std::string& fileName, bool checkMaxFileSize);
+   bool  openFile(const std::string& fileName);
+   bool  appendFile(const std::string& fileName, bool checkFileQueueSize, bool live);
 
    void nextEvent();
    void previousEvent();
