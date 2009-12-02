@@ -3,11 +3,9 @@ process = cms.Process("Test")
 
 #we want to continue processing after a 'ProductNotFound' exception in order
 # to test what happens to the cache held by the InputTag
-import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
+    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
-process.options.Rethrow.remove('ProductNotFound')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(3)
