@@ -9,11 +9,11 @@ namespace cond{
   // edit the pfn accordind to rules given in its constructor
   class PfnEditor {
   public:
-    PfnEditor() : off(true);
+    PfnEditor();
     PfnEditor(std::string const & ipre, 
 	      std::string const & ipos);
     
-    std::string operator()(std::string const & pfn);
+    std::string operator()(std::string const & pfn) const;
 
   private:
     std::string prefix;
