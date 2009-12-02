@@ -225,7 +225,7 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
             else
             {
                Float_t diffX = (Float_t)(event->fX - fMouseX) / vp.Width();
-               Float_t diffY = (Float_t)(event->fX - fMouseY) / vp.Height();
+               Float_t diffY = (Float_t)(event->fY - fMouseY) / vp.Height();
                fMouseX = event->fX;
                fMouseY = event->fY;
                Float_t size = fSize + TMath::Min(diffX, diffY);
