@@ -17,7 +17,7 @@
 #include "Fireworks/Core/interface/CmsAnnotation.h"
 
 CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) :
-   TGLOverlayElement(TGLOverlayElement::kAnnotation),
+   TGLOverlayElement(TGLOverlayElement::kUser),
 
    fPosX(posx), fPosY(posy),
    fMouseX(0),  fMouseY(0),
@@ -33,7 +33,17 @@ CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) 
    fParent = (TGLViewer*)parent;
 }
 
-void CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
+
+CmsAnnotation::~CmsAnnotation()
+{
+   // Destructor.
+
+   fParent->RemoveOverlayElement(this);
+}
+
+
+void
+CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 {
    static UInt_t ttid = 0;
 
@@ -102,26 +112,29 @@ void CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
    GLfloat col[4] = { fg[0]/256.0, fg[1]/256.0, fg[2]/256.0, fg[3]/256.0};
    glTexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, col);
 
+   // logo
    glPushName(kMove);
    TGLUtil::Color(rnrCtx.ColorSet().Background().GetColorIndex());
    glBegin(GL_QUADS);
    Float_t z =  0.9;
    Float_t a = fSize * vp.Width();
-   glTexCoord2f(0, 1); glVertex3f(0, 0, z);
-   glTexCoord2f(1, 1); glVertex3f(a, 0, z);
-   glTexCoord2f(1, 0); glVertex3f(a, a, z);
-   glTexCoord2f(0, 0); glVertex3f(0, a, z);   
+   glTexCoord2f(0, 1); glVertex3f( 0, -a, z);
+   glTexCoord2f(1, 1); glVertex3f( a, -a, z);
+   glTexCoord2f(1, 0); glVertex3f( a,  0, z);
+   glTexCoord2f(0, 0); glVertex3f( 0,  0, z);  
    glEnd();
    glPopName();
 
+
    glDisable(GL_TEXTURE_2D);
 
-   glPushName(kResize);
    if (fActive)
    {
-      glTranslatef(a, 0, 0);
-      a *= 0.1;
+      glTranslatef(a, -a, 0);
+      a *= 0.15;
       z = 0.95;
+      // resize button
+      glPushName(kResize);
       TGLUtil::ColorTransparency(kGreen, 60);
       glBegin(GL_QUADS);
       glVertex3f( 0, 0, z);
@@ -129,8 +142,21 @@ void CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
       glVertex3f(-a, a, z);
       glVertex3f(-a, 0, z);
       glEnd();
+      glPopName();
+      // delete
+      glPushName(7);
+      glTranslatef(0, a, 0);
+      TGLUtil::ColorTransparency(kRed, 60);
+      glBegin(GL_QUADS);
+      glVertex3f( 0, 0, z);
+      glVertex3f( 0, a, z);
+      glVertex3f(-a, a, z);
+      glVertex3f(-a, 0, z);
+      glEnd();
+      glPopName();
    }
-   glPopName();
+
+  
 
    glEnable(GL_DEPTH_TEST);
    glMatrixMode(GL_PROJECTION);
@@ -141,7 +167,7 @@ void CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
    glPopAttrib();
 }
 
-//______________________________________________________________________
+
 Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
                              TGLOvlSelectRecord& selRec,
                              Event_t*            event)
@@ -150,19 +176,25 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
    // Return TRUE if event was handled.
 
    if (selRec.GetN() < 2) return kFALSE;
-   EDrag recID = selRec.GetItem(1) ? kResize :  kMove;
+   int recID = selRec.GetItem(1);
+
    switch (event->fType)
    {
       case kButtonPress:
       {
          fMouseX = event->fX;
          fMouseY = event->fY;
-         fDrag = recID;
+         fDrag = (recID == kResize) ? kResize : kMove;
          return kTRUE;
       }
       case kButtonRelease:
       {
          fDrag = kNone;
+         if (recID == 7)
+         {
+            delete this;
+            fParent->RequestDraw(rnrCtx.ViewerLOD());
+         }
       }
       case kMotionNotify:
       {
@@ -183,20 +215,21 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
                // Make sure we don't go offscreen (use fDraw variables set in draw)
                if (fPosX < 0)
                   fPosX = 0;
-               else if (fPosX + w > 1.0f)
+               else if (fPosX +w > 1.0f)
                   fPosX = 1.0f - w;
-               if (fPosY < 0)
-                  fPosY = 0;
-               else if (fPosY > (1.0f - h))
-                  fPosY = 1.0f - h;
+               if (fPosY < h)
+                  fPosY = h;
+               else if (fPosY > 1.0f)
+                  fPosY = 1.0f;
             }
             else
             {
-               Float_t diff = (Float_t)(event->fX - fMouseX) / vp.Width();
+               Float_t diffX = (Float_t)(event->fX - fMouseX) / vp.Width();
+               Float_t diffY = (Float_t)(event->fX - fMouseY) / vp.Height();
                fMouseX = event->fX;
                fMouseY = event->fY;
-               Float_t size = fSize + diff;
-               fSize = TMath::Max(size, 0.01f);
+               Float_t size = fSize + TMath::Min(diffX, diffY);
+               fSize = TMath::Max(size, 0.02f); // lock below min
 
             }
          }
