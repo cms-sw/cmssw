@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_4_0/pre8/1E31/V6 (CMSSW_3_4_0_pre6_HLT8)
+# /dev/CMSSW_3_4_0/pre8/1E31/V8 (CMSSW_3_4_0_pre6_HLT9)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/1E31/V6')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/1E31/V8')
 )
 
 
@@ -245,9 +245,6 @@ SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
       tag = cms.string( "" )
     ),
     cms.PSet(  record = cms.string( "SiStripDetCablingRcd" ),
-      tag = cms.string( "" )
-    ),
-    cms.PSet(  record = cms.string( "RunInfoRcd" ),
       tag = cms.string( "" )
     ),
     cms.PSet(  record = cms.string( "SiStripBadChannelRcd" ),
@@ -5212,9 +5209,9 @@ hltEle10LWL1RHT200 = cms.EDFilter( "HLTGlobalSumsMET",
 hltL1sZeroBias = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 5 ),
-    L1TechTriggerSeeding = cms.bool( False ),
+    L1TechTriggerSeeding = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1SeedsLogicalExpression = cms.string( "4" ),
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
@@ -5250,7 +5247,7 @@ hltL1sL1BPTX = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "0 OR 1 OR 2 OR 3" ),
+    L1SeedsLogicalExpression = cms.string( "3" ),
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
