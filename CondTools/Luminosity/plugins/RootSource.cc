@@ -16,8 +16,6 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
   std::string::size_type idx,pos;
   idx=m_filename.rfind("_");
   pos=m_filename.rfind(".");
-  if( idx == std::string::npos ){
-  }
   m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
 }
 
@@ -112,7 +110,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       std::cout<<"lumi qlt "<<lumisummary->InstantLumiQlty<<std::endl;
       l->setLumiQuality(lumisummary->InstantLumiQlty);
       //std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
-      
       
       std::vector<lumi::BunchCrossingInfo> bxinfoET;
       bxinfoET.reserve(3564);

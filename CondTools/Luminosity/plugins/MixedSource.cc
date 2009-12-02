@@ -107,7 +107,6 @@ lumi::MixedSource::getLumiData(const std::string& filename,
 
   size_t nentries=hlxtree->GetEntries();
   size_t ncmslumi=0;
-  //unsigned int totaldeadtime=0;
   //std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
   //size_t lumisecid=0;
   //unsigned int lumilumisecid=0;
@@ -629,11 +628,11 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
     this->getLumiData(m_filename,lumiresult);
     this->printLumiResult(lumiresult);
     return std::string("lumidryrun ")+m_filename+";"+m_lumiversion;
-  }else if(m_mode=="dryrun"){
+  }else if( m_mode=="dryrun" || m_mode=="truerun" ){
     //take run number from filename; compare with runnumber field 
     //take lumi info from file
     //take trigger data from db
-    std::cout<<"m_run "<<m_run<<std::endl;
+    std::cout<<"run "<<m_run<<std::endl;
     this->initDB();
     coral::ISessionProxy* session=m_dbservice->connect(m_trgdb, coral::ReadOnly);
     try{
@@ -641,17 +640,56 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
     }catch(const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
       delete session;
+      throw er;
     }
     delete session;
     this->getLumiData(m_filename,lumiresult);
-    this->printTriggerNameResult(algonames,technames);
-    this->printPrescaleResult(algoprescale,techprescale);
-    this->printCountResult(algocount,techcount);
-    this->printDeadTimeResult(deadtime);
-    this->printLumiResult(lumiresult);
-    return std::string("mixedsource dryrun ")+m_filename+";"+m_lumiversion;
-  }else if(m_mode=="truerun"){
-    return std::string("mixedsource;")+m_filename+";"+m_lumiversion;
+    if(m_mode=="dryrun"){
+      this->printTriggerNameResult(algonames,technames);
+      this->printPrescaleResult(algoprescale,techprescale);
+      this->printCountResult(algocount,techcount);
+      this->printDeadTimeResult(deadtime);
+      this->printLumiResult(lumiresult);
+      return std::string("mixedsource dryrun ")+m_filename+";"+m_lumiversion;
+    }else{
+      //for the moment, lumi data drives the loop
+      if(deadtime.size()!=lumiresult.size()){
+	throw std::runtime_error(std::string("inconsistent number of lumisections"));
+      }
+      unsigned int runnumber;
+      if(allowForceFirstSince){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
+	runnumber=1;
+      }else{
+	runnumber=m_run;
+      }
+      LumiResult::const_iterator lit;
+      LumiResult::const_iterator litBeg=lumiresult.begin();
+      LumiResult::const_iterator litEnd=lumiresult.end();
+      TriggerDeadCountResult::const_iterator deadit;
+      TriggerDeadCountResult::const_iterator deadBeg=deadtime.begin();
+      TriggerDeadCountResult::const_iterator deadEnd=deadtime.end();
+      unsigned long long totaldeadtime=0;
+      for(lit=litBeg,deadit=deadBeg;lit!=litEnd;++lit,++deadit){
+	unsigned int lumisecid=lit->lsnr;
+	edm::LuminosityBlockID lu(runnumber,lumisecid);
+	//should fill cms lumiid!
+	std::cout<<"==== run lumiid lumiversion "<<runnumber<<"\t"<<lumisecid<<"\t"<<m_lumiversion<<std::endl;
+	cond::Time_t current=(cond::Time_t)(lu.value());
+	lumi::LumiSectionData* l=new lumi::LumiSectionData;
+	l->setLumiVersion(m_lumiversion);
+	l->setLumiSectionId(lumisecid);
+	std::cout<<"current "<<current<<std::endl;
+	l->setStartOrbit((unsigned long long)lit->startorbit);
+	l->setLumiAverage(lit->lumiavg);
+	std::cout<<"deadtimecount "<<*deadit<<std::endl;
+	float deadfractionPerLS=(*deadit)*25.0*0.000001/93.244;
+	l->setDeadFraction(deadfractionPerLS*0.01);
+	std::cout<<"\t deadfraction per "<<deadfractionPerLS*0.01<<std::endl;
+	totaldeadtime+=(*deadit);
+      }
+      std::cout<<"total deadtime count "<<totaldeadtime<<std::endl;
+      return std::string("mixedsource trurun ")+m_filename+";"+m_lumiversion;  
+    }
   }
   return "";
 }
