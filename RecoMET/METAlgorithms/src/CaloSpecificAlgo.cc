@@ -37,7 +37,8 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.CaloMETInmHF = 0.0;        // CaloMET in HF- 
   specific.CaloMETPhiInpHF = 0.0;     // CaloMET-phi in HF+ 
   specific.CaloMETPhiInmHF = 0.0;     // CaloMET-phi in HF- 
-  
+  specific.METSignificance = 0.0;
+
   double totalEt = 0.0; 
   double totalEm     = 0.0;
   double totalHad    = 0.0;
