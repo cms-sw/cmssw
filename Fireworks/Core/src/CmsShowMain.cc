@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.126 2009/12/01 09:36:01 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.127 2009/12/02 17:06:36 amraktad Exp $
 //
 
 // system include files
@@ -471,7 +471,6 @@ void CmsShowMain::appendData()
    new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
-      int old_size = 
       m_navigator->appendFile(fi.fFilename, false, false);
       checkPosition();
       draw();
@@ -916,7 +915,7 @@ CmsShowMain::setupDataHandling()
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
-   for (int ii = 0; ii < m_inputFiles.size(); ++ii)
+   for (unsigned int ii = 0; ii < m_inputFiles.size(); ++ii)
    {
       const std::string& fname = m_inputFiles[ii];
       if (fname.size())
