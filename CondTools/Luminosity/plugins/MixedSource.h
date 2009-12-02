@@ -52,6 +52,7 @@ namespace lumi{
     void getLumiData(const std::string& filename,
 		     LumiResult& lumiresult);
     std::string int2str(int t);
+    unsigned int str2int(const std::string& s);
     void printCountResult(const TriggerCountResult_Algo& algo,const TriggerCountResult_Tech& tech);
     void printDeadTimeResult(const TriggerDeadCountResult& result);
     void printTriggerNameResult(const TriggerNameResult_Algo& algonames,const TriggerNameResult_Tech& technames);

@@ -38,12 +38,10 @@
 lumi::MixedSource::MixedSource(const edm::ParameterSet& pset):LumiRetrieverBase(pset),m_filename(""),m_lumiversion("-1"){
   m_mode=pset.getUntrackedParameter<std::string>("runmode","truerun");
   std::cout<<"mode "<<m_mode<<std::endl;
-  if(m_mode=="truerun"||m_mode=="dryrun"){
+  if(m_mode!="trgdryrun"){
     if(!pset.exists("lumiFileName")){
-      throw std::runtime_error(std::string("parameter lumiFileName is required for truerun and dryrun mode"));
+      throw std::runtime_error(std::string("parameter lumiFileName is required for mode ")+m_mode);
     }
-  }
-  if(pset.exists("lumiFileName")){
     m_filename=pset.getParameter<std::string>("lumiFileName");
     std::cout<<"m_filename "<<m_filename<<std::endl;
     boost::regex re("_");
@@ -54,24 +52,24 @@ lumi::MixedSource::MixedSource(const edm::ParameterSet& pset):LumiRetrieverBase(
       vecstrResult.push_back(*p++);
     }
     std::string runstr=*(vecstrResult.end()-3);
-    std::cout<<"runstr "<<runstr<<std::endl;
-    std::istringstream myStream(runstr);
-    if(!myStream>>m_run) throw std::runtime_error(std::string("conversion error"));
-    std::cout<<"runnumber "<<m_run<<std::endl;
+    m_run=this->str2int(runstr);
     std::string::size_type idx,pos;
     idx=m_filename.rfind("_");
     pos=m_filename.rfind(".");
     m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
+    //std::cout<<"runnumber "<<m_run<<std::endl;
+    //std::cout<<"lumi version "<<m_lumiversion<<std::endl;
     m_source=TFile::Open(m_filename.c_str(),"READ");
   }else{
     m_run=pset.getUntrackedParameter<unsigned int>("runnumber",1);
-    std::cout<<"runnumber "<<m_run<<std::endl;
   }
-  std::cout<<1<<std::endl;
-  m_trgdb=pset.getParameter<std::string>("triggerDB");
-  std::cout<<m_trgdb<<std::endl;
-  m_authpath=pset.getParameter<std::string>("authPath");
-  std::cout<<m_authpath<<std::endl;
+  if(m_mode!="lumidryrun"){
+    if(!pset.exists("triggerDB")||!pset.exists("authPath")){
+      throw std::runtime_error(std::string("parameter triggerDB and authPath are required for mode ")+m_mode);
+    }
+    m_trgdb=pset.getParameter<std::string>("triggerDB");
+    m_authpath=pset.getParameter<std::string>("authPath");
+  }
 }
 void 
 lumi::MixedSource::initDB() {
@@ -479,12 +477,21 @@ lumi::MixedSource::int2str(int t){
   ss<<t;
   return ss.str();
 }
-
+unsigned int
+lumi::MixedSource::str2int(const std::string& s){
+  std::istringstream myStream(s);
+  unsigned int i;
+  if(myStream>>i){
+    return i;
+  }else{
+    throw std::runtime_error(std::string("str2int error"));
+  }
+}
 void 
 lumi::MixedSource::printCountResult(
 		const lumi::MixedSource::TriggerCountResult_Algo& algo,
 		const lumi::MixedSource::TriggerCountResult_Tech& tech){
-  size_t lumisec=0;
+  size_t lumisec=1;
   std::cout<<"===Algorithm trigger counts==="<<algo.size()<<std::endl;
   std::vector<unsigned long long> totalalgocounts(128);
   std::vector<unsigned long long> totaltechcounts(64);
@@ -507,7 +514,7 @@ lumi::MixedSource::printCountResult(
   }
   
   std::cout<<"===Technical trigger counts==="<<tech.size()<<std::endl;
-  lumisec=0;//reset lumisec counter
+  lumisec=1;//reset lumisec counter
   for(lumi::MixedSource::TriggerCountResult_Tech::const_iterator it=tech.begin();it!=tech.end();++it){
     std::cout<<"lumisec "<<lumisec<<std::endl;
     ++lumisec;
@@ -525,7 +532,7 @@ lumi::MixedSource::printCountResult(
 }
 void 
 lumi::MixedSource::printDeadTimeResult(const lumi::MixedSource::TriggerDeadCountResult& result){
-  size_t lumisec=0;
+  size_t lumisec=1;
   unsigned long long totaldead=0;
   std::cout<<"===Deadtime counts==="<<result.size()<<std::endl;
   for(lumi::MixedSource::TriggerDeadCountResult::const_iterator it=result.begin();it!=result.end();++it){
@@ -575,7 +582,7 @@ void
 lumi::MixedSource::printLumiResult(
 		const lumi::MixedSource::LumiResult& lumiresult){
   std::cout<<"===Lumi mesurement==="<<lumiresult.size()<<std::endl;
-  size_t lumisec=0;
+  size_t lumisec=1;
   for(lumi::MixedSource::LumiResult::const_iterator it=lumiresult.begin();
       it!=lumiresult.end();++it){
     std::cout<<"\t lumisec: "<<lumisec<<" : lumilumisec : "<<it->lsnr<<" : avg : "<<it->lumiavg<<" : startorbit : "<<it->startorbit<<std::endl;
@@ -584,7 +591,6 @@ lumi::MixedSource::printLumiResult(
 }
 const std::string
 lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result , bool allowForceFirstSince ){
-  std::cout<<"MixedSource fill "<<std::endl;
   lumi::MixedSource::TriggerNameResult_Algo algonames;
   algonames.reserve(128);
   lumi::MixedSource::TriggerNameResult_Tech technames;
@@ -599,7 +605,7 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
   techcount.reserve(1024);
   lumi::MixedSource::TriggerDeadCountResult deadtime;
   deadtime.reserve(400);
-  lumi::MixedSource::TriggerDeadCountResult lumiresult;
+  lumi::MixedSource::LumiResult lumiresult;
   lumiresult.reserve(400);
   if(m_mode=="trgdryrun"){
     //=====query trigger db=====
@@ -612,20 +618,38 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
       delete session;
     }
     delete session;
-    //this->printTriggerNameResult(algonames,technames);
-    //this->printPrescaleResult(algoprescale,techprescale);
-    //this->printCountResult(algocount,techcount);
+    this->printTriggerNameResult(algonames,technames);
+    this->printPrescaleResult(algoprescale,techprescale);
+    this->printCountResult(algocount,techcount);
     this->printDeadTimeResult(deadtime);
     //std::cout<<"total cms lumi "<<ncmslumi<<std::endl;
-    return "trgdryrun";
+    return std::string("trgdryrun ")+m_trgdb;
   }else if(m_mode=="lumidryrun"){
-    lumi::MixedSource::LumiResult lumiresult;
+    //lumi::MixedSource::LumiResult lumiresult;
     this->getLumiData(m_filename,lumiresult);
     this->printLumiResult(lumiresult);
-    return "lumidryrun";
+    return std::string("lumidryrun ")+m_filename+";"+m_lumiversion;
   }else if(m_mode=="dryrun"){
-    
-    return std::string("mixedsource dryrunmode")+m_filename+";"+m_lumiversion;
+    //take run number from filename; compare with runnumber field 
+    //take lumi info from file
+    //take trigger data from db
+    std::cout<<"m_run "<<m_run<<std::endl;
+    this->initDB();
+    coral::ISessionProxy* session=m_dbservice->connect(m_trgdb, coral::ReadOnly);
+    try{
+      this->getTrgData(m_run,session,algonames,technames,algoprescale,techprescale,algocount,techcount,deadtime);
+    }catch(const coral::Exception& er){
+      std::cout<<"database problem "<<er.what()<<std::endl;
+      delete session;
+    }
+    delete session;
+    this->getLumiData(m_filename,lumiresult);
+    this->printTriggerNameResult(algonames,technames);
+    this->printPrescaleResult(algoprescale,techprescale);
+    this->printCountResult(algocount,techcount);
+    this->printDeadTimeResult(deadtime);
+    this->printLumiResult(lumiresult);
+    return std::string("mixedsource dryrun ")+m_filename+";"+m_lumiversion;
   }else if(m_mode=="truerun"){
     return std::string("mixedsource;")+m_filename+";"+m_lumiversion;
   }
