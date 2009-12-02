@@ -1,6 +1,5 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/CaloTowers>
-<use name=DataFormats/JetReco>
 <use name=DataFormats/Common>
 <use name=DataFormats/CSCRecHit>
 <use name=FWCore/ParameterSet>
@@ -12,23 +11,17 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=L1Trigger/CSCTrackFinder>
-<use name=L1Trigger/CSCCommonTrigger>
 <use name=L1Trigger/CSCTriggerPrimitives>
-
 
 <export>
  <lib name=RecoMETMETAlgorithms>
- <use name=DataFormats/JetReco>	
  <use name=DataFormats/METReco>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/Common>
-<use name=DataFormats/CSCRecHit>
+ <use name=DataFormats/CSCRecHit>
  <use name=Geometry/CaloTopology>
  <use name=DataFormats/ParticleFlowCandidate>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=L1Trigger/CSCTrackFinder>
-<use name=L1Trigger/CSCCommonTrigger>
 <use name=L1Trigger/CSCTriggerPrimitives>
 </export>
 
