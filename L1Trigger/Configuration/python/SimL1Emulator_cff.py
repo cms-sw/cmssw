@@ -102,6 +102,7 @@ simBscDigis = L1TriggerOffline.L1Analyzer.bscTrigger_cfi.bscTrigger.clone()
 # RPC Technical Trigger
 import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
 simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
+simRpcTechTrigDigis.RPCDigiLabel = 'simMuonRPCDigis'
 
 
 # Global Trigger emulator
