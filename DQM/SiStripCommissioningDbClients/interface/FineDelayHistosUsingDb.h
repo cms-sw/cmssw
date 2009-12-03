@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.9 2008/11/25 18:21:33 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.8 2008/05/06 12:38:06 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -16,12 +16,10 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
   
  public:
   
-  FineDelayHistosUsingDb( const edm::ParameterSet & pset,
-                          DQMOldReceiver*,
+  FineDelayHistosUsingDb( DQMOldReceiver*,
 			  SiStripConfigDb* const );
   
-  FineDelayHistosUsingDb( const edm::ParameterSet & pset,
-                          DQMStore*,
+  FineDelayHistosUsingDb( DQMStore*,
 			  SiStripConfigDb* const );
 
   virtual ~FineDelayHistosUsingDb();

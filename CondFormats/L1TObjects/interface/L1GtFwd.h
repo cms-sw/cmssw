@@ -30,7 +30,8 @@ enum L1GtPsbQuad {Free,    TechTr,
                   MQB9,    MQB10,    MQF11,      MQF12,
                   CastorQ,
                   HfQ,
-                  BptxQ};
+                  BptxQ,
+                  GtExternalQ};
 
 
 /// condition types
@@ -47,6 +48,7 @@ enum L1GtPsbQuad {Free,    TechTr,
 /// TypeHfBitCounts :  HfBitCounts
 /// TypeHfRingEtSums : HfRingEtSums
 /// TypeBptx: BPTX (logical result only; definition in BPTX system)
+/// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
 enum L1GtConditionType { TypeNull,
                          Type1s, Type2s, Type2wsc, Type2cor, Type3s, Type4s,
                          TypeETM, TypeETT, TypeHTT, TypeHTM,
@@ -54,7 +56,8 @@ enum L1GtConditionType { TypeNull,
                          TypeCastor,
                          TypeHfBitCounts,
                          TypeHfRingEtSums,
-                         TypeBptx};
+                         TypeBptx,
+                         TypeExternal};
 
 /// condition categories
 enum L1GtConditionCategory { CondNull,
@@ -64,6 +67,7 @@ enum L1GtConditionCategory { CondNull,
                              CondCastor,
                              CondHfBitCounts,
                              CondHfRingEtSums,
-                             CondBptx};
+                             CondBptx,
+                             CondExternal};
 
 #endif /*CondFormats_L1TObjects_L1GtBoardMaps_h*/

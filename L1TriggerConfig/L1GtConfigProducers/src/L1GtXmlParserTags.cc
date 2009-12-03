@@ -9,8 +9,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2008/12/13 00:59:27 $
- * $Revision: 1.7 $
+ * $Date: 2009/02/05 22:19:26 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -74,6 +74,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfBitCounts("Con
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfRingEtSums("CondHfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCorrelation("CondCorrelation");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionBptx("CondBptx");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionExternal("CondExternal");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectMu("muon");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectNoIsoEG("eg");
@@ -90,6 +91,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfBitCounts("HfBitC
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfRingEtSums("HfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectCastor("Castor");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectBptx("Bptx");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectGtExternal("GtExternal");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType1s("1_s");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType2s("2_s");
@@ -99,6 +101,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrType3s("3");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType4s("4");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrTypeCastor("TypeCastor");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrTypeBptx("TypeBptx");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrTypeExternal("TypeExternal");
 
 const std::string L1GtXmlParserTags::m_xmlAttrMode("mode");
 const std::string L1GtXmlParserTags::m_xmlAttrModeBit("bit");

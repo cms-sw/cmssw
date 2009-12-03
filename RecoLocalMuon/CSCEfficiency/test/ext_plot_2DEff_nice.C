@@ -15,9 +15,6 @@
 #endif
 
 {
-
-  gStyle->SetTitleFillColor(0);
-  gStyle->SetFrameFillColor(0);
   
   string MyDirectory = "/uscms/home/stoyan/work/csc_ana/CSCEff/dev/CMSSW_2_2_1/src/test/merged/";
   string MySubDirectory;
@@ -117,6 +114,4 @@
   gStyle->SetPalette(1);
   h2->Draw("colz");  
   h3->Draw("sametext45"); 
-  //gPad->GetFrame()->SetBorderMode(0);
-  //eff1->GetFrame()->SetBorderMode(0);
 }

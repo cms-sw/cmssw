@@ -1,0 +1,179 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, imp
+import operator
+import FWCore.ParameterSet.Config as cms
+
+# parse the HLT configuration from standard input or from the given file
+hlt = imp.new_module('hlt')
+try:
+  configname = sys.argv[1]
+except:
+  config = sys.stdin
+else:
+  config = open(configname)
+exec config in globals(), hlt.__dict__
+config.close()
+process = hlt.process
+
+# read global prescale service
+prescale = dict()
+columns  = 1
+if 'PrescaleService' in process.__dict__:
+  columns = len( process.PrescaleService.lvl1Labels.value() )
+  for entry in process.PrescaleService.prescaleTable:
+    prescale[entry.pathName.value()] = entry.prescales.value()
+
+
+# search a path for a single module with a certain name
+class SearchModuleByName(object):
+  def __init__(self, target):
+    self.target = target
+    self.found  = None
+
+  def enter(self, node):
+    if isinstance(node, cms._Module) and node.label_() == self.target:
+      if self.found:
+        raise RuntimeError('path has more than one %s modules')
+      self.found = node
+    
+  def leave(self, node):
+    pass
+
+
+# search a path for a single module of a certain type
+class SearchModuleByType(object):
+  def __init__(self, target):
+    self.target = target
+    self.found  = None
+
+  def enter(self, node):
+    if isinstance(node, cms._Module) and node.type_() == self.target:
+      if self.found:
+        raise RuntimeError('path has more than one %s modules')
+      self.found = node
+    
+  def leave(self, node):
+    pass
+
+# search a path for a "dumb" prescaler
+class SearchDumbPrescale(SearchModuleByType):
+  def __init__(self):
+    super(SearchDumbPrescale, self).__init__('HLTPrescaler')
+    
+
+# search a path for a "smart" prescaler
+class SearchSmartPrescale(SearchModuleByType):
+  def __init__(self):
+    super(SearchSmartPrescale, self).__init__('HLTHighLevelDev')
+    
+
+# format the information about a path associated to a specific endpath
+def dumpPath(name, end):
+  path = process.paths[name]
+  
+  # look for a gobal prescale for the given path
+  if name in prescale:
+    pre = prescale[name]
+  else:
+    pre = [1] * columns
+
+  # check for a valid EndPath
+  if end:
+    endp = process.endpaths[end]
+
+    # look for a local dumb prescaler in the output path
+    dumb = SearchDumbPrescale()
+    endp.visit(dumb)
+    if dumb.found and end in prescale:
+      pre = map(operator.mul, pre, prescale[end])
+
+    # look for a local smart prescaler in the output path
+    smart = SearchSmartPrescale()
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    if smart.found:
+      if name in smart.found.HLTPaths.value():
+        index = smart.found.HLTPaths.value().index(name)
+        scale = smart.found.HLTPathsPrescales.value()[index] * smart.found.HLTOverallPrescale.value()
+        pre = [ scale * p for p in pre ]
+      else:
+        pre = [ 0 ] * columns
+
+  # look for BPTX coincidence in the given path
+  searchSeed  = SearchModuleByName('hltL1sL1BPTX')
+  searchPlus  = SearchModuleByName('hltL1sL1BPTXPlusOnly')
+  searchMinus = SearchModuleByName('hltL1sL1BPTXMinusOnly')
+  searchZero  = SearchModuleByName('hltL1sZeroBias')
+  searchBPTX  = SearchModuleByName('hltBPTXCoincidence')
+  path.visit(searchSeed)
+  path.visit(searchPlus)
+  path.visit(searchMinus)
+  path.visit(searchZero)
+  path.visit(searchBPTX)
+  if searchSeed.found or searchPlus.found or searchMinus.found or searchZero.found:
+    bptx = '='
+  elif searchBPTX.found:
+    bptx = '±'
+  else:
+    bptx = ' '
+
+
+  return '      %s %-48s%s' % (bptx, name, ''.join(['  %6d' % p for p in pre]))
+
+
+def getEndPath(output):
+  # look for the EndPath with the corresponding output module
+  out = ''
+  for o in process.endpaths.itervalues():
+    searchOut = SearchModuleByName(output)
+    o.visit(searchOut)
+    if searchOut.found:
+      out = o.label_()
+      break
+  else:
+    print "    *** corresponding EndPath not found ***"
+  return out
+
+
+def dumpStream(stream):
+  print 'stream', stream
+  out = getEndPath('hltOutput%s' % stream)
+
+  pds = process.streams.__dict__[stream]
+  pds.sort()
+  for pd in pds:
+    print '    dataset', pd
+    if pd in process.datasets.__dict__:
+      paths = [ path for path in process.datasets.__dict__[pd] ]
+      paths.sort()
+      for path in paths:
+        print dumpPath(path, out)
+    else:
+      print '        *** not found ***' 
+
+
+def dumpOutput(stream):
+  print 'output', stream
+  out = getEndPath('hltOutput%s' % stream)
+
+  output = eval('process.hltOutput%s' % stream)
+  paths = [ path for path in output.SelectEvents.SelectEvents ]
+  paths.sort()
+  for path in paths:
+    print dumpPath(path, out)
+
+
+# read the list of streams
+streams = process.streams._Parameterizable__parameterNames
+streams.sort()
+
+for stream in streams:
+  dumpStream(stream)
+
+# process the DQM outputs (for which no stream is defined)
+nostreams = [ 'DQM', 'HLTDQM' ]
+
+for stream in nostreams:
+  dumpOutput(stream)

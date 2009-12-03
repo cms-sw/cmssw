@@ -19,7 +19,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PoolEmptyTest.root')
+    skipBadFiles = cms.untracked.bool(True),
+    fileNames = cms.untracked.vstring('file:doesNotExist.root', 'file:PoolEmptyTest.root')
 )
 
 process.p = cms.Path(process.Thing)

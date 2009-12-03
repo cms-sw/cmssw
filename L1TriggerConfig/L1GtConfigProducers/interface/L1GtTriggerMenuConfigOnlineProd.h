@@ -42,6 +42,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 
 // forward declarations
 
@@ -125,6 +126,11 @@ private:
 
     };
 
+    struct TableMenuTechTrig {
+        short bitNumberSh;
+        std::string techName;
+    };
+
     /// methods to retrieve the tables from DB
 
     /// retrieve table with general menu parameters from DB
@@ -142,6 +148,9 @@ private:
     /// retrieve table with object parameters from DB
     bool tableMenuObjectParametersFromDB(const std::string& gtSchema, const std::string& objKey);
 
+    /// retrieve table with technical triggers from DB
+    bool tableMenuTechTrigFromDB(const std::string& gtSchema, const std::string& objKey);
+
 private:
 
     /// return for an algorithm with bitNr the mapping between the integer index in logical expression
@@ -156,6 +165,9 @@ private:
 
     /// build the algorithm map in the menu
     void buildAlgorithmMap();
+
+    /// build the technical trigger map in the menu
+    void buildTechnicalTriggerMap();
 
     /// string to enum L1GtConditionCategory conversion
     L1GtConditionCategory strToEnumCondCategory(const std::string& strCategory);
@@ -188,6 +200,7 @@ private:
     void addHfRingEtSumsCondition(const TableMenuCond&);
     void addCastorCondition(const TableMenuCond&);
     void addBptxCondition(const TableMenuCond&);
+    void addExternalCondition(const TableMenuCond&);
     void addCorrelationCondition(const TableMenuCond&);
 
     /// add the conditions from a menu to the corresponding list
@@ -208,6 +221,7 @@ private:
     std::vector<TableMenuAlgoCond> m_tableMenuAlgoCond;
     std::vector<TableMenuCond> m_tableMenuCond;
     std::vector<TableMenuObjectParameters> m_tableMenuObjectParameters;
+    std::vector<TableMenuTechTrig> m_tableMenuTechTrig;
 
 private:
 
@@ -231,6 +245,7 @@ private:
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
     std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
     std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
+    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;

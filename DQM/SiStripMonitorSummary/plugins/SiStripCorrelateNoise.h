@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id$
+// $Id: SiStripCorrelateNoise.h,v 1.1 2009/08/19 13:28:07 giordano Exp $
 //
 //
 
@@ -61,7 +61,7 @@ private:
   void DoPlots();
   void DoAnalysis(SiStripNoises,SiStripNoises&);
   void getHistos(const uint32_t & detid,std::vector<TH1F*>& histos);
-  TH1F* getHisto(const size_t& index);
+  TH1F* getHisto(const long unsigned int& index);
 
   unsigned long long getNoiseCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
   unsigned long long getGainCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();}

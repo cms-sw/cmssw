@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.20 2009/05/29 13:28:21 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.17 2008/07/01 14:35:17 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -30,8 +30,7 @@ SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const 
     uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
     uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
     uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) ),
-    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) ),
-    disableBadStrips_( pset.getUntrackedParameter<bool>("DisableBadStrips",false) )
+    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -107,20 +106,20 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( pset, mui_, db ); }
-  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( pset, mui_, db ); }
+  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::CALIBRATION ||
             runType_ == sistrip::CALIBRATION_DECO ||
             runType_ == sistrip::CALIBRATION_SCAN ||
             runType_ == sistrip::CALIBRATION_SCAN_DECO)
-                                                { histos_ = new CalibrationHistosUsingDb( pset, mui_, db, runType_ ); }
+                                                { histos_ = new CalibrationHistosUsingDb( mui_, db, runType_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
     histos_ = 0; 
     edm::LogError(mlDqmClient_)
@@ -141,7 +140,6 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
     tmp->disableDevices( disableDevices_ );
-    tmp->disableBadStrips( disableBadStrips_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -152,10 +150,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << ( tmp->doUploadAnal() ? "true" : "false" )
        << std::endl
        << " Disable problematic devices?          : " 
-       << ( tmp->disableDevices() ? "true" : "false" )
-       << std::endl
-       << " Disable dead/noisy strips?            : " 
-       << ( tmp->disableBadStrips() ? "true" : "false" );
+       << ( tmp->disableDevices() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 
@@ -169,7 +164,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     temp->uploadPllSettings( uploadFecSettings_ );
     temp->uploadFedSettings( uploadFedSettings_ );
   }
-
+  
 }
 
 // -----------------------------------------------------------------------------

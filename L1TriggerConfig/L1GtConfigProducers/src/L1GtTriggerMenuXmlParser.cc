@@ -177,6 +177,12 @@ void L1GtTriggerMenuXmlParser::setVecBptxTemplate(
     m_vecBptxTemplate = vecBptxTempl;
 }
 
+void L1GtTriggerMenuXmlParser::setVecExternalTemplate(
+        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTempl) {
+
+    m_vecExternalTemplate = vecExternalTempl;
+}
+
 void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
 
@@ -242,6 +248,7 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecHfBitCountsTemplate.resize(m_numberConditionChips);
     m_vecHfRingEtSumsTemplate.resize(m_numberConditionChips);
     m_vecBptxTemplate.resize(m_numberConditionChips);
+    m_vecExternalTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -2702,6 +2709,74 @@ bool L1GtTriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
 
 
 /**
+ * parseExternal Parse an External condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& name, unsigned int chipNr) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectGtExternal) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+            << "\nError: wrong particle for External condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    // object type - irrelevant for External conditions
+    L1GtConditionType cType = TypeExternal;
+
+    // no objects for External conditions
+
+    // set the boolean value for the ge_eq mode - irrelevant for External conditions
+    bool gEq = false;
+
+    // now create a new External condition
+
+    L1GtExternalTemplate externalCond(name);
+
+    externalCond.setCondType(cType);
+    externalCond.setCondGEq(gEq);
+    externalCond.setCondChipNr(chipNr);
+
+    LogTrace("L1GtTriggerMenuXmlParser") << externalCond << "\n" << std::endl;
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(externalCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+
+        (m_vecExternalTemplate[chipNr]).push_back(externalCond);
+
+    }
+
+
+    //
+    return true;
+}
+
+
+/**
  * parseCorrelation Parse a correlation condition and
  * insert an entry to the conditions map
  *
@@ -3324,6 +3399,9 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
     }
     else if (condition == m_xmlConditionAttrConditionBptx) {
         return parseBptx(node, name, chipNr);
+    }
+    else if (condition == m_xmlConditionAttrConditionExternal) {
+        return parseExternal(node, name, chipNr);
     }
     else if (condition == m_xmlConditionAttrConditionCorrelation) {
         return parseCorrelation(node, name, chipNr);

@@ -151,18 +151,38 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
 
    
-  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-  float   rpcevents = RPCEvents -> getEntries();
+//   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  
+//   nLumiSegs_++;
 
-   if(!init_ && rpcevents < minimumEvents_) return;
-   else if(!init_) {
-     init_=true;
-     nLumiSegs_ = prescaleFactor_;
-   }else nLumiSegs_++;
+// //   if(RPCEvents) {
+// //  float   rpcevents = RPCEvents -> getEntries();
+
+// //  if(!init_ && rpcevents < minimumEvents_) return;
+// //    else if(!init_) {
+// //      init_=true;
+// //      nLumiSegs_ = prescaleFactor_;
+// //    }
+// //   }
+//    if (nLumiSegs_ % prescaleFactor_ != 0 ) return;
    
-   if (nLumiSegs_ % prescaleFactor_ != 0 ) return;
-   
-    stringstream meName;
+
+}
+
+void RPCEventSummary::endRun(const Run& r, const EventSetup& c){
+
+
+  float  rpcevents = minimumEvents_;
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+
+  if(RPCEvents) {
+    rpcevents = RPCEvents -> getEntries();
+   }
+
+
+  if(rpcevents < minimumEvents_)  return;
+
+   stringstream meName;
    MonitorElement * myMe;
    
    meName.str("");

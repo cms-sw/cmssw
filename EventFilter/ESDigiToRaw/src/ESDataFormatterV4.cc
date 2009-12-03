@@ -242,8 +242,19 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
     if (debug_) cout <<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()
 		     <<" "<<detId.strip()<<" ("<<kchip<<","<<pace<<") "<<ts[0]<<" "<<ts[1]<<" "<<ts[2]<<endl;
     
+    // convert strip number from detector id to electronics id
+    int siz = detId.zside();
+    int sip = detId.plane();
+    int six = detId.six();
+    int siy = detId.siy();
+    int sistrip = detId.strip();
+    if (siz == 1 && sip == 1 && siy <= 20) sistrip = 33 - sistrip;
+    if (siz == 1 && sip == 2 && six > 20) sistrip = 33 - sistrip;
+    if (siz == -1 && sip == 1 && siy > 20) sistrip = 33 - sistrip;
+    if (siz == -1 && sip == 2 && six <= 20) sistrip = 33 - sistrip;
+
     word1 = (ts[1] << sADC1) | (ts[0] << sADC0);
-    word2 = (0xc << sHEAD) | (pace << sPACE) | ((detId.strip()-1) << sSTRIP)  | (ts[2] << sADC2);
+    word2 = (0xc << sHEAD) | (pace << sPACE) | ((sistrip-1) << sSTRIP)  | (ts[2] << sADC2);
     word  = (Word64(word2) << 32 ) | Word64(word1);
     
     map_data[kchip].push_back(word);
@@ -330,7 +341,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
   
-  word2 = (3 << sDHEAD) | (3 <<sDH) | (4 << sDVMAJOR) | (1 << sDVMINOR); 
+  word2 = (3 << sDHEAD) | (3 <<sDH) | (4 << sDVMAJOR) | (3 << sDVMINOR); 
   word1 = (orbit_number_ << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);

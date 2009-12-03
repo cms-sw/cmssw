@@ -40,9 +40,19 @@ void ReadMeFromFile::beginJob(const EventSetup& iSetup){}
 
 void ReadMeFromFile::beginRun(const Run& r, const EventSetup& iSetup){
   LogVerbatim ("readfile") << "[ReadMeFromFile]: Begin run";
+
+
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   dbe_->open(myFile_);
+
+
+  MonitorElement *  mes =  dbe_->get("RPC/RecHits/Barrel/Wheel_0/sector_1/station_2");
+
+
+  if(mes ) cout<<"I FOUND !"<<endl;
+
+
 }
 
 void ReadMeFromFile::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}

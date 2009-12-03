@@ -105,10 +105,13 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    //
    // Note: Pythia6's kc=43, 44, and 84 commented out because they're obsolete (per S.Mrenna)
    //
+   m_PDGs.push_back( 300553 ) ;
    m_PDGs.push_back( 511 ) ;
+   m_PDGs.push_back( 521 ) ;
    m_PDGs.push_back( 523 ) ;
    m_PDGs.push_back( 513 ) ;
    m_PDGs.push_back( 533 ) ;
+   m_PDGs.push_back( 531 ) ;
    
    m_PDGs.push_back( 15 ) ;
    
@@ -124,7 +127,7 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 10423 );   
    m_PDGs.push_back( 20413 );
    m_PDGs.push_back( 20423 );
-   
+    
    m_PDGs.push_back( 415 );
    m_PDGs.push_back( 425 );
    m_PDGs.push_back( 10431 );
@@ -145,6 +148,14 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 325 );
    m_PDGs.push_back( 315 );
    
+   m_PDGs.push_back( 100313 );
+   m_PDGs.push_back( 100323 );
+   m_PDGs.push_back( 30313 );
+   m_PDGs.push_back( 30323 );
+   m_PDGs.push_back( 30343 );
+   m_PDGs.push_back( 30353 );
+   m_PDGs.push_back( 30363 );
+
    m_PDGs.push_back( 111 );
    m_PDGs.push_back( 221 );
    m_PDGs.push_back( 113 );
@@ -160,27 +171,56 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 10113 );
    m_PDGs.push_back( 9000111 ); // PDG ID = 9000111, Pythia6 ID = 10111
    m_PDGs.push_back( 9000211 ); // PDG ID = 9000211, Pythia6 ID = 10211
+   m_PDGs.push_back( 9010221 ); // PDG ID = 9010211, Pythia6 ID = ???
+   m_PDGs.push_back( 10221 );
    m_PDGs.push_back( 20223 );
    m_PDGs.push_back( 20333 );
    m_PDGs.push_back( 225 );
+   m_PDGs.push_back( 9020221 ); // PDG ID = 9020211, Pythia6 ID = ???
    m_PDGs.push_back( 335 );
    m_PDGs.push_back( 10223 );
    m_PDGs.push_back( 10333 );
+   m_PDGs.push_back( 100213 );
+   m_PDGs.push_back( 100113 );
    
    m_PDGs.push_back( 441 );
+   m_PDGs.push_back( 100441 );
    m_PDGs.push_back( 443 );
    m_PDGs.push_back( 100443 );
+   m_PDGs.push_back( 9000443 );
+   m_PDGs.push_back( 9010443 );
+   m_PDGs.push_back( 9020443 );
    m_PDGs.push_back( 10441 );
    m_PDGs.push_back( 20443 );
    m_PDGs.push_back( 445 );
 
+   m_PDGs.push_back( 30443 );
    m_PDGs.push_back( 551 );
    m_PDGs.push_back( 553 );
    m_PDGs.push_back( 100553 );
+   m_PDGs.push_back( 200553 );
    m_PDGs.push_back( 10551 );
    m_PDGs.push_back( 20553 );
    m_PDGs.push_back( 555 );
    m_PDGs.push_back( 10553 );
+
+   m_PDGs.push_back( 110551 );
+   m_PDGs.push_back( 120553 );
+   m_PDGs.push_back( 100555 );
+   m_PDGs.push_back( 210551 );
+   m_PDGs.push_back( 220553 );
+   m_PDGs.push_back( 200555 );
+   m_PDGs.push_back( 30553 );
+   m_PDGs.push_back( 20555 );
+
+   m_PDGs.push_back( 557 );
+   m_PDGs.push_back( 130553 ); 
+   m_PDGs.push_back( 120555 );
+   m_PDGs.push_back( 100557 );
+   m_PDGs.push_back( 110553 );
+   m_PDGs.push_back( 210553 );
+   m_PDGs.push_back( 10555 );
+   m_PDGs.push_back( 110555 );
 
    m_PDGs.push_back( 4122 );
    m_PDGs.push_back( 4132 );
@@ -191,7 +231,19 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 4222 );
    m_PDGs.push_back( 4322 );
    m_PDGs.push_back( 4312 );
-   
+
+   m_PDGs.push_back( 13122 );
+   m_PDGs.push_back( 13124 );
+   m_PDGs.push_back( 23122 );
+   m_PDGs.push_back( 33122 );
+   m_PDGs.push_back( 43122 );
+   m_PDGs.push_back( 53122 );
+   m_PDGs.push_back( 13126 );
+   m_PDGs.push_back( 13212 );
+   m_PDGs.push_back( 13241 );
+  
+   m_PDGs.push_back( 3126 );
+   m_PDGs.push_back( 3124 );
    m_PDGs.push_back( 3122 );
    m_PDGs.push_back( 3222 );
    m_PDGs.push_back( 2214 );
@@ -204,6 +256,7 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 3114 );
    m_PDGs.push_back( 3224 );
    m_PDGs.push_back( 3214 );
+   m_PDGs.push_back( 3216 );
    m_PDGs.push_back( 3322 );
    m_PDGs.push_back( 3312 );
    m_PDGs.push_back( 3314 );
@@ -228,6 +281,8 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 5112 );
    m_PDGs.push_back( 5212 );
    m_PDGs.push_back( 541 );
+   m_PDGs.push_back( 14122 );
+   m_PDGs.push_back( 14124 );
    m_PDGs.push_back( 5312 );
    m_PDGs.push_back( 5322 );
    m_PDGs.push_back( 10521 );
@@ -254,7 +309,14 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_PDGs.push_back( 10541 );
    m_PDGs.push_back( 10543 );
    m_PDGs.push_back( 20543 );
-   
+
+   m_PDGs.push_back( 4424 );
+   m_PDGs.push_back( 4422 );
+   m_PDGs.push_back( 4414 );
+   m_PDGs.push_back( 4412 );
+   m_PDGs.push_back( 4432 );
+   m_PDGs.push_back( 4434 );
+
    m_PDGs.push_back( 130 );
    
    // now check if we need to override default list of particles/IDs
@@ -440,8 +502,8 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
     // ********* Now add to the HepMC Event **********
 
     // Then loop on evtstdhep to add vertexes... 
-    HepMC::GenVertex* theVerts[100];
-    for (int ivert = 0; ivert < 100; ivert++) { 
+    HepMC::GenVertex* theVerts[200];
+    for (int ivert = 0; ivert < 200; ivert++) { 
       theVerts[ivert] = 0;
     }
 
@@ -459,7 +521,7 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
 
     // ...then particles
     partHep->set_status(2);
-    theVerts[0]->add_particle_in( partHep );
+    if (theVerts[0]) theVerts[0]->add_particle_in( partHep );
 
     for (int ipart2 = 1; ipart2 < evtstdhep.getNPart(); ipart2++) {
       int idHep = evtstdhep.getStdHepID(ipart2);

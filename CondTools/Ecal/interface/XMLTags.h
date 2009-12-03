@@ -59,6 +59,14 @@ namespace xuti{
   const  std::string Value_tag("Value");
   const  std::string EcalFloatCondObjectContainer_tag("EcalFloatCondObjectContainer");
 
+  const std::string Laser_tag("EcalLaserAPDPNRatios");
+  const std::string Laser_p1_tag("p1");
+  const std::string Laser_p2_tag("p2");
+  const std::string Laser_p3_tag("p3");
+  const std::string Laser_t1_tag("t1");
+  const std::string Laser_t2_tag("t2");
+  const std::string Laser_t3_tag("t3");
+
 }
 
 #endif

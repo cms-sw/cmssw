@@ -1,9 +1,12 @@
-// $Id: EventStreamSelector.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: EventStreamSelector.cc,v 1.5 2009/09/23 13:06:41 mommsen Exp $
 /// @file: EventStreamSelector.cc
 
 #include <vector>
 
+#include <boost/lambda/lambda.hpp>
+
 #include "EventFilter/StorageManager/interface/EventStreamSelector.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
 
 using namespace stor;
 
@@ -22,17 +25,34 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
   Strings tnames;
   imv.hltTriggerNames( tnames );
 
-  // 18-Aug-2009, KAB: protect against exceptions that can occur
-  // when creating the edm::EventSelector (such as an invalid trigger
-  // path request).
+  std::ostringstream errorMsg;
+  errorMsg << "Cannot initialize edm::EventSelector for stream " <<
+    _configInfo.streamLabel() << " requesting output module ID" <<
+    _outputModuleId << " with label " << _configInfo.outputModuleLabel() <<
+    " and HLT trigger names";
+  boost::lambda::placeholder1_type arg1;
+  std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);
   try
   {
     _eventSelector.reset( new edm::EventSelector( pset, tnames ) );
   }
-  catch ( ... )
+  catch ( edm::Exception& e )
   {
-    // we should add some logging here!
-    return;
+    errorMsg << e.what();
+    
+    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
+  }
+  catch( std::exception &e )
+  {
+    errorMsg << e.what();
+
+    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
+  }
+  catch(...)
+  {
+    errorMsg << "Unknown exception";
+
+    XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
   }
 
   _initialized = true;
@@ -53,3 +73,10 @@ bool EventStreamSelector::acceptEvent( const I2OChain& ioc )
     || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() );
 
 }
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

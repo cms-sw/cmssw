@@ -14,8 +14,10 @@ DEFINE_ANOTHER_FWK_MODULE(DQMFileSaver);
 DEFINE_ANOTHER_FWK_MODULE(DQMFEDIntegrityClient);
 #include "DQMServices/Components/src/DQMStoreStats.h"
 DEFINE_ANOTHER_FWK_MODULE(DQMStoreStats);
-#include "DQMServices/Components/src/DQMLogError.h"
-DEFINE_ANOTHER_FWK_MODULE(DQMLogError);
+#include "DQMServices/Components/src/DQMMessageLogger.h"
+DEFINE_ANOTHER_FWK_MODULE(DQMMessageLogger);
+#include "DQMServices/Components/src/DQMMessageLoggerClient.h"
+DEFINE_ANOTHER_FWK_MODULE(DQMMessageLoggerClient);
 #include "DQMServices/Components/src/DQMFileReader.h"
 DEFINE_ANOTHER_FWK_MODULE(DQMFileReader);
 

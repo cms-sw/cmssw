@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.11 2009/09/16 16:59:09 biery Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.13 2009/09/24 09:54:27 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -253,8 +253,8 @@ void DataSenderMonitorCollection::incrementDataDiscardCount(I2OChain const& i2oC
   // accumulate the data of interest
   if (pointersAreValid)
   {
-    ++rbRecordPtr->workingDataDiscardCount;
-    ++fuRecordPtr->workingDataDiscardCount;
+    rbRecordPtr->dataDiscardCount.addSample(1);
+    fuRecordPtr->dataDiscardCount.addSample(1);
   }
 }
 
@@ -277,8 +277,8 @@ void DataSenderMonitorCollection::incrementDQMDiscardCount(I2OChain const& i2oCh
   // accumulate the data of interest
   if (pointersAreValid)
   {
-    ++rbRecordPtr->workingDQMDiscardCount;
-    ++fuRecordPtr->workingDQMDiscardCount;
+    rbRecordPtr->dqmDiscardCount.addSample(1);
+    fuRecordPtr->dqmDiscardCount.addSample(1);
   }
 }
 
@@ -301,8 +301,8 @@ void DataSenderMonitorCollection::incrementSkippedDiscardCount(I2OChain const& i
   // accumulate the data of interest
   if (pointersAreValid)
   {
-    ++rbRecordPtr->workingSkippedDiscardCount;
-    ++fuRecordPtr->workingSkippedDiscardCount;
+    rbRecordPtr->skippedDiscardCount.addSample(1);
+    fuRecordPtr->skippedDiscardCount.addSample(1);
   }
 }
 
@@ -396,20 +396,20 @@ DataSenderMonitorCollection::getFilterUnitResultsForRB(UniqueResourceBrokerID_t 
           result->initMsgCount = fuRecordPtr->initMsgCount;
           result->lastRunNumber = fuRecordPtr->lastRunNumber;
           result->lastEventNumber = fuRecordPtr->lastEventNumber;
-          result->dataDiscardCount = fuRecordPtr->latchedDataDiscardCount;
-          result->dqmDiscardCount = fuRecordPtr->latchedDQMDiscardCount;
-          result->skippedDiscardCount = fuRecordPtr->latchedSkippedDiscardCount;
           fuRecordPtr->shortIntervalEventSize.getStats(result->shortIntervalEventStats);
           fuRecordPtr->mediumIntervalEventSize.getStats(result->mediumIntervalEventStats);
           fuRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
           fuRecordPtr->errorEventSize.getStats(result->errorEventStats);
           fuRecordPtr->staleChainSize.getStats(result->staleChainStats);
+          fuRecordPtr->dataDiscardCount.getStats(result->dataDiscardStats);
+          fuRecordPtr->dqmDiscardCount.getStats(result->dqmDiscardStats);
+          fuRecordPtr->skippedDiscardCount.getStats(result->skippedDiscardStats);
 
           result->outstandingDataDiscardCount = result->initMsgCount +
             result->shortIntervalEventStats.getSampleCount() +
-            result->errorEventStats.getSampleCount() - result->dataDiscardCount;
+            result->errorEventStats.getSampleCount() - result->dataDiscardStats.getSampleCount();
           result->outstandingDQMDiscardCount = result->dqmEventStats.getSampleCount() -
-            result->dqmDiscardCount;
+            result->dqmDiscardStats.getSampleCount();
 
           resultsList.push_back(result);
         }
@@ -429,13 +429,13 @@ void DataSenderMonitorCollection::do_calculateStatistics()
   for (rbMapIter=_resourceBrokerMap.begin(); rbMapIter!=rbMapEnd; ++rbMapIter)
     {
       RBRecordPtr rbRecordPtr = rbMapIter->second;
-      rbRecordPtr->latchedDataDiscardCount = rbRecordPtr->workingDataDiscardCount;
-      rbRecordPtr->latchedDQMDiscardCount = rbRecordPtr->workingDQMDiscardCount;
-      rbRecordPtr->latchedSkippedDiscardCount = rbRecordPtr->workingSkippedDiscardCount;
       rbRecordPtr->eventSize.calculateStatistics();
       rbRecordPtr->dqmEventSize.calculateStatistics();
       rbRecordPtr->errorEventSize.calculateStatistics();
       rbRecordPtr->staleChainSize.calculateStatistics();
+      rbRecordPtr->dataDiscardCount.calculateStatistics();
+      rbRecordPtr->dqmDiscardCount.calculateStatistics();
+      rbRecordPtr->skippedDiscardCount.calculateStatistics();
       calcStatsForOutputModules(rbRecordPtr->outputModuleMap);
 
       std::map<FilterUnitKey, FURecordPtr>::const_iterator fuMapIter;
@@ -445,14 +445,14 @@ void DataSenderMonitorCollection::do_calculateStatistics()
            fuMapIter != fuMapEnd; ++fuMapIter)
         {
           FURecordPtr fuRecordPtr = fuMapIter->second;
-          fuRecordPtr->latchedDataDiscardCount = fuRecordPtr->workingDataDiscardCount;
-          fuRecordPtr->latchedDQMDiscardCount = fuRecordPtr->workingDQMDiscardCount;
-          fuRecordPtr->latchedSkippedDiscardCount=fuRecordPtr->workingSkippedDiscardCount;
           fuRecordPtr->shortIntervalEventSize.calculateStatistics();
           fuRecordPtr->mediumIntervalEventSize.calculateStatistics();
           fuRecordPtr->dqmEventSize.calculateStatistics();
           fuRecordPtr->errorEventSize.calculateStatistics();
           fuRecordPtr->staleChainSize.calculateStatistics();
+          fuRecordPtr->dataDiscardCount.calculateStatistics();
+          fuRecordPtr->dqmDiscardCount.calculateStatistics();
+          fuRecordPtr->skippedDiscardCount.calculateStatistics();
           calcStatsForOutputModules(fuRecordPtr->outputModuleMap);
         }
     }
@@ -508,19 +508,26 @@ void DataSenderMonitorCollection::do_updateInfoSpaceItems()
   {
     RBRecordPtr rbRecordPtr = rbMapIter->second;
     localEPCount += rbRecordPtr->filterUnitMap.size();
-    localIgnoredDiscardCount += rbRecordPtr->latchedSkippedDiscardCount;
+
+    MonitoredQuantity::Stats skippedDiscardStats;
+    rbRecordPtr->skippedDiscardCount.getStats(skippedDiscardStats);
+    localIgnoredDiscardCount += skippedDiscardStats.getSampleCount();
 
     MonitoredQuantity::Stats eventStats;
     MonitoredQuantity::Stats errorEventStats;
+    MonitoredQuantity::Stats dataDiscardStats;
     rbRecordPtr->eventSize.getStats(eventStats);
     rbRecordPtr->errorEventSize.getStats(errorEventStats);
+    rbRecordPtr->dataDiscardCount.getStats(dataDiscardStats);
     localMissingDataDiscardCount += rbRecordPtr->initMsgCount + eventStats.getSampleCount() +
-      errorEventStats.getSampleCount() - rbRecordPtr->latchedDataDiscardCount;
+      errorEventStats.getSampleCount() - dataDiscardStats.getSampleCount();
 
     MonitoredQuantity::Stats dqmEventStats;
+    MonitoredQuantity::Stats dqmDiscardStats;
     rbRecordPtr->dqmEventSize.getStats(dqmEventStats);
+    rbRecordPtr->dqmDiscardCount.getStats(dqmDiscardStats);
     localMissingDQMDiscardCount += dqmEventStats.getSampleCount() -
-      rbRecordPtr->latchedDQMDiscardCount;
+      dqmDiscardStats.getSampleCount();
 
     MonitoredQuantity::Stats staleChainStats;
     rbRecordPtr->staleChainSize.getStats(staleChainStats);
@@ -765,19 +772,19 @@ DSMC::buildResourceBrokerResult(DSMC::RBRecordPtr const& rbRecordPtr) const
   result->initMsgCount = rbRecordPtr->initMsgCount;
   result->lastRunNumber = rbRecordPtr->lastRunNumber;
   result->lastEventNumber = rbRecordPtr->lastEventNumber;
-  result->dataDiscardCount = rbRecordPtr->latchedDataDiscardCount;
-  result->dqmDiscardCount = rbRecordPtr->latchedDQMDiscardCount;
-  result->skippedDiscardCount = rbRecordPtr->latchedSkippedDiscardCount;
   rbRecordPtr->eventSize.getStats(result->eventStats);
   rbRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
   rbRecordPtr->errorEventSize.getStats(result->errorEventStats);
   rbRecordPtr->staleChainSize.getStats(result->staleChainStats);
+  rbRecordPtr->dataDiscardCount.getStats(result->dataDiscardStats);
+  rbRecordPtr->dqmDiscardCount.getStats(result->dqmDiscardStats);
+  rbRecordPtr->skippedDiscardCount.getStats(result->skippedDiscardStats);
 
   result->outstandingDataDiscardCount = result->initMsgCount +
     result->eventStats.getSampleCount() + result->errorEventStats.getSampleCount() -
-    result->dataDiscardCount;
+    result->dataDiscardStats.getSampleCount();
   result->outstandingDQMDiscardCount = result->dqmEventStats.getSampleCount() -
-    result->dqmDiscardCount;
+    result->dqmDiscardStats.getSampleCount();
 
   return result;
 }

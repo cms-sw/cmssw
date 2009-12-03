@@ -68,11 +68,21 @@ namespace edm {
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
       typedef ProductRegistry::ProductList::const_iterator const_iterator;
+      typedef ProductRegistry::ProductList::iterator iterator;
+      //this is the registry used by the 'outside' world and only has the primary file information in it at present
+      ProductRegistry::ProductList& fullList = productRegistryUpdate().productListUpdator();
       for (const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
-	if (it->second.present()) idsToReplace[it->second.branchType()].insert(it->second.branchID());
+        if (it->second.present()) {
+          idsToReplace[it->second.branchType()].insert(it->second.branchID());
+          //now make sure this is marked as not dropped else the product will not be 'get'table from the edm::Event
+          iterator itFound = fullList.find(it->first);
+          if(itFound != fullList.end()) {
+            itFound->second.dropped()=false;
+          }
+        }
       }
       for (const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
-	if (it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
+        if (it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
       }
       if (idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
         secondaryFileSequence_.reset();

@@ -39,16 +39,9 @@ public:
     */
     bool evaluate(TrackingVertexRef tvr)
     {
-        if ( enableSimToReco_ )
-        {
-
-            std::pair<reco::VertexRef, double> result =  match(tvr, simToReco_, bestMatchByMaxValue_);
-            recovertex_ = result.first;
-            quality_ =  result.second;
-        }
+        if ( enableSimToReco_ ) recovertex_ = match(tvr, simToReco_, bestMatchByMaxValue_);
         return HistoryBase::evaluate(tvr);
     }
-
 
     //! Evaluate reco::Vertex history using a given association.
     /* Return false when the track association is not possible (fake track).
@@ -64,20 +57,11 @@ public:
         return recovertex_;
     }
 
-    //! Return the quality of the match.
-    double quality() const
-    {
-        return quality_;
-    }
-
-
 private:
 
     bool bestMatchByMaxValue_;
 
     bool enableRecoToSim_, enableSimToReco_;
-
-    double quality_;
 
     edm::InputTag trackProducer_;
 

@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2009/02/24 18:53:56 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/02/24 07:05:54 $
+ *  $Revision: 1.17 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -251,14 +251,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is,jj++) {
       
       double deltaR = match_Rpos(muonTSOS,(*is).second);
-      
-      if (muonTSOS.isValid() && (*is).second.isValid()) 
-	// check matching between tracker and muon tracks using dEta cut looser then dPhi cut 
-        if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2)
-        &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
-	  result.push_back((*is).first);
-	  passes[jj]=true;
-	}
+      if ( deltaR > 0. && deltaR < theDeltaR_2) {
+        result.push_back((*is).first);
+        passes[jj]=true;
+      }
       
       if(passes[jj]){
         double distance = match_d(muonTSOS,(*is).second);

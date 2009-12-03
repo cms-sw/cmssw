@@ -33,8 +33,10 @@ private:
   MonitorElement*  totalDCSFraction;
   MonitorElement* dcsWheelFractions[5];
   MonitorElement* dcsDiskFractions[10];
+ std::pair<int, int> FEDRange_;
+  int numberOfDisks_;  
+  int NumberOfFeds_;
 
-  int numberOfDisks_;
 };
 
 

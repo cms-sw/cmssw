@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.10 2009/09/16 16:59:09 biery Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.6.2.1 2009/09/25 09:57:42 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -25,9 +25,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author: biery $
-   * $Revision: 1.10 $
-   * $Date: 2009/09/16 16:59:09 $
+   * $Author: mommsen $
+   * $Revision: 1.6.2.1 $
+   * $Date: 2009/09/25 09:57:42 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -114,7 +114,7 @@ namespace stor {
     /**
      * Key that is used to identify output modules.
      */
-    typedef unsigned int OutputModuleKey;
+    typedef uint32 OutputModuleKey;
 
 
     /**
@@ -123,7 +123,7 @@ namespace stor {
     struct OutputModuleRecord
     {
       std::string name;
-      unsigned int id;
+      OutputModuleKey id;
       unsigned int initMsgSize;
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
@@ -146,17 +146,12 @@ namespace stor {
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
       MonitoredQuantity staleChainSize;
+      MonitoredQuantity dataDiscardCount;
+      MonitoredQuantity dqmDiscardCount;
+      MonitoredQuantity skippedDiscardCount;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
-
-      // see note for ResourceBrokerRecord discard counts
-      unsigned long long workingDataDiscardCount;
-      unsigned long long workingDQMDiscardCount;
-      unsigned long long workingSkippedDiscardCount;
-      unsigned long long latchedDataDiscardCount;
-      unsigned long long latchedDQMDiscardCount;
-      unsigned long long latchedSkippedDiscardCount;
 
       explicit FilterUnitRecord
       (
@@ -166,10 +161,9 @@ namespace stor {
         key(fuKey), shortIntervalEventSize(updateInterval,10),
         mediumIntervalEventSize(updateInterval,300), dqmEventSize(updateInterval,10),
         errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
-        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
-        workingDataDiscardCount(0), workingDQMDiscardCount(0),
-        workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
-        latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
+        dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
+        skippedDiscardCount(updateInterval,10),
+        initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
     };
     typedef boost::shared_ptr<FilterUnitRecord> FURecordPtr;
 
@@ -185,23 +179,12 @@ namespace stor {
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
       MonitoredQuantity staleChainSize;
+      MonitoredQuantity dataDiscardCount;
+      MonitoredQuantity dqmDiscardCount;
+      MonitoredQuantity skippedDiscardCount;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
-
-      // 24-Jun-2009, KAB
-      // the discard counts could be MonitoredQuantities, but that
-      // seems like a lot of overhead for what we need, so we'll just
-      // make them integers for now.  However, this means that we need
-      // to do latching (similar to MonitoredQuantity.calculateStatistics)
-      // if we want any chance of getting the numbers to match between the
-      // MQs above and the corresponding discard counts.
-      unsigned long long workingDataDiscardCount;
-      unsigned long long workingDQMDiscardCount;
-      unsigned long long workingSkippedDiscardCount;
-      unsigned long long latchedDataDiscardCount;
-      unsigned long long latchedDQMDiscardCount;
-      unsigned long long latchedSkippedDiscardCount;
 
       explicit ResourceBrokerRecord
       (
@@ -210,10 +193,9 @@ namespace stor {
       ) :
         key(rbKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
         errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
-        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
-        workingDataDiscardCount(0), workingDQMDiscardCount(0),
-        workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
-        latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
+        dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
+        skippedDiscardCount(updateInterval,10),
+        initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
     };
     typedef boost::shared_ptr<ResourceBrokerRecord> RBRecordPtr;
 
@@ -224,7 +206,7 @@ namespace stor {
     struct OutputModuleResult
     {
       std::string name;
-      unsigned int id;
+      OutputModuleKey id;
       unsigned int initMsgSize;
       MonitoredQuantity::Stats eventStats;
     };
@@ -242,21 +224,20 @@ namespace stor {
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
-      unsigned long long dataDiscardCount;
-      unsigned long long dqmDiscardCount;
-      unsigned long long skippedDiscardCount;
       MonitoredQuantity::Stats eventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
+      MonitoredQuantity::Stats dataDiscardStats;
+      MonitoredQuantity::Stats dqmDiscardStats;
+      MonitoredQuantity::Stats skippedDiscardStats;
       UniqueResourceBrokerID_t uniqueRBID;
       int outstandingDataDiscardCount;
       int outstandingDQMDiscardCount;
 
       explicit ResourceBrokerResult(ResourceBrokerKey const& rbKey):
         key(rbKey), filterUnitCount(0), initMsgCount(0),
-        lastRunNumber(0), lastEventNumber(0), dataDiscardCount(0),
-        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0),
+        lastRunNumber(0), lastEventNumber(0), uniqueRBID(0),
         outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
 
       bool operator<(ResourceBrokerResult const& other) const
@@ -276,20 +257,19 @@ namespace stor {
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
-      unsigned long long dataDiscardCount;
-      unsigned long long dqmDiscardCount;
-      unsigned long long skippedDiscardCount;
       MonitoredQuantity::Stats shortIntervalEventStats;
       MonitoredQuantity::Stats mediumIntervalEventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
+      MonitoredQuantity::Stats dataDiscardStats;
+      MonitoredQuantity::Stats dqmDiscardStats;
+      MonitoredQuantity::Stats skippedDiscardStats;
       int outstandingDataDiscardCount;
       int outstandingDQMDiscardCount;
 
       explicit FilterUnitResult(FilterUnitKey const& fuKey):
         key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
-        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0),
         outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
     };
     typedef boost::shared_ptr<FilterUnitResult> FUResultPtr;

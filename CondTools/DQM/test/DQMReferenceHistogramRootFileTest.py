@@ -23,15 +23,15 @@ process.source = cms.Source("EmptyIOVSource", #needed to EvSetup in order to loa
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('DQMReferenceHistogramRootFileRcd'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFile'),
                                                                      tag = cms.string('ROOTFILE_Test') 
                                                                      )
                                                             ),
-                                          logconnect = cms.untracked.string('sqlite_file:RPCRootTestLog.db')                                     
+                                          logconnect = cms.untracked.string('sqlite_file:ROOTFILE_TestLog.db')                                     
                                           )
 
 process.dqmReferenceHistogramRootFileTest = cms.EDAnalyzer("DQMReferenceHistogramRootFilePopConAnalyzer",
-                                           record = cms.string('DQMReferenceHistogramRootFileRcd'),
+                                           record = cms.string('GeometryFile'),
                                            loggingOn = cms.untracked.bool(True), #always True, needs to create the log db
                                            SinceAppendMode = cms.bool(True),
                                            Source = cms.PSet(ROOTFile = cms.untracked.string("salvo.root"),

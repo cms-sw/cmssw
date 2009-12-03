@@ -193,7 +193,7 @@ void RunList::fetchRuns(int min_run, int max_run)
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(runtime_error("RunList::fetchRuns:  "+e.getMessage()));
   }
 
 
@@ -265,7 +265,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 
@@ -304,7 +304,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT  r.iov_id, r.tag_id, r.run_num, r.run_start, r.run_end, r.DB_TIMESTAMP , "
                  " t.gen_tag, rt.RUN_TYPE "
-		 " FROM run_iov r , run_tag t, location_def l, rt run_type_def "
+		 " FROM run_iov r , run_tag t, location_def l, run_type_def rt "
 		 " WHERE r.tag_id=t.tag_id and t.LOCATION_ID=l.def_id and t.run_type_id=rt.DEF_ID "
 		 " AND l.LOCATION= :1 "
 		 " and r.run_num> :2 and r.run_num< :3 "
@@ -356,7 +356,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
   }
 
 

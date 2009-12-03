@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaRootFunction.cc,v 1.1 2007/05/23 20:21:37 veelken Exp $
+// $Id: ConeAreaRootFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
 //
 //
 
@@ -72,6 +72,20 @@ ConeAreaRootFunction& ConeAreaRootFunction::operator=(const ConeAreaRootFunction
 void ConeAreaRootFunction::SetParameterConeArea(double coneArea)
 {
   coneArea_ = coneArea;
+}
+
+void ConeAreaRootFunction::SetParameters(double* param)
+{
+  if ( debugLevel_ > 0 ) {
+    edm::LogVerbatim("") << "<ConeAreaRootFunction::SetParameters>:" << std::endl
+			 << " theta0 = " << param[0] << std::endl
+			 << " phi0 = " << param[1] << std::endl
+			 << " coneArea = " << param[2] << std::endl;
+  }
+
+  ConeAreaFunction::SetParameters(param);
+  
+  coneArea_ = param[2];
 }
 
 double ConeAreaRootFunction::DoEval(double x) const

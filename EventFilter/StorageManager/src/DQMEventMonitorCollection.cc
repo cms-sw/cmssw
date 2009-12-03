@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.6 2009/08/24 14:31:50 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.7 2009/09/17 14:43:30 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>

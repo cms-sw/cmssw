@@ -2,10 +2,9 @@
   <use name="DQM/HLTEvF">
   <use name="HLTrigger/HLTcore">
   <use name="DQMServices/Core">
-  <use name="DQMServices/Components">
-  <use name="DQMServices/ClientConfig">
+  <use name=DQMServices/Components>
+  <use name=DQMServices/ClientConfig>
   <use name="DataFormats/BeamSpot">
-  <use name="DataFormats/BTauReco">
   <use name="DataFormats/Common">
   <use name="DataFormats/EgammaCandidates">
   <use name="DataFormats/EgammaReco">
@@ -23,11 +22,13 @@
   <use name="FWCore/ParameterSet">
   <use name="FWCore/PluginManager">
   <use name="FWCore/ServiceRegistry">
-  <use name="Geometry/Records">
-  <use name="Geometry/CommonDetUnit">
-  <use name="MagneticField/Records">
-  <use name="MagneticField/Engine">
-  <use name="TrackingTools/TrajectoryState">
+  <use name=Geometry/Records>
+  <use name=Geometry/CommonDetUnit>
+  <use name=MagneticField/Records>
+  <use name=MagneticField/Engine>
+  <use name=TrackingTools/TrajectoryState>
+  <use name="DataFormats/BeamSpot">
+  <use name="DataFormats/BTauReco">
   <use name="rootcore">
   <flags EDM_PLUGIN="1">
 </library>

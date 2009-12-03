@@ -15,12 +15,14 @@
 #include <vector>
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimMuon/Neutron/src/NeutronWriter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-class NeutronWriter;
 
-/// doesn't have to be a producer.  Can act as an analyzer, too.
-class SubsystemNeutronWriter : public edm::EDProducer
+class SubsystemNeutronWriter : public edm::EDAnalyzer
 {
 public:
 
@@ -31,7 +33,7 @@ public:
 
   void printStats();
 
-  virtual void produce(edm::Event & e, edm::EventSetup const& c);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
   virtual int localDetId(int globalDetId) const = 0;
 
@@ -39,18 +41,13 @@ public:
 
   virtual int chamberId(int globalDetId) const = 0;
 
-  /// decides whether this cluster is good enough to be included
-  virtual bool accept(const edm::PSimHitContainer & cluster) const = 0;
-
   /// good practice to do once for each chamber type
   void initialize(int chamberType);
 
 protected:
 
 
-  virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits);
-
-  void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
+  virtual void writeHits(int chamberType, edm::PSimHitContainer & allSimHits);
 
   /// helper to add time offsets and local det ID
   void adjust(PSimHit & h, float timeOffset);
@@ -65,8 +62,6 @@ private:
   double theTimeWindow;
   int theNEvents;
   bool initialized;
-  // true means to translate DetId into just layer number, e.g., 1-6 in CSC
-  bool useLocalDetId_;
   std::map<int, int> theCountPerChamberType;
 };
 

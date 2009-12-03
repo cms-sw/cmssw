@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.cc,v 1.7 2009/04/06 08:18:24 rwolf Exp $
+// $Id: JetCorrFactors.cc,v 1.8 2009/04/06 09:00:39 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -20,10 +20,15 @@ JetCorrFactors::JetCorrFactors()
   flavourDepCorrections_.  push_back( FlavourCorrections() ); 	//L5 default
   flavourDepCorrections_  .push_back( FlavourCorrections() );   //L6 default
   flavourDepCorrections_.  push_back( FlavourCorrections() ); 	//L7 default
+  for (size_t i=0; i<17; ++i)
+    correctionUncertainties_.push_back( 0.0 );
 }
 
-JetCorrFactors::JetCorrFactors(std::string &label, float l1, float l2, float l3, float l4, FlavourCorrections l5, FlavourCorrections l6, FlavourCorrections l7) : 
-  label_(label) 
+JetCorrFactors::JetCorrFactors(const std::string &label, float l1, float l2, float l3,float l4, 
+                               FlavourCorrections l5, FlavourCorrections l6, FlavourCorrections l7,
+			       const std::vector<float>& uncert) : 
+			         label_(label),correctionUncertainties_(uncert)
+				 
 {
   flavourIndepCorrections_.push_back( l1 ); 		
   flavourIndepCorrections_.push_back( l2 ); 		
@@ -182,5 +187,41 @@ JetCorrFactors::print() const
     << "  * L7(glu   ) : " << std::setw(10) << correction(L7g,   Raw  ) << " (" << std::setw(10) << correction(L7g,   L6g  ) << ")" << "\n"
     << "  * L7(uds   ) : " << std::setw(10) << correction(L7uds, Raw  ) << " (" << std::setw(10) << correction(L7uds, L6uds) << ")" << "\n"
     << "  * L7(charm ) : " << std::setw(10) << correction(L7c,   Raw  ) << " (" << std::setw(10) << correction(L7c,   L6c  ) << ")" << "\n"
-    << "  * L7(beauty) : " << std::setw(10) << correction(L7b,   Raw  ) << " (" << std::setw(10) << correction(L7b,   L6b  ) << ")";
+    << "  * L7(beauty) : " << std::setw(10) << correction(L7b,   Raw  ) << " (" << std::setw(10) << correction(L7b,   L6b  ) << ")" << "\n"
+
+    << "  +-L1(rel)    : " << std::setw(10) << uncertainty(L1,   "up" ) << "(up) " << std::setw(10) << uncertainty(L1,   "down" ) << "(down)" << "\n"
+    << "  +-L2(rel)    : " << std::setw(10) << uncertainty(L2,   "up" ) << "(up) " << std::setw(10) << uncertainty(L2,   "down" ) << "(down)" << "\n"
+    << "  +-L3(rel)    : " << std::setw(10) << uncertainty(L3,   "up" ) << "(up) " << std::setw(10) << uncertainty(L3,   "down" ) << "(down)" << "\n"
+    << "  +-L4(rel)    : " << std::setw(10) << uncertainty(L4,   "up" ) << "(up) " << std::setw(10) << uncertainty(L4,   "down" ) << "(down)" << "\n"
+    << "  +-L5(rel)    : " << std::setw(10) << uncertainty(L5g,  "up" ) << "(up) " << std::setw(10) << uncertainty(L5g,  "down" ) << "(down)" << "\n"
+    << "  +-L6(rel)    : " << std::setw(10) << uncertainty(L6g,  "up" ) << "(up) " << std::setw(10) << uncertainty(L6g,  "down" ) << "(down)" << "\n"
+    << "  +-L7(rel)    : " << std::setw(10) << uncertainty(L7g,  "up" ) << "(up) " << std::setw(10) << uncertainty(L7g,  "down" ) << "(down)" 
+    << std::endl;
+}
+
+JetCorrFactors::UncertVar const
+JetCorrFactors::uncertDirection(const std::string& dir)
+{
+  UncertVar result;
+  if (dir=="UP" || dir=="up" || dir=="plus" || dir=="PLUS") 
+    result=up;
+  else if (dir=="DOWN" || dir=="down" || dir=="minus" || dir=="MINUS")   
+    result=down;
+  else
+    throw cms::Exception("InvalidRequest") 
+      << "invalid uncertainty variation direction " << dir << " requested!" << std::endl;
+  return result;
+}
+
+///relative jet correction factor uncertainty
+float JetCorrFactors::uncertainty( CorrStep step, const UncertVar direction )const
+{
+   size_t ind = 2*(istep(step)-1) + direction;
+   return (ind<0 ? 0 : correctionUncertainties_.at(ind));
+}
+
+///relative jet correction factor uncertainty
+float JetCorrFactors::uncertainty( CorrStep step, const std::string &direction )const
+{
+   return uncertainty(step, uncertDirection(direction));
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="L1GtTriggerMenu" >
-   <Class table="L1GTTRIGGERMENU" id_columns="ID" name="L1GtTriggerMenu" mapping_version="L1GtTriggerMenu_basic" >
+   <Class table="L1GTTRIGGERMENU" id_columns="ID" name="L1GtTriggerMenu" mapping_version="L1GtTriggerMenu_basic_1" >
      <Blob column="L1GTTRIGGERMENU_M__1" name="m_algorithmAliasMap" />
      <Blob column="L1GTTRIGGERMENU_M__3_BLOB" name="m_algorithmMap" />
      <Blob column="L1GTTRIGGERMENU_M__5_BLOB" name="m_corCaloTemplate" />
@@ -18,6 +18,7 @@
      <Blob column="L1GTTRIGGERMENU__26_BLOB" name="m_vecCastorTemplate" />
      <Blob column="L1GTTRIGGERMENU__29_BLOB" name="m_vecCorrelationTemplate" />
      <Blob column="L1GTTRIGGERMENU_32_BLOB" name="m_vecEnergySumTemplate" />
+     <Blob column="L1GTTRI_M_VECEXTERNA_BLOB" name="m_vecExternalTemplate" />
      <Blob column="L1GTTRIGGERMENU_36_BLOB" name="m_vecHfBitCountsTemplate" />
      <Blob column="L1GTTRIGGERMEN_40_BLOB" name="m_vecHfRingEtSumsTemplate" />
      <Blob column="L1GTTRIGGERMEN_44_BLOB" name="m_vecJetCountsTemplate" />

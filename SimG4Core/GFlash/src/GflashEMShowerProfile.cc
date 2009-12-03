@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.16 2009/03/27 21:50:38 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.17 2009/03/31 02:04:20 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -10,9 +10,6 @@
 #include "G4VSensitiveDetector.hh"
 #include "G4EventManager.hh"
 #include "G4SteppingManager.hh"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -36,16 +33,6 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
   theBField = parSet.getParameter<double>("bField");
   theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
-
   theTuning_pList = parSet.getParameter<std::vector<double> >("tuning_pList");
 
 }
@@ -54,7 +41,6 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
 GflashEMShowerProfile::~GflashEMShowerProfile()
 {
   delete theHelix;
-  delete theRandGauss;
   if(theGflashStep) delete theGflashStep;
 }
 
@@ -100,8 +86,8 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double sqrtPL = std::sqrt((1.0+rho)/2.0);
   G4double sqrtLE = std::sqrt((1.0-rho)/2.0);
 
-  G4double norm1 = theRandGauss->fire();
-  G4double norm2 = theRandGauss->fire();
+  G4double norm1 = G4RandGauss::shoot();
+  G4double norm2 = G4RandGauss::shoot();
   G4double tempTmax = fluctuatedTmax + sigmaTmax*(sqrtPL*norm1 + sqrtLE*norm2);
   G4double tempAlpha = fluctuatedAlpha + sigmaAlpha*(sqrtPL*norm1 - sqrtLE*norm2);
 

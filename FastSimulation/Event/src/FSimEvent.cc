@@ -92,6 +92,14 @@ FSimEvent::load(edm::SimVertexContainer & c) const
 }
 
 
+void 
+FSimEvent::load(FSimVertexTypeCollection & c) const
+{
+
+  for (unsigned int i=0; i<nVertices(); ++i) {
+    c.push_back(embdVertexType(i));
+  }
+}
 
 
 

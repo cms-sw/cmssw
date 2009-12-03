@@ -194,6 +194,7 @@ namespace evf {
     xdata::String            smClassName_;
     xdata::UnsignedInteger32 smInstance_;
     
+    xdata::UnsignedInteger32 shmResourceTableTimeout_;
     xdata::UnsignedInteger32 monSleepSec_;
     xdata::UnsignedInteger32 watchSleepSec_;
     xdata::UnsignedInteger32 timeOutSec_;

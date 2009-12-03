@@ -6,6 +6,7 @@
 CSCNeutronWriter::CSCNeutronWriter(edm::ParameterSet const& pset)
 : SubsystemNeutronWriter(pset)
 {
+std::cout << "MAKE NEUTRONWRITER " << std::endl;
   for(int i = 1; i <= 10; ++i)
   {
     initialize(i);
@@ -14,6 +15,7 @@ CSCNeutronWriter::CSCNeutronWriter(edm::ParameterSet const& pset)
 
 
 CSCNeutronWriter::~CSCNeutronWriter() {
+std::cout << "DESTRUCT NEUTRONWRITER " << std::endl;
 }
 
 
@@ -34,5 +36,4 @@ int CSCNeutronWriter::chamberId(int globalDetId) const
 {
   return CSCDetId(globalDetId).chamberId().rawId();
 }
-
 

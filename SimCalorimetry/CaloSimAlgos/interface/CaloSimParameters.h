@@ -43,10 +43,6 @@ public:
 
   int binOfMaximum() const {return binOfMaximum_;}
 
-  /// some datamixing apps need this to be set dynamically
-  void setReadoutFrameSize(int frameSize) {readoutFrameSize_ = frameSize;}
-  void setBinOfMaximum(int binOfMax) {binOfMaximum_ = binOfMax;}
-
   /// whether or not to apply Poisson statistics to photoelectrons
   bool doPhotostatistics() const {return doPhotostatistics_;}
 

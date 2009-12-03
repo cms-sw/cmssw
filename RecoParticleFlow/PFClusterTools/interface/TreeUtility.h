@@ -11,11 +11,10 @@
 #include <vector>
 #include <string>
 #include <map>
-
 namespace pftools {
 /**
- *
- * \class TreeUtility
+ * 
+ * \class TreeUtility 
  \brief Utility class to create particles and detector elements from a Root file
 
  \todo Remove recreateFromRootFile(TFile& file) as this is only useful for testing purposes!
@@ -23,13 +22,12 @@ namespace pftools {
  \author Jamie Ballin
  \date   April 2008
  */
-typedef boost::shared_ptr<Calibratable> CalibratablePtr;
 class TreeUtility {
 public:
-
+	
 	TreeUtility();
 	virtual ~TreeUtility();
-
+	
 	unsigned getParticleDepositsDirectly(TChain& sourceChain,
 			std::vector<ParticleDepositPtr>& toBeFilled,
 			CalibrationTarget target, DetectorElementPtr offset,
@@ -43,13 +41,12 @@ public:
 			std::vector<ParticleDepositPtr>& toBeFilled,
 			CalibrationTarget target, DetectorElementPtr offset,
 			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
-
+			
 	void dumpCaloDataToCSV(TChain& chain, std::string csvFilename, double range, bool gaus = false);
 
-
+	
 private:
 	std::map<std::string, unsigned> vetos_;
-
 };
 }
 #endif /*TREEUTILITY_HH_*/

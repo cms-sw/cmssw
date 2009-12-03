@@ -1,6 +1,7 @@
 #include <stdexcept>
-#include <cstdlib>
 #include <string>
+#include <cstdlib>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODSRPConfig.h"
@@ -73,7 +74,10 @@ void ODSRPConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "debugMode") setDebugMode(atoi(ci->second.c_str()));
     if(ci->first==  "dummyMode") setDummyMode(atoi(ci->second.c_str()));
     if(ci->first==  "PatternDirectory") setPatternDirectory(ci->second);
+    if(ci->first==  "Pattern_Directory") setPatternDirectory(ci->second);
     if(ci->first==  "AutomaticMasks") setAutomaticMasks(atoi(ci->second.c_str()));
+    if(ci->first==  "Automatic_Masks") setAutomaticMasks(atoi(ci->second.c_str()));
+    if(ci->first==  "AutomaticSrpSelect") setAutomaticSrpSelect(atoi(ci->second.c_str()));
     if(ci->first==  "SRP0BunchAdjustPosition") setSRP0BunchAdjustPosition(atoi(ci->second.c_str()));
     if(ci->first==  "SRP_CONFIG_FILE") {
       std::string fname=ci->second ;
@@ -115,15 +119,16 @@ void ODSRPConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_SRP_CONFIGURATION (srp_configuration_id, srp_tag, "
-			"   DEBUGMODE, DUMMYMODE, PATTERN_DIRECTORY, AUTOMATIC_MASKS, "
-			" SRP0BUNCHADJUSTPOSITION, SRP_CONFIG_FILE, SRP_CONFIGURATION  ) "
-                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9 )");
+			"   DEBUGMODE, DUMMYMODE, PATTERN_DIRECTORY, AUTOMATIC_MASKS,"
+			" SRP0BUNCHADJUSTPOSITION, SRP_CONFIG_FILE, SRP_CONFIGURATION,  AUTOMATICSRPSELECT  ) "
+                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setInt(3, getDebugMode());
     m_writeStmt->setInt(4, getDummyMode());
     m_writeStmt->setString(5, getPatternDirectory());
     m_writeStmt->setInt(6, getAutomaticMasks());
+    m_writeStmt->setInt(10, getAutomaticSrpSelect());
     m_writeStmt->setInt(7, getSRP0BunchAdjustPosition());
     m_writeStmt->setString(8, getConfigFile());
   

@@ -80,8 +80,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
 
-    TTF_lowThreshold_EB = cms.double(0.3125),   ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(0.3125),  ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EB = cms.double(0.375),   ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(0.375),  ## EB Trigger Tower Flag high threshold in GeV
     TTF_lowThreshold_EE = cms.double(1.0625),  ## EE Trigger Tower Flag low threshold in GeV
     TTF_highThreshold_EE = cms.double(1.0625), ## EE Trigger Tower Flag high threshold in GeV
 
