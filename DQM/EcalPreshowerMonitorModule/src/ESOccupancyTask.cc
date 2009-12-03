@@ -180,15 +180,16 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        int j = plane-1;
        
        //cout<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip<<" "<<dataframe.sample(0).adc()<<" "<<dataframe.sample(1).adc()<<" "<<dataframe.sample(2).adc()<<endl;
-
+       
        // select good rechits 
-       if (dataframe.sample(0).adc() < 20) {
-
+       if (dataframe.sample(0).adc() < 20 && dataframe.sample(1).adc() > 0 && dataframe.sample(2).adc() > 0) {
+	 
 	 if (dataframe.sample(1).adc() > dataframe.sample(0).adc() && 
-	     dataframe.sample(2).adc() > dataframe.sample(0).adc()) {
+	     dataframe.sample(2).adc() > dataframe.sample(0).adc() && 
+	     dataframe.sample(1).adc() > dataframe.sample(2).adc()) {
 	   
 	   sum_DigiHits[i][j]++;
-
+	   
 	   Float_t tmpRH = -0.01687177*dataframe.sample(0).adc() + 0.77676196*dataframe.sample(1).adc() + 0.416363*dataframe.sample(2).adc();
 	   if (tmpRH/55. > 10) {
 	     hSelEnDensity_[i][j]->Fill(ix, iy, tmpRH/55.);
