@@ -103,15 +103,15 @@ void HcalRecHitMonitor::beginRun()
   h_HFrawenergydifference = m_dbe->book1D("HFaverageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
   h_HErawenergydifference = m_dbe->book1D("HEaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
   
-  h_HFnot101timedifference = m_dbe->book1D("HFnot101weightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",251,-250.5,250.5);
-  h_HEnot101timedifference = m_dbe->book1D("HEnot101weightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",251,-250.5,250.5);
-  h_HFnot101rawtimedifference = m_dbe->book1D("HFnot101timeDifference","Average Time difference between HF+ and HF-",251,-250.5,250.5);
-  h_HEnot101rawtimedifference = m_dbe->book1D("HEnot101timeDifference","Average Time difference between HE+ and HE-",251,-250.5,250.5);
+  h_HFnotBPTXtimedifference = m_dbe->book1D("HFnotBPTXweightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HEnotBPTXtimedifference = m_dbe->book1D("HEnotBPTXweightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",251,-250.5,250.5);
+  h_HFnotBPTXrawtimedifference = m_dbe->book1D("HFnotBPTXtimeDifference","Average Time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HEnotBPTXrawtimedifference = m_dbe->book1D("HEnotBPTXtimeDifference","Average Time difference between HE+ and HE-",251,-250.5,250.5);
 
-  h_HFnot101energydifference = m_dbe->book1D("HFnot101energyDifference","Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",200,-1,1);
-  h_HEnot101energydifference = m_dbe->book1D("HEnot101energyDifference","Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",200,-1,1);
-  h_HFnot101rawenergydifference = m_dbe->book1D("HFnot101averageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
-  h_HEnot101rawenergydifference = m_dbe->book1D("HEnot101averageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
+  h_HFnotBPTXenergydifference = m_dbe->book1D("HFnotBPTXenergyDifference","Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",200,-1,1);
+  h_HEnotBPTXenergydifference = m_dbe->book1D("HEnotBPTXenergyDifference","Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",200,-1,1);
+  h_HFnotBPTXrawenergydifference = m_dbe->book1D("HFnotBPTXaverageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
+  h_HEnotBPTXrawenergydifference = m_dbe->book1D("HEnotBPTXaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
   
 
 
@@ -329,6 +329,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   //cout <<"BCN = "<<BCN<<endl;
   //cout <<"PASSED HLT = "<<passedHLT<<endl;
 
+  bool BPTX=false;
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
   iEvent.getByLabel("l1GtUnpack",gtRecord);
   bool passedL1=false;
@@ -336,6 +337,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     {
       const DecisionWord dWord = gtRecord->decisionWord();
       const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
+      if (tWord.at(4)) BPTX=true;
       if (tWord.at(8)) passedL1=true;
       if (tWord.at(9)) passedL1=true;
       if (tWord.at(10)) passedL1=true;
@@ -361,7 +363,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
 
-  processEvent_rechit(hbHits, hoHits, hfHits,passedL1,BCN);
+  processEvent_rechit(hbHits, hoHits, hfHits,passedL1,BPTX);
   
   // Fill problem cells -- will now fill once per luminosity block
   if (rechit_checkNevents_>0 && ievt_%rechit_checkNevents_ ==0)
@@ -383,8 +385,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 					     const HORecHitCollection& hoHits,
 					     const HFRecHitCollection& hfHits,
 					     bool passedHLT,
-					     int BCN)
-  
+					     bool BPTX)
 {
   // Gather rechit info
   if (showTiming)
@@ -573,7 +574,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
-  if (passedHLT & BCN==101)
+  if (passedHLT & BPTX==true)
     {
       if (hepocc >0 && hemocc>0)
 	{
@@ -584,9 +585,9 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
       // for now, fill upper, lower bins, not over/underflow
       else if (hepocc>0)
-	h_HErawtimedifference->Fill(250);
+	h_HErawtimedifference->Fill(250000);
       else if (hemocc>0)
-	h_HErawtimedifference->Fill(-250);
+	h_HErawtimedifference->Fill(-250000);
       
       if (en_HEP !=0 && en_HEM != 0)
 	{
@@ -595,25 +596,25 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	}
     } // if passedHLT
 
-  else if (passedHLT & BCN!=101)
+  else if (passedHLT & BPTX==false)
     {
       if (hepocc >0 && hemocc>0)
 	{
 	  //cout <<"hepocc = "<<hepocc<<"  hemocc = "<<hemocc<<endl;
-	  h_HEnot101rawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
-	  h_HEnot101rawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
+	  h_HEnotBPTXrawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
+	  h_HEnotBPTXrawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
 	}
       // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
       // for now, fill upper, lower bins, not over/underflow
       else if (hepocc>0)
-	h_HEnot101rawtimedifference->Fill(250);
+	h_HEnotBPTXrawtimedifference->Fill(250000);
       else if (hemocc>0)
-	h_HEnot101rawtimedifference->Fill(-250);
+	h_HEnotBPTXrawtimedifference->Fill(-250000);
       
       if (en_HEP !=0 && en_HEM != 0)
 	{
-	  h_HEnot101timedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
-	  h_HEnot101energydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
+	  h_HEnotBPTXtimedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
+	  h_HEnotBPTXenergydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
 	}
     } // if passedHLT
 
@@ -791,7 +792,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
      //if (hfpocc > 0 && hfmocc>0)
      // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
-     if (passedHLT && BCN==101)
+     if (passedHLT && BPTX==true)
        {
 	 if (hfpocc >0 && hfmocc>0)
 	   {
@@ -820,24 +821,24 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	   }
        } // if (passedHLT)
 
-     else if (passedHLT && BCN!=101)
+     else if (passedHLT && BPTX==false)
        {
 	 if (hfpocc >0 && hfmocc>0)
 	   {
-	     h_HFnot101rawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
-	     h_HFnot101rawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
+	     h_HFnotBPTXrawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
+	     h_HFnotBPTXrawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
 	   }
 	 // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
 	 else if (hfpocc>0)
-	   h_HFnot101rawtimedifference->Fill(250);
+	   h_HFnotBPTXrawtimedifference->Fill(250);
 	 else if (hfmocc>0)
-	   h_HFnot101rawtimedifference->Fill(-250);
+	   h_HFnotBPTXrawtimedifference->Fill(-250);
 	 
 	 //cout <<"HF occ + = "<<hfpocc<<"  - = "<<hfmocc<<endl;
 	 if (en_HFP !=0 && en_HFM != 0)
 	   {
-	     h_HFnot101timedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
-	     h_HFnot101energydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
+	     h_HFnotBPTXtimedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
+	     h_HFnotBPTXenergydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
 	   }
        } // passsed HLT, !101
      if (rechit_makeDiagnostics_)
