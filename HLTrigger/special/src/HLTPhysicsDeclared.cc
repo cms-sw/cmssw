@@ -57,27 +57,30 @@ HLTPhysicsDeclared::~HLTPhysicsDeclared()
 
 bool HLTPhysicsDeclared::filter( edm::Event & event, const edm::EventSetup & setup)
 {
+  bool accept = false;
 
   if (event.isRealData()) {
-
-    bool accept = false;
+    // for real data, access the "physics enabled" bit in the L1 GT data
     edm::Handle<L1GlobalTriggerReadoutRecord> h_gtDigis;
     if (not event.getByLabel(m_gtDigis, h_gtDigis)) {
       edm::LogWarning(h_gtDigis.whyFailed()->category()) << h_gtDigis.whyFailed()->what();
+      // not enough informations to make a decision - reject the event
+      return false;
     } else {
       L1GtFdlWord fdlWord = h_gtDigis->gtFdlWord();
       if (fdlWord.physicsDeclared() == 1) 
-	accept = true;
-      if (m_invert)
-	accept = not accept;
+        accept = true;
     }
-    return accept;
-
   } else {
-    // always accept MC (inverted according to invert)
-    return m_invert;
+    // for MC, assume the "physics enabled" bit to be always set
+    accept = true;
   }
 
+  // if requested, invert the filter decision
+  if (m_invert)
+    accept = not accept;
+
+  return accept;
 }
 
 // define this as a framework plug-in
