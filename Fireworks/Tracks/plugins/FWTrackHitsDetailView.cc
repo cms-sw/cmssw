@@ -79,7 +79,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
       gs->SetMainColor(kBlue);
-      gs->SetMainTransparency(0);
+      gs->SetMainTransparency(75);
       gs->SetPickable(kFALSE);
 
 
@@ -116,13 +116,19 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrFV(kTRUE);
    scene->AddElement(trk);
 
-   // std::vector<TVector3> monoPoints;
-   // std::vector<TVector3> stereoPoints;
-   // fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
-   // TEveElementList* list = new TEveElementList("hits");
-   // fireworks::addTrackerHits3D(monoPoints, list, kRed, 1);
-   // fireworks::addTrackerHits3D(stereoPoints, list, kRed, 1);
-   // scene->AddElement(list);
+//LatB
+   std::vector<TVector3> pixelPoints;
+   std::vector<TVector3> monoPoints;
+   std::vector<TVector3> stereoPoints;
+   fireworks::pushPixelHits(pixelPoints, id, *track);
+   fireworks::pushSiStripHits(monoPoints, stereoPoints, id, *track);
+   TEveElementList* list = new TEveElementList("hits");
+   fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
+   fireworks::addTrackerHits3D(monoPoints, list, kRed, 2);
+   fireworks::addTrackerHits3D(stereoPoints, list, kRed, 2);
+   scene->AddElement(list);
+//LatB
+
    scene->Repaint(true);
 
    m_viewer->UpdateScene();

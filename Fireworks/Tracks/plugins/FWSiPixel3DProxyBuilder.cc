@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixel3DProxyBuilder.cc,v 1.1 2009/01/16 20:01:29 amraktad Exp $
+// $Id: FWSiPixel3DProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
 //
 
 // system include files
@@ -89,6 +89,7 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
             shape->SetPickable(true);
             list->AddElement(shape);
          }
+
       }
 
       gEve->AddElement(list,tList);
