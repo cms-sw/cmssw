@@ -5,8 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.18 2009/11/26 16:18:29 rekovic Exp $
-
+//$Id: FourVectorHLTClient.cc,v 1.19 2009/12/03 00:14:46 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -209,6 +208,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   // Normalize PassPass and PassFail Matrices
   //////////////////////////////////////////////
   vector<string> name;
+  name.push_back("All");
   name.push_back("Muon");
   name.push_back("Egamma");
   name.push_back("JetMET");
@@ -230,6 +230,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   normalizeHLTMatrix();
   
 
+  /*
   // Get PassPass
   TString pathToPassPassCorrelationME_ = pathsSummaryFolder_ + "HLTPassPass_Correlation";
   MonitorElement *MEPassPass    = dbe_->get(pathToPassPassCorrelationME_.Data());
@@ -240,8 +241,6 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   if(MEPassPass && MEPassFail) {
 
-    /*
-    */
     TH2F* MEHistPassFail = MEPassFail->getTH2F() ;
     TH2F* MEHistPassPass = MEPassPass->getTH2F() ;
 
@@ -299,6 +298,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
     //delete MEHistPassFailNormalized;
 
   } // end if MEs
+  */
 
   // HLT paths
   TObjArray *hltPathNameColl = new TObjArray(100);

@@ -19,12 +19,11 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.35 2009/11/26 16:18:28 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.36 2009/12/03 00:14:46 rekovic Exp $
 //
 //
 
 // system include files
-
 #include <memory>
 #include <unistd.h>
 
@@ -118,7 +117,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHLTMatrix(TH2F* hist);
+      void fillHLTMatrix(vector<std::string>);
       void setupHLTMatrix(std::string name, vector<std::string> & paths);
 
 
@@ -126,6 +125,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int nev_;
       DQMStore * dbe_;
 
+      /*
       MonitorElement* total_;
       MonitorElement* ME_HLTPassPass_;
       MonitorElement* ME_HLTPassPass_Normalized_;
@@ -136,6 +136,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPassPass_;
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
+      */
 
       bool plotAll_;
       bool resetMe_;
@@ -546,6 +547,7 @@ class BaseMonitor
     virtual void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn) = 0;
     virtual void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc) = 0;
 
+    virtual bool isTriggerType(int t) = 0;
     virtual ~BaseMonitor(){}
 
 };
@@ -711,6 +713,11 @@ void objMonData<T>::fillOff()
        v_->getOffEtaVsOffPhiOffHisto()->Fill(recoEta, recoPhi);
 
     }
+    else {
+
+      continue;
+
+    }
 
   }
 
@@ -727,6 +734,11 @@ void objMonData<T>::fillOff()
      NOff++;
      v_->getOffEtOffHisto()->Fill(iter->pt());
      v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
+
+   }
+   else {
+
+     continue;
 
    }
 
@@ -753,14 +765,20 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
    if(isL1TriggerType(*idtypeiter))
    {
 
-      NL1++;
 
 
       if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
 
+        NL1++;
+
         v_->getL1EtL1Histo()->Fill(l1FV.pt());
         v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
+
+      }
+      else {
+
+        continue;
 
       }
 
@@ -865,13 +883,19 @@ void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::K
 
   trigger::TriggerObject onlineFV = toc[*ki];
 
-  NOn++;    
 
   if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
   { 
 
+    NOn++;    
+
     v_->getOnEtOnHisto()->Fill(onlineFV.pt());
     v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
+
+  }
+  else {
+
+    return;
 
   }
 
@@ -1006,10 +1030,12 @@ void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::K
    if(! OnL1DRMatchMap.empty()) OnL1DRMatchSet.insert(OnL1DRMatchMap);
 
 
+   /*
    v_->getNOnHisto()->Fill(NOn);
    v_->getNOnOffUMHisto()->Fill(NOnOffUM);
    v_->getNL1OnUMHisto()->Fill(NOnL1UM);
    LogTrace("FourVectorHLTOffline") << "NOn = " << NOn << endl;
+   */
 
 }
 
