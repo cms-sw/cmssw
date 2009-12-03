@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.127 2009/12/02 17:06:36 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.128 2009/12/02 17:51:58 amraktad Exp $
 //
 
 // system include files
@@ -339,8 +339,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if (vm.count(kPlayOpt)) {
-         m_playDelay = vm[kPlayOpt].as<float>();
-         f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+         f=boost::bind(&CmsShowMain::setupAutoLoad, this, vm[kPlayOpt].as<float>());
          m_startupTasks->addTask(f);
       }
 
@@ -767,6 +766,16 @@ public:
 }
 
 //______________________________________________________________________________
+void
+CmsShowMain::setupAutoLoad(float x)
+{
+   m_playDelay = x;
+   if (!m_guiManager->playEventsAction()->isEnabled())
+      m_guiManager->playEventsAction()->enable();
+
+   m_guiManager->playEventsAction()->switchMode();
+}
+
 void CmsShowMain::startAutoLoadTimer()
 {
    m_autoLoadTimer->SetTime((Long_t)(m_playDelay*1000));
