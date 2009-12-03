@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/03 16:31:13 $
- * $Revision: 1.49 $
+ * $Date: 2009/12/03 17:17:41 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -179,7 +179,7 @@ void EETimingTask::setup(void){
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing EE+ - EE-");
-    meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -5., 5.);
+    meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -3., 3.);
     meTimeDelta_->setAxisTitle("jitter (clocks)", 1);
 
   }
