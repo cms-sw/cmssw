@@ -14,7 +14,8 @@ ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.
     FolderName = "AlCaReco/"+__selectionName,
     MeasurementState = "default",
     BSFolderName = "AlCaReco/BeamSpotParameters",
-    doSeedParameterHistos = False,
+    SeedProducer ="combinedP5SeedsForCTF",
+#    doSeedParameterHistos = False,
 # Margins and settings
     TkSizeBin = 6,
     TkSizeMin = -0.5,
