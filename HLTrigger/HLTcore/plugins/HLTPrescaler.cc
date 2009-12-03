@@ -64,7 +64,7 @@ bool HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock & lb,
 bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 {
 
-  if (offsetCount_==0) {
+  if (eventCount_==0) {
     if (prescaleFactor_!=0) {
       offsetCount_ = iEvent.id().event()%prescaleFactor_;
     }
