@@ -243,7 +243,21 @@ int main (int argc, char **argv)
 
       // This really loads the library into the program
       // The listener records the plugin names and categories as they are loaded
-      edmplugin::SharedLibrary lib(loadableFile);
+      try {
+        edmplugin::SharedLibrary lib(loadableFile);
+      }
+      catch(const cms::Exception& iException) {
+        if(iException.category() == "PluginLibraryLoadError") {
+          std::cerr << "error: edmWriteConfigs caught an exception while loading a plugin library.\n"
+                    << "The executable will return success (0) so scram will continue,\n"
+                    << "but no cfi files will be written.\n"
+                    << iException.what() << std::endl;
+          return 0;
+        }
+        else {
+          throw;
+        }
+      }
 
       // We do not care about PluginCapabilities category so do not bother to try to include them
 
