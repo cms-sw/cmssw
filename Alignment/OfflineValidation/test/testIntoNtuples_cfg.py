@@ -18,6 +18,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
+
 process.ZeroGeom = cms.ESSource("PoolDBESSource",CondDBSetup,
 								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
 								timetype = cms.string("runnumber"),
@@ -27,6 +28,7 @@ process.ZeroGeom = cms.ESSource("PoolDBESSource",CondDBSetup,
 												tag = cms.string('TrackerIdealGeometry210_mc')
 								))
 							)
+							
 process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
 								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
 								timetype = cms.string("runnumber"),
@@ -42,7 +44,7 @@ process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-									   input = cms.untracked.int32(0)
+									   input = cms.untracked.int32(1)
 )
 process.dump = cms.EDFilter("TrackerGeometryIntoNtuples",
 							outputFile = cms.untracked.string('testInputGeometry.root'),
