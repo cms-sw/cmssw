@@ -50,9 +50,10 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
     ////---- book MonitorElements
     meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
-    castorHists.meRECHIT_E_all = m_dbe->book1D("CastorRecHit Energies","CastorRecHit Energies",150,0,150);
-    castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times","CastorRecHit Times",200,-100,100);     
-    castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel","CastorRecHit Energy in each channel",224,0,224);
+    castorHists.meRECHIT_E_all = m_dbe->book1D("CastorRecHit Energies - 1GeV cut on RecHitEnergy","CastorRecHit Energies - 1GeV cut on RecHitEnergy",150,0,150);
+    castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times - 1GeV cut on RecHitEnergy","CastorRecHit Times - 1GeV cut on RecHitEnergy",300,-100,100);     
+    castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel - 1GeV cut on RecHitEnergy","CastorRecHit Energy in each channel - 1GeV cut on RecHitEnergy",224,0,224);
+    
     
   } 
 
@@ -155,19 +156,17 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       float module = id.module(); float sector = id.sector(); //get module & sector from id
       float channel = 16*(module-1)+sector; // define channel
 
-
-      if (ievt_%100 == 0) {       
-      //if (energy>1.0) { 
+      
+      if (energy>1.0) { 
       ////---- fill histograms with energy and time for every hit:
       castorHists.meRECHIT_E_all->Fill(energy);
       castorHists.meRECHIT_T_all->Fill(time);
       ////---- fill energy vs channel     
       castorHists.meRECHIT_MAP_CHAN_E->Fill(channel,energy);
-      //}
       }
-      
-      ////---- do histograms per channel once per 1000 event until 1M events     
-      if(ievt_%100 == 0  && doPerChannel_) 
+
+      ////---- do histograms per channel once per 100 events     
+      if(ievt_%100 == 0 && doPerChannel_) 
          CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
       }
 	

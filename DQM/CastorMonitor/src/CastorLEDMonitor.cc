@@ -191,7 +191,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
        }
       }
-      //do per channel histograms once for each 1000 events until 1M events
+      //do per channel histograms once for each 100 events
       if(ievt_%100 == 0 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } catch (...) {
