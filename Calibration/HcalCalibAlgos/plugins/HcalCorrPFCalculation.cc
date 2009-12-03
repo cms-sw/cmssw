@@ -78,7 +78,7 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
 
   int nevtot;
   int hasresp;
- const HcalRespCorrs* myRecalib;
+ const HcalRespCorrs* respRecalib;
   const HcalPFCorrs* pfRecalib;
 
     SteppingHelixPropagator* stepPropF;
@@ -134,8 +134,6 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   taECALCone_=conf.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
   taHCALCone_=conf.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
 
-  //  etype_ = 1;
-  //if (eventype_ == "multi") etype_ = 2;
 
   //iz = 1;
   //if(sign_ == "-") iz = -1;
@@ -233,24 +231,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   using namespace edm;
   
-  //  double eta_bin[42]={0.,.087,.174,.261,.348,.435,.522,.609,.696,.783,
-  //.870,.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,
-  //2.322,2.500,2.650,2.853,3.000,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
-  
-  // Response corrections w/o re-rechitting
-  hasresp=0;
-  //  const HcalRespCorrs* myRecalib;
-  try{
-    
-    edm::ESHandle <HcalRespCorrs> recalibCorrs;
-    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-    myRecalib = recalibCorrs.product();
-    
-    edm::ESHandle <HcalPFCorrs> pfCorrs;
-    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
-    pfRecalib = pfCorrs.product();
-    
-    //AP Added for Track associator
     edm::ESHandle<CaloGeometry> pG;
     c.get<CaloGeometryRecord>().get(pG);
     geo = pG.product();
@@ -262,6 +242,23 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     parameters_.dREcal = taECALCone_;
     parameters_.dRHcal = taHCALCone_;    
 
+    
+  //  double eta_bin[42]={0.,.087,.174,.261,.348,.435,.522,.609,.696,.783,
+  //.870,.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,
+  //2.322,2.500,2.650,2.853,3.000,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
+  
+  // Response corrections w/o re-rechitting
+  hasresp=0;
+
+  try{
+    
+    edm::ESHandle <HcalRespCorrs> recalibCorrs;
+    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+    respRecalib = recalibCorrs.product();
+    
+    edm::ESHandle <HcalPFCorrs> pfCorrs;
+    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
+    pfRecalib = pfCorrs.product();
     
     hasresp=1;
   }catch(const cms::Exception & e) {
@@ -278,10 +275,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   // MC information
   
-  //  std::cout << "*** 1" << std::endl; 
- 
-  
-  
+    
   edm::Handle<edm::HepMCProduct> evtMC;
   //  ev.getByLabel("VtxSmeared",evtMC);
   ev.getByLabel("generator",evtMC);
@@ -402,11 +396,15 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       enEcal -> Fill(etaecal, eEcalCone); //Here it is, Ecal Energy
 
-
       Float_t recal = 1.0;
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
+	  if(hasresp) {
+	    if(Respcorr_) recal = recal * respRecalib -> getValues(hhit->detid())->getValue();
+	    if(PFcorr_)   recal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
+	  }
+
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
 	  float phihit = pos.phi();
 	  float etahit = pos.eta();
