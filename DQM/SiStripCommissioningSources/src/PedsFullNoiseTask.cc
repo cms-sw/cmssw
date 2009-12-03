@@ -128,7 +128,7 @@ void PedsFullNoiseTask::book()
     pedroughhist_.vSumOfSquares_.resize(nstrips_,0);
   }
   std::string titlepedrough = SiStripHistoTitle( sistrip::EXPERT_HISTO,
-                                                 sistrip::PEDS_ONLY,
+                                                 sistrip::PEDS_FULL_NOISE,
                                                  sistrip::FED_KEY,
                                                  fedKey(),
                                                  sistrip::LLD_CHAN,
@@ -147,7 +147,7 @@ void PedsFullNoiseTask::book()
     pedhist_.vSumOfSquares_.resize(nstrips_,0);
   }
   std::string titleped = SiStripHistoTitle( sistrip::EXPERT_HISTO,
-                                            sistrip::PEDS_ONLY,
+                                            sistrip::PEDS_FULL_NOISE,
                                             sistrip::FED_KEY,
                                             fedKey(),
                                             sistrip::LLD_CHAN,
@@ -163,7 +163,7 @@ void PedsFullNoiseTask::book()
     cmhist_[iapv].isProfile_ = false;
     cmhist_[iapv].vNumOfEntries_.resize(1024,0);
     std::string titlecm = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-                                             sistrip::PEDS_ONLY, 
+                                             sistrip::PEDS_FULL_NOISE, 
                                              sistrip::FED_KEY, 
                                              fedKey(),
                                              sistrip::APV, 
@@ -183,12 +183,12 @@ void PedsFullNoiseTask::book()
     noiseprof_.vSumOfSquares_.resize(nstrips_,0);
   }
   std::string titlenoise = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-                                              sistrip::PEDESTALS, 
+                                              sistrip::PEDS_FULL_NOISE, 
                                               sistrip::FED_KEY, 
                                               fedKey(),
                                               sistrip::LLD_CHAN, 
                                               connection().lldChannel(),
-                                              sistrip::extrainfo::noise_ ).title();
+                                              sistrip::extrainfo::noiseProfile_ ).title();
   noiseprof_.histo( dqm()->bookProfile( titlenoise, titlenoise,
                                         nstrips_, -0.5, nstrips_*1.-0.5,
                                         1025, 0., 1025. ) );
@@ -199,12 +199,12 @@ void PedsFullNoiseTask::book()
     noisehist_.vNumOfEntries_.resize((nstrips_+2)*2*(nadcnoise_+2), 0);
   }
   std::string titlenoise2d = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-                                                sistrip::PEDESTALS, 
+                                                sistrip::PEDS_FULL_NOISE, 
                                                 sistrip::FED_KEY, 
                                                 fedKey(),
                                                 sistrip::LLD_CHAN, 
                                                 connection().lldChannel(),
-                                                "Noise2D" ).title();
+                                                sistrip::extrainfo::noiseProfile_ ).title();
   noisehist_.histo( dqm()->book2S( titlenoise2d, titlenoise2d,
                                    2*nadcnoise_, -nadcnoise_, nadcnoise_,
                                    nstrips_, -0.5, nstrips_*1.-0.5 ) );
