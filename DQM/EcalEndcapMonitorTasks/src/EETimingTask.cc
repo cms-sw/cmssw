@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/03 14:33:40 $
- * $Revision: 1.46 $
+ * $Date: 2009/12/03 14:34:33 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -340,7 +340,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
 
-      if ( xval > 8. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
+      if ( xval > 16. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
         if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
         // exclude the noisiest region around the hole from 1D
