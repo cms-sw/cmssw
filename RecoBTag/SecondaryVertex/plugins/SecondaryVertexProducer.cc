@@ -345,6 +345,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 					ipData[i].closestToGhostTrack;
 				gtState.linearize(*gtPred,
 				                  gtPred->lambda(pos));
+				gtState.setWeight(ipData[i].ghostTrackWeight);
 				gtStates.push_back(gtState);
 			}
 		}
