@@ -103,6 +103,18 @@ void HcalRecHitMonitor::beginRun()
   h_HFrawenergydifference = m_dbe->book1D("HFaverageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
   h_HErawenergydifference = m_dbe->book1D("HEaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
   
+  h_HFnot101timedifference = m_dbe->book1D("HFnot101weightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HEnot101timedifference = m_dbe->book1D("HEnot101weightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",251,-250.5,250.5);
+  h_HFnot101rawtimedifference = m_dbe->book1D("HFnot101timeDifference","Average Time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HEnot101rawtimedifference = m_dbe->book1D("HEnot101timeDifference","Average Time difference between HE+ and HE-",251,-250.5,250.5);
+
+  h_HFnot101energydifference = m_dbe->book1D("HFnot101energyDifference","Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",200,-1,1);
+  h_HEnot101energydifference = m_dbe->book1D("HEnot101energyDifference","Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",200,-1,1);
+  h_HFnot101rawenergydifference = m_dbe->book1D("HFnot101averageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
+  h_HEnot101rawenergydifference = m_dbe->book1D("HEnot101averageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
+  
+
+
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
   SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
   SetupEtaPhiHists(SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
@@ -279,6 +291,23 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     )
 {
 
+  // Check that event is of proper calibration type
+  bool processevent=false; 
+  if (AllowedCalibTypes_.size()==0)
+    processevent=true;
+  else
+    {
+      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
+	{
+	  if (AllowedCalibTypes_[i]==CalibType)
+	    {
+	      processevent=true;
+	      break;
+	    }
+	}
+    }
+
+
   bool passedHLT=false;
   /*
   edm::Handle<edm::TriggerResults> hltResults;
@@ -305,36 +334,13 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   bool passedL1=false;
   if (gtRecord.isValid())
     {
-      cout <<"TECHTRIGS: \t";
       const DecisionWord dWord = gtRecord->decisionWord();
       const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
-      for (int i=0;i<=10;++i)
-	{
-	  cout <<tWord.at(i)<<" ";
-	}
-      cout <<endl;
       if (tWord.at(8)) passedL1=true;
       if (tWord.at(9)) passedL1=true;
       if (tWord.at(10)) passedL1=true;
-      
     }
-  if (passedL1) cout <<"PASSED L1 = "<<passedL1<<endl;
-
-  // Check that event is of proper calibration type
-  bool processevent=false; 
-  if (AllowedCalibTypes_.size()==0)
-    processevent=true;
-  else
-    {
-      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
-	{
-	  if (AllowedCalibTypes_[i]==CalibType)
-	    {
-	      processevent=true;
-	      break;
-	    }
-	}
-    }
+  //if (passedL1) cout <<"PASSED L1 = "<<passedL1<<"  BCN = "<<BCN<<endl;
 
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
@@ -355,7 +361,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
 
-  processEvent_rechit(hbHits, hoHits, hfHits,passedL1);
+  processEvent_rechit(hbHits, hoHits, hfHits,passedL1,BCN);
   
   // Fill problem cells -- will now fill once per luminosity block
   if (rechit_checkNevents_>0 && ievt_%rechit_checkNevents_ ==0)
@@ -376,7 +382,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHits,
 					     const HORecHitCollection& hoHits,
 					     const HFRecHitCollection& hfHits,
-					     bool passedHLT)
+					     bool passedHLT,
+					     int BCN)
   
 {
   // Gather rechit info
@@ -566,7 +573,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
-  if (passedHLT)
+  if (passedHLT & BCN==101)
     {
       if (hepocc >0 && hemocc>0)
 	{
@@ -587,6 +594,29 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  h_HEenergydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
 	}
     } // if passedHLT
+
+  else if (passedHLT & BCN!=101)
+    {
+      if (hepocc >0 && hemocc>0)
+	{
+	  //cout <<"hepocc = "<<hepocc<<"  hemocc = "<<hemocc<<endl;
+	  h_HEnot101rawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
+	  h_HEnot101rawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
+	}
+      // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+      // for now, fill upper, lower bins, not over/underflow
+      else if (hepocc>0)
+	h_HEnot101rawtimedifference->Fill(250);
+      else if (hemocc>0)
+	h_HEnot101rawtimedifference->Fill(-250);
+      
+      if (en_HEP !=0 && en_HEM != 0)
+	{
+	  h_HEnot101timedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
+	  h_HEnot101energydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
+	}
+    } // if passedHLT
+
   if (rechit_makeDiagnostics_)
     {
       ++HB_occupancy_[hbocc];
@@ -761,7 +791,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
      //if (hfpocc > 0 && hfmocc>0)
      // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
-     if (passedHLT)
+     if (passedHLT && BCN==101)
        {
 	 if (hfpocc >0 && hfmocc>0)
 	   {
@@ -789,6 +819,35 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	     h_HFThreshTotalEnergy->Fill(hfenergythresh);
 	   }
        } // if (passedHLT)
+
+     else if (passedHLT && BCN!=101)
+       {
+	 if (hfpocc >0 && hfmocc>0)
+	   {
+	     h_HFnot101rawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
+	     h_HFnot101rawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
+	   }
+	 // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+	 else if (hfpocc>0)
+	   h_HFnot101rawtimedifference->Fill(250);
+	 else if (hfmocc>0)
+	   h_HFnot101rawtimedifference->Fill(-250);
+	 
+	 //cout <<"HF occ + = "<<hfpocc<<"  - = "<<hfmocc<<endl;
+	 if (en_HFP !=0 && en_HFM != 0)
+	   {
+	     h_HFnot101timedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
+	     h_HFnot101energydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
+	   }
+       } // passsed HLT, !101
+     if (rechit_makeDiagnostics_)
+       {
+	 ++HF_occupancy_[hfocc];
+	 ++HF_occupancy_thresh_[hfoccthresh];
+	 h_HFTotalEnergy->Fill(hfenergy);
+	 h_HFThreshTotalEnergy->Fill(hfenergythresh);
+       }
+       
     } // if (checkHF_)
    
  if (showTiming)

@@ -203,6 +203,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            BeamMonitor_AllowedCalibTypes = cms.untracked.vint32(), # Allowed calibration types (empty vector means all types allowed)
 
                            BeamMonitor_lumiqualitydir = cms.untracked.string(""),
+                           BeamMonitor_minEvents = cms.untracked.int32(500),
                            # DATA FORMAT MONITOR
                            DataFormatMonitor                              = cms.untracked.bool(True),
                            DataFormatMonitor_checkNevents                 = cms.untracked.int32(1000),

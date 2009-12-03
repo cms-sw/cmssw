@@ -16,8 +16,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/02 15:42:04 $
-  * $Revision: 1.38 $
+  * $Date: 2009/12/03 14:45:15 $
+  * $Revision: 1.39 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -47,7 +47,8 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   void processEvent_rechit( const HBHERecHitCollection& hbheHits,
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits,
-			    bool passedHLT);
+			    bool passedHLT,
+			    int BCN);
 
   void endLuminosityBlock();
  private:
@@ -181,6 +182,16 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HErawenergydifference;
   MonitorElement* h_HFrawtimedifference;
   MonitorElement* h_HErawtimedifference;
+
+  MonitorElement* h_HFnot101timedifference;
+  MonitorElement* h_HFnot101energydifference;
+  MonitorElement* h_HEnot101timedifference;
+  MonitorElement* h_HEnot101energydifference;
+  MonitorElement* h_HFnot101rawenergydifference;
+  MonitorElement* h_HEnot101rawenergydifference;
+  MonitorElement* h_HFnot101rawtimedifference;
+  MonitorElement* h_HEnot101rawtimedifference;
+
 
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
