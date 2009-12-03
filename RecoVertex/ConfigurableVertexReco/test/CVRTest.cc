@@ -78,7 +78,7 @@ CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
   cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
 
   edm::Service<TFileService> fs;
-  tree_ = fs->make<TNtuple>("Vertex","Vertex","n:t:x:y:z:nchi2:ndf:otr");
+  tree_ = fs->make<TNtuple>("MovedVertex","MovedVertex","n:t:x:y:z:nchi2:ndf:otr");
 
 }
 
@@ -86,7 +86,7 @@ CVRTest::~CVRTest() {
   if ( vrec_ ) delete vrec_;
 }
 
-// Preliminary function to move tracks. ChT
+// Function to move tracks. ChT
 
 reco::TransientTrack CVRTest::TrackMove ( const reco::TransientTrack& track, const float& dx, const 
 	float& dy, const float& dz )
@@ -151,27 +151,20 @@ void CVRTest::analyze( const edm::Event & iEvent,
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
   
-  // Test for TrackMove. ChT
+// Move Tracks. Here: the first 3 tracks of the vector. 
 
-//  cout << "X-Value, first track: " << ttks[0].initialFreeState().position().x() << endl ;
-
-  TransientTrack new_track = TrackMove(ttks[0],1,0,0);
-
-/*  for ( unsigned int iTrack=0; iTrack!=ttks.size(); ++iTrack)
+  for ( unsigned int iTrack=0; iTrack < 3; ++iTrack)
 	{
-	  TrackMove( ttks[iTrack] );
+	ttks[iTrack] =  TrackMove( ttks[iTrack],1,0,0 );
 	}   
-*/
+
 //  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
 //  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
 //  printVertices ( vtces );
   
 cout << "[CVRTest] fit w beamspot constraint" << endl;
 vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
-// For TrackMove Test:
-//vector < TransientVertex > bvtces = vrec_->vertices (new_track, *bs);
 printVertices ( bvtces );
-//cout << "TrackMove performed. New X-Value, first track: " << bvtces[0].position().x() << endl;
 
   if (bvtces.size() >0) 
 	{
