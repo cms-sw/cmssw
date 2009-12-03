@@ -7,31 +7,29 @@
 //  gStyle->SetPalette(1);
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
-
 /*
- TString imgpath("~/afs/public_html/validation/pfcorrs/26.2cm/");
- TFile* tf = new TFile("./HcalCorrPF_cone26.2cm.root","OPEN");
+ TFile* tf = new TFile("./HcalCorrPFcone26.2cm.root","OPEN");
  ofstream new_pfcorrs("newPFcorrs26.2cm.txt");
  ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted26.2cm.txt");  
 */
-
+/*
  TString imgpath("~/afs/public_html/validation/pfcorrs/30cm/");
- TFile* tf = new TFile("./HcalCorrPF_cone30cm.root","OPEN");    
+ TFile* tf = new TFile("./HcalCorrPFcone30cm.root","OPEN");    
  ofstream new_pfcorrs("newPFcorrs30cm.txt");
  ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted30cm.txt");
-
-  /*
+*/
+/*  
  TString imgpath("~/afs/public_html/validation/pfcorrs/40cm/");
- TFile* tf = new TFile("./HcalCorrPF_cone40cm.root","OPEN");
+ TFile* tf = new TFile("./HcalCorrPFcone40cm.root","OPEN");
  ofstream new_pfcorrs("newPFcorrs40cm.txt");
  ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted.txt");
   */
-/*
+
  TString imgpath("~/afs/public_html/validation/pfcorrs/50cm/");
- TFile* tf = new TFile("./HcalCorrPF_cone50cm.root","OPEN");
+ TFile* tf = new TFile("./HcalCorrPFcone50cm.root","OPEN");
  ofstream new_pfcorrs("newPFcorrs50cm.txt");
  ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted50cm.txt");
-*/
+
 
  TProfile* p1 = (TProfile*)tf->Get("enHcal");  
  TProfile* p2 = (TProfile*)tf->Get("enHcalNoise");  
@@ -77,7 +75,7 @@ for (Int_t i=0; i<=84; i++)
 if(!line.size() || line[0]=='#') 
   {
     //fprintf(new_pfcorrs, "%1s%16s%16s%16s%16s%9s%11s\n", "#", "eta", "phi", "depth", "det", "value", "DetId");   
-    new_pfcorrs<<"#                eta          phi          depth           det           value          DetId"<<endl;
+    new_pfcorrs<<"#             eta             phi           depth        det           value       DetId"<<endl;
     continue;
    }
   std::istringstream linestream(line);
