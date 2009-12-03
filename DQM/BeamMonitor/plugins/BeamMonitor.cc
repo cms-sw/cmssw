@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/27 04:11:28 $
- * $Revision: 1.10 $
+ * $Date: 2009/12/02 14:45:01 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -123,6 +123,22 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vy_dz->setAxisTitle("dz (cm)",1);
   h_vy_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
+
+  h_x0 = dbe_->book1D("x0","x coordinate of beam spot (Fit)",100,-0.01,0.01);
+  h_x0->setAxisTitle("x_{0} (cm)",1);
+  h_x0->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_y0 = dbe_->book1D("y0","y coordinate of beam spot (Fit)",100,-0.01,0.01);
+  h_y0->setAxisTitle("y_{0} (cm)",1);
+  h_y0->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_z0 = dbe_->book1D("z0","z coordinate of beam spot (Fit)",dzBin,dzMin,dzMax);
+  h_z0->setAxisTitle("z_{0} (cm)",1);
+  h_z0->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_sigmaZ0 = dbe_->book1D("sigmaZ0","sigma z0 of beam spot (Fit)",100,0,10);
+  h_sigmaZ0->setAxisTitle("sigmaZ_{0}",1);
+  h_sigmaZ0->getTH1()->SetBit(TH1::kCanRebin);
 
   // Histograms of all reco tracks (without cuts):
   h_trkPt=dbe_->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
@@ -280,6 +296,11 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
     h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
 
+    h_x0->Fill( bs.x0());
+    h_y0->Fill( bs.y0());
+    h_z0->Fill( bs.z0());
+    h_sigmaZ0->Fill( bs.sigmaZ());
+
     fitResults->Reset();
     fitResults->setBinContent(1,1,bs.x0());
     fitResults->setBinContent(2,1,bs.y0());
@@ -290,23 +311,23 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     fitResults->setBinContent(3,2,bs.z0Error());
     fitResults->setBinContent(4,2,bs.sigmaZ0Error());
 
-    if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) {
+//     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
-    }
-    if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) {
+//     }
+//     if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[1] += 1.;
-    }
-    if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) {
+//     }
+//     if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
-    }
+//     }
   }
   else { // Fill in empty beam spot if beamfit fails
     reco::BeamSpot bs;
     bs.setType(reco::BeamSpot::Fake);
     if (debug_) {
-      cout << "\n Empty Beam:" << endl;
+      cout << "[BeamFitter] No fitting \n" << endl;
+      cout << "Empty Beam:" << endl;
       cout << bs << endl;
-      cout << "[BeamFitter] No fitting \n" << endl;      
     }
     h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
