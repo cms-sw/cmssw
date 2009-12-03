@@ -99,11 +99,11 @@ lumi::MixedSource::getLumiData(const std::string& filename,
   std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
   HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
   HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
-  //HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
+  HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
   
   hlxtree->SetBranchAddress("Header.",&lumiheader);
   hlxtree->SetBranchAddress("Summary.",&lumisummary);
-  //hlxtree->SetBranchAddress("Detail.",&lumidetail);
+  hlxtree->SetBranchAddress("Detail.",&lumidetail);
 
   size_t nentries=hlxtree->GetEntries();
   size_t ncmslumi=0;
@@ -122,7 +122,8 @@ lumi::MixedSource::getLumiData(const std::string& filename,
     lumi::MixedSource::PerLumiData h;
     runnumber=lumiheader->runNumber;
     if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
-    h.lsnr=lumiheader->sectionNumber;
+    //h.lsnr=lumiheader->sectionNumber;
+    h.lsnr=ncmslumi;//we record cms lumils
     h.startorbit=lumiheader->startOrbit;
     h.lumiavg=lumisummary->InstantLumi;
     lumiresult.push_back(h);
@@ -227,7 +228,7 @@ lumi::MixedSource::getTrgData(unsigned int runnumber,
     ++s;
   }
   if(s==0){
-    std::cout<<"requested run "<<runnumber<<" doesn't exist for algocounts, do nothing"<<std::endl;
+    std::cout<<"requested run "<<runnumber<<" doesn't exist for algocounts"<<std::endl;
     c.close();
     delete Queryalgoview;
     transaction.commit();
@@ -539,7 +540,7 @@ lumi::MixedSource::printDeadTimeResult(const lumi::MixedSource::TriggerDeadCount
     totaldead += *it;
     ++lumisec;
   }
-  std::cout<<"===Total Deadtime counts per run over "<<lumisec<<" LS "<<totaldead<<std::endl;
+  std::cout<<"===Total Deadtime counts per run over "<<lumisec-1<<" LS "<<totaldead<<std::endl;
 }
 void 
 lumi::MixedSource::printTriggerNameResult(
@@ -654,7 +655,8 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
     }else{
       //for the moment, lumi data drives the loop
       if(deadtime.size()!=lumiresult.size()){
-	throw std::runtime_error(std::string("inconsistent number of lumisections"));
+	std::cout<<"WARNING: inconsistent number of trg and lumi lumisections"<<std::endl;
+	//throw std::runtime_error(std::string("inconsistent number of lumisections"));
       }
       unsigned int runnumber;
       if(allowForceFirstSince){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
@@ -662,15 +664,13 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
       }else{
 	runnumber=m_run;
       }
+      //this->printDeadTimeResult(deadtime);
       LumiResult::const_iterator lit;
       LumiResult::const_iterator litBeg=lumiresult.begin();
       LumiResult::const_iterator litEnd=lumiresult.end();
-      TriggerDeadCountResult::const_iterator deadit;
-      TriggerDeadCountResult::const_iterator deadBeg=deadtime.begin();
-      TriggerDeadCountResult::const_iterator deadEnd=deadtime.end();
       unsigned long long totaldeadtime=0;
-      for(lit=litBeg,deadit=deadBeg;lit!=litEnd;++lit,++deadit){
-	unsigned int lumisecid=lit->lsnr;
+      for(lit=litBeg;lit!=litEnd;++lit){
+	unsigned int lumisecid=lit->lsnr;//start from 1
 	edm::LuminosityBlockID lu(runnumber,lumisecid);
 	//should fill cms lumiid!
 	std::cout<<"==== run lumiid lumiversion "<<runnumber<<"\t"<<lumisecid<<"\t"<<m_lumiversion<<std::endl;
@@ -678,14 +678,45 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
 	lumi::LumiSectionData* l=new lumi::LumiSectionData;
 	l->setLumiVersion(m_lumiversion);
 	l->setLumiSectionId(lumisecid);
-	std::cout<<"current "<<current<<std::endl;
+	//std::cout<<"current "<<current<<std::endl;
 	l->setStartOrbit((unsigned long long)lit->startorbit);
 	l->setLumiAverage(lit->lumiavg);
-	std::cout<<"deadtimecount "<<*deadit<<std::endl;
-	float deadfractionPerLS=(*deadit)*25.0*0.000001/93.244;
-	l->setDeadFraction(deadfractionPerLS*0.01);
-	std::cout<<"\t deadfraction per "<<deadfractionPerLS*0.01<<std::endl;
-	totaldeadtime+=(*deadit);
+	float deadfractionPerLS=-99.0;
+	std::vector<lumi::TriggerInfo> triginfo;
+	triginfo.reserve(192);
+	lumi::TriggerInfo emt;
+	std::fill_n(std::back_inserter(triginfo),192,emt);
+	unsigned int deadcountPerLS=0;
+	try{
+	  deadcountPerLS=deadtime.at((lumisecid-1));
+	  //std::cout<<"deadcountPer LS "<<deadcountPerLS<<std::endl;
+	  deadfractionPerLS=0.01*deadcountPerLS*25.0*(1.0e-9)/93.244;
+	  l->setDeadFraction(deadfractionPerLS);
+	  std::vector<unsigned int> algobitcounts=algocount.at(lumisecid-1);
+	  std::vector<unsigned int> techbitcounts=techcount.at(lumisecid-1);
+	  for(size_t itrg=0; itrg<192; ++itrg){
+	    triginfo.at(itrg).deadtimecount=deadcountPerLS;
+	    if(itrg<128){
+	      triginfo.at(itrg).prescale=algoprescale.at(itrg);
+	      triginfo.at(itrg).name=algonames.at(itrg);
+	      triginfo.at(itrg).triggercount=algobitcounts.at(itrg);
+	      triginfo.at(itrg).deadtimecount=deadcountPerLS;
+	    }else{
+	      triginfo.at(itrg).prescale=techprescale.at(itrg-128);
+	      triginfo.at(itrg).name=technames.at(itrg-128);
+	      triginfo.at(itrg).triggercount=techbitcounts.at(itrg-128);
+	      triginfo.at(itrg).deadtimecount=deadcountPerLS;
+	    }
+	  }
+	}catch(const std::out_of_range& outOfRange){
+	  std::cout<<"no trg found for LS "<<lumisecid<<std::endl;
+	  l->setDeadFraction(deadfractionPerLS);
+	}
+	std::cout<<"\t deadfraction per LS "<<deadfractionPerLS<<std::endl;
+	totaldeadtime+=deadcountPerLS;
+	//std::cout<<"trigger size "<<triginfo.size()<<std::endl;
+	l->setTriggerData(triginfo);
+	l->print(std::cout);
       }
       std::cout<<"total deadtime count "<<totaldeadtime<<std::endl;
       return std::string("mixedsource trurun ")+m_filename+";"+m_lumiversion;  
