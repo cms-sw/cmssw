@@ -31,6 +31,9 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
 #include <vector>
+using namespace edm;
+using namespace reco;
+using namespace std;
 
 namespace {
   struct dictionary {
