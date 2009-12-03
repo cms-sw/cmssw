@@ -59,6 +59,8 @@ private:
   std::vector<double> bufferAlgoRates_;
   std::vector<double> technicalRates_;
   std::vector<double> bufferTechRates_;                                 
+  std::vector<double> integral_algo_;                                 
+  std::vector<double> integral_tech_;                                 
   
   MonitorElement * orbitNum;
   MonitorElement * trigNum;
@@ -70,6 +72,8 @@ private:
   MonitorElement * lostFinalTriggers;
   MonitorElement * algoRate[128];
   MonitorElement * techRate[64];
+  MonitorElement * integralAlgo[128];
+  MonitorElement * integralTech[64];
 
 
   MonitorElement * physRate;
