@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -82,7 +82,7 @@ process.fifthCkfInOutTrajectoryFilter.filterPset.maxLostHits = 3
 process.fifthCkfInOutTrajectoryFilter.filterPset.maxConsecLostHits = 1
 process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 3
 ## Pattern recognition: enlarge a lot the search window, as the true momentum is very small while the tracking assumes p=5 GeV if B=0
-process.Chi2MeasurementEstimator.MaxChi2 = 200
+#process.Chi2MeasurementEstimator.MaxChi2 = 200
 process.Chi2MeasurementEstimator.nSigma  = 3
 ## Fitter-smoother: lower the cut on the number of hits
 process.fifthRKTrajectorySmoother.minHits = 4
@@ -127,6 +127,10 @@ process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 ## ECAL temporary fixes
 process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
 process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
+process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
+process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
+process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.890
+process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.400
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
