@@ -63,7 +63,11 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
    while(!infile.eof()){
 
     // get data from file: 
-    infile >> detid >> channel >> flag;
+    //infile >> detid >> channel >> flag;
+
+    //if no flag is available, use the following:
+    infile >> detid >> channel;
+    flag = 1;
 
     unsigned int theBadStripRange=0;
 
@@ -80,8 +84,8 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
     if(detid==tempdetid){
       if (channel!=tempchannel+count || flag != tempflag){
 	                                  // 1.badstrip, nconsectrips, flag
-	  theBadStripRange = SiStripBadStrip_->encode(tempchannel, count, tempflag); 
-		
+	theBadStripRange = SiStripBadStrip_->encode(tempchannel-1, count, tempflag); // In the quality object, strips are counted from 0 to 767!!! Therefore "tempchannel-1"!
+	                                                                             // In the input txt-file, they have to be from 1 to 768 instead!!!
 	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << tempdetid << " \t"
 							   << " firstBadStrip " << tempchannel << "\t "
 							   << " NconsecutiveBadStrips " << count  << "\t "
@@ -107,7 +111,8 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
     
     if(detid!=tempdetid){
                                                     // 1.badstrip, nconsectrips, flag
-	  theBadStripRange = SiStripBadStrip_->encode(tempchannel, count, tempflag); 
+	  theBadStripRange = SiStripBadStrip_->encode(tempchannel-1, count, tempflag); // In the quality object, strips are counted from 0 to 767!!! Therefore "tempchannel-1"!
+	                                                                               // In the input txt-file, they have to be from 1 to 768 instead!!!
 	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << tempdetid << " \t"
 							   << " firstBadStrip " << tempchannel << "\t "
 							   << " NconsecutiveBadStrips " << count  << "\t "
