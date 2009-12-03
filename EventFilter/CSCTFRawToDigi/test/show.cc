@@ -5,7 +5,7 @@
 #include <errno.h>  // errno
 #include <sys/wait.h> // waitpid
 
-//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc `root-config --cflags` `root-config --glibs` -I../../../
+//To compile on lxplus: /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/gcc/3.4.5-CMS8/bin/g++ -o show show.cc -I../../../
 // make sure you have the latest IORawData/CSCCommissioning first
 
 /// For interactive controll
@@ -50,6 +50,54 @@ int tty_echo(bool echo){
 	return 0;
 }
 
+__pid_t pid = 0;
+int  pipedescr[2] = { 3, 4 };
+// Signal handling
+#define SIGNAL(s, handler)	{ \
+	sa.sa_handler = handler; \
+	if (sigaction(s, &sa, NULL) < 0) { \
+	    fprintf(stderr, "Couldn't establish signal handler (%d): %m", s); \
+	    exit(1); \
+	} \
+    }
+static void term(int qwe){
+        printf("Terminating\n"); 
+        int stat_loc;
+	if( write(pipedescr[1],".q\n",4) != 4 ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
+        waitpid(pid,&stat_loc,WCONTINUED);
+        tty_echo(true);
+        reset_keypress();
+	system("cp ~/.root_hist.save ~/.root_hist");
+	exit(0);
+}
+static void chld(int qwe){
+        printf("root.exe terminated\n"); 
+        tty_echo(true);
+        reset_keypress();
+	system("cp ~/.root_hist.save ~/.root_hist");
+	exit(0);
+}
+static void hup (int qwe){
+        printf("Hanging up\n");
+        int stat_loc;
+	if( write(pipedescr[1],".q\n",4) != 4 ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
+        waitpid(pid,&stat_loc,WCONTINUED);
+        tty_echo(true);
+        reset_keypress();
+	system("cp ~/.root_hist.save ~/.root_hist");
+	exit(0);
+}
+static void bad_signal(int qwe){
+        printf("Some signal %d\n",qwe);
+        int stat_loc;
+	if( write(pipedescr[1],".q\n",4) != 4 ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
+        waitpid(pid,&stat_loc,WCONTINUED);
+        tty_echo(true);
+        reset_keypress();
+	system("cp ~/.root_hist.save ~/.root_hist");
+	exit(0);
+}
+
 /// Unpacker ///
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.cc"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPEvent.cc"
@@ -59,6 +107,14 @@ int tty_echo(bool echo){
 
 #include <iterator>
 int main(int argc, char *argv[]){
+	// Check the arguments
+	if( argc<2 ){
+		printf("Usage: ./show csc_00*RUI00*.raw\n"); exit(1);
+	}
+
+	// Disable terminal bufferization
+	set_keypress(); 
+
 	// DDU File Reader
 	FileReaderDDU reader;
 	try {
@@ -68,8 +124,8 @@ int main(int argc, char *argv[]){
 	}
 
 	// Starting root cint and binding its std input to the fd below:
-	__pid_t pid;
-	int  pipedescr[2] = { 3, 4 };
+	//__pid_t pid;
+	//int  pipedescr[2] = { 3, 4 };
 	if( pipe(pipedescr) ) { printf("Can't open pipe errno=%d\n",errno); exit(1); }
 	if( ( pid = fork() ) == -1 ) { printf("Can't create process errno=%d\n",errno); exit(1); }
 	if( pid == 0 ){
@@ -78,6 +134,66 @@ int main(int argc, char *argv[]){
 		close(pipedescr[0]);
 		execl("/bin/sh", "sh", "-c", "root.exe", (char *)0);
 	}
+
+	// Save root history
+	system("cp ~/.root_hist ~/.root_hist.save");
+
+	// Signal handling
+	struct sigaction sa;
+	sigset_t mask;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGHUP);
+	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGTERM);
+	sigaddset(&mask, SIGCHLD);
+
+	sa.sa_mask = mask;
+	sa.sa_flags = 0;
+	SIGNAL(SIGHUP, hup);		// Hangup
+	SIGNAL(SIGINT, term);		// Interrupt
+	SIGNAL(SIGTERM, term);		// Terminate
+	SIGNAL(SIGCHLD, chld);          // Child dies
+
+	SIGNAL(SIGUSR1, bad_signal);	// Toggle debug flag
+	SIGNAL(SIGUSR2, bad_signal);
+
+	SIGNAL(SIGABRT, bad_signal);
+	SIGNAL(SIGALRM, bad_signal);
+	SIGNAL(SIGFPE, bad_signal);
+	SIGNAL(SIGILL, bad_signal);
+	SIGNAL(SIGPIPE, bad_signal);
+	SIGNAL(SIGQUIT, bad_signal);
+	SIGNAL(SIGSEGV, bad_signal);
+
+#ifdef SIGBUS
+	SIGNAL(SIGBUS, bad_signal);
+#endif
+#ifdef SIGEMT
+	SIGNAL(SIGEMT, bad_signal);
+#endif
+#ifdef SIGPOLL
+	SIGNAL(SIGPOLL, bad_signal);
+#endif
+#ifdef SIGPROF
+	SIGNAL(SIGPROF, bad_signal);
+#endif
+#ifdef SIGSYS
+	SIGNAL(SIGSYS, bad_signal);
+#endif
+#ifdef SIGTRAP
+	SIGNAL(SIGTRAP, bad_signal);
+#endif
+#ifdef SIGVTALRM
+	SIGNAL(SIGVTALRM, bad_signal);
+#endif
+#ifdef SIGXCPU
+	SIGNAL(SIGXCPU, bad_signal);
+#endif
+#ifdef SIGXFSZ
+	SIGNAL(SIGXFSZ, bad_signal);
+#endif
+
 	// Open TCanvas in root cint:
 	char command[1024];
 	sprintf(command,"TCanvas p(\"p\",\"Positive endcap\",0,0,600,600);\n");
@@ -95,7 +211,7 @@ int main(int argc, char *argv[]){
 	tty_echo(false);
 
 	// Main cycle
-	while( (size = reader.read(buf)) /*&& nevents<1*/ ){
+	while( (size = reader.read(buf)) ){ //&& nevents<1 ){
 		unsigned short event[size];
 
 		// Swep out C-words
@@ -114,9 +230,9 @@ int main(int argc, char *argv[]){
 		// Unpack
 		CSCTFEvent tfEvent;
 		if(nevents%1000==0) cout<<"Event: "<<nevents<<endl;
-		cout<<" Unpack: "<<
-		tfEvent.unpack(event,index2)
-		<<endl;
+		//cout<<" Unpack: "<<
+		tfEvent.unpack(event,index2);
+		//<<endl;
 
 		// Skip empty events
 		bool empty = true;
@@ -167,6 +283,7 @@ int main(int argc, char *argv[]){
 			}
 
 			for(unsigned int tbin=0; tbin<spPtr->header().nTBINs(); tbin++){
+				int sector = spPtr->header().sector() + spPtr->header().endcap()*6;
 				vector<CSCSP_MEblock> LCTs = spPtr->record(tbin).LCTs();
 				if( LCTs.size() ){
 					cout<<"Event: "<<nevents<<" Sector="<<spPtr->header().sector()<<" L1A="<<spPtr->header().L1A()<<endl;
@@ -254,7 +371,7 @@ int main(int argc, char *argv[]){
 						double y   = rho * sin(phi);
 
 						const int color[6] = { -1, 3, 3, 4, 7, 6 };
-						sprintf(command,"TGraph lct_%d_%d(1); lct_%d_%d.SetPoint(0,%f,%f); lct_%d_%d.SetMarkerStyle(4); lct_%d_%d.SetMarkerColor(%d); lct_%d_%d.Draw(\"P\"); \n",mpc,csc,mpc,csc,x,y,mpc,csc,mpc,csc,color[mpc],mpc,csc);
+						sprintf(command,"TGraph lct_%d_%d_%d(1); lct_%d_%d_%d.SetPoint(0,%f,%f); lct_%d_%d_%d.SetMarkerStyle(4); lct_%d_%d_%d.SetMarkerColor(%d); lct_%d_%d_%d.Draw(\"P\"); \n",mpc,csc,sector,mpc,csc,sector,x,y,mpc,csc,sector,mpc,csc,sector,color[mpc],mpc,csc,sector);
 						if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 					}
 				}
@@ -273,7 +390,7 @@ int main(int argc, char *argv[]){
 					double y2  = rho2 * sin(phi);
 					const int color[16] = { -1, 1, 1, 1, 1, 1, 3, 1, 4, 1, 1, 7, 1, 1, 1, 6 };
 					int i = distance(vector<CSCSP_SPblock>::const_iterator(trks.begin()),trk);
-					sprintf(command,"TGraph trk_%d(1); trk_%d.SetPoint(0,%f,%f); trk_%d.SetMarkerStyle(22); trk_%d.SetMarkerColor(%d); trk_%d.Draw(\"P\"); \n",i,i,x2,y2,i,i,color[trk->mode()],i);
+					sprintf(command,"TGraph trk_%d_%d(1); trk_%d_%d.SetPoint(0,%f,%f); trk_%d_%d.SetMarkerStyle(22); trk_%d_%d.SetMarkerColor(%d); trk_%d_%d.Draw(\"P\"); \n",i,sector,i,sector,x2,y2,i,sector,i,sector,color[trk->mode()],i,sector);
 					if( write(pipedescr[1],command,strlen(command)) != strlen(command) ){ printf("Can't write to pipe errno=%d\n",errno); exit(1); }
 				}
 				if( trks.size() ){ cout<<endl; }
@@ -301,16 +418,17 @@ int main(int argc, char *argv[]){
 				//back=1;
 				break;
 			} // down
-			//if( key1==32 ){
-			//	std::cout<<"Pause ... "<<std::flush;
-			//	while( !kbhit() || ( (key1=getchar())!=32 && (key1=getchar())!=113 ) ) usleep(100);
-			//	if( key1==113 ){
-			//		std::cout<<"quit"<<std::endl;
-			//		break;
-			//	} else {
-			//		std::cout<<"continue"<<std::endl;
-			//	}
-			//} // space
+			if( key1==32 ){
+				//std::cout<<"Pause ... "<<std::flush;
+				//while( !kbhit() || ( (key1=getchar())!=32 && (key1=getchar())!=113 ) ) usleep(100);
+				//if( key1==113 ){
+				//	std::cout<<"quit"<<std::endl;
+				//	break;
+				//} else {
+				//	std::cout<<"continue"<<std::endl;
+				//}
+				break;
+			} // space
 			if( key1==113 ) { size = 0; break; }
 			usleep(100);
 		}
@@ -325,5 +443,7 @@ int main(int argc, char *argv[]){
 	int stat_loc;
 	waitpid(pid,&stat_loc,WCONTINUED);
 	tty_echo(true);
+	reset_keypress();
+	system("mv ~/.root_hist.save ~/.root_hist");
 	return 0;
 }
