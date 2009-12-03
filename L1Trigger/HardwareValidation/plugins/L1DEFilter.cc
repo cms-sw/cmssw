@@ -13,11 +13,6 @@ L1DEFilter::L1DEFilter(const edm::ParameterSet& iConfig) {
 L1DEFilter::~L1DEFilter () {}
 
 void 
-L1DEFilter::beginJob(const edm::EventSetup&)
-{
-}
-
-void 
 L1DEFilter::endJob() 
 {
   //compute rate of d|e disagreeing events

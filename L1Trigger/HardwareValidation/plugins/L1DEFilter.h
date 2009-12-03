@@ -28,9 +28,10 @@ class L1DEFilter : public edm::EDFilter {
   ~L1DEFilter();
   
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(void) {};
+  //virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
   edm::InputTag DEsource_;
   std::vector<unsigned int> flagSys_;

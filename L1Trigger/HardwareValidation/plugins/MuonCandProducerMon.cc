@@ -24,7 +24,6 @@ MuonCandProducerMon::MuonCandProducerMon(const edm::ParameterSet& pset) {
 
 MuonCandProducerMon::~MuonCandProducerMon(){}
 
-void MuonCandProducerMon::beginJob(const edm::EventSetup&) {}
 
 void MuonCandProducerMon::endJob() {
   if( cscPtLUT_ ) delete cscPtLUT_;

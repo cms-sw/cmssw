@@ -105,13 +105,6 @@ L1EmulBias::~L1EmulBias() {
   delete rndGaus_;
 }
 
-void 
-L1EmulBias::beginJob(const edm::EventSetup&) {}
-
-void 
-L1EmulBias::endJob() {}
-
-
 // ------------ method called to produce the data  ------------
 void
 L1EmulBias::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

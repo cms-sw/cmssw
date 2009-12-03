@@ -105,12 +105,6 @@ L1DummyProducer::~L1DummyProducer() {
   delete rndGaus_;
 }
 
-void 
-L1DummyProducer::beginJob(const edm::EventSetup&) {}
-
-void 
-L1DummyProducer::endJob() {}
-
 void
 L1DummyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
