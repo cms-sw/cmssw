@@ -72,7 +72,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
     ME["EcalHaloData_PhiWedgeMinTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
     ME["EcalHaloData_PhiWedgeMaxTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
-    ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 72, 0.5, 72.5) ;
+    ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
     ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"] = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
     ME["EcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
     ME["EcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
@@ -115,14 +115,14 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["GlobalHaloData_MatchedHcalPhiWedgeMultiplicity"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);    
     ME["GlobalHaloData_MatchedHcalPhiWedgeEnergy"]       = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeEnergy", "", 50,-0.5,199.5);
     ME["GlobalHaloData_MatchedHcalPhiWedgeConstituents"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-    ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 72, 0.5,72.5);
+    ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 1, 0.5,72.5);
     ME["GlobalHaloData_MatchedHcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedHcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence","",  120, -1.2, 1.2);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMultiplicity"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeEnergy"]       = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeConstituents"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-    ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 72, 0.5,72.5);
+    ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 360, 0.5,360.5);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
     ME["GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence","",  120, 1.2, 1.2);
