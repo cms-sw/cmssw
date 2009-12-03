@@ -4,7 +4,7 @@
 #### Checkout StorageManager and associated packages and apply patches ####
 ###########################################################################
 
-cmssw_release=CMSSW_3_3_4
+cmssw_release=CMSSW_3_3_5
 
 # Report success:
 say_ok ()
@@ -68,6 +68,7 @@ packages=( \
     "$cmssw_release EventFilter/Processor" \
     "$cmssw_release EventFilter/Modules" \
     "$cmssw_release IOPool/Streamer" \
+    "$cmssw_release IORawData/DaqSource" \
     "V03-13-02 DQMServices/Core" \
     )
 
@@ -94,6 +95,6 @@ else
     say_ok
 fi
 
-#echo -n "Applying demo system patches... "
-#EventFilter/StorageManager/test/demoSystem/bin/applyDevelopmentPatches.pl 2>&1 > devpatches.log
-#echo "done, see output in devpatches.log"
+echo -n "Applying demo system patches... "
+EventFilter/StorageManager/test/demoSystem/bin/applyDevelopmentPatches.pl -bdf 2>&1 > devpatches.log
+echo "done, see output in devpatches.log"
