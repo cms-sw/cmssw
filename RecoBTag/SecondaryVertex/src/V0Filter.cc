@@ -18,7 +18,7 @@ V0Filter::V0Filter(const edm::ParameterSet &params) :
 {
 }
 
-bool
+inline bool
 V0Filter::operator () (const reco::Track **tracks, unsigned int n) const
 {
 	// only check for K0s for now

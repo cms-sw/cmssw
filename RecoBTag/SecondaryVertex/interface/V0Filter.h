@@ -26,7 +26,8 @@ class V0Filter {
 	{ return (*this)(&tracks[0], tracks.size()); }
 
     private:
-	bool operator () (const reco::Track **tracks, unsigned int n) const;
+	inline bool
+	operator () (const reco::Track **tracks, unsigned int n) const;
 
 	double	k0sMassWindow;
 };
