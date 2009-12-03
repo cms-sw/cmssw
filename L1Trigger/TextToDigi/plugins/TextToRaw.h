@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: TextToRaw.h,v 1.5 2008/07/17 16:45:37 tapper Exp $
+// $Id: TextToRaw.h,v 1.6 2009/03/26 14:53:03 tapper Exp $
 //
 //
 
@@ -44,7 +44,7 @@ class TextToRaw : public edm::EDProducer {
   ~TextToRaw();
   
  private: // methods
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

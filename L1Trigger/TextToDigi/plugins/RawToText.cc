@@ -64,7 +64,7 @@ void RawToText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-void RawToText::beginJob(const edm::EventSetup&) {
+void RawToText::beginJob() {
   
   // open VME file
   file_.open(filename_.c_str(), std::ios::out);

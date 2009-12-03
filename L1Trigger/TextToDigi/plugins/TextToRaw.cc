@@ -146,7 +146,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TextToRaw::beginJob(const edm::EventSetup&)
+TextToRaw::beginJob() 
 {
   // open VME file
   file_.open(filename_.c_str(), ios::in);

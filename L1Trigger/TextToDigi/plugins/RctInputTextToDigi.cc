@@ -218,7 +218,7 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RctInputTextToDigi::beginJob(const edm::EventSetup&)
+RctInputTextToDigi::beginJob() 
 {
   // open input file to read all events
   //inputStream_.open(inputFile_.fullPath().c_str());
