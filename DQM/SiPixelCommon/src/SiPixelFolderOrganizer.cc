@@ -35,7 +35,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
    else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 
      //for endcap types there is nothing to do: 
-     if(type>3) return true;
+     if(type>3 && type!=7) return true;
 
      std::string subDetectorFolder = "Barrel";
      PixelBarrelName::Shell DBshell = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).shell();
@@ -49,8 +49,11 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
      
      std::ostringstream sfolder;
      
-     sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell
+     sfolder << rootFolder << "/" << subDetectorFolder; 
+     if(type<4){
+     sfolder << "/Shell_" <<DBshell
 	     << "/" << slayer;
+     }
      if(type<2){
        sfolder << "/" << sladder;
        if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
