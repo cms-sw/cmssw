@@ -59,7 +59,7 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
     int ils = iEvent.luminosityBlock();
     int bx = iEvent.bunchCrossing();
     
-    cout << " Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Accepted " << accepted << endl;
+    cout << "PhysDecl_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Accepted " << accepted << endl;
   }
  
   if (applyfilter)
