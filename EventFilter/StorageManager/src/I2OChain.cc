@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.13 2009/09/29 15:29:59 dshpakov Exp $
+// $Id: I2OChain.cc,v 1.14 2009/12/02 14:21:02 dshpakov Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -10,11 +10,15 @@
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
-//#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "interface/evb/i2oEVBMsgs.h"
+
+// The following is from interface/shared/i2oXFunctionCodes.h. Will go
+// away when xdaq 10 becomes available.
+#define I2O_EVM_LUMISECTION 0x0011
 
 namespace stor
 {
@@ -56,6 +60,12 @@ namespace stor
           case I2O_SM_DQM:
             {
               _data.reset(new detail::DQMEventMsgData(pRef));
+              break;
+            }
+
+          case I2O_EVM_LUMISECTION:
+            {
+              _data.reset( new detail::EndLumiSectMsgData( pRef ) );
               break;
             }
 
