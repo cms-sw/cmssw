@@ -13,6 +13,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/FEDRawData>
+<use name=CondTools/L1Trigger>
 
 <export>
    <lib name=L1TriggerHardwareValidation>
