@@ -35,12 +35,15 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
   //Histogram init  
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) {
-      hRecOCC_[i][j]=0;
-      hRecNHit_[i][j]=0;
-      hEng_[i][j]=0;
-      hEvEng_[i][j]=0;
-      hEnDensity_[i][i]=0;
-      hDigiNHit_[i][j]=0;
+      hRecOCC_[i][j] = 0;
+      hRecNHit_[i][j] = 0;
+      hEng_[i][j] = 0;
+      hEvEng_[i][j] = 0;
+      hEnDensity_[i][i] = 0;
+      hDigiNHit_[i][j] = 0;
+
+      hSelOCC_[i][j] = 0;
+      hSelEnDensity_[i][j] = 0;
     }
   
   for (int i = 0; i<2; ++i) 
@@ -84,6 +87,17 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
       hEvEng_[i][j] = dqmStore_->book1DD(histo, histo, 50, 0, 0.1);
       hEvEng_[i][j]->setAxisTitle("Event Energy", 1);
       hEvEng_[i][j]->setAxisTitle("Num of Events", 2);
+
+      // histograms with selected hits
+      sprintf(histo, "ES Occupancy with selected hits Z %d P %d", iz, j+1);
+      hSelOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hSelOCC_[i][j]->setAxisTitle("Si X", 1);
+      hSelOCC_[i][j]->setAxisTitle("Si Y", 2);
+
+      sprintf(histo, "ES Energy Density with selected hits Z %d P %d", iz, j+1);
+      hSelEnDensity_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hSelEnDensity_[i][j]->setAxisTitle("Si X", 1);
+      hSelEnDensity_[i][j]->setAxisTitle("Si Y", 2);
     }
 
    hE1E2_[0] = dqmStore_->book2D("ES+ EP1 vs EP2", "ES+ EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
@@ -107,7 +121,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
    // RecHits
    int zside, plane, ix, iy, strip;
-   int sum_RecHits[2][2], sum_DigiHits[2][2];
+   int sum_RecHits[2][2], sum_DigiHits[2][2], sum_SelHits[2][2];
    float sum_Energy[2][2];
 
    for (int i = 0; i < 2; ++i) 
@@ -115,6 +129,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        sum_RecHits[i][j] = 0;
        sum_DigiHits[i][j] = 0;
        sum_Energy[i][j] = 0;
+       sum_SelHits[i][j] = 0;
      }
    
    Handle<ESRecHitCollection> ESRecHit;
@@ -136,7 +151,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        sum_RecHits[i][j]++;
        sum_Energy[i][j] += hitItr->energy();
        hRecOCC_[i][j]->Fill(ix, iy);
-       if(hitItr->energy() != 0) {
+       if (hitItr->energy() != 0) {
 	 hEng_[i][j]->Fill(hitItr->energy());
 	 hEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
        }
@@ -167,8 +182,22 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        //cout<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip<<" "<<dataframe.sample(0).adc()<<" "<<dataframe.sample(1).adc()<<" "<<dataframe.sample(2).adc()<<endl;
 
        // select good rechits 
-       if (dataframe.sample(0).adc() < 20)
-	 sum_DigiHits[i][j]++;
+       if (dataframe.sample(0).adc() < 20) {
+
+	 if (dataframe.sample(1).adc() > dataframe.sample(0).adc() && 
+	     dataframe.sample(2).adc() > dataframe.sample(0).adc()) {
+	   
+	   sum_DigiHits[i][j]++;
+
+	   Float_t tmpRH = -0.01687177*dataframe.sample(0).adc() + 0.77676196*dataframe.sample(1).adc() + 0.416363*dataframe.sample(2).adc();
+	   if (tmpRH/55. > 10) {
+	     hSelEnDensity_[i][j]->Fill(ix, iy, tmpRH/55.);
+	     hSelOCC_[i][j]->Fill(ix, iy);
+	   }
+
+	 }
+
+       }
        
      }
    } else {
@@ -186,10 +215,13 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        //Save eCount_ for Scaling
        hRecOCC_[i][j]->setBinContent(40,40,eCount_);
        hEnDensity_[i][j]->setBinContent(40,40,eCount_);
+
+       hSelOCC_[i][j]->setBinContent(40,40,eCount_);
+       hSelEnDensity_[i][j]->setBinContent(40,40,eCount_);
      }
 
-   hE1E2_[0]->Fill(sum_Energy[0][0],sum_Energy[0][1]);
-   hE1E2_[1]->Fill(sum_Energy[1][0],sum_Energy[1][2]);
+   hE1E2_[0]->Fill(sum_Energy[0][0], sum_Energy[0][1]);
+   hE1E2_[1]->Fill(sum_Energy[1][0], sum_Energy[1][2]);
 
 }
 
