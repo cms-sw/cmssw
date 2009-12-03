@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/03 17:17:41 $
- * $Revision: 1.50 $
+ * $Date: 2009/12/03 17:30:22 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -350,11 +350,13 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
           ievtTimes[iz] += yval;
           nGoodRh[iz]++;
         }
+
+        if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval);
+        if ( meTimeSummaryMapProjR_[iz] ) meTimeSummaryMapProjR_[iz]->Fill(sqrt(xix*xix+xiy*xiy), yval);
+        if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(atan2(xiy-50.,xix-50.), yval);
+        
       }
 
-      if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval);
-      if ( meTimeSummaryMapProjR_[iz] ) meTimeSummaryMapProjR_[iz]->Fill(sqrt(xix*xix+xiy*xiy), yval);
-      if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(atan2(xiy-50.,xix-50.), yval);
     }
 
     float mean[2];
