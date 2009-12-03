@@ -40,6 +40,9 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
   buffertime_ = 0;
   reftime_ = 0;
   nev_ = 0;
+  integral_tech_42_OR_43_ = 0;
+  bufferLumi_ = 0;
+
 
   dbe_ = Service<DQMStore>().operator->();
   if(dbe_) {
@@ -131,6 +134,8 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       integralTech[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       integralTech[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
+    integralTech_42_OR_43 = dbe_->book1D("Integral_TechBit_042_OR_043","Integral_TechBit _042_OR_043",401,-0.5,400.5);
+    integralTech_42_OR_43->setAxisTitle("Lumi Section" ,1);
 
     				
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/LumiScalers");
@@ -312,35 +317,41 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(triggerRates){
 	  algorithmRates_ = triggerRates->gtAlgoCountsRate();
 	  technicalRates_ = triggerRates->gtTechCountsRate();
-	   
-	  if(bufferAlgoRates_ != algorithmRates_){ 
-	    bufferAlgoRates_ = algorithmRates_;
-	    for (unsigned int i=0; i< algorithmRates_.size(); i++){ 
-	      integral_algo_[i]+=(algorithmRates_[i]*93.);
-	      algoRate[i]->setBinContent(lumisection+1, algorithmRates_[i]); 
-	      integralAlgo[i]->setBinContent(lumisection+1,integral_algo_[i]); 
-	    } 	   
-	  }
-	  if(bufferTechRates_ != technicalRates_){ 
-	    bufferTechRates_ = technicalRates_;
-	    for (unsigned int i=0; i< technicalRates_.size(); i++){ 
-	      integral_tech_[i]+=(technicalRates_[i]*93.);
-	      techRate[i]->setBinContent(lumisection+1, technicalRates_[i]); 
-	      integralTech[i]->setBinContent(lumisection+1, integral_tech_[i]); 
-	    } 	   
-	  }
+	  
+	  if( (bufferLumi_!=lumisection && bufferLumi_<lumisection) ){
+	    bufferLumi_ = lumisection;
+ 
+	    if(bufferAlgoRates_ != algorithmRates_){ 
+	      bufferAlgoRates_ = algorithmRates_;
+	      for (unsigned int i=0; i< algorithmRates_.size(); i++){ 
+		integral_algo_[i]+=(algorithmRates_[i]*93.);
+		algoRate[i]->setBinContent(lumisection+1, algorithmRates_[i]); 
+		integralAlgo[i]->setBinContent(lumisection+1,integral_algo_[i]); 
+	      } 	   
+	    }
+	    if(bufferTechRates_ != technicalRates_){ 
+	      bufferTechRates_ = technicalRates_;
+	      for (unsigned int i=0; i< technicalRates_.size(); i++){ 
+		integral_tech_[i]+=(technicalRates_[i]*93.);
+		techRate[i]->setBinContent(lumisection+1, technicalRates_[i]); 
+		integralTech[i]->setBinContent(lumisection+1, integral_tech_[i]); 
+		if( (i==42 || i==43) ) integral_tech_42_OR_43_+=(technicalRates_[i]*93.);
+	      } 
+	      integralTech_42_OR_43->setBinContent(lumisection+1, integral_tech_42_OR_43_);	   
+	    }
 
-	  physRate->setBinContent(lumisection+1, 
-				  triggerRates->l1AsPhysicsRate()); 
-	  randRate->setBinContent(lumisection+1, 
-				  triggerRates->triggersPhysicsLostRate());
-	  lostPhysRate->setBinContent(lumisection+1, 
-				  triggerRates->l1AsPhysicsRate()); 
-	  lostPhysRateBeamActive->setBinContent(lumisection+1, 
-				  triggerRates->triggersPhysicsLostBeamActiveRate()); 
-	  deadTimePercent->setBinContent(lumisection+1, 
-				  triggerRates->deadtimePercent()); 
+	    physRate->setBinContent(lumisection+1, 
+				    triggerRates->l1AsPhysicsRate()); 
+	    randRate->setBinContent(lumisection+1, 
+				    triggerRates->triggersPhysicsLostRate());
+	    lostPhysRate->setBinContent(lumisection+1, 
+					triggerRates->l1AsPhysicsRate()); 
+	    lostPhysRateBeamActive->setBinContent(lumisection+1, 
+						  triggerRates->triggersPhysicsLostBeamActiveRate()); 
+	    deadTimePercent->setBinContent(lumisection+1, 
+					   triggerRates->deadtimePercent()); 
 	   
+	  }//bufferLumi test
 	}//triggerRates	 
       }//lumisection
     }//triggerScalers->size()
