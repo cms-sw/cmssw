@@ -13,6 +13,8 @@ ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     MeasurementState = "default",
+    BSFolderName = "AlCaReco/BeamSpotParameters",
+    doSeedParameterHistos = False,
 # Margins and settings
     TkSizeBin = 6,
     TkSizeMin = -0.5,
@@ -133,6 +135,7 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     SumChargeMax = 50.5
 
 )
+
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM)
 
 #############################################################
