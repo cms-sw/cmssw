@@ -3,9 +3,9 @@
 #include <fstream>
 //to exclude bits 2 to 5
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-
-
-
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 using namespace std;
 
 HcalRecHitMonitor::HcalRecHitMonitor()
@@ -18,6 +18,7 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 
 
 /* ------------------------------------ */ 
+
 
 void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 			      DQMStore* dbe)
@@ -92,10 +93,10 @@ void HcalRecHitMonitor::beginRun()
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info");
   SetupEtaPhiHists(OccupancyByDepth,"RecHit Occupancy","");;
   
-  h_HFtimedifference = m_dbe->book1D("HFweightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",250,-250,250);
-  h_HEtimedifference = m_dbe->book1D("HEweightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",250,-250,250);
-  h_HFrawtimedifference = m_dbe->book1D("HFtimeDifference","Average Time difference between HF+ and HF-",250,-250,250);
-  h_HErawtimedifference = m_dbe->book1D("HEtimeDifference","Average Time difference between HE+ and HE-",250,-250,250);
+  h_HFtimedifference = m_dbe->book1D("HFweightedtimeDifference","Energy-Weighted time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HEtimedifference = m_dbe->book1D("HEweightedtimeDifference","Energy-Weighted time difference between HE+ and HE-",251,-250.5,250.5);
+  h_HFrawtimedifference = m_dbe->book1D("HFtimeDifference","Average Time difference between HF+ and HF-",251,-250.5,250.5);
+  h_HErawtimedifference = m_dbe->book1D("HEtimeDifference","Average Time difference between HE+ and HE-",251,-250.5,250.5);
 
   h_HFenergydifference = m_dbe->book1D("HFenergyDifference","Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",200,-1,1);
   h_HEenergydifference = m_dbe->book1D("HEenergyDifference","Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",200,-1,1);
@@ -122,6 +123,7 @@ void HcalRecHitMonitor::beginRun()
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+  /*
   // 2-bit timing counter
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
   h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
@@ -129,7 +131,7 @@ void HcalRecHitMonitor::beginRun()
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
   h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
   h_HBflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
-  
+  */
   // common flags
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
@@ -144,6 +146,7 @@ void HcalRecHitMonitor::beginRun()
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+  /*
   // 2-bit timing counter
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
   h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
@@ -151,7 +154,7 @@ void HcalRecHitMonitor::beginRun()
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
   h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
   h_HEflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
-  
+  */
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
@@ -168,7 +171,7 @@ void HcalRecHitMonitor::beginRun()
   h_HFflagcounter=m_dbe->book1D("HFflags","HF flags",32,-0.5,31.5);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFLongShort, "LongShort",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFDigiTime, "DigiTime",1);
-  h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
+  //h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
@@ -270,11 +273,55 @@ void HcalRecHitMonitor::clearME()
 void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     const HORecHitCollection& hoHits,
 				     const HFRecHitCollection& hfHits,
-				     int  CalibType 
+				     int  CalibType ,
+				     int BCN,
+				     const edm::Event & iEvent
 				     )
 {
+
+  bool passedHLT=false;
+  /*
+  edm::Handle<edm::TriggerResults> hltResults;
+  iEvent.getByLabel("HLT",hltResults);
+  edm::TriggerNames triggernames;
+  triggernames.init(*hltResults);
+  for (unsigned int i=0;i<hltResults->size();++i)
+    {
+      string trigName = triggernames.triggerName(i);
+      if (trigName!="HLT_L1_HFtech")
+	continue;
+      if (hltResults->accept(i))
+	{
+	  passedHLT=true;
+	  break;
+	}
+    }
+  */
+  //cout <<"BCN = "<<BCN<<endl;
+  //cout <<"PASSED HLT = "<<passedHLT<<endl;
+
+  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+  iEvent.getByLabel("l1GtUnpack",gtRecord);
+  bool passedL1=false;
+  if (gtRecord.isValid())
+    {
+      cout <<"TECHTRIGS: \t";
+      const DecisionWord dWord = gtRecord->decisionWord();
+      const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
+      for (int i=0;i<=10;++i)
+	{
+	  cout <<tWord.at(i)<<" ";
+	}
+      cout <<endl;
+      if (tWord.at(8)) passedL1=true;
+      if (tWord.at(9)) passedL1=true;
+      if (tWord.at(10)) passedL1=true;
+      
+    }
+  if (passedL1) cout <<"PASSED L1 = "<<passedL1<<endl;
+
   // Check that event is of proper calibration type
-  bool processevent=false;
+  bool processevent=false; 
   if (AllowedCalibTypes_.size()==0)
     processevent=true;
   else
@@ -288,6 +335,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	    }
 	}
     }
+
+
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
   if (!processevent)
     return;
@@ -306,7 +355,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
 
-  processEvent_rechit(hbHits, hoHits, hfHits);
+  processEvent_rechit(hbHits, hoHits, hfHits,passedL1);
   
   // Fill problem cells -- will now fill once per luminosity block
   if (rechit_checkNevents_>0 && ievt_%rechit_checkNevents_ ==0)
@@ -326,7 +375,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
 void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHits,
 					     const HORecHitCollection& hoHits,
-					     const HFRecHitCollection& hfHits)
+					     const HFRecHitCollection& hfHits,
+					     bool passedHLT)
   
 {
   // Gather rechit info
@@ -334,6 +384,12 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
     {
       cpu_timer.reset(); cpu_timer.start();
     }
+ 
+  const float etaBounds[] = { 2.853, 2.964, 3.139, 3.314, 3.489,
+			      3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
+  const float area[]={0.111,0.175,0.175,0.175,0.175,0.175,0.174,0.178,0.172,0.175,0.178,0.346,0.604};
+
+
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent_rechitenergy> Processing rechits..."<<endl;
   
@@ -510,23 +566,27 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
-  if (hepocc >0 && hemocc>0)
+  if (passedHLT)
     {
-      h_HErawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
-      h_HErawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
-    }
-  // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
-  else if (hepocc>0)
-    h_HErawtimedifference->Fill(10000);
-  else if (hemocc>0)
-    h_HErawtimedifference->Fill(-10000);
-
-  if (en_HEP !=0 && en_HEM != 0)
-    {
-      h_HEtimedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
-      h_HEenergydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
-    }
-  
+      if (hepocc >0 && hemocc>0)
+	{
+	  //cout <<"hepocc = "<<hepocc<<"  hemocc = "<<hemocc<<endl;
+	  h_HErawenergydifference->Fill(en_HEP/hepocc-en_HEM/hemocc);
+	  h_HErawtimedifference->Fill(rawtime_HEP/hepocc-rawtime_HEM/hemocc);
+	}
+      // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+      // for now, fill upper, lower bins, not over/underflow
+      else if (hepocc>0)
+	h_HErawtimedifference->Fill(250);
+      else if (hemocc>0)
+	h_HErawtimedifference->Fill(-250);
+      
+      if (en_HEP !=0 && en_HEM != 0)
+	{
+	  h_HEtimedifference->Fill((time_HEP/en_HEP)-(time_HEM/en_HEM));
+	  h_HEenergydifference->Fill((en_HEP-en_HEM)/(en_HEP+en_HEM));
+	}
+    } // if passedHLT
   if (rechit_makeDiagnostics_)
     {
       ++HB_occupancy_[hbocc];
@@ -662,6 +722,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
 	 time_[calcEta][iphi-1][depth-1]+=ti;
 
+
+	 //if (en/cosh(etaBounds[abs(ieta)-29]/area[abs(ieta)-29])>=HFenergyThreshold_)
 	 if (en>=HFenergyThreshold_)
 	   {
 	     ++occupancy_thresh_[calcEta][iphi-1][depth-1];
@@ -697,32 +759,38 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
        } // loop over all HF hits
      
 
-     if (hfpocc >0 && hfmocc>0)
+     //if (hfpocc > 0 && hfmocc>0)
+     // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
+     if (passedHLT)
        {
-	 h_HFrawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
-	 h_HFrawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
-       }
-     // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
-     else if (hfpocc>0)
-       h_HFrawtimedifference->Fill(10000);
-     else if (hfmocc>0)
-       h_HFrawtimedifference->Fill(-10000);
-     
-     if (en_HFP !=0 && en_HFM != 0)
-       {
-	 h_HFtimedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
-	 h_HFenergydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
-       }
-
-     if (rechit_makeDiagnostics_)
-       {
-	 ++HF_occupancy_[hfocc];
-	 ++HF_occupancy_thresh_[hfoccthresh];
-	 h_HFTotalEnergy->Fill(hfenergy);
-	 h_HFThreshTotalEnergy->Fill(hfenergythresh);
-       }
-   } // if (checkHF_)
- 
+	 if (hfpocc >0 && hfmocc>0)
+	   {
+	     h_HFrawenergydifference->Fill(en_HFP/hfpocc-en_HFM/hfmocc);
+	     h_HFrawtimedifference->Fill(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc);
+	   }
+	 // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
+	 else if (hfpocc>0)
+	   h_HFrawtimedifference->Fill(250);
+	 else if (hfmocc>0)
+	   h_HFrawtimedifference->Fill(-250);
+	 
+	 //cout <<"HF occ + = "<<hfpocc<<"  - = "<<hfmocc<<endl;
+	 if (en_HFP !=0 && en_HFM != 0)
+	   {
+	     h_HFtimedifference->Fill((time_HFP/en_HFP)-(time_HFM/en_HFM));
+	     h_HFenergydifference->Fill((en_HFP-en_HFM)/(en_HFP+en_HFM));
+	   }
+	 
+	 if (rechit_makeDiagnostics_)
+	   {
+	     ++HF_occupancy_[hfocc];
+	     ++HF_occupancy_thresh_[hfoccthresh];
+	     h_HFTotalEnergy->Fill(hfenergy);
+	     h_HFThreshTotalEnergy->Fill(hfenergythresh);
+	   }
+       } // if (passedHLT)
+    } // if (checkHF_)
+   
  if (showTiming)
    {
      cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<endl;

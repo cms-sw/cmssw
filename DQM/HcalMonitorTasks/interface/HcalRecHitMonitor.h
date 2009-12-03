@@ -16,8 +16,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/01 09:00:45 $
-  * $Revision: 1.37 $
+  * $Date: 2009/12/02 15:42:04 $
+  * $Revision: 1.38 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -39,12 +39,15 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
-		    int CalibType
+		    int CalibType,
+		    int BCN,
+		    const edm::Event& iEvent
 		    );
 
   void processEvent_rechit( const HBHERecHitCollection& hbheHits,
 			    const HORecHitCollection& hoHits,
-			    const HFRecHitCollection& hfHits);
+			    const HFRecHitCollection& hfHits,
+			    bool passedHLT);
 
   void endLuminosityBlock();
  private:

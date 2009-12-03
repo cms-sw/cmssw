@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/11/24 09:45:19 $
- * $Revision: 1.154 $
+ * $Date: 2009/12/01 17:03:38 $
+ * $Revision: 1.155 $
  * \author W Fisher
  * \author J Temple
  *
@@ -656,6 +656,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   ievent_   = e.id().event();
   itime_    = e.time().value();
+  
+
 
   if (Online_ && e.luminosityBlock()<ilumisec)
     return;
@@ -701,6 +703,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     rawOK_=false;
   }
 
+
   edm::Handle<HcalUnpackerReport> report;  
   if (!(e.getByLabel(inputLabelDigi_,report)))
     {
@@ -725,6 +728,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // copy of Bryan Dahmes' calibration filter
   int calibType=-1;
+  int dccBCN=-1;
   if (rawOK_==true)
   {
     // checking FEDs for calibration information
@@ -732,10 +736,25 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     std::vector<int> calibTypeCounter(8,0) ;
     for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawraw->FEDData(i) ;
+
       if ( fedData.size() < 24 ) numEmptyFEDs++ ;
       if ( fedData.size() < 24 ) continue;
       int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
+      
+      // Temporary for Pawel -- get BCN #101
+      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
+      dccBCN = dccHeader->getBunchId();
+      if (dccBCN!=101)
+	{
+	  //if (i-FEDNumbering::MINHCALFEDID==0 && debug_>-1) cout <<"\t\tHUZZAH! ievent = "<< ievent_<<" BCN = "<<dccBCN<<endl;
+	}
+      else
+	{
+	  // cout <<"BCN = "<<dccBCN<<endl;
+	  //return;
+	}
+
     }
     
     int maxCount = 0;
@@ -1036,7 +1055,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Rec Hit monitor task
   if((rhMon_ != NULL)  && rechitOK_) 
     {
-      rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,calibType);
+      rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,calibType, dccBCN, e);
     }
   if (showTiming_)
     {
