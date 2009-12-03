@@ -40,19 +40,28 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
   tx[1] = 20.;
   tx[2] = 45.;
 
-  for (int i=0; i<digi.size(); i++)
+  for (int i=0; i<digi.size(); i++) 
     adc[i] = digi.sample(i).adc() - ped_;
 
-  TGraph *gr = new TGraph(3, tx, adc);
-  fit_->SetParameters(50, 10);
-  gr->Fit("fit", "MQ");
+  int status = 0;
+  if (adc[0] > 20) status = 1;
+  if (adc[1] < 0 || adc[2] < 0) status = 1;
+  if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
+  if (adc[2] > adc[1]) status = 1;  
 
-  double para[10];
-  fit_->GetParameters(para); 
-  fitresults[0] = para[0]; 
-  fitresults[1] = para[1]; 
-
-  delete gr;
+  if (status == 0) {
+    double para[10];
+    TGraph *gr = new TGraph(3, tx, adc);
+    fit_->SetParameters(50, 10);
+    gr->Fit("fit", "MQ");
+    fit_->GetParameters(para); 
+    fitresults[0] = para[0]; 
+    fitresults[1] = para[1]; 
+    delete gr;
+  } else {
+    fitresults[0] = 0;
+    fitresults[1] = -999;
+  }
 
   return fitresults;
 }
