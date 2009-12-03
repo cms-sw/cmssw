@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.1 2009/03/26 23:23:10 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.1 2009/03/27 02:26:41 ptraczyk Exp $
 //
 //
 
@@ -85,6 +85,7 @@ private:
   unsigned int theHitsMin_;
   double thePruneCut_;
   bool useSegmentT0_;
+  bool doWireCorr_;
   bool requireBothProjections_;
   bool debug;
   

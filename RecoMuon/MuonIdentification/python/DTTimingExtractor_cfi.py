@@ -15,6 +15,7 @@ DTTimingExtractorBlock = cms.PSet(
     PruneCut = cms.double(1000.),
     HitsMin = cms.int32(3),
     UseSegmentT0 = cms.bool(False),
+    DoWireCorr = cms.bool(True),
     RequireBothProjections = cms.bool(False),
     debug = cms.bool(False),
   )
