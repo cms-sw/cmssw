@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.19 2009/12/03 17:07:02 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.20 2009/12/03 18:56:00 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1292,6 +1292,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     ME_HLTAll_LS_  = dbe_->book2D("All_count_LS",
                       "All paths per LS ",
                            nLS, 0, nLS, npaths+1, -0.5, npaths+1-0.5);
+    ME_HLTAll_LS_->setAxisTitle("LS");
     // book histo     npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);grams, one bin per path, only book, will be used by lient or in endLumiBlock
     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
     ME_HLTPassPass_Normalized_ = dbe_->book2D("HLTPassPass_Normalized",
@@ -1549,9 +1550,10 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
 
        // book Count vs LS
-       dbe_->book1D(v->getPath() + "_count_In_LS", 
-                              v->getPath() + "_count_In_LS",
+       MonitorElement* tempME = dbe_->book1D(v->getPath() + "_count_per_LS", 
+                              v->getPath() + " count per LS",
                               nLS, 0,nLS);
+       tempME->setAxisTitle("LS");
 
        dbe_->setCurrentFolder(pathsSummaryFilterEfficiencyFolder_.Data());
        // eff plots for subfilter, will be used by the client, or in endLumiBlock
@@ -1635,7 +1637,7 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     ip->second = currCount;  
 
     // get the count of path up to now
-    string fullPathToME_count = "HLT/FourVector/PathsSummary/" + pathname + "_count_In_LS";
+    string fullPathToME_count = "HLT/FourVector/PathsSummary/" + pathname + "_count_per_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if (! ME_1d) continue;
 
