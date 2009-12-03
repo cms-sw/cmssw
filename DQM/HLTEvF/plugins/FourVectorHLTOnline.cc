@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.18 2009/11/30 17:56:10 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.19 2009/12/03 17:07:02 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -121,6 +121,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
 
   ME_HLTPassPass_ = NULL;
   ME_HLTPassFail_ = NULL;
+  ME_HLTAll_LS_ = NULL;
   
 }
 
@@ -1022,7 +1023,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     std::string filtername("dummy");
     float ptMin = 0.0;
-    float ptMax = 100000.0;
+    float ptMax = 100.0;
     if (plotAll_ && denomobjectType == objectType && objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
 
@@ -1103,16 +1104,16 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     std::string filtername("dummy");
     float ptMin = 0.0;
-    float ptMax = 100000.0;
-    if (objectType == trigger::TriggerPhoton) ptMax = 100000.0;
-    if (objectType == trigger::TriggerElectron) ptMax = 100000.0;
-    if (objectType == trigger::TriggerMuon) ptMax = 100000.0;
-    if (objectType == trigger::TriggerTau) ptMax = 100000.0;
-    if (objectType == trigger::TriggerJet) ptMax = 300000.0;
-    if (objectType == trigger::TriggerBJet) ptMax = 300000.0;
-    if (objectType == trigger::TriggerMET) ptMax = 300000.0;
-    if (objectType == trigger::TriggerTET) ptMax = 300000.0;
-    if (objectType == trigger::TriggerTrack) ptMax = 100000.0;
+    float ptMax = 100.0;
+    if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
+    if (objectType == trigger::TriggerElectron) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerTau) ptMax = 100.0;
+    if (objectType == trigger::TriggerJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerBJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerMET) ptMax = 300.0;
+    if (objectType == trigger::TriggerTET) ptMax = 300.0;
+    if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
     // monitor regardless of the objectType of the path
     if (objectType != -1){
@@ -1198,16 +1199,16 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     std::string filtername("dummy");
     float ptMin = 0.0;
-    float ptMax = 100000.0;
-    if (objectType == trigger::TriggerPhoton) ptMax = 100000.0;
-    if (objectType == trigger::TriggerElectron) ptMax = 100000.0;
-    if (objectType == trigger::TriggerMuon) ptMax = 100000.0;
-    if (objectType == trigger::TriggerTau) ptMax = 100000.0;
-    if (objectType == trigger::TriggerJet) ptMax = 300000.0;
-    if (objectType == trigger::TriggerBJet) ptMax = 300000.0;
-    if (objectType == trigger::TriggerMET) ptMax = 300000.0;
-    if (objectType == trigger::TriggerTET) ptMax = 300000.0;
-    if (objectType == trigger::TriggerTrack) ptMax = 100000.0;
+    float ptMax = 100.0;
+    if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
+    if (objectType == trigger::TriggerElectron) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerTau) ptMax = 100.0;
+    if (objectType == trigger::TriggerJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerBJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerMET) ptMax = 300.0;
+    if (objectType == trigger::TriggerTET) ptMax = 300.0;
+    if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
     if (objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
@@ -1287,8 +1288,11 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                            "HLTPassFail (x=Pass, y=Fail)",
                            npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
 
-
-    // book histograms, one bin per path, only book, will be used by lient or in endLumiBlock
+    int nLS = 500;
+    ME_HLTAll_LS_  = dbe_->book2D("All_count_LS",
+                      "All paths per LS ",
+                           nLS, 0, nLS, npaths+1, -0.5, npaths+1-0.5);
+    // book histo     npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);grams, one bin per path, only book, will be used by lient or in endLumiBlock
     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
     ME_HLTPassPass_Normalized_ = dbe_->book2D("HLTPassPass_Normalized",
                            "HLTPassPass (x=Pass, y=Pass) normalized to Xbin pass",
@@ -1313,6 +1317,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
       ME_HLTPassPass_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
       ME_HLTPassPass_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+      ME_HLTAll_LS_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
       ME_HLTPassFail_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
       ME_HLTPassFail_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
@@ -1542,7 +1548,6 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                               "Filters_" + v->getPath(),
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
 
-       int nLS = 500;
        // book Count vs LS
        dbe_->book1D(v->getPath() + "_count_In_LS", 
                               v->getPath() + "_count_In_LS",
@@ -1634,7 +1639,21 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if (! ME_1d) continue;
 
-    ME_1d->getTH1()->SetBinContent(lumi+1,lumi);
+    ME_1d->getTH1()->SetBinContent(lumi+1,diffCount);
+
+    /*
+    // get the count of path up to now
+    fullPathToME_count = "HLT/FourVector/PathsSummary/" +  "All_count_LS";
+    MonitorElement* ME_All_LS = dbe_->get(fullPathToME_count);
+    if (! ME_All_LS) continue;
+    TH2F* hist_All = ME_All_LS->getTH2();
+    */
+
+    if (! ME_HLTAll_LS_) continue;
+    TH2F* hist_All = ME_HLTAll_LS_->getTH2F();
+
+    int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
+    hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
 
   } // end for ip
 

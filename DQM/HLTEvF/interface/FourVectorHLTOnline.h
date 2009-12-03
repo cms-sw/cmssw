@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.9 2009/11/30 17:56:09 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.10 2009/12/03 17:07:02 rekovic Exp $
 //
 //
 
@@ -82,6 +82,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       MonitorElement* ME_HLTPassFail_Normalized_; 
       MonitorElement* ME_HLTPass_Normalized_Any_; 
       MonitorElement* ME_HLTPass_Any_; 
+      MonitorElement* ME_HLTAll_LS_; 
 
       std::vector<MonitorElement*> v_ME_HLTPassPass_;
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
