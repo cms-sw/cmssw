@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.9 2008/08/08 14:36:17 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.10 2008/09/02 13:52:17 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -25,8 +25,18 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
-
-
+//*
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 class SiPixelClusterModule {        
 
  public:
@@ -46,6 +56,7 @@ class SiPixelClusterModule {
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
   /// Fill histograms
   void fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
+            const TrackerGeometry* tracker,
             bool modon=true, 
 	    bool ladon=false, 
 	    bool layon=false, 
@@ -93,6 +104,9 @@ class SiPixelClusterModule {
   MonitorElement* mePixClustersLad_;
   MonitorElement* mePixClustersLad_px_;
   MonitorElement* mePixClustersLad_py_;
+
+  //**
+  MonitorElement* meSizeYvsEtaBarrel_; 
 
   MonitorElement* meNClustersLay_;
   MonitorElement* meYLay_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.21 2009/08/12 13:18:15 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.22 2009/10/20 14:58:08 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -147,6 +147,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     delete theHistogramId;
   }
 
+  //**
+  if(barrel && type==7){
+    hid = src.label() + "_Barrel";
+    meSizeYvsEtaBarrel_= theDMBE->book2D("sizeYvsEta_" + hid,"Cluster size along beamline vs. Cluster position #eta",60,-3.,3.,40,0.,40.);
+    meSizeYvsEtaBarrel_->setAxisTitle("Cluster #eta",1);
+    meSizeYvsEtaBarrel_->setAxisTitle("Cluster size along beamline [number of pixels]",2);
+  }
   if(type==1 && barrel){
     uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
@@ -479,7 +486,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet) {
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -508,6 +515,17 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
       //      bool edgeHitX = di->edgeHitX();      // records if a cluster is at the x-edge of the detector
       //      bool edgeHitY = di->edgeHitY();      // records if a cluster is at the y-edge of the detector
       
+
+      //**
+     // edm::ESHandle<TrackerGeometry> pDD;
+     // es.get<TrackerDigiGeometryRecord> ().get (pDD);
+     // const TrackerGeometry* tracker = &(* pDD);
+      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(DetId::DetId(id_)) );
+      //**
+      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+      LocalPoint clustlp = topol->localPosition( MeasurementPoint(x, y) );
+      GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
+      //**end
       if(modon){
 	(meCharge_)->Fill((float)charge);
 	(meSize_)->Fill((int)size);
@@ -530,7 +548,12 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	//      (meEdgeHitX_)->Fill((int)edgeHitX);
 	//      (meEdgeHitY_)->Fill((int)edgeHitY);
       }
-      
+      //**
+      if(barrel){
+        (meSizeYvsEtaBarrel_)->Fill(clustgp.eta(),sizeY);
+	//std::cout << "Cluster Global x y z theta eta " << clustgp.x() << " " << clustgp.y() << " " << clustgp.z() << " " << clustgp.theta() << " " 
+	//<< clustgp.eta() << std::endl;
+      }      
       if(ladon && barrel){
 	(meChargeLad_)->Fill((float)charge);
 	(meSizeLad_)->Fill((int)size);

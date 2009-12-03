@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.11 2008/08/08 14:36:23 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.12 2008/09/02 13:52:17 merkelp Exp $
 
 #include <memory>
 
@@ -48,6 +48,17 @@
 
 #include <boost/cstdint.hpp>
 
+//**
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
  class SiPixelClusterSource : public edm::EDAnalyzer {
     public:

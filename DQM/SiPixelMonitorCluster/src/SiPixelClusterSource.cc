@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.18 2009/10/20 14:58:08 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.19 2009/10/21 12:29:05 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -114,10 +114,17 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
   iEvent.getByLabel( src_, input );
 
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
+  const TrackerGeometry* tracker = &(* pDD);
+//  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
+
+
+
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet);
+    (*struct_iter).second->fill(*input, tracker,  modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet);
     
   }
 
@@ -249,6 +256,16 @@ void SiPixelClusterSource::bookMEs(){
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
+    //**
+    if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
+      (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);
+      } else {
+      LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
+    }
+
+
+
+
   }
 
 }
