@@ -166,6 +166,7 @@ void JetMETDQMOfflineClient::runClient_()
 	  if (verbose_) std::cout << "making rate plot done" << std::endl;      
 
 	  hMETRate      = dbe_->book1D(METMEName+"Rate",tMETRate);
+	  hMETRate->setAxisTitle("MET Threshold [GeV]",1);
 	  if (verbose_) std::cout << "booking rate plot ME done" << std::endl;      
 
 	} // me->getRootObject()

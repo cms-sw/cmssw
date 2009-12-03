@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 10:01:06 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/11/22 05:41:39 $
+ *  $Revision: 1.9 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -728,7 +728,7 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (pfMET>_etThreshold){
+  if (pfSumET>_etThreshold){
     
     mePfMEx    = _dbe->get(DirName+"/"+"METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
     mePfMEy    = _dbe->get(DirName+"/"+"METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);

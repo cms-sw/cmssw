@@ -41,6 +41,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoHTMHTAnalysis              = cms.untracked.bool(True),
 
     #
+    #
+    #
+    LSBegin = cms.int32(0),
+    LSEnd   = cms.int32(-1),                                
+                                
+    #
     # For caloMETAnalysis "met"
     #
     caloMETAnalysis = cms.PSet(
@@ -199,6 +205,46 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     ),
 
                                 #
+    #
+    # For pfMETAnalysis
+    #
+    pfMETAnalysis = cms.PSet(
+    verbose     = cms.int32(0),
+    printOut    = cms.int32(0),
+    PfMETCollectionLabel         = cms.InputTag("pfMet"),
+    PfJetCollectionLabel         = cms.InputTag("iterativeCone5PFJets"),
+    Source = cms.string("PfMET"),
+    FolderName = cms.untracked.string("JetMET/MET/"),
+    HLTPathsJetMB = cms.vstring(),
+    HLT_HighPtJet = cms.string("HLT_Jet50U"),
+    HLT_LowPtJet  = cms.string("HLT_L1Jet6U"),
+    HLT_HighMET   = cms.string("HLT_MET100"),
+    HLT_LowMET    = cms.string("HLT_L1MET20"),
+    HLT_Ele       = cms.string("HLT_Ele15_LW_L1R"),
+    HLT_Muon      = cms.string("HLT_Mu9"),
+    HcalNoiseRBXCollection  = cms.InputTag("hcalnoise"),
+    HcalNoiseSummary        = cms.InputTag("hcalnoise"),
+    BeamHaloSummaryLabel    = cms.InputTag("BeamHaloSummary"),   # 
+    PFCandidates            = cms.InputTag("particleFlow"),
+    JetCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),   # jets used for event cleanup
+    JetIDParams = cms.PSet(
+    useRecHits = cms.bool(True),
+    hbheRecHitsColl = cms.InputTag("hbhereco"),
+    hoRecHitsColl   = cms.InputTag("horeco"),
+    hfRecHitsColl   = cms.InputTag("hfreco"),
+    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    ),
+    HighPtPFJetThreshold = cms.double(60.),
+    LowPtPFJetThreshold  = cms.double(15.),
+    HighPFMETThreshold = cms.double(110.),
+    LowPFMETThreshold  = cms.double(30.),
+    etThreshold = cms.double(2.),
+    allHist     = cms.bool(False),
+    allSelection= cms.bool(False)
+    ),
+
+    #
     # For tcMETAnalysis
     #
     tcMETAnalysis = cms.PSet(
@@ -234,45 +280,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     LowPtJetThreshold  = cms.double(15.),
     HighMETThreshold = cms.double(110.),
     LowMETThreshold  = cms.double(30.),
-    etThreshold = cms.double(2.),
-    allHist     = cms.bool(False),
-    allSelection= cms.bool(False)
-    ),
-
-    #
-    # For pfMETAnalysis
-    #
-    pfMETAnalysis = cms.PSet(
-    verbose     = cms.int32(0),
-    printOut    = cms.int32(0),
-    PfMETCollectionLabel         = cms.InputTag("pfMet"),
-    PfJetCollectionLabel         = cms.InputTag("iterativeCone5PFJets"),
-    Source = cms.string("PfMET"),
-    FolderName = cms.untracked.string("JetMET/MET/"),
-    HLTPathsJetMB = cms.vstring(),
-    HLT_HighPtJet = cms.string("HLT_Jet50U"),
-    HLT_LowPtJet  = cms.string("HLT_L1Jet6U"),
-    HLT_HighMET   = cms.string("HLT_MET100"),
-    HLT_LowMET    = cms.string("HLT_L1MET20"),
-    HLT_Ele       = cms.string("HLT_Ele15_LW_L1R"),
-    HLT_Muon      = cms.string("HLT_Mu9"),
-    HcalNoiseRBXCollection  = cms.InputTag("hcalnoise"),
-    HcalNoiseSummary        = cms.InputTag("hcalnoise"),
-    BeamHaloSummaryLabel    = cms.InputTag("BeamHaloSummary"),   # 
-    PFCandidates            = cms.InputTag("particleFlow"),
-    JetCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),   # jets used for event cleanup
-    JetIDParams = cms.PSet(
-    useRecHits = cms.bool(True),
-    hbheRecHitsColl = cms.InputTag("hbhereco"),
-    hoRecHitsColl   = cms.InputTag("horeco"),
-    hfRecHitsColl   = cms.InputTag("hfreco"),
-    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-    ),
-    HighPtPFJetThreshold = cms.double(60.),
-    LowPtPFJetThreshold  = cms.double(15.),
-    HighPFMETThreshold = cms.double(110.),
-    LowPFMETThreshold  = cms.double(30.),
     etThreshold = cms.double(2.),
     allHist     = cms.bool(False),
     allSelection= cms.bool(False)

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/22 05:41:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/03 02:10:12 $
+ *  $Revision: 1.9 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -178,7 +178,7 @@ void METAnalyzer::bookMESet(std::string DirName)
 void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
 
-  if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
+  if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
   meNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
@@ -225,31 +225,31 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
     }
   }
 
-  me["hMExCorrection"]       = _dbe->book1D("METTask_MExCorrection", "METTask_MExCorrection", 100, -500.0,500.0);
-  me["hMEyCorrection"]       = _dbe->book1D("METTask_MEyCorrection", "METTask_MEyCorrection", 100, -500.0,500.0);
-  me["hMuonCorrectionFlag"]  = _dbe->book1D("METTask_CorrectionFlag","METTask_CorrectionFlag", 5, -0.5, 4.5);
-
   if (theMETCollectionLabel.label() == "tcMet" ) {
-    me["htrkPt"] = _dbe->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
-    me["htrkEta"] = _dbe->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
-    me["htrkNhits"] = _dbe->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
-    me["htrkChi2"] = _dbe->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
-    me["htrkD0"] = _dbe->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
-    me["helePt"] = _dbe->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
-    me["heleEta"] = _dbe->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
-    me["heleHoE"] = _dbe->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
-    me["hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-    me["hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
-    me["hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-    me["hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
-    me["hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
+    me[DirName+"/htrkPt"] = _dbe->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
+    me[DirName+"/htrkEta"] = _dbe->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
+    me[DirName+"/htrkNhits"] = _dbe->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
+    me[DirName+"/htrkChi2"] = _dbe->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
+    me[DirName+"/htrkD0"] = _dbe->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
+    me[DirName+"/helePt"] = _dbe->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
+    me[DirName+"/heleEta"] = _dbe->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
+    me[DirName+"/heleHoE"] = _dbe->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
+    me[DirName+"/hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+    me[DirName+"/hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me[DirName+"/hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+    me[DirName+"/hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+    me[DirName+"/hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
   } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-    me["hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-    me["hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
-    me["hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-    me["hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
-    me["hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
+    me[DirName+"/hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+    me[DirName+"/hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me[DirName+"/hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+    me[DirName+"/hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+    me[DirName+"/hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
   }
+
+  me[DirName+"/hMExCorrection"]       = _dbe->book1D("METTask_MExCorrection", "METTask_MExCorrection", 100, -500.0,500.0);
+  me[DirName+"/hMEyCorrection"]       = _dbe->book1D("METTask_MEyCorrection", "METTask_MEyCorrection", 100, -500.0,500.0);
+  me[DirName+"/hMuonCorrectionFlag"]  = _dbe->book1D("METTask_CorrectionFlag","METTask_CorrectionFlag", 5, -0.5, 4.5);
 
 }
 
@@ -463,7 +463,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(inputTrackLabel, track_h);
     iEvent.getByLabel(inputElectronLabel, electron_h);
     iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
-    
+    iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
+
     if(!muon_h.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
     if(!track_h.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
     if(!electron_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
@@ -726,7 +727,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (MET>_etThreshold){
+  if (SumET>_etThreshold){
     
     meMEx    = _dbe->get(DirName+"/"+"METTask_MEx");    if (meMEx    && meMEx->getRootObject())    meMEx->Fill(MEx);
     meMEy    = _dbe->get(DirName+"/"+"METTask_MEy");    if (meMEy    && meMEy->getRootObject())    meMEy->Fill(MEy);
@@ -754,65 +755,66 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     if (theMETCollectionLabel.label() == "tcMet" ) {
     
       for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-	me["htrkPt"]->Fill( trkit->pt() );
-	me["htrkEta"]->Fill( trkit->eta() );
-	me["htrkNhits"]->Fill( trkit->numberOfValidHits() );
-	me["htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
+	me[DirName+"/htrkPt"]->Fill( trkit->pt() );
+	me[DirName+"/htrkEta"]->Fill( trkit->eta() );
+	me[DirName+"/htrkNhits"]->Fill( trkit->numberOfValidHits() );
+	me[DirName+"/htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
 	double d0 = -1 * trkit->dxy( bspot );
-	me["htrkD0"]->Fill( d0 );
+	me[DirName+"/htrkD0"]->Fill( d0 );
       }
-      
+    
       for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	me["helePt"]->Fill( eleit->p4().pt() );  
-	me["heleEta"]->Fill( eleit->p4().eta() );
-	me["heleHoE"]->Fill( eleit->hadronicOverEm() );
+ 	me[DirName+"/helePt"]->Fill( eleit->p4().pt() );  
+ 	me[DirName+"/heleEta"]->Fill( eleit->p4().eta() );
+ 	me[DirName+"/heleHoE"]->Fill( eleit->hadronicOverEm() );
       }
-      
+    
       for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
 	const reco::TrackRef siTrack = muonit->innerTrack();      
-	me["hmuPt"]->Fill( muonit->p4().pt() );
-	me["hmuEta"]->Fill( muonit->p4().eta() );
-	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+ 	me[DirName+"/hmuPt"]->Fill( muonit->p4().pt() );
+ 	me[DirName+"/hmuEta"]->Fill( muonit->p4().eta() );
+ 	me[DirName+"/hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+ 	me[DirName+"/hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
 	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;      
-	me["hmuD0"]->Fill( d0 );
+ 	me[DirName+"/hmuD0"]->Fill( d0 );
       }
 
       const unsigned int nMuons = muon_h->size();      
       for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	reco::MuonRef muref( muon_h, mus);
 	reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
-	me["hMExCorrection"] -> Fill(muCorrData.corrX());
-	me["hMEyCorrection"] -> Fill(muCorrData.corrY());
-	me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+ 	me[DirName+"/hMExCorrection"] -> Fill(muCorrData.corrX());
+ 	me[DirName+"/hMEyCorrection"] -> Fill(muCorrData.corrY());
+ 	me[DirName+"/hMuonCorrectionFlag"]-> Fill(muCorrData.type());
       }
       
-    ////////////////////////////////////
+      ////////////////////////////////////
     } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
 
       for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
-	const reco::TrackRef siTrack = muonit->innerTrack();
-	me["hmuPt"]->Fill( muonit->p4().pt() );
-	me["hmuEta"]->Fill( muonit->p4().eta() );
-	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-	me["hmuD0"]->Fill( d0 );
+      const reco::TrackRef siTrack = muonit->innerTrack();
+      me[DirName+"/hmuPt"]->Fill( muonit->p4().pt() );
+      me[DirName+"/hmuEta"]->Fill( muonit->p4().eta() );
+      me[DirName+"/hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+      me[DirName+"/hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+      double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
+      me[DirName+"/hmuD0"]->Fill( d0 );
       }
 
       const unsigned int nMuons = muon_h->size();      
       for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	reco::MuonRef muref( muon_h, mus);
 	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
-	me["hMExCorrection"] -> Fill(muCorrData.corrY());
-	me["hMEyCorrection"] -> Fill(muCorrData.corrX());
-	me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+ 	me[DirName+"/hMExCorrection"] -> Fill(muCorrData.corrY());
+ 	me[DirName+"/hMEyCorrection"] -> Fill(muCorrData.corrX());
+ 	me[DirName+"/hMuonCorrectionFlag"]-> Fill(muCorrData.type());
       }
       
     }    
     ////////////////////////////////////
 
   } // et threshold cut
+
 }
 
 // ***********************************************************

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/19 19:57:23 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/12/03 02:10:12 $
+ *  $Revision: 1.34 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -122,6 +122,9 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theHTMHTAnalyzerFlag){
      theHTMHTAnalyzer         = new HTMHTAnalyzer(parameters.getParameter<ParameterSet>("HTMHTAnalysis"));
   }
+
+  _LSBegin     = parameters.getParameter<int>("LSBegin");
+  _LSEnd       = parameters.getParameter<int>("LSEnd");
 
   processname_ = parameters.getParameter<std::string>("processname");
 
@@ -283,6 +286,9 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   int myLuminosityBlock;
   myLuminosityBlock = iEvent.luminosityBlock();
   lumisecME->Fill(myLuminosityBlock);
+
+  if (myLuminosityBlock<_LSBegin) return;
+  if (myLuminosityBlock>_LSEnd && _LSEnd>0) return;
 
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
