@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2009/11/29 23:10:28 $
- * $Revision: 1.49 $
+ * $Date: 2009/11/30 14:32:03 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -107,12 +107,12 @@ void EBTimingTask::setup(void){
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTMT timing 1D %s", Numbers::sEB(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 20, 0., 10.);
+      meTime_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
       meTime_[i]->setAxisTitle("jitter (clocks)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 20, 0., 10., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 0., 10., "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
       meTimeMap_[i]->setAxisTitle("jitter (clocks)", 3);
@@ -126,22 +126,22 @@ void EBTimingTask::setup(void){
     }
 
     sprintf(histo, "EBTMT timing 1D summary");
-    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 20, 0., 10.);
+    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
     meTimeSummary1D_->setAxisTitle("jitter (clocks)", 1);
 
     sprintf(histo, "EBTMT timing map");
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 20, 0., 10., "s");
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, 0., 10., "s");
     meTimeSummaryMap_->setAxisTitle("jphi", 1);
     meTimeSummaryMap_->setAxisTitle("jeta", 2);
     meTimeSummaryMap_->setAxisTitle("jitter (clocks)", 3);
     
     sprintf(histo, "EBTMT timing projection eta");
-    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 20, 0., 10., "s");
+    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, 0., 10., "s");
     meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
     meTimeSummaryMapProjEta_->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EBTMT timing projection phi");
-    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 20, 0., 10., "s");
+    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, 0., 10., "s");
     meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
     meTimeSummaryMapProjPhi_->setAxisTitle("jitter (clocks)", 2);
 
