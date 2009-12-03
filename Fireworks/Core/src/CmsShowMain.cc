@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.128 2009/12/02 17:51:58 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.129 2009/12/03 16:47:30 amraktad Exp $
 //
 
 // system include files
@@ -1038,7 +1038,13 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      m_navigator->appendFile(fileName, true, m_live);
+      bool appended = m_navigator->appendFile(fileName, true, m_live);
+
+      if (appended && m_live && m_isPlaying && m_forward)
+      {
+         m_navigator->activateNewFileOnNextEvent();
+      }
+
       // bootstrap case: --port  and no input file
       if (!m_loadedAnyInputFile)
       {
@@ -1074,6 +1080,8 @@ void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
+   if (m_live)
+      m_navigator->resetNewFileOnNextEvent();
    m_isPlaying = false;
    m_guiManager->enableActions();
    checkPosition();

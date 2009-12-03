@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.72 2009/12/02 11:50:53 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.73 2009/12/02 17:06:36 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -103,15 +103,14 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
          return false; //bad file
       }
       
-      if (live)
-         m_newFileOnNextEvent = true;          
-
       if (checkFileQueueSize)
       {
          int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
          while (toErase > 0)
          {
-            FileQueue_i si = m_files.begin(); si++;
+            FileQueue_i si = m_files.begin();
+            if (m_currentFile == si)
+               si++;
             FWFileEntry* file = *si;
             file->closeFile();
             delete file;
@@ -125,6 +124,8 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
       }
       
       m_files.push_back(newFile);
+
+      // Needed for proper handling of first registered file when -port option is in effect.
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
 

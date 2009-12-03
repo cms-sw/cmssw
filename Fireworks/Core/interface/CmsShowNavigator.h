@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.42 2009/11/30 17:58:10 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.43 2009/12/02 17:06:36 amraktad Exp $
 //
 
 // system include files
@@ -113,6 +113,9 @@ public:
    bool canEditFiltersExternally();
    bool filterNeedUpdate() const { return m_filtersNeedUpdate; }
    int  getFilterState() { return m_filterState; }
+
+   void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }
+   void resetNewFileOnNextEvent()    { m_newFileOnNextEvent = false; }
 
    sigc::signal<void, const fwlite::Event&> newEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
