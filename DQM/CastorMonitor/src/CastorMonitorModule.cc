@@ -441,6 +441,9 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   }
   
  
+  //--- MY_DEBUG put it for now
+  //HcalUnpackerReport * report = new HcalUnpackerReport();
+  
   edm::Handle<HcalUnpackerReport> report;  
   try{
     e.getByType(report);
@@ -490,7 +493,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   //if ( checkCASTOR_ )
   //  CheckCastorStatus(*RawData,*report,*readoutMap_,*CastorDigi);
   
- 
+
   //---------------------------------------------------------------//
   //------------------- try to get RecHits ------------------------//
   //---------------------------------------------------------------//
@@ -525,7 +528,8 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   //-------------- protect against missing products -----------//
   //-----------------------------------------------------------//
 
-  if (showTiming_){
+  if (showTiming_)
+    {
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -536,12 +540,15 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   // if((PedMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
   
   if(digiOK_)
-    PedMon_->processEvent(*CastorDigi,*conditions_);
-  if (showTiming_){
+  PedMon_->processEvent(*CastorDigi,*conditions_);
+    
+  if (showTiming_)
+    {
       cpu_timer.stop();
       if (PedMon_!=NULL) cout <<"TIMER:: PEDESTAL MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+
 
 
  //----------------- Rec Hit monitor task -------------------------//
@@ -555,17 +562,18 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
       cpu_timer.reset(); cpu_timer.start();
     }
 
- 
-  //----------------- Rec Hit Valid monitor task -------------------------//
-  if(rechitOK_)
-     RecHitMonValid_->processEvent(*CastorHits);
+  
+   //----------------- Rec HitMonValid -------------------------//
+    if(rechitOK_)
+      RecHitMonValid_->processEvent(*CastorHits);
     
 
   //---------------- LED monitor task ------------------------//
   //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
   if(digiOK_)
      LedMon_->processEvent(*CastorDigi,*conditions_);
-   if (showTiming_){
+   if (showTiming_)
+     {
        cpu_timer.stop();
        if (LedMon_!=NULL) cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<endl;
        cpu_timer.reset(); cpu_timer.start();
@@ -598,8 +606,10 @@ bool CastorMonitorModule::prescale()
   bool updatePS = prescaleUpdate_>0;
 
   ////---- if no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS) 
+  if(!evtPS && !lsPS && !timePS && !updatePS)
+    {
       return false;
+    }
   ////---- check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //-- LS veto
   //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
@@ -615,7 +625,8 @@ bool CastorMonitorModule::prescale()
 
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (fVerbosity>0) {
+  if (fVerbosity>0) 
+    {
       cout<<"CastorMonitorModule::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ";
       cout <<"ls: "<<ilumisec_<<"/"<<lsPS<<",";
       cout <<"time: "<<psTime_.updateTime - psTime_.vetoTime<<"/"<<timePS<<endl;
