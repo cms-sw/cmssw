@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.8 2009/11/20 15:07:18 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.9 2009/11/30 17:56:09 rekovic Exp $
 //
 //
 
@@ -126,6 +126,8 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
       std::vector<std::string> specialPaths_;
+
+      std::vector<std::pair<std::string, int> > fPathTempCountPair;
 
 
       std::string dirname_;

@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.17 2009/11/20 15:05:27 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.18 2009/11/30 17:56:10 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1228,6 +1228,13 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
       std::string pathName = v->getPath();
       int objectType = v->getObjectType();
 
+      // initialize pair <pathname,count>
+      // --------------------------------
+      std::pair<std::string, int> tPair;
+      tPair.first = pathName;
+      tPair.second = 0;
+      fPathTempCountPair.push_back(tPair);
+
       switch (objectType) {
         case trigger::TriggerMuon :
           muonPaths.push_back(pathName);
@@ -1535,13 +1542,19 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                               "Filters_" + v->getPath(),
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
 
+       int nLS = 500;
+       // book Count vs LS
+       dbe_->book1D(v->getPath() + "_count_In_LS", 
+                              v->getPath() + "_count_In_LS",
+                              nLS, 0,nLS);
+
        dbe_->setCurrentFolder(pathsSummaryFilterEfficiencyFolder_.Data());
        // eff plots for subfilter, will be used by the client, or in endLumiBlock
        filters_eff = dbe_->book1D("Filters_Eff_" + v->getPath(), 
                               "Filters_Eff_" + v->getPath(),
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
        
-       
+
        for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
 
          filters->setBinLabel(filt+1, (v->filtersAndIndices[filt]).first);
@@ -1574,8 +1587,57 @@ void FourVectorHLTOnline::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){   
 
+   int lumi = int(lumiSeg.id().luminosityBlock());
+   LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << endl;
+
     // normalize HLT Matrices
     normalizeHLTMatrix();
+
+   for (std::vector<std::pair<std::string, int> >::iterator ip = fPathTempCountPair.begin(); ip != fPathTempCountPair.end(); ++ip) {
+  
+    // get the path and its previous count
+    std::string pathname = ip->first;  
+    int prevCount = ip->second;  
+
+    // get the count of path up to now
+    string fullPathToME = "HLT/FourVector/PathsSummary/HLTPassPass";
+    MonitorElement* ME_2d = dbe_->get(fullPathToME);
+
+    if(! ME_2d) {
+
+      LogTrace("FourVectorHLTOnline") << " could not fine 2d matrix " << fullPathToME << endl;
+
+      continue;
+
+    }
+
+    TH2F * hist_2d = ME_2d->getTH2F();
+
+    int pathBin = hist_2d->GetXaxis()->FindBin(pathname.c_str());      
+    if(pathBin > hist_2d->GetNbinsX()) {
+      
+      cout << " Cannot find the bin for path " << pathname << endl;
+      continue;
+
+    }
+
+    int currCount = int(hist_2d->GetBinContent(pathBin, pathBin));
+
+    int diffCount = currCount - prevCount;
+
+    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
+
+    ip->second = currCount;  
+
+    // get the count of path up to now
+    string fullPathToME_count = "HLT/FourVector/PathsSummary/" + pathname + "_count_In_LS";
+    MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
+    if (! ME_1d) continue;
+
+    ME_1d->getTH1()->SetBinContent(lumi+1,lumi);
+
+  } // end for ip
+
 
 }
 
