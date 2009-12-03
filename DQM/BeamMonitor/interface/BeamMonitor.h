@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/11/27 03:15:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/02 14:54:36 $
+ *  $Revision: 1.7 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -96,6 +96,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_trkPt;
   MonitorElement * h_trkVz;
   MonitorElement * fitResults;
+  MonitorElement * h_x0;
+  MonitorElement * h_y0;
+  MonitorElement * h_z0;
+  MonitorElement * h_sigmaZ0;
 
   // Summary:
   Float_t reportSummary_;
