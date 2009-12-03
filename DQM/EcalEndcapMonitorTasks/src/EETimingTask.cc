@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/11/30 13:14:07 $
- * $Revision: 1.44 $
+ * $Date: 2009/11/30 14:32:03 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -133,7 +133,7 @@ void EETimingTask::setup(void){
       sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
       meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
       meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
-      meTimeAmpli_[i]->setAxisTitle("jitter", 2);
+      meTimeAmpli_[i]->setAxisTitle("jitter (clocks)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
