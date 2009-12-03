@@ -50,15 +50,15 @@ void CastorRecHitsValidation::setup(const edm::ParameterSet& ps, DQMStore* dbe){
    m_dbe->setCurrentFolder(baseFolder_);
 
     //*************** rec hits ***************************   
-histo = "Number of CastorRecHits in modules - 1GeV cut on RecHitEnergy";
+histo = "Number of CastorRecHits in modules";
     meCastorRecHitsModule_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 14, 0.5, 14.5);
-histo = "CastorRecHits Energy in modules - 1GeV cut on RecHitEnergy";
+histo = "CastorRecHits Energy in modules";
     meCastorRecHitsEmodule_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 14, 0.5, 14.5);
-histo = "Number of CastorRecHits in sectors - 1GeV cut on RecHitEnergy ";
+histo = "Number of CastorRecHits in sectors";
     meCastorRecHitsSector_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 16, 0.5, 16.5);
-histo = "CastorRecHits Energy in sectors - 1GeV cut on RecHitEnergy";
+histo = "CastorRecHits Energy in sectors";
     meCastorRecHitsEsector_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 16, 0.5, 16.5);
-histo = "CastorRecHits Energy - 1GeV cut on RecHitEnergy";
+histo = "CastorRecHits Energy";
     meCastorRecHitsEnergy_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 100, 0., 100.);
 //histo = "CastorRecHits Total Energy";
 //    meCastorRecHitsTotalEnergy_ = m_dbe->book1D(histo.c_str(), histo.c_str(), 100, 0., 100.);
@@ -100,7 +100,6 @@ return;
 
 void CastorRecHitsValidation::processEvent(const CastorRecHitCollection& castorHits){
  
-  ievt_++;
   int module = -1;
   int sector = -1;
   double energy = 0.;
@@ -165,20 +164,18 @@ double y1 = cellGeometry->getPosition ().y() ;
 meCastorRecHitsXYsector1_->Fill(x1*10, y1*10);
 }
 */
-//------
 
-if (energy > 1.0){ //consider only those hits whose energy is above 1 GeV
- //fill histograms
-meCastorRecHitsModule_->Fill(module);
-meCastorRecHitsEmodule_->Fill(module, energy);
-meCastorRecHitsSector_->Fill(sector);
-meCastorRecHitsEsector_->Fill(sector, energy);
-meCastorRecHitsEnergy_->Fill(energy);
+ if(ievt_%10==0){
+ meCastorRecHitsModule_->Fill(module);
+ meCastorRecHitsEmodule_->Fill(module, energy);
+ meCastorRecHitsSector_->Fill(sector);
+ meCastorRecHitsEsector_->Fill(sector, energy);
+ meCastorRecHitsEnergy_->Fill(energy);
+ meCastorRecHitsOccupancy_->Fill(sector, module);
 //meCastorRecHitsTotalEnergy_->Fill(total_energy);
-}
-if(ievt_%10==0) 
-  meCastorRecHitsOccupancy_->Fill(sector, module);
+ }
 
+ 
 // X,Y,Z dimensions in mm
 //meCastorRecHitsX_->Fill(x*10);
 //meCastorRecHitsY_->Fill(y*10);
@@ -188,9 +185,10 @@ if(ievt_%10==0)
 //meCastorRecHitsEta_->Fill(eta);
 //meCastorRecHitsPhi_->Fill(phi);
 //meCastorRecHitsGlobalX_->Fill(globalX*10);
-      }
+    }
 
-    
+ ievt_++;
+ return;  
 
 } 
  

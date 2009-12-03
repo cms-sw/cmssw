@@ -90,11 +90,8 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const CastorDbService& cond)
 {
   
- 
-  meEVT_->Fill(ievt_);
-  
+  meEVT_->Fill(ievt_); 
   //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
-
 
   if(!m_dbe) { 
     if(fVerbosity>0) cout<<"CastorPedestalMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
@@ -103,8 +100,6 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
 
 
   CaloSamples tool;  
-  
- 
    try{
     for (CastorDigiCollection::const_iterator j=cast.begin(); j!=cast.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
@@ -115,11 +110,7 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
        // const CastorPedestal* ped = cond.getPedestal(digi.id()); 
        // const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
 
-
-
        detID_.clear(); capID_.clear(); pedVals_.clear();
- 
-
       
       /*
        ////---- if to convert ADC to fC 
@@ -131,7 +122,7 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
       */
       
 
-/*
+    /*
       ////---- fill Pedestal Mean and RMS values from the CONDITION DATABASE
       for(int capID=0; capID<4; capID++){
            ////---- pedestal Mean from the Condition Database
@@ -151,21 +142,18 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
       
       
       ////---- fill ALL Pedestal Values each 100 events
-      if(ievt_ %100 == 0 )
-      { 
-      for (int i=0; i<digi.size(); i++) {
+      if(ievt_ %1000 == 0 ){ 
+       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
 	else pedVals_.push_back(digi.sample(i).adc());
 	detID_.push_back(digi.id());
 	capID_.push_back(digi.sample(i).capid());
 	castHists.ALLPEDS->Fill(pedVals_[i]);
       }
-      
-     }
+    }
 
-      ////---- do histograms for every channel once per 1000 events until 1M events
-      if( ievt_%1000 == 0 && ievt_<1000000 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
-
+      ////---- do histograms for every channel once per 100 events
+      if( ievt_%100 == 0 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
     }
   } 
    catch (...) {
@@ -173,9 +161,9 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
   }
 
   ievt_++;
-
   return;
 }
+
 
 void CastorPedestalMonitor::done(){
   return;

@@ -181,7 +181,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
       castHists.energyALL->Fill(energy);
       if(bs!=0) castHists.timeALL->Fill(ts/bs);
 
-     if(ievt_%100 == 0 ){
+     if(ievt_%1000 == 0 ){
        for (int i=0; i<digi.size(); i++) {
 	float tmp =0;
         int j=digi.sample(i).adc();
@@ -192,7 +192,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
        }
       }
       //do per channel histograms once for each 1000 events until 1M events
-      if(ievt_%1000 == 0 && ievt_<1000000 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
+      if(ievt_%100 == 0 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } catch (...) {
     if(fVerbosity > 0) cout << "CastorLEDMonitor::processEvent  NO Castor Digis." << endl;
