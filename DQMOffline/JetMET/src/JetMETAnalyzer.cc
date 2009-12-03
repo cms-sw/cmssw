@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/13 12:53:11 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/11/19 19:57:23 $
+ *  $Revision: 1.33 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -487,7 +487,7 @@ void JetMETAnalyzer::endJob(void) {
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
 
   if(outputMEsInRootFile){
-    dbe->showDirStructure();
+    //dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 

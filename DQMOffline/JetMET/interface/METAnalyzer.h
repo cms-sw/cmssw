@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/21 08:10:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/22 05:43:27 $
+ *  $Revision: 1.6 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -36,6 +36,15 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/Common/interface/ValueMap.h"  
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 class METAnalyzer : public METAnalyzerBase {
  public:
@@ -92,6 +101,8 @@ class METAnalyzer : public METAnalyzerBase {
   std::string metname;
   std::string _source;
 
+  std::string _FolderName;
+
   edm::InputTag theMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
   edm::InputTag HcalNoiseSummaryTag;
@@ -99,6 +110,12 @@ class METAnalyzer : public METAnalyzerBase {
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+
+  edm::InputTag inputTrackLabel;
+  edm::InputTag inputMuonLabel;
+  edm::InputTag inputElectronLabel;
+  edm::InputTag inputBeamSpotLabel;
+
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
@@ -141,6 +158,16 @@ class METAnalyzer : public METAnalyzerBase {
   std::vector<std::string> _FolderNames;
 
   //
+  math::XYZPoint bspot;
+
+  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > corMetGlobalMuons_ValueMap_Handle;
+  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
+  edm::Handle< reco::MuonCollection > muon_h;
+  edm::Handle< edm::View<reco::Track> > track_h;
+  edm::Handle< edm::View<reco::GsfElectron > > electron_h;
+  edm::Handle< reco::BeamSpot > beamSpot_h;
+
+  //
   DQMStore *_dbe;
 
   //the histos
@@ -173,6 +200,8 @@ class METAnalyzer : public METAnalyzerBase {
 
   MonitorElement* meMETRate;
 
+  //
+  std::map<std::string, MonitorElement*> me;
 
 };
 #endif

@@ -1,9 +1,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/21 10:01:06 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/22 05:41:39 $
+ *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
+ *          K.Hatakeyama - Baylor
  */
 
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
@@ -56,7 +57,16 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   // MET information
   theMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
-  _source                       = parameters.getParameter<std::string>("Source");
+  _source                     = parameters.getParameter<std::string>("Source");
+
+  if (theMETCollectionLabel.label() == "tcMet" ) {
+    inputTrackLabel         = parameters.getParameter<edm::InputTag>("InputTrackLabel");    
+    inputMuonLabel          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
+    inputElectronLabel      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
+    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
+  } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
+  }
 
   // Other data collections
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
@@ -70,6 +80,8 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
 
+  _FolderName              = parameters.getUntrackedParameter<std::string>("FolderName");
+
   _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
   _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
   _highMETThreshold = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
@@ -80,7 +92,7 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   // DQStore stuff
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
-  std::string DirName = "JetMET/MET/"+_source;
+  std::string DirName = _FolderName+_source;
   dbe->setCurrentFolder(DirName);
 
   metME = dbe->book1D("metReco", "metReco", 4, 1, 5);
@@ -185,6 +197,11 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   meSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,500,0,2000);
   meSumET->setAxisTitle("SumET [GeV]",1);
 
+  meMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,500,-500,500);
+  meMEx->setAxisTitle("MEx [GeV]",1);
+  meMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,500,-500,500);
+  meMEy->setAxisTitle("MEy [GeV]",1);
+
   meMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
   meMET_logx->setAxisTitle("log(MET) [GeV]",1);
   meSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
@@ -207,6 +224,33 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
       meMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
+
+  me["hMExCorrection"]       = _dbe->book1D("METTask_MExCorrection", "METTask_MExCorrection", 100, -500.0,500.0);
+  me["hMEyCorrection"]       = _dbe->book1D("METTask_MEyCorrection", "METTask_MEyCorrection", 100, -500.0,500.0);
+  me["hMuonCorrectionFlag"]  = _dbe->book1D("METTask_CorrectionFlag","METTask_CorrectionFlag", 5, -0.5, 4.5);
+
+  if (theMETCollectionLabel.label() == "tcMet" ) {
+    me["htrkPt"] = _dbe->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
+    me["htrkEta"] = _dbe->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
+    me["htrkNhits"] = _dbe->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
+    me["htrkChi2"] = _dbe->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
+    me["htrkD0"] = _dbe->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
+    me["helePt"] = _dbe->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
+    me["heleEta"] = _dbe->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
+    me["heleHoE"] = _dbe->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
+    me["hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+    me["hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me["hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+    me["hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+    me["hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
+  } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    me["hmuPt"] = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+    me["hmuEta"] = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me["hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+    me["hmuChi2"] = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+    me["hmuD0"] = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
+  }
+
 }
 
 // ***********************************************************
@@ -240,7 +284,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
   //
   //--- Check the time length of the Run from the lumi section plots
 
-  std::string dirName = "JetMET/MET/"+_source+"/";
+  std::string dirName = _FolderName+_source+"/";
   _dbe->setCurrentFolder(dirName);
 
   TH1F* tlumisec;
@@ -411,7 +455,39 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
+  // TCMET and corMetGlobalMuons only
+
+  if (theMETCollectionLabel.label() == "tcMet" ) {
+
+    iEvent.getByLabel(inputMuonLabel, muon_h);
+    iEvent.getByLabel(inputTrackLabel, track_h);
+    iEvent.getByLabel(inputElectronLabel, electron_h);
+    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
+    
+    if(!muon_h.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
+    if(!track_h.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
+    if(!electron_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
+    if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
+
+    bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
+
+  }
+  else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+
+    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
+    iEvent.getByLabel("muons", muon_h);
+    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
+
+    if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
+
+    bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
+    
+  }
+
+  // ==========================================================
+  // HcalNoiseSummary
   //
+
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
   iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
   if (!HRBXCollection.isValid()) {
@@ -569,7 +645,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
-  std::string DirName = "JetMET/MET/"+_source;
+  std::string DirName = _FolderName+_source;
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
@@ -673,6 +749,69 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	meMEyLS = _dbe->get(DirName+"/"+"METTask_MEyLS"); if (meMEyLS && meMEyLS->getRootObject()) meMEyLS->Fill(MEy,myLuminosityBlock);
       }
     } // _allhist
+
+    ////////////////////////////////////
+    if (theMETCollectionLabel.label() == "tcMet" ) {
+    
+      for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
+	me["htrkPt"]->Fill( trkit->pt() );
+	me["htrkEta"]->Fill( trkit->eta() );
+	me["htrkNhits"]->Fill( trkit->numberOfValidHits() );
+	me["htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
+	double d0 = -1 * trkit->dxy( bspot );
+	me["htrkD0"]->Fill( d0 );
+      }
+      
+      for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
+	me["helePt"]->Fill( eleit->p4().pt() );  
+	me["heleEta"]->Fill( eleit->p4().eta() );
+	me["heleHoE"]->Fill( eleit->hadronicOverEm() );
+      }
+      
+      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
+	const reco::TrackRef siTrack = muonit->innerTrack();      
+	me["hmuPt"]->Fill( muonit->p4().pt() );
+	me["hmuEta"]->Fill( muonit->p4().eta() );
+	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;      
+	me["hmuD0"]->Fill( d0 );
+      }
+
+      const unsigned int nMuons = muon_h->size();      
+      for( unsigned int mus = 0; mus < nMuons; mus++ ) {
+	reco::MuonRef muref( muon_h, mus);
+	reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
+	me["hMExCorrection"] -> Fill(muCorrData.corrX());
+	me["hMEyCorrection"] -> Fill(muCorrData.corrY());
+	me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+      }
+      
+    ////////////////////////////////////
+    } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+
+      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
+	const reco::TrackRef siTrack = muonit->innerTrack();
+	me["hmuPt"]->Fill( muonit->p4().pt() );
+	me["hmuEta"]->Fill( muonit->p4().eta() );
+	me["hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	me["hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
+	me["hmuD0"]->Fill( d0 );
+      }
+
+      const unsigned int nMuons = muon_h->size();      
+      for( unsigned int mus = 0; mus < nMuons; mus++ ) {
+	reco::MuonRef muref( muon_h, mus);
+	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
+	me["hMExCorrection"] -> Fill(muCorrData.corrY());
+	me["hMEyCorrection"] -> Fill(muCorrData.corrX());
+	me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+      }
+      
+    }    
+    ////////////////////////////////////
+
   } // et threshold cut
 }
 
