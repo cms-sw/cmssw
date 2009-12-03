@@ -19,7 +19,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	{
 	  bool StoreTrack = false;
 	  // Calculate global phi coordinate for central most rechit in the track
-	  float global_phi = 0.;
+	  //float global_phi = 0.;
 	  float global_z = 1200.;
 	  GlobalPoint ClosestGlobalPosition;
 	  for(unsigned int j = 0 ; j < iTrack->extra()->recHits().size(); j++ )
