@@ -16,6 +16,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
@@ -61,7 +62,7 @@ class GlobalHaloAlgo {
   ~GlobalHaloAlgo(){}
   
   // run algorithm
-  GlobalHaloData Calculate(const CaloGeometry& TheCaloGeometry, const CSCGeometry& TheCSCGeometry, const reco::CaloMET& TheCaloMET, edm::Handle< edm::View<Candidate> >& TheCaloTowers, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits, const CSCHaloData& TheCSCHaloData ,const EcalHaloData& TheEcalHaloData, const HcalHaloData& TheHcalHaloData); 
+  reco::GlobalHaloData Calculate(const CaloGeometry& TheCaloGeometry, const CSCGeometry& TheCSCGeometry,const reco::CaloMET& TheCaloMET,edm::Handle<edm::View<reco::Candidate> >& TheCaloTowers, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits, const reco::CSCHaloData& TheCSCHaloData ,const reco::EcalHaloData& TheEcalHaloData, const reco::HcalHaloData& TheHcalHaloData); 
   
   // Set min & max radius to associate CSC Rechits with Ecal Phi Wedges
   void SetEcalMatchingRadius(float min, float max){Ecal_R_Min = min ; Ecal_R_Max = max;}
