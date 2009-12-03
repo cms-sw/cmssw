@@ -87,6 +87,11 @@ public :
   Float_t         ohBJetL2Pt[5000];  //[NohBJetL2]  
   Float_t         ohBJetL2Eta[5000];  //[NohBJetL2]  
   Float_t         ohBJetL2Phi[5000];  //[NohBJetL2]  
+  Int_t           NohPixelTracksL3;
+  Float_t         ohPixelTracksL3Pt[10000];   //[NohPixelTracks]
+  Float_t         ohPixelTracksL3Eta[10000];   //[NohPixelTracks]
+  Float_t         ohPixelTracksL3Phi[10000];   //[NohPixelTracks]
+  Float_t         ohPixelTracksL3Vz[10000];   //[NohPixelTracks]
   Int_t           NohBJetLife;
   Float_t         ohBJetLifeL2E[1000];   //[NohBJetLife]
   Float_t         ohBJetLifeL2ET[1000];   //[NohBJetLife]
@@ -597,7 +602,11 @@ public :
   TBranch        *b_HLT_MinBiasBSC;   //!
   TBranch        *b_HLT_MinBiasBSC_OR;   //!
   TBranch        *b_HLT_HighMultiplicityBSC;   //!
-
+  TBranch        *b_NohPixelTracksL3;   //!
+  TBranch        *b_ohPixelTracksL3Pt;    //!
+  TBranch        *b_ohPixelTracksL3Eta;   //!
+  TBranch        *b_ohPixelTracksL3Phi;    //!
+  TBranch        *b_ohPixelTracksL3Vz;    //!
 
   
   // List of branches
@@ -1504,6 +1513,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohAlcapi0etaClusAll", ohAlcapi0etaClusAll, &b_ohAlcapi0etaClusAll); 
   fChain->SetBranchAddress("ohAlcapi0phiClusAll", ohAlcapi0phiClusAll, &b_ohAlcapi0phiClusAll); 
   fChain->SetBranchAddress("ohAlcapi0s4s9ClusAll", ohAlcapi0s4s9ClusAll, &b_ohAlcapi0s4s9ClusAll); 
+  fChain->SetBranchAddress("NohPixelTracksL3", &NohPixelTracksL3, &b_NohPixelTracksL3);
+  fChain->SetBranchAddress("ohPixelTracksL3Pt", ohPixelTracksL3Pt, &b_ohPixelTracksL3Pt);
+  fChain->SetBranchAddress("ohPixelTracksL3Eta", ohPixelTracksL3Eta, &b_ohPixelTracksL3Eta);
+  fChain->SetBranchAddress("ohPixelTracksL3Phi", ohPixelTracksL3Phi, &b_ohPixelTracksL3Phi); 
+  fChain->SetBranchAddress("ohPixelTracksL3Vz", ohPixelTracksL3Vz, &b_ohPixelTracksL3Vz);
+
   fChain->SetBranchAddress("NMCpart", &NMCpart, &b_NMCpart);
   fChain->SetBranchAddress("MCpid", MCpid, &b_MCpid);
   fChain->SetBranchAddress("MCstatus", MCstatus, &b_MCstatus);

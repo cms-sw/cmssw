@@ -1248,6 +1248,51 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     if(techTriggerBSC1 || techTriggerBSC2 || techTriggerBS3 || techTriggerBS4)
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
   }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_SingleTrack") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+
+      for(int i = 0; i < NohPixelTracksL3; i++)
+	{
+	  for(int i = 0; i < NohPixelTracksL3; i++)
+	    {
+	      if(ohPixelTracksL3Pt[i] > 0)
+		rc++;
+	    }
+	}
+      if(rc > 0) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_DoubleTrack") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+
+      for(int i = 0; i < NohPixelTracksL3; i++)
+        {
+	  if(ohPixelTracksL3Pt[i] > 0)
+	    rc++;
+        }
+      if(rc > 1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_DoubleIsoTrack5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+
+      for(int i = 0; i < NohPixelTracksL3; i++)
+        {
+	  if(ohPixelTracksL3Pt[i] > 5)
+	    rc++;
+        }
+      if(rc > 1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_ZeroBias") == 0) { 
     if(map_BitOfStandardHLTPath.find("OpenL1_ZeroBias")->second == 1)
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
