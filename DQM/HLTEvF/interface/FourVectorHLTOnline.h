@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.10 2009/12/03 17:07:02 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.11 2009/12/03 18:56:00 rekovic Exp $
 //
 //
 
@@ -88,6 +88,13 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
       std::vector<MonitorElement*> v_ME_HLTPass_Any_;
+
+      TString pathsummary;
+      TString pathsSummaryHLTCorrelationsFolder_;
+      TString pathsSummaryFilterEfficiencyFolder_;
+      TString pathsSummaryFilterCountsFolder_;
+      TString pathsIndividualHLTPathsPerLSFolder_;
+      TString pathsSummaryHLTPathsPerLSFolder_;
 
       bool plotAll_;
       bool resetMe_;

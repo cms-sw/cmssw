@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.20 2009/12/03 18:56:00 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.21 2009/12/03 21:46:55 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1268,9 +1268,12 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     setupHLTMatrix("Special", specialPaths_);
 
 
-    TString pathsummary = TString("HLT/FourVector/PathsSummary");
-    TString pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations");
-    TString pathsSummaryFilterEfficiencyFolder_ = TString("HLT/FourVector/PathsSummary/Filters Efficiencies");
+     pathsummary = TString("HLT/FourVector/PathsSummary");
+     pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations/");
+     pathsSummaryFilterEfficiencyFolder_ = TString("HLT/FourVector/PathsSummary/Filters Efficiencies/");
+     pathsSummaryFilterCountsFolder_ = TString("HLT/FourVector/PathsSummary/Filters Counts/");
+     pathsIndividualHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT Paths per LS/Paths/");
+     pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT Paths per LS/");
 
     dbe_->setCurrentFolder(pathsummary.Data());
 
@@ -1288,6 +1291,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                            "HLTPassFail (x=Pass, y=Fail)",
                            npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);
 
+    dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_.Data());
     int nLS = 500;
     ME_HLTAll_LS_  = dbe_->book2D("All_count_LS",
                       "All paths per LS ",
@@ -1542,7 +1546,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
        //int nbin_sub = 5;
        int nbin_sub = v->filtersAndIndices.size()+2;
 
-       dbe_->setCurrentFolder(pathsummary.Data()); 
+       dbe_->setCurrentFolder(pathsSummaryFilterCountsFolder_.Data());
     
        // count plots for subfilter
        filters = dbe_->book1D("Filters_" + v->getPath(), 
@@ -1550,6 +1554,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
 
        // book Count vs LS
+       dbe_->setCurrentFolder(pathsIndividualHLTPathsPerLSFolder_.Data());
        MonitorElement* tempME = dbe_->book1D(v->getPath() + "_count_per_LS", 
                               v->getPath() + " count per LS",
                               nLS, 0,nLS);
@@ -1637,10 +1642,12 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     ip->second = currCount;  
 
     // get the count of path up to now
-    string fullPathToME_count = "HLT/FourVector/PathsSummary/" + pathname + "_count_per_LS";
+    string fullPathToME_count = pathsIndividualHLTPathsPerLSFolder_.Data() + pathname + "_count_per_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
-    if (! ME_1d) continue;
-
+    if (! ME_1d) { 
+      LogTrace("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
+      continue;
+    }
     ME_1d->getTH1()->SetBinContent(lumi+1,diffCount);
 
     /*
@@ -1651,7 +1658,10 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     TH2F* hist_All = ME_All_LS->getTH2();
     */
 
-    if (! ME_HLTAll_LS_) continue;
+    if (! ME_HLTAll_LS_) {
+      LogTrace("FourVectorHLTOnline") << " cannot find ME_HLTAll_LS_" <<  endl;
+      continue;
+    }
     TH2F* hist_All = ME_HLTAll_LS_->getTH2F();
 
     int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
