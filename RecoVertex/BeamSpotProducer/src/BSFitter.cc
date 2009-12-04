@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.10 2009/09/17 21:49:42 jengbou Exp $
+ version $Id: BSFitter.cc,v 1.11 2009/10/27 14:38:20 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -84,6 +84,7 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 	fMaxZ = 50.; //cm
 	fconvergence = 0.5; // stop fit when 50% of the input collection has been removed.
 	fminNtrks = 100;
+	finputBeamWidth = -1; // no input
 }
 
 //______________________________________________________________________
@@ -476,7 +477,8 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		
 		// average transverse beam width
-		double sigmabeam2 = 0.002 * 0.002;
+		double sigmabeam2 = 0.03 * 0.03;
+		if (finputBeamWidth > 0 ) sigmabeam2 = finputBeamWidth * finputBeamWidth;
 
 		//double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0()) / iparam->weight2;
 		// this should be 2*sigmabeam2?
