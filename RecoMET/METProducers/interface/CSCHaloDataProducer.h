@@ -142,6 +142,10 @@ namespace reco
     //Digi Level
     edm::InputTag IT_L1MuGMTReadout;
 
+    //HLT
+    edm::InputTag IT_HLTResult;
+    std::vector< edm::InputTag > vIT_HLTBit  ;
+
     //RecHit Level
     edm::InputTag IT_CSCRecHit;
 
