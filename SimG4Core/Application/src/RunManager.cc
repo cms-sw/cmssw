@@ -22,6 +22,7 @@
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,6 +35,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
+#include "HepPDT/defs.h"
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
+
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -45,7 +51,6 @@
 #include "G4TransportationManager.hh"
 #include "G4ParticleTable.hh"
 
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
 #include <iostream>
 #include <sstream>
@@ -216,18 +221,21 @@ void RunManager::initG4(const edm::EventSetup & es)
     
   edm::LogInfo("SimG4CoreApplication") << " RunManager: Sensitive Detector building finished; found " << m_sensTkDets.size()
                                        << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
-    
+
+  edm::ESHandle<HepPDT::ParticleDataTable> fTable;
+  es.get<PDTRecord>().get(fTable);
+  const HepPDT::ParticleDataTable *fPDGTable = &(*fTable);
 
   m_generator = new Generator(m_pGenerator);
   // m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
   m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
   m_primaryTransformer = new PrimaryTransformer();
-    
+
   std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
                                                    PhysicsListFactory::get()->create
                                                    (m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
-  m_physicsList = physicsMaker->make(map_,m_pPhysics,m_registry);
+  m_physicsList = physicsMaker->make(map_,fPDGTable,m_pPhysics,m_registry);
   if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
   m_kernel->SetPhysics(m_physicsList.get());
   m_kernel->InitializePhysics();
