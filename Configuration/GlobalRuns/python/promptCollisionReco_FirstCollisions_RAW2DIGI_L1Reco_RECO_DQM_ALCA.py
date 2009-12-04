@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -166,6 +166,17 @@ process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaB
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+## Beamspot temporary fix
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.firstCollBeamspot = cms.ESSource(
+    "PoolDBESSource",CondDBSetup,
+    connect = cms.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT"),
+    toGet = cms.VPSet(cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+                               tag = cms.string("firstcollisions"))
+                      )
+    )
+process.es_prefer_firstCollBeamspot = cms.ESPrefer("PoolDBESSource","firstCollBeamspot")
 
 ###
 ###  end of top level replacements
