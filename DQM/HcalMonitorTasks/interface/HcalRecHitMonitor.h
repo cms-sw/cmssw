@@ -16,8 +16,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/03 15:48:15 $
-  * $Revision: 1.40 $
+  * $Date: 2009/12/03 16:14:03 $
+  * $Revision: 1.41 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -193,7 +193,13 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HFnotBPTXrawtimedifference;
   MonitorElement* h_HEnotBPTXrawtimedifference;
 
+  MonitorElement* h_LumiPlot_EventsPerLS;
+  MonitorElement* h_LumiPlot_EventsPerLS_notimecut;
 
+  MonitorElement* h_LumiPlot_SumET_HFPlus_vs_HFMinus;
+  MonitorElement* h_LumiPlot_timeHFPlus_vs_timeHFMinus;
+
+  MonitorElement* h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus;
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };

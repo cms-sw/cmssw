@@ -1,11 +1,13 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include <iostream>
 #include <fstream>
-//to exclude bits 2 to 5
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+
 using namespace std;
 
 HcalRecHitMonitor::HcalRecHitMonitor()
@@ -113,8 +115,14 @@ void HcalRecHitMonitor::beginRun()
   h_HFnotBPTXrawenergydifference = m_dbe->book1D("HFnotBPTXaverageenergyDifference","E_HFPlus - E_HFMinus (energy averaged over rechits)",500,-100,100);
   h_HEnotBPTXrawenergydifference = m_dbe->book1D("HEnotBPTXaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
   
+  m_dbe->setCurrentFolder(baseFolder_+"/luminosityplots");
+  h_LumiPlot_EventsPerLS=m_dbe->book1D("EventsPerLS","Number of Events with HF+ and HF- ET>1 GeV vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
+  h_LumiPlot_EventsPerLS_notimecut=m_dbe->book1D("EventsPerLS_notimecut","Number of Events with HF+ and HF- ET>1 GeV (no time cut) vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
 
-
+  h_LumiPlot_SumET_HFPlus_vs_HFMinus = m_dbe->book2D("SumET_plus_minus","Sum ET for HF+ vs HF-",60,0,30,60,0,30);
+  h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus = m_dbe->book2D("SumEnergy_plus_minus","Sum Energy for HF+ vs HF-",60,0,150,60,0,150);
+  h_LumiPlot_timeHFPlus_vs_timeHFMinus = m_dbe->book2D("timeHFplus_vs_timeHFminus","Energy-weighted time average of HF+ vs HF-",40,-60,60,40,-60,60);
+  
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
   SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
   SetupEtaPhiHists(SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
@@ -308,8 +316,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     }
 
 
-  bool passedHLT=false;
   /*
+    bool passedHLT=false;
   edm::Handle<edm::TriggerResults> hltResults;
   iEvent.getByLabel("HLT",hltResults);
   edm::TriggerNames triggernames;
@@ -393,9 +401,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       cpu_timer.reset(); cpu_timer.start();
     }
  
-  const float etaBounds[] = { 2.853, 2.964, 3.139, 3.314, 3.489,
-			      3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
-  const float area[]={0.111,0.175,0.175,0.175,0.175,0.175,0.174,0.178,0.172,0.175,0.178,0.346,0.604};
+  //const float area[]={0.111,0.175,0.175,0.175,0.175,0.175,0.174,0.178,0.172,0.175,0.178,0.346,0.604};
 
 
 
@@ -709,6 +715,12 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   // loop over HF
   if (checkHF_)
    {
+
+
+     double EtPlus =0, EtMinus=0;
+     double tPlus=0, tMinus=0;
+     double ePlus=0, eMinus=0;
+
      int hfocc=0;
      int hfoccthresh=0;
      double hfenergy=0;
@@ -718,11 +730,35 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 float en = HFiter->energy();
 	 float ti = HFiter->time();
 
+
 	 HcalDetId id(HFiter->detid().rawId());
+
+
+	 
 	 int ieta = id.ieta();
 	 int iphi = id.iphi();
 	 int depth = id.depth();
+	 double fEta=0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]);
          int calcEta = CalcEtaBin(HcalForward,ieta,depth);
+
+	 if (ieta>0)
+	   {
+	     if (en>0)
+	       {
+		 tPlus+=en*ti;
+		     ePlus+=en;
+	       }
+	     EtPlus+=en/cosh(fEta);
+	   }
+	 else if (ieta<0)
+	   {
+	     if (en>0)
+	       {
+		 tMinus+=en*ti;
+		 eMinus+=en;
+	       }
+		 EtMinus+=en/cosh(fEta);
+	   }
 
 	 if (en>collisionHFthresh_ && ieta>0)
 	    {
@@ -789,6 +825,19 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	   } // if (rechit_makeDiagnostics_)
        } // loop over all HF hits
      
+
+     if (ePlus>0) tPlus/=ePlus;
+     if (eMinus>0) tMinus/=eMinus;
+     h_LumiPlot_SumET_HFPlus_vs_HFMinus->Fill(EtMinus,EtPlus);
+     h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus->Fill(eMinus,ePlus);
+     h_LumiPlot_timeHFPlus_vs_timeHFMinus->Fill(tMinus,tPlus);
+
+     if (tPlus>25 && tMinus>25 &&  EtMinus>1 && EtPlus>1)
+       {
+	 h_LumiPlot_EventsPerLS->Fill(lumiblock);
+       }
+     if (EtMinus>1 && EtPlus>1)
+       h_LumiPlot_EventsPerLS_notimecut->Fill(lumiblock);
 
      //if (hfpocc > 0 && hfmocc>0)
      // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
