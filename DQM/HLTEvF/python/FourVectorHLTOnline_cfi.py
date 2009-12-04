@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOnline_cfi.py,v 1.5 2009/11/07 21:31:37 rekovic Exp $
+# $Id: FourVectorHLTOnline_cfi.py,v 1.6 2009/11/20 15:07:19 rekovic Exp $
 hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     plotAll = cms.untracked.bool(False),
@@ -28,10 +28,17 @@ hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
              )
             ),
      SpecialPaths = cms.vstring(
-            'HLT_L1MuOpen',
-            'HLT_MinBias', 
+            'HLT_MET45',
+            'HLT_L1Tech_HCAL_HF_coincidence_PM',
+            'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
+            'HLT_MinBiasBSC',
+            'HLT_MinBiasBSC_OR',
+            'HLT_MinBiasEcal', 
+            'HLT_MinBiasHcal', 
+            'HLT_MinBiasPixel_SingleTrack', 
+            'HLT_ZeroiasPixel_SingleTrack', 
             'HLT_L1_BPTX', 
-            'HLT_MET100'
+            'HLT_ZeroBias'
       ),
                           
      # this is I think MC and CRUZET4
