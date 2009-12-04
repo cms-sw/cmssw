@@ -165,7 +165,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
       pythia->init(lhaUP.get());
 
     }
-    cout << "end of init for external" << endl;
 
     return true;
 }
