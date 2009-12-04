@@ -409,6 +409,35 @@ HLXMonitor::SetupHists()
    MissingDQMDataCheck->setAxisTitle( "", 1 );
    MissingDQMDataCheck->setAxisTitle( "Number Missing Nibbles", 2 );
 
+   // Signal & Background monitoring histograms
+   dbe_->setCurrentFolder(monitorName_+"/SigBkgLevels");
+   
+   MaxInstLumiBX1 = dbe_->book1D("MaxInstLumiBX1","Max Instantaneous Luminosity BX: 1st",10000,-1e-5,0.01);
+   MaxInstLumiBX1->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})",1);
+   MaxInstLumiBX1->setAxisTitle("Entries",2);
+   MaxInstLumiBX2 = dbe_->book1D("MaxInstLumiBX2","Max Instantaneous Luminosity BX: 2nd",10000,-1e-5,0.01);
+   MaxInstLumiBX2->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})",1);
+   MaxInstLumiBX2->setAxisTitle("Entries",2);
+   MaxInstLumiBX3 = dbe_->book1D("MaxInstLumiBX3","Max Instantaneous Luminosity BX: 3rd",10000,-1e-5,0.01);
+   MaxInstLumiBX3->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})",1);
+   MaxInstLumiBX3->setAxisTitle("Entries",2);
+   MaxInstLumiBX4 = dbe_->book1D("MaxInstLumiBX4","Max Instantaneous Luminosity BX: 4th",10000,-1e-5,0.01);
+   MaxInstLumiBX4->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})",1);
+   MaxInstLumiBX4->setAxisTitle("Entries",2);
+   
+   MaxInstLumiBXNum1 = dbe_->book1D("MaxInstLumiBXNum1","BX Number of Max: 1st",3564,0,3564);
+   MaxInstLumiBXNum1->setAxisTitle("BX",1);
+   MaxInstLumiBXNum1->setAxisTitle("Num Time Max",2);
+   MaxInstLumiBXNum2 = dbe_->book1D("MaxInstLumiBXNum2","BX Number of Max: 2nd",3564,0,3564);
+   MaxInstLumiBXNum2->setAxisTitle("BX",1);
+   MaxInstLumiBXNum2->setAxisTitle("Num Time Max",2);
+   MaxInstLumiBXNum3 = dbe_->book1D("MaxInstLumiBXNum3","BX Number of Max: 3rd",3564,0,3564);
+   MaxInstLumiBXNum3->setAxisTitle("BX",1);
+   MaxInstLumiBXNum3->setAxisTitle("Num Time Max",2);
+   MaxInstLumiBXNum4 = dbe_->book1D("MaxInstLumiBXNum4","BX Number of Max: 4th",3564,0,3564);
+   MaxInstLumiBXNum4->setAxisTitle("BX",1);
+   MaxInstLumiBXNum4->setAxisTitle("Num Time Max",2);
+
    // History histograms
    dbe_->setCurrentFolder(monitorName_+"/HistoryRaw");
 
@@ -865,7 +894,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    // Check for missing data
    if( previousSection != (section.hdr.sectionNumber-1) ){
       double weight = (double)(section.hdr.sectionNumber-previousSection-1);
-      std::cout << "Filling missing data! " << weight << std::endl;
+      //std::cout << "Filling missing data! " << weight << std::endl;
       MissingDQMDataCheck->Fill(0.5,weight);
    }
    previousSection = section.hdr.sectionNumber;
@@ -875,13 +904,13 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
-//    std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
-// 	     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
+   //std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
+   //     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
 
-//    std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
-// 	     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
-//    std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- " 
-// 	     << sqrt(sectionInstantErrSumEt) << std::endl;
+   //std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
+   //     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
+   //std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- " 
+   //     << sqrt(sectionInstantErrSumEt) << std::endl;
 
    int fillBin = lumiSectionCount+1;
    if( fillBin > 128 )
@@ -933,8 +962,8 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    recentNewBinError = sqrt(recentOldBinError*recentOldBinError + section.lumiSummary.InstantOccLumiErr[1]*section.lumiSummary.InstantOccLumiErr[1]); 
    RecentIntegratedLumiOccSet2->setBinError(fillBin,recentNewBinError);
 
-   std::cout << "New total " << RecentIntegratedLumiEtSum->getBinContent(fillBin) 
-	     << " +/- " << RecentIntegratedLumiEtSum->getBinError(fillBin) << std::endl;
+//    std::cout << "New total " << RecentIntegratedLumiEtSum->getBinContent(fillBin) 
+// 	     << " +/- " << RecentIntegratedLumiEtSum->getBinError(fillBin) << std::endl;
 
    if( lsBinOld != lsBin )
    {
@@ -1163,21 +1192,49 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
       }
    }
 
+   double max[4] = {-1000.0,-1000.0,-1000.0,-1000.0};
+   int bxmax[4] = {-1,-1,-1,-1};
    for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX ){
       
       LumiAvgEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
       LumiAvgOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
       LumiAvgOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
       
+      if( section.lumiDetail.OccLumi[0][iBX] > max[0] ){
+	 max[3] = max[2];
+	 bxmax[3] = bxmax[2];
+	 max[2] = max[1];
+	 bxmax[2] = bxmax[1];
+	 max[1] = max[0];
+	 bxmax[1] = bxmax[0];
+	 max[0] = section.lumiDetail.OccLumi[0][iBX];
+	 bxmax[0] = iBX;
+      } else if( section.lumiDetail.OccLumi[0][iBX] > max[1] ){
+	 max[3] = max[2];
+	 bxmax[3] = bxmax[2];
+	 max[2] = max[1];
+	 bxmax[2] = bxmax[1];
+	 max[1] = section.lumiDetail.OccLumi[0][iBX];
+	 bxmax[1] = iBX;
+      } else if( section.lumiDetail.OccLumi[0][iBX] > max[2] ){
+	 max[3] = max[2];
+	 bxmax[3] = bxmax[2];
+	 max[2] = section.lumiDetail.OccLumi[0][iBX];
+	 bxmax[2] = iBX;
+      } else if( section.lumiDetail.OccLumi[0][iBX] > max[3] ){
+	 max[3] = section.lumiDetail.OccLumi[0][iBX];
+	 bxmax[3] = iBX;
+      }
+
       int iBin = iBX - (int)XMIN + 1;
-      if( iBin <= int(XMAX-XMIN) && iBin >= 1 )
-      {
-// 	 cout << "Et sum " << section.lumiDetail.ETLumi[iBX] << " +/- " 
-// 	      << section.lumiDetail.ETLumiErr[iBX] << std::endl;
-// 	 cout << "Occ1 " << section.lumiDetail.OccLumi[0][iBX] << " +/- " 
-// 	      << section.lumiDetail.OccLumiErr[0][iBX] << std::endl;
-// 	 cout << "Occ2 " << section.lumiDetail.OccLumi[1][iBX] << " +/- " 
-// 	      << section.lumiDetail.OccLumiErr[1][iBX] << std::endl;
+      if( iBin <= int(XMAX-XMIN) && iBin >= 1 ){
+
+	 //cout << "Et sum " << section.lumiDetail.ETLumi[iBX] << " +/- " 
+	 //   << section.lumiDetail.ETLumiErr[iBX] << std::endl;
+	 //cout << "Occ1 " << section.lumiDetail.OccLumi[0][iBX] << " +/- " 
+	 //   << section.lumiDetail.OccLumiErr[0][iBX] << std::endl;
+	 //cout << "Occ2 " << section.lumiDetail.OccLumi[1][iBX] << " +/- " 
+	 //   << section.lumiDetail.OccLumiErr[1][iBX] << std::endl;
 	 LumiInstantEtSum->setBinContent(iBin, section.lumiDetail.ETLumi[iBX]);
 	 LumiInstantOccSet1->setBinContent(iBin, section.lumiDetail.OccLumi[0][iBX]);
 	 LumiInstantOccSet2->setBinContent(iBin, section.lumiDetail.OccLumi[1][iBX]);
@@ -1211,8 +1268,64 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	 newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[1][iBX]*section.lumiDetail.OccLumiErr[1][iBX]);
 	 LumiIntegratedOccSet2->setBinError(iBin, newBinError);
       }
-      
    }
+
+   // Now fill the maximum hists, but ordered by BX, so that
+   // collision BX's or satellite BX's will always appear in the 
+   // same histogram.
+   int flag=1;
+   for( int iM = 0; (iM<4)&&flag; ++iM ){
+      flag = 0;
+      cout << "Here in loop " << iM << endl;
+      for( int iN = 0; iN < 3; ++iN ){
+	 if( bxmax[iN+1] < bxmax[iN] ){
+	    int tmp = bxmax[iN];
+	    bxmax[iN]   = bxmax[iN+1];  
+	    bxmax[iN+1] = tmp;
+
+	    double tmp2 = max[iN];
+	    max[iN]     = max[iN+1];  
+	    max[iN+1]   = tmp2;
+	    flag=1;
+	 }
+      }
+   }
+
+   std::cout << "BX max " << bxmax[0] << " " << bxmax[1] << " " << bxmax[2] << " " << bxmax[3] << endl;
+   std::cout << "Max " << max[0] << " " << max[1] << " " << max[2] << " " << max[3] << endl;
+
+   // 0.9e1 = Conversion constant for occ1 at 900GeV COM.
+   MaxInstLumiBX1->Fill(max[0]*0.9e1);
+   MaxInstLumiBXNum1->Fill(bxmax[0]);
+   MaxInstLumiBX2->Fill(max[1]*0.9e1);
+   MaxInstLumiBXNum2->Fill(bxmax[1]);
+   MaxInstLumiBX3->Fill(max[2]*0.9e1);
+   MaxInstLumiBXNum3->Fill(bxmax[2]);
+   MaxInstLumiBX4->Fill(max[3]*0.9e1);
+   MaxInstLumiBXNum4->Fill(bxmax[3]);
+
+   TH1F* tmpHist = MaxInstLumiBX1->getTH1F();
+   double minX = tmpHist->GetBinLowEdge(1);
+   double maxX = tmpHist->GetBinLowEdge(tmpHist->GetNbinsX()+1);
+
+   if( lumiSectionCount%64 == 0 ){
+      double mean1 = MaxInstLumiBX1->getMean();
+      double rms1  = MaxInstLumiBX1->getRMS();
+      if( rms1 > 0 && mean1-5*rms1 > minX && mean1+5*rms1<maxX ) MaxInstLumiBX1->setAxisRange(mean1-5*rms1,mean1+5*rms1);
+
+      double mean2 = MaxInstLumiBX2->getMean();
+      double rms2  = MaxInstLumiBX2->getRMS();
+      if( rms2 > 0 && mean2-5*rms2 > minX && mean2+5*rms2<maxX ) MaxInstLumiBX2->setAxisRange(mean2-5*rms2,mean2+5*rms2);
+ 
+      double mean3 = MaxInstLumiBX3->getMean();
+      double rms3  = MaxInstLumiBX3->getRMS();
+      if( rms3 > 0 && mean3-5*rms3 > minX && mean3+5*rms3<maxX ) MaxInstLumiBX3->setAxisRange(mean3-5*rms3,mean3+5*rms3);
+
+      double mean4 = MaxInstLumiBX4->getMean();
+      double rms4  = MaxInstLumiBX4->getRMS();
+      if( rms4 > 0 && mean4-5*rms4 > minX && mean4+5*rms4<maxX ) MaxInstLumiBX4->setAxisRange(mean4-5*rms4,mean4+5*rms4);
+   }
+   
 
    // Add one to the section count (usually short sections)
    ++lumiSectionCount;

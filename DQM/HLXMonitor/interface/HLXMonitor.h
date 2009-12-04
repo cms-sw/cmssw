@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.16 2009/11/27 16:27:25 neadam Exp $
+// $Id: HLXMonitor.h,v 1.17 2009/11/27 17:48:59 neadam Exp $
 //
 //
 
@@ -126,6 +126,17 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * SumAllOccSet1;
       MonitorElement * SumAllOccSet2;
       MonitorElement * MissingDQMDataCheck;
+
+      // Signal and Background Levels
+      MonitorElement * MaxInstLumiBX1;
+      MonitorElement * MaxInstLumiBX2;
+      MonitorElement * MaxInstLumiBX3;
+      MonitorElement * MaxInstLumiBX4;
+
+      MonitorElement * MaxInstLumiBXNum1;
+      MonitorElement * MaxInstLumiBXNum2;
+      MonitorElement * MaxInstLumiBXNum3;
+      MonitorElement * MaxInstLumiBXNum4;
 
       // History plots - fill once per LS
       MonitorElement * HistAvgEtSumHFP;
