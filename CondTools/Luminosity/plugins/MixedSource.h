@@ -32,10 +32,19 @@ namespace lumi{
     typedef std::vector<unsigned int> BITCOUNT;
     typedef std::vector<BITCOUNT> TriggerCountResult_Algo;
     typedef std::vector<BITCOUNT> TriggerCountResult_Tech;
+    struct PerBXData{
+      int idx;
+      float lumivalue;
+      float lumierr;
+      int lumiquality;
+    };
     struct PerLumiData{
       unsigned int lsnr;
       unsigned int startorbit;
       float lumiavg;
+      std::vector<PerBXData> bxET;
+      std::vector<PerBXData> bxOCC1;
+      std::vector<PerBXData> bxOCC2;
     };
     typedef std::vector<PerLumiData> LumiResult;
     void initDB();

@@ -120,12 +120,43 @@ lumi::MixedSource::getLumiData(const std::string& filename,
       ++ncmslumi;
     }
     lumi::MixedSource::PerLumiData h;
+    h.bxET.reserve(3564);
+    h.bxOCC1.reserve(3564);
+    h.bxOCC2.reserve(3564);
+
     runnumber=lumiheader->runNumber;
     if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     //h.lsnr=lumiheader->sectionNumber;
     h.lsnr=ncmslumi;//we record cms lumils
     h.startorbit=lumiheader->startOrbit;
     h.lumiavg=lumisummary->InstantLumi;
+    
+    for(size_t i=0;i<3564;++i){
+      lumi::MixedSource::PerBXData bET;
+      lumi::MixedSource::PerBXData bOCC1;
+      lumi::MixedSource::PerBXData bOCC2;
+      bET.idx=i+1;
+      bET.lumivalue=lumidetail->ETLumi[i];
+      bET.lumierr=lumidetail->ETLumiErr[i];
+      bET.lumiquality=lumidetail->ETLumiQlty[i];      
+      //bxinfoET.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->ETLumi[i],lumidetail->ETLumiErr[i],lumidetail->ETLumiQlty[i]));
+      h.bxET.push_back(bET);
+
+      bOCC1.idx=i+1;
+      bOCC1.lumivalue=lumidetail->OccLumi[0][i];
+      bOCC1.lumierr=lumidetail->OccLumiErr[0][i];
+      bOCC1.lumiquality=lumidetail->OccLumiQlty[0][i]; 
+      h.bxOCC1.push_back(bOCC1);
+      //bxinfoOCC1.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[0][i],lumidetail->OccLumiErr[0][i],lumidetail->OccLumiQlty[0][i]));
+      
+      bOCC2.idx=i+1;
+      bOCC2.lumivalue=lumidetail->OccLumi[1][i];
+      bOCC2.lumierr=lumidetail->OccLumiErr[1][i];
+      bOCC2.lumiquality=lumidetail->OccLumiQlty[1][i]; 
+      h.bxOCC2.push_back(bOCC2);
+      //bxinfoOCC2.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[1][i],lumidetail->OccLumiErr[1][i],lumidetail->OccLumiQlty[1][i]));
+      
+    }
     lumiresult.push_back(h);
   }
 }
@@ -681,6 +712,22 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
 	//std::cout<<"current "<<current<<std::endl;
 	l->setStartOrbit((unsigned long long)lit->startorbit);
 	l->setLumiAverage(lit->lumiavg);
+
+	std::vector<lumi::BunchCrossingInfo> bxinfoET;
+	std::vector<lumi::BunchCrossingInfo> bxinfoOCC1;
+	std::vector<lumi::BunchCrossingInfo> bxinfoOCC2;
+	bxinfoET.reserve(3564);
+	bxinfoOCC1.reserve(3564);
+	bxinfoOCC2.reserve(3564);
+	for(size_t i=0;i<3564;++i){
+	  bxinfoET.push_back(lumi::BunchCrossingInfo(lit->bxET.at(i).idx,lit->bxET.at(i).lumivalue,lit->bxET.at(i).lumierr,lit->bxET.at(i).lumiquality));
+	  bxinfoOCC1.push_back(lumi::BunchCrossingInfo(lit->bxOCC1.at(i).idx,lit->bxOCC1.at(i).lumivalue,lit->bxOCC1.at(i).lumierr,lit->bxOCC1.at(i).lumiquality));
+	  bxinfoOCC2.push_back(lumi::BunchCrossingInfo(lit->bxOCC2.at(i).idx,lit->bxOCC2.at(i).lumivalue,lit->bxOCC2.at(i).lumierr,lit->bxOCC2.at(i).lumiquality));
+	}
+	l->setBunchCrossingData(bxinfoET,lumi::ET);
+	l->setBunchCrossingData(bxinfoOCC1,lumi::OCCD1);
+	l->setBunchCrossingData(bxinfoOCC2,lumi::OCCD2);
+	
 	float deadfractionPerLS=-99.0;
 	std::vector<lumi::TriggerInfo> triginfo;
 	triginfo.reserve(192);
@@ -717,6 +764,7 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
 	//std::cout<<"trigger size "<<triginfo.size()<<std::endl;
 	l->setTriggerData(triginfo);
 	l->print(std::cout);
+	result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
       }
       std::cout<<"total deadtime count "<<totaldeadtime<<std::endl;
       return std::string("mixedsource trurun ")+m_filename+";"+m_lumiversion;  

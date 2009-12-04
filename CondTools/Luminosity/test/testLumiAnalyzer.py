@@ -12,7 +12,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
    logconnect = cms.untracked.string('sqlite_file:log.db'),
    toGet = cms.VPSet(cms.PSet(
        record = cms.string('LumiSectionDataRcd'),
-       tag = cms.string('lumidebug')
+       tag = cms.string('testlumimixed')
     ))
 )
 
@@ -22,8 +22,8 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource",
    numberEventsInRun = cms.untracked.uint32(6),
-   firstRun = cms.untracked.uint32(1),
-   lastRun = cms.untracked.uint32(1),
+   firstRun = cms.untracked.uint32(121998),
+   lastRun = cms.untracked.uint32(121998),
    numberEventsInLuminosityBlock = cms.untracked.uint32(1),
    firstLuminosityBlock = cms.untracked.uint32(1)
 )
