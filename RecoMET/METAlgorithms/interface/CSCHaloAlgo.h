@@ -77,7 +77,9 @@ class CSCHaloAlgo {
  public:
   CSCHaloAlgo(){}
   ~CSCHaloAlgo(){}
-  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout);
+  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout, edm::Handle<edm::TriggerResults>& TheHLTResults);
+  std::vector<edm::InputTag> vIT_HLTBit;
+
 };
 
 #endif
