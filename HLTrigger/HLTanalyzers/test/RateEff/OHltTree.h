@@ -1204,6 +1204,7 @@ public :
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
   int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold) ;
+  int OHltTree::OpenHlt1PixelTrackPassed(float minpt, float minsep, float iso);
 
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds

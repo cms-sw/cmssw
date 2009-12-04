@@ -1250,45 +1250,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_SingleTrack") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-
-      for(int i = 0; i < NohPixelTracksL3; i++)
-	{
-	  for(int i = 0; i < NohPixelTracksL3; i++)
-	    {
-	      if(ohPixelTracksL3Pt[i] > 0)
-		rc++;
-	    }
-	}
-      if(rc > 0) {
+      if(OpenHlt1PixelTrackPassed(0.0, 1.0, -1.0)>=1){
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_DoubleTrack") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-
-      for(int i = 0; i < NohPixelTracksL3; i++)
-        {
-	  if(ohPixelTracksL3Pt[i] > 0)
-	    rc++;
-        }
-      if(rc > 1) {
+      if(OpenHlt1PixelTrackPassed(0.0, 1.0, -1.0)>=2){
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasPixel_DoubleIsoTrack5") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-
-      for(int i = 0; i < NohPixelTracksL3; i++)
-        {
-	  if(ohPixelTracksL3Pt[i] > 5)
-	    rc++;
-        }
-      if(rc > 1) {
+      if(OpenHlt1PixelTrackPassed(5.0, 1.0, -1.0)>=0){
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
@@ -2590,6 +2566,36 @@ int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
 
   return rc;    
 } 
+
+int OHltTree::OpenHlt1PixelTrackPassed(float minpt, float minsep, float iso)
+{
+  int rc = 0;
+
+  // Loop over all oh pixel tracks, check threshold and separation
+  for(int i = 0; i < NohPixelTracksL3; i++)
+    {
+      for(int i = 0; i < NohPixelTracksL3; i++)
+	{
+	  if(ohPixelTracksL3Pt[i] > 0)
+	    {
+	      float closestdr = 999.;
+	      for(int j = 0; j < NohPixelTracksL3 && j != i; j++)
+		{
+		  float dphi = ohPixelTracksL3Phi[i]-ohPixelTracksL3Phi[j];
+		  float deta = ohPixelTracksL3Eta[i]-ohPixelTracksL3Eta[j];
+		  float dr = sqrt((deta*deta) + (dphi*dphi));
+		  if(dr < closestdr)
+		    closestdr = dr;
+		}
+	      if(closestdr > minsep)
+		rc++;
+	    }
+	}
+    }
+
+  return rc;
+}
+
 
 int OHltTree::OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThr) {
   for (int j=0;j<NL1Tau;j++) {
