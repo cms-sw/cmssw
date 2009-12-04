@@ -144,4 +144,12 @@ lumi::LumiSectionData::print( std::ostream& s ) const{
   s<<"lumi error : "<<m_lumierror<<", ";
   s<<"lumi quality : "<<m_quality<<", ";
   s<<"lumi deadfrac : "<<m_deadfrac<<std::endl;
+  std::vector<lumi::TriggerInfo>::const_iterator trgit;
+  std::vector<lumi::TriggerInfo>::const_iterator trgitBeg=m_trigger.begin();
+  std::vector<lumi::TriggerInfo>::const_iterator trgitEnd=m_trigger.end();
+  unsigned int i=0;
+  for(trgit=trgitBeg;trgit!=trgitEnd;++trgit){
+    std::cout<<"  trg "<<i<<" : name : "<<trgit->name<<" : count : "<<trgit->triggercount<<" : deadtime : "<< trgit->deadtimecount<<" : prescale : "<<trgit->prescale<<std::endl;
+    ++i;
+  }
 }

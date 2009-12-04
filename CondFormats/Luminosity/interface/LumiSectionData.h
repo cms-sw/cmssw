@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LumiSectionData.h,v 1.1 2009/10/06 18:08:31 xiezhen Exp $
+ * $Id: LumiSectionData.h,v 1.2 2009/10/07 14:33:02 xiezhen Exp $
  *
  ************************************************************/
  
@@ -38,7 +38,7 @@ namespace lumi{
     TriggerInfo(const std::string& trgname,int trgcount,int deadcount,int p):name(trgname),triggercount(trgcount),deadtimecount(deadcount),prescale(p){}
     std::string name;
     int triggercount;
-    int deadtimecount;
+    int deadtimecount;//max 2**20*3564=3737124864, so wrong type
     int prescale; 
   };
 
