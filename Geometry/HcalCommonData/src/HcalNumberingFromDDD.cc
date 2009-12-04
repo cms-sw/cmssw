@@ -492,6 +492,31 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(Hcal
   return cellTypes;
 }
 
+void HcalNumberingFromDDD::printTile() {
+ 
+  std::cout << "Tile Information for HB:\n" << "========================\n\n";
+  for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
+    int dmax = 1;
+    if (depth1[eta-1] < 17) dmax = 2;
+    for (int depth=1; depth<=dmax; depth++) 
+      tileHB(eta, depth);
+  }
+
+  std::cout << "\nTile Information for HE:\n" <<"========================\n\n";
+  for (int eta=etaMin[1]; eta<= etaMax[1]; eta++) {
+    int dmin=1, dmax=3;
+    if (eta == etaMin[1]) {
+      dmin = 3;
+    } else if (depth1[eta-1] > 18) {
+      dmax = 1;
+    } else if (depth2[eta-1] > 18) {
+      dmax = 2;
+    }
+    for (int depth=dmin; depth<=dmax; depth++)
+      tileHE(eta, depth);
+  }
+}
+
 double HcalNumberingFromDDD::getEta(int det, int etaR, int zside,
 				    int depth) const {
 
@@ -796,6 +821,10 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
   std::vector<double> zho;
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie, izf, phif;
+  std::vector<double> rxb;
+  rhoxb.clear(); zxb.clear(); dyxb.clear(); dzxb.clear();
+  layb.clear(); laye.clear();
+  zxe.clear(); rhoxe.clear(); dyxe.clear(); dx1e.clear(); dx2e.clear();
   double zf = 0;
   dzVcal = -1.;
 
@@ -807,7 +836,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     int nsiz = (int)(copy.size());
     if (nsiz>0) lay  = copy[nsiz-1]/10;
     if (nsiz>1) idet = copy[nsiz-2]/1000;
-    double dx=0, dy=0, dz=0;
+    double dx=0, dy=0, dz=0, dx1=0, dx2=0;
     if (sol.shape() == 1) {
       const DDBox & box = static_cast<DDBox>(fv.logicalPart().solid());
       dx = box.halfX();
@@ -815,6 +844,8 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       dz = box.halfZ();
     } else if (sol.shape() == 3) {
       const DDTrap & trp = static_cast<DDTrap>(fv.logicalPart().solid());
+      dx1= trp.x1();
+      dx2= trp.x2();
       dx = 0.25*(trp.x1()+trp.x2()+trp.x3()+trp.x4());
       dy = 0.5*(trp.y1()+trp.y2());
       dz = trp.halfZ();
@@ -836,6 +867,23 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	if (thkb[lay] <= 0) {
 	  if (lay < 17) thkb[lay] = dx;
 	  else          thkb[lay] = std::min(dx,dy);
+	}
+	if (lay < 17) {
+	  bool found = false;
+	  for (unsigned int k=0; k<rxb.size(); k++) {
+	    if (std::abs(rxb[k]-t.Rho()) < 0.01) {
+	      found = true;
+	      break;
+	    }
+	  }
+	  if (!found) {
+	    rxb.push_back(t.Rho());
+	    rhoxb.push_back(t.Rho()*std::cos(t.phi()));
+	    zxb.push_back(std::abs(t.z()));
+	    dyxb.push_back(2.*dy);
+	    dzxb.push_back(2.*dz);
+	    layb.push_back(lay);
+	  }
 	}
       }
       if (lay == 2) {
@@ -891,8 +939,25 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 #endif
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
-	ze[lay] += fabs(t.z());
+	ze[lay] += std::abs(t.z());
 	if (thke[lay] <= 0) thke[lay] = dz;
+	bool found = false;
+	for (unsigned int k=0; k<zxe.size(); k++) {
+	  if (std::abs(zxe[k]-std::abs(t.z())) < 0.01) {
+	    found = true;
+	    break;
+	  }
+	}
+	if (!found) {
+	  zxe.push_back(std::abs(t.z()));
+	  rhoxe.push_back(t.Rho()*std::cos(t.phi()));
+	  dyxe.push_back(dy*std::cos(t.phi()));
+	  dx1 -= 0.5*(t.rho()-dy)*std::cos(t.phi())*std::tan(10*CLHEP::deg);
+	  dx2 -= 0.5*(t.rho()+dy)*std::cos(t.phi())*std::tan(10*CLHEP::deg);
+	  dx1e.push_back(-dx1);
+	  dx2e.push_back(-dx2);
+	  laye.push_back(lay);
+	}
       }
       if (copy[nsiz-1] == 21) {
 	int iz = copy[nsiz-7];
@@ -961,10 +1026,17 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
   }
 
 #ifdef DebugLog
+  for (unsigned int k=0; k<layb.size(); ++k)
+    std::cout << "HB: " << layb[k] << " R " << rxb[k] << " " << rhoxb[k] << " Z " << zxb[k] << " DY " << dyxb[k] << " DZ " << dzxb[k] << "\n";
+  for (unsigned int k=0; k<laye.size(); ++k) 
+    std::cout << "HE: " << laye[k] << " R " << rhoxe[k] << " Z " << zxe[k] << " X1|X2 " << dx1e[k] << "|" << dx2e[k] << " DY " << dyxe[k] << "\n";
+
+  printTile();
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: Maximum Layer for HB " 
 		       << ibmx << " for HE " << iemx << " Z for HF " << zf 
 		       << " extent " << dzVcal;
 #endif
+
   if (ibmx > 0) {
     rHB.resize(ibmx);
     drHB.resize(ibmx);
@@ -1129,4 +1201,97 @@ int HcalNumberingFromDDD::unitPhi(int det, int etaR) const {
     units=int(phibin[etaR-1]/fiveDegInRad+0.5);
 
   return units;
+}
+
+void HcalNumberingFromDDD::tileHB(int eta, int depth) {
+
+  double etaL   = etaTable[eta-1];
+  double thetaL = 2.*atan(exp(-etaL));
+  double etaH   = etaTable[eta];
+  double thetaH = 2.*atan(exp(-etaH));
+  int    layL=0, layH=0;
+  if (depth == 1) {
+    layH = depth1[eta-1];
+  } else {
+    layL = depth1[eta-1];
+    layH = depth2[eta-1];
+  }
+  std::cout << "\ntileHB:: eta|depth " << eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << "\n";
+  for (int lay=layL; lay<layH; ++lay) {
+    std::vector<double> area(2,0);
+    int kk=0;
+    for (unsigned int k=0; k<layb.size(); ++k) {
+      if (lay == layb[k]) {
+	double zmin = rhoxb[k]*std::cos(thetaL)/std::sin(thetaL);
+	double zmax = rhoxb[k]*std::cos(thetaH)/std::sin(thetaH);
+	double dz   = (std::min(zmax,dzxb[k]) - zmin);
+	if (dz > 0) {
+	  area[kk] = dz*dyxb[k];
+	  kk++;
+	}
+      }
+    }
+    if (area[0] > 0) std::cout << std::setw(2) << lay << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << "\n";
+  }
+}
+
+void HcalNumberingFromDDD::tileHE(int eta, int depth) {
+
+  double etaL   = etaTable[eta-1];
+  double thetaL = 2.*atan(exp(-etaL));
+  double etaH   = etaTable[eta];
+  double thetaH = 2.*atan(exp(-etaH));
+  int    layL=0, layH=0;
+  if (eta == 16) {
+    layH = depth3[eta-1];
+  } else if (depth == 1) {
+    layH = depth1[eta-1];
+  } else if (depth == 2) {
+    layL = depth1[eta-1];
+    layH = depth2[eta-1];
+  } else {
+    layL = depth2[eta-1];
+    layH = depth3[eta-1];
+  }
+  double phib  = phibin[eta-1];
+  int nphi = 2;
+  if (phib > 6*CLHEP::deg) nphi = 1;
+  std::cout << "\ntileHE:: Eta/depth " << eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << " phi " << nphi << "\n";
+  for (int lay=layL; lay<layH; ++lay) {
+    std::vector<double> area(4,0);
+    int kk=0;
+    for (unsigned int k=0; k<laye.size(); ++k) {
+      if (lay == laye[k]) {
+	double rmin = zxe[k]*std::tan(thetaH);
+	double rmax = zxe[k]*std::tan(thetaL);
+	if ((lay != 0 || eta == 18) && 
+	    (lay != 1 || (eta == 18 && rhoxe[k]-dyxe[k] > 1000) || (eta != 18 && rhoxe[k]-dyxe[k] < 1000)) &&
+	    rmin+30 < rhoxe[k]+dyxe[k] && rmax > rhoxe[k]-dyxe[k]) {
+	  rmin = std::max(rmin,rhoxe[k]-dyxe[k]);
+	  rmax = std::min(rmax,rhoxe[k]+dyxe[k]);
+	  double dx1 = rmin*std::tan(phib);
+	  double dx2 = rmax*std::tan(phib);
+	  double ar1=0, ar2=0;
+	  if (nphi == 1) {
+	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-4.*dx1e[k]);
+	  } else {
+	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-2.*dx1e[k]);
+	    ar2 = 0.5*(rmax-rmin)*((rmax+rmin)*tan(10.*CLHEP::deg)-4*dx1e[k])-ar1;
+	  }
+	  area[kk] = ar1;
+	  area[kk+2] = ar2;
+	  kk++;
+	}
+      }
+    }
+    if (area[0] > 0 && area[1] > 0) {
+      int lay0 = lay-1;
+      if (eta == 18) lay0++;
+      if (nphi == 1) {
+	std::cout << std::setw(2) << lay0 << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << "\n";
+      } else {
+	std::cout << std::setw(2) << lay0 << " Area " << std::setw(8) << area[0] << " " << std::setw(8) << area[1] << ":" << std::setw(8) << area[2] << " " << std::setw(8) << area[3] << "\n";
+      }
+    }
+  }
 }

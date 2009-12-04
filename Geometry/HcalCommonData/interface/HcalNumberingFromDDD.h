@@ -42,6 +42,7 @@ public:
   unsigned int   numberOfCells(HcalSubdetector) const;
   std::vector<HcalCellType::HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType::HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  void           printTile();
 
 private:
 
@@ -57,6 +58,8 @@ private:
   double         getGain (HcalSubdetector subdet, int depth) const;
   unsigned       find (int element, std::vector<int> array) const;
   int            unitPhi (int det, int etaR) const;
+  void           tileHB(int eta, int depth);
+  void           tileHE(int eta, int depth);
 
 private:
 
@@ -88,6 +91,9 @@ private:
   int                 nzHB, nmodHB; // Number of halves and modules in HB
   int                 nzHE, nmodHE; // Number of halves and modules in HE
   double              etaHO[4];     // eta in HO ring boundaries
+  std::vector<double> rhoxb, zxb, dyxb, dzxb; // Geometry parameters to
+  std::vector<int>    layb, laye;             // get tile size for HB & HE
+  std::vector<double> zxe, rhoxe, dyxe, dx1e, dx2e; // in different layers
 };
 
 #endif
