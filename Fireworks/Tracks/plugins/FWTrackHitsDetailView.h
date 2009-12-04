@@ -25,12 +25,14 @@ public:
    void pickCameraCenter();
    void transparencyChanged(int);
    void addInfo(TCanvas*);
+   void rnrLabels();
 
    virtual void setBackgroundColor(Color_t);
 
 protected:
    TGLEmbeddedViewer*  m_viewer;
    TEveElementList*    m_modules;
+   TEveElementList*    m_moduleLabels;
    TGSlider*           m_slider;
    FWIntValueListener* m_sliderListener;
   

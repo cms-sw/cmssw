@@ -75,6 +75,11 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    }
 
    {
+      CSGAction* action = new CSGAction(this, "Show Module Labels");
+      action->createCheckButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
+      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::rnrLabels));
+   }
+   {
       CSGAction* action = new CSGAction(this, "Pick Camera Center");
       action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
@@ -86,6 +91,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
     
    m_modules = new TEveElementList("Modules");
    scene->AddElement(m_modules);
+   m_moduleLabels = new TEveElementList("Modules");
+   scene->AddElement(m_moduleLabels);
    TracksRecHitsUtil::addHits(*track, id.item(), m_modules);
    for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
    {
@@ -111,7 +118,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
         Float_t a = minSide/textWidth;
         text->RefMainTrans().Scale(a, a, a);
       */
-      gs->AddElement(text); 
+      m_moduleLabels->AddElement(text); 
    }
 
    CmsMagField* cmsMagField = new CmsMagField;
@@ -199,6 +206,13 @@ FWTrackHitsDetailView::addInfo(TCanvas* canvas)
    drawCanvasDot(x + r, y, r, kCyan);
    y -= r*0.5;
    latex->DrawLatex(x+ 3*r, y, "Camera center");
+}
+
+void
+FWTrackHitsDetailView::rnrLabels()
+{
+   m_moduleLabels->SetRnrChildren(!m_moduleLabels->GetRnrChildren());
+   gEve->Redraw3D();
 }
 
 REGISTER_FWDETAILVIEW(FWTrackHitsDetailView, Hits);
