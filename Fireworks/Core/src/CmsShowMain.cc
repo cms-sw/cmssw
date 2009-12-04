@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.129 2009/12/03 16:47:30 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.130 2009/12/03 18:37:07 amraktad Exp $
 //
 
 // system include files
@@ -833,10 +833,14 @@ void CmsShowMain::autoLoadNewEvent()
 void CmsShowMain::checkPosition()
 {
    m_guiManager->getMainFrame()->enableNavigatorControls();
+
+   bool changePlayMode = !( m_monitor.get() && m_isPlaying );
+
    if (m_navigator->isFirstEvent())
-      m_guiManager->disablePrevious();
+      m_guiManager->disablePrevious(changePlayMode);
+
    if (m_navigator->isLastEvent())
-      m_guiManager->disableNext();
+      m_guiManager->disableNext(changePlayMode);
 }
 
 void CmsShowMain::doFirstEvent()

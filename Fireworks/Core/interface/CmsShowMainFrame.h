@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.33 2009/11/26 20:45:41 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.34 2009/11/29 15:59:09 amraktad Exp $
 //
 
 // system include files
@@ -69,8 +69,8 @@ public:
    void enableNavigatorControls();
    void quit();
    virtual void enableActions(bool enable = true);
-   void enablePrevious(bool enable = true);
-   void enableNext(bool enable = true);
+   void enablePrevious(bool enable = true, bool editPlayMode = true);
+   void enableNext(bool enable = true, bool editPlayMode = true);
    bool previousIsEnabled();
    bool nextIsEnabled();
    void updateStatusBar(const char* status);
