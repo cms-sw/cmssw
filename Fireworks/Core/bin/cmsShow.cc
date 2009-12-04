@@ -9,6 +9,7 @@
 #include "TApplication.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
+#include <fstream>
 #include <string.h>
 #include <memory>
 
@@ -88,6 +89,15 @@ int main (int argc, char **argv)
    int dummyArgc = 1;
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
 
+   // print version
+   TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
+   gSystem->ExpandPathName(infoFileName); 
+   ifstream infoFile(infoFileName);
+   TString infoText;
+   infoText.ReadLine(infoFile);
+   infoFile.close();
+   printf("Starting cmsShow, version %s\n", infoText.Data());
+
    // check root interactive promp
    bool isri = false;
    for (Int_t i =0; i<argc; i++)
@@ -111,7 +121,6 @@ int main (int argc, char **argv)
       TRint app("cmsShow", &dummyArgc, dummyArgv);
       run_app(app,argc, argv);
    } else {
-      std::cout <<"starting"<<std::endl;
       TApplication app("cmsShow", &dummyArgc, dummyArgv); 
       run_app(app, argc, argv);
    }
