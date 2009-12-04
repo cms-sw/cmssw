@@ -48,9 +48,16 @@ namespace edm {
 
 
     private:
-      virtual void beginJob() ;
+      //NOTE: until this interface is removed from the system we need this
+      // call in order to diagnose any problems in the EventSetup system
+      virtual void beginJob(EventSetup const&) ;
+
       virtual void analyze(Event const&, EventSetup const&);
       virtual void endJob() ;
+      virtual void beginRun(Run const&, EventSetup const&);
+      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+
+      void print(EventSetup const&);
        
       // ----------member data ---------------------------
   std::map<eventsetup::EventSetupRecordKey, unsigned long long > cacheIdentifiers_;
@@ -88,6 +95,21 @@ namespace edm {
   // ------------ method called to for each event  ------------
   void
   PrintEventSetupContent::analyze(Event const& iEvent, EventSetup const& iSetup) { 
+    print(iSetup);
+  }
+
+  void 
+  PrintEventSetupContent::beginRun(Run const&, EventSetup const& iSetup){
+    print(iSetup);
+  }
+
+  void 
+  PrintEventSetupContent::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup){
+    print(iSetup);
+  }
+
+  void
+  PrintEventSetupContent::print (EventSetup const& iSetup) { 
     typedef std::vector<eventsetup::EventSetupRecordKey> Records;
     typedef std::vector<eventsetup::DataKey> Data;
     
@@ -134,7 +156,8 @@ namespace edm {
   
   // ------------ method called once each job just before starting event loop  ------------
   void 
-  PrintEventSetupContent::beginJob() {
+  PrintEventSetupContent::beginJob(const EventSetup& iSetup) {
+    print(iSetup);
   }
   
   // ------------ method called once each job just after ending the event loop  ------------
