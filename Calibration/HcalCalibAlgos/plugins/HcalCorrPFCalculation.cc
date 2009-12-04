@@ -37,6 +37,10 @@
 #include "TTree.h"
 #include "TProfile.h"
 
+using namespace edm;
+using namespace std;
+using namespace reco;
+
 class HcalCorrPFCalculation : public edm::EDAnalyzer {
  public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
@@ -85,7 +89,8 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
   MagneticField *theMagField;
 
   TProfile *nCells, *nCellsNoise, *enHcal, *enHcalNoise;
-  TProfile *enEcal;
+  TH1F *enEcalB, *enEcalE;
+
   TFile *rootFile;
 
   TrackDetectorAssociator trackAssociator_;
@@ -202,9 +207,31 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
   enHcal = new TProfile("enHcal", "enHcal", 83, -41.5, 41.5); 
   enHcalNoise = new TProfile("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
   
-  enEcal = new TProfile("enEcal", "enEcal", 83, -41.5, 41.5); 
+  enEcalB = new TH1F("enEcalB", "enEcalB", 500, -5,50); 
+  enEcalE = new TH1F("enEcalE", "enEcalE", 500, -5,50); 
   
-  /*
+  // Response corrections w/o re-rechitting
+  hasresp=0;
+
+  try{
+    
+    edm::ESHandle <HcalRespCorrs> recalibCorrs;
+    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+    respRecalib = recalibCorrs.product();
+    
+    edm::ESHandle <HcalPFCorrs> pfCorrs;
+    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
+    pfRecalib = pfCorrs.product();
+    
+    hasresp=1;
+    // LogMessage("CalibConstants")<<"   OK ";
+    
+  }catch(const cms::Exception & e) {
+    LogWarning("CalibConstants")<<"   Not Found!! ";
+  }
+  
+  
+    /*
   edm::ESHandle<MagneticField> bField;
   c.get<IdealMagneticFieldRecord>().get(bField);
   stepPropF  = new SteppingHelixPropagator(&*bField,alongMomentum);
@@ -221,15 +248,14 @@ void HcalCorrPFCalculation::endJob()
   enHcal -> Write();
   enHcalNoise -> Write();
   
-  enEcal -> Write();
+  enEcalB -> Write();
+  enEcalE -> Write();
 
   rootFile->Close();
 }
 
 
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
-  
-  using namespace edm;
   
     edm::ESHandle<CaloGeometry> pG;
     c.get<CaloGeometryRecord>().get(pG);
@@ -246,26 +272,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   //  double eta_bin[42]={0.,.087,.174,.261,.348,.435,.522,.609,.696,.783,
   //.870,.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,
   //2.322,2.500,2.650,2.853,3.000,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
-  
-  // Response corrections w/o re-rechitting
-  hasresp=0;
-
-  try{
-    
-    edm::ESHandle <HcalRespCorrs> recalibCorrs;
-    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-    respRecalib = recalibCorrs.product();
-    
-    edm::ESHandle <HcalPFCorrs> pfCorrs;
-    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
-    pfRecalib = pfCorrs.product();
-    
-    hasresp=1;
-  }catch(const cms::Exception & e) {
-    //    errMsg = errMsg + "  -- No  recalibrate\n" + e.what();
-  }
-  
-  
   
   // MC info 
   double phi_MC = -999999.;  // phi of initial particle from HepMC
@@ -393,16 +399,20 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  float dr =  getDistInPlaneSimple(gPointEcal,pos);
       	  if (dr < 10.) eEcalCone += ehit->energy();
 	}
-
-      enEcal -> Fill(etaecal, eEcalCone); //Here it is, Ecal Energy
+      if(abs(etaecal)<1.5) enEcalB -> Fill(eEcalCone); 
+      if(abs(etaecal)>1.5 && abs(etaecal)<3.1) enEcalE -> Fill(eEcalCone); 
 
       Float_t recal = 1.0;
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
-	{
-	  if(hasresp) {
-	    if(Respcorr_) recal = recal * respRecalib -> getValues(hhit->detid())->getValue();
-	    if(PFcorr_)   recal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
+	{ 
+	  Float_t resprecal = 1.;
+	  Float_t pfrecal = 1.;
+	  if(hasresp==1) {
+	    if(Respcorr_) resprecal = respRecalib -> getValues(hhit->detid())->getValue();
+	    if(PFcorr_)   pfrecal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
+	    recal = resprecal*pfrecal;
+	    //cout<<"recal:"<<recal<<endl;
 	  }
 
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
