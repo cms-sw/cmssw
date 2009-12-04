@@ -39,7 +39,7 @@ FWTrackHitsDetailView::FWTrackHitsDetailView ():
 m_viewer(0),
 m_modules(0),
 m_slider(0),
-m_sliderListener();
+m_sliderListener()
 {
 }
 
