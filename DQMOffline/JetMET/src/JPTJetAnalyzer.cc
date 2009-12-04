@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -20,6 +21,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -76,8 +78,10 @@ const char* JPTJetAnalyzer::messageLoggerCatregory = "JetPlusTrackDQM";
 JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   : histogramPath_(config.getParameter<std::string>("HistogramPath")),
     verbose_(config.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    rawJetsSrc_(config.getParameter<edm::InputTag>("RawJetCollection")),
     jptCorrectorName_(config.getParameter<std::string>("JPTCorrectorName")),
+    zspCorrectorName_(config.getParameter<std::string>("ZSPCorrectorName")),
+    writeDQMStore_(config.getUntrackedParameter<bool>("WriteDQMStore")),
+    dqmStoreFileName_(),
     trackPropagator_(new jptJetAnalysis::TrackPropagatorToCalo),
     sOverNCalculator_(new jptJetAnalysis::StripSignalOverNoiseCalculator)
 {
@@ -88,23 +92,23 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
                 << "\tHistogramPath: " << histogramPath_ << std::endl
                 << "\tPrintDebugMessages? " << (verbose_ ? "yes" : "no") << std::endl;
   }
+  if (writeDQMStore_) {
+    dqmStoreFileName_ = config.getUntrackedParameter<std::string>("DQMStoreFileName");
+  }
   
   //don't generate debug mesages if debug is disabled
   std::ostringstream* pDebugStream = (verbose_ ? &debugStream : NULL);
   
   //get histogram configuration
-  getConfigForHistogram("nTracksPerJetVsJetEtaPhi",config,pDebugStream);
   getConfigForHistogram("TrackSiStripHitStoN",config,pDebugStream);
   getConfigForHistogram("InCaloTrackDirectionJetDR",config,pDebugStream);
   getConfigForHistogram("OutCaloTrackDirectionJetDR",config,pDebugStream);
-  getConfigForHistogram("InVertexPionTrackImpactPointJetDR",config,pDebugStream);
-  getConfigForHistogram("OutVertexPionTrackImpactPointJetDR",config,pDebugStream);
+  getConfigForHistogram("InVertexTrackImpactPointJetDR",config,pDebugStream);
+  getConfigForHistogram("OutVertexTrackImpactPointJetDR",config,pDebugStream);
   getConfigForHistogram("PtFractionInConeVsJetRawEt",config,pDebugStream);
   getConfigForHistogram("PtFractionInConeVsJetEta",config,pDebugStream);
   getConfigForHistogram("CorrFactorVsJetEt",config,pDebugStream);
   getConfigForHistogram("CorrFactorVsJetEta",config,pDebugStream);
-  getConfigForHistogram("CorrFactorVsJetEtaPhi",config,pDebugStream);
-  getConfigForHistogram("CorrFactorVsJetEtaEt",config,pDebugStream);
   getConfigForTrackHistograms("AllPions",config,pDebugStream);
   getConfigForTrackHistograms("InCaloInVertexPions",config,pDebugStream);
   getConfigForTrackHistograms("InCaloOutVertexPions",config,pDebugStream);
@@ -126,69 +130,82 @@ JPTJetAnalyzer::~JPTJetAnalyzer()
 
 void JPTJetAnalyzer::beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmStore)
 {
+  dqm_ = dqmStore;
   //get JPT corrector
   const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
   if (!corrector) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
   jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
   if (!jptCorrector_) edm::LogError(messageLoggerCatregory) << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+  //get ZSP corrector
+  zspCorrector_ = JetCorrector::getJetCorrector(zspCorrectorName_,eventSetup);
+  if (!zspCorrector_) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << zspCorrectorName_ << "from the EventSetup";
   
   //book histograms
   dqmStore->setCurrentFolder(histogramPath_);
   bookHistograms(dqmStore);
 }
 
-void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& jptCorrectedJet)
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet)
 {
+  
   //update the track propagator and strip noise calculator
   trackPropagator_->update(eventSetup);
   sOverNCalculator_->update(eventSetup);
   
-  //find raw jet
-  edm::Handle<reco::CaloJetCollection> rawJetsHandle;
-  event.getByLabel(rawJetsSrc_,rawJetsHandle);
-  const reco::CaloJetCollection& rawJets = *rawJetsHandle;
-  const reco::CaloJet* pRawJet = NULL;
-  double minDeltaR = 1000;
-  for (reco::CaloJetCollection::const_iterator iRawJet = rawJets.begin(); iRawJet != rawJets.end(); ++iRawJet) {
-    const double dr = deltaR(*iRawJet,jptCorrectedJet);
-    if (dr < minDeltaR) {
-      minDeltaR = dr;
-      pRawJet = &*iRawJet;
-    }
-  }
+  //make corrected jets
+  const double factorZSP = zspCorrector_->correction(rawJet,event,eventSetup);
+  const double factorJPTonRaw = jptCorrector_->correction(rawJet,event,eventSetup);
+  const double factorZSPJPT = factorZSP + factorJPTonRaw -1.0;
+  const reco::Jet::LorentzVector jptCorrectedVector(rawJet.px()*factorZSPJPT,
+                                                    rawJet.py()*factorZSPJPT,
+                                                    rawJet.pz()*factorZSPJPT,
+                                                    rawJet.energy()*factorZSPJPT);
+  const reco::CaloJet jptCorrectedJet(jptCorrectedVector, rawJet.getSpecific(), rawJet.getJetConstituents() );
   
   //check jet is correctable by JPT
-  if (!jptCorrector_->canCorrect(*pRawJet)) return;
+  if (!jptCorrector_->canCorrect(rawJet)) return;
   
   //get consitiuents of jet
   jpt::MatchedTracks pions;
   jpt::MatchedTracks muons;
   jpt::MatchedTracks electrons;
-  const bool ok = jptCorrector_->matchTracks(*pRawJet,event,eventSetup,pions,muons,electrons);
-  if (!ok) return;
+  const bool particlesOK = true;
+  jptCorrector_->matchTracks(rawJet,event,eventSetup,pions,muons,electrons);
+  if (!particlesOK) return;
   
   //fill histograms
   const uint16_t totalTracks = pions.inVertexInCalo_.size() + pions.outOfVertexInCalo_.size() + pions.inVertexOutOfCalo_.size() +
-                              muons.inVertexInCalo_.size() + muons.outOfVertexInCalo_.size() + muons.inVertexOutOfCalo_.size() +
-                              electrons.inVertexInCalo_.size() + electrons.outOfVertexInCalo_.size() + electrons.inVertexOutOfCalo_.size();
-  fillHistogram(nTracksPerJetVsJetEtaPhiHisto_,pRawJet->eta(),pRawJet->phi(),totalTracks);
-  const double correction = jptCorrectedJet.energy() / pRawJet->energy();
-  fillHistogram(CorrFactorVsJetEtHisto_,pRawJet->et(),correction);
-  fillHistogram(CorrFactorVsJetEtaHisto_,pRawJet->eta(),correction);
-  fillHistogram(CorrFactorVsJetEtaEtHisto_,pRawJet->eta(),pRawJet->et(),correction);
+                               muons.inVertexInCalo_.size() + muons.outOfVertexInCalo_.size() + muons.inVertexOutOfCalo_.size() +
+                               electrons.inVertexInCalo_.size() + electrons.outOfVertexInCalo_.size() + electrons.inVertexOutOfCalo_.size();
+  const double correction = factorZSPJPT;
+  fillHistogram(CorrFactorVsJetEtHisto_,rawJet.et(),correction);
+  fillHistogram(CorrFactorVsJetEtaHisto_,rawJet.eta(),correction);
   const double ptFractionInCone = findPtFractionInCone(pions.inVertexInCalo_,pions.inVertexOutOfCalo_);
-  fillHistogram(PtFractionInConeVsJetRawEtHisto_,pRawJet->et(),ptFractionInCone);
-  fillHistogram(PtFractionInConeVsJetEtaHisto_,pRawJet->eta(),ptFractionInCone);
+  fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
+  fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone);
+  //fill track level histograms
+  fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,pions,rawJet);
+  fillTrackHistograms(allMuonHistograms_,inCaloInVertexMuonHistograms_,inCaloOutVertexMuonHistograms_,outCaloInVertexMuonHistograms_,muons,rawJet);
+  fillTrackHistograms(allElectronHistograms_,inCaloInVertexElectronHistograms_,inCaloOutVertexElectronHistograms_,outCaloInVertexElectronHistograms_,
+                      electrons,rawJet);
+}
+
+void JPTJetAnalyzer::endJob()
+{
+  if(writeDQMStore_) dqm_->save(dqmStoreFileName_);
 }
 
 void JPTJetAnalyzer::getConfigForHistogram(const std::string& configName, const edm::ParameterSet& psetContainingConfigPSet,
-                                             std::ostringstream* pDebugStream)
+                                           std::ostringstream* pDebugStream)
 {
   const std::string psetName = configName+std::string("HistogramConfig");
   if (!psetContainingConfigPSet.exists(psetName)) {
     edm::LogWarning(messageLoggerCatregory) << "Histogram " << configName << " config not found" << std::endl;
     histogramConfig_[configName] = HistogramConfig();
   } else {
+    if (pDebugStream) {
+      (*pDebugStream) << "Histogram " << configName << " config found and loaded" << std::endl;
+    }
     const edm::ParameterSet& pset = psetContainingConfigPSet.getParameter<edm::ParameterSet>(psetName);
     const bool enabled = (pset.exists("Enabled") ? pset.getParameter<bool>("Enabled") : true);
     if (!enabled) {
@@ -268,29 +285,6 @@ MonitorElement* JPTJetAnalyzer::bookProfile(const std::string& name, const std::
   }
 }
 
-MonitorElement* JPTJetAnalyzer::bookProfile2D(const std::string& name, const std::string& title,
-                                              const std::string& xAxisTitle, const std::string& yAxisTitle, const std::string zAxisTitle, DQMStore* dqm)
-{
-  std::map<std::string,HistogramConfig>::const_iterator configIterator = histogramConfig_.find(name);
-  if (configIterator == histogramConfig_.end()) {
-    edm::LogWarning(messageLoggerCatregory) << "Trying to book histogram with name " << name << " when no config was not retrieved from ParameterSet";
-    return NULL;
-  }
-  const HistogramConfig& histoConfig = (*configIterator).second;
-  if (histoConfig.enabled) {
-    TProfile2D* underlyingRootObject = new TProfile2D(name.c_str(),title.c_str(),
-                                                      histoConfig.nBins,histoConfig.min,histoConfig.max,
-                                                      histoConfig.nBinsY,histoConfig.minY,histoConfig.maxY);
-    MonitorElement* histo = dqm->bookProfile2D(name,underlyingRootObject);
-    histo->setAxisTitle(xAxisTitle,1);
-    histo->setAxisTitle(yAxisTitle,2);
-    histo->setAxisTitle(zAxisTitle,3);
-    return histo;
-  } else {
-    return NULL;
-  }
-}
-
 void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
 {
   TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);
@@ -310,10 +304,6 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   
   CorrFactorVsJetEtHisto_     = bookProfile("CorrFactorVsJetEt","Correction factor vs jet raw E_{T}","Jet raw E_{T}","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
   CorrFactorVsJetEtaHisto_    = bookProfile("CorrFactorVsJetEta","Correction factor vs jet #eta","Jet #eta","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
-  CorrFactorVsJetEtaPhiHisto_ = bookProfile2D("CorrFactorVsJetEtaPhi","Correction factor vs jet #eta,#phi",
-                                              "Jet #eta","Jet #phi","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
-  CorrFactorVsJetEtaEtHisto_  = bookProfile2D("CorrFactorVsJetEtaEt","Correction factor vs jet #eta, raw E_{T}","Jet #eta","Jet raw E_{T} / GeV",
-                                              "#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
   
   bookTrackHistograms(&allPionHistograms_,"AllPions","pion",NULL,NULL,dqm);
   bookTrackHistograms(&inCaloInVertexPionHistograms_,"InCaloInVertexPions","pions in cone at calo and vertex",
@@ -420,6 +410,7 @@ void JPTJetAnalyzer::fillSiStripHitSoN(const TrackingRecHit& hit)
   const SiStripRecHit2D* pRecHit2D = dynamic_cast<const SiStripRecHit2D*>(pHit);
   const SiStripMatchedRecHit2D* pMatchedRecHit2D = dynamic_cast<const SiStripMatchedRecHit2D*>(pHit);
   const ProjectedSiStripRecHit2D* pProjctedRecHit2D = dynamic_cast<const ProjectedSiStripRecHit2D*>(pHit);
+  const InvalidTrackingRecHit* pInvalidHit = dynamic_cast<const InvalidTrackingRecHit*>(pHit);
   //fill signal to noise for appropriate hit
   if (pMatchedRecHit2D) {
     fillSiStripHitSoNForSingleHit(*pMatchedRecHit2D->monoHit());
@@ -428,8 +419,10 @@ void JPTJetAnalyzer::fillSiStripHitSoN(const TrackingRecHit& hit)
     fillSiStripHitSoNForSingleHit(pProjctedRecHit2D->originalHit());
   } else if (pRecHit2D) {
     fillSiStripHitSoNForSingleHit(*pRecHit2D);
+  } else if (pInvalidHit) {
+    return;
   } else {
-    edm::LogError(messageLoggerCatregory) << "Hit on det ID " << hit.geographicalId().rawId() << " cannot be converted to a strip hit";
+    edm::LogInfo(messageLoggerCatregory) << "Hit on det ID " << hit.geographicalId().rawId() << " cannot be converted to a strip hit";
   }
 }
 

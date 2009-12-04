@@ -5,7 +5,7 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2009/10/02 10:43:04 $
+ *  $Date: 2009/10/02 15:45:47 $
  *  $Revision: 1.1 $
  *  \author N. Cripps - Imperial
  */
@@ -28,6 +28,7 @@ namespace jpt {
   class MatchedTracks;
 }
 class JetPlusTrackCorrector;
+class JetCorrector;
 class TrackingRecHit;
 class SiStripRecHit2D;
 
@@ -46,6 +47,9 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   
   /// Do the analysis
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& jptCorrectedJet);
+  
+  /// Finish up a job
+  virtual void endJob();
   
  private:
    
@@ -88,8 +92,6 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   /// Book histograms and profiles
   MonitorElement* bookHistogram(const std::string& name, const std::string& title, const std::string& xAxisTitle, DQMStore* dqm);
   MonitorElement* bookProfile(const std::string& name, const std::string& title, const std::string& xAxisTitle, const std::string& yAxisTitle, DQMStore* dqm);
-  MonitorElement* bookProfile2D(const std::string& name, const std::string& title,
-                                const std::string& xAxisTitle, const std::string& yAxisTitle, const std::string zAxisTitle, DQMStore* dqm);
   /// Book all histograms
   void bookHistograms(DQMStore* dqm);
   /// Book the histograms for a track
@@ -98,7 +100,6 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   /// Fill histogram or profile if it has been booked
   void fillHistogram(MonitorElement* histogram, const double value);
   void fillHistogram(MonitorElement* histogram, const double valueX, const double valueY);
-  void fillHistogram(MonitorElement* histogram, const double valueX, const double valueY, const double valueZ);
   /// Fill all track histograms
   void fillTrackHistograms(TrackHistograms& allTracksHistos, TrackHistograms& inCaloInVertexHistos,
                            TrackHistograms& inCaloOutVertexHistos, TrackHistograms& outCaloInVertexHistos,
@@ -119,15 +120,22 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   const std::string histogramPath_;
   /// Create verbose debug messages
   const bool verbose_;
-  /// Collection to jet original, completely un-corrected, jets from
-  const edm::InputTag rawJetsSrc_;
-  /// JPT corrector object name
+  /// JPT corrector name
   const std::string jptCorrectorName_;
+  /// ZSP corrector name
+  const std::string zspCorrectorName_;
   /// Histogram configuration (nBins etc)
   std::map<std::string,HistogramConfig> histogramConfig_;
   
   /// JPT Corrector
   const JetPlusTrackCorrector* jptCorrector_;
+  /// ZSP Corrector
+  const JetCorrector* zspCorrector_;
+  
+  /// Write DQM store to a file?
+  const bool writeDQMStore_;
+  /// DQM store file name
+  std::string dqmStoreFileName_;
   
   /// Helpper object to propagate tracks to the calo surface
   jptJetAnalysis::TrackPropagatorToCalo* trackPropagator_;
@@ -135,15 +143,17 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   jptJetAnalysis::StripSignalOverNoiseCalculator* sOverNCalculator_;
   
   // Histograms
-  MonitorElement *nTracksPerJetVsJetEtaPhiHisto_;
   MonitorElement *TrackSiStripHitStoNHisto_;
   MonitorElement *InCaloTrackDirectionJetDRHisto_, *OutCaloTrackDirectionJetDRHisto_;
   MonitorElement *InVertexTrackImpactPointJetDRHisto_, *OutVertexTrackImpactPointJetDRHisto_;
   MonitorElement *PtFractionInConeVsJetRawEtHisto_, *PtFractionInConeVsJetEtaHisto_;
-  MonitorElement *CorrFactorVsJetEtHisto_, *CorrFactorVsJetEtaHisto_, *CorrFactorVsJetEtaPhiHisto_, *CorrFactorVsJetEtaEtHisto_;
+  MonitorElement *CorrFactorVsJetEtHisto_, *CorrFactorVsJetEtaHisto_;
   TrackHistograms allPionHistograms_, inCaloInVertexPionHistograms_, inCaloOutVertexPionHistograms_, outCaloInVertexPionHistograms_;
   TrackHistograms allMuonHistograms_, inCaloInVertexMuonHistograms_, inCaloOutVertexMuonHistograms_, outCaloInVertexMuonHistograms_;
   TrackHistograms allElectronHistograms_, inCaloInVertexElectronHistograms_, inCaloOutVertexElectronHistograms_, outCaloInVertexElectronHistograms_;
+  
+  ///DQMStore. Used to write out to file
+  DQMStore* dqm_;
 };
 
 inline void JPTJetAnalyzer::fillHistogram(MonitorElement* histogram, const double value)
@@ -154,11 +164,6 @@ inline void JPTJetAnalyzer::fillHistogram(MonitorElement* histogram, const doubl
 inline void JPTJetAnalyzer::fillHistogram(MonitorElement* histogram, const double valueX, const double valueY)
 {
   if (histogram) histogram->Fill(valueX,valueY);
-}
-
-inline void JPTJetAnalyzer::fillHistogram(MonitorElement* histogram, const double valueX, const double valueY, const double valueZ)
-{
-  if (histogram) histogram->Fill(valueX,valueY,valueZ);
 }
 
 #endif
