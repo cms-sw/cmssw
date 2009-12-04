@@ -32,6 +32,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 {  
   EcalHaloData TheEcalHaloData;
 
+  /*
   // Store energy sum of rechits as a function of iPhi (iphi goes from 1 to 72)
   float SumE[73];
   // Store number of rechits as a function of iPhi 
@@ -40,9 +41,19 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   float MinTimeHits[73];
   // Store maximum time of rechit as a function of iPhi
   float MaxTimeHits[73];
-  
+  */
+
+  // Store energy sum of rechits as a function of iPhi (iphi goes from 1 to 72)       
+  float SumE[361];           
+  // Store number of rechits as a function of iPhi
+  int NumHits[361];               
+  // Store minimum time of rechit as a function of iPhi
+  float MinTimeHits[361];                             
+  // Store maximum time of rechit as a function of iPhi 
+  float MaxTimeHits[361];                      
+
   // initialize
-  for(int i = 0 ; i < 73 ; i++ )
+  for(int i = 0 ; i < 361 ; i++ )
     {
       SumE[i] = 0.;
       NumHits[i] = 0 ;
@@ -75,7 +86,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
 	  if( iPhi < 361 )	  // just to be safe
  	    {
-	      iPhi = (iPhi-1)/5 +1;  // convert ecal iphi to phiwedge iphi  (e.g. there are 5 crystal per phi wedge, as in calotowers )
+	      //iPhi = (iPhi-1)/5 +1;  // convert ecal iphi to phiwedge iphi  (e.g. there are 5 crystal per phi wedge, as in calotowers )
 	      SumE[iPhi] += hit->energy();
 	      NumHits[iPhi] ++;
 
@@ -86,7 +97,8 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	}
     }
   
-  for( int iPhi = 1 ; iPhi < 73; iPhi++ )
+  //for( int iPhi = 1 ; iPhi < 73; iPhi++ )
+  for( int iPhi = 1 ; iPhi < 361; iPhi++ )
     {
       if( SumE[iPhi] >= SumEnergyThreshold || NumHits[iPhi] > NHitsThreshold )
 	{
@@ -105,7 +117,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	      DetId id = DetId(hit->id()); 
 	      EBDetId EcalID(id.rawId());
 	      int Hit_iPhi = EcalID.iphi();
-	      Hit_iPhi = (Hit_iPhi-1)/5 +1; // convert ecal iphi to phiwedge iphi
+	      //Hit_iPhi = (Hit_iPhi-1)/5 +1; // convert ecal iphi to phiwedge iphi
 	      if( Hit_iPhi != iPhi ) continue;
 	      Hits.push_back( &(*hit) );
 	      
@@ -164,7 +176,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       */
       
       
-      vShowerShapes_Roundness.push_back(-1.);                                                                                                    
+      vShowerShapes_Roundness.push_back(-1.);         
       vShowerShapes_Angle.push_back(-1.);      
     }
   
