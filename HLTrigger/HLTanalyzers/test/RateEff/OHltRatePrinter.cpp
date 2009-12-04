@@ -11,7 +11,9 @@
 
 void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector<float> tspureRate,
 			       vector<float> tspureRateErr,vector<float> tpureRate,
-			       vector<float> tpureRateErr,vector< vector<float> >tcoMa) {
+			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
+			       vector < vector <float> > tRatePerLS,vector<int> tRunID,
+			       vector<int> tLumiSection) {
   Rate = tRate;
   RateErr = tRateErr;
   spureRate = tspureRate;
@@ -19,6 +21,9 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
   pureRate = tpureRate;
   pureRateErr = tpureRateErr;
   coMa = tcoMa;
+  RatePerLS = tRatePerLS;
+  runID = tRunID;
+  lumiSection = tLumiSection;
 }
 
 /* ********************************************** */
@@ -208,6 +213,21 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
 }
 
+int OHltRatePrinter::ivecMax(vector<int> ivec) {
+  int max = -999999;
+  for (unsigned int i=0;i<ivec.size();i++) {
+    if (ivec[i]>max) max = ivec[i];
+  }
+  return max;
+}
+
+int OHltRatePrinter::ivecMin(vector<int> ivec) {
+  int min = 999999999;
+  for (unsigned int i=0;i<ivec.size();i++) {
+    if (ivec[i]<min) min = ivec[i];
+  }
+  return min;
+}
 
 /* ********************************************** */
 // Fill histos
@@ -224,6 +244,21 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   TH1F *throughput = new TH1F("throughput","throughput",nTrig,1,nTrig+1);
   TH1F *eventsize = new TH1F("eventsize","eventsize",nTrig,1,nTrig+1);
   TH2F *overlap = new TH2F("overlap","overlap",nTrig,1,nTrig+1,nTrig,1,nTrig+1);
+
+  int RunLSn = RatePerLS.size();
+  
+  int RunMin = ivecMin(runID); 
+  int RunMax = ivecMax(runID);
+  int LSMin = ivecMin(lumiSection); 
+  int LSMax = ivecMax(lumiSection);
+  
+  int RunLSmin = RunMin*10000 + LSMin; 
+  int RunLSmax = RunMax*10000 + LSMax; 
+
+  //cout<<">>>>>>>> "<<RunLSn<<" "<<RunMin<<" "<<RunMax<<" "<<LSMin<<" "<<LSMax<<endl;
+  
+  TH2F *individualPerLS = new TH2F("individualPerLS","individualperLS",nTrig,1,nTrig+1,
+				   RunLSn,RunLSmin,RunLSmax);
 
 
   float cumulRate = 0.;
@@ -244,8 +279,16 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
     throughput->SetBinContent(i+1,cuThru);
     throughput->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i)); 
     eventsize->SetBinContent(i+1,menu->GetEventsize(i)); 
-    eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));      
+    eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
+
+    for (int j=0;j<RunLSn;j++) {
+      individualPerLS->SetBinContent(i+1,j+1,RatePerLS[j][i]);
+      TString tstr = ""; tstr += runID[j]; tstr = tstr + " - "; tstr += lumiSection[j];
+      individualPerLS->GetYaxis()->SetBinLabel(j+1,tstr);
+      individualPerLS->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
+    }    
   }
+  //individualPerLS->SetDrawOption("COLZ");
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
@@ -265,6 +308,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   eventsize->Write();
   throughput->Write();
   overlap->Write();
+  individualPerLS->Write();
   fr->Close();
 }
 

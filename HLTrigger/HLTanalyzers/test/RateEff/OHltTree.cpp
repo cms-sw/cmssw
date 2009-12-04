@@ -59,6 +59,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kTRUE);
   }
 
+  
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -78,8 +79,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	}
 	
 	currentLumiSection = LumiBlock;
-	if(currentLumiSection != previousLumiSection)
-	  nLumiSections++;
+	if(currentLumiSection != previousLumiSection) {
+	  
+	  cout<<"Run, LS: "<<Run<<" "<<LumiBlock<<endl;
+	  if (rc->isNewRunLS(Run,LumiBlock)) { // check against double counting
+	    rc->addRunLS(Run,LumiBlock);
+	    nLumiSections++;
+	  }
+	}
 
 	previousLumiSection = currentLumiSection;	
       }
@@ -184,6 +191,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     for (int it = 0; it < nTrig; it++){
       if (triggerBit[it]) {
 	rc->iCount[it]++;
+	rc->incrRunLSCount(Run,LumiBlock,it); // for per LS rates!
 	for (int it2 = 0; it2 < nTrig; it2++){
 	  if (triggerBit[it2]) {
 	    rc->overlapCount[it][it2] += 1;

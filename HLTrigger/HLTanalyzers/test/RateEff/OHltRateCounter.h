@@ -15,10 +15,16 @@ using namespace std;
 using namespace libconfig;
 
 class OHltRateCounter {
+
  public:
 
   OHltRateCounter(unsigned int size);
   virtual ~OHltRateCounter(){};
+
+  bool isNewRunLS(int Run,int LumiBlock);
+  void addRunLS(int Run,int LumiBlock);
+  void incrRunLSCount(int Run,int LumiBlock,int iTrig, int incr=1);
+  int getIDofRunLSCounter(int Run,int LumiBlock);
 
   // Helper functions
   static inline float eff(int a, int b){ 
@@ -63,6 +69,10 @@ class OHltRateCounter {
   vector<int> pureCount;
   vector< vector<int> > overlapCount;
   vector<int> prescaleCount;
+
+  vector< vector<int> > perLumiSectionCount;
+  vector<int> runID;
+  vector<int> lumiSection;
 
 };
 #endif
