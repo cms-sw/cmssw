@@ -7,8 +7,7 @@
 class QGSPCMS_EMV: public PhysicsList {
 
 public:
-  QGSPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map, 
-	      const edm::ParameterSet & p);
+  QGSPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
 };
 
 #endif

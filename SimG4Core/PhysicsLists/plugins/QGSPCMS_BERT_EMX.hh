@@ -9,8 +9,7 @@
 class QGSPCMS_BERT_EMX: public PhysicsList {
 
 public:
-  QGSPCMS_BERT_EMX(G4LogicalVolumeToDDLogicalPartMap& map, 
-		   const edm::ParameterSet & p);
+  QGSPCMS_BERT_EMX(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
   virtual void SetCuts();
 
 private:

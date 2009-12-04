@@ -9,4 +9,5 @@
 <use name=SimG4Core/Physics>
 <use name=geant4core>
 <use name=clhep>
+<use name=heppdt>
 <use name=boost>

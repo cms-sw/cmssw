@@ -18,7 +18,8 @@
 #include "G4NeutronTrackingCut.hh"
 
 QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map, 
-		 const edm::ParameterSet & p) : PhysicsList(map, p) {
+		 const HepPDT::ParticleDataTable * table_, 
+		 const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -30,6 +31,7 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool chips   = p.getUntrackedParameter<bool>("FlagCHIPS",false);
   bool hp      = p.getUntrackedParameter<bool>("FlagHP",false);
   bool glauber = p.getUntrackedParameter<bool>("FlagGlauber",false);
+  double charge= p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QBBC 3.1 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
@@ -39,7 +41,7 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",table_,ver,charge));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics("extra EM"));

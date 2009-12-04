@@ -10,7 +10,8 @@
 #include "G4DataQuestionaire.hh"
 
 CMSModel::CMSModel(G4LogicalVolumeToDDLogicalPartMap& map, 
-		   const edm::ParameterSet & p) : PhysicsList(map, p) {
+		   const HepPDT::ParticleDataTable * table_, 
+		   const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
 
   G4DataQuestionaire it(photon);
   

@@ -7,7 +7,7 @@
 class FTFPCMS: public PhysicsList {
 
 public:
-  FTFPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p);
+  FTFPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
 };
 
 #endif

@@ -7,7 +7,7 @@
 class QGSPCMS: public PhysicsList {
 
 public:
-  QGSPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p);
+  QGSPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
 };
 
 #endif

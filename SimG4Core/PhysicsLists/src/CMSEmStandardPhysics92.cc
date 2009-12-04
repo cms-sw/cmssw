@@ -63,13 +63,17 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name, 
-					       G4int ver, std::string reg) :
-  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name,  const HepPDT::ParticleDataTable * table_, G4int ver, std::string reg, G4double charge_):
+  G4VPhysicsConstructor(name), verbose(ver), region(reg), monopolePhysics(0) {
   G4LossTableManager::Instance();
+  if (table_->particle("Monopole")) 
+    monopolePhysics = new CMSMonopolePhysics(table_->particle("Monopole"), 
+					     charge_, ver);
 }
 
-CMSEmStandardPhysics92::~CMSEmStandardPhysics92() {}
+CMSEmStandardPhysics92::~CMSEmStandardPhysics92() {
+  if (monopolePhysics) delete monopolePhysics;
+}
 
 void CMSEmStandardPhysics92::ConstructParticle() {
   // gamma
@@ -115,6 +119,9 @@ void CMSEmStandardPhysics92::ConstructParticle() {
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
+
+  // monopole
+  if (monopolePhysics) monopolePhysics->ConstructParticle();
 }
 
 void CMSEmStandardPhysics92::ConstructProcess() {
@@ -132,7 +139,7 @@ void CMSEmStandardPhysics92::ConstructProcess() {
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << G4endl;
+	     << particleName << " at " << particle << G4endl;
 
     if (particleName == "gamma") {
 
@@ -229,6 +236,10 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
     }
   }
+
+  // monopole
+  if (monopolePhysics) monopolePhysics->ConstructProcess();
+
   // Setup options
   //
   G4EmProcessOptions opt;

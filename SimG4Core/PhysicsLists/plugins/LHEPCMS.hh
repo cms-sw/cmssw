@@ -7,7 +7,7 @@
 class LHEPCMS: public PhysicsList {
 
 public:
-  LHEPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p);
+  LHEPCMS(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
 };
 
 #endif

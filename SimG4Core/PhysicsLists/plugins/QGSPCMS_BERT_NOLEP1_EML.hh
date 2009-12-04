@@ -7,8 +7,7 @@
 class QGSPCMS_BERT_NOLEP1_EML: public PhysicsList {
 
 public:
-  QGSPCMS_BERT_NOLEP1_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
-			  const edm::ParameterSet & p);
+  QGSPCMS_BERT_NOLEP1_EML(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
 };
 
 #endif

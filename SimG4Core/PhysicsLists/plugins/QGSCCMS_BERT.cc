@@ -12,14 +12,16 @@
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSC_BERT.hh"
 
-QGSCCMS_BERT::QGSCCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
-			   const edm::ParameterSet & p) : PhysicsList(map, p) {
+QGSCCMS_BERT::QGSCCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map, 
+			   const HepPDT::ParticleDataTable * table_,
+			   const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
 
   G4DataQuestionaire it(photon);
   
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  double charge= p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSC_BERT 1.0 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
@@ -27,7 +29,7 @@ QGSCCMS_BERT::QGSCCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",table_,ver,charge));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));

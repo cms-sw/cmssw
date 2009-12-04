@@ -61,12 +61,17 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics71::CMSEmStandardPhysics71(const G4String& name, G4int ver) :
-  G4VPhysicsConstructor(name), verbose(ver) {
+CMSEmStandardPhysics71::CMSEmStandardPhysics71(const G4String& name, const HepPDT::ParticleDataTable * table_, G4int ver, G4double charge_) :
+  G4VPhysicsConstructor(name), verbose(ver), monopolePhysics(0) {
   G4LossTableManager::Instance();
+  if (table_->particle("Monopole")) 
+    monopolePhysics = new CMSMonopolePhysics(table_->particle("Monopole"), 
+					     charge_, ver);
 }
 
-CMSEmStandardPhysics71::~CMSEmStandardPhysics71() {}
+CMSEmStandardPhysics71::~CMSEmStandardPhysics71() {
+  if (monopolePhysics) delete monopolePhysics;
+}
 
 void CMSEmStandardPhysics71::ConstructParticle() {
   // gamma
@@ -112,6 +117,9 @@ void CMSEmStandardPhysics71::ConstructParticle() {
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
+
+  // monopole
+  if (monopolePhysics) monopolePhysics->ConstructParticle();
 }
 
 void CMSEmStandardPhysics71::ConstructProcess() {
@@ -215,6 +223,10 @@ void CMSEmStandardPhysics71::ConstructProcess() {
 
     }
   }
+
+  // monopole
+  if (monopolePhysics) monopolePhysics->ConstructProcess();
+
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
 }
