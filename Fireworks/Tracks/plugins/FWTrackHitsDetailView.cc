@@ -82,17 +82,23 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
       gs->SetMainTransparency(75);
       gs->SetPickable(kFALSE);
 
-
-      TEveText* text = new TEveText(gs->GetElementTitle());
+      TString name = gs->GetElementTitle();
+      TEveText* text = new TEveText(name.Data());
       text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
+      text->SetFontMode(TGLFont::kPixmap);
+      text->SetFontSize(12);
+      /*
       text->SetFontMode(TGLFont::kExtrude);
+      Float_t textWidth = name.Length()*text->GetFontSize();
 
       TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
       text->RefMainTrans().Move3LF(0, 0, +2*bb->GetDZ());
       text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
       Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
-      Float_t a = 0.2*bb->GetDX()/text->GetFontSize();
+      Float_t minSide = TMath::Min(bb->GetDX(), bb->GetDY());
+      Float_t a = minSide/textWidth;
       text->RefMainTrans().Scale(a, a, a);
+      */
       gs->AddElement(text); 
    }
 
