@@ -218,6 +218,8 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	v!= hltPaths_.end(); ++v ) 
 { 
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
+
+    if(pathByIndex >= triggerResults_->size() ) continue;
   
     // Fill HLTPassed Matrix and HLTPassFail Matrix
     // --------------------------------------------------------
@@ -234,6 +236,8 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         int yBinNumber = ME_HLTPassPass_->getTH2F()->GetYaxis()->FindBin(y->getPath().c_str());      
 
         unsigned int crosspathByIndex = triggerNames.triggerIndex(y->getPath());
+
+        if(crosspathByIndex >= triggerResults_->size() ) continue;
   
         if(triggerResults->accept(crosspathByIndex)){
   
@@ -1905,6 +1909,8 @@ void FourVectorHLTOnline::fillHLTMatrix(TH2F* hist) {
       for (int j=1; j< hist->GetNbinsY();j++) {
   
         unsigned int crosspathByIndex = triggerNames.triggerIndex(hist->GetXaxis()->GetBinLabel(j));
+
+        if(crosspathByIndex >= triggerResults_->size() ) continue;
   
         if(triggerResults_->accept(crosspathByIndex)){
   
