@@ -32,6 +32,7 @@ void OHltRateCounter::addRunLS(int Run,int LumiBlock) {
     vtmp.push_back(0);    
   }
   perLumiSectionCount.push_back(vtmp);
+  perLumiSectionTotCount.push_back(0);
 }
 
 
@@ -47,6 +48,13 @@ void OHltRateCounter::incrRunLSCount(int Run,int LumiBlock,int iTrig, int incr) 
   int id = getIDofRunLSCounter(Run,LumiBlock);
   if (id>-1) {
     perLumiSectionCount[id][iTrig] = perLumiSectionCount[id][iTrig] + incr;
+  }
+}
+
+void OHltRateCounter::incrRunLSTotCount(int Run,int LumiBlock, int incr) {
+  int id = getIDofRunLSCounter(Run,LumiBlock);
+  if (id>-1) {
+    perLumiSectionTotCount[id] = perLumiSectionTotCount[id] + incr;
   }
 }
 

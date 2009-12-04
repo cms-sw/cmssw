@@ -13,7 +13,7 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
 			       vector<float> tspureRateErr,vector<float> tpureRate,
 			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
 			       vector < vector <float> > tRatePerLS,vector<int> tRunID,
-			       vector<int> tLumiSection) {
+			       vector<int> tLumiSection, vector<float> tTotalRatePerLS) {
   Rate = tRate;
   RateErr = tRateErr;
   spureRate = tspureRate;
@@ -24,6 +24,10 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
   RatePerLS = tRatePerLS;
   runID = tRunID;
   lumiSection = tLumiSection;
+  totalRatePerLS = tTotalRatePerLS;
+
+  ReorderRunLS(); // reorder messed up runids/LS
+
 }
 
 /* ********************************************** */
@@ -257,8 +261,9 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
 
   //cout<<">>>>>>>> "<<RunLSn<<" "<<RunMin<<" "<<RunMax<<" "<<LSMin<<" "<<LSMax<<endl;
   
-  TH2F *individualPerLS = new TH2F("individualPerLS","individualperLS",nTrig,1,nTrig+1,
+  TH2F *individualPerLS = new TH2F("individualPerLS","individualPerLS",nTrig,1,nTrig+1,
 				   RunLSn,RunLSmin,RunLSmax);
+  TH1F *totalPerLS = new TH1F("totalPerLS","totalPerLS",RunLSn,RunLSmin,RunLSmax);
 
 
   float cumulRate = 0.;
@@ -288,7 +293,11 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
       individualPerLS->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
     }    
   }
-  //individualPerLS->SetDrawOption("COLZ");
+  for (int j=0;j<RunLSn;j++) {
+    TString tstr = ""; tstr += runID[j]; tstr = tstr + " - "; tstr += lumiSection[j];
+    totalPerLS->SetBinContent(j+1,totalRatePerLS[j]);
+    totalPerLS->GetXaxis()->SetBinLabel(j+1,tstr);
+  }    
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
@@ -308,7 +317,12 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   eventsize->Write();
   throughput->Write();
   overlap->Write();
+  individualPerLS->SetStats(0); individualPerLS->SetZTitle("Rate (Hz)");
+  individualPerLS->SetTitle("Individual trigger rate vs Run/LumiSection");
   individualPerLS->Write();
+  totalPerLS->SetStats(0); totalPerLS->SetZTitle("Rate (Hz)");
+  totalPerLS->SetTitle("Total trigger rate vs Run/LumiSection");
+  totalPerLS->Write();
   fr->Close();
 }
 
@@ -714,4 +728,42 @@ void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
 	}
 	printf("**************************************************************************************************************************\n");
 
+}
+
+
+void OHltRatePrinter::ReorderRunLS() {
+  // apply bubblesort to reorder
+  int nLS = lumiSection.size();
+  //for (int i=0;i<nLS;i++) {
+  //  cout<<">>>>>>>>>> "<<RunID[i]<<" "<<lumiSection[i]<<" "<<endl;
+  //}
+  for (int i=nLS-1;i>0;i--) {
+    for (int j=0;j<i;j++) {
+      if ( (runID[j] > runID[j+1]) ||
+	   (runID[j] == runID[j+1] && lumiSection[j] > lumiSection[j+1]) ) {
+	//cout<<">>>>>>> "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
+	//cout<<">>>>>>> "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
+	int swap1 = runID[j]; 
+	runID[j] = runID[j+1];
+	runID[j+1] = swap1;
+
+	int swap2 = lumiSection[j]; 
+	lumiSection[j] = lumiSection[j+1];
+	lumiSection[j+1] = swap2;
+
+	vector<float> swap3 = RatePerLS[j]; 
+	RatePerLS[j] = RatePerLS[j+1];
+	RatePerLS[j+1] = swap3;
+
+	float swap4 = totalRatePerLS[j]; 
+	totalRatePerLS[j] = totalRatePerLS[j+1];
+	totalRatePerLS[j+1] = swap4;
+	//cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
+	//cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
+      }    
+    }
+  }
+  //for (int i=0;i<nLS;i++) {
+  //  cout<<"<<<< "<<runID[i]<<" "<<lumiSection[i]<<" "<<endl;
+  //}
 }

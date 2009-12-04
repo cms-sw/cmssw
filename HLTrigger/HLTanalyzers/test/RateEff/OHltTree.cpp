@@ -201,8 +201,10 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	      allOtherBitsFired[it] = true;
 	  }
 	}
-	if (not previousBitsFired[it])
+	if (not previousBitsFired[it]) {
 	  rc->sPureCount[it]++;
+	  rc->incrRunLSTotCount(Run,LumiBlock); // for per LS rates!	  
+	}
 	if (not allOtherBitsFired[it])
 	  rc->pureCount[it]++;
       }

@@ -135,6 +135,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 
   const int ntrig = (int)menu->GetTriggerSize();
   vector< vector< float > > RatePerLS;
+  vector<float> totalRatePerLS;
   vector<float> Rate,pureRate,spureRate;
   vector<float> RateErr,pureRateErr,spureRateErr;
   vector< vector<float> >coMa;
@@ -162,6 +163,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 
     for (unsigned int iLS=0;iLS<rcs[0]->perLumiSectionCount.size();iLS++) {
       RatePerLS.push_back(Rate);
+      totalRatePerLS.push_back(0.);
     }
     
     float deno = (float)cfg->nEntries;
@@ -195,6 +197,10 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     hltDatasets[i].computeRate(collisionRate, mu);   //SAK -- convert event counts into rates
 
 
+    for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
+      totalRatePerLS[iLS] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionTotCount[iLS],scaleddenoPerLS);
+    }
+    
     for (int j=0;j<ntrig;j++) {
 
       // per lumisection
@@ -247,7 +253,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   }
   
   rprint->SetupAll(Rate,RateErr,spureRate,spureRateErr,pureRate,pureRateErr,coMa,
-		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection);
+		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS);
   
 }
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
