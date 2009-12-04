@@ -55,7 +55,7 @@ process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 #process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")
 #process.multiTrackValidator.label_tp_fake  = cms.InputTag("cutsTPFake")
 #process.multiTrackValidator.associatormap = cms.InputTag(assoc2GsfTracks)
-#process.multiTrackValidator.out = 'file.root'
+#process.multiTrackValidator.outputFile = 'file.root'
 
 # Tracking Truth and mixing module, if needed
 #process.load("SimGeneral.MixingModule.mixNoPU_cfi")
