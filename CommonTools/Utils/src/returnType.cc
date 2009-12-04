@@ -35,7 +35,7 @@ namespace reco {
       retTypeMap["bool"] = boolType;
     }
     map<string, TypeCode>::const_iterator f = retTypeMap.find(t.Name());
-    if (f == retTypeMap.end()) return invalid;
+    if (f == retTypeMap.end()) return (t.IsEnum() ? enumType : invalid);
     else return f->second;
   }
 }
