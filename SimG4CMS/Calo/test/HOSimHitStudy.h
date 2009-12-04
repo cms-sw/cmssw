@@ -20,6 +20,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <TH1F.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
 
 #include <memory>
 #include <iostream>
@@ -48,9 +50,15 @@ private:
   std::string           sourceLabel, g4Label, hitLab[2];
   std::vector<PCaloHit> ecalHits, hcalHits;
   double                maxEnergy, scaleEB, scaleHB, scaleHO;
-  TH1F                  *hit_[3],  *time_[3], *edepTW_[3], *edepZon_[3];
+  bool                  scheme_, print_;
+  double                tcut_;
+  TH1F                  *hit_[3],  *time_[3], *edepTW_[3], *edepTWT_[3];
   TH1F                  *edep_[3], *hitTow_[3], *eneInc_, *etaInc_, *phiInc_;
-  TH1F                  *eEB_, *eEBHB_, *eEBHBHO_;
+  TH1F                  *edepT_[3], *eEB_, *eEBHB_, *eEBHBHO_, *eEBHBHOT_;
+  TH1F                  *edepZon_[3], *edepZonT_[3], *eEBT_, *eEBHBT_;
+  TProfile              *eHO1_, *eHO1T_, *eHO17_, *eHO17T_, *eHO18_, *eHO18T_;
+  TProfile              *nHO1_, *nHO1T_;
+  TProfile2D            *eHO2_, *eHO2T_, *nHO2_, *nHO2T_;
   double                eInc, etaInc, phiInc;
 };
 

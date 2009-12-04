@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'EcalSim', 'G4cerr', 'G4cout',
         'HcalSim', 'HFShower'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
@@ -45,7 +45,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         )
     )
 )
@@ -62,7 +62,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("EmptySource")

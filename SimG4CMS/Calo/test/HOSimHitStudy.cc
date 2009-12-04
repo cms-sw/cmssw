@@ -2,10 +2,12 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 #include <iomanip>
 
@@ -19,11 +21,15 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   scaleEB   = ps.getUntrackedParameter<double>("ScaleEB", 1.0);
   scaleHB   = ps.getUntrackedParameter<double>("ScaleHB", 100.0);
   scaleHO   = ps.getUntrackedParameter<double>("ScaleHO", 2.0);
+  tcut_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
+  scheme_   = ps.getUntrackedParameter<bool>("TestNumbering", false);
+  print_    = ps.getUntrackedParameter<bool>("PrintExcessEnergy", true);
   edm::LogInfo("HitStudy") << "Module Label: " << g4Label << "   Hits: "
 			   << hitLab[0] << ", " << hitLab[1] 
 			   << "   MaxEnergy: " << maxEnergy
 			   << "   Scale factor for EB " << scaleEB 
-			   << ", for HB " <<scaleHB <<" and for HO " <<scaleHO;
+			   << ", for HB " << scaleHB << " and for HO " 
+			   << scaleHO << " time Cut " << tcut_;
 
   edm::Service<TFileService> tfile;
  
@@ -45,6 +51,7 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
   phiInc_->GetXaxis()->SetTitle(title); 
   phiInc_->GetYaxis()->SetTitle("Events");
+  int itcut = (int)(tcut_);
   for (int i=0; i<3; i++) {
     sprintf (name, "Hit%d", i);
     sprintf (title, "Number of hits in %s", dets[i].c_str());
@@ -63,6 +70,11 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
     edep_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     edep_[i]->GetXaxis()->SetTitle(title); 
     edep_[i]->GetYaxis()->SetTitle("Hits");
+    sprintf (name, "EdepT%d", i);
+    sprintf (title, "Energy deposit (GeV) in %s for t < %d ns", dets[i].c_str(), itcut);
+    edepT_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    edepT_[i]->GetXaxis()->SetTitle(title); 
+    edepT_[i]->GetYaxis()->SetTitle("Hits");
     sprintf (name, "HitTow%d", i);
     sprintf (title, "Number of towers with hits in %s", dets[i].c_str());
     hitTow_[i]  = tfile->make<TH1F>(name, title, 1000, 0., 20000.);
@@ -75,11 +87,21 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
     edepTW_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     edepTW_[i]->GetXaxis()->SetTitle(title); 
     edepTW_[i]->GetYaxis()->SetTitle("Towers");
+    sprintf (name, "EdepTWT%d", i);
+    sprintf (title, "Energy deposit (GeV) in %s Tower for t < %d ns", dets[i].c_str(), itcut);
+    edepTWT_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    edepTWT_[i]->GetXaxis()->SetTitle(title); 
+    edepTWT_[i]->GetYaxis()->SetTitle("Towers");
     sprintf (name, "EdepZone%d", i);
     sprintf (title, "Energy deposit (GeV) in %s", dets[i].c_str());
     edepZon_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     edepZon_[i]->GetXaxis()->SetTitle(title); 
     edepZon_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EdepZoneT%d", i);
+    sprintf (title, "Energy deposit (GeV) in %s for t < %d ns", dets[i].c_str(), itcut);
+    edepZonT_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    edepZonT_[i]->GetXaxis()->SetTitle(title); 
+    edepZonT_[i]->GetYaxis()->SetTitle("Events");
   }
   sprintf (title, "Energy Measured in EB (GeV)");
   eEB_  = tfile->make<TH1F>("EEB", title, 5000, 0., maxEnergy);
@@ -93,6 +115,62 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   eEBHBHO_  = tfile->make<TH1F>("EEBHBHO", title, 5000, 0., maxEnergy);
   eEBHBHO_->GetXaxis()->SetTitle(title); 
   eEBHBHO_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Energy Measured in EB (GeV) for t < %d ns", itcut);
+  eEBT_  = tfile->make<TH1F>("EEBT", title, 5000, 0., maxEnergy);
+  eEBT_->GetXaxis()->SetTitle(title); 
+  eEBT_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Energy Measured in EB+HB (GeV) for t < %d ns", itcut);
+  eEBHBT_  = tfile->make<TH1F>("EEBHBT", title, 5000, 0., maxEnergy);
+  eEBHBT_->GetXaxis()->SetTitle(title); 
+  eEBHBT_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Energy Measured in EB+HB+HO (GeV) for t < %d ns", itcut);
+  eEBHBHOT_  = tfile->make<TH1F>("EEBHBHOT", title, 5000, 0., maxEnergy);
+  eEBHBHOT_->GetXaxis()->SetTitle(title); 
+  eEBHBHOT_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO");
+  eHO1_ = tfile->make<TProfile>("EHO1", title, 30, -1.305, 1.305);
+  eHO1_->GetXaxis()->SetTitle(title); 
+  eHO1_->GetYaxis()->SetTitle("Events");
+  eHO2_ = tfile->make<TProfile2D>("EHO2", title, 30,-1.305,1.305,72,0,6.28319);
+  eHO2_->GetXaxis()->SetTitle(title); 
+  eHO2_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO Layer 17");
+  eHO17_ = tfile->make<TProfile>("EHO17", title, 30, -1.305, 1.305);
+  eHO17_->GetXaxis()->SetTitle(title); 
+  eHO17_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO Layer 18");
+  eHO18_ = tfile->make<TProfile>("EHO18", title, 30, -1.305, 1.305);
+  eHO18_->GetXaxis()->SetTitle(title); 
+  eHO18_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO for t < %d ns", itcut);
+  eHO1T_ = tfile->make<TProfile>("EHO1T", title, 30, -1.305, 1.305);
+  eHO1T_->GetXaxis()->SetTitle(title); 
+  eHO1T_->GetYaxis()->SetTitle("Events");
+  eHO2T_ = tfile->make<TProfile2D>("EHO2T", title, 30,-1.305,1.305,72,0,6.28319);
+  eHO2T_->GetXaxis()->SetTitle(title); 
+  eHO2T_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO Layer 17 for t < %d ns", itcut);
+  eHO17T_ = tfile->make<TProfile>("EHO17T", title, 30, -1.305, 1.305);
+  eHO17T_->GetXaxis()->SetTitle(title); 
+  eHO17T_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "SimHit energy in HO Layer 18 for t < %d ns", itcut);
+  eHO18T_ = tfile->make<TProfile>("EHO18T", title, 30, -1.305, 1.305);
+  eHO18T_->GetXaxis()->SetTitle(title); 
+  eHO18T_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Number of layers hit in HO");
+  nHO1_ = tfile->make<TProfile>("NHO1", title, 30, -1.305, 1.305);
+  nHO1_->GetXaxis()->SetTitle(title); 
+  nHO1_->GetYaxis()->SetTitle("Events");
+  nHO2_ = tfile->make<TProfile2D>("NHO2", title, 30,-1.305,1.305,72,0,6.28319);
+  nHO2_->GetXaxis()->SetTitle(title); 
+  nHO2_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Number of layers hit in HOfor t < %d ns", itcut);
+  nHO1T_ = tfile->make<TProfile>("NHO1T", title, 30, -1.305, 1.305);
+  nHO1T_->GetXaxis()->SetTitle(title); 
+  nHO1T_->GetYaxis()->SetTitle("Events");
+  nHO2T_ = tfile->make<TProfile2D>("NHO2T", title, 30,-1.305,1.305,72,0,6.28319);
+  nHO2T_->GetXaxis()->SetTitle(title); 
+  nHO2T_->GetYaxis()->SetTitle("Events");
 }
 
 void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
@@ -112,6 +190,9 @@ void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
     phiInc = (*p)->momentum().phi();
   }
 
+  LogDebug("HitStudy") << "Energy = " << eInc << " Eta = " << etaInc 
+		       << " Phi = " << phiInc/CLHEP::deg;
+
   for (int i=0; i<2; i++) {
     bool getHits = false;
     if (i == 0) ecalHits.clear();
@@ -119,7 +200,8 @@ void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByLabel(g4Label,hitLab[i],hitsCalo); 
     if (hitsCalo.isValid()) getHits = true;
-    LogDebug("HitStudy") << "HcalValidation: Input flags Hits " << getHits;
+    LogDebug("HitStudy") << "HcalValidation: Input flag " << hitLab[i] 
+			 << " getHits flag " << getHits;
 
     if (getHits) {
       unsigned int isiz;
@@ -141,17 +223,20 @@ void HOSimHitStudy::analyzeHits () {
 
   //initialize
   int    nhit[3];
-  double etot[3];
+  double etot[3], etotT[3];
   std::vector<unsigned int> ebID, hbID, hoID;
-  std::vector<double>       ebEtow, hbEtow, hoEtow;
+  std::vector<double>       ebEtow,  hbEtow,  hoEtow;
+  std::vector<double>       ebEtowT, hbEtowT, hoEtowT;
   for (int k=0; k<3; k++) {
     nhit[k] = 0;
     etot[k] = 0;
+    etotT[k]= 0;
   }
   eneInc_->Fill(eInc);
   etaInc_->Fill(etaInc);
   phiInc_->Fill(phiInc);
   
+  double eHO17=0, eHO18=0, eHO17T=0, eHO18T=0;
   // Loop over containers
   for (int k=0; k<2; k++) {
     int nHit;
@@ -173,54 +258,89 @@ void HOSimHitStudy::analyzeHits () {
 	edep = hcalHits[i].energy();
 	time = hcalHits[i].time();
 	id_  = hcalHits[i].id();
-	HcalDetId id     = HcalDetId(id_);
-	int subdet       = id.subdet();
+	int subdet, zside, depth, eta, phi, lay;
+	if (scheme_) {
+	  HcalTestNumberingScheme::unpackHcalIndex(id_, subdet, zside, depth, eta, phi, lay);
+	} else {
+	  HcalDetId id = HcalDetId(id_);
+	  subdet       = id.subdet();
+	  zside        = id.zside();
+	  depth        = id.depth();
+          eta          = id.ietaAbs();
+          phi          = id.iphi();
+          lay          = -1;
+	}
+	LogDebug("HitStudy") << "HcalValidation:: Hit " << k << " Subdet:"
+			     << subdet << " zside:" << zside << " depth:" 
+			     << depth << " layer:" << lay << " eta:" << eta
+			     << " phi:" << phi;
 	if      (subdet == static_cast<int>(HcalBarrel))  indx = 1;
-	else if (subdet == static_cast<int>(HcalOuter))   indx = 2;
+	else if (subdet == static_cast<int>(HcalOuter)) {
+	  indx = 2;
+	  if (lay == 18)       {
+	    eHO17 += edep;
+	    if (time < tcut_) eHO17T += edep;
+	  } else {
+	    eHO18 += edep;
+	    if (time < tcut_) eHO18T += edep;
+	  }
+	}
       }
       if (indx >= 0) {
+	double edepT = edep;
 	time_[indx]->Fill(time);
 	edep_[indx]->Fill(edep);
 	etot[indx] += edep;
+	if (time < tcut_) {
+	  etotT[indx] += edep;
+	  edepT_[indx]->Fill(edep);
+	  edepT = 0;
+	}
 	nhit[indx]++;
 	if (indx == 0) {
 	  bool ok = false;
 	  for (unsigned int j=0; j<ebID.size(); j++) {
 	    if (id_ == ebID[j]) {
-	      ebEtow[j] += edep;
-	      ok         = true;
+	      ebEtow[j]  += edep;
+	      ebEtowT[j] += edepT;
+	      ok          = true;
 	      break;
 	    }
 	  }
 	  if (!ok) {
 	    ebID.push_back(id_);
 	    ebEtow.push_back(edep);
+	    ebEtowT.push_back(edepT);
 	  }
 	} else if (indx == 1) {
 	  bool ok = false;
 	  for (unsigned int j=0; j<hbID.size(); j++) {
 	    if (id_ == hbID[j]) {
-	      hbEtow[j] += edep;
-	      ok         = true;
+	      hbEtow[j]  += edep;
+	      hbEtowT[j] += edepT;
+	      ok          = true;
 	      break;
 	    }
 	  }
 	  if (!ok) {
 	    hbID.push_back(id_);
 	    hbEtow.push_back(edep);
+	    hbEtowT.push_back(edepT);
 	  }
 	} else {
 	  bool ok = false;
 	  for (unsigned int j=0; j<hoID.size(); j++) {
 	    if (id_ == hoID[j]) {
-	      hoEtow[j] += edep;
-	      ok         = true;
+	      hoEtow[j]  += edep;
+	      hoEtowT[j] += edepT;
+	      ok          = true;
 	      break;
 	    }
 	  }
 	  if (!ok) {
 	    hoID.push_back(id_);
 	    hoEtow.push_back(edep);
+	    hoEtowT.push_back(edepT);
 	  }
 	}
       }
@@ -231,32 +351,68 @@ void HOSimHitStudy::analyzeHits () {
   for (int k=0; k<3; k++) {
     hit_[k]->Fill(double(nhit[k]));
     edepZon_[k]->Fill(etot[k]);
+    edepZonT_[k]->Fill(etotT[k]);
   }
   hitTow_[0]->Fill(double(ebEtow.size()));
-  for (unsigned int i=0; i<ebEtow.size(); i++) edepTW_[0]->Fill(ebEtow[i]);
+  for (unsigned int i=0; i<ebEtow.size(); i++) {
+    edepTW_[0]->Fill(ebEtow[i]);
+    edepTWT_[0]->Fill(ebEtowT[i]);
+  }
   hitTow_[1]->Fill(double(hbEtow.size()));
-  for (unsigned int i=0; i<hbEtow.size(); i++) edepTW_[1]->Fill(hbEtow[i]);
+  for (unsigned int i=0; i<hbEtow.size(); i++) {
+    edepTW_[1]->Fill(hbEtow[i]);
+    edepTWT_[1]->Fill(hbEtowT[i]);
+  }
   hitTow_[2]->Fill(double(hoEtow.size()));
-  for (unsigned int i=0; i<hoEtow.size(); i++) edepTW_[2]->Fill(hoEtow[i]);
+  for (unsigned int i=0; i<hoEtow.size(); i++) {
+    edepTW_[2]->Fill(hoEtow[i]);
+    edepTWT_[2]->Fill(hoEtowT[i]);
+  }
   double eEB     = scaleEB*etot[0];
   double eEBHB   = eEB + scaleHB*etot[1];
   double eEBHBHO = eEBHB + scaleHB*scaleHO*etot[2];
   eEB_->Fill(eEB);
   eEBHB_->Fill(eEBHB);
   eEBHBHO_->Fill(eEBHBHO);
+  double eEBT     = scaleEB*etotT[0];
+  double eEBHBT   = eEBT + scaleHB*etotT[1];
+  double eEBHBHOT = eEBHBT + scaleHB*scaleHO*etotT[2];
+  eEBT_->Fill(eEBT);
+  eEBHBT_->Fill(eEBHBT);
+  eEBHBHOT_->Fill(eEBHBHOT);
+  eHO1_->Fill(etaInc,eHO17+eHO18);
+  eHO2_->Fill(etaInc,phiInc,eHO17+eHO18);
+  eHO17_->Fill(etaInc,eHO17);
+  eHO18_->Fill(etaInc,eHO18);
+  eHO1T_->Fill(etaInc,eHO17T+eHO18T);
+  eHO2T_->Fill(etaInc,phiInc,eHO17T+eHO18T);
+  eHO17T_->Fill(etaInc,eHO17T);
+  eHO18T_->Fill(etaInc,eHO18T);
+  int nHO=0, nHOT=0;
+  if (eHO17 > 0) nHO++; if (eHO17T > 0) nHOT++;
+  if (eHO18 > 0) nHO++; if (eHO18T > 0) nHOT++;
+  nHO1_->Fill(etaInc,(double)(nHO));
+  nHO2_->Fill(etaInc,phiInc,(double)(nHO));
+  nHO1T_->Fill(etaInc,(double)(nHOT));
+  nHO2T_->Fill(etaInc,phiInc,(double)(nHOT));
   
   LogDebug("HitStudy") << "HOSimHitStudy::analyzeHits: Hits in EB " << nhit[0]
 		       << " in " << ebEtow.size() << " towers with total E "
-		       << etot[0] <<"\n                            Hits in HB "
+		       << etot[0] << "|" << etotT[0]
+		       <<"\n                            Hits in HB "
 		       << nhit[1] << " in " << hbEtow.size()
-		       << " towers with total E " << etot[1]
+		       << " towers with total E " << etot[1] << "|" << etotT[1]
 		       << "\n                            Hits in HO "
 		       << nhit[2] << " in " << hoEtow.size()
-		       << " towers with total E " << etot[2]
+		       << " towers with total E " << etot[2] << "|" << etotT[2]
 		       << "\n                            Energy in EB " << eEB
-		       << " with HB " << eEBHB << " and with HO " << eEBHBHO;
+		       << "|" << eEBT << " with HB " << eEBHB << "|" << eEBHBT
+		       << " and with HO " << eEBHBHO << "|" << eEBHBHOT
+		       << "\n                            E in HO layers "
+		       << eHO17 <<"|" << eHO17T <<" " << eHO18 <<"|" << eHO18T
+		       << " number of HO hits " << nHO << "|" << nHOT;
 
-  if (eEBHBHO > 0.75*maxEnergy) {
+  if (eEBHBHO > 0.75*maxEnergy && print_) {
     edm::LogInfo("HitStudy") << "Event with excessive energy: EB = " << eEB
 			     << " EB+HB = " << eEBHB << " EB+HB+HO = " 
 			     << eEBHBHO;

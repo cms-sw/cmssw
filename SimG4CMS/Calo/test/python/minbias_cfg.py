@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Sim")
 process.load("SimG4CMS.Calo.PythiaMinBias_cfi")
 
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")

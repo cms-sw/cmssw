@@ -261,6 +261,77 @@ void plotBERT(char name[10]="Hit0", char filx[10]="minbias", bool logy=true,
   leg1->Draw();
 }
 
+void plotHO(char name[10]="EHO17", char filx[10]="50", int bin=1, int mode=0) {
+
+  setTDRStyle();
+  TCanvas *myc = new TCanvas("myc","",800,600);
+  char file[50], lego1[32], lego2[32], name2[20], ytit[10];
+  sprintf (file, "simHitStudy_%s.root", filx); 
+  sprintf (lego1, "All Hits"); sprintf (lego2, "Hits with t < 100 ns");
+  sprintf (name2, "%sT", name);
+  if (!strcmp("NHO1",name)) sprintf (ytit, "<NLayer>");
+  else                      sprintf (ytit, "<Edep>");
+  
+  std::cout << "Open " << file << "\n";
+  TFile* File = new TFile(file);
+  TDirectory *d1 = (TDirectory*)File->Get("hoSimHitStudy");
+  TH1F* hist1 = (TH1F*) d1->Get(name);
+  TH1F* hist2 = (TH1F*) d1->Get(name2);
+  hist1->Rebin(bin);
+  hist1->SetLineStyle(1);
+  hist1->SetLineWidth(3);
+  hist1->SetLineColor(2);
+  hist2->Rebin(bin);
+  hist2->SetLineStyle(2);
+  hist2->SetLineWidth(3);
+  hist2->SetLineColor(4);
+
+  if (mode <= 0) {
+    hist1->GetXaxis()->SetTitle("#eta");
+    hist1->GetYaxis()->SetTitle(ytit);
+    hist1->GetYaxis()->SetLabelSize(0.03);
+    hist1->GetXaxis()->SetLabelSize(0.03);
+    hist1->GetYaxis()->SetTitleOffset(1.2);
+    hist1->Draw();
+    hist2->Draw("sames");
+  } else {
+    hist2->GetXaxis()->SetTitle("#eta");
+    hist2->GetYaxis()->SetTitle(ytit);
+    hist2->GetXaxis()->SetLabelSize(0.03);
+    hist2->GetYaxis()->SetLabelSize(0.03);
+    hist2->GetYaxis()->SetTitleOffset(1.2);
+    hist2->Draw();
+    hist1->Draw("sames");
+  }
+  
+  gPad->Update();
+  TPaveStats *st1 = (TPaveStats*)hist1->GetFunction("stats");
+  st1->SetTextColor(2);
+  st1->SetLineColor(2);
+  TPaveStats *st2 = (TPaveStats*)hist2->GetFunction("stats");
+  st2->SetTextColor(4);
+  st2->SetLineColor(4);
+  double x1 = st1->GetX1NDC();
+  double y1 = st1->GetY1NDC();
+  double x2 = st1->GetX2NDC();
+  double y2 = st1->GetY2NDC();
+  double xx = x2-x1;
+  double yy = y2-y1;
+  st2->SetX1NDC(x1);
+  st2->SetY1NDC(y1-yy);
+  st2->SetX2NDC(x2);
+  st2->SetY2NDC(y1);
+  gPad->Modified();
+
+  TLegend *leg1 = new TLegend(0.10,0.15,0.35,0.30);
+  char head[40];
+  sprintf (head, "%s GeV #mu^{-}", filx);
+  leg1->SetHeader(head); leg1->SetFillColor(0); leg1->SetTextSize(0.03);
+  leg1->AddEntry(hist1,lego1,"F");
+  leg1->AddEntry(hist2,lego2,"F");
+  leg1->Draw();
+}
+
 void plotValid(char name[10]="Hit0", char filx[10]="minbias", bool logy=true, 
 	       int bin=1, double xmax=-1., int mode=0) {
 
