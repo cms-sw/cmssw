@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
