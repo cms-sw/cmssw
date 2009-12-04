@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2009/10/02 15:45:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/04 07:06:12 $
+ *  $Revision: 1.2 $
  *  \author N. Cripps - Imperial
  */
 
@@ -19,6 +19,7 @@
 class DQMStore;
 namespace reco {
   class CaloJet;
+  class CaloJetCollection;
 }
 namespace jptJetAnalysis {
   class TrackPropagatorToCalo;
@@ -46,7 +47,8 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   void beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmStore);
   
   /// Do the analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& jptCorrectedJet);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets);
   
   /// Finish up a job
   virtual void endJob();

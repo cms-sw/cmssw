@@ -145,6 +145,13 @@ void JPTJetAnalyzer::beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmSt
   bookHistograms(dqmStore);
 }
 
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets)
+{
+  for (reco::CaloJetCollection::const_iterator iJet = rawJets->begin(); iJet != rawJets->end(); ++iJet) {
+    analyze(event,eventSetup,*iJet);
+  }
+}
+
 void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet)
 {
   
