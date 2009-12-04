@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.83 2009/12/02 23:31:06 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.84 2009/12/04 18:59:43 amraktad Exp $
 //
 // hacks
 // #define private public
@@ -543,43 +543,35 @@ CmsShowMainFrame::enableActions(bool enable)
 }
 
 void
-CmsShowMainFrame::enablePrevious(bool enable, bool changePlayMode)
+CmsShowMainFrame::enablePrevious(bool enable)
 {
    if (m_previousEvent != 0) {
       if (enable) {
          m_previousEvent->enable();
          m_goToFirst->enable();
-         if (changePlayMode)
-            m_playEventsBack->enable();
+         m_playEventsBack->enable();
       } else {
          m_previousEvent->disable();
          m_goToFirst->disable();
-         if (changePlayMode) 
-         {
-            m_playEventsBack->disable();
-            m_playEventsBack->stop();
-         }
+         m_playEventsBack->disable();
+         m_playEventsBack->stop();
       }
    }
 }
 
 void
-CmsShowMainFrame::enableNext(bool enable, bool changePlayMode)
+CmsShowMainFrame::enableNext(bool enable)
 {
    if (m_nextEvent != 0) {
       if (enable) {
          m_nextEvent->enable();
          m_goToLast->enable();
-         if (changePlayMode)
-            m_playEvents->enable();
+         m_playEvents->enable();
       } else {
          m_nextEvent->disable();
          m_goToLast->disable();
-         if (changePlayMode)
-         {
-            m_playEvents->disable();
-            m_playEvents->stop();
-         }
+         m_playEvents->disable();
+         m_playEvents->stop();
       }
    }
 }

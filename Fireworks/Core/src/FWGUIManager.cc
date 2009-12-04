@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.177 2009/12/01 18:50:57 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.178 2009/12/04 18:59:43 amraktad Exp $
 
 //
 
@@ -365,15 +365,17 @@ FWGUIManager::loopAction()
 }
 
 void
-FWGUIManager::disablePrevious(bool changePlayMode)
+FWGUIManager::disablePrevious()
 {
-   m_cmsShowMainFrame->enablePrevious(false, changePlayMode);
+   m_cmsShowMainFrame->enablePrevious(false);
 }
 
 void
-FWGUIManager::disableNext(bool changePlayMode)
+FWGUIManager::disableNext()
 {
-   m_cmsShowMainFrame->enableNext(false, changePlayMode);
+   printf("disable next\n");
+   m_cmsShowMainFrame->enableNext(false);
+   fflush(stdout);
 }
 
 void
