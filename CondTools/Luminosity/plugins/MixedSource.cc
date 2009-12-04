@@ -126,8 +126,8 @@ lumi::MixedSource::getLumiData(const std::string& filename,
 
     runnumber=lumiheader->runNumber;
     if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
-    //h.lsnr=lumiheader->sectionNumber;
-    h.lsnr=ncmslumi;//we record cms lumils
+    h.lumilsnr=lumiheader->sectionNumber;
+    h.cmslsnr=ncmslumi;//we record cms lumils
     h.startorbit=lumiheader->startOrbit;
     h.lumiavg=lumisummary->InstantLumi;
     
@@ -613,13 +613,28 @@ void
 lumi::MixedSource::printLumiResult(
 		const lumi::MixedSource::LumiResult& lumiresult){
   std::cout<<"===Lumi mesurement==="<<lumiresult.size()<<std::endl;
-  size_t lumisec=1;
   for(lumi::MixedSource::LumiResult::const_iterator it=lumiresult.begin();
       it!=lumiresult.end();++it){
-    std::cout<<"\t lumisec: "<<lumisec<<" : lumilumisec : "<<it->lsnr<<" : avg : "<<it->lumiavg<<" : startorbit : "<<it->startorbit<<std::endl;
-    ++lumisec;
+    std::cout<<"\t lumisec: "<<it->cmslsnr<<" : lumilumisec : "<<it->lumilsnr<<" : avg : "<<it->lumiavg<<" : startorbit : "<<it->startorbit<<std::endl;
   }
 }
+void 
+lumi::MixedSource::printIntegratedLumi(
+		const lumi::MixedSource::LumiResult& lumiresult,
+		const lumi::MixedSource::TriggerDeadCountResult& deadtime){
+  std::cout<<"Integrated Lumi "<<lumiresult.size()<<" "<<deadtime.size()<<std::endl;
+  float delivered=0.0;
+  float recorded=0.0;
+  for(unsigned int i=0;i<lumiresult.size();++i){
+    delivered+=lumiresult.at(i).lumiavg*93.2;
+    unsigned int deadcountPerLS=deadtime.at(i);
+    float deadfraction=deadcountPerLS*25.0*(1.0e-9)/93.2;
+    std::cout<<i+1<<" deadfraction "<<deadfraction<<std::endl;
+    recorded+=lumiresult.at(i).lumiavg*93.2*(1.0-deadfraction);
+  }
+  std::cout<<"LHC Delivered : "<<delivered<<" : CMS recorded : "<<recorded<<std::endl;
+}
+
 const std::string
 lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result , bool allowForceFirstSince ){
   lumi::MixedSource::TriggerNameResult_Algo algonames;
@@ -682,6 +697,7 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
       this->printCountResult(algocount,techcount);
       this->printDeadTimeResult(deadtime);
       this->printLumiResult(lumiresult);
+      this->printIntegratedLumi(lumiresult,deadtime);
       return std::string("mixedsource dryrun ")+m_filename+";"+m_lumiversion;
     }else{
       //for the moment, lumi data drives the loop
@@ -701,7 +717,7 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
       LumiResult::const_iterator litEnd=lumiresult.end();
       unsigned long long totaldeadtime=0;
       for(lit=litBeg;lit!=litEnd;++lit){
-	unsigned int lumisecid=lit->lsnr;//start from 1
+	unsigned int lumisecid=lit->cmslsnr;//start from 1
 	edm::LuminosityBlockID lu(runnumber,lumisecid);
 	//should fill cms lumiid!
 	std::cout<<"==== run lumiid lumiversion "<<runnumber<<"\t"<<lumisecid<<"\t"<<m_lumiversion<<std::endl;
@@ -737,7 +753,7 @@ lumi::MixedSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
 	try{
 	  deadcountPerLS=deadtime.at((lumisecid-1));
 	  //std::cout<<"deadcountPer LS "<<deadcountPerLS<<std::endl;
-	  deadfractionPerLS=0.01*deadcountPerLS*25.0*(1.0e-9)/93.244;
+	  deadfractionPerLS=deadcountPerLS*25.0*(1.0e-9)/93.244;
 	  l->setDeadFraction(deadfractionPerLS);
 	  std::vector<unsigned int> algobitcounts=algocount.at(lumisecid-1);
 	  std::vector<unsigned int> techbitcounts=techcount.at(lumisecid-1);

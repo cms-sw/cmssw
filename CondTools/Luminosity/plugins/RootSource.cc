@@ -116,8 +116,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       for(size_t i=0;i<3564;++i){
 	bxinfoET.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->ETLumi[i],lumidetail->ETLumiErr[i],lumidetail->ETLumiQlty[i]));
       }
-      l->setBunchCrossingData(bxinfoET,lumi::ET);
-
       std::vector<lumi::BunchCrossingInfo> bxinfoOCC1;
       std::vector<lumi::BunchCrossingInfo> bxinfoOCC2;
       bxinfoOCC1.reserve(3564);

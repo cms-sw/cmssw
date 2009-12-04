@@ -36,8 +36,8 @@ lumi::LumiSectionDataHandler::getNewObjects(){
   lumiIt lumiEnd=m_to_transfer.end();
   for(lumiIt it=lumiBeg;it!=lumiEnd;++it){
     if(it==lumiBeg) lumiversion=it->first->lumiVersion();
-    deliveredLumi += it->first->lumiAverage();
-    recordedLumi += it->first->lumiAverage()*(1-it->first->deadFraction());
+    deliveredLumi += it->first->lumiAverage()*93.2;
+    recordedLumi += it->first->lumiAverage()*(1-it->first->deadFraction())*93.2;
   }
   edm::LogInfo("LumiReport")<<"Data Source : "<<m_userTextLog<<"\n"
 			    <<"Total LS : "<<nlumi

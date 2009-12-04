@@ -39,7 +39,8 @@ namespace lumi{
       int lumiquality;
     };
     struct PerLumiData{
-      unsigned int lsnr;
+      unsigned int cmslsnr;
+      unsigned int lumilsnr;
       unsigned int startorbit;
       float lumiavg;
       std::vector<PerBXData> bxET;
@@ -67,6 +68,9 @@ namespace lumi{
     void printTriggerNameResult(const TriggerNameResult_Algo& algonames,const TriggerNameResult_Tech& technames);
     void printPrescaleResult(const PrescaleResult_Algo& algo,const PrescaleResult_Tech& tech);
     void printLumiResult(const LumiResult& lumiresult);
+    void printIntegratedLumi(
+		const LumiResult& lumiresult,
+		const TriggerDeadCountResult& deadtime);
   private:
     std::string m_filename;
     TFile* m_source;
