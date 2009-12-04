@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2008/04/21 17:21:17 $
-//   $Revision: 1.11 $
+//   $Date: 2008/11/05 17:24:58 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -32,7 +32,9 @@
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class edm::InputTag;
+namespace edm {
+  class InputTag;
+}
 
 class L1MuGMTRegCDLConfig;
 class L1MuGMTRegMMConfigPhi;
