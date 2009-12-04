@@ -1,4 +1,4 @@
-#include "DQM/Physics/src/EwkWMuNuDQM.h"
+#include "DQM/Physics/src/EwkMuDQM.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -28,7 +29,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-EwkWMuNuDQM::EwkWMuNuDQM( const ParameterSet & cfg ) :
+EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
@@ -65,7 +66,7 @@ EwkWMuNuDQM::EwkWMuNuDQM( const ParameterSet & cfg ) :
 {
 }
 
-void EwkWMuNuDQM::beginRun(const Run& r, const EventSetup&) {
+void EwkMuDQM::beginRun(const Run& r, const EventSetup&) {
       nall = 0;
       nsel = 0;
 
@@ -76,14 +77,14 @@ void EwkWMuNuDQM::beginRun(const Run& r, const EventSetup&) {
 }
 
 
-void EwkWMuNuDQM::beginJob(const EventSetup &) {
+void EwkMuDQM::beginJob(const EventSetup &) {
       theDbe = Service<DQMStore>().operator->();
-      theDbe->setCurrentFolder("Physics/EwkWMuNuDQM");
+      theDbe->setCurrentFolder("Physics/EwkMuDQM");
 
       init_histograms();
 }
 
-void EwkWMuNuDQM::init_histograms() {
+void EwkMuDQM::init_histograms() {
 
       char chtitle[256] = "";
       for (int i=0; i<2; ++i) {
@@ -107,9 +108,17 @@ void EwkWMuNuDQM::init_histograms() {
             nhits_before_ = theDbe->book1D("NHITS_BEFORECUTS",chtitle,40,-0.5,39.5);
             nhits_after_ = theDbe->book1D("NHITS_LASTCUT",chtitle,40,-0.5,39.5);
 
+            snprintf(chtitle, 255, "number Of Valid Muon Hits");
+            muonhits_before_= theDbe->book1D("MUONHITS_BEFORECUTS",chtitle,40,-0.5,39.5);
+            muonhits_after_= theDbe->book1D("MUONHITS_LASTCUT",chtitle,40,-0.5,39.5);
+
             snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
             tkmu_before_ = theDbe->book1D("TKMU_BEFORECUTS",chtitle,2,-0.5,1.5);
             tkmu_after_ = theDbe->book1D("TKMU_LASTCUT",chtitle,2,-0.5,1.5);
+
+            snprintf(chtitle, 255, "Quality-muon flag");
+            goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS",chtitle,2,-0.5,1.5);
+            goodewkmuon_after_ = theDbe->book1D("GOODEWKMUON_LASTCUT",chtitle,2,-0.5,1.5);
 
             if (isRelativeIso_) {
                   if (isCombinedIso_) {
@@ -157,72 +166,32 @@ void EwkWMuNuDQM::init_histograms() {
             njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
             njets_after_ = theDbe->book1D("NJETS_LASTCUT",chtitle,10,-0.5,9.5);
 
+            snprintf(chtitle, 255, "DiMuonMass (2 globals)");
+            dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS",chtitle,100,0,200);
+            dimuonmass_after_= theDbe->book1D("DIMUONMASS_AFTERZCUTS",chtitle,100,0,200);
+
+            snprintf(chtitle, 255, "DiMuon Mass (global pt + StandAlone pt");
+            dimuonSAmass_before_= theDbe->book1D("DIMUONSTAMASS_BEFORECUTS",chtitle,100,0,200);
+            dimuonSAmass_after_= theDbe->book1D("DIMUONSTAMASS_AFTERZCUTS",chtitle,100,0,200);
+
+            snprintf(chtitle, 255, "DiMuon Mass (StandAlone pt + StandAlone pt");
+            dimuonSASAmass_before_= theDbe->book1D("DIMUONSTASTAMASS_BEFORECUTS",chtitle,100,0,200); 
+            dimuonSASAmass_after_= theDbe->book1D("DIMUONSTASTAMASS_AFTERZCUTS",chtitle,100,0,200);
+            
+            snprintf(chtitle, 255, "Global pt for Muons in Z");
+            ptmuonZ_after_= theDbe->book1D("PT_AFTERZCUT",chtitle,100,0.,100.);
       }
 }
 
 
-void EwkWMuNuDQM::endJob() {
+void EwkMuDQM::endJob() {
 }
 
-void EwkWMuNuDQM::endRun(const Run& r, const EventSetup&) {
+void EwkMuDQM::endRun(const Run& r, const EventSetup&) {
 
-      double all = nall;
-      double esel = nsel/all;
-      LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
-      LogVerbatim("") << "Overall efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
-
-      double erec = nrec/all;
-      double eiso = niso/all;
-      double ehlt = nhlt/all;
-      double emet = nmet/all;
-
-      double num = nrec;
-      double eff = erec;
-      double err = sqrt(eff*(1-eff)/all);
-      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
-
-      num = niso;
-      eff = eiso;
-      err = sqrt(eff*(1-eff)/all);
-      double effstep = 0.;
-      double errstep = 0.;
-      if (nrec>0) effstep = eiso/erec;
-      if (nrec>0) errstep = sqrt(effstep*(1-effstep)/nrec);
-      LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
-  
-      num = nhlt;
-      eff = ehlt;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = 0.;
-      errstep = 0.;
-      if (niso>0) effstep = ehlt/eiso;
-      if (niso>0) errstep = sqrt(effstep*(1-effstep)/niso);
-      LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
-
-      num = nmet;
-      eff = emet;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = 0.;
-      errstep = 0.;
-      if (nhlt>0) effstep = emet/ehlt;
-      if (nhlt>0) errstep = sqrt(effstep*(1-effstep)/nhlt);
-      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
-
-      num = nsel;
-      eff = esel;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = 0.;
-      errstep = 0.;
-      if (nmet>0) effstep = esel/emet;
-      if (nmet>0) errstep = sqrt(effstep*(1-effstep)/nmet);
-      LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
-
-      LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
+void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       
       // Reset global event selection flags
       bool rec_sel = false;
@@ -310,6 +279,27 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             double pt = mu.pt();
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
+
+            for (unsigned int j=0; j<muonCollectionSize; j++) {
+                  if (i==j) continue;
+                  const Muon& mu2 = muonCollection->at(j);
+                 // Glb + Glb  
+                 if (mu2.isGlobalMuon() && j>i ){
+                         const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+                         dimuonmass_before_->Fill(ZRecoGlb.mass());
+                 }
+                  // Glb + Standalone 
+                 if (mu2.isStandAloneMuon()){
+                         const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                         dimuonSAmass_before_->Fill(ZRecoSta.mass());
+                 }
+                  // Standalone + Standalone 
+                 if (mu2.isStandAloneMuon() && j>i){
+                         const math::XYZTLorentzVector ZRecoStaSta (mu2.outerTrack()->px()+mu.outerTrack()->px(), mu.outerTrack()->py()+mu.outerTrack()->py() , mu.outerTrack()->pz()+mu2.outerTrack()->pz(), mu.outerTrack()->p()+mu2.outerTrack()->p());
+                         dimuonSASAmass_before_->Fill(ZRecoStaSta.mass());
+                 }
+            }
+      
       }
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
@@ -345,6 +335,8 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
       // Central W->mu nu selection criteria
       const int NFLAGS = 13;
       bool muon_sel[NFLAGS];
+      bool muon4Z=true;
+
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             for (int j=0; j<NFLAGS; ++j) {
                   muon_sel[j] = false;
@@ -365,14 +357,17 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
             if (fabs(eta)<etaCut_) muon_sel[1] = true; 
+            if (pt<ptThrForZ1_) { muon4Z = false;}
 
             // d0, chi2, nhits quality cuts
             double dxy = tk->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
             double trackerHits = tk->numberOfValidHits();
+            double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
-            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+//            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true;
             if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
             if (mu.isTrackerMuon()) muon_sel[5] = true; 
 
@@ -381,7 +376,11 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             dxy_before_->Fill(dxy);
             chi2_before_->Fill(normalizedChi2);
             nhits_before_->Fill(trackerHits);
+            muonhits_before_->Fill(validmuonhits);
             tkmu_before_->Fill(mu.isTrackerMuon());
+
+            bool quality = muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5];
+            goodewkmuon_before_->Fill(quality);
 
             // Isolation cuts
             double isovar = mu.isolationR03().sumPt;
@@ -391,11 +390,15 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             }
             if (isRelativeIso_) isovar /= pt;
             if (isovar<isoCut03_) muon_sel[6] = true; 
+            if (isovar>=isoCut03_) { muon4Z = false;}
+
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
             iso_before_->Fill(isovar);
 
+
             // HLT (not mtched to muon for the time being)
             if (trigger_fired) muon_sel[7] = true; 
+            else { muon4Z = false;}
 
             // MET/MT cuts
             double w_et = met_et+mu.pt();
@@ -458,14 +461,18 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
                         eta_after_->Fill(eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS) 
                         dxy_after_->Fill(dxy);
-                  if (!muon_sel[3] || flags_passed==NFLAGS) 
+                  if (!muon_sel[3] || flags_passed==NFLAGS){ 
                         chi2_after_->Fill(normalizedChi2);
+                        muonhits_after_->Fill(validmuonhits);
+                  }
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
                         nhits_after_->Fill(trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
                         tkmu_after_->Fill(mu.isTrackerMuon());
                   if (!muon_sel[6] || flags_passed==NFLAGS) 
                         iso_after_->Fill(isovar);
+                  if (!muon_sel[2]||!muon_sel[3] || !muon_sel[4] || !muon_sel[5] || flags_passed==NFLAGS) 
+                        goodewkmuon_after_->Fill(quality);
                   if (!muon_sel[7] || flags_passed==NFLAGS) 
                         if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
                         hlt_hist_done = true;
@@ -487,19 +494,49 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
                         njets_hist_done = true;
             }
 
+
+            // The cases in which the event is rejected as a Z are considered independently:
+            if ( muon4Z &&  !muon_sel[11]){
+                   // Plots for 2 muons       
+                   bool usedMuon=false;
+                   for (unsigned int j=0; j<muonCollectionSize; j++) {
+                         if (i==j) continue;
+                         const Muon& mu2 = muonCollection->at(j);
+                                    double pt2 = mu2.pt();
+                                    double isovar2 = mu2.isolationR03().sumPt;
+                                    if (isCombinedIso_) {
+                                          isovar2 += mu2.isolationR03().emEt;
+                                          isovar2 += mu2.isolationR03().hadEt;
+                                    }
+                                    if (isRelativeIso_) isovar2 /= pt2;
+
+                          if (pt2<=ptThrForZ1_ || isovar2>=isoCut03_) continue;
+                  
+                  // Glb + Glb  
+                             if (mu2.isGlobalMuon() && j>i ){
+                               const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+                               dimuonmass_after_->Fill(ZRecoGlb.mass());
+                               if(!usedMuon){ptmuonZ_after_->Fill(mu.pt()); usedMuon=true;}
+                             }
+                  // Glb + Standalone 
+                             if (mu2.isStandAloneMuon()){
+                              const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                              dimuonSAmass_after_->Fill(ZRecoSta.mass());
+                             }
+                  // Standalone + Standalone 
+                             if (mu2.isStandAloneMuon() && j>i){
+                              const math::XYZTLorentzVector ZRecoStaSta (mu2.outerTrack()->px()+mu.outerTrack()->px(), mu.outerTrack()->py()+mu.outerTrack()->py() , mu.outerTrack()->pz()+mu2.outerTrack()->pz(), mu.outerTrack()->p()+mu2.outerTrack()->p());
+                              dimuonSASAmass_after_->Fill(ZRecoStaSta.mass());
+                             }
+            }
+
+
+
       }
 
-      // Collect final flags
-      if (rec_sel) nrec++;
-      if (iso_sel) niso++;
-      if (hlt_sel) nhlt++;
-      if (met_sel) nmet++;
 
-      if (all_sel) {
-            nsel++;
-            LogTrace("") << ">>>> Event ACCEPTED";
-      } else {
-            LogTrace("") << ">>>> Event REJECTED";
+
+
       }
 
       return;
@@ -508,4 +545,4 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-      DEFINE_FWK_MODULE( EwkWMuNuDQM );
+      DEFINE_FWK_MODULE( EwkMuDQM );

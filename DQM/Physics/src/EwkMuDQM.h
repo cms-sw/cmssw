@@ -1,9 +1,9 @@
-#ifndef EwkWMuNuDQM_H
-#define EwkWMuNuDQM_H
+#ifndef EwkMuDQM_H
+#define EwkMuDQM_H
 
-/** \class EwkWMuNuDQM
+/** \class EwkMuDQM
  *
- *  DQM offline for EWK WMuNu
+ *  DQM offline for EWKMu
  *
  */
 
@@ -15,9 +15,9 @@
 
 class DQMStore;
 class MonitorElement;
-class EwkWMuNuDQM : public edm::EDAnalyzer {
+class EwkMuDQM : public edm::EDAnalyzer {
 public:
-  EwkWMuNuDQM (const edm::ParameterSet &);
+  EwkMuDQM (const edm::ParameterSet &);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
@@ -81,6 +81,12 @@ private:
   MonitorElement* nhits_before_;
   MonitorElement* nhits_after_;
 
+  MonitorElement* muonhits_before_;
+  MonitorElement* muonhits_after_;
+
+  MonitorElement* goodewkmuon_before_;
+  MonitorElement* goodewkmuon_after_;
+
   MonitorElement* tkmu_before_;
   MonitorElement* tkmu_after_;
 
@@ -107,6 +113,18 @@ private:
 
   MonitorElement* njets_before_;
   MonitorElement* njets_after_;
+
+  MonitorElement* dimuonmass_before_;
+  MonitorElement* dimuonmass_after_;
+
+  MonitorElement* dimuonSAmass_before_;
+  MonitorElement* dimuonSAmass_after_;
+
+  MonitorElement* dimuonSASAmass_before_;
+  MonitorElement* dimuonSASAmass_after_;
+
+
+  MonitorElement* ptmuonZ_after_;
 };
 
 #endif

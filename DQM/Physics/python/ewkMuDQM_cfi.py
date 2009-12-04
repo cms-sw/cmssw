@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # DQM monitor module for EWK-WMuNu
-ewkWMuNuDQM = cms.EDAnalyzer("EwkWMuNuDQM",
+ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       # Input collections ->
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       MuonTag = cms.untracked.InputTag("muons"),
