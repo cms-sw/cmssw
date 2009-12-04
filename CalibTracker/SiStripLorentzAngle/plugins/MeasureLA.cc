@@ -1,6 +1,7 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/MeasureLA.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include <boost/lexical_cast.hpp>
 #include <TChain.h>
 #include <TFile.h>
 

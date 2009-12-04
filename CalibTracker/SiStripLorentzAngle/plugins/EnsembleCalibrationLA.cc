@@ -3,6 +3,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 #include <fstream>
 
 namespace sistrip {
