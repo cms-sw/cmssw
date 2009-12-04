@@ -9,13 +9,22 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-int Phi_To_iPhi(float phi) 
+int Phi_To_HcaliPhi(float phi) 
 {
   phi = phi < 0 ? phi + 2.*TMath::Pi() : phi ;
   float phi_degrees = phi * (360.) / ( 2. * TMath::Pi() ) ;
   int iPhi = (int) ( ( phi_degrees/5. ) + 1.);
    
   return iPhi < 73 ? iPhi : 73 ;
+}
+
+int Phi_To_EcaliPhi(float phi) 
+{
+  phi = phi < 0 ? phi + 2.*TMath::Pi() : phi ;
+  float phi_degrees = phi * (360.) / ( 2. * TMath::Pi() ) ;
+  int iPhi = (int) (  phi_degrees  + 1.);
+   
+  return iPhi < 361 ? iPhi : 360 ;
 }
 
 GlobalHaloAlgo::GlobalHaloAlgo()
@@ -35,8 +44,11 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   float METOverSumEt = TheCaloMET.sumEt() ? TheCaloMET.pt() / TheCaloMET.sumEt() : 0 ;
   TheGlobalHaloData.SetMETOverSumEt(METOverSumEt);
 
-  int EcalOverlapping_CSCRecHits[73];
-  int EcalOverlapping_CSCSegments[73];
+  //int EcalOverlapping_CSCRecHits[73];
+  //int EcalOverlapping_CSCSegments[73];
+
+  int EcalOverlapping_CSCRecHits[361];
+  int EcalOverlapping_CSCSegments[361];
   int HcalOverlapping_CSCRecHits[73];
   int HcalOverlapping_CSCSegments[73];
 
@@ -44,12 +56,12 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
     {
       for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin(); iSegment != TheCSCSegments->end(); iSegment++) 
 	{
-	  bool EcalOverlap[73];
+	  bool EcalOverlap[361];
 	  bool HcalOverlap[73];
-	  for( int i = 0 ; i < 73 ; i++ ) 
+	  for( int i = 0 ; i < 361 ; i++ ) 
 	    {
 	      EcalOverlap[i] = false;
-	      HcalOverlap[i] = false;
+	      if( i < 73 ) HcalOverlap[i] = false;
 	    }
 	  
 	  std::vector<CSCRecHit2D> Hits = iSegment->specificRecHits() ;
@@ -64,21 +76,24 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	      const BoundPlane& TheSurface = TheUnit->surface();
 	      const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 
-	      int iphi = Phi_To_iPhi( TheGlobalPosition.phi() ) ;
+	      int Hcal_iphi = Phi_To_HcaliPhi( TheGlobalPosition.phi() ) ;
+	      int Ecal_iphi = Phi_To_EcaliPhi( TheGlobalPosition.phi() ) ;
 	      float x = TheGlobalPosition.x(); 
 	      float y = TheGlobalPosition.y();
 	      
 	      float r = TMath::Sqrt( x*x + y*y);
 	      
 	      if( r < Ecal_R_Max && r > Ecal_R_Min )
-		EcalOverlap[iphi] = true;
+		EcalOverlap[Ecal_iphi] = true;
 	      if( r < Hcal_R_Max && r > Hcal_R_Max ) 
-		HcalOverlap[iphi] = true;
+		HcalOverlap[Hcal_iphi] = true;
 	    }
-	  for( int i = 0 ; i < 73 ; i++ ) 
+	  for( int i = 0 ; i < 361 ; i++ ) 
 	    {
 	      if( EcalOverlap[i] )  EcalOverlapping_CSCSegments[i]++;
-	      if( HcalOverlap[i] )  HcalOverlapping_CSCSegments[i]++;
+	      if( HcalOverlap[i] )
+		if( i < 73 ) 
+		  HcalOverlapping_CSCSegments[i]++;
 	    }
 	} 
     }
@@ -96,16 +111,17 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	  const BoundPlane& TheSurface = TheUnit->surface();
 	  const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 	  
-	  int iphi = Phi_To_iPhi( TheGlobalPosition.phi() ) ;
+	  int Hcaliphi = Phi_To_HcaliPhi( TheGlobalPosition.phi() ) ;
+	  int Ecaliphi = Phi_To_EcaliPhi( TheGlobalPosition.phi() ) ;
 	  float x = TheGlobalPosition.x(); 
 	  float y = TheGlobalPosition.y();
 	  
 	  float r = TMath::Sqrt(x*x + y*y);
 	  
 	  if( r < Ecal_R_Max && r > Ecal_R_Min )
-	    EcalOverlapping_CSCRecHits[iphi] ++;
+	    EcalOverlapping_CSCRecHits[Ecaliphi] ++;
 	  if( r < Hcal_R_Max && r > Hcal_R_Max ) 
-	    HcalOverlapping_CSCRecHits[iphi] ++ ;
+	    HcalOverlapping_CSCRecHits[Hcaliphi] ++ ;
 	}
     }  
 
@@ -125,7 +141,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   std::vector<GlobalPoint> TheGlobalPositions = TheCSCHaloData.GetCSCTrackImpactPositions();
 
   // Container to store Ecal/Hcal iPhi values matched to impact point of CSC tracks
-  std::vector<int> EcaliPhi, HcaliPhi;
+  std::vector<int> vEcaliPhi, vHcaliPhi;
 
   // Keep track of number of calo pointing CSC halo tracks that do not match to Phi wedges
   int N_Unmatched_Tracks = 0;  
@@ -137,26 +153,25 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       float global_r = TMath::Sqrt(Pos->x()*Pos->x() + Pos->y()*Pos->y());
       
       // Convert global phi to iPhi
-      global_phi = global_phi < 0 ? global_phi + 2.*TMath::Pi() : global_phi ;
-      float global_phi_degrees = global_phi * (360.) / ( 2. * TMath::Pi() ) ;
-      int global_iPhi = (int) ( ( global_phi_degrees / 5. ) + 1.);
+      int global_EcaliPhi = Phi_To_EcaliPhi( global_phi );
+      int global_HcaliPhi = Phi_To_HcaliPhi( global_phi );
       
       bool MATCHED = false;
       
       //Loop over Ecal Phi Wedges 
       for( std::vector<PhiWedge>::iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge++ )
 	{
-	  if( (TMath::Abs( global_iPhi - iWedge->iPhi() ) <= 2 ) && (global_r >  Ecal_R_Min && global_r < Ecal_R_Max ) )
+	  if( (TMath::Abs( global_EcaliPhi - iWedge->iPhi() ) <= 5 ) && (global_r >  Ecal_R_Min && global_r < Ecal_R_Max ) )
 	    {
 	      bool StoreWedge = true;
-	      for( unsigned int i = 0 ; i< EcaliPhi.size() ; i++ ) if ( EcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
+	      for( unsigned int i = 0 ; i< vEcaliPhi.size() ; i++ ) if ( vEcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
 	      
 	      if( StoreWedge ) 
 		{
 		  PhiWedge NewWedge(*iWedge);
 		  NewWedge.SetOverlappingCSCSegments( EcalOverlapping_CSCSegments[iWedge->iPhi()] );
 		  NewWedge.SetOverlappingCSCRecHits( EcalOverlapping_CSCRecHits[iWedge->iPhi()] );
-		  EcaliPhi.push_back( iWedge->iPhi() );
+		  vEcaliPhi.push_back( iWedge->iPhi() );
 		  TheGlobalHaloData.GetMatchedEcalPhiWedges().push_back( NewWedge );
 		}
 	      MATCHED = true;
@@ -165,14 +180,14 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       //Loop over Hcal Phi Wedges 
       for( std::vector<PhiWedge>::iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end() ; iWedge++ )
 	{
-	  if(  (TMath::Abs( global_iPhi - iWedge->iPhi() ) <=  2 ) && (global_r > Hcal_R_Min && global_r < Hcal_R_Max ) )
+	  if(  (TMath::Abs( global_HcaliPhi - iWedge->iPhi() ) <=  2 ) && (global_r > Hcal_R_Min && global_r < Hcal_R_Max ) )
 	    {
 	      bool StoreWedge  = true;
-	      for( unsigned int i = 0 ; i < HcaliPhi.size() ; i++ ) if(  HcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
+	      for( unsigned int i = 0 ; i < vHcaliPhi.size() ; i++ ) if(  vHcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
 	      
 	      if( StoreWedge ) 
 		{
-		  HcaliPhi.push_back( iWedge->iPhi() ) ;
+		  vHcaliPhi.push_back( iWedge->iPhi() ) ;
 		  PhiWedge NewWedge(*iWedge);
 		  NewWedge.SetOverlappingCSCSegments( HcalOverlapping_CSCSegments[iWedge->iPhi()] );
 		  NewWedge.SetOverlappingCSCRecHits( HcalOverlapping_CSCRecHits[iWedge->iPhi()] );		  
@@ -198,17 +213,17 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	  if( iTower->et() < TowerEtThreshold ) continue;
 	  if( abs(iTower->ieta()) > 24 )  continue;   // not in barrel/endcap
 	  int iphi = iTower->iphi();
-	  for( unsigned int x = 0 ; x < EcaliPhi.size() ; x++ )
+	  for( unsigned int x = 0 ; x < vEcaliPhi.size() ; x++ )
 	    {
-	      if( iphi == EcaliPhi[x] ) 
+	      if( iphi == vEcaliPhi[x] ) 
 		{
 		  dMEx += ( TMath::Cos(iTower->phi())*iTower->emEt() );
 		  dMEy += ( TMath::Sin(iTower->phi())*iTower->emEt() );
 		}
 	    }
-	  for( unsigned int x = 0 ; x < HcaliPhi.size() ; x++ )
+	  for( unsigned int x = 0 ; x < vHcaliPhi.size() ; x++ )
 	    {
-	      if( iphi == HcaliPhi[x] ) 
+	      if( iphi == vHcaliPhi[x] ) 
 		{
 		  dMEx += ( TMath::Cos(iTower->phi() )*iTower->hadEt() ) ;
 		  dMEy += ( TMath::Sin(iTower->phi() )*iTower->hadEt() ) ;
