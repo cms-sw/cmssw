@@ -15,6 +15,10 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
 {
   //Digi Level 
   IT_L1MuGMTReadout = iConfig.getParameter<edm::InputTag>("L1MuGMTReadoutLabel");
+
+  //HLT Level
+  IT_HLTResult    = iConfig.getParameter<edm::InputTag>("HLTResultLabel");
+  CSCAlgo.vIT_HLTBit = iConfig.getParameter< std::vector< edm::InputTag> >("HLTBitLabel");
   
   //RecHit Level
   IT_CSCRecHit   = iConfig.getParameter<edm::InputTag>("CSCRecHitLabel");
@@ -49,8 +53,13 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
   iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
 
+  //Get HLT Results                                                                                                                                                       
+  edm::Handle<edm::TriggerResults> TheHLTResults;
+  iEvent.getByLabel( IT_HLTResult , TheHLTResults);
+
   // Run The CSCHaloAlgo to reconstruct the CSCHaloData object
-  CSCHaloAlgo CSCAlgo;
+  // 
+  /*
   if(TheCosmics.isValid() && TheCSCSegments.isValid() && TheCSCRecHits.isValid() && TheL1GMTReadout.isValid() && TheCSCGeometry.isValid() )
     {
       std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout) ) );
@@ -63,7 +72,13 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
       // Put it in the event
       iEvent.put(TheCSCData);
     }
+  */
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults) ) );
+  // Put it in the event                                                                                                                                                
+  iEvent.put(TheCSCData);
   return;
+
+  
 }
 
 void CSCHaloDataProducer::beginJob(){return;}
