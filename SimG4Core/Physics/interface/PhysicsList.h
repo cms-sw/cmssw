@@ -4,6 +4,7 @@
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "HepPDT/ParticleDataTable.hh"
 #include "G4VModularPhysicsList.hh"
 
 class DDG4ProductionCuts;
@@ -12,6 +13,7 @@ class PhysicsList : public G4VModularPhysicsList {
 
 public:
   PhysicsList(G4LogicalVolumeToDDLogicalPartMap & map,
+	      const HepPDT::ParticleDataTable * table_,
 	      const edm::ParameterSet & p);
   virtual ~PhysicsList();
   virtual void SetCuts();

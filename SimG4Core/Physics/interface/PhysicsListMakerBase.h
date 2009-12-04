@@ -17,13 +17,14 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Tue Nov 22 13:03:39 EST 2005
-// $Id: PhysicsListMakerBase.h,v 1.1 2005/11/22 20:05:22 chrjones Exp $
+// $Id: PhysicsListMakerBase.h,v 1.2 2007/05/08 23:05:23 sunanda Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
+#include "HepPDT/ParticleDataTable.hh"
 
 // forward declarations
 class SimActivityRegistry;
@@ -40,6 +41,7 @@ class PhysicsListMakerBase
 
       // ---------- const member functions ---------------------
       virtual std::auto_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap&,
+					      const HepPDT::ParticleDataTable *,
 					      const edm::ParameterSet&,
 					      SimActivityRegistry&) const = 0;
 
