@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/23 14:38:13 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/12/03 06:54:30 $
+ *  $Revision: 1.23 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -680,7 +680,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if (_verbose) std::cout << "BeamHaloSummary ends" << std::endl;
 
   // ==========================================================
-  ////////////////////////////////////////////////////////////////////////////////
   //Vertex information
   
   bool bPrimaryVertex = false;
@@ -695,15 +694,37 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
     double vertex_numTrks = v->tracksSize();
     double vertex_sumTrks = 0.0;
-    double vertex_Z       = v->z();
+    //double vertex_Z       = v->z();
     for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
       vertex_sumTrks += (*vertex_curTrack)->pt();
     }
+//     std::cout << v->x() << " " << v->y()<< " " << v->z() << " "
+// 	      << v->chi2() << " " << v->tracksSize() << " "
+// 	      << vertex_number << " " << v->normalizedChi2()
+// 	      << std::endl;
+
     if (vertex_number>=1
-	&& vertex_numTrks>1
-	&& vertex_chi2 < 2.4
-	&& abs(vertex_Z) < 20 ) bPrimaryVertex = true;
+        && vertex_numTrks>=2 
+	&& vertex_chi2   <2.4 ) bPrimaryVertex = true;
+    //&& fabs(vertex_Z)<20.0 ) bPrimaryVertex = true;
+
   }
+
+//   // ==========================================================
+
+//   edm::Handle<L1GlobalTriggerReadoutRecord> l1GtReadoutRecord;
+//   iEvent.getByLabel("gtDigis", l1GtReadoutRecord);
+
+//   unsigned int NmaxL1AlgoBit = 128;
+//   unsigned int NmaxL1TechBit = 64;
+
+//   for (unsigned int l1bit = 0; l1bit < NmaxL1AlgoBit; ++l1bit) {    
+//     std::cout << l1GtReadoutRecord->decisionWord()[l1bit] << std::endl;
+//   }  
+
+//   for (unsigned int l1bit = 0; l1bit < NmaxL1TechBit; ++l1bit) {    
+//     std::cout << l1GtReadoutRecord->technicalTriggerWord()[l1bit] << std::endl;
+//   }
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
