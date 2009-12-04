@@ -147,7 +147,7 @@ void JPTJetAnalyzer::beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmSt
 
 void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets)
 {
-  for (reco::CaloJetCollection::const_iterator iJet = rawJets->begin(); iJet != rawJets->end(); ++iJet) {
+  for (reco::CaloJetCollection::const_iterator iJet = rawJets.begin(); iJet != rawJets.end(); ++iJet) {
     analyze(event,eventSetup,*iJet);
   }
 }

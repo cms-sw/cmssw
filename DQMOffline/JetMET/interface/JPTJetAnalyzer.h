@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2009/12/04 07:06:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/04 07:23:13 $
+ *  $Revision: 1.3 $
  *  \author N. Cripps - Imperial
  */
 
@@ -19,7 +19,6 @@
 class DQMStore;
 namespace reco {
   class CaloJet;
-  class CaloJetCollection;
 }
 namespace jptJetAnalysis {
   class TrackPropagatorToCalo;
