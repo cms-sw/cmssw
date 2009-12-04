@@ -72,7 +72,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   
   for( int iPhi = 1 ; iPhi < 73 ; iPhi++ )
     {
-      if( SumE[iPhi] >= SumEnergyThreshold || NumHits[iPhi] >= NHitsThreshold )
+      if( SumE[iPhi] >= SumEnergyThreshold && NumHits[iPhi] >= NHitsThreshold )
 	{
 	  // Build PhiWedge and store to HcalHaloData if energy or #hits pass thresholds
 	  PhiWedge wedge(SumE[iPhi], iPhi, NumHits[iPhi], MinTimeHits[iPhi], MaxTimeHits[iPhi]);
