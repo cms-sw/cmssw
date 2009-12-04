@@ -5,7 +5,7 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2009/03/30 17:10:19 $
+ *  $Date: 2009/06/30 13:48:21 $
  *  $Revision: 1.1 $
  *  \author K. Hatakeyama - The Rockefeller University
  */
@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"

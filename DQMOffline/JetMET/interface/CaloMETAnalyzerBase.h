@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2009/03/30 17:09:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/06/30 13:48:17 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"

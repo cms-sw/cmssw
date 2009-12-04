@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 02:10:12 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/12/03 06:54:30 $
+ *  $Revision: 1.35 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -12,12 +12,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/PFMET.h"
+//#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//#include "DataFormats/METReco/interface/CaloMET.h"
+//#include "DataFormats/METReco/interface/METCollection.h"
+//#include "DataFormats/METReco/interface/MET.h"
+//#include "DataFormats/METReco/interface/PFMETCollection.h"
+//#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"

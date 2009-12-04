@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 06:54:30 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/12/04 07:57:44 $
+ *  $Revision: 1.24 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -10,8 +10,8 @@
 #include "DQMOffline/JetMET/interface/CaloMETAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//#include "DataFormats/METReco/interface/CaloMET.h"
+//#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

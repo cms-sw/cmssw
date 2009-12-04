@@ -5,7 +5,7 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2009/06/30 13:48:21 $
+ *  $Date: 2009/11/08 13:46:33 $
  *  $Revision: 1.1 $
  *  \author A.Apresyan Caltech
  */
@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/METReco/interface/MET.h"
-
+#include "DataFormats/METReco/interface/METFwd.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"

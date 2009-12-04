@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/22 05:41:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/12/03 06:54:30 $
+ *  $Revision: 1.10 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -10,8 +10,8 @@
 #include "DQMOffline/JetMET/interface/PFMETAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
+//#include "DataFormats/METReco/interface/PFMET.h"
+//#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"

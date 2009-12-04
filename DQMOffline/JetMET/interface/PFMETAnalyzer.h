@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/21 07:28:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/21 08:10:19 $
+ *  $Revision: 1.6 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -24,8 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/PFMET.h"
+//#include "DataFormats/METReco/interface/PFMETCollection.h"
+//#include "DataFormats/METReco/interface/PFMET.h"
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"

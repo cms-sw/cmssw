@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 02:10:12 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/12/03 06:54:30 $
+ *  $Revision: 1.10 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -14,8 +14,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/MET.h"
+//#include "DataFormats/METReco/interface/METCollection.h"
+//#include "DataFormats/METReco/interface/MET.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
