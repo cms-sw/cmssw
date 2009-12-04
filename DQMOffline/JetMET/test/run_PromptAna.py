@@ -53,7 +53,7 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-  '/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(":")
+  '/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
 print 'List of input files'
 print inputfiles

@@ -14,7 +14,7 @@ reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMon
 print 'reference_histogram_file = '+str(reference_histogram_file)
 #
 # --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
-input_root_files = os.environ.get('INPUTFILES','reco_DQM_test.root').split(",")
+input_root_files = os.environ.get('INPUTEDMFILES','reco_DQM_test.root').split(",")
 print 'input_root_files = '+str(input_root_files)
 print
 
