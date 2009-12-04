@@ -17,11 +17,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.maxLuminosityBlocks=cms.untracked.PSet(
-   input=cms.untracked.int32(6)
+   input=cms.untracked.int32(25)
 )
 
 process.source = cms.Source("EmptySource",
-   numberEventsInRun = cms.untracked.uint32(6),
+   numberEventsInRun = cms.untracked.uint32(25),
    firstRun = cms.untracked.uint32(121998),
    lastRun = cms.untracked.uint32(121998),
    numberEventsInLuminosityBlock = cms.untracked.uint32(1),

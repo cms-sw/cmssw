@@ -38,7 +38,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('mixedsource'),
-      lumiFileName = cms.string('/nfshome0/xiezhen/CMS_LUMI_RAW_20091121_000121998_0001_1.root'),
+      lumiFileName = cms.string('/nfshome0/xiezhen/CMS_LUMI_RAW_20091123_000122314_0001_1.root'),
       allowForceFirstSince = cms.bool(False),
       #possible modes trgdryrun,lumidryrun,dryrun, truerun
       runmode = cms.untracked.string('lumidryrun')
