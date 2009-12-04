@@ -9,6 +9,16 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # Digi Level
                              L1MuGMTReadoutLabel = cms.InputTag("gtDigis"),
                              
+                             # HLT
+                             HLTResultLabel = cms.InputTag("TriggerResults::HLT"),
+                             HLTBitLabel = cms.VInputTag(
+    cms.InputTag("HLT_CSCBeamHalo"),
+    cms.InputTag("HLT_CSCBeamHaloOverlapRing1"),
+    cms.InputTag("HLT_CSCBeamHaloOverlapRing2"),
+    cms.InputTag("HLT_CSCBeamHaloRing2or3")
+    ),
+                             
+
                              # RecHit Level
                              CSCRecHitLabel = cms.InputTag("csc2DRecHits"),
                              
