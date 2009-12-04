@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.130 2009/12/03 18:37:07 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.131 2009/12/04 18:59:43 amraktad Exp $
 //
 
 // system include files
@@ -793,6 +793,14 @@ void CmsShowMain::stopAutoLoadTimer()
 void CmsShowMain::autoLoadNewEvent()
 {
    stopAutoLoadTimer();
+   
+   // case when start with no input file
+   if (!m_loadedAnyInputFile)
+   {
+      if (m_monitor.get()) 
+         startAutoLoadTimer();
+      return;
+   }
 
    bool reachedEnd = (m_forward && m_navigator->isLastEvent()) || (!m_forward && m_navigator->isFirstEvent());
 
@@ -826,21 +834,23 @@ void CmsShowMain::autoLoadNewEvent()
    {
       startAutoLoadTimer();
    }
+      
 }
 
 //______________________________________________________________________________
 
 void CmsShowMain::checkPosition()
 {
+   if ((m_monitor.get() || m_loop ) && m_isPlaying)
+      return;
+
    m_guiManager->getMainFrame()->enableNavigatorControls();
 
-   bool changePlayMode = !( m_monitor.get() && m_isPlaying );
-
    if (m_navigator->isFirstEvent())
-      m_guiManager->disablePrevious(changePlayMode);
+      m_guiManager->disablePrevious();
 
    if (m_navigator->isLastEvent())
-      m_guiManager->disableNext(changePlayMode);
+      m_guiManager->disableNext();
 }
 
 void CmsShowMain::doFirstEvent()
