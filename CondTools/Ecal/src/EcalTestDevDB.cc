@@ -440,8 +440,8 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     std::cout << std::endl;
     for(int i=0; i<92; i++){
       if (i< (int)laser->getTimeMap().size()) {
-	TimeStamp.t1 = 1380*(i_run-m_firstRun) + 15*i;
-	TimeStamp.t2 = 1380*(i_run-m_firstRun + 1) + 15*i;
+	TimeStamp.t1 = edm::Timestamp(1380*(i_run-m_firstRun) + 15*i);
+	TimeStamp.t2 = edm::Timestamp(1380*(i_run-m_firstRun + 1) + 15*i);
  	laser->setTime(i, TimeStamp);
 	//std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
@@ -502,8 +502,8 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     std::cout << std::endl;
     for(int i=0; i<92; i++){
       if (i< (int)laser->getTimeMap().size()) {
-	TimeStamp.t1 = 1380*(i_run-m_firstRun) + 15*i;
-	TimeStamp.t2 = 1380*(i_run-m_firstRun + 1) + 15*i;
+	TimeStamp.t1 = edm::Timestamp(1380*(i_run-m_firstRun) + 15*i);
+	TimeStamp.t2 = edm::Timestamp(1380*(i_run-m_firstRun + 1) + 15*i);
  	laser->setTime(i, TimeStamp);
 	//std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
