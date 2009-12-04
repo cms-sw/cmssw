@@ -7,7 +7,7 @@
 
 namespace reco {
 
-class GhostTrackPredictioon;
+class GhostTrackPrediction;
 class GhostTrackState;
 
 class SequentialGhostTrackFitter : public GhostTrackFitter::FitterImpl {
