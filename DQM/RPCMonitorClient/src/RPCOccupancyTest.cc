@@ -67,7 +67,27 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
  EndCap_OccByRng -> setBinLabel(3, "E-/R2", 1);
  EndCap_OccByRng -> setBinLabel(4, "E-/R3", 1);
 
-  
+ histoName.str("");
+ histoName<<"EndCap_OccupancyByDisksAndRings_Normalized";
+ me = dbe_->get( globalFolder_+"/"+ histoName.str());
+ if ( 0!=me  ) {
+   dbe_->removeElement(me->getName());
+ }
+ EndCap_OccByDisk = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  12, 0, 12);
+ EndCap_OccByDisk -> setBinLabel(1, "YE-3/R2", 1);
+ EndCap_OccByDisk -> setBinLabel(2, "YE-2/R2", 1);
+ EndCap_OccByDisk -> setBinLabel(3, "YE-1/R2", 1);
+ EndCap_OccByDisk -> setBinLabel(4, "YE+1/R2", 1);
+ EndCap_OccByDisk -> setBinLabel(5, "YE+2/R2", 1);
+ EndCap_OccByDisk -> setBinLabel(6, "YE+3/R2", 1);
+
+ EndCap_OccByDisk -> setBinLabel(7, "YE-3/R3", 1);
+ EndCap_OccByDisk -> setBinLabel(8, "YE-2/R3", 1);
+ EndCap_OccByDisk -> setBinLabel(9, "YE-1/R3", 1);
+ EndCap_OccByDisk -> setBinLabel(10, "YE+1/R3", 1);
+ EndCap_OccByDisk -> setBinLabel(11, "YE+2/R3", 1);
+ EndCap_OccByDisk -> setBinLabel(12, "YE+3/R3", 1);
+ 
   for (int w = -1 *limit; w<=limit; w++ ){//loop on wheels and disks
     if (w>-3 && w<3){//Barrel
       histoName.str("");
@@ -307,7 +327,10 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
     if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
 
-    cout<<detId.region()<<endl;
+    //cout<<detId.region()<<endl;
+    
+   
+    
     if(detId.region()==0) {
       if(detId.station()==1 )Barrel_OccBySt -> Fill(1, normoccup);
       if(detId.station()==2 )Barrel_OccBySt -> Fill(2, normoccup);
@@ -316,12 +339,30 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
       
       }
     else if(detId.region()==1) {
-      if(detId.ring()==3) EndCap_OccByRng -> Fill(1, normoccup);
-      else EndCap_OccByRng -> Fill(2, normoccup);
+      
+      //if(detId.station()==1)  EndCap_OccByDisk->Fill();
+      //else if (detId.station()==2) 
+      //else 
+      
+      if(detId.ring()==3) {
+	EndCap_OccByRng -> Fill(1, normoccup);
+	EndCap_OccByDisk -> Fill(detId.region()*detId.station()+8, normoccup);
+      }
+      else {
+	EndCap_OccByRng -> Fill(2, normoccup);
+	EndCap_OccByDisk -> Fill(detId.region()*detId.station()+2, normoccup);
+      }
     }
     else {
-      if(detId.ring()==3) EndCap_OccByRng -> Fill(4, normoccup);
-      else EndCap_OccByRng -> Fill(3, normoccup);
+      
+      if(detId.ring()==3) {
+	EndCap_OccByRng -> Fill(4, normoccup);
+	EndCap_OccByDisk -> Fill(detId.region()*detId.station()+9, normoccup);
+      }
+	else {
+	  EndCap_OccByRng -> Fill(3, normoccup);
+	  EndCap_OccByDisk -> Fill(detId.region()*detId.station()+3, normoccup);
+	}
     }
 
 
