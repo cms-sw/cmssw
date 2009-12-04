@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSC_BeamHalo_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT CSCSkim skim')
 )
@@ -14,8 +14,8 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 #
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/122/045/58063204-36D7-DE11-8B0E-001617DBD556.root"),
-                            secondaryFileNames = cms.untracked.vstring()
+                            fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/151/5831FFE1-1CDE-DE11-AE90-001D09F2906A.root'),
+                            secondaryFileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/151/2C0CB595-0EDE-DE11-921B-0030487C6062.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -46,17 +46,27 @@ process.load("DPGAnalysis/Skims/CSCSkim_cfi")
 process.cscSkim.minimumSegments = 1
 process.cscSkim.minimumHitChambers = 1
 
+# this is for filtering on HLT path
+process.hltBeamHalo = cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring('HLT_CSCBeamHalo','HLT_CSCBeamHaloOverlapRing1','HLT_CSCBeamHaloOverlapRing','HLT_CSCBeamHaloRing2or3'), # provide list of HLT paths (or patterns) you want
+     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+     throw = cms.bool(False)    # throw exception on unknown path names
+ )
+
 #### the path
-process.cscHaloSkim = cms.Path(process.cscSkim)
+process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
+
 #### output 
 process.outputSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string("/tmp/arizzi/cscskimEvents.root"),
+    fileName = cms.untracked.string("cscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_BeamHalo')
@@ -66,3 +76,7 @@ process.outputSkim = cms.OutputModule("PoolOutputModule",
 
 process.outpath = cms.EndPath(process.outputSkim)
 
+
+
+
+ 
