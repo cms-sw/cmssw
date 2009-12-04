@@ -6,15 +6,16 @@
 #include "TGLEmbeddedViewer.h"
 #include "TEveManager.h"
 #include "TEveTrack.h"
-#include "TEveTrans.h"
+//#include "TEveTrans.h"
 #include "TEveText.h"
 #include "TEveGeoShape.h"
 #include "TGLFontManager.h"
 #include "TGPack.h"
 #include "TGeoBBox.h"
-#include "TGButtonGroup.h"
 #include "TGSlider.h"
 #include "TGLabel.h"
+#include "TCanvas.h"
+#include "TLatex.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -153,6 +154,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
    //   m_viewer->SetStyle(TGLRnrCtx::kOutline);
    m_viewer->SetDrawCameraCenter(kTRUE);
+
+   addInfo(canvas);
 }
 
 void
@@ -178,5 +181,24 @@ FWTrackHitsDetailView::transparencyChanged(int x)
    gEve->Redraw3D();
 }
 
+void
+FWTrackHitsDetailView::addInfo(TCanvas* canvas)
+{
+   canvas->cd();
+
+   Double_t fontSize = 0.07;
+   TLatex* latex = new TLatex();
+   latex->SetTextSize(fontSize);
+   Double_t y = 0.9;
+   Double_t x = 0.02;
+   Double_t yStep = 0.04;
+   latex->DrawLatex(x, y, "Track hits info:");
+   y -= yStep;
+
+   Float_t r = 0.02;
+   drawCanvasDot(x + r, y, r, kCyan);
+   y -= r*0.5;
+   latex->DrawLatex(x+ 3*r, y, "Camera center");
+}
 
 REGISTER_FWDETAILVIEW(FWTrackHitsDetailView, Hits);
