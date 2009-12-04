@@ -1276,7 +1276,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    int flag=1;
    for( int iM = 0; (iM<4)&&flag; ++iM ){
       flag = 0;
-      cout << "Here in loop " << iM << endl;
       for( int iN = 0; iN < 3; ++iN ){
 	 if( bxmax[iN+1] < bxmax[iN] ){
 	    int tmp = bxmax[iN];
@@ -1290,9 +1289,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	 }
       }
    }
-
-   std::cout << "BX max " << bxmax[0] << " " << bxmax[1] << " " << bxmax[2] << " " << bxmax[3] << endl;
-   std::cout << "Max " << max[0] << " " << max[1] << " " << max[2] << " " << max[3] << endl;
 
    // 0.9e1 = Conversion constant for occ1 at 900GeV COM.
    MaxInstLumiBX1->Fill(max[0]*0.9e1);
@@ -1483,6 +1479,17 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(SumAllOccSet1);
    dbe_->softReset(SumAllOccSet2);
    dbe_->softReset(MissingDQMDataCheck);
+
+   dbe_->softReset(MaxInstLumiBX1);
+   dbe_->softReset(MaxInstLumiBX2);
+   dbe_->softReset(MaxInstLumiBX3);
+   dbe_->softReset(MaxInstLumiBX4);
+
+   dbe_->softReset(MaxInstLumiBXNum1);
+   dbe_->softReset(MaxInstLumiBXNum2);
+   dbe_->softReset(MaxInstLumiBXNum3);
+   dbe_->softReset(MaxInstLumiBXNum4);
+
 
    // History 
    lumiSectionCount = 0;
