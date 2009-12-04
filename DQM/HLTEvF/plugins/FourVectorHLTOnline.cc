@@ -554,7 +554,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     { 
  
       if (!l1accept) {
-            edm::LogInfo("FourVectorHLTOnline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+            LogDebug("FourVectorHLTOnline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
       }
     // ok plot On, L1On, OnOff, and OnMc objects
 
@@ -1257,6 +1257,12 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     } // end for
 
+    std::pair<std::string, int> tPair;
+    tPair.first = "Any HLT";
+    tPair.second = 0;
+    fPathTempCountPair.push_back(tPair);
+
+
     setupHLTMatrix("Muon", muonPaths);
 
     setupHLTMatrix("Egamma", egammaPaths);
@@ -1272,8 +1278,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
      pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations/");
      pathsSummaryFilterEfficiencyFolder_ = TString("HLT/FourVector/PathsSummary/Filters Efficiencies/");
      pathsSummaryFilterCountsFolder_ = TString("HLT/FourVector/PathsSummary/Filters Counts/");
-     pathsIndividualHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT Paths per LS/Paths/");
-     pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT Paths per LS/");
+     pathsIndividualHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT LS/Paths/");
+     pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT LS/");
 
     dbe_->setCurrentFolder(pathsummary.Data());
 
@@ -1297,6 +1303,50 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
                       "All paths per LS ",
                            nLS, 0, nLS, npaths+1, -0.5, npaths+1-0.5);
     ME_HLTAll_LS_->setAxisTitle("LS");
+
+    int nBinsPerLSHisto = 20;
+    int nLSHistos = npaths/nBinsPerLSHisto;
+    for (int nh=0;nh<nLSHistos;nh++) {
+
+      char name[200];
+      char title[200];
+
+      sprintf(name, "Group_%d_paths_count_LS",nLSHistos-1-nh);
+      sprintf(title, "Group %d,  paths count per LS",nLSHistos-1-nh);
+
+      MonitorElement* tempME  = dbe_->book2D(name,title,
+                      nLS, 0, nLS, nBinsPerLSHisto+1, -0.5, nBinsPerLSHisto+1-0.5);
+
+      tempME->setAxisTitle("LS");
+
+      // Set up bin labels on Y axis continuing to cover all npaths
+      for(int i = nh*nBinsPerLSHisto; i < (nh+1)*nBinsPerLSHisto; i++){
+
+        if (i == int(npaths)) break;
+
+        int bin;
+        if(nh == 0){
+
+         bin = i;
+
+        }
+        else {
+
+         bin = i % nBinsPerLSHisto;
+
+        }
+
+        tempME->setBinLabel(bin+1, hltPaths_[i].getPath().c_str(), 2);
+
+      }
+
+      tempME->setBinLabel(nBinsPerLSHisto+1, "Any HLT", 2);
+
+      v_ME_HLTAll_LS_.push_back(tempME);
+
+    }
+
+
     // book histo     npaths+1, -0.5, npaths+1-0.5, npaths+1, -0.5, npaths+1-0.5);grams, one bin per path, only book, will be used by lient or in endLumiBlock
     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
     ME_HLTPassPass_Normalized_ = dbe_->book2D("HLTPassPass_Normalized",
@@ -1333,6 +1383,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
       ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
       ME_HLTPass_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+
     }
 
     unsigned int i = npaths;
@@ -1346,6 +1398,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     ME_HLTPassPass_Normalized_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
     ME_HLTPass_Normalized_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
     ME_HLTPass_Any_->getTH1F()->GetXaxis()->SetBinLabel(i+1, "Any HLT");
+
+    ME_HLTAll_LS_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "Any HLT");
 
 
     // now set up all of the histos for each path
@@ -1603,29 +1657,31 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
    LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << endl;
 
     // normalize HLT Matrices
-    normalizeHLTMatrix();
+   normalizeHLTMatrix();
+
+    // get the count of path up to now
+   string fullPathToME = "HLT/FourVector/PathsSummary/HLTPassPass";
+   MonitorElement* ME_2d = dbe_->get(fullPathToME);
+
+   if(! ME_2d) {
+
+     LogTrace("FourVectorHLTOnline") << " could not fine 2d matrix " << fullPathToME << endl;
+
+     return;
+
+   }
+
+   TH2F * hist_2d = ME_2d->getTH2F();
 
    for (std::vector<std::pair<std::string, int> >::iterator ip = fPathTempCountPair.begin(); ip != fPathTempCountPair.end(); ++ip) {
   
     // get the path and its previous count
     std::string pathname = ip->first;  
     int prevCount = ip->second;  
-
-    // get the count of path up to now
-    string fullPathToME = "HLT/FourVector/PathsSummary/HLTPassPass";
-    MonitorElement* ME_2d = dbe_->get(fullPathToME);
-
-    if(! ME_2d) {
-
-      LogTrace("FourVectorHLTOnline") << " could not fine 2d matrix " << fullPathToME << endl;
-
-      continue;
-
-    }
-
-    TH2F * hist_2d = ME_2d->getTH2F();
-
+    
+    // get the current count of path up to now
     int pathBin = hist_2d->GetXaxis()->FindBin(pathname.c_str());      
+
     if(pathBin > hist_2d->GetNbinsX()) {
       
       cout << " Cannot find the bin for path " << pathname << endl;
@@ -1635,37 +1691,71 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 
     int currCount = int(hist_2d->GetBinContent(pathBin, pathBin));
 
+    // count due to prev lumi sec is a difference bw current and previous
     int diffCount = currCount - prevCount;
 
     LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
 
+    // set the counter in the pair to current count
     ip->second = currCount;  
 
-    // get the count of path up to now
+    //////////////////////////////////////
+    // fill the 2D All paths' count per LS
+    //////////////////////////////////////
+    if ( ME_HLTAll_LS_) {
+
+      TH2F* hist_All = ME_HLTAll_LS_->getTH2F();
+
+      // find the bin
+      int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
+      // set the bin content
+      hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
+    
+    }
+    else {
+
+      LogDebug("FourVectorHLTOnline") << " cannot find ME_HLTAll_LS_" <<  endl;
+
+    }
+    
+    for (unsigned int i=0 ; i< v_ME_HLTAll_LS_.size(); i++) {  
+      
+      MonitorElement* tempME = v_ME_HLTAll_LS_[i];
+
+      if ( tempME ) {
+  
+        TH2F* hist_All = tempME->getTH2F();
+  
+        // find the bin
+        int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
+        // set the bin content
+        hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
+      
+      }
+      else {
+  
+        LogDebug("FourVectorHLTOnline") << " cannot find tempME " <<  endl;
+  
+      }
+
+    }
+
+
+    ///////////////////////////////////////////
+    // fill the 1D individual path count per LS
+    ///////////////////////////////////////////
     string fullPathToME_count = pathsIndividualHLTPathsPerLSFolder_.Data() + pathname + "_count_per_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
-    if (! ME_1d) { 
-      LogTrace("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
-      continue;
+    if ( ME_1d) { 
+
+      ME_1d->getTH1()->SetBinContent(lumi+1,diffCount);
+
     }
-    ME_1d->getTH1()->SetBinContent(lumi+1,diffCount);
+    else {
 
-    /*
-    // get the count of path up to now
-    fullPathToME_count = "HLT/FourVector/PathsSummary/" +  "All_count_LS";
-    MonitorElement* ME_All_LS = dbe_->get(fullPathToME_count);
-    if (! ME_All_LS) continue;
-    TH2F* hist_All = ME_All_LS->getTH2();
-    */
+      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
 
-    if (! ME_HLTAll_LS_) {
-      LogTrace("FourVectorHLTOnline") << " cannot find ME_HLTAll_LS_" <<  endl;
-      continue;
     }
-    TH2F* hist_All = ME_HLTAll_LS_->getTH2F();
-
-    int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
-    hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
 
   } // end for ip
 

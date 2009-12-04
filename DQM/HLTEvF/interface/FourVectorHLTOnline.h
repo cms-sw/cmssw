@@ -89,6 +89,8 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
       std::vector<MonitorElement*> v_ME_HLTPass_Any_;
 
+      std::vector<MonitorElement*> v_ME_HLTAll_LS_;
+
       TString pathsummary;
       TString pathsSummaryHLTCorrelationsFolder_;
       TString pathsSummaryFilterEfficiencyFolder_;
