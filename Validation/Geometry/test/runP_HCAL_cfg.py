@@ -11,7 +11,9 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 #Magnetic Field
 #
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
+process.load("Configuration.EventContent.EventContent_cff")
 
 # Detector simulation (Geant4-based)
 #
@@ -20,13 +22,16 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
         g4SimHits = cms.untracked.uint32(9876)
-    )
+    ),
+    sourceSeed = cms.untracked.uint32(135799753)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('MaterialBudget'),
+#    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
+#        threshold = cms.untracked.string('DEBUG'),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -37,6 +42,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("PoolSource",
+    debugFlag = cms.untracked.bool(True),
+    debugVebosity = cms.untracked.uint32(11),
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
 )
 
@@ -45,7 +54,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdg_HCAL2.root')
+    fileName = cms.string('matbdg_HCAL.root')
 )
 
 process.p1 = cms.Path(process.g4SimHits)
@@ -57,6 +66,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
         FillHisto    = cms.untracked.bool(True),
         PrintSummary = cms.untracked.bool(False),
+        DoHCAL       = cms.untracked.bool(True),
         NBinPhi      = cms.untracked.int32(360),
         NBinEta      = cms.untracked.int32(260),
         MaxEta       = cms.untracked.double(5.2),

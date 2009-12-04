@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
@@ -76,6 +77,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
         FillHisto    = cms.untracked.bool(False),
         PrintSummary = cms.untracked.bool(False),
+        DoHCAL       = cms.untracked.bool(True),
         NBinPhi      = cms.untracked.int32(180),
         NBinEta      = cms.untracked.int32(260),
         MaxEta       = cms.untracked.double(5.2),

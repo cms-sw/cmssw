@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
 #Geometry
 #
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")

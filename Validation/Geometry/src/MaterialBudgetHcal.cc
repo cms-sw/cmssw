@@ -27,8 +27,8 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p):
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcal initialized with rMax "
 				 << rMax << " mm and zMax " << zMax << " mm"
 				 << " doHcal is set to " << doHcal;
-  if (theHistoHcal)   theHistoHcal   = new MaterialBudgetHcalHistos(m_p);
-  else                theHistoCastor = new MaterialBudgetCastorHistos(m_p);
+  if (doHcal)   theHistoHcal   = new MaterialBudgetHcalHistos(m_p);
+  else          theHistoCastor = new MaterialBudgetCastorHistos(m_p);
 }
 
 MaterialBudgetHcal::~MaterialBudgetHcal() {
@@ -36,8 +36,7 @@ MaterialBudgetHcal::~MaterialBudgetHcal() {
   if (theHistoCastor) delete theHistoCastor;
 }
 
-void MaterialBudgetHcal::update(const BeginOfJob* job)
-{
+void MaterialBudgetHcal::update(const BeginOfJob* job) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
   edm::ESHandle<DDCompactView> pDD;

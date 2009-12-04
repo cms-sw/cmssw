@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
@@ -66,6 +67,7 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     BeamMeanY       = cms.double(0.0),
     BeamSigmaX      = cms.double(0.0001),
     BeamSigmaY      = cms.double(0.0001),
+    Psi             = cms.double(999.9),
     GaussianProfile = cms.bool(False),
     BinX            = cms.int32(50),
     BinY            = cms.int32(50),

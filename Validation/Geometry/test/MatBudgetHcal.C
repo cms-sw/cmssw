@@ -1125,7 +1125,137 @@ void etaPhiCastorPlot(TString fileName="matbdg_Castor.root",
     prof[i]->Draw("h sames");
   if (drawLeg > 0) leg->Draw("sames");
 }
-  
+
+void efficiencyPlot(TString fileName="matbdg_HCAL.root", TString type="All",
+		    bool ifEtaPhi=true, double maxEta=-1, bool debug=false) {
+
+  TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
+  setStyle();
+
+  int id0=1300, idpl1=8, idpl2=0;
+  char hname[100], title[100];
+  if      (type.CompareTo("HB") == 0) {
+    idpl1 = 1; idpl2 =2; sprintf (title, "Efficiency for HB");
+  } else if (type.CompareTo("HE") == 0) {
+    idpl1 = 3; idpl2 = 4; sprintf (title, "Efficiency for HE");
+  } else if (type.CompareTo("HO") == 0) {
+    idpl1 = 5; idpl2 = 6; sprintf (title, "Efficiency for HO");
+  } else if (type.CompareTo("HF") == 0) {
+    idpl1 = 7; sprintf (title, "Efficiency for HF");
+  } else {
+    sprintf (title, "Efficiency for HCAL");
+  }
+  TLegend *leg = new TLegend(0.70, 0.82, 0.90, 0.90);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
+  leg->SetTextSize(0.03);
+
+  if (ifEtaPhi) {
+    id0 = 1400;
+    TH2F *hist0, *hist1, *hist2;
+    sprintf(hname, "%i", id0);
+    gDirectory->GetObject(hname, hist0);
+    sprintf(hname, "%i", id0+idpl1);
+    gDirectory->GetObject(hname, hist1);
+    if (idpl2 > 0) {
+      sprintf(hname, "%i", id0+idpl2);
+      gDirectory->GetObject(hname, hist2);
+    } else {
+      hist2 = 0;
+    }
+    if (debug) std::cout << "Get Histos at " <<hist0 << " and " <<hist1 <<"\n";
+    if (hist0 && hist1) {
+      double xmin  = hist0->GetXaxis()->GetXmin();
+      double xmax  = hist0->GetXaxis()->GetXmax();
+      int    nbinX = hist0->GetNbinsX();
+      double ymin  = hist0->GetYaxis()->GetXmin();
+      double ymax  = hist0->GetYaxis()->GetXmax();
+      int    nbinY = hist0->GetNbinsY();
+      if (debug) std::cout <<"NbinX " <<nbinX <<" range "<<std::setprecision(5)
+			   <<xmin <<":" <<std::setprecision(5) <<xmax << " "
+			   <<"NbinY " <<nbinY <<" range "<<std::setprecision(5)
+			   <<ymin <<":" <<std::setprecision(5) <<ymax <<"\n";
+      TH2D *hist = new TH2D("hist", title, nbinX,xmin,xmax, nbinY,ymin,ymax);
+      TH2D *histe= 0;
+      if (hist2) histe = new TH2D("histe", title, nbinX,xmin,xmax, nbinY,ymin,ymax);
+      for (int ibx=0; ibx<nbinX; ++ibx) {
+	for (int iby=0; iby<nbinY; ++iby) {
+	  double contN = hist1->GetBinContent(ibx+1,iby+1);
+	  double contD = hist0->GetBinContent(ibx+1,iby+1);
+	  double cont  = contN/std::max(contD,1.0);
+	  hist->SetBinContent(ibx+1, iby+1, cont);
+	  if (hist2) {
+	    contN = hist2->GetBinContent(ibx+1,iby+1);
+	    cont  = contN/std::max(contD,1.0);
+	    histe->SetBinContent(ibx+1, iby+1, cont);
+	  }
+	}
+      }
+      hist->GetXaxis()->SetTitle("#eta");hist->GetYaxis()->SetTitle("#phi"); 
+      hist->GetZaxis()->SetTitle(title);hist->GetZaxis()->SetTitleOffset(.8);
+      TCanvas *cc1 = new TCanvas(title, title, 700, 400);
+      hist->SetLineColor(2); hist->SetLineStyle(1); hist->SetLineWidth(1);
+      if (maxEta > 0) hist->GetXaxis()->SetRangeUser(-maxEta,maxEta);
+      hist->Draw("lego fb bb"); leg->AddEntry(hist, "At least 1 layer", "l");
+      if (histe) {
+	histe->SetLineColor(4);histe->SetLineStyle(2);histe->SetLineWidth(1);
+	if (maxEta > 0) histe->GetXaxis()->SetRangeUser(-maxEta,maxEta);
+	histe->Draw("lego fb bb sames");leg->AddEntry(histe,"All layers","l");
+      }
+      leg->Draw("sames");
+    }
+  } else {
+    TH1F *hist0, *hist1, *hist2;
+    sprintf(hname, "%i", id0);
+    gDirectory->GetObject(hname, hist0);
+    sprintf(hname, "%i", id0+idpl1);
+    gDirectory->GetObject(hname, hist1);
+    if (idpl2 > 0) {
+      sprintf(hname, "%i", id0+idpl2);
+      gDirectory->GetObject(hname, hist2);
+    } else {
+      hist2 = 0;
+    }
+    if (debug) std::cout << "Get Histos at " <<hist0 << " and " <<hist1 <<"\n";
+    if (hist0 && hist1) {
+      double xmin  = hist0->GetXaxis()->GetXmin();
+      double xmax  = hist0->GetXaxis()->GetXmax();
+      int    nbinX = hist0->GetNbinsX();
+      if (debug) std::cout <<"Nbin " <<nbinX <<" range " <<std::setprecision(5)
+			   <<xmin <<":" <<std::setprecision(5) <<xmax <<"\n";
+      TH1D *hist = new TH1D("hist", title, nbinX, xmin, xmax);
+      TH1D *histe= 0;
+      if (hist2) histe = new TH1D("histe", title, nbinX, xmin, xmax);
+      for (int ib=0; ib<nbinX; ++ib) {
+	double contN = hist1->GetBinContent(ib+1);
+	double contD = hist0->GetBinContent(ib+1);
+	double cont  = contN/std::max(contD,1.0);
+	double eror  = std::sqrt(contN)/std::max(contD,1.0);
+	hist->SetBinContent(ib+1, cont);
+	//	hist->SetBinError(ib+1, eror);
+	if (hist2) {
+	  contN = hist2->GetBinContent(ib+1);
+	  cont  = contN/std::max(contD,1.0);
+	  histe->SetBinContent(ib+1, cont);
+	}
+      }
+      hist->GetXaxis()->SetTitle("#eta");
+      hist->GetYaxis()->SetTitle(title);
+      hist->GetYaxis()->SetTitleOffset(0.8);
+      TCanvas *cc1 = new TCanvas(title, title, 700, 400);
+      hist->SetLineColor(2); hist->SetLineStyle(1); hist->SetLineWidth(1);
+      if (maxEta > 0) hist->GetXaxis()->SetRangeUser(-maxEta,maxEta);
+      hist->Draw(); leg->AddEntry(hist, "At least 1 layer", "l");
+      if (histe) {
+	histe->SetLineColor(4); histe->SetLineStyle(2); histe->SetLineWidth(1);
+	if (maxEta > 0) histe->GetXaxis()->SetRangeUser(-maxEta,maxEta);
+	histe->Draw("sames"); leg->AddEntry(histe, "All layers", "l");
+      }
+      leg->Draw("sames");
+    }
+  }
+}  
+
 void setStyle () {
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);

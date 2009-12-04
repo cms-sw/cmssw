@@ -101,6 +101,7 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
 
   id     = layer  = steps   = 0;
   radLen = intLen = stepLen = 0;
+  nlayHB = nlayHE = nlayHF  = nlayHO = 0;
 
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
   if (dir.theta() != 0 ) {
@@ -184,6 +185,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 	if (isItHF(touch)) {
 	  det = 5;
 	  lay = 21;
+	  if (lay != layer) nlayHF++;
 	} else {
 	  det   = (touch->GetReplicaNumber(1))/1000;
 	  lay   = (touch->GetReplicaNumber(0)/10)%100 + 3;
@@ -194,6 +196,10 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 	    if (lay < 3) lay = 3;
 	    if (lay == layer) lay++;
 	    if (lay > 20) lay = 20;
+	    if (lay != layer) nlayHE++;
+	  } else if (lay != layer) {
+	    if (lay >= 20) nlayHO++;
+	    else           nlayHB++;
 	  }
 	}
 	LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
@@ -235,7 +241,13 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-  if (fillHistos) fillHisto(maxSet-1);
+  LogDebug("MaterialBudget") << "Number of layers hit in HB:" << nlayHB
+			     << " HE:" << nlayHE << " HO:" << nlayHO
+			     << " HF:" << nlayHF;
+  if (fillHistos) {
+    fillHisto(maxSet-1);
+    fillLayer();
+  }
   if (printSum) {
     for (unsigned int ii=0; ii<matList.size(); ii++) {
       edm::LogInfo("MaterialBudget") << matList[ii] << "\t" << stepLength[ii]
@@ -306,6 +318,18 @@ void MaterialBudgetHcalHistos::book() {
     me1200[i]= tfile->make<TH2F>(name, title, binEta/2, -maxEta, maxEta, 
 				 binPhi/2, -maxPhi, maxPhi);
   }
+  for (int i=0; i<maxSet2; i++) {
+    sprintf(name, "%d", i+1300);
+    sprintf(title, "Events with layers Hit (0 all, 1 HB, ..) for %d", i);
+    me1300[i]= tfile->make<TH1F>(name, title, binEta, -maxEta, maxEta);
+    sprintf(name, "%d", i+1400);
+    sprintf(title, "Eta vs Phi for layers hit in %d", i);
+    me1400[i]= tfile->make<TH2F>(name, title, binEta/2, -maxEta, maxEta, 
+				 binPhi/2, -maxPhi, maxPhi);
+    sprintf(name, "%d", i+1500);
+    sprintf(title, "Number of layers crossed (0 all, 1 HB, ..) for %d", i);
+    me1500[i]= tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
+  }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user "
 				 << "histos done ===";
@@ -338,6 +362,48 @@ void MaterialBudgetHcalHistos::fillHisto(int ii) {
     me1200[ii]->Fill(eta, phi);
     
   }
+}
+
+void MaterialBudgetHcalHistos::fillLayer() {
+
+  me1300[0]->Fill(eta);
+  me1400[0]->Fill(eta,phi);
+  if (nlayHB > 0) {
+    me1300[1]->Fill(eta);
+    me1400[1]->Fill(eta,phi);
+  }
+  if (nlayHB >= 16) {
+    me1300[2]->Fill(eta);
+    me1400[2]->Fill(eta,phi);
+  }
+  if (nlayHE > 0) {
+    me1300[3]->Fill(eta);
+    me1400[3]->Fill(eta,phi);
+  }
+  if (nlayHE >= 16) {
+    me1300[4]->Fill(eta);
+    me1400[4]->Fill(eta,phi);
+  }
+  if (nlayHO > 0) {
+    me1300[5]->Fill(eta);
+    me1400[5]->Fill(eta,phi);
+  }
+  if (nlayHO >= 2) {
+    me1300[6]->Fill(eta);
+    me1400[6]->Fill(eta,phi);
+  }
+  if (nlayHF > 0) {
+    me1300[7]->Fill(eta);
+    me1400[7]->Fill(eta,phi);
+  }
+  if (nlayHB > 0 || nlayHE > 0 || (nlayHF > 0 && std::abs(eta) > 3.0)) {
+    me1300[8]->Fill(eta);
+    me1400[8]->Fill(eta,phi);
+  }
+  me1500[0]->Fill(eta,(double)(nlayHB+nlayHO+nlayHE+nlayHF));
+  me1500[1]->Fill(eta,(double)(nlayHB));
+  me1500[2]->Fill(eta,(double)(nlayHE));
+  me1500[4]->Fill(eta,(double)(nlayHF));
 }
 
 void MaterialBudgetHcalHistos::hend() {

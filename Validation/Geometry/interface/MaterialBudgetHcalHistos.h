@@ -32,6 +32,7 @@ private:
   
   void book(); 
   void fillHisto(int ii);
+  void fillLayer();
   void hend();
   std::vector<std::string> getNames(DDFilteredView& fv);
   std::vector<double>      getDDDArray(const std::string & str,
@@ -42,7 +43,7 @@ private:
   
 private:
 
-  static const int         maxSet = 25;
+  static const int         maxSet = 25, maxSet2 = 9;
   std::vector<std::string> sensitives, hfNames, sensitiveEC;
   std::vector<int>         hfLevels;
   bool                     fillHistos, printSum;
@@ -50,14 +51,16 @@ private:
   double                   maxEta, etaLow, etaHigh;
   std::vector<std::string> matList;
   std::vector<double>      stepLength, radLength, intLength;
-  TH1F                     *me400[maxSet], *me800[maxSet];
-  TH2F                     *me1200[maxSet];
+  TH1F                     *me400[maxSet], *me800[maxSet], *me1300[maxSet2];
+  TH2F                     *me1200[maxSet],*me1400[maxSet2];
   TProfile                 *me100[maxSet], *me200[maxSet], *me300[maxSet];
   TProfile                 *me500[maxSet], *me600[maxSet], *me700[maxSet];
+  TProfile                 *me1500[maxSet2];
   TProfile2D               *me900[maxSet], *me1000[maxSet],*me1100[maxSet];
   int                      id, layer, steps;
   double                   radLen, intLen, stepLen;
   double                   eta, phi;
+  int                      nlayHB, nlayHE, nlayHO, nlayHF;
 };
 
 
