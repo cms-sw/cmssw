@@ -24,7 +24,8 @@ process.GeometryTester = cms.EDAnalyzer("GeometryTester",
                                         ZDCTest = cms.untracked.bool(True),
                                         CSCTest = cms.untracked.bool(True),
                                         DTTest = cms.untracked.bool(True),
-                                        RPCTest = cms.untracked.bool(True)
+                                        RPCTest = cms.untracked.bool(True),
+                                        geomLabel = cms.untracked.string("Extended")
                                         )
  
  

@@ -47,6 +47,7 @@ GeometryTester::GeometryTester(const edm::ParameterSet& iConfig)
   csctest=iConfig.getUntrackedParameter<bool>("CSCTest", true);
   dttest=iConfig.getUntrackedParameter<bool>("DTTest", true);
   rpctest=iConfig.getUntrackedParameter<bool>("RPCTest", true);
+  geomLabel_ = iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended");
 }
 
 GeometryTester::~GeometryTester(){
@@ -58,7 +59,7 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if(xmltest){
     edm::ESHandle<GeometryFile> xmlgeo;
-    iSetup.get<GeometryFileRcd>().get(xmlgeo);
+    iSetup.get<GeometryFileRcd>().get(geomLabel_, xmlgeo);
     std::cout<<"XML FILE"<<std::endl;
     std::vector<unsigned char>* tb = (*xmlgeo).getUncompressedBlob();
     std::cout<<"SIZE FILE = "<<tb->size()<<std::endl;
