@@ -46,7 +46,8 @@ public:
    virtual void setBackgroundColor(Color_t col) {}
 
    //canvas utilities
-   void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
+   static void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
+   static void drawCanvasBox(Double_t* pos, Color_t fillCol, Int_t fillType = 0, bool bg=kTRUE);
 
 protected:
    FWDetailViewBase(const std::type_info&);

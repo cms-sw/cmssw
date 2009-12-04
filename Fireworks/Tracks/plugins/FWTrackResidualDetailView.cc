@@ -216,7 +216,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
                color    = h ? m_resYCol  : m_resXCol;
             }
 
-            drawBox(box, color, filltype, h<1);
+            drawCanvasBox(box, color, filltype, h<1);
             k++;
          }
          height1 +=1;
@@ -249,32 +249,6 @@ FWTrackResidualDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, u
    if (g2.DeltaPhi(g1) > 0)
       return resX;
    else return -resX;
-}
-
-
-void
-FWTrackResidualDetailView::drawBox(Double_t *pos, Color_t fillCol, Int_t fillType, bool bg)
-{
-   // background
-   if (bg)
-   {
-      TBox *b1 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-      b1->SetFillColor(fillCol);
-      b1->Draw();
-   }
-
-   // fill style
-   TBox *b2 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-   b2->SetFillStyle(fillType);
-   b2->SetFillColor(kBlack);
-   b2->Draw();
-
-   //outline
-   TBox *b3 = new TBox(pos[0], pos[1], pos[2], pos[3]);
-   b3->SetFillStyle(0);
-   b3->SetFillColor(1);
-   b3->SetLineWidth(2);
-   b3->Draw();
 }
 
 void
@@ -340,29 +314,26 @@ FWTrackResidualDetailView::makeLegend()
    Double_t pos[4];
    pos[0] = 0.4;
    pos[2] = 0.55;
+
    y -= yStep*2;
-   sprintf(mytext,"X hit");
-   latex->DrawLatex(x0, y, mytext);
+   latex->DrawLatex(x0, y, "X hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawBox(pos, m_resXCol, m_resXFill);
+   drawCanvasBox(pos, m_resXCol, m_resXFill);
 
    y -=  yStep;
-   sprintf(mytext,"Y hit");
-   latex->DrawLatex(x0, y, mytext);
+   latex->DrawLatex(x0, y, "Y hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawBox(pos, m_resYCol, m_resYFill, 0);
+   drawCanvasBox(pos, m_resYCol, m_resYFill, 0);
 
    y -= yStep;
-   sprintf(mytext, "stereo hit");
-   latex->DrawLatex(x0, y, mytext);
+   latex->DrawLatex(x0, y, "stereo hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawBox(pos, m_stereoCol, m_stereoFill);
+   drawCanvasBox(pos, m_stereoCol, m_stereoFill);
 
    y -= yStep;
-   sprintf(mytext, "invalid hit");
-   latex->DrawLatex(x0, y, mytext);
+   latex->DrawLatex(x0, y, "invalid hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawBox(pos, m_invalidCol, m_invalidFill);
+   drawCanvasBox(pos, m_invalidCol, m_invalidFill);
 }
 
 REGISTER_FWDETAILVIEW(FWTrackResidualDetailView, Residuals);
