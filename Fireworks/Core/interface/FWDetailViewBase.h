@@ -44,6 +44,10 @@ public:
    void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
    virtual void setBackgroundColor(Color_t col) {}
+
+   //canvas utilities
+   void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
+
 protected:
    FWDetailViewBase(const std::type_info&);
 

@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.15 2009/11/01 20:47:29 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.16 2009/11/19 22:38:21 amraktad Exp $
 //
 
 // system include files
 #include "TGPack.h"
 #include "TCanvas.h"
+#include "TEllipse.h"
+
 #include "TRootEmbeddedCanvas.h"
 #include "TGLEmbeddedViewer.h"
 #include "TGLViewer.h"
@@ -138,4 +140,24 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    eveViewer->AddScene(scene);
       
    return wp;
+}
+
+void
+FWDetailViewBase::drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t fillColor)
+{ 
+   // utility
+
+   Float_t ratio = 0.5;
+   // fill style
+   TEllipse *b2 = new TEllipse(x, y, r, r*ratio);
+   b2->SetFillStyle(1001);
+   b2->SetFillColor(fillColor);
+   b2->Draw();
+
+   // outline
+   TEllipse *b1 = new TEllipse(x, y, r, r*ratio);
+   b1->SetFillStyle(0);
+   b1->SetLineWidth(2);
+   b1->Draw();
+
 }
