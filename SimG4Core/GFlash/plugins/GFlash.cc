@@ -2,9 +2,7 @@
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -17,21 +15,24 @@
 #include "G4DataQuestionaire.hh"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
-GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p) :
-  PhysicsList(map, p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
+GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, 
+	       const HepPDT::ParticleDataTable * table_, 
+	       const edm::ParameterSet & p) : PhysicsList(map, table_, p), 
+					      thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
 
   G4DataQuestionaire it(photon);
 
-  int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  int  ver           = p.getUntrackedParameter<int>("Verbosity",0);
+  std::string region = p.getParameter<std::string>("Region");
+  double charge      = p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_EML 3.3 + CMS GFLASH\n";
+			      << "QGSP_BERT_EML 3.3 + CMS GFLASH with"
+			      << " special region " << region;
 
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
   // EM Physics
-  //  RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
-  //  RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
-  RegisterPhysics( new CMSEmStandardPhysicsLPM("standard EM LPM",ver));
+  RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",table_,ver,region,charge));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));
