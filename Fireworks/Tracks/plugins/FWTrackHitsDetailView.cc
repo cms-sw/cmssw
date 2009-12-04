@@ -13,6 +13,8 @@
 #include "TGPack.h"
 #include "TGeoBBox.h"
 #include "TGButtonGroup.h"
+#include "TGSlider.h"
+#include "TGLabel.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -26,6 +28,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
@@ -34,7 +37,9 @@
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
 m_viewer(0),
-m_btnGroup(0)
+m_modules(0),
+m_slider(0),
+m_sliderListener();
 {
 }
 
@@ -55,27 +60,33 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    setEveWindow(eveWindow);
    m_viewer = (TGLEmbeddedViewer*)viewer->GetGLViewer();
    {
-      CSGAction* action = new CSGAction(this, "rnrStyle");
-      m_btnGroup = new TGButtonGroup(guiFrame, "Module Draw Mode:");
-      TGRadioButton* mframe = new TGRadioButton(m_btnGroup, "Fill", TGLRnrCtx::kFill);
-      TGRadioButton* mfill  = new TGRadioButton(m_btnGroup, "Frame",  TGLRnrCtx::kWireFrame);
-      m_btnGroup->SetButton(TGLRnrCtx::kFill);
-      TQObject::Connect(mfill,  "Clicked()", "CSGAction", action, "activate()");
-      TQObject::Connect(mframe, "Clicked()", "CSGAction", action, "activate()");
-      guiFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 3, 1, 0));
-      action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::switchRenderStyle));
+      TGCompositeFrame* f  = new TGVerticalFrame(guiFrame);
+      guiFrame->AddFrame(f);
+      f->AddFrame(new TGLabel(f, "Module Transparency:"), new TGLayoutHints(kLHintsLeft, 2, 2, 0, 0));
+      m_slider = new TGHSlider(f, 120, kSlider1 | kScaleNo);
+      f->AddFrame(m_slider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 1, 4));
+      m_slider->SetRange(0, 100);
+      m_slider->SetPosition(75);
+
+      m_sliderListener =  new FWIntValueListener();
+      TQObject::Connect(m_slider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_sliderListener, "setValue(Int_t)");
+      m_sliderListener->valueChanged_.connect(boost::bind(&FWTrackHitsDetailView::transparencyChanged,this,_1));
    }
+
    {
       CSGAction* action = new CSGAction(this, "Pick Camera Center");
       action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
+
    TGCompositeFrame* p = (TGCompositeFrame*)guiFrame->GetParent();
    p->MapSubwindows();
    p->Layout();
     
-   TracksRecHitsUtil::addHits(*track, id.item(), scene);
-   for (TEveElement::List_i i=scene->BeginChildren(); i!=scene->EndChildren(); ++i)
+   m_modules = new TEveElementList("Modules");
+   scene->AddElement(m_modules);
+   TracksRecHitsUtil::addHits(*track, id.item(), m_modules);
+   for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
       gs->SetMainColor(kBlue);
@@ -88,16 +99,16 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
       text->SetFontMode(TGLFont::kPixmap);
       text->SetFontSize(12);
       /*
-      text->SetFontMode(TGLFont::kExtrude);
-      Float_t textWidth = name.Length()*text->GetFontSize();
+        text->SetFontMode(TGLFont::kExtrude);
+        Float_t textWidth = name.Length()*text->GetFontSize();
 
-      TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
-      text->RefMainTrans().Move3LF(0, 0, +2*bb->GetDZ());
-      text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
-      Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
-      Float_t minSide = TMath::Min(bb->GetDX(), bb->GetDY());
-      Float_t a = minSide/textWidth;
-      text->RefMainTrans().Scale(a, a, a);
+        TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
+        text->RefMainTrans().Move3LF(0, 0, +2*bb->GetDZ());
+        text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
+        Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
+        Float_t minSide = TMath::Min(bb->GetDX(), bb->GetDY());
+        Float_t a = minSide/textWidth;
+        text->RefMainTrans().Scale(a, a, a);
       */
       gs->AddElement(text); 
    }
@@ -122,7 +133,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrFV(kTRUE);
    scene->AddElement(trk);
 
-//LatB
+   //LatB
    std::vector<TVector3> pixelPoints;
    std::vector<TVector3> monoPoints;
    std::vector<TVector3> stereoPoints;
@@ -133,7 +144,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    fireworks::addTrackerHits3D(monoPoints, list, kRed, 2);
    fireworks::addTrackerHits3D(stereoPoints, list, kRed, 2);
    scene->AddElement(list);
-//LatB
+   //LatB
 
    scene->Repaint(true);
 
@@ -158,15 +169,14 @@ FWTrackHitsDetailView::pickCameraCenter()
 }
 
 void
-FWTrackHitsDetailView::switchRenderStyle()
+FWTrackHitsDetailView::transparencyChanged(int x)
 {
-   if (m_btnGroup->GetButton(TGLRnrCtx::kWireFrame)->GetState())
-      m_viewer->SetStyle(TGLRnrCtx::kWireFrame);
-   else    
-      m_viewer->SetStyle(TGLRnrCtx::kFill);
-
-
-   m_viewer->RequestDraw();
+   for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
+   {
+      (*i)->SetMainTransparency(x);
+   }
+   gEve->Redraw3D();
 }
+
 
 REGISTER_FWDETAILVIEW(FWTrackHitsDetailView, Hits);

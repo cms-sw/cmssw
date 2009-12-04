@@ -12,6 +12,7 @@
 
 class TGLEmbeddedViewer;
 class TGButtonGroup;
+class FWIntValueListener;
 
 class FWTrackHitsDetailView: public FWDetailView<reco::Track>,
                              public CSGActionSupervisor
@@ -22,13 +23,15 @@ public:
 
    void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
    void pickCameraCenter();
-   void switchRenderStyle();
+   void transparencyChanged(int);
 
    virtual void setBackgroundColor(Color_t);
 
 protected:
-   TGLEmbeddedViewer* m_viewer;
-   TGButtonGroup*     m_btnGroup;
+   TGLEmbeddedViewer*  m_viewer;
+   TEveElementList*    m_modules;
+   TGSlider*           m_slider;
+   FWIntValueListener* m_sliderListener;
 
 private:
    FWTrackHitsDetailView(const FWTrackHitsDetailView&); // stop default
