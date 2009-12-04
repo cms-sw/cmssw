@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.9 2009/12/01 19:49:01 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.10 2009/12/04 22:11:41 chrjones Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
        newInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
      }
      oInterval = newInterval;
+     m_previousSyncTo = iTime;
      return;
    }
    //handle the case where some providers use time and others use run/lumi/event
