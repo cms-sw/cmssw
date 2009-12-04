@@ -141,18 +141,16 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrFV(kTRUE);
    scene->AddElement(trk);
 
-   //LatB
+// -- add PixelHits
+//LatB
    std::vector<TVector3> pixelPoints;
-   std::vector<TVector3> monoPoints;
-   std::vector<TVector3> stereoPoints;
    fireworks::pushPixelHits(pixelPoints, id, *track);
-   fireworks::pushSiStripHits(monoPoints, stereoPoints, id, *track);
-   TEveElementList* list = new TEveElementList("hits");
+   TEveElementList* list = new TEveElementList("PixelHits");
    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
-   fireworks::addTrackerHits3D(monoPoints, list, kRed, 2);
-   fireworks::addTrackerHits3D(stereoPoints, list, kRed, 2);
    scene->AddElement(list);
-   //LatB
+	
+	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
+//LatB
 
    scene->Repaint(true);
 

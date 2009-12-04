@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.2 2009/10/04 14:44:07 dmytro Exp $
+// $Id: TrackUtils.h,v 1.3 2009/12/03 04:34:04 latb Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ public:
    void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWModelId &id, const reco::Track &t);
 	void pushPixelHits(std::vector<TVector3> &pixelPoints, const FWModelId &id, const reco::Track &t);   
    void pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWModelId &id, const reco::Track &t);
-
+	void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color);
 	void addTrackerHitsEtaPhi(std::vector<TVector3> &points, class TEveElementList *tList,
                              Color_t color, int size);
    void addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList,
