@@ -175,9 +175,11 @@ namespace spr{
     std::map<std::string,double> eEBSimInfo = spr::eCaloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, timeCut, debug);
     std::map<std::string,double> eEESimInfo = spr::eCaloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, timeCut, debug);
 
+    int matchedId = eEBSimInfo["pdgMatched"];
+    if (matchedId == 0) matchedId = eEESimInfo["pdgMatched"];
     std::map<std::string, double> simInfo;
     simInfo.insert( std::pair<std::string, double>("eMatched",    (eEBSimInfo["eMatched"]+eEESimInfo["eMatched"])) );
-    simInfo.insert( std::pair<std::string, double>("pdgMatched",  (eEBSimInfo["pdgMatched"]+eEESimInfo["pdgMatched"])) );
+    simInfo.insert( std::pair<std::string, double>("pdgMatched",  matchedId) );
     simInfo.insert( std::pair<std::string, double>("eGamma",      (eEBSimInfo["eGamma"]+eEESimInfo["eGamma"])) );
     simInfo.insert( std::pair<std::string, double>("eNeutralHad", (eEBSimInfo["eNeutralHad"]+eEESimInfo["eNeutralHad"])) );
     simInfo.insert( std::pair<std::string, double>("eChargedHad", (eEBSimInfo["eChargedHad"]+eEESimInfo["eChargedHad"])) );
