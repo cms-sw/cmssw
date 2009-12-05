@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.3 2009/12/03 04:34:05 latb Exp $
+// $Id: TrackUtils.cc,v 1.4 2009/12/04 22:56:40 latb Exp $
 //
 
 // system include files
@@ -542,12 +542,14 @@ namespace fireworks {
                Cluster = single->cluster_regional().get();
             else 
 					if (PRINT) std::cout << " no cluster found!";
+            
             if (Cluster) {
                double bc = Cluster->barycenter();
 					TVector3 point, pointA, pointB; 
 					localSiStrip(point, pointA, pointB, bc, id, iItem);
 					if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
-					TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+               TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+               scposition->SetDepthTest(false);
 					scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
 					scposition->SetLineColor(color);
 					tList->AddElement(scposition);
