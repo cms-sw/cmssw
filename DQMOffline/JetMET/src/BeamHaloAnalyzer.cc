@@ -77,6 +77,9 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["EcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
     ME["EcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
     ME["EcalHaloData_SuperClusterShowerShapes"]  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
+    ME["EcalHaloData_SuperClusterEnergy"] = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
+    ME["EcalHaloData_SuperClusterNHits"] = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
+    ME["EcalHaloData_SuperClusterPhiVsEta"] = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0,72, -TMath::Pi(), TMath::Pi());  
     
     // HcalHaloData
     dqm->setCurrentFolder(FolderName+"/HcalHaloData");    
@@ -97,6 +100,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["CSCHaloData_TrackMultiplicityMEMinus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
     ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
     ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+    ME["CSCHaloData_InnerMostTrackHitRPlusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+    ME["CSCHaloData_InnerMostTrackHitRMinusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -400, -1200, 400, -0.5, 799.5 );
     ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
     ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
     ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
@@ -413,11 +418,16 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       else if ( CSCData.NumberOfHaloTriggers(-1) && !CSCData.NumberOfHaloTriggers(1) ) TheHaloOrigin = -1 ;
 
       for( std::vector<GlobalPoint>::const_iterator i=CSCData.GetCSCTrackImpactPositions().begin();  i != CSCData.GetCSCTrackImpactPositions().end() ; i++ )   
-	{                                                                                                                                                      
-	  //ME["CSCHaloData_InnerMostTrackHitXY"]->Fill( i->x(), i->y() );
-	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill( TMath::Sqrt( i->x()*i->x() + i->y()*i->y() ));
+	{                          
+	  float r = TMath::Sqrt( i->x()*i->x() + i->y()*i->y() );
+	  ME["CSCHaloData_InnerMostTrackHitXY"]->Fill( i->x(), i->y() );
+	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill(r);
 	  ME["CSCHaloData_InnerMostTrackHitiPhi"]  ->Fill( Phi_To_iPhi( i->phi())); 
-	}                          
+	  if( i->z() > 0 ) 
+	    ME["CSCHaloData_InnerMostTrackHitRPlusZ"] ->Fill(i->z(), r) ;
+	  else
+	    ME["CSCHaloData_InnerMostTrackHitRMinusZ"] ->Fill(i->z(), r) ;
+	}
       ME["CSCHaloData_L1HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(1) );
       ME["CSCHaloData_L1HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(-1));
       ME["CSCHaloData_L1HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers());
@@ -457,6 +467,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float angle = vm_Angle[cluster];
 	  float roundness = vm_Roundness[cluster];
 	  ME["EcalHaloData_SuperClusterShowerShapes"]->Fill(angle, roundness);
+	  ME["EcalHaloData_SuperClusterNHits"]->Fill( cluster->size() );
+	  ME["EcalHaloData_SuperClusterEnergy"]->Fill(cluster->energy() );
+	  ME["EcalHaloData_SuperClusterPhiVsEta"]->Fill(cluster->eta() ,cluster->phi() );
 	}
     }
 
