@@ -80,6 +80,8 @@ namespace reco
     float L_EcalPhiWedgeConfidence;
     float L_EcalShowerShapesRoundness;
     float L_EcalShowerShapesAngle;
+    int L_EcalSuperClusterSize;
+    float L_EcalSuperClusterEnergy;
 
     float T_EcalPhiWedgeEnergy;
     int T_EcalPhiWedgeConstituents;
@@ -87,6 +89,8 @@ namespace reco
     float T_EcalPhiWedgeConfidence;
     float T_EcalShowerShapesRoundness;
     float T_EcalShowerShapesAngle;
+    int T_EcalSuperClusterSize;
+    float T_EcalSuperClusterEnergy;
     
     float L_HcalPhiWedgeEnergy;
     int L_HcalPhiWedgeConstituents;
