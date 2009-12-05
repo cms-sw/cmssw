@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Cosmics skim')
 )
@@ -12,15 +12,17 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 # This is for testing purposes.
 #
+# run 122314 lumi 27
 #
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/151/5831FFE1-1CDE-DE11-AE90-001D09F2906A.root'),
-                            secondaryFileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/151/2C0CB595-0EDE-DE11-921B-0030487C6062.root')
+fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/122/314/6AECB986-87D8-DE11-A470-001D09F29169.root'),
+secondaryFileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/314/0C7140FD-7CD8-DE11-A515-001D09F2960F.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(-1)
 )
+
 
 
 #------------------------------------------
