@@ -245,6 +245,8 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<L1AcceptBunchCrossingCollection> bunchCrossings;
   bool d = iEvent.getByLabel(scalersSource_, bunchCrossings);
   
+  double evtLumi = iEvent.luminosityBlock();
+
   if ( ! (a && c && d) ) {
     LogInfo("Status") << "getByLabel failed with label " 
 		      << scalersSource_;
@@ -323,7 +325,7 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  algorithmRates_ = triggerRates->gtAlgoCountsRate();
 	  technicalRates_ = triggerRates->gtTechCountsRate();
 	  
-	  if( (bufferLumi_!=lumisection && bufferLumi_<lumisection) ){
+	  if( ((bufferLumi_!=lumisection) && (bufferLumi_<lumisection) && (evtLumi>1 || evtLumi==lumisection+1)) ){
 	    bufferLumi_ = lumisection;
  
 	    if(bufferAlgoRates_ != algorithmRates_){ 
