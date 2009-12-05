@@ -26,7 +26,7 @@ process = cms.Process("TEST")
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = gname
+process.GlobalTag.globaltag = gName
 process.GlobalTag.DumpStat =  True
 # 'GR09_P_V6::All'
 #'CRAFT09_R_V9::All'
