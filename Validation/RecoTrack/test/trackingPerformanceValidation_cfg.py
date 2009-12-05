@@ -150,6 +150,7 @@ if ValidationSequence=="harvesting":
             filter.outputFile=""
 
 
+process.EDMtoMEConverter.convertOnEndLumi = False
 process.harvesting= cms.Sequence(process.EDMtoMEConverter*process.postValidation*process.dqmSaver)
 
 

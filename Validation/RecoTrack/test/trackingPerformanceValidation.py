@@ -11,15 +11,19 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_3_3'
+RefRelease='CMSSW_3_4_0_pre5'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_3_4'
+NewRelease='CMSSW_3_4_0_pre6'
 
 # startup and ideal sample list
 
 #This are the standard relvals (startup)
-startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+startupsamples= [
+    'RelValTTbar', 
+#    'RelValMinBias', 
+#    'RelValQCD_Pt_3000_3500'
+]
 
 #This is pileup sample
 #startupsamples= ['RelValTTbar_Tauola']
@@ -28,7 +32,18 @@ startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
 #startupsamples= []
 
 #This are the standard relvals (ideal)
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+idealsamples= [
+#    'RelValSingleMuPt1', 
+#    'RelValSingleMuPt10', 
+#    'RelValSingleMuPt100', 
+#    'RelValSinglePiPt1', 
+#    'RelValSinglePiPt10', 
+#    'RelValSinglePiPt100', 
+#    'RelValSingleElectronPt35', 
+#    'RelValTTbar', 
+#    'RelValQCD_Pt_3000_3500',
+#    'RelValMinBias'
+]
 
 #This is pileup sample
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
@@ -62,20 +77,19 @@ Tracksname=''
 #   -preproduction
 #   -comparison_only
 
-#Sequence='preproduction'
-Sequence='comparison_only'
+Sequence='harvesting'
 
 
 # Ideal and Statup tags
-IdealTag='MC_31X_V8'
-StartupTag='STARTUP31X_V7'
+IdealTag='MC_3XY_V14'
+StartupTag='STARTUP3X_V14'
 
 # PileUp: PU . No PileUp: noPU
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='MC_31X_V8_'+PileUp
-StartupReferenceSelection='STARTUP31X_V7_'+PileUp
+ReferenceSelection='MC_3XY_V12_'+PileUp
+StartupReferenceSelection='STARTUP3X_V11_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -84,7 +98,8 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+NewRepository = 'new'
 
 castorHarvestedFilesDirectory='/castor/cern.ch/user/n/nuno/relval/harvest/'
 
