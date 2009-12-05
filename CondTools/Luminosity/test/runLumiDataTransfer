@@ -30,6 +30,7 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
       f.write('process.PoolDBOutputService.logconnect="'+logdbConnect+'"\n')
    if allowForceFirstSince:
       f.write('process.lumidatatransfer.Source.allowForceFirstSince=True\n')
+   f.write('process.lumidatatransfer.authPath="'+authenticationPath+'"\n')
    f.write('process.PoolDBOutputService.DBParameters.authenticationPath="'+authenticationPath+'"\n')
    f.write('process.PoolDBOutputService.connect="'+databaseConnect+'"\n')
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
@@ -43,8 +44,8 @@ def main():
    inputdir is the working(run) dir default to currentdir
    authpath is default to inputdir
    tnsadminpath is default to $TNS_ADMIN if available, otherwise to inputdir
-   inputTemplatefile is taken from cmsswsrc/CondTools/Luminosity/test
-   
+   inputTemplate is taken from cmsswsrc/CondTools/Luminosity/test
+
    outputdir is the job output dir default to currentdir
    output job config file is in outputdir
    output logfile is in outputdir
@@ -63,6 +64,8 @@ def main():
                      help="path to tnsadmin file default to TNS_ADMIN if available otherwise to inputdir(OPTIONAL)")
    parser.add_option("-i","--inputdir",action="store",dest="inputdir",
                      help="path to job input dir default to currentdir(OPTIONAL)")
+   parser.add_option("-I","--inputtemplate",action="store",dest="inputtemplate",
+                     help="template job configuration default to LumiMixedTransfer.py.template(OPTIONAL)")
    parser.add_option("-s","--cmsswsrc",action="store",dest="cmsswsrc",help="path to CMSSW/src directory default to $CMSSW_BASE/src (OPTIONAL)")
    parser.add_option("-l","--logdatabase",action="store",dest="logdatabase",
                      help="log database connect string (OPTIONAL)")
@@ -82,10 +85,11 @@ def main():
    connect=''
    authpath=''
    inputTemplate=''
+   inputtemplate='LumiMixedTransfer.py.template'
    logdatabase=''
    outputdir=os.getcwd()
    inputdir=os.getcwd()
-   outputFilename='LumiRootTransfer.py'
+   outputFilename='LumiMixedTransfer.py'
    dryrun=False
    allowForceFirstSince=False
    cmsswsrc=''
@@ -110,13 +114,17 @@ def main():
         if Config.has_option(sectionName,'tnsadminpath') :
            tnsadminpath=Config.get(sectionName,'tnsadminpath')
         if Config.has_option(sectionName,'inputdir') :
-           inputdir=Config.get(sectionName,'inputdir')
+           if len(Config.get(sectionName,'inputdir'))!=0:
+              inputdir=Config.get(sectionName,'inputdir')
+        if Config.has_option(sectionName,'inputtemplate') :
+           inputtemplate=Config.get(sectionName,'inputtemplate')
         if Config.has_option(sectionName,'cmsswsrc') :
            cmsswsrc=Config.get(sectionName,'cmsswsrc')
         if Config.has_option(sectionName,'logdatabase') :
            logdatabase=Config.get(sectionName,'logdatabase')
         if Config.has_option(sectionName,'outputdir') :
-           outputdir=Config.get(sectionName,'outputdir')
+           if len(Config.get(sectionName,'outputdir'))!=0:
+              outputdir=Config.get(sectionName,'outputdir')
         if Config.has_option(sectionName,'dryrun'):
            dryrun=Config.getboolean(sectionName,'dryrun')
         if Config.has_option(sectionName,'jobreport'):
@@ -178,7 +186,7 @@ def main():
       if len(jobreport)==0: #last resort
          jobreport='jobreport'
    outputFilename=os.path.join(outputdir,outputFilename)
-   inputTemplate=os.path.join(cmsswsrc,'CondTools','Luminosity','test','LumiRootTransfer.py.template')
+   inputTemplate=os.path.join(cmsswsrc,'CondTools','Luminosity','test',inputtemplate)
    
    if verbose:
       print 'rootfilename:\t',rootfilename
@@ -187,6 +195,7 @@ def main():
       print 'authpath:\t',authpath
       print 'tnsadminpath:\t',tnsadminpath
       print 'inputdir:\t',inputdir
+      print 'inputtemplate:\t',inputtemplate
       
       print 'cmsswsrc:\t',cmsswsrc
       if len(logdatabase)==0:
