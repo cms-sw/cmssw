@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.21 2009/12/03 21:46:55 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.24 2009/12/04 18:04:49 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1310,7 +1310,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     int nBinsPerLSHisto = 20;
     int nLSHistos = npaths/nBinsPerLSHisto;
-    for (int nh=0;nh<nLSHistos;nh++) {
+    for (int nh=0;nh<nLSHistos+1;nh++) {
 
       char name[200];
       char title[200];
@@ -1712,8 +1712,11 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 
       // find the bin
       int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
-      // set the bin content
-      hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
+      
+      // update  the bin content  (must do that since events don't ncessarily come in the order
+      int currentLumiCount = int(hist_All->GetBinContent(lumi+1,pathBinNumber));
+      int updatedLumiCount = currentLumiCount + diffCount;
+      hist_All->SetBinContent(lumi+1,pathBinNumber,updatedLumiCount);
     
     }
     else {
@@ -1732,8 +1735,10 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   
         // find the bin
         int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
-        // set the bin content
-        hist_All->SetBinContent(lumi+1,pathBinNumber,diffCount);
+        // update  the bin content  (must do that since events don't ncessarily come in the order
+        int currentLumiCount = int(hist_All->GetBinContent(lumi+1,pathBinNumber));
+        int updatedLumiCount = currentLumiCount + diffCount;
+        hist_All->SetBinContent(lumi+1,pathBinNumber,updatedLumiCount);
       
       }
       else {
@@ -1752,7 +1757,10 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if ( ME_1d) { 
 
-      ME_1d->getTH1()->SetBinContent(lumi+1,diffCount);
+      // update  the bin content  (must do that since events don't ncessarily come in the order
+      int currentLumiCount = int(ME_1d->getTH1()->GetBinContent(lumi+1));
+      int updatedLumiCount = currentLumiCount + diffCount;
+      ME_1d->getTH1()->SetBinContent(lumi+1,updatedLumiCount);
 
     }
     else {
