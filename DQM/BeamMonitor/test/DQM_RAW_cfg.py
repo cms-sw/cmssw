@@ -7,12 +7,12 @@ process.load("DQM.BeamMonitor.BeamMonitor_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/RawToDigi_cff')
-process.load('Configuration/StandardSequences/Reconstruction_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.load('Configuration/EventContent/EventContent_cff')
+process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.RawToDigi_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.EventContent.EventContent_cff")
 
 ## pixel less tracking
 process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
