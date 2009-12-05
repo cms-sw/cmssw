@@ -13,6 +13,7 @@
 #include "TGPack.h"
 #include "TGeoBBox.h"
 #include "TGSlider.h"
+#include "TGButton.h"
 #include "TGLabel.h"
 #include "TCanvas.h"
 #include "TLatex.h"
@@ -60,6 +61,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    eveWindow->SetElementName("Track Hits Detail View");
    setEveWindow(eveWindow);
    m_viewer = (TGLEmbeddedViewer*)viewer->GetGLViewer();
+   
+   bool labelsOn = false;
    {
       TGCompositeFrame* f  = new TGVerticalFrame(guiFrame);
       guiFrame->AddFrame(f);
@@ -76,12 +79,15 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 
    {
       CSGAction* action = new CSGAction(this, "Show Module Labels");
-      action->createCheckButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
+      TGCheckButton* b = new TGCheckButton(guiFrame, "Show Module Labels" );
+      b->SetState(labelsOn ? kButtonDown : kButtonUp, false);
+      guiFrame->AddFrame(b, new TGLayoutHints( kLHintsNormal, 2, 3, 1, 4));
+      TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::rnrLabels));
    }
    {
-      CSGAction* action = new CSGAction(this, "Pick Camera Center");
-      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsExpandX, 2, 3, 1, 4));
+      CSGAction* action = new CSGAction(this, " Pick Camera Center ");
+      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsNormal, 2, 0, 1, 4));
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
 
@@ -106,20 +112,9 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
       text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
       text->SetFontMode(TGLFont::kPixmap);
       text->SetFontSize(12);
-      /*
-        text->SetFontMode(TGLFont::kExtrude);
-        Float_t textWidth = name.Length()*text->GetFontSize();
-
-        TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
-        text->RefMainTrans().Move3LF(0, 0, +2*bb->GetDZ());
-        text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
-        Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
-        Float_t minSide = TMath::Min(bb->GetDX(), bb->GetDY());
-        Float_t a = minSide/textWidth;
-        text->RefMainTrans().Scale(a, a, a);
-      */
       m_moduleLabels->AddElement(text); 
    }
+   m_moduleLabels->SetRnrChildren(labelsOn);
 
    CmsMagField* cmsMagField = new CmsMagField;
    cmsMagField->setReverseState( true );
@@ -157,7 +152,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->UpdateScene();
    m_viewer->CurrentCamera().Reset();
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
-   //   m_viewer->SetStyle(TGLRnrCtx::kOutline);
+   m_viewer->SetStyle(TGLRnrCtx::kOutline);
    m_viewer->SetDrawCameraCenter(kTRUE);
 
    addInfo(canvas);
@@ -166,7 +161,14 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 void
 FWTrackHitsDetailView::setBackgroundColor(Color_t col)
 {
+   // Callback for cmsShow change of background
+   
    FWColorManager::setColorSetViewer(m_viewer, col);
+
+   // adopt label colors to background, this should be implemneted in TEveText
+   Color_t x = m_viewer->GetRnrCtx()->ColorSet().Foreground().GetColorIndex();
+   for (TEveElement::List_i i=m_moduleLabels->BeginChildren(); i!=m_moduleLabels->EndChildren(); ++i)
+      (*i)->SetMainColor(x);
 }
 
 
