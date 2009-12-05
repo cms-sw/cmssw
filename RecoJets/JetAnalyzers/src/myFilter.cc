@@ -17,11 +17,26 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// #include "DataFormats/PhotonReco/interface/PhotonFwd.h"
+// #include "DataFormats/PhotonReco/interface/Photon.h"
+
+
+
 using namespace edm;
 using namespace reco;
 using namespace std;
 
-#define DEBUG 1
+#define DEBUG false
 
 typedef struct RBX_struct {
   double et;
@@ -59,6 +74,7 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _nEvent      = 0;
   _acceptedEvt = 0;
   _passPt      = 0;
+  _passNTrks   = 0;
   _passEMF     = 0;
   _passNJets   = 0;
   _passNTowers = 0;
@@ -83,6 +99,7 @@ void myFilter::endJob() {
   std::cout << "myFilter: accepted " 
 	    << _acceptedEvt << " / " <<  _nEvent <<  " events." << std::endl;
   std::cout << "Pt           = " << _passPt          << std::endl;
+  std::cout << "NTrks        = " << _passNTrks       << std::endl;
   std::cout << "EMF          = " << _passEMF         << std::endl;
   std::cout << "NJets        = " << _passNJets       << std::endl;
   std::cout << "NTowers      = " << _passNTowers     << std::endl;
@@ -99,6 +116,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   bool result         = false;
   bool filter_Pt      = false;
+  bool filter_NTrks   = false;
   bool filter_EMF     = false;
   bool filter_NJets   = false;
   //bool filter_NTowers = false;
@@ -136,6 +154,13 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     HPDColl[i].ecalTime  = 0;
     HPDColl[i].nTowers   = 0;
   }
+
+  std::cout << ">>>> FIL: Run = "    << evt.id().run()
+            << " Event = " << evt.id().event()
+            << " Bunch Crossing = " << evt.bunchCrossing()
+            << " Orbit Number = "  << evt.orbitNumber()
+            <<  std::endl;
+
 
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
@@ -246,6 +271,37 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   // *********************************************************
   // --- Track Selection
   // *********************************************************
+  edm::Handle<reco::TrackCollection> trackCollection;
+  //  evt.getByLabel("ctfWithMaterialTracks", trackCollection);
+  evt.getByLabel("generalTracks", trackCollection);
+  
+  const reco::TrackCollection tC = *(trackCollection.product());
+  std::cout << "FIL: Reconstructed "<< tC.size() << " tracks" << std::endl ;
+
+  if (tC.size() > 3) filter_NTrks = true;
+
+  //  h_Trk_NTrk->Fill(tC.size());
+
+  //  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+  //    h_Trk_pt->Fill(track->pt());
+  //  }
+
+  /****
+    std::cout << "Track number "<< i << std::endl ;
+    std::cout << "\tmomentum: " << track->momentum()<< std::endl;
+    std::cout << "\tPT: " << track->pt()<< std::endl;
+    std::cout << "\tvertex: " << track->vertex()<< std::endl;
+    std::cout << "\timpact parameter: " << track->d0()<< std::endl;
+    std::cout << "\tcharge: " << track->charge()<< std::endl;
+    std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
+
+    cout<<"\tFrom EXTRA : "<<endl;
+    cout<<"\t\touter PT "<< track->outerPt()<<endl;
+    std::cout << "\t direction: " << track->seedDirection() << std::endl;
+  ****/
+
+
+
 
   // *********************************************************
   // --- RecHits
@@ -310,9 +366,6 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
 
 
-
-
-
   // *********************************************************
   // --- CaloTower Selection
   // *********************************************************
@@ -342,11 +395,13 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     }
 
   }
+  /****
   std::cout << "Number of caloTowers = " 
 	    <<  caloTowers->size() 
 	    <<  " / "
 	    << nTow 
 	    << std::endl;
+  ****/
 
   // *********************************************************
   // --- Jet Selection
@@ -387,7 +442,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   // *********************************************************
   // --- MET Selection
   // *********************************************************
-  edm::Handle<reco::CaloMETCollection> calometcoll;
+
+  Handle<reco::CaloMETCollection> calometcoll;
   evt.getByLabel("met", calometcoll);
   if (calometcoll.isValid()) {
     const CaloMETCollection *calometcol = calometcoll.product();
@@ -411,13 +467,15 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   }
 
 
-  if ( (filter_Pt)  || (filter_EMF) || (filter_NJets) || 
+  if ( (filter_Pt)  || (filter_NTrks) || (filter_EMF) || (filter_NJets) || 
        (filter_MET) || (filter_METSig) || (filter_HighPtTower) ) {
-    //    result = true;
-    //    _acceptedEvt++;
+    result = true;
+    _acceptedEvt++;
   }
+  
 
   if (filter_Pt)           _passPt++;
+  if (filter_NTrks)        _passNTrks++;
   if (filter_EMF)          _passEMF++;
   if (filter_NJets)        _passNJets++;
   if (filter_MET)          _passMET++;
@@ -426,14 +484,21 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_NRBX)         _passNRBX++;
   if (filter_HLT)          _passHLT++;
 
-  
-  if ((evt.id().run() == 120020) && (evt.id().event() == 457)) {
+  /****  
+  if ((evt.id().run() == 120020) && (evt.id().event() == 453)) {
     result = true;
     _acceptedEvt++;
   } else {
     result = false;
   }
+  ****/
+
   //  result = true;
+
+  if (result) {
+    std::cout << "<<<< Event Passed" 
+	      << std::endl;
+  }
   return result;
 
 }

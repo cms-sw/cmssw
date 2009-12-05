@@ -70,15 +70,27 @@ private:
   
   // --- RecHits
   TH1F *HBEne;
+  TH1F *HBEneX;
+  TH1F *HBEneY;
   TH1F *HBTime;
+  TH1F *HBTimeX;
+  TH1F *HBTimeY;
   TH1F *HEEne;
+  TH1F *HEEneX;
+  TH1F *HEEneY;
   TH1F *HEposEne;
   TH1F *HEnegEne;
   TH1F *HETime;
+  TH1F *HETimeX;
+  TH1F *HETimeY;
   TH1F *HEposTime;
   TH1F *HEnegTime;
   TH1F *HFEne;
   TH1F *HFTime;
+  TH1F *HFEneP;
+  TH1F *HFTimeP;
+  TH1F *HFEneM;
+  TH1F *HFTimeM;
   TH1F *HFLEne;
   TH1F *HFLTime;
   TH1F *HFSEne;
@@ -104,11 +116,19 @@ private:
   TH1F *HOHrp2Ene;
   TH1F *HOHrp2Time;
   TH1F *EBEne;
+  TH1F *EBEneX;
+  TH1F *EBEneY;
   TH1F *EBTime;
+  TH1F *EBTimeX;
+  TH1F *EBTimeY;
   TH1F *EEEne;
+  TH1F *EEEneX;
+  TH1F *EEEneY;
   TH1F *EEnegEne;
   TH1F *EEposEne;
   TH1F *EETime;
+  TH1F *EETimeX;
+  TH1F *EETimeY;
   TH1F *EEnegTime;
   TH1F *EEposTime;
 
@@ -191,6 +211,12 @@ private:
 
   TH1F *h_nCalJets;
   TH1F *h_nGenJets;
+
+  TH1F *caloEta;
+  TH1F *caloPhi;
+
+  TH1F *hitEta;
+  TH1F *hitPhi;
 
   TH1F *h_ptCal;
   TH1F *h_etaCal;

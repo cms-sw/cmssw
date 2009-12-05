@@ -23,6 +23,7 @@ private:
   int _acceptedEvt;
 
   int _passPt;
+  int _passNTrks;
   int _passEMF;
   int _passNJets;
   int _passNTowers;
