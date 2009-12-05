@@ -126,6 +126,10 @@ parser.add_option("--minAlignmentHits",
                   type="int",
                   default=30,
                   dest="minAlignmentHits")
+parser.add_option("--combineME11",
+                  help="treat ME1/1a and ME1/1b as the same objects",
+                  action="store_true",
+                  dest="combineME11")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -155,6 +159,7 @@ allowTIDTEC = str(options.allowTIDTEC)
 twoBin = str(options.twoBin)
 weightAlignment = str(options.weightAlignment)
 minAlignmentHits = str(options.minAlignmentHits)
+combineME11 = str(options.combineME11)
 
 execfile(INPUTFILES)
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
@@ -225,6 +230,7 @@ export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
 export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
+export ALIGNMENT_COMBINEME11=%(combineME11)s
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
@@ -296,6 +302,7 @@ export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
 export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
+export ALIGNMENT_COMBINEME11=%(combineME11)s
 
 cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/

@@ -24,6 +24,7 @@ allowTIDTEC = (os.environ["ALIGNMENT_ALLOWTIDTEC"] == "True")
 twoBin = (os.environ["ALIGNMENT_TWOBIN"] == "True")
 weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
+combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 
 process = cms.Process("GATHER")
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles))
@@ -37,7 +38,6 @@ process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
 process.looper.algoConfig.writeTemporaryFile = "alignment%03d.tmp" % jobnumber
 process.looper.algoConfig.doAlignment = False
 
-process.looper.algoConfig.combineME11 = False
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonDTChambers,%s,stations123" % station123params, "MuonDTChambers,%s,station4" % station4params, "MuonCSCChambers,%s" % cscparams)
 process.looper.algoConfig.minTrackPt = minTrackPt
 process.looper.algoConfig.maxTrackPt = maxTrackPt
@@ -47,6 +47,7 @@ process.looper.algoConfig.allowTIDTEC = allowTIDTEC
 process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
+process.looper.algoConfig.combineME11 = combineME11
 
 process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring())
 
