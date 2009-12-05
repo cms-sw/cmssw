@@ -125,8 +125,13 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
       techRate[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       techRate[i]->setAxisTitle("Lumi Section" ,1);
-    }    		
-    		     
+    }
+    techRateRatio_33_over_32 = dbe_->book1D("Rate_TechBit_Ratio_33_over_32", "Rate_TechBit_Ratio_33_over_32",401,-0.5,400.5);
+    techRateRatio_41_over_40 = dbe_->book1D("Rate_TechBit_Ratio_41_over_40", "Rate_TechBit_Ratio_41_over_40",401,-0.5,400.5);
+    techRateRatio_33_over_32->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_41_over_40->setAxisTitle("Lumi Section" ,1);
+
+
     for(int i=0; i<Level1TriggerScalers::nLevel1TestTriggers; i++) {
       sprintf(hname, "Integral_TechBit_%03d", i);
       sprintf(mename, "Integral_TechBit _%03d", i);
@@ -337,6 +342,8 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		integralTech[i]->setBinContent(lumisection+1, integral_tech_[i]); 
 		if( (i==42 || i==43) ) integral_tech_42_OR_43_+=(technicalRates_[i]*93.);
 	      } 
+	      if( technicalRates_[40]!=0 ) techRateRatio_41_over_40->setBinContent(lumisection+1, technicalRates_[41]/technicalRates_[40]);
+	      if( technicalRates_[32]!=0 ) techRateRatio_33_over_32->setBinContent(lumisection+1, technicalRates_[33]/technicalRates_[32]);
 	      integralTech_42_OR_43->setBinContent(lumisection+1, integral_tech_42_OR_43_);	   
 	    }
 

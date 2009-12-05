@@ -77,7 +77,8 @@ private:
   MonitorElement * integralAlgo[128];
   MonitorElement * integralTech[64];
   MonitorElement * integralTech_42_OR_43;
-
+  MonitorElement * techRateRatio_33_over_32;
+  MonitorElement * techRateRatio_41_over_40;
 
   MonitorElement * physRate;
   MonitorElement * randRate;
