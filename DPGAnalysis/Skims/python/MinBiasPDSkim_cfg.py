@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -156,7 +156,15 @@ process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
  minActiveChambs  = cms.int32( 1 )
 )
 
+process.HLTDT =cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
+     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+     throw = cms.bool(False)    # throw exception on unknown path names
+ )
 
+process.HLTDTpath = cms.Path(process.HLTDT)
 process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
 
 process.DTskimout = cms.OutputModule("PoolOutputModule",
@@ -166,7 +174,7 @@ process.DTskimout = cms.OutputModule("PoolOutputModule",
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('DT_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('DTskim','HLT_L1MuOpen:HLT','HLT_Activity_DT:HLT')
+        SelectEvents = cms.vstring('DTskim','HLTDTpath')
        )
 )
 ####################################################################################
