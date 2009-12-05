@@ -24,6 +24,8 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   L_EcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("l_EcalPhiWedgeConfidence");
   L_EcalShowerShapesRoundness = (float)iConfig.getParameter<double>("l_EcalShowerShapesRoundness");
   L_EcalShowerShapesAngle =(float) iConfig.getParameter<double>("l_EcalShowerShapesAngle");  
+  L_EcalSuperClusterSize = (int) iConfig.getParameter<int>("l_EcalSuperClusterSize");
+  L_EcalSuperClusterEnergy = (float) iConfig.getParameter<double>("l_EcalSuperClusterEnergy");
 
   T_EcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("t_EcalPhiWedgeEnergy");
   T_EcalPhiWedgeConstituents = iConfig.getParameter<int>("t_EcalPhiWedgeConstituents");
@@ -31,6 +33,8 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_EcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_EcalPhiWedgeConfidence");
   T_EcalShowerShapesRoundness = (float)iConfig.getParameter<double>("t_EcalShowerShapesRoundness");
   T_EcalShowerShapesAngle = (float)iConfig.getParameter<double>("t_EcalShowerShapesAngle");
+  T_EcalSuperClusterSize = (int) iConfig.getParameter<int>("t_EcalSuperClusterSize");
+  T_EcalSuperClusterEnergy = (float) iConfig.getParameter<double>("t_EcalSuperClusterEnergy");
 
   L_HcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("l_HcalPhiWedgeEnergy");
   L_HcalPhiWedgeConstituents = iConfig.getParameter<int>("l_HcalPhiWedgeConstituents");
@@ -74,30 +78,28 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       bool EcaliPhi = false;
       //Loose Id
-      if( iWedge-> Energy() > L_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && iWedge->MaxTime() < L_EcalPhiWedgeToF)
-	{
-	  EcalLooseId = true;
-	  EcaliPhi = true;
-	}
-      if( iWedge-> NumberOfConstituents() > L_EcalPhiWedgeConstituents  && 
-	  (iWedge->PlusZDirectionConfidence() > L_EcalPhiWedgeConfidence || iWedge->PlusZDirectionConfidence() < (1-L_EcalPhiWedgeConfidence ) ) ) 
-	{
-	  EcalLooseId = true ;
-	  EcaliPhi = true;
-	}
+      if(iWedge-> Energy() > L_EcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_EcalPhiWedgeConfidence)
+        {
+          EcalLooseId = true;
+          EcaliPhi = true;
+        }
+
 
       //Tight Id
-      if( iWedge-> Energy() > T_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents && iWedge->MaxTime() < T_EcalPhiWedgeToF)
-	{
-	  EcalTightId = true;
-	  EcaliPhi = true;
-	}
-      if( iWedge-> NumberOfConstituents() > T_EcalPhiWedgeConstituents  && 
-	  (iWedge->PlusZDirectionConfidence() > T_EcalPhiWedgeConfidence || iWedge->PlusZDirectionConfidence() < (1-T_EcalPhiWedgeConfidence) ) ) 
-	{
-	  EcalTightId = true ;
-	  EcaliPhi = true;
-	}
+      if( iWedge-> Energy() > T_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents && iWedge->ZDirectionConfidence() > L_EcalPhiWedgeConfidence )
+        {
+          EcalTightId = true;
+          EcaliPhi = true;
+        }
+
+      for( unsigned int i = 0 ; i < TheBeamHaloSummary->GetEcaliPhiSuspects().size() ; i++ )
+        {
+          if( iWedge->iPhi() == TheBeamHaloSummary->GetEcaliPhiSuspects()[i] )
+            {
+              EcaliPhi = false;  // already stored this iPhi                                                                                                                   
+	      continue;
+            }
+        }
 
       if( EcaliPhi ) 
 	TheBeamHaloSummary->GetEcaliPhiSuspects().push_back( iWedge->iPhi() ) ;
@@ -114,13 +116,18 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       //Loose Selection
       if(  (angle > 0. && angle < L_EcalShowerShapesAngle ) && ( roundness > 0. && roundness < L_EcalShowerShapesRoundness ) )
-	EcalLooseId = true;
+        {
+          if( cluster->energy() > L_EcalSuperClusterEnergy && cluster->size() > (unsigned int) L_EcalSuperClusterSize )
+            EcalLooseId = true;
+        }
 
       //Tight Selection 
       if(  (angle > 0. && angle < T_EcalShowerShapesAngle ) && ( roundness > 0. && roundness < T_EcalShowerShapesRoundness ) )
-	EcalTightId = true;
+        {
+          if( cluster->energy() > T_EcalSuperClusterEnergy && cluster->size() > (unsigned int)T_EcalSuperClusterSize )
+            EcalTightId = true;
+        }
     }
-
 
  if( EcalLooseId ) 
     TheBeamHaloSummary->GetEcalHaloReport()[0] = 1;
@@ -139,29 +146,26 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       bool HcaliPhi = false;
       //Loose Id
-      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && iWedge->MaxTime() < L_HcalPhiWedgeToF)
-	{
-	  HcalLooseId = true;
-	  HcaliPhi = true;
-	}
-      if( iWedge-> NumberOfConstituents() > L_HcalPhiWedgeConstituents  && 
-	  (iWedge->PlusZDirectionConfidence() > L_HcalPhiWedgeConfidence || iWedge->PlusZDirectionConfidence() < (1-L_HcalPhiWedgeConfidence ) ) ) 
-	{
-	  HcalLooseId = true ;
-	  HcaliPhi = true;
-	}
+      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence)
+        {
+          HcalLooseId = true;
+          HcaliPhi = true;
+        }
 
       //Tight Id
-      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && iWedge->MaxTime() < T_HcalPhiWedgeToF)
-	{
-	  HcalTightId = true;
-	  HcaliPhi = true;
+      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
+        {
+          HcalTightId = true;
+          HcaliPhi = true;
 	}
-      if( iWedge-> NumberOfConstituents() > T_HcalPhiWedgeConstituents  && 
-	  (iWedge->PlusZDirectionConfidence() > T_HcalPhiWedgeConfidence || iWedge->PlusZDirectionConfidence() < (1-T_HcalPhiWedgeConfidence) ) ) 
+      
+      for( unsigned int i = 0 ; i < TheBeamHaloSummary->GetHcaliPhiSuspects().size() ; i++ )
 	{
-	  HcalTightId = true ;
-	  HcaliPhi = true;
+          if( iWedge->iPhi() == TheBeamHaloSummary->GetHcaliPhiSuspects()[i] )
+            {
+              HcaliPhi = false;  // already stored this iPhi                                                                                                                  
+	      continue;
+            }
 	}
 
       if( HcaliPhi ) 
@@ -187,30 +191,26 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     GlobalLooseId = true;
 
   //Tight Id
-  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin() ; iWedge != MatchedEcalWedges.end(); iWedge ++ ) 
+  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin() ; iWedge != MatchedEcalWedges.end(); iWedge ++ )
     {
       if( iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents )
-	GlobalTightId = true;
-      if( iWedge->MaxTime() < T_EcalPhiWedgeToF ) 
-	GlobalTightId = true;
-      if( iWedge->PlusZDirectionConfidence() > T_EcalPhiWedgeConfidence )
-	GlobalTightId = true;
-      if( iWedge->PlusZDirectionConfidence() < (1- T_EcalPhiWedgeConfidence ) )
+        GlobalTightId = true;
+      if( iWedge->MaxTime() < T_EcalPhiWedgeToF )
+        GlobalTightId = true;
+      if( abs(iWedge->ZDirectionConfidence() > T_EcalPhiWedgeConfidence) )
 	GlobalTightId = true;
     }
 
-  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin() ; iWedge != MatchedHcalWedges.end(); iWedge ++ ) 
+  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin() ; iWedge != MatchedHcalWedges.end(); iWedge ++ )
     {
       if( iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents )
+        GlobalTightId = true;
+      if( iWedge->MaxTime() < T_HcalPhiWedgeToF )
 	GlobalTightId = true;
-      if( iWedge->MaxTime() < T_HcalPhiWedgeToF ) 
-	GlobalTightId = true;
-      if( iWedge->PlusZDirectionConfidence() > T_HcalPhiWedgeConfidence )
-	GlobalTightId = true;
-      if( iWedge->PlusZDirectionConfidence() < ( 1 - T_HcalPhiWedgeConfidence ) )
+      if( abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence )
 	GlobalTightId = true;
     }
-  
+
   if( GlobalLooseId ) 
     TheBeamHaloSummary->GetGlobalHaloReport()[0] = 1;
   if( GlobalTightId )
