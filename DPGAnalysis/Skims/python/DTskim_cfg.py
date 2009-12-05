@@ -4,7 +4,7 @@ process = cms.Process("SKIM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('Collisions DT skim')
 )
@@ -108,7 +108,7 @@ process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
 )
@@ -128,6 +128,9 @@ process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('DTskim','HLTDTpath')
        )
+)
+process.options = cms.untracked.PSet(
+ wantSummary = cms.untracked.bool(True)
 )
 
 process.e = cms.EndPath(process.out)
