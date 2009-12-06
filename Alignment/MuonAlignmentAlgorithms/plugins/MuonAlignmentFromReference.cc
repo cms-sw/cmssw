@@ -1175,13 +1175,6 @@ void MuonAlignmentFromReference::terminate() {
 	m_alignmentParameterStore->applyParameters(*ali);
 	(*ali)->alignmentParameters()->setValid(true);
 
-	if (thisali != *ali) {
-	  AlignmentParameters *parnew = thisali->alignmentParameters()->cloneFromSelected(params, cov);
-	  thisali->setAlignmentParameters(parnew);
-	  m_alignmentParameterStore->applyParameters(thisali);
-	  thisali->alignmentParameters()->setValid(true);
-	}
-
       } // end we have a fitter for this alignable
 
       if (writeReport) report << std::endl;
