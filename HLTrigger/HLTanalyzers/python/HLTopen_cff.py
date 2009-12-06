@@ -639,8 +639,8 @@ DoHLTAlCaECALPhiSym = cms.Path(
 
 DoHLTMinBiasPixelTracks = cms.Path(
     HLTBeginSequence + 
-    hltL1sMinBiasPixel + 
-    hltPreMinBiasPixel +
+    hltL1sZeroBias + 
+#    hltPreMinBiasPixelSingleTrack +
     hltSiPixelDigis + 
     hltSiPixelClusters + 
     hltSiPixelRecHits +

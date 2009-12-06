@@ -64,7 +64,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
-  gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
 
   gctBitCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFBitCounts").label(), "" );
   gctRingSums_         = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFRingSums").label(), "" );
@@ -515,9 +514,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1extmet,
     l1extmht,
     l1GtRR,
-    l1GtOMRec,
     gctBitCounts,
     gctRingSums,
+    iSetup,
     HltTree);
   
   bjet_analysis_.analyze(

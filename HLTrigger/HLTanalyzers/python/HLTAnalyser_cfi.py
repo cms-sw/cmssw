@@ -16,7 +16,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### Trigger objects
     l1GctHFBitCounts                = cms.InputTag("hltGctDigis"),
     l1GctHFRingSums                 = cms.InputTag("hltGctDigis"),
-    l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap::HLT"),
+    # l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap::HLT"),
     l1GtReadoutRecord               = cms.InputTag("hltGtDigis::HLT"),
 
     l1extramc                       = cms.string('hltL1extraParticles'),

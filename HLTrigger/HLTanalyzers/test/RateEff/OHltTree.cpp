@@ -33,9 +33,10 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kFALSE);
     fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
     fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
-    fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
+    // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
     if (cfg->selectBranchL1) {
       fChain->SetBranchStatus("L1_*",kTRUE);
+      fChain->SetBranchStatus("L1Tech_*",kTRUE);
     }
     if (cfg->selectBranchHLT) {
       fChain->SetBranchStatus("HLT_*",kTRUE);
@@ -92,14 +93,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       }
  
     SetOpenL1Bits(); 
-
-    //ccla example to extact technical bits
-    if (b_L1TechnicalBits){
-      //cout << "Size: " << L1TechnicalBits->size() << endl;
-      bool techTrigger0;
-      techTrigger0 = (bool) L1TechnicalBits->at(0);
-      //cout << "techTrigger0: " << techTrigger0 << endl;
-    }
 
     RemoveEGOverlaps();
    
