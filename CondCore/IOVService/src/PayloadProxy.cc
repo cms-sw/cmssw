@@ -16,7 +16,7 @@ namespace cond {
     m_doThrow(errorPolicy), m_iov(session,token,true,false) {
     ++gstats.nProxy;
     BasePayloadProxy::Stats s = {0,0,0};
-    stats = s
+    stats = s;
   }
 
 
