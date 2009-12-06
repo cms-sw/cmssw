@@ -40,7 +40,7 @@ from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 #plugin config
 jptDQMParameters = cms.PSet(
   #Folder in DQM Store to write histograms to
-  HistogramPath = cms.string('JetMET/JPT/'),
+  HistogramPath = cms.string('JetMET/Jet/JPT/'),
   #Whether to dump buffer info and raw data if any error is found
   PrintDebugMessages = cms.untracked.bool(False),
   #JPT corrector

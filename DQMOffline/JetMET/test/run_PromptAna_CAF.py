@@ -65,7 +65,7 @@ else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_test.root")
 process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.jetMETAnalyzer.processname = cms.string(trigger_set)
 
@@ -149,8 +149,7 @@ process.options = cms.untracked.PSet(
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
     #outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string("reco_DQM_%s.root" % jobname)
-#   fileName = cms.untracked.string("reco_DQM_test.root")
+    fileName = cms.untracked.string("reco_DQM_test.root")
 )
 
 process.options = cms.untracked.PSet(

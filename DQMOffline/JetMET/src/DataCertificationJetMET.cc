@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.33 2009/11/09 18:27:49 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.34 2009/11/22 05:41:39 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -386,7 +386,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //MonitorElement * meRef;
 
   // --- Loop over jet algorithms for Layer 2
-  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+  //for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+  for (int iAlgo=0; iAlgo<3; iAlgo++) {    // KH removing JPT for now to avoid crashs
 
     if (iAlgo == 0) {
         refHistoName = "JetMET/Jet/AntiKtJets/";
