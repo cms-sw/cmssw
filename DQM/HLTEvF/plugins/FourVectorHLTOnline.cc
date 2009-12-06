@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.24 2009/12/04 18:04:49 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.25 2009/12/05 22:40:25 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -123,6 +123,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   ME_HLTPassFail_ = NULL;
   ME_HLTAll_LS_ = NULL;
   
+  ME_HLT_bx_ = NULL;
 }
 
 
@@ -177,6 +178,9 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
+
+  int bx = iEvent.bunchCrossing();
+
   vector<string> name;
   name.push_back("Muon");
   name.push_back("Egamma");
@@ -226,6 +230,9 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if(triggerResults->accept(pathByIndex)){
   
+      int pathBinNumber = ME_HLT_bx_->getTH2F()->GetYaxis()->FindBin(v->getPath().c_str());      
+      ME_HLT_bx_->Fill(bx-1,pathBinNumber-1);
+
       int xBinNumber = ME_HLTPassPass_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
       ME_HLTPassPass_->Fill(xBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
       ME_HLTPassPass_->Fill(anyBinNumber-1,xBinNumber-1);//binNumber1 = 0 = first filter
@@ -1291,6 +1298,10 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     // Trigger Correlation Matrix (2D histo)
     const unsigned int npaths = hltPaths_.size();
 
+    int Nbx = 3600;
+    ME_HLT_bx_ = dbe_->book2D("HLT_bx",
+                           "HLT counts vs Event bx",
+                           Nbx, 0.5, Nbx-0.5, npaths, -0.5, npaths-0.5);
     // book histograms, one bin per path
     // add one bin for path "Any HLT"
     // npaths+1
@@ -1378,6 +1389,8 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
       ME_HLTPassPass_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
       ME_HLTAll_LS_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
+
+      ME_HLT_bx_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
 
       ME_HLTPassFail_->getTH2F()->GetXaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
       ME_HLTPassFail_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPaths_[i]).getPath().c_str());
