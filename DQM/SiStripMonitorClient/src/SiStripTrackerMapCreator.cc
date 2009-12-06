@@ -1,4 +1,4 @@
-#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
+5~#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
@@ -66,6 +66,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   }
   trackerMap_->printonline();
   delete trackerMap_;
+  traclerMap_ = 0;
 }
 //
 // -- Create Tracker Map for Offline process
