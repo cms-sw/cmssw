@@ -14,14 +14,14 @@ reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMon
 print 'reference_histogram_file = '+str(reference_histogram_file)
 #
 # --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
-input_root_files = os.environ.get('INPUTEDMFILES','reco_DQM_test.root').split(",")
+input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_test.root').split(",")
 print 'input_root_files = '+str(input_root_files)
 print
 
 input_files = []
 if harvesting:
   for file in input_root_files:        # Second Example
-     input_files.append('file:'+str(file))
+     input_files.append(str(file))
 else:
   test_histogram_file = os.environ.get('TEST_HISTOGRAM_FILE','jetMETMonitoring_test.root')
   print 'test_histogram_file = '+str(test_histogram_file)
