@@ -1175,8 +1175,9 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 			std::swap(vertices.front(), vertices.back());
 	}
 
-	for(unsigned int iteration = 0; iteration < 3; iteration++) {
-		if (vertices.size() <= 1)
+	unsigned int reassigned = 0;
+	while(reassigned < 3) {
+		if (vertices.size() < 2)
 			break;
 
 #ifdef DEBUG
@@ -1188,12 +1189,16 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 		std::cout << "----- recursive merging: ---------" << std::endl;
 #endif
 
-		recursiveMerge(vertices, info);
-		if (vertices.size() < 2)
+		bool changed = recursiveMerge(vertices, info);
+		if ((!changed && !reassigned) || vertices.size() < 2)
 			break;
+		if (changed)
+			reassigned = 0;
 
-		if (fitType_ == kRefitGhostTrackWithVertices)
+		if (fitType_ == kRefitGhostTrackWithVertices) {
 			refitGhostTrack(vertices, info);
+			changed = true;
+		}
 
 		try {
 #ifdef DEBUG
@@ -1203,12 +1208,17 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 				debugVertex(*iter, ghostTrack.prediction());
 			std::cout << "----- reassignment: ---------" << std::endl;
 #endif
-			if (!reassignTracks(vertices, info))
-				break;
+			if (reassignTracks(vertices, info)) {
+				reassigned++;
+				changed = true;
+			} else
+				reassigned = 0;
 		} catch(const VertexException &e) {
 			// just keep vertices as they are
-			break;
 		}
+
+		if (!changed)
+			break;
 	}
 
 	for(std::vector<CachingVertex<5> >::const_iterator iter =
