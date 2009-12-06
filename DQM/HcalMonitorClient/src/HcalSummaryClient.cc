@@ -472,6 +472,7 @@ void HcalSummaryClient::analyze(void)
  // Okay, we've got the individual tasks; now form the combined value
 
  int ieta=-9999;
+
  for (unsigned int d=0;d<depthME.size();++d)
    {
      for (int eta=0;eta<depthME[d]->getNbinsX();++eta)
@@ -559,8 +560,8 @@ void HcalSummaryClient::analyze(void)
     {
       status_global_=1-status_global_/totalcells;
       status_global_=max(0.,status_global_); // convert to good fraction
+      
       // Now loop over cells in reportsummarymap, changing from bad fraction to good
-
       int ieta,iphi;
 
       for (unsigned int depth=0;
@@ -572,7 +573,7 @@ void HcalSummaryClient::analyze(void)
 
 	for (int eta=0;eta<etaBins;++eta)
 	  {
-	    ieta=CalcIeta(eta, 1);
+	    ieta=CalcIeta(eta, depth+1);
 	    if (ieta==-9999) continue;
 	    for (int phi=0; phi<72;++phi)
 	      {
@@ -580,36 +581,9 @@ void HcalSummaryClient::analyze(void)
 		if (reportval>-1)
 		  {
 		    iphi=phi+1;
-		    /*
-		      if (abs(ieta)>20 && iphi%2!=1)
-		      continue;
-		    if (abs(ieta)>39 &&iphi%4!=3)
-		      continue;
-		    */
-		    depthME[depth]->setBinContent(eta+1,phi+1,max(0.,1-reportval));
-		    
-		    /*
-		    if (fillUnphysical_)
-		      {
-			if (depth==3) continue; // skip HO
-			// fill even phi cells in region where cells span 10 degrees in phi
-			// ("True" cell values are phi=1,3,5,7,...) 
-			if (abs(ieta)>20 && abs(ieta)<40 && iphi%2==1)
-			  {
-			    depthME[depth]->setBinContent(eta+1,phi+2,reportval);
-			  }
-			
-			// fill all cells in region where cells span 20 degrees in phi
-			// (actual cell phi values are 3,7,11,...)
-			else if (abs(ieta)>39 && phi%4==3)
-			  {
-			    depthME[depth]->setBinContent(eta,(iphi)%72+1,reportval);
-			    depthME[depth]->setBinContent(eta,(iphi+1)%72+1,reportval);
-			    depthME[depth]->setBinContent(eta,(iphi+2)%72+1,reportval);
-			  }
-		      }
-		    */
-		  } //if (bincontent>-1)
+		    reportval=max(0.,1-reportval);
+		  } // if (reportval>-1)
+		depthME[depth]->setBinContent(eta+1,phi+1,reportval);
 	      } // for (int phi=0;...)
 	  } // for (int eta=0;...)
       } // for (int d=0;...)
@@ -780,6 +754,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		{
 		  ieta=CalcIeta(eta,d+1); // skip non-physical bins when counting bad cells
 		  if (ieta==-9999) continue;
+
 		  for (int phi=0; phi<72;++phi)
 		    {
 		      bincontent=hist->GetBinContent(eta+1,phi+1);
