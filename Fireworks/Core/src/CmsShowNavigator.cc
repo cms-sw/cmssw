@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.73 2009/12/02 17:06:36 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.74 2009/12/03 18:37:07 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -324,9 +324,10 @@ CmsShowNavigator::previousEvent()
       else
       {
          // last event in previous file
-         FileQueue_i x = m_currentFile ; --x;
+         FileQueue_i x = m_currentFile;
          if (x != m_files.begin())
          {
+            --x;
             goTo(x, (*x)->lastEvent());
          }
       }
