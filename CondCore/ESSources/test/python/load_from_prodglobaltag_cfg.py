@@ -24,6 +24,7 @@ for tag in globalTag.elements:
 
 process = cms.Process("TEST")
 
+process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = gName
