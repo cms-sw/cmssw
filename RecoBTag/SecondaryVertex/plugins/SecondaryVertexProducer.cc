@@ -343,7 +343,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 				GhostTrackState gtState(fitTrack);
 				GlobalPoint pos =
 					ipData[i].closestToGhostTrack;
-				gtState.linearize(*gtPred,
+				gtState.linearize(*gtPred, true,
 				                  gtPred->lambda(pos));
 				gtState.setWeight(ipData[i].ghostTrackWeight);
 				gtStates.push_back(gtState);
