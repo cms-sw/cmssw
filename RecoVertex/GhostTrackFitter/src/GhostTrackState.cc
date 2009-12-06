@@ -88,13 +88,13 @@ const TrajectoryStateOnSurface &GhostTrackState::tsos() const
 double GhostTrackState::flightDistance(const GlobalPoint &point,
                                        const GlobalVector &dir) const
 {
-	return (tsos().globalPosition() - point).dot(dir.unit());
+	return (globalPosition() - point).dot(dir.unit());
 }
 
 double GhostTrackState::axisDistance(const GlobalPoint &point,
                                      const GlobalVector &dir) const
 {
-	return (tsos().globalPosition() - point).cross(dir.unit()).mag();
+	return (globalPosition() - point).cross(dir.unit()).mag();
 }
 
 double GhostTrackState::axisDistance(const GhostTrackPrediction &pred) const
@@ -105,7 +105,7 @@ double GhostTrackState::axisDistance(const GhostTrackPrediction &pred) const
 double GhostTrackState::lambdaError(const GhostTrackPrediction &pred,
                                     const GlobalError &pvError) const
 {
-	if (!tsos().isValid())
+	if (!isValid())
 		return -1.;
 
 	return std::sqrt(

@@ -36,7 +36,12 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackFitter.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
+#include "RecoVertex/GhostTrackFitter/interface/SequentialGhostTrackFitter.h"
+#include "RecoVertex/GhostTrackFitter/interface/KalmanGhostTrackUpdater.h"
+
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackVertexFinder.h"
 
 // #define DEBUG
@@ -87,13 +92,14 @@ struct GhostTrackVertexFinder::FinderInfo {
 	           const GhostTrack &ghostTrack, const BeamSpot &beamSpot,
 	           bool hasBeamSpot, bool hasPrimaries) :
 		primaryVertex(primaryVertex), pred(ghostTrack.prediction()),
-		states(ghostTrack.states()), beamSpot(beamSpot),
-		hasBeamSpot(hasBeamSpot), hasPrimaries(hasPrimaries),
-		field(0) {}
+		prior(ghostTrack.prior()), states(ghostTrack.states()),
+		beamSpot(beamSpot), hasBeamSpot(hasBeamSpot),
+		hasPrimaries(hasPrimaries), field(0) {}
 
 	const CachingVertex<5>			&primaryVertex;
-	const GhostTrackPrediction		&pred;
-	const std::vector<GhostTrackState>	&states;
+	GhostTrackPrediction			pred;
+	GhostTrackPrediction			prior;
+	std::vector<GhostTrackState>		states;
 	VertexState				beamSpot;
 	bool					hasBeamSpot;
 	bool					hasPrimaries;
@@ -224,18 +230,16 @@ static std::vector<RefCountedVertexTrack> relinearizeTracks(
 	return finalTracks;
 }
 
-static double vertexCompat(const CachingVertex<5> &vtx1,
+double GhostTrackVertexFinder::vertexCompat(const CachingVertex<5> &vtx1,
                            const CachingVertex<5> &vtx2,
-                           double scale1 = 1.0, double scale2 = 1.0)
+                           const FinderInfo &info,
+                           double scale1, double scale2)
 {
 	Vector3 diff = conv(vtx2.position() - vtx1.position());
 	Matrix3S cov = scale1 * vtx1.error().matrix_new() +
 	               scale2 * vtx2.error().matrix_new();
 
-	if (!cov.Invert())
-		return 1.0e6;
-
-	return ROOT::Math::Similarity(cov, diff);
+	return sqr(ROOT::Math::Dot(diff, diff)) / ROOT::Math::Similarity(cov, diff);
 }
 
 static double trackVertexCompat(const CachingVertex<5> &vtx,
@@ -265,7 +269,7 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 
 GhostTrackVertexFinder::GhostTrackVertexFinder() :
 	maxFitChi2_(10.0),
-	mergeThreshold_(2.0),
+	mergeThreshold_(3.0),
 	primcut_(2.0),
 	seccut_(5.0),
 	fitType_(kAlwaysWithGhostTrack)
@@ -615,6 +619,16 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 	                beamSpot, primaries, ghostTrack);
 }
 
+static GhostTrackPrediction dummyPrediction(
+		const Vertex &primaryVertex, const Track &ghostTrack)
+{
+	return GhostTrackPrediction(
+			RecoVertex::convertPos(primaryVertex.position()),
+			RecoVertex::convertError(primaryVertex.error()),
+			GlobalVector(ghostTrack.px(), ghostTrack.py(),
+			             ghostTrack.pz()), 0.05);
+}
+
 std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 			const Vertex &primaryVertex,
 			const Track &ghostTrack,
@@ -622,7 +636,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
                         const std::vector<float> &weights) const
 {
 	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
+	                       dummyPrediction(primaryVertex, ghostTrack),
 	                       RecoVertex::convertPos(
 	                       			primaryVertex.position()),
 	                       true);
@@ -651,7 +665,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
                         const std::vector<float> &weights) const
 {
 	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
+	                       dummyPrediction(primaryVertex, ghostTrack),
 	                       RecoVertex::convertPos(primaryVertex.position()),
 	                       true);
 
@@ -681,7 +695,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
                         const std::vector<float> &weights) const
 {
 	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
+	                       dummyPrediction(primaryVertex, ghostTrack),
 	                       RecoVertex::convertPos(primaryVertex.position()),
 	                       true);
 
@@ -726,7 +740,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 static double fitChi2(const CachingVertex<5> &vtx)
 {
-	return vtx.totalChiSquared() / (vtx.degreesOfFreedom() + 3.0);
+	return vtx.totalChiSquared() / vtx.degreesOfFreedom();
 }
 
 std::vector<CachingVertex<5> > GhostTrackVertexFinder::initialVertices(
@@ -748,7 +762,7 @@ std::vector<CachingVertex<5> > GhostTrackVertexFinder::initialVertices(
 		CachingVertex<5> vtx = vertexAtState(info.ghostTrack,
 		                                     info.pred, state);
 
-		if (vtx.isValid() && fitChi2(vtx) < maxFitChi2_)
+		if (vtx.isValid()) // && fitChi2(vtx) < maxFitChi2_)
 			vertices.push_back(vtx);
 	}
 
@@ -808,8 +822,8 @@ CachingVertex<5> GhostTrackVertexFinder::mergeVertices(
 		CachingVertex<5> vtx;
 		if (info.hasBeamSpot && isPrimary)
 			vtx = vertexFitter(true).vertex(linTracks,
-			                            info.beamSpot.position(),
-			                            info.beamSpot.error());
+	                                	info.beamSpot.position(),
+						info.beamSpot.error());
 		else
 			vtx = vertexFitter(isPrimary).vertex(linTracks);
 		if (vtx.isValid())
@@ -834,7 +848,7 @@ bool GhostTrackVertexFinder::recursiveMerge(
 		for(unsigned int j = i + 1; j < n; j++) {
 			const CachingVertex<5> &v2 = vertices[j];
 
-			float compat = vertexCompat(v1, v2,
+			float compat = vertexCompat(v1, v2, info,
 					i == 0 ? primcut_ : seccut_, seccut_);
 
 			if (compat > mergeThreshold_)
@@ -851,27 +865,21 @@ bool GhostTrackVertexFinder::recursiveMerge(
 		repeat = false;
 		for(std::multimap<float, Indices>::const_iterator iter =
 			compatMap.begin(); iter != compatMap.end(); ++iter) {
-
 			unsigned int v1 = iter->second.first;
 			unsigned int v2 = iter->second.second;
 
 			CachingVertex<5> newVtx =
 				mergeVertices(vertices[v1], vertices[v2],
 				              info, v1 == 0);
-			if (!newVtx.isValid())
+			if (!newVtx.isValid() ||
+			    (v1 != 0 && fitChi2(newVtx) > maxFitChi2_))
 				continue;
 
-			unsigned int ndof = 2 * newVtx.tracks().size() - 3;
-			if (v1 != 0 && newVtx.totalChiSquared() /
-			               ndof > mergeThreshold_)
-				continue;
-
-			vertices[v1] = newVtx;
+			std::swap(vertices[v1], newVtx);
 			vertices.erase(vertices.begin() + v2);
 			n--;
 
 			std::multimap<float, Indices> newCompatMap;
-
 			for(++iter; iter != compatMap.end(); ++iter) {
 				if (iter->second.first == v1 ||
 				    iter->second.first == v2 ||
@@ -886,7 +894,6 @@ bool GhostTrackVertexFinder::recursiveMerge(
 				newCompatMap.insert(std::make_pair(
 							iter->first, indices));
 			}
-
 			std::swap(compatMap, newCompatMap);
 
 			for(unsigned int i = 0; i < n; i++) {
@@ -894,9 +901,10 @@ bool GhostTrackVertexFinder::recursiveMerge(
 					continue;
 
 				const CachingVertex<5> &other = vertices[i];
-				float compat = vertexCompat(newVtx, other,
-					i == 0 || v1 == 0 ? primcut_ : seccut_,
-					i == 0 || v1 == 0 ? primcut_ : seccut_);
+				float compat = vertexCompat(
+						vertices[v1], other, info,
+						v1 == 0 ? primcut_ : seccut_,
+						i == 0 ? primcut_ : seccut_);
 
 				if (compat > mergeThreshold_)
 					continue;
@@ -965,6 +973,10 @@ bool GhostTrackVertexFinder::reassignTracks(
 			for(std::vector<CachingVertex<5> >::const_iterator
 						vtx = vertices_.begin();
 			    vtx != vertices_.end(); ++vtx) {
+				if (info.pred.lambda(vtx->position()) <
+				    info.pred.lambda(vertices_[0].position()))
+					continue;
+
 				double compat =
 					sqr(trackVertexCompat(*vtx, *track));
 
@@ -1008,12 +1020,11 @@ bool GhostTrackVertexFinder::reassignTracks(
 			for(std::vector<GhostTrackState>::const_iterator iter =
 							info.states.begin();
 			    iter != info.states.end(); ++iter) {
-				if (iter->track() == track) {
+				if (iter->isTrack() && iter->track() == track) {
 					idx = iter - info.states.begin();
 					break;
 				}
 			}
-
 			if (idx < 0)
 				continue;
 
@@ -1047,6 +1058,100 @@ bool GhostTrackVertexFinder::reassignTracks(
 	return true;
 }
 
+void GhostTrackVertexFinder::refitGhostTrack(
+				std::vector<CachingVertex<5> > &vertices_,
+				FinderInfo &info) const
+{
+	VtxTrackIs isGhostTrack(info.ghostTrack);
+
+	std::vector<GhostTrackState> states;
+	std::vector<unsigned int> oldStates;
+	oldStates.reserve(info.states.size());
+
+	for(std::vector<CachingVertex<5> >::const_iterator iter =
+			vertices_.begin(); iter != vertices_.end(); ++iter) {
+		std::vector<RefCountedVertexTrack> vtxTracks = iter->tracks();
+
+		oldStates.clear();
+		for(std::vector<RefCountedVertexTrack>::const_iterator track =
+			vtxTracks.begin(); track != vtxTracks.end(); ++track) {
+
+			if (isGhostTrack(*track) || (*track)->weight() < 1e-3)
+				continue;
+
+			const TransientTrack &tt =
+					(*track)->linearizedTrack()->track();
+
+			int idx = -1;
+			for(std::vector<GhostTrackState>::const_iterator iter =
+							info.states.begin();
+			    iter != info.states.end(); ++iter) {
+				if (iter->isTrack() && iter->track() == tt) {
+					idx = iter - info.states.begin();
+					break;
+				}
+			}
+
+			if (idx >= 0)
+				oldStates.push_back(idx);
+		}
+
+		if (oldStates.size() == 1)
+			states.push_back(info.states[oldStates[0]]);
+		else
+			states.push_back(GhostTrackState(iter->vertexState()));
+	}
+
+	KalmanGhostTrackUpdater updater;
+	SequentialGhostTrackFitter fitter;
+	double ndof, chi2;
+	info.pred = fitter.fit(updater, info.prior, states, ndof, chi2);
+	info.ghostTrack = transientGhostTrack(info.pred, info.field);
+
+	std::swap(info.states, states);
+	states.clear();
+
+	for(std::vector<CachingVertex<5> >::iterator iter =
+			vertices_.begin(); iter != vertices_.end(); ++iter) {
+		std::vector<RefCountedVertexTrack> vtxTracks = iter->tracks();
+
+		int idx = -1;
+		for(std::vector<RefCountedVertexTrack>::const_iterator track =
+			vtxTracks.begin(); track != vtxTracks.end(); ++track) {
+
+			if (isGhostTrack(*track) || (*track)->weight() < 1e-3)
+				continue;
+
+			const TransientTrack &tt =
+					(*track)->linearizedTrack()->track();
+
+			if (idx >= 0) {
+				idx = -1;
+				break;
+			}
+
+			for(std::vector<GhostTrackState>::const_iterator it =
+							info.states.begin();
+			    it != info.states.end(); ++it) {
+				if (!it->isTrack())
+					continue;
+
+				if (it->track() == tt) {
+					idx = it - info.states.begin();
+					break;
+				}
+			}
+		}
+		if (idx < 0)
+			continue;
+
+		*iter = vertexAtState(info.ghostTrack, info.pred,
+		                      info.states[idx]);
+	}
+}
+
+// implementation
+
 std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 				const GhostTrack &ghostTrack,
 				const CachingVertex<5> &primary,
@@ -1075,10 +1180,10 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 			break;
 
 #ifdef DEBUG
-	for(std::vector<CachingVertex<5> >::const_iterator iter =
-		vertices.begin(); iter != vertices.end(); ++iter)
+		for(std::vector<CachingVertex<5> >::const_iterator iter =
+			vertices.begin(); iter != vertices.end(); ++iter)
 
-		debugVertex(*iter, ghostTrack.prediction());
+			debugVertex(*iter, ghostTrack.prediction());
 
 		std::cout << "----- recursive merging: ---------" << std::endl;
 #endif
@@ -1086,6 +1191,9 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 		recursiveMerge(vertices, info);
 		if (vertices.size() < 2)
 			break;
+
+		if (fitType_ == kRefitGhostTrackWithVertices)
+			refitGhostTrack(vertices, info);
 
 		try {
 #ifdef DEBUG

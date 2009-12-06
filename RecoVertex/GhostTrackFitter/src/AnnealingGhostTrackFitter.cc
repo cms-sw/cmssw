@@ -15,7 +15,7 @@ namespace {
 
 AnnealingGhostTrackFitter::AnnealingGhostTrackFitter()
 {
-	annealing.reset(new GeometricAnnealing(6.0, 64.0, 0.25));
+	annealing.reset(new GeometricAnnealing(3.0, 64.0, 0.25));
 }
 
 void AnnealingGhostTrackFitter::postFit(

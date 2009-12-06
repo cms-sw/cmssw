@@ -162,8 +162,16 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 	bool reassignTracks(std::vector<CachingVertex<5> > &vertices,
 	                    const FinderInfo &info) const;
 
+	void refitGhostTrack(std::vector<CachingVertex<5> > &vertices,
+	                     FinderInfo &info) const;
+
 	GhostTrackFitter &ghostTrackFitter() const;
 	VertexFitter<5> &vertexFitter(bool primary) const;	
+
+	static double vertexCompat(const CachingVertex<5> &vtx1,      
+	                           const CachingVertex<5> &vtx2,
+	                           const FinderInfo &info,
+	                           double scale1 = 1.0, double scale2 = 1.0);
 
 	double	maxFitChi2_;
 	double	mergeThreshold_;

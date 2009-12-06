@@ -46,7 +46,7 @@ GhostTrack::GhostTrack(const Track &ghostTrack,
                        const GhostTrackPrediction &prior,
                        const GlobalPoint &origin,
                        bool withOrigin) :
-	prediction_(ghostTrack),
+	prediction_(ghostTrack), prior_(prior),
 	ndof_(ghostTrack.ndof()), chi2_(ghostTrack.chi2())
 {
 	initStates(tracks, weights,
