@@ -12,8 +12,8 @@ from DQM.HLTEvF.HLTMonJetMETDQMSource_cff import *
 from DQM.HLTEvF.HLTMonMuonDQM_cff import *
 from DQM.HLTEvF.HLTLocalRecoDT_cff import *
 #from DQM.HLTEvF.HLTLocalRecoRPC_cff import *
-from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
-from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
+#from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
+#from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
 # alca
 from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
 from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *
