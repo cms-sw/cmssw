@@ -35,7 +35,10 @@ namespace cond {
       int nLoad;
     };
 
-    static Stats stats;
+    // global stat
+    static Stats gstats;
+    // local stat
+    Stats stats;
 
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::DbSession& session,

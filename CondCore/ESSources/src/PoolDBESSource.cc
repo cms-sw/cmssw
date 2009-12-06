@@ -72,8 +72,11 @@ namespace {
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
 	<< state.size() << ", " << state.revision()  << ", "
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
-	<< state.comment();
-
+	<< state.comment()
+	<< "\n  "
+	<< " make " << proxy.proxy()->stats.nMake
+	<< ", load " << proxy.proxy()->stats.nLoad
+      ;
   }
 
 
@@ -210,10 +213,10 @@ PoolDBESSource::~PoolDBESSource() {
 	      <<" Refresh " << stats.nRefresh
 	      <<" Actual Refresh " << stats.nActualRefresh;
     std::cout << std::endl;
-    std::cout << "Proxy Statistics" << std::endl
-	      << "proxy " << cond::BasePayloadProxy::stats.nProxy
-	      << " make " << cond::BasePayloadProxy::stats.nMake
-	      << " load " << cond::BasePayloadProxy::stats.nLoad;
+    std::cout << "Global Proxy Statistics" << std::endl
+	      << "proxy " << cond::BasePayloadProxy::gstats.nProxy
+	      << " make " << cond::BasePayloadProxy::gstats.nMake
+	      << " load " << cond::BasePayloadProxy::gstats.nLoad;
     std::cout << std::endl;
 
 

@@ -7,14 +7,15 @@
 
 namespace cond {
 
-  BasePayloadProxy::Stats BasePayloadProxy::stats = {0,0,0};
+  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0};
 
 
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
                                      const std::string & token,
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session,token,true,false) {
-    ++stats.nProxy;
+    ++gstats.nProxy;
+    stats = {0,0,0};
   }
 
 
@@ -34,6 +35,7 @@ namespace cond {
 
 
   void  BasePayloadProxy::make() {
+    ++gstats.nMake;
     ++stats.nMake;
     bool ok = false;
     if ( isValid()) {
@@ -56,7 +58,7 @@ namespace cond {
       if (m_doThrow)
         throw cond::Exception("Condition Payload loader: invalid data");
     }
-    if (ok)  ++stats.nLoad;
+    if (ok) { ++gstats.nLoad; ++stats.nLoad;}
   }
 
 
