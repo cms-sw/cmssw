@@ -391,9 +391,11 @@ CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
 
 // backward compatibility for configuration files
 class PoolDBESSource : public cond::CondDBESSource {
+public:
   explicit  PoolDBESSource( const edm::ParameterSet& ps) :
     cond::CondDBESSource(ps){}
 }
+
 #include "FWCore/Framework/interface/SourceFactory.h"
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_SOURCE(PoolDBESSource);
