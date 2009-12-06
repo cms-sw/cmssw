@@ -1,0 +1,116 @@
+# Auto generated configuration file
+# using: 
+# Revision: 1.149 
+# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: promptCollisionReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --datatier RECO --eventcontent RECO --conditions CRAFT09_R_V4::All --scenario pp --no_exec --data --magField AutoFromDBCurrent -n 100
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process('RECO')
+
+# import of standard configurations
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+process.load('Configuration/StandardSequences/L1Reco_cff')
+process.load('Configuration/StandardSequences/Reconstruction_cff')
+process.load('DQMOffline/Configuration/DQMOffline_cff')
+process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/EventContent/EventContent_cff')
+
+process.configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: 1.5 $'),
+    annotation = cms.untracked.string('rereco nevts:100'),
+    name = cms.untracked.string('PyReleaseValidation')
+)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(5)
+)
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring('ProductNotFound'),
+    wantSummary = cms.untracked.bool(True) 
+)
+# Input source
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring( 
+'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/615/38379AF1-B4E2-DE11-BB10-001617C3B706.root'
+#'rfio:/castor.cern.ch/cms/store/data/BeamCommissioning09/castor/MinimumBias/RAW/v1/000/122/314/CC89C4BC-DE11-B365-0030487D0D3A.root'
+    )
+)
+
+# Output definition
+process.FEVT = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    outputCommands = process.RECOEventContent.outputCommands,
+    fileName = cms.untracked.string('promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('RECO'),
+        filterName = cms.untracked.string('')
+    )
+)
+
+# Other statements
+process.GlobalTag.globaltag = 'GR09_P_V7::All'
+
+
+
+#####################################################################################################
+####
+####  Top level replaces for handling strange scenarios of early collisions
+####
+
+## TRACKING:
+## Skip events with HV off
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
+
+## PV Overrides (Tommaso's "Level 1")
+process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 4
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 500
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 5
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 10
+process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 4
+process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
+process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
+process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
+process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
+
+## ECAL temporary fixes
+process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
+process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
+process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
+process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
+process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.890
+process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.400
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
+process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+
+## HCAL temporary fixes
+process.hfreco.firstSample  = 3
+process.hfreco.samplesToAdd = 4
+
+###
+###  end of top level replacements
+###
+###############################################################################################
+
+# Path and EndPath definitions
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1Reco_step = cms.Path(process.L1Reco)
+process.reconstruction_step = cms.Path(process.reconstruction_withPixellessTk)
+process.dqmoffline_step = cms.Path(process.DQMOffline)
+process.endjob_step = cms.Path(process.endOfProcess)
+process.out_step = cms.EndPath(process.FEVT)
+
+# Schedule definition
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step)
