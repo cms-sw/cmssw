@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -178,8 +178,30 @@ process.DTskimout = cms.OutputModule("PoolOutputModule",
        )
 )
 ####################################################################################
+##################################bscnobamhalo############################################
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 
-process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout)
+process.L1T1=process.hltLevel1GTSeed.clone()
+process.L1T1.L1TechTriggerSeeding = cms.bool(True)
+process.L1T1.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
+
+process.bscnobeamhalo = cms.Path(process.L1T1)
+
+process.bscnobhout = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('BSCNOBEAMHALO.root'),
+    outputCommands = process.FEVTEventContent.outputCommands,
+    dataset = cms.untracked.PSet(
+    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      filterName = cms.untracked.string('BSCNOBEAMHALO')),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('bscnobeamhalo')
+    )
+)
+
+
+
+process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout)
 
 
 
