@@ -16,8 +16,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/03 16:14:03 $
-  * $Revision: 1.41 $
+  * $Date: 2009/12/04 19:52:43 $
+  * $Revision: 1.42 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -48,7 +48,8 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits,
 			    bool passedHLT,
-			    bool BPTX);
+			    bool BPTX,
+			    int BCN);
 			    
 
   void endLuminosityBlock();
@@ -193,14 +194,20 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HFnotBPTXrawtimedifference;
   MonitorElement* h_HEnotBPTXrawtimedifference;
 
+  MonitorElement* h_LumiPlot_LS_allevents;
   MonitorElement* h_LumiPlot_EventsPerLS;
   MonitorElement* h_LumiPlot_EventsPerLS_notimecut;
 
-  MonitorElement* h_LumiPlot_SumET_HFPlus_vs_HFMinus;
+  MonitorElement* h_LumiPlot_SumHT_HFPlus_vs_HFMinus;
   MonitorElement* h_LumiPlot_timeHFPlus_vs_timeHFMinus;
 
   MonitorElement* h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus;
+  
+  MonitorElement* h_LumiPlot_BX_allevents;
+  MonitorElement* h_LumiPlot_BX_goodevents;
+  MonitorElement* h_LumiPlot_BX_goodevents_notimecut;
 
+  MonitorElement* h_LumiPlot_MinTime_vs_MinHT;
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
 

@@ -175,8 +175,11 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DigiMonitor_minDigiSize                        = cms.untracked.int32(10),
                            DigiMonitor_maxDigiSize                        = cms.untracked.int32(10),
                            # ADC counts must be above the threshold values below for appropriate histograms to be filled
-                           DigiMonitor_shapeThresh                        = cms.untracked.int32(20),
-                           DigiMonitor_ADCsumThresh                       = cms.untracked.int32(20),
+                           DigiMonitor_shapeThresh                        = cms.untracked.int32(50),
+                           DigiMonitor_shapeThreshHB                      = cms.untracked.int32(50),
+                           DigiMonitor_shapeThreshHE                      = cms.untracked.int32(50),
+                           DigiMonitor_shapeThreshHO                      = cms.untracked.int32(50),
+                           DigiMonitor_shapeThreshHF                      = cms.untracked.int32(50),
                            DigiMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), 
                            DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
                            DigiMonitor_ExpectedOrbitMessageTime           = cms.untracked.int32(-1),

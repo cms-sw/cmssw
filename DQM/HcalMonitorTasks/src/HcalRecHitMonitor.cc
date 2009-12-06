@@ -116,12 +116,21 @@ void HcalRecHitMonitor::beginRun()
   h_HEnotBPTXrawenergydifference = m_dbe->book1D("HEnotBPTXaverageenergyDifference","E_HEPlus - E_HEMinus (energy averaged over rechits)",500,-100,100);
   
   m_dbe->setCurrentFolder(baseFolder_+"/luminosityplots");
-  h_LumiPlot_EventsPerLS=m_dbe->book1D("EventsPerLS","Number of Events with HF+ and HF- ET>1 GeV vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
-  h_LumiPlot_EventsPerLS_notimecut=m_dbe->book1D("EventsPerLS_notimecut","Number of Events with HF+ and HF- ET>1 GeV (no time cut) vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
+  h_LumiPlot_EventsPerLS=m_dbe->book1D("EventsPerLS","Number of Events with HF+ and HF- HT>1 GeV vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
+  h_LumiPlot_EventsPerLS_notimecut=m_dbe->book1D("EventsPerLS_notimecut","Number of Events with HF+ and HF- HT>1 GeV (no time cut) vs LS",Nlumiblocks_,0.5,Nlumiblocks_+0.5); 
 
-  h_LumiPlot_SumET_HFPlus_vs_HFMinus = m_dbe->book2D("SumET_plus_minus","Sum ET for HF+ vs HF-",60,0,30,60,0,30);
+  h_LumiPlot_SumHT_HFPlus_vs_HFMinus = m_dbe->book2D("SumHT_plus_minus","Sum HT for HF+ vs HF-",60,0,30,60,0,30);
   h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus = m_dbe->book2D("SumEnergy_plus_minus","Sum Energy for HF+ vs HF-",60,0,150,60,0,150);
-  h_LumiPlot_timeHFPlus_vs_timeHFMinus = m_dbe->book2D("timeHFplus_vs_timeHFminus","Energy-weighted time average of HF+ vs HF-",40,-60,60,40,-60,60);
+  h_LumiPlot_timeHFPlus_vs_timeHFMinus = m_dbe->book2D("timeHFplus_vs_timeHFminus","Energy-weighted time average of HF+ vs HF-",120,-120,120,120,-120,120);
+
+  h_LumiPlot_MinTime_vs_MinHT = m_dbe->book2D("MinTime_vs_MinHT","(HF+,HF-) Min Time vs Min HT",100,0,10,80,-40,40);
+  h_LumiPlot_LS_allevents = m_dbe->book1D("LS_allevents","LS # of all events",Nlumiblocks_,0.5,Nlumiblocks_+0.5);
+
+  h_LumiPlot_BX_allevents = m_dbe->book1D("BX_allevents","BX # of all events",3600,0,3600);
+  h_LumiPlot_BX_goodevents = m_dbe->book1D("BX_goodevents","BX # of good events",3600,0,3600);
+  h_LumiPlot_BX_goodevents_notimecut = m_dbe->book1D("BX_goodevents_notimecut","BX # of good events (no time cut)",3600,0,3600);
+							  
+
   
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
   SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
@@ -337,6 +346,9 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   //cout <<"BCN = "<<BCN<<endl;
   //cout <<"PASSED HLT = "<<passedHLT<<endl;
 
+  h_LumiPlot_LS_allevents->Fill(lumiblock);
+  h_LumiPlot_BX_allevents->Fill(BCN);
+
   bool BPTX=false;
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
   iEvent.getByLabel("l1GtUnpack",gtRecord);
@@ -371,7 +383,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
 
-  processEvent_rechit(hbHits, hoHits, hfHits,passedL1,BPTX);
+  processEvent_rechit(hbHits, hoHits, hfHits,passedL1,BPTX,BCN);
   
   // Fill problem cells -- will now fill once per luminosity block
   if (rechit_checkNevents_>0 && ievt_%rechit_checkNevents_ ==0)
@@ -393,7 +405,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 					     const HORecHitCollection& hoHits,
 					     const HFRecHitCollection& hfHits,
 					     bool passedHLT,
-					     bool BPTX)
+					     bool BPTX,
+					     int BCN)
 {
   // Gather rechit info
   if (showTiming)
@@ -828,16 +841,25 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
      if (ePlus>0) tPlus/=ePlus;
      if (eMinus>0) tMinus/=eMinus;
-     h_LumiPlot_SumET_HFPlus_vs_HFMinus->Fill(EtMinus,EtPlus);
+     
+     double mintime=min(tPlus,tMinus);
+     double minHT=min(EtMinus,EtPlus);
+     h_LumiPlot_MinTime_vs_MinHT->Fill(minHT, mintime);
+
+     h_LumiPlot_SumHT_HFPlus_vs_HFMinus->Fill(EtMinus,EtPlus);
      h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus->Fill(eMinus,ePlus);
      h_LumiPlot_timeHFPlus_vs_timeHFMinus->Fill(tMinus,tPlus);
 
      if (tPlus>25 && tMinus>25 &&  EtMinus>1 && EtPlus>1)
        {
 	 h_LumiPlot_EventsPerLS->Fill(lumiblock);
+	 h_LumiPlot_BX_goodevents->Fill(BCN);
        }
      if (EtMinus>1 && EtPlus>1)
-       h_LumiPlot_EventsPerLS_notimecut->Fill(lumiblock);
+       {
+	 h_LumiPlot_EventsPerLS_notimecut->Fill(lumiblock);
+	 h_LumiPlot_BX_goodevents_notimecut->Fill(BCN);
+       }
 
      //if (hfpocc > 0 && hfmocc>0)
      // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
@@ -850,9 +872,9 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	   }
 	 // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
 	 else if (hfpocc>0)
-	   h_HFrawtimedifference->Fill(250);
+	   h_HFrawtimedifference->Fill(2500);
 	 else if (hfmocc>0)
-	   h_HFrawtimedifference->Fill(-250);
+	   h_HFrawtimedifference->Fill(-2500);
 	 
 	 //cout <<"HF occ + = "<<hfpocc<<"  - = "<<hfmocc<<endl;
 	 if (en_HFP !=0 && en_HFM != 0)
@@ -879,9 +901,9 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	   }
 	 // fill overflow, underflow bins if one side unoccupied?  Try it for time plots only right now
 	 else if (hfpocc>0)
-	   h_HFnotBPTXrawtimedifference->Fill(250);
+	   h_HFnotBPTXrawtimedifference->Fill(2500);
 	 else if (hfmocc>0)
-	   h_HFnotBPTXrawtimedifference->Fill(-250);
+	   h_HFnotBPTXrawtimedifference->Fill(-2500);
 	 
 	 //cout <<"HF occ + = "<<hfpocc<<"  - = "<<hfmocc<<endl;
 	 if (en_HFP !=0 && en_HFM != 0)

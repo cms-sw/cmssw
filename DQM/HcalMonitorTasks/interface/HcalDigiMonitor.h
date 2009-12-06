@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/11/11 20:54:29 $
-  * $Revision: 1.53 $
+  * $Date: 2009/11/18 13:09:45 $
+  * $Revision: 1.54 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -86,8 +86,13 @@ private:  ///Methods, variables accessible only within class code
 
   bool doPerChannel_;
   bool doFCpeds_;
+
   int shapeThresh_;
-  int occThresh_;
+  int shapeThreshHB_;
+  int shapeThreshHE_;
+  int shapeThreshHF_;
+  int shapeThreshHO_;
+
   int digi_checkNevents_;
   int mindigisize_, maxdigisize_;
   bool digi_checkoccupancy_;

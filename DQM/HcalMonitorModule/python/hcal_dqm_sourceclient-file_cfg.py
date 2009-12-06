@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import os
+import string
+
 from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # need for setHcalTaskValues, setHcalSubdetTaskValues functions
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * 
 
@@ -12,6 +15,8 @@ maxevents      = 1000    # maximum number of events to process
 checkNevents   = 1000    # some histograms are filled 'every checkNevents' events; others are filled every luminosity block or every event
 debuglevel     = 0      # larger value means more debug messages (0=no debug)
 databasedir  = ''       # Set to an existing directory to dump out database info
+host = os.getenv("HOST")
+host=string.split(host,".")[0]
 
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
@@ -101,7 +106,8 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # Set collector host to machine where gui output to be collected
-process.DQM.collectorHost = 'lxplus249'
+#process.DQM.collectorHost = 'lxplus249'
+process.DQM.collectorHost = host
 process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
@@ -200,28 +206,9 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
 
-# Cosmics Corrections to reconstruction
-process.hbhereco.firstSample = 1
-process.hbhereco.samplesToAdd = 8
-process.hbhereco.correctForTimeslew = True
-process.hbhereco.correctForPhaseContainment = True
-process.hbhereco.correctionPhaseNS = 10.0
-process.horeco.firstSample = 1
-process.horeco.samplesToAdd = 8
-process.horeco.correctForTimeslew = True
-process.horeco.correctForPhaseContainment = True
-process.horeco.correctionPhaseNS = 10.
-process.hfreco.firstSample = 1
-process.hfreco.samplesToAdd = 8
-process.hfreco.correctForTimeslew = True
-process.hfreco.correctForPhaseContainment = True
-process.hfreco.correctionPhaseNS = 10.
-process.zdcreco.firstSample = 1
-process.zdcreco.samplesToAdd = 8
-process.zdcreco.correctForTimeslew = True
-process.zdcreco.correctForPhaseContainment = True
-process.zdcreco.correctionPhaseNS = 10.
-
+# Timing correction to HF reconstruction
+process.hfreco.firstSample = 3
+process.hfreco.samplesToAdd = 4
 
 # -----------------------------------
 # Specify Severity Level Computer

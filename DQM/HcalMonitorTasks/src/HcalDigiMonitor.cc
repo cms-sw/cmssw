@@ -6,7 +6,6 @@
 
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
-  occThresh_ = 1;
   shape_=NULL;
 }
 
@@ -50,13 +49,15 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
  
   // Get digi-specific parameters
 
-  shapeThresh_ = ps.getUntrackedParameter<int>("DigiMonitor_ShapeThresh", -1);
+  shapeThresh_ = ps.getUntrackedParameter<int>("DigiMonitor_shapeThresh", -1);
   //shapeThresh_ is used for plotting pulse shapes for all digis with ADC sum > shapeThresh_;
-  occThresh_ = ps.getUntrackedParameter<int>("DigiMonitor_ADCsumThresh", 0);
-  //occThresh_ is used to determine when checking ADC sums of digis
+  shapeThreshHB_ = ps.getUntrackedParameter<int>("DigiMonitor_shapeThreshHB", shapeThresh_);
+  shapeThreshHE_ = ps.getUntrackedParameter<int>("DigiMonitor_shapeThreshHE", shapeThresh_);
+  shapeThreshHF_ = ps.getUntrackedParameter<int>("DigiMonitor_shapeThreshHF", shapeThresh_);
+  shapeThreshHO_ = ps.getUntrackedParameter<int>("DigiMonitor_shapeThreshHO", shapeThresh_);
+
   if (fVerbosity>0)
     {
-      std::cout << "<HcalDigiMonitor> Digi ADC occupancy threshold set to: >" << occThresh_ << std::endl;
       std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ << std::endl;
     }
   makeDiagnostics = ps.getUntrackedParameter<bool>("DigiMonitor_makeDiagnosticPlots",false); // not yet used
@@ -133,13 +134,20 @@ void HcalDigiMonitor::beginRun()
   meTOTALEVT_ = m_dbe->bookInt("Digi Task Total Events Processed");
   meTOTALEVT_->Fill(tevt_);
   
+  m_dbe->setCurrentFolder(baseFolder_+"/digi_parameters");
   MonitorElement* ExpectedOrbit = m_dbe->bookInt("ExpectedOrbitMessageTime");
   ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime_);
-  
-  MonitorElement* occT = m_dbe->bookInt("DigiOccThresh");
-  occT->Fill(occThresh_);
+
   MonitorElement* shapeT = m_dbe->bookInt("DigiShapeThresh");
   shapeT->Fill(shapeThresh_);
+  MonitorElement* shapeTHB = m_dbe->bookInt("DigiShapeThreshHB");
+  shapeTHB->Fill(shapeThreshHB_);
+  MonitorElement* shapeTHE = m_dbe->bookInt("DigiShapeThreshHE");
+  shapeTHE->Fill(shapeThreshHE_);
+  MonitorElement* shapeTHO = m_dbe->bookInt("DigiShapeThreshHO");
+  shapeTHO->Fill(shapeThreshHO_);
+  MonitorElement* shapeTHF = m_dbe->bookInt("DigiShapeThreshHF");
+  shapeTHF->Fill(shapeThreshHF_);
   
   m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/bad_digi_occupancy");
   SetupEtaPhiHists(DigiErrorsByDepth,"Bad Digi Map","");
@@ -578,9 +586,18 @@ template <class DIGI>
 int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 {
   int err=0x0;
-  bool occ=false;
   bool bitUp = false;
   int ADCcount=0;
+  
+  int shapeThresh=0;
+  if (digi.id().subdet()==HcalBarrel)
+      shapeThresh=shapeThreshHB_;
+  else if (digi.id().subdet()==HcalEndcap)
+      shapeThresh=shapeThreshHE_;
+  else if (digi.id().subdet()==HcalOuter)
+      shapeThresh=shapeThreshHO_;
+  else if (digi.id().subdet()==HcalForward)
+      shapeThresh=shapeThreshHF_;
   
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
@@ -690,17 +707,18 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
     }
 
   // require minimum ADC count for occupancy; this doesn't do anything?
-  if(ADCcount>occThresh_) occ=true; 
   if (ADCcount<199)
     ++h.adcsum[ADCcount];
   else
     ++h.adcsum[199]; // effective overflow bin
 
   // require larger threshold to look at pulse shapes
-  if (ADCcount>shapeThresh_)
+
+  if (ADCcount>shapeThresh)
     {
-      for (int i=0;i<digi.size();++i)
-	h.count_shapeThresh[i]+=digi.sample(i).adc();
+      if (digi.id().subdet()!=HcalOuter || isSiPM(iEta,iPhi, iDepth)==false)
+	for (int i=0;i<digi.size();++i)
+	  h.count_shapeThresh[i]+=digi.sample(i).adc();
     }
 
   // occupancy plots are only filled for good histograms
