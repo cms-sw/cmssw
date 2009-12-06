@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.178 2009/12/04 18:59:43 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.179 2009/12/04 22:49:17 amraktad Exp $
 
 //
 
@@ -373,9 +373,7 @@ FWGUIManager::disablePrevious()
 void
 FWGUIManager::disableNext()
 {
-   printf("disable next\n");
    m_cmsShowMainFrame->enableNext(false);
-   fflush(stdout);
 }
 
 void
