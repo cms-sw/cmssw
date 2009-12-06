@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,13 +35,13 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/620/D42F0590-CFD4-DE11-8560-000423D951D4.root')
+    fileNames = cms.untracked.vstring(     '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/065/186A3A47-89DD-DE11-B613-001D09F2516D.root')
 )
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('promptReco_RAW2DIGI_RECO_DQM_ALCA.root'),
+    fileName = cms.untracked.string('promptCosmic.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('RECO'),
         filterName = cms.untracked.string('')
