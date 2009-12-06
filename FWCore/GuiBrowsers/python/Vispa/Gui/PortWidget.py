@@ -130,6 +130,7 @@ class PortWidget(VispaWidget):
     def mousePressEvent(self, event):
         """ Registers position for starting drag.
         """
+        logging.debug("%s: mousePressEvent()" % self.__class__.__name__)
         if self._dragablePort and event.button() == Qt.LeftButton:
             self._startDragPosition = QPoint(event.pos())
         VispaWidget.mousePressEvent(self, event)
@@ -137,11 +138,12 @@ class PortWidget(VispaWidget):
     def mouseMoveEvent(self, event):
         """ If minimum distance from mousePressEvent is reached initiates dragging.
         """
-        #logging.debug(self.__class__.__name__ +": mouseMoveEvent()")
-        if self._dragablePort and self._startDragPosition:
+        logging.debug(self.__class__.__name__ +": mouseMoveEvent()")
+        if self._dragablePort and self._startDragPosition and bool(event.buttons() & Qt.LeftButton):
             if not self._aimConnection and (event.pos() - self._startDragPosition).manhattanLength() >= QApplication.startDragDistance():
                 self._aimConnection = PointToPointConnection(self.moduleParent(), self.connectionPoint(), self.mapTo(self.moduleParent(), event.pos()))
                 self._aimConnection.setSourceDirection(self.CONNECTION_DIRECTION)
+                self.connect(self._aimConnection, SIGNAL("connectionDeleted"), self.resetAimConnection)
                 
                 if self.CONNECTION_DIRECTION == PointToPointConnection.ConnectionDirection.RIGHT:
                     self._aimConnection.setTargetDirection(PointToPointConnection.ConnectionDirection.LEFT)
@@ -181,6 +183,10 @@ class PortWidget(VispaWidget):
                 self.moduleParent().addPortConnection(self, widget)
             
         VispaWidget.mouseReleaseEvent(self, event)
+        
+    def resetAimConnection(self):
+        logging.debug("%s: resetAimConnection()" % self.__class__.__name__)
+        self._aimConnection = None
         
 class SinkPort(PortWidget):
     """ Class for sink port of ConnectableWidgets.

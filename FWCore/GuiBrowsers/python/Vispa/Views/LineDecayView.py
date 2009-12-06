@@ -566,13 +566,26 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             for daughter in self.dataAccessor().daughterRelations(object):
                 if daughter in self._particlesDict.keys():
                     daughterDecayObject = self._particlesDict[daughter]
-                    daughterNode = daughterDecayObject.motherNode()
-                    break   # any / first daughter is good enough
+                    if not daughterNode:
+                        daughterNode = daughterDecayObject.motherNode()
+                    elif daughterDecayObject.motherNode() != daughterNode and \
+                        daughterDecayObject.motherNode().unite(daughterNode):
+                            # already found one daughter
+                            # need to make sure all of the other relevant nodes are united
+                            self.removeObject(daughterNode)
+                            daughterNode = daughterDecayObject.motherNode()
+                                
             for mother in self.dataAccessor().motherRelations(object):
                 if mother in self._particlesDict.keys():
                     motherDecayObject = self._particlesDict[mother]
-                    motherNode = motherDecayObject.daughterNode()
-                    break   # any / first mother is good enough 
+                    if not motherNode:
+                        motherNode = motherDecayObject.daughterNode()
+                    elif motherDecayObject.daughterNode() != motherNode and \
+                        motherDecayObject.daughterNode().unite(motherNode):
+                            # already found one mother
+                            # need to make sure all of the other relevant nodes are united
+                            self.removeObject(motherNode)
+                            motherNode = motherDecayObject.daughterNode()
         if not motherNode:
             motherNode = QPoint(pos)
         if not daughterNode:
@@ -593,6 +606,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         
     def addDecayNode(self, pos):
         newObject = DecayNode(self, pos)
+        self.scheduleUpdateVisibleList()
         return self.appendObject(newObject)
     
     def operationId(self):
@@ -688,7 +702,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if not self._updateVisibleListFlag and not force:
             return
         
-        logging.debug("%s: updateVisibleList()" % self.__class__.__name__)
+        #logging.debug("%s: updateVisibleList()" % self.__class__.__name__)
         
         region = self.visibleRegion()
         self._visibleList = []
@@ -820,8 +834,11 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
     def keyPressEvent(self, event):
         """ Calls delete() method if backspace or delete key is pressed when widget has focus.
         """
-        controller=self.tabController()
         if (event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete) and self._editable:
+            controller=self.tabController()
+            if controller:
+                controller.tab().propertyView().clear()
+                
             if self.isSelected():
                 self.delete()
             elif len(self._selectedList) > 0:
@@ -829,13 +846,14 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             
             if controller:
                 controller.setModified()
-                if hasattr(controller,"updateContent"):
-                    controller.updateContent()
-                    controller.autolayout()
+                if hasattr(controller,"updateTreeView"):
+                    controller.updateTreeView()
+                    #controller.autolayout()
     
     def delete(self):
-        if WidgetContainer.delete(self) and hasattr(self.parent(), "object"):
-            self.parent().object().removeObject(self.object())
+        parent = self.parent()
+        if WidgetContainer.delete(self) and hasattr(parent, "object"):
+            parent.object().removeObject(self.object())
             self._pxlObject = None
     
     def removeObject(self, decayObject):
@@ -853,6 +871,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 self._particlesDict.pop(decayObject.object(), None)
                 self._pxlObject.removeObject(decayObject.object())
             ObjectHolder.removeObject(self, decayObject)
+            self.scheduleUpdateVisibleList()
             #self.tabController().updateContent()        # not here, can create infinite loop
 
     def autolayout(self):
@@ -1195,6 +1214,7 @@ class DecayLine(DecayObject):
         self._labelBoundingRect = None
         self._recalculateBoundingRect = True
         self._boundingRect = None
+        self._arrowBoundingRect = None
         
     def delete(self):
         self._startNode.removeObject(self)
@@ -1283,22 +1303,37 @@ class DecayLine(DecayObject):
         else:
             penColor = self._color
             if paintMode & DecayObject.PAINT_MODE_HOVERED:
-                penColor = penColor.lighter(150)
+                penColor = penColor.lighter(80)
+                
+        showDirectionArrow = paintMode & DecayObject.PAINT_MODE_HOVERED or paintMode & DecayObject.PAINT_MODE_SELECTED
+        extendedSize = self.extendedSize()
         
-        if self.extendedSize():
-            # spiral or wave line
-            
+        if extendedSize or showDirectionArrow:
             z = self.zoomFactor()
             if self._startNode.x() < self._endNode.x():
+                forwardDirection = True
                 xNull = self._startNode.x() * z
                 yNull = self._startNode.y() * z
             else:
+                forwardDirection = False
                 xNull = self._endNode.x() * z
                 yNull = self._endNode.y() * z
+            
+            l = self.length(zoomed = True)
+            
+            slope = self.slope()
+            angle = math.atan(slope)
+            angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
+            
+            painter.translate(QPointF(xNull, yNull))    # rotate around start point
+            painter.rotate(angleDegree)
+        
+        if extendedSize:
+            # spiral or wave line
+            
             #deltaX = abs(self._startNode.x() - self._endNode.x()) * z
             #deltaY = abs(self._startNode.y() - self._endNode.y()) * z
             
-            l = self.length(zoomed = True)
             ## l = (n + 1/2) * r * 2 * math.pi
             designRadius = 1.2 * z
             # n: number of spirals
@@ -1330,23 +1365,34 @@ class DecayLine(DecayObject):
                     y = a * math.cos(x/r)
                     path.lineTo(QPointF(x, y))
                     x += 0.2 * r / z
-             
-            slope = self.slope()
-            angle = math.atan(slope)
-            angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
-            
-            painter.translate(QPointF(xNull, yNull))    # rotate around start point
-            painter.rotate(angleDegree)
+
             painter.setPen(QPen(penColor, 0.5*self.lineWidth(), Qt.SolidLine))
             painter.drawPath(path)
-            painter.resetTransform()
-
         else:
             painter.setPen(QPen(penColor, self.lineWidth(), self.qtLineStyle()))
-            painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+            if showDirectionArrow:
+                painter.drawLine(QPoint(0,0), QPoint(l, 0))
+            else:    
+                painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+
+        if showDirectionArrow:
+            arrowLength = 14 * z
+            d = 7 * z
+            self._arrowMatrix = painter.combinedMatrix()
+            if forwardDirection:
+                painter.drawLine(l-arrowLength, d, l, 0)
+                painter.drawLine(l-arrowLength, -d, l, 0)
+                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
+            else:
+                painter.drawLine(0, 0, arrowLength, d)
+                painter.drawLine(0, 0, arrowLength, -d)
+                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
+        else:
+            self._arrowBoundingRect = None
             
+        painter.resetTransform()
         if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
-            if self.extendedSize():
+            if extendedSize:
                 # don't recalculate angles
                 self.drawText(painter, paintMode, slope, angle, angleDegree)
             else:
@@ -1386,10 +1432,12 @@ class DecayLine(DecayObject):
             slope = args[0]
             #angle = args[1]
             angleDegree = args[2]
+            needTransformation = False
         else:
             slope = self.slope()
             #angle = math.atan(slope)
             angleDegree = math.atan(slope) * self.HUNDREDEIGHTY_OVER_PI
+            needTransformation = True
         
         font = QFont()
         font.setPointSize(12 * self.zoomFactor())
@@ -1443,7 +1491,9 @@ class DecayLine(DecayObject):
         
         rect = QRect(topLeft, bottomRight)
         if self._labelBoundingRect:
-            return rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
+            rect = rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
+        if self._arrowBoundingRect:
+            rect = rect.united(self._arrowMatrix.mapRect(self._arrowBoundingRect))
         self._boundingRect = rect
         return self._boundingRect
     
@@ -1607,3 +1657,5 @@ class ParticleWidget(VispaWidget):
         """ Return None for decay object.
         """
         return None
+
+ 	  	 

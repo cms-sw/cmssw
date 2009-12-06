@@ -1,1 +1,1 @@
-from ConfigEditorPlugin import ConfigEditorPlugin as plugin
+from Vispa.Plugins.ConfigEditor.ConfigEditorPlugin import ConfigEditorPlugin as plugin

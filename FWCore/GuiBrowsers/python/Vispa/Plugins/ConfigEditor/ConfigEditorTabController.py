@@ -221,9 +221,9 @@ class ConfigEditorTabController(BrowserTabController):
             return
         dot = DotExport()
         if self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
-            presets = {'endpath':False, 'source':False, 'legend':False}
+            presets = {'seqconnect':False, 'tagconnect':True, 'seq':False, 'services':False, 'es':False, 'endpath':True, 'source':True, 'legend':False}
         else:
-            presets = {'seqconnect':True, 'tagconnect':False, 'legend':False}
+            presets = {'seqconnect':True, 'tagconnect':False, 'seq':True, 'services':False, 'es':False, 'endpath':True, 'source':True, 'legend':False}
         for opt, val in presets.items():
             dot.setOption(opt, val)
         types = ""

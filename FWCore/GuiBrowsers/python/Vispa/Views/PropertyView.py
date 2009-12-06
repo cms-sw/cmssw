@@ -295,14 +295,16 @@ class PropertyView(QTableWidget, AbstractView):
         if self.dataAccessor() and not self._ignoreValueChangeFlag:
             bad=False
             if property.value() != self.dataAccessor().propertyValue(self.dataObject(), property.name()):
-                if property.value()!=None:
+                if isinstance(property.value(),ValueError):
+                    result=str(property.value())
+                else:
                     result=self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value())
-                    if result==True:
-                        self.emit(SIGNAL('valueChanged'),property.name())
-                    else:
-                        property.setToolTip(result)
-                        QMessageBox.critical(self.parent(), 'Error', result)
-                        bad=True
+                if result==True:
+                    self.emit(SIGNAL('valueChanged'),property.name())
+                else:
+                    property.setToolTip(result)
+                    QMessageBox.critical(self.parent(), 'Error', result)
+                    bad=True
             property.setHighlighted(bad)
 
     def removeProperty(self, bool=False):
@@ -720,7 +722,7 @@ class TextEditWithButtonProperty(Property, QWidget):
             self.emit(SIGNAL('updatePropertyHeight'),self)
         self.setToolTip(self.strValue())
         # set property only if button is not being pressed
-        if not self.button().isVisible():
+        if not self.button() or not self.button().isVisible():
             Property.valueChanged(self)
         
     def setHighlighted(self,highlight):
@@ -899,7 +901,7 @@ class DoubleProperty(TextEditWithButtonProperty):
             try:
                 return float.fromhex(TextEditWithButtonProperty.value(self))
             except:
-                return None
+                return ValueError("Entered value is not of type double.")
     
 class FileProperty(TextEditWithButtonProperty):
     """ TextEditWithButtonProperty which holds file names.

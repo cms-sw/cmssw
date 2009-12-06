@@ -1,5 +1,7 @@
-from PyQt4.QtCore import QCoreApplication,QEvent
-from PyQt4.QtGui import QMouseEvent,QWidget
+from PyQt4.QtCore import QCoreApplication, QEvent, Qt
+from PyQt4.QtGui import QMouseEvent,QWidget, QCursor
+
+import logging
 
 from Vispa.Gui.VispaWidgetOwner import VispaWidgetOwner
 from Vispa.Gui.PortConnection import PortConnection
@@ -104,6 +106,7 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
 
         Currently supported events: QEvent.MouseButtonPress, QEvent.MouseButtonDblClick.
         """
+        logging.debug("%s: propagateEventUnderConnectionWidget() - %s" % (self.__class__.__name__, str(event.type())))
         # Currently supported events: QEvent.MouseButtonDblClick, QEvent.MouseButtonPress, QEvent.MouseButtonRelease, QEvent.MouseMove.
         workspacePos = connection.mapToParent(event.pos())
         for child in reversed(self.children()):
@@ -117,25 +120,19 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
 #                    event.type() == QEvent.MouseMove or \
 #                    event.type() == QEvent.DragEnter or \
 #                    event.type() == QEvent.Drop:
+
+                childPos = child.mapFromParent(workspacePos)
+                grandChild = child.childAt(childPos)
+                if grandChild:
+                    child = grandChild
+                    childPos = child.mapFromParent(childPos)
                 if event.type() == QEvent.MouseButtonPress:
-                    childPos = child.mapFromParent(workspacePos)
-                    grandChild = child.childAt(childPos)
-                    if grandChild:
-                        child = grandChild
-                        childPos = child.mapFromParent(childPos)
-                    child.grabMouse()
+                    child.grabMouse(QCursor(Qt.ClosedHandCursor))
                     child.setFocus()
-                    newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
-                    QCoreApplication.instance().sendEvent(child, newEvent)
-                    return True
-                
-                if event.type() == QEvent.MouseButtonDblClick:
-                    childPos = child.mapFromParent(workspacePos)
-                    grandChild = child.childAt(childPos)
-                    if grandChild:
-                        child = grandChild
-                        childPos = child.mapFromParent(childPos)
-                    newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
-                    QCoreApplication.instance().sendEvent(child, newEvent)
-                    return True
+#                    print "    MouseButtonPress", child
+#                if event.type() == QEvent.MouseMove:
+#                    print "    mouseMoveEvent", child
+                newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
+                QCoreApplication.instance().sendEvent(child, newEvent)
+                return True
         return False
