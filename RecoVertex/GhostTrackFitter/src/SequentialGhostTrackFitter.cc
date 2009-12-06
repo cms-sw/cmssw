@@ -13,8 +13,8 @@ namespace {
 
 SequentialGhostTrackFitter::SequentialGhostTrackFitter() :
 	maxIteration(15),
-	minDeltaR(0.005),
-	minDistance(0.005),
+	minDeltaR(0.0015),
+	minDistance(0.002),
 	weightThreshold(0.001)
 {
 }
