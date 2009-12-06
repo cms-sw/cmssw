@@ -170,11 +170,11 @@ class DotProducer(object):
     allobjects = [self.nodes[n]['obj'] for n in self.nodes if self.nodes[n]['inpath']]
     self.data.readConnections(allobjects)
     connections = self.data.connections()
-    for c in connections:
+    for objects,names in connections.items():
       if self.options['taglabel']:
-        result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (c[0],c[2],c[3],self.options['color_inputtag'],self.options['color_inputtag'],self.options['font_size'],self.options['font_name'])
+        result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (objects[0],objects[1],names[1],self.options['color_inputtag'],self.options['color_inputtag'],self.options['font_size'],self.options['font_name'])
       else:
-        result += '%s->%s[color="%s"]\n' % (c[0],c[2],self.options['color_inputtag'])
+        result += '%s->%s[color="%s"]\n' % (objects[0],objects[1],self.options['color_inputtag'])
     return result
   
   
