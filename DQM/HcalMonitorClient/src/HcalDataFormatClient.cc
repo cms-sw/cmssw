@@ -197,9 +197,10 @@ void HcalDataFormatClient::analyze(void){
 	      if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
 	      else tsFactor=1.0;
 	    }
-  	    ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset+xbin,
-  							 spg2offset+ybin,
-  							 val/(ievt_*tsFactor));
+	    if (tsFactor)
+	      ChannSumm_DataIntegrityCheck_->SetBinContent(fed2offset+xbin,
+							   spg2offset+ybin,
+							   val/(ievt_*tsFactor));
 	    val=0.0;
 	  }
   	}
@@ -226,9 +227,10 @@ void HcalDataFormatClient::analyze(void){
 		if (xbin==2) tsFactor=numTS_[spgnum +(fednum*NUMSPGS)]-1;
 		else tsFactor=1.0;
 	      }
-  	      Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset+xbin,
-  							       spg2offset+ybin,
-  							       val/(ievt_*tsFactor));
+	      if (tsFactor)
+		Chann_DataIntegrityCheck_[fednum]->SetBinContent(chn2offset+xbin,
+								 spg2offset+ybin,
+								 val/(ievt_*tsFactor));
 	    }
   	  }
   	}
