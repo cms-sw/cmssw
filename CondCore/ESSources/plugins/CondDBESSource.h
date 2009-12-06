@@ -1,10 +1,10 @@
-#ifndef CondCore_ESSources_PoolDBESSource_h
-#define CondCore_ESSources_PoolDBESSource_h
+#ifndef CondCore_ESSources_CondDBESSource_h
+#define CondCore_ESSources_CondDBESSource_h
 //
 // Package:    CondCore/ESSources
-// Class:      PoolDBESSource
+// Class:      CondDBESSource
 //
-/**\class PoolDBESSource PoolDBESSource.h CondCore/ESSources/interface/PoolDBESSource.h
+/*
  Description: EventSetup source module for serving data from offline database
 */
 //
@@ -32,15 +32,15 @@ namespace cond{
   class DataProxyWrapperBase;
 }
 
-class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
+class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
   typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
  
 
-  explicit PoolDBESSource( const edm::ParameterSet& );
-  ~PoolDBESSource();
+  explicit CondDBESSource( const edm::ParameterSet& );
+  ~CondDBESSource();
   
  protected:
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

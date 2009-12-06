@@ -1,6 +1,6 @@
 //
 // Package:     CondCore/ESSources
-// Module:      PoolDBESSource
+// Module:      CondDBESSource
 //
 // Description: <one line class summary>
 //
@@ -9,9 +9,9 @@
 //
 // Author:      Zhen Xie
 //
-// system include files
+#include "CondDBESSource.h"
+
 #include "boost/shared_ptr.hpp"
-#include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
@@ -52,17 +52,17 @@ namespace {
    */
   class CondGetterFromESSource : public cond::CondGetter {
   public:
-    CondGetterFromESSource(PoolDBESSource::ProxyMap const & ip) : m_proxies(ip){}
+    CondGetterFromESSource(CondDBESSource::ProxyMap const & ip) : m_proxies(ip){}
     virtual ~CondGetterFromESSource(){}
 
     cond::IOVProxy get(std::string name) const {
-      PoolDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
+      CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
       if ( p != m_proxies.end())
 	return (*p).second->proxy()->iov();
       return cond::IOVProxy();
     }
 
-    PoolDBESSource::ProxyMap const & m_proxies;
+    CondDBESSource::ProxyMap const & m_proxies;
   };
 
   // dump the state of a DataProxy
@@ -91,7 +91,7 @@ namespace {
  *  globaltag: The GlobalTag
  *  toGet: list of record label tag connection-string to add/overwrite the content of the global-tag
  */
-PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
+CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   m_connection(), 
   lastRun(0),  // for the refresh
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)),
@@ -99,7 +99,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 {
   Stats s = {0,0,0,0,0};
   stats=s;	
-  //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
+  //std::cout<<"CondDBESSource::CondDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
   
@@ -203,10 +203,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 }
 
 
-PoolDBESSource::~PoolDBESSource() {
+CondDBESSource::~CondDBESSource() {
   //dump info FIXME: find a more suitable place...
   if (doDump) {
-    std::cout << "PoolDBESSource Statistics" << std::endl
+    std::cout << "CondDBESSource Statistics" << std::endl
 	      << "DataProxy " << stats.nData
 	      <<" setInterval " << stats.nSet
 	      <<" Runs " << stats.nRun
@@ -235,7 +235,7 @@ PoolDBESSource::~PoolDBESSource() {
 // limit to next run/lumisection of Refresh is required
 //
 void 
-PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
+CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
 
   stats.nSet++;
 
@@ -246,7 +246,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
   ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
   if ( b == e) {
-    LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
+    LogDebug ("CondDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
 
@@ -301,13 +301,13 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
 //required by EventSetup System
 void 
-PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
+CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
   std::string recordname=iRecordKey.name();
 
   ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
   ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
   if ( b == e) {
-    LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
+    LogDebug ("CondDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
 
@@ -322,17 +322,17 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 
 // required by the EventSetup System
 void 
-PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
+CondDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
 			    const edm::ValidityInterval&) 
 {
-  //LogDebug ("PoolDBESSource")<<"newInterval";
+  //LogDebug ("CondDBESSource")<<"newInterval";
   invalidateProxies(iRecordType);
 }
 
 
 // fills tagcollection merging with replacement
 void 
-PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
+CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
 					 const std::string & prefix,
 					 const std::string & postfix,
 					 const std::string & roottag,
@@ -387,3 +387,14 @@ PoolDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
     m_tagCollection.insert(itrep->second);
   }
 }
+
+
+// backward compatibility for configuration files
+class PoolDBESSource : public cond::CondDBESSource {
+  explicit  PoolDBESSource( const edm::ParameterSet& ps) :
+    cond::CondDBESSource(ps){}
+}
+#include "FWCore/Framework/interface/SourceFactory.h"
+//define this as a plug-in
+DEFINE_FWK_EVENTSETUP_SOURCE(PoolDBESSource);
+
