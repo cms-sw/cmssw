@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre8/HIon/V8 (CMSSW_3_4_0_pre6_HLT9)
+# /dev/CMSSW_3_4_0/pre9/HIon/V1 (CMSSW_3_4_0_pre6_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre9/HIon/V1')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -26,7 +26,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     RefreshEachRun = cms.untracked.bool( True ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR09_H_V6::All" ),
+    globaltag = cms.string( "GR09_H_V7::All" ),
     appendToDataLabel = cms.string( "" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
@@ -367,31 +367,6 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
-process.SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
-  appendToDataLabel = cms.string( "" )
-)
-process.StripCPEfromTrackAngleESProducer = cms.ESProducer( "StripCPEESProducer",
-  ComponentName = cms.string( "StripCPEfromTrackAngle" ),
-  TanDiffusionAngle = cms.double( 0.01 ),
-  ThicknessRelativeUncertainty = cms.double( 0.02 ),
-  NoiseThreshold = cms.double( 2.3 ),
-  MaybeNoiseThreshold = cms.double( 3.5 ),
-  UncertaintyScaling = cms.double( 1.42 ),
-  MinimumUncertainty = cms.double( 0.01 ),
-  APVpeakmode = cms.bool( False ),
-  CouplingConstant = cms.double( 0.1 ),
-  appendToDataLabel = cms.string( "" ),
-  OutOfTime = cms.PSet( 
-    TIBlateFP = cms.double( 0.0 ),
-    TIDlateFP = cms.double( 0.0 ),
-    TOBlateFP = cms.double( 0.0 ),
-    TEClateFP = cms.double( 0.0 ),
-    TOBlateBP = cms.double( 0.0 ),
-    TEClateBP = cms.double( 0.0 ),
-    TIBlateBP = cms.double( 0.0 ),
-    TIDlateBP = cms.double( 0.0 )
-  )
-)
 process.AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -828,6 +803,9 @@ process.RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESP
   ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
+process.SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   AutomaticNormalization = cms.bool( False ),
   NormalizationFactor = cms.double( 1.0 ),
@@ -1012,6 +990,28 @@ process.StraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProduc
   ComponentName = cms.string( "StraightLinePropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   appendToDataLabel = cms.string( "" )
+)
+process.StripCPEfromTrackAngleESProducer = cms.ESProducer( "StripCPEESProducer",
+  ComponentName = cms.string( "StripCPEfromTrackAngle" ),
+  TanDiffusionAngle = cms.double( 0.01 ),
+  ThicknessRelativeUncertainty = cms.double( 0.02 ),
+  NoiseThreshold = cms.double( 2.3 ),
+  MaybeNoiseThreshold = cms.double( 3.5 ),
+  UncertaintyScaling = cms.double( 1.42 ),
+  MinimumUncertainty = cms.double( 0.01 ),
+  APVpeakmode = cms.bool( False ),
+  CouplingConstant = cms.double( 0.1 ),
+  appendToDataLabel = cms.string( "" ),
+  OutOfTime = cms.PSet( 
+    TIBlateFP = cms.double( 0.0 ),
+    TIDlateFP = cms.double( 0.0 ),
+    TOBlateFP = cms.double( 0.0 ),
+    TEClateFP = cms.double( 0.0 ),
+    TOBlateBP = cms.double( 0.0 ),
+    TEClateBP = cms.double( 0.0 ),
+    TIBlateBP = cms.double( 0.0 ),
+    TIDlateBP = cms.double( 0.0 )
+  )
 )
 process.TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
@@ -1529,11 +1529,7 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "0" ),
-    lvl1Labels = cms.vstring( '0',
-      '1',
-      '2',
-      '3',
-      '4' ),
+    lvl1Labels = cms.vstring( '0' ),
     prescaleTable = cms.VPSet( 
     )
 )
@@ -2492,6 +2488,9 @@ if 'hltPreExpressSmart' in process.__dict__:
 
 if 'hltPreHLTMONSmart' in process.__dict__:
     process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
 
 process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

@@ -6,7 +6,7 @@
 #
 
 MASTER="/dev/CMSSW_3_3_3/HLT"                       # no version, take the latest one
-TARGET="/online/beamhalo/week47/HLT"                # where to store the online-compliant menu
+TARGET="/online/collisions/week49/HLT"              # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
