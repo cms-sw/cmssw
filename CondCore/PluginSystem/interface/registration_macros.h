@@ -22,24 +22,17 @@
 
 // user include files
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
-#include "CondCore/PluginSystem/interface/OldDataProxy.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 
 // forward declarations
 
 // macros
-#define INSTANTIATE_PROXY(record_, type_) template class OldDataProxy<record_, type_>;template class DataProxyWrapper<record_, type_>;
+#define INSTANTIATE_PROXY(record_, type_) template class DataProxyWrapper<record_, type_>;
 
 #define ONLY_REGISTER_PLUGIN(record_,type_)\
-typedef OldDataProxy<record_, type_> EDM_PLUGIN_SYM(OldProxy , __LINE__ ); \
 typedef DataProxyWrapper<record_, type_> EDM_PLUGIN_SYM(Proxy , __LINE__ ); \
 DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
 
-
-// choose one of the two
-//DEFINE_EDM_PLUGIN( oldcond::ProxyFactory, EDM_PLUGIN_SYM(OldProxy , __LINE__ ), #record_ "@" #type_ "@Proxy")
-
-// DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
 
 #define REGISTER_PLUGIN(record_, type_ ) \
 INSTANTIATE_PROXY(record_, type_ ) \
