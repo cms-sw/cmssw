@@ -57,7 +57,8 @@ process.iterativeCone5GenJetsNoNuBSM = iterativeCone5GenJets.clone()
 
 # ZSP and JPT corrections
 
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+# process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 # Analyzer module
