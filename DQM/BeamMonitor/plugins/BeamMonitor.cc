@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/02 14:45:01 $
- * $Revision: 1.11 $
+ * $Date: 2009/12/03 04:50:01 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -39,6 +39,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
+  min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -242,7 +243,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
   bool fitted = false;
-  if (theBSvector.size() > nthBSTrk_) {
+  if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
     nFits++;
     fitted = true;
   }
