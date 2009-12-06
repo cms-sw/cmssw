@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/11/19 19:57:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/12/03 06:54:29 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -34,6 +34,7 @@
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/JetPtAnalyzer.h"
 #include "DQMOffline/JetMET/interface/PFJetAnalyzer.h"
+#include "DQMOffline/JetMET/interface/JPTJetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/CaloMETAnalyzer.h"
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
 #include "DQMOffline/JetMET/interface/PFMETAnalyzer.h"
@@ -111,7 +112,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   JetAnalyzer       * theCleanedAKJetAnalyzer;
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
-  JetAnalyzer       * theJPTJetAnalyzer;
+  //JetAnalyzer     * theJPTJetAnalyzer;
+  JPTJetAnalyzer    * theJPTJetAnalyzer;
   PFJetAnalyzer     * thePFJetAnalyzer; 
   JetPtAnalyzer     * thePtAKJetAnalyzer;
   JetPtAnalyzer     * thePtSCJetAnalyzer;

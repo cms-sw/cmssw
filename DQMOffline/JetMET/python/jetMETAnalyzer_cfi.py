@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.JetMET.jptDQMConfig_cff import *
+
 jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
@@ -26,6 +28,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoIterativeCone            = cms.untracked.bool(False),
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
     PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
+    #JPTJetsCollectionLabel     = cms.InputTag("iterativeCone5CaloJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
     AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
@@ -453,34 +456,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For JPT jetAnalysis
     #
-    JPTJetAnalysis = cms.PSet(
-        ptThreshold = cms.double(3.),
-        n90HitsMin= cms.int32(-1),
-        fHPDMax= cms.double(1.),
-        resEMFMin= cms.double(0.),
-        eBin    = cms.int32(100),
-        phiMin  = cms.double(-3.2),
-        ptBin   = cms.int32(100),
-        eMin    = cms.double(0.0),
-        eMax    = cms.double(500.0),
-        pMin    = cms.double(0.0),
-        etaBin  = cms.int32(100),
-        etaMin  = cms.double(-5.0),
-        ptMin   = cms.double(0.0),
-        phiBin  = cms.int32(70),
-        pBin    = cms.int32(100),
-        ptMax   = cms.double(50.0),
-        etaMax  = cms.double(5.0),
-        pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2),
-        JetIDParams = cms.PSet(
-    useRecHits = cms.bool(True),
-    hbheRecHitsColl = cms.InputTag("hbhereco"),
-    hoRecHitsColl   = cms.InputTag("horeco"),
-    hfRecHitsColl   = cms.InputTag("hfreco"),
-    ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-    )
-    )
+    JPTJetAnalysis = jptDQMParameters
 
 )

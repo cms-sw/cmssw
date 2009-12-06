@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 06:54:30 $
- *  $Revision: 1.35 $
+ *  $Date: 2009/12/04 19:29:19 $
+ *  $Revision: 1.36 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -95,8 +95,9 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   // --- do the analysis on JPT Jets
   if(theJPTJetAnalyzerFlag) {
-    theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
-    theJPTJetAnalyzer->setSource("JPTJets");
+    //theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
+    //theJPTJetAnalyzer->setSource("JPTJets");
+    theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
   }
 
   // --- do the analysis on the PFJets
@@ -419,8 +420,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 // **** Get the JPT Jet container
    iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
    if(caloJets.isValid()){
-     theJPTJetAnalyzer->setJetHiPass(JetHiPass);
-     theJPTJetAnalyzer->setJetLoPass(JetLoPass);
+     //theJPTJetAnalyzer->setJetHiPass(JetHiPass);
+     //theJPTJetAnalyzer->setJetLoPass(JetLoPass);
      theJPTJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
    }
    
@@ -510,6 +511,8 @@ void JetMETAnalyzer::endJob(void) {
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endJob();
   if(thePfMETAnalyzerFlag)   thePfMETAnalyzer->endJob();
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
+
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
 
 }
 
