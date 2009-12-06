@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/03 04:50:01 $
- * $Revision: 1.12 $
+ * $Date: 2009/12/06 04:30:02 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -111,7 +111,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   
   h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0,40);
   h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
-  h_sigmaZ0_lumi->setAxisTitle("sigma z_{0}",2);
+  h_sigmaZ0_lumi->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
   
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
@@ -138,7 +138,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   h_z0->getTH1()->SetBit(TH1::kCanRebin);
 
   h_sigmaZ0 = dbe_->book1D("sigmaZ0","sigma z0 of beam spot (Fit)",100,0,10);
-  h_sigmaZ0->setAxisTitle("sigmaZ_{0}",1);
+  h_sigmaZ0->setAxisTitle("sigmaZ_{0} (cm)",1);
   h_sigmaZ0->getTH1()->SetBit(TH1::kCanRebin);
 
   // Histograms of all reco tracks (without cuts):
