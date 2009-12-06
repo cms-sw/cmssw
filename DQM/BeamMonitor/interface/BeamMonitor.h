@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/12/02 14:54:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/12/03 04:52:24 $
+ *  $Revision: 1.8 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -75,6 +75,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int nFitElements_;
   int nFits;
   double deltaSigCut_;
+  int min_Ntrks_;
 
   bool resetHistos_;
   // ----------member data ---------------------------
