@@ -6,6 +6,6 @@
 <use name=boost_python>
 <use name=boost_regex>
 </library>
-<library file="EmptyIOVSource.cc" name="EmptyIOVSource">
+<library file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
 <use name=FWCore/Framework>
 </library>

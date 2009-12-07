@@ -18,7 +18,7 @@ namespace cond {
   };
 }
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 //#include "DataFormats/Provenance/interface/EventID.h"
