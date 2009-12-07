@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre9/HLT/V4 (CMSSW_3_4_0_pre6_HLT9)
+# /dev/CMSSW_3_4_0/pre9/HLT/V5 (CMSSW_3_4_0_pre6_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre9/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre9/HLT/V5')
 )
 
 
@@ -12843,7 +12843,7 @@ HLT_HIPhoton15 = cms.Path( HLTBeginSequenceBPTX + hltHIL1sPhoton15 + hltHIPrePho
 HLT_HIPhoton20 = cms.Path( HLTBeginSequenceBPTX + hltHIL1sPhoton20 + hltHIPrePhoton20 + HLTDoCaloSequence + HLTDoHIEcalClusSequence + hltHIPhoton20 + HLTEndSequence )
 HLT_HIPhoton30 = cms.Path( HLTBeginSequenceBPTX + hltHIL1sPhoton30 + hltHIPrePhoton30 + HLTDoCaloSequence + HLTDoHIEcalClusSequence + hltHIPhoton30 + HLTEndSequence )
 HLT_HIDoubleMu = cms.Path( HLTBeginSequenceBPTX + hltHIPreMML1 + hltHIMML1Seed + HLTL2muonrecoSequence + HLTDoLocalPixelSequence + HLTHIRecopixelvertexingSequence + HLTDoLocalStripSequence + hltHIMML3Filter + HLTEndSequence )
-HLT_HighMult40 = cms.Path( HLTBeginSequence + hltL1sHighMult40 + hltPreHighMult40 + HLTDoLocalPixelSequence + HLTRecopixelvertexingForMinBiasSequence + hltPixelCands + hlt1HighMult40 + HLTEndSequence )
+HLT_HighMult40 = cms.Path( HLTBeginSequenceBPTX + hltL1sHighMult40 + hltPreHighMult40 + HLTDoLocalPixelSequence + HLTRecopixelvertexingForMinBiasSequence + hltPixelCands + hlt1HighMult40 + HLTEndSequence )
 HLT_Calibration = cms.Path( hltCalibrationEventsFilter + hltL1EventNumber + hltPreCalibration + HLTEndSequence )
 HLT_EcalCalibration = cms.Path( hltCalibrationEventsFilter + hltL1EventNumber + hltPreEcalCalibration + hltEcalCalibrationRaw + HLTEndSequence )
 HLT_HcalCalibration = cms.Path( hltCalibrationEventsFilter + hltL1EventNumber + hltHcalCalibTypeFilter + hltPreHcalCalibration + HLTEndSequence )
