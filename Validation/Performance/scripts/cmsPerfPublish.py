@@ -19,6 +19,8 @@ from shutil import copy2, copystat
 from stat   import *
 from cmsPerfCommons import CandFname, Step, ProductionSteps, Candles
 import ROOT
+#Switching from os.popen4 to subprocess.Popen for Python 2.6 (340_pre5 onwards):
+import subprocess
 
 PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
@@ -74,12 +76,16 @@ def getDate():
     return time.ctime()
 
 def getcmdBasic(cmd):
-    return os.popen4(cmd)[1].read().strip()
+    #Obsolete popen4-> subprocess.Popen
+    #return os.popen4(cmd)[1].read().strip()
+    return subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read().strip()
 
 def getcmd(command):
     if _debug > 2:
         print command
-    return os.popen4(command)[1].read().strip()
+    #Obsolete popen4-> subprocess.Popen
+    #return os.popen4(command)[1].read().strip()
+    return subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read().strip()
 
 def prettySize(size):
     nega = size < 0
@@ -577,7 +583,12 @@ def getStageRepDirs(options,args):
     if remote:
         #Cannot use this since the /tmp is limited to 2GB on lxbuild machines!
         #TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s" % PROG_NAME)
-        TMP_DIR=tmp.mkdtemp(prefix="/build/%s" % PROG_NAME)
+        #Issues with /build permissions on lxbuild107... decided to dump this in /tmp/$USER
+        #This way, no issue with permissions, to avoid space issues user can set symlinks...
+        #TMP_DIR=tmp.mkdtemp(prefix="/build/%s" % PROG_NAME)
+        #if not os.path.exists('/tmp/%s'%USER):
+            
+        TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s/%s"%(USER,PROG_NAME))
         StagingArea = TMP_DIR
     #Local but dir already exists
     elif defaultlocal and localExists:
