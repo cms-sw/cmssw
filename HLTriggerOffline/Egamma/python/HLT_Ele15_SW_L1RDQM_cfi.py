@@ -7,7 +7,7 @@ HLT_Ele15_SW_L1RDQM = cms.EDFilter("EmDQM",
     reqNum = cms.uint32(1),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt8","","HLT"),
+        HLTCollectionLabels = cms.InputTag("hltL1sL1SingleEG8","","HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.int32(-82)
     ), 
