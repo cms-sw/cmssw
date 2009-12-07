@@ -8,6 +8,8 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10.5,11.5,12.5,
                    13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
@@ -495,16 +497,32 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
 
        // jet collection
        Handle<CaloJetCollection> calojetHandle;
-       iEvent.getByLabel(JetSource_, calojetHandle);
+       if (!iEvent.getByLabel(JetSource_, calojetHandle))
+	 {
+	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloJet collection with handle "<<JetSource_<<" not found!";
+	   return;
+	 }
        // track collection
        Handle<TrackCollection> trackHandle;
-       iEvent.getByLabel(TrackSource_, trackHandle);
+       if (!iEvent.getByLabel(TrackSource_, trackHandle))
+	 {
+	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Track collection with handle "<<TrackSource_<<" not found!";
+	   return;
+	 }
        // HcalNoise RBX collection
        Handle<HcalNoiseRBXCollection> rbxnoisehandle;
-       iEvent.getByLabel(rbxCollName_, rbxnoisehandle);
+       if (!iEvent.getByLabel(rbxCollName_, rbxnoisehandle))
+	 {
+	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  HcalNoiseRBX collection with handle "<<rbxCollName_<<" not found!";
+	   return;
+	 }
        // CaloTower collection
        edm::Handle<CaloTowerCollection> towerhandle;
-       iEvent.getByLabel(caloTowerCollName_, towerhandle);
+       if (!iEvent.getByLabel(caloTowerCollName_, towerhandle))
+	 {
+	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloTower collection with handle "<<caloTowerCollName_<<" not found!";
+	   return;
+	 }
 
        Met_passingTrigger->Fill(met.pt());
        Mephi_passingTrigger->Fill(met.phi());

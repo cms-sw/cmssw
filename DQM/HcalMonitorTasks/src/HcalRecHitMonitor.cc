@@ -8,6 +8,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 HcalRecHitMonitor::HcalRecHitMonitor()
@@ -350,20 +352,30 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   h_LumiPlot_BX_allevents->Fill(BCN);
 
   bool BPTX=false;
-  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  iEvent.getByLabel("l1GtUnpack",gtRecord);
   bool passedL1=false;
-  if (gtRecord.isValid())
-    {
-      const DecisionWord dWord = gtRecord->decisionWord();
-      const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
-      if (tWord.at(4)) BPTX=true;
-      if (tWord.at(8)) passedL1=true;
-      if (tWord.at(9)) passedL1=true;
-      if (tWord.at(10)) passedL1=true;
-    }
-  //if (passedL1) cout <<"PASSED L1 = "<<passedL1<<"  BCN = "<<BCN<<endl;
 
+  if (Online_)
+    {
+      bool BPTX=false;
+      edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+      if (!iEvent.getByLabel("l1GtUnpack",gtRecord))
+	{
+	  edm::LogWarning("HcalMonitorTasks")<<" HcalRecHitMonitor:  l1GtUnpack L1GlobalTriggerReadoutRecord not found";
+	  return;
+	}
+
+      bool passedL1=false;
+      if (gtRecord.isValid())
+	{
+	  const DecisionWord dWord = gtRecord->decisionWord();
+	  const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
+	  if (tWord.at(4)) BPTX=true;
+	  if (tWord.at(8)) passedL1=true;
+	  if (tWord.at(9)) passedL1=true;
+	  if (tWord.at(10)) passedL1=true;
+	}
+      //if (passedL1) cout <<"PASSED L1 = "<<passedL1<<"  BCN = "<<BCN<<endl;
+    }
 
   if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
   if (!processevent)
@@ -593,7 +605,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
-  if (passedHLT && BPTX==true)
+  if (Online_ && passedHLT && BPTX==true)
     {
       if (hepocc >0 && hemocc>0)
 	{
@@ -615,7 +627,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	}
     } // if passedHLT
 
-  else if (passedHLT && BPTX==false)
+  else if (Online_ && passedHLT && BPTX==false)
     {
       if (hepocc >0 && hemocc>0)
 	{
@@ -863,7 +875,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
      //if (hfpocc > 0 && hfmocc>0)
      // cout <<"HF time difference = "<<rawtime_HFP/hfpocc <<" - "<<rawtime_HFM/hfmocc<<" = "<<(rawtime_HFP/hfpocc-rawtime_HFM/hfmocc)<<endl;
-     if (passedHLT && BPTX==true)
+     if (Online_ && passedHLT && BPTX==true)
        {
 	 if (hfpocc >0 && hfmocc>0)
 	   {
@@ -892,7 +904,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	   }
        } // if (passedHLT)
 
-     else if (passedHLT && BPTX==false)
+     else if (Online_ && passedHLT && BPTX==false)
        {
 	 if (hfpocc >0 && hfmocc>0)
 	   {
