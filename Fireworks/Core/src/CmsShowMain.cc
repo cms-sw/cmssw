@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.131 2009/12/04 18:59:43 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.132 2009/12/04 22:52:04 amraktad Exp $
 //
 
 // system include files
@@ -1135,7 +1135,7 @@ void
 CmsShowMain::navigatorChangedFilterState(int state)
 {
    m_guiManager->setFilterButtonIcon(state);
-   if (m_navigator->filterNeedUpdate() == false)
+   if (m_navigator->filesNeedUpdate() == false)
    {
       m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
       checkPosition();

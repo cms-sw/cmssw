@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.44 2009/12/03 18:37:07 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.45 2009/12/07 20:29:51 amraktad Exp $
 //
 
 // system include files
@@ -111,7 +111,7 @@ public:
    int  getNSelectedEvents();
    int  getNTotalEvents();
    bool canEditFiltersExternally();
-   bool filterNeedUpdate() const { return m_filtersNeedUpdate; }
+   bool filesNeedUpdate() const { return m_filesNeedUpdate; }
    int  getFilterState() { return m_filterState; }
 
    void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }
@@ -149,7 +149,7 @@ private:
 
    EFilterState m_filterState;
    int          m_filterMode;
-   bool m_filtersNeedUpdate;
+   bool m_filesNeedUpdate;
    bool m_newFileOnNextEvent;
    
    unsigned int m_maxNumberOfFilesToChain;
